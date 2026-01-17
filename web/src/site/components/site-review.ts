@@ -1,11 +1,17 @@
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { ref, createRef, Ref } from 'lit/directives/ref.js'
 
 import { GlideEvents } from '../glide/events'
 import { navigate } from '../glide/glide'
 import type { GlideEventDetail } from '../glide/types'
 
+import type {
+  ItemAddDetail,
+  ItemClickDetail,
+  ItemDeleteDetail,
+  ItemEditDetail,
+  SelectionInfo,
+} from './site-review-item'
 import type { ReviewItem, ReviewItemAnchor, SourceInfo } from './site-review-types'
 import {
   SHARE_PARAM,
@@ -13,6 +19,7 @@ import {
   extractSharedReview,
   hasSharedReview,
 } from './site-review-url'
+import './site-review-item'
 
 /**
  * Auth status response from /__stencila-review/auth
@@ -209,12 +216,6 @@ export class StencilaSiteReview extends LitElement {
   private inputType: 'comment' | 'suggestion' = 'comment'
 
   /**
-   * Current input content
-   */
-  @state()
-  private inputContent: string = ''
-
-  /**
    * Source info for the review (set when first item is added)
    */
   @state()
@@ -267,58 +268,6 @@ export class StencilaSiteReview extends LitElement {
    */
   @state()
   private panelOpen: boolean = false
-
-  /**
-   * Ref for the input textarea (for auto-focus)
-   */
-  private inputTextareaRef: Ref<HTMLTextAreaElement> = createRef()
-
-  /**
-   * Ref for the edit textarea (for auto-focus)
-   */
-  private editTextareaRef: Ref<HTMLTextAreaElement> = createRef()
-
-  /**
-   * Index of item currently being edited (null if not editing)
-   */
-  @state()
-  private editingIndex: number | null = null
-
-  /**
-   * Index of item whose menu is open (null if none)
-   */
-  @state()
-  private itemMenuOpen: number | null = null
-
-  /**
-   * Position of the open item menu (for fixed positioning)
-   */
-  @state()
-  private itemMenuPosition: { top: number; right: number } | null = null
-
-  /**
-   * Content being edited (for in-place editing)
-   */
-  @state()
-  private editingContent: string = ''
-
-  /**
-   * Original content when editing started (for change detection)
-   */
-  private editingOriginalContent: string = ''
-
-  /**
-   * Whether the edited content has changed from the original
-   */
-  private get hasEditChanges(): boolean {
-    return this.editingContent !== this.editingOriginalContent
-  }
-
-  /**
-   * Whether the input modal is animating into the FAB
-   */
-  @state()
-  private isInputFlying: boolean = false
 
   /**
    * Whether the FAB is pulsing (after item added)
@@ -422,16 +371,13 @@ export class StencilaSiteReview extends LitElement {
    * Handle keyboard shortcuts
    * - Ctrl+Shift+C: Add comment on current selection
    * - Ctrl+Shift+S: Add suggestion on current selection
-   * - Escape: Cancel current input / clear selection
+   * - Escape: Cancel current input / close panel
    */
   private handleKeyDown = (e: KeyboardEvent) => {
     // Handle Escape to cancel (in priority order)
     if (e.key === 'Escape') {
       if (this.showInput) {
         this.handleCancel()
-        e.preventDefault()
-      } else if (this.editingIndex !== null) {
-        this.cancelEdit()
         e.preventDefault()
       } else if (this.panelOpen) {
         this.panelOpen = false
@@ -1649,7 +1595,6 @@ export class StencilaSiteReview extends LitElement {
    */
   private handlePageComment() {
     this.inputType = 'comment'
-    this.inputContent = ''
     this.currentSelection = null // Clear any selection
     this.showInput = true
   }
@@ -1659,7 +1604,6 @@ export class StencilaSiteReview extends LitElement {
    */
   private handleComment() {
     this.inputType = 'comment'
-    this.inputContent = ''
     this.showInput = true
   }
 
@@ -1668,7 +1612,6 @@ export class StencilaSiteReview extends LitElement {
    */
   private handleSuggest() {
     this.inputType = 'suggestion'
-    this.inputContent = this.currentSelection?.selectedText || ''
     this.showInput = true
   }
 
@@ -1677,30 +1620,53 @@ export class StencilaSiteReview extends LitElement {
    */
   private handleCancel() {
     this.showInput = false
-    this.inputContent = ''
     this.currentSelection = null
     window.getSelection()?.removeAllRanges()
   }
 
   /**
-   * Handle submitting an annotation
+   * Handle item-delete event from child component
    */
-  private handleAddItem() {
-    console.log('[SiteReview] handleAddItem called', {
-      hasSelection: !!this.currentSelection,
-      inputContent: this.inputContent,
-    })
+  private handleItemDelete(e: CustomEvent<ItemDeleteDetail>) {
+    const { index } = e.detail
 
-    // For suggestions, we need a selection. For comments, selection is optional (page-level comment)
-    if (this.inputType === 'suggestion' && !this.currentSelection) {
-      console.log('[SiteReview] handleAddItem early return - suggestion requires selection')
-      return
+    // Clear active highlight if deleting the active item
+    if (this.activeItemIndex === index) {
+      this.setActiveHighlight(null)
+    } else if (this.activeItemIndex !== null && this.activeItemIndex > index) {
+      // Adjust active index if deleting an item before it
+      this.activeItemIndex--
     }
 
-    if (!this.inputContent.trim()) {
-      console.log('[SiteReview] handleAddItem early return - missing content')
-      return
+    this.pendingItems = this.pendingItems.filter((_, i) => i !== index)
+    this.saveToStorage()
+
+    // Reapply highlights after deletion
+    this.applyHighlights()
+  }
+
+  /**
+   * Handle item-edit event from child component
+   */
+  private handleItemEdit(e: CustomEvent<ItemEditDetail>) {
+    const { index, content } = e.detail
+
+    const updatedItems = [...this.pendingItems]
+    if (updatedItems[index]) {
+      updatedItems[index] = {
+        ...updatedItems[index],
+        content,
+      }
+      this.pendingItems = updatedItems
+      this.saveToStorage()
     }
+  }
+
+  /**
+   * Handle item-add event from child component
+   */
+  private handleItemAdd(e: CustomEvent<ItemAddDetail>) {
+    const { type, content, selection } = e.detail
 
     // Get source info from the current page's root element
     const currentSource = this.getSourceInfoFromRoot()
@@ -1740,21 +1706,19 @@ export class StencilaSiteReview extends LitElement {
     }
 
     // Build the review item - handle both selection-based and page-level comments
-    const isPageComment = !this.currentSelection
+    const isPageComment = !selection
     const item: ReviewItem = {
-      type: this.inputType,
+      type,
       path,
       url: window.location.origin + window.location.pathname,
       title: document.title || window.location.pathname,
-      start: isPageComment ? { nodeId: '', offset: 0 } : this.currentSelection.start,
-      end: isPageComment ? { nodeId: '', offset: 0 } : this.currentSelection.end,
-      selected: isPageComment ? '' : this.currentSelection.selectedText,
-      content: this.inputContent.trim(),
+      start: isPageComment ? { nodeId: '', offset: 0 } : selection.start,
+      end: isPageComment ? { nodeId: '', offset: 0 } : selection.end,
+      selected: isPageComment ? '' : selection.selectedText,
+      content,
     }
 
     // Insert item in position order among items for the same URL
-    // Since we can only compare DOM positions on the current page, and items
-    // are only added on the current page, this ensures proper ordering
     const insertIndex = this.findInsertPosition(item)
     const newItems = [...this.pendingItems]
     newItems.splice(insertIndex, 0, item)
@@ -1764,142 +1728,38 @@ export class StencilaSiteReview extends LitElement {
     // Reapply highlights to include the new item
     this.applyHighlights()
 
-    // Trigger fly-into-FAB animation
-    this.isInputFlying = true
-    setTimeout(() => {
-      this.isInputFlying = false
-      this.showInput = false
-      this.inputContent = ''
-      this.currentSelection = null
+    // Close input and trigger FAB pulse
+    this.showInput = false
+    this.currentSelection = null
 
-      // Trigger FAB pulse after modal disappears
-      this.isFabPulsing = true
-      setTimeout(() => {
-        this.isFabPulsing = false
-      }, 400)
-    }, 300) // Duration of fly animation
+    this.isFabPulsing = true
+    setTimeout(() => {
+      this.isFabPulsing = false
+    }, 400)
 
     // Clear browser selection
     window.getSelection()?.removeAllRanges()
 
-    // Log for debugging (walking skeleton)
+    // Log for debugging
     console.log('[SiteReview] Added item:', item)
     console.log('[SiteReview] Pending items:', this.pendingItems.length)
   }
 
   /**
-   * Handle deleting a pending item
+   * Handle item-cancel event from child component
    */
-  private handleDeleteItem(index: number) {
-    // Close menu
-    this.itemMenuOpen = null
-
-    // If deleting the item being edited, cancel edit mode
-    if (this.editingIndex === index) {
-      this.editingIndex = null
-      this.editingContent = ''
-    } else if (this.editingIndex !== null && this.editingIndex > index) {
-      // Adjust editing index if deleting an item before it
-      this.editingIndex--
-    }
-
-    // Clear active highlight if deleting the active item
-    if (this.activeItemIndex === index) {
-      this.setActiveHighlight(null)
-    } else if (this.activeItemIndex !== null && this.activeItemIndex > index) {
-      // Adjust active index if deleting an item before it
-      this.activeItemIndex--
-    }
-
-    this.pendingItems = this.pendingItems.filter((_, i) => i !== index)
-    this.saveToStorage()
-
-    // Reapply highlights after deletion
-    this.applyHighlights()
+  private handleItemCancel() {
+    this.showInput = false
+    this.currentSelection = null
+    window.getSelection()?.removeAllRanges()
   }
 
   /**
-   * Handle keydown in the input textarea
-   * Cmd/Ctrl+Enter to submit
+   * Handle item-click event from child component
    */
-  private handleInputKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault()
-      this.handleAddItem()
-    }
-  }
-
-  /**
-   * Toggle the item menu
-   */
-  private toggleItemMenu(index: number, e: Event) {
-    e.stopPropagation()
-
-    if (this.itemMenuOpen === index) {
-      // Close menu
-      this.itemMenuOpen = null
-      this.itemMenuPosition = null
-    } else {
-      // Open menu - capture button position for fixed positioning
-      const button = e.currentTarget as HTMLElement
-      const rect = button.getBoundingClientRect()
-      this.itemMenuPosition = {
-        top: rect.bottom + 4,
-        right: window.innerWidth - rect.right,
-      }
-      this.itemMenuOpen = index
-    }
-  }
-
-  /**
-   * Close the item menu
-   */
-  private closeItemMenu() {
-    this.itemMenuOpen = null
-    this.itemMenuPosition = null
-  }
-
-  /**
-   * Start editing an item (from menu)
-   */
-  private startEditing(index: number) {
-    const item = this.pendingItems[index]
-    if (item) {
-      this.editingIndex = index
-      this.editingContent = item.content
-      this.editingOriginalContent = item.content
-      this.itemMenuOpen = null
-    }
-  }
-
-  /**
-   * Save the current edit
-   */
-  private saveEdit() {
-    if (this.editingIndex === null) return
-
-    const updatedItems = [...this.pendingItems]
-    if (updatedItems[this.editingIndex]) {
-      updatedItems[this.editingIndex] = {
-        ...updatedItems[this.editingIndex],
-        content: this.editingContent.trim(),
-      }
-      this.pendingItems = updatedItems
-      this.saveToStorage()
-    }
-
-    this.editingIndex = null
-    this.editingContent = ''
-    this.editingOriginalContent = ''
-  }
-
-  /**
-   * Cancel the current edit
-   */
-  private cancelEdit() {
-    this.editingIndex = null
-    this.editingContent = ''
-    this.editingOriginalContent = ''
+  private handleItemClickEvent(e: CustomEvent<ItemClickDetail>) {
+    const { index, item } = e.detail
+    this.handleItemClick(index, item)
   }
 
   /**
@@ -2110,27 +1970,6 @@ export class StencilaSiteReview extends LitElement {
     }
   }
 
-  /**
-   * Focus the input textarea when it's rendered
-   */
-  override updated(changedProperties: Map<string, unknown>) {
-    super.updated(changedProperties)
-
-    // Auto-focus textarea when input modal opens
-    if (changedProperties.has('showInput') && this.showInput) {
-      requestAnimationFrame(() => {
-        this.inputTextareaRef.value?.focus()
-      })
-    }
-
-    // Auto-focus textarea when entering edit mode
-    if (changedProperties.has('editingIndex') && this.editingIndex !== null) {
-      requestAnimationFrame(() => {
-        this.editTextareaRef.value?.focus()
-      })
-    }
-  }
-
   override render() {
     return html`
       ${this.renderFab()}
@@ -2195,22 +2034,14 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Get the fly animation target coordinates based on FAB position
-   * Returns CSS custom properties for the fly animation
+   * Get the current selection as SelectionInfo for the child component
    */
-  private get flyTargetStyles(): string {
-    // Calculate translation from center (50%, 50%) to FAB position
-    // FAB is at 16px from edge, center of FAB is at 16px + 24px = 40px
-    switch (this.position) {
-      case 'top-right':
-        return '--fly-x: calc(50vw - 64px); --fly-y: calc(-50vh + 64px);'
-      case 'top-left':
-        return '--fly-x: calc(-50vw + 64px); --fly-y: calc(-50vh + 64px);'
-      case 'bottom-left':
-        return '--fly-x: calc(-50vw + 64px); --fly-y: calc(50vh - 64px);'
-      case 'bottom-right':
-      default:
-        return '--fly-x: calc(50vw - 64px); --fly-y: calc(50vh - 64px);'
+  private get selectionInfo(): SelectionInfo | null {
+    if (!this.currentSelection) return null
+    return {
+      start: this.currentSelection.start,
+      end: this.currentSelection.end,
+      selectedText: this.currentSelection.selectedText,
     }
   }
 
@@ -2222,34 +2053,16 @@ export class StencilaSiteReview extends LitElement {
       return null
     }
 
-    const submitTip = `(${/Mac|iPhone|iPad|iPod/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+Enter to submit)`
-
     return html`
-      <div class="backdrop ${this.isInputFlying ? 'fading' : ''}" @click=${this.handleCancel}></div>
-      <div class="modal input ${this.isInputFlying ? 'flying' : ''}" style="${this.flyTargetStyles}">
-        <div class="item-header">
-          <span class="type-icon i-lucide:${this.inputType === 'comment' ? 'message-circle' : 'pencil'}"></span>
-          <span class="item-path">${document.title || window.location.pathname}</span>
-        </div>
-        <textarea
-          ${ref(this.inputTextareaRef)}
-          .value=${this.inputContent}
-          @input=${(e: Event) =>
-            (this.inputContent = (e.target as HTMLTextAreaElement).value)}
-          @keydown=${this.handleInputKeydown}
-          placeholder=${this.inputType === 'comment'
-            ? `Add your comment ${submitTip}`
-            : `Suggest replacement text ${submitTip}`}
-        ></textarea>
-        <div class="buttons">
-          <button class="btn secondary" @click=${(e: Event) => { e.stopPropagation(); this.handleCancel() }}>
-            Cancel
-          </button>
-          <button class="btn primary" @click=${(e: Event) => { e.stopPropagation(); this.handleAddItem() }}>
-            ${this.inputType === 'comment' ? 'Comment' : 'Suggest'}
-          </button>
-        </div>
-      </div>
+      <div class="backdrop" @click=${this.handleCancel}></div>
+      <stencila-site-review-item
+        mode="input"
+        type=${this.inputType}
+        .selection=${this.selectionInfo}
+        page-title=${document.title || window.location.pathname}
+        @item-add=${this.handleItemAdd}
+        @item-cancel=${this.handleItemCancel}
+      ></stencila-site-review-item>
     `
   }
 
@@ -2265,7 +2078,7 @@ export class StencilaSiteReview extends LitElement {
     const paths = Array.from(itemsByPage.keys())
 
     return html`
-      <div class="items-list" @click=${() => this.closeItemMenu()}>
+      <div class="items-list">
         ${paths.map((path) => {
           const group = itemsByPage.get(path)
           if (!group) return null
@@ -2399,81 +2212,16 @@ export class StencilaSiteReview extends LitElement {
    */
   private renderReviewItem(item: ReviewItem, index: number) {
     const isActive = this.activeItemIndex === index
-    const isEditing = this.editingIndex === index
-
-    if (isEditing) {
-      return html`
-        <div class="review-item editing" data-index=${index}>
-          <div class="item-header">
-            <span class="type-icon i-lucide:${item.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
-            <span class="item-type">${item.type === 'comment' ? 'Comment' : 'Suggestion'}</span>
-          </div>
-          <textarea
-            ${ref(this.editTextareaRef)}
-            class="edit-textarea"
-            .value=${this.editingContent}
-            @input=${(e: Event) => (this.editingContent = (e.target as HTMLTextAreaElement).value)}
-          ></textarea>
-          <div class="edit-actions">
-            <button class="edit-btn cancel" @click=${(e: Event) => { e.stopPropagation(); this.cancelEdit() }}>Cancel</button>
-            <button
-              class="edit-btn save"
-              @click=${(e: Event) => { e.stopPropagation(); this.saveEdit() }}
-              ?disabled=${!this.hasEditChanges}
-            >Save</button>
-          </div>
-        </div>
-      `
-    }
 
     return html`
-      <div
-        class="review-item"
-        data-index=${index}
-        data-active=${isActive}
-        @click=${(e: Event) => {
-          // Only handle click if not clicking on menu or buttons
-          const target = e.target as Element
-          if (!target.closest('.item-menu-container')) {
-            e.stopPropagation()
-            this.handleItemClick(index, item)
-          }
-        }}
-      >
-        <div class="item-menu-container">
-          <button
-            class="item-menu-btn"
-            @click=${(e: Event) => this.toggleItemMenu(index, e)}
-            aria-label="Item options"
-          >
-            <span class="i-lucide:ellipsis-vertical"></span>
-          </button>
-          ${this.itemMenuOpen === index && this.itemMenuPosition
-            ? html`
-                <div
-                  class="item-menu-dropdown"
-                  style="position: fixed; top: ${this.itemMenuPosition.top}px; right: ${this.itemMenuPosition.right}px;"
-                >
-                  <button @click=${(e: Event) => { e.stopPropagation(); this.startEditing(index) }}>
-                    <span class="i-lucide:pencil"></span>
-                    Edit
-                  </button>
-                  <button class="danger" @click=${(e: Event) => { e.stopPropagation(); this.handleDeleteItem(index) }}>
-                    <span class="i-lucide:trash-2"></span>
-                    Delete
-                  </button>
-                </div>
-              `
-            : null}
-        </div>
-        <div class="item-header">
-          <span class="type-icon i-lucide:${item.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
-          <span class="item-type">${item.type === 'comment' ? 'Comment' : 'Suggestion'}</span>
-        </div>
-        ${item.type === 'comment'
-          ? html`<div class="item-content">${item.content}</div>`
-          : html`<div class="replacement-text">${item.content}</div>`}
-      </div>
+      <stencila-site-review-item
+        .item=${item}
+        .index=${index}
+        ?active=${isActive}
+        @item-click=${this.handleItemClickEvent}
+        @item-edit=${this.handleItemEdit}
+        @item-delete=${this.handleItemDelete}
+      ></stencila-site-review-item>
     `
   }
 
