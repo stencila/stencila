@@ -300,7 +300,7 @@ stencila-site-review .modal.input textarea {
     padding: var(--space-2);
     border: 1px solid var(--border-color-default);
     border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-family: inherit;
     color: var(--text-color-primary);
     resize: vertical;
@@ -353,7 +353,7 @@ stencila-site-review-item .review-input-popover {
     border: 1px solid var(--border-color-default);
     border-radius: var(--radius-lg);
     padding: var(--space-3);
-    min-width: 280px;
+    min-width: 400px;
     box-shadow: var(--shadow-lg);
     font-family: var(--layout-font-family);
     animation: popover-in var(--transition-duration-fast) ease-out;
@@ -384,7 +384,7 @@ stencila-site-review-item .review-input-popover textarea {
     padding: var(--space-2);
     border: 1px solid var(--border-color-default);
     border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-family: inherit;
     color: var(--text-color-primary);
     resize: vertical;
@@ -409,10 +409,10 @@ stencila-site-review-item .review-input-popover .popover-actions {
     margin-top: var(--space-2);
 }
 
-/* Small button variant for popover - same font size as modal buttons */
+/* Small button variant for popover */
 stencila-site-review-item .btn-sm {
     padding: 6px var(--space-3);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
 }
 
 /* Popover arrow - points to the selected text

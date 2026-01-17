@@ -626,10 +626,10 @@ export class StencilaSiteReviewItem extends LitElement {
             : `Suggest replacement text ${submitTip}`}
         ></textarea>
         <div class="buttons">
-          <button class="btn secondary" @click=${this.handleCancel}>
+          <button class="btn secondary btn-sm" @click=${this.handleCancel}>
             Cancel
           </button>
-          <button class="btn primary" @click=${this.handleAdd}>
+          <button class="btn primary btn-sm" @click=${this.handleAdd}>
             ${this.type === 'comment' ? 'Comment' : 'Suggest'}
           </button>
         </div>

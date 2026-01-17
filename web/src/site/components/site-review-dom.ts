@@ -113,10 +113,29 @@ export function caretRangeFromPoint(x: number, y: number): Range | null {
   type DocWithCaret = { caretPositionFromPoint?: (x: number, y: number) => CaretPosition | null }
   const caretPosition = (document as unknown as DocWithCaret).caretPositionFromPoint?.(x, y)
   if (caretPosition) {
-    const range = document.createRange()
-    range.setStart(caretPosition.offsetNode, caretPosition.offset)
-    range.collapse(true)
-    return range
+    const { offsetNode, offset } = caretPosition
+
+    // Validate offset to prevent "Index or size is negative or greater than allowed" error
+    // For Text nodes, offset must be <= node.length
+    // For Element nodes, offset must be <= childNodes.length
+    const maxOffset =
+      offsetNode.nodeType === Node.TEXT_NODE
+        ? (offsetNode as Text).length
+        : offsetNode.childNodes.length
+
+    if (offset < 0 || offset > maxOffset) {
+      return null
+    }
+
+    try {
+      const range = document.createRange()
+      range.setStart(offsetNode, offset)
+      range.collapse(true)
+      return range
+    } catch {
+      // If range creation still fails, return null gracefully
+      return null
+    }
   }
 
   return null
