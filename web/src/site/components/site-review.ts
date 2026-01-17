@@ -1857,8 +1857,15 @@ export class StencilaSiteReview extends LitElement {
    * - Positions below selection by default
    * - Flips above if near bottom of viewport
    * - Shifts horizontally to stay within viewport
+   * - Returns arrow position for visual connection to selection
    */
-  private calculatePopoverPosition(): { top: number; left: number; maxWidth: number } | null {
+  private calculatePopoverPosition(): {
+    top: number
+    left: number
+    maxWidth: number
+    arrow: 'top' | 'bottom'
+    arrowLeft: number
+  } | null {
     if (!this.currentSelection) return null
 
     const rect = this.currentSelection.rect
@@ -1869,21 +1876,26 @@ export class StencilaSiteReview extends LitElement {
     const popoverMinWidth = 280
     const popoverMaxWidth = 400
     const margin = 8
+    const arrowSize = 8
 
     // Calculate vertical position (using viewport coordinates for fixed positioning)
     let top: number
+    let arrow: 'top' | 'bottom'
     const spaceBelow = viewportHeight - rect.bottom
     const spaceAbove = rect.top
 
-    if (spaceBelow >= popoverHeight + margin) {
-      // Position below selection
-      top = rect.bottom + margin
-    } else if (spaceAbove >= popoverHeight + margin) {
-      // Position above selection
-      top = rect.top - popoverHeight - margin
+    if (spaceBelow >= popoverHeight + margin + arrowSize) {
+      // Position below selection - arrow points up from top edge
+      top = rect.bottom + margin + arrowSize
+      arrow = 'top'
+    } else if (spaceAbove >= popoverHeight + margin + arrowSize) {
+      // Position above selection - arrow points down from bottom edge
+      top = rect.top - popoverHeight - margin - arrowSize
+      arrow = 'bottom'
     } else {
       // Not enough space either way, position below anyway
-      top = rect.bottom + margin
+      top = rect.bottom + margin + arrowSize
+      arrow = 'top'
     }
 
     // Calculate horizontal position - align with selection start
@@ -1900,7 +1912,11 @@ export class StencilaSiteReview extends LitElement {
       left = margin
     }
 
-    return { top, left, maxWidth }
+    // Calculate arrow horizontal position (center of selection, relative to popover left)
+    const selectionCenter = rect.left + rect.width / 2
+    const arrowLeft = Math.max(16, Math.min(selectionCenter - left, popoverMinWidth - 16))
+
+    return { top, left, maxWidth, arrow, arrowLeft }
   }
 
   /**

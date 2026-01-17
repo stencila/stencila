@@ -105,7 +105,13 @@ export class StencilaSiteReviewItem extends LitElement {
    * When provided, renders as a positioned popover instead of centered modal
    */
   @property({ type: Object })
-  popoverPosition?: { top: number; left: number; maxWidth: number } | null
+  popoverPosition?: {
+    top: number
+    left: number
+    maxWidth: number
+    arrow: 'top' | 'bottom'
+    arrowLeft: number
+  } | null
 
   /**
    * Page title to show in input header
@@ -571,14 +577,15 @@ export class StencilaSiteReviewItem extends LitElement {
 
     // Use popover positioning if available (selection-based input)
     if (this.popoverPosition) {
-      const { top, left, maxWidth } = this.popoverPosition
-      const positionStyle = `position: fixed; top: ${top}px; left: ${left}px; max-width: ${maxWidth}px;`
+      const { top, left, maxWidth, arrow, arrowLeft } = this.popoverPosition
+      const positionStyle = `position: fixed; top: ${top}px; left: ${left}px; max-width: ${maxWidth}px; --arrow-left: ${arrowLeft}px;`
 
       return html`
         <div
           ${ref(this.inputContainerRef)}
           class="review-input-popover ${this.isFlying ? 'flying' : ''}"
           style=${positionStyle}
+          data-arrow=${arrow}
         >
           <textarea
             ${ref(this.textareaRef)}
