@@ -225,6 +225,21 @@ export class StencilaSiteReviewItem extends LitElement {
   }
 
   /**
+   * Whether the input can be submitted
+   * - Comments: must have non-empty content
+   * - Suggestions: must have non-empty content AND be different from selected text
+   */
+  private get canSubmitInput(): boolean {
+    const hasContent = this.inputContent.trim().length > 0
+    if (this.type === 'comment') {
+      return hasContent
+    }
+    // For suggestions, must be different from the original selected text
+    const originalText = this.selection?.selectedText ?? ''
+    return hasContent && this.inputContent.trim() !== originalText.trim()
+  }
+
+  /**
    * Focus the textarea when entering edit or input mode
    */
   override updated(changedProperties: Map<string, unknown>) {
@@ -413,7 +428,7 @@ export class StencilaSiteReviewItem extends LitElement {
   private handleAdd(e: Event) {
     e.stopPropagation()
 
-    if (!this.inputContent.trim()) {
+    if (!this.canSubmitInput) {
       return
     }
 
@@ -648,7 +663,11 @@ export class StencilaSiteReviewItem extends LitElement {
             <button class="btn secondary btn-sm" @click=${this.handleCancel}>
               Cancel
             </button>
-            <button class="btn primary btn-sm" @click=${this.handleAdd}>
+            <button
+              class="btn primary btn-sm"
+              @click=${this.handleAdd}
+              ?disabled=${!this.canSubmitInput}
+            >
               ${this.type === 'comment' ? 'Comment' : 'Suggest'}
             </button>
           </div>
@@ -686,7 +705,11 @@ export class StencilaSiteReviewItem extends LitElement {
           <button class="btn secondary btn-sm" @click=${this.handleCancel}>
             Cancel
           </button>
-          <button class="btn primary btn-sm" @click=${this.handleAdd}>
+          <button
+            class="btn primary btn-sm"
+            @click=${this.handleAdd}
+            ?disabled=${!this.canSubmitInput}
+          >
             ${this.type === 'comment' ? 'Comment' : 'Suggest'}
           </button>
         </div>
