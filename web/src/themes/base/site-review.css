@@ -1156,3 +1156,34 @@ stencila-site-review
 stencila-site-review .review-item[data-active="true"] .item-content {
   color: var(--text-color-primary);
 }
+
+/* ==========================================================================
+   Media Selection & Highlight Styles
+   ========================================================================== */
+
+/* Media element with pending comment (persistent indicator) */
+stencila-image-object.review-has-comment,
+stencila-audio-object.review-has-comment,
+stencila-video-object.review-has-comment {
+  outline: 2px solid var(--site-review-highlight-comment);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Selected media element (when clicking to add comment) */
+stencila-image-object.review-selected,
+stencila-audio-object.review-selected,
+stencila-video-object.review-selected {
+  outline: 2px solid var(--color-amber-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Active/highlighted media (when item selected in panel) */
+stencila-image-object.review-active,
+stencila-audio-object.review-active,
+stencila-video-object.review-active {
+  outline: 2px solid var(--color-amber-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

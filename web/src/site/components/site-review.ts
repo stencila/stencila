@@ -148,6 +148,17 @@ export class StencilaSiteReview extends LitElement {
   } | null = null
 
   /**
+   * Current media element selection (for comments on images, audio, video)
+   */
+  @state()
+  private currentMediaSelection: {
+    nodeId: string;
+    element: Element;
+    rect: DOMRect;
+    mediaType: string;
+  } | null = null
+
+  /**
    * Pending review items (persisted to localStorage)
    */
   @state()
@@ -994,14 +1005,10 @@ export class StencilaSiteReview extends LitElement {
   private applyHighlights() {
     this.clearHighlights()
 
-    if (!supportsHighlightAPI()) {
-      console.warn('[SiteReview] CSS Custom Highlight API not supported')
-      return
-    }
-
     const currentPath = window.location.pathname
     const commentRanges: Range[] = []
     const suggestionRanges: Range[] = []
+    let mediaCount = 0
 
     this.pendingItems.forEach((item, index) => {
       // Only highlight items on current page
@@ -1009,6 +1016,23 @@ export class StencilaSiteReview extends LitElement {
 
       // Skip page-level comments (no nodeId)
       if (!item.start.nodeId) return
+
+      // Check if this is a media item
+      if (this.isMediaItem(item)) {
+        const element = document.getElementById(item.start.nodeId)
+        if (
+          element?.matches(
+            'stencila-image-object, stencila-audio-object, stencila-video-object',
+          )
+        ) {
+          element.classList.add('review-has-comment')
+          mediaCount++
+        }
+        return
+      }
+
+      // Text item - create range for highlight
+      if (!supportsHighlightAPI()) return
 
       const range = createRangeForItem(item)
       if (!range) return
@@ -1025,14 +1049,16 @@ export class StencilaSiteReview extends LitElement {
     })
 
     // Create and register CSS highlights
-    if (commentRanges.length > 0) {
-      this.commentHighlight = new Highlight(...commentRanges)
-      CSS.highlights.set('review-comment', this.commentHighlight)
-    }
+    if (supportsHighlightAPI()) {
+      if (commentRanges.length > 0) {
+        this.commentHighlight = new Highlight(...commentRanges)
+        CSS.highlights.set('review-comment', this.commentHighlight)
+      }
 
-    if (suggestionRanges.length > 0) {
-      this.suggestionHighlight = new Highlight(...suggestionRanges)
-      CSS.highlights.set('review-suggestion', this.suggestionHighlight)
+      if (suggestionRanges.length > 0) {
+        this.suggestionHighlight = new Highlight(...suggestionRanges)
+        CSS.highlights.set('review-suggestion', this.suggestionHighlight)
+      }
     }
 
     // Add click listener for highlight detection
@@ -1043,7 +1069,9 @@ export class StencilaSiteReview extends LitElement {
       commentRanges.length,
       'comments,',
       suggestionRanges.length,
-      'suggestions',
+      'suggestions,',
+      mediaCount,
+      'media',
     )
   }
 
@@ -1057,6 +1085,11 @@ export class StencilaSiteReview extends LitElement {
       CSS.highlights.delete('review-comment-active')
       CSS.highlights.delete('review-suggestion-active')
     }
+
+    // Clear media comment indicators
+    document
+      .querySelectorAll('.review-has-comment')
+      .forEach((el) => el.classList.remove('review-has-comment'))
 
     this.commentHighlight = null
     this.suggestionHighlight = null
@@ -1165,15 +1198,38 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Check if a review item is a media comment (comment on image/audio/video)
+   */
+  private isMediaItem(item: ReviewItem): boolean {
+    return (
+      !item.selected &&
+      item.start.nodeId === item.end.nodeId &&
+      item.start.offset === 0 &&
+      item.end.offset === 0 &&
+      item.start.nodeId !== ''
+    )
+  }
+
+  /**
+   * Clear any active media highlight classes
+   */
+  private clearActiveMediaHighlight() {
+    document
+      .querySelectorAll('.review-active')
+      .forEach((el) => el.classList.remove('review-active'))
+  }
+
+  /**
    * Set the active highlight for a selected item
    */
   private setActiveHighlight(itemIndex: number | null) {
-    // Clear previous active highlight
+    // Clear previous active highlight (both text and media)
     if (supportsHighlightAPI()) {
       CSS.highlights.delete('review-comment-active')
       CSS.highlights.delete('review-suggestion-active')
     }
     this.activeHighlight = null
+    this.clearActiveMediaHighlight()
     this.activeItemIndex = itemIndex
 
     if (itemIndex === null) return
@@ -1181,7 +1237,20 @@ export class StencilaSiteReview extends LitElement {
     const item = this.pendingItems[itemIndex]
     if (!item?.start.nodeId) return
 
-    // Create range for active item
+    // Check if this is a media item
+    if (this.isMediaItem(item)) {
+      const element = document.getElementById(item.start.nodeId)
+      if (
+        element?.matches(
+          'stencila-image-object, stencila-audio-object, stencila-video-object',
+        )
+      ) {
+        element.classList.add('review-active')
+      }
+      return
+    }
+
+    // Create range for active text item
     const range = createRangeForItem(item)
     if (!range) return
 
@@ -1312,7 +1381,7 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Handle mouseup to capture final selection
+   * Handle mouseup to capture final selection or media click
    */
   private handleMouseUp = (e: MouseEvent) => {
     // Don't process selection if clicking inside the site-review component
@@ -1327,14 +1396,117 @@ export class StencilaSiteReview extends LitElement {
       return
     }
 
+    // Check if clicking on a media element (image, audio, video)
+    const target = e.target as Element
+    const mediaElement = target.closest(
+      'stencila-image-object, stencila-audio-object, stencila-video-object',
+    )
+
+    if (mediaElement && mediaElement.id) {
+      // Clear any text selection
+      this.currentSelection = null
+      window.getSelection()?.removeAllRanges()
+
+      // Check if this media element already has a comment
+      if (mediaElement.classList.contains('review-has-comment')) {
+        // Find the item for this media element and activate it
+        const itemIndex = this.pendingItems.findIndex(
+          (item) =>
+            this.isMediaItem(item) && item.start.nodeId === mediaElement.id,
+        )
+
+        if (itemIndex >= 0) {
+          this.setActiveHighlight(itemIndex)
+
+          // Ensure page group is expanded
+          const item = this.pendingItems[itemIndex]
+          const itemPath = getPathname(item.url)
+          if (!this.expandedPageGroups.has(itemPath)) {
+            this.expandedPageGroups.add(itemPath)
+            this.expandedPageGroups = new Set(this.expandedPageGroups)
+          }
+
+          // Open the panel if not already open
+          if (!this.panelOpen) {
+            this.panelOpen = true
+          }
+
+          // Scroll the item into view in the panel after render
+          this.updateComplete.then(() => {
+            const itemElement = this.querySelector(
+              `.review-item[data-index="${itemIndex}"]`,
+            )
+            itemElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          })
+
+          console.log('[SiteReview] Activated media comment:', itemIndex)
+          return
+        }
+      }
+
+      // No existing comment - create media selection for new comment
+      this.currentMediaSelection = {
+        nodeId: mediaElement.id,
+        element: mediaElement,
+        rect: mediaElement.getBoundingClientRect(),
+        mediaType: mediaElement.tagName.toLowerCase().replace('stencila-', ''),
+      }
+
+      // Add visual indicator
+      this.clearMediaSelectionClass()
+      mediaElement.classList.add('review-selected')
+
+      console.log('[SiteReview] Media selection:', {
+        nodeId: this.currentMediaSelection.nodeId,
+        mediaType: this.currentMediaSelection.mediaType,
+      })
+      return
+    }
+
+    // Not clicking on media - clear any media selection
+    this.clearMediaSelection()
+
     // Small delay to ensure selection is finalized
     setTimeout(() => this.processSelection(), 10)
+  }
+
+  /**
+   * Clear media selection visual class from all elements
+   */
+  private clearMediaSelectionClass() {
+    document
+      .querySelectorAll('.review-selected')
+      .forEach((el) => el.classList.remove('review-selected'))
+  }
+
+  /**
+   * Clear the current media selection
+   */
+  private clearMediaSelection() {
+    if (this.currentMediaSelection) {
+      this.clearMediaSelectionClass()
+      this.currentMediaSelection = null
+    }
   }
 
   /**
    * Handle scroll to update floating button/popover position
    */
   private handleScroll = () => {
+    // Update media selection rect on scroll
+    if (this.currentMediaSelection) {
+      const element = this.currentMediaSelection.element
+      if (element && document.contains(element)) {
+        this.currentMediaSelection = {
+          ...this.currentMediaSelection,
+          rect: element.getBoundingClientRect(),
+        }
+      } else {
+        this.clearMediaSelection()
+      }
+      return
+    }
+
     if (!this.currentSelection) return
 
     // Recreate range to get updated viewport-relative rect
@@ -1470,12 +1642,22 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Handle clicking the comment button on a media element
+   */
+  private handleMediaComment() {
+    this.inputType = 'comment'
+    this.showInput = true
+    // Don't show input highlight for media - the element is already visually selected
+  }
+
+  /**
    * Handle canceling the input
    */
   private handleCancel() {
     this.showInput = false
     this.clearInputHighlight()
     this.currentSelection = null
+    this.clearMediaSelection()
     window.getSelection()?.removeAllRanges()
   }
 
@@ -1562,16 +1744,39 @@ export class StencilaSiteReview extends LitElement {
       return
     }
 
-    // Build the review item - handle both selection-based and page-level comments
-    const isPageComment = !selection
+    // Build the review item - handle selection-based, page-level, and media comments
+    const isMediaComment = this.currentMediaSelection !== null
+    const isPageComment = !selection && !isMediaComment
+
+    let itemStart: ReviewItemAnchor
+    let itemEnd: ReviewItemAnchor
+    let itemSelected: string
+
+    if (isMediaComment) {
+      // Media comment: use media element's nodeId with offset 0
+      itemStart = { nodeId: this.currentMediaSelection!.nodeId, offset: 0 }
+      itemEnd = { nodeId: this.currentMediaSelection!.nodeId, offset: 0 }
+      itemSelected = ''
+    } else if (isPageComment) {
+      // Page-level comment: empty nodeId
+      itemStart = { nodeId: '', offset: 0 }
+      itemEnd = { nodeId: '', offset: 0 }
+      itemSelected = ''
+    } else {
+      // Text selection comment/suggestion
+      itemStart = selection.start
+      itemEnd = selection.end
+      itemSelected = selection.selectedText
+    }
+
     const item: ReviewItem = {
       type,
       path,
       url: window.location.origin + window.location.pathname,
       title: document.title || window.location.pathname,
-      start: isPageComment ? { nodeId: '', offset: 0 } : selection.start,
-      end: isPageComment ? { nodeId: '', offset: 0 } : selection.end,
-      selected: isPageComment ? '' : selection.selectedText,
+      start: itemStart,
+      end: itemEnd,
+      selected: itemSelected,
       content,
     }
 
@@ -1597,6 +1802,7 @@ export class StencilaSiteReview extends LitElement {
     // Close input and trigger FAB pulse
     this.showInput = false
     this.currentSelection = null
+    this.clearMediaSelection()
 
     this.isFabPulsing = true
     setTimeout(() => {
@@ -1618,6 +1824,7 @@ export class StencilaSiteReview extends LitElement {
     this.showInput = false
     this.clearInputHighlight()
     this.currentSelection = null
+    this.clearMediaSelection()
     window.getSelection()?.removeAllRanges()
   }
 
@@ -1889,11 +2096,46 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Render the floating button that appears near text selection
+   * Render the floating button that appears near text selection or media element
    * Positioned at the end of the selection (where user's cursor likely is)
    */
   private renderSelection() {
-    if (!this.currentSelection || this.showInput) {
+    if (this.showInput) {
+      return null
+    }
+
+    // Handle media selection (only show Comment button)
+    if (this.currentMediaSelection) {
+      const rect = this.currentMediaSelection.rect
+      const buttonWidth = 40 // Single button width
+      const margin = 8
+      const left = Math.max(
+        margin,
+        Math.min(
+          rect.right - buttonWidth,
+          window.innerWidth - buttonWidth - margin,
+        ),
+      )
+
+      return html`
+        <div
+          class="floating-button"
+          style="top: ${rect.bottom + margin}px; left: ${left}px;"
+        >
+          ${this.allowsComments
+            ? html`<button
+                @click=${this.handleMediaComment}
+                aria-label="Add comment on media"
+              >
+                <span class="i-lucide:message-circle"></span>
+              </button>`
+            : null}
+        </div>
+      `
+    }
+
+    // Handle text selection
+    if (!this.currentSelection) {
       return null
     }
 
