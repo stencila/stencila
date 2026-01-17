@@ -1815,16 +1815,23 @@ export class StencilaSiteReview extends LitElement {
 
   /**
    * Render the floating button that appears near text selection
+   * Positioned at the end of the selection (where user's cursor likely is)
    */
   private renderSelection() {
     if (!this.currentSelection || this.showInput) {
       return null
     }
 
+    // Position with right edge aligned to selection end, clamped within viewport
+    const rect = this.currentSelection.rect
+    const buttonWidth = 76 // Approximate width of button group
+    const margin = 8
+    const left = Math.max(margin, Math.min(rect.right - buttonWidth, window.innerWidth - buttonWidth - margin))
+
     return html`
       <div
         class="floating-button"
-        style="top: ${this.currentSelection.rect.bottom + 8}px; left: ${this.currentSelection.rect.left}px;"
+        style="top: ${rect.bottom + margin}px; left: ${left}px;"
       >
         ${this.allowsComments
           ? html`<button @click=${this.handleComment} aria-label="Add comment">
@@ -1913,8 +1920,10 @@ export class StencilaSiteReview extends LitElement {
     }
 
     // Calculate arrow horizontal position (center of selection, relative to popover left)
+    // Minimum offset accounts for border-radius (~12px) + arrow half-width (8px) = 20px, use 24px for safety
     const selectionCenter = rect.left + rect.width / 2
-    const arrowLeft = Math.max(16, Math.min(selectionCenter - left, popoverMinWidth - 16))
+    const arrowOffset = 24
+    const arrowLeft = Math.max(arrowOffset, Math.min(selectionCenter - left, popoverMinWidth - arrowOffset))
 
     return { top, left, maxWidth, arrow, arrowLeft }
   }
@@ -2083,7 +2092,6 @@ export class StencilaSiteReview extends LitElement {
             this.togglePageGroup(path)
           }}
           aria-expanded=${isExpanded}
-          title=${path}
         >
           <span class="page-path">${pageTitle}</span>
           <span class="page-count">${group.items.length}</span>

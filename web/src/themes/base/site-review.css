@@ -333,7 +333,7 @@ stencila-site-review .modal.input .type-icon {
 }
 
 stencila-site-review .modal.input .item-path {
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     color: var(--text-color-primary);
     overflow: hidden;
@@ -384,7 +384,7 @@ stencila-site-review-item .review-input-popover textarea {
     padding: var(--space-2);
     border: 1px solid var(--border-color-default);
     border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-family: inherit;
     color: var(--text-color-primary);
     resize: vertical;
@@ -409,13 +409,14 @@ stencila-site-review-item .review-input-popover .popover-actions {
     margin-top: var(--space-2);
 }
 
-/* Small button variant for popover */
+/* Small button variant for popover - same font size as modal buttons */
 stencila-site-review-item .btn-sm {
     padding: 6px var(--space-3);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
 }
 
-/* Popover arrow - points to the selected text */
+/* Popover arrow - points to the selected text
+ * Arrow is clamped to stay 24px from edges to clear border-radius */
 stencila-site-review-item .review-input-popover::before,
 stencila-site-review-item .review-input-popover::after {
     content: '';
@@ -1036,7 +1037,7 @@ stencila-site-review .page-group:last-child {
 
 /* Current page highlight */
 stencila-site-review .page-group[data-current="true"] {
-    border-color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--border-color-default));
 }
 
 /* Page group header (collapsible toggle) */
@@ -1055,7 +1056,7 @@ stencila-site-review .page-group-header {
 }
 
 stencila-site-review .page-group[data-current="true"] .page-group-header {
-    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
 
 stencila-site-review .page-group-header:hover {
@@ -1063,7 +1064,7 @@ stencila-site-review .page-group-header:hover {
 }
 
 stencila-site-review .page-group[data-current="true"] .page-group-header:hover {
-    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
 }
 
 /* Page path in header */
@@ -1086,7 +1087,7 @@ stencila-site-review .page-group-header .page-count {
 }
 
 stencila-site-review .page-group[data-current="true"] .page-group-header .page-count {
-    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 28%, transparent);
     color: var(--color-accent);
 }
 
