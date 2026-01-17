@@ -1728,6 +1728,9 @@ export class StencilaSiteReview extends LitElement {
     // Reapply highlights to include the new item
     this.applyHighlights()
 
+    // Auto-expand the current page group so the new item is visible
+    this.expandCurrentPageGroup()
+
     // Close input and trigger FAB pulse
     this.showInput = false
     this.currentSelection = null
