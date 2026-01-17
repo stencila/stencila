@@ -141,6 +141,12 @@ export class StencilaSiteReviewItem extends LitElement {
   private editOriginalContent = ''
 
   /**
+   * Whether the item content is expanded (showing full text)
+   */
+  @state()
+  private expanded = false
+
+  /**
    * Whether the dropdown menu is open
    */
   @state()
@@ -224,10 +230,11 @@ export class StencilaSiteReviewItem extends LitElement {
   override updated(changedProperties: Map<string, unknown>) {
     super.updated(changedProperties)
 
-    // Auto-focus textarea when entering edit mode
+    // Auto-focus and auto-resize textarea when entering edit mode
     if (changedProperties.has('isEditing') && this.isEditing) {
       requestAnimationFrame(() => {
         this.textareaRef.value?.focus()
+        this.autoResizeTextarea()
       })
     }
 
@@ -262,6 +269,9 @@ export class StencilaSiteReviewItem extends LitElement {
     }
 
     e.stopPropagation()
+
+    // Toggle expanded state to show/hide full content
+    this.expanded = !this.expanded
 
     if (this.item && this.index !== undefined) {
       this.dispatchEvent(
@@ -370,6 +380,27 @@ export class StencilaSiteReviewItem extends LitElement {
       e.preventDefault()
       this.saveEdit(e)
     }
+  }
+
+  /**
+   * Auto-resize textarea to fit content
+   */
+  private autoResizeTextarea() {
+    const textarea = this.textareaRef.value
+    if (textarea) {
+      // Reset height to auto to get accurate scrollHeight
+      textarea.style.height = 'auto'
+      // Set height to scrollHeight to fit content
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
+  }
+
+  /**
+   * Handle input in edit textarea (for auto-resize)
+   */
+  private handleEditInput(e: Event) {
+    this.editContent = (e.target as HTMLTextAreaElement).value
+    this.autoResizeTextarea()
   }
 
   // =========================================================================
@@ -534,7 +565,9 @@ export class StencilaSiteReviewItem extends LitElement {
             data-type="${this.item.type}"
             title="${this.item.type === 'comment' ? 'Comment' : 'Suggestion'}"
           ></span>
-          <span class="item-content">${this.item.content}</span>
+          <span class="item-content" data-expanded="${this.expanded}"
+            >${this.item.content}</span
+          >
         </div>
       </div>
     `
@@ -562,8 +595,7 @@ export class StencilaSiteReviewItem extends LitElement {
             ${ref(this.textareaRef)}
             class="edit-textarea"
             .value=${this.editContent}
-            @input=${(e: Event) =>
-              (this.editContent = (e.target as HTMLTextAreaElement).value)}
+            @input=${this.handleEditInput}
             @keydown=${this.handleEditKeydown}
           ></textarea>
         </div>

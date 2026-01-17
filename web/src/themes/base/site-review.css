@@ -648,6 +648,13 @@ stencila-site-review .review-item .item-content {
   overflow: hidden;
 }
 
+/* Expanded item content - show full text */
+stencila-site-review .review-item .item-content[data-expanded="true"] {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
 /* Item menu container */
 stencila-site-review .review-item .item-menu-container {
   position: absolute;
@@ -749,7 +756,8 @@ stencila-site-review .review-item .edit-textarea {
   font-family: inherit;
   color: var(--text-color-primary);
   line-height: var(--line-height-snug);
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   box-sizing: border-box;
   transition: border-color var(--transition-duration-fast);
 }
