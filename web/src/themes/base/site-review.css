@@ -10,71 +10,31 @@
  *   - .modal: Various modal dialogs (input, error, success, warning)
  *   - .review-panel: Panel showing pending review items
  *
- * Design tokens:
- * - --site-review-color-primary: Primary action color
- * - --site-review-color-secondary: Secondary/neutral color
- * - --site-review-color-border: Border color
- * - --site-review-color-text: Primary text color
- * - --site-review-color-text-muted: Secondary text color
- * - --site-review-color-text-faint: Tertiary text color
- * - --site-review-shadow-sm: Small shadow
- * - --site-review-shadow-lg: Large shadow
- * - --site-review-radius-sm/md/lg: Border radii
+ * Uses semantic design tokens from tokens-semantic.css for colors, spacing,
+ * typography, shadows, and radii. Only defines component-specific tokens for
+ * highlight colors which are unique to this component:
+ *
+ * - --site-review-highlight-comment: Background for comment highlights
+ * - --site-review-highlight-comment-active: Active comment highlight
+ * - --site-review-highlight-suggestion: Background for suggestion highlights
+ * - --site-review-highlight-suggestion-active: Active suggestion highlight
  */
 
 :root {
-    /* Colors */
-    --site-review-color-primary: #3b82f6;
-    --site-review-color-primary-hover: #2563eb;
-    --site-review-color-secondary: #f1f5f9;
-    --site-review-color-secondary-hover: #e2e8f0;
-    --site-review-color-border: #e2e8f0;
-    --site-review-color-text: #334155;
-    --site-review-color-text-muted: #64748b;
-    --site-review-color-text-faint: #94a3b8;
-    --site-review-color-error-bg: #fef2f2;
-    --site-review-color-error-border: #fecaca;
-    --site-review-color-error-text: #991b1b;
-    --site-review-color-success-bg: #f0fdf4;
-    --site-review-color-success-border: #86efac;
-    --site-review-color-success-text: #166534;
-    --site-review-color-warning-bg: #fffbeb;
-    --site-review-color-warning-border: #fcd34d;
-    --site-review-color-warning-text: #92400e;
-
-    /* Action button colors */
-    --site-review-color-danger: #ef4444;
-    --site-review-color-danger-dark: #dc2626;
-    --site-review-color-warning-action: #f59e0b;
-    --site-review-color-warning-action-hover: #d97706;
-    --site-review-color-success-action: #22c55e;
-    --site-review-color-success-action-hover: #16a34a;
-
-    /* Shadows & Radii */
-    --site-review-shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --site-review-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    --site-review-radius-sm: 4px;
-    --site-review-radius-md: 6px;
-    --site-review-radius-lg: 8px;
-
     /* Comment highlights - yellow/amber (Google Docs style) */
-    --site-review-highlight-comment: rgba(255, 212, 0, 0.3);
-    --site-review-highlight-comment-active: rgba(255, 212, 0, 0.5);
-    --site-review-highlight-comment-border: rgba(255, 180, 0, 0.8);
+    --site-review-highlight-comment: color-mix(in srgb, var(--color-yellow-400) 30%, transparent);
+    --site-review-highlight-comment-active: color-mix(in srgb, var(--color-yellow-400) 50%, transparent);
 
     /* Suggestion highlights - green */
-    --site-review-highlight-suggestion: rgba(52, 211, 153, 0.25);
-    --site-review-highlight-suggestion-active: rgba(52, 211, 153, 0.45);
-    --site-review-highlight-suggestion-border: rgba(16, 185, 129, 0.8);
+    --site-review-highlight-suggestion: color-mix(in srgb, var(--color-green-400) 25%, transparent);
+    --site-review-highlight-suggestion-active: color-mix(in srgb, var(--color-green-400) 45%, transparent);
 
-    /* Dark mode highlight variants */
-    --site-review-highlight-comment-dark: rgba(251, 191, 36, 0.25);
-    --site-review-highlight-comment-active-dark: rgba(251, 191, 36, 0.4);
-    --site-review-highlight-comment-border-dark: rgba(245, 158, 11, 0.7);
+    /* Dark mode highlight variants - slightly reduced opacity for dark backgrounds */
+    --site-review-highlight-comment-dark: color-mix(in srgb, var(--color-amber-400) 25%, transparent);
+    --site-review-highlight-comment-active-dark: color-mix(in srgb, var(--color-amber-400) 40%, transparent);
 
-    --site-review-highlight-suggestion-dark: rgba(52, 211, 153, 0.2);
-    --site-review-highlight-suggestion-active-dark: rgba(52, 211, 153, 0.35);
-    --site-review-highlight-suggestion-border-dark: rgba(16, 185, 129, 0.7);
+    --site-review-highlight-suggestion-dark: color-mix(in srgb, var(--color-green-400) 20%, transparent);
+    --site-review-highlight-suggestion-active-dark: color-mix(in srgb, var(--color-green-400) 35%, transparent);
 }
 
 /* Dark mode - system preference */
@@ -82,11 +42,8 @@
     :root:not([data-color-scheme="light"]) {
         --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
         --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
-        --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
-
         --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
         --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
-        --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
     }
 }
 
@@ -94,11 +51,8 @@
 :root[data-color-scheme="dark"] {
     --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
     --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
-    --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
-
     --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
     --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
-    --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
 }
 
 
@@ -118,27 +72,27 @@ stencila-site-review .modal {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 10001;
-    border-radius: var(--site-review-radius-lg);
-    padding: 16px;
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
     max-width: 400px;
-    box-shadow: var(--site-review-shadow-lg);
+    box-shadow: var(--shadow-lg);
     font-family: var(--layout-font-family);
 }
 
 stencila-site-review .modal h4 {
-    margin: 0 0 8px;
-    font-size: 14px;
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-sm);
 }
 
 stencila-site-review .modal p {
-    margin: 0 0 12px;
-    font-size: 13px;
-    line-height: 1.5;
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
 }
 
 stencila-site-review .modal .buttons {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
     justify-content: flex-end;
 }
 
@@ -146,14 +100,15 @@ stencila-site-review .modal .buttons {
 stencila-site-review .btn,
 stencila-site-review-item .btn {
     display: inline-block;
-    padding: 8px 16px;
+    padding: var(--space-2) var(--space-4);
     border: none;
-    border-radius: var(--site-review-radius-sm);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     text-decoration: none;
     text-align: center;
     box-sizing: border-box;
+    transition: background-color var(--transition-duration-fast);
 }
 
 stencila-site-review .btn:disabled,
@@ -164,44 +119,44 @@ stencila-site-review-item .btn:disabled {
 
 stencila-site-review .btn.primary,
 stencila-site-review-item .btn.primary {
-    background: var(--site-review-color-primary);
+    background: var(--color-accent);
     color: white;
 }
 
 stencila-site-review .btn.primary:hover:not(:disabled),
 stencila-site-review-item .btn.primary:hover:not(:disabled) {
-    background: var(--site-review-color-primary-hover);
+    background: var(--color-blue-600);
 }
 
 stencila-site-review .btn.secondary,
 stencila-site-review-item .btn.secondary {
-    background: var(--site-review-color-secondary);
-    color: var(--site-review-color-text);
+    background: var(--surface-sunken);
+    color: var(--text-color-primary);
 }
 
 stencila-site-review .btn.secondary:hover:not(:disabled),
 stencila-site-review-item .btn.secondary:hover:not(:disabled) {
-    background: var(--site-review-color-secondary-hover);
+    background: var(--border-color-default);
 }
 
 stencila-site-review .btn.warning {
-    background: var(--site-review-color-warning-action);
+    background: var(--color-amber-500);
     color: white;
 }
 
 stencila-site-review .btn.warning:hover:not(:disabled) {
-    background: var(--site-review-color-warning-action-hover);
+    background: var(--color-amber-600);
 }
 
 stencila-site-review .btn.success-link {
     display: inline-block;
-    background: var(--site-review-color-success-action);
+    background: var(--color-green-500);
     color: white;
     text-decoration: none;
 }
 
 stencila-site-review .btn.success-link:hover {
-    background: var(--site-review-color-success-action-hover);
+    background: var(--color-green-600);
 }
 
 /* ==========================================================================
@@ -214,11 +169,11 @@ stencila-site-review .floating-button {
     z-index: 50;
     display: flex;
     gap: 2px;
-    background: white;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-md);
-    padding: 4px;
-    box-shadow: var(--site-review-shadow-sm);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-1);
+    box-shadow: var(--shadow-sm);
 }
 
 stencila-site-review .floating-button button {
@@ -229,16 +184,16 @@ stencila-site-review .floating-button button {
     height: 32px;
     padding: 0;
     border: none;
-    border-radius: var(--site-review-radius-sm);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     background: transparent;
-    color: var(--site-review-color-text-muted);
-    transition: background 0.15s, color 0.15s;
+    color: var(--text-color-secondary);
+    transition: background var(--transition-duration-fast), color var(--transition-duration-fast);
 }
 
 stencila-site-review .floating-button button:hover {
-    background: var(--site-review-color-secondary);
-    color: var(--site-review-color-text);
+    background: var(--surface-sunken);
+    color: var(--text-color-primary);
 }
 
 stencila-site-review .floating-button button span {
@@ -259,21 +214,21 @@ stencila-site-review .review-fab {
     height: 48px;
     border: none;
     border-radius: 50%;
-    background: var(--site-review-color-primary);
+    background: var(--color-accent);
     color: white;
     cursor: pointer;
-    box-shadow: var(--site-review-shadow-lg);
-    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--transition-duration-fast) ease, background var(--transition-duration-fast) ease;
 }
 
 stencila-site-review .review-fab:hover {
-    background: var(--site-review-color-primary-hover);
+    background: var(--color-blue-600);
     transform: scale(1.05);
 }
 
 stencila-site-review .review-fab:focus-visible {
-    outline: 2px solid var(--site-review-color-primary);
-    outline-offset: 2px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
 }
 
 stencila-site-review .review-fab:active {
@@ -287,15 +242,15 @@ stencila-site-review .review-fab.pulsing {
 @keyframes fab-pulse {
     0% {
         transform: scale(1);
-        box-shadow: var(--site-review-shadow-lg);
+        box-shadow: var(--shadow-lg);
     }
     50% {
         transform: scale(1.15);
-        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3), var(--site-review-shadow-lg);
+        box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-accent) 30%, transparent), var(--shadow-lg);
     }
     100% {
         transform: scale(1);
-        box-shadow: var(--site-review-shadow-lg);
+        box-shadow: var(--shadow-lg);
     }
 }
 
@@ -313,24 +268,24 @@ stencila-site-review .review-fab .fab-badge {
     min-width: 20px;
     height: 20px;
     padding: 0 6px;
-    border-radius: 10px;
-    background: var(--site-review-color-danger);
+    border-radius: var(--radius-full);
+    background: var(--color-red-500);
     color: white;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
     line-height: 20px;
     text-align: center;
-    box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Input modal - extends .modal */
 stencila-site-review .modal.input {
     z-index: 10000;
-    background: white;
-    border: 1px solid var(--site-review-color-border);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color-default);
     min-width: 500px;
     max-width: 600px;
-    transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+    transition: transform var(--transition-duration-base) ease-in, opacity var(--transition-duration-base) ease-in;
 }
 
 stencila-site-review .modal.input.flying {
@@ -342,31 +297,31 @@ stencila-site-review .modal.input.flying {
 stencila-site-review .modal.input textarea {
     width: 100%;
     min-height: 100px;
-    padding: 8px;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-sm);
-    font-size: 14px;
+    padding: var(--space-2);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
     font-family: inherit;
-    color: var(--site-review-color-text);
+    color: var(--text-color-primary);
     resize: vertical;
     box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: border-color var(--transition-duration-fast);
 }
 
 stencila-site-review .modal.input textarea:focus {
     outline: none;
-    border-color: var(--site-review-color-primary);
+    border-color: var(--color-accent);
 }
 
 stencila-site-review .modal.input .buttons {
-    margin-top: 12px;
+    margin-top: var(--space-3);
 }
 
 stencila-site-review .modal.input .item-header {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
 }
 
 stencila-site-review .modal.input .type-icon {
@@ -374,13 +329,13 @@ stencila-site-review .modal.input .type-icon {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
-    background-color: var(--site-review-color-text-muted);
+    background-color: var(--text-color-secondary);
 }
 
 stencila-site-review .modal.input .item-path {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--site-review-color-text);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -394,14 +349,14 @@ stencila-site-review .modal.input .item-path {
 /* z-index: above transparent backdrop (49), below header (100) */
 stencila-site-review-item .review-input-popover {
     z-index: 50;
-    background: white;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-lg);
-    padding: 12px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
     min-width: 280px;
-    box-shadow: var(--site-review-shadow-lg);
+    box-shadow: var(--shadow-lg);
     font-family: var(--layout-font-family);
-    animation: popover-in 0.15s ease-out;
+    animation: popover-in var(--transition-duration-fast) ease-out;
 }
 
 @keyframes popover-in {
@@ -418,7 +373,7 @@ stencila-site-review-item .review-input-popover {
 stencila-site-review-item .review-input-popover.flying {
     opacity: 0;
     transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.1);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity var(--transition-duration-base) ease, transform var(--transition-duration-base) ease;
     pointer-events: none;
 }
 
@@ -426,38 +381,81 @@ stencila-site-review-item .review-input-popover.flying {
 stencila-site-review-item .review-input-popover textarea {
     width: 100%;
     min-height: 72px;
-    padding: 8px;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-sm);
-    font-size: 13px;
+    padding: var(--space-2);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
     font-family: inherit;
-    color: var(--site-review-color-text);
+    color: var(--text-color-primary);
     resize: vertical;
     box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: border-color var(--transition-duration-fast);
 }
 
 stencila-site-review-item .review-input-popover textarea:focus {
     outline: none;
-    border-color: var(--site-review-color-primary);
+    border-color: var(--color-accent);
 }
 
 stencila-site-review-item .review-input-popover textarea::placeholder {
-    color: var(--site-review-color-text-faint);
+    color: var(--text-color-muted);
 }
 
 /* Popover action buttons */
 stencila-site-review-item .review-input-popover .popover-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
     justify-content: flex-end;
-    margin-top: 8px;
+    margin-top: var(--space-2);
 }
 
 /* Small button variant for popover */
 stencila-site-review-item .btn-sm {
-    padding: 6px 12px;
-    font-size: 13px;
+    padding: 6px var(--space-3);
+    font-size: var(--font-size-xs);
+}
+
+/* Popover arrow - points to the selected text */
+stencila-site-review-item .review-input-popover::before,
+stencila-site-review-item .review-input-popover::after {
+    content: '';
+    position: absolute;
+    left: var(--arrow-left, 24px);
+    border: 8px solid transparent;
+    pointer-events: none;
+}
+
+/* Border arrow (behind, slightly larger) */
+stencila-site-review-item .review-input-popover::before {
+    border-width: 9px;
+    margin-left: -1px;
+}
+
+/* Fill arrow (in front) */
+stencila-site-review-item .review-input-popover::after {
+    border-width: 8px;
+}
+
+/* Arrow on top edge (popover below selection) - points up */
+stencila-site-review-item .review-input-popover[data-arrow="top"]::before {
+    bottom: 100%;
+    border-bottom-color: var(--border-color-default);
+}
+
+stencila-site-review-item .review-input-popover[data-arrow="top"]::after {
+    bottom: 100%;
+    border-bottom-color: var(--surface-elevated);
+}
+
+/* Arrow on bottom edge (popover above selection) - points down */
+stencila-site-review-item .review-input-popover[data-arrow="bottom"]::before {
+    top: 100%;
+    border-top-color: var(--border-color-default);
+}
+
+stencila-site-review-item .review-input-popover[data-arrow="bottom"]::after {
+    top: 100%;
+    border-top-color: var(--surface-elevated);
 }
 
 /* Backdrop overlay */
@@ -481,26 +479,26 @@ stencila-site-review .review-panel {
     z-index: 9997;
     display: flex;
     flex-direction: column;
-    background: white;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-lg);
-    padding: 12px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
     width: 360px;
     max-width: calc(100vw - 32px);
     max-height: calc(100vh - 80px);
-    box-shadow: var(--site-review-shadow-sm);
+    box-shadow: var(--shadow-sm);
     font-family: var(--layout-font-family);
 }
 
 stencila-site-review .review-panel h4 {
-    margin: 0 0 8px;
-    font-size: 14px;
-    color: var(--site-review-color-text);
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-primary);
 }
 
 /* Empty state - shown when no pending items */
 stencila-site-review .empty-state {
-    padding: 24px 16px;
+    padding: var(--space-6) var(--space-4);
     text-align: center;
 }
 
@@ -508,22 +506,22 @@ stencila-site-review .empty-state .empty-icon {
     display: inline-block;
     width: 48px;
     height: 48px;
-    margin-bottom: 12px;
-    background-color: var(--site-review-color-text-faint);
+    margin-bottom: var(--space-3);
+    background-color: var(--text-color-muted);
     opacity: 0.5;
 }
 
 stencila-site-review .empty-state h4 {
-    margin: 0 0 8px;
-    font-size: 14px;
-    color: var(--site-review-color-text);
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-primary);
 }
 
 stencila-site-review .empty-state p {
     margin: 0;
-    font-size: 13px;
-    color: var(--site-review-color-text-muted);
-    line-height: 1.5;
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+    line-height: var(--line-height-normal);
 }
 
 /* Items list container */
@@ -531,18 +529,18 @@ stencila-site-review .items-list {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    margin-bottom: 12px;
+    margin-bottom: var(--space-3);
 }
 
 /* Individual review item */
 stencila-site-review .review-item {
     position: relative;
-    padding: 10px 12px;
+    padding: 10px var(--space-3);
     padding-right: 36px;
-    font-size: 13px;
-    border-bottom: 1px solid var(--site-review-color-border);
+    font-size: var(--font-size-xs);
+    border-bottom: 1px solid var(--border-color-default);
     cursor: pointer;
-    transition: background-color 0.1s ease;
+    transition: background-color var(--transition-duration-fastest) ease;
 }
 
 stencila-site-review .review-item:last-child {
@@ -550,11 +548,11 @@ stencila-site-review .review-item:last-child {
 }
 
 stencila-site-review .review-item:hover {
-    background-color: var(--site-review-color-secondary);
+    background-color: var(--surface-sunken);
 }
 
 stencila-site-review .review-item.editing {
-    padding: 8px 10px;
+    padding: var(--space-2) 10px;
     cursor: default;
     background-color: transparent;
 }
@@ -573,24 +571,24 @@ stencila-site-review .review-item .type-icon {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
-    background-color: var(--site-review-color-text-muted);
+    background-color: var(--text-color-secondary);
 }
 
 /* Type label */
 stencila-site-review .review-item .item-type {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--site-review-color-text-muted);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-secondary);
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
 
 /* Comment content */
 stencila-site-review .review-item .item-content {
-    color: var(--site-review-color-text);
-    font-size: 13px;
+    color: var(--text-color-primary);
+    font-size: var(--font-size-xs);
     margin-bottom: 6px;
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -600,10 +598,10 @@ stencila-site-review .review-item .item-content {
 
 /* Replacement text */
 stencila-site-review .review-item .replacement-text {
-    color: var(--site-review-color-text);
-    font-size: 13px;
+    color: var(--text-color-primary);
+    font-size: var(--font-size-xs);
     margin-bottom: 6px;
-    line-height: 1.4;
+    line-height: var(--line-height-snug);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -614,8 +612,8 @@ stencila-site-review .review-item .replacement-text {
 /* Item menu container */
 stencila-site-review .review-item .item-menu-container {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: var(--space-2);
+    right: var(--space-2);
 }
 
 /* Item menu button (kebab) */
@@ -627,11 +625,11 @@ stencila-site-review .review-item .item-menu-btn {
     height: 24px;
     background: none;
     border: none;
-    border-radius: var(--site-review-radius-sm);
-    color: var(--site-review-color-text-faint);
+    border-radius: var(--radius-sm);
+    color: var(--text-color-muted);
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.15s, color 0.15s, background 0.15s;
+    transition: opacity var(--transition-duration-fast), color var(--transition-duration-fast), background var(--transition-duration-fast);
 }
 
 stencila-site-review .review-item:hover .item-menu-btn,
@@ -640,8 +638,8 @@ stencila-site-review .review-item .item-menu-container:has(.item-menu-dropdown) 
 }
 
 stencila-site-review .review-item .item-menu-btn:hover {
-    color: var(--site-review-color-text);
-    background: var(--site-review-color-secondary);
+    color: var(--text-color-primary);
+    background: var(--surface-sunken);
 }
 
 stencila-site-review .review-item .item-menu-btn span {
@@ -653,10 +651,10 @@ stencila-site-review .review-item .item-menu-btn span {
 
 /* Item menu dropdown (uses fixed positioning set via inline style) */
 stencila-site-review .review-item .item-menu-dropdown {
-    background: white;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-md);
-    box-shadow: var(--site-review-shadow-sm);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
     z-index: 10001;
 }
@@ -664,28 +662,28 @@ stencila-site-review .review-item .item-menu-dropdown {
 stencila-site-review .review-item .item-menu-dropdown button {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     width: 100%;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     border: none;
     background: none;
-    color: var(--site-review-color-text);
-    font-size: 13px;
+    color: var(--text-color-primary);
+    font-size: var(--font-size-xs);
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.15s;
+    transition: background var(--transition-duration-fast);
 }
 
 stencila-site-review .review-item .item-menu-dropdown button:hover {
-    background: var(--site-review-color-secondary);
+    background: var(--surface-sunken);
 }
 
 stencila-site-review .review-item .item-menu-dropdown button.danger {
-    color: var(--site-review-color-danger);
+    color: var(--color-red-500);
 }
 
 stencila-site-review .review-item .item-menu-dropdown button.danger:hover {
-    background: var(--site-review-color-error-bg);
+    background: var(--color-error-muted);
 }
 
 stencila-site-review .review-item .item-menu-dropdown button span {
@@ -699,22 +697,22 @@ stencila-site-review .review-item .item-menu-dropdown button span {
 stencila-site-review .review-item .edit-textarea {
     width: 100%;
     min-height: 48px;
-    padding: 6px 8px;
+    padding: 6px var(--space-2);
     margin-top: 6px;
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-sm);
-    font-size: 13px;
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
     font-family: inherit;
-    color: var(--site-review-color-text);
-    line-height: 1.4;
+    color: var(--text-color-primary);
+    line-height: var(--line-height-snug);
     resize: vertical;
     box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: border-color var(--transition-duration-fast);
 }
 
 stencila-site-review .review-item .edit-textarea:focus {
     outline: none;
-    border-color: var(--site-review-color-primary);
+    border-color: var(--color-accent);
 }
 
 /* Edit actions - compact inline buttons */
@@ -726,32 +724,32 @@ stencila-site-review .review-item .edit-actions {
 }
 
 stencila-site-review .review-item .edit-btn {
-    padding: 4px 10px;
+    padding: var(--space-1) 10px;
     border: none;
-    border-radius: var(--site-review-radius-sm);
-    font-size: 12px;
-    font-weight: 500;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
-    transition: background 0.15s, opacity 0.15s;
+    transition: background var(--transition-duration-fast), opacity var(--transition-duration-fast);
 }
 
 stencila-site-review .review-item .edit-btn.cancel {
     background: none;
-    color: var(--site-review-color-text-muted);
+    color: var(--text-color-secondary);
 }
 
 stencila-site-review .review-item .edit-btn.cancel:hover {
-    background: var(--site-review-color-secondary);
-    color: var(--site-review-color-text);
+    background: var(--surface-sunken);
+    color: var(--text-color-primary);
 }
 
 stencila-site-review .review-item .edit-btn.save {
-    background: var(--site-review-color-primary);
+    background: var(--color-accent);
     color: white;
 }
 
 stencila-site-review .review-item .edit-btn.save:hover:not(:disabled) {
-    background: var(--site-review-color-primary-hover);
+    background: var(--color-blue-600);
 }
 
 stencila-site-review .review-item .edit-btn.save:disabled {
@@ -763,14 +761,14 @@ stencila-site-review .review-item .edit-btn.save:disabled {
 stencila-site-review .panel-footer {
     position: relative;
     flex-shrink: 0;
-    border-top: 1px solid var(--site-review-color-border);
+    border-top: 1px solid var(--border-color-default);
     padding-top: 20px;
 }
 
 /* Footer buttons row (submit + share) */
 stencila-site-review .footer-buttons {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
 }
 
 stencila-site-review .footer-buttons .btn.primary {
@@ -788,18 +786,18 @@ stencila-site-review .add-comment-fab {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid var(--site-review-color-border);
+    border: 1px solid var(--border-color-default);
     border-radius: 50%;
-    background: white;
-    color: var(--site-review-color-text-muted);
+    background: var(--surface-elevated);
+    color: var(--text-color-secondary);
     cursor: pointer;
-    transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    transition: color var(--transition-duration-fast), border-color var(--transition-duration-fast), box-shadow var(--transition-duration-fast);
 }
 
 stencila-site-review .add-comment-fab:hover {
-    color: var(--site-review-color-primary);
-    border-color: var(--site-review-color-primary);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-xs);
 }
 
 stencila-site-review .add-comment-fab span {
@@ -812,80 +810,80 @@ stencila-site-review .add-comment-fab span {
 /* Text button (minimal style) */
 stencila-site-review .btn.text {
     background: none;
-    color: var(--site-review-color-text-muted);
-    padding: 4px 8px;
+    color: var(--text-color-secondary);
+    padding: var(--space-1) var(--space-2);
 }
 
 stencila-site-review .btn.text:hover {
-    color: var(--site-review-color-text);
-    background: var(--site-review-color-secondary);
+    color: var(--text-color-primary);
+    background: var(--surface-sunken);
 }
 
 /* Error modal - extends .modal */
 stencila-site-review .modal.error {
-    background: var(--site-review-color-error-bg);
-    border: 1px solid var(--site-review-color-error-border);
+    background: var(--color-error-muted);
+    border: 1px solid var(--color-red-200);
 }
 
 stencila-site-review .modal.error h4 {
-    color: var(--site-review-color-danger-dark);
+    color: var(--color-red-600);
 }
 
 stencila-site-review .modal.error p {
-    color: var(--site-review-color-error-text);
+    color: var(--color-error);
 }
 
 /* Success modal - extends .modal */
 stencila-site-review .modal.success {
-    background: var(--site-review-color-success-bg);
-    border: 1px solid var(--site-review-color-success-border);
+    background: var(--color-success-muted);
+    border: 1px solid var(--color-green-300);
     text-align: center;
 }
 
 stencila-site-review .modal.success h4 {
-    color: var(--site-review-color-success-text);
-    font-size: 16px;
+    color: var(--color-success);
+    font-size: var(--font-size-base);
 }
 
 stencila-site-review .modal.success p {
-    color: var(--site-review-color-success-text);
-    font-size: 14px;
+    color: var(--color-success);
+    font-size: var(--font-size-sm);
 }
 
 stencila-site-review .modal.success .counts {
-    color: var(--site-review-color-text-muted);
-    font-size: 12px;
+    color: var(--text-color-secondary);
+    font-size: var(--font-size-2xs);
 }
 
 stencila-site-review .modal.success .pr-link {
-    margin: 12px 0;
+    margin: var(--space-3) 0;
 }
 
 /* Auth description (one-line status) */
 stencila-site-review .auth-description {
-    margin: 8px 0 0;
-    font-size: 12px;
-    color: var(--site-review-color-text-muted);
+    margin: var(--space-2) 0 0;
+    font-size: var(--font-size-2xs);
+    color: var(--text-color-secondary);
     text-align: center;
 }
 
 /* Auth prompt (sign-in/connect needed) */
 stencila-site-review .auth-prompt {
     text-align: center;
-    margin-top: 8px;
+    margin-top: var(--space-2);
 }
 
 /* Auth blocked warning */
 stencila-site-review .auth-blocked {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    padding: 8px;
-    margin-top: 8px;
-    background: var(--site-review-color-error-bg);
-    border-radius: var(--site-review-radius-sm);
-    font-size: 12px;
-    color: var(--site-review-color-error-text);
+    gap: var(--space-2);
+    padding: var(--space-2);
+    margin-top: var(--space-2);
+    background: var(--color-error-muted);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-2xs);
+    color: var(--color-error);
 }
 
 stencila-site-review .auth-blocked .warning-icon {
@@ -898,13 +896,13 @@ stencila-site-review .auth-blocked .warning-icon {
 
 /* Submit error message */
 stencila-site-review .submit-error {
-    padding: 8px;
-    background: var(--site-review-color-error-bg);
-    border: 1px solid var(--site-review-color-error-border);
-    border-radius: var(--site-review-radius-sm);
-    margin-bottom: 8px;
-    color: var(--site-review-color-error-text);
-    font-size: 12px;
+    padding: var(--space-2);
+    background: var(--color-error-muted);
+    border: 1px solid var(--color-red-200);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-2);
+    color: var(--color-error);
+    font-size: var(--font-size-2xs);
 }
 
 /* Button icon (inline) */
@@ -914,7 +912,7 @@ stencila-site-review .btn-icon {
     height: 14px;
     background-color: currentColor;
     vertical-align: -2px;
-    margin-right: 4px;
+    margin-right: var(--space-1);
 }
 
 /* Icon-only button variant */
@@ -936,22 +934,22 @@ stencila-site-review .btn.icon-only span {
 
 /* Add page comment button in empty state */
 stencila-site-review .add-page-comment {
-    margin-top: 16px;
+    margin-top: var(--space-4);
 }
 
 /* Warning modal (commit mismatch) - extends .modal */
 stencila-site-review .modal.warning {
-    background: var(--site-review-color-warning-bg);
-    border: 1px solid var(--site-review-color-warning-border);
+    background: var(--color-warning-muted);
+    border: 1px solid var(--color-amber-300);
 }
 
 stencila-site-review .modal.warning h4 {
-    color: var(--site-review-color-warning-text);
+    color: var(--color-warning);
 }
 
 stencila-site-review .modal.warning p {
-    color: var(--site-review-color-warning-text);
-    margin-bottom: 16px;
+    color: var(--color-warning);
+    margin-bottom: var(--space-4);
 }
 
 /* Share button container (for tooltip positioning) */
@@ -966,13 +964,13 @@ stencila-site-review .share-tooltip {
     right: 0;
     margin-bottom: 6px;
     padding: 6px 10px;
-    background: var(--site-review-color-text);
-    color: white;
-    border-radius: var(--site-review-radius-sm);
-    font-size: 12px;
+    background: var(--text-color-primary);
+    color: var(--surface-elevated);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-2xs);
     white-space: nowrap;
-    box-shadow: var(--site-review-shadow-sm);
-    animation: tooltip-in 0.15s ease-out;
+    box-shadow: var(--shadow-sm);
+    animation: tooltip-in var(--transition-duration-fast) ease-out;
 }
 
 /* Tooltip arrow */
@@ -982,7 +980,7 @@ stencila-site-review .share-tooltip::after {
     top: 100%;
     right: 12px;
     border: 5px solid transparent;
-    border-top-color: var(--site-review-color-text);
+    border-top-color: var(--text-color-primary);
 }
 
 @keyframes tooltip-in {
@@ -1026,9 +1024,9 @@ stencila-site-review .share-tooltip::after {
 
 /* Page group container */
 stencila-site-review .page-group {
-    border: 1px solid var(--site-review-color-border);
-    border-radius: var(--site-review-radius-md);
-    margin-bottom: 8px;
+    border: 1px solid var(--border-color-default);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
     overflow: hidden;
 }
 
@@ -1038,41 +1036,41 @@ stencila-site-review .page-group:last-child {
 
 /* Current page highlight */
 stencila-site-review .page-group[data-current="true"] {
-    border-color: var(--site-review-color-primary);
+    border-color: var(--color-accent);
 }
 
 /* Page group header (collapsible toggle) */
 stencila-site-review .page-group-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     width: 100%;
-    padding: 8px 12px;
-    background: var(--site-review-color-secondary);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-sunken);
     border: none;
     cursor: pointer;
-    font-size: 12px;
+    font-size: var(--font-size-2xs);
     text-align: left;
-    transition: background 0.15s;
+    transition: background var(--transition-duration-fast);
 }
 
 stencila-site-review .page-group[data-current="true"] .page-group-header {
-    background: color-mix(in srgb, var(--site-review-color-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
 
 stencila-site-review .page-group-header:hover {
-    background: var(--site-review-color-secondary-hover);
+    background: var(--border-color-default);
 }
 
 stencila-site-review .page-group[data-current="true"] .page-group-header:hover {
-    background: color-mix(in srgb, var(--site-review-color-primary) 15%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 /* Page path in header */
 stencila-site-review .page-group-header .page-path {
     flex: 1;
-    font-weight: 500;
-    color: var(--site-review-color-text);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1080,16 +1078,16 @@ stencila-site-review .page-group-header .page-path {
 
 /* Item count badge */
 stencila-site-review .page-group-header .page-count {
-    background: var(--site-review-color-border);
+    background: var(--border-color-default);
     padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 11px;
-    color: var(--site-review-color-text-muted);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-2xs);
+    color: var(--text-color-secondary);
 }
 
 stencila-site-review .page-group[data-current="true"] .page-group-header .page-count {
-    background: color-mix(in srgb, var(--site-review-color-primary) 20%, transparent);
-    color: var(--site-review-color-primary);
+    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+    color: var(--color-accent);
 }
 
 /* Chevron icon */
@@ -1099,30 +1097,30 @@ stencila-site-review .page-group-header .chevron {
     width: 16px;
     height: 16px;
     background-color: currentColor;
-    color: var(--site-review-color-text-muted);
-    transition: transform 0.15s;
+    color: var(--text-color-secondary);
+    transition: transform var(--transition-duration-fast);
 }
 
 /* Items container within a page group */
 stencila-site-review .page-group-items {
-    background: white;
+    background: var(--surface-elevated);
 }
 
 /* Active item in panel (selected) */
 stencila-site-review .review-item[data-active="true"] {
-    background: color-mix(in srgb, var(--site-review-color-primary) 10%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
 
 stencila-site-review .review-item[data-active="true"]:hover {
-    background: color-mix(in srgb, var(--site-review-color-primary) 14%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
 }
 
 /* Make icon and label more prominent when active */
 stencila-site-review .review-item[data-active="true"] .type-icon {
-    background-color: var(--site-review-color-primary);
+    background-color: var(--color-accent);
 }
 
 stencila-site-review .review-item[data-active="true"] .item-type {
-    color: var(--site-review-color-primary);
-    font-weight: 600;
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
 }
