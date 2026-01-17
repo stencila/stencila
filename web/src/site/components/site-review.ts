@@ -1654,11 +1654,20 @@ export class StencilaSiteReview extends LitElement {
     this.submitting = true
     this.submitError = ''
 
+    // Generate share URL for the review
+    const shareResult = await encodeReviewForUrl(
+      this.pendingItems,
+      this.sourceInfo ?? undefined
+    )
+    const shareUrl = new URL(window.location.href)
+    shareUrl.searchParams.set(SHARE_PARAM, shareResult.encoded)
+
     // In dev mode, mock a successful submission
     if (isDevMode()) {
       console.log('[SiteReview] Dev mode: mocking submit', {
         commit: this.sourceInfo.commit,
         items: this.pendingItems,
+        shareUrl: shareUrl.toString(),
       })
 
       // Simulate network delay
@@ -1696,6 +1705,7 @@ export class StencilaSiteReview extends LitElement {
           commit: this.sourceInfo.commit,
           items: this.pendingItems,
           authorAsSelf: true,
+          shareUrl: shareUrl.toString(),
         },
       })
 
