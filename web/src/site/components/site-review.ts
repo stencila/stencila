@@ -1588,6 +1588,9 @@ export class StencilaSiteReview extends LitElement {
     // Reapply highlights to include the new item
     this.applyHighlights()
 
+    // Make the new item the active item
+    this.setActiveHighlight(insertIndex)
+
     // Auto-expand the current page group so the new item is visible
     this.expandCurrentPageGroup()
 
