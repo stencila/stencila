@@ -1,0 +1,2609 @@
+import { LitElement, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { ref, createRef, Ref } from 'lit/directives/ref.js'
+
+import { GlideEvents } from '../glide/events'
+import { navigate } from '../glide/glide'
+import type { GlideEventDetail } from '../glide/types'
+
+/**
+ * Anchor point for selection (supports multi-block)
+ */
+interface Anchor {
+  nodeId: string
+  offset: number
+}
+
+/**
+ * Individual annotation item within a review
+ */
+interface ReviewItem {
+  type: 'comment' | 'suggestion'
+  path: string
+  url: string
+  start: Anchor
+  end: Anchor
+  selected: string
+  content: string
+}
+
+/**
+ * Source info from the root element (stencila-article)
+ * repository and commit are site-wide; path varies per page
+ */
+interface SourceInfo {
+  repository: string
+  commit: string
+}
+
+/**
+ * Auth status response from /__stencila-review/auth
+ */
+interface AuthStatusResponse {
+  hasSiteAccess: boolean
+  user?: {
+    id: string
+    name: string
+    avatar: string
+  }
+  github?: {
+    connected: boolean
+    username: string
+    canPush: boolean
+    source: 'clerk' | 'oauth'
+  }
+  reviewConfig: {
+    enabled: boolean
+    allowPublic: boolean
+    allowAnonymous: boolean
+  }
+  repo?: {
+    isPrivate: boolean
+    appInstalled: boolean
+  }
+  authorship?: {
+    canAuthorAsSelf: boolean
+    willBeBotAuthored: boolean
+    reason?: string
+  }
+}
+
+/**
+ * Review submission response from /__stencila-review/submit
+ */
+interface ReviewResponse {
+  success: boolean
+  prNumber: number
+  prUrl: string
+  branchName: string
+  authoredBy: 'user' | 'bot'
+  authorUsername?: string
+  usedFork: boolean
+  forkFullName?: string
+  counts: {
+    comments: number
+    suggestions: number
+    fallbacks: number
+  }
+}
+
+/**
+ * Error response from API
+ */
+interface ApiError {
+  error: string
+  message?: string
+  retryAfter?: number
+}
+
+const STORAGE_KEY_ITEMS = 'stencila-site-review-items'
+const STORAGE_KEY_SOURCE = 'stencila-site-review-source'
+
+// API endpoint paths (relative, will be prefixed with apiBase)
+const REVIEW_AUTH_PATH = '/__stencila-review/auth'
+const REVIEW_SUBMIT_PATH = '/__stencila-review/submit'
+const REVIEW_GITHUB_TOKEN_PATH = '/__stencila-review/github-token'
+
+// External URLs
+const CLOUD_API_BASE = 'https://api.stencila.cloud'
+const CLOUD_PROFILE_URL = 'https://stencila.cloud/profile'
+
+/**
+ * Check if running on localhost
+ */
+function isLocalhost(): boolean {
+  const hostname = window.location.hostname
+  return hostname === 'localhost' || hostname === '127.0.0.1'
+}
+
+/**
+ * Site review component
+ *
+ * Enables users to select text on rendered pages and submit comments/suggestions.
+ * Supports multi-block selections and batches multiple annotations into a single review.
+ * Persists review items in localStorage across page refreshes.
+ */
+@customElement('stencila-site-review')
+export class StencilaSiteReview extends LitElement {
+  /**
+   * Workspace ID from site configuration
+   */
+  @property({ type: String, attribute: 'workspace-id' })
+  workspaceId: string = ''
+
+  /**
+   * Position of the review affordance on the page
+   */
+  @property({ type: String })
+  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' = 'bottom-right'
+
+  /**
+   * Allowed review types (comma-separated: "comment", "suggestion", or "comment,suggestion")
+   */
+  @property({ type: String })
+  types: string = 'comment,suggestion'
+
+  /**
+   * Minimum characters required to trigger the affordance
+   */
+  @property({ type: Number, attribute: 'min-selection' })
+  minSelection: number = 3
+
+  /**
+   * Maximum characters allowed in a selection
+   */
+  @property({ type: Number, attribute: 'max-selection' })
+  maxSelection: number = 5000
+
+  /**
+   * Enable keyboard shortcuts
+   */
+  @property({ type: Boolean })
+  shortcuts: boolean = false
+
+  /**
+   * Whether public (non-team) submissions are allowed
+   * This is informational - actual enforcement is server-side
+   */
+  @property({ type: Boolean })
+  public: boolean = true
+
+  /**
+   * Whether anonymous (no GitHub auth) submissions are allowed
+   * This is informational - actual enforcement is server-side
+   */
+  @property({ type: Boolean })
+  anon: boolean = false
+
+  /**
+   * Get the API base URL for review endpoints.
+   * On localhost, uses the workspace's stencila.site domain to test against production.
+   * On production (*.stencila.site), uses same-origin (empty string).
+   */
+  private get apiBase(): string {
+    if (isLocalhost() && this.workspaceId) {
+      return `https://${this.workspaceId}.stencila.site`
+    }
+    return ''
+  }
+
+  /**
+   * Check if comments are allowed based on types attribute
+   */
+  private get allowsComments(): boolean {
+    return this.types.includes('comment')
+  }
+
+  /**
+   * Check if suggestions are allowed based on types attribute
+   */
+  private get allowsSuggestions(): boolean {
+    return this.types.includes('suggestion')
+  }
+
+  /**
+   * Current selection anchors
+   */
+  @state()
+  private currentSelection: {
+    start: Anchor
+    end: Anchor
+    selectedText: string
+    rect: DOMRect
+  } | null = null
+
+  /**
+   * Pending review items (persisted to localStorage)
+   */
+  @state()
+  private pendingItems: ReviewItem[] = []
+
+  /**
+   * Whether the input modal is shown
+   */
+  @state()
+  private showInput: boolean = false
+
+  /**
+   * Current input type (comment or suggestion)
+   */
+  @state()
+  private inputType: 'comment' | 'suggestion' = 'comment'
+
+  /**
+   * Current input content
+   */
+  @state()
+  private inputContent: string = ''
+
+  /**
+   * Source info for the review (set when first item is added)
+   */
+  @state()
+  private sourceInfo: SourceInfo | null = null
+
+  /**
+   * Error message to display to the user
+   */
+  @state()
+  private errorMessage: string = ''
+
+  /**
+   * Whether to show the commit mismatch modal (production only)
+   */
+  @state()
+  private showCommitMismatch: boolean = false
+
+  /**
+   * Auth status from the API (single source of truth)
+   */
+  @state()
+  private authStatus: AuthStatusResponse | null = null
+
+  /**
+   * Whether auth status is being loaded
+   */
+  @state()
+  private authLoading: boolean = true
+
+  /**
+   * Whether a review submission is in progress
+   */
+  @state()
+  private submitting: boolean = false
+
+  /**
+   * Result from successful review submission
+   */
+  @state()
+  private submitResult: ReviewResponse | null = null
+
+  /**
+   * Error message from failed submission
+   */
+  @state()
+  private submitError: string = ''
+
+  /**
+   * Whether the review panel is open (toggled by FAB)
+   */
+  @state()
+  private panelOpen: boolean = false
+
+  /**
+   * Ref for the input textarea (for auto-focus)
+   */
+  private inputTextareaRef: Ref<HTMLTextAreaElement> = createRef()
+
+  /**
+   * Ref for the edit textarea (for auto-focus)
+   */
+  private editTextareaRef: Ref<HTMLTextAreaElement> = createRef()
+
+  /**
+   * Index of item currently being edited (null if not editing)
+   */
+  @state()
+  private editingIndex: number | null = null
+
+  /**
+   * Index of item whose menu is open (null if none)
+   */
+  @state()
+  private itemMenuOpen: number | null = null
+
+  /**
+   * Position of the open item menu (for fixed positioning)
+   */
+  @state()
+  private itemMenuPosition: { top: number; right: number } | null = null
+
+  /**
+   * Content being edited (for in-place editing)
+   */
+  @state()
+  private editingContent: string = ''
+
+  /**
+   * Original content when editing started (for change detection)
+   */
+  private editingOriginalContent: string = ''
+
+  /**
+   * Whether the edited content has changed from the original
+   */
+  private get hasEditChanges(): boolean {
+    return this.editingContent !== this.editingOriginalContent
+  }
+
+  /**
+   * Whether the input modal is animating into the FAB
+   */
+  @state()
+  private isInputFlying: boolean = false
+
+  /**
+   * Whether the FAB is pulsing (after item added)
+   */
+  @state()
+  private isFabPulsing: boolean = false
+
+  /**
+   * Currently selected/active item index in the panel
+   */
+  @state()
+  private activeItemIndex: number | null = null
+
+  /**
+   * Set of expanded page group paths (for collapsible sections)
+   * Current page is always expanded by default
+   */
+  @state()
+  private expandedPageGroups: Set<string> = new Set()
+
+  /**
+   * Item index to activate after cross-page navigation completes
+   */
+  private pendingActivation: number | null = null
+
+  /**
+   * Tracks highlight ranges and their associated item indices
+   * Used for click detection on highlights
+   */
+  private highlightRanges: Array<{
+    range: Range
+    itemIndex: number
+    type: 'comment' | 'suggestion'
+  }> = []
+
+  /**
+   * CSS Highlight objects for the Custom Highlight API
+   */
+  private commentHighlight: Highlight | null = null
+  private suggestionHighlight: Highlight | null = null
+  private activeHighlight: Highlight | null = null
+
+  /**
+   * Use Light DOM so theme CSS can style the component
+   */
+  protected override createRenderRoot() {
+    return this
+  }
+
+  override connectedCallback() {
+    super.connectedCallback()
+    this.loadFromStorage()
+    this.refreshAuthStatus()
+    document.addEventListener('selectionchange', this.handleSelectionChange)
+    document.addEventListener('mouseup', this.handleMouseUp)
+    document.addEventListener('visibilitychange', this.handleVisibilityChange)
+    document.addEventListener('keydown', this.handleKeyDown)
+    window.addEventListener(GlideEvents.END, this.handleGlideEnd)
+
+    // Apply highlights after initial load (with small delay for DOM to be ready)
+    // Also auto-expand the current page group
+    requestAnimationFrame(() => {
+      this.applyHighlights()
+      this.expandCurrentPageGroup()
+    })
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback()
+    document.removeEventListener('selectionchange', this.handleSelectionChange)
+    document.removeEventListener('mouseup', this.handleMouseUp)
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange)
+    document.removeEventListener('keydown', this.handleKeyDown)
+    window.removeEventListener(GlideEvents.END, this.handleGlideEnd)
+
+    // Clear highlights when component is removed
+    this.clearHighlights()
+  }
+
+  /**
+   * Toggle the review panel open/closed
+   */
+  private togglePanel(event: Event) {
+    event.stopPropagation()
+    this.panelOpen = !this.panelOpen
+  }
+
+  /**
+   * Handle keyboard shortcuts
+   * - Ctrl+Shift+C: Add comment on current selection
+   * - Ctrl+Shift+S: Add suggestion on current selection
+   * - Escape: Cancel current input / clear selection
+   */
+  private handleKeyDown = (e: KeyboardEvent) => {
+    // Handle Escape to cancel (in priority order)
+    if (e.key === 'Escape') {
+      if (this.showInput) {
+        this.handleCancel()
+        e.preventDefault()
+      } else if (this.editingIndex !== null) {
+        this.cancelEdit()
+        e.preventDefault()
+      } else if (this.panelOpen) {
+        this.panelOpen = false
+        e.preventDefault()
+      }
+      return
+    }
+
+    // Only process shortcuts if enabled
+    if (!this.shortcuts) {
+      return
+    }
+
+    // Check for Ctrl+Shift+C (comment) or Ctrl+Shift+S (suggestion)
+    if (e.ctrlKey && e.shiftKey) {
+      if (e.key === 'C' && this.allowsComments) {
+        // If text is selected, comment on selection; otherwise page-level comment
+        if (this.currentSelection) {
+          this.handleComment()
+        } else {
+          this.handlePageComment()
+        }
+        e.preventDefault()
+      } else if (e.key === 'S' && this.currentSelection && this.allowsSuggestions) {
+        this.handleSuggest()
+        e.preventDefault()
+      }
+    }
+  }
+
+  /**
+   * Handle visibility change to refresh auth status when returning from sign-in
+   */
+  private handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      this.refreshAuthStatus()
+    }
+  }
+
+  /**
+   * Load pending items and source info from localStorage
+   */
+  private loadFromStorage() {
+    try {
+      const storedItems = localStorage.getItem(STORAGE_KEY_ITEMS)
+      if (storedItems) {
+        this.pendingItems = JSON.parse(storedItems)
+        console.log('[SiteReview] Loaded items from storage:', this.pendingItems.length)
+      }
+      const storedSource = localStorage.getItem(STORAGE_KEY_SOURCE)
+      if (storedSource) {
+        this.sourceInfo = JSON.parse(storedSource)
+        console.log('[SiteReview] Loaded source info from storage:', this.sourceInfo)
+      }
+    } catch (e) {
+      console.error('[SiteReview] Failed to load from storage:', e)
+    }
+  }
+
+  /**
+   * Save pending items and source info to localStorage
+   */
+  private saveToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(this.pendingItems))
+      if (this.sourceInfo) {
+        localStorage.setItem(STORAGE_KEY_SOURCE, JSON.stringify(this.sourceInfo))
+      } else {
+        localStorage.removeItem(STORAGE_KEY_SOURCE)
+      }
+      console.log('[SiteReview] Saved to storage:', this.pendingItems.length, 'items')
+    } catch (e) {
+      console.error('[SiteReview] Failed to save to storage:', e)
+    }
+  }
+
+  // =========================================================================
+  // Authentication Methods
+  // =========================================================================
+
+  /**
+   * Get headers for API requests, including Clerk token if available
+   */
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    // Try to get Clerk token if Clerk SDK is available
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const clerk = (window as any).Clerk
+    if (clerk?.session) {
+      try {
+        const token = await clerk.session.getToken()
+        if (token) {
+          return { Authorization: `Bearer ${token}` }
+        }
+      } catch (e) {
+        console.warn('[SiteReview] Failed to get Clerk token:', e)
+      }
+    }
+    return {}
+  }
+
+  /**
+   * Unified API fetch helper with auth headers and credentials
+   */
+  private async apiFetch(
+    path: string,
+    options: { method?: string; body?: unknown } = {}
+  ): Promise<Response> {
+    const authHeaders = await this.getAuthHeaders()
+    const headers: Record<string, string> = { ...authHeaders }
+    if (options.body) {
+      headers['Content-Type'] = 'application/json'
+    }
+
+    return fetch(this.apiBase + path, {
+      method: options.method ?? 'GET',
+      headers,
+      credentials: isLocalhost() ? 'include' : 'same-origin',
+      ...(options.body && { body: JSON.stringify(options.body) }),
+    })
+  }
+
+  /**
+   * Refresh auth status from the API
+   * This is called on mount and after OAuth callback returns
+   */
+  private async refreshAuthStatus() {
+    this.authLoading = true
+
+    // In dev mode on localhost, skip API and use permissive defaults
+    if (this.isDevMode) {
+      console.log('[SiteReview] Dev mode enabled, skipping API')
+      this.applyDevDefaults()
+      this.authLoading = false
+      return
+    }
+
+    console.log('[SiteReview] Fetching auth status from:', this.apiBase + REVIEW_AUTH_PATH)
+
+    try {
+      const response = await this.apiFetch(REVIEW_AUTH_PATH)
+
+      if (response.ok) {
+        this.authStatus = await response.json()
+        console.log('[SiteReview] Auth status:', this.authStatus)
+      } else {
+        console.error('[SiteReview] Failed to fetch auth status:', response.status)
+        // Use dev defaults on localhost when API unavailable
+        this.applyDevDefaults()
+      }
+    } catch (e) {
+      console.error('[SiteReview] Auth status fetch failed:', e)
+      // Use dev defaults on localhost when API unavailable
+      this.applyDevDefaults()
+    } finally {
+      this.authLoading = false
+    }
+  }
+
+  /**
+   * Check if localhost dev mode is enabled.
+   * Enable by adding ?reviewDevMode=true to the URL or setting localStorage.
+   */
+  private get isDevMode(): boolean {
+    if (!isLocalhost()) return false
+
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('reviewDevMode') === 'true') return true
+    if (localStorage.getItem('stencila-review-dev-mode') === 'true') return true
+
+    return false
+  }
+
+  /**
+   * Apply development defaults when on localhost and API is unavailable,
+   * or when dev mode is explicitly enabled.
+   * This allows testing the UI flow without a backend.
+   *
+   * To enable dev mode:
+   *   - Add ?reviewDevMode=true to URL, or
+   *   - Run in console: localStorage.setItem('stencila-review-dev-mode', 'true')
+   *
+   * To test different scenarios, modify these values or use browser console:
+   *   document.querySelector('stencila-site-review').authStatus = { ... }
+   */
+  private applyDevDefaults() {
+    if (!isLocalhost()) {
+      return
+    }
+
+    console.log('[SiteReview] Using development defaults (localhost dev mode)')
+    this.authStatus = {
+      hasSiteAccess: true,
+      reviewConfig: {
+        enabled: true,
+        allowPublic: true,
+        allowAnonymous: true,
+      },
+      repo: {
+        isPrivate: false,
+        appInstalled: true,
+      },
+      authorship: {
+        canAuthorAsSelf: false,
+        willBeBotAuthored: true,
+        reason: 'Development mode - no GitHub connected',
+      },
+    }
+  }
+
+  /**
+   * Check if this is a Stencila-hosted site (*.stencila.site or localhost)
+   * OAuth only works on Stencila-hosted sites
+   */
+  private get isStencilaHostedSite(): boolean {
+    const hostname = window.location.hostname
+    // *.stencila.site subdomains
+    if (hostname.endsWith('.stencila.site')) return true
+    // localhost for development
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return true
+    // Common third-party hosts that won't work
+    const thirdPartyHosts = [
+      'netlify.app',
+      'netlify.com',
+      'github.io',
+      'vercel.app',
+      'pages.dev',
+      'surge.sh',
+      'render.com',
+    ]
+    return !thirdPartyHosts.some((host) => hostname.endsWith(host))
+  }
+
+  /**
+   * Connect GitHub account
+   * - Stencila users: direct to profile page
+   * - Non-Stencila users on Stencila-hosted sites: OAuth redirect flow
+   */
+  private connectGitHub() {
+    if (this.authStatus?.user) {
+      // Stencila user - direct them to profile to connect GitHub
+      window.open(CLOUD_PROFILE_URL, '_blank')
+      return
+    }
+
+    if (!this.isStencilaHostedSite) {
+      this.errorMessage =
+        'GitHub authentication is only available on Stencila-hosted sites. Submit reviews anonymously or sign in with Stencila.'
+      return
+    }
+
+    // Private repos require Stencila sign-in, not GitHub OAuth
+    // (OAuth tokens only have public_repo scope)
+    if (this.authStatus?.repo?.isPrivate) {
+      this.errorMessage =
+        'Private repositories require signing in with Stencila. GitHub OAuth is only available for public repositories.'
+      return
+    }
+
+    // Non-Stencila user on Stencila-hosted site, public repo - OAuth redirect flow
+    const state = crypto.randomUUID()
+    const url = new URL(`${CLOUD_API_BASE}/v1/auth/github/authorize`)
+    url.searchParams.set('workspace_id', this.workspaceId)
+    url.searchParams.set('state', state)
+    url.searchParams.set('return_url', window.location.href)
+
+    console.log('[SiteReview] Starting GitHub OAuth flow')
+    window.location.href = url.toString()
+  }
+
+  /**
+   * Disconnect GitHub account (for non-Stencila OAuth users)
+   */
+  private async disconnectGitHub() {
+    try {
+      const response = await this.apiFetch(REVIEW_GITHUB_TOKEN_PATH, {
+        method: 'DELETE',
+      })
+      if (response.ok) {
+        console.log('[SiteReview] GitHub disconnected')
+        await this.refreshAuthStatus()
+      }
+    } catch (e) {
+      console.error('[SiteReview] Failed to disconnect GitHub:', e)
+    }
+  }
+
+  // =========================================================================
+  // Helper Methods for Auth State
+  // =========================================================================
+
+  /**
+   * Check if the user can submit a review based on current auth state
+   */
+  private get canSubmitReview(): boolean {
+    const config = this.authStatus?.reviewConfig
+    if (!config?.enabled) return false
+
+    // Must have site access if not public
+    if (!config.allowPublic && !this.authStatus?.hasSiteAccess) return false
+
+    // Must have GitHub if anonymous not allowed
+    if (!config.allowAnonymous && !this.authStatus?.github?.connected) return false
+
+    // Blocked: private repo, no push access, no app installed
+    if (this.isBlockedPrivateRepo) return false
+
+    return true
+  }
+
+  /**
+   * Check if we're blocked due to private repo without app
+   */
+  private get isBlockedPrivateRepo(): boolean {
+    const repo = this.authStatus?.repo
+    const github = this.authStatus?.github
+
+    if (!repo?.isPrivate || repo?.appInstalled) {
+      return false // Public repo or app installed - not blocked
+    }
+
+    // Private repo without app - blocked unless user has push access
+    if (!github?.connected) {
+      return true // No GitHub = can't push, can't fork, no bot = blocked
+    }
+
+    return !github.canPush // Has GitHub but no push access = blocked
+  }
+
+  /**
+   * Get the reason why submission is blocked (if any)
+   */
+  private get blockedReason(): string | null {
+    if (!this.isBlockedPrivateRepo) return null
+
+    const hasGitHub = this.authStatus?.github?.connected
+    if (hasGitHub) {
+      return "This is a private repository and you don't have push access. Ask a repository admin to install the Stencila GitHub App."
+    }
+    return 'This is a private repository without the Stencila GitHub App installed. Reviews cannot be submitted without the app.'
+  }
+
+  /**
+   * Whether to show the GitHub connect button
+   */
+  private get showGitHubConnect(): boolean {
+    // Don't show if already connected
+    if (this.authStatus?.github?.connected) return false
+
+    // Show if: anonymous not allowed OR has Stencila account (who might want attribution)
+    const wantsGitHub =
+      !this.authStatus?.reviewConfig.allowAnonymous || !!this.authStatus?.user
+    if (!wantsGitHub) return false
+
+    // Stencila users can always connect via profile (regardless of repo visibility)
+    if (this.authStatus?.user) return true
+
+    // Non-Stencila users: OAuth is NOT available for private repos
+    // They must sign in with Stencila to access private repos
+    if (this.authStatus?.repo?.isPrivate) return false
+
+    // Only show if OAuth is available (Stencila-hosted site, public repo)
+    return this.isStencilaHostedSite
+  }
+
+  /**
+   * Whether the user needs to sign in with Stencila (not just GitHub OAuth)
+   *
+   * Per spec, private repos can still allow anonymous/bot PRs if:
+   * - allowAnonymous is true, AND
+   * - GitHub App is installed on the repo
+   */
+  private get requiresStencilaSignIn(): boolean {
+    // Already has Stencila account
+    if (this.authStatus?.user) return false
+
+    // Already has GitHub connected
+    if (this.authStatus?.github?.connected) return false
+
+    const repo = this.authStatus?.repo
+    const config = this.authStatus?.reviewConfig
+
+    // Private repo: check if bot PR is possible
+    if (repo?.isPrivate) {
+      // If app installed AND anonymous allowed → bot can create PR, no sign-in required
+      if (repo.appInstalled && config?.allowAnonymous) {
+        return false
+      }
+      // Otherwise, private repo requires Stencila sign-in
+      return true
+    }
+
+    // Public repo: check site access requirements
+    if (config?.allowPublic) return false
+
+    // Need site access but don't have it
+    return !this.authStatus?.hasSiteAccess
+  }
+
+  /**
+   * Get the sign-in URL with workspace ID and return URL
+   */
+  private get signInUrl(): string {
+    const url = new URL(`https://${this.workspaceId}.stencila.site/__stencila-signin`)
+    url.searchParams.set('return', window.location.href)
+    return url.toString()
+  }
+
+  /**
+   * Get CSS styles for FAB positioning
+   */
+  private get fabPositionStyles(): string {
+    const offset = '16px'
+    switch (this.position) {
+      case 'top-right':
+        return `top: ${offset}; right: ${offset};`
+      case 'top-left':
+        return `top: ${offset}; left: ${offset};`
+      case 'bottom-left':
+        return `bottom: ${offset}; left: ${offset};`
+      case 'bottom-right':
+      default:
+        return `bottom: ${offset}; right: ${offset};`
+    }
+  }
+
+  /**
+   * Get CSS styles for panel positioning (offset from FAB)
+   * Panel corner aligns below the center of the FAB
+   */
+  private get panelPositionStyles(): string {
+    const edgeOffset = '16px'
+    const fabEdgeOffset = 16
+    const fabSize = 48
+    // Position panel so its corner is at the FAB's center
+    const panelOffset = `${fabEdgeOffset + fabSize / 2}px` // 40px
+    switch (this.position) {
+      case 'top-right':
+        return `top: ${panelOffset}; right: ${edgeOffset};`
+      case 'top-left':
+        return `top: ${panelOffset}; left: ${edgeOffset};`
+      case 'bottom-left':
+        return `bottom: ${panelOffset}; left: ${edgeOffset};`
+      case 'bottom-right':
+      default:
+        return `bottom: ${panelOffset}; right: ${edgeOffset};`
+    }
+  }
+
+  /**
+   * Truncate text to a maximum length with ellipsis
+   */
+  private truncate(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text
+    return text.slice(0, maxLength) + '...'
+  }
+
+  /**
+   * Extract pathname from a URL string
+   */
+  private getPathname(url: string): string {
+    try {
+      return new URL(url).pathname
+    } catch {
+      return url
+    }
+  }
+
+  /**
+   * Get description of who will author the PR
+   *
+   * Decision tree:
+   * 1. GitHub connected + canPush → Direct PR as user
+   * 2. GitHub connected + !canPush + private repo → Bot PR (can't fork private repos)
+   * 3. GitHub connected + !canPush + public repo → Fork PR as user
+   * 4. Stencila user without GitHub → Bot PR attributed to user
+   * 5. Anonymous → Bot PR
+   */
+  private get prAuthorDescription(): string {
+    const github = this.authStatus?.github
+    const user = this.authStatus?.user
+    const repo = this.authStatus?.repo
+
+    if (github?.connected) {
+      // Has push access - direct PR regardless of repo visibility
+      if (github.canPush) {
+        return `PR will be created as @${github.username}`
+      }
+      // No push access on private repo - must use bot (can't fork private repos)
+      if (repo?.isPrivate) {
+        return `PR will be created by Stencila bot, attributed to @${github.username}`
+      }
+      // No push access on public repo - fork to user's account
+      return `PR will be created as @${github.username} from a fork`
+    }
+
+    // Stencila user without GitHub - bot PR with attribution
+    if (user) {
+      return `PR will be created by Stencila bot, attributed to ${user.name}`
+    }
+
+    // Anonymous - bot PR without attribution
+    return 'PR will be created by Stencila bot'
+  }
+
+  // =========================================================================
+  // Source Info Methods
+  // =========================================================================
+
+  /**
+   * Get source info (repository, commit) from the closest root element
+   */
+  private getSourceInfoFromRoot(): SourceInfo | null {
+    const root = document.querySelector('[root]')
+    if (!root) {
+      console.warn('[SiteReview] No [root] element found')
+      return null
+    }
+
+    const repository = root.getAttribute('repository')
+    const commit = root.getAttribute('commit')
+
+    if (!repository || !commit) {
+      console.warn('[SiteReview] Root element missing source attributes:', {
+        repository,
+        commit,
+      })
+      return null
+    }
+
+    return { repository, commit }
+  }
+
+  /**
+   * Get the path attribute from the closest root element
+   */
+  private getPathFromRoot(): string | null {
+    const root = document.querySelector('[root]')
+    return root?.getAttribute('path') ?? null
+  }
+
+  /**
+   * Check if source info (repository, commit) matches the current page's source
+   */
+  private checkSourceConsistency(currentSource: SourceInfo): boolean {
+    if (!this.sourceInfo) {
+      return true
+    }
+
+    return (
+      this.sourceInfo.repository === currentSource.repository &&
+      this.sourceInfo.commit === currentSource.commit
+    )
+  }
+
+  // =========================================================================
+  // Highlight Management Methods
+  // =========================================================================
+
+  /**
+   * Handle Glide navigation end - reapply highlights for new page
+   */
+  private handleGlideEnd = (_event: Event) => {
+    const customEvent = _event as CustomEvent<GlideEventDetail>
+    console.log('[SiteReview] Navigation to:', customEvent.detail.url)
+
+    // Re-apply highlights for the new page and auto-expand its group
+    requestAnimationFrame(() => {
+      this.applyHighlights()
+      this.expandCurrentPageGroup()
+
+      // Handle pending activation from cross-page navigation
+      if (this.pendingActivation !== null) {
+        const item = this.pendingItems[this.pendingActivation]
+        if (item && this.getPathname(item.url) === window.location.pathname) {
+          this.activateAndScrollToItem(this.pendingActivation, item)
+        }
+        this.pendingActivation = null
+      }
+
+      // Trigger re-render to update current page state
+      this.requestUpdate()
+    })
+  }
+
+  /**
+   * Find all elements between start and end nodeIds (inclusive).
+   * Uses DOM tree order traversal to find all elements with IDs in the range.
+   */
+  private findElementsBetween(startNodeId: string, endNodeId: string): Element[] {
+    if (!startNodeId || !endNodeId) return []
+
+    const startEl = document.getElementById(startNodeId)
+    const endEl = document.getElementById(endNodeId)
+
+    if (!startEl || !endEl) return []
+
+    // Same element - return just that one
+    if (startNodeId === endNodeId) return [startEl]
+
+    const result: Element[] = []
+    let capturing = false
+
+    // Get the main content area (look for common content containers)
+    const contentSelector = 'main, [role="main"], article, [root]'
+    const content = document.querySelector(contentSelector)
+    if (!content) {
+      // Fallback: just return start and end elements
+      return [startEl, endEl]
+    }
+
+    // TreeWalker for efficient DOM traversal - only visit elements with IDs
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) => {
+        const el = node as Element
+        return el.id ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+      },
+    })
+
+    let node: Node | null = walker.currentNode
+    while (node) {
+      const el = node as Element
+      if (el.id === startNodeId) {
+        capturing = true
+      }
+
+      if (capturing && el.id) {
+        result.push(el)
+      }
+
+      if (el.id === endNodeId) {
+        break
+      }
+
+      node = walker.nextNode()
+    }
+
+    // If we didn't capture anything due to tree structure, at least return start/end
+    if (result.length === 0) {
+      return [startEl, endEl].filter(Boolean)
+    }
+
+    return result
+  }
+
+  /**
+   * Check if CSS Custom Highlight API is supported
+   */
+  private get supportsHighlightAPI(): boolean {
+    return 'highlights' in CSS && typeof Highlight !== 'undefined'
+  }
+
+  /**
+   * Find the text node and offset within it for a given element and character offset.
+   * The character offset is relative to the element's total text content.
+   */
+  private findTextPosition(
+    element: Element,
+    charOffset: number
+  ): { node: Text; offset: number } | null {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+    let currentOffset = 0
+    let node: Text | null
+
+    while ((node = walker.nextNode() as Text | null)) {
+      const nodeLength = node.length
+      if (currentOffset + nodeLength >= charOffset) {
+        return { node, offset: charOffset - currentOffset }
+      }
+      currentOffset += nodeLength
+    }
+
+    // If offset exceeds content, return end of last text node
+    if (node) {
+      return { node, offset: node.length }
+    }
+
+    return null
+  }
+
+  /**
+   * Create a Range for a review item's selection
+   */
+  private createRangeForItem(item: ReviewItem): Range | null {
+    if (!item.start.nodeId || !item.end.nodeId) return null
+
+    const startEl = document.getElementById(item.start.nodeId)
+    const endEl = document.getElementById(item.end.nodeId)
+
+    if (!startEl || !endEl) return null
+
+    const startPos = this.findTextPosition(startEl, item.start.offset)
+    const endPos = this.findTextPosition(endEl, item.end.offset)
+
+    if (!startPos || !endPos) return null
+
+    try {
+      const range = document.createRange()
+      range.setStart(startPos.node, startPos.offset)
+      range.setEnd(endPos.node, endPos.offset)
+      return range
+    } catch (e) {
+      console.warn('[SiteReview] Failed to create range:', e)
+      return null
+    }
+  }
+
+  /**
+   * Apply highlights for all items on the current page using CSS Custom Highlight API
+   */
+  private applyHighlights() {
+    this.clearHighlights()
+
+    if (!this.supportsHighlightAPI) {
+      console.warn('[SiteReview] CSS Custom Highlight API not supported')
+      return
+    }
+
+    const currentPath = window.location.pathname
+    const commentRanges: Range[] = []
+    const suggestionRanges: Range[] = []
+
+    this.pendingItems.forEach((item, index) => {
+      // Only highlight items on current page
+      if (this.getPathname(item.url) !== currentPath) return
+
+      // Skip page-level comments (no nodeId)
+      if (!item.start.nodeId) return
+
+      const range = this.createRangeForItem(item)
+      if (!range) return
+
+      // Track range for click detection
+      this.highlightRanges.push({ range, itemIndex: index, type: item.type })
+
+      // Add to appropriate highlight group
+      if (item.type === 'comment') {
+        commentRanges.push(range)
+      } else {
+        suggestionRanges.push(range)
+      }
+    })
+
+    // Create and register CSS highlights
+    if (commentRanges.length > 0) {
+      this.commentHighlight = new Highlight(...commentRanges)
+      CSS.highlights.set('review-comment', this.commentHighlight)
+    }
+
+    if (suggestionRanges.length > 0) {
+      this.suggestionHighlight = new Highlight(...suggestionRanges)
+      CSS.highlights.set('review-suggestion', this.suggestionHighlight)
+    }
+
+    // Add click listener for highlight detection
+    document.addEventListener('click', this.handleDocumentClick)
+
+    console.log(
+      '[SiteReview] Applied highlights:',
+      commentRanges.length,
+      'comments,',
+      suggestionRanges.length,
+      'suggestions'
+    )
+  }
+
+  /**
+   * Clear all document highlights
+   */
+  private clearHighlights() {
+    if (this.supportsHighlightAPI) {
+      CSS.highlights.delete('review-comment')
+      CSS.highlights.delete('review-suggestion')
+      CSS.highlights.delete('review-comment-active')
+      CSS.highlights.delete('review-suggestion-active')
+    }
+
+    this.commentHighlight = null
+    this.suggestionHighlight = null
+    this.activeHighlight = null
+    this.highlightRanges = []
+
+    document.removeEventListener('click', this.handleDocumentClick)
+  }
+
+  /**
+   * Handle click on document to detect clicks on highlights
+   */
+  private handleDocumentClick = (e: MouseEvent) => {
+    // Don't process clicks inside the review component
+    if ((e.target as Element)?.closest('stencila-site-review')) {
+      return
+    }
+
+    // Check if click is within any highlight range
+    const selection = window.getSelection()
+    if (!selection) return
+
+    // Create a collapsed range at click position (cross-browser)
+    const clickRange = this.caretRangeFromPoint(e.clientX, e.clientY)
+    if (!clickRange) return
+
+    // Check each highlight range
+    for (const { range, itemIndex } of this.highlightRanges) {
+      if (this.rangeContainsPoint(range, clickRange)) {
+        e.preventDefault()
+        e.stopPropagation()
+        this.setActiveHighlight(itemIndex)
+
+        // Ensure page group is expanded
+        const item = this.pendingItems[itemIndex]
+        if (item) {
+          const itemPath = this.getPathname(item.url)
+          if (!this.expandedPageGroups.has(itemPath)) {
+            this.expandedPageGroups.add(itemPath)
+            this.expandedPageGroups = new Set(this.expandedPageGroups)
+          }
+        }
+
+        // Open the panel if not already open
+        if (!this.panelOpen) {
+          this.panelOpen = true
+        }
+
+        // Scroll the item into view in the panel after render
+        this.updateComplete.then(() => {
+          const itemElement = this.shadowRoot?.querySelector(
+            `.review-item[data-index="${itemIndex}"]`
+          )
+          itemElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        })
+        return
+      }
+    }
+  }
+
+  /**
+   * Get a collapsed Range at a screen position (cross-browser)
+   * Chrome uses caretRangeFromPoint, Firefox uses caretPositionFromPoint
+   */
+  private caretRangeFromPoint(x: number, y: number): Range | null {
+    // Chrome/Safari/Edge
+    if (document.caretRangeFromPoint) {
+      return document.caretRangeFromPoint(x, y)
+    }
+
+    // Firefox
+    type CaretPosition = { offsetNode: Node; offset: number }
+    type DocWithCaret = { caretPositionFromPoint?: (x: number, y: number) => CaretPosition | null }
+    const caretPosition = (document as unknown as DocWithCaret).caretPositionFromPoint?.(x, y)
+    if (caretPosition) {
+      const range = document.createRange()
+      range.setStart(caretPosition.offsetNode, caretPosition.offset)
+      range.collapse(true)
+      return range
+    }
+
+    return null
+  }
+
+  /**
+   * Check if a range contains a point (represented as a collapsed range)
+   */
+  private rangeContainsPoint(range: Range, point: Range): boolean {
+    return (
+      range.compareBoundaryPoints(Range.START_TO_START, point) <= 0 &&
+      range.compareBoundaryPoints(Range.END_TO_END, point) >= 0
+    )
+  }
+
+  /**
+   * Set the active highlight for a selected item
+   */
+  private setActiveHighlight(itemIndex: number | null) {
+    // Clear previous active highlight
+    if (this.supportsHighlightAPI) {
+      CSS.highlights.delete('review-comment-active')
+      CSS.highlights.delete('review-suggestion-active')
+    }
+    this.activeHighlight = null
+    this.activeItemIndex = itemIndex
+
+    if (itemIndex === null) return
+
+    const item = this.pendingItems[itemIndex]
+    if (!item?.start.nodeId) return
+
+    // Create range for active item
+    const range = this.createRangeForItem(item)
+    if (!range) return
+
+    // Create active highlight
+    if (this.supportsHighlightAPI) {
+      this.activeHighlight = new Highlight(range)
+      const highlightName =
+        item.type === 'comment' ? 'review-comment-active' : 'review-suggestion-active'
+      CSS.highlights.set(highlightName, this.activeHighlight)
+    }
+  }
+
+  /**
+   * Activate an item and scroll to its highlight in the document
+   */
+  private activateAndScrollToItem(index: number, item: ReviewItem) {
+    this.setActiveHighlight(index)
+
+    if (item.start.nodeId) {
+      const element = document.getElementById(item.start.nodeId)
+      if (element) {
+        // Use smooth scroll with header offset
+        const HEADER_OFFSET = 80
+        const rect = element.getBoundingClientRect()
+        const offsetPosition = rect.top + window.scrollY - HEADER_OFFSET
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+      }
+    }
+  }
+
+  /**
+   * Handle clicking on a review item in the panel
+   */
+  private handleItemClick(index: number, item: ReviewItem) {
+    const itemPath = this.getPathname(item.url)
+    const currentPath = window.location.pathname
+
+    if (itemPath !== currentPath) {
+      // Navigate to the other page first, store pending activation
+      this.pendingActivation = index
+      navigate(itemPath, 'click')
+    } else {
+      // Same page - just activate and scroll
+      this.activateAndScrollToItem(index, item)
+    }
+  }
+
+  // =========================================================================
+  // Page Grouping Methods
+  // =========================================================================
+
+  /**
+   * Group pending items by page URL
+   */
+  private get itemsByPage(): Map<string, { items: ReviewItem[]; indices: number[] }> {
+    const groups = new Map<string, { items: ReviewItem[]; indices: number[] }>()
+
+    this.pendingItems.forEach((item, index) => {
+      const path = this.getPathname(item.url)
+      if (!groups.has(path)) {
+        groups.set(path, { items: [], indices: [] })
+      }
+      const group = groups.get(path)
+      if (group) {
+        group.items.push(item)
+        group.indices.push(index)
+      }
+    })
+
+    return groups
+  }
+
+  /**
+   * Check if a page path is the current page
+   */
+  private isCurrentPage(path: string): boolean {
+    return path === window.location.pathname
+  }
+
+  /**
+   * Toggle a page group's expanded state
+   */
+  private togglePageGroup(path: string) {
+    if (this.expandedPageGroups.has(path)) {
+      this.expandedPageGroups.delete(path)
+    } else {
+      this.expandedPageGroups.add(path)
+    }
+    // Trigger re-render with new Set
+    this.expandedPageGroups = new Set(this.expandedPageGroups)
+  }
+
+  /**
+   * Auto-expand the page group for the current page
+   */
+  private expandCurrentPageGroup() {
+    const currentPath = window.location.pathname
+    // Only expand if there are items for this page
+    const hasItemsForCurrentPage = this.pendingItems.some(
+      (item) => this.getPathname(item.url) === currentPath
+    )
+    if (hasItemsForCurrentPage && !this.expandedPageGroups.has(currentPath)) {
+      this.expandedPageGroups.add(currentPath)
+      this.expandedPageGroups = new Set(this.expandedPageGroups)
+    }
+  }
+
+  /**
+   * Dismiss error message
+   */
+  private dismissError() {
+    this.errorMessage = ''
+  }
+
+  /**
+   * Handle selection changes
+   */
+  private handleSelectionChange = () => {
+    // We process on mouseup instead to get the final selection
+  }
+
+  /**
+   * Handle mouseup to capture final selection
+   */
+  private handleMouseUp = (e: MouseEvent) => {
+    // Don't process selection if clicking inside the site-review component
+    // (e.g., on the modal or floating button) - use composedPath for Shadow DOM
+    const path = e.composedPath()
+    if (path.includes(this)) {
+      return
+    }
+
+    // Don't process selection if input modal is open
+    if (this.showInput) {
+      return
+    }
+
+    // Small delay to ensure selection is finalized
+    setTimeout(() => this.processSelection(), 10)
+  }
+
+  /**
+   * Process the current selection
+   */
+  private processSelection() {
+    const selection = window.getSelection()
+    if (!selection || selection.isCollapsed || !selection.rangeCount) {
+      this.currentSelection = null
+      return
+    }
+
+    const range = selection.getRangeAt(0)
+    const selectedText = range.toString().trim()
+
+    if (!selectedText) {
+      this.currentSelection = null
+      return
+    }
+
+    // Check selection length against min/max limits
+    if (selectedText.length < this.minSelection) {
+      this.currentSelection = null
+      return
+    }
+
+    if (selectedText.length > this.maxSelection) {
+      // Selection too large - could show warning in future
+      console.log('[SiteReview] Selection exceeds max length:', selectedText.length)
+      this.currentSelection = null
+      return
+    }
+
+    // Find start anchor
+    const startNode = this.findNodeWithId(range.startContainer)
+    if (!startNode) {
+      this.currentSelection = null
+      return
+    }
+    const startOffset = this.getCharOffset(
+      startNode,
+      range.startContainer,
+      range.startOffset
+    )
+
+    // Find end anchor (may be different node for multi-block)
+    const endNode = this.findNodeWithId(range.endContainer)
+    if (!endNode) {
+      this.currentSelection = null
+      return
+    }
+    const endOffset = this.getCharOffset(
+      endNode,
+      range.endContainer,
+      range.endOffset
+    )
+
+    const rect = range.getBoundingClientRect()
+
+    this.currentSelection = {
+      start: { nodeId: startNode.id, offset: startOffset },
+      end: { nodeId: endNode.id, offset: endOffset },
+      selectedText,
+      rect,
+    }
+
+    // Log for debugging (walking skeleton)
+    console.log('[SiteReview] Selection:', {
+      start: this.currentSelection.start,
+      end: this.currentSelection.end,
+      selectedText:
+        selectedText.length > 50
+          ? selectedText.slice(0, 50) + '...'
+          : selectedText,
+      isMultiBlock: startNode.id !== endNode.id,
+    })
+  }
+
+  /**
+   * Find the closest ancestor element with an id attribute
+   */
+  private findNodeWithId(node: Node): Element | null {
+    let current: Node | null = node
+    while (current) {
+      if (current instanceof Element && current.id) {
+        return current
+      }
+      current = current.parentElement
+    }
+    return null
+  }
+
+  /**
+   * Calculate character offset within a node's text content
+   */
+  private getCharOffset(
+    nodeEl: Element,
+    container: Node,
+    offset: number
+  ): number {
+    const preCaretRange = document.createRange()
+    preCaretRange.selectNodeContents(nodeEl)
+    preCaretRange.setEnd(container, offset)
+    return preCaretRange.toString().length
+  }
+
+  /**
+   * Handle adding a page-level comment (no text selection required)
+   */
+  private handlePageComment() {
+    this.inputType = 'comment'
+    this.inputContent = ''
+    this.currentSelection = null // Clear any selection
+    this.showInput = true
+  }
+
+  /**
+   * Handle clicking the comment button
+   */
+  private handleComment() {
+    this.inputType = 'comment'
+    this.inputContent = ''
+    this.showInput = true
+  }
+
+  /**
+   * Handle clicking the suggest button
+   */
+  private handleSuggest() {
+    this.inputType = 'suggestion'
+    this.inputContent = this.currentSelection?.selectedText || ''
+    this.showInput = true
+  }
+
+  /**
+   * Handle canceling the input
+   */
+  private handleCancel() {
+    this.showInput = false
+    this.inputContent = ''
+    this.currentSelection = null
+    window.getSelection()?.removeAllRanges()
+  }
+
+  /**
+   * Handle submitting an annotation
+   */
+  private handleAddItem() {
+    console.log('[SiteReview] handleAddItem called', {
+      hasSelection: !!this.currentSelection,
+      inputContent: this.inputContent,
+    })
+
+    // For suggestions, we need a selection. For comments, selection is optional (page-level comment)
+    if (this.inputType === 'suggestion' && !this.currentSelection) {
+      console.log('[SiteReview] handleAddItem early return - suggestion requires selection')
+      return
+    }
+
+    if (!this.inputContent.trim()) {
+      console.log('[SiteReview] handleAddItem early return - missing content')
+      return
+    }
+
+    // Get source info from the current page's root element
+    const currentSource = this.getSourceInfoFromRoot()
+    if (!currentSource) {
+      this.errorMessage =
+        'Unable to determine source information for this page. Please contact the site owner.'
+      this.showInput = false
+      return
+    }
+
+    // Check consistency with existing review (skip on localhost for dev convenience)
+    if (!isLocalhost() && !this.checkSourceConsistency(currentSource)) {
+      this.showCommitMismatch = true
+      this.showInput = false
+      return
+    }
+
+    // On localhost with commit mismatch, silently update to current source
+    if (isLocalhost() && !this.checkSourceConsistency(currentSource)) {
+      console.log('[SiteReview] Commit mismatch on localhost, updating source info')
+      this.sourceInfo = currentSource
+    }
+
+    // Set source info if this is the first item
+    if (!this.sourceInfo) {
+      this.sourceInfo = currentSource
+      console.log('[SiteReview] Set source info:', this.sourceInfo)
+    }
+
+    // Get the path for this page
+    const path = this.getPathFromRoot()
+    if (!path) {
+      this.errorMessage =
+        'Unable to determine source path for this page. Please contact the site owner.'
+      this.showInput = false
+      return
+    }
+
+    // Build the review item - handle both selection-based and page-level comments
+    const isPageComment = !this.currentSelection
+    const item: ReviewItem = {
+      type: this.inputType,
+      path,
+      url: window.location.origin + window.location.pathname,
+      start: isPageComment ? { nodeId: '', offset: 0 } : this.currentSelection.start,
+      end: isPageComment ? { nodeId: '', offset: 0 } : this.currentSelection.end,
+      selected: isPageComment ? '' : this.currentSelection.selectedText,
+      content: this.inputContent.trim(),
+    }
+
+    // Insert item in position order among items for the same URL
+    // Since we can only compare DOM positions on the current page, and items
+    // are only added on the current page, this ensures proper ordering
+    const insertIndex = this.findInsertPosition(item)
+    const newItems = [...this.pendingItems]
+    newItems.splice(insertIndex, 0, item)
+    this.pendingItems = newItems
+    this.saveToStorage()
+
+    // Reapply highlights to include the new item
+    this.applyHighlights()
+
+    // Trigger fly-into-FAB animation
+    this.isInputFlying = true
+    setTimeout(() => {
+      this.isInputFlying = false
+      this.showInput = false
+      this.inputContent = ''
+      this.currentSelection = null
+
+      // Trigger FAB pulse after modal disappears
+      this.isFabPulsing = true
+      setTimeout(() => {
+        this.isFabPulsing = false
+      }, 400)
+    }, 300) // Duration of fly animation
+
+    // Clear browser selection
+    window.getSelection()?.removeAllRanges()
+
+    // Log for debugging (walking skeleton)
+    console.log('[SiteReview] Added item:', item)
+    console.log('[SiteReview] Pending items:', this.pendingItems.length)
+  }
+
+  /**
+   * Handle deleting a pending item
+   */
+  private handleDeleteItem(index: number) {
+    // Close menu
+    this.itemMenuOpen = null
+
+    // If deleting the item being edited, cancel edit mode
+    if (this.editingIndex === index) {
+      this.editingIndex = null
+      this.editingContent = ''
+    } else if (this.editingIndex !== null && this.editingIndex > index) {
+      // Adjust editing index if deleting an item before it
+      this.editingIndex--
+    }
+
+    // Clear active highlight if deleting the active item
+    if (this.activeItemIndex === index) {
+      this.setActiveHighlight(null)
+    } else if (this.activeItemIndex !== null && this.activeItemIndex > index) {
+      // Adjust active index if deleting an item before it
+      this.activeItemIndex--
+    }
+
+    this.pendingItems = this.pendingItems.filter((_, i) => i !== index)
+    this.saveToStorage()
+
+    // Reapply highlights after deletion
+    this.applyHighlights()
+  }
+
+  /**
+   * Toggle the item menu
+   */
+  private toggleItemMenu(index: number, e: Event) {
+    e.stopPropagation()
+
+    if (this.itemMenuOpen === index) {
+      // Close menu
+      this.itemMenuOpen = null
+      this.itemMenuPosition = null
+    } else {
+      // Open menu - capture button position for fixed positioning
+      const button = e.currentTarget as HTMLElement
+      const rect = button.getBoundingClientRect()
+      this.itemMenuPosition = {
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      }
+      this.itemMenuOpen = index
+    }
+  }
+
+  /**
+   * Close the item menu
+   */
+  private closeItemMenu() {
+    this.itemMenuOpen = null
+    this.itemMenuPosition = null
+  }
+
+  /**
+   * Start editing an item (from menu)
+   */
+  private startEditing(index: number) {
+    const item = this.pendingItems[index]
+    if (item) {
+      this.editingIndex = index
+      this.editingContent = item.content
+      this.editingOriginalContent = item.content
+      this.itemMenuOpen = null
+    }
+  }
+
+  /**
+   * Save the current edit
+   */
+  private saveEdit() {
+    if (this.editingIndex === null) return
+
+    const updatedItems = [...this.pendingItems]
+    if (updatedItems[this.editingIndex]) {
+      updatedItems[this.editingIndex] = {
+        ...updatedItems[this.editingIndex],
+        content: this.editingContent.trim(),
+      }
+      this.pendingItems = updatedItems
+      this.saveToStorage()
+    }
+
+    this.editingIndex = null
+    this.editingContent = ''
+    this.editingOriginalContent = ''
+  }
+
+  /**
+   * Cancel the current edit
+   */
+  private cancelEdit() {
+    this.editingIndex = null
+    this.editingContent = ''
+    this.editingOriginalContent = ''
+  }
+
+  /**
+   * Handle clearing old review due to commit mismatch
+   */
+  private handleClearForNewCommit() {
+    this.pendingItems = []
+    this.sourceInfo = null
+    this.activeItemIndex = null
+    this.saveToStorage()
+    this.showCommitMismatch = false
+
+    // Clear all document highlights
+    this.clearHighlights()
+  }
+
+  /**
+   * Dismiss the commit mismatch modal without clearing
+   */
+  private dismissCommitMismatch() {
+    this.showCommitMismatch = false
+  }
+
+  /**
+   * Handle errors from review submission
+   */
+  private handleSubmitError(error: ApiError, statusCode?: number) {
+    // Handle HTTP status codes
+    if (statusCode === 401) {
+      this.submitError = 'Authentication required. Please sign in and try again.'
+      return
+    }
+    if (statusCode === 403) {
+      this.submitError = 'Reviews are disabled for this workspace.'
+      return
+    }
+    if (statusCode === 429) {
+      this.submitError = `Too many requests. Please try again in ${error.retryAfter ?? 60} seconds.`
+      return
+    }
+
+    // Handle error codes from response body
+    switch (error.error) {
+      case 'rate_limited':
+        this.submitError = `Too many requests. Please try again in ${error.retryAfter ?? 60} seconds.`
+        break
+      case 'private_repo_no_app':
+        this.submitError =
+          'Cannot submit review: this private repository requires the Stencila GitHub App to be installed.'
+        break
+      case 'private_repo_oauth_rejected':
+        this.submitError =
+          'Cannot submit review: private repositories require signing in with Stencila.'
+        break
+      case 'private_repo_no_auth':
+        this.submitError =
+          'Cannot submit review: this private repository requires authentication. Please sign in.'
+        break
+      case 'fork_failed':
+        this.submitError =
+          'Failed to create fork for pull request. Please try again later.'
+        break
+      default:
+        this.submitError = error.message ?? 'Failed to submit review. Please try again.'
+    }
+  }
+
+  /**
+   * Handle submitting the full review
+   */
+  private async handleSubmitReview() {
+    if (this.pendingItems.length === 0 || !this.sourceInfo) {
+      return
+    }
+
+    // Check if user can submit
+    if (!this.canSubmitReview) {
+      // If not authenticated and anonymous not allowed, prompt for GitHub
+      if (this.showGitHubConnect) {
+        this.connectGitHub()
+      }
+      return
+    }
+
+    this.submitting = true
+    this.submitError = ''
+
+    // In dev mode, mock a successful submission
+    if (this.isDevMode) {
+      console.log('[SiteReview] Dev mode: mocking submit', {
+        commit: this.sourceInfo.commit,
+        items: this.pendingItems,
+      })
+
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const commentCount = this.pendingItems.filter((i) => i.type === 'comment').length
+      const suggestionCount = this.pendingItems.filter((i) => i.type === 'suggestion').length
+
+      this.submitResult = {
+        success: true,
+        prNumber: 999,
+        prUrl: 'https://github.com/example/repo/pull/999',
+        branchName: 'stencila-review-dev-mode',
+        authoredBy: 'bot',
+        usedFork: false,
+        counts: {
+          comments: commentCount,
+          suggestions: suggestionCount,
+          fallbacks: 0,
+        },
+      }
+
+      // Clear pending items
+      this.pendingItems = []
+      this.sourceInfo = null
+      this.saveToStorage()
+      this.submitting = false
+      return
+    }
+
+    try {
+      const response = await this.apiFetch(REVIEW_SUBMIT_PATH, {
+        method: 'POST',
+        body: {
+          commit: this.sourceInfo.commit,
+          items: this.pendingItems,
+          authorAsSelf: true,
+        },
+      })
+
+      if (!response.ok) {
+        const error: ApiError = await response.json()
+        this.handleSubmitError(error, response.status)
+        return
+      }
+
+      const result: ReviewResponse = await response.json()
+      console.log('[SiteReview] Review submitted:', result)
+
+      // Show success result
+      this.submitResult = result
+
+      // Clear pending items after successful submission
+      this.pendingItems = []
+      this.sourceInfo = null
+      this.saveToStorage()
+    } catch (e) {
+      console.error('[SiteReview] Submit failed:', e)
+      this.submitError = 'Failed to submit review. Please check your connection and try again.'
+    } finally {
+      this.submitting = false
+    }
+  }
+
+  /**
+   * Dismiss the success result modal
+   */
+  private dismissSuccessResult() {
+    this.submitResult = null
+  }
+
+  /**
+   * Copy pending review items to clipboard as formatted text
+   * Used when submission is blocked (e.g., private repo without app)
+   */
+  private async copyReviewToClipboard() {
+    if (this.pendingItems.length === 0) {
+      return
+    }
+
+    const lines: string[] = [
+      '# Stencila Site Review',
+      '',
+      `Repository: ${this.sourceInfo?.repository ?? 'Unknown'}`,
+      `Commit: ${this.sourceInfo?.commit ?? 'Unknown'}`,
+      '',
+      '---',
+      '',
+    ]
+
+    for (const item of this.pendingItems) {
+      lines.push(`## ${item.type === 'comment' ? 'Comment' : 'Suggestion'}`)
+      lines.push('')
+      lines.push(`**File:** ${item.path}`)
+      lines.push(`**Page:** ${item.url}`)
+      lines.push(`**Selection:** "${item.selected}"`)
+      lines.push('')
+      if (item.type === 'suggestion') {
+        lines.push(`**Suggested replacement:**`)
+      }
+      lines.push(item.content)
+      lines.push('')
+      lines.push('---')
+      lines.push('')
+    }
+
+    const text = lines.join('\n')
+
+    try {
+      await navigator.clipboard.writeText(text)
+      // Could add a toast notification here in the future
+      console.log('[SiteReview] Review copied to clipboard')
+    } catch (e) {
+      console.error('[SiteReview] Failed to copy to clipboard:', e)
+      this.errorMessage = 'Failed to copy to clipboard. Please try again.'
+    }
+  }
+
+  /**
+   * Render the FAB (Floating Action Button) to toggle the review panel
+   */
+  private renderFab() {
+    const itemCount = this.pendingItems.length
+
+    return html`
+      <button
+        class="review-fab ${this.isFabPulsing ? 'pulsing' : ''}"
+        style=${this.fabPositionStyles}
+        @click=${this.togglePanel}
+        aria-label=${itemCount > 0
+          ? `Open review panel (${itemCount} pending)`
+          : 'Open review panel'}
+        aria-expanded=${this.panelOpen}
+      >
+        <span class="i-lucide:message-square-plus fab-icon"></span>
+        ${itemCount > 0
+          ? html`<span class="fab-badge">${itemCount > 99 ? '99+' : itemCount}</span>`
+          : null}
+      </button>
+    `
+  }
+
+  /**
+   * Render the floating button that appears near text selection
+   */
+  private renderSelection() {
+    if (!this.currentSelection || this.showInput) {
+      return null
+    }
+
+    return html`
+      <div
+        class="floating-button"
+        style="top: ${this.currentSelection.rect.bottom + 8}px; left: ${this.currentSelection.rect.left}px;"
+      >
+        ${this.allowsComments
+          ? html`<button @click=${this.handleComment} aria-label="Add comment">
+              <span class="i-lucide:message-circle"></span>
+            </button>`
+          : null}
+        ${this.allowsSuggestions
+          ? html`<button @click=${this.handleSuggest} aria-label="Suggest change">
+              <span class="i-lucide:pencil"></span>
+            </button>`
+          : null}
+      </div>
+    `
+  }
+
+  /**
+   * Handle keydown in the input textarea
+   * Cmd/Ctrl+Enter to submit
+   */
+  private handleInputKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      this.handleAddItem()
+    }
+  }
+
+  /**
+   * Focus the input textarea when it's rendered
+   */
+  override updated(changedProperties: Map<string, unknown>) {
+    super.updated(changedProperties)
+
+    // Auto-focus textarea when input modal opens
+    if (changedProperties.has('showInput') && this.showInput) {
+      requestAnimationFrame(() => {
+        this.inputTextareaRef.value?.focus()
+      })
+    }
+
+    // Auto-focus textarea when entering edit mode
+    if (changedProperties.has('editingIndex') && this.editingIndex !== null) {
+      requestAnimationFrame(() => {
+        this.editTextareaRef.value?.focus()
+      })
+    }
+  }
+
+  /**
+   * Get the fly animation target coordinates based on FAB position
+   * Returns CSS custom properties for the fly animation
+   */
+  private get flyTargetStyles(): string {
+    // Calculate translation from center (50%, 50%) to FAB position
+    // FAB is at 16px from edge, center of FAB is at 16px + 24px = 40px
+    switch (this.position) {
+      case 'top-right':
+        return '--fly-x: calc(50vw - 64px); --fly-y: calc(-50vh + 64px);'
+      case 'top-left':
+        return '--fly-x: calc(-50vw + 64px); --fly-y: calc(-50vh + 64px);'
+      case 'bottom-left':
+        return '--fly-x: calc(-50vw + 64px); --fly-y: calc(50vh - 64px);'
+      case 'bottom-right':
+      default:
+        return '--fly-x: calc(50vw - 64px); --fly-y: calc(50vh - 64px);'
+    }
+  }
+
+  /**
+   * Render the input modal for adding comments/suggestions
+   */
+  private renderInput() {
+    if (!this.showInput) {
+      return null
+    }
+
+    const submitTip = `(${/Mac|iPhone|iPad|iPod/.test(navigator.userAgent) ? '⌘' : 'Ctrl'}+Enter to submit)`
+
+    return html`
+      <div class="backdrop ${this.isInputFlying ? 'fading' : ''}" @click=${this.handleCancel}></div>
+      <div class="modal input ${this.isInputFlying ? 'flying' : ''}" style="${this.flyTargetStyles}">
+        <div class="item-header">
+          <span class="type-icon i-lucide:${this.inputType === 'comment' ? 'message-circle' : 'pencil'}"></span>
+          <span class="item-path">${window.location.pathname}</span>
+        </div>
+        <textarea
+          ${ref(this.inputTextareaRef)}
+          .value=${this.inputContent}
+          @input=${(e: Event) =>
+            (this.inputContent = (e.target as HTMLTextAreaElement).value)}
+          @keydown=${this.handleInputKeydown}
+          placeholder=${this.inputType === 'comment'
+            ? `Add your comment ${submitTip}`
+            : `Suggest replacement text ${submitTip}`}
+        ></textarea>
+        <div class="buttons">
+          <button class="btn secondary" @click=${(e: Event) => { e.stopPropagation(); this.handleCancel() }}>
+            Cancel
+          </button>
+          <button class="btn primary" @click=${(e: Event) => { e.stopPropagation(); this.handleAddItem() }}>
+            ${this.inputType === 'comment' ? 'Comment' : 'Suggest'}
+          </button>
+        </div>
+      </div>
+    `
+  }
+
+  /**
+   * Render the list of pending review items, grouped by page
+   * Routes are kept in insertion order (order first item was added for that route)
+   * Items within a route are sorted by position in the document
+   */
+  private renderPanelItems() {
+    const itemsByPage = this.itemsByPage
+
+    // Keep routes in insertion order (Map preserves insertion order)
+    const paths = Array.from(itemsByPage.keys())
+
+    return html`
+      <div class="items-list" @click=${() => this.closeItemMenu()}>
+        ${paths.map((path) => {
+          const group = itemsByPage.get(path)
+          if (!group) return null
+          return this.renderPageGroup(path, group)
+        })}
+      </div>
+    `
+  }
+
+  /**
+   * Find the correct insertion index for a new item in pendingItems
+   * Items are ordered by URL (insertion order) then by document position within each URL
+   */
+  private findInsertPosition(newItem: ReviewItem): number {
+    const newUrl = newItem.url
+
+    // Find the range of existing items for this URL
+    let firstIndexForUrl = -1
+    let lastIndexForUrl = -1
+    for (let i = 0; i < this.pendingItems.length; i++) {
+      if (this.pendingItems[i].url === newUrl) {
+        if (firstIndexForUrl === -1) firstIndexForUrl = i
+        lastIndexForUrl = i
+      }
+    }
+
+    // If no items exist for this URL, append at the end
+    if (firstIndexForUrl === -1) {
+      return this.pendingItems.length
+    }
+
+    // Find the correct position within items for this URL
+    for (let i = firstIndexForUrl; i <= lastIndexForUrl; i++) {
+      const existing = this.pendingItems[i]
+      if (this.compareItemPositions(newItem, existing) < 0) {
+        // New item comes before existing item
+        return i
+      }
+    }
+
+    // New item comes after all existing items for this URL
+    return lastIndexForUrl + 1
+  }
+
+  /**
+   * Compare two items by their position in the document
+   * Returns negative if a comes before b, positive if after, 0 if same
+   */
+  private compareItemPositions(a: ReviewItem, b: ReviewItem): number {
+    // Page-level comments (no nodeId) go at the end
+    if (!a.start.nodeId && !b.start.nodeId) return 0
+    if (!a.start.nodeId) return 1
+    if (!b.start.nodeId) return -1
+
+    // Same node - compare offsets
+    if (a.start.nodeId === b.start.nodeId) {
+      return a.start.offset - b.start.offset
+    }
+
+    // Different nodes - find their DOM order
+    const elA = document.getElementById(a.start.nodeId)
+    const elB = document.getElementById(b.start.nodeId)
+
+    if (!elA || !elB) {
+      // Can't find elements (maybe on different page), keep original order
+      return 0
+    }
+
+    // Use compareDocumentPosition to determine order
+    const position = elA.compareDocumentPosition(elB)
+    if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
+      return -1 // a comes before b
+    }
+    if (position & Node.DOCUMENT_POSITION_PRECEDING) {
+      return 1 // a comes after b
+    }
+    return 0
+  }
+
+  /**
+   * Render a collapsible page group
+   * Current page is auto-expanded on navigation but can be collapsed
+   */
+  private renderPageGroup(
+    path: string,
+    group: { items: ReviewItem[]; indices: number[] }
+  ) {
+    const isCurrent = this.isCurrentPage(path)
+    // All page groups can be toggled; current page is auto-expanded on navigation
+    const isExpanded = this.expandedPageGroups.has(path)
+
+    // Items are already in position order (sorted at insertion time)
+    const itemsWithIndices = group.items.map((item, i) => ({
+      item,
+      index: group.indices[i],
+    }))
+
+    return html`
+      <div class="page-group" data-current=${isCurrent}>
+        <button
+          class="page-group-header"
+          @click=${(e: Event) => {
+            e.stopPropagation()
+            this.togglePageGroup(path)
+          }}
+          aria-expanded=${isExpanded}
+        >
+          <span class="page-path">${path}</span>
+          <span class="page-count">${group.items.length}</span>
+          <span class="chevron i-lucide:chevron-${isExpanded ? 'up' : 'down'}"></span>
+        </button>
+        ${isExpanded
+          ? html`
+              <div class="page-group-items">
+                ${itemsWithIndices.map(({ item, index }) =>
+                  this.renderReviewItem(item, index)
+                )}
+              </div>
+            `
+          : null}
+      </div>
+    `
+  }
+
+  /**
+   * Render an individual review item (within a page group)
+   */
+  private renderReviewItem(item: ReviewItem, index: number) {
+    const isActive = this.activeItemIndex === index
+    const isEditing = this.editingIndex === index
+
+    if (isEditing) {
+      return html`
+        <div class="review-item editing" data-index=${index}>
+          <div class="item-header">
+            <span class="type-icon i-lucide:${item.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
+            <span class="item-type">${item.type === 'comment' ? 'Comment' : 'Suggestion'}</span>
+          </div>
+          <textarea
+            ${ref(this.editTextareaRef)}
+            class="edit-textarea"
+            .value=${this.editingContent}
+            @input=${(e: Event) => (this.editingContent = (e.target as HTMLTextAreaElement).value)}
+          ></textarea>
+          <div class="edit-actions">
+            <button class="edit-btn cancel" @click=${(e: Event) => { e.stopPropagation(); this.cancelEdit() }}>Cancel</button>
+            <button
+              class="edit-btn save"
+              @click=${(e: Event) => { e.stopPropagation(); this.saveEdit() }}
+              ?disabled=${!this.hasEditChanges}
+            >Save</button>
+          </div>
+        </div>
+      `
+    }
+
+    return html`
+      <div
+        class="review-item"
+        data-index=${index}
+        data-active=${isActive}
+        @click=${(e: Event) => {
+          // Only handle click if not clicking on menu or buttons
+          const target = e.target as Element
+          if (!target.closest('.item-menu-container')) {
+            e.stopPropagation()
+            this.handleItemClick(index, item)
+          }
+        }}
+      >
+        <div class="item-menu-container">
+          <button
+            class="item-menu-btn"
+            @click=${(e: Event) => this.toggleItemMenu(index, e)}
+            aria-label="Item options"
+          >
+            <span class="i-lucide:ellipsis-vertical"></span>
+          </button>
+          ${this.itemMenuOpen === index && this.itemMenuPosition
+            ? html`
+                <div
+                  class="item-menu-dropdown"
+                  style="position: fixed; top: ${this.itemMenuPosition.top}px; right: ${this.itemMenuPosition.right}px;"
+                >
+                  <button @click=${(e: Event) => { e.stopPropagation(); this.startEditing(index) }}>
+                    <span class="i-lucide:pencil"></span>
+                    Edit
+                  </button>
+                  <button class="danger" @click=${(e: Event) => { e.stopPropagation(); this.handleDeleteItem(index) }}>
+                    <span class="i-lucide:trash-2"></span>
+                    Delete
+                  </button>
+                </div>
+              `
+            : null}
+        </div>
+        <div class="item-header">
+          <span class="type-icon i-lucide:${item.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
+          <span class="item-type">${item.type === 'comment' ? 'Comment' : 'Suggestion'}</span>
+        </div>
+        ${item.type === 'comment'
+          ? html`<div class="item-content">${item.content}</div>`
+          : html`<div class="replacement-text">${item.content}</div>`}
+      </div>
+    `
+  }
+
+  /**
+   * Render the panel footer with submit button and actions
+   */
+  private renderPanelFooter() {
+    return html`
+      <div class="panel-footer">
+        <button
+          class="add-comment-fab"
+          @click=${(e: Event) => { e.stopPropagation(); this.handlePageComment() }}
+          aria-label="Add page comment"
+        >
+          <span class="i-lucide:plus"></span>
+        </button>
+
+        ${this.submitError
+          ? html`<div class="submit-error">${this.submitError}</div>`
+          : null}
+
+        <button
+          class="btn primary full"
+          @click=${this.handleSubmitReview}
+          ?disabled=${this.authLoading || this.submitting || !this.canSubmitReview}
+        >
+          ${this.authLoading
+            ? 'Loading...'
+            : this.submitting
+              ? 'Submitting...'
+              : this.canSubmitReview
+                ? 'Submit as PR'
+                : 'Sign in to Submit'}
+        </button>
+
+        ${this.renderAuthStatusSection()}
+
+      </div>
+    `
+  }
+
+  /**
+   * Render the review panel
+   */
+  private renderPanel() {
+    if (!this.panelOpen) {
+      return null
+    }
+
+    const itemCount = this.pendingItems.length
+
+    return html`
+      <div class="review-panel" style=${this.panelPositionStyles}>
+        ${itemCount === 0
+          ? html`
+              <div class="empty-state">
+                <span class="i-lucide:message-square-dashed empty-icon"></span>
+                <h4>Ready for your feedback</h4>
+                <p>Select text on the page to comment or suggest a change.</p>
+                <button class="btn secondary add-page-comment" @click=${(e: Event) => { e.stopPropagation(); this.handlePageComment() }}>
+                  <span class="i-lucide:message-circle btn-icon"></span>
+                  Add page comment
+                </button>
+              </div>
+            `
+          : html`
+              ${this.renderPanelItems()}
+              ${this.renderPanelFooter()}
+            `}
+      </div>
+    `
+  }
+
+  override render() {
+    return html`
+      ${this.renderFab()}
+      ${this.renderSelection()}
+      ${this.renderInput()}
+      ${this.renderPanel()}
+      ${this.errorMessage
+        ? html`
+            <div class="backdrop" @click=${this.dismissError}></div>
+            <div class="modal error">
+              <h4>Review Error</h4>
+              <p>${this.errorMessage}</p>
+              <div class="buttons">
+                <button class="btn primary" @click=${this.dismissError}>
+                  OK
+                </button>
+              </div>
+            </div>
+          `
+        : null}
+      ${this.showCommitMismatch
+        ? html`
+            <div class="backdrop" @click=${this.dismissCommitMismatch}></div>
+            <div class="modal warning">
+              <h4>Site Updated</h4>
+              <p>
+                The site has been updated since you started your review. Your
+                pending review items (${this.pendingItems.length}) were created
+                for an older version and may no longer apply correctly.
+              </p>
+              <div class="buttons">
+                <button
+                  class="btn secondary"
+                  @click=${this.dismissCommitMismatch}
+                >
+                  Keep Old Review
+                </button>
+                <button
+                  class="btn warning"
+                  @click=${this.handleClearForNewCommit}
+                >
+                  Clear & Start Fresh
+                </button>
+              </div>
+            </div>
+          `
+        : null}
+      ${this.submitResult
+        ? html`
+            <div class="backdrop" @click=${this.dismissSuccessResult}></div>
+            <div class="modal success">
+              <h4>Review Submitted!</h4>
+              <p>
+                ${this.submitResult.prNumber
+                  ? `PR #${this.submitResult.prNumber} created`
+                  : 'Review submitted'}
+                ${this.submitResult.authoredBy === 'user'
+                  ? ` as @${this.submitResult.authorUsername}`
+                  : ' via Stencila'}
+                ${this.submitResult.usedFork
+                  ? ` (from fork ${this.submitResult.forkFullName})`
+                  : ''}
+              </p>
+              ${this.submitResult.counts
+                ? html`<p class="counts">
+                    ${this.submitResult.counts.comments} comment(s),
+                    ${this.submitResult.counts.suggestions} suggestion(s)
+                  </p>`
+                : null}
+              ${this.submitResult.prUrl
+                ? html`<div class="pr-link">
+                    <a
+                      class="btn success-link"
+                      href=${this.submitResult.prUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Pull Request
+                    </a>
+                  </div>`
+                : null}
+              <div class="buttons" style="justify-content: center;">
+                <button class="btn secondary" @click=${this.dismissSuccessResult}>
+                  Close
+                </button>
+              </div>
+            </div>
+          `
+        : null}
+    `
+  }
+
+  /**
+   * Render the auth status section in the review panel
+   * Simplified: one-line status when OK, compact prompts when auth needed
+   */
+  private renderAuthStatusSection() {
+    // Loading state
+    if (this.authLoading) {
+      return null
+    }
+
+    // Blocked: private repo without app
+    if (this.isBlockedPrivateRepo) {
+      return html`<div class="auth-blocked">
+        <span class="i-lucide:alert-triangle warning-icon"></span>
+        <span>${this.blockedReason}</span>
+      </div>`
+    }
+
+    // Need site access
+    if (
+      this.authStatus &&
+      !this.authStatus.reviewConfig.allowPublic &&
+      !this.authStatus.hasSiteAccess
+    ) {
+      return html`<div class="auth-prompt">
+        <a class="btn text" href=${this.signInUrl}>Sign in to submit</a>
+      </div>`
+    }
+
+    // Private repo requires Stencila sign-in
+    if (this.requiresStencilaSignIn) {
+      return html`<div class="auth-prompt">
+        <a class="btn text" href=${this.signInUrl}>Sign in to submit</a>
+      </div>`
+    }
+
+    // Need GitHub but not connected
+    if (this.showGitHubConnect) {
+      return html`<div class="auth-prompt">
+        <button class="btn text" @click=${this.connectGitHub}>
+          Connect GitHub to submit
+        </button>
+      </div>`
+    }
+
+    // Can submit - show one-line authorship description
+    return html`<p class="auth-description">${this.prAuthorDescription}</p>`
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'stencila-site-review': StencilaSiteReview
+  }
+}

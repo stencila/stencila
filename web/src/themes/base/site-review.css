@@ -1,0 +1,1153 @@
+/* Site Review Component
+ *
+ * Enables users to select text on rendered pages and submit comments/suggestions.
+ * Supports multi-block selections and batches multiple annotations into a single review.
+ *
+ * Structure:
+ * - stencila-site-review: Custom element container
+ *   - .floating-button: Appears near selection with Comment/Suggest buttons
+ *   - .backdrop: Modal backdrop overlay
+ *   - .modal: Various modal dialogs (input, error, success, warning)
+ *   - .review-panel: Panel showing pending review items
+ *
+ * Design tokens:
+ * - --site-review-color-primary: Primary action color
+ * - --site-review-color-secondary: Secondary/neutral color
+ * - --site-review-color-border: Border color
+ * - --site-review-color-text: Primary text color
+ * - --site-review-color-text-muted: Secondary text color
+ * - --site-review-color-text-faint: Tertiary text color
+ * - --site-review-shadow-sm: Small shadow
+ * - --site-review-shadow-lg: Large shadow
+ * - --site-review-radius-sm/md/lg: Border radii
+ */
+
+:root {
+    /* Colors */
+    --site-review-color-primary: #3b82f6;
+    --site-review-color-primary-hover: #2563eb;
+    --site-review-color-secondary: #f1f5f9;
+    --site-review-color-secondary-hover: #e2e8f0;
+    --site-review-color-border: #e2e8f0;
+    --site-review-color-text: #334155;
+    --site-review-color-text-muted: #64748b;
+    --site-review-color-text-faint: #94a3b8;
+    --site-review-color-error-bg: #fef2f2;
+    --site-review-color-error-border: #fecaca;
+    --site-review-color-error-text: #991b1b;
+    --site-review-color-success-bg: #f0fdf4;
+    --site-review-color-success-border: #86efac;
+    --site-review-color-success-text: #166534;
+    --site-review-color-warning-bg: #fffbeb;
+    --site-review-color-warning-border: #fcd34d;
+    --site-review-color-warning-text: #92400e;
+
+    /* Shadows & Radii */
+    --site-review-shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --site-review-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --site-review-radius-sm: 4px;
+    --site-review-radius-md: 6px;
+    --site-review-radius-lg: 8px;
+}
+
+/* Container */
+stencila-site-review {
+    display: block;
+}
+
+/* ==========================================================================
+   Shared Base Classes
+   ========================================================================== */
+
+/* Modal base - shared by input, error, success, warning modals */
+stencila-site-review .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10001;
+    border-radius: var(--site-review-radius-lg);
+    padding: 16px;
+    max-width: 400px;
+    box-shadow: var(--site-review-shadow-lg);
+    font-family: var(--layout-font-family);
+}
+
+stencila-site-review .modal h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+stencila-site-review .modal p {
+    margin: 0 0 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+stencila-site-review .modal .buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Button base - works with both <button> and <a> */
+stencila-site-review .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--site-review-radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+stencila-site-review .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+stencila-site-review .btn.primary {
+    background: var(--site-review-color-primary);
+    color: white;
+}
+
+stencila-site-review .btn.primary:hover:not(:disabled) {
+    background: var(--site-review-color-primary-hover);
+}
+
+stencila-site-review .btn.secondary {
+    background: var(--site-review-color-secondary);
+    color: var(--site-review-color-text);
+}
+
+stencila-site-review .btn.secondary:hover:not(:disabled) {
+    background: var(--site-review-color-secondary-hover);
+}
+
+stencila-site-review .btn.danger {
+    background: #dc2626;
+    color: white;
+}
+
+stencila-site-review .btn.danger:hover:not(:disabled) {
+    background: #b91c1c;
+}
+
+stencila-site-review .btn.warning {
+    background: #f59e0b;
+    color: white;
+}
+
+stencila-site-review .btn.warning:hover:not(:disabled) {
+    background: #d97706;
+}
+
+stencila-site-review .btn.github {
+    background: #24292f;
+    color: white;
+}
+
+stencila-site-review .btn.github:hover:not(:disabled) {
+    background: #32383f;
+}
+
+stencila-site-review .btn.success-link {
+    display: inline-block;
+    background: #22c55e;
+    color: white;
+    text-decoration: none;
+}
+
+stencila-site-review .btn.success-link:hover {
+    background: #16a34a;
+}
+
+stencila-site-review .btn.full {
+    width: 100%;
+}
+
+/* Alert base */
+stencila-site-review .alert {
+    padding: 8px 12px;
+    border: 1px solid;
+    border-radius: var(--site-review-radius-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+stencila-site-review .alert p {
+    margin: 0 0 8px;
+}
+
+stencila-site-review .alert.error {
+    background: var(--site-review-color-error-bg);
+    border-color: var(--site-review-color-error-border);
+    color: var(--site-review-color-error-text);
+}
+
+/* ==========================================================================
+   Component-Specific Styles
+   ========================================================================== */
+
+/* Floating button - appears near selection */
+stencila-site-review .floating-button {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    gap: 2px;
+    background: white;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-md);
+    padding: 4px;
+    box-shadow: var(--site-review-shadow-sm);
+}
+
+stencila-site-review .floating-button button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: var(--site-review-radius-sm);
+    cursor: pointer;
+    background: transparent;
+    color: var(--site-review-color-text-muted);
+    transition: background 0.15s, color 0.15s;
+}
+
+stencila-site-review .floating-button button:hover {
+    background: var(--site-review-color-secondary);
+    color: var(--site-review-color-text);
+}
+
+stencila-site-review .floating-button button span {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: currentColor;
+}
+
+/* FAB (Floating Action Button) - always visible toggle for review panel */
+stencila-site-review .review-fab {
+    position: fixed;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: var(--site-review-color-primary);
+    color: white;
+    cursor: pointer;
+    box-shadow: var(--site-review-shadow-lg);
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+stencila-site-review .review-fab:hover {
+    background: var(--site-review-color-primary-hover);
+    transform: scale(1.05);
+}
+
+stencila-site-review .review-fab:focus-visible {
+    outline: 2px solid var(--site-review-color-primary);
+    outline-offset: 2px;
+}
+
+stencila-site-review .review-fab:active {
+    transform: scale(0.98);
+}
+
+stencila-site-review .review-fab.pulsing {
+    animation: fab-pulse 0.4s ease-out;
+}
+
+@keyframes fab-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: var(--site-review-shadow-lg);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3), var(--site-review-shadow-lg);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: var(--site-review-shadow-lg);
+    }
+}
+
+stencila-site-review .review-fab .fab-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-color: currentColor;
+}
+
+stencila-site-review .review-fab .fab-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+}
+
+/* Input modal - extends .modal */
+stencila-site-review .modal.input {
+    z-index: 10000;
+    background: white;
+    border: 1px solid var(--site-review-color-border);
+    min-width: 300px;
+    transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+}
+
+stencila-site-review .modal.input.flying {
+    transform: translate(var(--fly-x, 40vw), var(--fly-y, 40vh)) scale(0.1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+stencila-site-review .backdrop.fading {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+stencila-site-review .modal.input textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 8px;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--site-review-color-text);
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+stencila-site-review .modal.input textarea:focus {
+    outline: none;
+    border-color: var(--site-review-color-primary);
+}
+
+stencila-site-review .modal.input .buttons {
+    margin-top: 12px;
+}
+
+stencila-site-review .modal.input .keyboard-hint {
+    margin-right: auto;
+    font-size: 11px;
+    color: var(--site-review-color-text-faint);
+}
+
+stencila-site-review .modal.input .item-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+stencila-site-review .modal.input .type-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: var(--site-review-color-text-muted);
+}
+
+stencila-site-review .modal.input .item-path {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--site-review-color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Backdrop overlay */
+stencila-site-review .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgb(0 0 0 / 0.3);
+}
+
+/* Review panel - shows pending items */
+stencila-site-review .review-panel {
+    position: fixed;
+    z-index: 9997;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-lg);
+    padding: 12px;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 80px);
+    box-shadow: var(--site-review-shadow-sm);
+    font-family: var(--layout-font-family);
+}
+
+stencila-site-review .review-panel h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--site-review-color-text);
+}
+
+/* Empty state - shown when no pending items */
+stencila-site-review .empty-state {
+    padding: 24px 16px;
+    text-align: center;
+}
+
+stencila-site-review .empty-state .empty-icon {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    background-color: var(--site-review-color-text-faint);
+    opacity: 0.5;
+}
+
+stencila-site-review .empty-state h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--site-review-color-text);
+}
+
+stencila-site-review .empty-state p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--site-review-color-text-muted);
+    line-height: 1.5;
+}
+
+/* Items list container */
+stencila-site-review .items-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+/* Individual review item */
+stencila-site-review .review-item {
+    position: relative;
+    padding: 10px 12px;
+    padding-right: 36px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--site-review-color-border);
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+stencila-site-review .review-item:last-child {
+    border-bottom: none;
+}
+
+stencila-site-review .review-item:hover {
+    background-color: var(--site-review-color-secondary);
+}
+
+stencila-site-review .review-item.editing {
+    padding: 8px 10px;
+    cursor: default;
+    background-color: transparent;
+}
+
+/* Item header with type icon and link */
+stencila-site-review .review-item .item-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+/* Type icon */
+stencila-site-review .review-item .type-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: var(--site-review-color-text-muted);
+}
+
+/* Type label */
+stencila-site-review .review-item .item-type {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--site-review-color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Item link (URL path) */
+stencila-site-review .review-item .item-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--site-review-color-text);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.15s;
+}
+
+stencila-site-review .review-item .item-link:hover {
+    color: var(--site-review-color-primary-hover);
+}
+
+/* Selected text (original) */
+stencila-site-review .review-item .selected-text {
+    color: var(--site-review-color-text-muted);
+    font-style: italic;
+    font-size: 12px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: pre-wrap;
+}
+
+/* Comment content */
+stencila-site-review .review-item .item-content {
+    color: var(--site-review-color-text);
+    font-size: 13px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: pre-wrap;
+}
+
+/* Suggestion arrow */
+stencila-site-review .review-item .suggestion-arrow {
+    color: var(--site-review-color-text-faint);
+    font-size: 12px;
+    margin: 2px 0;
+}
+
+/* Replacement text */
+stencila-site-review .review-item .replacement-text {
+    color: var(--site-review-color-text);
+    font-size: 13px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: pre-wrap;
+}
+
+/* Item menu container */
+stencila-site-review .review-item .item-menu-container {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* Item menu button (kebab) */
+stencila-site-review .review-item .item-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    border-radius: var(--site-review-radius-sm);
+    color: var(--site-review-color-text-faint);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+}
+
+stencila-site-review .review-item:hover .item-menu-btn,
+stencila-site-review .review-item .item-menu-container:has(.item-menu-dropdown) .item-menu-btn {
+    opacity: 1;
+}
+
+stencila-site-review .review-item .item-menu-btn:hover {
+    color: var(--site-review-color-text);
+    background: var(--site-review-color-secondary);
+}
+
+stencila-site-review .review-item .item-menu-btn span {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+}
+
+/* Item menu dropdown (uses fixed positioning set via inline style) */
+stencila-site-review .review-item .item-menu-dropdown {
+    background: white;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-md);
+    box-shadow: var(--site-review-shadow-sm);
+    overflow: hidden;
+    z-index: 10001;
+}
+
+stencila-site-review .review-item .item-menu-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    color: var(--site-review-color-text);
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+
+stencila-site-review .review-item .item-menu-dropdown button:hover {
+    background: var(--site-review-color-secondary);
+}
+
+stencila-site-review .review-item .item-menu-dropdown button.danger {
+    color: #ef4444;
+}
+
+stencila-site-review .review-item .item-menu-dropdown button.danger:hover {
+    background: var(--site-review-color-error-bg);
+}
+
+stencila-site-review .review-item .item-menu-dropdown button span {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: currentColor;
+}
+
+/* Edit mode textarea */
+stencila-site-review .review-item .edit-textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 6px 8px;
+    margin-top: 6px;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-sm);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--site-review-color-text);
+    line-height: 1.4;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+stencila-site-review .review-item .edit-textarea:focus {
+    outline: none;
+    border-color: var(--site-review-color-primary);
+}
+
+/* Edit actions - compact inline buttons */
+stencila-site-review .review-item .edit-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    margin-top: 6px;
+}
+
+stencila-site-review .review-item .edit-btn {
+    padding: 4px 10px;
+    border: none;
+    border-radius: var(--site-review-radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+stencila-site-review .review-item .edit-btn.cancel {
+    background: none;
+    color: var(--site-review-color-text-muted);
+}
+
+stencila-site-review .review-item .edit-btn.cancel:hover {
+    background: var(--site-review-color-secondary);
+    color: var(--site-review-color-text);
+}
+
+stencila-site-review .review-item .edit-btn.save {
+    background: var(--site-review-color-primary);
+    color: white;
+}
+
+stencila-site-review .review-item .edit-btn.save:hover:not(:disabled) {
+    background: var(--site-review-color-primary-hover);
+}
+
+stencila-site-review .review-item .edit-btn.save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Panel footer */
+stencila-site-review .panel-footer {
+    position: relative;
+    flex-shrink: 0;
+    border-top: 1px solid var(--site-review-color-border);
+    padding-top: 20px;
+}
+
+/* Add comment FAB - centered over the dividing line */
+stencila-site-review .add-comment-fab {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--site-review-color-border);
+    border-radius: 50%;
+    background: white;
+    color: var(--site-review-color-text-muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+stencila-site-review .add-comment-fab:hover {
+    color: var(--site-review-color-primary);
+    border-color: var(--site-review-color-primary);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+}
+
+stencila-site-review .add-comment-fab span {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: currentColor;
+}
+
+/* Small button variant */
+stencila-site-review .btn.small {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+/* Text button (minimal style) */
+stencila-site-review .btn.text {
+    background: none;
+    color: var(--site-review-color-text-muted);
+    padding: 4px 8px;
+}
+
+stencila-site-review .btn.text:hover {
+    color: var(--site-review-color-text);
+    background: var(--site-review-color-secondary);
+}
+
+/* Error modal - extends .modal */
+stencila-site-review .modal.error {
+    background: var(--site-review-color-error-bg);
+    border: 1px solid var(--site-review-color-error-border);
+}
+
+stencila-site-review .modal.error h4 {
+    color: #dc2626;
+}
+
+stencila-site-review .modal.error p {
+    color: #7f1d1d;
+}
+
+/* Auth status display */
+stencila-site-review .auth-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid var(--site-review-color-border);
+    margin-bottom: 8px;
+}
+
+stencila-site-review .auth-status .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+stencila-site-review .auth-status .user-name {
+    font-size: 12px;
+    color: var(--site-review-color-text);
+    flex: 1;
+}
+
+stencila-site-review .auth-status .sign-out-btn {
+    background: none;
+    border: none;
+    color: var(--site-review-color-text-faint);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+}
+
+stencila-site-review .auth-status .sign-out-btn:hover {
+    color: var(--site-review-color-text-muted);
+}
+
+/* Sign-in prompt */
+stencila-site-review .sign-in-prompt {
+    padding: 12px;
+    text-align: center;
+}
+
+stencila-site-review .sign-in-prompt p {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: var(--site-review-color-text-muted);
+}
+
+/* Loading state */
+stencila-site-review .loading {
+    padding: 12px;
+    text-align: center;
+    color: var(--site-review-color-text-faint);
+    font-size: 13px;
+}
+
+/* Success modal - extends .modal */
+stencila-site-review .modal.success {
+    background: var(--site-review-color-success-bg);
+    border: 1px solid var(--site-review-color-success-border);
+    text-align: center;
+}
+
+stencila-site-review .modal.success h4 {
+    color: var(--site-review-color-success-text);
+    font-size: 16px;
+}
+
+stencila-site-review .modal.success p {
+    color: #15803d;
+    font-size: 14px;
+}
+
+stencila-site-review .modal.success .counts {
+    color: var(--site-review-color-text-muted);
+    font-size: 12px;
+}
+
+stencila-site-review .modal.success .pr-link {
+    margin: 12px 0;
+}
+
+/* Blocked message */
+stencila-site-review .blocked-message {
+    padding: 12px;
+    background: var(--site-review-color-error-bg);
+    border: 1px solid var(--site-review-color-error-border);
+    border-radius: var(--site-review-radius-sm);
+    margin-bottom: 8px;
+}
+
+stencila-site-review .blocked-message p {
+    margin: 0 0 8px;
+    color: var(--site-review-color-error-text);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Connect GitHub prompt */
+stencila-site-review .connect-github {
+    padding: 12px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+stencila-site-review .connect-github p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--site-review-color-text-muted);
+}
+
+/* Auth description (one-line status) */
+stencila-site-review .auth-description {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--site-review-color-text-muted);
+    text-align: center;
+}
+
+/* Auth prompt (sign-in/connect needed) */
+stencila-site-review .auth-prompt {
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Auth blocked warning */
+stencila-site-review .auth-blocked {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+    margin-top: 8px;
+    background: var(--site-review-color-error-bg);
+    border-radius: var(--site-review-radius-sm);
+    font-size: 12px;
+    color: var(--site-review-color-error-text);
+}
+
+stencila-site-review .auth-blocked .warning-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+}
+
+/* Submit error message */
+stencila-site-review .submit-error {
+    padding: 8px;
+    background: var(--site-review-color-error-bg);
+    border: 1px solid var(--site-review-color-error-border);
+    border-radius: var(--site-review-radius-sm);
+    margin-bottom: 8px;
+    color: var(--site-review-color-error-text);
+    font-size: 12px;
+}
+
+/* Button icon (inline) */
+stencila-site-review .btn-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: currentColor;
+    vertical-align: -2px;
+    margin-right: 4px;
+}
+
+/* Add page comment button in empty state */
+stencila-site-review .add-page-comment {
+    margin-top: 16px;
+}
+
+/* Warning modal (commit mismatch) - extends .modal */
+stencila-site-review .modal.warning {
+    background: var(--site-review-color-warning-bg);
+    border: 1px solid var(--site-review-color-warning-border);
+}
+
+stencila-site-review .modal.warning h4 {
+    color: #b45309;
+}
+
+stencila-site-review .modal.warning p {
+    color: var(--site-review-color-warning-text);
+    margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   Document Highlight Styles
+   ========================================================================== */
+
+/*
+ * In-document highlighting for review items (Google Docs style)
+ * Applied via data attributes to document content elements
+ */
+
+:root {
+    /* Comment highlights - yellow/amber (Google Docs style) */
+    --site-review-highlight-comment: rgba(255, 212, 0, 0.3);
+    --site-review-highlight-comment-active: rgba(255, 212, 0, 0.5);
+    --site-review-highlight-comment-border: rgba(255, 180, 0, 0.8);
+
+    /* Suggestion highlights - green */
+    --site-review-highlight-suggestion: rgba(52, 211, 153, 0.25);
+    --site-review-highlight-suggestion-active: rgba(52, 211, 153, 0.45);
+    --site-review-highlight-suggestion-border: rgba(16, 185, 129, 0.8);
+
+    /* Dark mode highlight variants */
+    --site-review-highlight-comment-dark: rgba(251, 191, 36, 0.25);
+    --site-review-highlight-comment-active-dark: rgba(251, 191, 36, 0.4);
+    --site-review-highlight-comment-border-dark: rgba(245, 158, 11, 0.7);
+
+    --site-review-highlight-suggestion-dark: rgba(52, 211, 153, 0.2);
+    --site-review-highlight-suggestion-active-dark: rgba(52, 211, 153, 0.35);
+    --site-review-highlight-suggestion-border-dark: rgba(16, 185, 129, 0.7);
+}
+
+/* Dark mode - system preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme="light"]) {
+        --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
+        --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
+        --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
+
+        --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
+        --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
+        --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
+    }
+}
+
+/* Dark mode - explicit user choice */
+:root[data-color-scheme="dark"] {
+    --site-review-highlight-comment: var(--site-review-highlight-comment-dark);
+    --site-review-highlight-comment-active: var(--site-review-highlight-comment-active-dark);
+    --site-review-highlight-comment-border: var(--site-review-highlight-comment-border-dark);
+
+    --site-review-highlight-suggestion: var(--site-review-highlight-suggestion-dark);
+    --site-review-highlight-suggestion-active: var(--site-review-highlight-suggestion-active-dark);
+    --site-review-highlight-suggestion-border: var(--site-review-highlight-suggestion-border-dark);
+}
+
+/* ==========================================================================
+   CSS Custom Highlight API Styles (character-level highlighting)
+   ========================================================================== */
+
+/* Comment highlights */
+::highlight(review-comment) {
+    background-color: var(--site-review-highlight-comment);
+}
+
+/* Suggestion highlights */
+::highlight(review-suggestion) {
+    background-color: var(--site-review-highlight-suggestion);
+}
+
+/* Active comment highlight (selected in panel) */
+::highlight(review-comment-active) {
+    background-color: var(--site-review-highlight-comment-active);
+}
+
+/* Active suggestion highlight (selected in panel) */
+::highlight(review-suggestion-active) {
+    background-color: var(--site-review-highlight-suggestion-active);
+}
+
+/* ==========================================================================
+   Page Group Styles (Collapsible Sections)
+   ========================================================================== */
+
+/* Page group container */
+stencila-site-review .page-group {
+    border: 1px solid var(--site-review-color-border);
+    border-radius: var(--site-review-radius-md);
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+stencila-site-review .page-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Current page highlight */
+stencila-site-review .page-group[data-current="true"] {
+    border-color: var(--site-review-color-primary);
+}
+
+/* Page group header (collapsible toggle) */
+stencila-site-review .page-group-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--site-review-color-secondary);
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+stencila-site-review .page-group[data-current="true"] .page-group-header {
+    background: color-mix(in srgb, var(--site-review-color-primary) 10%, transparent);
+}
+
+stencila-site-review .page-group-header:hover {
+    background: var(--site-review-color-secondary-hover);
+}
+
+stencila-site-review .page-group[data-current="true"] .page-group-header:hover {
+    background: color-mix(in srgb, var(--site-review-color-primary) 15%, transparent);
+}
+
+/* Page path in header */
+stencila-site-review .page-group-header .page-path {
+    flex: 1;
+    font-weight: 500;
+    color: var(--site-review-color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Item count badge */
+stencila-site-review .page-group-header .page-count {
+    background: var(--site-review-color-border);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    color: var(--site-review-color-text-muted);
+}
+
+stencila-site-review .page-group[data-current="true"] .page-group-header .page-count {
+    background: color-mix(in srgb, var(--site-review-color-primary) 20%, transparent);
+    color: var(--site-review-color-primary);
+}
+
+/* Chevron icon */
+stencila-site-review .page-group-header .chevron {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    color: var(--site-review-color-text-muted);
+    transition: transform 0.15s;
+}
+
+/* Items container within a page group */
+stencila-site-review .page-group-items {
+    background: white;
+}
+
+/* Active item in panel (selected) */
+stencila-site-review .review-item[data-active="true"] {
+    background: color-mix(in srgb, var(--site-review-color-primary) 10%, transparent);
+}
+
+stencila-site-review .review-item[data-active="true"]:hover {
+    background: color-mix(in srgb, var(--site-review-color-primary) 14%, transparent);
+}
+
+/* Make icon and label more prominent when active */
+stencila-site-review .review-item[data-active="true"] .type-icon {
+    background-color: var(--site-review-color-primary);
+}
+
+stencila-site-review .review-item[data-active="true"] .item-type {
+    color: var(--site-review-color-primary);
+    font-weight: 600;
+}
