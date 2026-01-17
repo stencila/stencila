@@ -1266,7 +1266,34 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Activate an item and scroll to its highlight in the document
+   * Get the current header height from CSS variable or 0 if no header
+   */
+  private getHeaderOffset(): number {
+    // Check if header exists
+    const header = document.querySelector('stencila-header')
+    if (!header) {
+      return 0
+    }
+
+    // Get the computed header height from CSS variable
+    const headerHeight = getComputedStyle(document.documentElement)
+      .getPropertyValue('--layout-header-height')
+      .trim()
+
+    // Parse the value (e.g., "64px" -> 64)
+    if (headerHeight) {
+      const parsed = parseFloat(headerHeight)
+      if (!isNaN(parsed)) {
+        return parsed
+      }
+    }
+
+    // Fallback: use the header's actual height
+    return header.getBoundingClientRect().height
+  }
+
+  /**
+   * Activate an item and scroll to its highlight in the document (if needed)
    */
   private activateAndScrollToItem(index: number, item: ReviewItem) {
     this.setActiveHighlight(index)
@@ -1274,11 +1301,19 @@ export class StencilaSiteReview extends LitElement {
     if (item.start.nodeId) {
       const element = document.getElementById(item.start.nodeId)
       if (element) {
-        // Use smooth scroll with header offset
-        const HEADER_OFFSET = 80
+        const headerOffset = this.getHeaderOffset()
         const rect = element.getBoundingClientRect()
-        const offsetPosition = rect.top + window.scrollY - HEADER_OFFSET
-        window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+        const viewportHeight = window.innerHeight
+
+        // Check if element is already visible in viewport (accounting for header)
+        const isVisible =
+          rect.top >= headerOffset && rect.bottom <= viewportHeight
+
+        // Only scroll if element is not visible
+        if (!isVisible) {
+          const offsetPosition = rect.top + window.scrollY - headerOffset
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+        }
       }
     }
   }
