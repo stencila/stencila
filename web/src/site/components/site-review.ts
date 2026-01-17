@@ -1819,6 +1819,17 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Handle keydown in the input textarea
+   * Cmd/Ctrl+Enter to submit
+   */
+  private handleInputKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      this.handleAddItem()
+    }
+  }
+
+  /**
    * Toggle the item menu
    */
   private toggleItemMenu(index: number, e: Event) {
@@ -2100,6 +2111,39 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Focus the input textarea when it's rendered
+   */
+  override updated(changedProperties: Map<string, unknown>) {
+    super.updated(changedProperties)
+
+    // Auto-focus textarea when input modal opens
+    if (changedProperties.has('showInput') && this.showInput) {
+      requestAnimationFrame(() => {
+        this.inputTextareaRef.value?.focus()
+      })
+    }
+
+    // Auto-focus textarea when entering edit mode
+    if (changedProperties.has('editingIndex') && this.editingIndex !== null) {
+      requestAnimationFrame(() => {
+        this.editTextareaRef.value?.focus()
+      })
+    }
+  }
+
+  override render() {
+    return html`
+      ${this.renderFab()}
+      ${this.renderSelection()}
+      ${this.renderInput()}
+      ${this.renderPanel()}
+      ${this.renderErrorModal()}
+      ${this.renderCommitMismatchModal()}
+      ${this.renderSubmitResultModal()}
+    `
+  }
+
+  /**
    * Render the FAB (Floating Action Button) to toggle the review panel
    */
   private renderFab() {
@@ -2148,38 +2192,6 @@ export class StencilaSiteReview extends LitElement {
           : null}
       </div>
     `
-  }
-
-  /**
-   * Handle keydown in the input textarea
-   * Cmd/Ctrl+Enter to submit
-   */
-  private handleInputKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault()
-      this.handleAddItem()
-    }
-  }
-
-  /**
-   * Focus the input textarea when it's rendered
-   */
-  override updated(changedProperties: Map<string, unknown>) {
-    super.updated(changedProperties)
-
-    // Auto-focus textarea when input modal opens
-    if (changedProperties.has('showInput') && this.showInput) {
-      requestAnimationFrame(() => {
-        this.inputTextareaRef.value?.focus()
-      })
-    }
-
-    // Auto-focus textarea when entering edit mode
-    if (changedProperties.has('editingIndex') && this.editingIndex !== null) {
-      requestAnimationFrame(() => {
-        this.editTextareaRef.value?.focus()
-      })
-    }
   }
 
   /**
@@ -2550,95 +2562,102 @@ export class StencilaSiteReview extends LitElement {
     `
   }
 
-  override render() {
+  /**
+   * Render error modal
+   */
+  private renderErrorModal() {
+    if (!this.errorMessage) {
+      return null
+    }
+
     return html`
-      ${this.renderFab()}
-      ${this.renderSelection()}
-      ${this.renderInput()}
-      ${this.renderPanel()}
-      ${this.errorMessage
-        ? html`
-            <div class="backdrop" @click=${this.dismissError}></div>
-            <div class="modal error">
-              <h4>Review Error</h4>
-              <p>${this.errorMessage}</p>
-              <div class="buttons">
-                <button class="btn primary" @click=${this.dismissError}>
-                  OK
-                </button>
-              </div>
-            </div>
-          `
-        : null}
-      ${this.showCommitMismatch
-        ? html`
-            <div class="backdrop" @click=${this.dismissCommitMismatch}></div>
-            <div class="modal warning">
-              <h4>Site Updated</h4>
-              <p>
-                The site has been updated since you started your review. Your
-                pending review items (${this.pendingItems.length}) were created
-                for an older version and may no longer apply correctly.
-              </p>
-              <div class="buttons">
-                <button
-                  class="btn secondary"
-                  @click=${this.dismissCommitMismatch}
-                >
-                  Keep Old Review
-                </button>
-                <button
-                  class="btn warning"
-                  @click=${this.handleClearForNewCommit}
-                >
-                  Clear & Start Fresh
-                </button>
-              </div>
-            </div>
-          `
-        : null}
-      ${this.submitResult
-        ? html`
-            <div class="backdrop" @click=${this.dismissSuccessResult}></div>
-            <div class="modal success">
-              <h4>Review Submitted!</h4>
-              <p>
-                ${this.submitResult.prNumber
-                  ? `PR #${this.submitResult.prNumber} created`
-                  : 'Review submitted'}
-                ${this.submitResult.authoredBy === 'user'
-                  ? ` as @${this.submitResult.authorUsername}`
-                  : ' via Stencila'}
-                ${this.submitResult.usedFork
-                  ? ` (from fork ${this.submitResult.forkFullName})`
-                  : ''}
-              </p>
-              ${this.submitResult.counts
-                ? html`<p class="counts">
-                    ${this.submitResult.counts.comments} comment(s),
-                    ${this.submitResult.counts.suggestions} suggestion(s)
-                  </p>`
-                : null}
-              ${this.submitResult.prUrl
-                ? html`<div class="pr-link">
-                    <a
-                      class="btn success-link"
-                      href=${this.submitResult.prUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Pull Request
-                    </a>
-                  </div>`
-                : null}
-              <div class="buttons" style="justify-content: center;">
-                <button class="btn secondary" @click=${this.dismissSuccessResult}>
-                  Close
-                </button>
-              </div>
-            </div>
-          `
-        : null}
+      <div class="backdrop" @click=${this.dismissError}></div>
+      <div class="modal error">
+        <h4>Review Error</h4>
+        <p>${this.errorMessage}</p>
+        <div class="buttons">
+          <button class="btn primary" @click=${this.dismissError}>OK</button>
+        </div>
+      </div>
+    `
+  }
+
+  /**
+   * Render commit mismatch warning modal
+   */
+  private renderCommitMismatchModal() {
+    if (!this.showCommitMismatch) {
+      return null
+    }
+
+    return html`
+      <div class="backdrop" @click=${this.dismissCommitMismatch}></div>
+      <div class="modal warning">
+        <h4>Site Updated</h4>
+        <p>
+          The site has been updated since you started your review. Your pending
+          review items (${this.pendingItems.length}) were created for an older
+          version and may no longer apply correctly.
+        </p>
+        <div class="buttons">
+          <button class="btn secondary" @click=${this.dismissCommitMismatch}>
+            Keep Old Review
+          </button>
+          <button class="btn warning" @click=${this.handleClearForNewCommit}>
+            Clear & Start Fresh
+          </button>
+        </div>
+      </div>
+    `
+  }
+
+  /**
+   * Render submit success modal
+   */
+  private renderSubmitResultModal() {
+    if (!this.submitResult) {
+      return null
+    }
+
+    return html`
+      <div class="backdrop" @click=${this.dismissSuccessResult}></div>
+      <div class="modal success">
+        <h4>Review Submitted!</h4>
+        <p>
+          ${this.submitResult.prNumber
+            ? `PR #${this.submitResult.prNumber} created`
+            : 'Review submitted'}
+          ${this.submitResult.authoredBy === 'user'
+            ? ` as @${this.submitResult.authorUsername}`
+            : ' via Stencila'}
+          ${this.submitResult.usedFork
+            ? ` (from fork ${this.submitResult.forkFullName})`
+            : ''}
+        </p>
+        ${this.submitResult.counts
+          ? html`<p class="counts">
+              ${this.submitResult.counts.comments} comment(s),
+              ${this.submitResult.counts.suggestions} suggestion(s)
+            </p>`
+          : null}
+        ${this.submitResult.prUrl
+          ? html`<div class="pr-link">
+              <a
+                class="btn success-link"
+                href=${this.submitResult.prUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Pull Request
+              </a>
+            </div>`
+          : null}
+        <div class="buttons" style="justify-content: center;">
+          <button class="btn secondary" @click=${this.dismissSuccessResult}>
+            Close
+          </button>
+        </div>
+      </div>
     `
   }
 
