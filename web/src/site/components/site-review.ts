@@ -21,6 +21,7 @@ interface ReviewItem {
   type: 'comment' | 'suggestion'
   path: string
   url: string
+  title: string
   start: Anchor
   end: Anchor
   selected: string
@@ -891,14 +892,6 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Truncate text to a maximum length with ellipsis
-   */
-  private truncate(text: string, maxLength: number): string {
-    if (text.length <= maxLength) return text
-    return text.slice(0, maxLength) + '...'
-  }
-
-  /**
    * Extract pathname from a URL string
    */
   private getPathname(url: string): string {
@@ -1675,6 +1668,7 @@ export class StencilaSiteReview extends LitElement {
       type: this.inputType,
       path,
       url: window.location.origin + window.location.pathname,
+      title: document.title || window.location.pathname,
       start: isPageComment ? { nodeId: '', offset: 0 } : this.currentSelection.start,
       end: isPageComment ? { nodeId: '', offset: 0 } : this.currentSelection.end,
       selected: isPageComment ? '' : this.currentSelection.selectedText,
@@ -2146,7 +2140,7 @@ export class StencilaSiteReview extends LitElement {
       <div class="modal input ${this.isInputFlying ? 'flying' : ''}" style="${this.flyTargetStyles}">
         <div class="item-header">
           <span class="type-icon i-lucide:${this.inputType === 'comment' ? 'message-circle' : 'pencil'}"></span>
-          <span class="item-path">${window.location.pathname}</span>
+          <span class="item-path">${document.title || window.location.pathname}</span>
         </div>
         <textarea
           ${ref(this.inputTextareaRef)}
@@ -2280,6 +2274,9 @@ export class StencilaSiteReview extends LitElement {
       index: group.indices[i],
     }))
 
+    // Use title from first item in group, fallback to path
+    const pageTitle = group.items[0]?.title || path
+
     return html`
       <div class="page-group" data-current=${isCurrent}>
         <button
@@ -2289,8 +2286,9 @@ export class StencilaSiteReview extends LitElement {
             this.togglePageGroup(path)
           }}
           aria-expanded=${isExpanded}
+          title=${path}
         >
-          <span class="page-path">${path}</span>
+          <span class="page-path">${pageTitle}</span>
           <span class="page-count">${group.items.length}</span>
           <span class="chevron i-lucide:chevron-${isExpanded ? 'up' : 'down'}"></span>
         </button>
