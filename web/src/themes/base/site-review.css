@@ -391,6 +391,7 @@ stencila-site-review .modal.input .item-path {
    ========================================================================== */
 
 /* Input popover - positioned near selection */
+/* z-index: above transparent backdrop (49), below header (100) */
 stencila-site-review-item .review-input-popover {
     z-index: 50;
     background: white;
@@ -468,7 +469,9 @@ stencila-site-review .backdrop {
 }
 
 /* Transparent backdrop for popover mode - catches clicks but invisible */
+/* Lower z-index than regular backdrop so popover stays below header */
 stencila-site-review .backdrop.transparent {
+    z-index: 49;
     background: transparent;
 }
 
