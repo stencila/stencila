@@ -5,6 +5,15 @@ import { GlideEvents } from '../glide/events'
 import { navigate } from '../glide/glide'
 import type { GlideEventDetail } from '../glide/types'
 
+import {
+  supportsHighlightAPI,
+  findTextPosition,
+  findNodeWithId,
+  getCharOffset,
+  createRangeForItem,
+  caretRangeFromPoint,
+  rangeContainsPoint,
+} from './site-review-dom'
 import type {
   ItemAddDetail,
   ItemClickDetail,
@@ -12,94 +21,34 @@ import type {
   ItemEditDetail,
   SelectionInfo,
 } from './site-review-item'
-import type { ReviewItem, ReviewItemAnchor, SourceInfo } from './site-review-types'
+import type {
+  ReviewItem,
+  ReviewItemAnchor,
+  SourceInfo,
+  AuthStatusResponse,
+  ReviewResponse,
+  ApiError,
+} from './site-review-types'
 import {
   SHARE_PARAM,
   encodeReviewForUrl,
   extractSharedReview,
   hasSharedReview,
 } from './site-review-url'
+import {
+  STORAGE_KEY_ITEMS,
+  STORAGE_KEY_SOURCE,
+  REVIEW_AUTH_PATH,
+  REVIEW_SUBMIT_PATH,
+  REVIEW_GITHUB_TOKEN_PATH,
+  CLOUD_API_BASE,
+  CLOUD_PROFILE_URL,
+  isLocalhost,
+  getPathname,
+  isStencilaHostedSite,
+  isDevMode,
+} from './site-review-utils'
 import './site-review-item'
-
-/**
- * Auth status response from /__stencila-review/auth
- */
-interface AuthStatusResponse {
-  hasSiteAccess: boolean
-  user?: {
-    id: string
-    name: string
-    avatar: string
-  }
-  github?: {
-    connected: boolean
-    username: string
-    canPush: boolean
-    source: 'clerk' | 'oauth'
-  }
-  reviewConfig: {
-    enabled: boolean
-    allowPublic: boolean
-    allowAnonymous: boolean
-  }
-  repo?: {
-    isPrivate: boolean
-    appInstalled: boolean
-  }
-  authorship?: {
-    canAuthorAsSelf: boolean
-    willBeBotAuthored: boolean
-    reason?: string
-  }
-}
-
-/**
- * Review submission response from /__stencila-review/submit
- */
-interface ReviewResponse {
-  success: boolean
-  prNumber: number
-  prUrl: string
-  branchName: string
-  authoredBy: 'user' | 'bot'
-  authorUsername?: string
-  usedFork: boolean
-  forkFullName?: string
-  counts: {
-    comments: number
-    suggestions: number
-    fallbacks: number
-  }
-}
-
-/**
- * Error response from API
- */
-interface ApiError {
-  error: string
-  message?: string
-  retryAfter?: number
-}
-
-const STORAGE_KEY_ITEMS = 'stencila-site-review-items'
-const STORAGE_KEY_SOURCE = 'stencila-site-review-source'
-
-// API endpoint paths (relative, will be prefixed with apiBase)
-const REVIEW_AUTH_PATH = '/__stencila-review/auth'
-const REVIEW_SUBMIT_PATH = '/__stencila-review/submit'
-const REVIEW_GITHUB_TOKEN_PATH = '/__stencila-review/github-token'
-
-// External URLs
-const CLOUD_API_BASE = 'https://api.stencila.cloud'
-const CLOUD_PROFILE_URL = 'https://stencila.cloud/profile'
-
-/**
- * Check if running on localhost
- */
-function isLocalhost(): boolean {
-  const hostname = window.location.hostname
-  return hostname === 'localhost' || hostname === '127.0.0.1'
-}
 
 /**
  * Site review component
@@ -598,7 +547,7 @@ export class StencilaSiteReview extends LitElement {
     this.authLoading = true
 
     // In dev mode on localhost, skip API and use permissive defaults
-    if (this.isDevMode) {
+    if (isDevMode()) {
       console.log('[SiteReview] Dev mode enabled, skipping API')
       this.applyDevDefaults()
       this.authLoading = false
@@ -625,20 +574,6 @@ export class StencilaSiteReview extends LitElement {
     } finally {
       this.authLoading = false
     }
-  }
-
-  /**
-   * Check if localhost dev mode is enabled.
-   * Enable by adding ?reviewDevMode=true to the URL or setting localStorage.
-   */
-  private get isDevMode(): boolean {
-    if (!isLocalhost()) return false
-
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('reviewDevMode') === 'true') return true
-    if (localStorage.getItem('stencila-review-dev-mode') === 'true') return true
-
-    return false
   }
 
   /**
@@ -679,29 +614,6 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Check if this is a Stencila-hosted site (*.stencila.site or localhost)
-   * OAuth only works on Stencila-hosted sites
-   */
-  private get isStencilaHostedSite(): boolean {
-    const hostname = window.location.hostname
-    // *.stencila.site subdomains
-    if (hostname.endsWith('.stencila.site')) return true
-    // localhost for development
-    if (hostname === 'localhost' || hostname === '127.0.0.1') return true
-    // Common third-party hosts that won't work
-    const thirdPartyHosts = [
-      'netlify.app',
-      'netlify.com',
-      'github.io',
-      'vercel.app',
-      'pages.dev',
-      'surge.sh',
-      'render.com',
-    ]
-    return !thirdPartyHosts.some((host) => hostname.endsWith(host))
-  }
-
-  /**
    * Connect GitHub account
    * - Stencila users: direct to profile page
    * - Non-Stencila users on Stencila-hosted sites: OAuth redirect flow
@@ -713,7 +625,7 @@ export class StencilaSiteReview extends LitElement {
       return
     }
 
-    if (!this.isStencilaHostedSite) {
+    if (!isStencilaHostedSite()) {
       this.errorMessage =
         'GitHub authentication is only available on Stencila-hosted sites. Submit reviews anonymously or sign in with Stencila.'
       return
@@ -830,7 +742,7 @@ export class StencilaSiteReview extends LitElement {
     if (this.authStatus?.repo?.isPrivate) return false
 
     // Only show if OAuth is available (Stencila-hosted site, public repo)
-    return this.isStencilaHostedSite
+    return isStencilaHostedSite()
   }
 
   /**
@@ -914,17 +826,6 @@ export class StencilaSiteReview extends LitElement {
       case 'bottom-right':
       default:
         return `bottom: ${panelOffset}; right: ${edgeOffset};`
-    }
-  }
-
-  /**
-   * Extract pathname from a URL string
-   */
-  private getPathname(url: string): string {
-    try {
-      return new URL(url).pathname
-    } catch {
-      return url
     }
   }
 
@@ -1034,7 +935,7 @@ export class StencilaSiteReview extends LitElement {
       // Handle pending activation from cross-page navigation
       if (this.pendingActivation !== null) {
         const item = this.pendingItems[this.pendingActivation]
-        if (item && this.getPathname(item.url) === window.location.pathname) {
+        if (item && getPathname(item.url) === window.location.pathname) {
           this.activateAndScrollToItem(this.pendingActivation, item)
         }
         this.pendingActivation = null
@@ -1046,134 +947,12 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Find all elements between start and end nodeIds (inclusive).
-   * Uses DOM tree order traversal to find all elements with IDs in the range.
-   */
-  private findElementsBetween(startNodeId: string, endNodeId: string): Element[] {
-    if (!startNodeId || !endNodeId) return []
-
-    const startEl = document.getElementById(startNodeId)
-    const endEl = document.getElementById(endNodeId)
-
-    if (!startEl || !endEl) return []
-
-    // Same element - return just that one
-    if (startNodeId === endNodeId) return [startEl]
-
-    const result: Element[] = []
-    let capturing = false
-
-    // Get the main content area (look for common content containers)
-    const contentSelector = 'main, [role="main"], article, [root]'
-    const content = document.querySelector(contentSelector)
-    if (!content) {
-      // Fallback: just return start and end elements
-      return [startEl, endEl]
-    }
-
-    // TreeWalker for efficient DOM traversal - only visit elements with IDs
-    const walker = document.createTreeWalker(content, NodeFilter.SHOW_ELEMENT, {
-      acceptNode: (node) => {
-        const el = node as Element
-        return el.id ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
-      },
-    })
-
-    let node: Node | null = walker.currentNode
-    while (node) {
-      const el = node as Element
-      if (el.id === startNodeId) {
-        capturing = true
-      }
-
-      if (capturing && el.id) {
-        result.push(el)
-      }
-
-      if (el.id === endNodeId) {
-        break
-      }
-
-      node = walker.nextNode()
-    }
-
-    // If we didn't capture anything due to tree structure, at least return start/end
-    if (result.length === 0) {
-      return [startEl, endEl].filter(Boolean)
-    }
-
-    return result
-  }
-
-  /**
-   * Check if CSS Custom Highlight API is supported
-   */
-  private get supportsHighlightAPI(): boolean {
-    return 'highlights' in CSS && typeof Highlight !== 'undefined'
-  }
-
-  /**
-   * Find the text node and offset within it for a given element and character offset.
-   * The character offset is relative to the element's total text content.
-   */
-  private findTextPosition(
-    element: Element,
-    charOffset: number
-  ): { node: Text; offset: number } | null {
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
-    let currentOffset = 0
-    let node: Text | null
-
-    while ((node = walker.nextNode() as Text | null)) {
-      const nodeLength = node.length
-      if (currentOffset + nodeLength >= charOffset) {
-        return { node, offset: charOffset - currentOffset }
-      }
-      currentOffset += nodeLength
-    }
-
-    // If offset exceeds content, return end of last text node
-    if (node) {
-      return { node, offset: node.length }
-    }
-
-    return null
-  }
-
-  /**
-   * Create a Range for a review item's selection
-   */
-  private createRangeForItem(item: ReviewItem): Range | null {
-    if (!item.start.nodeId || !item.end.nodeId) return null
-
-    const startEl = document.getElementById(item.start.nodeId)
-    const endEl = document.getElementById(item.end.nodeId)
-
-    if (!startEl || !endEl) return null
-
-    const startPos = this.findTextPosition(startEl, item.start.offset)
-    const endPos = this.findTextPosition(endEl, item.end.offset)
-
-    if (!startPos || !endPos) return null
-
-    try {
-      const range = document.createRange()
-      range.setStart(startPos.node, startPos.offset)
-      range.setEnd(endPos.node, endPos.offset)
-      return range
-    } catch (e) {
-      console.warn('[SiteReview] Failed to create range:', e)
-      return null
-    }
-  }
-
-  /**
    * Apply highlights for all items on the current page using CSS Custom Highlight API
    */
   private applyHighlights() {
     this.clearHighlights()
 
-    if (!this.supportsHighlightAPI) {
+    if (!supportsHighlightAPI()) {
       console.warn('[SiteReview] CSS Custom Highlight API not supported')
       return
     }
@@ -1184,12 +963,12 @@ export class StencilaSiteReview extends LitElement {
 
     this.pendingItems.forEach((item, index) => {
       // Only highlight items on current page
-      if (this.getPathname(item.url) !== currentPath) return
+      if (getPathname(item.url) !== currentPath) return
 
       // Skip page-level comments (no nodeId)
       if (!item.start.nodeId) return
 
-      const range = this.createRangeForItem(item)
+      const range = createRangeForItem(item)
       if (!range) return
 
       // Track range for click detection
@@ -1230,7 +1009,7 @@ export class StencilaSiteReview extends LitElement {
    * Clear all document highlights
    */
   private clearHighlights() {
-    if (this.supportsHighlightAPI) {
+    if (supportsHighlightAPI()) {
       CSS.highlights.delete('review-comment')
       CSS.highlights.delete('review-suggestion')
       CSS.highlights.delete('review-comment-active')
@@ -1251,7 +1030,7 @@ export class StencilaSiteReview extends LitElement {
   private showInputHighlight() {
     this.clearInputHighlight()
 
-    if (!this.supportsHighlightAPI || !this.currentSelection) return
+    if (!supportsHighlightAPI() || !this.currentSelection) return
 
     // Create range from current selection
     const { start, end } = this.currentSelection
@@ -1261,8 +1040,8 @@ export class StencilaSiteReview extends LitElement {
     const endEl = document.getElementById(end.nodeId)
     if (!startEl || !endEl) return
 
-    const startPos = this.findTextPosition(startEl, start.offset)
-    const endPos = this.findTextPosition(endEl, end.offset)
+    const startPos = findTextPosition(startEl, start.offset)
+    const endPos = findTextPosition(endEl, end.offset)
     if (!startPos || !endPos) return
 
     try {
@@ -1283,7 +1062,7 @@ export class StencilaSiteReview extends LitElement {
    * Clear the input highlight
    */
   private clearInputHighlight() {
-    if (this.supportsHighlightAPI && this.inputHighlight) {
+    if (supportsHighlightAPI() && this.inputHighlight) {
       CSS.highlights.delete('review-comment-active')
       CSS.highlights.delete('review-suggestion-active')
     }
@@ -1304,12 +1083,12 @@ export class StencilaSiteReview extends LitElement {
     if (!selection) return
 
     // Create a collapsed range at click position (cross-browser)
-    const clickRange = this.caretRangeFromPoint(e.clientX, e.clientY)
+    const clickRange = caretRangeFromPoint(e.clientX, e.clientY)
     if (!clickRange) return
 
     // Check each highlight range
     for (const { range, itemIndex } of this.highlightRanges) {
-      if (this.rangeContainsPoint(range, clickRange)) {
+      if (rangeContainsPoint(range, clickRange)) {
         e.preventDefault()
         e.stopPropagation()
         this.setActiveHighlight(itemIndex)
@@ -1317,7 +1096,7 @@ export class StencilaSiteReview extends LitElement {
         // Ensure page group is expanded
         const item = this.pendingItems[itemIndex]
         if (item) {
-          const itemPath = this.getPathname(item.url)
+          const itemPath = getPathname(item.url)
           if (!this.expandedPageGroups.has(itemPath)) {
             this.expandedPageGroups.add(itemPath)
             this.expandedPageGroups = new Set(this.expandedPageGroups)
@@ -1342,45 +1121,11 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Get a collapsed Range at a screen position (cross-browser)
-   * Chrome uses caretRangeFromPoint, Firefox uses caretPositionFromPoint
-   */
-  private caretRangeFromPoint(x: number, y: number): Range | null {
-    // Chrome/Safari/Edge
-    if (document.caretRangeFromPoint) {
-      return document.caretRangeFromPoint(x, y)
-    }
-
-    // Firefox
-    type CaretPosition = { offsetNode: Node; offset: number }
-    type DocWithCaret = { caretPositionFromPoint?: (x: number, y: number) => CaretPosition | null }
-    const caretPosition = (document as unknown as DocWithCaret).caretPositionFromPoint?.(x, y)
-    if (caretPosition) {
-      const range = document.createRange()
-      range.setStart(caretPosition.offsetNode, caretPosition.offset)
-      range.collapse(true)
-      return range
-    }
-
-    return null
-  }
-
-  /**
-   * Check if a range contains a point (represented as a collapsed range)
-   */
-  private rangeContainsPoint(range: Range, point: Range): boolean {
-    return (
-      range.compareBoundaryPoints(Range.START_TO_START, point) <= 0 &&
-      range.compareBoundaryPoints(Range.END_TO_END, point) >= 0
-    )
-  }
-
-  /**
    * Set the active highlight for a selected item
    */
   private setActiveHighlight(itemIndex: number | null) {
     // Clear previous active highlight
-    if (this.supportsHighlightAPI) {
+    if (supportsHighlightAPI()) {
       CSS.highlights.delete('review-comment-active')
       CSS.highlights.delete('review-suggestion-active')
     }
@@ -1393,11 +1138,11 @@ export class StencilaSiteReview extends LitElement {
     if (!item?.start.nodeId) return
 
     // Create range for active item
-    const range = this.createRangeForItem(item)
+    const range = createRangeForItem(item)
     if (!range) return
 
     // Create active highlight
-    if (this.supportsHighlightAPI) {
+    if (supportsHighlightAPI()) {
       this.activeHighlight = new Highlight(range)
       const highlightName =
         item.type === 'comment' ? 'review-comment-active' : 'review-suggestion-active'
@@ -1427,7 +1172,7 @@ export class StencilaSiteReview extends LitElement {
    * Handle clicking on a review item in the panel
    */
   private handleItemClick(index: number, item: ReviewItem) {
-    const itemPath = this.getPathname(item.url)
+    const itemPath = getPathname(item.url)
     const currentPath = window.location.pathname
 
     if (itemPath !== currentPath) {
@@ -1451,7 +1196,7 @@ export class StencilaSiteReview extends LitElement {
     const groups = new Map<string, { items: ReviewItem[]; indices: number[] }>()
 
     this.pendingItems.forEach((item, index) => {
-      const path = this.getPathname(item.url)
+      const path = getPathname(item.url)
       if (!groups.has(path)) {
         groups.set(path, { items: [], indices: [] })
       }
@@ -1492,7 +1237,7 @@ export class StencilaSiteReview extends LitElement {
     const currentPath = window.location.pathname
     // Only expand if there are items for this page
     const hasItemsForCurrentPage = this.pendingItems.some(
-      (item) => this.getPathname(item.url) === currentPath
+      (item) => getPathname(item.url) === currentPath
     )
     if (hasItemsForCurrentPage && !this.expandedPageGroups.has(currentPath)) {
       this.expandedPageGroups.add(currentPath)
@@ -1548,8 +1293,8 @@ export class StencilaSiteReview extends LitElement {
     const endEl = document.getElementById(end.nodeId)
     if (!startEl || !endEl) return
 
-    const startPos = this.findTextPosition(startEl, start.offset)
-    const endPos = this.findTextPosition(endEl, end.offset)
+    const startPos = findTextPosition(startEl, start.offset)
+    const endPos = findTextPosition(endEl, end.offset)
     if (!startPos || !endPos) return
 
     try {
@@ -1598,24 +1343,24 @@ export class StencilaSiteReview extends LitElement {
     }
 
     // Find start anchor
-    const startNode = this.findNodeWithId(range.startContainer)
+    const startNode = findNodeWithId(range.startContainer)
     if (!startNode) {
       this.currentSelection = null
       return
     }
-    const startOffset = this.getCharOffset(
+    const startOffset = getCharOffset(
       startNode,
       range.startContainer,
       range.startOffset
     )
 
     // Find end anchor (may be different node for multi-block)
-    const endNode = this.findNodeWithId(range.endContainer)
+    const endNode = findNodeWithId(range.endContainer)
     if (!endNode) {
       this.currentSelection = null
       return
     }
-    const endOffset = this.getCharOffset(
+    const endOffset = getCharOffset(
       endNode,
       range.endContainer,
       range.endOffset
@@ -1640,34 +1385,6 @@ export class StencilaSiteReview extends LitElement {
           : selectedText,
       isMultiBlock: startNode.id !== endNode.id,
     })
-  }
-
-  /**
-   * Find the closest ancestor element with an id attribute
-   */
-  private findNodeWithId(node: Node): Element | null {
-    let current: Node | null = node
-    while (current) {
-      if (current instanceof Element && current.id) {
-        return current
-      }
-      current = current.parentElement
-    }
-    return null
-  }
-
-  /**
-   * Calculate character offset within a node's text content
-   */
-  private getCharOffset(
-    nodeEl: Element,
-    container: Node,
-    offset: number
-  ): number {
-    const preCaretRange = document.createRange()
-    preCaretRange.selectNodeContents(nodeEl)
-    preCaretRange.setEnd(container, offset)
-    return preCaretRange.toString().length
   }
 
   /**
@@ -1938,7 +1655,7 @@ export class StencilaSiteReview extends LitElement {
     this.submitError = ''
 
     // In dev mode, mock a successful submission
-    if (this.isDevMode) {
+    if (isDevMode()) {
       console.log('[SiteReview] Dev mode: mocking submit', {
         commit: this.sourceInfo.commit,
         items: this.pendingItems,

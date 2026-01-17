@@ -164,6 +164,11 @@ export class StencilaSiteReviewItem extends LitElement {
   private textareaRef: Ref<HTMLTextAreaElement> = createRef()
 
   /**
+   * Ref for the input container (for fly animation positioning)
+   */
+  private inputContainerRef: Ref<HTMLDivElement> = createRef()
+
+  /**
    * Use Light DOM so theme CSS can style the component
    */
   protected override createRenderRoot() {
@@ -375,6 +380,9 @@ export class StencilaSiteReviewItem extends LitElement {
       return
     }
 
+    // Calculate fly-to-FAB animation
+    this.setupFlyAnimation()
+
     // Trigger fly animation
     this.isFlying = true
 
@@ -395,6 +403,35 @@ export class StencilaSiteReviewItem extends LitElement {
       this.isFlying = false
       this.inputContent = ''
     }, 300) // Duration of fly animation
+  }
+
+  /**
+   * Set up the fly-to-FAB animation by calculating translation
+   */
+  private setupFlyAnimation() {
+    const container = this.inputContainerRef.value
+    if (!container) return
+
+    // Find the FAB element
+    const fab = document.querySelector('.review-fab')
+    if (!fab) return
+
+    // Get bounding rects
+    const containerRect = container.getBoundingClientRect()
+    const fabRect = fab.getBoundingClientRect()
+
+    // Calculate translation to FAB center
+    const containerCenterX = containerRect.left + containerRect.width / 2
+    const containerCenterY = containerRect.top + containerRect.height / 2
+    const fabCenterX = fabRect.left + fabRect.width / 2
+    const fabCenterY = fabRect.top + fabRect.height / 2
+
+    const translateX = fabCenterX - containerCenterX
+    const translateY = fabCenterY - containerCenterY
+
+    // Set CSS custom properties for the animation
+    container.style.setProperty('--fly-x', `${translateX}px`)
+    container.style.setProperty('--fly-y', `${translateY}px`)
   }
 
   /**
@@ -539,6 +576,7 @@ export class StencilaSiteReviewItem extends LitElement {
 
       return html`
         <div
+          ${ref(this.inputContainerRef)}
           class="review-input-popover ${this.isFlying ? 'flying' : ''}"
           style=${positionStyle}
         >
@@ -566,7 +604,7 @@ export class StencilaSiteReviewItem extends LitElement {
 
     // Fallback to centered modal (page-level comments without selection)
     return html`
-      <div class="modal input ${this.isFlying ? 'flying' : ''}">
+      <div ${ref(this.inputContainerRef)} class="modal input ${this.isFlying ? 'flying' : ''}">
         <div class="item-header">
           <span class="type-icon i-lucide:${this.type === 'comment' ? 'message-circle' : 'pencil'}"></span>
           <span class="item-path">${this.pageTitle || window.location.pathname}</span>

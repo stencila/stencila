@@ -318,7 +318,7 @@ stencila-site-review .modal.input {
 }
 
 stencila-site-review .modal.input.flying {
-    transform: translate(var(--fly-x, 40vw), var(--fly-y, 40vh)) scale(0.1);
+    transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.1);
     opacity: 0;
     pointer-events: none;
 }
@@ -411,8 +411,9 @@ stencila-site-review-item .review-input-popover {
 
 stencila-site-review-item .review-input-popover.flying {
     opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.1);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
 }
 
 /* Popover textarea */

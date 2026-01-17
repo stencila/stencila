@@ -32,3 +32,63 @@ export interface SourceInfo {
   repository: string
   commit: string
 }
+
+/**
+ * Auth status response from /__stencila-review/auth
+ */
+export interface AuthStatusResponse {
+  hasSiteAccess: boolean
+  user?: {
+    id: string
+    name: string
+    avatar: string
+  }
+  github?: {
+    connected: boolean
+    username: string
+    canPush: boolean
+    source: 'clerk' | 'oauth'
+  }
+  reviewConfig: {
+    enabled: boolean
+    allowPublic: boolean
+    allowAnonymous: boolean
+  }
+  repo?: {
+    isPrivate: boolean
+    appInstalled: boolean
+  }
+  authorship?: {
+    canAuthorAsSelf: boolean
+    willBeBotAuthored: boolean
+    reason?: string
+  }
+}
+
+/**
+ * Review submission response from /__stencila-review/submit
+ */
+export interface ReviewResponse {
+  success: boolean
+  prNumber: number
+  prUrl: string
+  branchName: string
+  authoredBy: 'user' | 'bot'
+  authorUsername?: string
+  usedFork: boolean
+  forkFullName?: string
+  counts: {
+    comments: number
+    suggestions: number
+    fallbacks: number
+  }
+}
+
+/**
+ * Error response from API
+ */
+export interface ApiError {
+  error: string
+  message?: string
+  retryAfter?: number
+}
