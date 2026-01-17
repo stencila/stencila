@@ -87,7 +87,7 @@ pub struct ReviewsConfig {
     /// Minimum characters required to trigger the widget
     ///
     /// Prevents accidental tiny selections from showing the review buttons.
-    /// Default: 3
+    /// Default: 1
     pub min_selection: Option<u32>,
 
     /// Maximum characters allowed in a selection
@@ -135,9 +135,9 @@ impl ReviewsConfig {
         self.position.unwrap_or_default()
     }
 
-    /// Get the effective min_selection (defaults to 3)
+    /// Get the effective min_selection (defaults to 1)
     pub fn min_selection(&self) -> u32 {
-        self.min_selection.unwrap_or(3)
+        self.min_selection.unwrap_or(1)
     }
 
     /// Get the effective max_selection (defaults to 5000)

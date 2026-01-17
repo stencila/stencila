@@ -82,7 +82,7 @@ export class StencilaSiteReview extends LitElement {
    * Minimum characters required to trigger the affordance
    */
   @property({ type: Number, attribute: 'min-selection' })
-  minSelection: number = 3
+  minSelection: number = 1
 
   /**
    * Maximum characters allowed in a selection

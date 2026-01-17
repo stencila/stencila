@@ -1572,11 +1572,11 @@ impl Reviews {
         }
 
         if reviews_config.allows_comments() && reviews_config.allows_suggestions() {
-            message!("Types: <g>comments</>, <b>suggestions</>");
+            message!("Types: <y>comments</>, <g>suggestions</>");
         } else if reviews_config.allows_comments() {
-            message!("Types: <g>comments</> only");
+            message!("Types: <y>comments</> only");
         } else if reviews_config.allows_suggestions() {
-            message!("Types: <b>suggestions</> only");
+            message!("Types: <g>suggestions</> only");
         }
 
         Ok(())
@@ -1821,7 +1821,24 @@ pub static REVIEWS_CONFIG_AFTER_LONG_HELP: &str = cstr!(
 
 impl ReviewsConfig {
     async fn run(self, path: &Path, workspace_id: Option<&str>) -> Result<()> {
-        let mut updated = false;
+        // Check if any options were provided - if not, just show current config
+        let has_options = self.public
+            || self.no_public
+            || self.anon
+            || self.no_anon
+            || self.position.is_some()
+            || self.types.is_some()
+            || self.min_selection.is_some()
+            || self.max_selection.is_some()
+            || self.shortcuts
+            || self.no_shortcuts
+            || self.include.is_some()
+            || self.exclude.is_some();
+
+        if !has_options {
+            // No changes specified, show current config
+            return Reviews::show(path);
+        }
 
         // Check if we need to convert from boolean to table form
         // (can't set nested keys on a boolean value)
@@ -1832,32 +1849,26 @@ impl ReviewsConfig {
         // Handle public/no-public
         if self.public {
             config_set("site.reviews.public", "true", ConfigTarget::Nearest)?;
-            updated = true;
         } else if self.no_public {
             config_set("site.reviews.public", "false", ConfigTarget::Nearest)?;
-            updated = true;
         }
 
         // Handle anon/no-anon
         if self.anon {
             config_set("site.reviews.anon", "true", ConfigTarget::Nearest)?;
-            updated = true;
         } else if self.no_anon {
             config_set("site.reviews.anon", "false", ConfigTarget::Nearest)?;
-            updated = true;
         }
 
         // Handle position
         if let Some(position) = &self.position {
             config_set("site.reviews.position", position, ConfigTarget::Nearest)?;
-            updated = true;
         }
 
         // Handle types
         if let Some(types) = &self.types {
             let types_toml = format_toml_string_array(types);
             config_set("site.reviews.types", &types_toml, ConfigTarget::Nearest)?;
-            updated = true;
         }
 
         // Handle min/max selection
@@ -1867,7 +1878,6 @@ impl ReviewsConfig {
                 &min.to_string(),
                 ConfigTarget::Nearest,
             )?;
-            updated = true;
         }
         if let Some(max) = self.max_selection {
             config_set(
@@ -1875,35 +1885,25 @@ impl ReviewsConfig {
                 &max.to_string(),
                 ConfigTarget::Nearest,
             )?;
-            updated = true;
         }
 
         // Handle shortcuts
         if self.shortcuts {
             config_set("site.reviews.shortcuts", "true", ConfigTarget::Nearest)?;
-            updated = true;
         } else if self.no_shortcuts {
             config_set("site.reviews.shortcuts", "false", ConfigTarget::Nearest)?;
-            updated = true;
         }
 
         // Handle include patterns
         if let Some(include) = &self.include {
             let include_toml = format_toml_string_array(include);
             config_set("site.reviews.include", &include_toml, ConfigTarget::Nearest)?;
-            updated = true;
         }
 
         // Handle exclude patterns
         if let Some(exclude) = &self.exclude {
             let exclude_toml = format_toml_string_array(exclude);
             config_set("site.reviews.exclude", &exclude_toml, ConfigTarget::Nearest)?;
-            updated = true;
-        }
-
-        if !updated {
-            // No changes specified, show current config
-            return Reviews::show(path);
         }
 
         // Ensure reviews are enabled if configuring settings
