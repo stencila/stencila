@@ -5007,9 +5007,9 @@ dependencies = [
 
 [[package]]
 name = "jupyter-protocol"
-version = "0.11.0"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e3070ed16d5582cfee6b2b770e5fe115936ea63199ea36c6915e97c4f79c01f"
+checksum = "7d59805f0675efc81c70fe198b516c64062d52deb93a9f0562509670a99f011a"
 dependencies = [
  "async-trait",
  "bytes",
@@ -5858,9 +5858,9 @@ checksum = "8d5439c4ad607c3c23abf66de8c8bf57ba8adcd1f129e699851a6e43935d339d"
 
 [[package]]
 name = "nbformat"
-version = "0.15.1"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18ee6599bc9a2ac837fab4688c135867491cb4fc45972f3f924d0c5d8a16baed"
+checksum = "5903b59b1e05b1dda851281e3668ad3b6b32b1d6677d591563bc2091474d7d3c"
 dependencies = [
  "anyhow",
  "chrono",

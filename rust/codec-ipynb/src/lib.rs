@@ -433,22 +433,22 @@ fn node_from_media(media: Media) -> Node {
     for media_type in &media.content {
         match media_type {
             MediaType::Plotly(value) => {
-                return image_object_from_object("application/vnd.plotly.v1+json", value);
+                return image_object_from_value("application/vnd.plotly.v1+json", value);
             }
             MediaType::VegaLiteV2(value) => {
-                return image_object_from_object("application/vnd.vegalite.v2+json", value);
+                return image_object_from_value("application/vnd.vegalite.v2+json", value);
             }
             MediaType::VegaLiteV3(value) => {
-                return image_object_from_object("application/vnd.vegalite.v3+json", value);
+                return image_object_from_value("application/vnd.vegalite.v3+json", value);
             }
             MediaType::VegaLiteV4(value) => {
-                return image_object_from_object("application/vnd.vegalite.v4+json", value);
+                return image_object_from_value("application/vnd.vegalite.v4+json", value);
             }
             MediaType::VegaLiteV5(value) => {
-                return image_object_from_object("application/vnd.vegalite.v5+json", value);
+                return image_object_from_value("application/vnd.vegalite.v5+json", value);
             }
             MediaType::VegaLiteV6(value) => {
-                return image_object_from_object("application/vnd.vegalite.v6+json", value);
+                return image_object_from_value("application/vnd.vegalite.v6+json", value);
             }
             _ => {}
         }
@@ -484,7 +484,7 @@ fn node_from_media(media: Media) -> Node {
             | MediaType::VegaV3(value)
             | MediaType::VegaV4(value)
             | MediaType::VegaV5(value)
-            | MediaType::Vdom(value) => return object_from_value(value),
+            | MediaType::Vdom(value) => return object_from_json_value(value.clone()),
 
             _ => {}
         }
@@ -601,17 +601,17 @@ fn node_to_media_types(node: &Node) -> Vec<MediaType> {
 /// Add a JSON media type representation of a node to the media types vector
 fn add_json_media_type(media_types: &mut Vec<MediaType>, node: &Node) {
     if let Ok(value) = serde_json::to_value(node)
-        && let Some(object) = value.as_object().cloned()
+        && value.is_object()
     {
-        media_types.push(MediaType::Json(object));
+        media_types.push(MediaType::Json(value));
     }
 }
 
-/// Create a Stencila [`ImageObject`] from a JSON object
-fn image_object_from_object(media_type: &str, object: &Map<String, Value>) -> Node {
+/// Create a Stencila [`ImageObject`] from a JSON value
+fn image_object_from_value(media_type: &str, value: &Value) -> Node {
     Node::ImageObject(ImageObject {
         media_type: Some(media_type.into()),
-        content_url: serde_json::to_string(&object).unwrap_or_default(),
+        content_url: serde_json::to_string(value).unwrap_or_default(),
         ..Default::default()
     })
 }
@@ -632,24 +632,24 @@ fn image_object_to_media_type(image_object: &ImageObject) -> MediaType {
         }
     };
 
-    // Deserialize a visualization spec to an JSON object
-    let object = || {
+    // Deserialize a visualization spec to a JSON value
+    let json_value = || -> Value {
         serde_json::from_str(url)
             .ok()
-            .and_then(|value: Value| value.as_object().cloned())
-            .unwrap_or_default()
+            .filter(|value: &Value| value.is_object())
+            .unwrap_or_else(|| Value::Object(Map::new()))
     };
 
     match media_type {
-        "application/vnd.plotly.v1+json" => MediaType::Plotly(object()),
-        "application/vnd.vegalite.v2+json" => MediaType::VegaLiteV2(object()),
-        "application/vnd.vegalite.v3+json" => MediaType::VegaLiteV3(object()),
-        "application/vnd.vegalite.v4+json" => MediaType::VegaLiteV4(object()),
-        "application/vnd.vegalite.v5+json" => MediaType::VegaLiteV5(object()),
-        "application/vnd.vegalite.v6+json" => MediaType::VegaLiteV6(object()),
-        "application/vnd.vega.v3+json" => MediaType::VegaV3(object()),
-        "application/vnd.vega.v4+json" => MediaType::VegaV4(object()),
-        "application/vnd.vega.v5+json" => MediaType::VegaV5(object()),
+        "application/vnd.plotly.v1+json" => MediaType::Plotly(json_value()),
+        "application/vnd.vegalite.v2+json" => MediaType::VegaLiteV2(json_value()),
+        "application/vnd.vegalite.v3+json" => MediaType::VegaLiteV3(json_value()),
+        "application/vnd.vegalite.v4+json" => MediaType::VegaLiteV4(json_value()),
+        "application/vnd.vegalite.v5+json" => MediaType::VegaLiteV5(json_value()),
+        "application/vnd.vegalite.v6+json" => MediaType::VegaLiteV6(json_value()),
+        "application/vnd.vega.v3+json" => MediaType::VegaV3(json_value()),
+        "application/vnd.vega.v4+json" => MediaType::VegaV4(json_value()),
+        "application/vnd.vega.v5+json" => MediaType::VegaV5(json_value()),
         "image/svg+xml" => MediaType::Svg(url.into()),
         "image/png" => MediaType::Png(url.into()),
         "image/jpeg" => MediaType::Jpeg(url.into()),
@@ -670,8 +670,12 @@ fn image_object_from_string(media_type: &str, content_url: &str) -> Node {
     })
 }
 
-/// Create a Stencila [`Object`] from a JSON object
-fn object_from_value(object: Map<String, Value>) -> Node {
+/// Create a Stencila [`Object`] from a JSON value
+fn object_from_json_value(value: Value) -> Node {
+    let object = match value {
+        Value::Object(obj) => obj,
+        _ => Map::new(),
+    };
     Node::Object(Object(
         object
             .into_iter()
