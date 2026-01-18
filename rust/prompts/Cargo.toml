@@ -15,7 +15,7 @@ glob = { workspace = true }
 itertools = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
-rust-embed = { version = "8.9.0", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

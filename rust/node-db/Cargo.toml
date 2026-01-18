@@ -9,7 +9,7 @@ clap = { workspace = true }
 derive_more = { workspace = true }
 eyre = { workspace = true }
 itertools = { workspace = true }
-rust-embed = { version = "8.9.0", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 sha2 = { workspace = true }
