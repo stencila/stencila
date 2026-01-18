@@ -655,7 +655,9 @@ async fn build_header_footer_xml(
     ));
 
     // Add tab stops for left/center/right positioning
-    xml.push_str(&build_tab_stops(page_width));
+    // Only include center tab stop if center content is defined
+    let has_center = !center.is_empty();
+    xml.push_str(&build_tab_stops(page_width, has_center));
 
     // Add border if defined
     if let Some((width, color, style)) =
@@ -705,14 +707,11 @@ async fn build_header_footer_xml(
 
     // Tab to right (if right has content)
     if !right.is_empty() {
-        // If center is empty, we need 2 tabs to reach right position (skip center stop)
-        // If center is not empty, we only need 1 tab (already at center)
-        let tabs = if center.is_empty() {
-            "<w:tab/><w:tab/>"
-        } else {
-            "<w:tab/>"
-        };
-        xml.push_str(&format!(r#"<w:r><w:rPr>{char_props}</w:rPr>{tabs}</w:r>"#));
+        // Single tab to reach the right tab stop
+        // (only one tab stop exists when center is empty, so one tab is always sufficient)
+        xml.push_str(&format!(
+            r#"<w:r><w:rPr>{char_props}</w:rPr><w:tab/></w:r>"#
+        ));
         xml.push_str(
             &build_content_run(
                 &right,
@@ -877,6 +876,8 @@ mod tests {
             assert!(xml.contains("Arial"));
             assert!(xml.contains("w:val=\"16\"")); // 8pt = 16 half-points
             assert!(xml.contains("333333"));
+            // Center tab stop should be present when center content exists
+            assert!(xml.contains(r#"w:val="center""#));
         }
     }
 
@@ -1025,8 +1026,10 @@ mod tests {
             assert!(xml.contains("<w:ftr"));
             assert!(xml.contains("DOI"));
             assert!(xml.contains("Logo"));
-            // Should have 2 tabs before right content when center is empty
-            assert!(xml.contains("<w:tab/><w:tab/>"));
+            // Single tab to reach right position (no center tab stop when center is empty)
+            assert!(xml.contains("<w:tab/>"));
+            // Should NOT have center tab stop when center is empty
+            assert!(!xml.contains(r#"w:val="center""#));
         }
     }
 
@@ -1054,8 +1057,10 @@ mod tests {
             assert!(xml.contains("<w:hdr"));
             assert!(xml.contains("Authors"));
             assert!(xml.contains("Title"));
-            // Should have 2 tabs before right content when center is empty
-            assert!(xml.contains("<w:tab/><w:tab/>"));
+            // Single tab to reach right position (no center tab stop when center is empty)
+            assert!(xml.contains("<w:tab/>"));
+            // Should NOT have center tab stop when center is empty
+            assert!(!xml.contains(r#"w:val="center""#));
         }
     }
 

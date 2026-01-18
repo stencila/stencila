@@ -483,19 +483,27 @@ pub(crate) fn build_table_borders_element(
 
 /// Build tab stops for left/center/right positioning in header/footer
 ///
-/// Creates tab stops at:
-/// - Center: 50% of page width (for center-aligned content)
-/// - Right: 100% of page width (for right-aligned content)
+/// Creates tab stops based on which content positions are defined:
+/// - If center content exists: Center tab at 50% + Right tab at 100%
+/// - If no center content: Only Right tab at 100% (allows right content more space)
+///
+/// This dynamic approach prevents long right-aligned content (like document titles)
+/// from wrapping when there's no center content competing for space.
 ///
 /// # Arguments
 /// * `page_width` - Page width in twips (from page-content-width or calculated)
-pub(crate) fn build_tab_stops(page_width: u32) -> String {
-    let center_pos = page_width / 2;
+/// * `has_center` - Whether center content is defined
+pub(crate) fn build_tab_stops(page_width: u32, has_center: bool) -> String {
     let right_pos = page_width;
 
-    format!(
-        r#"<w:tabs><w:tab w:val="center" w:pos="{center_pos}"/><w:tab w:val="right" w:pos="{right_pos}"/></w:tabs>"#
-    )
+    if has_center {
+        let center_pos = page_width / 2;
+        format!(
+            r#"<w:tabs><w:tab w:val="center" w:pos="{center_pos}"/><w:tab w:val="right" w:pos="{right_pos}"/></w:tabs>"#
+        )
+    } else {
+        format!(r#"<w:tabs><w:tab w:val="right" w:pos="{right_pos}"/></w:tabs>"#)
+    }
 }
 
 #[cfg(test)]
