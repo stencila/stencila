@@ -29,8 +29,8 @@ tracing = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]
-jsonschema = "0.37.4"
-serial_test = "3.2.0"
+jsonschema = "0.40.0"
+serial_test = "3.3.1"
 tempfile = { workspace = true }
 
 [lints]

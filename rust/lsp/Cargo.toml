@@ -34,8 +34,8 @@ stencila-prompts = { path = "../prompts" }
 stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
 tokio = { workspace = true }
-tokio-util = { version = "0.7.17", features = ["compat"] }
-tower = "0.5.2"
+tokio-util = { version = "0.7.18", features = ["compat"] }
+tower = "0.5.3"
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 uuid = { workspace = true }
