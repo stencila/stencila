@@ -44,10 +44,10 @@ impl Demo {
 
             if errors > 0 {
                 if ignore_errors {
-                    message!("▶️  Ignoring execution errors")
+                    message!("▶️  Ignoring errors")
                 } else {
                     message!(
-                        "🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue demo regardless)"
+                        "🛑 Stopping due to errors (you can use `--ignore-errors` to continue demo regardless)"
                     );
                     exit(1)
                 }

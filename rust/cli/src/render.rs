@@ -208,7 +208,7 @@ impl Cli {
         }
 
         if self.execute_options.ignore_errors {
-            message!("▶️ Ignoring {} execution errors", errors);
+            message!("▶️ Ignoring {} errors", errors);
             return Ok(true);
         }
 
@@ -227,7 +227,7 @@ impl Cli {
             message("💡 Tip: use `--ignore-errors` to continue without prompts");
             Ok(true)
         } else {
-            message("🛑 Stopping due to execution errors");
+            message("🛑 Stopping due to errors");
             Ok(false)
         }
     }
