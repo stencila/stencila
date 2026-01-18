@@ -1,0 +1,11 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\section{Introduction}
+
+This is the introduction section.
+
+\section{Methods}
+
+This section describes the methods used.

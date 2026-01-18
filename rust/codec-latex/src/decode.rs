@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{str::FromStr, sync::LazyLock};
 
 use itertools::Itertools;
 use regex::{Captures, Regex};
@@ -8,10 +8,10 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{
-        AppendixBreak, Article, Bibliography, Block, Citation, CitationGroup, CitationMode,
-        CitationOptions, CodeChunk, CodeExpression, CompilationMessage, ForBlock, Heading, IfBlock,
-        IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, MessageLevel,
-        Node, RawBlock, Section, SectionType, Text,
+        AppendixBreak, Article, Author, Bibliography, Block, Citation, CitationGroup, CitationMode,
+        CitationOptions, CodeChunk, CodeExpression, CompilationMessage, Date, ForBlock, Heading,
+        IfBlock, IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link,
+        MessageLevel, Node, Paragraph, Person, RawBlock, Section, SectionType, Text,
     },
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -34,7 +34,7 @@ pub(super) async fn decode(
 }
 
 /// Regex for custom commands and environments
-static RE: LazyLock<Regex> = LazyLock::new(|| {
+static COMMANDS_RE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?sx)
 
@@ -82,6 +82,28 @@ static BIBLIOGRAPHY_RE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\\(?:bibliography|addbibresource)\{([^}]+)\}").expect("invalid regex")
 });
 
+/// Regex for \title{...} command
+static TITLE_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\\title\{([^}]*)\}").expect("invalid regex"));
+
+/// Regex for \author{...} command
+/// Note: Authors can be separated by \and or \\ within the braces
+static AUTHOR_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\\author\{([^}]*(?:\{[^}]*\}[^}]*)*)\}").expect("invalid regex"));
+
+/// Regex for \date{...} command
+static DATE_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\\date\{([^}]*)\}").expect("invalid regex"));
+
+/// Regex for \keywords{...} command (used by some document classes)
+static KEYWORDS_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\\keywords\{([^}]*)\}").expect("invalid regex"));
+
+/// Regex for \begin{abstract}...\end{abstract} environment
+static ABSTRACT_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?s)\\begin\{abstract\}(.*?)\\end\{abstract\}").expect("invalid regex")
+});
+
 /// Extract bibliography source from LaTeX
 ///
 /// Returns the bibliography source path and any compilation messages
@@ -126,6 +148,121 @@ fn extract_bibliography(latex: &str) -> (Option<Bibliography>, Vec<CompilationMe
     )
 }
 
+/// Extract title from LaTeX \title{...} command
+fn extract_title(latex: &str) -> Option<Vec<Inline>> {
+    TITLE_RE.captures(latex).and_then(|caps| {
+        caps.get(1).map(|m| {
+            let title_text = m.as_str().trim();
+            if title_text.is_empty() {
+                vec![]
+            } else {
+                vec![Inline::Text(Text::from(title_text))]
+            }
+        })
+    })
+}
+
+/// Extract authors from LaTeX \author{...} command
+///
+/// Authors can be separated by \and or \\ (LaTeX conventions)
+fn extract_authors(latex: &str) -> Option<Vec<Author>> {
+    /// Remove common LaTeX commands from a string
+    fn remove_latex_commands(s: &str) -> String {
+        // Remove \thanks{...}, \footnote{...}, etc.
+        static CMD_RE: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"\\(?:thanks|footnote|textsuperscript)\{[^}]*\}").expect("invalid regex")
+        });
+
+        CMD_RE.replace_all(s, "").into_owned()
+    }
+
+    AUTHOR_RE.captures(latex).and_then(|caps| {
+        caps.get(1).map(|m| {
+            let authors_str = m.as_str().trim();
+            if authors_str.is_empty() {
+                return vec![];
+            }
+
+            // Split by \and or \\ to separate multiple authors
+            let author_names: Vec<&str> = authors_str
+                .split(r"\and")
+                .flat_map(|s| s.split(r"\\"))
+                .map(|s| s.trim())
+                .filter(|s| !s.is_empty())
+                .collect();
+
+            author_names
+                .into_iter()
+                .filter_map(|name| {
+                    // Remove any LaTeX commands that might be in the name (like \thanks{...})
+                    let clean_name = remove_latex_commands(name);
+                    let clean_name = clean_name.trim();
+                    if clean_name.is_empty() {
+                        return None;
+                    }
+
+                    // Try to parse name into given and family names
+                    Person::from_str(name).ok().map(Author::Person)
+                })
+                .collect()
+        })
+    })
+}
+
+/// Extract date from LaTeX \date{...} command
+fn extract_date(latex: &str) -> Option<Date> {
+    DATE_RE.captures(latex).and_then(|caps| {
+        caps.get(1).and_then(|m| {
+            let date_str = m.as_str().trim();
+
+            // Skip empty dates or \today
+            if date_str.is_empty() || date_str == r"\today" {
+                return None;
+            }
+
+            // Try to normalize the date to ISO 8601 format
+            // For now, just store as-is if it's not empty
+            Some(Date::new(date_str.into()))
+        })
+    })
+}
+
+/// Extract keywords from LaTeX \keywords{...} command
+fn extract_keywords(latex: &str) -> Option<Vec<String>> {
+    KEYWORDS_RE.captures(latex).and_then(|caps| {
+        caps.get(1).map(|m| {
+            let keywords_str = m.as_str().trim();
+            if keywords_str.is_empty() {
+                return vec![];
+            }
+
+            // Keywords are typically comma-separated or semicolon-separated
+            keywords_str
+                .split([',', ';'])
+                .map(|s| s.trim().into())
+                .filter(|s: &String| !s.is_empty())
+                .collect()
+        })
+    })
+}
+
+/// Extract abstract from LaTeX \begin{abstract}...\end{abstract} environment
+fn extract_abstract(latex: &str) -> Option<Vec<Block>> {
+    ABSTRACT_RE.captures(latex).and_then(|caps| {
+        caps.get(1).map(|m| {
+            let abstract_text = m.as_str().trim();
+            if abstract_text.is_empty() {
+                vec![]
+            } else {
+                // Create a paragraph with the abstract text
+                vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                    Text::from(abstract_text),
+                )]))]
+            }
+        })
+    })
+}
+
 /// Decode LaTeX with the `--fine` option
 ///
 /// Transforms custom LaTeX commands and environments into those recognized by
@@ -135,87 +272,132 @@ pub(super) async fn fine(
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
     fn transform(latex: &str) -> String {
-        RE.replace_all(latex, |captures: &Captures| {
-            if let Some(mat) = captures.name("expr") {
-                // Transform to lstinline expression
-                ["\\lstinline[language=exec]{", mat.as_str(), "}"].concat()
-            } else if let Some(mat) = captures.name("input") {
-                // Transform \input to an include environment with source as the content
-                // because pandoc does not allow for args on unknown environments.
-                // If we do not do this then Pandoc will attempt to do the transclusion itself
-                let mut source = mat.as_str().to_string();
-                if !source.ends_with(".tex") {
-                    source.push_str(".tex");
+        COMMANDS_RE
+            .replace_all(latex, |captures: &Captures| {
+                if let Some(mat) = captures.name("expr") {
+                    // Transform to lstinline expression
+                    ["\\lstinline[language=exec]{", mat.as_str(), "}"].concat()
+                } else if let Some(mat) = captures.name("input") {
+                    // Transform \input to an include environment with source as the content
+                    // because pandoc does not allow for args on unknown environments.
+                    // If we do not do this then Pandoc will attempt to do the transclusion itself
+                    let mut source = mat.as_str().to_string();
+                    if !source.ends_with(".tex") {
+                        source.push_str(".tex");
+                    }
+                    ["\\begin{include}", &source, "\\end{include}"].concat()
+                } else if captures.name("appendix").is_some() {
+                    // Pandoc will consume \appendix and not produce a node so
+                    // to preserve this, create an empty custom env
+                    ["\\begin{appendix}\\end{appendix}"].concat()
+                } else if let Some(mat) = captures.name("chunk") {
+                    // Transform to lstlisting environment
+                    [
+                        "\\begin{lstlisting}[exec]\n",
+                        mat.as_str(),
+                        "\\end{lstlisting}\n",
+                    ]
+                    .concat()
+                } else if let Some(mat) = captures.name("for") {
+                    // Passthrough as is but with content also transformed
+                    let variable = captures
+                        .name("for_var")
+                        .map(|var| var.as_str())
+                        .unwrap_or_default();
+
+                    let code = captures
+                        .name("for_code")
+                        .map(|code| code.as_str())
+                        .unwrap_or_default();
+
+                    [
+                        "\\begin{for}{",
+                        variable,
+                        "}{",
+                        code,
+                        "}\n",
+                        &transform(mat.as_str()),
+                        "\\end{for}\n",
+                    ]
+                    .concat()
+                } else if let Some(mat) = captures.name("if") {
+                    // Passthrough as is but with content also transformed
+                    let code = captures
+                        .name("if_code")
+                        .map(|code| code.as_str())
+                        .unwrap_or_default();
+
+                    [
+                        "\\begin{if}{",
+                        code,
+                        "}\n",
+                        &transform(mat.as_str()),
+                        "\\end{if}\n",
+                    ]
+                    .concat()
+                } else if let Some(mat) = captures.name("island") {
+                    // No transformation required, parsed by Pandoc into a Div with class "island"
+                    [
+                        "\\begin{island}\n",
+                        &transform(mat.as_str()),
+                        "\\end{island}\n",
+                    ]
+                    .concat()
+                } else {
+                    // Pass through things that do not need to be transformed (e.g. ref, autoref)
+                    captures[0].to_string()
                 }
-                ["\\begin{include}", &source, "\\end{include}"].concat()
-            } else if captures.name("appendix").is_some() {
-                // Pandoc will consume \appendix and not produce a node so
-                // to preserve this, create an empty custom env
-                ["\\begin{appendix}\\end{appendix}"].concat()
-            } else if let Some(mat) = captures.name("chunk") {
-                // Transform to lstlisting environment
-                [
-                    "\\begin{lstlisting}[exec]\n",
-                    mat.as_str(),
-                    "\\end{lstlisting}\n",
-                ]
-                .concat()
-            } else if let Some(mat) = captures.name("for") {
-                // Passthrough as is but with content also transformed
-                let variable = captures
-                    .name("for_var")
-                    .map(|var| var.as_str())
-                    .unwrap_or_default();
-
-                let code = captures
-                    .name("for_code")
-                    .map(|code| code.as_str())
-                    .unwrap_or_default();
-
-                [
-                    "\\begin{for}{",
-                    variable,
-                    "}{",
-                    code,
-                    "}\n",
-                    &transform(mat.as_str()),
-                    "\\end{for}\n",
-                ]
-                .concat()
-            } else if let Some(mat) = captures.name("if") {
-                // Passthrough as is but with content also transformed
-                let code = captures
-                    .name("if_code")
-                    .map(|code| code.as_str())
-                    .unwrap_or_default();
-
-                [
-                    "\\begin{if}{",
-                    code,
-                    "}\n",
-                    &transform(mat.as_str()),
-                    "\\end{if}\n",
-                ]
-                .concat()
-            } else if let Some(mat) = captures.name("island") {
-                // No transformation required, parsed by Pandoc into a Div with class "island"
-                [
-                    "\\begin{island}\n",
-                    &transform(mat.as_str()),
-                    "\\end{island}\n",
-                ]
-                .concat()
-            } else {
-                // Pass through things that do not need to be transformed (e.g. ref, autoref)
-                captures[0].to_string()
-            }
-        })
-        .to_string()
+            })
+            .to_string()
     }
+
+    // Extract metadata from the original LaTeX before transformation
+    let authors = extract_authors(latex);
+    let keywords = extract_keywords(latex);
+    let r#abstract = extract_abstract(latex);
 
     let latex = transform(latex);
     let pandoc = pandoc_from_format(&latex, None, "latex", &options).await?;
-    root_from_pandoc(pandoc, Format::Latex, &options)
+    let (node, info) = root_from_pandoc(pandoc, Format::Latex, &options)?;
+
+    // Apply extracted metadata to the article if not already set by Pandoc
+    let node = if let Node::Article(mut article) = node {
+        // Only set authors if not already set by Pandoc
+        if article.authors.is_none()
+            && let Some(authors) = authors
+            && !authors.is_empty()
+        {
+            article.authors = Some(authors);
+        }
+
+        // Only set keywords if not already set
+        if article.options.keywords.is_none()
+            && let Some(keywords) = keywords
+            && !keywords.is_empty()
+        {
+            article.options.keywords = Some(keywords);
+        }
+
+        // Only set abstract if not already set or empty
+        // Pandoc may create an abstract with empty paragraphs, so check for that
+        if (article.r#abstract.is_none()
+            || article.r#abstract.as_ref().is_some_and(|a| {
+                a.is_empty()
+                    || a.iter()
+                        .all(|b| matches!(b, Block::Paragraph(p) if p.content.is_empty()))
+            }))
+            && let Some(r#abstract) = r#abstract
+            && !r#abstract.is_empty()
+        {
+            article.r#abstract = Some(r#abstract);
+        }
+
+        Node::Article(article)
+    } else {
+        node
+    };
+
+    Ok((node, info))
 }
 
 /// Decode LaTeX with the `--coarse` option
@@ -230,11 +412,45 @@ pub(super) fn coarse(latex: &str, options: Option<DecodeOptions>) -> Result<(Nod
         latex.into()
     };
 
-    // Extract bibliography from the LaTeX source
+    // Extract metadata from the LaTeX source
     let (bibliography, bib_messages) = extract_bibliography(&latex);
+    let title = extract_title(&latex);
+    let authors = extract_authors(&latex);
+    let date_published = extract_date(&latex);
+    let keywords = extract_keywords(&latex);
+    let r#abstract = extract_abstract(&latex);
 
     // Create article with content
     let mut article = Article::new(latex_to_blocks(&latex, &options.island_style));
+
+    // Set metadata fields
+    if let Some(title) = title
+        && !title.is_empty()
+    {
+        article.title = Some(title);
+    }
+
+    if let Some(authors) = authors
+        && !authors.is_empty()
+    {
+        article.authors = Some(authors);
+    }
+
+    if date_published.is_some() {
+        article.date_published = date_published;
+    }
+
+    if let Some(keywords) = keywords
+        && !keywords.is_empty()
+    {
+        article.options.keywords = Some(keywords);
+    }
+
+    if let Some(r#abstract) = r#abstract
+        && !r#abstract.is_empty()
+    {
+        article.r#abstract = Some(r#abstract);
+    }
 
     // Set bibliography if found
     if bibliography.is_some() {
@@ -282,7 +498,7 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
     let mut blocks = Vec::new();
     let mut cursor = 0;
 
-    for captures in RE.captures_iter(latex) {
+    for captures in COMMANDS_RE.captures_iter(latex) {
         let mat = captures.get(0).expect("always present");
         if mat.start() > cursor {
             blocks.push(Block::RawBlock(RawBlock::new(

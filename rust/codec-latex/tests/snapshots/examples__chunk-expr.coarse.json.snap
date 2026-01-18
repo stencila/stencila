@@ -4,6 +4,14 @@ expression: article
 ---
 {
   "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Knitting LaTeX and code with Stencila"
+      }
+    }
+  ],
   "content": [
     {
       "type": "RawBlock",

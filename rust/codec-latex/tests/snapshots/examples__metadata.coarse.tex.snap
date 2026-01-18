@@ -1,0 +1,29 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\documentclass{article}
+
+\title{A Sample Document Title}
+\author{John Doe \and Jane Smith}
+\date{2024-01-15}
+\keywords{latex, metadata, testing, stencila}
+
+\begin{document}
+
+\begin{abstract}
+This is a sample abstract that describes the content of the document.
+It provides a brief overview of the main topics covered.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+This is the introduction section.
+
+\section{Methods}
+
+This section describes the methods used.
+
+\end{document}

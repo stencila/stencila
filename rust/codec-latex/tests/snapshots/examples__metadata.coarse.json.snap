@@ -1,0 +1,108 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is a sample abstract that describes the content of the document.\nIt provides a brief overview of the main topics covered."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Doe"
+      ],
+      "givenNames": [
+        "John"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Smith"
+      ],
+      "givenNames": [
+        "Jane"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2024-01-15"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "A Sample Document Title"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\\documentclass{article}\n\n\\title{A Sample Document Title}\n\\author{John Doe \\and Jane Smith}\n\\date{2024-01-15}\n\\keywords{latex, metadata, testing, stencila}\n\n\\begin{document}\n\n\\begin{abstract}\nThis is a sample abstract that describes the content of the document.\nIt provides a brief overview of the main topics covered.\n\\end{abstract}\n\n\\maketitle\n\n"
+      }
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "This is the introduction section.\n\n"
+      }
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "This section describes the methods used.\n\n\\end{document}\n"
+      }
+    }
+  ],
+  "keywords": [
+    "latex",
+    "metadata",
+    "testing",
+    "stencila"
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/metadata.tex",
+  "commit": "redacted"
+}

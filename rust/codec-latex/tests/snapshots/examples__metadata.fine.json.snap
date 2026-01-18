@@ -1,0 +1,109 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is a sample abstract that describes the content of the document.\nIt provides a brief overview of the main topics covered."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Doe"
+      ],
+      "givenNames": [
+        "John"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Smith"
+      ],
+      "givenNames": [
+        "Jane"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2024-01-15"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "A Sample Document Title"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is the introduction section."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This section describes the methods used."
+          }
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "latex",
+    "metadata",
+    "testing",
+    "stencila"
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/metadata.tex",
+  "commit": "redacted"
+}

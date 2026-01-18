@@ -304,7 +304,9 @@ impl LatexCodec for Article {
                 context.str("\\documentclass{article}\n\n");
             }
 
-            if let Some(title) = &self.title {
+            if !has("\\title")
+                && let Some(title) = &self.title
+            {
                 context.property_fn(NodeProperty::Title, |context| {
                     context.command_begin("title");
                     title.to_latex(context);
@@ -313,7 +315,9 @@ impl LatexCodec for Article {
                 context.newline();
             }
 
-            if let Some(authors) = &self.authors {
+            if !has("\\author")
+                && let Some(authors) = &self.authors
+            {
                 context.property_fn(NodeProperty::Authors, |context| {
                     for author in authors {
                         context
@@ -326,13 +330,14 @@ impl LatexCodec for Article {
                 context.newline();
             }
 
-            if let Some(date) = self
-                .date_published
-                .as_ref()
-                .or(self.options.date_modified.as_ref())
-                .or(self.options.date_accepted.as_ref())
-                .or(self.options.date_received.as_ref())
-                .or(self.options.date_created.as_ref())
+            if !has("\\date")
+                && let Some(date) = self
+                    .date_published
+                    .as_ref()
+                    .or(self.options.date_modified.as_ref())
+                    .or(self.options.date_accepted.as_ref())
+                    .or(self.options.date_received.as_ref())
+                    .or(self.options.date_created.as_ref())
             {
                 context.property_fn(NodeProperty::Date, |context| {
                     context
@@ -344,7 +349,9 @@ impl LatexCodec for Article {
                 context.newline();
             }
 
-            if let Some(keywords) = &self.options.keywords {
+            if !has("\\keywords")
+                && let Some(keywords) = &self.options.keywords
+            {
                 context.property_fn(NodeProperty::Keywords, |context| {
                     context
                         .command_begin("keywords")
@@ -359,7 +366,7 @@ impl LatexCodec for Article {
                 context.environ_begin(ENVIRON).str("\n\n");
             }
 
-            if self.title.is_some() {
+            if self.title.is_some() && !has("\\maketitle") {
                 context.str("\\maketitle\n\n");
             }
         }
