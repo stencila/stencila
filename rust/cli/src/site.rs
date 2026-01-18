@@ -45,12 +45,12 @@ pub static AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site list</>
 
   <dim># Add a route</dim>
-  <b>stencila site add / index.md</>
-  <b>stencila site add /about/ README.md</>
-  <b>stencila site add /old/ --redirect /new/ --status 301</>
+  <b>stencila site add</> <g>/</> <g>index.md</>
+  <b>stencila site add</> <g>/about/</> <g>README.md</>
+  <b>stencila site add</> <g>/old/</> <c>--redirect</> <g>/new/</> <c>--status</> <g>301</>
 
   <dim># Remove a route</dim>
-  <b>stencila site remove /about/</>
+  <b>stencila site remove</> <g>/about/</>
 
   <dim># Push site content to cloud</dim>
   <b>stencila site push</>
@@ -59,7 +59,7 @@ pub static AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site access</>
 
   <dim># Make site public (remove all restrictions)</dim>
-  <b>stencila site access --public</>
+  <b>stencila site access</> <c>--public</>
 
   <dim># Enable team access restriction</dim>
   <b>stencila site access team</>
@@ -68,7 +68,7 @@ pub static AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site access password</>
 
   <dim># Clear the password</dim>
-  <b>stencila site access password --clear</>
+  <b>stencila site access password</> <c>--clear</>
 "
 );
 
@@ -125,7 +125,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site show</>
 
   <dim># View details of another workspace's site</dim>
-  <b>stencila site show --path /path/to/workspace</>
+  <b>stencila site show</> <c>--path</> <g>/path/to/workspace</>
 "
 );
 
@@ -245,16 +245,16 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site list</>
 
   <dim># Show expanded spread route variants</dim>
-  <b>stencila site list --expanded</>
+  <b>stencila site list</> <c>--expanded</>
 
   <dim># Show routes for static files (e.g. images)</dim>
-  <b>stencila site list --statics</>
+  <b>stencila site list</> <c>--statics</>
 
   <dim># Filter routes by route prefix</dim>
-  <b>stencila site list --route /docs</>
+  <b>stencila site list</> <c>--route</> <g>/docs</>
 
   <dim># Filter routes by source file path prefix</dim>
-  <b>stencila site list --path docs/</>
+  <b>stencila site list</> <c>--path</> <g>docs/</>
 "
 );
 
@@ -360,20 +360,20 @@ pub struct Add {
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Add a file route</dim>
-  <b>stencila site add / index.md</>
-  <b>stencila site add /about/ README.md</>
+  <b>stencila site add</> <g>/</> <g>index.md</>
+  <b>stencila site add</> <g>/about/</> <g>README.md</>
 
   <dim># Add a redirect</dim>
-  <b>stencila site add /old/ --redirect /new/</>
-  <b>stencila site add /old/ --redirect /new/ --status 301</>
+  <b>stencila site add</> <g>/old/</> <c>--redirect</> <g>/new/</>
+  <b>stencila site add</> <g>/old/</> <c>--redirect</> <g>/new/</> <c>--status</> <g>301</>
 
   <dim># Add external redirect</dim>
-  <b>stencila site add /github/ --redirect https://github.com/stencila/stencila</>
+  <b>stencila site add</> <g>/github/</> <c>--redirect</> <g>https://github.com/stencila/stencila</>
 
   <dim># Add a spread route (generates multiple variants)</dim>
-  <b>stencila site add \"/{region}/\" report.smd -- region=north,south</>
-  <b>stencila site add \"/{region}/{year}/\" report.smd -- region=north,south year=2024,2025</>
-  <b>stencila site add \"/{q}-report/\" quarterly.smd --spread zip -- q=q1,q2,q3,q4</>
+  <b>stencila site add</> <g>\"/{region}/\"</> <g>report.smd</> <g>-- region=north,south</>
+  <b>stencila site add</> <g>\"/{region}/{year}/\"</> <g>report.smd</> <g>-- region=north,south year=2024,2025</>
+  <b>stencila site add</> <g>\"/{q}-report/\"</> <g>quarterly.smd</> <c>--spread</> <g>zip</> <g>-- q=q1,q2,q3,q4</>
 "
 );
 
@@ -517,8 +517,8 @@ pub struct Remove {
 pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Remove a route</dim>
-  <b>stencila site remove /about/</>
-  <b>stencila site remove /old/</>
+  <b>stencila site remove</> <g>/about/</>
+  <b>stencila site remove</> <g>/old/</>
 "
 );
 
@@ -554,13 +554,13 @@ pub struct Render {
 pub static RENDER_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Render site to a directory</dim>
-  <b>stencila site render ./dist</>
+  <b>stencila site render</> <g>./dist</>
 
   <dim># Render specific routes</dim>
-  <b>stencila site render ./dist --route /docs/</>
+  <b>stencila site render</> <g>./dist</> <c>--route</> <g>/docs/</>
 
   <dim># Render from a specific source</dim>
-  <b>stencila site render ./dist --source ./content</>
+  <b>stencila site render</> <g>./dist</> <c>--source</> <g>./content</>
 "
 );
 
@@ -716,16 +716,16 @@ pub static PREVIEW_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site preview</>
 
   <dim># Preview a specific route</dim>
-  <b>stencila site preview /docs/guide/</>
+  <b>stencila site preview</> <g>/docs/guide/</>
 
   <dim># Preview without opening browser</dim>
-  <b>stencila site preview --no-open</>
+  <b>stencila site preview</> <c>--no-open</>
 
   <dim># Preview on different port</dim>
-  <b>stencila site preview --port 8080</>
+  <b>stencila site preview</> <c>--port</> <g>8080</>
 
   <dim># Preview without file watching</dim>
-  <b>stencila site preview --no-watch</>
+  <b>stencila site preview</> <c>--no-watch</>
 "
 );
 
@@ -986,13 +986,13 @@ pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site push</>
 
   <dim># Push a specific directory</dim>
-  <b>stencila site push ./site/docs</>
+  <b>stencila site push</> <g>./site/docs</>
 
   <dim># Push a specific file</dim>
-  <b>stencila site push ./site/report.md</>
+  <b>stencila site push</> <g>./site/report.md</>
 
   <dim># Force push (ignore unchanged files)</dim>
-  <b>stencila site push --force</>
+  <b>stencila site push</> <c>--force</>
 "
 );
 
@@ -1184,19 +1184,19 @@ pub static ACCESS_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site access</>
 
   <dim># Make site public (remove all restrictions)</dim>
-  <b>stencila site access --public</>
+  <b>stencila site access</> <c>--public</>
 
   <dim># Enable team access restriction</dim>
   <b>stencila site access team</>
 
   <dim># Disable team access restriction</dim>
-  <b>stencila site access team --off</>
+  <b>stencila site access team</> <c>--off</>
 
   <dim># Set a password for the site</dim>
   <b>stencila site access password</>
 
   <dim># Clear the password</dim>
-  <b>stencila site access password --clear</>
+  <b>stencila site access password</> <c>--clear</>
 "
 );
 
@@ -1304,10 +1304,10 @@ pub static ACCESS_TEAM_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site access team</>
 
   <dim># Disable team access restriction</dim>
-  <b>stencila site access team --off</>
+  <b>stencila site access team</> <c>--off</>
 
   <dim># Enable but exclude main/master branches</dim>
-  <b>stencila site access team --not-main</>
+  <b>stencila site access team</> <c>--not-main</>
 "
 );
 
@@ -1369,10 +1369,10 @@ pub static ACCESS_PASSWORD_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site access password</>
 
   <dim># Clear the password</dim>
-  <b>stencila site access password --clear</>
+  <b>stencila site access password</> <c>--clear</>
 
   <dim># Set password but exclude main/master branches</dim>
-  <b>stencila site access password --not-main</>
+  <b>stencila site access password</> <c>--not-main</>
 "
 );
 
@@ -1476,10 +1476,10 @@ pub static REVIEWS_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site reviews off</>
 
   <dim># Enable public submissions</dim>
-  <b>stencila site reviews config --public</>
+  <b>stencila site reviews config</> <c>--public</>
 
   <dim># Disable anonymous submissions</dim>
-  <b>stencila site reviews config --no-anon</>
+  <b>stencila site reviews config</> <c>--no-anon</>
 "
 );
 
@@ -1683,10 +1683,10 @@ pub static REVIEWS_ON_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site reviews on</>
 
   <dim># Enable reviews and allow public submissions</dim>
-  <b>stencila site reviews on --public</>
+  <b>stencila site reviews on</> <c>--public</>
 
   <dim># Enable reviews but require GitHub authentication</dim>
-  <b>stencila site reviews on --no-anon</>
+  <b>stencila site reviews on</> <c>--no-anon</>
 "
 );
 
@@ -1787,31 +1787,31 @@ pub struct ReviewsConfig {
 pub static REVIEWS_CONFIG_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Allow public submissions</dim>
-  <b>stencila site reviews config --public</>
+  <b>stencila site reviews config</> <c>--public</>
 
   <dim># Disallow anonymous submissions</dim>
-  <b>stencila site reviews config --no-anon</>
+  <b>stencila site reviews config</> <c>--no-anon</>
 
   <dim># Set position to bottom-left</dim>
-  <b>stencila site reviews config --position bottom-left</>
+  <b>stencila site reviews config</> <c>--position</> <g>bottom-left</>
 
   <dim># Only allow comments (not suggestions)</dim>
-  <b>stencila site reviews config --types comment</>
+  <b>stencila site reviews config</> <c>--types</> <g>comment</>
 
   <dim># Allow both comments and suggestions</dim>
-  <b>stencila site reviews config --types comment --types suggestion</>
+  <b>stencila site reviews config</> <c>--types</> <g>comment</> <c>--types</> <g>suggestion</>
 
   <dim># Set selection limits</dim>
-  <b>stencila site reviews config --min-selection 10 --max-selection 2000</>
+  <b>stencila site reviews config</> <c>--min-selection</> <g>10</> <c>--max-selection</> <g>2000</>
 
   <dim># Enable keyboard shortcuts (Ctrl+Shift+C for comment, Ctrl+Shift+S for suggestion)</dim>
-  <b>stencila site reviews config --shortcuts</>
+  <b>stencila site reviews config</> <c>--shortcuts</>
 
   <dim># Only show reviews on docs and guides pages</dim>
-  <b>stencila site reviews config --include \"docs/**\" --include \"guides/**\"</>
+  <b>stencila site reviews config</> <c>--include</> <g>\"docs/**\"</> <c>--include</> <g>\"guides/**\"</>
 
   <dim># Hide reviews from API reference and changelog</dim>
-  <b>stencila site reviews config --exclude \"api/**\" --exclude \"changelog/**\"</>
+  <b>stencila site reviews config</> <c>--exclude</> <g>\"api/**\"</> <c>--exclude</> <g>\"changelog/**\"</>
 
 <bold><b>Note</b></bold>
   Configuring review settings will automatically enable reviews if not already enabled.
@@ -1983,7 +1983,7 @@ pub struct Domain {
 pub static DOMAIN_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Set a custom domain for the site</dim>
-  <b>stencila site domain set example.com</>
+  <b>stencila site domain set</> <g>example.com</>
 
   <dim># Check domain status</dim>
   <b>stencila site domain status</>
@@ -2042,10 +2042,10 @@ pub struct DomainSet {
 pub static DOMAIN_SET_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Set custom domain for the current workspace's site</dim>
-  <b>stencila site domain set example.com</>
+  <b>stencila site domain set</> <g>example.com</>
 
   <dim># Set custom domain for another workspace's site</dim>
-  <b>stencila site domain set example.com --path /path/to/workspace</>
+  <b>stencila site domain set</> <g>example.com</> <c>--path</> <g>/path/to/workspace</>
 
 <bold><b>Setup Process</b></bold>
 
@@ -2182,7 +2182,7 @@ pub static DOMAIN_STATUS_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site domain status</>
 
   <dim># Check status for another workspace</dim>
-  <b>stencila site domain status --path /path/to/workspace</>
+  <b>stencila site domain status</> <c>--path</> <g>/path/to/workspace</>
 "
 );
 
@@ -2245,7 +2245,7 @@ pub static DOMAIN_CLEAR_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site domain clear</>
 
   <dim># Remove custom domain from another workspace's site</dim>
-  <b>stencila site domain clear --path /path/to/workspace</>
+  <b>stencila site domain clear</> <c>--path</> <g>/path/to/workspace</>
 "
 );
 
@@ -2314,10 +2314,10 @@ pub static BRANCH_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site branch list</>
 
   <dim># Delete a feature branch</dim>
-  <b>stencila site branch delete feature-xyz</>
+  <b>stencila site branch delete</> <g>feature-xyz</>
 
   <dim># Delete a branch without confirmation</dim>
-  <b>stencila site branch delete feature-xyz --force</>
+  <b>stencila site branch delete</> <g>feature-xyz</> <c>--force</>
 "
 );
 
@@ -2353,7 +2353,7 @@ pub static BRANCH_LIST_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila site branch list</>
 
   <dim># List branches for another workspace's site</dim>
-  <b>stencila site branch list --path /path/to/workspace</>
+  <b>stencila site branch list</> <c>--path</> <g>/path/to/workspace</>
 "
 );
 
@@ -2439,13 +2439,13 @@ pub struct BranchDelete {
 pub static BRANCH_DELETE_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Delete a feature branch (with confirmation)</dim>
-  <b>stencila site branch delete feature-xyz</>
+  <b>stencila site branch delete</> <g>feature-xyz</>
 
   <dim># Delete a branch without confirmation</dim>
-  <b>stencila site branch delete feature-xyz --force</>
+  <b>stencila site branch delete</> <g>feature-xyz</> <c>--force</>
 
   <dim># Delete a branch from another workspace</dim>
-  <b>stencila site branch delete feature-xyz --path /path/to/workspace</>
+  <b>stencila site branch delete</> <g>feature-xyz</> <c>--path</> <g>/path/to/workspace</>
 
 <bold><b>Notes</b></bold>
   - Protected branches (main, master) cannot be deleted
