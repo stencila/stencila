@@ -63,7 +63,6 @@ impl LayoutPreset {
             end: Some(vec![
                 ComponentSpec::Name("copy-markdown".into()),
                 ComponentSpec::Name("edit-source".into()),
-                ComponentSpec::Name("edit-on:gdocs".into()),
             ]),
             ..Default::default()
         }));

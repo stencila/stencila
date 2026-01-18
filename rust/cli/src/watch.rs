@@ -105,7 +105,9 @@ impl Cli {
 
         let no_remotes = || {
             message!(
-                "⚠️ File `{path_display}` has no remotes to watch yet. Please push the document to a remote first e.g. *stencila push {path_display} --to gdoc --watch*"
+                "⚠️ File `{}` has no remotes to watch yet. Please push the document to a remote first e.g. *stencila push {} --to gdoc --watch*",
+                path_display,
+                path_display
             );
             Ok(())
         };
@@ -187,7 +189,11 @@ impl Cli {
             let service_name = RemoteService::from_url(&remote_info.url)
                 .map(|s| s.display_name_plural().to_string())
                 .unwrap_or_else(|| remote_info.url.to_string());
-            message!("👁️ File `{path_display}` is already being watched on `{service_name}`.");
+            message!(
+                "👁️ File `{}` is already being watched on `{}`.",
+                path_display,
+                service_name
+            );
             return Ok(());
         }
 
@@ -228,7 +234,10 @@ impl Cli {
         };
 
         message!(
-            "👁️ Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {remote_url_str}."
+            "👁️ Watching `{}` ({}). PRs will be opened/updated on changes from {}.",
+            path_display,
+            direction_desc,
+            remote_url_str
         );
 
         Ok(())

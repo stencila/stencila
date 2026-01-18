@@ -9,7 +9,7 @@ use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
     EditOnService, EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec,
-    RowConfig, SiteConfig, SiteFormat, SocialLinksStyle,
+    ReviewsConfig, ReviewsPosition, RowConfig, SiteConfig, SiteFormat, SocialLinksStyle,
 };
 
 use crate::{
@@ -80,6 +80,9 @@ pub(crate) fn render_layout(
     // Build responsive configuration attributes
     let responsive_attrs = build_responsive_attributes(&resolved);
 
+    // Render site review component if enabled
+    let site_review = render_site_review_if_enabled(&context);
+
     format!(
         r##"<stencila-layout{regions_enabled}{responsive_attrs}>
   <a href="#main-content" class="skip-link">Skip to content</a>
@@ -94,8 +97,97 @@ pub(crate) fn render_layout(
     {right_sidebar}
   </div>
   {footer}
-</stencila-layout>"##
+</stencila-layout>
+{site_review}"##
     )
+}
+
+/// Render site review component if enabled and route matches include/exclude patterns
+fn render_site_review_if_enabled(context: &RenderContext) -> String {
+    // Check if reviews are configured and enabled
+    let Some(reviews_spec) = &context.site_config.reviews else {
+        return String::new();
+    };
+
+    if !reviews_spec.is_enabled() {
+        return String::new();
+    }
+
+    let config = reviews_spec.to_config();
+
+    // Check include/exclude patterns
+    if !should_show_reviews_for_route(context.route, &config) {
+        return String::new();
+    }
+
+    render_site_review(&config, context.workspace_id)
+}
+
+/// Check if reviews should be shown for a given route based on include/exclude patterns
+pub fn should_show_reviews_for_route(route: &str, config: &ReviewsConfig) -> bool {
+    // Normalize route for matching (remove leading/trailing slashes)
+    let normalized_route = route.trim_matches('/');
+
+    // Check exclude patterns first (they take precedence)
+    if let Some(exclude) = &config.exclude {
+        for pattern in exclude {
+            if matches_glob_pattern(normalized_route, pattern) {
+                return false;
+            }
+        }
+    }
+
+    // If include patterns are specified, route must match at least one
+    if let Some(include) = &config.include {
+        if include.is_empty() {
+            return true; // Empty include list means include all
+        }
+        for pattern in include {
+            if matches_glob_pattern(normalized_route, pattern) {
+                return true;
+            }
+        }
+        return false; // No include pattern matched
+    }
+
+    // No include patterns specified, show on all routes (except excluded)
+    true
+}
+
+/// Simple glob pattern matching supporting * and ** wildcards
+fn matches_glob_pattern(path: &str, pattern: &str) -> bool {
+    let pattern = pattern.trim_matches('/');
+
+    // Simple exact match
+    if pattern == path {
+        return true;
+    }
+
+    // Handle ** (match any path segments)
+    if pattern.contains("**") {
+        let parts: Vec<&str> = pattern.split("**").collect();
+        if parts.len() == 2 {
+            let prefix = parts[0].trim_end_matches('/');
+            let suffix = parts[1].trim_start_matches('/');
+
+            let prefix_matches = prefix.is_empty() || path.starts_with(prefix);
+            let suffix_matches = suffix.is_empty() || path.ends_with(suffix);
+
+            return prefix_matches && suffix_matches;
+        }
+    }
+
+    // Handle glob patterns with metacharacters (*, ?, [])
+    if (pattern.contains('*') || pattern.contains('?') || pattern.contains('['))
+        && !pattern.contains("**")
+    {
+        // Use glob crate for pattern matching
+        if let Ok(glob_pattern) = glob::Pattern::new(pattern) {
+            return glob_pattern.matches(path);
+        }
+    }
+
+    false
 }
 
 /// Build responsive configuration attributes for the layout element
@@ -972,6 +1064,61 @@ fn render_edit_on(
     format!(
         r#"<stencila-edit-on service="{service_param}"><a href="{url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-on>"#
     )
+}
+
+/// Render a site review component
+///
+/// Enables users to select text on rendered pages and submit comments/suggestions.
+/// Only renders if reviews are enabled and `workspace.id` is configured.
+/// Returns empty string if reviews are not enabled or workspace.id is not set.
+fn render_site_review(config: &ReviewsConfig, workspace_id: Option<&str>) -> String {
+    // Require workspace.id for reviews to function
+    let Some(id) = workspace_id else {
+        tracing::warn!(
+            "Reviews are enabled but no workspace.id is configured - review widget will not render. \
+            Run `stencila site push` to configure a workspace."
+        );
+        return String::new();
+    };
+
+    let mut attrs = format!(r#"workspace-id="{id}""#);
+
+    // Position attribute
+    let position = match config.position() {
+        ReviewsPosition::BottomRight => "bottom-right",
+        ReviewsPosition::BottomLeft => "bottom-left",
+        ReviewsPosition::TopRight => "top-right",
+        ReviewsPosition::TopLeft => "top-left",
+    };
+    attrs.push_str(&format!(r#" position="{position}""#));
+
+    // Types attribute (comma-separated)
+    if config.allows_comments() && config.allows_suggestions() {
+        attrs.push_str(r#" types="comment,suggestion""#);
+    } else if config.allows_comments() {
+        attrs.push_str(r#" types="comment""#);
+    } else if config.allows_suggestions() {
+        attrs.push_str(r#" types="suggestion""#);
+    }
+
+    // Selection limits
+    attrs.push_str(&format!(r#" min-selection="{}""#, config.min_selection()));
+    attrs.push_str(&format!(r#" max-selection="{}""#, config.max_selection()));
+
+    // Shortcuts
+    if config.shortcuts_enabled() {
+        attrs.push_str(r#" shortcuts="true""#);
+    }
+
+    // Public/anon settings (inform UI, enforced server-side)
+    if config.is_public() {
+        attrs.push_str(r#" public="true""#);
+    }
+    if config.is_anon() {
+        attrs.push_str(r#" anon="true""#);
+    }
+
+    format!("<stencila-site-review {attrs}></stencila-site-review>")
 }
 
 /// Construct the file path for edit URL

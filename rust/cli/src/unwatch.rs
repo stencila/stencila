@@ -64,7 +64,7 @@ impl Cli {
         }
 
         let not_watched = || {
-            message!("ℹ️ File `{path_display}` is not being watched.");
+            message!("ℹ️ File `{}` is not being watched.", path_display);
             Ok(())
         };
 
@@ -166,7 +166,8 @@ impl Cli {
 
         // Success message
         message!(
-            "👁️ Stopped watching `{path_display}` (link to remote remains, see *stencila status*)"
+            "👁️ Stopped watching `{}` (link to remote remains, see *stencila status*)",
+            path_display
         );
 
         Ok(())

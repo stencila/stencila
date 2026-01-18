@@ -532,8 +532,8 @@ async fn browser_assisted_download(docx_url: &str) -> Result<Option<Vec<u8>>> {
         bail!("Aborted, GitHub issue attachment not accessible");
     }
 
-    if let Err(e) = webbrowser::open(docx_url) {
-        message!("⚠️ Failed to open browser: {e}. Please open manually: {docx_url}");
+    if let Err(error) = webbrowser::open(docx_url) {
+        message!("⚠️ Failed to open browser: {}. Please open manually: {}", error, docx_url);
     }
 
     let answer = stencila_ask::ask("Have you downloaded the file?").await?;
@@ -556,7 +556,7 @@ async fn browser_assisted_download(docx_url: &str) -> Result<Option<Vec<u8>>> {
     }
 
     // Not found in Downloads - prompt for path
-    message!("⚠️ Could not find `{filename}` in `Downloads` folder.");
+    message!("⚠️ Could not find `{}` in `Downloads` folder.", filename);
 
     // Check if stdin is a TTY for path input
     if !stdin().is_terminal() {

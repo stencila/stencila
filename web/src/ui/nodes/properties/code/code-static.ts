@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import Prism from 'prismjs'
 
@@ -25,6 +25,8 @@ import 'prismjs/components/prism-django' // Jinja2 is based on Django templates
  *
  * This is a read-only alternative to `<stencila-ui-node-code>` that uses
  * Prism.js instead of CodeMirror for significantly smaller bundle size.
+ *
+ * Uses Light DOM to allow text selection for site review functionality.
  */
 @customElement('stencila-ui-node-code-static')
 export class UINodeCodeStatic extends LitElement {
@@ -96,124 +98,11 @@ export class UINodeCodeStatic extends LitElement {
   }
 
   /**
-   * CSS styles that map Prism token classes to Stencila theme CSS variables.
-   * This ensures consistent theming with the CodeMirror-based component.
+   * Use Light DOM so text selection works for site review
    */
-  static override styles = css`
-    :host {
-      display: block;
-    }
-
-    pre {
-      margin: 0;
-      overflow-x: auto;
-      max-width: 100%;
-      word-break: break-all;
-      white-space: pre-wrap;
-    }
-
-    code {
-      display: block;
-      font-family: var(--code-font-family);
-      font-size: var(--code-font-size-block);
-      line-height: var(--code-line-height);
-      color: var(--code-color);
-      background-color: var(--code-background-block);
-      border: var(--code-border-width) solid var(--code-border-color);
-      border-radius: var(--code-border-radius);
-      padding: var(--code-padding-block);
-    }
-
-    /* Comments */
-    .token.comment,
-    .token.prolog,
-    .token.doctype,
-    .token.cdata {
-      color: var(--code-comment);
-    }
-
-    /* Punctuation */
-    .token.punctuation {
-      color: var(--code-punctuation);
-    }
-
-    /* Tags (HTML/XML) */
-    .token.tag,
-    .token.constant,
-    .token.symbol,
-    .token.deleted {
-      color: var(--code-tag);
-    }
-
-    /* Properties */
-    .token.property {
-      color: var(--code-property);
-    }
-
-    /* Numbers and booleans */
-    .token.boolean,
-    .token.number {
-      color: var(--code-number);
-    }
-
-    /* Strings */
-    .token.selector,
-    .token.attr-value,
-    .token.string,
-    .token.char,
-    .token.builtin,
-    .token.inserted {
-      color: var(--code-string);
-    }
-
-    /* Operators */
-    .token.operator,
-    .token.entity,
-    .token.url,
-    .language-css .token.string,
-    .style .token.string {
-      color: var(--code-operator);
-    }
-
-    /* Keywords */
-    .token.atrule,
-    .token.attr-name,
-    .token.keyword {
-      color: var(--code-keyword);
-    }
-
-    /* Functions and classes */
-    .token.function,
-    .token.class-name {
-      color: var(--code-function);
-    }
-
-    /* Variables */
-    .token.regex,
-    .token.important,
-    .token.variable {
-      color: var(--code-variable);
-    }
-
-    /* Namespace */
-    .token.namespace {
-      color: var(--code-namespace);
-    }
-
-    /* Text formatting */
-    .token.important,
-    .token.bold {
-      font-weight: bold;
-    }
-
-    .token.italic {
-      font-style: italic;
-    }
-
-    .token.entity {
-      cursor: help;
-    }
-  `
+  protected override createRenderRoot() {
+    return this
+  }
 
   /**
    * Get the Prism language identifier for the current language

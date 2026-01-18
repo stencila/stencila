@@ -116,13 +116,15 @@ impl Migrate {
 
         if self.dry_run {
             message!(
-                "📋 Would apply {} migration(s): {versions}",
-                executed_migrations.len()
+                "📋 Would apply {} migration(s): {}",
+                executed_migrations.len(),
+                versions
             );
         } else {
             message!(
-                "⏩ Applied {} migration(s): {versions}",
-                executed_migrations.len()
+                "⏩ Applied {} migration(s): {}",
+                executed_migrations.len(),
+                versions
             );
         }
 

@@ -245,7 +245,10 @@ impl Cli {
             if let Some(ref title) = self.title
                 && let Some(mode) = infer_spread_mode(title, &arguments)
             {
-                message!("ℹ️ Auto-detected spread mode `{mode}` from --title template");
+                message!(
+                    "ℹ️ Auto-detected spread mode `{}` from --title template",
+                    mode
+                );
                 return Some(mode);
             }
 
@@ -315,7 +318,8 @@ impl Cli {
         // Execute document if args provided
         if !self.no_execute {
             message!(
-                "⚙️ Executing `{path_display}` before pushing it (use `--no-execute` to skip)"
+                "⚙️ Executing `{}` before pushing it (use `--no-execute` to skip)",
+                path_display
             );
 
             // Parse arguments as key=value pairs
@@ -348,7 +352,8 @@ impl Cli {
             // If multiple remotes, push to all of them
             if remote_infos.len() > 1 {
                 message!(
-                    "☁️ Pushing `{path_display}` to {} configured remotes",
+                    "☁️ Pushing `{}` to {} configured remotes",
+                    path_display,
                     remote_infos.len()
                 );
 
@@ -372,8 +377,9 @@ impl Cli {
                     };
 
                     message!(
-                        "🔄 Updating {} linked to `{path_display}`",
-                        remote_service.display_name()
+                        "🔄 Updating {} linked to `{}`",
+                        remote_service.display_name(),
+                        path_display
                     );
 
                     match stencila_codecs::push(
@@ -402,13 +408,13 @@ impl Cli {
                                     format!("Failed to track remote: {}", e),
                                 ));
                             } else {
-                                message!("✅ Successfully pushed to {url}");
+                                message!("✅ Successfully pushed to {}", url);
                                 successes.push(url);
                             }
                         }
-                        Err(e) => {
-                            message!("❌ Failed to push to {remote_url}: {e}");
-                            errors.push((remote_url.clone(), e.to_string()));
+                        Err(error) => {
+                            message!("❌ Failed to push to {}: {}", remote_url, error);
+                            errors.push((remote_url.clone(), error.to_string()));
                         }
                     }
                 }
@@ -477,8 +483,9 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 message!(
-                    "⚠️ Multiple {} remotes found:\n{urls_list}",
-                    first_service.display_name_plural()
+                    "⚠️ Multiple {} remotes found:\n{}",
+                    first_service.display_name_plural(),
+                    urls_list
                 );
                 bail!(
                     "Specify '{}' with `--new` to create a new document, or use a specific URL as target.",
@@ -511,8 +518,9 @@ impl Cli {
         // Display appropriate message
         if existing_url.is_some() {
             message!(
-                "🔄 Updating existing {} linked to `{path_display}`",
-                service.display_name()
+                "🔄 Updating existing {} linked to `{}`",
+                service.display_name(),
+                path_display
             );
         } else {
             message!("☁️ Creating new {}", service.display_name());
@@ -563,7 +571,7 @@ impl Cli {
                     message!("📝 Remote added to `{}`", config_path.display());
                 }
                 Err(error) => {
-                    message!("⚠️ Could not add to config: {error}");
+                    message!("⚠️ Could not add to config: {}", error);
                 }
             }
         } else if existing_url.is_none() && self.no_config {
@@ -621,7 +629,10 @@ impl Cli {
             };
 
             message!(
-                "👁️ Watching `{path_display}` ({direction_desc}). PRs will be opened/updated on changes from {url_str}.",
+                "👁️ Watching `{}` ({}). PRs will be opened/updated on changes from {}.",
+                path_display,
+                direction_desc,
+                url_str
             );
         }
 
@@ -633,13 +644,13 @@ impl Cli {
         message!("🚀 Pushing all (site, outputs, and remotes)...\n");
 
         // Push site
-        if let Err(e) = self.push_site().await {
-            message!("⚠️ Site push: {e}");
+        if let Err(error) = self.push_site().await {
+            message!("⚠️ Site push: {}", error);
         }
 
         // Push outputs
-        if let Err(e) = self.push_outputs().await {
-            message!("⚠️ Outputs push: {e}");
+        if let Err(error) = self.push_outputs().await {
+            message!("⚠️ Outputs push: {}", error);
         }
 
         // Push remotes
@@ -739,15 +750,16 @@ impl Cli {
             let file_display = file_path.display();
 
             message!(
-                "📄 Processing `{file_display}` ({} remote(s))",
+                "📄 Processing `{}` ({} remote(s))",
+                file_display,
                 remote_urls.len()
             );
 
             // Open the document
             let doc = match Document::open(&file_path, None).await {
                 Ok(d) => d,
-                Err(e) => {
-                    message!("❌ Failed to open `{file_display}`: {e}");
+                Err(error) => {
+                    message!("❌ Failed to open `{}`: {}", file_display, error);
                     total_errors += remote_urls.len();
                     file_results.push((file_path.clone(), 0, remote_urls.len()));
                     continue;
@@ -756,7 +768,7 @@ impl Cli {
 
             // Execute document if needed
             if !self.no_execute {
-                message!("⚙️ Executing `{file_display}` before pushing");
+                message!("⚙️ Executing `{}` before pushing", file_display);
 
                 // Parse arguments as key=value pairs
                 let arguments: Vec<(&str, &str)> = self
@@ -772,11 +784,11 @@ impl Cli {
                     })
                     .collect();
 
-                if let Err(e) = doc
+                if let Err(error) = doc
                     .call(&arguments, stencila_document::ExecuteOptions::default())
                     .await
                 {
-                    message!("❌ Failed to execute `{file_display}`: {e}");
+                    message!("❌ Failed to execute `{}`: {}", file_display, error);
                     total_errors += remote_urls.len();
                     file_results.push((file_path.clone(), 0, remote_urls.len()));
                     continue;
@@ -791,15 +803,16 @@ impl Cli {
                 let remote_service = match RemoteService::from_url(&remote_url) {
                     Some(svc) => svc,
                     None => {
-                        message!("⚠️ Skipping unsupported remote: {remote_url}");
+                        message!("⚠️ Skipping unsupported remote: {}", remote_url);
                         file_errors += 1;
                         continue;
                     }
                 };
 
                 message!(
-                    "🔄 Updating {} linked to `{file_display}`",
-                    remote_service.display_name()
+                    "🔄 Updating {} linked to `{}`",
+                    remote_service.display_name(),
+                    file_display
                 );
 
                 match stencila_codecs::push(
@@ -816,7 +829,7 @@ impl Cli {
                     Ok(result) => {
                         let url = result.url();
 
-                        if let Err(e) = update_remote_timestamp(
+                        if let Err(error) = update_remote_timestamp(
                             &file_path,
                             url.as_ref(),
                             None,
@@ -824,15 +837,19 @@ impl Cli {
                         )
                         .await
                         {
-                            message!("⚠️ Pushed to {url} but failed to update tracking: {e}");
+                            message!(
+                                "⚠️ Pushed to {} but failed to update tracking: {}",
+                                url,
+                                error
+                            );
                             file_errors += 1;
                         } else {
-                            message!("✅ Successfully pushed to {url}");
+                            message!("✅ Successfully pushed to {}", url);
                             file_successes += 1;
                         }
                     }
                     Err(error) => {
-                        message!("❌ Failed to push to {remote_url}: {error}");
+                        message!("❌ Failed to push to {}: {}", remote_url, error);
                         file_errors += 1;
                     }
                 }
@@ -861,7 +878,8 @@ impl Cli {
                 "⚠️"
             };
             message!(
-                "{status}   `{}`: {} succeeded, {} failed",
+                "{}   `{}`: {} succeeded, {} failed",
+                status,
                 file_path.display(),
                 successes,
                 errors
@@ -985,7 +1003,8 @@ impl Cli {
         let runs = config.generate_runs()?;
 
         message!(
-            "📊 Spread pushing `{path_display}` to {} ({} mode, {} variants)",
+            "📊 Spread pushing `{}` to {} ({} mode, {} variants)",
+            path_display,
             service.display_name(),
             mode,
             run_count
@@ -1195,7 +1214,7 @@ impl Cli {
                     message!("📝 Spread config saved to `{}`", config_path.display());
                 }
                 Err(error) => {
-                    message!("⚠️ Could not save spread config: {error}");
+                    message!("⚠️ Could not save spread config: {}", error);
                 }
             }
         }

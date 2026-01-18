@@ -37,6 +37,7 @@ mod init;
 mod layout;
 mod outputs;
 mod remotes;
+mod reviews;
 mod site;
 mod utils;
 mod watch;
@@ -54,6 +55,7 @@ pub use {
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,
         config_update_remote_watch,
     },
+    reviews::{ReviewType, ReviewsConfig, ReviewsPosition, ReviewsSpec},
     site::{
         AuthorSpec, FeaturedContent, FeaturedCta, GlideConfig, LogoConfig, LogoSpec, NavItem,
         RedirectStatus, RouteSpread, SiteConfig, SiteFormat, config_add_redirect_route,

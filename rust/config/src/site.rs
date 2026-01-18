@@ -15,7 +15,7 @@ use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
     CONFIG_FILENAME, ConfigRelativePath, DOMAIN_REGEX, SpreadMode, find_config_file,
-    layout::LayoutConfig, validate_placeholders,
+    layout::LayoutConfig, reviews::ReviewsSpec, validate_placeholders,
 };
 
 /// Additional formats to generate alongside HTML during site rendering
@@ -656,6 +656,36 @@ pub struct SiteConfig {
     /// formats = []      # No additional formats, hide format buttons
     /// ```
     pub formats: Option<Vec<SiteFormat>>,
+
+    /// Site reviews configuration
+    ///
+    /// Enables readers to submit comments and suggestions on site pages.
+    /// Requires `workspace.id` to be configured for cloud enforcement of
+    /// public/anon settings.
+    ///
+    /// Can be a simple boolean or a detailed configuration object.
+    ///
+    /// Example (simple):
+    /// ```toml
+    /// [site]
+    /// reviews = true   # Enable with defaults
+    /// ```
+    ///
+    /// Example (detailed):
+    /// ```toml
+    /// [site.reviews]
+    /// enabled = true
+    /// public = true           # Non-team members can submit
+    /// anon = false            # Require GitHub auth
+    /// position = "bottom-right"
+    /// types = ["comment", "suggestion"]
+    /// min-selection = 10
+    /// max-selection = 5000
+    /// shortcuts = false
+    /// include = ["docs/**"]   # Only show on docs pages
+    /// exclude = ["api/**"]    # Hide from API reference
+    /// ```
+    pub reviews: Option<ReviewsSpec>,
 }
 
 impl SiteConfig {
@@ -671,6 +701,11 @@ impl SiteConfig {
 
         if let Some(layout) = &self.layout {
             layout.validate()?;
+        }
+
+        // Validate reviews configuration
+        if let Some(reviews) = &self.reviews {
+            reviews.validate()?;
         }
 
         // Validate featured content (icon + image conflict)

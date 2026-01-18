@@ -123,6 +123,12 @@ pub struct DomEncodeContext {
     /// that are only needed for views where nodes will be updated.
     view_is_static: bool,
 
+    /// Whether encoding the "site" view
+    ///
+    /// In site view, node IDs are encoded (for page review feature) but
+    /// depth and ancestors are omitted to save space.
+    view_is_site: bool,
+
     /// The DOM HTML content
     content: String,
 
@@ -150,6 +156,7 @@ impl DomEncodeContext {
     pub fn new(view: Option<&str>) -> Self {
         Self {
             view_is_static: view == Some("static"),
+            view_is_site: view == Some("site"),
             ..Default::default()
         }
     }
@@ -213,6 +220,10 @@ impl DomEncodeContext {
             } else {
                 self.enter_elem(name);
             }
+        } else if self.view_is_site {
+            // Site view: include node IDs for page review feature, but skip
+            // depth/ancestors to save space
+            self.enter_elem_attrs(name, [("id", &id)]);
         } else {
             self.enter_elem_attrs(
                 name,

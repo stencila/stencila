@@ -372,4 +372,89 @@ stencila-code-block {
             padding: var(--code-padding-block);
         }
     }
+
+    /* Prism.js syntax highlighting tokens for <stencila-ui-node-code-static> */
+
+    /* Reset display for all tokens to prevent global class conflicts (e.g., .table) */
+    .token {
+        display: inline;
+    }
+
+    .token.comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata {
+        color: var(--code-comment);
+    }
+
+    .token.punctuation {
+        color: var(--code-punctuation);
+    }
+
+    .token.tag,
+    .token.constant,
+    .token.symbol,
+    .token.deleted {
+        color: var(--code-tag);
+    }
+
+    .token.property {
+        color: var(--code-property);
+    }
+
+    .token.boolean,
+    .token.number {
+        color: var(--code-number);
+    }
+
+    .token.selector,
+    .token.attr-value,
+    .token.string,
+    .token.char,
+    .token.builtin,
+    .token.inserted {
+        color: var(--code-string);
+    }
+
+    .token.operator,
+    .token.entity,
+    .token.url,
+    .language-css .token.string,
+    .style .token.string {
+        color: var(--code-operator);
+    }
+
+    .token.atrule,
+    .token.attr-name,
+    .token.keyword {
+        color: var(--code-keyword);
+    }
+
+    .token.function,
+    .token.class-name {
+        color: var(--code-function);
+    }
+
+    .token.regex,
+    .token.important,
+    .token.variable {
+        color: var(--code-variable);
+    }
+
+    .token.namespace {
+        color: var(--code-namespace);
+    }
+
+    .token.important,
+    .token.bold {
+        font-weight: bold;
+    }
+
+    .token.italic {
+        font-style: italic;
+    }
+
+    .token.entity {
+        cursor: help;
+    }
 }

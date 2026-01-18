@@ -8,6 +8,8 @@ import '../ui/nodes/properties/code/code-static'
  *
  * This is a lightweight alternative for static views that does not render node
  * cards and uses Prism.js instead of CodeMirror for syntax highlighting.
+ *
+ * Uses Light DOM to allow text selection for site review functionality.
  */
 @customElement('stencila-code-block')
 export class CodeBlockStatic extends LitElement {
@@ -16,6 +18,23 @@ export class CodeBlockStatic extends LitElement {
 
   @property({ attribute: 'programming-language' })
   programmingLanguage?: string
+
+  /**
+   * Use Light DOM so text selection works for site review
+   */
+  protected override createRenderRoot() {
+    return this
+  }
+
+  override connectedCallback() {
+    // Remove server-rendered <pre> content before Lit renders
+    // (server includes <pre><code> for no-JS fallback)
+    const existingPre = this.querySelector(':scope > pre')
+    if (existingPre) {
+      existingPre.remove()
+    }
+    super.connectedCallback()
+  }
 
   override render() {
     return html`

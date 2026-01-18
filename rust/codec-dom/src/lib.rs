@@ -22,10 +22,11 @@ use stencila_version::STENCILA_VERSION;
 // Re-export to_dom
 pub use stencila_codec_dom_trait::to_dom;
 
-/// Use local development web assets instead of production CDN.
-/// Set to false for normal operation (uses production CDN).
-/// Set to true for local development (requires running `cargo run --bin stencila serve --cors permissive`).
-const USE_LOCALHOST: bool = true;
+/// Check if local development web assets should be used instead of production CDN.
+/// Set `STENCILA_DEV_LOCALHOST=1` to enable (requires running `cargo run --bin stencila serve --cors permissive`).
+fn use_localhost() -> bool {
+    std::env::var("STENCILA_DEV_LOCALHOST").is_ok()
+}
 
 /// A codec for DOM HTML
 pub struct DomCodec;
@@ -191,8 +192,8 @@ pub async fn encode(
 
         let extra_head = (!extra_head.is_empty()).then_some(extra_head);
 
-        // Use local or production web assets based on USE_LOCALHOST constant
-        let web_base = if cfg!(debug_assertions) && USE_LOCALHOST {
+        // Use local or production web assets based on STENCILA_DEV_LOCALHOST env var
+        let web_base = if cfg!(debug_assertions) && use_localhost() {
             "http://localhost:9000/~static/dev".to_string()
         } else {
             ["https://stencila.io/web/v", STENCILA_VERSION].concat()

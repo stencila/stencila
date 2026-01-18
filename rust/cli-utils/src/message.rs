@@ -24,7 +24,7 @@ use unicode_width::UnicodeWidthStr;
 #[macro_export]
 macro_rules! message {
     ($($arg:tt)*) => {
-        stencila_cli_utils::message(&format!($($arg)*))
+        stencila_cli_utils::message(&stencila_cli_utils::color_print::cformat!($($arg)*))
     };
 }
 

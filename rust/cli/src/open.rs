@@ -149,7 +149,7 @@ impl Cli {
             };
 
             // Open only the specified remote
-            message!("🌐 Opening {url_to_open} in browser");
+            message!("🌐 Opening {} in browser", url_to_open);
             webbrowser::open(url_to_open.as_str())?;
         } else if self.target.is_none() && !remote_infos.is_empty() {
             // No target specified and remotes not disabled - open all remotes
@@ -168,7 +168,7 @@ impl Cli {
                 };
 
                 webbrowser::open(url_to_open.as_str())?;
-                message!("↗️ Opened {url_to_open}");
+                message!("↗️ Opened {}", url_to_open);
             }
         }
 

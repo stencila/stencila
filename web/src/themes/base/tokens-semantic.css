@@ -99,7 +99,7 @@
 
     /* Theme accent colors */
     --color-accent: var(--color-blue-600);
-    --color-accent-dark: var(--color-blue-400);
+    --color-accent-dark: var(--color-blue-500);
     --color-accent-muted: var(--color-blue-100);
     --color-accent-muted-dark: var(--color-blue-950);
 

@@ -20,6 +20,8 @@ serde_yaml = { workspace = true }
 stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom = { path = "../codec-dom" }
+stencila-codec-info = { path = "../codec-info" }
+stencila-codecs = { path = "../codecs" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codec-text = { path = "../codec-text" }
 stencila-codec-utils = { path = "../codec-utils" }

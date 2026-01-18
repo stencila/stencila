@@ -5,8 +5,8 @@
  * navigation, and manages history.pushState/replaceState calls.
  */
 
-import type { NavState } from './types'
 import { scrollToId } from './scroll'
+import type { NavState } from './types'
 
 /** Map of URLs to their scroll positions */
 const scrollPositions = new Map<string, { x: number; y: number }>()

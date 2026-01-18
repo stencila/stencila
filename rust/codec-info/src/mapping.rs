@@ -7,6 +7,8 @@ use serde_with::skip_serializing_none;
 pub use stencila_node_id::NodeId;
 pub use stencila_node_type::{NodeProperty, NodeType};
 
+use crate::{Positions, Shifter};
+
 /// A mapping between UTF-8 character indices and nodes and their properties
 #[derive(Debug, Default, Clone, PartialEq, Serialize)]
 #[serde(transparent)]
@@ -189,6 +191,93 @@ impl Mapping {
             }
         }
         None
+    }
+}
+
+/// A position for JSON serialization
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct NodeMapPosition {
+    /// The 0-based character offset
+    pub offset: usize,
+
+    /// The 0-based line number
+    pub line: usize,
+
+    /// The 0-based column number
+    pub column: usize,
+}
+
+/// A mapping entry with line/column positions
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NodeMapEntry {
+    /// The type of the node
+    pub node_type: NodeType,
+
+    /// The id of the node
+    pub node_id: NodeId,
+
+    /// The start position
+    pub start: NodeMapPosition,
+
+    /// The end position
+    pub end: NodeMapPosition,
+}
+
+impl Mapping {
+    /// Convert to a vector of node map entries with offset, line, and column
+    /// positions
+    ///
+    /// This format is used in nodemap.json files. Only includes entries without
+    /// property or authorship (i.e. node-level entries only).
+    ///
+    /// # Arguments
+    /// * `source` - The original source content to compute line/column
+    ///   positions
+    /// * `shifter` - Optional shifter to translate indices from generated
+    ///               content to source. If the mapping entries contain indices
+    ///               from generated (encoded) content that differs from the
+    ///               source, the shifter translates them back to source
+    ///               positions.
+    pub fn to_nodemap<'a>(
+        &self,
+        source: &str,
+        shifter: Option<&Shifter<'a, 'a>>,
+    ) -> Vec<NodeMapEntry> {
+        let positions = Positions::new(source);
+
+        self.entries
+            .iter()
+            .filter(|entry| entry.property.is_none() && entry.authorship.is_none())
+            .map(|entry| {
+                // Shift indices from generated to source if shifter is provided
+                let (start_offset, end_offset) = match shifter {
+                    Some(shifter) => (
+                        shifter.generated_to_source(entry.range.start),
+                        shifter.generated_to_source(entry.range.end),
+                    ),
+                    None => (entry.range.start, entry.range.end),
+                };
+
+                let start_pos = positions.position8_at_index(start_offset);
+                let end_pos = positions.position8_at_index(end_offset);
+
+                NodeMapEntry {
+                    node_type: entry.node_type,
+                    node_id: entry.node_id.clone(),
+                    start: NodeMapPosition {
+                        offset: start_offset,
+                        line: start_pos.line,
+                        column: start_pos.column,
+                    },
+                    end: NodeMapPosition {
+                        offset: end_offset,
+                        line: end_pos.line,
+                        column: end_pos.column,
+                    },
+                }
+            })
+            .collect()
     }
 }
 

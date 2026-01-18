@@ -13,14 +13,17 @@ use eyre::Result;
 use serde_json::json;
 use stencila_node_media::collect_media;
 use tokio::{
-    fs::{copy, create_dir_all, read_dir, write},
+    fs::{copy, create_dir_all, read_dir, read_to_string, write},
     sync::mpsc,
 };
 
 use stencila_codec::{EncodeOptions, stencila_schema::Node};
+use stencila_codec_info::Shifter;
 use stencila_codec_markdown::to_markdown;
+use stencila_codecs::to_string_with_info;
 use stencila_config::{RedirectStatus, SiteConfig, SiteFormat};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
+use stencila_format::Format;
 
 use crate::{RouteEntry, RouteType, glide::render_glide, layout::render_layout, list};
 
@@ -410,22 +413,17 @@ async fn render_document_route(
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Render layout for the route
-    let layout_html = render_layout(
-        site_config,
-        site_root,
-        &route,
-        routes,
-        workspace_id.as_deref(),
-    );
+    let layout_html = render_layout(site_config, site_root, &route, routes, workspace_id);
 
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");
 
-    // Generate standalone html
+    // Generate standalone html with "site" view (includes node IDs for site review)
     let (html, ..) = stencila_codec_dom::encode(
         &node,
         Some(EncodeOptions {
             base_url: Some(base_url.to_string()),
+            view: Some("site".to_string()),
             ..Default::default()
         }),
         Some(site),
@@ -443,6 +441,47 @@ async fn render_document_route(
         let md_file = html_file.with_file_name("page.md");
         let markdown = to_markdown(&node);
         write(&md_file, markdown).await?;
+    }
+
+    // Generate nodemap.json for page review feature (only if reviews enabled for this route)
+    // Re-encode to source format to get mapping, then use Shifter to translate
+    // positions from generated content back to original source file positions
+    let should_generate_nodemap = site_config
+        .reviews
+        .as_ref()
+        .map(|reviews| {
+            reviews.is_enabled()
+                && crate::layout::should_show_reviews_for_route(&route, &reviews.to_config())
+        })
+        .unwrap_or(false);
+
+    if should_generate_nodemap {
+        let source_format = Format::from_path(source_file);
+        if !source_format.is_binary() && !source_format.is_lossless() {
+            let (generated_source, encode_info) = to_string_with_info(
+                &node,
+                Some(EncodeOptions {
+                    format: Some(source_format),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+
+            if !encode_info.mapping.entries().is_empty() {
+                // Read original source content
+                let original_source = read_to_string(source_file).await?;
+
+                // Create shifter to translate indices from generated to original source
+                let shifter = Shifter::new(&original_source, &generated_source);
+
+                let nodemap_file = html_file.with_file_name("nodemap.json");
+                let nodemap = encode_info
+                    .mapping
+                    .to_nodemap(&original_source, Some(&shifter));
+                let nodemap_json = serde_json::to_string(&nodemap)?;
+                write(&nodemap_file, nodemap_json).await?;
+            }
+        }
     }
 
     // Collect NEW media files created during this document's encoding
