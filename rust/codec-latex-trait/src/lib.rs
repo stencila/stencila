@@ -267,7 +267,7 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     let format = Format::from_path(path);
     let (latex_tool, image_tool) = match format {
         Format::Pdf => ("xelatex", ""),
-        Format::Png => ("latex", "dvipng"),
+        Format::Png => ("xelatex", "pdftoppm"),
         Format::Svg => ("xelatex", "pdf2svg"), // dvisvgm is an alternative here but does not handle raster images (e.g. PNG) well
         _ => bail!("unhandled format {format}"),
     };
@@ -327,11 +327,8 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
             "-interaction=batchmode",
             "-halt-on-error",
             if latex_tool == "xelatex" {
-                if matches!(format, Format::Pdf) || image_tool == "pdf2svg" {
-                    "-output-format=pdf"
-                } else {
-                    "-no-pdf"
-                }
+                // Generate PDF for direct PDF output, or when converting via pdf2svg/pdftoppm
+                "-output-format=pdf"
             } else if latex_tool == "latex" {
                 "-output-format=dvi"
             } else {
@@ -365,7 +362,7 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
 
         let input = format!(
             "{job}.{}",
-            if image_tool == "pdf2svg" {
+            if image_tool == "pdf2svg" || image_tool == "pdftoppm" {
                 "pdf"
             } else if latex_tool == "xelatex" {
                 "xdv"
@@ -375,6 +372,9 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
         );
         let output = path.to_string_lossy().to_string();
 
+        // pdftoppm adds the extension automatically, so we need the path without extension
+        let output_stem = path.with_extension("").to_string_lossy().to_string();
+
         let args = if image_tool == "dvisvgm" {
             // Using --no-fonts when generating SVGs was found
             // to improve layout of text
@@ -383,6 +383,11 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
             vec!["-o", &output, &input]
         } else if image_tool == "pdf2svg" {
             vec![input.as_str(), &output.as_str()]
+        } else if image_tool == "pdftoppm" {
+            // -png: output PNG format
+            // -singlefile: output single file (not one per page)
+            // -r 150: resolution in DPI (150 is good balance of quality vs size)
+            vec!["-png", "-singlefile", "-r", "150", &input, &output_stem]
         } else {
             vec![]
         };
@@ -446,6 +451,10 @@ pub struct LatexEncodeContext {
     /// Used to determine whether newlines are needed between blocks.
     pub coarse: bool,
 
+    /// The format to use for island images when encoding via Pandoc (e.g., for DOCX).
+    /// Defaults to PNG for DOCX/ODT (better compatibility and can be resized), SVG otherwise.
+    pub island_image_format: Format,
+
     /// The temporary directory where images are encoded to if necessary
     pub temp_dir: PathBuf,
 
@@ -480,6 +489,13 @@ impl LatexEncodeContext {
 
         let content = String::new();
 
+        // Default to PNG for DOCX/ODT (better compatibility and can be resized), SVG otherwise
+        let island_image_format = if matches!(format, Format::Docx | Format::Odt) {
+            Format::Png
+        } else {
+            Format::Svg
+        };
+
         Self {
             format,
             standalone,
@@ -488,6 +504,7 @@ impl LatexEncodeContext {
             reproducible,
             temp_dir,
             coarse: false,
+            island_image_format,
             content,
             paragraph_content: None,
             node_stack: Vec::default(),

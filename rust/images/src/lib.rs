@@ -76,6 +76,17 @@ impl ImageResizeOptions {
         }
     }
 
+    /// Options optimized for DOCX output (800px max width, JPEG for opaque images)
+    pub fn for_docx() -> Self {
+        Self {
+            max_width: Some(800),
+            upscale: false,
+            best_compression: true,
+            jpeg_for_opaque: true,
+            jpeg_quality: 85,
+        }
+    }
+
     /// Encode a DynamicImage to bytes using these options
     ///
     /// Returns (bytes, mime_type). Uses JPEG for opaque images (no alpha)
@@ -281,6 +292,30 @@ pub fn resize_file_to_data_uri(path: &Path, options: &ImageResizeOptions) -> Res
     let encoded = STANDARD.encode(&bytes);
 
     Ok(format!("data:{output_mime};base64,{encoded}"))
+}
+
+/// Resize an image file in place, potentially converting to JPEG if opaque
+///
+/// Returns the final path (may differ from input if format changed to JPEG)
+pub fn resize_and_save_file(path: &Path, options: &ImageResizeOptions) -> Result<PathBuf> {
+    let img = ImageReader::open(path)?.decode()?;
+    let resized = resize_image(img, options);
+    let (bytes, mime_type) = options.encode_image(&resized)?;
+
+    let output_path = if mime_type == "image/jpeg" {
+        path.with_extension("jpg")
+    } else {
+        path.to_path_buf()
+    };
+
+    std::fs::write(&output_path, bytes)?;
+
+    // Remove original if different from output
+    if output_path != path && path.exists() {
+        let _ = std::fs::remove_file(path);
+    }
+
+    Ok(output_path)
 }
 
 /// Covert an image URL to a HTTP or data URI

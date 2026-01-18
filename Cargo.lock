@@ -11048,6 +11048,7 @@ dependencies = [
  "stencila-codec-markdown-trait",
  "stencila-codec-text-trait",
  "stencila-format",
+ "stencila-images",
  "stencila-node-id",
  "stencila-node-patch-derive",
  "stencila-node-path",

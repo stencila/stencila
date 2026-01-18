@@ -1,4 +1,5 @@
 use stencila_codec_latex_trait::{latex_to_image, to_latex};
+use stencila_images::ImageResizeOptions;
 
 use crate::{Island, LabelType, prelude::*};
 
@@ -63,15 +64,38 @@ impl LatexCodec for Island {
                 latex.insert_str(0, &counters);
             }
 
-            let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
+            // Determine extension based on configured format
+            let extension = match context.island_image_format {
+                Format::Png => "png",
+                Format::Svg => "svg",
+                _ => "svg",
+            };
+
+            let path = context
+                .temp_dir
+                .join(format!("{}.{}", self.node_id(), extension));
             let inner = if let Err(error) = latex_to_image(&latex, &path, self.style.as_deref()) {
                 tracing::error!("While encoding island to image: {error}\n\n{latex}");
 
                 // Rather than adding potentially broken LaTeX to DOCX/ODT, add message to document
                 r"\verb|[Unable to generate image from LaTeX. Please refer to PDF or other version]|".to_string()
             } else {
-                let path = path.to_string_lossy();
-                [r"\includegraphics[width=16cm]{", &path, "}"].concat()
+                // For PNG format, resize and potentially convert to JPEG
+                let final_path = if context.island_image_format == Format::Png {
+                    let options = ImageResizeOptions::for_docx();
+                    match stencila_images::resize_and_save_file(&path, &options) {
+                        Ok(resized_path) => resized_path,
+                        Err(error) => {
+                            tracing::warn!("Failed to resize island image: {error}");
+                            path.clone()
+                        }
+                    }
+                } else {
+                    path.clone()
+                };
+
+                let path_str = final_path.to_string_lossy();
+                [r"\includegraphics[width=16cm]{", &path_str, "}"].concat()
             };
 
             context.str(r"\centerline{");
