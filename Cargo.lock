@@ -8800,7 +8800,7 @@ dependencies = [
  "tempfile",
  "textwrap",
  "tokio",
- "toml_edit 0.23.9",
+ "toml_edit 0.24.0+spec-1.1.0",
  "tracing",
  "tracing-error",
  "tracing-subscriber",
@@ -11895,7 +11895,6 @@ dependencies = [
  "indexmap 2.13.0",
  "toml_datetime 0.7.5+spec-1.1.0",
  "toml_parser",
- "toml_writer",
  "winnow",
 ]
 
