@@ -916,50 +916,61 @@ stencila-site-review .modal.success .pr-link {
   margin: var(--space-3) 0;
 }
 
-/* Auth description (one-line status) */
-stencila-site-review .auth-description {
+/* Footer status - unified status line below buttons */
+stencila-site-review .footer-status {
   margin: var(--space-2) 0 0;
   font-size: var(--font-size-2xs);
+  text-align: center;
+  line-height: var(--line-height-normal);
+}
+
+stencila-site-review .footer-status.muted {
   color: var(--text-color-secondary);
-  text-align: center;
 }
 
-/* Auth prompt (sign-in/connect needed) */
-stencila-site-review .auth-prompt {
-  text-align: center;
-  margin-top: var(--space-2);
+stencila-site-review .footer-status.success {
+  color: var(--color-success);
 }
 
-/* Auth blocked warning */
-stencila-site-review .auth-blocked {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  margin-top: var(--space-2);
-  background: var(--color-error-muted);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-2xs);
+stencila-site-review .footer-status.error {
   color: var(--color-error);
 }
 
-stencila-site-review .auth-blocked .warning-icon {
+stencila-site-review .footer-status.warning {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-1);
+  color: var(--color-warning);
+}
+
+stencila-site-review .footer-status .warning-icon {
   display: inline-block;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background-color: currentColor;
 }
 
-/* Submit error message */
-stencila-site-review .submit-error {
-  padding: var(--space-2);
-  background: var(--color-error-muted);
-  border: 1px solid var(--color-red-200);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--space-2);
-  color: var(--color-error);
-  font-size: var(--font-size-2xs);
+/* Auth links in footer status */
+stencila-site-review .footer-status .auth-link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+stencila-site-review .footer-status .auth-link:hover {
+  text-decoration: underline;
+}
+
+/* PR link in success status */
+stencila-site-review .footer-status .pr-link {
+  color: var(--color-success);
+  text-decoration: underline;
+  margin-left: var(--space-1);
+}
+
+stencila-site-review .footer-status .pr-link:hover {
+  color: var(--color-green-600);
 }
 
 /* Button icon (inline) */

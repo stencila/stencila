@@ -92,3 +92,18 @@ export interface ApiError {
   message?: string
   retryAfter?: number
 }
+
+/**
+ * Footer state for the review panel
+ * Evaluated in priority order - first matching state wins
+ */
+export type FooterState =
+  | { type: 'loading' }
+  | { type: 'submitting' }
+  | { type: 'success'; prNumber: number; prUrl: string }
+  | { type: 'error'; message: string }
+  | { type: 'blocked'; reason: string }
+  | { type: 'needSiteAccess'; signInUrl: string }
+  | { type: 'needStencilaSignIn'; signInUrl: string }
+  | { type: 'needGitHubConnect' }
+  | { type: 'canSubmit'; authorDescription: string }

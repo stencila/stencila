@@ -28,6 +28,7 @@ import type {
   AuthStatusResponse,
   ReviewResponse,
   ApiError,
+  FooterState,
 } from './site-review-types'
 import {
   SHARE_PARAM,
@@ -40,9 +41,7 @@ import {
   STORAGE_KEY_SOURCE,
   REVIEW_AUTH_PATH,
   REVIEW_SUBMIT_PATH,
-  REVIEW_GITHUB_TOKEN_PATH,
-  CLOUD_API_BASE,
-  CLOUD_PROFILE_URL,
+  GITHUB_OAUTH_URL,
   isLocalhost,
   getPathname,
   isStencilaHostedSite,
@@ -666,55 +665,10 @@ export class StencilaSiteReview extends LitElement {
   /**
    * Connect GitHub account
    * - Stencila users: direct to profile page
-   * - Non-Stencila users on Stencila-hosted sites: OAuth redirect flow
+   * Redirects to GitHub OAuth flow
    */
   private connectGitHub() {
-    if (this.authStatus?.user) {
-      // Stencila user - direct them to profile to connect GitHub
-      window.open(CLOUD_PROFILE_URL, '_blank')
-      return
-    }
-
-    if (!isStencilaHostedSite()) {
-      this.errorMessage =
-        'GitHub authentication is only available on Stencila-hosted sites. Submit reviews anonymously or sign in with Stencila.'
-      return
-    }
-
-    // Private repos require Stencila sign-in, not GitHub OAuth
-    // (OAuth tokens only have public_repo scope)
-    if (this.authStatus?.repo?.isPrivate) {
-      this.errorMessage =
-        'Private repositories require signing in with Stencila. GitHub OAuth is only available for public repositories.'
-      return
-    }
-
-    // Non-Stencila user on Stencila-hosted site, public repo - OAuth redirect flow
-    const state = crypto.randomUUID()
-    const url = new URL(`${CLOUD_API_BASE}/v1/auth/github/authorize`)
-    url.searchParams.set('workspace_id', this.workspaceId)
-    url.searchParams.set('state', state)
-    url.searchParams.set('return_url', window.location.href)
-
-    console.log('[SiteReview] Starting GitHub OAuth flow')
-    window.location.href = url.toString()
-  }
-
-  /**
-   * Disconnect GitHub account (for non-Stencila OAuth users)
-   */
-  private async disconnectGitHub() {
-    try {
-      const response = await this.apiFetch(REVIEW_GITHUB_TOKEN_PATH, {
-        method: 'DELETE',
-      })
-      if (response.ok) {
-        console.log('[SiteReview] GitHub disconnected')
-        await this.refreshAuthStatus()
-      }
-    } catch (e) {
-      console.error('[SiteReview] Failed to disconnect GitHub:', e)
-    }
+    window.open(this.gitHubConnectUrl, '_blank')
   }
 
   // =========================================================================
@@ -842,6 +796,16 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
+   * Get the GitHub connect URL with workspace ID and return URL
+   */
+  private get gitHubConnectUrl(): string {
+    const url = new URL(GITHUB_OAUTH_URL)
+    url.searchParams.set('workspace_id', this.workspaceId)
+    url.searchParams.set('return_url', window.location.href)
+    return url.toString()
+  }
+
+  /**
    * Get CSS styles for FAB positioning
    */
   private get fabPositionStyles(): string {
@@ -900,23 +864,77 @@ export class StencilaSiteReview extends LitElement {
     if (github?.connected) {
       // Has push access - direct PR regardless of repo visibility
       if (github.canPush) {
-        return `PR will be created as @${github.username}`
+        return `Pull request will be created as @${github.username}`
       }
       // No push access on private repo - must use bot (can't fork private repos)
       if (repo?.isPrivate) {
-        return `PR will be created by Stencila bot, attributed to @${github.username}`
+        return `Pull request will be created by Stencila bot, attributed to @${github.username}`
       }
       // No push access on public repo - fork to user's account
-      return `PR will be created as @${github.username} from a fork`
+      return `Pull request will be created as @${github.username} from a fork`
     }
 
     // Stencila user without GitHub - bot PR with attribution
     if (user) {
-      return `PR will be created by Stencila bot, attributed to ${user.name}`
+      return `Pull request will be created by Stencila bot, attributed to ${user.name}`
     }
 
     // Anonymous - bot PR without attribution
-    return 'PR will be created by Stencila bot'
+    return 'Pull request will be created by Stencila bot'
+  }
+
+  /**
+   * Get the unified footer state for rendering
+   * Evaluated in priority order - first matching state wins
+   */
+  private get footerState(): FooterState {
+    // 1. Loading
+    if (this.authLoading) {
+      return { type: 'loading' }
+    }
+
+    // 2. Submitting
+    if (this.submitting) {
+      return { type: 'submitting' }
+    }
+
+    // 3. Success (persists until next action)
+    if (this.submitResult) {
+      return {
+        type: 'success',
+        prNumber: this.submitResult.prNumber,
+        prUrl: this.submitResult.prUrl,
+      }
+    }
+
+    // 4. Error (clears on next action)
+    if (this.submitError) {
+      return { type: 'error', message: this.submitError }
+    }
+
+    // 5. Blocked: private repo without app
+    if (this.isBlockedPrivateRepo) {
+      return { type: 'blocked', reason: this.blockedReason ?? '' }
+    }
+
+    // 6. Need site access (site requires auth to submit)
+    const config = this.authStatus?.reviewConfig
+    if (config && !config.allowPublic && !this.authStatus?.hasSiteAccess) {
+      return { type: 'needSiteAccess', signInUrl: this.signInUrl }
+    }
+
+    // 7. Need Stencila sign-in (private repo - OAuth lacks scope)
+    if (this.requiresStencilaSignIn) {
+      return { type: 'needStencilaSignIn', signInUrl: this.signInUrl }
+    }
+
+    // 8. Need GitHub connect (public allows reviews but requires attribution)
+    if (this.showGitHubConnect) {
+      return { type: 'needGitHubConnect' }
+    }
+
+    // 9. Can submit
+    return { type: 'canSubmit', authorDescription: this.prAuthorDescription }
   }
 
   // =========================================================================
@@ -1815,6 +1833,10 @@ export class StencilaSiteReview extends LitElement {
       content,
     }
 
+    // Clear any previous submission state when adding new items
+    this.submitResult = null
+    this.submitError = ''
+
     // Insert item in position order among items for the same URL
     const insertIndex = this.findInsertPosition(item)
     const newItems = [...this.pendingItems]
@@ -2042,65 +2064,11 @@ export class StencilaSiteReview extends LitElement {
     }
   }
 
-  /**
-   * Dismiss the success result modal
-   */
-  private dismissSuccessResult() {
-    this.submitResult = null
-  }
-
-  /**
-   * Copy pending review items to clipboard as formatted text
-   * Used when submission is blocked (e.g., private repo without app)
-   */
-  private async copyReviewToClipboard() {
-    if (this.pendingItems.length === 0) {
-      return
-    }
-
-    const lines: string[] = [
-      '# Stencila Site Review',
-      '',
-      `Repository: ${this.sourceInfo?.repository ?? 'Unknown'}`,
-      `Commit: ${this.sourceInfo?.commit ?? 'Unknown'}`,
-      '',
-      '---',
-      '',
-    ]
-
-    for (const item of this.pendingItems) {
-      lines.push(`## ${item.type === 'comment' ? 'Comment' : 'Suggestion'}`)
-      lines.push('')
-      lines.push(`**File:** ${item.path}`)
-      lines.push(`**Page:** ${item.url}`)
-      lines.push(`**Selection:** "${item.selected}"`)
-      lines.push('')
-      if (item.type === 'suggestion') {
-        lines.push(`**Suggested replacement:**`)
-      }
-      lines.push(item.content)
-      lines.push('')
-      lines.push('---')
-      lines.push('')
-    }
-
-    const text = lines.join('\n')
-
-    try {
-      await navigator.clipboard.writeText(text)
-      // Could add a toast notification here in the future
-      console.log('[SiteReview] Review copied to clipboard')
-    } catch (e) {
-      console.error('[SiteReview] Failed to copy to clipboard:', e)
-      this.errorMessage = 'Failed to copy to clipboard. Please try again.'
-    }
-  }
-
   override render() {
     return html`
       ${this.renderFab()} ${this.renderSelection()} ${this.renderInput()}
       ${this.renderPanel()} ${this.renderErrorModal()}
-      ${this.renderCommitMismatchModal()} ${this.renderSubmitResultModal()}
+      ${this.renderCommitMismatchModal()}
     `
   }
 
@@ -2497,6 +2465,9 @@ export class StencilaSiteReview extends LitElement {
    * Render the panel footer with submit button and actions
    */
   private renderPanelFooter() {
+    const state = this.footerState
+    const canSubmit = state.type === 'canSubmit'
+
     return html`
       <div class="panel-footer">
         <button
@@ -2510,25 +2481,13 @@ export class StencilaSiteReview extends LitElement {
           <span class="i-lucide:plus"></span>
         </button>
 
-        ${this.submitError
-          ? html`<div class="submit-error">${this.submitError}</div>`
-          : null}
-
         <div class="footer-buttons">
           <button
             class="btn primary"
             @click=${this.handleSubmitReview}
-            ?disabled=${this.authLoading ||
-            this.submitting ||
-            !this.canSubmitReview}
+            ?disabled=${!canSubmit}
           >
-            ${this.authLoading
-              ? 'Loading...'
-              : this.submitting
-                ? 'Submitting...'
-                : this.canSubmitReview
-                  ? 'Submit as PR'
-                  : 'Sign in to Submit'}
+            Submit
           </button>
           <div class="share-btn-container">
             <button
@@ -2548,9 +2507,75 @@ export class StencilaSiteReview extends LitElement {
           </div>
         </div>
 
-        ${this.renderAuthStatusSection()}
+        ${this.renderFooterStatus()}
       </div>
     `
+  }
+
+  /**
+   * Render the footer status text based on current state
+   */
+  private renderFooterStatus() {
+    const state = this.footerState
+
+    switch (state.type) {
+      case 'loading':
+        return html`<p class="footer-status muted">Checking access...</p>`
+
+      case 'submitting':
+        return html`<p class="footer-status muted">Creating pull request...</p>`
+
+      case 'success':
+        return html`<p class="footer-status success">
+          PR #${state.prNumber} created
+          <a
+            href=${state.prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pr-link"
+            >View</a
+          >
+        </p>`
+
+      case 'error':
+        return html`<p class="footer-status error">${state.message}</p>`
+
+      case 'blocked':
+        return html`<p class="footer-status warning">
+          <span class="i-lucide:alert-triangle warning-icon"></span>
+          ${state.reason}
+        </p>`
+
+      case 'needSiteAccess':
+        return html`<p class="footer-status">
+          <a href=${state.signInUrl} class="auth-link"
+            >Sign in to site to submit</a
+          >
+        </p>`
+
+      case 'needStencilaSignIn':
+        return html`<p class="footer-status">
+          <a href=${state.signInUrl} class="auth-link"
+            >Sign in to Stencila</a
+          >
+          - required for private repos
+        </p>`
+
+      case 'needGitHubConnect':
+        return html`<p class="footer-status">
+          <a
+            href=${this.gitHubConnectUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="auth-link"
+            >Connect GitHub</a
+          >
+          to submit
+        </p>`
+
+      case 'canSubmit':
+        return html`<p class="footer-status muted">${state.authorDescription}</p>`
+    }
   }
 
   /**
@@ -2635,105 +2660,6 @@ export class StencilaSiteReview extends LitElement {
         </div>
       </div>
     `
-  }
-
-  /**
-   * Render submit success modal
-   */
-  private renderSubmitResultModal() {
-    if (!this.submitResult) {
-      return null
-    }
-
-    return html`
-      <div class="backdrop" @click=${this.dismissSuccessResult}></div>
-      <div class="modal success">
-        <h4>Review Submitted!</h4>
-        <p>
-          ${this.submitResult.prNumber
-            ? `PR #${this.submitResult.prNumber} created`
-            : 'Review submitted'}
-          ${this.submitResult.authoredBy === 'user'
-            ? ` as @${this.submitResult.authorUsername}`
-            : ' via Stencila'}
-          ${this.submitResult.usedFork
-            ? ` (from fork ${this.submitResult.forkFullName})`
-            : ''}
-        </p>
-        ${this.submitResult.counts
-          ? html`<p class="counts">
-              ${this.submitResult.counts.comments} comment(s),
-              ${this.submitResult.counts.suggestions} suggestion(s)
-            </p>`
-          : null}
-        ${this.submitResult.prUrl
-          ? html`<div class="pr-link">
-              <a
-                class="btn success-link"
-                href=${this.submitResult.prUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Pull Request
-              </a>
-            </div>`
-          : null}
-        <div class="buttons" style="justify-content: center;">
-          <button class="btn secondary" @click=${this.dismissSuccessResult}>
-            Close
-          </button>
-        </div>
-      </div>
-    `
-  }
-
-  /**
-   * Render the auth status section in the review panel
-   * Simplified: one-line status when OK, compact prompts when auth needed
-   */
-  private renderAuthStatusSection() {
-    // Loading state
-    if (this.authLoading) {
-      return null
-    }
-
-    // Blocked: private repo without app
-    if (this.isBlockedPrivateRepo) {
-      return html`<div class="auth-blocked">
-        <span class="i-lucide:alert-triangle warning-icon"></span>
-        <span>${this.blockedReason}</span>
-      </div>`
-    }
-
-    // Need site access
-    if (
-      this.authStatus &&
-      !this.authStatus.reviewConfig.allowPublic &&
-      !this.authStatus.hasSiteAccess
-    ) {
-      return html`<div class="auth-prompt">
-        <a class="btn text" href=${this.signInUrl}>Sign in to submit</a>
-      </div>`
-    }
-
-    // Private repo requires Stencila sign-in
-    if (this.requiresStencilaSignIn) {
-      return html`<div class="auth-prompt">
-        <a class="btn text" href=${this.signInUrl}>Sign in to submit</a>
-      </div>`
-    }
-
-    // Need GitHub but not connected
-    if (this.showGitHubConnect) {
-      return html`<div class="auth-prompt">
-        <button class="btn text" @click=${this.connectGitHub}>
-          Connect GitHub to submit
-        </button>
-      </div>`
-    }
-
-    // Can submit - show one-line authorship description
-    return html`<p class="auth-description">${this.prAuthorDescription}</p>`
   }
 }
 

@@ -12,8 +12,7 @@ export const REVIEW_SUBMIT_PATH = '/__stencila-review/submit'
 export const REVIEW_GITHUB_TOKEN_PATH = '/__stencila-review/github-token'
 
 // External URLs
-export const CLOUD_API_BASE = 'https://api.stencila.cloud'
-export const CLOUD_PROFILE_URL = 'https://stencila.cloud/profile'
+export const GITHUB_OAUTH_URL = 'https://stencila.cloud/github/connect/site'
 
 /**
  * Check if running on localhost
