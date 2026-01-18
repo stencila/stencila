@@ -533,7 +533,11 @@ async fn browser_assisted_download(docx_url: &str) -> Result<Option<Vec<u8>>> {
     }
 
     if let Err(error) = webbrowser::open(docx_url) {
-        message!("⚠️ Failed to open browser: {}. Please open manually: {}", error, docx_url);
+        message!(
+            "⚠️ Failed to open browser: {}. Please open manually: {}",
+            error,
+            docx_url
+        );
     }
 
     let answer = stencila_ask::ask("Have you downloaded the file?").await?;
