@@ -16,8 +16,7 @@ else
 endif
 
 # Setup local development environment
-setup: setup-linker
-	cargo install cargo-binstall
+setup: setup-linker setup-binstall
 	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-machete cargo-outdated cargo-watch
 	cargo --list
 
@@ -45,6 +44,14 @@ setup-mold:
 		echo "mold linker already installed"; \
 	fi
 
+# Install cargo-binstall using official install script (compiling from source is currently broken)
+setup-binstall:
+	@if ! command -v cargo-binstall >/dev/null 2>&1; then \
+		echo "Installing cargo-binstall..."; \
+		curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; \
+	else \
+		echo "cargo-binstall already installed"; \
+	fi
 
 # Make formatting and linting fixes
 fix:
