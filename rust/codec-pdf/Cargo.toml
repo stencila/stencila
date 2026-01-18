@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-lopdf = { version = "0.38.0", features = ["async"] }
+lopdf = { version = "0.39.0", features = ["async"] }
 seahash = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom = { path = "../codec-dom" }
