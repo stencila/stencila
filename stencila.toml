@@ -1,5 +1,5 @@
 [workspace]
-id = "wsron0azl0i2"
+id = "ws108426faab"
 watch = "wardj3nsovuj"
 
 [site]
@@ -14,6 +14,9 @@ exclude = ["tests/excluded.smd"]
 github = "stencila/stencila"
 x = "stencila"
 
+[site.reviews]
+enabled = true
+
 [site.routes]
 "/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
 "/tests/file/" = "tests/file.myst"
@@ -25,7 +28,3 @@ preset = "landing"
 [[site.layout.overrides]]
 routes = ["/docs/**"]
 preset = "docs"
-bottom.rows = [
-    { middle = "prev-next" },
-    { start = { type = "edit-page", text = "Suggest changes" }}
-]
