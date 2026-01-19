@@ -273,6 +273,18 @@ pub async fn standalone_html(
         |title| encode_safe(&title).to_string(),
     );
 
+    // Check if heading numbering is enabled in theme
+    let heading_numbering_attr = theme
+        .and_then(|t| {
+            t.computed_variables(stencila_themes::LengthConversion::KeepUnits)
+                .get("heading-numbering")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string())
+        })
+        .filter(|v| v == "decimal")
+        .map(|v| format!(r#" data-heading-numbering="{v}""#))
+        .unwrap_or_default();
+
     // Convert theme to (type, content/name, display_name)
     // Tuple elements: (ThemeType, String, Option<String>)
     //   - String: For builtin it's the theme name, for user/workspace it's the CSS content
@@ -305,7 +317,7 @@ pub async fn standalone_html(
 
     let mut html = format!(
         r#"<!doctype html>
-<html lang="en">
+<html lang="en"{heading_numbering_attr}>
   <head>
     <title>{title}</title>
     <meta charset="utf-8" />

@@ -254,6 +254,40 @@ impl Codec for DocxCodec {
         };
         let node = &node;
 
+        // Get document variables early for theme resolution
+        let document_variables = if let Node::Article(article) = node {
+            Some(article.document_variables())
+        } else {
+            None
+        };
+
+        // Get theme early (if no template was specified) to check for options like heading-numbering
+        let theme = if !template_is_specified {
+            let theme_name = options.theme.clone();
+            let theme_path = options
+                .from_path
+                .clone()
+                .or_else(|| Some(path.to_path_buf()));
+            stencila_themes::get(theme_name, theme_path).await?
+        } else {
+            None
+        };
+
+        // Check theme for heading-numbering option and add --number-sections if decimal
+        if let Some(theme) = &theme {
+            let theme_variables = theme.computed_variables_with_overrides(
+                stencila_themes::LengthConversion::KeepUnits,
+                document_variables.clone().unwrap_or_default(),
+            );
+            if let Some(serde_json::Value::String(numbering)) =
+                theme_variables.get("heading-numbering")
+                && numbering == "decimal"
+                && !options.tool_args.contains(&"--number-sections".to_string())
+            {
+                options.tool_args.push("--number-sections".to_string());
+            }
+        }
+
         let info = 'to_path: {
             let format = options.format.clone().unwrap_or(Format::Docx);
             let options = Some(options.clone());
@@ -343,7 +377,8 @@ impl Codec for DocxCodec {
             properties.push(("encoding".into(), encoding));
         }
 
-        let document_variables = if let Node::Article(article) = node {
+        // Collect article-specific properties
+        if let Node::Article(article) = node {
             if let Some(repository) = &article.options.repository {
                 properties.push(("repository".into(), repository.clone()));
             }
@@ -366,20 +401,7 @@ impl Codec for DocxCodec {
                     properties.push((name.into(), value));
                 }
             }
-
-            Some(article.document_variables())
-        } else {
-            None
-        };
-
-        // Get theme to apply (is no template was specified)
-        let theme = if !template_is_specified {
-            let theme = options.theme;
-            let path = options.from_path.or_else(|| Some(path.to_path_buf()));
-            stencila_themes::get(theme, path).await?
-        } else {
-            None
-        };
+        }
 
         // Apply custom data, properties and theme to the generated DOCX file
         encode::apply(path, data, properties, theme, document_variables).await?;

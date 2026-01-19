@@ -56,6 +56,9 @@
     --heading-color-dark: var(--text-color-primary);
     --heading-color-opacity-decrement: 0;
 
+    /* Heading numbering: "none" (default) or "decimal" for hierarchical numbering (1., 1.1., 1.1.1., etc.) */
+    --heading-numbering: none;
+
     /* Zone-based style helpers - convenient for applying styles to upper (h1-h3) or lower (h4-h6) heading groups */
     --heading-upper-font-style: normal;
     --heading-lower-font-style: normal;
@@ -377,4 +380,62 @@ stencila-heading {
         page-break-before: avoid;
         break-before: avoid-page;
     }
+}
+
+/* Heading numbering using CSS counters
+ * Activated when data-heading-numbering="decimal" is set on an ancestor (typically <html>)
+ * Produces hierarchical numbering: 1., 1.1., 1.1.1., etc.
+ */
+[data-heading-numbering="decimal"] {
+    counter-reset: h1counter h2counter h3counter h4counter h5counter h6counter;
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="1"] {
+    counter-reset: h2counter h3counter h4counter h5counter h6counter;
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="1"] h1::before {
+    counter-increment: h1counter;
+    content: counter(h1counter) ". ";
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="2"] {
+    counter-reset: h3counter h4counter h5counter h6counter;
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="2"] h2::before {
+    counter-increment: h2counter;
+    content: counter(h1counter) "." counter(h2counter) ". ";
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="3"] {
+    counter-reset: h4counter h5counter h6counter;
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="3"] h3::before {
+    counter-increment: h3counter;
+    content: counter(h1counter) "." counter(h2counter) "." counter(h3counter) ". ";
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="4"] {
+    counter-reset: h5counter h6counter;
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="4"] h4::before {
+    counter-increment: h4counter;
+    content: counter(h1counter) "." counter(h2counter) "." counter(h3counter) "." counter(h4counter) ". ";
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="5"] {
+    counter-reset: h6counter;
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="5"] h5::before {
+    counter-increment: h5counter;
+    content: counter(h1counter) "." counter(h2counter) "." counter(h3counter) "." counter(h4counter) "." counter(h5counter) ". ";
+}
+
+[data-heading-numbering="decimal"] stencila-heading[level="6"] h6::before {
+    counter-increment: h6counter;
+    content: counter(h1counter) "." counter(h2counter) "." counter(h3counter) "." counter(h4counter) "." counter(h5counter) "." counter(h6counter) ". ";
 }
