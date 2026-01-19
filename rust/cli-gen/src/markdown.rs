@@ -265,14 +265,6 @@ fn options_table(opts: &[ArgDoc]) -> Vec<Block> {
             flag_parts.join(", ")
         };
 
-        // Add value placeholder if this option takes a value
-        let has_value = opt.default_value.is_some() || !opt.possible_values.is_empty();
-        let full_display = if has_value {
-            format!("{flag_display} <{}>", opt.name.to_uppercase())
-        } else {
-            flag_display.clone()
-        };
-
         let desc = ensure_full_stop(opt.description.as_deref().unwrap_or(""));
         let mut desc_inlines: Vec<Inline> = vec![t(&desc)];
 
@@ -311,7 +303,7 @@ fn options_table(opts: &[ArgDoc]) -> Vec<Block> {
         }
 
         rows.push(tr([
-            td([ci(full_display)]),
+            td([ci(flag_display)]),
             TableCell {
                 content: vec![Block::Paragraph(stencila_schema::Paragraph::new(
                     desc_inlines,
