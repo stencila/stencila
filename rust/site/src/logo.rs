@@ -146,8 +146,21 @@ pub fn resolve_logo(
     Some(resolved)
 }
 
+/// Check if a LogoConfig has at least one image field set.
+///
+/// A logo must have at least one image to be rendered; link/alt alone are not sufficient.
+/// This matches the guard in `resolve_logo` that returns None when no images exist.
+pub fn has_any_image(config: &LogoConfig) -> bool {
+    config.default.is_some()
+        || config.mobile.is_some()
+        || config.tablet.is_some()
+        || config.dark.is_some()
+        || config.dark_mobile.is_some()
+        || config.dark_tablet.is_some()
+}
+
 /// Merge source config into target, overriding only fields that are Some in source
-fn merge_logo_config(target: &mut LogoConfig, source: &LogoConfig) {
+pub fn merge_logo_config(target: &mut LogoConfig, source: &LogoConfig) {
     if source.default.is_some() {
         target.default.clone_from(&source.default);
     }
@@ -340,5 +353,34 @@ mod tests {
             make_absolute("https://example.com/logo.svg"),
             "https://example.com/logo.svg"
         );
+    }
+
+    #[test]
+    fn test_has_any_image() {
+        // Empty config has no images
+        assert!(!has_any_image(&LogoConfig::default()));
+
+        // Config with only link/alt has no images (should not render)
+        let link_only = LogoConfig {
+            link: Some("/".to_string()),
+            alt: Some("Logo".to_string()),
+            ..Default::default()
+        };
+        assert!(!has_any_image(&link_only));
+
+        // Config with default image
+        let with_default = LogoConfig {
+            default: Some("/logo.svg".to_string()),
+            ..Default::default()
+        };
+        assert!(has_any_image(&with_default));
+
+        // Config with only dark variant
+        let with_dark = LogoConfig {
+            dark: Some("/logo-dark.svg".to_string()),
+            link: Some("/".to_string()),
+            ..Default::default()
+        };
+        assert!(has_any_image(&with_dark));
     }
 }

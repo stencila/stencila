@@ -32,6 +32,7 @@ use crate::{
     layout::render_layout,
     links::{build_routes_set, rewrite_links},
     list,
+    logo::resolve_logo,
     nav_common::auto_generate_nav,
 };
 
@@ -249,6 +250,9 @@ where
         &generated_nav_items
     };
 
+    // Resolve logo once (avoid per-document filesystem scanning)
+    let resolved_logo = resolve_logo(None, site_config.logo.as_ref(), Some(&site_root));
+
     // Render all documents
     let mut docs_rendered: Vec<RenderedDocument> = Vec::new();
     let mut docs_failed: Vec<(PathBuf, String)> = Vec::new();
@@ -302,12 +306,12 @@ where
                 base_url,
                 &glide_attrs,
                 &site_config,
-                &site_root,
                 source_path,
                 output_dir,
                 &document_routes,
                 &routes_set,
                 nav_items,
+                resolved_logo.as_ref(),
                 workspace_id.as_deref(),
                 git_repo_root,
                 git_origin,
@@ -404,12 +408,12 @@ async fn render_document_route(
     base_url: &str,
     glide_attrs: &str,
     site_config: &SiteConfig,
-    site_root: &Path,
     source_file: &Path,
     output_dir: &Path,
     routes: &[RouteEntry],
     routes_set: &HashSet<String>,
     nav_items: &Vec<NavItem>,
+    resolved_logo: Option<&stencila_config::LogoConfig>,
     workspace_id: Option<&str>,
     git_repo_root: Option<&Path>,
     git_origin: Option<&str>,
@@ -455,10 +459,11 @@ async fn render_document_route(
     // Render layout for the route
     let layout_html = render_layout(
         site_config,
-        site_root,
         &route,
         routes,
+        routes_set,
         nav_items,
+        resolved_logo,
         workspace_id,
         git_repo_root,
         git_origin,

@@ -3,7 +3,7 @@
 //! This module handles rendering the overall site layout structure including
 //! regions (header, footer, sidebars) and dispatching to component renderers.
 
-use std::path::Path;
+use std::{collections::HashSet, path::Path};
 
 use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
@@ -21,10 +21,11 @@ use crate::{
 
 pub(crate) struct RenderContext<'a> {
     pub site_config: &'a SiteConfig,
-    pub site_root: &'a Path,
     pub route: &'a str,
     pub routes: &'a [RouteEntry],
+    pub routes_set: &'a HashSet<String>,
     pub nav_items: &'a Vec<NavItem>,
+    pub resolved_logo: Option<&'a LogoConfig>,
     pub workspace_id: Option<&'a str>,
     pub git_repo_root: Option<&'a Path>,
     pub git_origin: Option<&'a str>,
@@ -35,20 +36,23 @@ pub(crate) struct RenderContext<'a> {
 ///
 /// # Arguments
 /// * `site_config` - Site configuration
-/// * `site_root` - Path to the site root directory
 /// * `route` - Current route being rendered
 /// * `routes` - All document routes for prev/next navigation etc
+/// * `routes_set` - Set of valid routes (precomputed for O(1) lookups)
 /// * `nav_items` - Nav items (either from site.nav config or auto-generated once)
+/// * `resolved_logo` - Pre-resolved logo config (computed once per render)
 /// * `workspace_id` - Optional workspace ID from config
 /// * `git_repo_root` - Optional git repository root (for edit-source/edit-on)
 /// * `git_origin` - Optional git remote origin URL (for edit-source)
 /// * `git_branch` - Optional current git branch name (for edit-source)
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn render_layout(
     site_config: &SiteConfig,
-    site_root: &Path,
     route: &str,
     routes: &[RouteEntry],
+    routes_set: &HashSet<String>,
     nav_items: &Vec<NavItem>,
+    resolved_logo: Option<&LogoConfig>,
     workspace_id: Option<&str>,
     git_repo_root: Option<&Path>,
     git_origin: Option<&str>,
@@ -56,10 +60,11 @@ pub(crate) fn render_layout(
 ) -> String {
     let context = RenderContext {
         site_config,
-        site_root,
         route,
         routes,
+        routes_set,
         nav_items,
+        resolved_logo,
         workspace_id,
         git_repo_root,
         git_origin,
@@ -503,14 +508,30 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
 
 /// Render a logo component
 ///
-/// When component_config is None, uses site-level logo config.
-/// When provided, merges component config with site config.
+/// Uses pre-resolved logo from context (computed once per render).
+/// If component_config is provided, merges it with the pre-resolved config.
+/// A logo must have at least one image field to render; link/alt alone are not sufficient.
 fn render_logo(logo_config: Option<&LogoConfig>, context: &RenderContext) -> String {
-    if let Some(config) = logo::resolve_logo(
-        logo_config,
-        context.site_config.logo.as_ref(),
-        Some(context.site_root),
-    ) {
+    // Use pre-resolved logo from context (avoids per-document filesystem scanning)
+    let config = match (logo_config, context.resolved_logo) {
+        // Component override: merge with pre-resolved config
+        (Some(component), Some(base)) => {
+            let mut merged = base.clone();
+            logo::merge_logo_config(&mut merged, component);
+            Some(merged)
+        }
+        // Component override only (no site-level logo)
+        (Some(component), None) => Some(component.clone()),
+        // Use pre-resolved config as-is
+        (None, Some(base)) => Some(base.clone()),
+        // No logo configured
+        (None, None) => None,
+    };
+
+    // Guard: logo must have at least one image field (matches resolve_logo's behavior)
+    let config = config.filter(logo::has_any_image);
+
+    if let Some(config) = config {
         logo::render_logo(&config)
     } else {
         // Empty logo placeholder when no config available
@@ -555,12 +576,10 @@ fn render_breadcrumbs(context: &RenderContext) -> String {
             // Last segment: current page (no link)
             items.push_str(&format!(r#"<li aria-current="page">{label}</li>"#));
         } else {
-            // Intermediate segment: check if route exists
+            // Intermediate segment: check if route exists (O(1) HashSet lookup)
             let route_with_slash = format!("{current_path}/");
-            let route_exists = context
-                .routes
-                .iter()
-                .any(|r| r.route == route_with_slash || r.route == current_path);
+            let route_exists = context.routes_set.contains(&route_with_slash)
+                || context.routes_set.contains(&current_path);
 
             if route_exists {
                 // Route exists: render as clickable link
