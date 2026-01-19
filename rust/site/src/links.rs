@@ -1,0 +1,369 @@
+//! Link rewriting for static site generation
+//!
+//! This module transforms file-based link targets (e.g., `other.md`) into
+//! route-based links (e.g., `/other/`) that work on the generated static site.
+
+use std::{collections::HashSet, path::Path};
+
+use stencila_codec::stencila_schema::{Inline, VisitorMut, WalkControl, WalkNode};
+
+use crate::RouteEntry;
+
+/// Rewrites file-based link targets to route-based links for static site generation
+pub struct LinkRewriter {
+    /// Current document's route (e.g., "/docs/guide/")
+    current_route: String,
+    /// Set of valid routes in the site
+    routes: HashSet<String>,
+}
+
+impl LinkRewriter {
+    pub fn new(current_route: &str, routes: &[RouteEntry]) -> Self {
+        Self {
+            current_route: current_route.to_string(),
+            routes: routes.iter().map(|r| r.route.clone()).collect(),
+        }
+    }
+
+    /// Transform a link target from file path to route
+    fn transform_target(&self, target: &str) -> Option<String> {
+        // Skip internal anchors
+        if target.starts_with('#') {
+            return None;
+        }
+
+        // Skip protocol-relative URLs (//cdn.example.com/...)
+        if target.starts_with("//") {
+            return None;
+        }
+
+        // Skip any URI scheme (http:, https:, ftp:, ws:, wss:, data:, mailto:, tel:, file:, javascript:, etc.)
+        // A URI scheme is letters followed by : before the first / (if any)
+        if let Some(colon_pos) = target.find(':') {
+            let before_colon = &target[..colon_pos];
+            // Check if everything before : is a valid scheme (letters, digits, +, -, .)
+            // and there's no / before the : (to avoid matching Windows paths like C:\)
+            if !before_colon.contains('/')
+                && before_colon
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '-' || c == '.')
+                && before_colon
+                    .chars()
+                    .next()
+                    .is_some_and(|c| c.is_ascii_alphabetic())
+            {
+                return None;
+            }
+        }
+
+        // Split anchor from path (e.g., "file.md#section" -> ("file.md", Some("#section")))
+        let (path, anchor) = match target.find('#') {
+            Some(pos) => (&target[..pos], Some(&target[pos..])),
+            None => (target, None),
+        };
+
+        // Split query string (e.g., "file.md?v=1" -> ("file.md", Some("?v=1")))
+        let (path, query) = match path.find('?') {
+            Some(pos) => (&path[..pos], Some(&path[pos..])),
+            None => (path, None),
+        };
+
+        // Skip if path is empty (pure anchor or query)
+        if path.is_empty() {
+            return None;
+        }
+
+        // Convert file path to route
+        let route = self.file_path_to_route(path);
+
+        // Only rewrite if the route exists in the site
+        // This prevents breaking links to static assets (PDFs, images, etc.)
+        if !self.routes.contains(&route) {
+            return None;
+        }
+
+        // Reconstruct with query and anchor
+        let mut result = route;
+        if let Some(q) = query {
+            result.push_str(q);
+        }
+        if let Some(a) = anchor {
+            result.push_str(a);
+        }
+
+        Some(result)
+    }
+
+    /// Convert a file path to a route
+    fn file_path_to_route(&self, path: &str) -> String {
+        // Handle absolute paths (start with /)
+        let (is_absolute, path) = if let Some(stripped) = path.strip_prefix('/') {
+            (true, stripped)
+        } else {
+            (false, path)
+        };
+
+        // Get path without extension
+        let path_obj = Path::new(path);
+        let without_ext = path_obj
+            .file_stem()
+            .map(|s| {
+                let parent = path_obj.parent().and_then(|p| p.to_str()).unwrap_or("");
+                if parent.is_empty() {
+                    s.to_string_lossy().to_string()
+                } else {
+                    format!("{}/{}", parent, s.to_string_lossy())
+                }
+            })
+            .unwrap_or_else(|| path.to_string());
+
+        // Check for index files
+        let stem = path_obj.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+        let is_index = matches!(stem, "index" | "main" | "README");
+
+        // Build route
+        let route = if is_absolute {
+            if is_index {
+                let parent = Path::new(&without_ext)
+                    .parent()
+                    .and_then(|p| p.to_str())
+                    .unwrap_or("");
+                format!("/{}/", parent.trim_end_matches('/'))
+            } else {
+                format!("/{}/", without_ext)
+            }
+        } else {
+            // Resolve relative to current route
+            // Routes like /docs/ represent /docs/index.html, so relative links
+            // should be resolved against /docs/, not its parent /
+            let base = self.current_route.trim_matches('/');
+
+            // Handle ../ navigation
+            let resolved = resolve_relative_path(base, &without_ext);
+
+            if is_index {
+                let parent = Path::new(&resolved)
+                    .parent()
+                    .and_then(|p| p.to_str())
+                    .unwrap_or("");
+                format!("/{}/", parent.trim_matches('/'))
+            } else {
+                format!("/{}/", resolved.trim_matches('/'))
+            }
+        };
+
+        // Normalize double slashes
+        route.replace("//", "/")
+    }
+}
+
+impl VisitorMut for LinkRewriter {
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
+        if let Inline::Link(link) = inline
+            && let Some(new_target) = self.transform_target(&link.target)
+        {
+            link.target = new_target;
+        }
+        WalkControl::Continue
+    }
+}
+
+/// Resolve a relative path against a base path, handling ../ segments
+fn resolve_relative_path(base: &str, relative: &str) -> String {
+    let mut segments: Vec<&str> = base.split('/').filter(|s| !s.is_empty()).collect();
+
+    for part in relative.split('/') {
+        match part {
+            ".." => {
+                segments.pop();
+            }
+            "." | "" => {}
+            _ => segments.push(part),
+        }
+    }
+
+    segments.join("/")
+}
+
+/// Apply link rewriting to a document node
+pub fn rewrite_links<T: WalkNode>(node: &mut T, current_route: &str, routes: &[RouteEntry]) {
+    let mut rewriter = LinkRewriter::new(current_route, routes);
+    node.walk_mut(&mut rewriter);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_routes(routes: &[&str]) -> Vec<RouteEntry> {
+        routes
+            .iter()
+            .map(|r| RouteEntry {
+                route: r.to_string(),
+                route_type: crate::RouteType::File,
+                target: String::new(),
+                source_path: None,
+                spread_count: None,
+                spread_arguments: None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn test_transform_target_skips_urls() {
+        let routes = make_routes(&["/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        // Common URL schemes
+        assert_eq!(rewriter.transform_target("https://example.com"), None);
+        assert_eq!(rewriter.transform_target("http://example.com"), None);
+        assert_eq!(rewriter.transform_target("data:image/png;base64,abc"), None);
+        assert_eq!(rewriter.transform_target("mailto:test@example.com"), None);
+        assert_eq!(rewriter.transform_target("tel:+1234567890"), None);
+
+        // Other URI schemes
+        assert_eq!(rewriter.transform_target("ftp://files.example.com"), None);
+        assert_eq!(rewriter.transform_target("ws://socket.example.com"), None);
+        assert_eq!(rewriter.transform_target("wss://socket.example.com"), None);
+        assert_eq!(rewriter.transform_target("file:///path/to/file"), None);
+        assert_eq!(rewriter.transform_target("javascript:void(0)"), None);
+
+        // Protocol-relative URLs
+        assert_eq!(rewriter.transform_target("//cdn.example.com/lib.js"), None);
+
+        // Internal anchors
+        assert_eq!(rewriter.transform_target("#section"), None);
+    }
+
+    #[test]
+    fn test_transform_skips_static_assets() {
+        // Static assets that don't map to routes should be left unchanged
+        let routes = make_routes(&["/", "/docs/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        // These files don't have corresponding routes, so should return None
+        assert_eq!(rewriter.transform_target("document.pdf"), None);
+        assert_eq!(rewriter.transform_target("image.png"), None);
+        assert_eq!(rewriter.transform_target("assets/logo.svg"), None);
+        assert_eq!(rewriter.transform_target("downloads/report.xlsx"), None);
+    }
+
+    #[test]
+    fn test_transform_simple_relative() {
+        let routes = make_routes(&["/", "/other/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("other.md"),
+            Some("/other/".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_with_anchor() {
+        let routes = make_routes(&["/", "/other/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("other.md#section"),
+            Some("/other/#section".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_with_query() {
+        let routes = make_routes(&["/", "/other/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("other.md?v=1"),
+            Some("/other/?v=1".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_with_query_and_anchor() {
+        let routes = make_routes(&["/", "/other/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("other.md?v=1#section"),
+            Some("/other/?v=1#section".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_nested_relative() {
+        let routes = make_routes(&["/", "/docs/", "/docs/guide/"]);
+        let rewriter = LinkRewriter::new("/docs/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("guide.md"),
+            Some("/docs/guide/".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_parent_relative() {
+        // Include /docs/other/ as a valid route for the parent-relative link to resolve to
+        let routes = make_routes(&["/", "/docs/", "/docs/guide/", "/docs/other/"]);
+        let rewriter = LinkRewriter::new("/docs/guide/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("../other.md"),
+            Some("/docs/other/".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_parent_relative_nonexistent() {
+        // If the parent-relative path doesn't map to a known route, leave unchanged
+        let routes = make_routes(&["/", "/docs/", "/docs/guide/"]);
+        let rewriter = LinkRewriter::new("/docs/guide/", &routes);
+
+        // ../nonexistent.md would resolve to /docs/nonexistent/ which doesn't exist
+        assert_eq!(rewriter.transform_target("../nonexistent.md"), None);
+    }
+
+    #[test]
+    fn test_transform_absolute() {
+        let routes = make_routes(&["/", "/docs/", "/docs/guide/"]);
+        let rewriter = LinkRewriter::new("/other/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("/docs/guide.md"),
+            Some("/docs/guide/".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_index_file() {
+        let routes = make_routes(&["/", "/docs/"]);
+        let rewriter = LinkRewriter::new("/", &routes);
+
+        assert_eq!(
+            rewriter.transform_target("docs/index.md"),
+            Some("/docs/".to_string())
+        );
+        assert_eq!(
+            rewriter.transform_target("docs/README.md"),
+            Some("/docs/".to_string())
+        );
+        assert_eq!(
+            rewriter.transform_target("docs/main.md"),
+            Some("/docs/".to_string())
+        );
+    }
+
+    #[test]
+    fn test_resolve_relative_path() {
+        assert_eq!(resolve_relative_path("docs", "guide"), "docs/guide");
+        assert_eq!(
+            resolve_relative_path("docs/guide", "../other"),
+            "docs/other"
+        );
+        assert_eq!(resolve_relative_path("docs/guide", "../../root"), "root");
+        assert_eq!(resolve_relative_path("", "guide"), "guide");
+        assert_eq!(resolve_relative_path("docs", "./guide"), "docs/guide");
+    }
+}
