@@ -623,6 +623,78 @@ fn filter_nav_items_recursive(
 }
 
 // =============================================================================
+// Depth Limiting
+// =============================================================================
+
+/// Apply depth limit to nav items, converting groups with no visible children to links
+///
+/// This function:
+/// - Limits the tree to the specified depth
+/// - Converts groups with no children (after depth limiting) to links if they have routes
+/// - Omits groups with no children and no route
+///
+/// This maintains behavioral equivalence with the previous auto-generation path which
+/// applied depth limiting during generation rather than at render time.
+pub(crate) fn apply_depth_limit(items: Vec<NavItem>, max_depth: Option<u8>) -> Vec<NavItem> {
+    let Some(max_depth) = max_depth else {
+        return items;
+    };
+    apply_depth_limit_recursive(items, 1, max_depth)
+}
+
+fn apply_depth_limit_recursive(items: Vec<NavItem>, level: u8, max_depth: u8) -> Vec<NavItem> {
+    // If we're beyond max depth, return empty
+    if level > max_depth {
+        return Vec::new();
+    }
+
+    items
+        .into_iter()
+        .filter_map(|item| match item {
+            // Routes and Links pass through unchanged (they're leaf nodes)
+            NavItem::Route(_) | NavItem::Link { .. } => Some(item),
+            NavItem::Group {
+                id,
+                label,
+                route,
+                children,
+                icon,
+                section_title,
+            } => {
+                // Process children at next level
+                let filtered_children = if level >= max_depth {
+                    // At max depth, don't include children
+                    Vec::new()
+                } else {
+                    apply_depth_limit_recursive(children, level + 1, max_depth)
+                };
+
+                if filtered_children.is_empty() {
+                    // No children after depth limiting - convert to link if has route
+                    route.map(|r| NavItem::Link {
+                        id,
+                        label,
+                        route: r,
+                        icon,
+                        description: None,
+                    })
+                } else {
+                    // Has children, keep as group
+                    Some(NavItem::Group {
+                        id,
+                        label,
+                        route,
+                        children: filtered_children,
+                        icon,
+                        section_title,
+                    })
+                }
+            }
+        })
+        .collect()
+}
+
+// =============================================================================
 // Icon Resolution
 // =============================================================================
 

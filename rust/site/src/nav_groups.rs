@@ -6,7 +6,7 @@
 
 use stencila_config::{NavGroupsIcons, NavItem, SiteConfig};
 
-use crate::nav_common::{apply_icons, filter_nav_items, render_icon_span};
+use crate::nav_common::{apply_depth_limit, apply_icons, filter_nav_items, render_icon_span};
 
 /// Context for rendering nav groups
 pub(crate) struct NavGroupsContext<'a> {
@@ -40,13 +40,16 @@ pub(crate) fn render_nav_groups(
     // Apply filtering
     let nav_items = filter_nav_items(nav_items, include, exclude);
 
+    // Apply depth limit (converts empty groups to links or removes them)
+    let nav_items = apply_depth_limit(nav_items, Some(max_depth));
+
     // If no items, render empty component
     if nav_items.is_empty() {
         return "<stencila-nav-groups></stencila-nav-groups>".to_string();
     }
 
     // Render groups
-    let groups_html = render_groups(&nav_items, context.route, max_depth, &icons_mode);
+    let groups_html = render_groups(&nav_items, context.route, &icons_mode);
 
     format!(
         r#"<stencila-nav-groups><nav aria-label="Footer navigation"><div class="groups">{groups_html}</div></nav></stencila-nav-groups>"#
@@ -54,12 +57,7 @@ pub(crate) fn render_nav_groups(
 }
 
 /// Render navigation groups
-fn render_groups(
-    items: &[NavItem],
-    current_route: &str,
-    max_depth: u8,
-    icons_mode: &NavGroupsIcons,
-) -> String {
+fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIcons) -> String {
     let mut html = String::new();
 
     for item in items {
@@ -106,12 +104,8 @@ fn render_groups(
                     format!(r#"<h3 class="group-heading">{label}</h3>"#)
                 };
 
-                // Render children as links (respecting depth limit)
-                let links_html = if max_depth > 1 {
-                    render_links(children, current_route, 2, max_depth, icons_mode)
-                } else {
-                    String::new()
-                };
+                // Render children as links (depth already applied)
+                let links_html = render_links(children, current_route, icons_mode);
 
                 html.push_str(&format!(
                     r#"<div class="group">{heading_html}<ul class="group-links">{links_html}</ul></div>"#
@@ -124,18 +118,7 @@ fn render_groups(
 }
 
 /// Render navigation links (children of a group)
-fn render_links(
-    items: &[NavItem],
-    current_route: &str,
-    level: u8,
-    max_depth: u8,
-    icons_mode: &NavGroupsIcons,
-) -> String {
-    // Check depth limit
-    if level > max_depth {
-        return String::new();
-    }
-
+fn render_links(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIcons) -> String {
     let mut html = String::new();
 
     for item in items {
@@ -159,6 +142,7 @@ fn render_links(
                 ));
             }
             // Nested groups: render as a link if they have a route, otherwise skip
+            // Note: After apply_depth_limit, groups with empty children are already converted to links
             NavItem::Group { label, route, .. } => {
                 if let Some(group_route) = route {
                     let is_active = group_route == current_route;

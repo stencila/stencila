@@ -11,8 +11,8 @@ use stencila_config::{
 };
 
 use crate::nav_common::{
-    apply_descriptions, apply_icons, filter_nav_items, label_to_segment, normalize_icon_name,
-    render_icon_span, route_to_label,
+    apply_depth_limit, apply_descriptions, apply_icons, filter_nav_items, label_to_segment,
+    normalize_icon_name, render_icon_span, route_to_label,
 };
 
 /// Context for rendering navigation components
@@ -54,15 +54,8 @@ pub(crate) fn render_nav_menu(
     // Apply filtering
     let nav_items = filter_nav_items(nav_items, include, exclude);
 
-    // Apply depth limit
-    let nav_items = if depth.is_some() {
-        limit_nav_depth(nav_items, 1, depth)
-    } else {
-        nav_items
-    };
-
-    // Remove groups with no route and no children (can occur after depth limiting)
-    let nav_items = remove_empty_groups(nav_items);
+    // Apply depth limit (converts empty groups to links or removes them)
+    let nav_items = apply_depth_limit(nav_items, *depth);
 
     // If no items, render empty component
     if nav_items.is_empty() {
@@ -87,86 +80,6 @@ pub(crate) fn render_nav_menu(
     format!(
         r#"<stencila-nav-menu{attrs}><nav aria-label="Main navigation"><ul class="list">{items_html}</ul></nav></stencila-nav-menu>"#
     )
-}
-
-/// Limit nav items to a maximum depth
-pub(crate) fn limit_nav_depth(
-    items: Vec<NavItem>,
-    current_level: u8,
-    max_depth: &Option<u8>,
-) -> Vec<NavItem> {
-    let Some(max) = max_depth else {
-        return items;
-    };
-
-    if current_level > *max {
-        return Vec::new();
-    }
-
-    items
-        .into_iter()
-        .map(|item| match item {
-            NavItem::Group {
-                id,
-                label,
-                route,
-                children,
-                icon,
-                section_title,
-            } => {
-                let limited_children = if current_level < *max {
-                    limit_nav_depth(children, current_level + 1, max_depth)
-                } else {
-                    Vec::new()
-                };
-                NavItem::Group {
-                    id,
-                    label,
-                    route,
-                    children: limited_children,
-                    icon,
-                    section_title,
-                }
-            }
-            other => other,
-        })
-        .collect()
-}
-
-/// Remove groups that have no route and no children
-/// These can occur after depth limiting or filtering
-pub(crate) fn remove_empty_groups(items: Vec<NavItem>) -> Vec<NavItem> {
-    items
-        .into_iter()
-        .filter_map(|item| match item {
-            NavItem::Group {
-                id,
-                label,
-                route,
-                children,
-                icon,
-                section_title,
-            } => {
-                // Recursively remove empty groups from children
-                let filtered_children = remove_empty_groups(children);
-
-                // Keep group only if it has a route OR has children
-                if route.is_some() || !filtered_children.is_empty() {
-                    Some(NavItem::Group {
-                        id,
-                        label,
-                        route,
-                        children: filtered_children,
-                        icon,
-                        section_title,
-                    })
-                } else {
-                    None
-                }
-            }
-            other => Some(other),
-        })
-        .collect()
 }
 
 /// Render nav menu items (top-level horizontal bar)

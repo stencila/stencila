@@ -5,7 +5,7 @@
 
 use stencila_config::{NavItem, NavTreeExpanded, NavTreeIcons, SiteConfig};
 
-use crate::nav_common::{apply_icons, filter_nav_items, render_icon_span};
+use crate::nav_common::{apply_depth_limit, apply_icons, filter_nav_items, render_icon_span};
 
 /// Context for rendering the nav tree
 pub(crate) struct NavTreeContext<'a> {
@@ -46,6 +46,9 @@ pub(crate) fn render_nav_tree(
     // Apply filtering
     let nav_items = filter_nav_items(nav_items, include, exclude);
 
+    // Apply depth limit (converts empty groups to links or removes them)
+    let nav_items = apply_depth_limit(nav_items, *depth);
+
     // If no items, render empty component
     if nav_items.is_empty() {
         return "<stencila-nav-tree></stencila-nav-tree>".to_string();
@@ -62,7 +65,6 @@ pub(crate) fn render_nav_tree(
         &nav_items,
         context.route,
         1,
-        depth,
         &expanded,
         collapsible,
         "",
@@ -85,19 +87,11 @@ fn render_nav_items(
     items: &[NavItem],
     current_route: &str,
     level: u8,
-    max_depth: &Option<u8>,
     expanded: &NavTreeExpanded,
     collapsible: bool,
     parent_id: &str,
     icons_mode: &NavTreeIcons,
 ) -> String {
-    // Check depth limit
-    if let Some(max) = max_depth
-        && level > *max
-    {
-        return String::new();
-    }
-
     let mut html = String::new();
 
     for (index, item) in items.iter().enumerate() {
@@ -187,7 +181,6 @@ fn render_nav_items(
                     children,
                     current_route,
                     level + 1,
-                    max_depth,
                     expanded,
                     collapsible,
                     &group_id,
