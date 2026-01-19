@@ -7,6 +7,7 @@ ifdef CI
 else
 	cd .. && npm install --ignore-scripts
 endif
+	node scripts/patch-vega.js
 	make -C ../ts build
 
 # Make formatting and linting fixes
