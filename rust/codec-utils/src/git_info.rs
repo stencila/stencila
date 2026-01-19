@@ -8,9 +8,41 @@ use eyre::{OptionExt, Result, bail};
 use reqwest::Url;
 use sha2::{Digest, Sha256};
 
+/// Repository-level git information (not file-specific)
+///
+/// Unlike `GitInfo`, this only contains repo-level data that can be
+/// computed once and reused for multiple files in the same repo.
+#[derive(Debug, Clone, Default)]
+pub struct GitRepoInfo {
+    /// The root directory of the git repository
+    pub root: Option<PathBuf>,
+
+    /// The remote origin URL (normalized)
+    pub origin: Option<String>,
+
+    /// The current branch name (if on a branch)
+    pub branch: Option<String>,
+}
+
+/// Get repository-level git info for a path
+///
+/// This is a lightweight alternative to `git_info()` that only retrieves
+/// repo-level information (root, origin, branch) without file-specific
+/// checks (tracked/dirty/commit). Use this when you need the same info
+/// for multiple files in the same repo.
+pub fn git_repo_info(path: &Path) -> Result<GitRepoInfo> {
+    let repo_root = closest_git_repo(path)?;
+
+    Ok(GitRepoInfo {
+        origin: get_origin(&repo_root),
+        branch: get_current_branch(Some(&repo_root)),
+        root: Some(repo_root),
+    })
+}
+
 /// Information about a file within a Git repository
 #[derive(Debug, Clone)]
-pub struct GitInfo {
+pub struct GitFileInfo {
     /// The remote origin URL of the repository
     pub origin: Option<String>,
 
@@ -28,16 +60,16 @@ pub struct GitInfo {
 ///
 /// # Returns
 ///
-/// * If `path` is not in a Git repo → `GitInfo` with all `None` values
-/// * If `git` is not available  → `GitInfo` with relative_path only
-/// * If the file is untracked → `GitInfo` with relative_path and commit="untracked"
-/// * If the file is dirty → `GitInfo` with relative_path and commit="dirty"
-/// * Otherwise → `GitInfo` with origin, relative_path, and commit SHA
-pub fn git_info(path: &Path) -> Result<GitInfo> {
+/// * If `path` is not in a Git repo → `GitFileInfo` with all `None` values
+/// * If `git` is not available  → `GitFileInfo` with relative_path only
+/// * If the file is untracked → `GitFileInfo` with relative_path and commit="untracked"
+/// * If the file is dirty → `GitFileInfo` with relative_path and commit="dirty"
+/// * Otherwise → `GitFileInfo` with origin, relative_path, and commit SHA
+pub fn git_file_info(path: &Path) -> Result<GitFileInfo> {
     let path = path.canonicalize()?;
 
     let Ok(repo_root) = closest_git_repo(&path) else {
-        return Ok(GitInfo {
+        return Ok(GitFileInfo {
             origin: None,
             path: None,
             commit: None,
@@ -52,7 +84,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
 
     // Is git available?
     if which::which("git").is_err() {
-        return Ok(GitInfo {
+        return Ok(GitFileInfo {
             origin: None,
             path: Some(relative_path),
             commit: None,
@@ -71,7 +103,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
         .success();
 
     if !tracked {
-        return Ok(GitInfo {
+        return Ok(GitFileInfo {
             origin: get_origin(&repo_root),
             path: Some(relative_path),
             commit: Some("untracked".into()),
@@ -90,7 +122,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
         .is_empty();
 
     if !clean {
-        return Ok(GitInfo {
+        return Ok(GitFileInfo {
             origin: get_origin(&repo_root),
             path: Some(relative_path),
             commit: Some("dirty".into()),
@@ -111,7 +143,7 @@ pub fn git_info(path: &Path) -> Result<GitInfo> {
 
     let commit = String::from_utf8(head_out.stdout)?.trim().to_string();
 
-    Ok(GitInfo {
+    Ok(GitFileInfo {
         origin: get_origin(&repo_root),
         path: Some(relative_path),
         commit: Some(commit),

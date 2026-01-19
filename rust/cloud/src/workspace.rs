@@ -176,8 +176,8 @@ pub async fn ensure_workspace(path: &Path) -> Result<(String, bool)> {
     }
 
     // Need to create - derive GitHub URL from git remote
-    let git = stencila_codec_utils::git_info(path)?;
-    let github_url = git.origin.ok_or_else(|| {
+    let git_repo_info = stencila_codec_utils::git_repo_info(path)?;
+    let github_url = git_repo_info.origin.ok_or_else(|| {
         eyre!("No git origin remote found. A git repository with an origin is required to create a workspace.")
     })?;
 

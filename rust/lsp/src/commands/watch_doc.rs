@@ -9,7 +9,7 @@ use reqwest::Url;
 use serde_json::{Value, json};
 
 use stencila_cloud::{WatchRequest, create_watch};
-use stencila_codec_utils::{git_info, validate_file_on_default_branch};
+use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 use stencila_remotes::RemoteService;
 
 use super::{internal_error, invalid_request, path_buf_arg, progress::create_progress};
@@ -61,7 +61,7 @@ pub(crate) async fn watch_doc(
     }
 
     // Get git repository information
-    let git_info = match git_info(&path) {
+    let git_file_info = match git_file_info(&path) {
         Ok(info) => info,
         Err(error) => {
             progress.send((100, None)).ok();
@@ -203,7 +203,7 @@ pub(crate) async fn watch_doc(
     }
 
     // Get file path relative to repo root
-    let file_path = git_info.path.unwrap_or_else(|| {
+    let file_path = git_file_info.path.unwrap_or_else(|| {
         path.file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("unknown")

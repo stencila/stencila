@@ -5,7 +5,6 @@
 
 use std::path::Path;
 
-use stencila_codec_utils::{get_current_branch, git_info};
 use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
     EditOnService, EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec,
@@ -27,6 +26,9 @@ pub(crate) struct RenderContext<'a> {
     pub routes: &'a [RouteEntry],
     pub nav_items: &'a Vec<NavItem>,
     pub workspace_id: Option<&'a str>,
+    pub git_repo_root: Option<&'a Path>,
+    pub git_origin: Option<&'a str>,
+    pub git_branch: Option<&'a str>,
 }
 
 /// Render a Stencila site layout for a specific route
@@ -38,6 +40,9 @@ pub(crate) struct RenderContext<'a> {
 /// * `routes` - All document routes for prev/next navigation etc
 /// * `nav_items` - Nav items (either from site.nav config or auto-generated once)
 /// * `workspace_id` - Optional workspace ID from config
+/// * `git_repo_root` - Optional git repository root (for edit-source/edit-on)
+/// * `git_origin` - Optional git remote origin URL (for edit-source)
+/// * `git_branch` - Optional current git branch name (for edit-source)
 pub(crate) fn render_layout(
     site_config: &SiteConfig,
     site_root: &Path,
@@ -45,6 +50,9 @@ pub(crate) fn render_layout(
     routes: &[RouteEntry],
     nav_items: &Vec<NavItem>,
     workspace_id: Option<&str>,
+    git_repo_root: Option<&Path>,
+    git_origin: Option<&str>,
+    git_branch: Option<&str>,
 ) -> String {
     let context = RenderContext {
         site_config,
@@ -53,6 +61,9 @@ pub(crate) fn render_layout(
         routes,
         nav_items,
         workspace_id,
+        git_repo_root,
+        git_origin,
+        git_branch,
     };
 
     // Resolve the config for the route
@@ -872,14 +883,17 @@ fn render_edit_source(
         return String::new();
     };
 
-    // Get git info (origin + repo-relative path)
-    let Ok(info) = git_info(source_path) else {
-        // Hide: not in a git repo or git error
+    // Get the repo-relative file path using cached git repo root
+    let Some(repo_root) = context.git_repo_root else {
+        // Hide: not in a git repo
         return String::new();
     };
-
-    // Get the repo-relative file path
-    let Some(relative_path) = info.path else {
+    let relative_path = source_path
+        .strip_prefix(repo_root)
+        .ok()
+        .and_then(|p| p.to_str())
+        .map(|s| s.to_string());
+    let Some(relative_path) = relative_path else {
         // Hide: couldn't determine relative path
         return String::new();
     };
@@ -897,24 +911,24 @@ fn render_edit_source(
         );
         (url, None)
     } else {
-        // Auto-detect from origin
-        let Some(origin) = info.origin else {
+        // Auto-detect from origin using cached git origin
+        let Some(origin) = context.git_origin else {
             // Hide: no git origin
             return String::new();
         };
 
-        let Some(platform) = EditPlatform::from_origin(&origin) else {
+        let Some(platform) = EditPlatform::from_origin(origin) else {
             // Hide: unsupported host
             return String::new();
         };
 
-        // Determine branch: config > auto-detect > "main"
+        // Determine branch: config > cached git branch > "main"
         let branch_name = branch
             .clone()
-            .or_else(|| get_current_branch(Some(source_path)))
+            .or_else(|| context.git_branch.map(String::from))
             .unwrap_or_else(|| "main".to_string());
 
-        let url = platform.edit_url(&origin, &branch_name, &file_path);
+        let url = platform.edit_url(origin, &branch_name, &file_path);
         (url, Some(platform))
     };
 
@@ -1022,12 +1036,16 @@ fn render_edit_on(
         return String::new();
     };
 
-    // Get git info to get repo-relative path
-    let Ok(info) = git_info(source_path) else {
+    // Get repo-relative path using cached git repo root
+    let Some(repo_root) = context.git_repo_root else {
         return String::new();
     };
-
-    let Some(relative_path) = info.path else {
+    let relative_path = source_path
+        .strip_prefix(repo_root)
+        .ok()
+        .and_then(|p| p.to_str())
+        .map(|s| s.to_string());
+    let Some(relative_path) = relative_path else {
         return String::new();
     };
 

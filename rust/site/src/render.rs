@@ -20,6 +20,7 @@ use tokio::{
 use stencila_codec::{EncodeOptions, stencila_schema::Node};
 use stencila_codec_info::Shifter;
 use stencila_codec_markdown::to_markdown;
+use stencila_codec_utils::git_repo_info;
 use stencila_codecs::to_string_with_info;
 use stencila_config::{NavItem, RedirectStatus, SiteConfig, SiteFormat};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
@@ -229,6 +230,12 @@ where
     // Get site configuration (used for all document routes)
     let site_config = config.site.unwrap_or_default();
 
+    // Compute git repo info once (used for edit-source/edit-on components)
+    let git_info = git_repo_info(&site_root)?;
+    let git_repo_root = git_info.root.as_deref();
+    let git_origin = git_info.origin.as_deref();
+    let git_branch = git_info.branch.as_deref();
+
     // Build routes set once for link rewriting (avoid rebuilding for each document)
     let routes_set = build_routes_set(&document_routes);
 
@@ -302,6 +309,9 @@ where
                 &routes_set,
                 nav_items,
                 workspace_id.as_deref(),
+                git_repo_root,
+                git_origin,
+                git_branch,
             )
             .await
         }
@@ -401,6 +411,9 @@ async fn render_document_route(
     routes_set: &HashSet<String>,
     nav_items: &Vec<NavItem>,
     workspace_id: Option<&str>,
+    git_repo_root: Option<&Path>,
+    git_origin: Option<&str>,
+    git_branch: Option<&str>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -447,6 +460,9 @@ async fn render_document_route(
         routes,
         nav_items,
         workspace_id,
+        git_repo_root,
+        git_origin,
+        git_branch,
     );
 
     // Generate site body

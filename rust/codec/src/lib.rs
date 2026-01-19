@@ -16,7 +16,7 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
 };
 
-use stencila_codec_utils::git_info;
+use stencila_codec_utils::git_file_info;
 use stencila_format::Format;
 use stencila_node_strip::StripScope;
 use stencila_schema::{Article, Node};
@@ -266,10 +266,10 @@ pub trait Codec: Sync + Send {
         let (mut node, info) = self.from_file(&mut file, options).await?;
 
         if reproducible && let Node::Article(Article { options, .. }) = &mut node {
-            let git_info = git_info(path)?;
-            options.repository = git_info.origin;
-            options.path = git_info.path;
-            options.commit = git_info.commit;
+            let git_file_info = git_file_info(path)?;
+            options.repository = git_file_info.origin;
+            options.path = git_file_info.path;
+            options.commit = git_file_info.commit;
         }
 
         Ok((node, None, info))

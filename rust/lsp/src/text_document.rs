@@ -19,7 +19,7 @@ use tokio::{
     sync::{RwLock, mpsc, watch},
 };
 
-use stencila_codec_utils::git_info;
+use stencila_codec_utils::git_file_info;
 use stencila_codecs::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse, MessageLevel,
     Messages,
@@ -505,10 +505,10 @@ impl TextDocument {
 
         // If this is not done the documents generated from this one using convert and render
         // will not have info needed for proper merges.
-        if let Ok(git_info) = git_info(&path) {
-            root.options.repository = git_info.origin;
-            root.options.path = git_info.path;
-            root.options.commit = git_info.commit;
+        if let Ok(git_file_info) = git_file_info(&path) {
+            root.options.repository = git_file_info.origin;
+            root.options.path = git_file_info.path;
+            root.options.commit = git_file_info.commit;
         }
 
         let root = Node::Article(root);

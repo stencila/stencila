@@ -379,7 +379,7 @@ pub(crate) async fn push_doc(
     // Handle watch mode if requested
     if watch {
         use stencila_cloud::{WatchRequest, create_watch};
-        use stencila_codec_utils::{git_info, validate_file_on_default_branch};
+        use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 
         // Validate file is on default branch
         if let Err(error) = validate_file_on_default_branch(&path) {
@@ -392,7 +392,7 @@ pub(crate) async fn push_doc(
             // Don't fail the whole push, just skip watch
         } else {
             // Get git info
-            let git_info = match git_info(&path) {
+            let git_file_info = match git_file_info(&path) {
                 Ok(info) => info,
                 Err(error) => {
                     client
@@ -420,7 +420,7 @@ pub(crate) async fn push_doc(
                 }
             };
 
-            let file_path = git_info.path.unwrap_or_else(|| {
+            let file_path = git_file_info.path.unwrap_or_else(|| {
                 path.file_name()
                     .and_then(|n| n.to_str())
                     .unwrap_or("unknown")

@@ -21,7 +21,7 @@ use tokio::{
 use walkdir::WalkDir;
 
 use stencila_cloud::sites::{get_etags, reconcile_prefix, upload_file};
-use stencila_codec_utils::{get_current_branch, git_info, slugify_branch_name};
+use stencila_codec_utils::{get_current_branch, git_repo_info, slugify_branch_name};
 
 /// Result of an upload operation
 #[derive(Debug, Clone)]
@@ -252,7 +252,7 @@ pub async fn upload(
         send_progress!(UploadProgress::Reconciling);
 
         // Get repo URL for PR comments
-        let repo_url = git_info(source_dir)
+        let repo_url = git_repo_info(source_dir)
             .ok()
             .and_then(|info| info.origin)
             .unwrap_or_default();

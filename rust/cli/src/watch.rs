@@ -5,7 +5,7 @@ use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch, create_workspace_watch, ensure_workspace};
-use stencila_codec_utils::{git_info, validate_file_on_default_branch};
+use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 use stencila_config::{ConfigTarget, config_set, config_update_remote_watch};
 use stencila_remotes::{RemoteService, WatchDirection, WatchPrMode, get_remotes_for_path};
 use url::Url;
@@ -101,7 +101,7 @@ impl Cli {
         let (workspace_id, _) = ensure_workspace(path).await?;
 
         // Get git repository information
-        let git_info = git_info(path)?;
+        let git_file_info = git_file_info(path)?;
 
         let no_remotes = || {
             message!(
@@ -198,7 +198,7 @@ impl Cli {
         }
 
         // Get file path relative to repo root
-        let file_path = git_info.path.unwrap_or_else(|| {
+        let file_path = git_file_info.path.unwrap_or_else(|| {
             path.file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("unknown")

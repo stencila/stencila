@@ -13,7 +13,7 @@ use stencila_codec::{
 use stencila_codec_dom::DomCodec;
 use stencila_codec_latex::LatexCodec;
 use stencila_codec_markdown::MarkdownCodec;
-use stencila_codec_utils::git_info;
+use stencila_codec_utils::git_file_info;
 use stencila_convert::{clean_md, html_to_pdf, latex_to_pdf};
 use stencila_dirs::closest_artifacts_for;
 use stencila_models::{ModelMessage, ModelTask, perform_task};
@@ -232,10 +232,10 @@ impl Codec for PdfCodec {
 
         // Set source information, so that it refers to the PDF, not the temporary Markdown file
         if let Node::Article(Article { options, .. }) = &mut node {
-            let git_info = git_info(path)?;
-            options.repository = git_info.origin;
-            options.path = git_info.path;
-            options.commit = git_info.commit;
+            let git_file_info = git_file_info(path)?;
+            options.repository = git_file_info.origin;
+            options.path = git_file_info.path;
+            options.commit = git_file_info.commit;
         }
 
         Ok((node, orig, info))

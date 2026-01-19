@@ -15,7 +15,7 @@ use url::Url;
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
-use stencila_codec_utils::{git_info, validate_file_on_default_branch};
+use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 use stencila_codecs::PushResult;
 use stencila_dirs::closest_workspace_dir;
 use stencila_document::Document;
@@ -584,7 +584,7 @@ impl Cli {
             validate_file_on_default_branch(path)?;
 
             // Get git repository information
-            let git_info = git_info(path)?;
+            let git_file_info = git_file_info(path)?;
 
             // Ensure workspace exists to get workspace_id
             let (workspace_id, _) = stencila_cloud::ensure_workspace(path).await?;
@@ -595,7 +595,7 @@ impl Cli {
             };
 
             // Get file path relative to repo root
-            let file_path = git_info.path.unwrap_or_else(|| {
+            let file_path = git_file_info.path.unwrap_or_else(|| {
                 path.file_name()
                     .and_then(|n| n.to_str())
                     .unwrap_or("unknown")
