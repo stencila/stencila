@@ -1,0 +1,162 @@
+# Auto-generated navigation for CLI docs
+# Edit rust/cli-gen/src/groups.rs to change top-level grouping
+
+items:
+  - label: "Create & Setup"
+    children:
+      - "new"
+      - "init"
+      - name: "config"
+        children:
+          - "get"
+          - "set"
+          - "unset"
+          - "check"
+
+  - label: "Document Management"
+    children:
+      - "status"
+      - "move"
+      - "track"
+      - "untrack"
+      - "clean"
+
+  - label: "Format & Sync"
+    children:
+      - "convert"
+      - "merge"
+      - "sync"
+      - "push"
+      - "pull"
+      - "watch"
+      - "unwatch"
+
+  - label: "Processing"
+    children:
+      - "compile"
+      - "lint"
+      - "execute"
+      - "render"
+      - "query"
+
+  - label: "View & Publish"
+    children:
+      - "open"
+      - name: "publish"
+        children:
+          - "zenodo"
+          - "ghost"
+          - "stencila"
+      - "demo"
+
+  - label: "Resources"
+    children:
+      - name: "outputs"
+        children:
+          - "list"
+          - "add"
+          - "remove"
+          - "push"
+      - name: "db"
+        children:
+          - "new"
+          - "add"
+          - "remove"
+          - "query"
+          - "migrate"
+          - "migrations"
+      - name: "prompts"
+        children:
+          - "list"
+          - "show"
+          - "infer"
+          - "update"
+          - "reset"
+      - name: "models"
+        children:
+          - "list"
+          - "run"
+      - name: "kernels"
+        children:
+          - "list"
+          - "info"
+          - "packages"
+          - "execute"
+          - "evaluate"
+      - name: "linters"
+        children:
+          - "list"
+          - "lint"
+      - name: "formats"
+        children:
+          - "list"
+          - "structuring"
+      - name: "themes"
+        children:
+          - "list"
+          - "show"
+          - "new"
+          - "remove"
+      - name: "secrets"
+        children:
+          - "list"
+          - "set"
+          - "delete"
+      - name: "tools"
+        children:
+          - "list"
+          - "show"
+          - "install"
+          - "env"
+          - "run"
+
+  - label: "Server"
+    children:
+      - "serve"
+      - "snap"
+      - "lsp"
+
+  - label: "Cloud"
+    children:
+      - name: "cloud"
+        children:
+          - "status"
+          - "signin"
+          - "signout"
+          - "logs"
+      - name: "site"
+        children:
+          - "show"
+          - "list"
+          - "add"
+          - "remove"
+          - "render"
+          - "preview"
+          - "push"
+          - name: "access"
+            children:
+              - "team"
+              - "password"
+          - name: "reviews"
+            children:
+              - "on"
+              - "off"
+              - "config"
+          - name: "domain"
+            children:
+              - "set"
+              - "status"
+              - "clear"
+          - name: "branch"
+            children:
+              - "list"
+              - "delete"
+      - "signin"
+      - "signout"
+      - "logs"
+
+  - label: "Maintenance"
+    children:
+      - "upgrade"
+      - "uninstall"
+
