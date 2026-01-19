@@ -189,7 +189,7 @@ pub fn use_packages(latex: &str) -> String {
         packages.push("minted");
     }
     // caption/subcaption: captions outside floats & sub‐floats
-    if has(r"\captionof{") && !has_pkg("caption") {
+    if (has(r"\captionof{") || has(r"\captionsetup")) && !has_pkg("caption") {
         packages.push("caption");
     }
     if has(r"\begin{subfigure}") && !has_pkg("subcaption") {
@@ -219,6 +219,12 @@ pub fn use_packages(latex: &str) -> String {
     // subfiles: stand-alone sub-documents
     if has(r"\subfile{") && !has_pkg("subfiles") {
         packages.push("subfiles");
+    }
+    // siunitx: SI units (\si, \SI, \num, \unit, \qty, and unit macros like \meter, \micro, etc.)
+    if (has(r"\si{") || has(r"\SI{") || has(r"\num{") || has(r"\unit{") || has(r"\qty{"))
+        && !has_pkg("siunitx")
+    {
+        packages.push("siunitx");
     }
 
     // Build the final string
