@@ -39,8 +39,10 @@
     /* Font and Typography */
     --code-color: var(--text-color-primary);
     --code-color-dark: #e8e8e8;
+    --code-color-inline: inherit;
+    --code-color-inline-dark: inherit;
     --code-font-family: var(--font-family-mono);
-    --code-font-size-inline: var(--font-size-sm);
+    --code-font-size-inline: inherit;
     --code-font-size-block: var(--font-size-sm);
     --code-line-height: 150%;
 
@@ -210,6 +212,7 @@
     :root:not([data-color-scheme="light"]) {
         --code-theme: var(--code-theme-dark);
         --code-color: var(--code-color-dark);
+        --code-color-inline: var(--code-color-inline-dark);
         --code-background: var(--code-background-dark);
         --code-background-inline: var(--code-background-inline-dark);
         --code-border-color: var(--code-border-color-dark);
@@ -271,6 +274,7 @@
 :root[data-color-scheme="dark"] {
     --code-theme: var(--code-theme-dark);
     --code-color: var(--code-color-dark);
+    --code-color-inline: var(--code-color-inline-dark);
     --code-background: var(--code-background-dark);
     --code-background-inline: var(--code-background-inline-dark);
     --code-border-color: var(--code-border-color-dark);
@@ -333,7 +337,7 @@ stencila-code-inline {
         font-family: var(--code-font-family);
         font-size: var(--code-font-size-inline);
         line-height: var(--code-line-height);
-        color: var(--code-color);
+        color: var(--code-color-inline);
         background: var(--code-background-inline);
         padding: var(--code-padding-inline);
         border-radius: var(--code-border-radius);
