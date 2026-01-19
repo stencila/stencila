@@ -368,7 +368,18 @@ impl Status {
 }
 
 #[derive(
-    Debug, Default, Clone, PartialEq, Deserialize, Serialize, Display, JsonSchema, EnumIter,
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    Deserialize,
+    Serialize,
+    Display,
+    JsonSchema,
+    EnumIter,
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]

@@ -2,7 +2,6 @@
 
 use std::{
     collections::{BTreeSet, HashMap},
-    fs::read_dir,
     path::{Path, PathBuf},
 };
 
@@ -11,24 +10,17 @@ use futures::future::try_join_all;
 use inflector::Inflector;
 use itertools::Itertools;
 use strum::IntoEnumIterator;
-use tokio::fs::{create_dir_all, remove_dir_all, remove_file};
+use tokio::fs::{create_dir_all, remove_dir_all};
 
 use stencila_codecs::{CodecSupport, Format};
 use stencila_schema::{
-    Article, ArticleOptions, Block, Config, ConfigPublish, ConfigPublishGhost,
-    ConfigPublishGhostState, ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell,
-    shortcuts::*,
+    Article, ArticleOptions, Block, Inline, Node, NodeType, NoteType, TableCell, shortcuts::*,
 };
 
 use crate::{
     schema::{Category, Items, ProptestLevel, Schema, Status, Type},
     schemas::Schemas,
 };
-
-/// Markdown files that should not be generated
-///
-/// These files are manually written so should not be removed during cleanup.
-const HANDWRITTEN_FILES: &[&str] = &["README.md"];
 
 impl Schemas {
     /// Generate a Markdown file for each schema
@@ -43,56 +35,23 @@ impl Schemas {
         eprintln!("Generating documentation for types");
 
         // The top level destination for documentation
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../docs/reference/schema");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../site/docs/schema");
 
-        // Ensure it is present
-        if !dest.exists() {
-            create_dir_all(&dest).await?;
+        // Clean and recreate directory
+        if dest.exists() {
+            remove_dir_all(&dest).await?;
         }
+        create_dir_all(&dest).await?;
 
         let dest = dest
             .canonicalize()
             .context(format!("can not find directory `{}`", dest.display()))?;
 
-        // Ensure it is empty
-        for file in read_dir(&dest)?.flatten() {
-            let path = file.path();
-
-            let Some(name) = path.file_name() else {
-                continue;
-            };
-
-            if HANDWRITTEN_FILES.contains(&name.to_string_lossy().as_ref()) {
-                continue;
-            }
-
-            if path.is_file() {
-                remove_file(&path).await?
-            } else {
-                remove_dir_all(path).await?
-            }
-        }
-
-        // Ensure category folders are present
-        for category in Category::iter() {
-            create_dir_all(dest.join(category.to_string())).await?;
-        }
-
-        // Create a map of each schema title to it's documentation URL
-        // This is necessary because we usually only have access to the string title of a related schema
-        // and do not know the category that it is nested within
+        // Create a map of each schema title to its relative documentation URL
         let urls: HashMap<String, String> = self
             .schemas
             .keys()
-            .map(|title| {
-                (
-                    title.clone(),
-                    format!(
-                        "https://stencila.ghost.io/docs/reference/schema/{}",
-                        title.to_kebab_case()
-                    ),
-                )
-            })
+            .map(|title| (title.clone(), format!("./{}.md", title.to_kebab_case())))
             .collect();
 
         // Create a map of the children of each schema
@@ -117,8 +76,14 @@ impl Schemas {
             .map(|schema| docs_file(&dest, schema, &context));
         try_join_all(futures).await?;
 
-        // Create an index, grouped by category
-        // TODO
+        // Generate _nav.yaml grouped by category
+        let nav_content = generate_nav_yaml(&self.schemas);
+        tokio::fs::write(dest.join("_nav.yaml"), nav_content).await?;
+        eprintln!("Wrote navigation file");
+
+        // Generate index.md with overview
+        generate_index(&dest, &self.schemas).await?;
+        eprintln!("Wrote index file");
 
         Ok(())
     }
@@ -135,11 +100,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         bail!("Schema has no title");
     };
 
-    let path = dest.join(format!(
-        "{category}/{title}.md",
-        category = schema.category,
-        title = title.to_kebab_case()
-    ));
+    let path = dest.join(format!("{}.md", title.to_kebab_case()));
     if path.exists() {
         return Ok(title.to_string());
     }
@@ -157,28 +118,9 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
 
     let description = schema.description.clone();
 
-    let config = Some(Config {
-        publish: Some(ConfigPublish {
-            ghost: Some(ConfigPublishGhost {
-                r#type: Some(ConfigPublishGhostType::Post),
-                slug: Some(title.to_kebab_case()),
-                tags: Some(vec![
-                    "#doc".to_string(),
-                    "#schema".to_string(),
-                    schema.category.to_string().to_title_case(),
-                ]),
-                state: Some(ConfigPublishGhostState::Publish),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }),
-        ..Default::default()
-    });
-
     let frontmatter = serde_yaml::to_string(&serde_json::json!({
         "title": title,
-        "description": description,
-        "config": config
+        "description": description
     }))
     .map(|yaml| yaml.trim_end().to_string())
     .ok();
@@ -189,7 +131,6 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         content,
         options: Box::new(ArticleOptions {
             description,
-            config,
             ..Default::default()
         }),
         ..Default::default()
@@ -410,10 +351,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         };
 
         let name = format.name();
-        let name = td([lnk(
-            [t(name)],
-            format!("https://stencila.ghost.io/docs/reference/formats/{format}"),
-        )]);
+        let name = td([lnk([t(name)], format!("../formats/{format}.md"))]);
 
         fn codec_support(support: CodecSupport) -> TableCell {
             match support {
@@ -771,4 +709,85 @@ fn source(title: &str) -> Vec<Block> {
             t("."),
         ]),
     ]
+}
+
+/// Generate _nav.yaml content for schema documentation
+fn generate_nav_yaml(schemas: &std::collections::BTreeMap<String, Schema>) -> String {
+    let mut output = String::new();
+    output.push_str("# Auto-generated navigation for schema docs\n");
+    output.push_str("# Regenerate with: cargo run -p stencila-schema-gen\n\n");
+    output.push_str("items:\n");
+
+    // Group schemas by category
+    let mut by_category: HashMap<Category, Vec<&str>> = HashMap::new();
+    for (title, schema) in schemas {
+        by_category
+            .entry(schema.category)
+            .or_default()
+            .push(title.as_str());
+    }
+
+    // Write each category as a nav group (iterate in enum order)
+    for category in Category::iter() {
+        if let Some(titles) = by_category.get(&category) {
+            output.push_str(&format!(
+                "  - label: \"{}\"\n",
+                category.to_string().to_title_case()
+            ));
+            output.push_str("    children:\n");
+            for title in titles {
+                output.push_str(&format!("      - \"{}\"\n", title.to_kebab_case()));
+            }
+            output.push('\n');
+        }
+    }
+
+    output
+}
+
+/// Generate index.md for schema documentation
+async fn generate_index(
+    dest: &Path,
+    schemas: &std::collections::BTreeMap<String, Schema>,
+) -> Result<()> {
+    // Group by category for the index
+    let mut by_category: HashMap<Category, Vec<(&str, &Schema)>> = HashMap::new();
+    for (title, schema) in schemas {
+        by_category
+            .entry(schema.category)
+            .or_default()
+            .push((title.as_str(), schema));
+    }
+
+    let mut content = vec![p([t(
+        "Reference documentation for Stencila Schema types, organized by category.",
+    )])];
+
+    for category in Category::iter() {
+        if let Some(types) = by_category.get(&category) {
+            content.push(h2([t(category.to_string().to_title_case())]));
+
+            let items: Vec<_> = types
+                .iter()
+                .map(|(title, schema)| {
+                    let desc = schema.description.clone().unwrap_or_default();
+                    li([
+                        lnk([ci(*title)], format!("./{}.md", title.to_kebab_case())),
+                        t(format!(" - {desc}")),
+                    ])
+                })
+                .collect();
+            content.push(ul(items));
+        }
+    }
+
+    let article = Article {
+        title: Some(vec![t("Stencila Schema")]),
+        content,
+        ..Default::default()
+    };
+
+    stencila_codecs::to_path(&Node::Article(article), &dest.join("index.md"), None).await?;
+
+    Ok(())
 }
