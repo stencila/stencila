@@ -493,8 +493,72 @@ fn wrap_island_envs(
     Ok(output)
 }
 
+/// Segment LaTeX into comment and non-comment regions
+///
+/// Returns a vector of (is_comment, content) tuples where adjacent comment
+/// lines are grouped together.
+fn segment_by_comments(latex: &str) -> Vec<(bool, String)> {
+    let mut segments = Vec::new();
+    let mut current_is_comment = false;
+    let mut current_content = String::new();
+
+    for line in latex.lines() {
+        let is_comment = line.trim_start().starts_with('%');
+
+        if segments.is_empty() && current_content.is_empty() {
+            current_is_comment = is_comment;
+        }
+
+        if is_comment == current_is_comment {
+            if !current_content.is_empty() {
+                current_content.push('\n');
+            }
+            current_content.push_str(line);
+        } else {
+            if !current_content.is_empty() {
+                segments.push((current_is_comment, current_content));
+            }
+            current_content = line.to_string();
+            current_is_comment = is_comment;
+        }
+    }
+
+    if !current_content.is_empty() {
+        segments.push((current_is_comment, current_content));
+    }
+
+    // Preserve trailing newline if the original input had one
+    if latex.ends_with('\n') {
+        if let Some((_, last)) = segments.last_mut() {
+            last.push('\n');
+        }
+    }
+
+    segments
+}
+
 /// Decode LaTeX into a vector of "coarse" [`Block`]s
 fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
+    let mut blocks = Vec::new();
+
+    for (is_comment, segment) in segment_by_comments(latex) {
+        if is_comment {
+            // Comment lines go directly into a RawBlock without regex matching
+            blocks.push(Block::RawBlock(RawBlock::new(
+                Format::Latex.to_string(),
+                segment.into(),
+            )));
+        } else {
+            // Non-comment content is processed with regex matching
+            blocks.extend(process_latex_segment(&segment, island_style));
+        }
+    }
+
+    blocks
+}
+
+/// Process a non-comment LaTeX segment into blocks
+fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Block> {
     let mut blocks = Vec::new();
     let mut cursor = 0;
 
