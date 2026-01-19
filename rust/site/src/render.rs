@@ -21,12 +21,17 @@ use stencila_codec::{EncodeOptions, stencila_schema::Node};
 use stencila_codec_info::Shifter;
 use stencila_codec_markdown::to_markdown;
 use stencila_codecs::to_string_with_info;
-use stencila_config::{RedirectStatus, SiteConfig, SiteFormat};
+use stencila_config::{NavItem, RedirectStatus, SiteConfig, SiteFormat};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 use stencila_format::Format;
 
 use crate::{
-    RouteEntry, RouteType, glide::render_glide, layout::render_layout, links::rewrite_links, list,
+    RouteEntry, RouteType,
+    glide::render_glide,
+    layout::render_layout,
+    links::{build_routes_set, rewrite_links},
+    list,
+    nav_common::auto_generate_nav,
 };
 
 /// A document rendered to HTML
@@ -224,6 +229,19 @@ where
     // Get site configuration (used for all document routes)
     let site_config = config.site.unwrap_or_default();
 
+    // Build routes set once for link rewriting (avoid rebuilding for each document)
+    let routes_set = build_routes_set(&document_routes);
+
+    // Get or generate nav items once (avoid expensive auto-generation per document)
+    // If site.nav is configured, use it; otherwise auto-generate from routes
+    let generated_nav_items: Vec<NavItem>;
+    let nav_items: &Vec<NavItem> = if let Some(ref nav) = site_config.nav {
+        nav
+    } else {
+        generated_nav_items = auto_generate_nav(&document_routes, &None, Some(&site_root));
+        &generated_nav_items
+    };
+
     // Render all documents
     let mut docs_rendered: Vec<RenderedDocument> = Vec::new();
     let mut docs_failed: Vec<(PathBuf, String)> = Vec::new();
@@ -281,6 +299,8 @@ where
                 source_path,
                 output_dir,
                 &document_routes,
+                &routes_set,
+                nav_items,
                 workspace_id.as_deref(),
             )
             .await
@@ -378,6 +398,8 @@ async fn render_document_route(
     source_file: &Path,
     output_dir: &Path,
     routes: &[RouteEntry],
+    routes_set: &HashSet<String>,
+    nav_items: &Vec<NavItem>,
     workspace_id: Option<&str>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
@@ -415,10 +437,17 @@ async fn render_document_route(
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Rewrite file-based links to route-based links
-    rewrite_links(&mut node, &route, routes);
+    rewrite_links(&mut node, &route, routes_set);
 
     // Render layout for the route
-    let layout_html = render_layout(site_config, site_root, &route, routes, workspace_id);
+    let layout_html = render_layout(
+        site_config,
+        site_root,
+        &route,
+        routes,
+        nav_items,
+        workspace_id,
+    );
 
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");

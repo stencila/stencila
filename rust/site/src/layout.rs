@@ -25,6 +25,7 @@ pub(crate) struct RenderContext<'a> {
     pub site_root: &'a Path,
     pub route: &'a str,
     pub routes: &'a [RouteEntry],
+    pub nav_items: &'a Vec<NavItem>,
     pub workspace_id: Option<&'a str>,
 }
 
@@ -35,12 +36,14 @@ pub(crate) struct RenderContext<'a> {
 /// * `site_root` - Path to the site root directory
 /// * `route` - Current route being rendered
 /// * `routes` - All document routes for prev/next navigation etc
+/// * `nav_items` - Nav items (either from site.nav config or auto-generated once)
 /// * `workspace_id` - Optional workspace ID from config
 pub(crate) fn render_layout(
     site_config: &SiteConfig,
     site_root: &Path,
     route: &str,
     routes: &[RouteEntry],
+    nav_items: &Vec<NavItem>,
     workspace_id: Option<&str>,
 ) -> String {
     let context = RenderContext {
@@ -48,6 +51,7 @@ pub(crate) fn render_layout(
         site_root,
         route,
         routes,
+        nav_items,
         workspace_id,
     };
 
@@ -321,9 +325,8 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "nav-menu" => {
                 let menu_context = NavMenuContext {
                     site_config: context.site_config,
-                    site_root: context.site_root,
                     route: context.route,
-                    routes: context.routes,
+                    nav_items: context.nav_items,
                 };
                 nav_menu::render_nav_menu(
                     &None,
@@ -340,9 +343,8 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "nav-tree" => {
                 let tree_context = NavTreeContext {
                     site_config: context.site_config,
-                    site_root: context.site_root,
                     route: context.route,
-                    routes: context.routes,
+                    nav_items: context.nav_items,
                 };
                 nav_tree::render_nav_tree(
                     &None,
@@ -359,9 +361,8 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "nav-groups" => {
                 let groups_context = NavGroupsContext {
                     site_config: context.site_config,
-                    site_root: context.site_root,
                     route: context.route,
-                    routes: context.routes,
+                    nav_items: context.nav_items,
                 };
                 nav_groups::render_nav_groups(&None, &None, &None, &None, &groups_context)
             }
@@ -403,9 +404,8 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => {
             let menu_context = NavMenuContext {
                 site_config: context.site_config,
-                site_root: context.site_root,
                 route: context.route,
-                routes: context.routes,
+                nav_items: context.nav_items,
             };
             nav_menu::render_nav_menu(
                 include,
@@ -431,9 +431,8 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => {
             let tree_context = NavTreeContext {
                 site_config: context.site_config,
-                site_root: context.site_root,
                 route: context.route,
-                routes: context.routes,
+                nav_items: context.nav_items,
             };
             nav_tree::render_nav_tree(
                 title,
@@ -478,9 +477,8 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => {
             let groups_context = NavGroupsContext {
                 site_config: context.site_config,
-                site_root: context.site_root,
                 route: context.route,
-                routes: context.routes,
+                nav_items: context.nav_items,
             };
             nav_groups::render_nav_groups(include, exclude, depth, icons, &groups_context)
         }

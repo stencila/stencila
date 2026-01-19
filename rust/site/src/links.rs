@@ -9,19 +9,27 @@ use stencila_codec::stencila_schema::{Inline, VisitorMut, WalkControl, WalkNode}
 
 use crate::RouteEntry;
 
-/// Rewrites file-based link targets to route-based links for static site generation
-pub struct LinkRewriter {
-    /// Current document's route (e.g., "/docs/guide/")
-    current_route: String,
-    /// Set of valid routes in the site
-    routes: HashSet<String>,
+/// Build a HashSet of route strings from route entries.
+///
+/// This should be called once and the result reused across multiple documents
+/// to avoid repeated allocations.
+pub fn build_routes_set(routes: &[RouteEntry]) -> HashSet<String> {
+    routes.iter().map(|r| r.route.clone()).collect()
 }
 
-impl LinkRewriter {
-    pub fn new(current_route: &str, routes: &[RouteEntry]) -> Self {
+/// Rewrites file-based link targets to route-based links for static site generation
+pub struct LinkRewriter<'a> {
+    /// Current document's route (e.g., "/docs/guide/")
+    current_route: String,
+    /// Set of valid routes in the site (borrowed to avoid cloning)
+    routes: &'a HashSet<String>,
+}
+
+impl<'a> LinkRewriter<'a> {
+    pub fn new(current_route: &str, routes: &'a HashSet<String>) -> Self {
         Self {
             current_route: current_route.to_string(),
-            routes: routes.iter().map(|r| r.route.clone()).collect(),
+            routes,
         }
     }
 
@@ -157,7 +165,7 @@ impl LinkRewriter {
     }
 }
 
-impl VisitorMut for LinkRewriter {
+impl VisitorMut for LinkRewriter<'_> {
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::Link(link) = inline
             && let Some(new_target) = self.transform_target(&link.target)
@@ -186,8 +194,11 @@ fn resolve_relative_path(base: &str, relative: &str) -> String {
 }
 
 /// Apply link rewriting to a document node
-pub fn rewrite_links<T: WalkNode>(node: &mut T, current_route: &str, routes: &[RouteEntry]) {
-    let mut rewriter = LinkRewriter::new(current_route, routes);
+///
+/// The `routes_set` should be created once using `build_routes_set` and reused
+/// across multiple documents for better performance.
+pub fn rewrite_links<T: WalkNode>(node: &mut T, current_route: &str, routes_set: &HashSet<String>) {
+    let mut rewriter = LinkRewriter::new(current_route, routes_set);
     node.walk_mut(&mut rewriter);
 }
 
@@ -195,23 +206,13 @@ pub fn rewrite_links<T: WalkNode>(node: &mut T, current_route: &str, routes: &[R
 mod tests {
     use super::*;
 
-    fn make_routes(routes: &[&str]) -> Vec<RouteEntry> {
-        routes
-            .iter()
-            .map(|r| RouteEntry {
-                route: r.to_string(),
-                route_type: crate::RouteType::File,
-                target: String::new(),
-                source_path: None,
-                spread_count: None,
-                spread_arguments: None,
-            })
-            .collect()
+    fn make_routes_set(routes: &[&str]) -> HashSet<String> {
+        routes.iter().map(|r| r.to_string()).collect()
     }
 
     #[test]
     fn test_transform_target_skips_urls() {
-        let routes = make_routes(&["/"]);
+        let routes = make_routes_set(&["/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         // Common URL schemes
@@ -238,7 +239,7 @@ mod tests {
     #[test]
     fn test_transform_skips_static_assets() {
         // Static assets that don't map to routes should be left unchanged
-        let routes = make_routes(&["/", "/docs/"]);
+        let routes = make_routes_set(&["/", "/docs/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         // These files don't have corresponding routes, so should return None
@@ -250,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_transform_simple_relative() {
-        let routes = make_routes(&["/", "/other/"]);
+        let routes = make_routes_set(&["/", "/other/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         assert_eq!(
@@ -261,7 +262,7 @@ mod tests {
 
     #[test]
     fn test_transform_with_anchor() {
-        let routes = make_routes(&["/", "/other/"]);
+        let routes = make_routes_set(&["/", "/other/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         assert_eq!(
@@ -272,7 +273,7 @@ mod tests {
 
     #[test]
     fn test_transform_with_query() {
-        let routes = make_routes(&["/", "/other/"]);
+        let routes = make_routes_set(&["/", "/other/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         assert_eq!(
@@ -283,7 +284,7 @@ mod tests {
 
     #[test]
     fn test_transform_with_query_and_anchor() {
-        let routes = make_routes(&["/", "/other/"]);
+        let routes = make_routes_set(&["/", "/other/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         assert_eq!(
@@ -294,7 +295,7 @@ mod tests {
 
     #[test]
     fn test_transform_nested_relative() {
-        let routes = make_routes(&["/", "/docs/", "/docs/guide/"]);
+        let routes = make_routes_set(&["/", "/docs/", "/docs/guide/"]);
         let rewriter = LinkRewriter::new("/docs/", &routes);
 
         assert_eq!(
@@ -306,7 +307,7 @@ mod tests {
     #[test]
     fn test_transform_parent_relative() {
         // Include /docs/other/ as a valid route for the parent-relative link to resolve to
-        let routes = make_routes(&["/", "/docs/", "/docs/guide/", "/docs/other/"]);
+        let routes = make_routes_set(&["/", "/docs/", "/docs/guide/", "/docs/other/"]);
         let rewriter = LinkRewriter::new("/docs/guide/", &routes);
 
         assert_eq!(
@@ -318,7 +319,7 @@ mod tests {
     #[test]
     fn test_transform_parent_relative_nonexistent() {
         // If the parent-relative path doesn't map to a known route, leave unchanged
-        let routes = make_routes(&["/", "/docs/", "/docs/guide/"]);
+        let routes = make_routes_set(&["/", "/docs/", "/docs/guide/"]);
         let rewriter = LinkRewriter::new("/docs/guide/", &routes);
 
         // ../nonexistent.md would resolve to /docs/nonexistent/ which doesn't exist
@@ -327,7 +328,7 @@ mod tests {
 
     #[test]
     fn test_transform_absolute() {
-        let routes = make_routes(&["/", "/docs/", "/docs/guide/"]);
+        let routes = make_routes_set(&["/", "/docs/", "/docs/guide/"]);
         let rewriter = LinkRewriter::new("/other/", &routes);
 
         assert_eq!(
@@ -338,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_transform_index_file() {
-        let routes = make_routes(&["/", "/docs/"]);
+        let routes = make_routes_set(&["/", "/docs/"]);
         let rewriter = LinkRewriter::new("/", &routes);
 
         assert_eq!(

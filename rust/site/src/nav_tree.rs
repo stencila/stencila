@@ -3,21 +3,15 @@
 //! Displays hierarchical site navigation from `site.nav` configuration.
 //! If `site.nav` is not specified, auto-generates navigation from routes.
 
-use std::path::Path;
-
 use stencila_config::{NavItem, NavTreeExpanded, NavTreeIcons, SiteConfig};
 
-use crate::{
-    RouteEntry,
-    nav_common::{apply_icons, auto_generate_nav, filter_nav_items, render_icon_span},
-};
+use crate::nav_common::{apply_icons, filter_nav_items, render_icon_span};
 
 /// Context for rendering the nav tree
 pub(crate) struct NavTreeContext<'a> {
     pub site_config: &'a SiteConfig,
-    pub site_root: &'a Path,
     pub route: &'a str,
-    pub routes: &'a [RouteEntry],
+    pub nav_items: &'a Vec<NavItem>,
 }
 
 /// Render a navigation tree component
@@ -39,12 +33,8 @@ pub(crate) fn render_nav_tree(
     let scroll_to_active = scroll_to_active.unwrap_or(true);
     let icons_mode = icons.unwrap_or_default();
 
-    // Resolve nav items: site.nav or auto-generated
-    let nav_items = context
-        .site_config
-        .nav
-        .clone()
-        .unwrap_or_else(|| auto_generate_nav(context.routes, depth, Some(context.site_root)));
+    // Clone nav items from context (already resolved from site.nav or auto-generated)
+    let nav_items = context.nav_items.clone();
 
     // Apply icons from site.icons if icons mode is Show
     let nav_items = if matches!(icons_mode, NavTreeIcons::Show) {

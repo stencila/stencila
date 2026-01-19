@@ -3,27 +3,23 @@
 //! Displays horizontal navigation with mega-dropdown panels on desktop
 //! and accordion-style menu on mobile.
 
-use std::{collections::HashMap, path::Path};
+use std::collections::HashMap;
 
 use stencila_config::{
     FeaturedContent, NavItem, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger,
     SiteConfig,
 };
 
-use crate::{
-    RouteEntry,
-    nav_common::{
-        apply_descriptions, apply_icons, auto_generate_nav, filter_nav_items, label_to_segment,
-        normalize_icon_name, render_icon_span, route_to_label,
-    },
+use crate::nav_common::{
+    apply_descriptions, apply_icons, filter_nav_items, label_to_segment, normalize_icon_name,
+    render_icon_span, route_to_label,
 };
 
 /// Context for rendering navigation components
 pub(crate) struct NavMenuContext<'a> {
     pub site_config: &'a SiteConfig,
-    pub site_root: &'a Path,
     pub route: &'a str,
-    pub routes: &'a [RouteEntry],
+    pub nav_items: &'a Vec<NavItem>,
 }
 
 /// Render a navigation menu component
@@ -46,12 +42,8 @@ pub(crate) fn render_nav_menu(
     let trigger = trigger.unwrap_or_default();
     let dropdown_style = dropdown_style.unwrap_or_default();
 
-    // Resolve nav items: site.nav or auto-generated
-    let nav_items = context
-        .site_config
-        .nav
-        .clone()
-        .unwrap_or_else(|| auto_generate_nav(context.routes, depth, Some(context.site_root)));
+    // Clone nav items from context (already resolved from site.nav or auto-generated)
+    let nav_items = context.nav_items.clone();
 
     // Apply icons from site.icons
     let nav_items = apply_icons(nav_items, &context.site_config.icons);
