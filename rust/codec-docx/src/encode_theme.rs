@@ -328,7 +328,7 @@ fn build_normal_style(vars: &BTreeMap<String, Value>) -> String {
 ///
 /// **Tokens Applied**:
 /// - `heading-font-family` → w:rFonts
-/// - `heading-color` → w:color
+/// - `heading-h{N}-color` → w:color (per-level color, cascades from `heading-color` via zone helpers)
 /// - `heading-font-size` with `heading-font-size-ratio` → w:sz (exponential scaling)
 /// - `heading-h{N}-font-weight` → w:b/w:bCs (if >= 600)
 /// - `heading-h{N}-font-style` → w:i/w:iCs (if "italic")
@@ -425,8 +425,9 @@ fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
 
     xml.push_str(&build_font_element(vars, "heading-font-family"));
 
-    // Color
-    if let Some(color) = get_color_hex(vars, "heading-color") {
+    // Color (per-level, cascades from heading-color via zone helpers)
+    let color_var = format!("heading-h{level}-color");
+    if let Some(color) = get_color_hex(vars, &color_var) {
         xml.push_str(&build_color_element(&color));
     }
 
@@ -469,7 +470,8 @@ fn build_heading_style(vars: &BTreeMap<String, Value>, level: u8) -> String {
 ///
 /// **CSS Tokens Source**: `web/src/themes/base/headings.css`
 ///
-/// Same tokens as `build_heading_style()` but applied as character-level formatting.
+/// Same tokens as `build_heading_style()` but applied as character-level formatting,
+/// including per-level colors (`heading-h{N}-color`).
 /// These linked character styles allow heading formatting to be applied to text runs
 /// within paragraphs without changing the paragraph style itself.
 fn build_heading_char_styles(vars: &BTreeMap<String, Value>) -> String {
@@ -496,7 +498,9 @@ fn build_heading_char_styles(vars: &BTreeMap<String, Value>) -> String {
 
         xml.push_str(&build_font_element(vars, "heading-font-family"));
 
-        if let Some(color) = get_color_hex(vars, "heading-color") {
+        // Color (per-level, cascades from heading-color via zone helpers)
+        let color_var = format!("heading-h{level}-color");
+        if let Some(color) = get_color_hex(vars, &color_var) {
             xml.push_str(&build_color_element(&color));
         }
 
@@ -1020,7 +1024,7 @@ fn build_abstract_style(vars: &BTreeMap<String, Value>) -> String {
 /// **Tokens Applied**:
 /// Currently uses the same tokens as Heading1 from `web/src/themes/base/headings.css`:
 /// - `heading-font-family` → w:rFonts
-/// - `heading-color` → w:color
+/// - `heading-h1-color` → w:color (per-level color for h1)
 /// - `heading-font-size` with `heading-font-size-ratio` → w:sz (base size, no exponential scaling)
 /// - `heading-h1-font-weight` → w:b/w:bCs (if >= 600)
 /// - `heading-h1-font-style` → w:i/w:iCs (if "italic")
@@ -1064,8 +1068,8 @@ fn build_abstract_title_style(vars: &BTreeMap<String, Value>) -> String {
     // Font family
     xml.push_str(&build_font_element(vars, "heading-font-family"));
 
-    // Color
-    if let Some(color) = get_color_hex(vars, "heading-color") {
+    // Color (uses h1-level color)
+    if let Some(color) = get_color_hex(vars, "heading-h1-color") {
         xml.push_str(&build_color_element(&color));
     }
 
@@ -1482,7 +1486,10 @@ mod tests {
         variables.insert("heading-font-family".to_string(), json!("Aptos"));
         variables.insert("heading-font-size".to_string(), json!(640.0)); // 32pt in twips
         variables.insert("heading-font-size-ratio".to_string(), json!(0.85));
-        variables.insert("heading-color".to_string(), json!("#0F4761"));
+        // Per-level heading colors (cascade: heading-color -> zone helpers -> per-level)
+        for level in 1..=9 {
+            variables.insert(format!("heading-h{level}-color"), json!("#0F4761"));
+        }
         variables.insert("code-font-family".to_string(), json!("Noto Sans Mono"));
         variables.insert("code-color".to_string(), json!("#333333"));
         variables.insert("link-color".to_string(), json!("#4F81BD"));
@@ -1547,7 +1554,10 @@ mod tests {
         variables.insert("heading-font-family".to_string(), json!("Arial"));
         variables.insert("heading-font-size".to_string(), json!(480.0));
         variables.insert("heading-font-size-ratio".to_string(), json!(0.9));
-        variables.insert("heading-color".to_string(), json!("#000000"));
+        // Per-level heading colors
+        for level in 1..=9 {
+            variables.insert(format!("heading-h{level}-color"), json!("#000000"));
+        }
 
         // Set backgrounds to transparent
         variables.insert(
@@ -1593,7 +1603,10 @@ mod tests {
         variables.insert("heading-font-family".to_string(), json!("Arial"));
         variables.insert("heading-font-size".to_string(), json!(480.0));
         variables.insert("heading-font-size-ratio".to_string(), json!(0.9));
-        variables.insert("heading-color".to_string(), json!("#000000"));
+        // Per-level heading colors
+        for level in 1..=9 {
+            variables.insert(format!("heading-h{level}-color"), json!("#000000"));
+        }
 
         // Set backgrounds to valid hex colors
         variables.insert("heading-h1-background-color".to_string(), json!("#F0F0F0"));

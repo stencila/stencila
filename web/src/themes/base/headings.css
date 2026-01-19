@@ -56,6 +56,18 @@
     --heading-color-dark: var(--text-color-primary);
     --heading-color-opacity-decrement: 0;
 
+    /* Zone-based color helpers - convenient for applying colors to upper (h1-h3) or lower (h4-h6) heading groups */
+    --heading-upper-color: var(--heading-color);
+    --heading-lower-color: var(--heading-color);
+
+    /* Per-level color overrides - enables different colors for each heading level */
+    --heading-h1-color: var(--heading-upper-color);
+    --heading-h2-color: var(--heading-upper-color);
+    --heading-h3-color: var(--heading-upper-color);
+    --heading-h4-color: var(--heading-lower-color);
+    --heading-h5-color: var(--heading-lower-color);
+    --heading-h6-color: var(--heading-lower-color);
+
     /* Heading numbering: "none" (default) or "decimal" for hierarchical numbering (1., 1.1., 1.1.1., etc.) */
     --heading-numbering: none;
 
@@ -244,7 +256,6 @@ stencila-heading {
 
         font-family: var(--heading-font-family);
         line-height: var(--heading-line-height);
-        color: var(--heading-color);
         margin-bottom: var(--heading-spacing-bottom);
     }
 
@@ -254,6 +265,7 @@ stencila-heading {
         font-style: var(--heading-h1-font-style);
         font-variant: var(--heading-h1-font-variant);
         letter-spacing: var(--heading-h1-letter-spacing);
+        color: var(--heading-h1-color);
         border-bottom: var(--heading-h1-border-width) var(--heading-h1-border-style) var(--heading-h1-border-color);
         background-color: var(--heading-h1-background-color);
         padding: var(--heading-h1-padding);
@@ -265,6 +277,7 @@ stencila-heading {
         font-style: var(--heading-h2-font-style);
         font-variant: var(--heading-h2-font-variant);
         letter-spacing: var(--heading-h2-letter-spacing);
+        color: var(--heading-h2-color);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 1);
         border-bottom: var(--heading-h2-border-width) var(--heading-h2-border-style) var(--heading-h2-border-color);
@@ -278,6 +291,7 @@ stencila-heading {
         font-style: var(--heading-h3-font-style);
         font-variant: var(--heading-h3-font-variant);
         letter-spacing: var(--heading-h3-letter-spacing);
+        color: var(--heading-h3-color);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 2);
         border-bottom: var(--heading-h3-border-width) var(--heading-h3-border-style) var(--heading-h3-border-color);
@@ -291,6 +305,7 @@ stencila-heading {
         font-style: var(--heading-h4-font-style);
         font-variant: var(--heading-h4-font-variant);
         letter-spacing: var(--heading-h4-letter-spacing);
+        color: var(--heading-h4-color);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 3);
         border-bottom: var(--heading-h4-border-width) var(--heading-h4-border-style) var(--heading-h4-border-color);
@@ -304,6 +319,7 @@ stencila-heading {
         font-style: var(--heading-h5-font-style);
         font-variant: var(--heading-h5-font-variant);
         letter-spacing: var(--heading-h5-letter-spacing);
+        color: var(--heading-h5-color);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 4);
         border-bottom: var(--heading-h5-border-width) var(--heading-h5-border-style) var(--heading-h5-border-color);
@@ -317,6 +333,7 @@ stencila-heading {
         font-style: var(--heading-h6-font-style);
         font-variant: var(--heading-h6-font-variant);
         letter-spacing: var(--heading-h6-letter-spacing);
+        color: var(--heading-h6-color);
         margin-bottom: calc(var(--heading-spacing-bottom) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
         opacity: calc(1 - var(--heading-color-opacity-decrement) * 5);
         border-bottom: var(--heading-h6-border-width) var(--heading-h6-border-style) var(--heading-h6-border-color);
