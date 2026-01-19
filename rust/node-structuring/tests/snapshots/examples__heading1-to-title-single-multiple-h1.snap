@@ -1,0 +1,105 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- heading1-to-title-single",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "First Section"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has multiple H1 headings, so the first H1 should NOT be extracted as a title."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Subsection"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Some content here."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Second Section"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is another H1 heading."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Another Subsection"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "More content here."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "heading1-to-title-single"
+  ]
+}

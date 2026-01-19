@@ -1,0 +1,101 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Document Title"
+      }
+    }
+  ],
+  "frontmatter": "structuring:\n- heading1-to-title-single",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has exactly one H1 heading and at least two other headings, so the H1 should be extracted as the document title."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Some introductory text here."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Description of methods used."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Results"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The findings are presented here."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "heading1-to-title-single"
+  ]
+}

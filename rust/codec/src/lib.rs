@@ -902,6 +902,15 @@ pub enum StructuringOperation {
     /// title headings are extracted.
     Heading1ToTitle,
 
+    /// Extract document title from a single level 1 heading (conservative)
+    ///
+    /// A more conservative version of Heading1ToTitle that only extracts
+    /// the title if there is exactly one H1 heading in the entire document
+    /// and at least two other headings (H2-H6), indicating proper document
+    /// structure. This prevents false positives in markdown documents where
+    /// H1s may be used for section divisions rather than document titles.
+    Heading1ToTitleSingle,
+
     /// Decrement all heading levels by 1 (H2→H1, H3→H2, etc.)
     ///
     /// Normalizes document structure when the original H1 was extracted as

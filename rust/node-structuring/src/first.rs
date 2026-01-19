@@ -24,7 +24,7 @@ use stencila_schema::{
 use stencila_schema::{Cord, CreativeWorkVariant, MathBlock, QuoteBlock, Table, WalkthroughStep};
 use stencila_schema_json::{JsonSchemaVariant, json_schema};
 
-use crate::{block_to_remove, inline_to_remove};
+use crate::{HeadingCounts, block_to_remove, inline_to_remove};
 
 /// First structuring walk
 ///
@@ -34,6 +34,9 @@ use crate::{block_to_remove, inline_to_remove};
 pub(super) struct FirstWalk {
     /// The structuring options
     options: StructuringOptions,
+
+    /// Heading counts from pre-scan (for Heading1ToTitleSingle operation)
+    heading_counts: Option<HeadingCounts>,
 
     /// Whether the work already has a title
     has_title: bool,
@@ -172,7 +175,7 @@ impl VisitorAsync for FirstWalk {
                 if let Some(CreativeWorkVariant::Article(Article { content, .. })) =
                     &mut supplement.options.work
                 {
-                    let mut walker = FirstWalk::new(self.options.clone());
+                    let mut walker = FirstWalk::new(self.options.clone(), None);
                     walker.visit_blocks(content);
                 }
                 WalkControl::Continue
@@ -240,9 +243,10 @@ impl VisitorAsync for FirstWalk {
 }
 
 impl FirstWalk {
-    pub fn new(options: StructuringOptions) -> Self {
+    pub fn new(options: StructuringOptions, heading_counts: Option<HeadingCounts>) -> Self {
         Self {
             options,
+            heading_counts,
             is_first_content_block: true,
             frontmatter_texts: Vec::new(),
             ..Default::default()
@@ -505,8 +509,25 @@ impl FirstWalk {
         // Detect section type from cleaned text
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
+        // Extract title from single H1 when document has structure (Heading1ToTitleSingle)
+        // Check this first so it takes precedence when both operations are enabled (e.g., via All)
+        // Only extract if there is exactly one H1 and at least 2 other headings
+        if self.options.should_perform(Heading1ToTitleSingle)
+            && self.is_first_content_block
+            && !self.has_title
+            && self.title.is_none()
+            && heading.level == 1
+            && let Some(counts) = &self.heading_counts
+                && counts.h1_count == 1 && counts.other_count >= 2 {
+                    self.title = Some(heading.content.drain(..).collect());
+                    self.should_decrement_headings = true;
+                    return block_to_remove(block);
+                }
+
         // Extract title from very first level 1 heading (Heading1ToTitle)
+        // Skip if Heading1ToTitleSingle is enabled (it should take precedence with stricter criteria)
         if self.options.should_perform(Heading1ToTitle)
+            && !self.options.should_perform(Heading1ToTitleSingle)
             && self.is_first_content_block
             && !self.has_title
             && self.title.is_none()

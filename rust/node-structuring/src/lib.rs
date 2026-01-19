@@ -1,6 +1,8 @@
+use stencila_codec::StructuringOperation::Heading1ToTitleSingle;
 use stencila_codec::StructuringOptions;
 use stencila_schema::{
-    Block, CodeInline, Inline, RawBlock, VisitorAsync, VisitorMut, WalkControl, WalkNode,
+    Block, CodeInline, Heading, Inline, RawBlock, Visitor, VisitorAsync, VisitorMut, WalkControl,
+    WalkNode,
 };
 
 use crate::{first::FirstWalk, second::SecondWalk, third::ThirdWalk};
@@ -8,6 +10,45 @@ use crate::{first::FirstWalk, second::SecondWalk, third::ThirdWalk};
 mod first;
 mod second;
 mod third;
+
+/// Counts of heading levels in a document
+///
+/// Used by the `Heading1ToTitleSingle` operation to determine
+/// whether to extract a title from a single H1 heading.
+#[derive(Debug, Default, Clone)]
+pub struct HeadingCounts {
+    /// Number of level 1 headings
+    pub h1_count: usize,
+    /// Number of other headings (levels 2-6)
+    pub other_count: usize,
+}
+
+/// Pre-scan visitor to count headings
+///
+/// Excludes supplements to match the behavior of FirstWalk, which processes
+/// supplements separately with their own walker instance.
+#[derive(Debug, Default)]
+struct HeadingCounter {
+    counts: HeadingCounts,
+}
+
+impl Visitor for HeadingCounter {
+    fn visit_block(&mut self, block: &Block) -> WalkControl {
+        match block {
+            // Skip supplements - they are processed separately in FirstWalk
+            Block::Supplement(_) => WalkControl::Break,
+            Block::Heading(Heading { level, .. }) => {
+                if *level == 1 {
+                    self.counts.h1_count += 1;
+                } else {
+                    self.counts.other_count += 1;
+                }
+                WalkControl::Continue
+            }
+            _ => WalkControl::Continue,
+        }
+    }
+}
 
 /// Add structure to a document
 #[tracing::instrument(skip(node))]
@@ -17,7 +58,16 @@ pub async fn structuring<T: WalkNode>(
 ) -> eyre::Result<()> {
     tracing::trace!("Structuring node");
 
-    let mut first = FirstWalk::new(options.clone());
+    // Pre-scan to count headings if Heading1ToTitleSingle is enabled
+    let heading_counts = if options.should_perform(Heading1ToTitleSingle) {
+        let mut counter = HeadingCounter::default();
+        counter.walk(node);
+        Some(counter.counts)
+    } else {
+        None
+    };
+
+    let mut first = FirstWalk::new(options.clone(), heading_counts);
     first.walk(node).await?;
     first.determine_citation_style(options.citation_style);
 

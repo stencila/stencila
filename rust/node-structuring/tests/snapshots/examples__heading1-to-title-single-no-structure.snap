@@ -1,0 +1,59 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "frontmatter": "structuring:\n- heading1-to-title-single",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Lone Heading"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This document has only one H1 heading but fewer than two other headings, so the H1 should NOT be extracted as a title. There is only one other heading in this document."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Single Subsection"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This is the only other heading."
+          }
+        }
+      ]
+    }
+  ],
+  "structuring": [
+    "heading1-to-title-single"
+  ]
+}
