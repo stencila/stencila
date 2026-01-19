@@ -46,7 +46,7 @@
         },
         {
           type: "MathInline",
-          code: { string: "<math><mrow><mn>2<\/mn><mi>π<\/mi><msup><mi>r<\/mi><mn>2<\/mn><\/msup><\/mrow><\/math>" },
+          code: { string: "<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>" },
           mathLanguage: "mathml"
         },
         {

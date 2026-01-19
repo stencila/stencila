@@ -26,7 +26,7 @@
       value: { string: "Adding metadata to articles in Stencila" }
     }
   ],
-  frontmatter: "title: Adding metadata to articles in Stencila\n\nkeywords:\n  - keyword\n  - test\n\nauthors:\n  - Dr Anne Anderson\n  - type: Organization\n    name: Acme Inc\n  - type: Person\n    first_names: Alice Agnes\n    surname: Andrews\n\nfunders:\n  - type: Organization\n    name: Example Inc\n  - Zorro Zenon\n\ndateCreated: 1\/1\/01\ndate_accepted: 11 Nov 2011\ndate: 22 February 2022",
+  frontmatter: "title: Adding metadata to articles in Stencila\n\nkeywords:\n  - keyword\n  - test\n\nauthors:\n  - Dr Anne Anderson\n  - type: Organization\n    name: Acme Inc\n  - type: Person\n    first_names: Alice Agnes\n    surname: Andrews\n\nfunders:\n  - type: Organization\n    name: Example Inc\n  - Zorro Zenon\n\ndateCreated: 1/1/01\ndate_accepted: 11 Nov 2011\ndate: 22 February 2022",
   content: [
     {
       type: "Paragraph",
@@ -43,7 +43,7 @@
               value: { string: "Robustness Principle" }
             }
           ],
-          target: "https:\/\/en.wikipedia.org\/wiki\/Robustness_principle"
+          target: "https://en.wikipedia.org/wiki/Robustness_principle"
         },
         {
           type: "Text",

@@ -67,7 +67,7 @@
       content: [
         {
           type: "ImageObject",
-          contentUrl: "https:\/\/placehold.co\/300x200\/orange\/white"
+          contentUrl: "https://placehold.co/300x200/orange/white"
         }
       ]
     },

@@ -136,11 +136,11 @@
         {
           type: "Parameter",
           name: "par_str_2",
-          value: "a\"b",
-          default: "a\"b",
+          value: 'a"b',
+          default: 'a"b',
           validator: {
             type: "StringValidator",
-            pattern: "a\"b"
+            pattern: 'a"b'
           }
         }
       ]

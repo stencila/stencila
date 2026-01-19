@@ -12,15 +12,15 @@
     },
     {
       type: "ImageObject",
-      contentUrl: "https:\/\/example.org\/cat.jpg"
+      contentUrl: "https://example.org/cat.jpg"
     },
     {
       type: "AudioObject",
-      contentUrl: "https:\/\/example.org\/cat.mp3"
+      contentUrl: "https://example.org/cat.mp3"
     },
     {
       type: "VideoObject",
-      contentUrl: "https:\/\/example.org\/cat.mp4"
+      contentUrl: "https://example.org/cat.mp4"
     }
   ]
 }

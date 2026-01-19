@@ -33,7 +33,7 @@
                   value: { string: "link" }
                 }
               ],
-              target: "https:\/\/example.org"
+              target: "https://example.org"
             }
           ]
         }

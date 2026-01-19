@@ -85,7 +85,7 @@
         },
         {
           type: "Text",
-          value: { string: " is only on \"enum\" parameters: " }
+          value: { string: ' is only on "enum" parameters: ' }
         },
         {
           type: "Parameter",

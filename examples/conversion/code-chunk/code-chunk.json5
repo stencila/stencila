@@ -40,7 +40,7 @@
     {
       type: "CodeChunk",
       executionMode: "Always",
-      code: { string: "\/\/ Javascript" },
+      code: { string: "// Javascript" },
       programmingLanguage: "js"
     },
     {

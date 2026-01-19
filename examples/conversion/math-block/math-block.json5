@@ -40,7 +40,7 @@
     },
     {
       type: "MathBlock",
-      code: { string: "<math display=\"block\"><mrow><mn>2<\/mn><mi>π<\/mi><msup><mi>r<\/mi><mn>2<\/mn><\/msup><\/mrow><\/math>" },
+      code: { string: '<math display="block"><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>' },
       mathLanguage: "mathml"
     }
   ]

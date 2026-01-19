@@ -6,7 +6,7 @@
       content: [
         {
           type: "ImageObject",
-          contentUrl: "https:\/\/example.org\/cat.jpg"
+          contentUrl: "https://example.org/cat.jpg"
         }
       ]
     },
@@ -28,7 +28,7 @@
       content: [
         {
           type: "ImageObject",
-          contentUrl: "https:\/\/example.org\/dog.jpg"
+          contentUrl: "https://example.org/dog.jpg"
         }
       ]
     },
@@ -51,7 +51,7 @@
           content: [
             {
               type: "ImageObject",
-              contentUrl: "https:\/\/example.org\/mouse.jpg"
+              contentUrl: "https://example.org/mouse.jpg"
             }
           ]
         }

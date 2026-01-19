@@ -12,7 +12,7 @@
     },
     {
       type: "IncludeBlock",
-      source: "..\/heading\/heading.md"
+      source: "../heading/heading.md"
     },
     {
       type: "Paragraph",
@@ -25,7 +25,7 @@
     },
     {
       type: "IncludeBlock",
-      source: "http:\/\/example.org\/document.md"
+      source: "http://example.org/document.md"
     },
     {
       type: "Paragraph",
@@ -39,8 +39,8 @@
     {
       type: "IncludeBlock",
       executionMode: "Always",
-      source: "..\/paragraph\/paragraph.md",
-      mediaType: "text\/markdown",
+      source: "../paragraph/paragraph.md",
+      mediaType: "text/markdown",
       select: "#para-1"
     }
   ]

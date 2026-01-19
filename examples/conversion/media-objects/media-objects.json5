@@ -10,7 +10,7 @@
         },
         {
           type: "ImageObject",
-          contentUrl: "https:\/\/example.org\/cat.jpg"
+          contentUrl: "https://example.org/cat.jpg"
         },
         {
           type: "Text",
@@ -18,7 +18,7 @@
         },
         {
           type: "ImageObject",
-          contentUrl: "https:\/\/example.org\/cat.jpg",
+          contentUrl: "https://example.org/cat.jpg",
           caption: [
             {
               type: "Text",
@@ -38,7 +38,7 @@
               value: { string: "The cat" }
             }
           ],
-          contentUrl: "https:\/\/example.org\/cat.jpg",
+          contentUrl: "https://example.org/cat.jpg",
           caption: [
             {
               type: "Text",
@@ -57,7 +57,7 @@
         },
         {
           type: "AudioObject",
-          contentUrl: "https:\/\/example.org\/cat.mp3"
+          contentUrl: "https://example.org/cat.mp3"
         }
       ]
     },
@@ -70,7 +70,7 @@
         },
         {
           type: "VideoObject",
-          contentUrl: "https:\/\/example.org\/cat.mp4"
+          contentUrl: "https://example.org/cat.mp4"
         }
       ]
     }

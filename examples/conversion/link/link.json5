@@ -16,7 +16,7 @@
               value: { string: "example.org" }
             }
           ],
-          target: "https:\/\/example.org"
+          target: "https://example.org"
         },
         {
           type: "Text",
@@ -44,7 +44,7 @@
               ]
             }
           ],
-          target: "https:\/\/example.org",
+          target: "https://example.org",
           title: "a title"
         },
         {

@@ -3,7 +3,7 @@
     "@vocab": "https://schema.org/",
     "stencila": "https://stencila.org/"
   },
-  "null": null,
+  "anull": null,
   "boolean": true,
   "integer": -123,
   "unsignedInteger": 234,

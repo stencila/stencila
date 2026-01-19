@@ -12,7 +12,7 @@
     },
     {
       type: "CallBlock",
-      source: "..\/parameter\/parameter.md",
+      source: "../parameter/parameter.md",
       arguments: []
     },
     {
@@ -26,7 +26,7 @@
     },
     {
       type: "CallBlock",
-      source: "..\/parameter\/parameter.md",
+      source: "../parameter/parameter.md",
       arguments: [
         {
           type: "CallArgument",
@@ -47,7 +47,7 @@
     },
     {
       type: "CallBlock",
-      source: "..\/parameter\/parameter.md",
+      source: "../parameter/parameter.md",
       arguments: [
         {
           type: "CallArgument",
@@ -67,7 +67,7 @@
     },
     {
       type: "CallBlock",
-      source: "..\/parameter\/parameter.md",
+      source: "../parameter/parameter.md",
       arguments: [
         {
           type: "CallArgument",

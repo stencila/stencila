@@ -52,7 +52,7 @@
     },
     {
       type: "CodeBlock",
-      code: { string: " \t\n " }
+      code: { string: " 	\n " }
     }
   ]
 }
