@@ -1,6 +1,6 @@
 Cormen, Thomas H., et al. _Introduction to Algorithms_. 3, MIT Press, 2009.
 
-Donne, John. _The "Anniversaries" and the "Epicedes and Obsequies"_. Edited by Stringer, Gary A. and Pebworth, Ted-Larry, Indiana University Press, 1995.
+Donne, John. _The "Anniversaries" and the "Epicedes and Obsequies"_. Edited by Gary A. Stringer and Ted-Larry Pebworth, Indiana University Press, 1995.
 
 Duval, Fred. _Renaissance, Les Déracinés_. 1, vol. 1, Dargaud, 2018.
 

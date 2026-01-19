@@ -5,7 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Cormen, Thomas H., Leiserson, Charles E., Rivest, Ronald L., Stein, Clifford. Introduction to Algorithms. 3. MIT Press; 2009. 1312 p. "
+          "string": "Cormen TH, Leiserson CE, Rivest RL, Stein C. Introduction to Algorithms. 3. MIT Press; 2009. 1312 p. "
         }
       }
     ]
@@ -16,7 +16,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Donne, John. The \"Anniversaries\" and the \"Epicedes and Obsequies\". Stringer, Gary A., Pebworth, Ted-Larry, editors. Vol. 6. Indiana University Press; 1995. "
+          "string": "Donne J. The \"Anniversaries\" and the \"Epicedes and Obsequies\". Stringer GA, Pebworth TL, editors. Vol. 6. Indiana University Press; 1995. "
         }
       }
     ]
@@ -27,7 +27,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Duval, Fred. Renaissance, Les Déracinés. 1. Vol. 1. Dargaud; 2018. "
+          "string": "Duval F. Renaissance, Les Déracinés. 1. Vol. 1. Dargaud; 2018. "
         }
       }
     ]
@@ -38,7 +38,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Gamma, Erich, Helm, Richard, Johnson, Ralph, Vlissides, John. Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley Professional; 1994. 395 p. "
+          "string": "Gamma E, Helm R, Johnson R, Vlissides J. Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley Professional; 1994. 395 p. "
         }
       }
     ]
@@ -49,7 +49,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Günther-Haug, Barbara. Den Boden unter den Füßen verlieren. MVG; 2020. "
+          "string": "Günther-Haug B. Den Boden unter den Füßen verlieren. MVG; 2020. "
         }
       }
     ]

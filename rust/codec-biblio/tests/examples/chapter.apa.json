@@ -5,7 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Carroll, Lewis. (1865). Down the Rabbit-Hole. In Carroll, Lewis, "
+          "string": "Carroll, L. (1865). Down the Rabbit-Hole. In L. Carroll, "
         }
       },
       {
@@ -33,7 +33,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Eddy, Sean R. (2001). Hidden Markov Models in Computational Biology. In Baldi, Pierre & Brunak, Søren (Eds.), "
+          "string": "Eddy, S. R. (2001). Hidden Markov Models in Computational Biology. In P. Baldi & S. Brunak (Eds.), "
         }
       },
       {
@@ -61,7 +61,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Melville, Herman. (1851). Call me Ishmael. In Melville, Herman, "
+          "string": "Melville, H. (1851). Call me Ishmael. In H. Melville, "
         }
       },
       {
@@ -89,7 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Milne, A. A. (1926). In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin. In Milne, A. A., "
+          "string": "Milne, A. A. (1926). In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin. In A. A. Milne, "
         }
       },
       {
@@ -117,7 +117,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Ramey, Chet. (2011). Bash. In Brown, Amy & Wilson, Greg (Eds.), "
+          "string": "Ramey, C. (2011). Bash. In A. Brown & G. Wilson (Eds.), "
         }
       },
       {

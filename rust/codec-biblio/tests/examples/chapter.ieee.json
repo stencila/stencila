@@ -5,7 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Carroll, Lewis, “Down the Rabbit-Hole,” in "
+          "string": "L. Carroll, “Down the Rabbit-Hole,” in "
         }
       },
       {
@@ -33,7 +33,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Eddy, Sean R., “Hidden Markov Models in Computational Biology,” in "
+          "string": "S. R. Eddy, “Hidden Markov Models in Computational Biology,” in "
         }
       },
       {
@@ -50,7 +50,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", 2., Baldi, Pierre and Brunak, Søren, Eds., MIT Press, 2001, p. 83–106."
+          "string": ", 2., P. Baldi and S. Brunak, Eds., MIT Press, 2001, p. 83–106."
         }
       }
     ]
@@ -61,7 +61,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Melville, Herman, “Call me Ishmael,” in "
+          "string": "H. Melville, “Call me Ishmael,” in "
         }
       },
       {
@@ -89,7 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Milne, A. A., “In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin,” in "
+          "string": "A. A. Milne, “In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin,” in "
         }
       },
       {
@@ -117,7 +117,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Ramey, Chet, “Bash,” in "
+          "string": "C. Ramey, “Bash,” in "
         }
       },
       {
@@ -134,7 +134,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ", Brown, Amy and Wilson, Greg, Eds., Lulu.com, 2011, p. 29–47. [Online].  Available: "
+          "string": ", A. Brown and G. Wilson, Eds., Lulu.com, 2011, p. 29–47. [Online].  Available: "
         }
       },
       {

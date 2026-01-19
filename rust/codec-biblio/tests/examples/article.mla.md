@@ -2,7 +2,7 @@ Doan, T. D., et al. “Kinetics and Luminescence of the Excitations of a Nonequi
 
 Jerrentrup, Andreas, et al. “Teaching Medicine with the Help of "Dr. House".” _Plos ONE_, vol. 13, no. 3, Mar. 2018, https://doi.org/[10.1371/journal.pone.0193972](https://doi.org/10.1371/journal.pone.0193972).
 
-Nielsen, Michael A., and Chuang, Isaac L. “Quantum Computing: Progress and Prospects.” _Nature Physics_, vol. 18, no. 3, Mar. 2022, p. 234–245, https://doi.org/[10.1038/s41567-022-01234-5](https://doi.org/10.1038/s41567-022-01234-5).
+Nielsen, Michael A., and Isaac L. Chuang. “Quantum Computing: Progress and Prospects.” _Nature Physics_, vol. 18, no. 3, Mar. 2022, p. 234–245, https://doi.org/[10.1038/s41567-022-01234-5](https://doi.org/10.1038/s41567-022-01234-5).
 
 Pedbost, Marven F., et al. “Defining the Really Habitable Zone.” 2020. _arXiv_, https://arxiv.org/abs/2003.13722.
 

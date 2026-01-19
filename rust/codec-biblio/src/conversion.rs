@@ -537,32 +537,37 @@ fn stencila_person_to_hayagriva_person(person: &Person) -> Option<HPerson> {
         .as_ref()
         .map(|names| names.join(" "))
         .unwrap_or_default();
-    let given = person
+
+    if family.is_empty() {
+        return None;
+    }
+
+    let given_name = person
         .given_names
         .as_ref()
-        .map(|names| names.join(" "))
-        .unwrap_or_default();
+        .filter(|names| !names.is_empty())
+        .map(|names| names.join(" "));
 
-    if !family.is_empty() {
-        let name_str = if given.is_empty() {
-            family
-        } else {
-            format!("{family}, {given}")
-        };
-        HPerson::from_strings(vec![&name_str]).ok()
-    } else {
-        None
-    }
+    Some(HPerson {
+        name: family,
+        given_name,
+        prefix: None,
+        suffix: None,
+        alias: None,
+    })
 }
 
 /// Convert a Stencila Author to a Hayagriva person
 fn stencila_author_to_hayagriva_person(author: &Author) -> Option<HPerson> {
     match author {
         Author::Person(person) => stencila_person_to_hayagriva_person(person),
-        Author::Organization(org) => org
-            .name
-            .as_ref()
-            .and_then(|name| HPerson::from_strings(vec![name]).ok()),
+        Author::Organization(org) => org.name.as_ref().map(|name| HPerson {
+            name: name.clone(),
+            given_name: None,
+            prefix: None,
+            suffix: None,
+            alias: None,
+        }),
         _ => None,
     }
 }

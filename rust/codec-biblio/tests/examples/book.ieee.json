@@ -5,7 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Cormen, Thomas H., Leiserson, Charles E., Rivest, Ronald L., and Stein, Clifford, "
+          "string": "T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, "
         }
       },
       {
@@ -33,7 +33,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Donne, John, "
+          "string": "J. Donne, "
         }
       },
       {
@@ -61,7 +61,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Duval, Fred, "
+          "string": "F. Duval, "
         }
       },
       {
@@ -89,7 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Gamma, Erich, Helm, Richard, Johnson, Ralph, and Vlissides, John, "
+          "string": "E. Gamma, R. Helm, R. Johnson, and J. Vlissides, "
         }
       },
       {
@@ -117,7 +117,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Günther-Haug, Barbara, "
+          "string": "B. Günther-Haug, "
         }
       },
       {

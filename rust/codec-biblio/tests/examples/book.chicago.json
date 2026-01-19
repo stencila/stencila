@@ -5,7 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Cormen, Thomas H., Leiserson, Charles E., Rivest, Ronald L., and Stein, Clifford. 2009. "
+          "string": "Cormen, Thomas H., Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. 2009. "
         }
       },
       {
@@ -50,7 +50,7 @@
       {
         "type": "Text",
         "value": {
-          "string": ". Edited by Stringer, Gary A. and Pebworth, Ted-Larry. Vol. 6. Indiana University Press."
+          "string": ". Edited by Gary A. Stringer and Ted-Larry Pebworth. Vol. 6. Indiana University Press."
         }
       }
     ]
@@ -89,7 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Gamma, Erich, Helm, Richard, Johnson, Ralph, and Vlissides, John. 1994. "
+          "string": "Gamma, Erich, Richard Helm, Ralph Johnson, and John Vlissides. 1994. "
         }
       },
       {

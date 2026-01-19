@@ -5,7 +5,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Cormen, Thomas H., Leiserson, Charles E., Rivest, Ronald L., & Stein, Clifford. (2009). "
+          "string": "Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). "
         }
       },
       {
@@ -33,7 +33,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Donne, John. (1995). "
+          "string": "Donne, J. (1995). "
         }
       },
       {
@@ -50,7 +50,7 @@
       {
         "type": "Text",
         "value": {
-          "string": " (Stringer, Gary A. & Pebworth, Ted-Larry, Eds.; Vol. 6). Indiana University Press."
+          "string": " (G. A. Stringer & T.-L. Pebworth, Eds.; Vol. 6). Indiana University Press."
         }
       }
     ]
@@ -61,7 +61,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Duval, Fred. (2018). "
+          "string": "Duval, F. (2018). "
         }
       },
       {
@@ -89,7 +89,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Gamma, Erich, Helm, Richard, Johnson, Ralph, & Vlissides, John. (1994). "
+          "string": "Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). "
         }
       },
       {
@@ -117,7 +117,7 @@
       {
         "type": "Text",
         "value": {
-          "string": "Günther-Haug, Barbara. (2020). "
+          "string": "Günther-Haug, B. (2020). "
         }
       },
       {
