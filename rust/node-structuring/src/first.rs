@@ -518,11 +518,13 @@ impl FirstWalk {
             && self.title.is_none()
             && heading.level == 1
             && let Some(counts) = &self.heading_counts
-                && counts.h1_count == 1 && counts.other_count >= 2 {
-                    self.title = Some(heading.content.drain(..).collect());
-                    self.should_decrement_headings = true;
-                    return block_to_remove(block);
-                }
+            && counts.h1_count == 1
+            && counts.other_count >= 2
+        {
+            self.title = Some(heading.content.drain(..).collect());
+            self.should_decrement_headings = true;
+            return block_to_remove(block);
+        }
 
         // Extract title from very first level 1 heading (Heading1ToTitle)
         // Skip if Heading1ToTitleSingle is enabled (it should take precedence with stricter criteria)
