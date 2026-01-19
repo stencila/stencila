@@ -3,7 +3,7 @@
 //! Displays horizontal navigation with mega-dropdown panels on desktop
 //! and accordion-style menu on mobile.
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 
 use stencila_config::{
     FeaturedContent, NavItem, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger,
@@ -21,6 +21,7 @@ use crate::{
 /// Context for rendering navigation components
 pub(crate) struct NavMenuContext<'a> {
     pub site_config: &'a SiteConfig,
+    pub site_root: &'a Path,
     pub route: &'a str,
     pub routes: &'a [RouteEntry],
 }
@@ -50,7 +51,7 @@ pub(crate) fn render_nav_menu(
         .site_config
         .nav
         .clone()
-        .unwrap_or_else(|| auto_generate_nav(context.routes, depth));
+        .unwrap_or_else(|| auto_generate_nav(context.routes, depth, Some(context.site_root)));
 
     // Apply icons from site.icons
     let nav_items = apply_icons(nav_items, &context.site_config.icons);

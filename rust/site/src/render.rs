@@ -25,7 +25,9 @@ use stencila_config::{RedirectStatus, SiteConfig, SiteFormat};
 use stencila_dirs::{closest_stencila_dir, workspace_dir};
 use stencila_format::Format;
 
-use crate::{RouteEntry, RouteType, glide::render_glide, layout::render_layout, list};
+use crate::{
+    RouteEntry, RouteType, glide::render_glide, layout::render_layout, links::rewrite_links, list,
+};
 
 /// A document rendered to HTML
 #[derive(Debug)]
@@ -411,6 +413,9 @@ async fn render_document_route(
 
     // Collect media from source file to shared media directory
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
+
+    // Rewrite file-based links to route-based links
+    rewrite_links(&mut node, &route, routes);
 
     // Render layout for the route
     let layout_html = render_layout(site_config, site_root, &route, routes, workspace_id);

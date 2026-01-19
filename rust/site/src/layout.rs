@@ -321,6 +321,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "nav-menu" => {
                 let menu_context = NavMenuContext {
                     site_config: context.site_config,
+                    site_root: context.site_root,
                     route: context.route,
                     routes: context.routes,
                 };
@@ -339,6 +340,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "nav-tree" => {
                 let tree_context = NavTreeContext {
                     site_config: context.site_config,
+                    site_root: context.site_root,
                     route: context.route,
                     routes: context.routes,
                 };
@@ -357,6 +359,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "nav-groups" => {
                 let groups_context = NavGroupsContext {
                     site_config: context.site_config,
+                    site_root: context.site_root,
                     route: context.route,
                     routes: context.routes,
                 };
@@ -400,6 +403,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => {
             let menu_context = NavMenuContext {
                 site_config: context.site_config,
+                site_root: context.site_root,
                 route: context.route,
                 routes: context.routes,
             };
@@ -427,6 +431,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => {
             let tree_context = NavTreeContext {
                 site_config: context.site_config,
+                site_root: context.site_root,
                 route: context.route,
                 routes: context.routes,
             };
@@ -473,6 +478,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
         } => {
             let groups_context = NavGroupsContext {
                 site_config: context.site_config,
+                site_root: context.site_root,
                 route: context.route,
                 routes: context.routes,
             };

@@ -4,6 +4,8 @@
 //! Top-level nav items become group headings, their children become links.
 //! Uses CSS grid for responsive auto-columns.
 
+use std::path::Path;
+
 use stencila_config::{NavGroupsIcons, NavItem, SiteConfig};
 
 use crate::{
@@ -14,6 +16,7 @@ use crate::{
 /// Context for rendering nav groups
 pub(crate) struct NavGroupsContext<'a> {
     pub site_config: &'a SiteConfig,
+    pub site_root: &'a Path,
     pub route: &'a str,
     pub routes: &'a [RouteEntry],
 }
@@ -31,11 +34,9 @@ pub(crate) fn render_nav_groups(
     let icons_mode = icons.unwrap_or_default();
 
     // Resolve nav items: site.nav or auto-generated
-    let nav_items = context
-        .site_config
-        .nav
-        .clone()
-        .unwrap_or_else(|| auto_generate_nav(context.routes, &Some(max_depth)));
+    let nav_items = context.site_config.nav.clone().unwrap_or_else(|| {
+        auto_generate_nav(context.routes, &Some(max_depth), Some(context.site_root))
+    });
 
     // Apply icons from site.icons if icons mode is Show
     let nav_items = if matches!(icons_mode, NavGroupsIcons::Show) {
