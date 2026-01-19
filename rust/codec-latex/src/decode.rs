@@ -465,7 +465,10 @@ pub(super) fn coarse(latex: &str, options: Option<DecodeOptions>) -> Result<(Nod
     Ok((Node::Article(article), DecodeInfo::none()))
 }
 
-/// Wrap specified environments in
+/// Wrap specified environments in island tags
+///
+/// Only wraps environments in non-comment segments to avoid wrapping
+/// commented-out code.
 fn wrap_island_envs(
     input: &str,
     island_envs: &[String],
@@ -476,18 +479,28 @@ fn wrap_island_envs(
         .map(|style| format!("style={style}"))
         .unwrap_or_default();
 
-    let mut output = input.to_owned();
-    for env in island_envs {
-        let re = Regex::new(&format!(r"(?s)\\begin\{{{env}\}}.*?\\end\{{{env}\}}"))?;
-
-        output = re
-            .replace_all(&output, |captures: &Captures| {
-                format!(
-                    "\\begin{{island}}[auto,{}]{}\\end{{island}}",
-                    style, &captures[0]
-                )
-            })
-            .into_owned();
+    // Process each segment separately, only wrapping in non-comment segments
+    let mut output = String::new();
+    for (is_comment, segment) in segment_by_comments(input) {
+        if is_comment {
+            // Pass through comment segments unchanged
+            output.push_str(&segment);
+        } else {
+            // Apply island wrapping only to non-comment segments
+            let mut wrapped = segment;
+            for env in island_envs {
+                let re = Regex::new(&format!(r"(?s)\\begin\{{{env}\}}.*?\\end\{{{env}\}}"))?;
+                wrapped = re
+                    .replace_all(&wrapped, |captures: &Captures| {
+                        format!(
+                            "\\begin{{island}}[auto,{}]{}\\end{{island}}",
+                            style, &captures[0]
+                        )
+                    })
+                    .into_owned();
+            }
+            output.push_str(&wrapped);
+        }
     }
 
     Ok(output)
@@ -496,17 +509,26 @@ fn wrap_island_envs(
 /// Segment LaTeX into comment and non-comment regions
 ///
 /// Returns a vector of (is_comment, content) tuples where adjacent comment
-/// lines are grouped together.
+/// lines are grouped together. Blank lines continue the previous segment type
+/// to avoid losing whitespace between segments.
 fn segment_by_comments(latex: &str) -> Vec<(bool, String)> {
     let mut segments = Vec::new();
     let mut current_is_comment = false;
     let mut current_content = String::new();
+    let mut started = false;
 
     for line in latex.lines() {
-        let is_comment = line.trim_start().starts_with('%');
+        let trimmed = line.trim_start();
+        // Blank lines continue the current segment type (don't trigger a switch)
+        let is_comment = if trimmed.is_empty() {
+            current_is_comment
+        } else {
+            trimmed.starts_with('%')
+        };
 
-        if segments.is_empty() && current_content.is_empty() {
+        if !started {
             current_is_comment = is_comment;
+            started = true;
         }
 
         if is_comment == current_is_comment {
@@ -527,10 +549,16 @@ fn segment_by_comments(latex: &str) -> Vec<(bool, String)> {
         segments.push((current_is_comment, current_content));
     }
 
-    // Preserve trailing newline if the original input had one
-    if latex.ends_with('\n') {
-        if let Some((_, last)) = segments.last_mut() {
-            last.push('\n');
+    // Add trailing newline to all segments except the last (to separate them when joined)
+    // The last segment only gets a newline if the original input had one
+    let len = segments.len();
+    for (i, (_, content)) in segments.iter_mut().enumerate() {
+        if i < len - 1 {
+            // Not the last segment - always add newline
+            content.push('\n');
+        } else if latex.ends_with('\n') {
+            // Last segment - only add if original had trailing newline
+            content.push('\n');
         }
     }
 
