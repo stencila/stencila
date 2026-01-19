@@ -1,11 +1,13 @@
 //! Format command documentation as schema nodes
 
+use std::collections::HashMap;
+
 use stencila_schema::{
     Article, ArticleOptions, Block, Inline, Node, TableCell, TableRow,
-    shortcuts::{cb, ci, h1, lnk, p, t, tbl, td, th, tr},
+    shortcuts::{cb, ci, h1, lnk, p, stg, t, tbl, td, th, tr},
 };
 
-use crate::extract::{ArgDoc, CommandDoc, HelpSection};
+use crate::extract::{ArgDoc, CommandDoc, HelpSection, PossibleValue};
 
 /// Generate an Article node for a command's documentation
 pub fn generate_article(doc: &CommandDoc) -> Node {
@@ -94,13 +96,13 @@ fn generate_content(doc: &CommandDoc) -> Vec<Block> {
     // Arguments section (as table)
     if !doc.arguments.is_empty() {
         content.push(h1([t("Arguments")]));
-        content.push(arguments_table(&doc.arguments));
+        content.extend(arguments_table(&doc.arguments));
     }
 
     // Options section (as table)
     if !doc.options.is_empty() {
         content.push(h1([t("Options")]));
-        content.push(options_table(&doc.options));
+        content.extend(options_table(&doc.options));
     }
 
     // Additional sections (Note, Setup Process, Troubleshooting, etc.)
@@ -153,9 +155,13 @@ fn format_examples(raw: &str) -> String {
         .to_string()
 }
 
-/// Generate a table of arguments
-fn arguments_table(args: &[ArgDoc]) -> Block {
+/// Generate a table of arguments, with separate tables for long possible values
+fn arguments_table(args: &[ArgDoc]) -> Vec<Block> {
     let mut rows: Vec<TableRow> = vec![tr([th([t("Name")]), th([t("Description")])])];
+
+    // Collect args with long possible values for separate tables
+    // Key: serialized possible values, Value: (display name, possible values reference)
+    let mut separate_pv: Vec<(String, &[PossibleValue])> = Vec::new();
 
     for arg in args {
         let name_display = if arg.is_required {
@@ -167,8 +173,15 @@ fn arguments_table(args: &[ArgDoc]) -> Block {
         let desc = ensure_full_stop(arg.description.as_deref().unwrap_or(""));
         let mut desc_inlines: Vec<Inline> = vec![t(&desc)];
 
-        // Add possible values if any
-        if !arg.possible_values.is_empty() {
+        // Check if possible values are too long for inline rendering
+        let pv_too_long =
+            !arg.possible_values.is_empty() && possible_values_text_len(&arg.possible_values) > 100;
+
+        if pv_too_long {
+            // Collect for separate table
+            separate_pv.push((name_display.clone(), &arg.possible_values));
+        } else if !arg.possible_values.is_empty() {
+            // Add possible values inline
             desc_inlines.push(t(" Possible values: "));
             for (i, pv) in arg.possible_values.iter().enumerate() {
                 if i > 0 {
@@ -200,12 +213,41 @@ fn arguments_table(args: &[ArgDoc]) -> Block {
         ]));
     }
 
-    tbl(rows)
+    let mut blocks = vec![tbl(rows)];
+
+    // Deduplicate and generate separate possible values tables
+    if !separate_pv.is_empty() {
+        // Group by possible values content
+        let mut grouped: HashMap<Vec<(String, Option<String>)>, Vec<String>> = HashMap::new();
+        for (name, pvs) in separate_pv {
+            let key: Vec<_> = pvs
+                .iter()
+                .map(|pv| (pv.name.clone(), pv.description.clone()))
+                .collect();
+            grouped.entry(key).or_default().push(name);
+        }
+
+        // Generate a table for each unique set of possible values
+        for (pv_key, names) in grouped {
+            let pvs: Vec<PossibleValue> = pv_key
+                .into_iter()
+                .map(|(name, description)| PossibleValue { name, description })
+                .collect();
+            let name_refs: Vec<&str> = names.iter().map(|s| s.as_str()).collect();
+            blocks.extend(possible_values_table(&name_refs, &pvs));
+        }
+    }
+
+    blocks
 }
 
-/// Generate a table of options
-fn options_table(opts: &[ArgDoc]) -> Block {
+/// Generate a table of options, with separate tables for long possible values
+fn options_table(opts: &[ArgDoc]) -> Vec<Block> {
     let mut rows: Vec<TableRow> = vec![tr([th([t("Name")]), th([t("Description")])])];
+
+    // Collect options with long possible values for separate tables
+    // Uses the --long-name format for display
+    let mut separate_pv: Vec<(String, &[PossibleValue])> = Vec::new();
 
     for opt in opts {
         // Build the flag display (e.g., "-h, --help" or "--config <PATH>")
@@ -228,14 +270,26 @@ fn options_table(opts: &[ArgDoc]) -> Block {
         let full_display = if has_value {
             format!("{flag_display} <{}>", opt.name.to_uppercase())
         } else {
-            flag_display
+            flag_display.clone()
         };
 
         let desc = ensure_full_stop(opt.description.as_deref().unwrap_or(""));
         let mut desc_inlines: Vec<Inline> = vec![t(&desc)];
 
-        // Add possible values if any
-        if !opt.possible_values.is_empty() {
+        // Check if possible values are too long for inline rendering
+        let pv_too_long =
+            !opt.possible_values.is_empty() && possible_values_text_len(&opt.possible_values) > 100;
+
+        if pv_too_long {
+            // Use --long-name format for the separate table header
+            let pv_name = opt
+                .long
+                .as_ref()
+                .map(|l| format!("--{l}"))
+                .unwrap_or_else(|| format!("--{}", opt.name));
+            separate_pv.push((pv_name, &opt.possible_values));
+        } else if !opt.possible_values.is_empty() {
+            // Add possible values inline
             desc_inlines.push(t(" Possible values: "));
             for (i, pv) in opt.possible_values.iter().enumerate() {
                 if i > 0 {
@@ -267,7 +321,32 @@ fn options_table(opts: &[ArgDoc]) -> Block {
         ]));
     }
 
-    tbl(rows)
+    let mut blocks = vec![tbl(rows)];
+
+    // Deduplicate and generate separate possible values tables
+    if !separate_pv.is_empty() {
+        // Group by possible values content
+        let mut grouped: HashMap<Vec<(String, Option<String>)>, Vec<String>> = HashMap::new();
+        for (name, pvs) in separate_pv {
+            let key: Vec<_> = pvs
+                .iter()
+                .map(|pv| (pv.name.clone(), pv.description.clone()))
+                .collect();
+            grouped.entry(key).or_default().push(name);
+        }
+
+        // Generate a table for each unique set of possible values
+        for (pv_key, names) in grouped {
+            let pvs: Vec<PossibleValue> = pv_key
+                .into_iter()
+                .map(|(name, description)| PossibleValue { name, description })
+                .collect();
+            let name_refs: Vec<&str> = names.iter().map(|s| s.as_str()).collect();
+            blocks.extend(possible_values_table(&name_refs, &pvs));
+        }
+    }
+
+    blocks
 }
 
 /// Ensure a string ends with a full stop
@@ -281,6 +360,53 @@ fn ensure_full_stop(s: &str) -> String {
     } else {
         format!("{trimmed}.")
     }
+}
+
+/// Calculate the approximate text length of possible values when rendered inline
+fn possible_values_text_len(possible_values: &[PossibleValue]) -> usize {
+    // " Possible values: " prefix
+    let base = " Possible values: ".len();
+    let values_len: usize = possible_values
+        .iter()
+        .enumerate()
+        .map(|(i, pv)| {
+            let sep = if i > 0 { ", ".len() } else { 0 };
+            // +2 for backticks around value name in rendered output
+            let name_len = pv.name.len() + 2;
+            let desc_len = pv
+                .description
+                .as_ref()
+                .map(|d| d.len() + 3) // " (desc)"
+                .unwrap_or(0);
+            sep + name_len + desc_len
+        })
+        .sum();
+    base + values_len + 1 // +1 for final "."
+}
+
+/// Generate a separate table for possible values
+///
+/// Returns a paragraph header like "**Possible values of `name1`, `name2`**"
+/// followed by a two-column table (Value, Description)
+fn possible_values_table(names: &[&str], possible_values: &[PossibleValue]) -> Vec<Block> {
+    // Build header: **Possible values of `name1`, `name2`**
+    let mut header_inlines: Vec<Inline> = vec![t("Possible values of ")];
+    for (i, name) in names.iter().enumerate() {
+        if i > 0 {
+            header_inlines.push(t(", "));
+        }
+        header_inlines.push(ci(name));
+    }
+    let header = p([stg(header_inlines)]);
+
+    // Build table rows
+    let mut rows: Vec<TableRow> = vec![tr([th([t("Value")]), th([t("Description")])])];
+    for pv in possible_values {
+        let desc = pv.description.as_deref().unwrap_or("");
+        rows.push(tr([td([ci(&pv.name)]), td([t(desc)])]));
+    }
+
+    vec![header, tbl(rows)]
 }
 
 #[cfg(test)]

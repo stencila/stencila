@@ -80,10 +80,7 @@ mod tests {
             "get".to_string(),
         ];
         let result = get_file_path(dest, &path, false);
-        assert_eq!(
-            result,
-            Some(PathBuf::from("/site/docs/cli/config/get.md"))
-        );
+        assert_eq!(result, Some(PathBuf::from("/site/docs/cli/config/get.md")));
     }
 
     #[test]
