@@ -146,7 +146,7 @@ install:
 generated:
 	cargo run -p stencila-schema-gen
 	cargo run -p stencila-config --bin generate
-	cargo run -p stencila-cli-gen > ../docs/reference/cli.md
+	cargo run -p stencila-cli-gen
 
 # Clean the ../target dir
 clean:

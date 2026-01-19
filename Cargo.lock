@@ -1337,15 +1337,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "clap-markdown"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2a2617956a06d4885b490697b5307ebb09fec10b088afc18c81762d848c2339"
-dependencies = [
- "clap",
-]
-
-[[package]]
 name = "clap_builder"
 version = "4.5.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8816,8 +8807,13 @@ dependencies = [
 name = "stencila-cli-gen"
 version = "0.1.0"
 dependencies = [
- "clap-markdown",
+ "clap",
+ "serde_json",
+ "serde_yaml",
  "stencila-cli",
+ "stencila-codecs",
+ "stencila-schema",
+ "tokio",
 ]
 
 [[package]]
@@ -11184,6 +11180,7 @@ dependencies = [
  "stencila-spread",
  "tempfile",
  "tokio",
+ "toml 0.9.11+spec-1.1.0",
  "tracing",
  "url",
  "walkdir",
