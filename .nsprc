@@ -1,8 +1,4 @@
 {
-  "1109755": "Not using VEGA_DEBUG",
-  "1109756": "Not using VEGA_DEBUG",
-  "1111859": "Vega",
-  "1111861": "Vega",
-  "1111271": "Dev dependency",
-  "1112154": "undici"
+  "1111271": "Dev dependency parcel -> @parcel/reporter-dev-server",
+  "1112154": "Dev dependency wrangler -> miniflare -> undici"
 }
