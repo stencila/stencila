@@ -273,18 +273,59 @@ impl Codec for DocxCodec {
             None
         };
 
-        // Check theme for heading-numbering option and add --number-sections if decimal
         if let Some(theme) = &theme {
             let theme_variables = theme.computed_variables_with_overrides(
                 stencila_themes::LengthConversion::KeepUnits,
                 document_variables.clone().unwrap_or_default(),
             );
+
+            // Check theme for heading-numbering option and add --number-sections if decimal
             if let Some(serde_json::Value::String(numbering)) =
                 theme_variables.get("heading-numbering")
                 && numbering == "decimal"
                 && !options.tool_args.contains(&"--number-sections".to_string())
             {
                 options.tool_args.push("--number-sections".to_string());
+            }
+
+            // Check theme for article-toc option and add --toc/--toc-depth/--toc-title
+            // Handle both Bool (CSS `true` parsed as JSON) and String values
+            let toc_enabled = match theme_variables.get("article-toc") {
+                Some(serde_json::Value::Bool(true)) => Some(3u8), // true -> default depth 3
+                Some(serde_json::Value::String(s)) if s != "none" => {
+                    // Parse as number or default to 3 for non-numeric strings
+                    Some(s.parse::<u8>().unwrap_or(3))
+                }
+                Some(serde_json::Value::Number(n)) => {
+                    // Numeric value like `--article-toc: 2`
+                    n.as_u64().map(|n| n as u8)
+                }
+                _ => None,
+            };
+
+            if let Some(depth) = toc_enabled
+                && !options.tool_args.contains(&"--toc".to_string())
+            {
+                options.tool_args.push("--toc".to_string());
+
+                let depth_arg = format!("--toc-depth={depth}");
+                if !options
+                    .tool_args
+                    .iter()
+                    .any(|a| a.starts_with("--toc-depth"))
+                {
+                    options.tool_args.push(depth_arg);
+                }
+
+                // Add TOC title if specified (as metadata variable, not CLI option)
+                if let Some(serde_json::Value::String(toc_title)) =
+                    theme_variables.get("article-toc-title")
+                {
+                    let title_arg = format!("-M toc-title={toc_title}");
+                    if !options.tool_args.iter().any(|a| a.contains("toc-title")) {
+                        options.tool_args.push(title_arg);
+                    }
+                }
             }
         }
 

@@ -87,6 +87,11 @@
     --article-abstract-text-align: left;
     --article-abstract-max-width: var(--article-content-max-width);
     --article-abstract-margin-bottom: var(--space-6);
+
+    /* Article Table of Contents */
+    /* Values: none (default), true (enable with depth 3), or 1-6 (specific depth) */
+    --article-toc: none;
+    --article-toc-title: "Contents";
 }
 
 stencila-article {
