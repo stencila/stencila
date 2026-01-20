@@ -1,4 +1,7 @@
-use std::path::Path;
+use std::{
+    path::Path,
+    time::{Duration, Instant},
+};
 
 use eyre::Result;
 use notify::{Event, RecursiveMode, Watcher, event::EventKind};
@@ -75,17 +78,38 @@ pub async fn watch(base_path: &Path) -> Result<Option<mpsc::Receiver<Result<Conf
             return;
         }
 
-        // Listen for changes and send updated config
-        while file_receiver.recv().await.is_some() {
-            match config(&base_path_owned) {
-                Ok(cfg) => {
-                    if sender.send(Ok(cfg)).await.is_err() {
-                        break; // Receiver dropped
+        // Debounce events - accumulate changes during debounce window
+        const DEBOUNCE_MS: u64 = 500;
+        let mut pending_change = false;
+        let mut debounce_deadline: Option<Instant> = None;
+
+        loop {
+            let timeout = debounce_deadline
+                .map(|d| d.saturating_duration_since(Instant::now()))
+                .unwrap_or(Duration::from_secs(3600));
+
+            tokio::select! {
+                Some(()) = file_receiver.recv() => {
+                    pending_change = true;
+                    debounce_deadline = Some(Instant::now() + Duration::from_millis(DEBOUNCE_MS));
+                }
+                _ = tokio::time::sleep(timeout), if debounce_deadline.is_some() => {
+                    if pending_change {
+                        match config(&base_path_owned) {
+                            Ok(cfg) => {
+                                if sender.send(Ok(cfg)).await.is_err() {
+                                    break; // Receiver dropped
+                                }
+                            }
+                            Err(e) => {
+                                let _ = sender.send(Err(e)).await;
+                            }
+                        }
+                        pending_change = false;
                     }
+                    debounce_deadline = None;
                 }
-                Err(e) => {
-                    let _ = sender.send(Err(e)).await;
-                }
+                else => break,
             }
         }
     });

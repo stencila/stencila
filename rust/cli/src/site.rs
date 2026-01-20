@@ -829,6 +829,7 @@ impl Preview {
         output: &Path,
         _layout: Option<&LayoutConfig>,
     ) -> Result<()> {
+        use std::pin::pin;
         use stencila_site::RenderProgress;
 
         // Use render() to render to the output directory
@@ -847,47 +848,22 @@ impl Preview {
         spinner.set_message("Discovering routes...");
         spinner.enable_steady_tick(std::time::Duration::from_millis(100));
 
-        // Spawn progress handler with indicatif progress bar
-        let progress_handle = tokio::spawn(async move {
-            let mut progress_bar: Option<ProgressBar> = None;
-
-            while let Some(progress) = rx.recv().await {
-                match progress {
-                    RenderProgress::FilesFound { documents, .. } => {
-                        // Clear spinner and create progress bar
-                        spinner.finish_and_clear();
-                        let pb = ProgressBar::new(documents as u64);
-                        pb.set_style(
-                            ProgressStyle::default_bar()
-                                .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} documents ({eta})")
-                                .expect("valid template")
-                                .progress_chars("#>-"),
-                        );
-                        pb.enable_steady_tick(std::time::Duration::from_millis(100));
-                        progress_bar = Some(pb);
-                    }
-                    RenderProgress::DocumentEncoded { .. } => {
-                        if let Some(pb) = &progress_bar {
-                            pb.inc(1);
-                        }
-                    }
-                    RenderProgress::DocumentFailed { path, error } => {
-                        if let Some(pb) = &progress_bar {
-                            pb.println(format!("❌ Failed: {}: {}", path.display(), error));
-                        }
-                    }
-                    RenderProgress::Complete(_) => {
-                        if let Some(pb) = progress_bar.take() {
-                            pb.finish_with_message("done");
-                        }
-                    }
-                    _ => {}
+        // Progress bar wrapper that preserves the bar on drop (for cancelled renders)
+        struct ProgressGuard(Option<ProgressBar>);
+        impl Drop for ProgressGuard {
+            fn drop(&mut self) {
+                if let Some(pb) = self.0.take() {
+                    pb.disable_steady_tick();
+                    pb.abandon_with_message("cancelled");
                 }
             }
-        });
+        }
 
-        // Call render directly
-        let result = stencila_site::render(
+        // Progress bar (created when we know document count)
+        let mut progress_bar = ProgressGuard(None);
+
+        // Create the render future
+        let render_future = stencila_site::render(
             source,
             output,
             &base_url,
@@ -903,11 +879,59 @@ impl Preview {
                 doc.call(&arguments, ExecuteOptions::default()).await?;
                 Ok(doc.root().await)
             },
-        )
-        .await;
+        );
 
-        // Wait for progress handler
-        let _ = progress_handle.await;
+        // Pin the future so we can poll it in select!
+        let mut render_future = pin!(render_future);
+
+        // Handle progress events while render runs
+        let result = loop {
+            tokio::select! {
+                // Render completed
+                result = &mut render_future => {
+                    break result;
+                }
+                // Progress event received
+                Some(progress) = rx.recv() => {
+                    match progress {
+                        RenderProgress::FilesFound { documents, .. } => {
+                            // Clear spinner and create progress bar
+                            spinner.finish_and_clear();
+                            let pb = ProgressBar::new(documents as u64);
+                            pb.set_style(
+                                ProgressStyle::default_bar()
+                                    .template("{spinner:.green} {elapsed_precise} {bar:40.cyan/blue} {pos}/{len} documents ({eta})")
+                                    .expect("valid template")
+                                    .progress_chars("━╸─"),
+                            );
+                            pb.enable_steady_tick(std::time::Duration::from_millis(100));
+                            progress_bar.0 = Some(pb);
+                        }
+                        RenderProgress::DocumentEncoded { .. } => {
+                            if let Some(pb) = &progress_bar.0 {
+                                pb.inc(1);
+                            }
+                        }
+                        RenderProgress::DocumentFailed { path, error } => {
+                            if let Some(pb) = &progress_bar.0 {
+                                pb.println(format!("❌ Failed: {}: {}", path.display(), error));
+                            }
+                        }
+                        RenderProgress::Complete(_) => {
+                            if let Some(pb) = progress_bar.0.take() {
+                                pb.finish_with_message("done");
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        };
+
+        // Clean up spinner (progress bar cleanup handled by ProgressGuard drop)
+        spinner.finish_and_clear();
+        // Explicitly drop to trigger the guard's cleanup before we return
+        drop(progress_bar);
 
         result?;
         Ok(())
@@ -927,10 +951,21 @@ impl Preview {
         // Watch site root for file changes
         let mut site_receiver = stencila_site::watch(site_root, Some(output)).await?;
 
+        // Track pending render task and what triggered it
+        enum RenderTrigger {
+            Config,
+            Site { paths: Vec<String> },
+        }
+        let mut pending_render: Option<(tokio::task::JoinHandle<Result<()>>, RenderTrigger)> = None;
+
         loop {
             tokio::select! {
                 // Ctrl+C to exit
                 _ = tokio::signal::ctrl_c() => {
+                    // Cancel any pending render before exiting
+                    if let Some((handle, _)) = pending_render.take() {
+                        handle.abort();
+                    }
                     break;
                 }
 
@@ -944,14 +979,25 @@ impl Preview {
                     match result {
                         Ok(new_config) => {
                             layout = new_config.site.and_then(|s| s.layout);
-                            message!("🔄 Config changed, re-rendering...");
-                            if let Err(error) = Self::render_site(site_root, output, layout.as_ref()).await {
-                                message!("❌ Render error: {}", error);
-                                // Continue watching - don't exit on render errors
+
+                            // Cancel any in-progress render
+                            if let Some((handle, _)) = pending_render.take() {
+                                handle.abort();
+                                // Wait for task to finish (progress bars clean up on drop)
+                                let _ = handle.await;
+                                message!("🔄 Config changed, restarting render...");
                             } else {
-                                // Notify browser to reload after successful re-render
-                                let _ = site_notify.send(SiteMessage::ConfigChange);
+                                message!("🔄 Config changed, re-rendering...");
                             }
+
+                            // Start new render
+                            let site_root = site_root.to_path_buf();
+                            let output = output.to_path_buf();
+                            let layout_clone = layout.clone();
+                            let handle = tokio::spawn(async move {
+                                Self::render_site(&site_root, &output, layout_clone.as_ref()).await
+                            });
+                            pending_render = Some((handle, RenderTrigger::Config));
                         }
                         Err(error) => {
                             message!("⚠️ Config error: {}", error);
@@ -971,18 +1017,61 @@ impl Preview {
                     } else {
                         String::new()
                     };
-                    message!("🔄 Files changed: {}{}, re-rendering...", changed.join(", "), suffix);
 
-                    if let Err(error) = Self::render_site(site_root, output, layout.as_ref()).await {
-                        message!("❌ Render error: {}", error);
-                        // Continue watching - don't exit on render errors
+                    // Cancel any in-progress render
+                    if let Some((handle, _)) = pending_render.take() {
+                        handle.abort();
+                        // Wait for task to finish (progress bars clean up on drop)
+                        let _ = handle.await;
+                        message!("🔄 Files changed: {}{}, restarting render...", changed.join(", "), suffix);
                     } else {
-                        // Notify browser to reload after successful re-render
-                        let paths: Vec<String> = event.paths.iter()
-                            .filter_map(|p| p.to_str())
-                            .map(String::from)
-                            .collect();
-                        let _ = site_notify.send(SiteMessage::SiteChange { paths });
+                        message!("🔄 Files changed: {}{}, re-rendering...", changed.join(", "), suffix);
+                    }
+
+                    // Collect paths for notification
+                    let paths: Vec<String> = event.paths.iter()
+                        .filter_map(|p| p.to_str())
+                        .map(String::from)
+                        .collect();
+
+                    // Start new render
+                    let site_root = site_root.to_path_buf();
+                    let output = output.to_path_buf();
+                    let layout_clone = layout.clone();
+                    let handle = tokio::spawn(async move {
+                        Self::render_site(&site_root, &output, layout_clone.as_ref()).await
+                    });
+                    pending_render = Some((handle, RenderTrigger::Site { paths }));
+                }
+
+                // Render completed
+                Some(result) = async {
+                    match &mut pending_render {
+                        Some((handle, _)) => Some(handle.await),
+                        None => std::future::pending().await,
+                    }
+                } => {
+                    let trigger = pending_render.take().map(|(_, t)| t);
+                    match result {
+                        Ok(Ok(())) => {
+                            // Notify browser to reload after successful re-render
+                            match trigger {
+                                Some(RenderTrigger::Config) => {
+                                    let _ = site_notify.send(SiteMessage::ConfigChange);
+                                }
+                                Some(RenderTrigger::Site { paths }) => {
+                                    let _ = site_notify.send(SiteMessage::SiteChange { paths });
+                                }
+                                None => {}
+                            }
+                        }
+                        Ok(Err(error)) => {
+                            message!("❌ Render error: {}", error);
+                            // Continue watching - don't exit on render errors
+                        }
+                        Err(_) => {
+                            // Task was aborted (cancelled), this is expected
+                        }
                     }
                 }
 
