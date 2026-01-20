@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 use itertools::Itertools;
 use serde_json;
@@ -8,11 +8,14 @@ use hayagriva::{
     ElemChildren, Entry, Formatted, Library,
     archive::locales,
     citationberg::{
-        FontStyle, FontWeight, SortKey, TextDecoration, VerticalAlign,
+        FontStyle, FontWeight, Locale, SortKey, TextDecoration, VerticalAlign,
         taxonomy::{NumberVariable, Variable},
     },
     io::to_yaml_str,
 };
+
+/// CSL locales loaded once per process (expensive to load)
+static LOCALES: LazyLock<Vec<Locale>> = LazyLock::new(locales);
 use stencila_codec::{
     eyre::{OptionExt, Result, bail},
     stencila_schema::{
@@ -67,9 +70,8 @@ pub async fn json(references: &[&Reference], style: Option<&str>) -> Result<Stri
 async fn render_references(references: &[&Reference], style: Option<&str>) -> Result<Vec<Block>> {
     let style_name = style.unwrap_or("ama");
 
-    // Load the style and locales
+    // Load the style
     let style = get_style(style_name).await?;
-    let locales = locales();
 
     // Convert references to Hayagriva entries
     let entries: Vec<Entry> = references
@@ -84,14 +86,14 @@ async fn render_references(references: &[&Reference], style: Option<&str>) -> Re
     let mut driver = BibliographyDriver::new();
     for entry in library.iter() {
         let items = vec![CitationItem::with_entry(entry)];
-        driver.citation(CitationRequest::from_items(items, &style, &locales));
+        driver.citation(CitationRequest::from_items(items, &style, &LOCALES));
     }
 
     // Render bibliography
     let result = driver.finish(BibliographyRequest {
         style: &style,
         locale: None,
-        locale_files: &locales,
+        locale_files: &LOCALES,
     });
 
     let bibliography = result.bibliography.ok_or_eyre("No references rendered")?;
@@ -114,9 +116,8 @@ pub async fn render_citations(
 
     tracing::trace!("Rendering citations");
 
-    // Load the style and locales
+    // Load the style
     let style = get_style(style_name).await?;
-    let locales = locales();
 
     // Get the set of unique references from the citations
     let mut references = HashMap::new();
@@ -164,7 +165,7 @@ pub async fn render_citations(
             })
             .collect_vec();
 
-        let citation_request = CitationRequest::from_items(citation_items, &style, &locales);
+        let citation_request = CitationRequest::from_items(citation_items, &style, &LOCALES);
 
         driver.citation(citation_request);
     }
@@ -173,7 +174,7 @@ pub async fn render_citations(
     let result = driver.finish(BibliographyRequest {
         style: &style,
         locale: None,
-        locale_files: &locales,
+        locale_files: &LOCALES,
     });
 
     // Convert rendered citations to inlines
