@@ -19,7 +19,7 @@ use serde_json::json;
 use stencila_node_media::collect_media;
 use tokio::{
     fs::{copy, create_dir_all, read_dir, read_to_string, write},
-    sync::{Semaphore, mpsc},
+    sync::mpsc,
 };
 
 use stencila_codec::{EncodeOptions, stencila_schema::Node};
@@ -249,12 +249,6 @@ where
     // Resolve logo once (avoid per-document filesystem scanning)
     let resolved_logo = resolve_logo(None, site_config.logo.as_ref(), Some(&site_root));
 
-    // Limit concurrency to number of CPU cores to avoid overwhelming I/O
-    let max_concurrency = std::thread::available_parallelism()
-        .map(|n| n.get())
-        .unwrap_or(4);
-    let semaphore = Arc::new(Semaphore::new(max_concurrency));
-
     // Wrap shared data in Arc for parallel access
     let decode_fn = Arc::new(decode_document_fn);
     let progress = Arc::new(progress);
@@ -288,7 +282,6 @@ where
             .unwrap_or_default();
 
         // Clone Arcs for this task
-        let semaphore = Arc::clone(&semaphore);
         let decode_fn = Arc::clone(&decode_fn);
         let progress = Arc::clone(&progress);
         let processed = Arc::clone(&processed);
@@ -307,9 +300,6 @@ where
         let git_branch = Arc::clone(&git_branch);
 
         let handle = tokio::spawn(async move {
-            // Acquire semaphore permit to limit concurrency
-            let _permit = semaphore.acquire().await.expect("semaphore closed");
-
             // Skip if source file doesn't exist
             if !source_path.exists() {
                 let error_msg = format!("Source file not found: {}", target);
