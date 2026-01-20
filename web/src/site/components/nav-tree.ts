@@ -201,7 +201,7 @@ export class StencilaNavTree extends LitElement {
     const linkRect = activeLink.getBoundingClientRect()
 
     if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
-      activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' })
     }
   }
 
