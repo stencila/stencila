@@ -412,6 +412,7 @@ impl RouteEntry {
 /// * `statics` - Whether to include static files (CSS, JS, images, etc.)
 /// * `route_filter` - Optional filter by route prefix (e.g., "/docs/")
 /// * `path_filter` - Optional filter by source file path prefix (e.g., "docs/")
+/// * `source_files` - Optional list of exact source file paths to filter by
 ///
 /// # Returns
 /// A list of route entries sorted by route path
@@ -421,6 +422,7 @@ pub async fn list(
     statics: bool,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
+    source_files: Option<&[PathBuf]>,
 ) -> Result<Vec<RouteEntry>> {
     // Find workspace root
     let stencila_dir = closest_stencila_dir(path, true).await?;
@@ -585,7 +587,7 @@ pub async fn list(
     }
 
     // Apply filters
-    if route_filter.is_some() || path_filter.is_some() {
+    if route_filter.is_some() || path_filter.is_some() || source_files.is_some() {
         routes.retain(|entry| {
             // Check route filter
             if let Some(filter) = route_filter
@@ -594,7 +596,7 @@ pub async fn list(
                 return false;
             }
 
-            // Check path filter
+            // Check path filter (prefix match against source paths)
             if let Some(filter) = path_filter {
                 // Match against target (relative path) or source_path
                 let matches_target = entry.target.starts_with(filter);
@@ -607,6 +609,17 @@ pub async fn list(
                         })
                 });
                 if !matches_target && !matches_source {
+                    return false;
+                }
+            }
+
+            // Check source files (exact match against source paths)
+            if let Some(files) = source_files {
+                let matches = entry
+                    .source_path
+                    .as_ref()
+                    .is_some_and(|source| files.iter().any(|file| source == file));
+                if !matches {
                     return false;
                 }
             }

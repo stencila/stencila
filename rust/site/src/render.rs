@@ -110,7 +110,8 @@ pub enum RenderProgress {
 /// * `output_dir` - The output directory for rendered files
 /// * `base_url` - Base URL for the site (used in HTML for absolute links)
 /// * `route_filter` - Optional filter to only render routes matching prefix
-/// * `path_filter` - Optional filter to only render files matching path prefix
+/// * `path_filter` - Optional filter by source file path prefix
+/// * `source_files` - Optional list of exact source file paths to render
 /// * `progress` - Optional channel for progress events
 /// * `decode_document_fn` - Async function to decode a document from a path
 ///
@@ -124,6 +125,7 @@ pub async fn render<F, Fut>(
     base_url: &str,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
+    source_files: Option<&[PathBuf]>,
     progress: Option<mpsc::Sender<RenderProgress>>,
     decode_document_fn: F,
 ) -> Result<RenderResult>
@@ -143,7 +145,15 @@ where
     send_progress!(RenderProgress::WalkingDirectory);
 
     // List all routes
-    let all_routes = list(source_dir, true, true, route_filter, path_filter).await?;
+    let all_routes = list(
+        source_dir,
+        true,
+        true,
+        route_filter,
+        path_filter,
+        source_files,
+    )
+    .await?;
 
     // Find workspace root for config
     let stencila_dir = closest_stencila_dir(source_dir, true).await?;

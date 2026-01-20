@@ -269,6 +269,7 @@ impl List {
             self.statics,
             self.route_filter.as_deref(),
             self.path_filter.as_deref(),
+            None, // No source files filter for CLI
         )
         .await?;
 
@@ -646,6 +647,7 @@ impl Render {
             &base_url,
             self.route_filter.as_deref(),
             self.path_filter.as_deref(),
+            None, // No source files filter for CLI
             Some(tx),
             |doc_path, arguments: HashMap<String, String>| async move {
                 let doc = Document::open(&doc_path, None).await?;
@@ -756,7 +758,7 @@ impl Preview {
 
         // Initial render (render() outputs uncompressed HTML with flat structure)
         message!("📁 Rendering site to temporary directory...");
-        Self::render_site(&site_root, &temp_path, layout.as_ref()).await?;
+        Self::render_site(&site_root, &temp_path, layout.as_ref(), None).await?;
 
         // Serve directly from temp_path (render uses flat structure, no decompression needed)
         let serve_dir = temp_path.clone();
@@ -824,10 +826,14 @@ impl Preview {
     }
 
     /// Render the site to the output directory
+    ///
+    /// If `changed_paths` is provided, only re-render documents matching those paths.
+    /// If `None`, render all documents (used for config changes).
     async fn render_site(
         source: &Path,
         output: &Path,
         _layout: Option<&LayoutConfig>,
+        changed_paths: Option<&[PathBuf]>,
     ) -> Result<()> {
         use std::pin::pin;
         use stencila_site::RenderProgress;
@@ -867,8 +873,9 @@ impl Preview {
             source,
             output,
             &base_url,
-            None,
-            None,
+            None,          // route_filter
+            None,          // path_filter (prefix)
+            changed_paths, // source_files (exact match)
             Some(tx),
             |doc_path, arguments: HashMap<String, String>| async move {
                 let doc = Document::open(&doc_path, None).await?;
@@ -990,12 +997,12 @@ impl Preview {
                                 message!("🔄 Config changed, re-rendering...");
                             }
 
-                            // Start new render
+                            // Start new render (full render for config changes)
                             let site_root = site_root.to_path_buf();
                             let output = output.to_path_buf();
                             let layout_clone = layout.clone();
                             let handle = tokio::spawn(async move {
-                                Self::render_site(&site_root, &output, layout_clone.as_ref()).await
+                                Self::render_site(&site_root, &output, layout_clone.as_ref(), None).await
                             });
                             pending_render = Some((handle, RenderTrigger::Config));
                         }
@@ -1028,18 +1035,19 @@ impl Preview {
                         message!("🔄 Files changed: {}{}, re-rendering...", changed.join(", "), suffix);
                     }
 
-                    // Collect paths for notification
+                    // Collect paths for notification and incremental rendering
+                    let changed_paths = event.paths.clone();
                     let paths: Vec<String> = event.paths.iter()
                         .filter_map(|p| p.to_str())
                         .map(String::from)
                         .collect();
 
-                    // Start new render
+                    // Start new render (incremental - only changed files)
                     let site_root = site_root.to_path_buf();
                     let output = output.to_path_buf();
                     let layout_clone = layout.clone();
                     let handle = tokio::spawn(async move {
-                        Self::render_site(&site_root, &output, layout_clone.as_ref()).await
+                        Self::render_site(&site_root, &output, layout_clone.as_ref(), Some(&changed_paths)).await
                     });
                     pending_render = Some((handle, RenderTrigger::Site { paths }));
                 }
@@ -1215,8 +1223,9 @@ impl Push {
             &path,
             &workspace_id,
             None, // Use current branch
-            None,
-            None,
+            None, // route_filter
+            None, // path_filter
+            None, // source_files
             self.force,
             Some(tx),
             |doc_path, arguments: HashMap<String, String>| async move {

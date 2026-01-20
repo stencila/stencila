@@ -3,7 +3,10 @@
 //! Combines rendering and uploading into a single operation.
 //! Renders a site to a temporary directory, then uploads to Stencila Cloud.
 
-use std::{collections::HashMap, path::Path};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use eyre::Result;
 use tempfile::TempDir;
@@ -82,7 +85,8 @@ pub enum PushProgress {
 /// * `workspace_id` - The workspace/site ID to push to
 /// * `branch` - Optional branch name (defaults to current git branch or "main")
 /// * `route_filter` - Optional filter to only push routes matching prefix
-/// * `path_filter` - Optional filter to only push files matching path prefix
+/// * `path_filter` - Optional filter by source file path prefix
+/// * `source_files` - Optional list of exact source file paths to push
 /// * `force` - Force upload all files even if unchanged
 /// * `progress` - Optional channel for progress events
 /// * `decode_document_fn` - Async function to decode a document from a path
@@ -97,6 +101,7 @@ pub async fn push<F, Fut>(
     branch: Option<&str>,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
+    source_files: Option<&[PathBuf]>,
     force: bool,
     progress: Option<mpsc::Sender<PushProgress>>,
     decode_document_fn: F,
@@ -174,6 +179,7 @@ where
         &base_url,
         route_filter,
         path_filter,
+        source_files,
         Some(render_tx),
         decode_document_fn,
     )
@@ -210,7 +216,8 @@ where
     });
 
     // Only reconcile when pushing the full site (no filters applied)
-    let is_filtered_push = route_filter.is_some() || path_filter.is_some();
+    let is_filtered_push =
+        route_filter.is_some() || path_filter.is_some() || source_files.is_some();
 
     // Phase 2: Upload to cloud
     let upload_result = upload::upload(
