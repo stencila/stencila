@@ -104,44 +104,52 @@ impl Executable for Article {
             .map(|(.., (citation_group, ..))| citation_group)
             .collect_vec();
 
-        // TODO: support documents using a named theme
-        let citation_style = if let Ok(Some(theme)) = stencila_themes::get(None, None).await {
-            theme
-                .variable("citation-style")
-                .map(|style| {
-                    style
-                        .trim_start_matches(['\'', '"'])
-                        .trim_end_matches(['\'', '"'])
-                })
-                .map(String::from)
-        } else {
-            None
-        };
-        match render_citations(citations, citation_style.as_deref()).await {
-            Ok((citations_content, references)) => {
-                // Assign the rendered citation content to each citation or citation or citation group
-                // so they can be applied to those in the `link` phase.
-                executor
-                    .citations
-                    .iter_mut()
-                    .zip(citations_content)
-                    .for_each(|((.., (.., old_content)), new_content)| {
-                        *old_content = Some(new_content);
-                    });
-
-                // Assign the rendered references content to each of the article's references
-                if references.is_empty() {
-                    if self.references.is_some() {
-                        self.references = None;
-                        executor.patch(&node_id, [none(NodeProperty::References)]);
-                    }
-                } else {
-                    self.references = Some(references.clone());
-                    executor.patch(&node_id, [set(NodeProperty::References, references)]);
-                }
+        if citations.is_empty() {
+            // No citations: clear references if they were previously set
+            if self.references.is_some() {
+                self.references = None;
+                executor.patch(&node_id, [none(NodeProperty::References)]);
             }
-            Err(error) => {
-                messages.push(error_to_compilation_message(error));
+        } else {
+            // TODO: support documents using a named theme
+            let citation_style = if let Ok(Some(theme)) = stencila_themes::get(None, None).await {
+                theme
+                    .variable("citation-style")
+                    .map(|style| {
+                        style
+                            .trim_start_matches(['\'', '"'])
+                            .trim_end_matches(['\'', '"'])
+                    })
+                    .map(String::from)
+            } else {
+                None
+            };
+            match render_citations(citations, citation_style.as_deref()).await {
+                Ok((citations_content, references)) => {
+                    // Assign the rendered citation content to each citation or citation or citation group
+                    // so they can be applied to those in the `link` phase.
+                    executor
+                        .citations
+                        .iter_mut()
+                        .zip(citations_content)
+                        .for_each(|((.., (.., old_content)), new_content)| {
+                            *old_content = Some(new_content);
+                        });
+
+                    // Assign the rendered references content to each of the article's references
+                    if references.is_empty() {
+                        if self.references.is_some() {
+                            self.references = None;
+                            executor.patch(&node_id, [none(NodeProperty::References)]);
+                        }
+                    } else {
+                        self.references = Some(references.clone());
+                        executor.patch(&node_id, [set(NodeProperty::References, references)]);
+                    }
+                }
+                Err(error) => {
+                    messages.push(error_to_compilation_message(error));
+                }
             }
         }
 
