@@ -15,6 +15,12 @@ export interface CacheEntry {
   /** Main content HTML from .layout-main */
   mainHTML: string
 
+  /** Left sidebar HTML (undefined = no sidebar on this page) */
+  leftSidebarHTML?: string
+
+  /** Right sidebar HTML (undefined = no sidebar on this page) */
+  rightSidebarHTML?: string
+
   /** Meta description content (optional) */
   metaDescription?: string
 

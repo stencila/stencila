@@ -28,6 +28,12 @@ export function parseHTML(html: string, contentSelector: string): CacheEntry | n
   }
   const mainHTML = mainElement.innerHTML
 
+  // Extract sidebar content (undefined if sidebar not present)
+  const leftSidebar = doc.querySelector('stencila-left-sidebar')
+  const rightSidebar = doc.querySelector('stencila-right-sidebar')
+  const leftSidebarHTML = leftSidebar?.innerHTML
+  const rightSidebarHTML = rightSidebar?.innerHTML
+
   // Extract meta description (optional)
   const metaDesc = doc.querySelector('meta[name="description"]')
   const metaDescription = metaDesc?.getAttribute('content') ?? undefined
@@ -39,6 +45,8 @@ export function parseHTML(html: string, contentSelector: string): CacheEntry | n
   return {
     title,
     mainHTML,
+    leftSidebarHTML,
+    rightSidebarHTML,
     metaDescription,
     canonical,
     timestamp: Date.now(),

@@ -21,7 +21,7 @@ import { initPrefetch } from './prefetch'
 import { scrollToId } from './scroll'
 import { generateTocFromHeadings } from './toc'
 import { DEFAULT_CONFIG } from './types'
-import type { GlideEventDetail, NavConfig, NavTrigger } from './types'
+import type { CacheEntry, GlideEventDetail, NavConfig, NavTrigger } from './types'
 
 /** Current configuration */
 let config: NavConfig = { ...DEFAULT_CONFIG }
@@ -61,14 +61,73 @@ type ScrollTarget =
   | { type: 'restore'; url: string }
 
 /**
+ * Swap sidebar content, creating or removing sidebar elements as needed
+ *
+ * This handles the case where navigating from a page without sidebars
+ * to a page with sidebars (or vice versa) requires creating/removing
+ * the sidebar elements in the DOM.
+ */
+function swapSidebars(entry: CacheEntry, contentSelector: string): void {
+  const layoutBody = document.querySelector('.layout-body')
+  const layout = document.querySelector('stencila-layout')
+  const mainElement = document.querySelector(contentSelector)
+
+  if (!layoutBody || !layout || !mainElement) {
+    return
+  }
+
+  // Handle left sidebar
+  const existingLeft = document.querySelector('stencila-left-sidebar')
+  if (entry.leftSidebarHTML !== undefined) {
+    if (existingLeft) {
+      // Update existing sidebar
+      existingLeft.innerHTML = entry.leftSidebarHTML
+    } else {
+      // Create new sidebar and insert before .layout-main
+      const newLeft = document.createElement('stencila-left-sidebar')
+      newLeft.innerHTML = entry.leftSidebarHTML
+      layoutBody.insertBefore(newLeft, mainElement)
+    }
+    layout.setAttribute('left-sidebar', '')
+  } else if (existingLeft) {
+    // Remove sidebar that's no longer needed
+    existingLeft.remove()
+    layout.removeAttribute('left-sidebar')
+  }
+
+  // Handle right sidebar
+  const existingRight = document.querySelector('stencila-right-sidebar')
+  if (entry.rightSidebarHTML !== undefined) {
+    if (existingRight) {
+      // Update existing sidebar
+      existingRight.innerHTML = entry.rightSidebarHTML
+    } else {
+      // Create new sidebar and insert after .layout-main
+      const newRight = document.createElement('stencila-right-sidebar')
+      newRight.innerHTML = entry.rightSidebarHTML
+      // Insert after .layout-main (before next sibling or at end)
+      if (mainElement.nextSibling) {
+        layoutBody.insertBefore(newRight, mainElement.nextSibling)
+      } else {
+        layoutBody.appendChild(newRight)
+      }
+    }
+    layout.setAttribute('right-sidebar', '')
+  } else if (existingRight) {
+    // Remove sidebar that's no longer needed
+    existingRight.remove()
+    layout.removeAttribute('right-sidebar')
+  }
+}
+
+/**
  * Perform the DOM swap with optional View Transition
  *
  * Scroll handling is included inside the swap so it's captured by
  * the View Transition, resulting in smooth animated transitions.
  */
 async function swapContent(
-  mainHTML: string,
-  title: string,
+  entry: CacheEntry,
   contentSelector: string,
   scrollTarget: ScrollTarget
 ): Promise<void> {
@@ -79,10 +138,13 @@ async function swapContent(
 
   const doSwap = () => {
     // Update title
-    document.title = title
+    document.title = entry.title
 
     // Swap main content
-    mainElement.innerHTML = mainHTML
+    mainElement.innerHTML = entry.mainHTML
+
+    // Swap sidebars (create/update/remove as needed)
+    swapSidebars(entry, contentSelector)
 
     // Handle scroll as part of the transition so View Transitions API
     // animates both content and scroll position together
@@ -293,8 +355,8 @@ export async function navigate(
           ? { type: 'hash', hash }
           : { type: 'top' }
 
-    // Perform the swap (includes scroll handling for smooth transition)
-    await swapContent(entry.mainHTML, entry.title, config.contentSelector, scrollTarget)
+    // Perform the swap (includes scroll and sidebar handling for smooth transition)
+    await swapContent(entry, config.contentSelector, scrollTarget)
 
     // Rehydrate components (TOC, nav tree)
     const mainElement = document.querySelector(config.contentSelector)
@@ -416,8 +478,8 @@ function handlePopstate(_event: PopStateEvent): void {
     dispatch(GlideEvents.START, detail)
 
     if (dispatch(GlideEvents.BEFORE_SWAP, detail, true)) {
-      // Restore scroll position as part of the swap for smooth transition
-      swapContent(entry.mainHTML, entry.title, config.contentSelector, { type: 'restore', url })
+      // Restore scroll position and sidebars as part of the swap for smooth transition
+      swapContent(entry, config.contentSelector, { type: 'restore', url })
         .then(() => {
           // Rehydrate components (TOC, nav tree)
           const mainElement = document.querySelector(config.contentSelector)
@@ -517,13 +579,17 @@ export function initSiteGlide(): () => void {
     initPageCache(config.cacheSize)
   }
 
-  // Cache the current page
+  // Cache the current page (including sidebars)
   if (config.cacheSize > 0) {
     const mainElement = document.querySelector(config.contentSelector)
     if (mainElement) {
+      const leftSidebar = document.querySelector('stencila-left-sidebar')
+      const rightSidebar = document.querySelector('stencila-right-sidebar')
       getPageCache().set(normalizeUrl(window.location.href), {
         title: document.title,
         mainHTML: mainElement.innerHTML,
+        leftSidebarHTML: leftSidebar?.innerHTML,
+        rightSidebarHTML: rightSidebar?.innerHTML,
         timestamp: Date.now(),
       })
     }
