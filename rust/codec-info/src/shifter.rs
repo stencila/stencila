@@ -1,9 +1,14 @@
-use std::{
-    cell::{Ref, RefCell},
-    time::Duration,
-};
+use std::{cell::RefCell, time::Duration};
 
-use similar::{Algorithm, Change, TextDiff};
+use similar::{Algorithm, ChangeTag, TextDiff};
+
+/// Pre-computed index maps for O(1) lookups
+struct IndexMaps {
+    /// Maps each generated char index to a source char index
+    generated_to_source: Vec<usize>,
+    /// Maps each source char index to a generated char index
+    source_to_generated: Vec<usize>,
+}
 
 /// Translates UTF8 character indices between two similar strings
 ///
@@ -17,13 +22,12 @@ pub struct Shifter<'source, 'generated> {
     /// The generated content produced by a codec's `to_string` method
     generated: &'generated str,
 
-    /// Whether this has been initialized. Allows avoid potentially costly
+    /// Whether this has been initialized. Allows avoiding potentially costly
     /// string comparison
     initialized: RefCell<bool>,
 
-    /// The [`DiffOp`]s representing the difference between the two strings
-    /// and used to shift character indices between the two
-    ops: RefCell<Option<Vec<Change<&'source str>>>>,
+    /// Pre-computed index maps for O(1) lookups, None if strings are equal
+    maps: RefCell<Option<IndexMaps>>,
 }
 
 impl<'source, 'generated> Shifter<'source, 'generated>
@@ -36,74 +40,114 @@ where
             source,
             generated,
             initialized: RefCell::new(false),
-            ops: RefCell::new(None),
+            maps: RefCell::new(None),
         }
     }
 
-    /// Get the [`DiffOps`], generating them just-in-time, if there is a difference
-    /// between `source` and `generated`
-    fn changes(&self) -> Ref<'_, Option<Vec<Change<&'source str>>>> {
+    /// Initialize the index maps just-in-time if needed
+    fn ensure_initialized(&self) {
         if *self.initialized.borrow() {
-            return self.ops.borrow();
+            return;
         }
 
         if self.generated == self.source {
-            self.ops.replace(None);
+            self.maps.replace(None);
         } else {
-            let ops = TextDiff::configure()
+            let diff = TextDiff::configure()
                 .algorithm(Algorithm::Myers)
                 .timeout(Duration::from_secs(1))
-                .diff_chars(self.generated, self.source)
-                .iter_all_changes()
-                .collect();
-            self.ops.replace(Some(ops));
+                .diff_chars(self.generated, self.source);
+
+            let generated_len = self.generated.chars().count();
+            let source_len = self.source.chars().count();
+
+            let mut generated_to_source = Vec::with_capacity(generated_len);
+            let mut source_to_generated = Vec::with_capacity(source_len);
+
+            let mut current_source_index = 0usize;
+            let mut current_generated_index = 0usize;
+
+            for change in diff.iter_all_changes() {
+                match change.tag() {
+                    ChangeTag::Equal => {
+                        // Character exists in both strings
+                        generated_to_source.push(current_source_index);
+                        source_to_generated.push(current_generated_index);
+                        current_generated_index += 1;
+                        current_source_index += 1;
+                    }
+                    ChangeTag::Delete => {
+                        // Character only in generated (old), map to current source position
+                        generated_to_source.push(
+                            current_source_index
+                                .saturating_sub(1)
+                                .min(source_len.saturating_sub(1)),
+                        );
+                        current_generated_index += 1;
+                    }
+                    ChangeTag::Insert => {
+                        // Character only in source (new), map to current generated position
+                        source_to_generated.push(
+                            current_generated_index
+                                .saturating_sub(1)
+                                .min(generated_len.saturating_sub(1)),
+                        );
+                        current_source_index += 1;
+                    }
+                }
+            }
+
+            self.maps.replace(Some(IndexMaps {
+                generated_to_source,
+                source_to_generated,
+            }));
         }
 
-        self.ops.borrow()
+        self.initialized.replace(true);
     }
 
     /// Translate a character index in `generated` to an index in `source`
     pub fn generated_to_source(&self, index: usize) -> usize {
-        let changes = self.changes();
-        let Some(changes) = changes.as_ref() else {
-            return index.min(self.source.chars().count() - 1);
-        };
+        self.ensure_initialized();
 
-        let mut current_new_index = 0usize;
-        for change in changes {
-            if let Some(old_index) = change.old_index() {
-                if let Some(new_index) = change.new_index() {
-                    current_new_index = new_index;
-                }
-                if old_index == index {
-                    return current_new_index;
+        let maps = self.maps.borrow();
+        match maps.as_ref() {
+            None => {
+                // Strings are equal, clamp to valid range
+                let source_len = self.source.chars().count();
+                index.min(source_len.saturating_sub(1))
+            }
+            Some(maps) => {
+                if index < maps.generated_to_source.len() {
+                    maps.generated_to_source[index]
+                } else {
+                    // Index beyond generated length, return last mapped value or 0
+                    maps.generated_to_source.last().copied().unwrap_or(0)
                 }
             }
         }
-
-        current_new_index.min(self.source.chars().count() - 1)
     }
 
     /// Translate a character index in `source` to an index in `generated`
     pub fn source_to_generated(&self, index: usize) -> usize {
-        let changes = self.changes();
-        let Some(changes) = changes.as_ref() else {
-            return index.min(self.generated.chars().count() - 1);
-        };
+        self.ensure_initialized();
 
-        let mut current_old_index = 0usize;
-        for change in changes {
-            if let Some(new_index) = change.new_index() {
-                if let Some(old_index) = change.old_index() {
-                    current_old_index = old_index;
-                }
-                if new_index == index {
-                    return current_old_index;
+        let maps = self.maps.borrow();
+        match maps.as_ref() {
+            None => {
+                // Strings are equal, clamp to valid range
+                let generated_len = self.generated.chars().count();
+                index.min(generated_len.saturating_sub(1))
+            }
+            Some(maps) => {
+                if index < maps.source_to_generated.len() {
+                    maps.source_to_generated[index]
+                } else {
+                    // Index beyond source length, return last mapped value or 0
+                    maps.source_to_generated.last().copied().unwrap_or(0)
                 }
             }
         }
-
-        current_old_index.min(self.generated.chars().count() - 1)
     }
 }
 
@@ -208,5 +252,53 @@ mod tests {
         assert_eq!(shifter.source_to_generated(1), 3);
         assert_eq!(shifter.source_to_generated(2), 6);
         assert_eq!(shifter.source_to_generated(3), 6);
+    }
+
+    #[test]
+    fn empty_source() {
+        // Source is empty, generated has content
+        // All changes are Delete operations
+        let source = "";
+        let generated = "abc";
+        let shifter = Shifter::new(source, generated);
+
+        // All generated indices should map to 0 (no valid source index exists)
+        assert_eq!(shifter.generated_to_source(0), 0);
+        assert_eq!(shifter.generated_to_source(1), 0);
+        assert_eq!(shifter.generated_to_source(2), 0);
+        assert_eq!(shifter.generated_to_source(3), 0); // beyond length
+
+        // No valid source indices, but should not panic
+        assert_eq!(shifter.source_to_generated(0), 0);
+    }
+
+    #[test]
+    fn empty_generated() {
+        // Generated is empty, source has content
+        // All changes are Insert operations
+        let source = "abc";
+        let generated = "";
+        let shifter = Shifter::new(source, generated);
+
+        // No valid generated indices, but should not panic
+        assert_eq!(shifter.generated_to_source(0), 0);
+
+        // All source indices should map to 0 (no valid generated index exists)
+        assert_eq!(shifter.source_to_generated(0), 0);
+        assert_eq!(shifter.source_to_generated(1), 0);
+        assert_eq!(shifter.source_to_generated(2), 0);
+        assert_eq!(shifter.source_to_generated(3), 0); // beyond length
+    }
+
+    #[test]
+    fn both_empty() {
+        // Both empty - strings are equal
+        let source = "";
+        let generated = "";
+        let shifter = Shifter::new(source, generated);
+
+        // Should not panic, returns 0 for any index
+        assert_eq!(shifter.generated_to_source(0), 0);
+        assert_eq!(shifter.source_to_generated(0), 0);
     }
 }

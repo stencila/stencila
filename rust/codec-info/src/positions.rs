@@ -1,4 +1,4 @@
-use std::cell::{Ref, RefCell};
+use std::cell::RefCell;
 
 /// A UTF8-based line/column position in a string
 #[derive(Debug, Default, PartialEq)]
@@ -68,6 +68,15 @@ impl Range16 {
     }
 }
 
+/// Information about a line start position
+#[derive(Clone, Copy)]
+struct LineInfo {
+    /// The UTF8 character index at the start of the line
+    char_index: usize,
+    /// The byte offset at the start of the line (for O(1) string slicing)
+    byte_offset: usize,
+}
+
 /// A caching lookup structure for finding line/column positions from UTF8 character indices and vice verse.
 ///
 /// Based on https://github.com/TheBerkin/line-col-rs/blob/master/src/lib.rs but with zero-based
@@ -77,10 +86,15 @@ pub struct Positions<'content> {
     /// The string content with the position
     content: &'content str,
 
-    /// The UTF8 character index at the start of each line
+    /// Line information (character indices and byte offsets at the start of each line)
     ///
-    /// Just-in-time populated in the `lines()` method.
-    lines: RefCell<Option<Vec<usize>>>,
+    /// Just-in-time populated in the `ensure_initialized()` method.
+    lines: RefCell<Option<Vec<LineInfo>>>,
+
+    /// The total number of characters in the content
+    ///
+    /// Just-in-time populated in the `ensure_initialized()` method.
+    char_count: RefCell<Option<usize>>,
 }
 
 impl<'content> Positions<'content> {
@@ -88,38 +102,56 @@ impl<'content> Positions<'content> {
         Self {
             content,
             lines: RefCell::new(None),
+            char_count: RefCell::new(None),
         }
     }
 
-    /// Get the lines (the UTF8 character indices at the start of each line) for the content
-    fn lines(&self) -> Ref<'_, Option<Vec<usize>>> {
-        if self.lines.borrow().is_none() {
-            let lines: Vec<usize> = std::iter::once(0)
-                .chain(
-                    self.content
-                        .chars()
-                        .enumerate()
-                        .filter_map(|(index, char)| (char == '\n').then_some(index + 1)),
-                )
-                .collect();
-            self.lines.replace(Some(lines));
+    /// Ensure line info and char count are computed
+    fn ensure_initialized(&self) {
+        if self.lines.borrow().is_some() {
+            return;
         }
 
-        self.lines.borrow()
+        let mut lines = Vec::new();
+        lines.push(LineInfo {
+            char_index: 0,
+            byte_offset: 0,
+        });
+
+        let mut char_count = 0;
+        for (byte_offset, char) in self.content.char_indices() {
+            char_count += 1;
+            if char == '\n' {
+                lines.push(LineInfo {
+                    char_index: char_count,
+                    byte_offset: byte_offset + 1, // +1 to skip the newline
+                });
+            }
+        }
+
+        self.lines.replace(Some(lines));
+        self.char_count.replace(Some(char_count));
+    }
+
+    /// Get the total character count
+    fn char_count(&self) -> usize {
+        self.ensure_initialized();
+        self.char_count.borrow().expect("should always be some")
     }
 
     /// Find the line that a character is on using binary search
     ///
-    /// Returns the index of the line and the index of the line start character.
-    fn find_line(&self, char_index: usize) -> (usize, usize) {
-        let lines = self.lines();
+    /// Returns the line index and the LineInfo for that line.
+    fn find_line(&self, char_index: usize) -> (usize, LineInfo) {
+        self.ensure_initialized();
+        let lines = self.lines.borrow();
         let lines = lines.as_ref().expect("should always be some");
 
         let mut line_range = 0..lines.len();
         while line_range.end - line_range.start > 1 {
             let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
             let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
-            if (lines[left.start]..lines[left.end]).contains(&char_index) {
+            if (lines[left.start].char_index..lines[left.end].char_index).contains(&char_index) {
                 line_range = left;
             } else {
                 line_range = right;
@@ -129,31 +161,35 @@ impl<'content> Positions<'content> {
         (line_range.start, lines[line_range.start])
     }
 
-    /// Get a the character index at the start of a line
-    fn get_line(&self, line_index: usize) -> Option<usize> {
-        let lines = self.lines();
+    /// Get the LineInfo at the start of a line
+    fn get_line(&self, line_index: usize) -> Option<LineInfo> {
+        self.ensure_initialized();
+        let lines = self.lines.borrow();
         let lines = lines.as_ref().expect("should always be some");
-
         lines.get(line_index).copied()
     }
 
     /// Get the UTF16-based column index for a UTF-8 column index
-    fn utf8_to_utf16_column(&self, utf8_line_start: usize, utf8_column: usize) -> usize {
-        if utf8_column == 0 {
+    ///
+    /// Uses byte offset to slice directly into the string (O(1)) instead of
+    /// using chars().skip() which is O(n).
+    fn utf8_to_utf16_column(&self, line_info: LineInfo, utf8_char_index: usize) -> usize {
+        let column_chars = utf8_char_index.saturating_sub(line_info.char_index);
+        if column_chars == 0 {
             return 0;
         }
 
-        let mut chars = self.content.chars().skip(utf8_line_start);
+        // Slice from the line start using byte offset (O(1))
+        let line_str = &self.content[line_info.byte_offset..];
 
         let mut utf16_column = 0;
-        for _ in 0..(utf8_column.saturating_sub(utf8_line_start)) {
-            if let Some(char) = chars.next() {
-                utf16_column += if char as u32 <= 0xFFF { 1 } else { 2 };
-                if char == '\n' {
-                    return utf16_column;
-                }
-            } else {
-                return utf16_column;
+        for (i, char) in line_str.chars().enumerate() {
+            if i >= column_chars {
+                break;
+            }
+            utf16_column += if char as u32 <= 0xFFFF { 1 } else { 2 };
+            if char == '\n' {
+                break;
             }
         }
 
@@ -161,16 +197,20 @@ impl<'content> Positions<'content> {
     }
 
     /// Get the UTF8-based column index for a UTF-16 column index
-    fn utf16_to_utf8_column(&self, utf8_line_start: usize, utf16_column: usize) -> Option<usize> {
+    ///
+    /// Uses byte offset to slice directly into the string (O(1)) instead of
+    /// using chars().skip() which is O(n).
+    fn utf16_to_utf8_column(&self, line_info: LineInfo, utf16_column: usize) -> Option<usize> {
         if utf16_column == 0 {
             return Some(0);
         }
 
-        let chars = self.content.chars().skip(utf8_line_start);
+        // Slice from the line start using byte offset (O(1))
+        let line_str = &self.content[line_info.byte_offset..];
 
         let mut utf16_count = 0;
         let mut utf8_column = 0;
-        for char in chars {
+        for char in line_str.chars() {
             let char_utf16_len = if char as u32 <= 0xFFFF { 1 } else { 2 };
 
             // Check if adding this character's UTF-16 length would exceed the specified position
@@ -183,7 +223,7 @@ impl<'content> Positions<'content> {
             }
 
             utf16_count += char_utf16_len;
-            utf8_column += 1; // Each `char` in Rust is a valid Unicode code point, one UTF-8 character position
+            utf8_column += 1;
         }
 
         if utf8_column == utf16_count {
@@ -195,16 +235,16 @@ impl<'content> Positions<'content> {
 
     /// Get the UTF8-based position at the character index in the content
     pub fn position8_at_index(&self, char_index: usize) -> Position8 {
-        let (line, line_start) = self.find_line(char_index);
-        let column = char_index.saturating_sub(line_start);
+        let (line, line_info) = self.find_line(char_index);
+        let column = char_index.saturating_sub(line_info.char_index);
 
         Position8 { line, column }
     }
 
     /// Get the UTF16-based position at the character index in the content
     pub fn position16_at_index(&self, char_index: usize) -> Position16 {
-        let (line, line_start) = self.find_line(char_index);
-        let column = self.utf8_to_utf16_column(line_start, char_index);
+        let (line, line_info) = self.find_line(char_index);
+        let column = self.utf8_to_utf16_column(line_info, char_index);
 
         Position16 { line, column }
     }
@@ -214,14 +254,14 @@ impl<'content> Positions<'content> {
     /// Returns `None` if the line index is out of bounds or the column index is beyond
     /// the end of the line.
     pub fn index_at_position8(&self, Position8 { line, column }: Position8) -> Option<usize> {
-        let line_start = self.get_line(line)?;
+        let line_info = self.get_line(line)?;
 
-        let index = line_start.saturating_add(column);
+        let index = line_info.char_index.saturating_add(column);
 
-        if let Some(next_line_start) = self.get_line(line + 1) {
-            (index < next_line_start).then_some(index)
+        if let Some(next_line_info) = self.get_line(line + 1) {
+            (index < next_line_info.char_index).then_some(index)
         } else {
-            (index < self.content.chars().count()).then_some(index)
+            (index < self.char_count()).then_some(index)
         }
     }
 
@@ -230,14 +270,14 @@ impl<'content> Positions<'content> {
     /// Returns `None` if the line index is out of bounds or the column index is beyond
     /// the end of the line.
     pub fn index_at_position16(&self, Position16 { line, column }: Position16) -> Option<usize> {
-        let line_start = self.get_line(line)?;
+        let line_info = self.get_line(line)?;
 
-        let index = line_start + self.utf16_to_utf8_column(line_start, column)?;
+        let index = line_info.char_index + self.utf16_to_utf8_column(line_info, column)?;
 
-        if let Some(next_line_start) = self.get_line(line + 1) {
-            (index < next_line_start).then_some(index)
+        if let Some(next_line_info) = self.get_line(line + 1) {
+            (index < next_line_info.char_index).then_some(index)
         } else {
-            (index < self.content.chars().count()).then_some(index)
+            (index < self.char_count()).then_some(index)
         }
     }
 }
