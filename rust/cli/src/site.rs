@@ -28,6 +28,179 @@ use stencila_config::{
 use stencila_server::{ServeOptions, SiteMessage, get_server_token};
 use tokio::sync::{broadcast, mpsc};
 
+/// Helper for managing render progress display with spinner and progress bar
+struct RenderProgressBar {
+    spinner: ProgressBar,
+    progress_bar: Option<ProgressBar>,
+    completed: bool,
+    label: Option<String>,
+}
+
+impl RenderProgressBar {
+    fn new(initial_message: &str) -> Self {
+        let spinner = ProgressBar::new_spinner();
+        spinner.set_style(
+            ProgressStyle::default_spinner()
+                .template("{spinner:.green} {msg}")
+                .expect("valid template"),
+        );
+        spinner.set_message(initial_message.to_string());
+        spinner.enable_steady_tick(std::time::Duration::from_millis(100));
+        Self {
+            spinner,
+            progress_bar: None,
+            completed: false,
+            label: None,
+        }
+    }
+
+    /// Set a label to print before the progress bar starts
+    fn with_label(mut self, label: &str) -> Self {
+        self.label = Some(label.to_string());
+        self
+    }
+
+    fn on_files_found(&mut self, documents: usize) {
+        self.spinner.finish_and_clear();
+        if let Some(label) = &self.label {
+            message(label);
+        }
+        let pb = ProgressBar::new(documents as u64);
+        pb.set_style(
+            ProgressStyle::default_bar()
+                .template(
+                    "{spinner:.green} {elapsed_precise} {bar:40.cyan/blue} {pos}/{len} documents ({eta})",
+                )
+                .expect("valid template")
+                .progress_chars("━╸─"),
+        );
+        pb.enable_steady_tick(std::time::Duration::from_millis(100));
+        self.progress_bar = Some(pb);
+    }
+
+    fn on_document_encoded(&self) {
+        if let Some(pb) = &self.progress_bar {
+            pb.inc(1);
+        }
+    }
+
+    fn on_document_failed(&self, path: &Path, error: &str) {
+        if let Some(pb) = &self.progress_bar {
+            pb.println(format!("❌ Failed: {}: {}", path.display(), error));
+        }
+    }
+
+    /// Finish and clear the progress bar (used when not persisting)
+    fn finish(&mut self) {
+        self.completed = true;
+        self.spinner.finish_and_clear();
+        if let Some(pb) = self.progress_bar.take() {
+            pb.finish_and_clear();
+        }
+    }
+
+    /// Finish with a message, keeping the bar visible
+    fn finish_with_message(&mut self, msg: &str) {
+        self.completed = true;
+        self.spinner.finish_and_clear();
+        if let Some(pb) = self.progress_bar.take() {
+            pb.finish_with_message(msg.to_string());
+        }
+    }
+}
+
+impl Drop for RenderProgressBar {
+    fn drop(&mut self) {
+        self.spinner.finish_and_clear();
+        if !self.completed
+            && let Some(pb) = self.progress_bar.take()
+        {
+            pb.disable_steady_tick();
+            pb.abandon_with_message("cancelled");
+        }
+    }
+}
+
+/// Helper for managing upload progress display
+struct UploadProgressBar {
+    progress_bar: Option<ProgressBar>,
+    completed: bool,
+    label: Option<String>,
+}
+
+impl UploadProgressBar {
+    fn new() -> Self {
+        Self {
+            progress_bar: None,
+            completed: false,
+            label: None,
+        }
+    }
+
+    /// Set a label to print before the progress bar starts
+    fn with_label(mut self, label: &str) -> Self {
+        self.label = Some(label.to_string());
+        self
+    }
+
+    fn on_upload_starting(&mut self, total: usize) {
+        if let Some(label) = &self.label {
+            message(label);
+        }
+        let pb = ProgressBar::new(total as u64);
+        pb.set_style(
+            ProgressStyle::default_bar()
+                .template(
+                    "{spinner:.green} {elapsed_precise} {bar:40.cyan/blue} {pos}/{len} files ({eta})",
+                )
+                .expect("valid template")
+                .progress_chars("━╸─"),
+        );
+        pb.enable_steady_tick(std::time::Duration::from_millis(100));
+        self.progress_bar = Some(pb);
+    }
+
+    fn on_processing(&self, processed: usize) {
+        if let Some(pb) = &self.progress_bar {
+            pb.set_position(processed as u64);
+        }
+    }
+
+    fn on_reconciling(&self) {
+        if let Some(pb) = &self.progress_bar {
+            pb.set_message("Reconciling...");
+        }
+    }
+
+    /// Finish and clear the progress bar (used when not persisting)
+    #[allow(dead_code)]
+    fn finish(&mut self) {
+        self.completed = true;
+        if let Some(pb) = self.progress_bar.take() {
+            pb.finish_and_clear();
+        }
+    }
+
+    /// Finish with a message, keeping the bar visible
+    fn finish_with_message(&mut self, msg: &str) {
+        self.completed = true;
+        if let Some(pb) = self.progress_bar.take() {
+            pb.finish_with_message(msg.to_string());
+        }
+    }
+}
+
+impl Drop for UploadProgressBar {
+    fn drop(&mut self) {
+        if !self.completed
+            && let Some(pb) = self.progress_bar.take()
+        {
+            pb.disable_steady_tick();
+            pb.abandon_with_message("cancelled");
+        }
+    }
+}
+
 /// Manage the workspace site
 #[derive(Debug, Parser)]
 #[command(alias = "sites", after_long_help = AFTER_LONG_HELP)]
@@ -565,6 +738,8 @@ pub static RENDER_AFTER_LONG_HELP: &str = cstr!(
 
 impl Render {
     pub async fn run(self) -> Result<()> {
+        use std::pin::pin;
+        use std::time::Instant;
         use stencila_site::RenderProgress;
 
         // Get config and resolve source path
@@ -586,48 +761,16 @@ impl Render {
         // Set up progress channel
         let (tx, mut rx) = mpsc::channel::<RenderProgress>(100);
 
-        // Spawn progress handler
-        let progress_handle = tokio::spawn(async move {
-            while let Some(progress) = rx.recv().await {
-                match progress {
-                    RenderProgress::WalkingDirectory => {
-                        message("📁 Walking directory");
-                    }
-                    RenderProgress::FilesFound {
-                        documents,
-                        static_files,
-                    } => {
-                        message!(
-                            "📊 Found {} documents, {} static files",
-                            documents,
-                            static_files
-                        );
-                    }
-                    RenderProgress::EncodingDocument {
-                        relative_path,
-                        index,
-                        total,
-                        ..
-                    } => {
-                        message!("📃 Rendering {}/{}: {}", index + 1, total, relative_path);
-                    }
-                    RenderProgress::DocumentFailed { path, error } => {
-                        message!("❌ Failed: {}: {}", path.display(), error);
-                    }
-                    RenderProgress::CopyingStatic { copied, total } => {
-                        if copied == total {
-                            message!("📦 Copied {} static files", total);
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        });
-
         message!("🔨 Rendering site to {}", self.output.display());
 
-        // Call render
-        let result = stencila_site::render(
+        // Track start time for elapsed reporting
+        let start_time = Instant::now();
+
+        // Create progress bar
+        let mut progress = RenderProgressBar::new("Discovering routes...");
+
+        // Create the render future
+        let render_future = stencila_site::render(
             &source,
             &self.output,
             &base_url,
@@ -644,20 +787,48 @@ impl Render {
                 doc.call(&arguments, ExecuteOptions::default()).await?;
                 Ok(doc.root().await)
             },
-        )
-        .await;
+        );
 
-        // Wait for progress handler
-        let _ = progress_handle.await;
+        // Pin the future so we can poll it in select!
+        let mut render_future = pin!(render_future);
+
+        // Handle progress events while render runs
+        let result = loop {
+            tokio::select! {
+                result = &mut render_future => break result,
+                Some(event) = rx.recv() => {
+                    match event {
+                        RenderProgress::FilesFound { documents, .. } => {
+                            progress.on_files_found(documents);
+                        }
+                        RenderProgress::DocumentEncoded { .. } => {
+                            progress.on_document_encoded();
+                        }
+                        RenderProgress::DocumentFailed { path, error } => {
+                            progress.on_document_failed(&path, &error);
+                        }
+                        RenderProgress::Complete(_) => {
+                            progress.finish();
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        };
+
+        // Ensure progress bar cleanup
+        drop(progress);
 
         let result = result?;
 
+        let elapsed = start_time.elapsed().as_secs();
         message!(
-            "✅ Rendered {} documents, {} static files, {} media files to {}",
+            "✅ Rendered {} documents, {} static files, {} media files to {} in {}s",
             result.documents_ok.len(),
             result.static_files.len(),
             result.media_files_count,
-            self.output.display()
+            self.output.display(),
+            elapsed
         );
 
         if result.media_duplicates_eliminated > 0 {
@@ -832,29 +1003,8 @@ impl Preview {
         // Base URL for local preview
         let base_url = "http://localhost:9000".to_string();
 
-        // Create spinner immediately (synchronously) to show during route discovery
-        let spinner = ProgressBar::new_spinner();
-        spinner.set_style(
-            ProgressStyle::default_spinner()
-                .template("{spinner:.green} {msg}")
-                .expect("valid template"),
-        );
-        spinner.set_message("Discovering routes...");
-        spinner.enable_steady_tick(std::time::Duration::from_millis(100));
-
-        // Progress bar wrapper that preserves the bar on drop (for cancelled renders)
-        struct ProgressGuard(Option<ProgressBar>);
-        impl Drop for ProgressGuard {
-            fn drop(&mut self) {
-                if let Some(pb) = self.0.take() {
-                    pb.disable_steady_tick();
-                    pb.abandon_with_message("cancelled");
-                }
-            }
-        }
-
-        // Progress bar (created when we know document count)
-        let mut progress_bar = ProgressGuard(None);
+        // Create progress bar
+        let mut progress = RenderProgressBar::new("Discovering routes...");
 
         // Create the render future
         let render_future = stencila_site::render(
@@ -882,40 +1032,20 @@ impl Preview {
         // Handle progress events while render runs
         let result = loop {
             tokio::select! {
-                // Render completed
-                result = &mut render_future => {
-                    break result;
-                }
-                // Progress event received
-                Some(progress) = rx.recv() => {
-                    match progress {
+                result = &mut render_future => break result,
+                Some(event) = rx.recv() => {
+                    match event {
                         RenderProgress::FilesFound { documents, .. } => {
-                            // Clear spinner and create progress bar
-                            spinner.finish_and_clear();
-                            let pb = ProgressBar::new(documents as u64);
-                            pb.set_style(
-                                ProgressStyle::default_bar()
-                                    .template("{spinner:.green} {elapsed_precise} {bar:40.cyan/blue} {pos}/{len} documents ({eta})")
-                                    .expect("valid template")
-                                    .progress_chars("━╸─"),
-                            );
-                            pb.enable_steady_tick(std::time::Duration::from_millis(100));
-                            progress_bar.0 = Some(pb);
+                            progress.on_files_found(documents);
                         }
                         RenderProgress::DocumentEncoded { .. } => {
-                            if let Some(pb) = &progress_bar.0 {
-                                pb.inc(1);
-                            }
+                            progress.on_document_encoded();
                         }
                         RenderProgress::DocumentFailed { path, error } => {
-                            if let Some(pb) = &progress_bar.0 {
-                                pb.println(format!("❌ Failed: {}: {}", path.display(), error));
-                            }
+                            progress.on_document_failed(&path, &error);
                         }
                         RenderProgress::Complete(_) => {
-                            if let Some(pb) = progress_bar.0.take() {
-                                pb.finish_with_message("done");
-                            }
+                            progress.finish();
                         }
                         _ => {}
                     }
@@ -923,10 +1053,8 @@ impl Preview {
             }
         };
 
-        // Clean up spinner (progress bar cleanup handled by ProgressGuard drop)
-        spinner.finish_and_clear();
-        // Explicitly drop to trigger the guard's cleanup before we return
-        drop(progress_bar);
+        // Ensure progress bar cleanup
+        drop(progress);
 
         result?;
         Ok(())
@@ -1112,6 +1240,8 @@ pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
 
 impl Push {
     pub async fn run(self) -> Result<()> {
+        use std::pin::pin;
+        use std::time::Instant;
         use stencila_site::PushProgress;
 
         // Resolve the provided path
@@ -1146,65 +1276,18 @@ impl Push {
         // Set up progress channel
         let (tx, mut rx) = tokio::sync::mpsc::channel::<PushProgress>(100);
 
-        // Spawn a task to handle progress updates
-        let progress_handle = tokio::spawn(async move {
-            while let Some(progress) = rx.recv().await {
-                match progress {
-                    PushProgress::WalkingDirectory => {
-                        message("📁 Walking directory");
-                    }
-                    PushProgress::FilesFound {
-                        documents,
-                        static_files,
-                    } => {
-                        message!(
-                            "📊 Found {} documents, {} static files",
-                            documents,
-                            static_files
-                        );
-                    }
-                    PushProgress::EncodingDocument {
-                        relative_path,
-                        index,
-                        total,
-                        ..
-                    } => {
-                        message!("📃 Rendering {}/{}: {}", index + 1, total, relative_path);
-                    }
-                    PushProgress::DocumentEncoded { .. } => {}
-                    PushProgress::DocumentFailed { path, error } => {
-                        message!("❌ Failed: {}: {}", path.display(), error);
-                    }
-                    PushProgress::UploadStarting { total } => {
-                        message!("☁️ Uploading {} files", total);
-                    }
-                    PushProgress::Processing {
-                        processed,
-                        uploaded,
-                        total,
-                    } => {
-                        if processed == total {
-                            let unchanged = total - uploaded;
-                            message!(
-                                "⚙️ Uploaded {}/{} files ({} unchanged)",
-                                uploaded,
-                                total,
-                                unchanged
-                            );
-                        }
-                    }
-                    PushProgress::Reconciling => {
-                        message("🔄 Reconciling files");
-                    }
-                    PushProgress::Complete(_) => {}
-                }
-            }
-        });
-
         message!("☁️ Pushing directory `{}` to workspace site", path_display);
 
-        // Call push with a decoder function
-        let result = stencila_site::push(
+        // Track start time for elapsed reporting
+        let start_time = Instant::now();
+
+        // Create progress bars for render and upload phases
+        let mut render_progress =
+            RenderProgressBar::new("Discovering routes...").with_label("📄 Rendering");
+        let mut upload_progress = UploadProgressBar::new().with_label("📤 Uploading");
+
+        // Create the push future
+        let push_future = stencila_site::push(
             &path,
             &workspace_id,
             None, // Use current branch
@@ -1222,21 +1305,62 @@ impl Push {
                 doc.call(&arguments, ExecuteOptions::default()).await?;
                 Ok(doc.root().await)
             },
-        )
-        .await;
+        );
 
-        // Wait for progress handler to finish
-        let _ = progress_handle.await;
+        // Pin the future so we can poll it in select!
+        let mut push_future = pin!(push_future);
+
+        // Handle progress events while push runs
+        let result = loop {
+            tokio::select! {
+                result = &mut push_future => break result,
+                Some(event) = rx.recv() => {
+                    match event {
+                        // Render phase
+                        PushProgress::FilesFound { documents, .. } => {
+                            render_progress.on_files_found(documents);
+                        }
+                        PushProgress::DocumentEncoded { .. } => {
+                            render_progress.on_document_encoded();
+                        }
+                        PushProgress::DocumentFailed { path, error } => {
+                            render_progress.on_document_failed(&path, &error);
+                        }
+                        // Upload phase
+                        PushProgress::UploadStarting { total } => {
+                            render_progress.finish_with_message("rendered");
+                            upload_progress.on_upload_starting(total);
+                        }
+                        PushProgress::Processing { processed, .. } => {
+                            upload_progress.on_processing(processed);
+                        }
+                        PushProgress::Reconciling => {
+                            upload_progress.on_reconciling();
+                        }
+                        PushProgress::Complete(_) => {
+                            upload_progress.finish_with_message("uploaded");
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        };
+
+        // Ensure progress bar cleanup
+        drop(render_progress);
+        drop(upload_progress);
 
         // Handle result
         let result = result?;
 
+        let elapsed = start_time.elapsed().as_secs();
         message!(
-            "✅ Push complete: {} documents, {} redirects, {} static files, {} media files",
+            "✅ Push complete: {} documents, {} redirects, {} static files, {} media files in {}s",
             result.render.documents_ok.len(),
             result.render.redirects.len(),
             result.render.static_files.len(),
-            result.render.media_files_count
+            result.render.media_files_count,
+            elapsed
         );
 
         if result.render.media_duplicates_eliminated > 0 {
