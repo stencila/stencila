@@ -2,7 +2,7 @@ use std::{
     collections::BTreeMap,
     env::current_dir,
     path::{Path, PathBuf},
-    sync::LazyLock,
+    sync::{Arc, LazyLock, OnceLock},
     time::Duration,
 };
 
@@ -66,6 +66,29 @@ pub enum LengthConversion {
     KeepUnits,
 }
 
+/// A cache cell that wraps `Arc<OnceLock<T>>` so clones share the same cache
+///
+/// When a `Theme` is cloned (e.g., returned from the cached `get()` function),
+/// all clones share the same underlying cache via `Arc`. This ensures the expensive
+/// resolution computation is done only once, not once per clone.
+#[derive(Clone)]
+struct CacheCell<T>(Arc<OnceLock<T>>);
+
+impl<T> Default for CacheCell<T> {
+    fn default() -> Self {
+        Self(Arc::new(OnceLock::new()))
+    }
+}
+
+impl<T> CacheCell<T> {
+    fn get_or_init<F>(&self, f: F) -> &T
+    where
+        F: FnOnce() -> T,
+    {
+        self.0.get_or_init(f)
+    }
+}
+
 #[derive(Clone)]
 pub struct Theme {
     /// The type of theme
@@ -91,6 +114,22 @@ pub struct Theme {
     /// Includes variables from base.css merged with theme-specific variables.
     /// Variable names have the `--` prefix stripped.
     pub variables: BTreeMap<String, String>,
+
+    /// Cached resolved variables (after var() resolution and CSS evaluation)
+    ///
+    /// This is the expensive computation shared across all LengthConversion modes.
+    /// Key: variable name, Value: evaluated CSS string (e.g., "15px", "#ff0000")
+    resolved_cache: CacheCell<BTreeMap<String, String>>,
+
+    /// Cached computed variables per LengthConversion mode
+    ///
+    /// Final JSON values after length unit conversion. Lazily populated on first access.
+    computed_cache_points: CacheCell<BTreeMap<String, Value>>,
+    computed_cache_pixels: CacheCell<BTreeMap<String, Value>>,
+    computed_cache_inches: CacheCell<BTreeMap<String, Value>>,
+    computed_cache_twips: CacheCell<BTreeMap<String, Value>>,
+    computed_cache_number: CacheCell<BTreeMap<String, Value>>,
+    computed_cache_keep_units: CacheCell<BTreeMap<String, Value>>,
 }
 
 impl Theme {
@@ -145,6 +184,13 @@ impl Theme {
             location,
             content: normalized_css,
             variables,
+            resolved_cache: CacheCell::default(),
+            computed_cache_points: CacheCell::default(),
+            computed_cache_pixels: CacheCell::default(),
+            computed_cache_inches: CacheCell::default(),
+            computed_cache_twips: CacheCell::default(),
+            computed_cache_number: CacheCell::default(),
+            computed_cache_keep_units: CacheCell::default(),
         }
     }
 
@@ -199,25 +245,86 @@ impl Theme {
         self.variables.get(name).map(|s| s.as_str())
     }
 
+    /// Get or compute the resolved variables (after var() and calc()/color-mix() evaluation)
+    ///
+    /// This is the expensive computation that is shared across all LengthConversion modes.
+    /// The result is cached in `resolved_cache` for subsequent calls.
+    fn resolved_variables(&self) -> &BTreeMap<String, String> {
+        self.resolved_cache.get_or_init(|| {
+            self.variables
+                .iter()
+                .map(|(name, value)| {
+                    let resolved = self.resolve_var_references(value, 0);
+                    let evaluated = Self::evaluate_css_value(&resolved);
+                    (name.clone(), evaluated)
+                })
+                .collect()
+        })
+    }
+
+    /// Compute a single variable into a JSON value (keeps original units)
+    ///
+    /// This is more efficient than `computed_variables()` when only one or a few variables
+    /// are needed, as it resolves just the requested variable instead of all ~1400.
+    ///
+    /// Uses `LengthConversion::KeepUnits` - for length conversion, use `computed_variable_with()`.
+    ///
+    /// # Arguments
+    /// * `name` - The variable name (without `--` prefix)
+    pub fn computed_variable(&self, name: &str) -> Option<Value> {
+        self.computed_variable_with(name, LengthConversion::KeepUnits)
+    }
+
+    /// Compute a single variable into a JSON value with specified length conversion
+    ///
+    /// This is more efficient than `computed_variables()` when only one or a few variables
+    /// are needed, as it resolves just the requested variable instead of all ~1400.
+    ///
+    /// # Arguments
+    /// * `name` - The variable name (without `--` prefix)
+    /// * `length_conversion` - How to convert CSS length values
+    pub fn computed_variable_with(
+        &self,
+        name: &str,
+        length_conversion: LengthConversion,
+    ) -> Option<Value> {
+        // Resolve just this one variable directly (don't populate entire resolved cache)
+        let value = self.variables.get(name)?;
+        let resolved = self.resolve_var_references(value, 0);
+        let evaluated = Self::evaluate_css_value(&resolved);
+        Some(Self::convert_css_value(&evaluated, name, length_conversion))
+    }
+
     /// Compute variables into JSON values
     ///
     /// Resolves var() references, evaluates calc() and color-mix() using lightningcss,
     /// normalizes colors to hex, and converts lengths according to the specified conversion.
     /// Returns typed JSON values suitable for kernels (Python matplotlib, R ggplot2, etc.)
+    ///
+    /// Results are cached per LengthConversion mode. The expensive resolution/evaluation
+    /// step is computed once and shared across all modes.
     pub fn computed_variables(
         &self,
         length_conversion: LengthConversion,
-    ) -> BTreeMap<String, Value> {
-        let mut computed = BTreeMap::new();
+    ) -> &BTreeMap<String, Value> {
+        let cache = match length_conversion {
+            LengthConversion::Points => &self.computed_cache_points,
+            LengthConversion::Pixels => &self.computed_cache_pixels,
+            LengthConversion::Inches => &self.computed_cache_inches,
+            LengthConversion::Twips => &self.computed_cache_twips,
+            LengthConversion::Number => &self.computed_cache_number,
+            LengthConversion::KeepUnits => &self.computed_cache_keep_units,
+        };
 
-        for (name, value) in &self.variables {
-            let resolved = self.resolve_var_references(value, 0);
-            let evaluated = Self::evaluate_css_value(&resolved);
-            let converted = Self::convert_css_value(&evaluated, name, length_conversion);
-            computed.insert(name.clone(), converted);
-        }
-
-        computed
+        cache.get_or_init(|| {
+            self.resolved_variables()
+                .iter()
+                .map(|(name, value)| {
+                    let converted = Self::convert_css_value(value, name, length_conversion);
+                    (name.clone(), converted)
+                })
+                .collect()
+        })
     }
 
     /// Compute variables with runtime overrides (e.g., document metadata)
@@ -247,14 +354,27 @@ impl Theme {
         let mut all_variables = self.variables.clone();
         all_variables.extend(overrides);
 
-        // Create a temporary theme-like context for resolution
+        // Create a temporary theme with FRESH caches (not shared with self).
+        // This is critical: if we used `..self.clone()`, the Arc<OnceLock> caches
+        // would be shared, and stale cached values from self would be returned
+        // instead of computing with the overridden variables.
         let runtime_theme = Theme {
+            r#type: self.r#type,
+            name: self.name.clone(),
+            location: self.location.clone(),
+            content: self.content.clone(),
             variables: all_variables,
-            ..self.clone()
+            resolved_cache: CacheCell::default(),
+            computed_cache_points: CacheCell::default(),
+            computed_cache_pixels: CacheCell::default(),
+            computed_cache_inches: CacheCell::default(),
+            computed_cache_twips: CacheCell::default(),
+            computed_cache_number: CacheCell::default(),
+            computed_cache_keep_units: CacheCell::default(),
         };
 
         // Use existing computation logic with merged variables
-        runtime_theme.computed_variables(length_conversion)
+        runtime_theme.computed_variables(length_conversion).clone()
     }
 
     /// Compute variables into `:root` CSS
@@ -264,9 +384,9 @@ impl Theme {
     pub fn computed_css(&self, length_conversion: LengthConversion) -> String {
         let mut css = ":root {\n".to_string();
         let vars = self.computed_variables(length_conversion);
-        for (name, value) in vars {
+        for (name, value) in vars.iter() {
             let value = match value {
-                Value::String(value) => value,
+                Value::String(value) => value.clone(),
                 _ => value.to_string(),
             };
             css.push_str(&format!("  --{name}: {value};\n"));
@@ -1415,6 +1535,13 @@ mod tests {
             location: None,
             content: String::new(),
             variables: vars,
+            resolved_cache: CacheCell::default(),
+            computed_cache_points: CacheCell::default(),
+            computed_cache_pixels: CacheCell::default(),
+            computed_cache_inches: CacheCell::default(),
+            computed_cache_twips: CacheCell::default(),
+            computed_cache_number: CacheCell::default(),
+            computed_cache_keep_units: CacheCell::default(),
         };
         let computed = theme.computed_variables(LengthConversion::Number);
         assert_eq!(computed.get("a"), Some(&json!("var(--b)")));

@@ -894,8 +894,9 @@ impl MicrokernelInstance {
 
         // Filter to only plot-* variables
         let mut vars: BTreeMap<_, _> = computed
-            .into_iter()
+            .iter()
             .filter(|(name, ..)| name.starts_with("plot-"))
+            .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
 
         // Resolve fonts for any -font-family variables and replace CSS stacks with resolved names

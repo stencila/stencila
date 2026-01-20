@@ -273,15 +273,12 @@ impl Codec for DocxCodec {
             None
         };
 
+        // Check theme options using single-variable lookups (avoids computing all ~1400 variables)
+        // These are theme settings, not affected by document_variables overrides
         if let Some(theme) = &theme {
-            let theme_variables = theme.computed_variables_with_overrides(
-                stencila_themes::LengthConversion::KeepUnits,
-                document_variables.clone().unwrap_or_default(),
-            );
-
             // Check theme for heading-numbering option and add --number-sections if decimal
             if let Some(serde_json::Value::String(numbering)) =
-                theme_variables.get("heading-numbering")
+                theme.computed_variable("heading-numbering")
                 && numbering == "decimal"
                 && !options.tool_args.contains(&"--number-sections".to_string())
             {
@@ -290,7 +287,7 @@ impl Codec for DocxCodec {
 
             // Check theme for article-toc option and add --toc/--toc-depth/--toc-title
             // Handle both Bool (CSS `true` parsed as JSON) and String values
-            let toc_enabled = match theme_variables.get("article-toc") {
+            let toc_enabled = match theme.computed_variable("article-toc") {
                 Some(serde_json::Value::Bool(true)) => Some(3u8), // true -> default depth 3
                 Some(serde_json::Value::String(s)) if s != "none" => {
                     // Parse as number or default to 3 for non-numeric strings
@@ -319,7 +316,7 @@ impl Codec for DocxCodec {
 
                 // Add TOC title if specified (as metadata variable, not CLI option)
                 if let Some(serde_json::Value::String(toc_title)) =
-                    theme_variables.get("article-toc-title")
+                    theme.computed_variable("article-toc-title")
                 {
                     let title_arg = format!("-M toc-title={toc_title}");
                     if !options.tool_args.iter().any(|a| a.contains("toc-title")) {

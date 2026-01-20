@@ -276,10 +276,8 @@ pub async fn standalone_html(
     // Check if heading numbering is enabled in theme
     let heading_numbering_attr = theme
         .and_then(|t| {
-            t.computed_variables(stencila_themes::LengthConversion::KeepUnits)
-                .get("heading-numbering")
-                .and_then(|v| v.as_str())
-                .map(|s| s.to_string())
+            t.computed_variable("heading-numbering")
+                .and_then(|v| v.as_str().map(|s| s.to_string()))
         })
         .filter(|v| v == "decimal")
         .map(|v| format!(r#" data-heading-numbering="{v}""#))
