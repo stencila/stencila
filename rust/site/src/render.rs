@@ -589,9 +589,7 @@ async fn render_document_route(
                 let shifter = Shifter::new(&original_source, &generated_source);
 
                 let nodemap_file = html_file.with_file_name("nodemap.json");
-                let nodemap = encode_info
-                    .mapping
-                    .to_nodemap(&original_source, Some(&shifter));
+                let nodemap = encode_info.mapping.to_nodemap(Some(&shifter));
                 let nodemap_json = serde_json::to_string(&nodemap)?;
                 write(&nodemap_file, nodemap_json).await?;
             }
