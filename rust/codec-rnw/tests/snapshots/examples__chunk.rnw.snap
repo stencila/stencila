@@ -24,3 +24,15 @@ All:
 #| fig.width: 12
 plot(1:10)
 @
+
+
+Knitr results=hide:
+<<results_hide,echo=FALSE,hidden=TRUE>>=
+x <- 1
+@
+
+
+Knitr include=FALSE:
+<<include_false,echo=FALSE,hidden=TRUE>>=
+y <- 2
+@

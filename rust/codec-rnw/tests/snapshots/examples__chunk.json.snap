@@ -59,6 +59,40 @@ expression: article
         "string": "#| fig.height: 6\n#| fig.width: 12\nplot(1:10)\n"
       },
       "programmingLanguage": "r"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nKnitr results=hide:\n"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "id": "results_hide",
+      "code": {
+        "string": "x <- 1\n"
+      },
+      "programmingLanguage": "r",
+      "isEchoed": false,
+      "isHidden": true
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nKnitr include=FALSE:\n"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "id": "include_false",
+      "code": {
+        "string": "y <- 2\n"
+      },
+      "programmingLanguage": "r",
+      "isEchoed": false,
+      "isHidden": true
     }
   ],
   "repository": "https://github.com/stencila/stencila",

@@ -18,3 +18,15 @@ All:
 <<chunkname,fig.height=6, fig.width=12>>=
 plot(1:10)
 @
+
+Knitr results=hide:
+
+<<results_hide, echo=FALSE, results=hide>>=
+x <- 1
+@
+
+Knitr include=FALSE:
+
+<<include_false, include=FALSE>>=
+y <- 2
+@

@@ -718,6 +718,20 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
                             is_hidden = Some(value.to_lowercase() == "true")
                         } else if name == "echo" {
                             is_echoed = Some(value.to_lowercase() == "true")
+                        } else if name == "results" {
+                            // Handle knitr results option: results=hide, results='hide', results="hide"
+                            let value = value.trim_matches(|c| c == '\'' || c == '"');
+                            if value.eq_ignore_ascii_case("hide")
+                                || value.eq_ignore_ascii_case("false")
+                            {
+                                is_hidden = Some(true);
+                            }
+                        } else if name == "include" {
+                            // Handle knitr include option: include=FALSE hides both code and output
+                            if value.eq_ignore_ascii_case("false") {
+                                is_echoed = Some(false);
+                                is_hidden = Some(true);
+                            }
                         } else {
                             code_options.push((name, value))
                         }
