@@ -104,7 +104,12 @@ pub async fn watch(
 
             tokio::select! {
                 Some(paths) = file_receiver.recv() => {
-                    pending_paths.extend(paths);
+                    // Deduplicate paths (file systems often emit multiple events per save)
+                    for path in paths {
+                        if !pending_paths.contains(&path) {
+                            pending_paths.push(path);
+                        }
+                    }
                     debounce_deadline = Some(Instant::now() + Duration::from_millis(DEBOUNCE_MS));
                 }
                 _ = tokio::time::sleep(timeout), if debounce_deadline.is_some() => {
