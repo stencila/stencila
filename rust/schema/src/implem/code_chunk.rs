@@ -156,7 +156,9 @@ impl LatexCodec for CodeChunk {
             .merge_losses(lost_exec_options!(self));
 
         if context.render {
-            if let Some(outputs) = &self.outputs {
+            if let Some(outputs) = &self.outputs
+                && !matches!(self.is_hidden, Some(true))
+            {
                 if context.reproducible {
                     context.link_begin(None);
                 }
