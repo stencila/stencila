@@ -103,6 +103,7 @@ async fn source_to_references(
         },
         _ => {
             // Fallback to text parsing
+            tracing::debug!("Parsing bibliography as text");
             let refs = decode::text_to_references(&content);
             if refs.is_empty() { None } else { Some(refs) }
         }

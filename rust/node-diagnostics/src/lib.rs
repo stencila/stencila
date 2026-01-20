@@ -9,8 +9,9 @@ use strum::Display;
 use stencila_codec_info::{PoshMap, Position8, Positions, Range8};
 use stencila_format::Format;
 use stencila_schema::{
-    Block, Citation, CodeLocation, CompilationMessage, Cord, ExecutionMessage, IfBlockClause,
-    Inline, MessageLevel, Node, NodeId, NodeProperty, NodeType, Visitor, WalkControl, WalkNode,
+    Bibliography, Block, Citation, CodeLocation, CompilationMessage, Cord, ExecutionMessage,
+    IfBlockClause, Inline, MessageLevel, Node, NodeId, NodeProperty, NodeType, Visitor,
+    WalkControl, WalkNode,
 };
 
 /// Collect all diagnostic messages from a node
@@ -456,6 +457,18 @@ impl Collector {
             code,
         );
     }
+
+    /// Visit a [`Bibliography`] node and collect its compilation messages
+    fn visit_bibliography(&mut self, bibliography: &Bibliography) {
+        self.compilation_messages(
+            bibliography.node_type(),
+            bibliography.node_id(),
+            &Some(NodeProperty::Source),
+            &bibliography.options.compilation_messages,
+            None,
+            None,
+        );
+    }
 }
 
 macro_rules! cms {
@@ -503,7 +516,13 @@ impl Visitor for Collector {
     fn visit_node(&mut self, node: &Node) -> WalkControl {
         match node {
             Node::AppendixBreak(node) => cms!(self, node, None, None, None),
-            Node::Article(node) => cms_ems!(self, node, None, None, None),
+            Node::Article(node) => {
+                cms_ems!(self, node, None, None, None);
+                // Also collect compilation messages from the bibliography if present
+                if let Some(bibliography) = &node.options.bibliography {
+                    self.visit_bibliography(bibliography);
+                }
+            }
             Node::CallBlock(node) => cms_ems!(self, node, None, None, None),
             Node::Chat(node) => cms_ems!(self, node, None, None, None),
             Node::ChatMessage(node) => cms_ems!(self, node, None, None, None),
