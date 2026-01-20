@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail, eyre};
+use indicatif::{ProgressBar, ProgressStyle};
 use stencila_document::{Document, ExecuteOptions};
 use url::Url;
 
@@ -836,20 +837,49 @@ impl Preview {
         // Base URL for local preview
         let base_url = "http://localhost:9000".to_string();
 
-        // Spawn progress handler
+        // Create spinner immediately (synchronously) to show during route discovery
+        let spinner = ProgressBar::new_spinner();
+        spinner.set_style(
+            ProgressStyle::default_spinner()
+                .template("{spinner:.green} {msg}")
+                .expect("valid template"),
+        );
+        spinner.set_message("Discovering routes...");
+        spinner.enable_steady_tick(std::time::Duration::from_millis(100));
+
+        // Spawn progress handler with indicatif progress bar
         let progress_handle = tokio::spawn(async move {
+            let mut progress_bar: Option<ProgressBar> = None;
+
             while let Some(progress) = rx.recv().await {
                 match progress {
-                    RenderProgress::EncodingDocument {
-                        relative_path,
-                        index,
-                        total,
-                        ..
-                    } => {
-                        message!("📃 Rendering {}/{}: {}", index + 1, total, relative_path);
+                    RenderProgress::FilesFound { documents, .. } => {
+                        // Clear spinner and create progress bar
+                        spinner.finish_and_clear();
+                        let pb = ProgressBar::new(documents as u64);
+                        pb.set_style(
+                            ProgressStyle::default_bar()
+                                .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} documents ({eta})")
+                                .expect("valid template")
+                                .progress_chars("#>-"),
+                        );
+                        pb.enable_steady_tick(std::time::Duration::from_millis(100));
+                        progress_bar = Some(pb);
+                    }
+                    RenderProgress::DocumentEncoded { .. } => {
+                        if let Some(pb) = &progress_bar {
+                            pb.inc(1);
+                        }
                     }
                     RenderProgress::DocumentFailed { path, error } => {
-                        message!("❌ Failed: {}: {}", path.display(), error);
+                        if let Some(pb) = &progress_bar {
+                            pb.println(format!("❌ Failed: {}: {}", path.display(), error));
+                        }
+                    }
+                    RenderProgress::Complete(_) => {
+                        if let Some(pb) = progress_bar.take() {
+                            pb.finish_with_message("done");
+                        }
                     }
                     _ => {}
                 }
@@ -880,7 +910,6 @@ impl Preview {
         let _ = progress_handle.await;
 
         result?;
-        message!("✅ Site rendered");
         Ok(())
     }
 

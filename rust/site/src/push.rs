@@ -102,8 +102,8 @@ pub async fn push<F, Fut>(
     decode_document_fn: F,
 ) -> Result<PushResult>
 where
-    F: Fn(std::path::PathBuf, HashMap<String, String>) -> Fut,
-    Fut: std::future::Future<Output = Result<Node>>,
+    F: Fn(std::path::PathBuf, HashMap<String, String>) -> Fut + Send + Sync + 'static,
+    Fut: std::future::Future<Output = Result<Node>> + Send + 'static,
 {
     // Helper macro to send progress events
     macro_rules! send_progress {

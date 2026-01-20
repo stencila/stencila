@@ -7,14 +7,19 @@
 use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
 };
 
 use eyre::Result;
+use futures::future::{join_all, try_join_all};
 use serde_json::json;
 use stencila_node_media::collect_media;
 use tokio::{
     fs::{copy, create_dir_all, read_dir, read_to_string, write},
-    sync::mpsc,
+    sync::{Semaphore, mpsc},
 };
 
 use stencila_codec::{EncodeOptions, stencila_schema::Node};
@@ -44,11 +49,6 @@ struct RenderedDocument {
 
     /// The computed route (e.g., "/report/")
     route: String,
-
-    /// Media files collected for this document: (filename, file_path)
-    /// Note: The filename already contains the SeaHash (e.g., "a1b2c3d4.png")
-    /// as computed by node-media's Collector
-    media_files: Vec<(String, PathBuf)>,
 }
 
 /// Result of a render operation
@@ -128,8 +128,8 @@ pub async fn render<F, Fut>(
     decode_document_fn: F,
 ) -> Result<RenderResult>
 where
-    F: Fn(PathBuf, HashMap<String, String>) -> Fut,
-    Fut: std::future::Future<Output = Result<Node>>,
+    F: Fn(PathBuf, HashMap<String, String>) -> Fut + Send + Sync + 'static,
+    Fut: std::future::Future<Output = Result<Node>> + Send + 'static,
 {
     // Helper macro to send progress events
     macro_rules! send_progress {
@@ -242,128 +242,207 @@ where
 
     // Get or generate nav items once (avoid expensive auto-generation per document)
     // If site.nav is configured, use it; otherwise auto-generate from routes
-    let generated_nav_items: Vec<NavItem>;
-    let nav_items: &Vec<NavItem> = if let Some(ref nav) = site_config.nav {
-        nav
+    let nav_items: Vec<NavItem> = if let Some(ref nav) = site_config.nav {
+        nav.clone()
     } else {
-        generated_nav_items = auto_generate_nav(&document_routes, &None, Some(&site_root));
-        &generated_nav_items
+        auto_generate_nav(&document_routes, &None, Some(&site_root))
     };
 
     // Resolve logo once (avoid per-document filesystem scanning)
     let resolved_logo = resolve_logo(None, site_config.logo.as_ref(), Some(&site_root));
 
-    // Render all documents
-    let mut docs_rendered: Vec<RenderedDocument> = Vec::new();
-    let mut docs_failed: Vec<(PathBuf, String)> = Vec::new();
-    let mut media_created: usize = 0;
-    for (
-        index,
-        RouteEntry {
-            route,
-            target,
-            source_path,
-            spread_arguments,
-            ..
-        },
-    ) in document_routes.iter().enumerate()
-    {
-        let source_path = source_path.as_ref().expect("filtered above");
+    // Limit concurrency to number of CPU cores to avoid overwhelming I/O
+    let max_concurrency = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(4);
+    let semaphore = Arc::new(Semaphore::new(max_concurrency));
 
-        // Skip if source file doesn't exist
-        if !source_path.exists() {
-            let error_msg = format!("Source file not found: {}", target);
-            tracing::warn!("{}", error_msg);
-            docs_failed.push((source_path.clone(), error_msg));
-            continue;
-        }
+    // Wrap shared data in Arc for parallel access
+    let decode_fn = Arc::new(decode_document_fn);
+    let progress = Arc::new(progress);
+    let processed = Arc::new(AtomicUsize::new(0));
+    let total = document_routes.len();
+    let source_dir = Arc::new(source_dir.to_path_buf());
+    let base_url = Arc::new(base_url.to_string());
+    let glide_attrs = Arc::new(glide_attrs);
+    let site_config = Arc::new(site_config);
+    let output_dir = Arc::new(output_dir.to_path_buf());
+    let document_routes = Arc::new(document_routes);
+    let routes_set = Arc::new(routes_set);
+    let nav_items = Arc::new(nav_items);
+    let resolved_logo = Arc::new(resolved_logo);
+    let workspace_id = Arc::new(workspace_id);
+    let git_repo_root = Arc::new(git_repo_root.map(|p| p.to_path_buf()));
+    let git_origin = Arc::new(git_origin.map(|s| s.to_string()));
+    let git_branch = Arc::new(git_branch.map(|s| s.to_string()));
 
-        // Determine relative path
-        let relative_path = source_path
-            .strip_prefix(source_dir)
-            .map(|p| p.to_string_lossy().to_string())
-            .unwrap_or_else(|_| source_path.to_string_lossy().to_string());
-
-        send_progress!(RenderProgress::EncodingDocument {
-            path: source_path.clone(),
-            relative_path,
-            index,
-            total: document_routes.len(),
-        });
-
-        // Convert spread arguments from IndexMap to HashMap
-        let arguments: HashMap<String, String> = spread_arguments
+    // Spawn render tasks - using tokio::spawn allows the runtime to schedule
+    // blocking operations across its thread pool rather than blocking a single task
+    let mut handles = Vec::with_capacity(document_routes.len());
+    for entry in document_routes.iter() {
+        let route = entry.route.clone();
+        let target = entry.target.clone();
+        let source_path = entry.source_path.clone().expect("filtered above");
+        let arguments: HashMap<String, String> = entry
+            .spread_arguments
             .as_ref()
             .map(|args| args.iter().map(|(k, v)| (k.clone(), v.clone())).collect())
             .unwrap_or_default();
 
-        // Decode document and render it to route HTML
-        let result = async {
-            let node = decode_document_fn(source_path.clone(), arguments.clone()).await?;
-            render_document_route(
-                route,
-                node,
-                base_url,
-                &glide_attrs,
-                &site_config,
-                source_path,
-                output_dir,
-                &document_routes,
-                &routes_set,
-                nav_items,
-                resolved_logo.as_ref(),
-                workspace_id.as_deref(),
-                git_repo_root,
-                git_origin,
-                git_branch,
-            )
-            .await
-        }
-        .await;
+        // Clone Arcs for this task
+        let semaphore = Arc::clone(&semaphore);
+        let decode_fn = Arc::clone(&decode_fn);
+        let progress = Arc::clone(&progress);
+        let processed = Arc::clone(&processed);
+        let source_dir = Arc::clone(&source_dir);
+        let base_url = Arc::clone(&base_url);
+        let glide_attrs = Arc::clone(&glide_attrs);
+        let site_config = Arc::clone(&site_config);
+        let output_dir = Arc::clone(&output_dir);
+        let document_routes = Arc::clone(&document_routes);
+        let routes_set = Arc::clone(&routes_set);
+        let nav_items = Arc::clone(&nav_items);
+        let resolved_logo = Arc::clone(&resolved_logo);
+        let workspace_id = Arc::clone(&workspace_id);
+        let git_repo_root = Arc::clone(&git_repo_root);
+        let git_origin = Arc::clone(&git_origin);
+        let git_branch = Arc::clone(&git_branch);
 
+        let handle = tokio::spawn(async move {
+            // Acquire semaphore permit to limit concurrency
+            let _permit = semaphore.acquire().await.expect("semaphore closed");
+
+            // Skip if source file doesn't exist
+            if !source_path.exists() {
+                let error_msg = format!("Source file not found: {}", target);
+                tracing::warn!("{}", error_msg);
+                return Err((source_path, error_msg));
+            }
+
+            // Determine relative path and send progress
+            let relative_path = source_path
+                .strip_prefix(source_dir.as_ref())
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_else(|_| source_path.to_string_lossy().to_string());
+
+            let index = processed.fetch_add(1, Ordering::SeqCst);
+            if let Some(tx) = progress.as_ref() {
+                // Use try_send to avoid blocking if channel is full
+                let _ = tx.try_send(RenderProgress::EncodingDocument {
+                    path: source_path.clone(),
+                    relative_path,
+                    index,
+                    total,
+                });
+            }
+
+            // Decode document and render it to route HTML
+            let result = async {
+                let node = decode_fn(source_path.clone(), arguments.clone()).await?;
+                render_document_route(
+                    &route,
+                    node,
+                    &base_url,
+                    &glide_attrs,
+                    &site_config,
+                    &source_path,
+                    &output_dir,
+                    &document_routes,
+                    &routes_set,
+                    &nav_items,
+                    resolved_logo.as_ref().as_ref(),
+                    workspace_id.as_deref(),
+                    git_repo_root.as_deref(),
+                    git_origin.as_deref(),
+                    git_branch.as_deref(),
+                )
+                .await
+            }
+            .await;
+
+            match result {
+                Ok(rendered) => {
+                    if let Some(tx) = progress.as_ref() {
+                        // Use try_send to avoid blocking if channel is full
+                        let _ = tx.try_send(RenderProgress::DocumentEncoded {
+                            path: source_path.clone(),
+                            route: rendered.route.clone(),
+                        });
+                    }
+                    Ok(rendered)
+                }
+                Err(e) => {
+                    let error_msg = if arguments.is_empty() {
+                        e.to_string()
+                    } else {
+                        format!("Spread variant {arguments:?}: {e}")
+                    };
+                    if let Some(tx) = progress.as_ref() {
+                        // Use try_send to avoid blocking if channel is full
+                        let _ = tx.try_send(RenderProgress::DocumentFailed {
+                            path: source_path.clone(),
+                            error: error_msg.clone(),
+                        });
+                    }
+                    Err((source_path, error_msg))
+                }
+            }
+        });
+        handles.push(handle);
+    }
+
+    // Await all spawned tasks
+    let render_results: Vec<_> = join_all(handles)
+        .await
+        .into_iter()
+        .map(|r| r.expect("task panicked"))
+        .collect();
+
+    // Separate successful and failed renders
+    let mut docs_rendered: Vec<RenderedDocument> = Vec::new();
+    let mut docs_failed: Vec<(PathBuf, String)> = Vec::new();
+    for result in render_results {
         match result {
-            Ok(rendered) => {
-                media_created += rendered.media_files.len();
-                send_progress!(RenderProgress::DocumentEncoded {
-                    path: source_path.clone(),
-                    route: rendered.route.clone(),
-                });
-                docs_rendered.push(rendered);
-            }
-            Err(e) => {
-                let error_msg = if arguments.is_empty() {
-                    e.to_string()
-                } else {
-                    format!("Spread variant {arguments:?}: {e}")
-                };
-                send_progress!(RenderProgress::DocumentFailed {
-                    path: source_path.clone(),
-                    error: error_msg.clone(),
-                });
-                docs_failed.push((source_path.clone(), error_msg));
-            }
+            Ok(rendered) => docs_rendered.push(rendered),
+            Err((path, error)) => docs_failed.push((path, error)),
         }
     }
 
     // Write redirect files
     for (route, target, status) in &redirects {
-        render_redirect_route(route, target, status, output_dir).await?;
+        render_redirect_route(route, target, status, &output_dir).await?;
     }
 
-    // Copy static files (preserving relative paths)
-    for (index, static_path) in static_files.iter().enumerate() {
-        let relative = static_path.strip_prefix(&site_root)?;
-        let dest_path = output_dir.join(normalize_storage_path(&relative.to_string_lossy()));
-        if let Some(parent) = dest_path.parent() {
-            create_dir_all(parent).await?;
+    // Copy static files in parallel (preserving relative paths)
+    let static_total = static_files.len();
+    let static_copied = Arc::new(AtomicUsize::new(0));
+    let copy_futures = static_files.iter().map(|static_path| {
+        let site_root = site_root.clone();
+        let output_dir = Arc::clone(&output_dir);
+        let static_copied = Arc::clone(&static_copied);
+        let progress = Arc::clone(&progress);
+        let static_path = static_path.clone();
+        async move {
+            let relative = static_path.strip_prefix(&site_root)?;
+            let dest_path = output_dir.join(normalize_storage_path(&relative.to_string_lossy()));
+            if let Some(parent) = dest_path.parent() {
+                create_dir_all(parent).await?;
+            }
+            copy(&static_path, &dest_path).await?;
+
+            let copied = static_copied.fetch_add(1, Ordering::SeqCst) + 1;
+            if let Some(tx) = progress.as_ref() {
+                // Use try_send to avoid blocking if channel is full
+                let _ = tx.try_send(RenderProgress::CopyingStatic {
+                    copied,
+                    total: static_total,
+                });
+            }
+
+            Ok::<_, eyre::Error>(static_path)
         }
-        copy(static_path, &dest_path).await?;
-
-        send_progress!(RenderProgress::CopyingStatic {
-            copied: index + 1,
-            total: static_files.len(),
-        });
-    }
+    });
+    let copied_files: Vec<PathBuf> = try_join_all(copy_futures).await?;
 
     // Count unique media files
     let media_dir = output_dir.join("media");
@@ -378,8 +457,6 @@ where
         0
     };
 
-    let duplicate_count = media_created.saturating_sub(media_files_count);
-
     let result = RenderResult {
         documents_ok: docs_rendered
             .iter()
@@ -390,12 +467,16 @@ where
             .iter()
             .map(|(r, t, _)| (r.clone(), t.clone()))
             .collect(),
-        static_files: static_files.clone(),
+        static_files: copied_files,
         media_files_count,
-        media_duplicates_eliminated: duplicate_count,
+        // Deduplication count is no longer tracked per-document; set to 0
+        media_duplicates_eliminated: 0,
     };
 
-    send_progress!(RenderProgress::Complete(result.clone()));
+    if let Some(tx) = progress.as_ref() {
+        // Use try_send to avoid blocking if channel is full
+        let _ = tx.try_send(RenderProgress::Complete(result.clone()));
+    }
 
     Ok(result)
 }
@@ -439,18 +520,8 @@ async fn render_document_route(
     let media_dir = output_dir.join("media");
     create_dir_all(&media_dir).await?;
 
-    // Capture existing media files before encoding to detect new files
-    let mut existing_media: HashSet<String> = HashSet::new();
-    if media_dir.exists() {
-        let mut entries = read_dir(&media_dir).await?;
-        while let Some(entry) = entries.next_entry().await? {
-            if let Some(filename) = entry.file_name().to_str() {
-                existing_media.insert(filename.to_string());
-            }
-        }
-    }
-
     // Collect media from source file to shared media directory
+    // (deduplication happens automatically via hash-based filenames)
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Rewrite file-based links to route-based links
@@ -539,25 +610,9 @@ async fn render_document_route(
         }
     }
 
-    // Collect NEW media files created during this document's encoding
-    let mut media_files = Vec::new();
-    if media_dir.exists() {
-        let mut entries = read_dir(&media_dir).await?;
-        while let Some(entry) = entries.next_entry().await? {
-            let entry_path = entry.path();
-            if entry_path.is_file()
-                && let Some(filename) = entry_path.file_name().and_then(|n| n.to_str())
-                && !existing_media.contains(filename)
-            {
-                media_files.push((filename.to_string(), entry_path));
-            }
-        }
-    }
-
     Ok(RenderedDocument {
         source_path: source_file.to_path_buf(),
         route,
-        media_files,
     })
 }
 

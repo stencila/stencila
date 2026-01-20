@@ -29,6 +29,7 @@ ignore = "0.4.25"
 headless_chrome = { version = "1.0.20", features = ["rustls"] }
 indexmap = { version = "2.13.0", features = ["serde"] }
 image = { version = "0.25.9", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
+indicatif = "0.17"
 insta = { version = "1.46.1", features = ["json", "yaml", "redactions"] }
 itertools = "0.14.0"
 lightningcss = "1.0.0-alpha.68"

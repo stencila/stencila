@@ -8752,6 +8752,7 @@ dependencies = [
  "flate2",
  "glob",
  "indexmap 2.13.0",
+ "indicatif",
  "itertools 0.14.0",
  "pathdiff",
  "reqwest 0.13.1",
