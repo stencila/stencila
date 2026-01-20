@@ -14,7 +14,6 @@ use tokio::sync::mpsc;
 
 use stencila_codec::stencila_schema::Node;
 use stencila_codec_utils::get_current_branch;
-use stencila_dirs::{closest_stencila_dir, workspace_dir};
 
 use crate::{
     render::{self, RenderProgress, RenderResult},
@@ -246,10 +245,8 @@ where
 /// Resolve the base URL for a site
 ///
 /// Prefers custom domain if configured, otherwise uses default site URL.
-async fn resolve_base_url(path: &Path, workspace_id: &str) -> Result<String> {
-    let stencila_dir = closest_stencila_dir(path, true).await?;
-    let workspace_dir = workspace_dir(&stencila_dir)?;
-    let config = stencila_config::config(&workspace_dir)?;
+async fn resolve_base_url(_path: &Path, workspace_id: &str) -> Result<String> {
+    let config = stencila_config::get()?;
 
     let base_url = if let Some(site) = &config.site
         && let Some(domain) = &site.domain

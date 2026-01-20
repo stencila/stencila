@@ -388,7 +388,7 @@ fn author_schema(_gen: &mut schemars::SchemaGenerator) -> schemars::Schema {
 /// "/about/" = "README.md"
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct SiteConfig {
     /// Custom domain for the site
     ///

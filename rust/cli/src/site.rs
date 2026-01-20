@@ -21,9 +21,9 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access, update_site_reviews,
 };
 use stencila_config::{
-    ConfigTarget, LayoutConfig, ReviewsSpec, RouteSpread, SpreadMode, config,
-    config_add_redirect_route, config_add_route, config_remove_route, config_set,
-    config_set_route_spread, config_unset, validate_placeholders,
+    ConfigTarget, LayoutConfig, ReviewsSpec, RouteSpread, SpreadMode, config_add_redirect_route,
+    config_add_route, config_remove_route, config_set_route_spread, get, set_value, unset_value,
+    validate_placeholders,
 };
 use stencila_server::{ServeOptions, SiteMessage, get_server_token};
 use tokio::sync::{broadcast, mpsc};
@@ -132,10 +132,8 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 
 impl Show {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
         // Read workspace config to get workspace ID (used as site ID)
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = match cfg.workspace.and_then(|w| w.id) {
             Some(id) => id,
             None => {
@@ -151,12 +149,12 @@ impl Show {
 
         // Sync domain to config
         // Re-read config to check current site settings (we consumed cfg.workspace earlier)
-        let cfg = config(&path)?;
+        let cfg = get()?;
         if let Some(domain) = &details.domain {
-            config_set("site.domain", domain, ConfigTarget::Nearest)?;
+            set_value("site.domain", domain, ConfigTarget::Nearest)?;
         } else if cfg.site.as_ref().and_then(|s| s.domain.as_ref()).is_some() {
             // Domain was removed on cloud, clear it from config
-            config_unset("site.domain", ConfigTarget::Nearest)?;
+            unset_value("site.domain", ConfigTarget::Nearest)?;
         }
 
         // Format access based on boolean flags (matching dashboard logic)
@@ -264,7 +262,6 @@ impl List {
         use stencila_site::{RouteType, list};
 
         let routes = list(
-            &current_dir()?,
             self.expanded,
             self.statics,
             self.route_filter.as_deref(),
@@ -568,28 +565,17 @@ pub static RENDER_AFTER_LONG_HELP: &str = cstr!(
 
 impl Render {
     pub async fn run(self) -> Result<()> {
-        use stencila_dirs::{closest_stencila_dir, workspace_dir};
         use stencila_site::RenderProgress;
 
-        // Resolve source path
-        let source = self.source.map_or_else(current_dir, Ok)?;
-
-        // If using default path, check if site.root is configured
-        let source = {
-            let cfg = stencila_config::config(&source)?;
-            if let Some(site) = &cfg.site
-                && let Some(root) = &site.root
-            {
-                let stencila_dir = closest_stencila_dir(&source, true).await?;
-                let ws_dir = workspace_dir(&stencila_dir)?;
-                root.resolve(&ws_dir)
-            } else {
-                source
-            }
+        // Get config and resolve source path
+        let cfg = stencila_config::get()?;
+        let source = if let Some(site) = &cfg.site
+            && let Some(root) = &site.root
+        {
+            root.resolve(&cfg.workspace_dir)
+        } else {
+            self.source.map_or_else(current_dir, Ok)?
         };
-
-        // Get base_url from config or use localhost
-        let cfg = stencila_config::config(&source)?;
         let base_url = cfg
             .site
             .as_ref()
@@ -734,23 +720,18 @@ pub static PREVIEW_AFTER_LONG_HELP: &str = cstr!(
 
 impl Preview {
     pub async fn run(self) -> Result<()> {
-        use stencila_dirs::{closest_stencila_dir, workspace_dir};
-
-        let cwd = current_dir()?;
-        let cfg = config(&cwd)?;
+        let cfg = get()?;
 
         // Get layout from config
         let layout = cfg.site.as_ref().and_then(|s| s.layout.clone());
 
         // Resolve site root
-        let stencila_dir = closest_stencila_dir(&cwd, true).await?;
-        let ws_dir = workspace_dir(&stencila_dir)?;
         let site_root = cfg
             .site
             .as_ref()
             .and_then(|s| s.root.as_ref())
-            .map(|r| r.resolve(&ws_dir))
-            .unwrap_or_else(|| cwd.clone());
+            .map(|r| r.resolve(&cfg.workspace_dir))
+            .unwrap_or_else(|| cfg.workspace_dir.clone());
 
         // Create temp directory (auto-cleans on drop)
         let temp_dir = tempfile::tempdir()?;
@@ -813,7 +794,14 @@ impl Preview {
             tokio::signal::ctrl_c().await?;
         } else {
             message!("👁️ Watching for changes (Ctrl+C to stop)");
-            Self::watch_and_rerender(&cwd, &site_root, &temp_path, layout, site_notify_tx).await?;
+            Self::watch_and_rerender(
+                &cfg.workspace_dir,
+                &site_root,
+                &temp_path,
+                layout,
+                site_notify_tx,
+            )
+            .await?;
         }
 
         // Graceful shutdown
@@ -1124,7 +1112,6 @@ pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
 
 impl Push {
     pub async fn run(self) -> Result<()> {
-        use stencila_dirs::{closest_stencila_dir, workspace_dir};
         use stencila_site::PushProgress;
 
         // Resolve the provided path
@@ -1137,13 +1124,11 @@ impl Push {
 
         // If using default path ("."), check if site.root is configured
         if is_default_path {
-            let cfg = stencila_config::config(&path)?;
+            let cfg = stencila_config::get()?;
             if let Some(site) = &cfg.site
                 && let Some(root) = &site.root
             {
-                let stencila_dir = closest_stencila_dir(&path, true).await?;
-                let ws_dir = workspace_dir(&stencila_dir)?;
-                path = root.resolve(&ws_dir);
+                path = root.resolve(&cfg.workspace_dir);
             }
         }
 
@@ -1337,9 +1322,7 @@ enum AccessCommand {
 
 impl Access {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = match cfg.workspace.and_then(|w| w.id) {
             Some(id) => id,
             None => {
@@ -1624,7 +1607,7 @@ impl Reviews {
     pub async fn run(self) -> Result<()> {
         let path = self.path.clone().map_or_else(current_dir, Ok)?;
 
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = cfg.workspace.and_then(|w| w.id);
 
         // If no subcommand, show current settings
@@ -1639,8 +1622,8 @@ impl Reviews {
         }
     }
 
-    fn show(path: &Path) -> Result<()> {
-        let cfg = config(path)?;
+    fn show(_path: &Path) -> Result<()> {
+        let cfg = get()?;
 
         let reviews_enabled = cfg
             .site
@@ -1736,22 +1719,22 @@ impl ReviewsOn {
         // Check if we need to convert from boolean to table form
         // (can't set nested keys on a boolean value)
         if is_reviews_boolean(path) {
-            let _ = config_unset("site.reviews", ConfigTarget::Nearest);
+            let _ = unset_value("site.reviews", ConfigTarget::Nearest);
         }
 
         // Always use the table form to preserve existing settings
-        config_set("site.reviews.enabled", "true", ConfigTarget::Nearest)?;
+        set_value("site.reviews.enabled", "true", ConfigTarget::Nearest)?;
 
         // Set local config for public/anon if specified
         if self.public {
-            config_set("site.reviews.public", "true", ConfigTarget::Nearest)?;
+            set_value("site.reviews.public", "true", ConfigTarget::Nearest)?;
         } else if self.no_public {
-            config_set("site.reviews.public", "false", ConfigTarget::Nearest)?;
+            set_value("site.reviews.public", "false", ConfigTarget::Nearest)?;
         }
         if self.anon {
-            config_set("site.reviews.anon", "true", ConfigTarget::Nearest)?;
+            set_value("site.reviews.anon", "true", ConfigTarget::Nearest)?;
         } else if self.no_anon {
-            config_set("site.reviews.anon", "false", ConfigTarget::Nearest)?;
+            set_value("site.reviews.anon", "false", ConfigTarget::Nearest)?;
         }
 
         // Sync to cloud if workspace_id is available
@@ -1788,7 +1771,7 @@ impl ReviewsOn {
         message!("✅ Reviews enabled");
 
         // Re-read config to show current settings
-        let cfg = config(path)?;
+        let cfg = get()?;
         if let Some(site) = &cfg.site
             && let Some(reviews) = &site.reviews
         {
@@ -1831,7 +1814,7 @@ pub static REVIEWS_OFF_AFTER_LONG_HELP: &str = cstr!(
 
 impl ReviewsOff {
     async fn run(self, _path: &Path, workspace_id: Option<&str>) -> Result<()> {
-        config_set("site.reviews", "false", ConfigTarget::Nearest)?;
+        set_value("site.reviews", "false", ConfigTarget::Nearest)?;
 
         // Sync to cloud if workspace_id is available
         if let Some(workspace_id) = workspace_id {
@@ -1970,44 +1953,44 @@ impl ReviewsConfig {
         // Check if we need to convert from boolean to table form
         // (can't set nested keys on a boolean value)
         if is_reviews_boolean(path) {
-            let _ = config_unset("site.reviews", ConfigTarget::Nearest);
+            let _ = unset_value("site.reviews", ConfigTarget::Nearest);
         }
 
         // Handle public/no-public
         if self.public {
-            config_set("site.reviews.public", "true", ConfigTarget::Nearest)?;
+            set_value("site.reviews.public", "true", ConfigTarget::Nearest)?;
         } else if self.no_public {
-            config_set("site.reviews.public", "false", ConfigTarget::Nearest)?;
+            set_value("site.reviews.public", "false", ConfigTarget::Nearest)?;
         }
 
         // Handle anon/no-anon
         if self.anon {
-            config_set("site.reviews.anon", "true", ConfigTarget::Nearest)?;
+            set_value("site.reviews.anon", "true", ConfigTarget::Nearest)?;
         } else if self.no_anon {
-            config_set("site.reviews.anon", "false", ConfigTarget::Nearest)?;
+            set_value("site.reviews.anon", "false", ConfigTarget::Nearest)?;
         }
 
         // Handle position
         if let Some(position) = &self.position {
-            config_set("site.reviews.position", position, ConfigTarget::Nearest)?;
+            set_value("site.reviews.position", position, ConfigTarget::Nearest)?;
         }
 
         // Handle types
         if let Some(types) = &self.types {
             let types_toml = format_toml_string_array(types);
-            config_set("site.reviews.types", &types_toml, ConfigTarget::Nearest)?;
+            set_value("site.reviews.types", &types_toml, ConfigTarget::Nearest)?;
         }
 
         // Handle min/max selection
         if let Some(min) = self.min_selection {
-            config_set(
+            set_value(
                 "site.reviews.min-selection",
                 &min.to_string(),
                 ConfigTarget::Nearest,
             )?;
         }
         if let Some(max) = self.max_selection {
-            config_set(
+            set_value(
                 "site.reviews.max-selection",
                 &max.to_string(),
                 ConfigTarget::Nearest,
@@ -2016,25 +1999,25 @@ impl ReviewsConfig {
 
         // Handle shortcuts
         if self.shortcuts {
-            config_set("site.reviews.shortcuts", "true", ConfigTarget::Nearest)?;
+            set_value("site.reviews.shortcuts", "true", ConfigTarget::Nearest)?;
         } else if self.no_shortcuts {
-            config_set("site.reviews.shortcuts", "false", ConfigTarget::Nearest)?;
+            set_value("site.reviews.shortcuts", "false", ConfigTarget::Nearest)?;
         }
 
         // Handle include patterns
         if let Some(include) = &self.include {
             let include_toml = format_toml_string_array(include);
-            config_set("site.reviews.include", &include_toml, ConfigTarget::Nearest)?;
+            set_value("site.reviews.include", &include_toml, ConfigTarget::Nearest)?;
         }
 
         // Handle exclude patterns
         if let Some(exclude) = &self.exclude {
             let exclude_toml = format_toml_string_array(exclude);
-            config_set("site.reviews.exclude", &exclude_toml, ConfigTarget::Nearest)?;
+            set_value("site.reviews.exclude", &exclude_toml, ConfigTarget::Nearest)?;
         }
 
         // Ensure reviews are enabled if configuring settings
-        let cfg = config(path)?;
+        let cfg = get()?;
         let reviews_enabled = cfg
             .site
             .as_ref()
@@ -2043,11 +2026,11 @@ impl ReviewsConfig {
             .unwrap_or(false);
 
         if !reviews_enabled {
-            config_set("site.reviews.enabled", "true", ConfigTarget::Nearest)?;
+            set_value("site.reviews.enabled", "true", ConfigTarget::Nearest)?;
         }
 
         // Re-read and validate the updated config
-        let cfg = config(path)?;
+        let cfg = get()?;
         if let Some(site) = &cfg.site
             && let Some(reviews) = &site.reviews
         {
@@ -2220,9 +2203,7 @@ pub static DOMAIN_SET_AFTER_LONG_HELP: &str = cstr!(
 
 impl DomainSet {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = cfg
             .workspace
             .and_then(|w| w.id)
@@ -2232,7 +2213,7 @@ impl DomainSet {
         let response = set_site_domain(&workspace_id, &self.domain).await?;
 
         // Sync domain to config
-        config_set("site.domain", &response.domain, ConfigTarget::Nearest)?;
+        set_value("site.domain", &response.domain, ConfigTarget::Nearest)?;
 
         // Display appropriate message and instructions based on status
         match response.status.as_str() {
@@ -2316,9 +2297,7 @@ pub static DOMAIN_STATUS_AFTER_LONG_HELP: &str = cstr!(
 impl DomainStatus {
     #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = cfg
             .workspace
             .and_then(|w| w.id)
@@ -2378,9 +2357,7 @@ pub static DOMAIN_CLEAR_AFTER_LONG_HELP: &str = cstr!(
 
 impl DomainClear {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = cfg
             .workspace
             .and_then(|w| w.id)
@@ -2416,7 +2393,7 @@ impl DomainClear {
         delete_site_domain(&workspace_id).await?;
 
         // Clear domain from config
-        config_unset("site.domain", ConfigTarget::Nearest)?;
+        unset_value("site.domain", ConfigTarget::Nearest)?;
 
         message!(
             "✅ Custom domain removed from site {}",
@@ -2486,9 +2463,7 @@ pub static BRANCH_LIST_AFTER_LONG_HELP: &str = cstr!(
 
 impl BranchList {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = cfg
             .workspace
             .and_then(|w| w.id)
@@ -2583,8 +2558,6 @@ pub static BRANCH_DELETE_AFTER_LONG_HELP: &str = cstr!(
 
 impl BranchDelete {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.map_or_else(current_dir, Ok)?;
-
         // Check if trying to delete protected branches
         if self.branch_name == "main" || self.branch_name == "master" {
             bail!(
@@ -2593,7 +2566,7 @@ impl BranchDelete {
             );
         }
 
-        let cfg = config(&path)?;
+        let cfg = get()?;
         let workspace_id = cfg
             .workspace
             .and_then(|w| w.id)
@@ -2698,8 +2671,8 @@ fn format_toml_string_array(values: &[String]) -> String {
 /// Returns true if reviews is configured as `reviews = true` or `reviews = false`,
 /// rather than as a table `[site.reviews]`. We need to unset the boolean before
 /// setting nested keys like `site.reviews.enabled`.
-fn is_reviews_boolean(path: &Path) -> bool {
-    let Ok(cfg) = config(path) else {
+fn is_reviews_boolean(_path: &Path) -> bool {
+    let Ok(cfg) = get() else {
         return false;
     };
 

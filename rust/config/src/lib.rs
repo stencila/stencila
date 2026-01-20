@@ -38,6 +38,7 @@ mod layout;
 mod outputs;
 mod remotes;
 mod reviews;
+mod singleton;
 mod site;
 mod utils;
 mod watch;
@@ -56,16 +57,18 @@ pub use {
         config_update_remote_watch,
     },
     reviews::{ReviewType, ReviewsConfig, ReviewsPosition, ReviewsSpec},
+    singleton::{ConfigChangeEvent, get, load_and_validate, subscribe},
     site::{
         AuthorSpec, FeaturedContent, FeaturedCta, GlideConfig, LogoConfig, LogoSpec, NavItem,
         RedirectStatus, RouteSpread, SiteConfig, SiteFormat, config_add_redirect_route,
         config_add_route, config_remove_route, config_set_route_spread,
     },
-    utils::{ConfigTarget, config_set, config_unset, config_value, find_config_file},
+    utils::{ConfigTarget, set_value, unset_value},
     watch::watch,
 };
 
-use utils::build_figment;
+// Crate-internal re-exports
+pub(crate) use utils::find_config_file;
 
 #[cfg(test)]
 mod tests;
@@ -98,72 +101,6 @@ impl ConfigRelativePath {
     pub fn resolve(&self, base_dir: &Path) -> PathBuf {
         base_dir.join(&self.0)
     }
-}
-
-/// Resolve a configuration at a path
-///
-/// Searches up the directory tree from the path, and then finally in
-/// `~/.config/stencila`, looking for `stencila.toml` and `stencila.local.toml`
-/// files and merges them into a path-specific config.
-///
-/// # Precedence (highest to lowest)
-///
-/// 1. Current directory: `stencila.local.toml` → `stencila.toml`
-/// 2. Parent directories: `../stencila.local.toml` → `../stencila.toml` (and so on)
-/// 3. User config: `~/.config/stencila/stencila.toml`
-///
-/// # Error Handling
-///
-/// Missing config files are silently ignored. Malformed config files are logged
-/// as warnings and skipped. Only returns an error if no valid config could be
-/// constructed or if path normalization fails.
-pub fn config(path: &Path) -> Result<Config> {
-    let figment = build_figment(path, true)?;
-    let config: Config = figment.extract().map_err(|error| eyre!("{error}"))?;
-
-    // Validate workspace configuration
-    if let Some(workspace) = &config.workspace {
-        workspace.validate()?;
-    }
-
-    // Validate site configuration
-    if let Some(site) = &config.site {
-        site.validate()?;
-    }
-
-    // Validate site navigation items (must be internal routes)
-    if let Some(site) = &config.site
-        && let Some(nav) = &site.nav
-    {
-        for item in nav {
-            item.validate()?;
-        }
-    }
-
-    // Validate all route configurations
-    if let Some(site) = &config.site
-        && let Some(routes) = &site.routes
-    {
-        for (path_key, target) in routes {
-            target.validate(path_key)?;
-        }
-    }
-
-    // Validate all remote configurations
-    if let Some(remotes) = &config.remotes {
-        for (path_key, value) in remotes {
-            value.validate(path_key)?;
-        }
-    }
-
-    // Validate all output configurations
-    if let Some(outputs) = &config.outputs {
-        for (path_key, target) in outputs {
-            target.validate(path_key)?;
-        }
-    }
-
-    Ok(config)
 }
 
 /// A configuration key that is managed by a specific command
@@ -207,7 +144,7 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 /// id = "ws3x9k2m7fab"
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct WorkspaceConfig {
     /// The workspace public ID from Stencila Cloud
     ///
@@ -248,8 +185,15 @@ impl WorkspaceConfig {
 
 /// Stencila configuration
 #[skip_serializing_none]
-#[derive(Debug, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 pub struct Config {
+    /// The workspace directory this config was loaded from
+    ///
+    /// This is set when the config is loaded and is not serialized.
+    #[serde(skip)]
+    #[schemars(skip)]
+    pub workspace_dir: PathBuf,
+
     /// Workspace configuration
     ///
     /// Workspaces are the primary entity in Stencila Cloud, representing a
@@ -313,11 +257,11 @@ impl Config {
     /// - `site` is not configured
     /// - `site.root` is not configured
     /// - The path is not exactly the site root
-    pub fn path_is_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
+    pub fn path_is_site_root(&self, path: &Path) -> bool {
         if let Some(site_config) = &self.site
             && let Some(site_root) = &site_config.root
         {
-            let site_root_path = site_root.resolve(workspace_dir);
+            let site_root_path = site_root.resolve(&self.workspace_dir);
 
             // Normalize both paths for comparison
             let path_canonical = path.canonicalize().ok();
@@ -338,7 +282,6 @@ impl Config {
     /// # Arguments
     ///
     /// * `path` - The path to check (can be relative or absolute)
-    /// * `workspace_dir` - The workspace directory used to resolve relative paths
     ///
     /// # Returns
     ///
@@ -350,11 +293,11 @@ impl Config {
     /// - `site` is not configured
     /// - `site.root` is not configured
     /// - The path is not under the site root
-    pub fn path_is_in_site_root(&self, path: &Path, workspace_dir: &Path) -> bool {
+    pub fn path_is_in_site_root(&self, path: &Path) -> bool {
         if let Some(site_config) = &self.site
             && let Some(site_root) = &site_config.root
         {
-            let site_root_path = site_root.resolve(workspace_dir);
+            let site_root_path = site_root.resolve(&self.workspace_dir);
 
             // Normalize both paths for comparison
             let path_canonical = path.canonicalize().ok();

@@ -7,7 +7,7 @@ use eyre::Result;
 use notify::{Event, RecursiveMode, Watcher, event::EventKind};
 use tokio::sync::mpsc;
 
-use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, config, find_config_file};
+use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, find_config_file, singleton};
 
 /// Watch for config file changes and receive updates through a channel
 ///
@@ -95,7 +95,7 @@ pub async fn watch(base_path: &Path) -> Result<Option<mpsc::Receiver<Result<Conf
                 }
                 _ = tokio::time::sleep(timeout), if debounce_deadline.is_some() => {
                     if pending_change {
-                        match config(&base_path_owned) {
+                        match singleton::load_and_validate(&base_path_owned) {
                             Ok(cfg) => {
                                 if sender.send(Ok(cfg)).await.is_err() {
                                     break; // Receiver dropped

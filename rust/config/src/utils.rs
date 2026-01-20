@@ -7,7 +7,6 @@ use eyre::{OptionExt, Result, eyre};
 use figment::{
     Figment,
     providers::{Format, Toml},
-    value::Value,
 };
 use toml_edit::{DocumentMut, Item, Table, value};
 
@@ -60,19 +59,18 @@ pub(crate) fn normalize_path(path: &Path) -> Result<PathBuf> {
     }
 }
 
-/// Collect all config file paths in merge order (lowest to highest precedence)
+/// Collect config file paths in merge order (lowest to highest precedence)
 ///
 /// Returns paths in the order they should be merged:
 /// 1. User config (~/.config/stencila/stencila.toml and stencila.local.toml) - if included
-/// 2. Ancestor configs (from root down to current directory)
-/// 3. Each level: stencila.toml then stencila.local.toml
-pub(crate) fn collect_config_paths(
-    start_dir: &Path,
+/// 2. Workspace config (stencila.toml then stencila.local.toml at workspace_dir only)
+pub(crate) fn collect_paths(
+    workspace_dir: &Path,
     include_user_config: bool,
 ) -> Result<Vec<PathBuf>> {
     use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME};
 
-    let mut paths = Vec::new();
+    let mut paths = Vec::with_capacity(2);
 
     // 1. Add user config (lowest precedence) - only if requested
     if include_user_config
@@ -83,27 +81,10 @@ pub(crate) fn collect_config_paths(
         paths.push(user_config_dir.join(CONFIG_LOCAL_FILENAME));
     }
 
-    // 2. Collect all ancestor directories (from start up to root)
-    let mut ancestors = Vec::new();
-    let mut current = start_dir.to_path_buf();
-
-    loop {
-        ancestors.push(current.clone());
-
-        match current.parent() {
-            Some(parent) => current = parent.to_path_buf(),
-            None => break,
-        }
-    }
-
-    // 3. Reverse to get root-to-current order, then add config files
-    ancestors.reverse();
-
-    for ancestor in ancestors {
-        // Add regular config first, then local override
-        paths.push(ancestor.join(CONFIG_FILENAME));
-        paths.push(ancestor.join(CONFIG_LOCAL_FILENAME));
-    }
+    // 2. Add workspace config (highest precedence)
+    // Regular config first, then local override
+    paths.push(workspace_dir.join(CONFIG_FILENAME));
+    paths.push(workspace_dir.join(CONFIG_LOCAL_FILENAME));
 
     Ok(paths)
 }
@@ -112,7 +93,7 @@ pub(crate) fn collect_config_paths(
 ///
 /// Starts from `start_dir` and walks up until it finds a file with the given name,
 /// or reaches the root.
-pub fn find_config_file(start_dir: &Path, filename: &str) -> Option<PathBuf> {
+pub(crate) fn find_config_file(start_dir: &Path, filename: &str) -> Option<PathBuf> {
     let mut current = start_dir.to_path_buf();
 
     loop {
@@ -138,7 +119,7 @@ pub(crate) fn build_figment(path: &Path, include_user_config: bool) -> Result<Fi
     let start_path = normalize_path(path)?;
 
     // Collect all config file paths in merge order (lowest to highest precedence)
-    let config_paths = collect_config_paths(&start_path, include_user_config)?;
+    let config_paths = collect_paths(&start_path, include_user_config)?;
 
     // Build figment by merging configs in order, with individual file error handling
     let mut figment = Figment::new();
@@ -160,22 +141,6 @@ pub(crate) fn build_figment(path: &Path, include_user_config: bool) -> Result<Fi
     Ok(figment)
 }
 
-/// Get a specific config value by dot-notation key
-///
-/// Uses Figment's built-in `find_value()` which understands dot notation
-/// including array access (e.g., `packages[0].name`).
-///
-/// Returns `None` if the key doesn't exist, or an error if config loading fails.
-pub fn config_value(path: &Path, key: &str) -> Result<Option<Value>> {
-    let figment = build_figment(path, true)?;
-
-    match figment.find_value(key) {
-        Ok(value) => Ok(Some(value)),
-        Err(err) if matches!(err.kind, figment::error::Kind::MissingField(_)) => Ok(None),
-        Err(err) => Err(eyre!(err)),
-    }
-}
-
 /// Target location for config operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConfigTarget {
@@ -194,7 +159,7 @@ pub enum ConfigTarget {
 /// Preserves formatting and comments in the TOML file.
 ///
 /// Returns the path to the modified config file.
-pub fn config_set(key: &str, value_str: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
+pub fn set_value(key: &str, value_str: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
     use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME};
 
     // Determine the target file path
@@ -240,7 +205,7 @@ pub fn config_set(key: &str, value_str: &str, target: ConfigTarget) -> Result<st
 /// the value at the specified key path. Preserves formatting and comments.
 ///
 /// Returns the path to the modified config file.
-pub fn config_unset(key: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
+pub fn unset_value(key: &str, target: ConfigTarget) -> Result<std::path::PathBuf> {
     use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME};
 
     // Determine the target file path

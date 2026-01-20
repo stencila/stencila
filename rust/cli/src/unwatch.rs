@@ -5,7 +5,7 @@ use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{delete_watch, ensure_workspace};
-use stencila_config::{ConfigTarget, config_unset, config_update_remote_watch};
+use stencila_config::{ConfigTarget, config_update_remote_watch, unset_value};
 use stencila_remotes::{RemoteService, get_remotes_for_path};
 use url::Url;
 
@@ -177,23 +177,21 @@ impl Cli {
     ///
     /// This removes the workspace watch that runs `update.sh` on each git push.
     async fn run_workspace_unwatch(&self) -> Result<()> {
-        let cwd = std::env::current_dir()?;
-
         // Check if workspace is being watched
-        let cfg = stencila_config::config(&cwd)?;
+        let cfg = stencila_config::get()?;
         let Some(watch_id) = cfg.workspace.as_ref().and_then(|w| w.watch.clone()) else {
             message!("ℹ️ Workspace is not being watched");
             return Ok(());
         };
 
         // Get workspace ID (required for delete_workspace_watch)
-        let (workspace_id, _) = ensure_workspace(&cwd).await?;
+        let (workspace_id, _) = ensure_workspace(&cfg.workspace_dir).await?;
 
         // Call Cloud API to delete workspace watch
         delete_watch(&workspace_id, &watch_id).await?;
 
         // Remove watch ID from stencila.toml
-        config_unset("workspace.watch", ConfigTarget::Nearest)?;
+        unset_value("workspace.watch", ConfigTarget::Nearest)?;
 
         message!("👁️ Workspace watch disabled");
 

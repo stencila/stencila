@@ -114,7 +114,7 @@ impl Cli {
         }
 
         // Get workspace_id from config for filtering watches
-        let workspace_id: Option<String> = stencila_config::config(&workspace_dir)
+        let workspace_id: Option<String> = stencila_config::get()
             .ok()
             .and_then(|cfg| cfg.workspace.and_then(|w| w.id));
 

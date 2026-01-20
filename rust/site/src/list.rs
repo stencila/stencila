@@ -14,7 +14,6 @@ use ignore::WalkBuilder;
 use indexmap::IndexMap;
 
 use stencila_config::Config;
-use stencila_dirs::{closest_stencila_dir, workspace_dir};
 use stencila_format::Format;
 use stencila_spread::{ParameterValues, Parameters, Run, SpreadMode, apply_template};
 
@@ -183,20 +182,16 @@ fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) -> R
 ///
 /// Returns a tuple of (document_paths, static_file_paths)
 async fn walk_directory(path: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>)> {
-    // Find workspace root
-    let stencila_dir = closest_stencila_dir(path, true).await?;
-    let workspace_dir = workspace_dir(&stencila_dir)?;
-
     // Load config from workspace
-    let config = stencila_config::config(&workspace_dir)?;
+    let config = stencila_config::get()?;
 
     // Resolve site root
     let site_root = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(&workspace_dir)
+        root.resolve(&config.workspace_dir)
     } else {
-        workspace_dir.clone()
+        config.workspace_dir.clone()
     };
 
     // Validate that the requested path is within the site root
@@ -407,7 +402,6 @@ impl RouteEntry {
 /// List routes for a site, including both configured and file-implied routes
 ///
 /// # Arguments
-/// * `path` - The path to search (typically the workspace or site root)
 /// * `expanded` - Whether to expand spread routes into individual variants
 /// * `statics` - Whether to include static files (CSS, JS, images, etc.)
 /// * `route_filter` - Optional filter by route prefix (e.g., "/docs/")
@@ -417,27 +411,22 @@ impl RouteEntry {
 /// # Returns
 /// A list of route entries sorted by route path
 pub async fn list(
-    path: &Path,
     expanded: bool,
     statics: bool,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
     source_files: Option<&[PathBuf]>,
 ) -> Result<Vec<RouteEntry>> {
-    // Find workspace root
-    let stencila_dir = closest_stencila_dir(path, true).await?;
-    let workspace_dir = workspace_dir(&stencila_dir)?;
-
     // Load config from workspace
-    let config = stencila_config::config(&workspace_dir)?;
+    let config = stencila_config::get()?;
 
     // Resolve site root
     let site_root = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(&workspace_dir)
+        root.resolve(&config.workspace_dir)
     } else {
-        workspace_dir.clone()
+        config.workspace_dir.clone()
     };
 
     let mut routes: Vec<RouteEntry> = Vec::new();
@@ -537,7 +526,7 @@ pub async fn list(
             }
 
             // Compute the route for this document
-            let route = match determine_route(&doc_path, &workspace_dir, &config) {
+            let route = match determine_route(&doc_path, &config.workspace_dir, &config) {
                 Ok(r) => r,
                 Err(_) => continue, // Skip files that can't be routed
             };
@@ -569,7 +558,7 @@ pub async fn list(
                     .replace('\\', "/");
 
                 // Compute the route for this static file
-                let route = match determine_route(&static_path, &workspace_dir, &config) {
+                let route = match determine_route(&static_path, &config.workspace_dir, &config) {
                     Ok(r) => r,
                     Err(_) => continue, // Skip files that can't be routed
                 };

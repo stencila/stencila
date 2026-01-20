@@ -9,7 +9,6 @@ use async_lsp::lsp_types::request::Request;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-use stencila_dirs::closest_workspace_dir;
 use stencila_document::{Document, DocumentTrackingEntries, RemoteStatus};
 use stencila_remotes::{RemoteService, WatchDirection, calculate_remote_statuses};
 use stencila_schema::NodeId;
@@ -75,14 +74,12 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
         }
     };
 
-    // Get workspace directory and repo URL for watch details
-    let workspace_dir = closest_workspace_dir(&path, false).await.ok();
-
-    // Get workspace_id from config for fetching watches
-    let workspace_id: Option<String> = workspace_dir
+    // Get workspace config for fetching watches and remote info
+    let config = stencila_config::get().ok();
+    let workspace_id: Option<String> = config
         .as_ref()
-        .and_then(|dir| stencila_config::config(dir).ok())
-        .and_then(|cfg| cfg.workspace.and_then(|w| w.id));
+        .and_then(|cfg| cfg.workspace.as_ref().and_then(|w| w.id.clone()));
+    let workspace_dir: Option<PathBuf> = config.as_ref().map(|cfg| cfg.workspace_dir.clone());
 
     // Fetch watch details from API
     let watch_details_map: HashMap<String, stencila_cloud::WatchDetailsResponse> =

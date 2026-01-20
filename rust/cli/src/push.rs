@@ -17,7 +17,6 @@ use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 use stencila_codecs::PushResult;
-use stencila_dirs::closest_workspace_dir;
 use stencila_document::Document;
 use stencila_remotes::{
     RemoteService, WatchDirection, WatchPrMode, expand_path_to_files, find_remote_for_arguments,
@@ -693,11 +692,7 @@ impl Cli {
         }
 
         // Load config to find remotes
-        let cwd = std::env::current_dir()?;
-
-        // Find workspace directory to resolve config paths correctly
-        let workspace_dir = closest_workspace_dir(&cwd, false).await?;
-        let config = stencila_config::config(&workspace_dir)?;
+        let config = stencila_config::get()?;
 
         let Some(remotes) = &config.remotes else {
             bail!(
@@ -709,8 +704,8 @@ impl Cli {
         let mut files_with_remotes: BTreeMap<PathBuf, Vec<Url>> = BTreeMap::new();
 
         for (path_key, value) in remotes {
-            let config_path =
-                stencila_config::ConfigRelativePath(path_key.clone()).resolve(&workspace_dir);
+            let config_path = stencila_config::ConfigRelativePath(path_key.clone())
+                .resolve(&config.workspace_dir);
 
             // Expand path to actual files
             let files = expand_path_to_files(&config_path)?;
@@ -931,8 +926,7 @@ impl Cli {
             && self.case.is_empty()
         {
             // Try to read from [remotes] config (look for Spread target)
-            let workspace_dir = closest_workspace_dir(path, false).await?;
-            let toml_config = stencila_config::config(&workspace_dir)?;
+            let toml_config = stencila_config::get()?;
 
             let file_key = path
                 .file_name()

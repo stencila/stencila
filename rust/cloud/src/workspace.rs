@@ -9,7 +9,7 @@ use std::path::Path;
 use eyre::{Result, eyre};
 use serde::{Deserialize, Serialize};
 
-use stencila_config::{ConfigTarget, config, config_set};
+use stencila_config::{ConfigTarget, set_value, get};
 
 use crate::{base_url, client, process_response};
 
@@ -158,7 +158,7 @@ pub async fn list_workspaces() -> Result<Vec<WorkspaceResponse>> {
 #[tracing::instrument]
 pub async fn ensure_workspace(path: &Path) -> Result<(String, bool)> {
     // Check if workspace config already exists
-    let cfg = config(path)?;
+    let cfg = get()?;
 
     if let Some(workspace) = cfg.workspace
         && let Some(id) = workspace.id
@@ -187,7 +187,7 @@ pub async fn ensure_workspace(path: &Path) -> Result<(String, bool)> {
     let workspace = create_or_get_workspace(&github_url).await?;
 
     // Write to config
-    config_set("workspace.id", &workspace.public_id, ConfigTarget::Nearest)?;
+    set_value("workspace.id", &workspace.public_id, ConfigTarget::Nearest)?;
 
     tracing::info!("Created workspace with ID: {}", workspace.public_id);
 

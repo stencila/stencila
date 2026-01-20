@@ -519,7 +519,7 @@ pub async fn get_remotes_for_path(
     };
 
     // Load config
-    let config = stencila_config::config(path)?;
+    let config = stencila_config::get()?;
 
     // Find matching remote configs
     let matched_configs = find_remotes_for_path(path, &config, &workspace)?;
@@ -637,7 +637,7 @@ pub async fn update_remote_timestamp(
     let mut tracking_entries = read_remote_entries(&stencila_dir).await?;
 
     // Load config to find path and watch info
-    let config = stencila_config::config(path)?;
+    let config = stencila_config::get()?;
     let (config_path, watch_id) = if let Some(remotes) = &config.remotes {
         // Find the remote config that matches this URL
         let mut found_path = None;
@@ -722,7 +722,7 @@ pub async fn update_spread_remote_timestamp(
     let mut tracking_entries = read_remote_entries(&stencila_dir).await?;
 
     // Load config to find path and watch info
-    let config = stencila_config::config(path)?;
+    let config = stencila_config::get()?;
     let config_path = if let Some(remotes) = &config.remotes {
         // Find the remote config that matches this URL
         let mut found_path = None;
@@ -835,7 +835,7 @@ fn collect_files_recursive(dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
 /// Returns `Some(RemoteEntries)` with all files and their remote data.
 pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<RemoteEntries>> {
     // Load config to get remote configurations
-    let config = stencila_config::config(workspace_dir)?;
+    let config = stencila_config::get()?;
 
     // Load .stencila/remotes.json for pull/push timestamps
     let stencila_dir = closest_stencila_dir(workspace_dir, false).await?;
@@ -959,7 +959,7 @@ pub async fn remove_deleted_watches(
     let mut deleted_watches = Vec::new();
 
     // Load the config to find remotes with watch IDs
-    let config = stencila_config::config(path)?;
+    let config = stencila_config::get()?;
     let Some(remotes) = &config.remotes else {
         return Ok(deleted_watches);
     };

@@ -34,7 +34,8 @@ fn invalid_examples_fail_runtime_validation() {
         fs::copy(&source_path, &config_path).expect("should copy file");
 
         // Try to load the config - it should fail runtime validation
-        let result = stencila_config::config(temp_dir.path());
+        // Note: We use load_and_validate directly since get() uses CWD
+        let result = stencila_config::load_and_validate(temp_dir.path());
 
         assert!(
             result.is_err(),

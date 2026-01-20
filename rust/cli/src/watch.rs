@@ -6,7 +6,7 @@ use eyre::{Result, bail, eyre};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch, create_workspace_watch, ensure_workspace};
 use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
-use stencila_config::{ConfigTarget, config_set, config_update_remote_watch};
+use stencila_config::{ConfigTarget, config_update_remote_watch, set_value};
 use stencila_remotes::{RemoteService, WatchDirection, WatchPrMode, get_remotes_for_path};
 use url::Url;
 
@@ -253,7 +253,7 @@ impl Cli {
         let (workspace_id, _) = ensure_workspace(&cwd).await?;
 
         // Check if already watching
-        let cfg = stencila_config::config(&cwd)?;
+        let cfg = stencila_config::get()?;
         if let Some(workspace) = &cfg.workspace
             && workspace.watch.is_some()
         {
@@ -265,7 +265,7 @@ impl Cli {
         let response = create_workspace_watch(&workspace_id).await?;
 
         // Update stencila.toml with watch ID
-        config_set("workspace.watch", &response.id, ConfigTarget::Nearest)?;
+        set_value("workspace.watch", &response.id, ConfigTarget::Nearest)?;
 
         message!("👁️ Workspace watch enabled.");
 

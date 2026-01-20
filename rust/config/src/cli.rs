@@ -8,9 +8,10 @@ use stencila_format::Format;
 use tokio::fs::create_dir_all;
 
 use crate::{
-    MANAGED_CONFIG_KEYS, config,
+    MANAGED_CONFIG_KEYS, get,
     init::{RepoAnalysis, RepoAnalyzer},
-    utils::{ConfigTarget, config_set, config_unset, config_value},
+    load_and_validate,
+    utils::{ConfigTarget, set_value, unset_value},
 };
 
 /// Initialize a workspace with stencila.toml configuration
@@ -488,12 +489,15 @@ pub static GET_AFTER_LONG_HELP: &str = cstr!(
 
 impl Get {
     async fn run(self) -> Result<()> {
-        let cwd = std::env::current_dir()?;
         let format = self.r#as.map(Into::into).unwrap_or(Format::Toml);
 
+        // Always use the singleton config for consistency
+        let cfg = get()?;
+
         if let Some(key) = self.key {
-            // Get specific value using Figment's find_value()
-            match config_value(&cwd, &key)? {
+            // Get specific value by navigating the config as JSON
+            let json_value = serde_json::to_value(&cfg)?;
+            match Self::get_nested_value(&json_value, &key) {
                 Some(value) => {
                     Code::new_from(format, &value)?.to_stdout();
                 }
@@ -503,7 +507,7 @@ impl Get {
             }
         } else {
             // Get entire config
-            let cfg = config(&cwd)?;
+            let cfg = cfg;
 
             // Check if config is empty (all fields are None)
             if cfg.site.is_none()
@@ -522,6 +526,32 @@ impl Get {
         }
 
         Ok(())
+    }
+
+    /// Navigate a JSON value using dot notation (e.g., "site.id" or "packages[0].name")
+    fn get_nested_value(value: &serde_json::Value, key: &str) -> Option<serde_json::Value> {
+        let mut current = value;
+
+        for part in key.split('.') {
+            // Handle array indexing like "packages[0]"
+            if let Some(bracket_pos) = part.find('[') {
+                let field = &part[..bracket_pos];
+                let index_str = &part[bracket_pos + 1..part.len() - 1];
+
+                // Navigate to field first
+                if !field.is_empty() {
+                    current = current.get(field)?;
+                }
+
+                // Then navigate to array index
+                let index: usize = index_str.parse().ok()?;
+                current = current.get(index)?;
+            } else {
+                current = current.get(part)?;
+            }
+        }
+
+        Some(current.clone())
     }
 }
 
@@ -598,7 +628,7 @@ impl Set {
             ConfigTarget::Nearest
         };
 
-        let config_file = config_set(&self.key, &self.value, target)?;
+        let config_file = set_value(&self.key, &self.value, target)?;
 
         message!("✅ Set `{}` in `{}`", self.key, config_file.display());
 
@@ -649,7 +679,7 @@ impl Unset {
             ConfigTarget::Nearest
         };
 
-        let config_file = config_unset(&self.key, target)?;
+        let config_file = unset_value(&self.key, target)?;
 
         message!("🗑️ Removed `{}` from `{}`", self.key, config_file.display());
 
@@ -683,7 +713,7 @@ impl Check {
     async fn run(self) -> Result<()> {
         let dir = self.dir.canonicalize()?;
 
-        match config(&dir) {
+        match load_and_validate(&dir) {
             Ok(cfg) => {
                 message!("✅ Configuration is valid");
 

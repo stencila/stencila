@@ -28,7 +28,6 @@ use stencila_codec_markdown::to_markdown;
 use stencila_codec_utils::git_repo_info;
 use stencila_codecs::to_string_with_info;
 use stencila_config::{NavItem, RedirectStatus, SiteConfig, SiteFormat};
-use stencila_dirs::{closest_stencila_dir, workspace_dir};
 use stencila_format::Format;
 
 use crate::{
@@ -145,30 +144,19 @@ where
     send_progress!(RenderProgress::WalkingDirectory);
 
     // List all routes
-    let all_routes = list(
-        source_dir,
-        true,
-        true,
-        route_filter,
-        path_filter,
-        source_files,
-    )
-    .await?;
+    let all_routes = list(true, true, route_filter, path_filter, source_files).await?;
 
     // Find workspace root for config
-    let stencila_dir = closest_stencila_dir(source_dir, true).await?;
-    let workspace_dir = workspace_dir(&stencila_dir)?;
-
     // Load config from workspace
-    let config = stencila_config::config(&workspace_dir)?;
+    let config = stencila_config::get()?;
 
     // Resolve site root for static file paths
     let site_root = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(&workspace_dir)
+        root.resolve(&config.workspace_dir)
     } else {
-        workspace_dir.clone()
+        config.workspace_dir.clone()
     };
 
     // Validate site configuration paths (warns about missing images, etc.)

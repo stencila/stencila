@@ -71,7 +71,7 @@ async fn handle_site_socket(mut socket: WebSocket, state: ServerState) {
         return;
     }
 
-    let config = match stencila_config::config(&state.dir) {
+    let config = match stencila_config::get() {
         Ok(c) => c,
         Err(e) => {
             let msg = SiteMessage::Error {

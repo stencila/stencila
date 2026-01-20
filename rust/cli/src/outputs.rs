@@ -25,8 +25,8 @@ use stencila_cloud::{ensure_workspace, outputs::UploadResult};
 use stencila_codec_utils::{GitRef, get_current_ref};
 use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_config::{
-    OutputCommand, OutputConfig, OutputTarget, SpreadMode, config, config_add_output,
-    config_remove_output,
+    OutputCommand, OutputConfig, OutputTarget, SpreadMode, config_add_output, config_remove_output,
+    get,
 };
 use stencila_document::Document;
 use stencila_format::Format;
@@ -112,8 +112,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
 impl List {
     pub async fn run(self) -> Result<()> {
-        let workspace_dir = current_dir()?;
-        let cfg = config(&workspace_dir)?;
+        let cfg = get()?;
         let outputs = cfg.outputs.unwrap_or_default();
 
         if outputs.is_empty() {
@@ -449,7 +448,7 @@ impl Push {
             .ok_or_else(|| eyre!("Unable to determine git ref: not in a git repository"))?;
 
         // Load outputs from config
-        let cfg = config(&workspace_dir)?;
+        let cfg = get()?;
         let outputs = cfg.outputs.unwrap_or_default();
 
         if outputs.is_empty() {

@@ -4,7 +4,7 @@ use eyre::Result;
 use stencila_ask::ask;
 use stencila_cli_utils::message;
 use stencila_cloud::{create_workspace_watch, ensure_workspace};
-use stencila_config::{ConfigTarget, config, config_set};
+use stencila_config::{ConfigTarget, get, set_value};
 
 /// Initialize a workspace with stencila.toml configuration
 #[derive(Debug, Parser)]
@@ -26,7 +26,7 @@ impl Cli {
         let dir = dir.canonicalize()?;
 
         // Check if workspace already has a watch
-        let cfg = config(&dir)?;
+        let cfg = get()?;
         if let Some(workspace) = &cfg.workspace
             && workspace.watch.is_some()
         {
@@ -56,6 +56,6 @@ impl Cli {
 async fn try_setup_workspace_watch(dir: &std::path::Path) -> Result<()> {
     let (workspace_id, _) = ensure_workspace(dir).await?;
     let response = create_workspace_watch(&workspace_id).await?;
-    config_set("workspace.watch", &response.id, ConfigTarget::Nearest)?;
+    set_value("workspace.watch", &response.id, ConfigTarget::Nearest)?;
     Ok(())
 }

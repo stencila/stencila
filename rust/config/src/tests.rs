@@ -15,16 +15,14 @@ use super::{
     CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, find_config_file,
     remotes::{RemoteTarget, RemoteValue},
     site::RedirectStatus,
-    utils::{
-        ConfigTarget, collect_config_paths, config_set, config_unset, config_value, normalize_path,
-    },
+    utils::{ConfigTarget, collect_paths, normalize_path, set_value, unset_value},
 };
 
 /// Test-only helper that excludes user config for test isolation
 fn config_isolated(path: &Path) -> Result<Config> {
     let start_path = normalize_path(path)?;
     // Exclude user config to make tests deterministic
-    let config_paths = collect_config_paths(&start_path, false)?;
+    let config_paths = collect_paths(&start_path, false)?;
 
     let mut figment = Figment::new();
 
@@ -264,46 +262,6 @@ this is = { not valid toml [
 }
 
 #[test]
-fn test_config_value_get_simple() -> Result<()> {
-    let temp_dir = TempDir::new()?;
-
-    let config_content = r#"
-[workspace]
-id = "ws1234567890"
-"#;
-    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
-
-    // Test getting a nested value
-    let value = config_value(temp_dir.path(), "workspace.id")?;
-    assert!(value.is_some());
-
-    // Deserialize the value to a string
-    if let Some(val) = value {
-        let as_string: String = val.deserialize()?;
-        assert_eq!(as_string, "ws1234567890");
-    }
-
-    Ok(())
-}
-
-#[test]
-fn test_config_value_missing_key() -> Result<()> {
-    let temp_dir = TempDir::new()?;
-
-    let config_content = r#"
-[workspace]
-id = "ws1234567890"
-"#;
-    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
-
-    // Test getting a non-existent value
-    let value = config_value(temp_dir.path(), "nonexistent.key")?;
-    assert!(value.is_none());
-
-    Ok(())
-}
-
-#[test]
 fn test_find_config_file_finds_nearest() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let child_dir = temp_dir.path().join("child");
@@ -344,7 +302,7 @@ fn test_config_set_and_get() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Set a simple value
-    let config_path = config_set("workspace.id", "wsnewsite123", ConfigTarget::Nearest)?;
+    let config_path = set_value("workspace.id", "wsnewsite123", ConfigTarget::Nearest)?;
     assert_eq!(config_path, temp_path.join(CONFIG_FILENAME));
 
     // Verify the file was created and contains the value
@@ -368,7 +326,7 @@ fn test_config_set_nested_path() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Set a deeply nested value
-    config_set("site.settings.theme", "dark", ConfigTarget::Nearest)?;
+    set_value("site.settings.theme", "dark", ConfigTarget::Nearest)?;
 
     // Verify the nested structure was created
     let contents = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
@@ -391,10 +349,10 @@ fn test_config_set_type_inference() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Set different types
-    config_set("bool_value", "true", ConfigTarget::Nearest)?;
-    config_set("int_value", "42", ConfigTarget::Nearest)?;
-    config_set("float_value", "3.14", ConfigTarget::Nearest)?;
-    config_set("string_value", "hello", ConfigTarget::Nearest)?;
+    set_value("bool_value", "true", ConfigTarget::Nearest)?;
+    set_value("int_value", "42", ConfigTarget::Nearest)?;
+    set_value("float_value", "3.14", ConfigTarget::Nearest)?;
+    set_value("string_value", "hello", ConfigTarget::Nearest)?;
 
     let contents = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
 
@@ -433,7 +391,7 @@ fn test_config_set_local_target() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Set value in local config
-    let config_path = config_set("workspace.id", "wslocal12345", ConfigTarget::Local)?;
+    let config_path = set_value("workspace.id", "wslocal12345", ConfigTarget::Local)?;
     assert_eq!(config_path, temp_path.join(CONFIG_LOCAL_FILENAME));
 
     // Verify the file was created
@@ -455,14 +413,14 @@ fn test_config_unset_removes_value() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // First set a value
-    config_set("workspace.id", "wstest123456", ConfigTarget::Nearest)?;
+    set_value("workspace.id", "wstest123456", ConfigTarget::Nearest)?;
 
     // Verify it exists
     let contents_before = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
     assert!(contents_before.contains("id = \"wstest123456\""));
 
     // Now unset it
-    config_unset("workspace.id", ConfigTarget::Nearest)?;
+    unset_value("workspace.id", ConfigTarget::Nearest)?;
 
     // Verify it was removed
     let contents_after = fs::read_to_string(temp_path.join(CONFIG_FILENAME))?;
@@ -484,10 +442,10 @@ fn test_config_unset_nonexistent_key_fails() -> Result<()> {
     std::env::set_current_dir(&temp_path)?;
 
     // Create a config file
-    config_set("workspace.id", "wstest123456", ConfigTarget::Nearest)?;
+    set_value("workspace.id", "wstest123456", ConfigTarget::Nearest)?;
 
     // Try to unset a non-existent key
-    let result = config_unset("nonexistent.key", ConfigTarget::Nearest);
+    let result = unset_value("nonexistent.key", ConfigTarget::Nearest);
     assert!(result.is_err());
 
     // Restore directory BEFORE temp_dir is dropped
@@ -505,7 +463,7 @@ fn test_config_unset_no_config_file_fails() -> Result<()> {
     std::env::set_current_dir(temp_dir.path())?;
 
     // Try to unset when no config file exists
-    let result = config_unset("workspace.id", ConfigTarget::Nearest);
+    let result = unset_value("workspace.id", ConfigTarget::Nearest);
     assert!(result.is_err());
 
     // Restore directory BEFORE temp_dir is dropped
@@ -546,7 +504,7 @@ fn test_normalize_path_with_file() -> Result<()> {
 fn test_collect_config_paths_order() -> Result<()> {
     let current_dir = std::env::current_dir()?;
     // Exclude user config to make test deterministic
-    let paths = collect_config_paths(&current_dir, false)?;
+    let paths = collect_paths(&current_dir, false)?;
 
     // Should have at least the current directory's configs
     assert!(!paths.is_empty());
@@ -577,7 +535,7 @@ fn test_collect_config_paths_order() -> Result<()> {
 fn test_user_config_includes_local() -> Result<()> {
     let current_dir = std::env::current_dir()?;
     // Include user config to test that both files are present
-    let paths = collect_config_paths(&current_dir, true)?;
+    let paths = collect_paths(&current_dir, true)?;
 
     // Get user config directory
     if let Ok(user_config_dir) = stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false) {
