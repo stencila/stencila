@@ -7,7 +7,7 @@
     "Thing"
   ],
   "description": "A contact point, usually within an organization.",
-  "$comment": "This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint). It extends schema.org `ContactPoint` by, adding a `content` property which must be an array of [`Block`](./Block), as well as the properties added by [`CreativeWork`](./CreativeWork) which it extends.\n`ContactPoint` is analogous, and structurally similar to, the JATS XML [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.",
+  "$comment": "This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint). It extends schema.org `ContactPoint` by, adding a `content` property which must be an array of [`Block`](./block.md), as well as the properties added by [`CreativeWork`](./creative-work.md) which it extends.\n`ContactPoint` is analogous, and structurally similar to, the JATS XML [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.",
   "required": [
     "type"
   ],

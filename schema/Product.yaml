@@ -8,7 +8,7 @@ description: |
   a haircut; or an episode of a TV show streamed online.
 $comment: |
   The `Product` type allows you to provide details about a product such as the product
-  brand, logo and ID. This type can be used as any kind of product that is not [`CreativeWork`](./CreativeWork) item.
+  brand, logo and ID. This type can be used as any kind of product that is not [`CreativeWork`](./creative-work.md) item.
 
   `Product` is analogous, and structurally similar to, the 
   JATS XML [`<product>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/product.html) element which

@@ -5,7 +5,7 @@ category: works
 description: A video file.
 $comment: |
   The `VideoObject` type allows you to provide details such as caption and transcript,
-  and the details which are included in [`MediaObject`](./MediaObject)
+  and the details which are included in [`MediaObject`](./media-object.md)
   which `VideoObject` extends.
 dom:
   derive: false

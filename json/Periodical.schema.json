@@ -9,7 +9,7 @@
   ],
   "category": "works",
   "description": "A periodical publication.",
-  "$comment": "A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,\nsuch as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property\nin a [`PublicationVolume`](./PublicationVolume).\n",
+  "$comment": "A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,\nsuch as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property\nin a [`PublicationVolume`](./publication-volume.md).\n",
   "required": [
     "type"
   ],

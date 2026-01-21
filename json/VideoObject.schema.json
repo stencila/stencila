@@ -8,7 +8,7 @@
   ],
   "category": "works",
   "description": "A video file.",
-  "$comment": "The `VideoObject` type allows you to provide details such as caption and transcript,\nand the details which are included in [`MediaObject`](./MediaObject)\nwhich `VideoObject` extends.\n",
+  "$comment": "The `VideoObject` type allows you to provide details such as caption and transcript,\nand the details which are included in [`MediaObject`](./media-object.md)\nwhich `VideoObject` extends.\n",
   "dom": {
     "derive": false
   },

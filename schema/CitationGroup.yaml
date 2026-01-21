@@ -6,9 +6,9 @@ category: prose
 description: A group of `Citation` nodes.
 $comment: |
   This type allows you to group associated citations together.
-  When some content in a [`Creative Work`](./CreativeWork) Citations more than one
+  When some content in a [`CreativeWork`](./creative-work.md) cites more than one
   reference for a particular piece of text, use a `CitationGroup` to encapsulate
-  multiple [`Citation`](./Citation) nodes.
+  multiple [`Citation`](./citation.md) nodes.
 
   At present we do not give a `citationMode` property to a `CitationGroup` since
   they will almost always be parenthetical as opposed to narrative.

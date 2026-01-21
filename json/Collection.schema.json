@@ -8,7 +8,7 @@
   ],
   "category": "works",
   "description": "A collection of CreativeWorks or other artifacts.",
-  "$comment": "This is an implementation of schema.org [`Collection`](https://schema.org/Collection).\nThe `Collection` type allows you to represent a collection of various `CreativeWork`\nnode types, such as [`Article`](./Article), [`Datatable`](./Datatable) or [`Table`](./Table).\n\nThe schema.org `Collection` has a `collectionSize` property but has not been added here\nbecause it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.\n",
+  "$comment": "This is an implementation of schema.org [`Collection`](https://schema.org/Collection).\nThe `Collection` type allows you to represent a collection of various `CreativeWork`\nnode types, such as [`Article`](./article.md), [`Datatable`](./datatable.md) or [`Table`](./table.md).\n\nThe schema.org `Collection` has a `collectionSize` property but has not been added here\nbecause it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.\n",
   "markdown": {
     "derive": false
   },

@@ -202,9 +202,21 @@
         "object",
         "null"
       ],
-      "additionalProperties": {
-        "$ref": "#/definitions/ProptestOptions"
-      }
+      "properties": {
+        "high": {
+          "$ref": "#/definitions/ProptestOptions"
+        },
+        "low": {
+          "$ref": "#/definitions/ProptestOptions"
+        },
+        "max": {
+          "$ref": "#/definitions/ProptestOptions"
+        },
+        "min": {
+          "$ref": "#/definitions/ProptestOptions"
+        }
+      },
+      "additionalProperties": false
     },
     "$ref": {
       "description": "A reference to another schema in Stencila Schema\n\nThe value of this keyword MUST be a string of the\ntitle of the schema being referenced.",

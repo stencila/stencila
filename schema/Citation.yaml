@@ -4,8 +4,8 @@ extends: Entity
 category: prose
 description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 $comment: |
-  A `Citation` node is used within a [`CreativeWork`](./CreativeWork), usually an
-  [`Article`](./Article), to refer to an other `CreativeWork`.
+  A `Citation` node is used within a [`CreativeWork`](./creative-work.md), usually an
+  [`Article`](./article.md), to refer to an other `CreativeWork`.
   Often a `Citation` will be associated with other citations, in a `CitationGroup`.
 jats:
   special: true
