@@ -5,22 +5,24 @@
 
 use std::{
     collections::HashMap,
-    io::Write as IoWrite,
+    io::Write as _,
     path::{Path, PathBuf},
     sync::Arc,
 };
 
-use eyre::Result;
-use flate2::{Compression, write::GzEncoder};
+use brotli::enc::writer::CompressorWriter;
+use eyre::{Result, eyre};
 use futures::stream::{self, StreamExt};
 use md5::{Digest, Md5};
+use reqwest::Client;
 use tokio::{
     fs::read,
     sync::{Mutex, mpsc},
 };
 use walkdir::WalkDir;
 
-use stencila_cloud::sites::{get_etags, reconcile_prefix, upload_file};
+use stencila_cloud::sites::{get_etags, reconcile_prefix};
+use stencila_cloud::{api_token, base_url, check_response};
 use stencila_codec_utils::{get_current_branch, git_repo_info, slugify_branch_name};
 
 /// Result of an upload operation
@@ -37,6 +39,8 @@ pub struct UploadResult {
 /// Progress events during upload
 #[derive(Debug, Clone)]
 pub enum UploadProgress {
+    /// Collecting files and fetching server ETags (in parallel)
+    CollectingFiles,
     /// Starting upload
     Starting { total: usize },
     /// Processing files
@@ -51,21 +55,44 @@ pub enum UploadProgress {
     Complete(UploadResult),
 }
 
-/// A file to be uploaded
-#[derive(Debug)]
+/// A file to be uploaded (metadata only, content read lazily)
+#[derive(Debug, Clone)]
 struct FileToUpload {
     /// Path to the local file
     local_path: PathBuf,
-    /// Storage path on the cloud (relative)
+    /// Storage path on the cloud (relative, with .br suffix for compressible files)
     storage_path: String,
-    /// Pre-calculated ETag for incremental upload
-    etag: String,
+    /// Whether this file should be compressed (for Brotli compression and ETag calculation)
+    compress: bool,
+}
+
+/// Determine if a file should be compressed based on its extension.
+///
+/// Returns true for text-based and other compressible formats,
+/// false for already-compressed media files.
+fn should_compress(path: &Path) -> bool {
+    let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
+        return false;
+    };
+
+    // Extensions that should NOT be compressed (already compressed or binary)
+    let skip_extensions = [
+        // Images
+        "png", "jpg", "jpeg", "gif", "webp", "avif", "ico", "bmp", "tiff",
+        // Audio/Video
+        "mp3", "mp4", "webm", "wav", "ogg", "flac", "aac", "m4a", "avi", "mkv", "mov", "ogv", "wmv",
+        // Archives
+        "zip", "gz", "br", "zst", "xz", "bz2", "rar", "7z", "tar", // Other binary
+        "wasm", "pdf",
+    ];
+
+    !skip_extensions.contains(&ext.to_lowercase().as_str())
 }
 
 /// Upload a rendered site directory to Stencila Cloud
 ///
-/// Walks the rendered directory, compresses HTML files, and uploads
-/// all files with ETag-based incremental updates.
+/// Walks the rendered directory, compresses compressible files with Brotli,
+/// and uploads all files with ETag-based incremental updates.
 ///
 /// # Arguments
 /// * `source_dir` - The rendered site directory (from render())
@@ -100,67 +127,63 @@ pub async fn upload(
     });
     let branch_slug = slugify_branch_name(&branch_name);
 
-    // Collect all files to upload
-    let mut files: Vec<FileToUpload> = Vec::new();
+    // Fetch server ETags and collect local files in parallel (they're independent)
+    send_progress!(UploadProgress::CollectingFiles);
 
-    for entry in WalkDir::new(source_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| e.file_type().is_file())
-    {
-        let local_path = entry.path().to_path_buf();
-        let relative = local_path
-            .strip_prefix(source_dir)
-            .map_err(|_| eyre::eyre!("Failed to strip prefix"))?;
-        let storage_path = normalize_storage_path(&relative.to_string_lossy());
-
-        // Calculate ETag based on what will actually be uploaded
-        // For HTML files, upload_file compresses them, so we need to calculate
-        // ETag on the compressed content
-        let content = read(&local_path).await?;
-        let etag = if local_path
-            .extension()
-            .map(|ext| ext == "html")
-            .unwrap_or(false)
-        {
-            let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-            encoder.write_all(&content)?;
-            let compressed = encoder.finish()?;
-            calculate_etag(&compressed)
+    let etags_future = async {
+        if force {
+            HashMap::new()
         } else {
-            calculate_etag(&content)
-        };
+            get_etags(workspace_id, &branch_slug)
+                .await
+                .unwrap_or_default()
+        }
+    };
 
-        // For HTML files, the storage path will have .gz appended by upload_file
-        let storage_path = if local_path
-            .extension()
-            .map(|ext| ext == "html")
-            .unwrap_or(false)
+    let files_future = async {
+        let mut files: Vec<FileToUpload> = Vec::new();
+        for entry in WalkDir::new(source_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
         {
-            format!("{storage_path}.gz")
-        } else {
-            storage_path
-        };
+            let local_path = entry.path().to_path_buf();
+            let relative = match local_path.strip_prefix(source_dir) {
+                Ok(r) => r,
+                Err(_) => continue,
+            };
+            let storage_path = normalize_storage_path(&relative.to_string_lossy());
 
-        files.push(FileToUpload {
-            local_path,
-            storage_path,
-            etag,
-        });
-    }
+            let compress = should_compress(&local_path);
 
+            // For compressible files, the storage path will have .br appended
+            let storage_path = if compress {
+                format!("{storage_path}.br")
+            } else {
+                storage_path
+            };
+
+            files.push(FileToUpload {
+                local_path,
+                storage_path,
+                compress,
+            });
+        }
+        files
+    };
+
+    let (server_etags, files) = tokio::join!(etags_future, files_future);
     let total = files.len();
+
+    // Now that prep work is done, signal we're starting actual uploads
     send_progress!(UploadProgress::Starting { total });
 
-    // Get server ETags for incremental upload (unless --force)
-    let server_etags: HashMap<String, String> = if force {
-        HashMap::new()
-    } else {
-        let paths: Vec<String> = files.iter().map(|f| f.storage_path.clone()).collect();
-        get_etags(workspace_id, &branch_slug, paths)
-            .await
-            .unwrap_or_default()
-    };
+    // Get API token once for all uploads
+    let token = api_token().ok_or_else(|| eyre!("No API token. Run `stencila signin` first."))?;
+
+    // Create a single HTTP client for connection reuse
+    let client = Client::new();
+    let upload_base_url = base_url();
 
     // Track progress counters
     let processed = Arc::new(Mutex::new(0usize));
@@ -183,35 +206,58 @@ pub async fn upload(
             let skipped = Arc::clone(&skipped);
             let all_storage_paths = Arc::clone(&all_storage_paths);
             let progress = progress_clone.clone();
+            let client = client.clone();
+            let token = token.clone();
+            let upload_base_url = upload_base_url.clone();
 
             async move {
-                // Check if file is unchanged (ETag matches)
-                let should_skip = !force
-                    && server_etags
-                        .get(&file.storage_path)
-                        .map(|server_etag| server_etag == &file.etag)
-                        .unwrap_or(false);
-
                 // Track for reconciliation
                 {
                     let mut paths = all_storage_paths.lock().await;
                     paths.push(file.storage_path.clone());
                 }
 
+                // Read file content
+                let content = read(&file.local_path).await?;
+
+                // Compress if needed (also used for ETag calculation)
+                let (body, local_etag) = if file.compress {
+                    let mut compressed = Vec::new();
+                    {
+                        // Quality 6, buffer 4096, lgwin 22
+                        let mut encoder = CompressorWriter::new(&mut compressed, 4096, 6, 22);
+                        encoder.write_all(&content)?;
+                    }
+                    let etag = calculate_etag(&compressed);
+                    (compressed, etag)
+                } else {
+                    let etag = calculate_etag(&content);
+                    (content, etag)
+                };
+
+                // Check if file is unchanged (ETag matches)
+                let should_skip = !force
+                    && server_etags
+                        .get(&file.storage_path)
+                        .map(|server_etag| server_etag == &local_etag)
+                        .unwrap_or(false);
+
                 if should_skip {
                     let mut s = skipped.lock().await;
                     *s += 1;
                 } else {
-                    // Upload the file
-                    // For HTML files, strip the .gz suffix as upload_file will add it
-                    let upload_path = if file.storage_path.ends_with(".html.gz") {
-                        file.storage_path.trim_end_matches(".gz").to_string()
-                    } else {
-                        file.storage_path.clone()
-                    };
-
-                    upload_file(&workspace_id, &branch_slug, &upload_path, &file.local_path)
+                    // Upload the file directly
+                    let response = client
+                        .put(format!(
+                            "{}/workspaces/{}/site/branches/{}/{}",
+                            upload_base_url, workspace_id, branch_slug, file.storage_path
+                        ))
+                        .bearer_auth(&token)
+                        .body(body)
+                        .send()
                         .await?;
+
+                    check_response(response).await?;
 
                     let mut u = uploaded.lock().await;
                     *u += 1;
@@ -314,5 +360,43 @@ mod tests {
     fn test_normalize_storage_path() {
         assert_eq!(normalize_storage_path("a/b/c.html"), "a/b/c.html");
         assert_eq!(normalize_storage_path("a\\b\\c.html"), "a/b/c.html");
+    }
+
+    #[test]
+    fn test_should_compress() {
+        // Compressible file types
+        assert!(should_compress(Path::new("index.html")));
+        assert!(should_compress(Path::new("styles.css")));
+        assert!(should_compress(Path::new("app.js")));
+        assert!(should_compress(Path::new("data.json")));
+        assert!(should_compress(Path::new("icon.svg")));
+        assert!(should_compress(Path::new("feed.xml")));
+        assert!(should_compress(Path::new("readme.txt")));
+        assert!(should_compress(Path::new("doc.md")));
+
+        // Non-compressible file types (images)
+        assert!(!should_compress(Path::new("photo.png")));
+        assert!(!should_compress(Path::new("image.jpg")));
+        assert!(!should_compress(Path::new("image.jpeg")));
+        assert!(!should_compress(Path::new("animation.gif")));
+        assert!(!should_compress(Path::new("modern.webp")));
+        assert!(!should_compress(Path::new("next-gen.avif")));
+        assert!(!should_compress(Path::new("favicon.ico")));
+
+        // Non-compressible file types (media)
+        assert!(!should_compress(Path::new("song.mp3")));
+        assert!(!should_compress(Path::new("video.mp4")));
+
+        // Non-compressible file types (archives)
+        assert!(!should_compress(Path::new("archive.zip")));
+        assert!(!should_compress(Path::new("already.gz")));
+        assert!(!should_compress(Path::new("already.br")));
+
+        // Non-compressible file types (other binary)
+        assert!(!should_compress(Path::new("doc.pdf")));
+        assert!(!should_compress(Path::new("module.wasm")));
+
+        // No extension - should not compress
+        assert!(!should_compress(Path::new("Makefile")));
     }
 }

@@ -8,7 +8,6 @@ cached = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
-flate2 = { workspace = true }
 indexmap = { workspace = true }
 reqwest = { workspace = true }
 tempfile = { workspace = true }

@@ -3,17 +3,13 @@
 //! Functions for interacting with Stencila Sites via the Cloud API.
 
 use std::collections::HashMap;
-use std::io::Write;
-use std::path::Path;
 
 use chrono::DateTime;
 use eyre::{Result, bail, eyre};
-use flate2::{Compression, write::GzEncoder};
 use reqwest::Client;
 use reqwest::header::LAST_MODIFIED;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use tokio::fs::read;
 use url::Url;
 
 use crate::{api_token, base_url, check_response, process_response};
@@ -97,44 +93,6 @@ pub async fn get_site(workspace_id: &str) -> Result<SiteDetails> {
     process_response(response).await
 }
 
-/// Upload a single file to the site
-#[tracing::instrument]
-pub async fn upload_file(
-    workspace_id: &str,
-    branch_slug: &str,
-    path: &str,
-    file: &Path,
-) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
-
-    let content = read(file).await?;
-
-    // Compress HTML for faster uploads, smaller storage, and faster downloads
-    let (path, body) = if file.extension().map(|ext| ext == "html").unwrap_or(false) {
-        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(&content)?;
-        let compressed = encoder.finish()?;
-        (format!("{path}.gz"), compressed)
-    } else {
-        (path.to_string(), content)
-    };
-
-    tracing::debug!("Uploading file to Stencila Site");
-    let client = Client::new();
-    let response = client
-        .put(format!(
-            "{}/workspaces/{workspace_id}/site/branches/{branch_slug}/{path}",
-            base_url()
-        ))
-        .bearer_auth(token)
-        .body(body)
-        .send()
-        .await?;
-
-    check_response(response).await
-}
-
 /// Get the last modified time of a route on a Stencila Site
 ///
 /// Makes a HEAD request to the URL (ensuring it has a trailing slash)
@@ -172,7 +130,7 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
     Ok(timestamp)
 }
 
-/// Get ETags for a list of storage paths on a site branch
+/// Get all ETags for files on a site branch
 ///
 /// Used for incremental pushes: compare local content hashes with server ETags
 /// to skip uploading unchanged files.
@@ -181,31 +139,25 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 ///
 /// * `workspace_id` - The site identifier
 /// * `branch_slug` - The branch slug (e.g., "main", "feature-foo")
-/// * `paths` - List of storage paths to get ETags for
 ///
 /// # Returns
 ///
-/// A map of storage path to ETag (quoted MD5 hex string like `"abc123..."`).
-/// Paths that don't exist on the server are omitted from the response.
+/// A map of storage path to ETag (quoted MD5 hex string like `"abc123..."`)
+/// for all files stored in the bucket for this branch.
 #[tracing::instrument]
-pub async fn get_etags(
-    workspace_id: &str,
-    branch_slug: &str,
-    paths: Vec<String>,
-) -> Result<HashMap<String, String>> {
+pub async fn get_etags(workspace_id: &str, branch_slug: &str) -> Result<HashMap<String, String>> {
     let token = api_token()
         .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
 
-    tracing::debug!("Getting ETags for {} paths", paths.len());
+    tracing::debug!("Getting all ETags for branch {branch_slug}");
 
     let client = Client::new();
     let response = client
-        .post(format!(
+        .get(format!(
             "{}/workspaces/{workspace_id}/site/branches/{branch_slug}/etags",
             base_url()
         ))
         .bearer_auth(token)
-        .json(&paths)
         .send()
         .await?;
 

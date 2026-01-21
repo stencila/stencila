@@ -23,13 +23,17 @@ pub struct LinkRewriter<'a> {
     current_route: String,
     /// Set of valid routes in the site (borrowed to avoid cloning)
     routes: &'a HashSet<String>,
+    /// Whether the current route represents an index file (index.md, main.md, README.md)
+    /// This affects how relative links are resolved.
+    is_index: bool,
 }
 
 impl<'a> LinkRewriter<'a> {
-    pub fn new(current_route: &str, routes: &'a HashSet<String>) -> Self {
+    pub fn new(current_route: &str, routes: &'a HashSet<String>, is_index: bool) -> Self {
         Self {
             current_route: current_route.to_string(),
             routes,
+            is_index,
         }
     }
 
@@ -141,10 +145,20 @@ impl<'a> LinkRewriter<'a> {
                 format!("/{}/", without_ext)
             }
         } else {
-            // Resolve relative to current route
-            // Routes like /docs/ represent /docs/index.html, so relative links
-            // should be resolved against /docs/, not its parent /
-            let base = self.current_route.trim_matches('/');
+            // Resolve relative to current route's directory
+            // For index files (index.md, main.md, README.md), the route IS the directory
+            // For non-index files (article.md -> /docs/article/), go up one level
+            let route = self.current_route.trim_matches('/');
+            let base = if self.is_index {
+                route
+            } else {
+                // For non-index files, strip the last segment to get the parent directory
+                // e.g., "docs/schema/article" -> "docs/schema"
+                route
+                    .rsplit_once('/')
+                    .map(|(parent, _)| parent)
+                    .unwrap_or("")
+            };
 
             // Handle ../ navigation
             let resolved = resolve_relative_path(base, &without_ext);
@@ -197,8 +211,18 @@ fn resolve_relative_path(base: &str, relative: &str) -> String {
 ///
 /// The `routes_set` should be created once using `build_routes_set` and reused
 /// across multiple documents for better performance.
-pub fn rewrite_links<T: WalkNode>(node: &mut T, current_route: &str, routes_set: &HashSet<String>) {
-    let mut rewriter = LinkRewriter::new(current_route, routes_set);
+///
+/// The `is_index` parameter indicates whether the source file is an index file
+/// (index.md, main.md, README.md). This affects how relative links are resolved:
+/// - For index files: relative links resolve from the current route
+/// - For non-index files: relative links resolve from the parent directory
+pub fn rewrite_links<T: WalkNode>(
+    node: &mut T,
+    current_route: &str,
+    routes_set: &HashSet<String>,
+    is_index: bool,
+) {
+    let mut rewriter = LinkRewriter::new(current_route, routes_set, is_index);
     node.walk_mut(&mut rewriter);
 }
 
@@ -213,7 +237,7 @@ mod tests {
     #[test]
     fn test_transform_target_skips_urls() {
         let routes = make_routes_set(&["/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         // Common URL schemes
         assert_eq!(rewriter.transform_target("https://example.com"), None);
@@ -240,7 +264,7 @@ mod tests {
     fn test_transform_skips_static_assets() {
         // Static assets that don't map to routes should be left unchanged
         let routes = make_routes_set(&["/", "/docs/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         // These files don't have corresponding routes, so should return None
         assert_eq!(rewriter.transform_target("document.pdf"), None);
@@ -252,7 +276,7 @@ mod tests {
     #[test]
     fn test_transform_simple_relative() {
         let routes = make_routes_set(&["/", "/other/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("other.md"),
@@ -263,7 +287,7 @@ mod tests {
     #[test]
     fn test_transform_with_anchor() {
         let routes = make_routes_set(&["/", "/other/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("other.md#section"),
@@ -274,7 +298,7 @@ mod tests {
     #[test]
     fn test_transform_with_query() {
         let routes = make_routes_set(&["/", "/other/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("other.md?v=1"),
@@ -285,7 +309,7 @@ mod tests {
     #[test]
     fn test_transform_with_query_and_anchor() {
         let routes = make_routes_set(&["/", "/other/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("other.md?v=1#section"),
@@ -296,7 +320,7 @@ mod tests {
     #[test]
     fn test_transform_nested_relative() {
         let routes = make_routes_set(&["/", "/docs/", "/docs/guide/"]);
-        let rewriter = LinkRewriter::new("/docs/", &routes);
+        let rewriter = LinkRewriter::new("/docs/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("guide.md"),
@@ -308,7 +332,7 @@ mod tests {
     fn test_transform_parent_relative() {
         // Include /docs/other/ as a valid route for the parent-relative link to resolve to
         let routes = make_routes_set(&["/", "/docs/", "/docs/guide/", "/docs/other/"]);
-        let rewriter = LinkRewriter::new("/docs/guide/", &routes);
+        let rewriter = LinkRewriter::new("/docs/guide/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("../other.md"),
@@ -320,7 +344,7 @@ mod tests {
     fn test_transform_parent_relative_nonexistent() {
         // If the parent-relative path doesn't map to a known route, leave unchanged
         let routes = make_routes_set(&["/", "/docs/", "/docs/guide/"]);
-        let rewriter = LinkRewriter::new("/docs/guide/", &routes);
+        let rewriter = LinkRewriter::new("/docs/guide/", &routes, true);
 
         // ../nonexistent.md would resolve to /docs/nonexistent/ which doesn't exist
         assert_eq!(rewriter.transform_target("../nonexistent.md"), None);
@@ -329,7 +353,7 @@ mod tests {
     #[test]
     fn test_transform_absolute() {
         let routes = make_routes_set(&["/", "/docs/", "/docs/guide/"]);
-        let rewriter = LinkRewriter::new("/other/", &routes);
+        let rewriter = LinkRewriter::new("/other/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("/docs/guide.md"),
@@ -340,7 +364,7 @@ mod tests {
     #[test]
     fn test_transform_index_file() {
         let routes = make_routes_set(&["/", "/docs/"]);
-        let rewriter = LinkRewriter::new("/", &routes);
+        let rewriter = LinkRewriter::new("/", &routes, true);
 
         assert_eq!(
             rewriter.transform_target("docs/index.md"),
@@ -366,5 +390,62 @@ mod tests {
         assert_eq!(resolve_relative_path("docs/guide", "../../root"), "root");
         assert_eq!(resolve_relative_path("", "guide"), "guide");
         assert_eq!(resolve_relative_path("docs", "./guide"), "docs/guide");
+    }
+
+    #[test]
+    fn test_transform_relative_from_non_index_file() {
+        // For a non-index file like article.md with route /docs/schema/article/,
+        // relative links should resolve from /docs/schema/ (parent), not /docs/schema/article/
+        let routes = make_routes_set(&[
+            "/",
+            "/docs/",
+            "/docs/schema/",
+            "/docs/schema/article/",
+            "/docs/schema/string/",
+            "/docs/schema/creative-work/",
+        ]);
+
+        // From article.md (route /docs/schema/article/, is_index=false)
+        let rewriter = LinkRewriter::new("/docs/schema/article/", &routes, false);
+
+        // ./string.md should resolve to /docs/schema/string/ (sibling)
+        assert_eq!(
+            rewriter.transform_target("./string.md"),
+            Some("/docs/schema/string/".to_string())
+        );
+
+        // ./creative-work.md should resolve to /docs/schema/creative-work/ (sibling)
+        assert_eq!(
+            rewriter.transform_target("./creative-work.md"),
+            Some("/docs/schema/creative-work/".to_string())
+        );
+    }
+
+    #[test]
+    fn test_transform_relative_from_index_file() {
+        // For an index file like index.md with route /docs/schema/,
+        // relative links should resolve from /docs/schema/ (same as route)
+        let routes = make_routes_set(&[
+            "/",
+            "/docs/",
+            "/docs/schema/",
+            "/docs/schema/article/",
+            "/docs/schema/string/",
+        ]);
+
+        // From index.md (route /docs/schema/, is_index=true)
+        let rewriter = LinkRewriter::new("/docs/schema/", &routes, true);
+
+        // ./article.md should resolve to /docs/schema/article/ (child)
+        assert_eq!(
+            rewriter.transform_target("./article.md"),
+            Some("/docs/schema/article/".to_string())
+        );
+
+        // ./string.md should resolve to /docs/schema/string/ (child)
+        assert_eq!(
+            rewriter.transform_target("./string.md"),
+            Some("/docs/schema/string/".to_string())
+        );
     }
 }

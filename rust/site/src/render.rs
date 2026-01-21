@@ -29,6 +29,7 @@ use stencila_codec_utils::git_repo_info;
 use stencila_codecs::to_string_with_info;
 use stencila_config::{NavItem, RedirectStatus, SiteConfig, SiteFormat};
 use stencila_format::Format;
+use stencila_node_stabilize::stabilize;
 
 use crate::{
     RouteEntry, RouteType,
@@ -512,8 +513,20 @@ async fn render_document_route(
     // (deduplication happens automatically via hash-based filenames)
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
+    // Determine if source is an index file (affects how relative links are resolved)
+    let is_index = source_file
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .map(|s| matches!(s, "index" | "main" | "README"))
+        .unwrap_or(false);
+
     // Rewrite file-based links to route-based links
-    rewrite_links(&mut node, &route, routes_set);
+    rewrite_links(&mut node, &route, routes_set, is_index);
+
+    // Stabilize node UIDs for deterministic rendering
+    // This ensures the same source produces identical HTML/nodemap.json output,
+    // enabling effective ETag-based caching and incremental uploads.
+    stabilize(&mut node);
 
     // Render layout for the route
     let layout_html = render_layout(

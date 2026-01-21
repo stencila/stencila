@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 chrono = { workspace = true }
 eyre = { workspace = true }
-flate2 = { workspace = true }
+brotli = { workspace = true }
 futures = { workspace = true }
 glob = { workspace = true }
 ignore = { workspace = true }
@@ -30,6 +30,7 @@ stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-format = { path = "../format" }
 stencila-node-media = { path = "../node-media" }
+stencila-node-stabilize = { path = "../node-stabilize" }
 stencila-spread = { path = "../spread" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
