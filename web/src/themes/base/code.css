@@ -373,8 +373,7 @@ stencila-code-chunk {
         margin: 0;
         overflow-x: auto;
         max-width: 100%;
-        word-break: break-all;
-        white-space: pre-wrap;
+        white-space: pre;
 
         code {
             display: block;
