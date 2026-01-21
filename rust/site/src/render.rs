@@ -144,8 +144,16 @@ where
 
     send_progress!(RenderProgress::WalkingDirectory);
 
-    // List all routes
-    let all_routes = list(true, true, route_filter, path_filter, source_files).await?;
+    // List routes, keeping a full set for navigation when doing incremental renders.
+    let (all_routes, render_routes) = if source_files.is_some() {
+        let all_routes = list(true, true, route_filter, path_filter, None).await?;
+        let render_routes = list(true, true, route_filter, path_filter, source_files).await?;
+        (all_routes, render_routes)
+    } else {
+        let all_routes = list(true, true, route_filter, path_filter, source_files).await?;
+        let render_routes = all_routes.clone();
+        (all_routes, render_routes)
+    };
 
     // Find workspace root for config
     // Load config from workspace
@@ -169,7 +177,8 @@ where
     // TODO: document_routes is sorted by route path (alphabetically), which is used for
     // prev/next navigation. This may not match custom nav-tree ordering or groupings.
     // Consider allowing navigation order to be derived from nav-tree structure instead.
-    let mut document_routes: Vec<RouteEntry> = Vec::new();
+    let mut document_routes_all: Vec<RouteEntry> = Vec::new();
+    let mut document_routes_render: Vec<RouteEntry> = Vec::new();
     let mut static_files: Vec<PathBuf> = Vec::new();
     let mut redirects: Vec<(String, String, RedirectStatus)> = Vec::new();
 
@@ -177,7 +186,20 @@ where
         match entry.route_type {
             RouteType::File | RouteType::Implied | RouteType::Spread => {
                 if entry.source_path.is_some() {
-                    document_routes.push(entry);
+                    document_routes_all.push(entry);
+                }
+            }
+            RouteType::Static | RouteType::Redirect => {
+                // Ignored for nav/routes_set
+            }
+        }
+    }
+
+    for entry in render_routes {
+        match entry.route_type {
+            RouteType::File | RouteType::Implied | RouteType::Spread => {
+                if entry.source_path.is_some() {
+                    document_routes_render.push(entry);
                 }
             }
             RouteType::Static => {
@@ -209,7 +231,7 @@ where
     }
 
     send_progress!(RenderProgress::FilesFound {
-        documents: document_routes.len(),
+        documents: document_routes_render.len(),
         static_files: static_files.len(),
     });
 
@@ -237,14 +259,14 @@ where
     let git_branch = git_info.branch.as_deref();
 
     // Build routes set once for link rewriting (avoid rebuilding for each document)
-    let routes_set = build_routes_set(&document_routes);
+    let routes_set = build_routes_set(&document_routes_all);
 
     // Get or generate nav items once (avoid expensive auto-generation per document)
     // If site.nav is configured, use it; otherwise auto-generate from routes
     let nav_items: Vec<NavItem> = if let Some(ref nav) = site_config.nav {
         nav.clone()
     } else {
-        auto_generate_nav(&document_routes, &None, Some(&site_root))
+        auto_generate_nav(&document_routes_all, &None, Some(&site_root))
     };
 
     // Resolve logo once (avoid per-document filesystem scanning)
@@ -254,13 +276,13 @@ where
     let decode_fn = Arc::new(decode_document_fn);
     let progress = Arc::new(progress);
     let processed = Arc::new(AtomicUsize::new(0));
-    let total = document_routes.len();
+    let total = document_routes_render.len();
     let source_dir = Arc::new(source_dir.to_path_buf());
     let base_url = Arc::new(base_url.to_string());
     let glide_attrs = Arc::new(glide_attrs);
     let site_config = Arc::new(site_config);
     let output_dir = Arc::new(output_dir.to_path_buf());
-    let document_routes = Arc::new(document_routes);
+    let document_routes = Arc::new(document_routes_all);
     let routes_set = Arc::new(routes_set);
     let nav_items = Arc::new(nav_items);
     let resolved_logo = Arc::new(resolved_logo);
@@ -271,8 +293,8 @@ where
 
     // Spawn render tasks - using tokio::spawn allows the runtime to schedule
     // blocking operations across its thread pool rather than blocking a single task
-    let mut handles = Vec::with_capacity(document_routes.len());
-    for entry in document_routes.iter() {
+    let mut handles = Vec::with_capacity(document_routes_render.len());
+    for entry in document_routes_render.iter() {
         let route = entry.route.clone();
         let target = entry.target.clone();
         let source_path = entry.source_path.clone().expect("filtered above");
