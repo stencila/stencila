@@ -1151,6 +1151,12 @@ impl Preview {
                         .filter_map(|n| n.to_str())
                         .take(3) // Limit display to 3 files
                         .collect();
+
+                    let nav_override_changed = event.paths.iter().any(|path| matches!(
+                        path.file_name().and_then(|name| name.to_str()),
+                        Some("_nav.yaml" | "_nav.yml" | "_nav.toml" | "_nav.json")
+                    ));
+
                     let suffix = if event.paths.len() > 3 {
                         format!(" (+{} more)", event.paths.len() - 3)
                     } else {
@@ -1162,13 +1168,27 @@ impl Preview {
                         handle.abort();
                         // Wait for task to finish (progress bars clean up on drop)
                         let _ = handle.await;
-                        message!("🔄 Files changed: {}{}, restarting render...", changed.join(", "), suffix);
+                        message!(
+                            "🔄 Files changed: {}{}, restarting render{}...",
+                            changed.join(", "),
+                            suffix,
+                            if nav_override_changed { " (full site)" } else { "" }
+                        );
                     } else {
-                        message!("🔄 Files changed: {}{}, re-rendering...", changed.join(", "), suffix);
+                        message!(
+                            "🔄 Files changed: {}{}, re-rendering{}...",
+                            changed.join(", "),
+                            suffix,
+                            if nav_override_changed { " (full site)" } else { "" }
+                        );
                     }
 
                     // Collect paths for notification and incremental rendering
-                    let changed_paths = event.paths.clone();
+                    let changed_paths = if nav_override_changed {
+                        None
+                    } else {
+                        Some(event.paths.clone())
+                    };
                     let paths: Vec<String> = event.paths.iter()
                         .filter_map(|p| p.to_str())
                         .map(String::from)
@@ -1179,7 +1199,13 @@ impl Preview {
                     let output = output.to_path_buf();
                     let layout_clone = layout.clone();
                     let handle = tokio::spawn(async move {
-                        Self::render_site(&site_root, &output, layout_clone.as_ref(), Some(&changed_paths)).await
+                        Self::render_site(
+                            &site_root,
+                            &output,
+                            layout_clone.as_ref(),
+                            changed_paths.as_deref(),
+                        )
+                        .await
                     });
                     pending_render = Some((handle, RenderTrigger::Site { paths }));
                 }
