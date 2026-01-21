@@ -1,0 +1,12 @@
+[package]
+name = "stencila-node-stabilize"
+version = "0.0.0"
+edition = "2024"
+description = "Stabilize node UIDs for deterministic site rendering"
+
+[dependencies]
+stencila-node-id = { path = "../node-id" }
+stencila-schema = { path = "../schema" }
+
+[lints]
+workspace = true
