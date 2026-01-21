@@ -36,10 +36,12 @@
  */
 
 :root {
-    /* Code block layout - breakout width
-     * Code blocks break out by default; set --code-block-max-width to 100% to disable */
-    --code-block-max-width: var(--content-breakout-width);
-    --code-block-max-width-mobile: var(--content-breakout-width-mobile);
+    /* Code block layout - fixed width slightly wider than content
+     * Using equal min/max creates consistent vertical alignment */
+    --code-block-min-width: calc(var(--article-content-max-width) + 20ch);
+    --code-block-max-width: calc(var(--article-content-max-width) + 20ch);
+    --code-block-min-width-mobile: 100%;
+    --code-block-max-width-mobile: 100%;
     --code-block-max-width-print: 100%;
 
     /* Code chunk layout - breakout width (for executable code)
@@ -375,17 +377,20 @@ stencila-code-chunk {
         max-width: 100%;
         white-space: pre;
 
+        /* Visual styling on pre so background extends when scrolling */
+        background-color: var(--code-background-block);
+        border: var(--code-border-width) solid var(--code-border-color);
+        border-radius: var(--code-border-radius);
+        padding: var(--code-padding-block);
+
         code {
             display: block;
 
+            /* Typography only - visual styling is on pre */
             font-family: var(--code-font-family);
             font-size: var(--code-font-size-block);
             line-height: var(--code-line-height);
             color: var(--code-color);
-            background-color: var(--code-background-block);
-            border: var(--code-border-width) solid var(--code-border-color);
-            border-radius: var(--code-border-radius);
-            padding: var(--code-padding-block);
         }
     }
 
@@ -478,6 +483,7 @@ stencila-code-chunk {
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
+        --code-block-min-width: var(--code-block-min-width-mobile);
         --code-block-max-width: var(--code-block-max-width-mobile);
         --code-chunk-max-width: var(--code-chunk-max-width-mobile);
     }

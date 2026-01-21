@@ -159,6 +159,7 @@ stencila-article {
     /* Content slot: children get max-width, not the container
      * This allows breakout elements to exceed the default content width */
     >[slot="content"] {
+
         /* Default max-width for all children */
         >* {
             max-width: var(--article-content-max-width);
@@ -184,24 +185,26 @@ stencila-article {
             max-width: var(--figure-max-width);
         }
 
-        >stencila-code-block {
+        >stencila-image-object {
             width: fit-content;
-            max-width: var(--code-block-max-width);
+            max-width: var(--image-block-max-width);
         }
 
         >stencila-code-chunk {
+            /* Follow pattern of tables and figures because that is usually what is in their outputs */
             width: fit-content;
             max-width: var(--code-chunk-max-width);
+        }
+
+        >stencila-code-block {
+            width: fit-content;
+            min-width: var(--code-block-min-width);
+            max-width: var(--code-block-max-width);
         }
 
         >stencila-quote-block {
             width: fit-content;
             max-width: var(--quote-block-max-width);
-        }
-
-        >stencila-image-object {
-            width: fit-content;
-            max-width: var(--image-block-max-width);
         }
     }
 }
