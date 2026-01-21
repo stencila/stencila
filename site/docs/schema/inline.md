@@ -56,7 +56,9 @@ The `Inline` type is represented in:
 
 # Testing
 
-During property-based (a.k.a generative) testing, the variants of the `Inline` type are generated using the following strategies[^1] for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
+During property-based (a.k.a generative) testing, the variants of the `Inline` type are generated using the following strategies. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
+
+::: table
 
 | Variant             | Complexity | Description                                                                                                                                                                                       | Strategy                                         |
 | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
@@ -99,8 +101,10 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 | `Number`            | Min+       | Do not generate `Number` nodes in inline content.                                                                                                                                                 | -                                                |
 |                     | Max        | Generate a fixed number. Used at all levels because even with JSON (and other data serialization formats)<br><br>round trip conversions can fail in the last significant digit of random numbers. | `Inline::Number(1.23)`                           |
 
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on the proptest generation strategies listed.
+
+:::
+
 # Source
 
 This documentation was generated from [`Inline.yaml`](https://github.com/stencila/stencila/blob/main/schema/Inline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
-
-[^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

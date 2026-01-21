@@ -7,10 +7,10 @@ description: Abstract base class for nodes that mark some other inline content i
 
 The `Mark` type has these properties:
 
-| Name      | Description                   | Type                     | Inherited from          | `JSON-LD @id`                        | Aliases |
-| --------- | ----------------------------- | ------------------------ | ----------------------- | ------------------------------------ | ------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) | [`schema:id`](https://schema.org/id) | -       |
-| `content` | The content that is marked.   | [`Inline`](./inline.md)* | -                       | `stencila:content`                   | -       |
+| Name      | Description                   | Type                     | Inherited from          |
+| --------- | ----------------------------- | ------------------------ | ----------------------- |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
+| `content` | The content that is marked.   | [`Inline`](./inline.md)* | -                       |
 
 # Related
 

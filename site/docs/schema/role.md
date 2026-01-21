@@ -15,9 +15,9 @@ See http://blog.schema.org/2014/06/introducing-role.html.
 
 The `Role` type has these properties:
 
-| Name | Description                   | Type                    | Inherited from          | `JSON-LD @id`                        | Aliases |
-| ---- | ----------------------------- | ----------------------- | ----------------------- | ------------------------------------ | ------- |
-| `id` | The identifier for this item. | [`String`](./string.md) | [`Entity`](./entity.md) | [`schema:id`](https://schema.org/id) | -       |
+| Name | Description                   | Type                    | Inherited from          |
+| ---- | ----------------------------- | ----------------------- | ----------------------- |
+| `id` | The identifier for this item. | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

@@ -12,13 +12,13 @@ invalid for the specified `programmingLanguage`.
 
 The `CodeStatic` type has these properties:
 
-| Name                  | Description                              | Type                                        | Inherited from          | `JSON-LD @id`                                                          | Aliases                                        |
-| --------------------- | ---------------------------------------- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------------------- | ---------------------------------------------- |
-| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md) | [`schema:id`](https://schema.org/id)                                   | -                                              |
-| `code`                | The code.                                | [`Cord`](./cord.md)                         | -                       | `stencila:code`                                                        | -                                              |
-| `programmingLanguage` | The programming language of the code.    | [`String`](./string.md)                     | -                       | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | `programming-language`, `programming_language` |
-| `authors`             | The authors of the code.                 | [`Author`](./author.md)*                    | -                       | [`schema:author`](https://schema.org/author)                           | `author`                                       |
-| `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](./provenance-count.md)* | -                       | `stencila:provenance`                                                  | -                                              |
+| Name                  | Description                              | Type                                        | Inherited from          |
+| --------------------- | ---------------------------------------- | ------------------------------------------- | ----------------------- |
+| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md) |
+| `code`                | The code.                                | [`Cord`](./cord.md)                         | -                       |
+| `programmingLanguage` | The programming language of the code.    | [`String`](./string.md)                     | -                       |
+| `authors`             | The authors of the code.                 | [`Author`](./author.md)*                    | -                       |
+| `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
 
 # Related
 

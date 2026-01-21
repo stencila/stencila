@@ -7,15 +7,15 @@ description: Abstract base type for nodes that indicate a suggested change to co
 
 The `Suggestion` type has these properties:
 
-| Name                | Description                                                                                     | Type                                         | Inherited from          | `JSON-LD @id`                                | Aliases                                    |
-| ------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------- | -------------------------------------------- | ------------------------------------------ |
-| `id`                | The identifier for this item.                                                                   | [`String`](./string.md)                      | [`Entity`](./entity.md) | [`schema:id`](https://schema.org/id)         | -                                          |
-| `suggestionStatus`  | The status of the suggestion including whether it is the original, or is accepted, or rejected. | [`SuggestionStatus`](./suggestion-status.md) | -                       | `stencila:suggestionStatus`                  | `suggestion-status`, `suggestion_status`   |
-| `authors`           | The authors of the suggestion                                                                   | [`Author`](./author.md)*                     | -                       | [`schema:author`](https://schema.org/author) | `author`                                   |
-| `provenance`        | A summary of the provenance of the content within the suggestion.                               | [`ProvenanceCount`](./provenance-count.md)*  | -                       | `stencila:provenance`                        | -                                          |
-| `executionDuration` | Time taken to generate the suggestion.                                                          | [`Duration`](./duration.md)                  | -                       | `stencila:executionDuration`                 | `execution-duration`, `execution_duration` |
-| `executionEnded`    | The timestamp when the generation ended.                                                        | [`Timestamp`](./timestamp.md)                | -                       | `stencila:executionEnded`                    | `execution-ended`, `execution_ended`       |
-| `feedback`          | Feedback on the suggestion                                                                      | [`String`](./string.md)                      | -                       | `stencila:feedback`                          | -                                          |
+| Name                | Description                                                                                     | Type                                         | Inherited from          |
+| ------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------- |
+| `id`                | The identifier for this item.                                                                   | [`String`](./string.md)                      | [`Entity`](./entity.md) |
+| `suggestionStatus`  | The status of the suggestion including whether it is the original, or is accepted, or rejected. | [`SuggestionStatus`](./suggestion-status.md) | -                       |
+| `authors`           | The authors of the suggestion                                                                   | [`Author`](./author.md)*                     | -                       |
+| `provenance`        | A summary of the provenance of the content within the suggestion.                               | [`ProvenanceCount`](./provenance-count.md)*  | -                       |
+| `executionDuration` | Time taken to generate the suggestion.                                                          | [`Duration`](./duration.md)                  | -                       |
+| `executionEnded`    | The timestamp when the generation ended.                                                        | [`Timestamp`](./timestamp.md)                | -                       |
+| `feedback`          | Feedback on the suggestion                                                                      | [`String`](./string.md)                      | -                       |
 
 # Related
 

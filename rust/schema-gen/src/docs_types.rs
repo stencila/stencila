@@ -8,13 +8,11 @@ use std::{
 use eyre::{Context as _, Result, bail};
 use futures::future::try_join_all;
 use inflector::Inflector;
-use itertools::Itertools;
 use strum::IntoEnumIterator;
 use tokio::fs::{create_dir_all, remove_dir_all};
 
-use stencila_codecs::{CodecSupport, Format};
 use stencila_schema::{
-    Article, ArticleOptions, Block, Inline, Node, NodeType, NoteType, TableCell, shortcuts::*,
+    Article, ArticleOptions, Block, Inline, Node, Table, shortcuts::*,
 };
 
 use crate::{
@@ -146,9 +144,6 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut content = intro(title, schema);
     content.append(&mut properties(title, schema, context));
     content.append(&mut related(title, schema, context));
-    if !schema.r#abstract {
-        content.append(&mut formats(title, schema));
-    }
     content.append(&mut bindings(title, schema));
     if schema.proptest.is_some() {
         content.append(&mut proptests_object(title, schema));
@@ -174,7 +169,6 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate documentation for a primitive schema
 fn docs_primitive(title: &str, schema: &Schema) -> Vec<Block> {
     let mut content = intro(title, schema);
-    content.append(&mut formats(title, schema));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
@@ -207,32 +201,12 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         th([t("Description")]),
         th([t("Type")]),
         th([t("Inherited from")]),
-        th([ci("JSON-LD @id")]),
-        th([t("Aliases")]),
     ])];
 
     for (name, property) in &schema.properties {
         if name == "type" {
             continue;
         }
-
-        #[allow(unstable_name_collisions)]
-        let mut aliases = property
-            .aliases
-            .iter()
-            .map(ci)
-            .intersperse(t(", "))
-            .collect_vec();
-        if aliases.is_empty() {
-            aliases.push(t("-"));
-        };
-
-        let id = property.jid.clone().unwrap_or_default();
-        let id = if id.starts_with("schema:") {
-            lnk([ci(&id)], id.replace("schema:", "https://schema.org/"))
-        } else {
-            ci(id)
-        };
 
         fn type_link(title: &str, context: &Context) -> Inline {
             let url = context.urls.get(title).cloned().unwrap_or_default();
@@ -301,8 +275,6 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
             td([t(description)]),
             td(r#type),
             td([from]),
-            td([id]),
-            td(aliases),
         ]));
     }
 
@@ -331,73 +303,6 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         h1([t("Members")]),
         p([t("The "), ci(title), t(" type has these members:")]),
         ul(items),
-    ]
-}
-
-/// Generate a "Formats" section for a schema
-fn formats(title: &str, schema: &Schema) -> Vec<Block> {
-    let mut rows = vec![tr([
-        th([t("Format")]),
-        th([t("Encoding")]),
-        th([t("Decoding")]),
-        th([t("Support")]),
-        th([t("Notes")]),
-    ])];
-
-    let node_type = NodeType::try_from(title).ok();
-    for format in Format::iter() {
-        let Ok(codec) = stencila_codecs::get(None, Some(&format), None) else {
-            continue;
-        };
-
-        let name = format.name();
-        let name = td([lnk([t(name)], format!("../formats/{format}.md"))]);
-
-        fn codec_support(support: CodecSupport) -> TableCell {
-            match support {
-                CodecSupport::None => td([]),
-                support => td([t(format!(
-                    "{icon} {desc}",
-                    icon = match support {
-                        CodecSupport::NoLoss => "🟢",
-                        CodecSupport::LowLoss => "🔷",
-                        CodecSupport::HighLoss => "⚠️",
-                        CodecSupport::None => "",
-                    },
-                    desc = support.to_string().to_sentence_case()
-                ))]),
-            }
-        }
-
-        let encoding = codec_support(
-            node_type
-                .as_ref()
-                .map(|node_type| codec.supports_to_type(*node_type))
-                .unwrap_or_default(),
-        );
-
-        let decoding = codec_support(
-            node_type
-                .as_ref()
-                .map(|node_type| codec.supports_from_type(*node_type))
-                .unwrap_or_default(),
-        );
-
-        let notes = td(Schemas::docs_format_notes(schema, format));
-
-        rows.push(tr([name, encoding, decoding, notes]));
-    }
-
-    vec![
-        h1([t("Formats")]),
-        p([
-            t("The "),
-            ci(title),
-            t(
-                " type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:",
-            ),
-        ]),
-        tbl(rows),
     ]
 }
 
@@ -473,27 +378,26 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
         p([
             t("During property-based (a.k.a generative) testing, the variants of the "),
             ci(title),
-            t(" type are generated using the following strategies"),
-            nte(
-                NoteType::Footnote,
-                [p([
-                    t("See the "),
-                    ci("proptest"),
-                    t(" "),
-                    lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
-                    t(" and the "),
-                    lnk(
-                        [ci("proptest.rs")],
-                        "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs",
-                    ),
-                    t(" module for details."),
-                ])],
-            ),
             t(
-                " for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.",
+                " type are generated using the following strategies. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.",
             ),
         ]),
-        tbl(rows),
+        Block::Table(Table {
+            rows,
+            notes: Some(vec![p([
+                t("See the "),
+                ci("proptest"),
+                t(" "),
+                lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
+                t(" and Stencila Schema's "),
+                lnk(
+                    [ci("proptest.rs")],
+                    "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs",
+                ),
+                t(" module for details on the proptest generation strategies listed."),
+            ])]),
+            ..Default::default()
+        }),
     ]
 }
 
@@ -566,29 +470,24 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
         p([
             t("During property-based (a.k.a generative) testing, the properties of the "),
             ci(title),
-            t(" type are generated using the following strategies"),
-            nte(
-                NoteType::Footnote,
-                [p([
-                    t("See the "),
-                    ci("proptest"),
-                    t(" "),
-                    lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
-                    t(" and the "),
-                    lnk(
-                        [ci("proptest.rs")],
-                        "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs",
-                    ),
-                    t(" module for details."),
-                ])],
-            ),
-            t(
-                " for each complexity level. Any optional properties that are not in this table are set to ",
-            ),
-            ci("None"),
-            t("."),
+            t(" type are generated using the following strategies."),
         ]),
-        tbl(rows),
+        Block::Table(Table {
+            rows,
+            notes: Some(vec![p([
+                t("See the "),
+                ci("proptest"),
+                t(" "),
+                lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
+                t(" and Stencila Schema's "),
+                lnk(
+                    [ci("proptest.rs")],
+                    "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs",
+                ),
+                t(" module for details on proptest generation strategies listed."),
+            ])]),
+            ..Default::default()
+        }),
     ]
 }
 

@@ -11,9 +11,9 @@ This schema includes special properties that are analogous to JSON-LDs `@type` a
 
 The `Entity` type has these properties:
 
-| Name | Description                   | Type                    | Inherited from | `JSON-LD @id`                        | Aliases |
-| ---- | ----------------------------- | ----------------------- | -------------- | ------------------------------------ | ------- |
-| `id` | The identifier for this item. | [`String`](./string.md) | -              | [`schema:id`](https://schema.org/id) | -       |
+| Name | Description                   | Type                    | Inherited from |
+| ---- | ----------------------------- | ----------------------- | -------------- |
+| `id` | The identifier for this item. | [`String`](./string.md) | -              |
 
 # Related
 

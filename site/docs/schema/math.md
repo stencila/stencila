@@ -13,17 +13,17 @@ for `CodeFragment`, `CodeBlock` etc.
 
 The `Math` type has these properties:
 
-| Name                  | Description                                                         | Type                                              | Inherited from          | `JSON-LD @id`                                | Aliases                                                                                                            |
-| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) | [`schema:id`](https://schema.org/id)         | -                                                                                                                  |
-| `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](./cord.md)                               | -                       | `stencila:code`                              | -                                                                                                                  |
-| `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](./string.md)                           | -                       | `stencila:mathLanguage`                      | `math-language`, `math_language`                                                                                   |
-| `authors`             | The authors of the math.                                            | [`Author`](./author.md)*                          | -                       | [`schema:author`](https://schema.org/author) | `author`                                                                                                           |
-| `provenance`          | A summary of the provenance of the math.                            | [`ProvenanceCount`](./provenance-count.md)*       | -                       | `stencila:provenance`                        | -                                                                                                                  |
-| `compilationDigest`   | A digest of the `code` and `mathLanguage`.                          | [`CompilationDigest`](./compilation-digest.md)    | -                       | `stencila:compilationDigest`                 | `compilation-digest`, `compilation_digest`                                                                         |
-| `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](./compilation-message.md)* | -                       | `stencila:compilationMessages`               | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
-| `mathml`              | The MathML transpiled from the `code`.                              | [`String`](./string.md)                           | -                       | `stencila:mathml`                            | -                                                                                                                  |
-| `images`              | Images of the math.                                                 | [`ImageObject`](./image-object.md)*               | -                       | [`schema:image`](https://schema.org/image)   | `image`                                                                                                            |
+| Name                  | Description                                                         | Type                                              | Inherited from          |
+| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
+| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
+| `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](./cord.md)                               | -                       |
+| `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](./string.md)                           | -                       |
+| `authors`             | The authors of the math.                                            | [`Author`](./author.md)*                          | -                       |
+| `provenance`          | A summary of the provenance of the math.                            | [`ProvenanceCount`](./provenance-count.md)*       | -                       |
+| `compilationDigest`   | A digest of the `code` and `mathLanguage`.                          | [`CompilationDigest`](./compilation-digest.md)    | -                       |
+| `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](./compilation-message.md)* | -                       |
+| `mathml`              | The MathML transpiled from the `code`.                              | [`String`](./string.md)                           | -                       |
+| `images`              | Images of the math.                                                 | [`ImageObject`](./image-object.md)*               | -                       |
 
 # Related
 

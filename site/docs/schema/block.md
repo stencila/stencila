@@ -58,7 +58,9 @@ The `Block` type is represented in:
 
 # Testing
 
-During property-based (a.k.a generative) testing, the variants of the `Block` type are generated using the following strategies[^1] for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
+During property-based (a.k.a generative) testing, the variants of the `Block` type are generated using the following strategies. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
+
+::: table
 
 | Variant            | Complexity | Description                                                | Strategy          |
 | ------------------ | ---------- | ---------------------------------------------------------- | ----------------- |
@@ -100,8 +102,10 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `VideoObject`      | Min+       | Do not generate `VideoObject` nodes in block content.      | -                 |
 | `Walkthrough`      | Min+       | Do not generate `Walkthrough` nodes in block content.      | -                 |
 
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on the proptest generation strategies listed.
+
+:::
+
 # Source
 
 This documentation was generated from [`Block.yaml`](https://github.com/stencila/stencila/blob/main/schema/Block.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
-
-[^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.
