@@ -143,9 +143,25 @@ impl UploadProgressBar {
         self
     }
 
-    fn on_upload_starting(&mut self, total: usize) {
+    fn on_collecting_files(&mut self) {
         if let Some(label) = &self.label {
             message(label);
+        }
+        let pb = ProgressBar::new_spinner();
+        pb.set_style(
+            ProgressStyle::default_spinner()
+                .template("{spinner:.green} {elapsed_precise} {msg}")
+                .expect("valid template"),
+        );
+        pb.set_message("Collecting files...");
+        pb.enable_steady_tick(std::time::Duration::from_millis(100));
+        self.progress_bar = Some(pb);
+    }
+
+    fn on_upload_starting(&mut self, total: usize) {
+        // Replace spinner with progress bar
+        if let Some(pb) = self.progress_bar.take() {
+            pb.finish_and_clear();
         }
         let pb = ProgressBar::new(total as u64);
         pb.set_style(
@@ -1274,7 +1290,7 @@ impl Push {
         }
 
         // Set up progress channel
-        let (tx, mut rx) = tokio::sync::mpsc::channel::<PushProgress>(100);
+        let (tx, mut rx) = mpsc::channel::<PushProgress>(100);
 
         message!("☁️ Pushing directory `{}` to workspace site", path_display);
 
@@ -1327,8 +1343,11 @@ impl Push {
                             render_progress.on_document_failed(&path, &error);
                         }
                         // Upload phase
-                        PushProgress::UploadStarting { total } => {
+                        PushProgress::CollectingFiles => {
                             render_progress.finish_with_message("rendered");
+                            upload_progress.on_collecting_files();
+                        }
+                        PushProgress::UploadStarting { total } => {
                             upload_progress.on_upload_starting(total);
                         }
                         PushProgress::Processing { processed, .. } => {

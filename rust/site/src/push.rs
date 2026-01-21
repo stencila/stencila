@@ -59,6 +59,8 @@ pub enum PushProgress {
     },
 
     // Upload phase
+    /// Collecting files and fetching server ETags (in parallel)
+    CollectingFiles,
     /// Starting upload
     UploadStarting { total: usize },
     /// Processing files (uploading or skipping unchanged)
@@ -196,6 +198,7 @@ where
         while let Some(event) = upload_rx.recv().await {
             if let Some(tx) = &progress_clone {
                 let push_event = match event {
+                    UploadProgress::CollectingFiles => PushProgress::CollectingFiles,
                     UploadProgress::Starting { total } => PushProgress::UploadStarting { total },
                     UploadProgress::Processing {
                         processed,
