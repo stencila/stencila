@@ -30,6 +30,13 @@
  */
 
 :root {
+    /* Block image layout - breakout width
+     * Block images break out by default; set --image-block-max-width to 100% to disable
+     * Note: Only applies to block-level images, not inline images within paragraphs */
+    --image-block-max-width: var(--content-breakout-width);
+    --image-block-max-width-mobile: var(--content-breakout-width-mobile);
+    --image-block-max-width-print: 100%;
+
     /* Title typography - inherits from caption tokens */
     --image-title-font-family: var(--caption-font-family);
     --image-title-font-size: var(--caption-font-size);
@@ -101,5 +108,19 @@ stencila-heading stencila-image-object {
         max-height: 1.1em;
         vertical-align: middle;
         margin: 0;
+    }
+}
+
+/* Responsive Application - Mobile Breakpoint (640px) */
+@media (max-width: 640px) {
+    :root {
+        --image-block-max-width: var(--image-block-max-width-mobile);
+    }
+}
+
+/* Print Media Optimization */
+@media print {
+    :root {
+        --image-block-max-width: var(--image-block-max-width-print);
     }
 }

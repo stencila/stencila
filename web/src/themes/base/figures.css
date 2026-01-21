@@ -38,6 +38,12 @@
  */
 
 :root {
+    /* Figure layout - breakout width
+     * Figures break out by default; set --figure-max-width to 100% to disable */
+    --figure-max-width: var(--content-breakout-width);
+    --figure-max-width-mobile: var(--content-breakout-width-mobile);
+    --figure-max-width-print: 100%;
+
     /* Spacing tokens - vertical separation from surrounding content */
     --figure-spacing-top: var(--content-spacing);
     --figure-spacing-bottom: var(--content-spacing);
@@ -146,9 +152,17 @@ stencila-figure {
     }
 }
 
+/* Responsive Application - Mobile Breakpoint (640px) */
+@media (max-width: 640px) {
+    :root {
+        --figure-max-width: var(--figure-max-width-mobile);
+    }
+}
+
 /* Print Media Optimization */
 @media print {
     :root {
+        --figure-max-width: var(--figure-max-width-print);
         --figure-background: var(--figure-background-print);
         --figure-border-color: var(--figure-border-color-print);
     }

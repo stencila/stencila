@@ -29,8 +29,8 @@
     --layout-header-height: 64px;
     --layout-left-sidebar-width: 280px;
     --layout-right-sidebar-width: 220px;
-    --layout-content-max-width: 800px;
-    --layout-content-padding: var(--content-spacing);
+    --layout-main-max-width: 800px;
+    --layout-main-padding: var(--content-spacing);
     --layout-border-width: var(--border-width-default);
 
     /* Layout Typography */
@@ -243,9 +243,9 @@ stencila-top {
     display: flex;
     align-items: center;
     gap: var(--subregion-gap);
-    padding: var(--layout-content-padding);
+    padding: var(--layout-main-padding);
     padding-bottom: 0;
-    max-width: var(--layout-content-max-width);
+    max-width: var(--layout-main-max-width);
     width: 100%;
     margin: 0 auto;
 }
@@ -253,14 +253,16 @@ stencila-top {
 
 /* =================================
  * Main Content
+ *
+ * Note: No max-width constraint here. The article's child-based rules
+ * handle content width management, allowing breakout elements (tables,
+ * figures, code blocks, etc.) to expand beyond the default content width.
  * ================================= */
 
 #main-content {
     flex: 1;
-    max-width: var(--layout-content-max-width);
     width: 100%;
-    margin: 0 auto;
-    padding: var(--layout-content-padding);
+    padding: var(--layout-main-padding);
 }
 
 /* =================================
@@ -271,9 +273,9 @@ stencila-bottom {
     display: flex;
     align-items: center;
     gap: var(--subregion-gap);
-    padding: var(--layout-content-padding);
+    padding: var(--layout-main-padding);
     padding-top: 0;
-    max-width: var(--layout-content-max-width);
+    max-width: var(--layout-main-max-width);
     width: 100%;
     margin: 0 auto;
 }
@@ -660,9 +662,7 @@ stencila-layout[header] .sidebar-overlay {
     }
 
     #main-content {
-        max-width: none;
         padding: 0;
-        margin: 0;
     }
 }
 

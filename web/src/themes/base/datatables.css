@@ -56,6 +56,12 @@
  */
 
 :root {
+    /* Datatable layout - breakout width (defaults to table tokens)
+     * Datatables break out by default; set --datatable-max-width to 100% to disable */
+    --datatable-max-width: var(--table-max-width);
+    --datatable-max-width-mobile: var(--table-max-width-mobile);
+    --datatable-max-width-print: var(--table-max-width-print);
+
     /* Vertical spacing tokens - default to table spacing */
     --datatable-spacing-top: var(--table-spacing-top);
     --datatable-spacing-bottom: var(--table-spacing-bottom);
@@ -142,6 +148,7 @@
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
+        --datatable-max-width: var(--datatable-max-width-mobile);
         --datatable-cell-line-height: var(--datatable-cell-line-height-mobile);
         --datatable-cell-padding: var(--datatable-cell-padding-mobile);
     }
@@ -275,6 +282,7 @@ stencila-datatable {
 /* Print Media Optimization */
 @media print {
     :root {
+        --datatable-max-width: var(--datatable-max-width-print);
         --datatable-border-width: var(--datatable-border-width-print);
         --datatable-row-border-width: var(--datatable-row-border-width-print);
         --datatable-column-border-width: var(--datatable-column-border-width-print);

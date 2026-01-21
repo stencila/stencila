@@ -37,6 +37,12 @@
  */
 
 :root {
+    /* Quote block layout - breakout width
+     * Quote blocks break out by default; set --quote-block-max-width to 100% to disable */
+    --quote-block-max-width: var(--content-breakout-width);
+    --quote-block-max-width-mobile: var(--content-breakout-width-mobile);
+    --quote-block-max-width-print: 100%;
+
     --quote-background: var(--surface-sunken);
     --quote-background-dark: var(--surface-sunken-dark);
 
@@ -107,10 +113,17 @@ stencila-quote-inline {
     }
 }
 
-/* Mobile adjustments - Full-width quotes on small screens
- * Override horizontal spacing to 0 for edge-to-edge appearance */
+/* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
+        --quote-block-max-width: var(--quote-block-max-width-mobile);
         --quote-spacing-horizontal: var(--quote-spacing-horizontal-mobile);
+    }
+}
+
+/* Print Media Optimization */
+@media print {
+    :root {
+        --quote-block-max-width: var(--quote-block-max-width-print);
     }
 }

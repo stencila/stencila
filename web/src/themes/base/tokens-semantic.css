@@ -19,6 +19,11 @@
     --content-width-mobile: 100%;
     --content-width-print: 100%;
 
+    /* Content Breakout - allows tables, figures, code, etc. to exceed content width */
+    --content-breakout-width: min(90vw, 1100px);
+    --content-breakout-width-mobile: 100%;
+    --content-breakout-width-print: 100%;
+
     /* Spacing Semantic Tokens with responsive and print variants */
     --content-spacing: var(--space-8);
     --content-spacing-tablet: var(--space-6);
@@ -204,6 +209,7 @@
     :root {
         --content-spacing: var(--content-spacing-mobile);
         --content-width: var(--content-width-mobile);
+        --content-breakout-width: var(--content-breakout-width-mobile);
 
         --text-font-size: var(--text-font-size-mobile);
         --text-line-height: var(--text-line-height-mobile);
@@ -217,6 +223,7 @@
     :root:not([data-color-scheme="light"]) {
         --content-spacing: var(--content-spacing-print);
         --content-width: var(--content-width-print);
+        --content-breakout-width: var(--content-breakout-width-print);
 
         --surface-sunken: var(--surface-sunken-print);
         --surface-background: var(--surface-background-print);

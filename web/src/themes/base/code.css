@@ -36,6 +36,18 @@
  */
 
 :root {
+    /* Code block layout - breakout width
+     * Code blocks break out by default; set --code-block-max-width to 100% to disable */
+    --code-block-max-width: var(--content-breakout-width);
+    --code-block-max-width-mobile: var(--content-breakout-width-mobile);
+    --code-block-max-width-print: 100%;
+
+    /* Code chunk layout - breakout width (for executable code)
+     * Code chunks break out by default; set --code-chunk-max-width to 100% to disable */
+    --code-chunk-max-width: var(--content-breakout-width);
+    --code-chunk-max-width-mobile: var(--content-breakout-width-mobile);
+    --code-chunk-max-width-print: 100%;
+
     /* Font and Typography */
     --code-color: var(--text-color-primary);
     --code-color-dark: #e8e8e8;
@@ -349,7 +361,8 @@ stencila-code-inline {
     }
 }
 
-stencila-code-block {
+stencila-code-block,
+stencila-code-chunk {
     display: block;
 
     /* Spacing */
@@ -460,5 +473,21 @@ stencila-code-block {
 
     .token.entity {
         cursor: help;
+    }
+}
+
+/* Responsive Application - Mobile Breakpoint (640px) */
+@media (max-width: 640px) {
+    :root {
+        --code-block-max-width: var(--code-block-max-width-mobile);
+        --code-chunk-max-width: var(--code-chunk-max-width-mobile);
+    }
+}
+
+/* Print Media Optimization */
+@media print {
+    :root {
+        --code-block-max-width: var(--code-block-max-width-print);
+        --code-chunk-max-width: var(--code-chunk-max-width-print);
     }
 }

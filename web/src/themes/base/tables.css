@@ -59,10 +59,11 @@
  */
 
 :root {
-    /* Table layout - positioning and constraints (matches figure pattern) */
-    --table-min-width: 100%;
-    --table-max-width: 100%;
-    --table-margin-horizontal: auto;
+    /* Table layout - positioning and constraints
+     * Tables break out by default; set --table-max-width to 100% to disable */
+    --table-max-width: var(--content-breakout-width);
+    --table-max-width-mobile: var(--content-breakout-width-mobile);
+    --table-max-width-print: 100%;
 
     /* Vertical spacing tokens - vertical separation from surrounding content */
     --table-spacing-top: var(--content-spacing);
@@ -187,6 +188,7 @@
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
+        --table-max-width: var(--table-max-width-mobile);
         --table-cell-line-height: var(--table-cell-line-height-mobile);
         --table-cell-padding: var(--table-cell-padding-mobile);
     }
@@ -204,10 +206,7 @@ stencila-table {
 
     /* Table element styling */
     table {
-        min-width: var(--table-min-width);
-        max-width: var(--table-max-width);
-        margin-left: var(--table-margin-horizontal);
-        margin-right: var(--table-margin-horizontal);
+        width: 100%;
         border-collapse: collapse;
         border-top: var(--table-border-top-width) var(--table-border-top-style) var(--table-border-top-color);
         border-bottom: var(--table-border-bottom-width) var(--table-border-bottom-style) var(--table-border-bottom-color);
@@ -337,6 +336,7 @@ stencila-table {
         --table-body-row-border-width: var(--table-body-row-border-width-print);
 
         /* Other print optimizations */
+        --table-max-width: var(--table-max-width-print);
         --table-header-background: var(--table-header-background-print);
         --table-row-striped: var(--table-row-striped-print);
         --table-cell-line-height: var(--table-cell-line-height-print);

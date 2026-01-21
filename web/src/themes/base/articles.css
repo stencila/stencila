@@ -97,9 +97,14 @@
 stencila-article {
     display: block;
 
-    >[slot] {
+    /* Non-content slots get constrained width */
+    >[slot="title"],
+    >[slot="authors"],
+    >[slot="abstract"],
+    >[slot="references"] {
         max-width: var(--article-content-max-width);
-        margin: 0 auto;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     >[slot="title"] {
@@ -151,9 +156,53 @@ stencila-article {
         display: none;
     }
 
-    /* Allow pages to extend beyond content width */
+    /* Content slot: children get max-width, not the container
+     * This allows breakout elements to exceed the default content width */
     >[slot="content"] {
-        overflow: visible;
+        /* Default max-width for all children */
+        >* {
+            max-width: var(--article-content-max-width);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Breakout elements - wider max-width than default content
+         * Using width: fit-content so elements are only as wide as needed,
+         * up to the max-width limit */
+        >stencila-table {
+            width: fit-content;
+            max-width: var(--table-max-width);
+        }
+
+        >stencila-datatable {
+            width: fit-content;
+            max-width: var(--datatable-max-width);
+        }
+
+        >stencila-figure {
+            width: fit-content;
+            max-width: var(--figure-max-width);
+        }
+
+        >stencila-code-block {
+            width: fit-content;
+            max-width: var(--code-block-max-width);
+        }
+
+        >stencila-code-chunk {
+            width: fit-content;
+            max-width: var(--code-chunk-max-width);
+        }
+
+        >stencila-quote-block {
+            width: fit-content;
+            max-width: var(--quote-block-max-width);
+        }
+
+        >stencila-image-object {
+            width: fit-content;
+            max-width: var(--image-block-max-width);
+        }
     }
 }
 
