@@ -9,7 +9,7 @@ use std::path::Path;
 use eyre::{Result, eyre};
 use serde::{Deserialize, Serialize};
 
-use stencila_config::{ConfigTarget, set_value, get};
+use stencila_config::{ConfigTarget, get, set_value};
 
 use crate::{base_url, client, process_response};
 
