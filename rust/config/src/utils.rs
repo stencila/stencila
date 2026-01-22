@@ -62,7 +62,7 @@ pub(crate) fn normalize_path(path: &Path) -> Result<PathBuf> {
 /// Collect config file paths in merge order (lowest to highest precedence)
 ///
 /// Returns paths in the order they should be merged:
-/// 1. User config (~/.config/stencila/stencila.toml and stencila.local.toml) - if included
+/// 1. User config (~/.config/stencila/stencila.toml) - if included
 /// 2. Workspace config (stencila.toml then stencila.local.toml at workspace_dir only)
 pub(crate) fn collect_paths(
     workspace_dir: &Path,
@@ -78,7 +78,6 @@ pub(crate) fn collect_paths(
             stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false)
     {
         paths.push(user_config_dir.join(CONFIG_FILENAME));
-        paths.push(user_config_dir.join(CONFIG_LOCAL_FILENAME));
     }
 
     // 2. Add workspace config (highest precedence)

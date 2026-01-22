@@ -31,7 +31,7 @@ use std::{
 use eyre::{Result, eyre};
 use tokio::sync::{broadcast, mpsc};
 
-use crate::{CONFIG_FILENAME, Config, utils::build_figment, watch};
+use crate::{CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, utils::build_figment, watch};
 
 /// Internal state for the config singleton
 struct ConfigSingleton {
@@ -116,8 +116,6 @@ pub fn load_and_validate(workspace_dir: &Path) -> Result<Config> {
 
 /// Find workspace root by searching up for stencila.toml or stencila.local.toml
 fn find_workspace_root(start: &Path) -> Result<PathBuf> {
-    use crate::CONFIG_LOCAL_FILENAME;
-
     // Search up from start path for config file (either stencila.toml or stencila.local.toml)
     // Try stencila.toml first, then stencila.local.toml
     if let Some(config_path) = crate::find_config_file(start, CONFIG_FILENAME)
@@ -134,8 +132,7 @@ fn find_workspace_root(start: &Path) -> Result<PathBuf> {
 
     // No workspace config found, fall back to user config directory
     if let Ok(user_config_dir) = stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false)
-        && (user_config_dir.join(CONFIG_FILENAME).exists()
-            || user_config_dir.join(CONFIG_LOCAL_FILENAME).exists())
+        && user_config_dir.join(CONFIG_FILENAME).exists()
     {
         return Ok(user_config_dir);
     }

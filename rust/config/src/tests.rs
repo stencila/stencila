@@ -532,33 +532,18 @@ fn test_collect_config_paths_order() -> Result<()> {
 }
 
 #[test]
-fn test_user_config_includes_local() -> Result<()> {
+fn test_user_config_includes_toml() -> Result<()> {
     let current_dir = std::env::current_dir()?;
-    // Include user config to test that both files are present
+    // Include user config to test that the user file is present
     let paths = collect_paths(&current_dir, true)?;
 
     // Get user config directory
     if let Ok(user_config_dir) = stencila_dirs::get_app_dir(stencila_dirs::DirType::Config, false) {
         let user_yaml = user_config_dir.join(CONFIG_FILENAME);
-        let user_local = user_config_dir.join(CONFIG_LOCAL_FILENAME);
 
         // Both user config files should be in the paths
         let yaml_pos = paths.iter().position(|p| p == &user_yaml);
-        let local_pos = paths.iter().position(|p| p == &user_local);
-
         assert!(yaml_pos.is_some(), "User stencila.toml should be included");
-        assert!(
-            local_pos.is_some(),
-            "User stencila.local.toml should be included"
-        );
-
-        // .toml should come before .local.toml
-        if let (Some(yaml), Some(local)) = (yaml_pos, local_pos) {
-            assert!(
-                yaml < local,
-                "User stencila.toml should come before stencila.local.toml"
-            );
-        }
     }
 
     Ok(())
