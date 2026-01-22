@@ -2,9 +2,63 @@
 title: Stencila Schema
 ---
 
-Reference documentation for Stencila Schema types, organized by category.
+Stencila Schema is the canonical model for representing documents, data, code, and
+execution in Stencila. It defines the node types that flow through parsers,
+codecs, editors, kernels, and publishing pipelines so that content can be
+validated, transformed, and exchanged consistently across formats and languages.
 
-## Works
+# Overview
+
+The schema is authored as YAML files in `schema/`, with each file describing a
+type, its properties, inheritance, and metadata such as JSON-LD identifiers. The
+result is an interconnected graph of node types covering creative works, prose,
+math, code, data structures, execution flow, styling, edits, and configuration.
+
+## Why it exists
+
+Stencila supports many input and output formats. A shared schema provides a
+single source of truth so that:
+
+- documents can round-trip between formats with fewer surprises
+- validation rules and constraints are centralized
+- type-safe APIs can be generated for multiple languages
+- semantic identifiers align with JSON-LD and https://schema.org conventions
+
+## Relationship to schema.org
+
+Where possible, Stencila adopts schema.org types and properties so that metadata
+and content are immediately interoperable with existing tools, crawlers, and
+linked data ecosystems. When schema.org lacks the concepts needed for
+executable, interactive, or richly structured documents, Stencila extends it
+with additional types and properties rather than inventing a parallel
+vocabulary. This keeps common concepts aligned with the wider web while
+allowing Stencila to model features such as execution, provenance, prompts, and
+structured data.
+
+## Generated artifacts
+
+The Rust crate in `rust/schema-gen/` is responsible for turning the YAML source
+files into concrete outputs used throughout the project. It reads the schema,
+checks and extends inheritance, expands union types, and then generates:
+
+- reference documentation in `site/docs/schema/` (this section)
+- codec capability documentation in `docs/formats/`
+- Rust types in `rust/schema/src/types.rs`
+- TypeScript types in `ts/src/types/` and supporting enums in `ts/src/`
+- Python types in `python/stencila_types/src/stencila_types/types.py`
+- JSON Schema files in `json/*.schema.json`
+- JSON-LD contexts in `json/*.jsonld`
+- Kuzu graph schema, migrations, and Rust ORM code in `rust/node-db/`
+
+## Using this reference
+
+Reference documentation for Stencila Schema types is organized by category
+below. Each type page is generated from its corresponding YAML schema and
+includes the full set of properties and constraints.
+
+***
+
+# Works
 
 - [`Article`](./article.md) - An article, including news and scholarly articles.
 - [`AudioObject`](./audio-object.md) - An audio file.
@@ -48,7 +102,7 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`VerticalAlignment`](./vertical-alignment.md) - The vertical alignment of content.
 - [`VideoObject`](./video-object.md) - A video file.
 
-## Prose
+# Prose
 
 - [`Admonition`](./admonition.md) - An admonition within a document.
 - [`AdmonitionType`](./admonition-type.md) - The type of an `Admonition`.
@@ -85,13 +139,13 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`ThematicBreak`](./thematic-break.md) - A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 - [`Underline`](./underline.md) - Inline text that is underlined.
 
-## Math
+# Math
 
 - [`Math`](./math.md) - Abstract base type for a mathematical variable or equation.
 - [`MathBlock`](./math-block.md) - A block of math, e.g an equation, to be treated as block content.
 - [`MathInline`](./math-inline.md) - A fragment of math, e.g a variable name, to be treated as inline content.
 
-## Code
+# Code
 
 - [`CodeBlock`](./code-block.md) - A code block.
 - [`CodeChunk`](./code-chunk.md) - A executable chunk of code.
@@ -102,7 +156,7 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`CompilationMessage`](./compilation-message.md) - An error, warning or log message generated during compilation.
 - [`ExecutionMessage`](./execution-message.md) - An error, warning or log message generated during execution.
 
-## Data
+# Data
 
 - [`Array`](./array.md) - A value comprised of other primitive nodes.
 - [`ArrayHint`](./array-hint.md) - A hint to the content of an `Array`.
@@ -144,7 +198,7 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`UnsignedInteger`](./unsigned-integer.md) - An integer value that is greater or equal to zero.
 - [`Validator`](./validator.md) - Union type for validators.
 
-## Flow
+# Flow
 
 - [`Button`](./button.md) - A button.
 - [`CallArgument`](./call-argument.md) - The value of a `Parameter` to call a document with.
@@ -173,14 +227,14 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`Walkthrough`](./walkthrough.md) - An interactive walkthrough made up of several, successively revealed steps.
 - [`WalkthroughStep`](./walkthrough-step.md) - A step in a walkthrough.
 
-## Style
+# Style
 
 - [`Page`](./page.md) - A separate page in a document
 - [`Styled`](./styled.md) - An abstract base class for a document node that has styling applied to it and/or its content.
 - [`StyledBlock`](./styled-block.md) - Styled block content.
 - [`StyledInline`](./styled-inline.md) - Styled inline content.
 
-## Edits
+# Edits
 
 - [`Instruction`](./instruction.md) - Abstract base type for a document editing instruction.
 - [`InstructionBlock`](./instruction-block.md) - An instruction to edit some block content.
@@ -193,7 +247,7 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`SuggestionInline`](./suggestion-inline.md) - Abstract base type for nodes that indicate a suggested change to inline content.
 - [`SuggestionStatus`](./suggestion-status.md) - The status of an instruction.
 
-## Config
+# Config
 
 - [`Config`](./config.md) - Stencila document configuration options.
 - [`ConfigModels`](./config-models.md) - Model selection and execution options.
@@ -204,7 +258,7 @@ Reference documentation for Stencila Schema types, organized by category.
 - [`ConfigPublishZenodo`](./config-publish-zenodo.md) - Zenodo publishing options.
 - [`ConfigPublishZenodoAccessRight`](./config-publish-zenodo-access-right.md) - The access right type
 
-## Other
+# Other
 
 - [`Brand`](./brand.md) - A brand used by an organization or person for labeling a product, product group, or similar.
 - [`ContactPoint`](./contact-point.md) - A contact point, usually within an organization.

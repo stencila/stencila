@@ -9,8 +9,9 @@ use eyre::{Context as _, Result, bail};
 use futures::future::try_join_all;
 use inflector::Inflector;
 use strum::IntoEnumIterator;
-use tokio::fs::{create_dir_all, remove_dir_all};
+use tokio::fs::{create_dir_all, read_dir, read_to_string, remove_dir_all, remove_file, write};
 
+use stencila_codecs::{EncodeOptions, Format};
 use stencila_schema::{
     Article, ArticleOptions, Block, Inline, Node, Table, shortcuts::*,
 };
@@ -35,11 +36,23 @@ impl Schemas {
         // The top level destination for documentation
         let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../site/docs/schema");
 
-        // Clean and recreate directory
+        // Clean and recreate directory, but preserve the hand-authored index.md
         if dest.exists() {
-            remove_dir_all(&dest).await?;
+            let mut entries = read_dir(&dest).await?;
+            while let Some(entry) = entries.next_entry().await? {
+                let path = entry.path();
+                if path.file_name().and_then(|name| name.to_str()) == Some("index.md") {
+                    continue;
+                }
+                if path.is_dir() {
+                    remove_dir_all(&path).await?;
+                } else {
+                    remove_file(&path).await?;
+                }
+            }
+        } else {
+            create_dir_all(&dest).await?;
         }
-        create_dir_all(&dest).await?;
 
         let dest = dest
             .canonicalize()
@@ -658,13 +671,11 @@ async fn generate_index(
             .push((title.as_str(), schema));
     }
 
-    let mut content = vec![p([t(
-        "Reference documentation for Stencila Schema types, organized by category.",
-    )])];
+    let mut content = Vec::new();
 
     for category in Category::iter() {
         if let Some(types) = by_category.get(&category) {
-            content.push(h2([t(category.to_string().to_title_case())]));
+            content.push(h1([t(category.to_string().to_title_case())]));
 
             let items: Vec<_> = types
                 .iter()
@@ -681,12 +692,41 @@ async fn generate_index(
     }
 
     let article = Article {
-        title: Some(vec![t("Stencila Schema")]),
         content,
         ..Default::default()
     };
 
-    stencila_codecs::to_path(&Node::Article(article), &dest.join("index.md"), None).await?;
+    let md = stencila_codecs::to_string(
+        &Node::Article(article),
+        Some(EncodeOptions {
+            format: Some(Format::Markdown),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    let index_path = dest.join("index.md");
+    let mut existing = read_to_string(&index_path).await?;
+
+    let mut marker_end = None;
+    let mut offset = 0;
+    for line in existing.split_inclusive('\n') {
+        let trimmed = line.trim_end_matches(&['\r', '\n'][..]);
+        if trimmed == "***" {
+            marker_end = Some(offset + line.len());
+            break;
+        }
+        offset += line.len();
+    }
+
+    let Some(marker_end) = marker_end else {
+        bail!("Index file does not contain thematic break marker `***`");
+    };
+
+    let generated = ["\n\n", md.trim(), "\n"].concat();
+    existing.replace_range(marker_end.., &generated);
+
+    write(&index_path, existing).await?;
 
     Ok(())
 }
