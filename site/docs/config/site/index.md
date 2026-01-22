@@ -207,11 +207,11 @@ nav = [
 
 # `root`
 
-**Type:** `ConfigRelativePath` (optional)
+**Type:** `string` (optional)
 
 Root directory for site content
 
-Path relative to the config file containing this setting.
+Path relative to the workspace root.
 When set, only files within this directory will be published
 to the site, and routes will be calculated relative to this
 directory rather than the workspace root.

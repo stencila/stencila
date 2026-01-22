@@ -132,7 +132,7 @@ pub(crate) fn build_figment(path: &Path, include_user_config: bool) -> Result<Fi
         tracing::debug!("Loading config from: {}", config_path.display());
 
         // Use Toml::file() provider to load config with metadata tracking
-        // This enables RelativePathBuf to resolve paths relative to the config file
+        // This keeps source metadata for better diagnostics.
         // Note: With Toml::file(), parse errors are deferred until extraction time
         figment = figment.merge(Toml::file(config_path));
     }

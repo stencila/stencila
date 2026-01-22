@@ -8,9 +8,7 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
-use crate::{
-    ConfigRelativePath, RESERVED_PLACEHOLDERS, SpreadMode, find_config_file, validate_placeholders,
-};
+use crate::{RESERVED_PLACEHOLDERS, SpreadMode, find_config_file, validate_placeholders};
 
 /// Target for an output - either a simple source path or a full configuration
 ///
@@ -44,7 +42,7 @@ pub enum OutputTarget {
     /// [outputs]
     /// "report.pdf" = "report.md"
     /// ```
-    Source(ConfigRelativePath),
+    Source(String),
 
     /// Full configuration object
     ///
@@ -73,7 +71,7 @@ impl OutputTarget {
     }
 
     /// Get the source path if this is a simple source target
-    pub fn source(&self) -> Option<&ConfigRelativePath> {
+    pub fn source(&self) -> Option<&String> {
         match self {
             OutputTarget::Source(path) => Some(path),
             OutputTarget::Config(_) => None,
@@ -121,7 +119,7 @@ impl OutputTarget {
 pub struct OutputConfig {
     /// Source file path (for single-file outputs)
     ///
-    /// Path relative to the config file. If not specified and `pattern` is not set,
+    /// Path relative to the workspace root. If not specified and `pattern` is not set,
     /// the output key is used as the source path.
     pub source: Option<String>,
 

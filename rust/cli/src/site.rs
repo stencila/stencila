@@ -757,7 +757,7 @@ impl Render {
         let source = if let Some(site) = &cfg.site
             && let Some(root) = &site.root
         {
-            root.resolve(&cfg.workspace_dir)
+            cfg.workspace_dir.join(root)
         } else {
             self.source.map_or_else(current_dir, Ok)?
         };
@@ -911,7 +911,7 @@ impl Preview {
             .site
             .as_ref()
             .and_then(|s| s.root.as_ref())
-            .map(|r| r.resolve(&cfg.workspace_dir))
+            .map(|r| cfg.workspace_dir.join(r))
             .unwrap_or_else(|| cfg.workspace_dir.clone());
 
         // Create temp directory (auto-cleans on drop)
@@ -1298,7 +1298,7 @@ impl Push {
             if let Some(site) = &cfg.site
                 && let Some(root) = &site.root
             {
-                path = root.resolve(&cfg.workspace_dir);
+                path = cfg.workspace_dir.join(root);
             }
         }
 

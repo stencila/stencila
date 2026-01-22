@@ -200,11 +200,7 @@
       "anyOf": [
         {
           "description": "Simple source path (rendered if extension differs from key)\n\n```toml\n[outputs]\n\"report.pdf\" = \"report.md\"\n```",
-          "allOf": [
-            {
-              "$ref": "#/definitions/ConfigRelativePath"
-            }
-          ]
+          "type": "string"
         },
         {
           "description": "Full configuration object\n\n```toml\n[outputs]\n\"report.pdf\" = { source = \"report.md\", command = \"render\" }\n\"data.csv\" = {} # (static, source = output path)\n```",
@@ -216,16 +212,12 @@
         }
       ]
     },
-    "ConfigRelativePath": {
-      "description": "A path that is resolved relative to the configuration file it was defined in\nhttps://stencila.io/docs/config/configrelativepath",
-      "type": "string"
-    },
     "OutputConfig": {
       "description": "Full output configuration\nhttps://stencila.io/docs/config/outputconfig",
       "type": "object",
       "properties": {
         "source": {
-          "description": "Source file path (for single-file outputs)\n\nPath relative to the config file. If not specified and `pattern` is not set,\nthe output key is used as the source path.",
+          "description": "Source file path (for single-file outputs)\n\nPath relative to the workspace root. If not specified and `pattern` is not set,\nthe output key is used as the source path.",
           "type": [
             "string",
             "null"
@@ -407,14 +399,10 @@
           }
         },
         "root": {
-          "description": "Root directory for site content\n\nPath relative to the config file containing this setting.\nWhen set, only files within this directory will be published\nto the site, and routes will be calculated relative to this\ndirectory rather than the workspace root.\n\nExample: If set to \"docs\" in /myproject/stencila.toml,\nthen /myproject/docs/guide.md → /guide/ (not /docs/guide/)",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/ConfigRelativePath"
-            },
-            {
-              "type": "null"
-            }
+          "description": "Root directory for site content\n\nPath relative to the workspace root.\nWhen set, only files within this directory will be published\nto the site, and routes will be calculated relative to this\ndirectory rather than the workspace root.\n\nExample: If set to \"docs\" in /myproject/stencila.toml,\nthen /myproject/docs/guide.md → /guide/ (not /docs/guide/)",
+          "type": [
+            "string",
+            "null"
           ]
         },
         "exclude": {
@@ -766,11 +754,7 @@
       "anyOf": [
         {
           "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\n```toml\n# Route a path to a file\n[site.routes]\n\"/about/\" = \"README.md\"\n```",
-          "allOf": [
-            {
-              "$ref": "#/definitions/ConfigRelativePath"
-            }
-          ]
+          "type": "string"
         },
         {
           "description": "Redirect to another URL\n\n```toml\n# Redirect a route to a new path\n[site.routes]\n\"/old/\" = { redirect = \"/new/\", status = 301 }\n```",

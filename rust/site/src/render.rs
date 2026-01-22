@@ -163,7 +163,7 @@ where
     let site_root = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(&config.workspace_dir)
+        config.workspace_dir.join(root)
     } else {
         config.workspace_dir.clone()
     };

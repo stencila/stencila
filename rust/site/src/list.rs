@@ -98,7 +98,7 @@ fn determine_route(file_path: &Path, workspace_dir: &Path, config: &Config) -> R
     let base_dir = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(workspace_dir)
+        workspace_dir.join(root)
     } else {
         workspace_dir.to_path_buf()
     };
@@ -189,7 +189,7 @@ async fn walk_directory(path: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>)> {
     let site_root = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(&config.workspace_dir)
+        config.workspace_dir.join(root)
     } else {
         config.workspace_dir.clone()
     };
@@ -431,7 +431,7 @@ pub async fn list(
     let site_root = if let Some(site) = &config.site
         && let Some(root) = &site.root
     {
-        root.resolve(&config.workspace_dir)
+        config.workspace_dir.join(root)
     } else {
         config.workspace_dir.clone()
     };

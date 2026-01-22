@@ -14,7 +14,7 @@ use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
-    CONFIG_FILENAME, ConfigRelativePath, DOMAIN_REGEX, SpreadMode, find_config_file,
+    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file,
     layout::LayoutConfig, reviews::ReviewsSpec, validate_placeholders,
 };
 
@@ -555,14 +555,14 @@ pub struct SiteConfig {
 
     /// Root directory for site content
     ///
-    /// Path relative to the config file containing this setting.
+    /// Path relative to the workspace root.
     /// When set, only files within this directory will be published
     /// to the site, and routes will be calculated relative to this
     /// directory rather than the workspace root.
     ///
     /// Example: If set to "docs" in /myproject/stencila.toml,
     /// then /myproject/docs/guide.md → /guide/ (not /docs/guide/)
-    pub root: Option<ConfigRelativePath>,
+    pub root: Option<String>,
 
     /// Glob patterns for files to exclude when publishing
     ///
@@ -704,7 +704,7 @@ impl SiteConfig {
 
     /// Get the root path
     pub fn resolve_root(&self, base_dir: &Path) -> Option<PathBuf> {
-        self.root.as_ref().map(|root| root.resolve(base_dir))
+        self.root.as_ref().map(|root| base_dir.join(root))
     }
 
     /// Check if a format is enabled for generation
@@ -740,7 +740,7 @@ pub enum RouteTarget {
     /// [site.routes]
     /// "/about/" = "README.md"
     /// ```
-    File(ConfigRelativePath),
+    File(String),
 
     /// Redirect to another URL
     ///
@@ -798,7 +798,7 @@ impl RouteTarget {
     }
 
     /// Get the file path if this is a file route
-    pub fn file(&self) -> Option<&ConfigRelativePath> {
+    pub fn file(&self) -> Option<&String> {
         match self {
             RouteTarget::File(path) => Some(path),
             RouteTarget::Redirect(_) | RouteTarget::Spread(_) => None,

@@ -46,7 +46,7 @@ use strum::{Display, EnumString};
 use tokio::fs::{read_to_string, write};
 use url::Url;
 
-use stencila_config::{Config, ConfigRelativePath};
+use stencila_config::Config;
 use stencila_dirs::{closest_stencila_dir, closest_workspace_dir};
 
 mod service;
@@ -74,7 +74,7 @@ pub struct RemoteInfo {
 
     /// File path from stencila.toml (workspace-relative)
     #[serde(skip, default = "RemoteInfo::default_path")]
-    pub path: ConfigRelativePath,
+    pub path: String,
 
     /// Last time pulled from this remote (Unix timestamp in seconds)
     pub pulled_at: Option<u64>,
@@ -103,8 +103,8 @@ impl RemoteInfo {
     }
 
     /// Default path for deserialization (will be replaced from stencila.toml)
-    fn default_path() -> ConfigRelativePath {
-        ConfigRelativePath(".".to_string())
+    fn default_path() -> String {
+        ".".to_string()
     }
 
     /// Check if this remote is being watched
@@ -428,6 +428,15 @@ fn normalize_path(path: &Path) -> PathBuf {
     PathBuf::from(normalized_str)
 }
 
+fn resolve_workspace_path(path_key: &str, workspace_dir: &Path) -> PathBuf {
+    let path = PathBuf::from(path_key);
+    if path.is_absolute() {
+        path
+    } else {
+        workspace_dir.join(path)
+    }
+}
+
 /// Find all remotes that match a given file path from config
 ///
 /// Matches based on:
@@ -456,7 +465,7 @@ fn find_remotes_for_path(
     let mut matches = Vec::new();
 
     for (path_key, value) in remotes {
-        let config_path = ConfigRelativePath(path_key.clone()).resolve(workspace_dir);
+        let config_path = resolve_workspace_path(path_key, workspace_dir);
         let config_relative = config_path
             .strip_prefix(workspace_dir)
             .unwrap_or(&config_path);
@@ -549,7 +558,7 @@ pub async fn get_remotes_for_path(
 
         results.push(RemoteInfo {
             url: url.clone(),
-            path: ConfigRelativePath(path_key),
+            path: path_key,
             pulled_at: existing.and_then(|e| e.pulled_at),
             pushed_at: existing.and_then(|e| e.pushed_at),
             watch_id,
@@ -670,7 +679,7 @@ pub async fn update_remote_timestamp(
         .entry(parsed_url.clone())
         .or_insert_with(|| RemoteInfo {
             url: parsed_url.clone(),
-            path: ConfigRelativePath(config_path),
+            path: config_path,
             pulled_at: None,
             pushed_at: None,
             watch_id,
@@ -750,7 +759,7 @@ pub async fn update_spread_remote_timestamp(
         .entry(parsed_url.clone())
         .or_insert_with(|| RemoteInfo {
             url: parsed_url.clone(),
-            path: ConfigRelativePath(config_path),
+            path: config_path,
             pulled_at: None,
             pushed_at: None,
             watch_id: None,
@@ -847,7 +856,7 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
     // Process explicit remotes from [remotes] section if it exists
     if let Some(remotes) = &config.remotes {
         for (path_key, value) in remotes {
-            let config_path = ConfigRelativePath(path_key.clone()).resolve(workspace_dir);
+            let config_path = resolve_workspace_path(path_key, workspace_dir);
 
             // Expand to actual files, or use the config path itself if it doesn't exist yet
             let files = if config_path.exists() {
@@ -879,7 +888,7 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
                     // Create RemoteInfo
                     let file_remote_info = RemoteInfo {
                         url: remote_url.clone(),
-                        path: ConfigRelativePath(path_key.clone()),
+                        path: path_key.clone(),
                         pulled_at: existing.and_then(|t| t.pulled_at),
                         pushed_at: existing.and_then(|t| t.pushed_at),
                         watch_id: watch_id.clone(),
@@ -909,7 +918,7 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
             // Create implicit remote info
             let file_remote_info = RemoteInfo {
                 url: remote_url.clone(),
-                path: ConfigRelativePath(tracked_path.to_string_lossy().to_string()),
+                path: tracked_path.to_string_lossy().to_string(),
                 pulled_at: tracking_info.pulled_at,
                 pushed_at: tracking_info.pushed_at,
                 watch_id: None, // Implicit remotes don't have watches
@@ -974,7 +983,7 @@ pub async fn remove_deleted_watches(
                 && let Some(url_str) = target.url()
             {
                 // Watch no longer exists, remove it from config
-                let remote_path = ConfigRelativePath(path_key.clone()).resolve(&workspace_dir);
+                let remote_path = resolve_workspace_path(path_key, &workspace_dir);
 
                 // Remove the watch ID from the config
                 if stencila_config::config_update_remote_watch(

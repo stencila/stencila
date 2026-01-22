@@ -85,27 +85,6 @@ pub const CONFIG_LOCAL_FILENAME: &str = "stencila.local.toml";
 /// Reserved placeholders that are auto-bound from git refs
 const RESERVED_PLACEHOLDERS: &[&str] = &["tag", "branch", "i"];
 
-/// A path that is resolved relative to the configuration file it was defined in
-///
-/// This wrapper provides JsonSchema implementation and stores paths as strings.
-/// The paths will be resolved relative to the config file directory during use.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
-#[schemars(transparent)]
-#[serde(transparent)]
-pub struct ConfigRelativePath(pub String);
-
-impl ConfigRelativePath {
-    /// Get the path string as originally specified in the config
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-
-    /// Resolve the path relative to a base directory
-    pub fn resolve(&self, base_dir: &Path) -> PathBuf {
-        base_dir.join(&self.0)
-    }
-}
-
 /// A configuration key that is managed by a specific command
 ///
 /// These keys should not be set directly via `stencila config set` because
@@ -211,7 +190,7 @@ impl Config {
         if let Some(site_config) = &self.site
             && let Some(site_root) = &site_config.root
         {
-            let site_root_path = site_root.resolve(&self.workspace_dir);
+            let site_root_path = self.workspace_dir.join(site_root);
 
             // Normalize both paths for comparison
             let path_canonical = path.canonicalize().ok();
@@ -247,7 +226,7 @@ impl Config {
         if let Some(site_config) = &self.site
             && let Some(site_root) = &site_config.root
         {
-            let site_root_path = site_root.resolve(&self.workspace_dir);
+            let site_root_path = self.workspace_dir.join(site_root);
 
             // Normalize both paths for comparison
             let path_canonical = path.canonicalize().ok();

@@ -704,8 +704,11 @@ impl Cli {
         let mut files_with_remotes: BTreeMap<PathBuf, Vec<Url>> = BTreeMap::new();
 
         for (path_key, value) in remotes {
-            let config_path = stencila_config::ConfigRelativePath(path_key.clone())
-                .resolve(&config.workspace_dir);
+            let config_path = if PathBuf::from(path_key).is_absolute() {
+                PathBuf::from(path_key)
+            } else {
+                config.workspace_dir.join(path_key)
+            };
 
             // Expand path to actual files
             let files = expand_path_to_files(&config_path)?;

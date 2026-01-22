@@ -133,7 +133,7 @@ impl List {
         for (key, target) in &outputs {
             let (source, command, refs) = match target {
                 OutputTarget::Source(path) => {
-                    let source_ext = Path::new(path.as_str())
+                    let source_ext = Path::new(path)
                         .extension()
                         .and_then(|e| e.to_str());
                     let key_ext = Path::new(key).extension().and_then(|e| e.to_str());
@@ -144,7 +144,7 @@ impl List {
                         _ => "render",
                     };
 
-                    (path.as_str().to_string(), command, "any".to_string())
+                    (path.clone(), command, "any".to_string())
                 }
                 OutputTarget::Config(cfg) => {
                     // Determine source
@@ -699,7 +699,7 @@ fn resolve_sources(
         OutputTarget::Source(path) => {
             // Single source file -> direct key mapping
             Ok(vec![ResolvedSource {
-                source_path: workspace_dir.join(path.as_str()),
+                source_path: workspace_dir.join(path),
                 output_path: key.to_string(),
             }])
         }

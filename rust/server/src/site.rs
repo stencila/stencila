@@ -88,7 +88,7 @@ async fn handle_site_socket(mut socket: WebSocket, state: ServerState) {
         .site
         .as_ref()
         .and_then(|s| s.root.as_ref())
-        .map(|r| r.resolve(&state.dir))
+        .map(|r| state.dir.join(r))
         .unwrap_or_else(|| state.dir.clone());
 
     // Watch config file for changes
