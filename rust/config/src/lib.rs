@@ -5,7 +5,7 @@ use std::{
 };
 
 use clap::ValueEnum;
-use eyre::{Result, bail, eyre};
+use eyre::{Result, eyre};
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -42,6 +42,9 @@ mod singleton;
 mod site;
 mod utils;
 mod watch;
+mod workspace;
+
+use crate::workspace::WorkspaceConfig;
 
 pub use {
     layout::{
@@ -133,56 +136,6 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
     },
 ];
 
-/// Configuration for a Stencila Cloud workspace
-///
-/// Workspaces are the primary entity in Stencila Cloud, representing a
-/// GitHub repository. Sites and watches are scoped under workspaces.
-///
-/// Example:
-/// ```toml
-/// [workspace]
-/// id = "ws3x9k2m7fab"
-/// ```
-#[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-pub struct WorkspaceConfig {
-    /// The workspace public ID from Stencila Cloud
-    ///
-    /// This is automatically assigned when a workspace is created via
-    /// `stencila site create` or when pushing to a site for the first time.
-    /// The workspace ID is derived from the GitHub repository URL.
-    #[schemars(regex(pattern = r"^ws[a-z0-9]{10}$"))]
-    pub id: Option<String>,
-
-    /// The workspace watch ID from Stencila Cloud
-    ///
-    /// This is set when `stencila watch` is run without a file path to enable
-    /// workspace-level watching. When enabled, `update.sh` is run on each git push.
-    #[schemars(regex(pattern = r"^wa[a-z0-9]{10}$"))]
-    pub watch: Option<String>,
-}
-
-impl WorkspaceConfig {
-    /// Validate the workspace configuration
-    pub fn validate(&self) -> Result<()> {
-        if let Some(id) = &self.id
-            && !WORKSPACE_ID_REGEX.is_match(id)
-        {
-            bail!(
-                "Invalid workspace ID `{id}`: must match pattern 'ws' followed by 10 lowercase alphanumeric characters (e.g., 'ws3x9k2m7fab')"
-            );
-        }
-        if let Some(watch) = &self.watch
-            && !WATCH_ID_REGEX.is_match(watch)
-        {
-            bail!(
-                "Invalid watch ID `{watch}`: must match pattern 'wa' followed by 10 lowercase alphanumeric characters (e.g., 'wa7x2k9m3fab')"
-            );
-        }
-        Ok(())
-    }
-}
-
 /// Stencila configuration
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
@@ -194,16 +147,10 @@ pub struct Config {
     #[schemars(skip)]
     pub workspace_dir: PathBuf,
 
-    /// Workspace configuration
-    ///
-    /// Workspaces are the primary entity in Stencila Cloud, representing a
-    /// GitHub repository. Sites and watches are scoped under workspaces.
+    /// Workspace configuration.
     pub workspace: Option<WorkspaceConfig>,
 
-    /// Site configuration
-    pub site: Option<SiteConfig>,
-
-    /// Remote synchronization configuration
+    /// Remote synchronization configuration.
     ///
     /// Maps local paths to remote service URLs. The key is the local path
     /// (file, directory, or pattern), and the value can be:
@@ -213,8 +160,8 @@ pub struct Config {
     ///
     /// Directory paths are implicitly recursive, matching all files within.
     ///
-    /// Example:
     /// ```toml
+    /// # Remotes for a site and specific files
     /// [remotes]
     /// "site" = "https://example.stencila.site/"
     /// "docs/report.md" = { url = "https://docs.google.com/...", watch = "w123" }
@@ -226,7 +173,7 @@ pub struct Config {
     #[schemars(with = "Option<HashMap<String, RemoteValue>>")]
     pub remotes: Option<HashMap<String, RemoteValue>>,
 
-    /// Outputs configuration
+    /// Outputs configuration.
     ///
     /// Defines files to be rendered/converted and uploaded to Stencila Cloud
     /// workspace outputs. The key is the output path template, and the value can be:
@@ -236,8 +183,8 @@ pub struct Config {
     /// - A pattern: `"exports/*.csv" = { pattern = "exports/*.csv" }`
     /// - A spread: `"{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }`
     ///
-    /// Example:
     /// ```toml
+    /// # Outputs with source, static, and spread variants
     /// [outputs]
     /// "report.pdf" = "report.md"
     /// "data/results.csv" = {}
@@ -245,6 +192,9 @@ pub struct Config {
     /// ```
     #[schemars(with = "Option<HashMap<String, OutputTarget>>")]
     pub outputs: Option<HashMap<String, OutputTarget>>,
+
+    /// Site configuration.
+    pub site: Option<SiteConfig>,
 }
 
 impl Config {

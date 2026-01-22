@@ -33,16 +33,13 @@ pub enum SiteFormat {
 /// Logo configuration - simple string or responsive object
 ///
 /// Supports both simple usage with a single logo path and advanced usage
-/// with responsive variants and dark mode support.
-///
-/// Example (simple):
+/// with responsive variants and dark mode support, e.g.
 /// ```toml
+/// # Simple logo path
 /// [site]
 /// logo = "logo.svg"
-/// ```
 ///
-/// Example (responsive):
-/// ```toml
+/// # Responsive logo variants
 /// [site.logo]
 /// default = "logo.svg"
 /// mobile = "logo-mobile.svg"
@@ -100,16 +97,13 @@ pub struct LogoConfig {
 /// Author specification - simple string or full Author object
 ///
 /// Supports both simple usage with a name string and advanced usage
-/// with a full Stencila Author object for richer metadata.
-///
-/// Example (simple):
+/// with a full Stencila Author object for richer metadata, e.g.
 /// ```toml
+/// # Simple author name
 /// [site]
 /// author = "Acme Inc"
-/// ```
 ///
-/// Example (full):
-/// ```toml
+/// # Full author metadata
 /// [site.author]
 /// type = "Organization"
 /// name = "Acme Inc"
@@ -142,21 +136,20 @@ impl AuthorSpec {
 /// Defines hierarchical navigation structure used by nav-tree and prev-next components.
 /// Supports three forms for flexible TOML configuration:
 ///
-/// 1. Route string shorthand - label derived from route:
+/// 1. Route string shorthand - label derived from route
+/// 2. Link with explicit label
+/// 3. Group with nested children
 /// ```toml
+/// # Route string shorthand
 /// nav = ["/", "/docs/getting-started/", "/about/"]
-/// ```
 ///
-/// 2. Link with explicit label:
-/// ```toml
+/// # Links with explicit labels
 /// nav = [
 ///   { label = "Home", route = "/" },
 ///   { label = "Getting Started", route = "/docs/getting-started/" },
 /// ]
-/// ```
 ///
-/// 3. Group with nested children:
-/// ```toml
+/// # Groups with nested children
 /// nav = [
 ///   "/",
 ///   { label = "Docs", children = [
@@ -283,10 +276,9 @@ impl NavItem {
 /// Featured/promotional content for nav-menu dropdowns
 ///
 /// Displays promotional content in the dropdown panel of a nav group.
-/// Configured in `site.featured`, keyed by the dropdown's parent group route or label.
-///
-/// Example:
+/// Configured in `site.featured`, keyed by the dropdown's parent group route or label, e.g.
 /// ```toml
+/// # Featured content for the docs dropdown
 /// [site.featured.docs]
 /// badge = "New"
 /// icon = "rocket"
@@ -374,10 +366,9 @@ fn author_schema(_gen: &mut schemars::SchemaGenerator) -> schemars::Schema {
 /// Configuration for a site
 ///
 /// Site settings are associated with a workspace (see `WorkspaceConfig`).
-/// The workspace ID is used to identify the site in Stencila Cloud.
-///
-/// Example:
+/// The workspace ID is used to identify the site in Stencila Cloud, e.g.
 /// ```toml
+/// # Basic site config with domain, root, excludes, and routes
 /// [site]
 /// domain = "docs.example.org"
 /// root = "docs"
@@ -401,10 +392,9 @@ pub struct SiteConfig {
     /// Site title
     ///
     /// Used by the Title component and as fallback metadata.
-    /// When not specified, the Title component will render empty.
-    ///
-    /// Example:
+    /// When not specified, the Title component will render empty, e.g.
     /// ```toml
+    /// # Set a site title
     /// [site]
     /// title = "My Documentation"
     /// ```
@@ -413,16 +403,13 @@ pub struct SiteConfig {
     /// Site author
     ///
     /// Used as the default copyright holder and for site metadata.
-    /// Can be a simple string or a full Author object for richer metadata.
-    ///
-    /// Example (simple):
+    /// Can be a simple string or a full Author object for richer metadata, e.g.
     /// ```toml
+    /// # Simple author name
     /// [site]
     /// author = "Acme Inc"
-    /// ```
     ///
-    /// Example (full):
-    /// ```toml
+    /// # Full author metadata
     /// [site.author]
     /// type = "Organization"
     /// name = "Acme Inc"
@@ -433,16 +420,13 @@ pub struct SiteConfig {
     /// Site logo configuration
     ///
     /// Can be a simple path string or a responsive configuration with
-    /// breakpoint and dark mode variants.
-    ///
-    /// Example (simple):
+    /// breakpoint and dark mode variants, e.g.
     /// ```toml
+    /// # Simple logo path
     /// [site]
     /// logo = "logo.svg"
-    /// ```
     ///
-    /// Example (responsive):
-    /// ```toml
+    /// # Responsive logo variants
     /// [site.logo]
     /// default = "logo.svg"
     /// dark = "logo-dark.svg"
@@ -462,10 +446,9 @@ pub struct SiteConfig {
     ///
     /// For unambiguous matching of nested routes, use full routes or paths without leading slash.
     ///
-    /// **Icon format**: `"banana"` (default lucide set) or `"lucide:banana"` (explicit library)
-    ///
-    /// Example:
+    /// **Icon format**: `"banana"` (default lucide set) or `"lucide:banana"` (explicit library), e.g.
     /// ```toml
+    /// # Map nav routes and labels to icons
     /// [site.icons]
     /// "/" = "home"
     /// "docs/config" = "bolt"  # Specific: only /docs/config/
@@ -485,10 +468,9 @@ pub struct SiteConfig {
     /// 3. Label: `"Features"` - matches nav item labels
     /// 4. Bare segment: `config` - matches last path segment
     ///
-    /// For unambiguous matching of nested routes, use full routes or paths without leading slash.
-    ///
-    /// Example:
+    /// For unambiguous matching of nested routes, use full routes or paths without leading slash, e.g.
     /// ```toml
+    /// # Add short descriptions for nav items
     /// [site.descriptions]
     /// "docs/getting-started" = "Quick start guide"  # Specific
     /// docs = "Documentation and guides"             # Any /docs/ route
@@ -520,10 +502,9 @@ pub struct SiteConfig {
     /// Note: `twitter` and `x` are treated as aliases. Both are accepted,
     /// but `x` takes precedence if both are specified.
     ///
-    /// Order is preserved - links appear in the order defined.
-    ///
-    /// Example:
+    /// Order is preserved - links appear in the order defined, e.g.
     /// ```toml
+    /// # Social links with shortcuts and full URLs
     /// [site.socials]
     /// github = "org/repo"
     /// discord = "invite-code"
@@ -544,10 +525,9 @@ pub struct SiteConfig {
     /// 3. Label: `"Features"` - matches nav group labels
     /// 4. Bare segment: `config` - matches last path segment
     ///
-    /// For unambiguous matching, use full routes or paths without leading slash.
-    ///
-    /// Example:
+    /// For unambiguous matching, use full routes or paths without leading slash, e.g.
     /// ```toml
+    /// # Featured content keyed by docs dropdown
     /// [site.featured.docs]  # Matches /docs/ dropdown (bare segment)
     /// title = "Quick Start"
     /// description = "Get up and running"
@@ -558,10 +538,9 @@ pub struct SiteConfig {
     /// Site navigation structure
     ///
     /// Defines the hierarchical navigation used by nav-tree and prev-next components.
-    /// If not specified, navigation is auto-generated from document routes.
-    ///
-    /// Example:
+    /// If not specified, navigation is auto-generated from document routes, e.g.
     /// ```toml
+    /// # Custom nav ordering with groups
     /// [site]
     /// nav = [
     ///   "/",
@@ -601,10 +580,9 @@ pub struct SiteConfig {
     /// The key is the URL path (or path template for spreads), and the value can be:
     /// - A simple string for the file path: `"/about/" = "README.md"`
     /// - An object for redirects: `"/old/" = { redirect = "/new/", status = 301 }`
-    /// - An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`
-    ///
-    /// Example:
+    /// - An object for spreads: `"/{region}/" = { file = "report.smd", arguments = { region = ["north", "south"] } }`, e.g.
     /// ```toml
+    /// # Routes for files, redirects, and spread variants
     /// [site.routes]
     /// "/" = "index.md"
     /// "/about/" = "README.md"
@@ -618,10 +596,9 @@ pub struct SiteConfig {
     ///
     /// Controls the layout structure of site pages including header, sidebars,
     /// footer, and navigation. When not specified, pages are rendered without
-    /// the layout wrapper.
-    ///
-    /// Example:
+    /// the layout wrapper, e.g.
     /// ```toml
+    /// # Enable sidebars in the site layout
     /// [site.layout]
     /// left-sidebar = true
     /// right-sidebar = true
@@ -632,10 +609,9 @@ pub struct SiteConfig {
     ///
     /// When enabled, internal link clicks are intercepted and content
     /// is swapped without full page reloads, using View Transitions API
-    /// when available.
-    ///
-    /// Example:
+    /// when available, e.g.
     /// ```toml
+    /// # Prefetch more pages for glide navigation
     /// [site.glide]
     /// prefetch = 25
     /// ```
@@ -647,10 +623,9 @@ pub struct SiteConfig {
     /// which format-specific buttons are displayed. When a format is not
     /// in this list, its corresponding button (e.g., copy-markdown) is hidden.
     ///
-    /// Default: `["md"]` (generates page.md files)
-    ///
-    /// Example:
+    /// Default: `["md"]` (generates page.md files), e.g.
     /// ```toml
+    /// # Enable or disable additional formats
     /// [site]
     /// formats = ["md"]  # Generate page.md files, show copy-markdown button
     /// formats = []      # No additional formats, hide format buttons
@@ -663,16 +638,13 @@ pub struct SiteConfig {
     /// Requires `workspace.id` to be configured for cloud enforcement of
     /// public/anon settings.
     ///
-    /// Can be a simple boolean or a detailed configuration object.
-    ///
-    /// Example (simple):
+    /// Can be a simple boolean or a detailed configuration object, e.g.
     /// ```toml
+    /// # Enable reviews with defaults
     /// [site]
-    /// reviews = true   # Enable with defaults
-    /// ```
+    /// reviews = true
     ///
-    /// Example (detailed):
-    /// ```toml
+    /// # Detailed reviews configuration
     /// [site.reviews]
     /// enabled = true
     /// public = true           # Non-team members can submit
@@ -763,8 +735,8 @@ pub enum RouteTarget {
     ///
     /// Path relative to the workspace directory (or `site.root` if configured).
     ///
-    /// Example in TOML:
     /// ```toml
+    /// # Route a path to a file
     /// [site.routes]
     /// "/about/" = "README.md"
     /// ```
@@ -772,8 +744,8 @@ pub enum RouteTarget {
 
     /// Redirect to another URL
     ///
-    /// Example in TOML:
     /// ```toml
+    /// # Redirect a route to a new path
     /// [site.routes]
     /// "/old/" = { redirect = "/new/", status = 301 }
     /// ```
@@ -781,8 +753,8 @@ pub enum RouteTarget {
 
     /// Spread configuration for multi-variant routes
     ///
-    /// Example in TOML:
     /// ```toml
+    /// # Generate route variants from parameters
     /// [site.routes]
     /// "/{region}/{species}/" = { file = "report.smd", arguments = { region = ["north", "south"], species = ["A", "B"] } }
     /// ```
@@ -959,10 +931,9 @@ pub struct RouteSpread {
 ///
 /// When enabled, internal link clicks are intercepted and content
 /// is swapped without full page reloads, using View Transitions API
-/// when available.
-///
-/// Example:
+/// when available, e.g.
 /// ```toml
+/// # Glide configuration with prefetching
 /// [site.glide]
 /// prefetch = 25
 /// ```

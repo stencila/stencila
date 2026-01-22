@@ -54,10 +54,11 @@ impl RegionSpec {
 
 /// Region with sub-regions (start, middle, end)
 ///
-/// All sub-regions are Option:
-/// - None = inherit from base/defaults
-/// - Some([]) = explicitly empty
-/// - Some([...]) = these components
+/// All sub-regions are optional:
+///
+/// - `null`: inherit from base/defaults
+/// - `[]`: explicitly empty region
+/// - `[...]`: region with these components
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]

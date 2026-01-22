@@ -15,10 +15,10 @@ use crate::{
 /// Target for an output - either a simple source path or a full configuration
 ///
 /// Outputs define files to be rendered/converted and uploaded to Stencila Cloud
-/// workspace outputs. The key is the output path template.
+/// workspace outputs. The key is the output path template, e.g.
 ///
-/// Example in TOML:
 /// ```toml
+/// # Output mappings for rendered and static files
 /// [outputs]
 /// # Simple: source path (rendered if extension differs)
 /// "report.pdf" = "report.md"
@@ -40,13 +40,19 @@ use crate::{
 pub enum OutputTarget {
     /// Simple source path (rendered if extension differs from key)
     ///
-    /// Example: `"report.pdf" = "report.md"`
+    /// ```toml
+    /// [outputs]
+    /// "report.pdf" = "report.md"
+    /// ```
     Source(ConfigRelativePath),
 
     /// Full configuration object
     ///
-    /// Example: `"report.pdf" = { source = "report.md", command = "render" }`
-    /// Example: `"data.csv" = {}` (static, source = output path)
+    /// ```toml
+    /// [outputs]
+    /// "report.pdf" = { source = "report.md", command = "render" }
+    /// "data.csv" = {} # (static, source = output path)
+    /// ```
     Config(OutputConfig),
 }
 
@@ -101,10 +107,10 @@ impl OutputTarget {
 
 /// Full output configuration
 ///
-/// Provides detailed control over how an output is processed and uploaded.
+/// Provides detailed control over how an output is processed and uploaded, e.g.
 ///
-/// Example:
 /// ```toml
+/// # Configure render, spread, and pattern outputs
 /// [outputs]
 /// "report.pdf" = { source = "report.md", command = "render" }
 /// "{region}/report.pdf" = { source = "report.md", arguments = { region = ["north", "south"] } }
@@ -143,8 +149,6 @@ pub struct OutputConfig {
     ///
     /// Only valid with `command = render`. Keys are parameter names,
     /// values are arrays of possible values.
-    ///
-    /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
     pub arguments: Option<HashMap<String, Vec<String>>>,
 
     /// Git ref patterns to filter when this output is processed and uploaded
@@ -159,8 +163,6 @@ pub struct OutputConfig {
     ///
     /// Paths are relative to the repository root.
     /// Only applies when `pattern` is set.
-    ///
-    /// Example: `["temp-*.csv", "draft-*"]`
     pub exclude: Option<Vec<String>>,
 }
 

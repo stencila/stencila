@@ -22,8 +22,8 @@ use crate::{SpreadMode, WATCH_ID_REGEX, find_config_file, utils::format_array_mu
 pub enum RemoteValue {
     /// Multiple remote targets for the same path
     ///
-    /// Example in TOML:
     /// ```toml
+    /// # Multiple remotes for a single file
     /// [remotes]
     /// "article.md" = [
     ///   { url = "https://docs.google.com/...", watch = "w456" },
@@ -34,8 +34,8 @@ pub enum RemoteValue {
 
     /// Single remote target
     ///
-    /// Example in TOML:
     /// ```toml
+    /// # Single remotes for files or directories
     /// [remotes]
     /// "site" = "https://example.stencila.site/"
     /// "file.md" = { url = "https://...", watch = "w123" }
@@ -92,19 +92,25 @@ impl RemoteValue {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(untagged)]
 pub enum RemoteTarget {
-    /// Simple URL string (no watch)
-    ///
-    /// Example: `"https://example.stencila.site/"`
+    /// Simple URL string (no watch), e.g.
+    /// ```toml
+    /// # Remote URL without watch
+    /// "https://example.stencila.site/"
+    /// ```
     Url(Url),
 
-    /// URL with watch information
-    ///
-    /// Example: `{ url = "https://...", watch = "w123" }`
+    /// URL with watch information, e.g.
+    /// ```toml
+    /// # Remote URL with a watch ID
+    /// { url = "https://...", watch = "w123" }
+    /// ```
     Watch(RemoteWatch),
 
-    /// Spread configuration for multi-variant pushes
-    ///
-    /// Example: `{ service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south"] } }`
+    /// Spread configuration for multi-variant pushes, e.g.
+    /// ```toml
+    /// # Spread a report across region variants
+    /// { service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south"] } }
+    /// ```
     Spread(RemoteSpread),
 }
 
@@ -199,6 +205,7 @@ pub struct RemoteWatch {
     /// Remote URL
     ///
     /// The service type is inferred from the URL host:
+    ///
     /// - Google Docs: https://docs.google.com/document/d/...
     /// - Microsoft 365: https://*.sharepoint.com/...
     /// - Stencila Sites: https://*.stencila.site/...
@@ -216,10 +223,10 @@ pub struct RemoteWatch {
 /// Spread configuration for multi-variant pushes
 ///
 /// Used in `[remotes]` to configure spread pushing of a document to multiple
-/// remote variants with different parameter values.
+/// remote variants with different parameter values, e.g.
 ///
-/// Example:
 /// ```toml
+/// # Push a report to Google Docs with per-region titles
 /// [remotes]
 /// "report.smd" = { service = "gdoc", title = "Report {region}", arguments = { region = ["north", "south"] } }
 /// ```

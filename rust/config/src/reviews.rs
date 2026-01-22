@@ -34,10 +34,9 @@ pub enum ReviewType {
     Suggestion,
 }
 
-/// Reviews configuration (detailed form)
-///
-/// Example:
+/// Reviews configuration (detailed form), e.g.
 /// ```toml
+/// # Enable reviews with selection limits and filters
 /// [site.reviews]
 /// enabled = true
 /// public = true
@@ -109,13 +108,13 @@ pub struct ReviewsConfig {
     /// Glob patterns for paths to show reviews on
     ///
     /// If specified, reviews are only shown on pages matching these patterns.
-    /// Example: ["docs/**", "guides/**"]
+    /// Example: `["docs/**", "guides/**"]`
     pub include: Option<Vec<String>>,
 
     /// Glob patterns for paths to hide reviews from
     ///
     /// Reviews are hidden on pages matching these patterns.
-    /// Example: ["api/**", "changelog/**"]
+    /// Example: `["api/**", "changelog/**"]`
     pub exclude: Option<Vec<String>>,
 }
 

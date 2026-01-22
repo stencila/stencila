@@ -36,10 +36,10 @@ pub enum ComponentConfig {
     /// Site logo image with responsive and dark mode variants
     ///
     /// When used as a bare `"logo"` string, inherits configuration from
-    /// `site.logo`. When used as an object, can override any fields.
+    /// `site.logo`. When used as an object, can override any fields, e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Header logo using site defaults and overrides
     /// [site.layout.header]
     /// start = "logo"  # Uses site.logo config
     ///
@@ -49,28 +49,31 @@ pub enum ComponentConfig {
     Logo(LogoConfig),
 
     /// Site title text
+    #[schemars(title = "Title")]
     Title {
         /// Title text (defaults to site.title)
         text: Option<String>,
     },
 
     /// Breadcrumb navigation trail
+    #[schemars(title = "Breadcrumbs")]
     Breadcrumbs,
 
     /// Hierarchical navigation tree
     ///
     /// Displays site navigation from `site.nav` configuration (or auto-generated
     /// from routes if not specified). Supports collapsible groups, active page
-    /// highlighting, and keyboard navigation.
+    /// highlighting, and keyboard navigation, e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Sidebar nav tree with defaults and overrides
     /// [site.layout.left-sidebar]
     /// start = "nav-tree"  # Uses defaults
     ///
     /// # Or with configuration:
     /// start = { type = "nav-tree", title = "Documentation", expanded = "current-path" }
     /// ```
+    #[schemars(title = "NavTree")]
     NavTree {
         /// Optional title above the nav tree (e.g., "Navigation", "Docs")
         title: Option<String>,
@@ -119,16 +122,17 @@ pub enum ComponentConfig {
     /// Top-level navigation menu bar
     ///
     /// Displays horizontal navigation with mega-dropdown panels on desktop
-    /// and accordion-style menu on mobile. Uses site.nav as data source.
+    /// and accordion-style menu on mobile. Uses site.nav as data source, e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Header nav menu with defaults and overrides
     /// [site.layout.header]
     /// middle = "nav-menu"  # Uses defaults
     ///
     /// # Or with configuration:
     /// middle = { type = "nav-menu", groups = "dropdowns", trigger = "click" }
     /// ```
+    #[schemars(title = "NavMenu")]
     NavMenu {
         /// Include only items matching these patterns
         ///
@@ -169,7 +173,52 @@ pub enum ComponentConfig {
         dropdown_style: Option<NavMenuDropdownStyle>,
     },
 
+    /// Footer-style grouped navigation
+    ///
+    /// Displays flat navigation links organized under headings (e.g., "Products",
+    /// "Company", "Resources" sections). Top-level nav items become group headings,
+    /// their children become links. Uses CSS grid for responsive auto-columns, e.g.
+    ///
+    /// ```toml
+    /// # Footer nav groups with filtering
+    /// [site.layout.footer]
+    /// middle = "nav-groups"  # Uses defaults
+    ///
+    /// # With configuration:
+    /// middle = { type = "nav-groups", depth = 2, icons = "hide" }
+    ///
+    /// # Filter specific groups:
+    /// middle = { type = "nav-groups", include = ["Products", "Company"] }
+    /// ```
+    #[schemars(title = "NavGroups")]
+    NavGroups {
+        /// Include only items matching these patterns
+        ///
+        /// Supports routes ("/docs/*"), IDs ("#features"), and labels ("Features").
+        /// See filtering documentation for pattern syntax.
+        include: Option<Vec<String>>,
+
+        /// Exclude items matching these patterns
+        ///
+        /// Supports routes ("/docs/*"), IDs ("#features"), and labels ("Features").
+        /// Exclude takes precedence over include.
+        exclude: Option<Vec<String>>,
+
+        /// Maximum depth to display (default: 2)
+        ///
+        /// Level 1 = group headings, Level 2 = links under headings.
+        /// Set to 1 to show only group headings as links.
+        depth: Option<u8>,
+
+        /// Whether to show icons on links (default: hide)
+        ///
+        /// - show: Show icons from site.icons on links
+        /// - hide: Never show icons (default, cleaner footer style)
+        icons: Option<NavGroupsIcons>,
+    },
+
     /// Table of contents tree from document headings
+    #[schemars(title = "TocTree")]
     TocTree {
         /// Title above the TOC (default: "On this page")
         title: Option<String>,
@@ -181,10 +230,10 @@ pub enum ComponentConfig {
     /// Previous/next page navigation links
     ///
     /// Displays links to previous and next pages in the navigation sequence.
-    /// Style controls what information is shown (see PrevNextStyle).
+    /// Style controls what information is shown (see PrevNextStyle), e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Prev/next links with style and labels
     /// [site.layout.bottom]
     /// middle = "prev-next"  # Uses default "standard" style
     ///
@@ -194,6 +243,7 @@ pub enum ComponentConfig {
     /// # Custom labels:
     /// middle = { type = "prev-next", prev-text = "Back", next-text = "Continue" }
     /// ```
+    #[schemars(title = "PrevNext")]
     PrevNext {
         /// Display style (default: standard)
         ///
@@ -224,6 +274,7 @@ pub enum ComponentConfig {
     },
 
     /// Light/dark mode toggle
+    #[schemars(title = "ColorMode")]
     ColorMode {
         /// Display style (default: icon)
         style: Option<ColorModeStyle>,
@@ -233,10 +284,10 @@ pub enum ComponentConfig {
     ///
     /// Displays a copyright notice with optional auto-updating year.
     /// When used as a bare `"copyright"` string, uses `site.author` as the holder
-    /// and current year.
+    /// and current year, e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Footer copyright variants
     /// [site.layout.footer]
     /// middle = "copyright"  # Uses site.author, current year
     ///
@@ -249,6 +300,7 @@ pub enum ComponentConfig {
     /// # Full custom text (no auto-year):
     /// middle = { type = "copyright", text = "Custom copyright notice" }
     /// ```
+    #[schemars(title = "Copyright")]
     Copyright {
         /// Full custom text (overrides all other fields)
         ///
@@ -273,73 +325,6 @@ pub enum ComponentConfig {
         link: Option<String>,
     },
 
-    /// Edit source link for GitHub/GitLab/Bitbucket
-    ///
-    /// Displays a link to edit the current page on the source repository.
-    /// Auto-detects the repository from git origin for github.com, gitlab.com,
-    /// and bitbucket.org. For self-hosted instances or other platforms, use
-    /// the `base-url` option.
-    ///
-    /// The icon shows the platform logo (GitHub, GitLab, or Bitbucket), the
-    /// default text is "Edit on <Platform>", and hovering shows "Edit source on <Platform>".
-    ///
-    /// Example:
-    /// ```toml
-    /// [site.layout.footer]
-    /// end = "edit-source"  # Auto-detect from git origin
-    ///
-    /// # With custom text:
-    /// end = { type = "edit-source", text = "Suggest changes" }
-    ///
-    /// # For self-hosted GitLab:
-    /// end = { type = "edit-source", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
-    /// ```
-    EditSource {
-        /// Custom link text (default: "Edit on <Platform>" or "Edit source" for custom base-url)
-        text: Option<String>,
-
-        /// Display style (default: both)
-        style: Option<EditSourceStyle>,
-
-        /// Full edit URL prefix (e.g., "https://github.com/org/repo/edit/main/")
-        ///
-        /// When provided, the file path is simply appended. Required for
-        /// self-hosted instances or unsupported platforms (Gitea, Forgejo, etc).
-        #[serde(rename = "base-url")]
-        base_url: Option<String>,
-
-        /// Override branch name for auto-detected URLs (default: auto-detect or "main")
-        ///
-        /// Ignored when `base-url` is provided.
-        branch: Option<String>,
-
-        /// Path prefix within repo (e.g., "docs/" if content is in a subdirectory)
-        #[serde(rename = "path-prefix")]
-        path_prefix: Option<String>,
-    },
-
-    /// Copy page as Markdown button
-    ///
-    /// Displays a button that copies the current page content as Markdown
-    /// to the clipboard. The markdown file is generated alongside the HTML
-    /// during site rendering.
-    ///
-    /// Example:
-    /// ```toml
-    /// [site.layout.footer]
-    /// end = "copy-markdown"  # Uses defaults
-    ///
-    /// # With custom text:
-    /// end = { type = "copy-markdown", text = "Copy as MD" }
-    /// ```
-    CopyMarkdown {
-        /// Custom button text (default: "Copy as Markdown")
-        text: Option<String>,
-
-        /// Display style (default: both)
-        style: Option<CopyMarkdownStyle>,
-    },
-
     /// Social/external links (GitHub, Discord, LinkedIn, etc.)
     ///
     /// Displays links to social media and external platforms with automatic icons.
@@ -347,10 +332,10 @@ pub enum ComponentConfig {
     /// the site-level configuration or add custom links.
     ///
     /// **Ordering:** Links from `site.socials` appear in the order defined there.
-    /// Use `include` to filter and reorder. Custom links are always appended.
+    /// Use `include` to filter and reorder. Custom links are always appended, e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Social links plus footer component config
     /// [site.socials]
     /// github = "org/repo"
     /// discord = "invite-code"
@@ -365,6 +350,7 @@ pub enum ComponentConfig {
     /// # Add custom links (appended after site.socials):
     /// end = { type = "social-links", custom = [{ name = "Blog", url = "https://blog.example.com", icon = "lucide:rss" }] }
     /// ```
+    #[schemars(title = "SocialLinks")]
     SocialLinks {
         /// Display style (default: icon)
         ///
@@ -399,56 +385,59 @@ pub enum ComponentConfig {
         custom: Option<Vec<CustomSocialLink>>,
     },
 
-    /// Footer-style grouped navigation
+    /// Edit source link for GitHub/GitLab/Bitbucket
     ///
-    /// Displays flat navigation links organized under headings (e.g., "Products",
-    /// "Company", "Resources" sections). Top-level nav items become group headings,
-    /// their children become links. Uses CSS grid for responsive auto-columns.
+    /// Displays a link to edit the current page on the source repository.
+    /// Auto-detects the repository from git origin for github.com, gitlab.com,
+    /// and bitbucket.org. For self-hosted instances or other platforms, use
+    /// the `base-url` option.
     ///
-    /// Example:
+    /// The icon shows the platform logo (GitHub, GitLab, or Bitbucket), the
+    /// default text is "Edit on <Platform>", and hovering shows "Edit source on <Platform>", e.g.
+    ///
     /// ```toml
+    /// # Edit-source links with defaults and overrides
     /// [site.layout.footer]
-    /// middle = "nav-groups"  # Uses defaults
+    /// end = "edit-source"  # Auto-detect from git origin
     ///
-    /// # With configuration:
-    /// middle = { type = "nav-groups", depth = 2, icons = "hide" }
+    /// # With custom text:
+    /// end = { type = "edit-source", text = "Suggest changes" }
     ///
-    /// # Filter specific groups:
-    /// middle = { type = "nav-groups", include = ["Products", "Company"] }
+    /// # For self-hosted GitLab:
+    /// end = { type = "edit-source", base-url = "https://gitlab.mycompany.com/team/docs/-/edit/main/" }
     /// ```
-    NavGroups {
-        /// Include only items matching these patterns
-        ///
-        /// Supports routes ("/docs/*"), IDs ("#features"), and labels ("Features").
-        /// See filtering documentation for pattern syntax.
-        include: Option<Vec<String>>,
+    #[schemars(title = "EditSource")]
+    EditSource {
+        /// Custom link text (default: "Edit on <Platform>" or "Edit source" for custom base-url)
+        text: Option<String>,
 
-        /// Exclude items matching these patterns
-        ///
-        /// Supports routes ("/docs/*"), IDs ("#features"), and labels ("Features").
-        /// Exclude takes precedence over include.
-        exclude: Option<Vec<String>>,
+        /// Display style (default: both)
+        style: Option<EditSourceStyle>,
 
-        /// Maximum depth to display (default: 2)
+        /// Full edit URL prefix (e.g., "https://github.com/org/repo/edit/main/")
         ///
-        /// Level 1 = group headings, Level 2 = links under headings.
-        /// Set to 1 to show only group headings as links.
-        depth: Option<u8>,
+        /// When provided, the file path is simply appended. Required for
+        /// self-hosted instances or unsupported platforms (Gitea, Forgejo, etc).
+        #[serde(rename = "base-url")]
+        base_url: Option<String>,
 
-        /// Whether to show icons on links (default: hide)
+        /// Override branch name for auto-detected URLs (default: auto-detect or "main")
         ///
-        /// - show: Show icons from site.icons on links
-        /// - hide: Never show icons (default, cleaner footer style)
-        icons: Option<NavGroupsIcons>,
+        /// Ignored when `base-url` is provided.
+        branch: Option<String>,
+
+        /// Path prefix within repo (e.g., "docs/" if content is in a subdirectory)
+        #[serde(rename = "path-prefix")]
+        path_prefix: Option<String>,
     },
 
     /// Edit on cloud service (Google Docs or Microsoft 365)
     ///
     /// Displays a link to edit the current page on Google Docs or Microsoft 365
-    /// via Stencila Cloud. Only renders if `workspace.id` is configured.
+    /// via Stencila Cloud. Only renders if `workspace.id` is configured, e.g.
     ///
-    /// Example:
     /// ```toml
+    /// # Edit on cloud service
     /// [site.layout.footer]
     /// end = "edit-on:gdocs"  # Edit on Google Docs
     /// # or
@@ -457,6 +446,7 @@ pub enum ComponentConfig {
     /// # With custom text:
     /// end = { type = "edit-on", service = "gdocs", text = "Open in Google Docs" }
     /// ```
+    #[schemars(title = "EditOn")]
     EditOn {
         /// Cloud service to edit on (gdocs or m365)
         service: EditOnService,
@@ -466,6 +456,29 @@ pub enum ComponentConfig {
 
         /// Display style (default: both)
         style: Option<EditSourceStyle>,
+    },
+
+    /// Copy page as Markdown button
+    ///
+    /// Displays a button that copies the current page content as Markdown
+    /// to the clipboard. The markdown file is generated alongside the HTML
+    /// during site rendering, e.g.
+    ///
+    /// ```toml
+    /// # Copy-markdown button with optional text
+    /// [site.layout.footer]
+    /// end = "copy-markdown"  # Uses defaults
+    ///
+    /// # With custom text:
+    /// end = { type = "copy-markdown", text = "Copy as MD" }
+    /// ```
+    #[schemars(title = "CopyMarkdown")]
+    CopyMarkdown {
+        /// Custom button text (default: "Copy as Markdown")
+        text: Option<String>,
+
+        /// Display style (default: both)
+        style: Option<CopyMarkdownStyle>,
     },
 }
 
