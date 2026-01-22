@@ -4,6 +4,64 @@ description: |
   Design tokens and examples for customizing heading typography and hierarchy in Stencila themes.
 ---
 
+# Usage
+
+Start with these tokens when customizing headings:
+
+- `--heading-font-family` and `--heading-color` for global type tone
+- `--heading-font-size` and `--heading-font-size-ratio` for hierarchy scale
+- `--heading-font-weight` and `--heading-font-weight-decrement` for weight progression
+- `--heading-spacing-top`, `--heading-spacing-bottom`, and `--heading-spacing-ratio` for rhythm
+- `--heading-numbering` when you need numbered headings
+
+The heading system uses three key token types to automatically calculate all heading properties:
+
+**Base tokens** define the starting point for `<h1>`:
+
+- `--heading-font-size: calc(var(--text-font-size) * 2.0)` - h1 font size
+- `--heading-font-weight: var(--font-weight-bold)` - h1 font weight
+- `--heading-spacing-top: calc(var(--content-spacing) * 1.5)` - h1 top spacing (scales with content rhythm)
+
+**Ratio tokens** control multiplicative scaling from the base. For example, if `--heading-font-size: calc(var(--text-font-size) * 2.0)` and `--heading-font-size-ratio: 0.85` then,
+
+- h1 = `2rem`
+- h2 = `1.7rem` (2 × 0.85)
+- h3 = `1.445rem` (1.7 × 0.85)
+
+**Decrement tokens** control linear reduction from the base. For example, if `--heading-font-weight: var(--font-weight-bold)` (700) and `--heading-font-weight-decrement: 50` then,
+
+- h1 = `700`
+- h2 = `650` (700 - 50)
+- h3 = `600` (650 - 50)
+
+**Semantic Integration**: Spacing tokens automatically scale with document spacing through `--content-spacing`. When content spacing changes for different screen sizes, heading spacing adjusts proportionally without explicit responsive tokens.
+
+**Per-level overrides** provide fine-grained control for classical typography patterns:
+
+- **Zone-based**: Use `--heading-upper-font-style` (h1-h3) and `--heading-lower-font-style` (h4-h6) for simple customization
+- **Per-level**: Override individual levels with `--heading-h1-font-style` through `--heading-h6-font-style` for advanced control
+- **Font variant**: Apply small-caps or other variants to specific levels (e.g., `--heading-h2-font-variant: small-caps`)
+- **Letter-spacing**: Adjust tracking per level (larger headings often need tighter spacing)
+- **Font-weight**: Override calculated weights (useful when combining italic style with lighter weight)
+
+The per-level tokens default to zone helpers, which default to sensible base values, maintaining full backward compatibility while enabling classical book typography patterns.
+
+**Border, background, and padding tokens** enable visual customization beyond typography:
+
+- **Borders**: Applied to `border-bottom` by default (theme authors can override for other positions). All border tokens default to 0 width, so borders are invisible until explicitly enabled. Use zone-based helpers (`--heading-upper-border-*`) or per-level overrides (`--heading-h1-border-*`) for fine control.
+- **Backgrounds**: All background colors default to `transparent`. Set zone-based or per-level background colors for callout-style headings.
+- **Padding**: Defaults to `0` but particularly useful when combined with borders or backgrounds. Works with zone-based or per-level tokens.
+
+For quick customization, focus on these tokens:
+
+- `--heading-color` - Change all heading colors at once (includes dark mode via `--heading-color-dark`)
+- `--heading-font-size` - Sets overall heading scale
+- `--heading-font-size-ratio` - Controls hierarchy contrast (0.9 = subtle, 0.7 = dramatic)
+- `--heading-font-weight` - Make headings lighter or bolder
+- `--heading-font-weight-decrement` - Fine-tune weight progression
+- `--heading-spacing-top` - Adjust spacing above headings (automatically responsive)
+- `--heading-spacing-ratio` - Control spacing scaling independently from font sizes
+
 # Tokens
 
 Design tokens for headings use a modular scale system with base values and ratios to automatically calculate font sizes, weights, and spacing across all heading levels.
@@ -11,18 +69,29 @@ Design tokens for headings use a modular scale system with base values and ratio
 | Token                               | Description                                            | Default Value                        |
 | ----------------------------------- | ------------------------------------------------------ | ------------------------------------ |
 | `--heading-font-family`             | Font family for all heading levels                     | `var(--font-family-serif)`           |
-| `--heading-font-size`               | Font size for `<h1>` (largest heading)                 | `2rem`                               |
-| `--heading-font-size-ratio`         | Multiplier for scaling font sizes between levels       | `0.8`                                |
+| `--heading-font-size`               | Font size for `<h1>` (largest heading)                 | `calc(var(--text-font-size) * 2.0)`  |
+| `--heading-font-size-print`         | Font size for `<h1>` in print                           | `calc(var(--text-font-size-print) * 1.75)` |
+| `--heading-font-size-ratio`         | Multiplier for scaling font sizes between levels       | `0.85`                               |
 | `--heading-font-weight`             | Font weight for `<h1>`                                 | `var(--font-weight-bold)`            |
 | `--heading-font-weight-decrement`   | Amount to reduce font weight per level                 | `50`                                 |
-| `--heading-line-height`             | Line height for all headings                           | `var(--line-height-xs)`              |
+| `--heading-line-height`             | Line height for all headings                           | `var(--line-height-tight)`           |
 | `--heading-letter-spacing`          | Base letter spacing (can be overridden per level)      | `-0.025em`                           |
 | `--heading-spacing-top`             | Top spacing for `<h1>` - scales with content rhythm    | `calc(var(--content-spacing) * 1.5)` |
 | `--heading-spacing-bottom`          | Bottom spacing for `<h1>` - scales with content rhythm | `calc(var(--content-spacing) * 0.5)` |
 | `--heading-spacing-ratio`           | Ratio for scaling spacing between levels               | `0.8`                                |
+| `--heading-spacing-adjacent-ratio`  | Ratio for spacing between adjacent headings            | `0.5`                                |
 | `--heading-color`                   | Text color for all headings                            | `var(--text-color-primary)`          |
 | `--heading-color-dark`              | Text color for headings in dark mode                   | `var(--text-color-primary)`          |
 | `--heading-color-opacity-decrement` | Amount to reduce opacity per level (0 = no change)     | `0`                                  |
+| `--heading-upper-color`             | Color helper for h1-h3                                  | `var(--heading-color)`               |
+| `--heading-lower-color`             | Color helper for h4-h6                                  | `var(--heading-color)`               |
+| `--heading-h1-color`                | Color override for h1                                   | `var(--heading-upper-color)`         |
+| `--heading-h2-color`                | Color override for h2                                   | `var(--heading-upper-color)`         |
+| `--heading-h3-color`                | Color override for h3                                   | `var(--heading-upper-color)`         |
+| `--heading-h4-color`                | Color override for h4                                   | `var(--heading-lower-color)`         |
+| `--heading-h5-color`                | Color override for h5                                   | `var(--heading-lower-color)`         |
+| `--heading-h6-color`                | Color override for h6                                   | `var(--heading-lower-color)`         |
+| `--heading-numbering`               | Heading numbering mode (none, decimal)                  | `none`                               |
 | `--heading-upper-font-style`        | Font style for h1-h3 (zone-based helper)               | `normal`                             |
 | `--heading-lower-font-style`        | Font style for h4-h6 (zone-based helper)               | `normal`                             |
 | `--heading-h1-font-style`           | Font style override for h1                             | `var(--heading-upper-font-style)`    |
@@ -95,58 +164,6 @@ Design tokens for headings use a modular scale system with base values and ratio
 | `--heading-h3-padding`              | Padding override for h3                                | `var(--heading-upper-padding)`       |
 | `--heading-h4-padding`              | Padding override for h4                                | `var(--heading-lower-padding)`       |
 | `--heading-h5-padding`              | Padding override for h5                                | `var(--heading-lower-padding)`       |
-| `--heading-h6-padding`              | Padding override for h6                                | `var(--heading-lower-padding)`       |
-
-# Usage
-
-The heading system uses three key token types to automatically calculate all heading properties:
-
-**Base tokens** define the starting point for `<h1>`:
-
-- `--heading-font-size: 2rem` - h1 font size
-- `--heading-font-weight: var(--font-weight-bold)` - h1 font weight
-- `--heading-spacing-top: calc(var(--content-spacing) * 1.5)` - h1 top spacing (scales with content rhythm)
-
-**Ratio tokens** control multiplicative scaling from the base. For example, if `--heading-font-size: 2rem` and `--heading-font-size-ratio: 0.8` then,
-
-- h1 = `2rem`
-- h2 = `1.6rem` (2 × 0.8)
-- h3 = `1.28rem` (1.6 × 0.8)
-
-**Decrement tokens** control linear reduction from the base. For example, if `--heading-font-weight: var(--font-weight-bold)` (700) and `--heading-font-weight-decrement: 50` then,
-
-- h1 = `700`
-- h2 = `650` (700 - 50)
-- h3 = `600` (650 - 50)
-
-**Semantic Integration**: Spacing tokens automatically scale with document spacing through `--content-spacing`. When content spacing changes for different screen sizes, heading spacing adjusts proportionally without explicit responsive tokens.
-
-**Per-level overrides** provide fine-grained control for classical typography patterns:
-
-- **Zone-based**: Use `--heading-upper-font-style` (h1-h3) and `--heading-lower-font-style` (h4-h6) for simple customization
-- **Per-level**: Override individual levels with `--heading-h1-font-style` through `--heading-h6-font-style` for advanced control
-- **Font variant**: Apply small-caps or other variants to specific levels (e.g., `--heading-h2-font-variant: small-caps`)
-- **Letter-spacing**: Adjust tracking per level (larger headings often need tighter spacing)
-- **Font-weight**: Override calculated weights (useful when combining italic style with lighter weight)
-
-The per-level tokens default to zone helpers, which default to sensible base values, maintaining full backward compatibility while enabling classical book typography patterns.
-
-**Border, background, and padding tokens** enable visual customization beyond typography:
-
-- **Borders**: Applied to `border-bottom` by default (theme authors can override for other positions). All border tokens default to 0 width, so borders are invisible until explicitly enabled. Use zone-based helpers (`--heading-upper-border-*`) or per-level overrides (`--heading-h1-border-*`) for fine control.
-- **Backgrounds**: All background colors default to `transparent`. Set zone-based or per-level background colors for callout-style headings.
-- **Padding**: Defaults to `0` but particularly useful when combined with borders or backgrounds. Works with zone-based or per-level tokens.
-
-For quick customization, focus on these tokens:
-
-- `--heading-color` - Change all heading colors at once (includes dark mode via `--heading-color-dark`)
-- `--heading-font-size` - Sets overall heading scale
-- `--heading-font-size-ratio` - Controls hierarchy contrast (0.9 = subtle, 0.7 = dramatic)
-- `--heading-font-weight` - Make headings lighter or bolder
-- `--heading-font-weight-decrement` - Fine-tune weight progression
-- `--heading-spacing-top` - Adjust spacing above headings (automatically responsive)
-- `--heading-spacing-ratio` - Control spacing scaling independently from font sizes
-
 # Examples
 
 ## Default Headings

@@ -4,26 +4,14 @@ description: |
   Design tokens and examples for customizing bibliographic reference styling in Stencila themes.
 ---
 
-# Tokens
-
-## Spacing and Typography Tokens
-
-Reference-specific controls for spacing, typography, alignment, and text flow in bibliographies and reference lists.
-
-| Token                      | Description                                     | Default Value             |
-| -------------------------- | ----------------------------------------------- | ------------------------- |
-| `--reference-spacing`      | Reference spacing (responsive)                  | `var(--content-spacing)`  |
-| `--reference-font-size`    | Font size for reference text                    | `inherit`                 |
-| `--reference-line-height`  | Line height within references                   | `var(--text-line-height)` |
-| `--reference-text-align`   | Text alignment (left, right, center, justify)   | `left`                    |
-| `--reference-text-indent`  | Text indentation (negative for hanging indent)  | `0`                       |
-| `--reference-padding-left` | Left padding (should match negative indent)     | `0`                       |
-| `--reference-hyphens`      | Hyphenation control (none, auto, manual)        | `none`                    |
-| `--reference-orphans`      | Minimum lines at bottom of page/column break    | `2`                       |
-| `--reference-widows`       | Minimum lines at top of page/column break       | `2`                       |
-| `--reference-text-wrap`    | Text wrapping algorithm (auto, pretty, balance) | `auto`                    |
-
 # Usage
+
+Start with these tokens when customizing references:
+
+- `--reference-spacing` for vertical rhythm in bibliographies
+- `--reference-font-size` and `--reference-line-height` for readability
+- `--reference-text-indent` plus `--reference-padding-left` for hanging indents
+- `--reference-text-align` and `--reference-hyphens` for layout style
 
 ## Reference-Specific Customization
 
@@ -70,6 +58,21 @@ References work with the design system's responsive tokens:
 
 **Modern text wrapping**: Set `--reference-text-wrap: pretty` for improved line breaking in supported browsers.
 
+# Tokens
+
+## Spacing and Typography Tokens
+
+Reference-specific controls for spacing, typography, alignment, and text flow in bibliographies and reference lists.
+
+| Token                      | Description                                     | Default Value             |
+| -------------------------- | ----------------------------------------------- | ------------------------- |
+| `--reference-spacing`      | Reference spacing (responsive)                  | `var(--content-spacing)`  |
+| `--reference-font-size`    | Font size for reference text                    | `var(--text-font-size)`   |
+| `--reference-line-height`  | Line height within references                   | `var(--text-line-height)` |
+| `--reference-text-align`   | Text alignment (left, right, center, justify)   | `left`                    |
+| `--reference-text-indent`  | Text indentation (negative for hanging indent)  | `0`                       |
+| `--reference-padding-left` | Left padding (should match negative indent)     | `0`                       |
+| `--reference-hyphens`      | Hyphenation control (none, auto, manual)        | `none`                    |
 # Examples
 
 ## Default References
@@ -82,19 +85,23 @@ Standard reference styling with automatic responsive spacing and typography:
 }
 ```
 
+::: style
+
 ```html raw
-  <div style="">
-    <stencila-reference>
-      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
-    </stencila-reference>
-  </div>
+<div>
+  <stencila-reference>
+    <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+  </stencila-reference>
+</div>
 ```
+
+:::
 
 ## Dense Bibliography
 
@@ -108,19 +115,23 @@ Compact spacing and smaller font for space-efficient reference sections:
 }
 ```
 
+::: style --reference-spacing: var(--space-3); --reference-font-size: var(--font-size-sm); --reference-line-height: var(--line-height-sm);
+
 ```html raw
-  <div style="--reference-spacing: var(--space-3); --reference-font-size: var(--font-size-sm); --reference-line-height: var(--line-height-sm);">
-    <stencila-reference>
-      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
-    </stencila-reference>
-  </div>
+<div>
+  <stencila-reference>
+    <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+  </stencila-reference>
+</div>
 ```
+
+:::
 
 ## Hanging Indent Style
 
@@ -134,19 +145,23 @@ Traditional bibliography formatting with hanging indents:
 }
 ```
 
+::: style --reference-spacing: var(--space-4); --reference-text-indent: -1.5em; --reference-padding-left: 1.5em;
+
 ```html raw
-  <div style="--reference-spacing: var(--space-4); --reference-text-indent: -1.5em; --reference-padding-left: 1.5em;">
-    <stencila-reference>
-      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
-    </stencila-reference>
-  </div>
+<div>
+  <stencila-reference>
+    <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+  </stencila-reference>
+</div>
 ```
+
+:::
 
 ## Justified Dense Bibliography
 
@@ -163,19 +178,23 @@ Scholarly paper style with justified text and hyphenation:
 }
 ```
 
+::: style --reference-spacing: var(--space-3); --reference-font-size: var(--font-size-sm); --reference-text-align: justify; --reference-text-indent: -1.5em; --reference-padding-left: 1.5em; --reference-hyphens: auto;
+
 ```html raw
-  <div style="--reference-spacing: var(--space-3); --reference-font-size: var(--font-size-sm); --reference-text-align: justify; --reference-text-indent: -1.5em; --reference-padding-left: 1.5em; --reference-hyphens: auto;">
-    <stencila-reference>
-      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
-    </stencila-reference>
-  </div>
+<div>
+  <stencila-reference>
+    <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+  </stencila-reference>
+</div>
 ```
+
+:::
 
 ## Spacious References
 
@@ -189,19 +208,23 @@ Generous spacing for enhanced readability in presentations or educational materi
 }
 ```
 
+::: style --reference-spacing: var(--space-8); --reference-line-height: var(--line-height-md); --reference-text-wrap: pretty;
+
 ```html raw
-  <div style="--reference-spacing: var(--space-8); --reference-line-height: var(--line-height-md); --reference-text-wrap: pretty;">
-    <stencila-reference>
-      <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
-    </stencila-reference>
-    <stencila-reference>
-      <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
-    </stencila-reference>
-  </div>
+<div>
+  <stencila-reference>
+    <p slot=content>Anderson, J., Brown, K., & Chen, L. (2024). Novel approaches to quantum computing in molecular simulations. <em>Journal of Computational Science</em>, 42(7), 1234-1250. https://doi.org/10.1000/jcs.2024.001</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Martinez, R., Thompson, S., & Wilson, P. (2023). Deep learning architectures for predictive modeling in biological systems. <em>Advances in Neural Networks</em>, 18(4), 567-589. https://doi.org/10.1000/ann.2023.045</p>
+  </stencila-reference>
+  <stencila-reference>
+    <p slot=content>Lee, H., Patel, N., & Davis, M. (2024). Real-time data processing frameworks for large-scale scientific computing. <em>Computing Methods Review</em>, 31(2), 89-112. https://doi.org/10.1000/cmr.2024.078</p>
+  </stencila-reference>
+</div>
 ```
+
+:::
 
 # Tips
 

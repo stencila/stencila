@@ -1,4 +1,216 @@
+---
+title: Plots
+description: |
+  Design tokens and examples for customizing plot theming across supported libraries (ECharts, Plotly, Vega-Lite, and programmatic backends).
+---
+
+# Usage
+
+Start with these tokens when customizing plots:
+
+- `--plot-color-1` through `--plot-color-12` for categorical palettes
+- `--plot-ramp-start` and `--plot-ramp-end` for sequential scales
+- `--plot-background`, `--plot-panel`, and `--plot-text-color` for contrast
+- `--plot-font-family` and `--plot-font-size` for typography
+- `--plot-axis-line-color` and `--plot-grid-color` for axis/grid styling
+- `--plot-height-min` and `--plot-aspect-ratio` for sizing
+
+Plot theming is applied by the Stencila runtime when rendering plots. For consistent behavior, set plot tokens on `:root` in your theme CSS. Inline overrides inside a StyledBlock may not affect JS-based plot renderers that read from the document root.
+
+Use `--plot-theme: none` when you want plotting libraries to use their own defaults. The `custom` theme applies the tokens above and dark variants automatically when the color scheme changes.
+
+# Tokens
+
+## Theme Selection
+
+| Token         | Description                                                            | Default Value |
+| ------------- | ---------------------------------------------------------------------- | ------------- |
+| `--plot-theme` | Theme mode (`custom`, `none`, or a named theme preset if supported)   | `custom`      |
+
+## Dimensions
+
+| Token                 | Description                                   | Default Value                               |
+| --------------------- | --------------------------------------------- | ------------------------------------------- |
+| `--plot-aspect-ratio` | Width/height ratio                             | `1.5`                                       |
+| `--plot-width`        | Absolute width for PNG rendering               | `8in`                                       |
+| `--plot-height`       | Height derived from width and aspect ratio     | `calc(var(--plot-width) / var(--plot-aspect-ratio))` |
+| `--plot-dpi`           | Dots per inch for PNG rendering               | `100`                                       |
+| `--plot-height-min`   | Minimum height for web display                 | `300px`                                     |
+| `--plot-height-max`   | Maximum height for web display                 | `800px`                                     |
+
+## Color Palette (Categorical)
+
+| Token               | Default Value            | Dark Default              |
+| ------------------- | ------------------------ | ------------------------- |
+| `--plot-color-1`    | `var(--color-accent)`     | `var(--color-accent-dark)` |
+| `--plot-color-2`    | `hsl(160 70% 45%)`        | `hsl(160 60% 55%)`        |
+| `--plot-color-3`    | `hsl(35 95% 55%)`         | `hsl(35 85% 60%)`         |
+| `--plot-color-4`    | `hsl(280 70% 60%)`        | `hsl(280 65% 65%)`        |
+| `--plot-color-5`    | `hsl(0 70% 55%)`          | `hsl(0 65% 60%)`          |
+| `--plot-color-6`    | `hsl(190 65% 45%)`        | `hsl(190 60% 55%)`        |
+| `--plot-color-7`    | `hsl(330 70% 60%)`        | `hsl(330 65% 65%)`        |
+| `--plot-color-8`    | `hsl(120 55% 40%)`        | `hsl(120 50% 50%)`        |
+| `--plot-color-9`    | `hsl(45 85% 50%)`         | `hsl(45 80% 60%)`         |
+| `--plot-color-10`   | `hsl(250 55% 55%)`        | `hsl(250 50% 65%)`        |
+| `--plot-color-11`   | `hsl(15 75% 55%)`         | `hsl(15 70% 60%)`         |
+| `--plot-color-12`   | `hsl(200 50% 45%)`        | `hsl(200 45% 55%)`        |
+
+## Color Ramp
+
+| Token                  | Description                          | Default Value                                                                 |
+| ---------------------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| `--plot-ramp-start`    | Sequential ramp start color          | `color-mix(in oklch, var(--color-accent) 5%, var(--plot-background))`          |
+| `--plot-ramp-start-dark` | Ramp start in dark mode            | `color-mix(in oklch, var(--color-accent-dark) 5%, var(--plot-background-dark))` |
+| `--plot-ramp-end`      | Sequential ramp end color            | `color-mix(in oklch, var(--color-accent) 95%, var(--plot-background))`         |
+| `--plot-ramp-end-dark` | Ramp end in dark mode                | `color-mix(in oklch, var(--color-accent-dark) 95%, var(--plot-background-dark))` |
+
+## Shape Palette
+
+| Token             | Default Value |
+| ----------------- | ------------- |
+| `--plot-shape-1`  | `circle`      |
+| `--plot-shape-2`  | `square`      |
+| `--plot-shape-3`  | `triangle`    |
+| `--plot-shape-4`  | `diamond`     |
+| `--plot-shape-5`  | `cross`       |
+| `--plot-shape-6`  | `star`        |
+| `--plot-shape-7`  | `pentagon`    |
+| `--plot-shape-8`  | `hexagon`     |
+
+## Line Types
+
+| Token                | Default Value |
+| -------------------- | ------------- |
+| `--plot-line-type-1` | `solid`       |
+| `--plot-line-type-2` | `dashed`      |
+| `--plot-line-type-3` | `dotted`      |
+| `--plot-line-type-4` | `dashdot`     |
+| `--plot-line-type-5` | `longdash`    |
+| `--plot-line-type-6` | `twodash`     |
+
+## Backgrounds and Typography
+
+| Token                     | Description                            | Default Value                          |
+| ------------------------- | -------------------------------------- | -------------------------------------- |
+| `--plot-background`       | Outer plot background                  | `var(--surface-background)`            |
+| `--plot-background-dark`  | Outer background in dark mode          | `var(--surface-background-dark)`       |
+| `--plot-panel`            | Inner plot panel background            | `var(--plot-background)`               |
+| `--plot-panel-dark`       | Panel background in dark mode          | `var(--plot-background-dark)`          |
+| `--plot-text-color`       | Primary plot text color                | `var(--text-color-primary)`            |
+| `--plot-text-color-dark`  | Text color in dark mode                | `var(--text-color-primary-dark)`       |
+| `--plot-font-family`      | Font stack for plot text               | `var(--font-family-sans)`              |
+| `--plot-font-size`        | Base font size for plot text           | `calc(var(--text-font-size) * 0.85)`   |
+| `--plot-title-size`       | Plot title size                        | `calc(var(--text-font-size) * 1.0)`    |
+| `--plot-subtitle-size`    | Plot subtitle size                     | `calc(var(--text-font-size) * 0.92)`   |
+
+## Panel Border
+
+| Token                | Description                                | Default Value |
+| -------------------- | ------------------------------------------ | ------------- |
+| `--plot-panel-border`| Show panel border (true/false)             | `true`        |
+
+## Padding
+
+| Token                   | Description                     | Default Value        |
+| ----------------------- | ------------------------------- | -------------------- |
+| `--plot-padding`        | Base padding around plot         | `var(--space-4)`     |
+| `--plot-padding-top`    | Top padding override             | `var(--plot-padding)` |
+| `--plot-padding-bottom` | Bottom padding override          | `var(--plot-padding)` |
+| `--plot-padding-left`   | Left padding override            | `var(--plot-padding)` |
+| `--plot-padding-right`  | Right padding override           | `var(--plot-padding)` |
+
+## Axes and Grid
+
+| Token                     | Description                          | Default Value                              |
+| ------------------------- | ------------------------------------ | ------------------------------------------ |
+| `--plot-axis-line-color`  | Axis line color                      | `var(--plot-text-color)`                   |
+| `--plot-axis-line-color-dark` | Axis line color in dark mode     | `var(--plot-text-color-dark)`              |
+| `--plot-axis-line-width`  | Axis line width                      | `var(--border-width-default)`              |
+| `--plot-axis-title-size`  | Axis title size                      | `calc(var(--text-font-size) * 0.85)`       |
+| `--plot-axis-title-weight`| Axis title font weight               | `var(--font-weight-normal)`                |
+| `--plot-axis-title-color` | Axis title color                     | `var(--plot-text-color)`                   |
+| `--plot-axis-title-color-dark` | Axis title color in dark mode    | `var(--plot-text-color-dark)`              |
+| `--plot-grid-color`       | Gridline color                       | `color-mix(in srgb, var(--text-color-primary) 15%, var(--plot-panel))` |
+| `--plot-grid-color-dark`  | Gridline color in dark mode          | `color-mix(in srgb, var(--text-color-primary-dark) 15%, var(--plot-panel-dark))` |
+| `--plot-grid-width`       | Gridline width                       | `var(--border-width-default)`              |
+| `--plot-grid-x-width`     | Vertical gridline width              | `var(--plot-grid-width)`                   |
+| `--plot-grid-y-width`     | Horizontal gridline width            | `var(--plot-grid-width)`                   |
+
+## Legends
+
+| Token                        | Description                        | Default Value                               |
+| ---------------------------- | ---------------------------------- | ------------------------------------------- |
+| `--plot-legend-background`   | Legend background color            | `var(--plot-panel)`                         |
+| `--plot-legend-background-dark` | Legend background in dark mode | `var(--plot-panel-dark)`                    |
+| `--plot-legend-text-color`   | Legend text color                  | `var(--plot-text-color)`                    |
+| `--plot-legend-text-color-dark` | Legend text color in dark mode  | `var(--plot-text-color-dark)`               |
+| `--plot-legend-text-size`    | Legend text size                   | `calc(var(--text-font-size) * 0.85)`        |
+| `--plot-legend-border-color` | Legend border color                | `color-mix(in srgb, var(--text-color-primary) 20%, var(--surface-elevated))` |
+| `--plot-legend-border-color-dark` | Legend border color in dark mode | `color-mix(in srgb, var(--text-color-primary-dark) 20%, var(--surface-elevated-dark))` |
+| `--plot-legend-border-width` | Legend border width                | `var(--border-width-default)`               |
+| `--plot-legend-position`     | Legend position                    | `auto`                                      |
+
+## Tooltips
+
+| Token                      | Description                | Default Value                                               |
+| -------------------------- | -------------------------- | ----------------------------------------------------------- |
+| `--plot-tooltip-background` | Tooltip background        | `color-mix(in srgb, var(--surface-background) 95%, black)`   |
+| `--plot-tooltip-background-dark` | Tooltip background in dark mode | `color-mix(in srgb, var(--surface-background-dark) 85%, black)` |
+| `--plot-tooltip-text-color` | Tooltip text color        | `var(--text-color-primary)`                                 |
+| `--plot-tooltip-text-color-dark` | Tooltip text color in dark mode | `var(--text-color-primary-dark)`                      |
+
+## Marks
+
+| Token                | Description                     | Default Value                    |
+| -------------------- | ------------------------------- | -------------------------------- |
+| `--plot-point-opacity` | Point fill opacity             | `0`                              |
+| `--plot-point-size` | Point size                      | `calc(var(--space-2) * 0.75)`    |
+| `--plot-line-width` | Line width                      | `var(--border-width-thick)`      |
+| `--plot-area-opacity` | Area fill opacity              | `0.25`                           |
+
 # Examples
+
+## Default Plots
+
+Standard plot styling with no design token overrides:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+### Echarts
+
+```echarts exec
+{
+  "series": [
+    {
+      "name": "Sales",
+      "data": [120, 200, 150, 80, 70, 110, 130],
+      "type": "line",
+      "smooth": true
+    },
+    {
+      "name": "Costs",
+      "data": [80, 120, 100, 60, 50, 80, 90],
+      "type": "line",
+      "smooth": true
+    }
+  ],
+  "xAxis": {
+    "type": "category",
+    "data": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  },
+  "yAxis": {
+    "type": "value"
+  }
+}
+```
+
+:::
 
 ## Line Plot
 

@@ -4,7 +4,64 @@ description: |
   Design tokens and examples for customizing code styling in both inline and block contexts in Stencila themes.
 ---
 
+# Usage
+
+Start with these tokens when customizing code:
+
+- `--code-font-family`, `--code-font-size-inline`, and `--code-font-size-block` for typography
+- `--code-background-inline`/`--code-background-block` and `--code-border-color` for surfaces
+- `--code-padding-inline` and `--code-padding-block` for density
+- `--code-line-numbers` and `--code-gutter-*` for editor chrome
+- `--code-keyword`, `--code-string`, and `--code-comment` for syntax colors
+- `--code-selection-background` for editor focus states
+
+**Inline code** (`<code>`) uses tokens with the `-inline` suffix e.g
+
+- `--code-font-size-inline`
+- `--code-background-inline`
+- `--code-padding-inline`
+
+**Code blocks** (`<pre><code>`) use tokens with the `--block` suffix e.g.:
+
+- `--code-font-size-block`
+- `--code-background-block`
+- `--code-padding-block`
+
+**CodeMirror integration** is used for all code display in Stencila documents:
+
+- **Static code blocks** (`<pre><code>`) use CodeMirror for syntax highlighting when JavaScript loads
+- **Executable code chunks** use CodeMirror for both editing and display
+- **Fallback styling** uses base code tokens when JavaScript fails to load
+
+**Editor tokens** (`--code-*`) control the CodeMirror appearance and behavior:
+
+- Used for all code blocks and chunks when CodeMirror loads
+- Automatically inherit from base code tokens for consistency
+- Can be customized independently for editor-specific styling
+
+**Gutter and syntax tokens** provide fine-grained control:
+
+- **Gutter tokens** (`--code-gutter-*`) control line numbers and margins
+- **Syntax tokens** (`--code-*`) control code highlighting colors
+- All tokens support CSS variables and adapt to theme changes automatically
+
 # Tokens
+
+## Layout Tokens
+
+Layout controls for breakout widths, spacing, and print behavior.
+
+| Token                         | Description                                   | Default Value                              |
+| ----------------------------- | --------------------------------------------- | ------------------------------------------ |
+| `--code-block-min-width`      | Minimum width for static code blocks          | `calc(var(--article-content-max-width) + 20ch)` |
+| `--code-block-max-width`      | Maximum width for static code blocks          | `calc(var(--article-content-max-width) + 20ch)` |
+| `--code-block-min-width-mobile` | Minimum width on mobile (640px)             | `100%`                                     |
+| `--code-block-max-width-mobile` | Maximum width on mobile (640px)             | `100%`                                     |
+| `--code-block-max-width-print`  | Maximum width for print                      | `100%`                                     |
+| `--code-chunk-max-width`      | Maximum width for code chunks                 | `var(--content-breakout-width)`            |
+| `--code-chunk-max-width-mobile` | Maximum width for chunks on mobile          | `var(--content-breakout-width-mobile)`     |
+| `--code-chunk-max-width-print`  | Maximum width for chunks in print           | `100%`                                     |
+| `--code-spacing`              | Vertical spacing above code blocks/chunks     | `var(--content-spacing)`                   |
 
 ## Font and Typography Tokens
 
@@ -13,35 +70,33 @@ Base tokens with semantic overrides for inline vs block contexts.
 | Token                     | Description                                | Default Value               |
 | ------------------------- | ------------------------------------------ | --------------------------- |
 | `--code-color`            | Default code color                         | `var(--text-color-primary)` |
+| `--code-color-inline`     | Inline code color                          | `inherit`                   |
 | `--code-font-family`      | Font family for all code elements          | `var(--font-family-mono)`   |
-| `--code-font-size-inline` | Font size for inline `<code>` elements     | `var(--font-size-sm)`       |
+| `--code-font-size-inline` | Font size for inline `<code>` elements     | `inherit`                   |
 | `--code-font-size-block`  | Font size for block `<pre><code>` elements | `var(--font-size-sm)`       |
-| `--code-line-height`      | Line height for code blocks                | `var(--line-height-normal)` |
+| `--code-line-height`      | Line height for code blocks                | `150%`                      |
 
 ## Visual Style Tokens
 
 Base tokens with semantic overrides for different contexts.
 
-| Token                      | Description                       | Default Value                 |
-| -------------------------- | --------------------------------- | ----------------------------- |
-| `--code-background`        | Base background color for code    | `var(--color-gray-100)`       |
-| `--code-background-inline` | Background color for inline code  | `var(--code-background)`      |
-| `--code-background-block`  | Background color for code blocks  | `var(--code-background)`      |
-| `--code-border-color`      | Border color for code elements    | `var(--border-color-muted)`   |
-| `--code-border-width`      | Border width for code elements    | `var(--border-width-default)` |
-| `--code-border-radius`     | Corner radius for code containers | `var(--radius-sm)`            |
-
-> [!note]
-> The `--code-border-radius` token only applies to static `<pre><code>` elements when no JavaScript view is loaded.
+| Token                      | Description                       | Default Value                                                                 |
+| -------------------------- | --------------------------------- | ----------------------------------------------------------------------------- |
+| `--code-background`        | Base background color for code    | `color-mix(in srgb, black 5%, var(--surface-background))`                     |
+| `--code-background-inline` | Background color for inline code  | `var(--code-background)`                                                     |
+| `--code-background-block`  | Background color for code blocks  | `var(--code-background)`                                                     |
+| `--code-border-color`      | Border color for code elements    | `var(--border-color-muted)`                                                  |
+| `--code-border-width`      | Border width for code elements    | `var(--border-width-default)`                                                |
+| `--code-border-radius`     | Corner radius for code containers | `var(--radius-sm)`                                                           |
 
 ## Spacing Tokens
 
 Padding tokens for different code contexts.
 
-| Token                   | Description                                       | Default Value     |
-| ----------------------- | ------------------------------------------------- | ----------------- |
-| `--code-padding-inline` | Horizontal padding for inline `<code>` elements   | `var(--space-xs)` |
-| `--code-padding-block`  | Vertical padding for block `<pre><code>` elements | `var(--space-4)`  |
+| Token                   | Description                                       | Default Value       |
+| ----------------------- | ------------------------------------------------- | ------------------- |
+| `--code-padding-inline` | Horizontal padding for inline `<code>` elements   | `0.05em 0.25em`      |
+| `--code-padding-block`  | Vertical padding for block `<pre><code>` elements | `var(--space-4)`     |
 
 ## Editor Tokens
 
@@ -109,6 +164,9 @@ Set `--code-theme` to use a named theme preset or `custom` to apply the syntax h
 > [!note]
 > To add more themes, see: `web/src/ui/nodes/properties/code/themes/README.md`
 
+> [!note]
+> Most color-related tokens have `-dark` variants (e.g., `--code-background-dark`, `--code-comment-dark`) that are applied automatically in dark mode.
+
 ## Syntax Highlighting Tokens
 
 Colors for different code elements when using `--code-theme: custom`:
@@ -127,7 +185,7 @@ Colors for different code elements when using `--code-theme: custom`:
 | `--code-string`                | Strings                 | `var(--color-red-600)`    |
 | `--code-string-special`        | Special strings         | `var(--color-red-700)`    |
 | `--code-string-regex`          | Regular expressions     | `var(--color-red-600)`    |
-| `--code-string-escape`         | String escape sequences | `var(--code-red-600)`     |
+| `--code-string-escape`         | String escape sequences | `var(--color-red-600)`    |
 | `--code-number`                | Numbers                 | `var(--color-green-700)`  |
 | `--code-number-integer`        | Integer numbers         | `var(--code-number)`      |
 | `--code-number-float`          | Floating point numbers  | `var(--code-number)`      |
@@ -157,115 +215,7 @@ Colors for different code elements when using `--code-theme: custom`:
 | `--code-invalid`               | Invalid code            | `var(--color-red-600)`    |
 | `--code-invalid-deprecated`    | Deprecated code         | `var(--color-amber-700)`  |
 
-# Usage
-
-## Token Application
-
-**Inline code** (`<code>`) uses tokens with the `-inline` suffix e.g
-
-- `--code-font-size-inline`
-- `--code-background-inline`
-- `--code-padding-inline`
-
-**Code blocks** (`<pre><code>`) use tokens with the `--block` suffix e.g.:
-
-- `--code-font-size-block`
-- `--code-background-block`
-- `--code-padding-block`
-
-**CodeMirror integration** is used for all code display in Stencila documents:
-
-- **Static code blocks** (`<pre><code>`) use CodeMirror for syntax highlighting when JavaScript loads
-- **Executable code chunks** use CodeMirror for both editing and display
-- **Fallback styling** uses base code tokens when JavaScript fails to load
-
-**Editor tokens** (`--code-*`) control the CodeMirror appearance and behavior:
-
-- Used for all code blocks and chunks when CodeMirror loads
-- Automatically inherit from base code tokens for consistency
-- Can be customized independently for editor-specific styling
-
-**Gutter and syntax tokens** provide fine-grained control:
-
-- **Gutter tokens** (`--code-gutter-*`) control line numbers and margins
-- **Syntax tokens** (`--code-*`) control code highlighting colors
-- All tokens support CSS variables and adapt to theme changes automatically
-
 # Examples
-
-These examples of code blocks in popular languages allow you to preview how the `--code-*` tokens work. Remember that these tokens are applied to both static `CodeBlock` and executable `CodeChunk` nodes, even when they are not editable.
-
-## Python
-
-```python
-# Statistical analysis for experimental data
-import numpy as np
-from scipy import stats
-
-def analyze_experiment(data, control_group=None):
-    """Calculate p-value for experimental results."""
-    mean_effect = np.mean(data)  # Calculate mean effect size
-    if control_group is not None:
-        t_stat, p_value = stats.ttest_ind(data, control_group)
-        return {'mean': mean_effect, 'p_value': p_value, 'significant': p_value < 0.05}
-    return mean_effect
-```
-
-## R
-
-```r
-library(tidyverse)
-library(broom)
-
-# Analyze gene expression data
-gene_analysis <- function(expression_matrix, metadata) {
-  results <- expression_matrix %>%
-    filter(gene_type == "protein_coding") %>%
-    mutate(log_expression = log2(count + 1)) %>%
-    group_by(sample_id) %>%
-    summarise(median_expr = median(log_expression), .groups = "drop")
-
-  return(results)
-}
-```
-
-## JavaScript
-
-```js
-// Data tracking class for research experiments
-class ExperimentTracker {
-  constructor(studyId, sampleSize = 100) {
-    this.studyId = studyId;
-    this.sampleSize = sampleSize;
-    this.results = []; // Array to store measurements
-  }
-
-  async recordMeasurement(participant, measurement) {
-    const timestamp = new Date().toISOString(); // ISO timestamp
-    this.results.push({ participant, measurement, timestamp });
-    return this.calculateStatistics();
-  }
-}
-```
-
-## SQL
-
-```sql
--- Query to analyze biomarker data for recent patient cohort
-SELECT
-    p.patient_id,
-    p.age_at_diagnosis,
-    t.treatment_type,
-    AVG(m.biomarker_value) AS mean_biomarker,  -- Average biomarker level
-    COUNT(*) AS measurement_count             -- Number of measurements
-FROM patients p
-    INNER JOIN treatments t ON p.patient_id = t.patient_id
-    LEFT JOIN measurements m ON p.patient_id = m.patient_id
-WHERE p.diagnosis_date >= '2023-01-01'       -- Recent diagnoses only
-    AND m.biomarker_name = 'IL-6'           -- Specific biomarker
-GROUP BY p.patient_id, t.treatment_type
-HAVING COUNT(*) >= 3;                        -- Minimum measurement threshold
-```
 
 ## Default Code
 
@@ -315,7 +265,7 @@ Clean, readable styling for technical content:
   --code-font-size-inline: var(--font-size-sm);
   --code-font-size-block: var(--font-size-sm);
   --code-border-radius: var(--radius-sm);
-  --code-padding-inline: var(--space-xs);
+  --code-padding-inline: 0.05em 0.25em;
   --code-padding-block: var(--space-4);
   --code-keyword: var(--color-blue-600);
   --code-string: var(--color-green-700);
@@ -323,34 +273,17 @@ Clean, readable styling for technical content:
 }
 ```
 
-```html raw
-<div
-  style="
-  --code-font-size-inline: var(--font-size-sm);
-  --code-font-size-block: var(--font-size-sm);
-  --code-border-radius: var(--radius-sm);
-  --code-padding-inline: var(--space-xs);
-  --code-padding-block: var(--space-4);
-  --code-keyword: var(--color-blue-600);
-  --code-string: var(--color-green-700);
-  --code-comment-line: var(--color-gray-500);
-"
->
-  <p>
-    e.g. Install using <code>pip install research-toolkit</code> and configure
-    with your API key.
-  </p>
+::: style --code-font-size-inline: var(--font-size-sm); --code-font-size-block: var(--font-size-sm); --code-border-radius: var(--radius-sm); --code-padding-inline: 0.05em 0.25em; --code-padding-block: var(--space-4); --code-keyword: var(--color-blue-600); --code-string: var(--color-green-700); --code-comment-line: var(--color-gray-500);
 
-  <stencila-code-block
-    depth="1"
-    programming-language="python"
-    code="# Configure tool
+Install using `pip install research-toolkit` and configure with your API key.
+
+```python
+# Configure tool
 import research_toolkit as rt
-rt.configure(api_key='your-key')"
-  >
-  </stencila-code-block>
-</div>
+rt.configure(api_key="your-key")
 ```
+
+:::
 
 ## Minimal Code Style
 
@@ -359,7 +292,7 @@ Subtle, unobtrusive code formatting:
 ```css
 :root {
   --code-border-width: var(--space-0);
-  --code-padding-inline: var(--space-0);
+  --code-padding-inline: 0;
   --code-padding-block: var(--space-1);
   --code-gutter-border-width: var(--space-0);
   --code-line-numbers: none;
@@ -367,32 +300,17 @@ Subtle, unobtrusive code formatting:
 }
 ```
 
-```html raw
-<div
-  style="
-  --code-border-width: var(--space-0);
-  --code-padding-inline: var(--space-0);
-  --code-padding-block: var(--space-1);
-  --code-gutter-border-width: var(--space-0);
-  --code-line-numbers: none;
-  --code-fold-gutter: none;
-"
->
-  <p>
-    e.g. Use <code>analyze(method="pearson")</code> to process datasets with
-    correlation analysis.
-  </p>
+::: style --code-border-width: var(--space-0); --code-padding-inline: 0; --code-padding-block: var(--space-1); --code-gutter-border-width: var(--space-0); --code-line-numbers: none; --code-fold-gutter: none;
 
-  <stencila-code-block
-    depth="1"
-    programming-language="python"
-    code="data = load_dataset('experiment.csv')
-results = analyze(data, method='pearson')
-print(results.summary())"
-  >
-  </stencila-code-block>
-</div>
+Use `analyze(method="pearson")` to process datasets with correlation analysis.
+
+```python
+data = load_dataset("experiment.csv")
+results = analyze(data, method="pearson")
+print(results.summary())
 ```
+
+:::
 
 ## High Contrast Code
 
@@ -402,7 +320,7 @@ Bold, prominent styling for tutorials and learning materials:
 :root {
   --code-font-size-inline: var(--font-size-md);
   --code-font-size-block: var(--font-size-md);
-  --code-padding-inline: var(--space-2);
+  --code-padding-inline: 0.1em 0.35em;
   --code-line-numbers: none;
   --code-keyword: var(--color-red-400);
   --code-string: var(--color-green-400);
@@ -411,29 +329,12 @@ Bold, prominent styling for tutorials and learning materials:
 }
 ```
 
-```html raw
-<div
-  style="
-  --code-font-size-inline: var(--font-size-md);
-  --code-font-size-block: var(--font-size-md);
-  --code-padding-inline: var(--space-2);
-  --code-line-numbers: none;
-  --code-fold-gutter: none;
-  --code-keyword: var(--color-red-400);
-  --code-string: var(--color-green-400);
-  --code-comment-line: var(--color-gray-400);
-  --code-function: var(--color-amber-500);
-"
->
-  <p>
-    e.g. Import modules like <code>from sklearn import datasets</code> for
-    machine learning pipelines.
-  </p>
+::: style --code-font-size-inline: var(--font-size-md); --code-font-size-block: var(--font-size-md); --code-padding-inline: 0.1em 0.35em; --code-line-numbers: none; --code-fold-gutter: none; --code-keyword: var(--color-red-400); --code-string: var(--color-green-400); --code-comment-line: var(--color-gray-400); --code-function: var(--color-amber-500);
 
-  <stencila-code-block
-    depth="1"
-    programming-language="python"
-    code="from sklearn import datasets
+Import modules like `from sklearn import datasets` for machine learning pipelines.
+
+```python
+from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
@@ -441,10 +342,85 @@ from sklearn.ensemble import RandomForestClassifier
 iris = datasets.load_iris()
 X_train, X_test, y_train, y_test = train_test_split(
     iris.data, iris.target, test_size=0.3
-)"
-  >
-  </stencila-code-block>
-</div>
+)
+```
+
+:::
+
+## Language Samples
+
+These samples help validate syntax highlighting and typography across languages.
+
+### Python
+
+```python
+# Statistical analysis for experimental data
+import numpy as np
+from scipy import stats
+
+def analyze_experiment(data, control_group=None):
+    """Calculate p-value for experimental results."""
+    mean_effect = np.mean(data)  # Calculate mean effect size
+    if control_group is not None:
+        t_stat, p_value = stats.ttest_ind(data, control_group)
+        return {'mean': mean_effect, 'p_value': p_value, 'significant': p_value < 0.05}
+    return mean_effect
+```
+
+### R
+
+```r
+library(tidyverse)
+library(broom)
+
+# Analyze gene expression data
+gene_analysis <- function(expression_matrix, metadata) {
+  results <- expression_matrix %>%
+    filter(gene_type == "protein_coding") %>%
+    mutate(log_expression = log2(count + 1)) %>%
+    group_by(sample_id) %>%
+    summarise(median_expr = median(log_expression), .groups = "drop")
+
+  return(results)
+}
+```
+
+### JavaScript
+
+```js
+// Data tracking class for research experiments
+class ExperimentTracker {
+  constructor(studyId, sampleSize = 100) {
+    this.studyId = studyId;
+    this.sampleSize = sampleSize;
+    this.results = []; // Array to store measurements
+  }
+
+  async recordMeasurement(participant, measurement) {
+    const timestamp = new Date().toISOString(); // ISO timestamp
+    this.results.push({ participant, measurement, timestamp });
+    return this.calculateStatistics();
+  }
+}
+```
+
+### SQL
+
+```sql
+-- Query to analyze biomarker data for recent patient cohort
+SELECT
+    p.patient_id,
+    p.age_at_diagnosis,
+    t.treatment_type,
+    AVG(m.biomarker_value) AS mean_biomarker,  -- Average biomarker level
+    COUNT(*) AS measurement_count             -- Number of measurements
+FROM patients p
+    INNER JOIN treatments t ON p.patient_id = t.patient_id
+    LEFT JOIN measurements m ON p.patient_id = m.patient_id
+WHERE p.diagnosis_date >= '2023-01-01'       -- Recent diagnoses only
+    AND m.biomarker_name = 'IL-6'           -- Specific biomarker
+GROUP BY p.patient_id, t.treatment_type
+HAVING COUNT(*) >= 3;                        -- Minimum measurement threshold
 ```
 
 # Tips
@@ -453,7 +429,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 **Size tokens**: Use `--font-size-sm` for both `--code-font-size-inline` and `--code-font-size-block` to maintain consistency with the design system.
 
-**Padding hierarchy**: Inline code needs minimal padding (`--space-xs`), while blocks need generous vertical padding (`--space-4`) for readability.
+**Padding hierarchy**: Inline code needs minimal padding (`0.05em 0.25em` by default), while blocks need generous vertical padding (`--space-4`) for readability.
 
 **Border removal**: Set `--code-border-width: var(--space-0)` and `--code-gutter-border-width: var(--space-0)` for minimal styling patterns.
 
@@ -461,6 +437,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 **Syntax color balance**: Keywords (`--code-keyword`) should use strong colors like `--color-blue-600`, while comments (`--code-comment`) work best with muted grays like `--color-gray-500`.
 
-**Background coordination**: Keep `--code-background-inline` and `--code-background-block` consistent, typically using `--color-gray-100` or similar light backgrounds.
+**Background coordination**: Keep `--code-background-inline` and `--code-background-block` consistent; the defaults use a subtle `color-mix()` based on `--surface-background`.
 
 **Selection visibility**: Use `--color-blue-200` for `--code-selection-background` to ensure clear text selection without overwhelming syntax colors.

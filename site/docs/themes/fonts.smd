@@ -4,6 +4,15 @@ description: |
   Design tokens and examples for customizing typography with web fonts and font stacks in Stencila themes.
 ---
 
+# Usage
+
+Start with these tokens when customizing fonts:
+
+- `--font-family-serif`, `--font-family-sans`, `--font-family-mono`, and `--font-family-math` for base stacks
+- `--text-font-family`, `--heading-font-family`, `--code-font-family`, and `--math-font-family` to assign fonts to content
+
+Define `@font-face` or `@import` your web fonts first, then extend the primitive stacks so you keep fallbacks. Use semantic tokens when you want to change a specific context (e.g., headings only).
+
 # Tokens
 
 ## Primitive Font Stacks
@@ -27,7 +36,6 @@ Semantic assignments that reference primitive stacks. Override these to change w
 | `--heading-font-family` | Font for all heading levels          | `var(--font-family-serif)` |
 | `--code-font-family`    | Font for code blocks and inline code | `var(--font-family-mono)`  |
 | `--math-font-family`    | Font for math elements               | `var(--font-family-math)`  |
-| `--data-font-family`    | Font for data table content          | `var(--font-family-mono)`  |
 
 # Examples
 

@@ -1,0 +1,63 @@
+---
+title: Citations
+description: |
+  Design tokens and examples for customizing inline citations and citation groups in Stencila themes.
+---
+
+# Usage
+
+Citations are inline elements styled with semantic accent colors. The key tokens to customize are:
+
+- `--citation-style` to choose the CSL style (applies to citations and references)
+- `--citation-color` and `--citation-color-dark` for light/dark emphasis
+
+Any CSL style from https://github.com/citation-style-language/styles is supported, with common aliases (e.g., `apa`, `ama`).
+
+# Tokens
+
+| Token                   | Description                                  | Default Value              |
+| ----------------------- | -------------------------------------------- | -------------------------- |
+| `--citation-style`      | Citation style name (CSL identifier)         | `apa`                      |
+| `--citation-color`      | Citation text color                          | `var(--color-accent)`      |
+| `--citation-color-dark` | Citation text color in dark mode             | `var(--color-accent-dark)` |
+
+# Examples
+
+## Default Citations
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+```html raw
+<p>
+  Recent work <stencila-citation target="smith-2024" citation-mode="Parenthetical"><span slot="content">(Smith et al., 2024)</span></stencila-citation>
+  shows improved outcomes across cohorts.
+</p>
+```
+
+:::
+
+## Numeric Citations
+
+```css
+:root {
+  --citation-style: vancouver;
+  --citation-color: var(--color-blue-600);
+}
+```
+
+::: style --citation-style: vancouver; --citation-color: var(--color-blue-600);
+
+```html raw
+<p>
+  See prior studies <stencila-citation-group><span slot="content">[1, 2, 5]</span></stencila-citation-group>
+  for comparative baselines.
+</p>
+```
+
+:::

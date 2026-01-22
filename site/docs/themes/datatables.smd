@@ -4,93 +4,20 @@ description: |
   Design tokens and examples for customizing datatables with typed columns and validation in Stencila themes.
 ---
 
-# Introduction
-
-Datatables are specialized tables for typed data with column validation. Unlike [tables](./tables.smd) which focus on presentation and layout, datatables are designed for structured datasets where columns have specific data types (strings, numbers, integers, dates) and optional validation rules.
-
-By default, all datatable design tokens reference their table counterparts, ensuring visual consistency. Theme authors can override datatable-specific tokens to style datatables differently from presentation tables when needed.
-
-# Tokens
-
-## Spacing Tokens
-
-Control vertical separation and layout spacing for datatables.
-
-| Token                               | Description                                  | Default Value                |
-| ----------------------------------- | -------------------------------------------- | ---------------------------- |
-| `--datatable-spacing-top`           | Top margin (automatic responsive scaling)    | `var(--table-spacing-top)`   |
-| `--datatable-spacing-bottom`        | Bottom margin (automatic responsive scaling) | `var(--table-spacing-bottom)` |
-| `--datatable-caption-spacing-bottom` | Gap between caption and table               | `var(--table-caption-spacing-bottom)` |
-| `--datatable-notes-spacing-top`     | Gap between table and notes                  | `var(--table-notes-spacing-top)` |
-
-## Caption Layout and Typography Tokens
-
-Layout and typography styling for datatable captions (inherits from caption and label tokens).
-
-| Token                            | Description                                   | Default Value                        |
-| -------------------------------- | --------------------------------------------- | ------------------------------------ |
-| `--datatable-caption-font-family` | Font family for captions                     | `var(--table-caption-font-family)`   |
-| `--datatable-caption-font-size`  | Font size for captions                        | `var(--table-caption-font-size)`     |
-| `--datatable-caption-color`      | Text color (automatic dark mode)              | `var(--table-caption-color)`         |
-| `--datatable-caption-line-height` | Line height for caption text                 | `var(--table-caption-line-height)`   |
-| `--datatable-caption-align`  | Text alignment (left, center, right, justify) | `var(--table-caption-align)`     |
-| `--datatable-caption-max-width`  | Maximum width for caption text                | `var(--table-caption-max-width)`     |
-| `--datatable-label-font-weight`  | Font weight for datatable labels              | `var(--table-label-font-weight)`     |
-| `--datatable-label-font-style`   | Font style for datatable labels               | `var(--table-label-font-style)`      |
-| `--datatable-label-color`        | Text color for datatable labels               | `var(--table-label-color)`           |
-
-## Notes Tokens
-
-Styling for datatable notes and annotations.
-
-| Token                          | Description                | Default Value                    |
-| ------------------------------ | -------------------------- | -------------------------------- |
-| `--datatable-notes-line-height` | Line height for notes text | `var(--table-notes-line-height)` |
-| `--datatable-notes-font-size`  | Font size for notes text   | `var(--table-notes-font-size)`   |
-
-## Datatable Container Tokens
-
-Border and corner styling for the datatable container.
-
-| Token                      | Description     | Default Value                  |
-| -------------------------- | --------------- | ------------------------------ |
-| `--datatable-border-radius` | Corner rounding | `var(--table-border-radius)`   |
-
-## Header Styling Tokens
-
-Visual styling for datatable headers.
-
-| Token                                | Description                    | Default Value                          |
-| ------------------------------------ | ------------------------------ | -------------------------------------- |
-| `--datatable-header-background`      | Background color for headers   | `var(--table-header-background)`       |
-| `--datatable-header-background-dark` | Background color for dark mode | `var(--table-header-background-dark)`  |
-| `--datatable-header-background-print` | Background color for print    | `var(--table-header-background-print)` |
-| `--datatable-header-font-weight`     | Font weight for header text    | `var(--table-header-font-weight)`      |
-
-## Row Styling Tokens
-
-Interactive and striping behavior for datatable rows.
-
-| Token                          | Description                                          | Default Value                    |
-| ------------------------------ | ---------------------------------------------------- | -------------------------------- |
-| `--datatable-row-hover`        | Background color on hover                            | `var(--table-row-hover)`         |
-| `--datatable-row-hover-dark`   | Hover background color for dark mode                 | `var(--table-row-hover-dark)`    |
-| `--datatable-row-striped`      | Background color for even rows                       | `var(--table-row-striped)`       |
-| `--datatable-row-striped-dark` | Striped background for dark mode                     | `var(--table-row-striped-dark)`  |
-| `--datatable-row-striped-print` | Striped background for print (transparent saves ink) | `var(--table-row-striped-print)` |
-
-## Cell Styling Tokens
-
-Typography and spacing for datatable cells.
-
-| Token                           | Description               | Default Value                     |
-| ------------------------------- | ------------------------- | --------------------------------- |
-| `--datatable-cell-font-family`  | Font family for cell text | `var(--table-cell-font-family)`   |
-| `--datatable-cell-font-size`    | Font size for cell text   | `var(--table-cell-font-size)`     |
-| `--datatable-cell-padding`      | Cell padding              | `var(--table-cell-padding)`       |
-| `--datatable-cell-padding-print` | Reduced padding for print | `var(--table-cell-padding-print)` |
-
 # Usage
+
+Datatables are specialized tables for typed data with column validation. Unlike [tables](./tables.smd), datatables are designed for structured datasets with column types (string, number, integer, date, boolean) and optional validation rules.
+
+By default, datatable tokens reference their table counterparts, so you can override only what needs to differ.
+
+Start with these tokens when customizing datatables:
+
+- `--datatable-spacing-top` and `--datatable-spacing-bottom` for vertical rhythm
+- `--datatable-header-background` and `--datatable-header-font-weight` for headers
+- `--datatable-row-striped` and `--datatable-row-hover` for scanning large datasets
+- `--datatable-cell-padding` and `--datatable-cell-font-size` for density
+- `--datatable-border-width` and `--datatable-border-color` for framing
+- `--datatable-caption-*` and `--datatable-notes-*` for supporting text
 
 ## Datatable Structure
 
@@ -160,6 +87,120 @@ Datatables integrate with the table token system for visual consistency:
 **Minimal datatables**: Use default transparent striping and subtle hover effects for clean presentation.
 
 **Print-optimized datatables**: Customize print variants for optimal appearance in PDF exports and printed documents.
+
+# Tokens
+
+## Layout Tokens
+
+Control breakout width behavior for datatables.
+
+| Token                        | Description                         | Default Value                     |
+| ---------------------------- | ----------------------------------- | --------------------------------- |
+| `--datatable-max-width`      | Maximum width for datatables        | `var(--table-max-width)`          |
+| `--datatable-max-width-mobile` | Maximum width on mobile (640px)   | `var(--table-max-width-mobile)`   |
+| `--datatable-max-width-print`  | Maximum width in print             | `var(--table-max-width-print)`    |
+
+## Spacing Tokens
+
+Control vertical separation and layout spacing for datatables.
+
+| Token                               | Description                                  | Default Value                |
+| ----------------------------------- | -------------------------------------------- | ---------------------------- |
+| `--datatable-spacing-top`           | Top margin (automatic responsive scaling)    | `var(--table-spacing-top)`   |
+| `--datatable-spacing-bottom`        | Bottom margin (automatic responsive scaling) | `var(--table-spacing-bottom)` |
+| `--datatable-caption-spacing-bottom` | Gap between caption and table               | `var(--table-caption-spacing-bottom)` |
+
+## Caption Layout and Typography Tokens
+
+Layout and typography styling for datatable captions (inherits from caption and label tokens).
+
+| Token                            | Description                                   | Default Value                        |
+| -------------------------------- | --------------------------------------------- | ------------------------------------ |
+| `--datatable-caption-font-family` | Font family for captions                     | `var(--table-caption-font-family)`   |
+| `--datatable-caption-font-size`  | Font size for captions                        | `var(--table-caption-font-size)`     |
+| `--datatable-caption-color`      | Text color (automatic dark mode)              | `var(--table-caption-color)`         |
+| `--datatable-caption-line-height` | Line height for caption text                 | `var(--table-caption-line-height)`   |
+| `--datatable-caption-align`  | Text alignment (left, center, right, justify) | `var(--table-caption-align)`     |
+| `--datatable-caption-max-width`  | Maximum width for caption text                | `var(--table-caption-max-width)`     |
+| `--datatable-label-font-weight`  | Font weight for datatable labels              | `var(--table-label-font-weight)`     |
+| `--datatable-label-font-style`   | Font style for datatable labels               | `var(--table-label-font-style)`      |
+| `--datatable-label-color`        | Text color for datatable labels               | `var(--table-label-color)`           |
+
+## Notes Tokens
+
+Styling for datatable notes and annotations.
+
+| Token                          | Description                | Default Value                    |
+| ------------------------------ | -------------------------- | -------------------------------- |
+| `--datatable-notes-font-family` | Font family for notes text | `var(--table-notes-font-family)` |
+| `--datatable-notes-font-size`  | Font size for notes text   | `var(--table-notes-font-size)`   |
+| `--datatable-notes-color`      | Text color for notes       | `var(--table-notes-color)`       |
+| `--datatable-notes-spacing-top` | Gap between table and notes | `var(--table-notes-spacing-top)` |
+| `--datatable-notes-line-height` | Line height for notes text | `var(--table-notes-line-height)` |
+| `--datatable-notes-align`      | Text alignment for notes   | `var(--table-notes-align)`       |
+
+## Datatable Container Tokens
+
+Border and corner styling for the datatable container.
+
+| Token                        | Description     | Default Value                  |
+| ---------------------------- | --------------- | ------------------------------ |
+| `--datatable-border-radius`  | Corner rounding | `var(--table-border-radius)`   |
+| `--datatable-border-width`   | Outer border width | `var(--table-border-width)` |
+| `--datatable-border-width-print` | Outer border width for print | `var(--table-border-width-print)` |
+| `--datatable-border-color`   | Outer border color | `var(--table-border-color)` |
+| `--datatable-border-style`   | Outer border style | `var(--table-border-style)` |
+
+## Row and Column Border Tokens
+
+| Token                              | Description                    | Default Value                      |
+| ---------------------------------- | ------------------------------ | ---------------------------------- |
+| `--datatable-row-border-width`     | Row separator width            | `var(--table-row-border-width)`    |
+| `--datatable-row-border-width-print` | Row separator width for print | `var(--table-row-border-width-print)` |
+| `--datatable-row-border-color`     | Row separator color            | `var(--table-row-border-color)`    |
+| `--datatable-row-border-style`     | Row separator style            | `var(--table-row-border-style)`    |
+| `--datatable-column-border-width`  | Column separator width         | `var(--table-column-border-width)` |
+| `--datatable-column-border-width-print` | Column separator width for print | `var(--table-column-border-width-print)` |
+| `--datatable-column-border-color`  | Column separator color         | `var(--table-column-border-color)` |
+| `--datatable-column-border-style`  | Column separator style         | `var(--table-column-border-style)` |
+
+## Header Styling Tokens
+
+Visual styling for datatable headers.
+
+| Token                                | Description                    | Default Value                          |
+| ------------------------------------ | ------------------------------ | -------------------------------------- |
+| `--datatable-header-background`      | Background color for headers   | `var(--table-header-background)`       |
+| `--datatable-header-background-dark` | Background color for dark mode | `var(--table-header-background-dark)`  |
+| `--datatable-header-background-print` | Background color for print    | `var(--table-header-background-print)` |
+| `--datatable-header-font-weight`     | Font weight for header text    | `var(--table-header-font-weight)`      |
+
+## Row Styling Tokens
+
+Interactive and striping behavior for datatable rows.
+
+| Token                          | Description                                          | Default Value                    |
+| ------------------------------ | ---------------------------------------------------- | -------------------------------- |
+| `--datatable-row-hover`        | Background color on hover                            | `var(--table-row-hover)`         |
+| `--datatable-row-hover-dark`   | Hover background color for dark mode                 | `var(--table-row-hover-dark)`    |
+| `--datatable-row-striped`      | Background color for even rows                       | `var(--table-row-striped)`       |
+| `--datatable-row-striped-dark` | Striped background for dark mode                     | `var(--table-row-striped-dark)`  |
+| `--datatable-row-striped-print` | Striped background for print (transparent saves ink) | `var(--table-row-striped-print)` |
+
+## Cell Styling Tokens
+
+Typography and spacing for datatable cells.
+
+| Token                               | Description                     | Default Value                       |
+| ----------------------------------- | ------------------------------- | ----------------------------------- |
+| `--datatable-cell-font-family`      | Font family for cell text       | `var(--table-cell-font-family)`     |
+| `--datatable-cell-font-size`        | Font size for cell text         | `var(--table-cell-font-size)`       |
+| `--datatable-cell-line-height`      | Line height for cell text       | `var(--table-cell-line-height)`     |
+| `--datatable-cell-line-height-mobile` | Line height on mobile         | `var(--table-cell-line-height-mobile)` |
+| `--datatable-cell-line-height-print`  | Line height for print          | `var(--table-cell-line-height-print)` |
+| `--datatable-cell-padding`          | Cell padding                    | `var(--table-cell-padding)`         |
+| `--datatable-cell-padding-mobile`   | Cell padding on mobile          | `var(--table-cell-padding-mobile)`  |
+| `--datatable-cell-padding-print`    | Reduced padding for print       | `var(--table-cell-padding-print)`   |
 
 # Examples
 

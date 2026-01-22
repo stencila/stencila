@@ -4,37 +4,14 @@ description: |
   Design tokens and examples for customizing block and inline quotes, including borders, backgrounds, and typography in Stencila themes.
 ---
 
-# Tokens
-
-## Block Quote Tokens
-
-Visual styling controls for block quotes, including borders, backgrounds, and spacing.
-
-| Token                       | Description                                        | Default Value                         |
-| --------------------------- | -------------------------------------------------- | ------------------------------------- |
-| `--quote-border-width`      | Left border thickness for emphasis                 | `3px`                                 |
-| `--quote-border-color`      | Left border color                                  | `var(--border-color-emphasis)`        |
-| `--quote-border-color-dark` | Border color for dark mode                         | `var(--border-color-emphasis-dark)`   |
-| `--quote-border-radius`     | Corner rounding for quote background              | `var(--border-radius-default)`        |
-| `--quote-background`        | Background color                                   | `var(--surface-sunken)`               |
-| `--quote-background-dark`   | Background color for dark mode                     | `var(--surface-sunken-dark)`          |
-| `--quote-spacing`           | Vertical spacing (top and bottom margins)          | `var(--content-spacing)`              |
-| `--quote-padding`           | Internal padding around quote content (responsive) | `calc(var(--content-spacing) * 0.5)`  |
-| `--quote-spacing-horizontal` | Left and right margins (responsive)               | `calc(var(--content-spacing) * 0.75)` |
-| `--quote-spacing-horizontal-mobile` | Left and right margins on mobile (full-width) | `0` |
-| `--quote-font-style`        | Font style for quoted text                         | `italic`                              |
-| `--quote-font-size`         | Font size for block quotes (responsive)           | `calc(var(--text-font-size) * 1.125)` |
-
-## Inline Quote Tokens
-
-Styling controls specifically for inline quotes within text flow.
-
-| Token                       | Description                                   | Default Value |
-| --------------------------- | --------------------------------------------- | ------------- |
-| `--quote-inline-font-style` | Font style for inline quoted text             | `inherit`     |
-| `--quote-inline-quotes`     | Quotation marks style (auto, none, or custom) | `auto`        |
-
 # Usage
+
+Start with these tokens when customizing quotes:
+
+- `--quote-border-color`, `--quote-border-width`, and `--quote-background` for block quote emphasis
+- `--quote-font-style` and `--quote-font-size` for typographic tone
+- `--quote-padding` and `--quote-spacing` for rhythm and inset
+- `--quote-inline-font-style` and `--quote-inline-quotes` for inline quote treatment
 
 ## Block Quote Styling
 
@@ -79,6 +56,36 @@ Mobile devices automatically receive optimized spacing:
 - Padding automatically scales down through `--content-spacing` calculation (desktop: 1rem → mobile: 0.5rem)
 - Font size automatically scales with `--text-font-size` calculation
 
+# Tokens
+
+## Block Quote Tokens
+
+Visual styling controls for block quotes, including borders, backgrounds, and spacing.
+
+| Token                       | Description                                        | Default Value                         |
+| --------------------------- | -------------------------------------------------- | ------------------------------------- |
+| `--quote-block-max-width`   | Max width for quote blocks (breakout layout)       | `var(--content-breakout-width)`       |
+| `--quote-block-max-width-mobile` | Max width on mobile (640px)                    | `var(--content-breakout-width-mobile)` |
+| `--quote-block-max-width-print`  | Max width for print                            | `100%`                                |
+| `--quote-border-width`      | Left border thickness for emphasis                 | `3px`                                 |
+| `--quote-border-color`      | Left border color                                  | `var(--border-color-emphasis)`        |
+| `--quote-border-color-dark` | Border color for dark mode                         | `var(--border-color-emphasis-dark)`   |
+| `--quote-border-radius`     | Corner rounding for quote background              | `var(--border-radius-default)`        |
+| `--quote-background`        | Background color                                   | `var(--surface-sunken)`               |
+| `--quote-background-dark`   | Background color for dark mode                     | `var(--surface-sunken-dark)`          |
+| `--quote-spacing`           | Vertical spacing (top and bottom margins)          | `var(--content-spacing)`              |
+| `--quote-padding`           | Internal padding around quote content (responsive) | `calc(var(--content-spacing) * 0.5)`  |
+| `--quote-spacing-horizontal` | Left and right margins (responsive)               | `calc(var(--content-spacing) * 0.75)` |
+| `--quote-spacing-horizontal-mobile` | Left and right margins on mobile (full-width) | `0` |
+| `--quote-font-style`        | Font style for quoted text                         | `italic`                              |
+| `--quote-font-size`         | Font size for block quotes (responsive)           | `calc(var(--text-font-size) * 1.125)` |
+
+## Inline Quote Tokens
+
+Styling controls specifically for inline quotes within text flow.
+
+| Token                       | Description                                   | Default Value |
+| --------------------------- | --------------------------------------------- | ------------- |
 # Examples
 
 ## Default Block Quotes

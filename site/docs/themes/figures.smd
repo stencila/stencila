@@ -4,61 +4,14 @@ description: |
   Design tokens and examples for customizing figures, captions, and labels in Stencila themes.
 ---
 
-# Tokens
-
-## Spacing Tokens
-
-Control vertical separation and layout spacing for figures.
-
-| Token                     | Description                                  | Default Value            |
-| ------------------------- | -------------------------------------------- | ------------------------ |
-| `--figure-spacing-top`    | Top margin (automatic responsive scaling)    | `var(--content-spacing)` |
-| `--figure-spacing-bottom` | Bottom margin (automatic responsive scaling) | `var(--content-spacing)` |
-
-## Container Styling Tokens
-
-Optional visual isolation through backgrounds and borders (defaults to minimal appearance).
-
-| Token                         | Description                            | Default Value                      |
-| ----------------------------- | -------------------------------------- | ---------------------------------- |
-| `--figure-background`         | Background color                       | `transparent`                      |
-| `--figure-background-dark`    | Background color for dark mode         | `transparent`                      |
-| `--figure-background-print`   | Background color for print             | `transparent`                      |
-| `--figure-border-width`       | Border thickness                       | `0`                                |
-| `--figure-border-color`       | Border color                           | `var(--border-color-subtle)`       |
-| `--figure-border-color-dark`  | Border color for dark mode             | `var(--border-color-subtle-dark)`  |
-| `--figure-border-color-print` | Border color for print                 | `var(--border-color-default-print)` |
-| `--figure-border-radius`      | Corner rounding                        | `var(--border-radius-default)`     |
-| `--figure-padding`            | Internal padding around figure content | `0`                                |
-
-## Content Layout Tokens
-
-Control figure content positioning and width constraints.
-
-| Token                                | Description                      | Default Value |
-| ------------------------------------ | -------------------------------- | ------------- |
-| `--figure-content-display`           | Display type for figure content  | `block`       |
-| `--figure-content-max-width`         | Maximum width for figure content | `100%`        |
-| `--figure-content-margin-horizontal` | Horizontal margins for centering | `auto`        |
-
-## Caption Layout and Typography Tokens
-
-Layout and typography styling for figure captions (inherits from caption and label tokens).
-
-| Token                          | Description                                   | Default Value                        |
-| ------------------------------ | --------------------------------------------- | ------------------------------------ |
-| `--figure-caption-font-family` | Font family for captions                      | `var(--caption-font-family)`         |
-| `--figure-caption-font-size`   | Font size for captions                        | `var(--caption-font-size)`           |
-| `--figure-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`               |
-| `--figure-caption-spacing-top` | Gap between image and caption                 | `calc(var(--content-spacing) * 0.5)` |
-| `--figure-caption-line-height` | Line height for caption text                  | `var(--line-height-sm)`              |
-| `--figure-caption-align`  | Text alignment (left, center, right, justify) | `left`                               |
-| `--figure-caption-max-width`   | Maximum width for caption text                | `100%`                               |
-| `--figure-label-font-weight`   | Font weight for figure labels                 | `var(--label-font-weight)`           |
-| `--figure-label-font-style`    | Font style for figure labels                  | `var(--label-font-style)`            |
-| `--figure-label-color`         | Text color for figure labels                  | `var(--label-color)`                 |
-
 # Usage
+
+Start with these tokens when customizing figures:
+
+- `--figure-spacing-top` and `--figure-spacing-bottom` for vertical rhythm
+- `--figure-max-width` (plus mobile/print variants) for breakout width
+- `--figure-background`, `--figure-border-width`, and `--figure-border-radius` for containers
+- `--figure-caption-*` and `--figure-label-*` for caption typography
 
 ## Figure Structure
 
@@ -102,6 +55,70 @@ Figures integrate with the design system's token architecture:
 **Centered captions**: Change `--figure-caption-align` to `center` for symmetrical layouts.
 
 **Compact figures**: Reduce spacing tokens for documentation or high-density layouts.
+
+# Tokens
+
+## Spacing Tokens
+
+Control vertical separation and layout spacing for figures.
+
+| Token                     | Description                                  | Default Value            |
+| ------------------------- | -------------------------------------------- | ------------------------ |
+| `--figure-spacing-top`    | Top margin (automatic responsive scaling)    | `var(--content-spacing)` |
+| `--figure-spacing-bottom` | Bottom margin (automatic responsive scaling) | `var(--content-spacing)` |
+
+## Layout Tokens
+
+Controls the breakout width behavior for figure containers.
+
+| Token                      | Description                         | Default Value                        |
+| -------------------------- | ----------------------------------- | ------------------------------------ |
+| `--figure-max-width`       | Maximum width for figure container  | `var(--content-breakout-width)`      |
+| `--figure-max-width-mobile`| Max width for figure on mobile      | `var(--content-breakout-width-mobile)` |
+| `--figure-max-width-print` | Max width for figure in print       | `100%`                               |
+
+## Container Styling Tokens
+
+Optional visual isolation through backgrounds and borders (defaults to minimal appearance).
+
+| Token                         | Description                            | Default Value                      |
+| ----------------------------- | -------------------------------------- | ---------------------------------- |
+| `--figure-background`         | Background color                       | `transparent`                      |
+| `--figure-background-dark`    | Background color for dark mode         | `transparent`                      |
+| `--figure-background-print`   | Background color for print             | `transparent`                      |
+| `--figure-border-width`       | Border thickness                       | `0`                                |
+| `--figure-border-color`       | Border color                           | `var(--border-color-subtle)`       |
+| `--figure-border-color-dark`  | Border color for dark mode             | `var(--border-color-subtle-dark)`  |
+| `--figure-border-color-print` | Border color for print                 | `var(--border-color-default-print)` |
+| `--figure-border-radius`      | Corner rounding                        | `var(--border-radius-default)`     |
+| `--figure-padding`            | Internal padding around figure content | `0`                                |
+
+## Content Layout Tokens
+
+Control figure content positioning and width constraints.
+
+| Token                                | Description                      | Default Value |
+| ------------------------------------ | -------------------------------- | ------------- |
+| `--figure-content-display`           | Display type for figure content  | `block`       |
+| `--figure-content-max-width`         | Maximum width for figure content | `100%`        |
+| `--figure-content-margin-horizontal` | Horizontal margins for centering | `auto`        |
+
+## Caption Layout and Typography Tokens
+
+Layout and typography styling for figure captions (inherits from caption and label tokens).
+
+| Token                          | Description                                   | Default Value                  |
+| ------------------------------ | --------------------------------------------- | ------------------------------ |
+| `--figure-caption-font-family` | Font family for captions                      | `var(--caption-font-family)`   |
+| `--figure-caption-font-size`   | Font size for captions                        | `var(--caption-font-size)`     |
+| `--figure-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`         |
+| `--figure-caption-spacing-top` | Gap between image and caption                 | `var(--caption-spacing)`       |
+| `--figure-caption-line-height` | Line height for caption text                  | `var(--caption-line-height)`   |
+| `--figure-caption-align`  | Text alignment (left, center, right, justify) | `var(--caption-align)`         |
+| `--figure-caption-max-width`   | Maximum width for caption text                | `var(--caption-max-width)`     |
+| `--figure-label-font-weight`   | Font weight for figure labels                 | `var(--label-font-weight)`     |
+| `--figure-label-font-style`    | Font style for figure labels                  | `var(--label-font-style)`      |
+| `--figure-label-color`         | Text color for figure labels                  | `var(--label-color)`           |
 
 # Examples
 

@@ -4,11 +4,100 @@ description: |
   Design tokens and examples for customizing tables, captions, and notes in Stencila themes.
 ---
 
-# Introduction
+# Usage
 
-Tables provide presentation-focused layout for tabular data in documents. For typed data with column validation and structured datasets, see [datatables](./datatables.smd) which offer specialized styling and features for data-oriented use cases.
+Tables provide presentation-focused layout for tabular data in documents. For typed data with column validation and structured datasets, see [datatables](./datatables.smd).
+
+Start with these tokens when customizing tables:
+
+- `--table-spacing-top` and `--table-spacing-bottom` for vertical rhythm
+- `--table-max-width` (plus mobile/print variants) for breakout width
+- `--table-header-background` and `--table-header-font-weight` for header emphasis
+- `--table-row-striped` and `--table-row-hover` for row scanning
+- `--table-cell-padding` and `--table-cell-font-size` for density
+- `--table-border-width` and `--table-border-color` for frame style
+- `--table-caption-*` and `--table-notes-*` for supporting text
+
+## Table Structure
+
+Tables combine tabular data with optional captions and notes. The theming system provides:
+
+**Vertical spacing**: Tables use `--table-spacing-top` and `--table-spacing-bottom` based on `--content-spacing`, ensuring automatic responsive and print scaling without explicit media queries.
+
+**Caption hierarchy**: Captions use semantic caption tokens for typography and secondary text colors to create clear visual hierarchy. Labels (e.g., "Table 1") receive bold or italic emphasis through semantic label tokens.
+
+**Header emphasis**: Headers use `--table-header-background` to visually distinguish column headers from data cells, with automatic dark mode adaptation.
+
+**Row striping**: By default, tables have no row striping (transparent) for a clean, minimal appearance. Enable alternating row backgrounds with `--table-row-striped` to improve readability of tables with many rows.
+
+**Interactive feedback**: Hover effects (`--table-row-hover`) provide visual feedback when users scan table rows.
+
+**Notes annotations**: Tables can include notes below the data using `--table-notes-*` tokens for smaller, secondary styling.
+
+**Responsive behavior**: All spacing tokens automatically scale with document rhythm through `--content-spacing` calculations, providing proper proportions across desktop, tablet, mobile, and print without manual breakpoints.
+
+**Print optimization**: Tables automatically optimize for print media with transparent striping to save ink, reduced cell padding for compactness, page-break controls to prevent awkward splits across pages, and automatic spacing reduction through `--content-spacing-print`.
+
+**Granular border control**: Individual border tokens enable classic typographic patterns like Tufte-style horizontal rules (top and bottom only), Booktabs formatting (thick rules at top/bottom, thin rule under header), or minimal styles (header separator only). Use edge-specific tokens to control each border independently without CSS overrides.
+
+## Caption and Label Layout
+
+Caption styling supports both single and multi-paragraph captions:
+
+**Position**: Captions appear above the table, providing context before users view the data.
+
+**First paragraph**: No top margin, with spacing controlled by `--table-caption-spacing-bottom` between caption and table.
+
+**Subsequent paragraphs**: Use `--table-caption-spacing-bottom` to maintain consistent spacing within multi-paragraph captions.
+
+**Typography**: Captions inherit from semantic caption tokens (`--caption-font-family`, `--caption-font-size`, `--caption-color`) which provide automatic dark mode support.
+
+**Labels**: Table labels (e.g., "Table 3") are styled with `--table-label-font-weight` and `--table-label-font-style` for emphasis and consistency with figure and equation labels.
+
+## Notes Layout
+
+Notes provide additional context or citations below the table:
+
+**Position**: Notes appear below the table data with spacing controlled by `--table-notes-spacing-top`.
+
+**Typography**: Notes use smaller font sizes (`--table-notes-font-size`) and secondary text colors to create visual hierarchy.
+
+**Multi-paragraph support**: Multiple paragraphs within notes maintain consistent spacing.
+
+## Integration with Semantic Tokens
+
+Tables integrate with the design system's token architecture:
+
+- **Automatic responsive behavior**: Spacing uses `--content-spacing` calculations which provide desktop, tablet, mobile, and print scaling automatically
+- **Border consistency**: Table borders reference semantic `--border-color-default` and `--border-width-default` tokens ensuring visual harmony
+- **Surface integration**: Header backgrounds use `--surface-sunken` for consistent depth hierarchy
+- **Caption integration**: Caption tokens provide shared styling with figure captions for consistency
+- **Typography integration**: Cell text uses `--text-font-family` with a slightly reduced size (`calc(var(--text-font-size) * 0.85)`)
+- **Color system**: Row hover and striping colors integrate with the neutral gray palette
+
+## Customization Patterns
+
+**Scholarly tables**: Increase spacing, use justified captions, add enhanced typography for formal academic documents.
+
+**Typed data tables**: For structured datasets with column types and validation, see [datatables](./datatables.smd) which offer specialized tokens and styling.
+
+**Styled tables**: Adjust borders, spacing, and cell padding. For header backgrounds and striping patterns, define these in theme CSS files where dark mode variants will work properly.
+
+**Minimal tables**: Use default transparent striping and subtle hover effects for clean presentation.
+
+**Print-optimized tables**: Customize print variants for optimal appearance in PDF exports and printed documents.
 
 # Tokens
+
+## Layout Tokens
+
+Control breakout width behavior for tables.
+
+| Token                      | Description                         | Default Value                        |
+| -------------------------- | ----------------------------------- | ------------------------------------ |
+| `--table-max-width`        | Maximum width for tables            | `var(--content-breakout-width)`      |
+| `--table-max-width-mobile` | Maximum width on mobile (640px)     | `var(--content-breakout-width-mobile)` |
+| `--table-max-width-print`  | Maximum width in print              | `100%`                               |
 
 ## Spacing Tokens
 
@@ -18,7 +107,7 @@ Control vertical separation and layout spacing for tables.
 | -------------------------------- | -------------------------------------------- | ------------------------------------ |
 | `--table-spacing-top`            | Top margin (automatic responsive scaling)    | `var(--content-spacing)`             |
 | `--table-spacing-bottom`         | Bottom margin (automatic responsive scaling) | `var(--content-spacing)`             |
-| `--table-caption-spacing-bottom` | Gap between caption and table                | `calc(var(--content-spacing) * 0.5)` |
+| `--table-caption-spacing-bottom` | Gap between caption and table                | `var(--caption-spacing)`             |
 | `--table-notes-spacing-top`      | Gap between table and notes                  | `calc(var(--content-spacing) * 0.5)` |
 
 ## Caption Layout and Typography Tokens
@@ -30,9 +119,9 @@ Layout and typography styling for table captions (inherits from caption and labe
 | `--table-caption-font-family` | Font family for captions                      | `var(--caption-font-family)` |
 | `--table-caption-font-size`   | Font size for captions                        | `var(--caption-font-size)`   |
 | `--table-caption-color`       | Text color (automatic dark mode)              | `var(--caption-color)`       |
-| `--table-caption-line-height` | Line height for caption text                  | `var(--line-height-sm)`      |
-| `--table-caption-align`   | Text alignment (left, center, right, justify) | `left`                       |
-| `--table-caption-max-width`   | Maximum width for caption text                | `100%`                       |
+| `--table-caption-line-height` | Line height for caption text                  | `var(--caption-line-height)` |
+| `--table-caption-align`   | Text alignment (left, center, right, justify) | `var(--caption-align)`       |
+| `--table-caption-max-width`   | Maximum width for caption text                | `var(--caption-max-width)`   |
 | `--table-label-font-weight`   | Font weight for table labels                  | `var(--label-font-weight)`   |
 | `--table-label-font-style`    | Font style for table labels                   | `var(--label-font-style)`    |
 | `--table-label-color`         | Text color for table labels                   | `var(--label-color)`         |
@@ -41,10 +130,13 @@ Layout and typography styling for table captions (inherits from caption and labe
 
 Styling for table notes and annotations.
 
-| Token                       | Description                | Default Value           |
-| --------------------------- | -------------------------- | ----------------------- |
-| `--table-notes-line-height` | Line height for notes text | `var(--line-height-sm)` |
-| `--table-notes-font-size`   | Font size for notes text   | `var(--font-size-sm)`   |
+| Token                       | Description                | Default Value                                |
+| --------------------------- | -------------------------- | -------------------------------------------- |
+| `--table-notes-font-family` | Font family for notes text | `var(--text-font-family)`                    |
+| `--table-notes-font-size`   | Font size for notes text   | `calc(var(--text-font-size) * 0.80)`         |
+| `--table-notes-color`       | Text color for notes       | `var(--text-color-secondary)`                |
+| `--table-notes-line-height` | Line height for notes text | `var(--line-height-normal)`                  |
+| `--table-notes-align`       | Text alignment for notes   | `left`                                       |
 
 ## Table Container Tokens
 
@@ -129,8 +221,8 @@ Visual styling for table headers.
 | Token                             | Description                    | Default Value                 |
 | --------------------------------- | ------------------------------ | ----------------------------- |
 | `--table-header-background`       | Background color for headers   | `var(--surface-sunken)`       |
-| `--table-header-background-dark`  | Background color for dark mode | `#2d2d2d`                     |
-| `--table-header-background-print` | Background color for print     | `var(--surface-sunken)`       |
+| `--table-header-background-dark`  | Background color for dark mode | `var(--surface-sunken-dark)`  |
+| `--table-header-background-print` | Background color for print     | `transparent`                 |
 | `--table-header-font-weight`      | Font weight for header text    | `var(--font-weight-semibold)` |
 
 ## Row Styling Tokens
@@ -149,83 +241,16 @@ Interactive and striping behavior for table rows.
 
 Typography and spacing for table cells.
 
-| Token                        | Description               | Default Value                       |
-| ---------------------------- | ------------------------- | ----------------------------------- |
-| `--table-cell-font-family`   | Font family for cell text | `var(--text-font-family)`           |
-| `--table-cell-font-size`     | Font size for cell text   | `calc(var(--text-font-size) * 0.85)` |
-| `--table-cell-padding`       | Cell padding              | `var(--space-3)`                    |
-| `--table-cell-padding-print` | Reduced padding for print | `var(--space-2)`                    |
-
-# Usage
-
-## Table Structure
-
-Tables combine tabular data with optional captions and notes. The theming system provides:
-
-**Vertical spacing**: Tables use `--table-spacing-top` and `--table-spacing-bottom` based on `--content-spacing`, ensuring automatic responsive and print scaling without explicit media queries.
-
-**Caption hierarchy**: Captions use semantic caption tokens for typography and secondary text colors to create clear visual hierarchy. Labels (e.g., "Table 1") receive bold or italic emphasis through semantic label tokens.
-
-**Header emphasis**: Headers use `--table-header-background` to visually distinguish column headers from data cells, with automatic dark mode adaptation.
-
-**Row striping**: By default, tables have no row striping (transparent) for a clean, minimal appearance. Enable alternating row backgrounds with `--table-row-striped` to improve readability of tables with many rows.
-
-**Interactive feedback**: Hover effects (`--table-row-hover`) provide visual feedback when users scan table rows.
-
-**Notes annotations**: Tables can include notes below the data using `--table-notes-*` tokens for smaller, secondary styling.
-
-**Responsive behavior**: All spacing tokens automatically scale with document rhythm through `--content-spacing` calculations, providing proper proportions across desktop, tablet, mobile, and print without manual breakpoints.
-
-**Print optimization**: Tables automatically optimize for print media with transparent striping to save ink, reduced cell padding for compactness, page-break controls to prevent awkward splits across pages, and automatic spacing reduction through `--content-spacing-print`.
-
-**Granular border control**: Individual border tokens enable classic typographic patterns like Tufte-style horizontal rules (top and bottom only), Booktabs formatting (thick rules at top/bottom, thin rule under header), or minimal styles (header separator only). Use edge-specific tokens to control each border independently without CSS overrides.
-
-## Caption and Label Layout
-
-Caption styling supports both single and multi-paragraph captions:
-
-**Position**: Captions appear above the table, providing context before users view the data.
-
-**First paragraph**: No top margin, with spacing controlled by `--table-caption-spacing-bottom` between caption and table.
-
-**Subsequent paragraphs**: Use `--table-caption-spacing-bottom` to maintain consistent spacing within multi-paragraph captions.
-
-**Typography**: Captions inherit from semantic caption tokens (`--caption-font-family`, `--caption-font-size`, `--caption-color`) which provide automatic dark mode support.
-
-**Labels**: Table labels (e.g., "Table 3") are styled with `--table-label-font-weight` and `--table-label-font-style` for emphasis and consistency with figure and equation labels.
-
-## Notes Layout
-
-Notes provide additional context or citations below the table:
-
-**Position**: Notes appear below the table data with spacing controlled by `--table-notes-spacing-top`.
-
-**Typography**: Notes use smaller font sizes (`--table-notes-font-size`) and secondary text colors to create visual hierarchy.
-
-**Multi-paragraph support**: Multiple paragraphs within notes maintain consistent spacing.
-
-## Integration with Semantic Tokens
-
-Tables integrate with the design system's token architecture:
-
-- **Automatic responsive behavior**: Spacing uses `--content-spacing` calculations which provide desktop, tablet, mobile, and print scaling automatically
-- **Border consistency**: Table borders reference semantic `--border-color-default` and `--border-width-default` tokens ensuring visual harmony
-- **Surface integration**: Header backgrounds use `--surface-sunken` for consistent depth hierarchy
-- **Caption integration**: Caption tokens provide shared styling with figure captions for consistency
-- **Typography integration**: Cell text uses semantic `--font-family-sans` and `--font-size-xs` tokens
-- **Color system**: Row hover and striping colors integrate with the neutral gray palette
-
-## Customization Patterns
-
-**Scholarly tables**: Increase spacing, use justified captions, add enhanced typography for formal academic documents.
-
-**Typed data tables**: For structured datasets with column types and validation, see [datatables](./datatables.smd) which offer specialized tokens and styling.
-
-**Styled tables**: Adjust borders, spacing, and cell padding. For header backgrounds and striping patterns, define these in theme CSS files where dark mode variants will work properly.
-
-**Minimal tables**: Use default transparent striping and subtle hover effects for clean presentation.
-
-**Print-optimized tables**: Customize print variants for optimal appearance in PDF exports and printed documents.
+| Token                          | Description               | Default Value                       |
+| ------------------------------ | ------------------------- | ----------------------------------- |
+| `--table-cell-font-family`     | Font family for cell text | `var(--text-font-family)`           |
+| `--table-cell-font-size`       | Font size for cell text   | `calc(var(--text-font-size) * 0.85)` |
+| `--table-cell-line-height`     | Line height for cell text | `var(--line-height-normal)`         |
+| `--table-cell-line-height-mobile` | Line height on mobile  | `var(--line-height-tight)`          |
+| `--table-cell-line-height-print`  | Line height for print  | `var(--line-height-tight)`          |
+| `--table-cell-padding`         | Cell padding              | `var(--space-2)`                    |
+| `--table-cell-padding-mobile`  | Cell padding on mobile    | `var(--space-1)`                    |
+| `--table-cell-padding-print`   | Reduced padding for print | `var(--space-xs)`                   |
 
 # Examples
 

@@ -4,17 +4,31 @@ description: |
   Design tokens and examples for customizing link colors, decoration, and interactive states in Stencila themes.
 ---
 
+# Usage
+
+Links are controlled by a small set of state tokens. Start with:
+
+- `--link-color`, `--link-color-visited`, and `--link-color-hover` for state colors
+- `--link-decoration` and `--link-decoration-hover` for underline behavior
+- `--link-focus-ring-*` tokens to align focus styling with your theme
+- `--link-transition-duration` for interaction timing
+
+These tokens inherit semantic color and focus-ring defaults, so overriding them preserves dark-mode variants automatically.
+
 # Tokens
 
 ## Link Color Tokens
 
 Control the visual appearance of links in different states. These tokens automatically inherit dark mode behavior from semantic tokens.
 
-| Token                   | Description                              | Default Value                    |
-| ----------------------- | ---------------------------------------- | -------------------------------- |
-| `--link-color`          | Default link color                       | `var(--color-accent)`            |
-| `--link-color-visited`  | Color for visited links                  | `var(--color-purple-700)`        |
-| `--link-color-hover`    | Color when hovering or focused           | `var(--color-blue-700)`          |
+| Token                        | Description                              | Default Value                    |
+| ---------------------------- | ---------------------------------------- | -------------------------------- |
+| `--link-color`               | Default link color                       | `var(--color-accent)`            |
+| `--link-color-dark`          | Default link color in dark mode          | `var(--color-accent-dark)`       |
+| `--link-color-visited`       | Color for visited links                  | `var(--color-purple-700)`        |
+| `--link-color-visited-dark`  | Visited link color in dark mode          | `var(--color-purple-400)`        |
+| `--link-color-hover`         | Color when hovering or focused           | `var(--color-blue-700)`          |
+| `--link-color-hover-dark`    | Hover/focus color in dark mode           | `var(--color-blue-300)`          |
 
 ## Link Decoration Tokens
 
@@ -36,38 +50,6 @@ Control transitions and focus ring styling for enhanced user experience.
 | `--link-focus-ring-color`     | Focus ring outline color                     | `var(--focus-ring-color)`        |
 | `--link-focus-ring-offset`    | Focus ring offset from link                  | `var(--focus-ring-offset)`       |
 | `--link-focus-border-radius`  | Focus ring border radius                     | `var(--radius-xs)`               |
-
-# Usage
-
-## Semantic Integration
-
-Links automatically integrate with the design system's semantic tokens, providing consistent behavior across themes:
-
-**Color inheritance**: Link colors reference semantic accent and blue color tokens (`--color-accent`, `--color-blue-*`), which automatically include dark mode variants. The primary link color uses the theme's accent color for consistency with other interactive elements.
-
-**Focus accessibility**: Focus ring tokens reference the user agent token system (`--focus-ring-*`), ensuring consistent keyboard navigation styling that respects user preferences and accessibility guidelines.
-
-**Smooth transitions**: Link color changes use semantic transition durations for consistent timing across all interactive elements in the interface.
-
-## Link Color Customization
-
-**`--link-color`**: The default link color that appears in normal state. Should provide sufficient contrast against text and background colors for accessibility.
-
-**`--link-color-visited`**: Indicates previously visited links. Typically darker or more muted than the default link color to provide visual distinction while maintaining readability.
-
-**`--link-color-hover`**: Active state color for hover and focus interactions. Often brighter or more saturated than the default to provide clear feedback for interactive elements.
-
-## Decoration Control
-
-**`--link-decoration`**: Controls whether links show underlines by default. Set to `none` for clean, modern appearance or `underline` for traditional web styling that clearly identifies clickable text.
-
-**`--link-decoration-hover`**: Controls underline visibility during interaction. Setting to `underline` provides clear hover feedback even when default decoration is hidden.
-
-## Accessibility and Interaction
-
-**Focus ring styling**: The focus ring tokens ensure keyboard navigation remains visible and consistent. The ring appears when users navigate with keyboard (Tab key) but not when clicking with mouse, following modern accessibility best practices.
-
-**Transition timing**: Smooth color transitions provide polished user experience without being distracting. Duration references the semantic timing system for consistency across the interface.
 
 # Examples
 

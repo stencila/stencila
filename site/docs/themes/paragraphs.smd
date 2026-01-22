@@ -4,34 +4,15 @@ description: |
   Design tokens and examples for customizing paragraph spacing, alignment, and typography in Stencila themes.
 ---
 
-# Tokens
-
-## Spacing and Typography Tokens
-
-Paragraph-specific controls for spacing, typography, alignment, and text flow.
-
-| Token                     | Description                                     | Default Value             |
-| ------------------------- | ----------------------------------------------- | ------------------------- |
-| `--paragraph-spacing`     | Paragraph spacing (responsive)                  | `var(--content-spacing)`  |
-| `--paragraph-line-height` | Line height within paragraphs                   | `var(--text-line-height)` |
-| `--paragraph-text-align`  | Text alignment (left, right, center, justify)   | `left`                    |
-| `--paragraph-text-indent` | First-line indentation                          | `0`                       |
-| `--paragraph-hyphens`     | Hyphenation control (none, auto, manual)        | `none`                    |
-| `--paragraph-orphans`     | Minimum lines at bottom of page/column break    | `2`                       |
-| `--paragraph-widows`      | Minimum lines at top of page/column break       | `2`                       |
-| `--paragraph-text-wrap`   | Text wrapping algorithm (auto, pretty, balance) | `auto`                    |
-
-## Lead Paragraph Tokens
-
-Special styling for the first paragraph after headings.
-
-| Token                          | Description                                | Default Value |
-| ------------------------------ | ------------------------------------------ | ------------- |
-| `--paragraph-lead-font-size`   | Font size for lead paragraphs              | `inherit`     |
-| `--paragraph-lead-font-weight` | Font weight for lead paragraphs            | `inherit`     |
-| `--paragraph-lead-text-indent` | First-line indentation for lead paragraphs | `0`           |
-
 # Usage
+
+Start with these tokens when customizing paragraphs:
+
+- `--paragraph-spacing` to align spacing with your document rhythm
+- `--paragraph-line-height` to tune reading density
+- `--paragraph-text-align` and `--paragraph-text-indent` for layout style
+- `--paragraph-lead-font-size` and `--paragraph-lead-font-weight` for opening paragraphs
+- `--paragraph-hyphens` and `--paragraph-text-wrap` for text flow
 
 ## Paragraph-Specific Customization
 
@@ -77,6 +58,30 @@ Paragraphs work with the design system's responsive tokens:
 
 **Modern text wrapping**: Set `--paragraph-text-wrap: pretty` for improved line breaking in supported browsers.
 
+# Tokens
+
+## Spacing and Typography Tokens
+
+Paragraph-specific controls for spacing, typography, alignment, and text flow.
+
+| Token                     | Description                                     | Default Value             |
+| ------------------------- | ----------------------------------------------- | ------------------------- |
+| `--paragraph-spacing`     | Paragraph spacing (responsive)                  | `var(--content-spacing)`  |
+| `--paragraph-line-height` | Line height within paragraphs                   | `var(--text-line-height)` |
+| `--paragraph-text-align`  | Text alignment (left, right, center, justify)   | `left`                    |
+| `--paragraph-text-indent` | First-line indentation                          | `0`                       |
+| `--paragraph-hyphens`     | Hyphenation control (none, auto, manual)        | `none`                    |
+| `--paragraph-orphans`     | Minimum lines at bottom of page/column break    | `3`                       |
+| `--paragraph-widows`      | Minimum lines at top of page/column break       | `3`                       |
+| `--paragraph-text-wrap`   | Text wrapping algorithm (auto, pretty, balance) | `auto`                    |
+
+## Lead Paragraph Tokens
+
+Special styling for the first paragraph after headings.
+
+| Token                          | Description                                | Default Value |
+| ------------------------------ | ------------------------------------------ | ------------- |
+| `--paragraph-lead-font-size`   | Font size for lead paragraphs              | `inherit`     |
 # Examples
 
 ## Default Paragraphs

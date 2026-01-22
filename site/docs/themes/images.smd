@@ -1,0 +1,105 @@
+---
+title: Images
+description: |
+  Design tokens and examples for customizing image objects, including titles, captions, and responsive layout in Stencila themes.
+---
+
+# Usage
+
+Image objects can appear inline or as block-level media. Start with these tokens:
+
+- `--image-block-max-width` to control breakout width (with mobile/print variants)
+- `--image-title-*` tokens to style optional titles above images
+- `--image-caption-*` tokens to style captions and alignment
+
+Inline images inherit text flow and are constrained to `1.1em` in height, so typography tokens drive their scale.
+
+# Tokens
+
+## Layout Tokens
+
+| Token                         | Description                                 | Default Value                        |
+| ----------------------------- | ------------------------------------------- | ------------------------------------ |
+| `--image-block-max-width`     | Maximum width for block images              | `var(--content-breakout-width)`      |
+| `--image-block-max-width-mobile` | Maximum width on mobile (640px)         | `var(--content-breakout-width-mobile)` |
+| `--image-block-max-width-print`  | Maximum width in print                   | `100%`                               |
+
+## Title Tokens
+
+| Token                         | Description                      | Default Value                 |
+| ----------------------------- | -------------------------------- | ----------------------------- |
+| `--image-title-font-family`   | Font family for image titles     | `var(--caption-font-family)`  |
+| `--image-title-font-size`     | Font size for image titles       | `var(--caption-font-size)`    |
+| `--image-title-color`         | Text color for image titles      | `var(--caption-color)`        |
+| `--image-title-line-height`   | Line height for image titles     | `var(--caption-line-height)`  |
+| `--image-title-align`         | Text alignment for titles        | `center`                      |
+| `--image-title-spacing-bottom`| Gap between title and image      | `var(--caption-spacing)`      |
+
+## Caption Tokens
+
+| Token                          | Description                      | Default Value                 |
+| ------------------------------ | -------------------------------- | ----------------------------- |
+| `--image-caption-font-family`  | Font family for image captions   | `var(--caption-font-family)`  |
+| `--image-caption-font-size`    | Font size for image captions     | `var(--caption-font-size)`    |
+| `--image-caption-color`        | Text color for image captions    | `var(--caption-color)`        |
+| `--image-caption-line-height`  | Line height for image captions   | `var(--caption-line-height)`  |
+| `--image-caption-align`        | Text alignment for captions      | `center`                      |
+| `--image-caption-spacing-top`  | Gap between image and caption    | `var(--caption-spacing)`      |
+
+# Examples
+
+## Default Images
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+::: figure
+
+![](https://placehold.co/600x360/93c5fd/1f2937?text=Image)
+
+:::
+
+:::
+
+## Captioned Images
+
+```css
+:root {
+  --image-caption-align: left;
+  --image-caption-font-size: var(--font-size-xs);
+  --image-title-align: left;
+}
+```
+
+::: style --image-caption-align: left; --image-caption-font-size: var(--font-size-xs); --image-title-align: left;
+
+```html raw
+<stencila-image-object content-url="https://placehold.co/600x360/93c5fd/1f2937?text=Image">
+  <img src="https://placehold.co/600x360/93c5fd/1f2937?text=Image" />
+  <span slot="title">Figure title</span>
+  <span slot="caption">A brief caption describing the image content.</span>
+</stencila-image-object>
+```
+
+:::
+
+## Inline Images
+
+Inline images align with surrounding text and scale to the line height:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+The icon ![](https://placehold.co/24x24/93c5fd/1f2937?text=+) appears inline with text.
+
+:::

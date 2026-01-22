@@ -4,28 +4,14 @@ description: |
   Design tokens and examples for customizing list styling in Stencila themes.
 ---
 
-# Tokens
-
-Design tokens for lists define spacing, indentation, marker appearance, and nesting behavior. These tokens allow for consistent control over both ordered and unordered lists at multiple nesting levels, with separate controls for visual hierarchy and readability.
-
-| Token                            | Description                                              | Default Value                         |
-| -------------------------------- | -------------------------------------------------------- | ------------------------------------- |
-| `--list-spacing`                 | Vertical spacing before lists (`margin-top`)             | `var(--content-spacing)`              |
-| `--list-spacing-nested`          | Vertical spacing before nested lists (`margin-top`)      | `calc(var(--content-spacing) * 0.25)` |
-| `--list-indent`                  | Main list indentation from page margin                   | `calc(var(--content-spacing) * 0.75)` |
-| `--list-indent-nested`           | Additional indentation for nested lists                  | `calc(var(--content-spacing) * 0.25)` |
-| `--list-item-spacing`            | Vertical spacing between list items (`margin-bottom`)    | `calc(var(--list-spacing) * 0.25)`    |
-| `--list-marker-gap`              | Space between marker and content                         | `var(--space-2)`                      |
-| `--list-marker-color`            | Color of bullets, numbers, and markers                   | `var(--text-color-muted)`             |
-| `--list-marker-color-dark`       | Color of bullets, numbers, and markers in dark mode      | `var(--text-color-muted-dark)`        |
-| `--list-marker-content`          | Custom content for unordered markers (overrides `list-style-type` when set) | `normal` |
-| `--list-marker-nested-content`   | Custom content for nested unordered markers (overrides `list-style-type` when set) | `normal` |
-| `--list-marker-unordered`        | Style for unordered list markers (CSS `list-style-type`) | `disc`                                |
-| `--list-marker-ordered`          | Style for ordered list markers (CSS `list-style-type`)   | `decimal`                             |
-| `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                              |
-| `--list-marker-nested-ordered`   | Style for nested ordered markers                         | `lower-alpha`                         |
-
 # Usage
+
+Start with these tokens when customizing lists:
+
+- `--list-spacing` and `--list-item-spacing` for vertical rhythm
+- `--list-indent` and `--list-indent-nested` for indentation hierarchy
+- `--list-marker-color` and `--list-marker-gap` for marker readability
+- `--list-marker-content` or `--list-marker-unordered` to change bullet shapes
 
 The list system uses different token types to control list appearance and hierarchy:
 
@@ -51,17 +37,28 @@ The marker content tokens enable custom text markers (like en-dashes or arrows) 
 - `--list-indent-nested: calc(var(--content-spacing) * 0.25)` - additional indent for nested lists
 - `--list-spacing-nested: calc(var(--content-spacing) * 0.25)` - space before nested lists
 
-For quick customization, focus on these tokens:
-
-- `--list-spacing` - Controls space before lists and drives automatic scaling
-- `--list-item-spacing` - Controls vertical rhythm between items
-- `--list-indent` - Controls how far lists are indented from content
-- `--list-marker-gap` - Controls readability by adjusting marker-to-text spacing
-- `--list-marker-color` - Change all marker colors at once
-- `--list-marker-content` - Use custom text markers like `'– '`, `'▸ '`, or `'• '` (set to `normal` to use `list-style-type` keywords)
-- `--list-marker-unordered` - Customize bullet appearance using keywords (disc, circle, square) when `--list-marker-content` is `normal`
-
 **Note:** Most spacing tokens are based on `--content-spacing` and automatically scale for mobile, tablet, and print without additional CSS. The lists component inherits responsive behavior automatically through this semantic token integration - no explicit responsive variants are needed.
+
+# Tokens
+
+Design tokens for lists define spacing, indentation, marker appearance, and nesting behavior. These tokens allow for consistent control over both ordered and unordered lists at multiple nesting levels, with separate controls for visual hierarchy and readability.
+
+| Token                            | Description                                              | Default Value                         |
+| -------------------------------- | -------------------------------------------------------- | ------------------------------------- |
+| `--list-spacing`                 | Vertical spacing before lists (`margin-top`)             | `var(--content-spacing)`              |
+| `--list-spacing-nested`          | Vertical spacing before nested lists (`margin-top`)      | `calc(var(--content-spacing) * 0.25)` |
+| `--list-indent`                  | Main list indentation from page margin                   | `calc(var(--content-spacing) * 0.75)` |
+| `--list-indent-nested`           | Additional indentation for nested lists                  | `calc(var(--content-spacing) * 0.25)` |
+| `--list-item-spacing`            | Vertical spacing between list items (`margin-bottom`)    | `calc(var(--list-spacing) * 0.25)`    |
+| `--list-marker-gap`              | Space between marker and content                         | `var(--space-2)`                      |
+| `--list-marker-color`            | Color of bullets, numbers, and markers                   | `var(--text-color-muted)`             |
+| `--list-marker-color-dark`       | Color of bullets, numbers, and markers in dark mode      | `var(--text-color-muted-dark)`        |
+| `--list-marker-content`          | Custom content for unordered markers (overrides `list-style-type` when set) | `normal` |
+| `--list-marker-nested-content`   | Custom content for nested unordered markers (overrides `list-style-type` when set) | `normal` |
+| `--list-marker-unordered`        | Style for unordered list markers (CSS `list-style-type`) | `disc`                                |
+| `--list-marker-ordered`          | Style for ordered list markers (CSS `list-style-type`)   | `decimal`                             |
+| `--list-marker-nested-unordered` | Style for nested unordered markers                       | `circle`                              |
+| `--list-marker-nested-ordered`   | Style for nested ordered markers                         | `lower-alpha`                         |
 
 # Examples
 

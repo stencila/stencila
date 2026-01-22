@@ -4,6 +4,17 @@ description: |
   Design tokens and examples for customizing horizontal rules and thematic breaks in Stencila themes.
 ---
 
+# Usage
+
+Thematic breaks (`<hr>`) separate sections or signal transitions. Start with these tokens when customizing:
+
+- `--thematic-break-spacing-top` and `--thematic-break-spacing-bottom` to align breaks with the document rhythm
+- `--thematic-break-border-width`, `--thematic-break-border-color`, and `--thematic-break-border-style` for line weight and character
+- `--thematic-break-width` plus `--thematic-break-margin-left`/`--thematic-break-margin-right` to control alignment and centered rules
+- `--thematic-break-border-width-print` for thinner rules in print output
+
+Spacing defaults to `--content-spacing`, so breaks scale automatically across screen, mobile, and print without extra media queries.
+
 # Tokens
 
 Design tokens for thematic breaks control the appearance of horizontal rules (`<hr>`) used to separate sections or indicate thematic transitions in documents.
@@ -19,24 +30,6 @@ Design tokens for thematic breaks control the appearance of horizontal rules (`<
 | `--thematic-break-width`                | Horizontal width of the line                             | `100%`                         |
 | `--thematic-break-margin-left`          | Left margin (use with width for alignment)               | `0`                            |
 | `--thematic-break-margin-right`         | Right margin (use with width for alignment)              | `0`                            |
-
-# Usage
-
-Thematic breaks (`<hr>`) provide visual separation between sections of content, representing transitions in theme, topic, or scene. The theming system provides:
-
-**Vertical spacing**: Breaks use `--thematic-break-spacing-top` and `--thematic-break-spacing-bottom` based on `--content-spacing`, ensuring automatic responsive and print scaling.
-
-**Border styling**: Full control over line appearance through width, color, and style tokens. Use `solid` for standard rules, `dashed` or `dotted` for informal breaks, or `double` for decorative emphasis.
-
-**Sizing and alignment**: The `--thematic-break-width` token controls horizontal length (e.g., `50%` for short centered rules). Combine with margin tokens for positioning:
-
-- Centered: `--thematic-break-width: 50%; --thematic-break-margin-left: auto; --thematic-break-margin-right: auto;`
-- Left-aligned: `--thematic-break-width: 50%; --thematic-break-margin-left: 0; --thematic-break-margin-right: auto;`
-- Right-aligned: `--thematic-break-width: 50%; --thematic-break-margin-left: auto; --thematic-break-margin-right: 0;`
-
-**Print optimization**: Thematic breaks automatically adjust for print media through `--thematic-break-border-width-print`. Spacing scales automatically via `--content-spacing-print`.
-
-**Responsive behavior**: Spacing tokens inherit automatic scaling from `--content-spacing`, adjusting proportionally for mobile, tablet, and print without explicit media queries.
 
 # Examples
 

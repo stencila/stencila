@@ -4,6 +4,40 @@ description: |
   Design tokens and examples for customizing mathematical expressions in both block and inline contexts in Stencila themes.
 ---
 
+# Usage
+
+Start with these tokens when customizing math:
+
+- `--math-font-family` for equation typography
+- `--math-spacing` for vertical rhythm around blocks
+- `--math-label-gap`, `--math-label-font-weight`, and `--math-label-color` for equation labels
+
+## Math Block Layout
+
+Math blocks use a flex layout to center the equation while keeping the label positioned on the far right:
+
+**Centered equations**: The equation area expands to fill the available space, keeping the math centered while reserving room for the label on the right.
+
+**Right-aligned labels**: Labels appear on the far right, providing reference numbers for equations without disrupting the centered equation layout.
+
+**Responsive spacing**: The `--math-spacing` token uses `--content-spacing`, providing automatic scaling across desktop, tablet, and mobile devices without explicit media queries.
+
+## Typography
+
+Mathematical expressions use specialized fonts designed for mathematical notation:
+
+**Font family**: The `--math-font-family` token references `--font-family-math`, which provides proper rendering of mathematical symbols, variables, and operators.
+
+**Label styling**: Labels use semantic label tokens (`--label-font-weight`, `--label-font-style`, `--label-color`) for consistency with other labeled elements like figures and tables.
+
+## Integration with Semantic Tokens
+
+Math styling integrates with the design system's token architecture:
+
+- **Automatic responsive behavior**: Spacing uses `--content-spacing` which provides desktop, tablet, mobile, and print scaling
+- **Typography consistency**: Font family references semantic typography tokens ensuring system-wide consistency
+- **Label consistency**: Label styling references semantic label tokens shared with other numbered elements
+
 # Tokens
 
 ## Math Block Tokens
@@ -17,39 +51,11 @@ Layout and styling controls for block-level mathematical expressions.
 | `--math-label-gap`         | Spacing between equation and label       | `var(--space-4)`              |
 | `--math-label-font-weight` | Font weight for equation labels          | `var(--label-font-weight)`    |
 | `--math-label-font-style`  | Font style for equation labels           | `var(--label-font-style)`     |
-| `--math-label-color`       | Text color for equation labels           | `var(--text-color-secondary)` |
+| `--math-label-color`       | Text color for equation labels           | `var(--label-color)`          |
 
 ## Math Inline Tokens
 
 Inline mathematical expressions inherit the `--math-font-family` token but otherwise integrate within text flow.
-
-# Usage
-
-## Math Block Layout
-
-Math blocks use a grid-based layout to center the equation with the label positioned on the far right:
-
-**Centered equations**: The equation is automatically centered in the available space using a three-column grid layout (`1fr auto auto`), creating visual balance.
-
-**Right-aligned labels**: Labels appear on the far right, providing reference numbers for equations without disrupting the centered equation layout.
-
-**Responsive spacing**: The `--math-spacing` token uses `--content-spacing`, providing automatic scaling across desktop, tablet, and mobile devices without explicit media queries.
-
-## Typography
-
-Mathematical expressions use specialized fonts designed for mathematical notation:
-
-**Font family**: The `--math-font-family` token references `--font-family-math`, which provides proper rendering of mathematical symbols, variables, and operators.
-
-**Label styling**: Labels use semantic label tokens (`--label-font-weight`, `--label-font-style`) for consistency with other labeled elements like figures and tables.
-
-## Integration with Semantic Tokens
-
-Math styling integrates with the design system's token architecture:
-
-- **Automatic responsive behavior**: Spacing uses `--content-spacing` which provides desktop, tablet, mobile, and print scaling
-- **Typography consistency**: Font family references semantic typography tokens ensuring system-wide consistency
-- **Label consistency**: Label styling references semantic label tokens shared with other numbered elements
 
 # Examples
 
@@ -94,3 +100,7 @@ $$
 ## Inline Math
 
 Inline mathematical expressions like $e^{i\pi} + 1 = 0$ and $\sqrt{2}$ integrate within text flow using the same font family as block math but without layout tokens.
+
+## Image Fallbacks
+
+Some math renderers may provide image fallbacks. When present, images are constrained to `max-height: 1.1em` for inline math and centered for blocks, matching the text flow and alignment.
