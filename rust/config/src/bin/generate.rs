@@ -225,8 +225,10 @@ fn discover_property_pages(
                 .get(&def_name)
                 .ok_or_else(|| eyre!("Definition not found: {}", def_name))?;
 
+            // Get property-level description (from field doc in parent type)
+            let prop_desc = get_prop_description(prop);
+
             // Generate content for this standalone page (no sibling links in this context)
-            let desc = get_description(def);
             let title = generate_page_title(&current_path, false);
             let content = generate_standalone_object_page_content(
                 &title,
@@ -234,7 +236,15 @@ fn discover_property_pages(
                 def,
                 definitions,
                 &HashMap::new(),
+                Some(&prop_desc),
             );
+
+            // Use property description for page description
+            let desc = if prop_desc.is_empty() {
+                get_description(def)
+            } else {
+                prop_desc
+            };
 
             pages.push(DocPage {
                 path: format!("{current_path}.md"),
@@ -356,8 +366,10 @@ fn discover_property_pages_with_links(
             .get(&def_name)
             .ok_or_else(|| eyre!("Definition not found: {}", def_name))?;
 
+        // Get property-level description (from field doc in parent type)
+        let prop_desc = get_prop_description(prop);
+
         // Generate content with sibling type links
-        let desc = get_description(def);
         let title = generate_page_title(&current_path, false);
         let content = generate_standalone_object_page_content(
             &title,
@@ -365,7 +377,15 @@ fn discover_property_pages_with_links(
             def,
             definitions,
             sibling_type_links,
+            Some(&prop_desc),
         );
+
+        // Use property description for page description
+        let desc = if prop_desc.is_empty() {
+            get_description(def)
+        } else {
+            prop_desc
+        };
 
         pages.push(DocPage {
             path: format!("{current_path}.md"),
@@ -681,14 +701,22 @@ fn generate_object_page_content(
 }
 
 /// Generate content for a standalone object page (e.g., region pages)
+///
+/// If `prop_desc` is provided (field-level description from parent type),
+/// it's used as the primary description. Otherwise falls back to type description.
 fn generate_standalone_object_page_content(
     title: &str,
     def_name: &str,
     def: &Value,
     definitions: &Map<String, Value>,
     type_links: &HashMap<String, String>,
+    prop_desc: Option<&str>,
 ) -> String {
-    let desc = get_description(def);
+    // Use property-level description if available, otherwise fall back to type description
+    let desc = prop_desc
+        .filter(|d| !d.is_empty())
+        .map(String::from)
+        .unwrap_or_else(|| get_description(def));
     let first = first_line(&desc);
 
     let mut content = format!("---\ntitle: {title}\ndescription: {first}\n---\n\n{desc}\n\n");
