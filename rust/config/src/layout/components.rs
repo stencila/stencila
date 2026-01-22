@@ -36,7 +36,17 @@ pub enum ComponentConfig {
     /// Site logo image with responsive and dark mode variants
     ///
     /// When used as a bare `"logo"` string, inherits configuration from
-    /// `site.logo`. When used as an object, can override any fields, e.g.
+    /// `site.logo`. When used as an object, can override any fields.
+    ///
+    /// Available fields (all optional, inherit from `site.logo` if not specified):
+    /// - `default`: Default logo image path (desktop light mode)
+    /// - `dark`: Logo for dark mode (desktop)
+    /// - `mobile`: Logo for mobile breakpoint (< 640px)
+    /// - `tablet`: Logo for tablet breakpoint (640px - 768px)
+    /// - `dark-mobile`: Logo for dark mode on mobile
+    /// - `dark-tablet`: Logo for dark mode on tablet
+    /// - `link`: Link target when clicked (default: "/")
+    /// - `alt`: Alt text for accessibility
     ///
     /// ```toml
     /// # Header logo using site defaults and overrides
@@ -108,28 +118,30 @@ pub enum ComponentConfig {
         /// Optional title above the nav tree (e.g., "Navigation", "Docs")
         title: Option<String>,
 
-        /// Maximum depth to display (default: unlimited)
+        /// Maximum depth to display
         ///
         /// Limits how deep the navigation tree renders. Useful for large sites
         /// where you want to show only top-level sections.
+        ///
+        /// Default: unlimited
         depth: Option<u8>,
 
-        /// Whether groups are collapsible (default: true)
+        /// Whether groups are collapsible
         ///
         /// When true, group headers can be clicked to expand/collapse children.
         /// When false, all groups are always expanded.
+        ///
+        /// Default: `true`
         collapsible: Option<bool>,
 
-        /// Default expansion state for collapsible groups (default: all)
+        /// Default expansion state for collapsible groups
         ///
-        /// Controls initial expand/collapse state:
-        /// - all: All groups expanded
-        /// - none: All groups collapsed
-        /// - first-level: Only top-level groups expanded
-        /// - current-path: Expand groups containing the active page
+        /// Default: `all`
         expanded: Option<NavTreeExpanded>,
 
-        /// Auto-scroll nav container to show active item on page load (default: true)
+        /// Auto-scroll nav container to show active item on page load
+        ///
+        /// Default: `true`
         #[serde(rename = "scroll-to-active")]
         scroll_to_active: Option<bool>,
 
@@ -145,7 +157,9 @@ pub enum ComponentConfig {
         /// Exclude takes precedence over include.
         exclude: Option<Vec<String>>,
 
-        /// Whether to show icons from site.icons (default: hide)
+        /// Whether to show icons from site.icons
+        ///
+        /// Default: hide
         icons: Option<NavTreeIcons>,
     },
 
@@ -175,30 +189,34 @@ pub enum ComponentConfig {
         /// Exclude takes precedence over include.
         exclude: Option<Vec<String>>,
 
-        /// Maximum depth to display (default: unlimited, 1 = top-level only)
+        /// Maximum depth to display (1 = top-level only)
+        ///
+        /// Default: unlimited
         depth: Option<u8>,
 
-        /// How to render groups (default: auto)
+        /// How to render groups
         ///
-        /// - auto: Groups with children become dropdowns, others are links
-        /// - dropdowns: All groups become dropdown menus
-        /// - links: All groups render as simple links (requires route)
+        /// Default: `auto`
         groups: Option<NavMenuGroups>,
 
-        /// Whether to show icons (default: show)
+        /// Whether to show icons
         ///
-        /// - show: Show icons on all items that have them
-        /// - hide: Never show icons
-        /// - dropdowns-only: Only show icons inside dropdown panels
+        /// Default: `show`
         icons: Option<NavMenuIcons>,
 
-        /// Whether to show descriptions in dropdowns (default: true)
+        /// Whether to show descriptions in dropdowns
+        ///
+        /// Default: `true`
         descriptions: Option<bool>,
 
-        /// Dropdown trigger behavior (default: hover)
+        /// Dropdown trigger behavior
+        ///
+        /// Default: `hover`
         trigger: Option<NavMenuTrigger>,
 
-        /// Dropdown panel style (default: full-width)
+        /// Dropdown panel style
+        ///
+        /// Default: `full-width`
         #[serde(rename = "dropdown-style")]
         dropdown_style: Option<NavMenuDropdownStyle>,
     },
@@ -234,16 +252,17 @@ pub enum ComponentConfig {
         /// Exclude takes precedence over include.
         exclude: Option<Vec<String>>,
 
-        /// Maximum depth to display (default: 2)
+        /// Maximum depth to display
         ///
         /// Level 1 = group headings, Level 2 = links under headings.
         /// Set to 1 to show only group headings as links.
+        ///
+        /// Default: 2
         depth: Option<u8>,
 
-        /// Whether to show icons on links (default: hide)
+        /// Whether to show icons on links
         ///
-        /// - show: Show icons from site.icons on links
-        /// - hide: Never show icons (default, cleaner footer style)
+        /// Default: `hide`
         icons: Option<NavGroupsIcons>,
     },
 
@@ -262,13 +281,17 @@ pub enum ComponentConfig {
     /// ```
     #[schemars(title = "TocTree")]
     TocTree {
-        /// Title above the TOC (default: "On this page")
+        /// Title above the TOC
+        ///
+        /// Default: "On this page"
         title: Option<String>,
 
-        /// Maximum heading depth to include (default: 3)
+        /// Maximum heading depth to include
         ///
         /// Controls which heading levels appear in the TOC. For example,
         /// depth=3 includes h1, h2, and h3 headings.
+        ///
+        /// Default: 3
         depth: Option<u8>,
     },
 
@@ -290,31 +313,33 @@ pub enum ComponentConfig {
     /// ```
     #[schemars(title = "PrevNext")]
     PrevNext {
-        /// Display style (default: standard)
+        /// Display style
         ///
-        /// Controls what information is shown:
-        /// - minimal: icons only
-        /// - compact: icons + labels
-        /// - standard: icons + labels + titles (default)
-        /// - detailed: icons + labels + titles + position
+        /// Default: standard
         style: Option<PrevNextStyle>,
 
-        /// Custom text for previous link (default: "Previous")
+        /// Custom text for previous link
         ///
         /// Useful for localization.
+        ///
+        /// Default: "Previous"
         #[serde(rename = "prev-text")]
         prev_text: Option<String>,
 
-        /// Custom text for next link (default: "Next")
+        /// Custom text for next link
         ///
         /// Useful for localization.
+        ///
+        /// Default: "Next"
         #[serde(rename = "next-text")]
         next_text: Option<String>,
 
-        /// Separator between prev and next links (default: none)
+        /// Separator between prev and next links
         ///
         /// Common values: "|", "·", or any custom string.
         /// Only shown when both prev and next links are present.
+        ///
+        /// Default: none
         separator: Option<String>,
     },
 
@@ -336,11 +361,9 @@ pub enum ComponentConfig {
     /// ```
     #[schemars(title = "ColorMode")]
     ColorMode {
-        /// Display style (default: icon)
+        /// Display style
         ///
-        /// - `icon`: Sun/moon icon only (default)
-        /// - `label`: "Light"/"Dark" text only
-        /// - `both`: Icon and text label
+        /// Default: `icon`
         style: Option<ColorModeStyle>,
     },
 
@@ -416,16 +439,16 @@ pub enum ComponentConfig {
     /// ```
     #[schemars(title = "SocialLinks")]
     SocialLinks {
-        /// Display style (default: icon)
+        /// Display style
         ///
-        /// - icon: Icons only
-        /// - text: Text labels only
-        /// - both: Icon and text
+        /// Default: `icon`
         style: Option<SocialLinksStyle>,
 
-        /// Whether links open in new tab (default: true)
+        /// Whether links open in new tab
         ///
         /// When true, links include target="_blank" and rel="noopener noreferrer".
+        ///
+        /// Default: true
         #[serde(rename = "new-tab")]
         new_tab: Option<bool>,
 
@@ -472,10 +495,14 @@ pub enum ComponentConfig {
     /// ```
     #[schemars(title = "EditSource")]
     EditSource {
-        /// Custom link text (default: "Edit on <Platform>" or "Edit source" for custom base-url)
+        /// Custom link text
+        ///
+        /// Default: "Edit on <Platform>" or "Edit source" for custom base-url
         text: Option<String>,
 
-        /// Display style (default: both)
+        /// Display style
+        ///
+        /// Default: both
         style: Option<EditSourceStyle>,
 
         /// Full edit URL prefix (e.g., "https://github.com/org/repo/edit/main/")
@@ -485,9 +512,11 @@ pub enum ComponentConfig {
         #[serde(rename = "base-url")]
         base_url: Option<String>,
 
-        /// Override branch name for auto-detected URLs (default: auto-detect or "main")
+        /// Override branch name for auto-detected URLs
         ///
         /// Ignored when `base-url` is provided.
+        ///
+        /// Default: auto-detect or "main"
         branch: Option<String>,
 
         /// Path prefix within repo (e.g., "docs/" if content is in a subdirectory)
@@ -515,10 +544,14 @@ pub enum ComponentConfig {
         /// Cloud service to edit on (gdocs or m365)
         service: EditOnService,
 
-        /// Custom link text (default: "Edit on Google Docs" or "Edit on Microsoft 365")
+        /// Custom link text
+        ///
+        /// Default: "Edit on Google Docs" or "Edit on Microsoft 365"
         text: Option<String>,
 
-        /// Display style (default: both)
+        /// Display style
+        ///
+        /// Default: both
         style: Option<EditSourceStyle>,
     },
 
@@ -540,10 +573,14 @@ pub enum ComponentConfig {
     /// ```
     #[schemars(title = "CopyMarkdown")]
     CopyMarkdown {
-        /// Custom button text (default: "Copy as Markdown")
+        /// Custom button text
+        ///
+        /// Default: "Copy as Markdown"
         text: Option<String>,
 
-        /// Display style (default: both)
+        /// Display style
+        ///
+        /// Default: both
         style: Option<CopyMarkdownStyle>,
     },
 }

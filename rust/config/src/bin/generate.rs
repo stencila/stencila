@@ -228,6 +228,14 @@ fn discover_property_pages(
             // Get property-level description (from field doc in parent type)
             let prop_desc = get_prop_description(prop);
 
+            // Determine which properties to exclude based on page path
+            // The `responsive` field only applies to sidebar regions
+            let exclude_props: &[&str] = if is_non_sidebar_region(&current_path) {
+                &["responsive"]
+            } else {
+                &[]
+            };
+
             // Generate content for this standalone page (no sibling links in this context)
             let title = generate_page_title(&current_path, false);
             let content = generate_standalone_object_page_content(
@@ -237,6 +245,7 @@ fn discover_property_pages(
                 definitions,
                 &HashMap::new(),
                 Some(&prop_desc),
+                exclude_props,
             );
 
             // Use property description for page description
@@ -290,7 +299,8 @@ fn discover_property_pages(
             for variant in &variants {
                 if let Some(variant_name) = get_variant_name(variant, &tag_field) {
                     let variant_title = generate_variant_title(&current_path, &variant_name);
-                    let variant_page = generate_variant_page(&variant_title, variant, &tag_field)?;
+                    let variant_page =
+                        generate_variant_page(&variant_title, variant, &tag_field, definitions)?;
                     let variant_path = format!("{current_path}/{variant_name}");
                     pages.push(DocPage {
                         path: format!("{variant_path}.md"),
@@ -324,7 +334,8 @@ fn discover_property_pages(
             for variant in &variants {
                 if let Some(variant_name) = get_variant_name(variant, &tag_field) {
                     let variant_title = generate_variant_title(&current_path, &variant_name);
-                    let variant_page = generate_variant_page(&variant_title, variant, &tag_field)?;
+                    let variant_page =
+                        generate_variant_page(&variant_title, variant, &tag_field, definitions)?;
                     let variant_path = format!("{current_path}/{variant_name}");
                     pages.push(DocPage {
                         path: format!("{variant_path}.md"),
@@ -369,6 +380,14 @@ fn discover_property_pages_with_links(
         // Get property-level description (from field doc in parent type)
         let prop_desc = get_prop_description(prop);
 
+        // Determine which properties to exclude based on page path
+        // The `responsive` field only applies to sidebar regions
+        let exclude_props: &[&str] = if is_non_sidebar_region(&current_path) {
+            &["responsive"]
+        } else {
+            &[]
+        };
+
         // Generate content with sibling type links
         let title = generate_page_title(&current_path, false);
         let content = generate_standalone_object_page_content(
@@ -378,6 +397,7 @@ fn discover_property_pages_with_links(
             definitions,
             sibling_type_links,
             Some(&prop_desc),
+            exclude_props,
         );
 
         // Use property description for page description
@@ -685,25 +705,71 @@ fn generate_object_page_content(
 
     let mut content = format!("---\ntitle: {title}\ndescription: {first}\n---\n\n{desc}\n\n");
 
-    // Document properties
+    // Document all properties
     if let Some(props) = def.get("properties").and_then(|p| p.as_object()) {
         for (prop_name, prop) in props {
-            // Skip properties that have their own pages (just link to them)
+            // Properties with their own pages get linked type
             if children_with_pages.contains(prop_name) {
-                continue;
+                content.push_str(&format_property_with_page_link(
+                    prop_name,
+                    prop,
+                    definitions,
+                ));
+            } else {
+                content.push_str(&format_property(prop_name, prop, definitions));
             }
-
-            content.push_str(&format_property(prop_name, prop, definitions));
         }
     }
 
     content
 }
 
+/// Format a property that has its own documentation page
+fn format_property_with_page_link(
+    prop_name: &str,
+    prop: &Value,
+    definitions: &Map<String, Value>,
+) -> String {
+    let desc = get_prop_description(prop);
+    let first = first_line(&desc);
+
+    // Get the type name and link
+    let (type_name, link) = if has_documentable_children(prop, definitions) {
+        // Has children - directory link
+        if let Some((def_name, _)) = resolve_to_definition(prop, definitions) {
+            (def_name, format!("{prop_name}/"))
+        } else {
+            (prop_name.to_string(), format!("{prop_name}/"))
+        }
+    } else {
+        // Standalone page - .md link
+        if let Some((def_name, _)) = resolve_to_definition(prop, definitions) {
+            (def_name, format!("{prop_name}.md"))
+        } else {
+            (prop_name.to_string(), format!("{prop_name}.md"))
+        }
+    };
+
+    let optional = is_optional(prop);
+    let optional_str = if optional { " (optional)" } else { "" };
+
+    let mut md = format!("# `{prop_name}`\n\n");
+    md.push_str(&format!(
+        "**Type:** [`{type_name}`]({link}){optional_str}\n\n"
+    ));
+    md.push_str(&first);
+    md.push_str("\n\n");
+
+    md
+}
+
 /// Generate content for a standalone object page (e.g., region pages)
 ///
 /// If `prop_desc` is provided (field-level description from parent type),
 /// it's used as the primary description. Otherwise falls back to type description.
+///
+/// `exclude_props` allows filtering out properties that don't apply to this specific page
+/// (e.g., `responsive` only applies to sidebar regions, not header/footer/top/bottom).
 fn generate_standalone_object_page_content(
     title: &str,
     def_name: &str,
@@ -711,6 +777,7 @@ fn generate_standalone_object_page_content(
     definitions: &Map<String, Value>,
     type_links: &HashMap<String, String>,
     prop_desc: Option<&str>,
+    exclude_props: &[&str],
 ) -> String {
     // Use property-level description if available, otherwise fall back to type description
     let desc = prop_desc
@@ -727,6 +794,10 @@ fn generate_standalone_object_page_content(
     // Document properties with type links for sibling pages
     if let Some(props) = def.get("properties").and_then(|p| p.as_object()) {
         for (name, prop) in props {
+            // Skip excluded properties
+            if exclude_props.contains(&name.as_str()) {
+                continue;
+            }
             content.push_str(&format_property_with_links(
                 name,
                 prop,
@@ -773,8 +844,12 @@ fn generate_map_page_content(
                     .unwrap_or("");
                 if !variant_desc.is_empty() {
                     content.push_str(&format!("### {}\n\n", first_line(variant_desc)));
-                    content.push_str(variant_desc);
-                    content.push_str("\n\n");
+                    // Output description without the first line (already used as heading)
+                    let rest = rest_of_lines(variant_desc);
+                    if !rest.is_empty() {
+                        content.push_str(&rest);
+                        content.push_str("\n\n");
+                    }
                 }
             }
         }
@@ -854,6 +929,7 @@ fn generate_variant_page(
     title: &str,
     variant: &Value,
     tag_field: &str,
+    definitions: &Map<String, Value>,
 ) -> Result<(String, String)> {
     let desc = variant
         .get("description")
@@ -889,12 +965,12 @@ fn generate_variant_page(
             };
 
             content.push_str(&format!("## `{prop_name}`\n\n"));
-            content.push_str(&format!("**Type:** `{type_str}`{optional_str}\n\n"));
+            content.push_str(&format!("**Type:** {type_str}{optional_str}\n\n"));
             content.push_str(prop_desc);
             content.push_str("\n\n");
 
             // If it references a simple enum, inline it as a table
-            if let Some(enum_def) = get_simple_enum(prop) {
+            if let Some(enum_def) = get_simple_enum_from_prop(prop, definitions) {
                 content.push_str(&format_simple_enum(&enum_def));
             }
         }
@@ -1023,18 +1099,6 @@ fn is_optional(prop: &Value) -> bool {
     }
 
     false
-}
-
-/// Get simple enum definition if the property references one
-fn get_simple_enum(prop: &Value) -> Option<Value> {
-    // Check for inline oneOf
-    if let Some(one_of) = prop.get("oneOf").and_then(|o| o.as_array())
-        && one_of.iter().all(|v| v.get("const").is_some())
-    {
-        return Some(prop.clone());
-    }
-
-    None
 }
 
 /// Get simple enum from a property, resolving references
@@ -1189,6 +1253,13 @@ fn first_line(s: &str) -> String {
     s.lines().next().unwrap_or("").to_string()
 }
 
+/// Get all lines after the first, trimmed of leading whitespace
+fn rest_of_lines(s: &str) -> String {
+    let mut lines = s.lines();
+    lines.next(); // Skip first line
+    lines.collect::<Vec<_>>().join("\n").trim_start().to_string()
+}
+
 /// Get the primary Rust source file for a documentation page path
 fn get_source_file(page_path: &str) -> &'static str {
     if page_path.starts_with("workspace") {
@@ -1216,6 +1287,16 @@ fn get_source_file(page_path: &str) -> &'static str {
     } else {
         "lib.rs"
     }
+}
+
+/// Check if a page path is a non-sidebar region (header, top, bottom, footer)
+///
+/// These regions don't support the `responsive` field, which only applies to sidebars.
+fn is_non_sidebar_region(page_path: &str) -> bool {
+    page_path.starts_with("site/layout/header")
+        || page_path.starts_with("site/layout/top")
+        || page_path.starts_with("site/layout/bottom")
+        || page_path.starts_with("site/layout/footer")
 }
 
 /// Generate the source footer for a documentation page

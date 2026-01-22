@@ -22,8 +22,9 @@ use crate::{SpreadMode, WATCH_ID_REGEX, find_config_file, utils::format_array_mu
 pub enum RemoteValue {
     /// Multiple remote targets for the same path
     ///
+    /// Use an array when you need to sync a single local file with multiple
+    /// remote destinations (e.g., Google Docs and SharePoint), e.g.
     /// ```toml
-    /// # Multiple remotes for a single file
     /// [remotes]
     /// "article.md" = [
     ///   { url = "https://docs.google.com/...", watch = "w456" },
@@ -34,8 +35,9 @@ pub enum RemoteValue {
 
     /// Single remote target
     ///
+    /// The most common form - maps one local path to one remote URL.
+    /// Can be a simple URL string or an object with a watch ID, e.g.
     /// ```toml
-    /// # Single remotes for files or directories
     /// [remotes]
     /// "site" = "https://example.stencila.site/"
     /// "file.md" = { url = "https://...", watch = "w123" }

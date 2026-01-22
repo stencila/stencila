@@ -19,6 +19,9 @@ use crate::{WATCH_ID_REGEX, WORKSPACE_ID_REGEX};
 pub struct WorkspaceConfig {
     /// The workspace public ID from Stencila Cloud.
     ///
+    /// A 12-character string: "ws" prefix followed by 10 lowercase alphanumeric
+    /// characters (e.g., "ws3x9k2m7fab").
+    ///
     /// This is automatically assigned when a workspace is created via
     /// `stencila site create` or when pushing to a site for the first time.
     /// The workspace ID is derived from the GitHub repository URL.
@@ -26,6 +29,9 @@ pub struct WorkspaceConfig {
     pub id: Option<String>,
 
     /// The workspace watch ID from Stencila Cloud.
+    ///
+    /// A 12-character string: "wa" prefix followed by 10 lowercase alphanumeric
+    /// characters (e.g., "wa7x2k9m3fab").
     ///
     /// This is set when `stencila watch` is run without a file path to enable
     /// workspace-level watching. When enabled, `update.sh` is run on each git push.

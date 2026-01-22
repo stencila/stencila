@@ -104,12 +104,11 @@ pub struct RegionConfig {
     /// When specified, `start`, `middle`, and `end` are ignored and each row
     /// is rendered separately. This enables multi-row layouts within a region.
     ///
-    /// Example:
+    /// Example (applicable to any region):
     /// ```toml
-    /// [site.layout.bottom]
     /// rows = [
     ///   { middle = "prev-next" },
-    ///   { start = "edit-source", end = "last-edited" }
+    ///   { start = "edit-source", end = "copyright" }
     /// ]
     /// ```
     pub rows: Option<Vec<RowConfig>>,
@@ -124,15 +123,6 @@ pub struct RegionConfig {
 ///
 /// Used with `RegionConfig.rows` for multi-row layouts. Each row has
 /// the same sub-region structure as a single-row region.
-///
-/// Example TOML:
-/// ```toml
-/// [site.layout.bottom]
-/// rows = [
-///   { middle = "prev-next" },
-///   { start = "edit-source", end = "last-edited" }
-/// ]
-/// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
