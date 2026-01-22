@@ -90,20 +90,14 @@ impl RenderProgressBar {
         }
     }
 
-    /// Finish and clear the progress bar (used when not persisting)
-    fn finish(&mut self) {
-        self.completed = true;
-        self.spinner.finish_and_clear();
-        if let Some(pb) = self.progress_bar.take() {
-            pb.finish_and_clear();
-        }
-    }
-
     /// Finish with a message, keeping the bar visible
     fn finish_with_message(&mut self, msg: &str) {
         self.completed = true;
         self.spinner.finish_and_clear();
         if let Some(pb) = self.progress_bar.take() {
+            if let Some(len) = pb.length() {
+                pb.set_position(len);
+            }
             pb.finish_with_message(msg.to_string());
         }
     }
@@ -824,7 +818,7 @@ impl Render {
                             progress.on_document_failed(&path, &error);
                         }
                         RenderProgress::Complete(_) => {
-                            progress.finish();
+                            progress.finish_with_message("rendered");
                         }
                         _ => {}
                     }
@@ -1061,13 +1055,17 @@ impl Preview {
                             progress.on_document_failed(&path, &error);
                         }
                         RenderProgress::Complete(_) => {
-                            progress.finish();
+                            progress.finish_with_message("rendered");
                         }
                         _ => {}
                     }
                 }
             }
         };
+
+        if result.is_ok() {
+            progress.finish_with_message("rendered");
+        }
 
         // Ensure progress bar cleanup
         drop(progress);

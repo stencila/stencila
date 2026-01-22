@@ -49,13 +49,43 @@ pub enum ComponentConfig {
     Logo(LogoConfig),
 
     /// Site title text
+    ///
+    /// Displays the site title as text. When used as a bare `"title"` string,
+    /// uses the value from `site.title`. When `text` is specified, it overrides
+    /// `site.title` for this instance only.
+    ///
+    /// ```toml
+    /// [site.layout.header]
+    /// start = ["logo", "title"]  # Uses site.title
+    ///
+    /// # Override for this component only:
+    /// start = [{ type = "title", text = "Docs" }]
+    /// ```
     #[schemars(title = "Title")]
     Title {
         /// Title text (defaults to site.title)
+        ///
+        /// When not specified, inherits from `site.title`. If both are empty,
+        /// the component renders nothing.
         text: Option<String>,
     },
 
     /// Breadcrumb navigation trail
+    ///
+    /// Displays the hierarchical path from site root to the current page.
+    /// Each path segment is converted to title case (e.g., "getting-started" →
+    /// "Getting Started"). Intermediate segments are clickable links if the
+    /// route exists; the current page is shown as non-clickable text.
+    ///
+    /// This component has no configurable options.
+    ///
+    /// ```toml
+    /// [site.layout.top]
+    /// start = "breadcrumbs"
+    ///
+    /// [site.layout.header]
+    /// middle = "breadcrumbs"
+    /// ```
     #[schemars(title = "Breadcrumbs")]
     Breadcrumbs,
 
@@ -218,30 +248,45 @@ pub enum ComponentConfig {
     },
 
     /// Table of contents tree from document headings
+    ///
+    /// Generates a hierarchical list of links from the current page's headings.
+    /// Includes scroll-spy that highlights the currently visible section as
+    /// the user scrolls. Renders nothing if the page has no headings.
+    ///
+    /// ```toml
+    /// [site.layout.right-sidebar]
+    /// start = "toc-tree"  # Uses defaults
+    ///
+    /// # With custom title and deeper depth:
+    /// start = { type = "toc-tree", title = "Contents", depth = 4 }
+    /// ```
     #[schemars(title = "TocTree")]
     TocTree {
         /// Title above the TOC (default: "On this page")
         title: Option<String>,
 
-        /// Maximum heading depth (default: 3)
+        /// Maximum heading depth to include (default: 3)
+        ///
+        /// Controls which heading levels appear in the TOC. For example,
+        /// depth=3 includes h1, h2, and h3 headings.
         depth: Option<u8>,
     },
 
     /// Previous/next page navigation links
     ///
     /// Displays links to previous and next pages in the navigation sequence.
-    /// Style controls what information is shown (see PrevNextStyle), e.g.
+    /// Supports keyboard shortcuts: `j` or `←` for previous, `k` or `→` for next.
+    /// The sequence follows `site.nav` order if configured.
     ///
     /// ```toml
-    /// # Prev/next links with style and labels
     /// [site.layout.bottom]
-    /// middle = "prev-next"  # Uses default "standard" style
+    /// middle = "prev-next"  # Standard style (default)
     ///
-    /// # Or with configuration:
+    /// # Compact style (icons + labels only):
     /// middle = { type = "prev-next", style = "compact" }
     ///
-    /// # Custom labels:
-    /// middle = { type = "prev-next", prev-text = "Back", next-text = "Continue" }
+    /// # Custom labels for localization:
+    /// middle = { type = "prev-next", prev-text = "Précédent", next-text = "Suivant" }
     /// ```
     #[schemars(title = "PrevNext")]
     PrevNext {
@@ -274,9 +319,28 @@ pub enum ComponentConfig {
     },
 
     /// Light/dark mode toggle
+    ///
+    /// Toggles between light and dark color modes. The user's preference is
+    /// saved to localStorage and persists across sessions. On first visit,
+    /// respects the operating system's color scheme preference.
+    ///
+    /// ```toml
+    /// [site.layout.header]
+    /// end = "color-mode"  # Icon-only (default)
+    ///
+    /// # With text label:
+    /// end = { type = "color-mode", style = "both" }
+    ///
+    /// # Text only (no icon):
+    /// end = { type = "color-mode", style = "label" }
+    /// ```
     #[schemars(title = "ColorMode")]
     ColorMode {
         /// Display style (default: icon)
+        ///
+        /// - `icon`: Sun/moon icon only (default)
+        /// - `label`: "Light"/"Dark" text only
+        /// - `both`: Icon and text label
         style: Option<ColorModeStyle>,
     },
 
@@ -461,16 +525,18 @@ pub enum ComponentConfig {
     /// Copy page as Markdown button
     ///
     /// Displays a button that copies the current page content as Markdown
-    /// to the clipboard. The markdown file is generated alongside the HTML
-    /// during site rendering, e.g.
+    /// to the clipboard. Requires `formats = ["md"]` in site config (the default).
+    /// The markdown is fetched from `page.md` which is generated during site build.
     ///
     /// ```toml
-    /// # Copy-markdown button with optional text
     /// [site.layout.footer]
-    /// end = "copy-markdown"  # Uses defaults
+    /// end = "copy-markdown"  # Default text: "Copy as Markdown"
     ///
-    /// # With custom text:
+    /// # Custom text:
     /// end = { type = "copy-markdown", text = "Copy as MD" }
+    ///
+    /// # Icon only:
+    /// end = { type = "copy-markdown", style = "icon" }
     /// ```
     #[schemars(title = "CopyMarkdown")]
     CopyMarkdown {

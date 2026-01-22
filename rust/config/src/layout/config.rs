@@ -43,34 +43,93 @@ pub struct LayoutConfig {
 
     /// Header region configuration
     ///
-    /// Horizontal region at the top of the page.
+    /// Horizontal bar at the top of every page, spanning the full width.
+    /// Sub-regions flow left-to-right: start | middle | end.
+    ///
+    /// Typical components: logo, title, nav-menu, social-links, color-mode.
+    ///
+    /// ```toml
+    /// [site.layout.header]
+    /// start = "logo"
+    /// middle = "nav-menu"
+    /// end = ["social-links", "color-mode"]
+    /// ```
     pub header: Option<RegionSpec>,
 
     /// Left sidebar region configuration
     ///
-    /// Vertical region on the left side of the page.
+    /// Vertical sidebar on the left side of the page.
+    /// Sub-regions flow top-to-bottom: start | middle | end.
     /// Auto-enabled for multi-page sites when not specified.
+    ///
+    /// Typical components: nav-tree.
+    ///
+    /// ```toml
+    /// [site.layout.left-sidebar]
+    /// start = { type = "nav-tree", collapsible = true }
+    /// ```
     pub left_sidebar: Option<RegionSpec>,
 
     /// Top region configuration
     ///
-    /// Horizontal region above the main content area.
+    /// Horizontal bar above the main content area, below the header.
+    /// Sub-regions flow left-to-right: start | middle | end.
+    ///
+    /// Typical components: breadcrumbs.
+    ///
+    /// ```toml
+    /// [site.layout.top]
+    /// start = "breadcrumbs"
+    /// ```
     pub top: Option<RegionSpec>,
 
     /// Bottom region configuration
     ///
-    /// Horizontal region below the main content area.
+    /// Horizontal bar below the main content area, above the footer.
+    /// Sub-regions flow left-to-right: start | middle | end.
+    /// Supports multiple rows for complex layouts.
+    ///
+    /// Typical components: prev-next, edit-source, copy-markdown.
+    ///
+    /// ```toml
+    /// [site.layout.bottom]
+    /// middle = "prev-next"
+    ///
+    /// # Or with multiple rows:
+    /// rows = [
+    ///   { middle = "prev-next" },
+    ///   { start = "edit-source", end = "copy-markdown" }
+    /// ]
+    /// ```
     pub bottom: Option<RegionSpec>,
 
     /// Right sidebar region configuration
     ///
-    /// Vertical region on the right side of the page.
+    /// Vertical sidebar on the right side of the page.
+    /// Sub-regions flow top-to-bottom: start | middle | end.
     /// Auto-enabled when document has headings.
+    ///
+    /// Typical components: toc-tree.
+    ///
+    /// ```toml
+    /// [site.layout.right-sidebar]
+    /// start = { type = "toc-tree", title = "Contents" }
+    /// ```
     pub right_sidebar: Option<RegionSpec>,
 
     /// Footer region configuration
     ///
-    /// Horizontal region at the bottom of the page.
+    /// Horizontal bar at the bottom of every page, spanning the full width.
+    /// Sub-regions flow left-to-right: start | middle | end.
+    ///
+    /// Typical components: copyright, nav-groups, social-links.
+    ///
+    /// ```toml
+    /// [site.layout.footer]
+    /// start = "nav-groups"
+    /// middle = "copyright"
+    /// end = "social-links"
+    /// ```
     pub footer: Option<RegionSpec>,
 
     /// Global responsive configuration for sidebar collapse

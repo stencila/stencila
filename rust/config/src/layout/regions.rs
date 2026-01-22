@@ -54,11 +54,32 @@ impl RegionSpec {
 
 /// Region with sub-regions (start, middle, end)
 ///
-/// All sub-regions are optional:
+/// Regions are containers for layout components. Each region has three
+/// sub-regions that control component positioning:
 ///
-/// - `null`: inherit from base/defaults
-/// - `[]`: explicitly empty region
-/// - `[...]`: region with these components
+/// - `start`: First/left position (header/footer) or top position (sidebars)
+/// - `middle`: Center position
+/// - `end`: Last/right position (header/footer) or bottom position (sidebars)
+///
+/// Sub-region values:
+///
+/// - `null` (omit): Inherit from preset/defaults
+/// - `[]` (empty array): Explicitly empty, no components
+/// - `"component"` (string): Single component
+/// - `["a", "b"]` (array): Multiple components in order
+/// - `{ type = "x", ... }` (object): Component with configuration
+///
+/// Example:
+///
+/// ```toml
+/// [site.layout.header]
+/// start = "logo"
+/// middle = "nav-menu"
+/// end = ["social-links", "color-mode"]
+///
+/// [site.layout.left-sidebar]
+/// start = { type = "nav-tree", depth = 2 }
+/// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
