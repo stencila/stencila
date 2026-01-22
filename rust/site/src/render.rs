@@ -174,9 +174,6 @@ where
     }
 
     // Partition routes by type
-    // TODO: document_routes is sorted by route path (alphabetically), which is used for
-    // prev/next navigation. This may not match custom nav-tree ordering or groupings.
-    // Consider allowing navigation order to be derived from nav-tree structure instead.
     let mut document_routes_all: Vec<RouteEntry> = Vec::new();
     let mut document_routes_render: Vec<RouteEntry> = Vec::new();
     let mut static_files: Vec<PathBuf> = Vec::new();

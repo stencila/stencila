@@ -1445,14 +1445,10 @@ fn expand_social_url(platform: &str, value: &str) -> String {
 
 /// Get navigation order for prev/next links
 ///
-/// If `site.nav` is configured, flattens it to get the navigation order.
-/// Otherwise, returns the default route order from context.routes.
+/// Uses the nav_items from context (which may be from site.nav config or
+/// auto-generated from routes, respecting `_nav.yaml` overrides).
 fn get_nav_order(context: &RenderContext) -> Vec<String> {
-    if let Some(nav) = &context.site_config.nav {
-        flatten_nav_routes(nav)
-    } else {
-        context.routes.iter().map(|r| r.route.clone()).collect()
-    }
+    flatten_nav_routes(context.nav_items)
 }
 
 /// Flatten nav items into an ordered list of routes
