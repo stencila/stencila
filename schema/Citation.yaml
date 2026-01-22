@@ -9,6 +9,8 @@ $comment: |
   Often a `Citation` will be associated with other citations, in a `CitationGroup`.
 jats:
   special: true
+latex:
+  derive: false
 markdown:
   derive: false
 required:

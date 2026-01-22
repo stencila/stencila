@@ -1,0 +1,66 @@
+---
+source: rust/codec-latex/tests/citations.rs
+expression: "&latex_render"
+---
+\documentclass{article}
+
+\usepackage{natbib}
+
+\bibliography{refs}
+
+\title{Citation Test Document}
+\author{Test Author}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This document tests various citation styles.
+
+\subsection{Parenthetical Citations}
+
+% Standard parenthetical citation
+This is a parenthetical citation (Smith \& Doe, 2020).
+
+% Multiple parenthetical citations
+Multiple refs together (Jones, 2021; Smith \& Doe, 2020).
+
+% Parenthetical with prefix
+With a prefix (see Smith \& Doe, 2020).
+
+% Parenthetical with suffix
+With a suffix (Smith \& Doe, 2020, p. 42).
+
+% Parenthetical with both
+With both (see Smith \& Doe, 2020, p. 42).
+
+\subsection{Narrative Citations}
+
+% Standard narrative citation (author in text)
+According to Smith \& Doe (2020), this is important.
+
+% Multiple narrative citations
+Both Smith \& Doe (2020) and Jones (2021) agree.
+
+% Narrative with suffix
+As Jones (2021, p. 15) noted.
+
+\subsection{Author and Year Only}
+
+% Author only
+The work of Smith \& Doe is foundational.
+
+% Year only
+This was established in (Jones, 2021).
+
+\subsection{Alternative Styles}
+
+% citealt - like citep but without parentheses
+Alternative style: (Smith \& Doe, 2020).
+
+% citealp - like citealt
+Another alternative: (Jones, 2021).
+
+\end{document}

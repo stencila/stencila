@@ -2,6 +2,59 @@ use stencila_codec_info::lost_options;
 
 use crate::{Citation, CitationMode, prelude::*};
 
+impl LatexCodec for Citation {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
+
+        // In render mode, use the pre-rendered content if available
+        if context.render
+            && let Some(content) = &self.options.content
+        {
+            content.to_latex(context);
+            context.exit_node();
+            return;
+        }
+        // Fall through to generate citation command as fallback
+
+        // Determine the citation command based on mode
+        let command = match self.citation_mode {
+            Some(CitationMode::Narrative) => "citet",
+            Some(CitationMode::NarrativeAuthor) => "citeauthor",
+            Some(CitationMode::NarrativeYear) => "citeyear",
+            _ => "citep", // Parenthetical is the default
+        };
+
+        context.char('\\').str(command);
+
+        // Handle prefix and suffix (natbib style: \citep[prefix][suffix]{key})
+        match (&self.options.citation_prefix, &self.options.citation_suffix) {
+            (Some(prefix), Some(suffix)) => {
+                context
+                    .char('[')
+                    .str(prefix)
+                    .str("][")
+                    .str(suffix)
+                    .char(']');
+            }
+            (None, Some(suffix)) => {
+                context.char('[').str(suffix).char(']');
+            }
+            (Some(prefix), None) => {
+                context.char('[').str(prefix).str("][]");
+            }
+            (None, None) => {}
+        }
+
+        context
+            .char('{')
+            .property_str(NodeProperty::Target, &self.target)
+            .char('}')
+            .exit_node();
+    }
+}
+
 impl Citation {
     pub fn to_jats_special(&self) -> (String, Losses) {
         use stencila_codec_jats_trait::encode::elem;

@@ -13,6 +13,9 @@
   "jats": {
     "special": true
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },

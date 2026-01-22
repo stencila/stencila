@@ -1,0 +1,64 @@
+\documentclass{article}
+
+\usepackage{natbib}
+
+\bibliography{refs}
+
+\title{Citation Test Document}
+\author{Test Author}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This document tests various citation styles.
+
+\subsection{Parenthetical Citations}
+
+% Standard parenthetical citation
+This is a parenthetical citation \citep{smith2020}.
+
+% Multiple parenthetical citations
+Multiple refs together \citep{smith2020,jones2021}.
+
+% Parenthetical with prefix
+With a prefix \citep[see][]{smith2020}.
+
+% Parenthetical with suffix
+With a suffix \citep[][p. 42]{smith2020}.
+
+% Parenthetical with both
+With both \citep[see][p. 42]{smith2020}.
+
+\subsection{Narrative Citations}
+
+% Standard narrative citation (author in text)
+According to \citet{smith2020}, this is important.
+
+% Multiple narrative citations
+Both \citet{smith2020} and \citet{jones2021} agree.
+
+% Narrative with suffix
+As \citet[][p. 15]{jones2021} noted.
+
+\subsection{Author and Year Only}
+
+% Author only
+The work of \citeauthor{smith2020} is foundational.
+
+% Year only
+This was established in \citeyear{jones2021}.
+
+\subsection{Alternative Styles}
+
+% citealt - like citep but without parentheses
+Alternative style: \citealt{smith2020}.
+
+% citealp - like citealt
+Another alternative: \citealp{jones2021}.
+
+\printbibliography
+
+\end{document}

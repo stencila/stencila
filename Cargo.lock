@@ -9372,6 +9372,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-latex-trait",
  "stencila-codec-pandoc",
+ "stencila-document",
  "stencila-node-media",
  "tokio",
  "which",

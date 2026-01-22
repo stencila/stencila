@@ -142,7 +142,7 @@ pub async fn render_citations(
     let mut driver = BibliographyDriver::new();
 
     // Create a "citation request" for each citation group
-    for citation_group in citations {
+    for citation_group in &citations {
         let citation_items = citation_group
             .items
             .iter()
@@ -177,11 +177,30 @@ pub async fn render_citations(
         locale_files: &LOCALES,
     });
 
-    // Convert rendered citations to inlines
+    // Convert rendered citations to inlines, adding prefix/suffix from original citations
     let citation_contents = result
         .citations
         .into_iter()
-        .map(|citation| elem_children_to_inlines(citation.citation))
+        .zip(citations.iter())
+        .map(|(rendered, citation_group)| {
+            let mut inlines = elem_children_to_inlines(rendered.citation);
+
+            // For single-citation groups, add prefix/suffix from the citation
+            // For multi-citation groups, prefix/suffix handling is more complex
+            // and typically only applies to the first/last citation
+            if citation_group.items.len() == 1
+                && let Some(citation) = citation_group.items.first()
+            {
+                let prefix = citation.options.citation_prefix.as_deref();
+                let suffix = citation.options.citation_suffix.as_deref();
+
+                if prefix.is_some() || suffix.is_some() {
+                    insert_citation_prefix_suffix(&mut inlines, prefix, suffix);
+                }
+            }
+
+            inlines
+        })
         .collect();
 
     // Determine if citations are ordered by appearance
@@ -241,6 +260,75 @@ pub async fn render_citations(
     }
 
     Ok((citation_contents, ordered_references))
+}
+
+/// Insert citation prefix and suffix into the correct positions within inlines
+///
+/// For parenthetical citations like "(Smith & Doe, 2020)", this inserts:
+/// - prefix after the opening "(" → "(see Smith & Doe, 2020)"
+/// - suffix before the closing ")" → "(Smith & Doe, 2020, p. 42)"
+///
+/// For narrative citations like "Smith & Doe (2020)", this inserts:
+/// - prefix at the beginning → "see Smith & Doe (2020)"
+/// - suffix before the closing ")" → "Smith & Doe (2020, p. 42)"
+fn insert_citation_prefix_suffix(
+    inlines: &mut Vec<Inline>,
+    prefix: Option<&str>,
+    suffix: Option<&str>,
+) {
+    // Find position of first "(" by examining Text nodes
+    let open_paren_pos = inlines.iter().enumerate().find_map(|(i, inline)| {
+        if let Inline::Text(text) = inline {
+            text.value.find('(').map(|char_pos| (i, char_pos))
+        } else {
+            None
+        }
+    });
+
+    // Find position of last ")" by examining Text nodes in reverse
+    let close_paren_pos = inlines.iter().enumerate().rev().find_map(|(i, inline)| {
+        if let Inline::Text(text) = inline {
+            text.value.rfind(')').map(|char_pos| (i, char_pos))
+        } else {
+            None
+        }
+    });
+
+    // Insert suffix before the closing ")" if found
+    if let Some(suffix) = suffix {
+        let suffix_text = if suffix.starts_with(',') || suffix.starts_with(' ') {
+            suffix.to_string()
+        } else {
+            [", ", suffix].concat()
+        };
+
+        if let Some((idx, char_pos)) = close_paren_pos {
+            if let Some(Inline::Text(text)) = inlines.get_mut(idx) {
+                text.value.insert_str(char_pos, &suffix_text);
+            }
+        } else {
+            // No closing paren found, append to end
+            inlines.push(t(suffix_text));
+        }
+    }
+
+    // Insert prefix after the opening "(" if found
+    if let Some(prefix) = prefix {
+        let prefix_text = if prefix.ends_with(' ') {
+            prefix.to_string()
+        } else {
+            [prefix, " "].concat()
+        };
+
+        if let Some((idx, char_pos)) = open_paren_pos {
+            if let Some(Inline::Text(text)) = inlines.get_mut(idx) {
+                text.value.insert_str(char_pos + 1, &prefix_text);
+            }
+        } else {
+            // No opening paren found (narrative citation), prepend to beginning
+            inlines.insert(0, t(prefix_text));
+        }
+    }
 }
 
 /// Convert a Hayagriva [`ElemChildren`] to Stencila [`Inline`] nodes

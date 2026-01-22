@@ -15,6 +15,7 @@ tokio = { workspace = true }
 [dev-dependencies]
 glob = { workspace = true }
 insta = { workspace = true }
+stencila-document = { path = "../document" }
 which = { workspace = true }
 
 [lints]
