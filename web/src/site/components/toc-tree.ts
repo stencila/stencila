@@ -53,10 +53,10 @@ export class StencilaTocTree extends LitElement {
   private activeId: string | null = null
 
   /**
-   * Offset in pixels to account for fixed header.
-   * Used consistently for intersection detection, scroll position checks, and click scrolling.
+   * Cached header offset for IntersectionObserver rootMargin.
+   * Updated at scroll-spy setup from CSS variable.
    */
-  private static readonly HEADER_OFFSET = 80
+  private headerOffset = 80
 
   /**
    * IntersectionObserver for scroll-spy
@@ -167,8 +167,14 @@ export class StencilaTocTree extends LitElement {
       return
     }
 
+    // Get header offset from CSS variable for IntersectionObserver rootMargin
+    const headerHeight = getComputedStyle(document.documentElement)
+      .getPropertyValue('--layout-header-height')
+      .trim()
+    this.headerOffset = headerHeight ? parseFloat(headerHeight) || 80 : 80
+
     // rootMargin: trigger when heading is near top of viewport
-    // HEADER_OFFSET top offset for fixed header, -80% bottom to only track top portion
+    // Header offset for fixed header, -80% bottom to only track top portion
     this.observer = new IntersectionObserver(
       (entries) => {
         if (this.scrollSpyDisabled) {
@@ -198,7 +204,7 @@ export class StencilaTocTree extends LitElement {
         }
       },
       {
-        rootMargin: `-${StencilaTocTree.HEADER_OFFSET}px 0px -80% 0px`,
+        rootMargin: `-${this.headerOffset}px 0px -80% 0px`,
         threshold: 0,
       }
     )
@@ -249,7 +255,7 @@ export class StencilaTocTree extends LitElement {
 
     for (const heading of this.headings) {
       const rect = heading.element.getBoundingClientRect()
-      if (rect.top <= StencilaTocTree.HEADER_OFFSET) {
+      if (rect.top <= this.headerOffset) {
         activeHeading = heading
       } else {
         break
@@ -325,16 +331,8 @@ export class StencilaTocTree extends LitElement {
     const link = event.currentTarget as HTMLAnchorElement
     link.focus()
 
-    // Scroll to the heading with offset for fixed header
-    const targetTop =
-      heading.element.getBoundingClientRect().top +
-      window.scrollY -
-      StencilaTocTree.HEADER_OFFSET
-
-    window.scrollTo({
-      top: targetTop,
-      behavior: 'smooth',
-    })
+    // Scroll to the heading (scroll-padding-top handles header offset)
+    heading.element.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
     // Update URL hash without jumping
     history.pushState(null, '', `#${heading.id}`)

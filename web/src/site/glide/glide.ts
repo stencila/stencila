@@ -123,8 +123,9 @@ function swapSidebars(entry: CacheEntry, contentSelector: string): void {
 /**
  * Perform the DOM swap with optional View Transition
  *
- * Scroll handling is included inside the swap so it's captured by
- * the View Transition, resulting in smooth animated transitions.
+ * For 'restore' and 'top' scroll targets, scrolling happens during the
+ * View Transition for smooth animated transitions. For 'hash' targets,
+ * scrolling happens after the transition to ensure reliable positioning.
  */
 async function swapContent(
   entry: CacheEntry,
@@ -146,16 +147,11 @@ async function swapContent(
     // Swap sidebars (create/update/remove as needed)
     swapSidebars(entry, contentSelector)
 
-    // Handle scroll as part of the transition so View Transitions API
-    // animates both content and scroll position together
+    // Handle scroll for restore/top as part of the transition
+    // Hash scrolling is done after transition for reliable positioning
     switch (scrollTarget.type) {
       case 'restore':
         restoreScrollPosition(scrollTarget.url)
-        break
-      case 'hash':
-        if (!scrollToId(scrollTarget.hash)) {
-          window.scrollTo(0, 0)
-        }
         break
       case 'top':
         window.scrollTo(0, 0)
@@ -181,6 +177,19 @@ async function swapContent(
       .finished
   } else {
     doSwap()
+  }
+
+  // Scroll to hash target after transition completes
+  // Use rAF to ensure View Transition has fully settled before scrolling
+  if (scrollTarget.type === 'hash') {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        if (!scrollToId(scrollTarget.hash)) {
+          window.scrollTo(0, 0)
+        }
+        resolve()
+      })
+    })
   }
 }
 

@@ -1,6 +1,8 @@
 import { LitElement, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { navigate } from '../../glide'
+
 import { SearchEngine } from './engine'
 import type { RecentSearch, SearchEntry, SearchResult } from './types'
 
@@ -281,27 +283,75 @@ export class StencilaSiteSearch extends LitElement {
   }
 
   /**
+   * CSS class name for highlight animation (defined in site-search.css)
+   */
+  private static readonly HIGHLIGHT_CLASS = 'search-result-highlight'
+
+  /**
+   * Highlight an element briefly to draw attention to it
+   */
+  private highlightElement(nodeId: string): void {
+    // Find the element by ID
+    const element = document.getElementById(nodeId)
+    if (!element) {
+      return
+    }
+
+    // Remove any existing highlight first
+    element.classList.remove(StencilaSiteSearch.HIGHLIGHT_CLASS)
+
+    // Force a reflow to restart animation if already applied
+    void element.offsetWidth
+
+    // Add the highlight class
+    element.classList.add(StencilaSiteSearch.HIGHLIGHT_CLASS)
+
+    // Remove the class after animation completes
+    element.addEventListener(
+      'animationend',
+      () => {
+        element.classList.remove(StencilaSiteSearch.HIGHLIGHT_CLASS)
+      },
+      { once: true }
+    )
+  }
+
+  /**
    * Navigate to a search result
    */
-  private navigateToResult(result: SearchResult) {
+  private async navigateToResult(result: SearchResult) {
     // Save to recent searches before navigating
     this.saveRecentSearch(result.entry)
 
     const url = `${result.entry.route}#${result.entry.nodeId}`
     this.close()
-    window.location.href = url
+
+    const navigated = await navigate(url, 'programmatic')
+    if (navigated) {
+      // Delay to let scroll and page settle after navigation
+      setTimeout(() => {
+        this.highlightElement(result.entry.nodeId)
+      }, 100)
+    }
   }
 
   /**
    * Navigate to a recent search
    */
-  private navigateToRecent(recent: RecentSearch) {
+  private async navigateToRecent(recent: RecentSearch) {
     // Move to front of recent searches
     this.saveRecentSearch(recent as SearchEntry)
 
     const url = `${recent.route}#${recent.nodeId}`
     this.close()
-    window.location.href = url
+
+    const navigated = await navigate(url, 'programmatic')
+    if (navigated) {
+      // Delay to let scroll and page settle after navigation
+      setTimeout(() => {
+        this.highlightElement(recent.nodeId)
+      }, 100)
+    }
   }
 
   /**

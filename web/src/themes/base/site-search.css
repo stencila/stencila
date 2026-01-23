@@ -27,6 +27,10 @@
     --search-modal-max-height: min(32rem, calc(100vh - var(--space-16)));
     --search-highlight-color: var(--color-accent);
     --search-backdrop-blur: 4px;
+
+    /* Navigation highlight - shown briefly when navigating to a search result */
+    --search-navigate-highlight-color: var(--color-accent-muted);
+    --search-navigate-highlight-duration: 1.5s;
 }
 
 stencila-site-search {
@@ -324,6 +328,27 @@ stencila-site-search .hint {
     }
 
     stencila-site-search .loading {
+        animation: none;
+    }
+}
+
+/* =================================
+ * Navigation Highlight
+ * ================================= */
+
+/* Brief highlight animation when navigating to a search result.
+ * Applied to the target element to draw attention to it. */
+@keyframes search-navigate-highlight {
+    0% { background-color: var(--search-navigate-highlight-color); }
+    100% { background-color: transparent; }
+}
+
+.search-result-highlight {
+    animation: search-navigate-highlight var(--search-navigate-highlight-duration) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-result-highlight {
         animation: none;
     }
 }

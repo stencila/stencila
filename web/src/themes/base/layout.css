@@ -91,6 +91,17 @@
 }
 
 /* =================================
+ * Scroll Behavior
+ * ================================= */
+
+/* Account for fixed header when using native anchor navigation
+ * (e.g., clicking #hash links directly). Programmatic scrolling
+ * uses block: 'center' instead for better visibility. */
+html {
+    scroll-padding-top: calc(var(--layout-header-height) + 1rem);
+}
+
+/* =================================
  * Main Layout Container
  * ================================= */
 

@@ -1,12 +1,15 @@
 /**
  * Scroll utilities for client-side navigation
+ *
+ * CSS scroll-padding-top is set in layout.css for native anchor navigation.
+ * For programmatic scrolling, we center elements to avoid header issues.
  */
 
-/** Fixed header offset in pixels */
-export const HEADER_OFFSET = 80
-
 /**
- * Scroll to an element with header offset
+ * Scroll to an element, centering it in the viewport
+ *
+ * Centers the element vertically to avoid issues with fixed headers
+ * and provide good visibility of surrounding context.
  *
  * @param element - Element to scroll to
  * @param behavior - Scroll behavior ('auto' or 'smooth')
@@ -15,13 +18,11 @@ export function scrollToElement(
   element: Element,
   behavior: ScrollBehavior = 'auto'
 ): void {
-  const elementPosition = element.getBoundingClientRect().top
-  const offsetPosition = elementPosition + window.scrollY - HEADER_OFFSET
-  window.scrollTo({ top: offsetPosition, behavior })
+  element.scrollIntoView({ behavior, block: 'center' })
 }
 
 /**
- * Scroll to an element by ID with header offset
+ * Scroll to an element by ID, centering it in the viewport
  *
  * @param id - Element ID (without #)
  * @param behavior - Scroll behavior
