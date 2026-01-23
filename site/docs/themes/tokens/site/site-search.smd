@@ -1,0 +1,57 @@
+---
+title: Site Search
+description: |
+  Design tokens and examples for customizing the site search trigger and modal dialog.
+---
+
+# Usage
+
+The site search component provides a search dialog. For theming, start with:
+
+- `--search-modal-width` and `--search-modal-max-height` for overall sizing
+- `--search-highlight-color` for match emphasis
+- `--search-backdrop-blur` for the modal overlay treatment
+
+# Tokens
+
+| Token                     | Description               | Default Value                                   |
+| ------------------------- | ------------------------- | ----------------------------------------------- |
+| `--search-modal-width`    | Modal width               | `36rem`                                         |
+| `--search-modal-max-height` | Modal max height        | `min(32rem, calc(100vh - var(--space-16)))`     |
+| `--search-highlight-color` | Highlight text color     | `var(--color-accent)`                           |
+| `--search-backdrop-blur`  | Backdrop blur amount      | `4px`                                           |
+
+The component also relies on shared layout primitives for spacing, color, and typography. Useful overrides include:
+
+- Spacing: `--space-*` (padding, gaps, modal positioning)
+- Typography: `--layout-font-family`, `--font-size-*`, `--line-height-*`, `--font-weight-*`
+- Surfaces: `--surface-background`, `--surface-sunken`, `--surface-elevated`
+- Borders and radius: `--border-color-muted`, `--radius-*`, `--border-width-*`
+- Text colors: `--text-color-primary`, `--text-color-secondary`, `--text-color-muted`
+- Focus and overlay: `--focus-ring-*`, `--overlay-background`
+- Shadows and motion: `--shadow-*`, `--transition-duration-*`
+
+# Examples
+
+## Compact Modal
+
+```css
+:root {
+  --search-modal-width: 28rem;
+  --search-modal-max-height: min(26rem, calc(100vh - var(--space-10)));
+}
+```
+
+## Brighter Highlights
+
+```css
+:root {
+  --search-highlight-color: var(--color-blue-600);
+}
+```
+
+# Tips
+
+**Overlay styling**: The backdrop color uses `--overlay-background`; pair it with `--search-backdrop-blur` for the right glass effect.
+
+**Focus clarity**: Keep `--search-highlight-color` readable against normal body text, not just headings.

@@ -78,6 +78,7 @@ Site layout and navigation components use a separate set of tokens:
 - [Logo](tokens/site/logo.smd)
 - [Site Title](tokens/site/title.smd)
 - [Copyright](tokens/site/copyright.smd)
+- [Site Search](tokens/site/site-search.smd)
 - [Site Review](tokens/site/site-review.smd)
 
 For general font and prints layout tokens see:

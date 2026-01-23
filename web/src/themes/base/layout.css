@@ -77,7 +77,6 @@
 
     /* Responsive Sidebar */
     --sidebar-transition-duration: var(--transition-duration-base);
-    --sidebar-overlay-background: rgba(0, 0, 0, 0.5);
     --sidebar-toggle-top: 25%;
     --sidebar-toggle-width: 20px;
     --sidebar-toggle-height: 40px;
@@ -478,7 +477,7 @@ stencila-bottom:has([data-row]) {
     position: fixed;
     inset: 0;
     z-index: calc(var(--layout-z-header) - 1);
-    background: var(--sidebar-overlay-background);
+    background: var(--overlay-background);
     opacity: 0;
     transition: opacity var(--sidebar-transition-duration);
 }
@@ -672,10 +671,10 @@ stencila-layout[header] .sidebar-overlay {
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
-        --sidebar-overlay-background: rgba(0, 0, 0, 0.7);
+        --overlay-background: rgba(0, 0, 0, 0.7);
     }
 }
 
 :root[data-color-scheme="dark"] {
-    --sidebar-overlay-background: rgba(0, 0, 0, 0.7);
+    --overlay-background: rgba(0, 0, 0, 0.7);
 }
