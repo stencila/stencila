@@ -49,7 +49,6 @@ async fn main() -> Result<()> {
             #[cfg(feature = "docs")]
             Docs => {
                 schemas.docs_types().await?;
-                schemas.docs_codecs().await?;
             }
             #[cfg(not(feature = "docs"))]
             Docs => eprintln!("Generation of docs is not enabled; skipping"),
