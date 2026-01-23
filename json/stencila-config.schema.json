@@ -47,6 +47,7 @@
       ]
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "WorkspaceConfig": {
       "description": "Configuration for a Stencila Cloud workspace.\nhttps://stencila.io/docs/config/workspaceconfig",
@@ -68,7 +69,8 @@
           ],
           "pattern": "^wa[a-z0-9]{10}$"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "RemoteValue": {
       "description": "Value for a remote configuration entry - can be single or multiple targets\nhttps://stencila.io/docs/config/remotevalue",
@@ -134,6 +136,7 @@
           "pattern": "^wa[a-z0-9]{10}$"
         }
       },
+      "additionalProperties": false,
       "required": [
         "url"
       ]
@@ -175,6 +178,7 @@
           }
         }
       },
+      "additionalProperties": false,
       "required": [
         "service",
         "arguments"
@@ -285,7 +289,8 @@
             "type": "string"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "OutputCommand": {
       "description": "Processing command for outputs\nhttps://stencila.io/docs/config/outputcommand",
@@ -468,7 +473,8 @@
             }
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "AuthorSpec": {
       "description": "Author specification - simple string or full Author object\nhttps://stencila.io/docs/config/authorspec",
@@ -580,7 +586,8 @@
             "null"
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "FeaturedContent": {
       "description": "Featured/promotional content for nav-menu dropdowns\nhttps://stencila.io/docs/config/featuredcontent",
@@ -630,6 +637,7 @@
           ]
         }
       },
+      "additionalProperties": false,
       "required": [
         "title"
       ]
@@ -647,6 +655,7 @@
           "type": "string"
         }
       },
+      "additionalProperties": false,
       "required": [
         "label",
         "route"
@@ -794,6 +803,7 @@
           ]
         }
       },
+      "additionalProperties": false,
       "required": [
         "redirect"
       ]
@@ -839,6 +849,7 @@
           }
         }
       },
+      "additionalProperties": false,
       "required": [
         "file",
         "arguments"
@@ -937,7 +948,7 @@
           ]
         },
         "components": {
-          "description": "Named component definitions for reuse\n\nDefine components once and reference them by name in regions.\n\nExample:\n```toml\n[site.layout.components.main-nav]\ntype = \"nav-tree\"\ncollapsible = true\ndepth = 3\n```",
+          "description": "Named component definitions for reuse\n\nDefine components once and reference them by name in regions.\nWhen the key matches a built-in component type (e.g., \"nav-tree\"),\nthe `type` field can be omitted.\n\nExample:\n```toml\n# Type inferred from key for built-in types:\n[site.layout.components.nav-tree]\ncollapsible = true\ndepth = 3\n\n# Custom names require explicit type:\n[site.layout.components.main-nav]\ntype = \"nav-tree\"\ncollapsible = true\n```",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ComponentConfig"
@@ -950,7 +961,8 @@
             "$ref": "#/definitions/LayoutOverride"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "LayoutPreset": {
       "description": "Named layout presets for common documentation patterns\nhttps://stencila.io/docs/config/layoutpreset",
@@ -1056,7 +1068,8 @@
             }
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "ComponentSpec": {
       "description": "Component specification: string name or full configuration\nhttps://stencila.io/docs/config/componentspec",
@@ -1079,21 +1092,73 @@
       "description": "Component configuration (internally tagged by type)\nhttps://stencila.io/docs/config/componentconfig",
       "oneOf": [
         {
-          "description": "Site logo image with responsive and dark mode variants\n\nWhen used as a bare `\"logo\"` string, inherits configuration from\n`site.logo`. When used as an object, can override any fields.\n\nAvailable fields (all optional, inherit from `site.logo` if not specified):\n- `default`: Default logo image path (desktop light mode)\n- `dark`: Logo for dark mode (desktop)\n- `mobile`: Logo for mobile breakpoint (< 640px)\n- `tablet`: Logo for tablet breakpoint (640px - 768px)\n- `dark-mobile`: Logo for dark mode on mobile\n- `dark-tablet`: Logo for dark mode on tablet\n- `link`: Link target when clicked (default: \"/\")\n- `alt`: Alt text for accessibility\n\n```toml\n# Header logo using site defaults and overrides\n[site.layout.header]\nstart = \"logo\"  # Uses site.logo config\n\n# Or with overrides:\nstart = { type = \"logo\", default = \"header-logo.svg\", dark = \"header-logo-dark.svg\" }\n```",
+          "description": "Site logo image with responsive and dark mode variants\n\nWhen used as a bare `\"logo\"` string, inherits configuration from\n`site.logo`. When used as an object, can override any fields.\n\n```toml\n# Header logo using site defaults and overrides\n[site.layout.header]\nstart = \"logo\"  # Uses site.logo config\n\n# Or with overrides:\nstart = { type = \"logo\", default = \"header-logo.svg\", dark = \"header-logo-dark.svg\" }\n```",
           "type": "object",
           "properties": {
+            "default": {
+              "description": "Default logo image path (used for desktop light mode)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mobile": {
+              "description": "Logo for mobile breakpoint (< 640px)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "tablet": {
+              "description": "Logo for tablet breakpoint (640px - 768px)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dark": {
+              "description": "Logo for dark mode (desktop)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dark-mobile": {
+              "description": "Logo for dark mode on mobile",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dark-tablet": {
+              "description": "Logo for dark mode on tablet",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "link": {
+              "description": "Link target when logo is clicked (default: \"/\")",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "alt": {
+              "description": "Alt text for accessibility (used as aria-label on the link)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "type": {
               "type": "string",
               "const": "logo"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
-          ],
-          "allOf": [
-            {
-              "$ref": "#/definitions/LogoConfig"
-            }
           ]
         },
         {
@@ -1113,6 +1178,7 @@
               "const": "title"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1129,11 +1195,12 @@
           },
           "required": [
             "type"
-          ]
+          ],
+          "additionalProperties": false
         },
         {
           "title": "NavTree",
-          "description": "Hierarchical navigation tree\n\nDisplays site navigation from `site.nav` configuration (or auto-generated\nfrom routes if not specified). Supports collapsible groups, active page\nhighlighting, and keyboard navigation, e.g.\n\n```toml\n# Sidebar nav tree with defaults and overrides\n[site.layout.left-sidebar]\nstart = \"nav-tree\"  # Uses defaults\n\n# Or with configuration:\nstart = { type = \"nav-tree\", title = \"Documentation\", expanded = \"current-path\" }\n```",
+          "description": "Hierarchical navigation tree\n\nDisplays site navigation from `site.nav` configuration (or auto-generated\nfrom routes if not specified). Supports collapsible groups, active page\nhighlighting, and keyboard navigation, e.g.\n\n```toml\n# Sidebar nav tree with defaults and overrides\n[site.layout.left-sidebar]\nstart = \"nav-tree\"  # Uses defaults\n\n# Or with configuration:\nstart = { type = \"nav-tree\", title = \"Documentation\", expand-depth = 3, expand-current = true }\n```",
           "type": "object",
           "properties": {
             "title": {
@@ -1160,15 +1227,21 @@
                 "null"
               ]
             },
-            "expanded": {
-              "description": "Default expansion state for collapsible groups\n\nDefault: `all`",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/NavTreeExpanded"
-                },
-                {
-                  "type": "null"
-                }
+            "expand-depth": {
+              "description": "How deep to expand groups by default\n\nControls the initial expansion depth for collapsible groups.\n- `0` = all groups collapsed\n- `1` = only top-level groups expanded\n- `2` = groups expanded up to level 2 (default)\n- `3` = groups expanded up to level 3\n\nDefault: `2`",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "expand-current": {
+              "description": "Whether to expand groups containing the current page\n\nWhen true, groups that are ancestors of the current page are\nexpanded regardless of `expand-depth`. This keeps navigation\nfocused on the user's current location.\n\nDefault: `true`",
+              "type": [
+                "boolean",
+                "null"
               ]
             },
             "scroll-to-active": {
@@ -1214,6 +1287,7 @@
               "const": "nav-tree"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1309,6 +1383,7 @@
               "const": "nav-menu"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1364,6 +1439,7 @@
               "const": "nav-groups"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1395,6 +1471,7 @@
               "const": "toc-tree"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1441,6 +1518,7 @@
               "const": "prev-next"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1466,6 +1544,7 @@
               "const": "color-mode"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1511,6 +1590,7 @@
               "const": "copyright"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1573,6 +1653,7 @@
               "const": "social-links"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1626,6 +1707,7 @@
               "const": "edit-source"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
@@ -1666,6 +1748,7 @@
               "const": "edit-on"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type",
             "service"
@@ -1699,34 +1782,10 @@
               "const": "copy-markdown"
             }
           },
+          "additionalProperties": false,
           "required": [
             "type"
           ]
-        }
-      ]
-    },
-    "NavTreeExpanded": {
-      "description": "Default expansion state for NavTree groups\nhttps://stencila.io/docs/config/navtreeexpanded",
-      "oneOf": [
-        {
-          "description": "All groups expanded (default)\n\nEvery collapsible group is initially open, showing all navigation items.",
-          "type": "string",
-          "const": "all"
-        },
-        {
-          "description": "All groups collapsed\n\nEvery collapsible group is initially closed. Users must click to expand.",
-          "type": "string",
-          "const": "none"
-        },
-        {
-          "description": "Only top-level groups expanded\n\nFirst-level groups are open, but nested groups are collapsed.",
-          "type": "string",
-          "const": "first-level"
-        },
-        {
-          "description": "Expand groups containing the active page\n\nOnly groups that are ancestors of the current page are expanded.\nThis keeps the navigation focused on the user's current location.",
-          "type": "string",
-          "const": "current-path"
         }
       ]
     },
@@ -1915,6 +1974,7 @@
           ]
         }
       },
+      "additionalProperties": false,
       "required": [
         "name",
         "url"
@@ -2009,7 +2069,8 @@
             "$ref": "#/definitions/ComponentSpec"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "ResponsiveConfig": {
       "description": "Responsive configuration for layout sidebars\nhttps://stencila.io/docs/config/responsiveconfig",
@@ -2043,7 +2104,8 @@
             }
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "SidebarToggleStyle": {
       "description": "Toggle button style for collapsible sidebars\nhttps://stencila.io/docs/config/sidebartogglestyle",
@@ -2165,6 +2227,7 @@
           ]
         }
       },
+      "additionalProperties": false,
       "required": [
         "routes"
       ]
@@ -2198,7 +2261,8 @@
           "format": "uint",
           "minimum": 0
         }
-      }
+      },
+      "additionalProperties": false
     },
     "SiteFormat": {
       "description": "Additional formats to generate alongside HTML during site rendering\nhttps://stencila.io/docs/config/siteformat",
@@ -2316,7 +2380,8 @@
             "type": "string"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "ReviewsPosition": {
       "description": "Position for the reviews widget on the page\nhttps://stencila.io/docs/config/reviewsposition",

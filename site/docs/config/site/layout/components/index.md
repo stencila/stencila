@@ -6,13 +6,20 @@ description: Named component definitions for reuse
 Named component definitions for reuse
 
 Define components once and reference them by name in regions.
+When the key matches a built-in component type (e.g., "nav-tree"),
+the `type` field can be omitted.
 
 Example:
 ```toml
+# Type inferred from key for built-in types:
+[site.layout.components.nav-tree]
+collapsible = true
+depth = 3
+
+# Custom names require explicit type:
 [site.layout.components.main-nav]
 type = "nav-tree"
 collapsible = true
-depth = 3
 ```
 
 ## Available Types

@@ -8,16 +8,6 @@ Site logo image with responsive and dark mode variants
 When used as a bare `"logo"` string, inherits configuration from
 `site.logo`. When used as an object, can override any fields.
 
-Available fields (all optional, inherit from `site.logo` if not specified):
-- `default`: Default logo image path (desktop light mode)
-- `dark`: Logo for dark mode (desktop)
-- `mobile`: Logo for mobile breakpoint (< 640px)
-- `tablet`: Logo for tablet breakpoint (640px - 768px)
-- `dark-mobile`: Logo for dark mode on mobile
-- `dark-tablet`: Logo for dark mode on tablet
-- `link`: Link target when clicked (default: "/")
-- `alt`: Alt text for accessibility
-
 ```toml
 # Header logo using site defaults and overrides
 [site.layout.header]
@@ -26,6 +16,54 @@ start = "logo"  # Uses site.logo config
 # Or with overrides:
 start = { type = "logo", default = "header-logo.svg", dark = "header-logo-dark.svg" }
 ```
+
+## `default`
+
+**Type:** `string` (optional)
+
+Default logo image path (used for desktop light mode)
+
+## `mobile`
+
+**Type:** `string` (optional)
+
+Logo for mobile breakpoint (< 640px)
+
+## `tablet`
+
+**Type:** `string` (optional)
+
+Logo for tablet breakpoint (640px - 768px)
+
+## `dark`
+
+**Type:** `string` (optional)
+
+Logo for dark mode (desktop)
+
+## `dark-mobile`
+
+**Type:** `string` (optional)
+
+Logo for dark mode on mobile
+
+## `dark-tablet`
+
+**Type:** `string` (optional)
+
+Logo for dark mode on tablet
+
+## `link`
+
+**Type:** `string` (optional)
+
+Link target when logo is clicked (default: "/")
+
+## `alt`
+
+**Type:** `string` (optional)
+
+Alt text for accessibility (used as aria-label on the link)
 
 
 ***

@@ -15,7 +15,7 @@ highlighting, and keyboard navigation, e.g.
 start = "nav-tree"  # Uses defaults
 
 # Or with configuration:
-start = { type = "nav-tree", title = "Documentation", expanded = "current-path" }
+start = { type = "nav-tree", title = "Documentation", expand-depth = 3, expand-current = true }
 ```
 
 ## `title`
@@ -46,20 +46,31 @@ When false, all groups are always expanded.
 
 Default: `true`
 
-## `expanded`
+## `expand-depth`
 
-**Type:** `NavTreeExpanded` (optional)
+**Type:** `integer` (optional)
 
-Default expansion state for collapsible groups
+How deep to expand groups by default
 
-Default: `all`
+Controls the initial expansion depth for collapsible groups.
+- `0` = all groups collapsed
+- `1` = only top-level groups expanded
+- `2` = groups expanded up to level 2 (default)
+- `3` = groups expanded up to level 3
 
-| Value | Description |
-|-------|-------------|
-| `all` | All groups expanded (default) |
-| `none` | All groups collapsed |
-| `first-level` | Only top-level groups expanded |
-| `current-path` | Expand groups containing the active page |
+Default: `2`
+
+## `expand-current`
+
+**Type:** `boolean` (optional)
+
+Whether to expand groups containing the current page
+
+When true, groups that are ancestors of the current page are
+expanded regardless of `expand-depth`. This keeps navigation
+focused on the user's current location.
+
+Default: `true`
 
 ## `scroll-to-active`
 
