@@ -38,7 +38,7 @@ stencila new existing.md --force
 
 # Options
 
-| Name                  | Description                                                                                             |
-| --------------------- | ------------------------------------------------------------------------------------------------------- |
-| `-f, --force <FORCE>` | Overwrite the document, if it already exists. Possible values: `true`, `false`.                         |
-| `-t, --type <TYPE>`   | The type of document to create. Possible values: `article`, `chat`, `prompt`. Default value: `article`. |
+| Name          | Description                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| `-f, --force` | Overwrite the document, if it already exists. Possible values: `true`, `false`.                         |
+| `-t, --type`  | The type of document to create. Possible values: `article`, `chat`, `prompt`. Default value: `article`. |

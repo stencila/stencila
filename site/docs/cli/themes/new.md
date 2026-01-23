@@ -32,6 +32,6 @@ stencila themes new my-theme --force
 
 # Options
 
-| Name                  | Description                                                                      |
-| --------------------- | -------------------------------------------------------------------------------- |
-| `-f, --force <FORCE>` | Overwrite the theme file if it already exists. Possible values: `true`, `false`. |
+| Name          | Description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `-f, --force` | Overwrite the theme file if it already exists. Possible values: `true`, `false`. |

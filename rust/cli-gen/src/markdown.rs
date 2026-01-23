@@ -1,6 +1,6 @@
 //! Format command documentation as schema nodes
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use stencila_schema::{
     Article, ArticleOptions, Block, Inline, Node, TableCell, TableRow,
@@ -218,7 +218,7 @@ fn arguments_table(args: &[ArgDoc]) -> Vec<Block> {
     // Deduplicate and generate separate possible values tables
     if !separate_pv.is_empty() {
         // Group by possible values content
-        let mut grouped: HashMap<Vec<(String, Option<String>)>, Vec<String>> = HashMap::new();
+        let mut grouped: BTreeMap<Vec<(String, Option<String>)>, Vec<String>> = BTreeMap::new();
         for (name, pvs) in separate_pv {
             let key: Vec<_> = pvs
                 .iter()
@@ -318,7 +318,7 @@ fn options_table(opts: &[ArgDoc]) -> Vec<Block> {
     // Deduplicate and generate separate possible values tables
     if !separate_pv.is_empty() {
         // Group by possible values content
-        let mut grouped: HashMap<Vec<(String, Option<String>)>, Vec<String>> = HashMap::new();
+        let mut grouped: BTreeMap<Vec<(String, Option<String>)>, Vec<String>> = BTreeMap::new();
         for (name, pvs) in separate_pv {
             let key: Vec<_> = pvs
                 .iter()

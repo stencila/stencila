@@ -44,7 +44,7 @@ stencila pull - --from https://api.stencila.cloud/v1/watches/wAbC12345/email/att
 
 # Options
 
-| Name                    | Description                                                   |
-| ----------------------- | ------------------------------------------------------------- |
-| `-f, --from`            | The target to pull from.                                      |
-| `--no-merge <NO_MERGE>` | Do not merge, just replace. Possible values: `true`, `false`. |
+| Name         | Description                                                   |
+| ------------ | ------------------------------------------------------------- |
+| `-f, --from` | The target to pull from.                                      |
+| `--no-merge` | Do not merge, just replace. Possible values: `true`, `false`. |

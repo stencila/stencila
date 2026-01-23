@@ -38,8 +38,8 @@ stencila status --no-watches
 
 # Options
 
-| Name                        | Description                                                                 |
-| --------------------------- | --------------------------------------------------------------------------- |
-| `-a, --as <AS>`             | Output the status as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |
-| `--no-remotes <NO_REMOTES>` | Skip fetching remote status. Possible values: `true`, `false`.              |
-| `--no-watches <NO_WATCHES>` | Skip fetching watch status. Possible values: `true`, `false`.               |
+| Name           | Description                                                                 |
+| -------------- | --------------------------------------------------------------------------- |
+| `-a, --as`     | Output the status as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |
+| `--no-remotes` | Skip fetching remote status. Possible values: `true`, `false`.              |
+| `--no-watches` | Skip fetching watch status. Possible values: `true`, `false`.               |

@@ -35,6 +35,6 @@ stencila site push --force
 
 # Options
 
-| Name                  | Description                                                          |
-| --------------------- | -------------------------------------------------------------------- |
-| `-f, --force <FORCE>` | Force push without checking etags. Possible values: `true`, `false`. |
+| Name          | Description                                                          |
+| ------------- | -------------------------------------------------------------------- |
+| `-f, --force` | Force push without checking etags. Possible values: `true`, `false`. |

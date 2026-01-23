@@ -26,8 +26,8 @@ stencila site access password --not-main
 
 # Options
 
-| Name                    | Description                                                                                    |
-| ----------------------- | ---------------------------------------------------------------------------------------------- |
-| `--clear <CLEAR>`       | Clear the password. Possible values: `true`, `false`.                                          |
-| `--not-main <NOT_MAIN>` | Do not apply password protection to main or master branches. Possible values: `true`, `false`. |
-| `--main <MAIN>`         | Apply password protection to main or master branches. Possible values: `true`, `false`.        |
+| Name         | Description                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------- |
+| `--clear`    | Clear the password. Possible values: `true`, `false`.                                          |
+| `--not-main` | Do not apply password protection to main or master branches. Possible values: `true`, `false`. |
+| `--main`     | Apply password protection to main or master branches. Possible values: `true`, `false`.        |

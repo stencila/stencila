@@ -42,7 +42,7 @@ stencila config set site.settings.port 8080
 
 # Options
 
-| Name              | Description                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| `--user <USER>`   | Set in user config (~/.config/stencila/stencila.toml). Possible values: `true`, `false`. |
-| `--local <LOCAL>` | Set in local override (stencila.local.yaml). Possible values: `true`, `false`.           |
+| Name      | Description                                                                              |
+| --------- | ---------------------------------------------------------------------------------------- |
+| `--user`  | Set in user config (~/.config/stencila/stencila.toml). Possible values: `true`, `false`. |
+| `--local` | Set in local override (stencila.local.yaml). Possible values: `true`, `false`.           |

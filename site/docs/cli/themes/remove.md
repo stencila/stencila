@@ -32,6 +32,6 @@ stencila themes rm my-theme
 
 # Options
 
-| Name                  | Description                                                              |
-| --------------------- | ------------------------------------------------------------------------ |
-| `-f, --force <FORCE>` | Remove the theme without confirmation. Possible values: `true`, `false`. |
+| Name          | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| `-f, --force` | Remove the theme without confirmation. Possible values: `true`, `false`. |

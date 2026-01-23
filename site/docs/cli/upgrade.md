@@ -26,10 +26,10 @@ stencila upgrade --force
 
 # Options
 
-| Name                  | Description                                                                                  |
-| --------------------- | -------------------------------------------------------------------------------------------- |
-| `-f, --force <FORCE>` | Perform upgrade even if the current version is the latest. Possible values: `true`, `false`. |
-| `-c, --check <CHECK>` | Check for an available upgrade but do not install it. Possible values: `true`, `false`.      |
+| Name          | Description                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------- |
+| `-f, --force` | Perform upgrade even if the current version is the latest. Possible values: `true`, `false`. |
+| `-c, --check` | Check for an available upgrade but do not install it. Possible values: `true`, `false`.      |
 
 # Note
 

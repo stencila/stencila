@@ -33,4 +33,4 @@ stencila linters list --as yaml
 | ----------------- | ------------------------------------------------------------------------- |
 | `-l, --language`  | Only list linter that support a specific language/format.                 |
 | `-n, --node-type` | Only list linter that support a specific node type.                       |
-| `-a, --as <AS>`   | Output the list as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |
+| `-a, --as`        | Output the list as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |

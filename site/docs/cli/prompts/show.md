@@ -31,6 +31,6 @@ stencila prompts show create-table --to json
 
 # Options
 
-| Name            | Description                                            |
-| --------------- | ------------------------------------------------------ |
-| `-t, --to <TO>` | The format to show the prompt in. Default value: `md`. |
+| Name       | Description                                            |
+| ---------- | ------------------------------------------------------ |
+| `-t, --to` | The format to show the prompt in. Default value: `md`. |

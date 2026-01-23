@@ -48,8 +48,16 @@ stencila watch report.md
 
 # Options
 
-| Name                          | Description                                                                                                                                                                                                                                                                                                     |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-d, --direction <DIRECTION>` | The sync direction (only used with a file path). Possible values: `bi` (Bi-directional sync: changes from remote create PRs, changes to repo push to remote), `from-remote` (One-way sync from remote: only remote changes create PRs), `to-remote` (One-way sync to remote: only repo changes push to remote). |
-| `-p, --pr-mode <PR_MODE>`     | The GitHub PR mode (only used with a file path). Possible values: `draft` (Create PRs as drafts (default)), `ready` (Create PRs ready for review).                                                                                                                                                              |
-| `--debounce-seconds`          | Debounce time in seconds (10-86400, only used with a file path).                                                                                                                                                                                                                                                |
+| Name                 | Description                                                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-d, --direction`    | The sync direction (only used with a file path).                                                                                                   |
+| `-p, --pr-mode`      | The GitHub PR mode (only used with a file path). Possible values: `draft` (Create PRs as drafts (default)), `ready` (Create PRs ready for review). |
+| `--debounce-seconds` | Debounce time in seconds (10-86400, only used with a file path).                                                                                   |
+
+**Possible values of `--direction`**
+
+| Value         | Description                                                                         |
+| ------------- | ----------------------------------------------------------------------------------- |
+| `bi`          | Bi-directional sync: changes from remote create PRs, changes to repo push to remote |
+| `from-remote` | One-way sync from remote: only remote changes create PRs                            |
+| `to-remote`   | One-way sync to remote: only repo changes push to remote                            |

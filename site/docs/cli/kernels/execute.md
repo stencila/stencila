@@ -40,6 +40,6 @@ stencila kernels exec r "print(mean(c(1,2,3,4,5)))"
 
 # Options
 
-| Name              | Description                                                                                      |
-| ----------------- | ------------------------------------------------------------------------------------------------ |
-| `-b, --box <BOX>` | Execute code in a kernel instance with `Box` execution bounds. Possible values: `true`, `false`. |
+| Name        | Description                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| `-b, --box` | Execute code in a kernel instance with `Box` execution bounds. Possible values: `true`, `false`. |

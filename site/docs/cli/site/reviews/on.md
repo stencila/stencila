@@ -26,9 +26,9 @@ stencila site reviews on --no-anon
 
 # Options
 
-| Name                      | Description                                                                     |
-| ------------------------- | ------------------------------------------------------------------------------- |
-| `--public <PUBLIC>`       | Allow public (non-team member) submissions. Possible values: `true`, `false`.   |
-| `--no-public <NO_PUBLIC>` | Disallow public submissions. Possible values: `true`, `false`.                  |
-| `--anon <ANON>`           | Allow anonymous (no GitHub auth) submissions. Possible values: `true`, `false`. |
-| `--no-anon <NO_ANON>`     | Disallow anonymous submissions. Possible values: `true`, `false`.               |
+| Name          | Description                                                                     |
+| ------------- | ------------------------------------------------------------------------------- |
+| `--public`    | Allow public (non-team member) submissions. Possible values: `true`, `false`.   |
+| `--no-public` | Disallow public submissions. Possible values: `true`, `false`.                  |
+| `--anon`      | Allow anonymous (no GitHub auth) submissions. Possible values: `true`, `false`. |
+| `--no-anon`   | Disallow anonymous submissions. Possible values: `true`, `false`.               |

@@ -42,7 +42,7 @@ stencila site access password --clear
 
 # Options
 
-| Name                | Description                                                                              |
-| ------------------- | ---------------------------------------------------------------------------------------- |
-| `--public <PUBLIC>` | Make the site public (remove all access restrictions). Possible values: `true`, `false`. |
-| `-p, --path`        | Path to the workspace directory.                                                         |
+| Name         | Description                                                                              |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `--public`   | Make the site public (remove all access restrictions). Possible values: `true`, `false`. |
+| `-p, --path` | Path to the workspace directory.                                                         |

@@ -37,9 +37,9 @@ stencila tools list --as yaml
 
 # Options
 
-| Name                          | Description                                                                                                                               |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `-t, --type <TYPE>`           | Only list tools of a particular type. Possible values: `collaboration`, `conversion`, `environments`, `execution`, `linting`, `packages`. |
-| `--installed <INSTALLED>`     | Only list tools that are installed. Possible values: `true`, `false`.                                                                     |
-| `--installable <INSTALLABLE>` | Only list tools that can be installed automatically. Possible values: `true`, `false`.                                                    |
-| `-a, --as <AS>`               | Output format for tool specifications. Possible values: `json`, `yaml`, `toml`.                                                           |
+| Name            | Description                                                                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `-t, --type`    | Only list tools of a particular type. Possible values: `collaboration`, `conversion`, `environments`, `execution`, `linting`, `packages`. |
+| `--installed`   | Only list tools that are installed. Possible values: `true`, `false`.                                                                     |
+| `--installable` | Only list tools that can be installed automatically. Possible values: `true`, `false`.                                                    |
+| `-a, --as`      | Output format for tool specifications. Possible values: `json`, `yaml`, `toml`.                                                           |

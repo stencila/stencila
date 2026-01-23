@@ -70,27 +70,59 @@ description: An example of a Stencila Markdown document with embedded metadata
 
 # Options
 
-| Name                            | Description                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--token`                       | Zenodo authentication token.                                                                                                                                                                                                                                                                                                                                      |
-| `--sandbox <SANDBOX>`           | Publish to the Zenodo Sandbox for testing. Possible values: `true`, `false`. Default value: `true`.                                                                                                                                                                                                                                                               |
-| `--zenodo <ZENODO>`             | Specify Zenodo instance, defaults to the public-facing production server. Default value: `zenodo.org`.                                                                                                                                                                                                                                                            |
-| `--lesson <LESSON>`             | Upload document as a "lesson". Possible values: `true`, `false`.                                                                                                                                                                                                                                                                                                  |
-| `--reserve-doi <RESERVE_DOI>`   | Reserve a DOI for the deposition (overrides DOI in Article metadata, if any). Possible values: `true`, `false`.                                                                                                                                                                                                                                                   |
-| `--doi`                         | Supply an existing DOI.                                                                                                                                                                                                                                                                                                                                           |
-| `--publication-date`            | Publication date.                                                                                                                                                                                                                                                                                                                                                 |
-| `--title`                       | Title to use for the deposit.                                                                                                                                                                                                                                                                                                                                     |
-| `--description`                 | Description notes (HTML permitted).                                                                                                                                                                                                                                                                                                                               |
-| `--license`                     | License Identifier (examples: cc-by, cc0).                                                                                                                                                                                                                                                                                                                        |
-| `--closed <CLOSED>`             | Closed Access. Possible values: `true`, `false`.                                                                                                                                                                                                                                                                                                                  |
-| `--restricted <RESTRICTED>`     | Set `--access-right` to restricted. Possible values: `true`, `false`.                                                                                                                                                                                                                                                                                             |
-| `--embargoed`                   | Provide a date when the embargo ends.                                                                                                                                                                                                                                                                                                                             |
-| `--access-conditions`           | Conditions to fulfill to access deposition (HTML permitted).                                                                                                                                                                                                                                                                                                      |
-| `--access-right <ACCESS_RIGHT>` | Access right. Possible values: `open` (Open Access. Sets the default license to CC-BY, e.g. --license='cc-by'.), `embargoed` (Embargoed Access. Requires --access_conditions, --license, and --embargoed=<DATE>.), `restricted` (Restricted Access. Requires --access_conditions.), `closed` (Closed Access.). Default value: `open`.                             |
-| `--keywords`                    | Comma-delimited list of keywords.                                                                                                                                                                                                                                                                                                                                 |
-| `--method`                      | Methodology (HTML permitted).                                                                                                                                                                                                                                                                                                                                     |
-| `--notes`                       | Additional notes (HTML permitted).                                                                                                                                                                                                                                                                                                                                |
-| `--version`                     | Version of document.                                                                                                                                                                                                                                                                                                                                              |
-| `--publication <PUBLICATION>`   | Upload document as a "publication". Possible values: `annotation-collection`, `book`, `section`, `conference-paper`, `data-management-plan`, `article`, `patent`, `preprint`, `deliverable`, `milestone`, `proposal`, `report`, `software-documentation`, `taxonomic-treatment`, `technical-note`, `thesis`, `working-paper`, `other`. Default value: `preprint`. |
-| `--force <FORCE>`               | Publish the deposition immediately (use with care. Possible values: `true`, `false`.                                                                                                                                                                                                                                                                              |
-| `--dry-run <DRY_RUN>`           | Dry run mode - no actual upload. Possible values: `true`, `false`.                                                                                                                                                                                                                                                                                                |
+| Name                  | Description                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--token`             | Zenodo authentication token.                                                                                    |
+| `--sandbox`           | Publish to the Zenodo Sandbox for testing. Possible values: `true`, `false`. Default value: `true`.             |
+| `--zenodo`            | Specify Zenodo instance, defaults to the public-facing production server. Default value: `zenodo.org`.          |
+| `--lesson`            | Upload document as a "lesson". Possible values: `true`, `false`.                                                |
+| `--reserve-doi`       | Reserve a DOI for the deposition (overrides DOI in Article metadata, if any). Possible values: `true`, `false`. |
+| `--doi`               | Supply an existing DOI.                                                                                         |
+| `--publication-date`  | Publication date.                                                                                               |
+| `--title`             | Title to use for the deposit.                                                                                   |
+| `--description`       | Description notes (HTML permitted).                                                                             |
+| `--license`           | License Identifier (examples: cc-by, cc0).                                                                      |
+| `--closed`            | Closed Access. Possible values: `true`, `false`.                                                                |
+| `--restricted`        | Set `--access-right` to restricted. Possible values: `true`, `false`.                                           |
+| `--embargoed`         | Provide a date when the embargo ends.                                                                           |
+| `--access-conditions` | Conditions to fulfill to access deposition (HTML permitted).                                                    |
+| `--access-right`      | Access right. Default value: `open`.                                                                            |
+| `--keywords`          | Comma-delimited list of keywords.                                                                               |
+| `--method`            | Methodology (HTML permitted).                                                                                   |
+| `--notes`             | Additional notes (HTML permitted).                                                                              |
+| `--version`           | Version of document.                                                                                            |
+| `--publication`       | Upload document as a "publication". Default value: `preprint`.                                                  |
+| `--force`             | Publish the deposition immediately (use with care. Possible values: `true`, `false`.                            |
+| `--dry-run`           | Dry run mode - no actual upload. Possible values: `true`, `false`.                                              |
+
+**Possible values of `--publication`**
+
+| Value                    | Description |
+| ------------------------ | ----------- |
+| `annotation-collection`  |             |
+| `book`                   |             |
+| `section`                |             |
+| `conference-paper`       |             |
+| `data-management-plan`   |             |
+| `article`                |             |
+| `patent`                 |             |
+| `preprint`               |             |
+| `deliverable`            |             |
+| `milestone`              |             |
+| `proposal`               |             |
+| `report`                 |             |
+| `software-documentation` |             |
+| `taxonomic-treatment`    |             |
+| `technical-note`         |             |
+| `thesis`                 |             |
+| `working-paper`          |             |
+| `other`                  |             |
+
+**Possible values of `--access-right`**
+
+| Value        | Description                                                                        |
+| ------------ | ---------------------------------------------------------------------------------- |
+| `open`       | Open Access. Sets the default license to CC-BY, e.g. --license='cc-by'.            |
+| `embargoed`  | Embargoed Access. Requires --access_conditions, --license, and --embargoed=<DATE>. |
+| `restricted` | Restricted Access. Requires --access_conditions.                                   |
+| `closed`     | Closed Access.                                                                     |

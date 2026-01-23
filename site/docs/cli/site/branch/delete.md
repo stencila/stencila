@@ -32,10 +32,10 @@ stencila site branch delete feature-xyz --path /path/to/workspace
 
 # Options
 
-| Name                  | Description                                                     |
-| --------------------- | --------------------------------------------------------------- |
-| `-p, --path`          | Path to the workspace directory containing .stencila/site.yaml. |
-| `-f, --force <FORCE>` | Skip confirmation prompt. Possible values: `true`, `false`.     |
+| Name          | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| `-p, --path`  | Path to the workspace directory containing .stencila/site.yaml. |
+| `-f, --force` | Skip confirmation prompt. Possible values: `true`, `false`.     |
 
 # Notes
 

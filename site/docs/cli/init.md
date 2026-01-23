@@ -38,12 +38,12 @@ stencila init --outputs docx,pdf
 
 # Options
 
-| Name              | Description                                                              |
-| ----------------- | ------------------------------------------------------------------------ |
-| `-y, --yes <YES>` | Accept all defaults without prompting. Possible values: `true`, `false`. |
-| `--root`          | Site root directory (skip interactive prompt).                           |
-| `--home`          | Home page file (skip interactive prompt).                                |
-| `--outputs`       | Output formats for executable documents (comma-separated).               |
+| Name        | Description                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| `-y, --yes` | Accept all defaults without prompting. Possible values: `true`, `false`. |
+| `--root`    | Site root directory (skip interactive prompt).                           |
+| `--home`    | Home page file (skip interactive prompt).                                |
+| `--outputs` | Output formats for executable documents (comma-separated).               |
 
 # Note
 

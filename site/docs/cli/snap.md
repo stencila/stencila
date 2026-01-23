@@ -69,20 +69,38 @@ stencila snap docs/guide.md snaps/guide.png
 
 # Options
 
-| Name                        | Description                                                                                                                                                                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--selector`                | CSS selector to capture or measure.                                                                                                                                                                                                                 |
-| `--full <FULL>`             | Capture full scrollable page. Possible values: `true`, `false`.                                                                                                                                                                                     |
-| `--device <DEVICE>`         | Device preset. Possible values: `laptop` (Laptop (1440x900 @2x DPR)), `desktop` (Desktop (1920x1080 @1x DPR)), `mobile` (Mobile (390x844 @3x DPR)), `tablet` (Tablet (768x1024 @2x DPR)), `tablet-landscape` (Tablet Landscape (1024x768 @2x DPR)). |
-| `--width`                   | Viewport width in pixels.                                                                                                                                                                                                                           |
-| `--height`                  | Viewport height in pixels.                                                                                                                                                                                                                          |
-| `--dpr`                     | Device pixel ratio.                                                                                                                                                                                                                                 |
-| `--light <LIGHT>`           | Use light color scheme. Possible values: `true`, `false`.                                                                                                                                                                                           |
-| `--dark <DARK>`             | Use dark color scheme. Possible values: `true`, `false`.                                                                                                                                                                                            |
-| `--print <PRINT>`           | Preview with print media styles (A4 width, for PDF preview). Possible values: `true`, `false`.                                                                                                                                                      |
-| `--wait-until <WAIT_UNTIL>` | When to capture: load, domcontentloaded, networkidle. Possible values: `load` (Wait for 'load' event), `dom-content-loaded` (Wait for 'DOMContentLoaded' event), `network-idle` (Wait for network idle (default)). Default value: `network-idle`.   |
-| `--wait-for`                | Wait for CSS selector to exist before capturing.                                                                                                                                                                                                    |
-| `--delay`                   | Additional delay in milliseconds after page is ready.                                                                                                                                                                                               |
-| `--measure <MEASURE>`       | Collect computed CSS and layout metrics. Possible values: `true`, `false`.                                                                                                                                                                          |
-| `--assert`                  | Assert measurement conditions.                                                                                                                                                                                                                      |
-| `--url`                     | Override URL (instead of discovering server).                                                                                                                                                                                                       |
+| Name           | Description                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| `--selector`   | CSS selector to capture or measure.                                                            |
+| `--full`       | Capture full scrollable page. Possible values: `true`, `false`.                                |
+| `--device`     | Device preset.                                                                                 |
+| `--width`      | Viewport width in pixels.                                                                      |
+| `--height`     | Viewport height in pixels.                                                                     |
+| `--dpr`        | Device pixel ratio.                                                                            |
+| `--light`      | Use light color scheme. Possible values: `true`, `false`.                                      |
+| `--dark`       | Use dark color scheme. Possible values: `true`, `false`.                                       |
+| `--print`      | Preview with print media styles (A4 width, for PDF preview). Possible values: `true`, `false`. |
+| `--wait-until` | When to capture: load, domcontentloaded, networkidle. Default value: `network-idle`.           |
+| `--wait-for`   | Wait for CSS selector to exist before capturing.                                               |
+| `--delay`      | Additional delay in milliseconds after page is ready.                                          |
+| `--measure`    | Collect computed CSS and layout metrics. Possible values: `true`, `false`.                     |
+| `--assert`     | Assert measurement conditions.                                                                 |
+| `--url`        | Override URL (instead of discovering server).                                                  |
+
+**Possible values of `--device`**
+
+| Value              | Description                         |
+| ------------------ | ----------------------------------- |
+| `laptop`           | Laptop (1440x900 @2x DPR)           |
+| `desktop`          | Desktop (1920x1080 @1x DPR)         |
+| `mobile`           | Mobile (390x844 @3x DPR)            |
+| `tablet`           | Tablet (768x1024 @2x DPR)           |
+| `tablet-landscape` | Tablet Landscape (1024x768 @2x DPR) |
+
+**Possible values of `--wait-until`**
+
+| Value                | Description                       |
+| -------------------- | --------------------------------- |
+| `load`               | Wait for 'load' event             |
+| `dom-content-loaded` | Wait for 'DOMContentLoaded' event |
+| `network-idle`       | Wait for network idle (default)   |

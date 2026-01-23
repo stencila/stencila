@@ -25,6 +25,6 @@ stencila prompts list --as json
 
 # Options
 
-| Name            | Description                                                               |
-| --------------- | ------------------------------------------------------------------------- |
-| `-a, --as <AS>` | Output the list as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |
+| Name       | Description                                                               |
+| ---------- | ------------------------------------------------------------------------- |
+| `-a, --as` | Output the list as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |

@@ -83,9 +83,9 @@ stencila open document.md
 
 # Options
 
-| Name                | Description                                                                                   |
-| ------------------- | --------------------------------------------------------------------------------------------- |
-| `-h, --help <HELP>` | Print help: `-h` for brief help, `--help` for more details. Possible values: `true`, `false`. |
-| `--yes <YES>`       | Assume the answer `yes` to any interactive prompts. Possible values: `true`, `false`.         |
-| `--debug <DEBUG>`   | Display debug level logging and detailed error reports. Possible values: `true`, `false`.     |
-| `--no-color`        | Do not color any output.                                                                      |
+| Name         | Description                                                                                   |
+| ------------ | --------------------------------------------------------------------------------------------- |
+| `-h, --help` | Print help: `-h` for brief help, `--help` for more details. Possible values: `true`, `false`. |
+| `--yes`      | Assume the answer `yes` to any interactive prompts. Possible values: `true`, `false`.         |
+| `--debug`    | Display debug level logging and detailed error reports. Possible values: `true`, `false`.     |
+| `--no-color` | Do not color any output.                                                                      |

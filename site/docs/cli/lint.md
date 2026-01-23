@@ -38,9 +38,9 @@ stencila lint article.myst --as yaml
 
 # Options
 
-| Name                | Description                                                                              |
-| ------------------- | ---------------------------------------------------------------------------------------- |
-| `--format <FORMAT>` | Format the file if necessary. Possible values: `true`, `false`.                          |
-| `--fix <FIX>`       | Fix any linting issues. Possible values: `true`, `false`.                                |
-| `--cache <CACHE>`   | Cache the document after formatting and/or fixing it. Possible values: `true`, `false`.  |
-| `-a, --as <AS>`     | Output any linting diagnostics as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |
+| Name       | Description                                                                              |
+| ---------- | ---------------------------------------------------------------------------------------- |
+| `--format` | Format the file if necessary. Possible values: `true`, `false`.                          |
+| `--fix`    | Fix any linting issues. Possible values: `true`, `false`.                                |
+| `--cache`  | Cache the document after formatting and/or fixing it. Possible values: `true`, `false`.  |
+| `-a, --as` | Output any linting diagnostics as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |

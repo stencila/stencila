@@ -32,6 +32,6 @@ stencila db migrations path/to/database.kuzu
 
 # Options
 
-| Name            | Description                                             |
-| --------------- | ------------------------------------------------------- |
-| `-a, --as <AS>` | Output format. Possible values: `json`, `yaml`, `toml`. |
+| Name       | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `-a, --as` | Output format. Possible values: `json`, `yaml`, `toml`. |

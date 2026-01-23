@@ -35,7 +35,7 @@ stencila config unset site.settings.theme
 
 # Options
 
-| Name              | Description                                                   |
-| ----------------- | ------------------------------------------------------------- |
-| `--user <USER>`   | Remove from user config. Possible values: `true`, `false`.    |
-| `--local <LOCAL>` | Remove from local override. Possible values: `true`, `false`. |
+| Name      | Description                                                   |
+| --------- | ------------------------------------------------------------- |
+| `--user`  | Remove from user config. Possible values: `true`, `false`.    |
+| `--local` | Remove from local override. Possible values: `true`, `false`. |

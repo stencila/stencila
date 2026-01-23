@@ -56,22 +56,38 @@ stencila push report.smd --to gdoc --spread -- region=north,south
 
 # Options
 
-| Name                          | Description                                                                                                                                                                                                                                                                                                 |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--site <SITE>`               | Push site content to Stencila Cloud. Possible values: `true`, `false`.                                                                                                                                                                                                                                      |
-| `--outputs <OUTPUTS>`         | Push outputs to Stencila Cloud. Possible values: `true`, `false`.                                                                                                                                                                                                                                           |
-| `--remotes <REMOTES>`         | Push to remote document services (Google Docs, Microsoft 365). Possible values: `true`, `false`.                                                                                                                                                                                                            |
-| `--all <ALL>`                 | Push everything (site, outputs, and remotes). Possible values: `true`, `false`.                                                                                                                                                                                                                             |
-| `-t, --to`                    | The target to push to (for remote push).                                                                                                                                                                                                                                                                    |
-| `-n, --new <NEW>`             | Create a new document instead of updating an existing one. Possible values: `true`, `false`.                                                                                                                                                                                                                |
-| `--no-execute <NO_EXECUTE>`   | Do not execute the document before pushing it. Possible values: `true`, `false`.                                                                                                                                                                                                                            |
-| `--no-config <NO_CONFIG>`     | Do not save remote to stencila.toml. Possible values: `true`, `false`.                                                                                                                                                                                                                                      |
-| `-w, --watch <WATCH>`         | Enable watch after successful push. Possible values: `true`, `false`.                                                                                                                                                                                                                                       |
-| `-d, --direction <DIRECTION>` | The sync direction (only used with --watch). Possible values: `bi` (Bi-directional sync: changes from remote create PRs, changes to repo push to remote), `from-remote` (One-way sync from remote: only remote changes create PRs), `to-remote` (One-way sync to remote: only repo changes push to remote). |
-| `-p, --pr-mode <PR_MODE>`     | The GitHub PR mode (only used with --watch). Possible values: `draft` (Create PRs as drafts (default)), `ready` (Create PRs ready for review).                                                                                                                                                              |
-| `--debounce-seconds`          | Debounce time in seconds (10-86400, only used with --watch).                                                                                                                                                                                                                                                |
-| `--spread <SPREAD>`           | Enable spread push mode for multi-variant execution. Possible values: `grid` (Cartesian product of multi-valued parameters (default)), `zip` (Positional pairing of multi-valued parameters), `cases` (Explicitly enumerated parameter sets via `--case`).                                                  |
-| `--case`                      | Explicit cases for spread=cases mode.                                                                                                                                                                                                                                                                       |
-| `--title`                     | Title template for GDocs/M365 spread push.                                                                                                                                                                                                                                                                  |
-| `--fail-fast <FAIL_FAST>`     | Stop on first error instead of continuing with remaining variants. Possible values: `true`, `false`.                                                                                                                                                                                                        |
-| `--spread-max <SPREAD_MAX>`   | Maximum number of spread runs allowed (default: 100). Default value: `100`.                                                                                                                                                                                                                                 |
+| Name                 | Description                                                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--site`             | Push site content to Stencila Cloud. Possible values: `true`, `false`.                                                                         |
+| `--outputs`          | Push outputs to Stencila Cloud. Possible values: `true`, `false`.                                                                              |
+| `--remotes`          | Push to remote document services (Google Docs, Microsoft 365). Possible values: `true`, `false`.                                               |
+| `--all`              | Push everything (site, outputs, and remotes). Possible values: `true`, `false`.                                                                |
+| `-t, --to`           | The target to push to (for remote push).                                                                                                       |
+| `-n, --new`          | Create a new document instead of updating an existing one. Possible values: `true`, `false`.                                                   |
+| `--no-execute`       | Do not execute the document before pushing it. Possible values: `true`, `false`.                                                               |
+| `--no-config`        | Do not save remote to stencila.toml. Possible values: `true`, `false`.                                                                         |
+| `-w, --watch`        | Enable watch after successful push. Possible values: `true`, `false`.                                                                          |
+| `-d, --direction`    | The sync direction (only used with --watch).                                                                                                   |
+| `-p, --pr-mode`      | The GitHub PR mode (only used with --watch). Possible values: `draft` (Create PRs as drafts (default)), `ready` (Create PRs ready for review). |
+| `--debounce-seconds` | Debounce time in seconds (10-86400, only used with --watch).                                                                                   |
+| `--spread`           | Enable spread push mode for multi-variant execution.                                                                                           |
+| `--case`             | Explicit cases for spread=cases mode.                                                                                                          |
+| `--title`            | Title template for GDocs/M365 spread push.                                                                                                     |
+| `--fail-fast`        | Stop on first error instead of continuing with remaining variants. Possible values: `true`, `false`.                                           |
+| `--spread-max`       | Maximum number of spread runs allowed (default: 100). Default value: `100`.                                                                    |
+
+**Possible values of `--direction`**
+
+| Value         | Description                                                                         |
+| ------------- | ----------------------------------------------------------------------------------- |
+| `bi`          | Bi-directional sync: changes from remote create PRs, changes to repo push to remote |
+| `from-remote` | One-way sync from remote: only remote changes create PRs                            |
+| `to-remote`   | One-way sync to remote: only repo changes push to remote                            |
+
+**Possible values of `--spread`**
+
+| Value   | Description                                            |
+| ------- | ------------------------------------------------------ |
+| `grid`  | Cartesian product of multi-valued parameters (default) |
+| `zip`   | Positional pairing of multi-valued parameters          |
+| `cases` | Explicitly enumerated parameter sets via `--case`      |

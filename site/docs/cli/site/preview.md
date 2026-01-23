@@ -38,8 +38,8 @@ stencila site preview --no-watch
 
 # Options
 
-| Name                    | Description                                                          |
-| ----------------------- | -------------------------------------------------------------------- |
-| `-p, --port <PORT>`     | Port to serve on. Default value: `9000`.                             |
-| `--no-open <NO_OPEN>`   | Do not open browser automatically. Possible values: `true`, `false`. |
-| `--no-watch <NO_WATCH>` | Do not watch for file changes. Possible values: `true`, `false`.     |
+| Name         | Description                                                          |
+| ------------ | -------------------------------------------------------------------- |
+| `-p, --port` | Port to serve on. Default value: `9000`.                             |
+| `--no-open`  | Do not open browser automatically. Possible values: `true`, `false`. |
+| `--no-watch` | Do not watch for file changes. Possible values: `true`, `false`.     |

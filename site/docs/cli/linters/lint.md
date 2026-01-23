@@ -37,8 +37,8 @@ stencila linters lint code.py --format --fix
 
 # Options
 
-| Name                | Description                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------- |
-| `-l, --linter`      | The name of the linter to use.                                                        |
-| `--format <FORMAT>` | Format the content of the file. Possible values: `true`, `false`.                     |
-| `--fix <FIX>`       | Fix warnings and errors in the file where possible. Possible values: `true`, `false`. |
+| Name           | Description                                                                           |
+| -------------- | ------------------------------------------------------------------------------------- |
+| `-l, --linter` | The name of the linter to use.                                                        |
+| `--format`     | Format the content of the file. Possible values: `true`, `false`.                     |
+| `--fix`        | Fix warnings and errors in the file where possible. Possible values: `true`, `false`. |

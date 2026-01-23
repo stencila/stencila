@@ -46,14 +46,14 @@ stencila models execute "Summarize this text"
 
 # Options
 
-| Name                  | Description                                                                                     |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-| `-m, --model`         | Model id or pattern to select a specific model (e.g., "gpt-4o", "ollama/").                     |
-| `-f, --format`        | Output format for generated content (json, markdown, yaml, etc.).                               |
-| `-s, --schema`        | JSON schema name for structured output validation (e.g., "math-block-tex").                     |
-| `--system`            | System message to set context or behavior for the model.                                        |
-| `-o, --output`        | Write generated output to the specified file instead of stdout.                                 |
-| `--dry-run <DRY_RUN>` | Show task construction and model selection without executing. Possible values: `true`, `false`. |
+| Name           | Description                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| `-m, --model`  | Model id or pattern to select a specific model (e.g., "gpt-4o", "ollama/").                     |
+| `-f, --format` | Output format for generated content (json, markdown, yaml, etc.).                               |
+| `-s, --schema` | JSON schema name for structured output validation (e.g., "math-block-tex").                     |
+| `--system`     | System message to set context or behavior for the model.                                        |
+| `-o, --output` | Write generated output to the specified file instead of stdout.                                 |
+| `--dry-run`    | Show task construction and model selection without executing. Possible values: `true`, `false`. |
 
 # Note
 

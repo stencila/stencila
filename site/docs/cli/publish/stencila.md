@@ -19,12 +19,12 @@ stencila publish stencila [OPTIONS] [PATH]
 
 # Options
 
-| Name                        | Description                                                           |
-| --------------------------- | --------------------------------------------------------------------- |
-| `-k, --key`                 | The key for the site.                                                 |
-| `--dry-run <DRY_RUN>`       | Perform a dry run only. Possible values: `true`, `false`.             |
-| `--no-html <NO_HTML>`       | Do not publish a HTML file. Possible values: `true`, `false`.         |
-| `--no-jsonld <NO_JSONLD>`   | Do not publish a JSON-LD file. Possible values: `true`, `false`.      |
-| `--no-llmd <NO_LLMD>`       | Do not publish a LLM-Markdown file. Possible values: `true`, `false`. |
-| `--no-bots <NO_BOTS>`       | Disallow all bots. Possible values: `true`, `false`.                  |
-| `--no-ai-bots <NO_AI_BOTS>` | Disallow AI bots. Possible values: `true`, `false`.                   |
+| Name           | Description                                                           |
+| -------------- | --------------------------------------------------------------------- |
+| `-k, --key`    | The key for the site.                                                 |
+| `--dry-run`    | Perform a dry run only. Possible values: `true`, `false`.             |
+| `--no-html`    | Do not publish a HTML file. Possible values: `true`, `false`.         |
+| `--no-jsonld`  | Do not publish a JSON-LD file. Possible values: `true`, `false`.      |
+| `--no-llmd`    | Do not publish a LLM-Markdown file. Possible values: `true`, `false`. |
+| `--no-bots`    | Disallow all bots. Possible values: `true`, `false`.                  |
+| `--no-ai-bots` | Disallow AI bots. Possible values: `true`, `false`.                   |

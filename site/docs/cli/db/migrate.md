@@ -32,6 +32,6 @@ stencila db migrate path/to/my-database.kuzu
 
 # Options
 
-| Name                      | Description                                                                 |
-| ------------------------- | --------------------------------------------------------------------------- |
-| `-d, --dry-run <DRY_RUN>` | Preview migrations without applying them. Possible values: `true`, `false`. |
+| Name            | Description                                                                 |
+| --------------- | --------------------------------------------------------------------------- |
+| `-d, --dry-run` | Preview migrations without applying them. Possible values: `true`, `false`. |

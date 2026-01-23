@@ -26,7 +26,19 @@ stencila kernels list --as yaml
 
 # Options
 
-| Name                | Description                                                                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-t, --type <TYPE>` | Only list kernels of a particular type. Possible values: `programming`, `database`, `templating`, `diagrams`, `visualization`, `math`, `styling`. |
-| `-a, --as <AS>`     | Output the list as JSON or YAML. Possible values: `json`, `yaml`, `toml`.                                                                         |
+| Name         | Description                                                               |
+| ------------ | ------------------------------------------------------------------------- |
+| `-t, --type` | Only list kernels of a particular type.                                   |
+| `-a, --as`   | Output the list as JSON or YAML. Possible values: `json`, `yaml`, `toml`. |
+
+**Possible values of `--type`**
+
+| Value           | Description |
+| --------------- | ----------- |
+| `programming`   |             |
+| `database`      |             |
+| `templating`    |             |
+| `diagrams`      |             |
+| `visualization` |             |
+| `math`          |             |
+| `styling`       |             |

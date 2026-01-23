@@ -26,8 +26,8 @@ stencila site access team --not-main
 
 # Options
 
-| Name                    | Description                                                                            |
-| ----------------------- | -------------------------------------------------------------------------------------- |
-| `--off <OFF>`           | Disable team access restriction. Possible values: `true`, `false`.                     |
-| `--not-main <NOT_MAIN>` | Do not apply restriction to main or master branches. Possible values: `true`, `false`. |
-| `--main <MAIN>`         | Apply restriction to main or master branches. Possible values: `true`, `false`.        |
+| Name         | Description                                                                            |
+| ------------ | -------------------------------------------------------------------------------------- |
+| `--off`      | Disable team access restriction. Possible values: `true`, `false`.                     |
+| `--not-main` | Do not apply restriction to main or master branches. Possible values: `true`, `false`. |
+| `--main`     | Apply restriction to main or master branches. Possible values: `true`, `false`.        |

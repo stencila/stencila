@@ -32,6 +32,6 @@ stencila formats structuring --verbose
 
 # Options
 
-| Name                      | Description                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| `-v, --verbose <VERBOSE>` | Provide longer details on each structuring operation. Possible values: `true`, `false`. |
+| Name            | Description                                                                             |
+| --------------- | --------------------------------------------------------------------------------------- |
+| `-v, --verbose` | Provide longer details on each structuring operation. Possible values: `true`, `false`. |

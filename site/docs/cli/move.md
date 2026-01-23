@@ -38,9 +38,9 @@ stencila mv old.md new.md
 
 # Options
 
-| Name                  | Description                                                                            |
-| --------------------- | -------------------------------------------------------------------------------------- |
-| `-f, --force <FORCE>` | Overwrite the destination path if it already exists. Possible values: `true`, `false`. |
+| Name          | Description                                                                            |
+| ------------- | -------------------------------------------------------------------------------------- |
+| `-f, --force` | Overwrite the destination path if it already exists. Possible values: `true`, `false`. |
 
 # Note
 

@@ -32,6 +32,6 @@ stencila db new temp.kuzu --force
 
 # Options
 
-| Name                  | Description                                                                    |
-| --------------------- | ------------------------------------------------------------------------------ |
-| `-f, --force <FORCE>` | Overwrite the database if it already exists. Possible values: `true`, `false`. |
+| Name          | Description                                                                    |
+| ------------- | ------------------------------------------------------------------------------ |
+| `-f, --force` | Overwrite the database if it already exists. Possible values: `true`, `false`. |

@@ -38,7 +38,7 @@ stencila outputs push --force
 
 # Options
 
-| Name                  | Description                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------ |
-| `-f, --force <FORCE>` | Force push (ignore refs filter and re-upload unchanged files). Possible values: `true`, `false`. |
-| `--dry-run <DRY_RUN>` | Dry run - process but don't upload. Possible values: `true`, `false`.                            |
+| Name          | Description                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| `-f, --force` | Force push (ignore refs filter and re-upload unchanged files). Possible values: `true`, `false`. |
+| `--dry-run`   | Dry run - process but don't upload. Possible values: `true`, `false`.                            |

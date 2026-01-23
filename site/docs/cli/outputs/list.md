@@ -25,6 +25,6 @@ stencila outputs list --as toml
 
 # Options
 
-| Name            | Description                                             |
-| --------------- | ------------------------------------------------------- |
-| `-a, --as <AS>` | Output format. Possible values: `json`, `yaml`, `toml`. |
+| Name       | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `-a, --as` | Output format. Possible values: `json`, `yaml`, `toml`. |

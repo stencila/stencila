@@ -61,11 +61,11 @@ stencila tools list --installable
 
 # Options
 
-| Name                          | Description                                                                                                       |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `-C, --path`                  | The directory to setup when installing from config files (defaults to current directory).                         |
-| `--skip-env <SKIP_ENV>`       | Skip environment manager tool installation (only when installing from configs). Possible values: `true`, `false`. |
-| `--skip-python <SKIP_PYTHON>` | Skip Python dependency installation (only when installing from configs). Possible values: `true`, `false`.        |
-| `--skip-r <SKIP_R>`           | Skip R dependency installation (only when installing from configs). Possible values: `true`, `false`.             |
-| `-f, --force <FORCE>`         | Force installation even if the tool is already installed. Possible values: `true`, `false`.                       |
-| `--dry-run <DRY_RUN>`         | Show which tools would be installed without actually installing them. Possible values: `true`, `false`.           |
+| Name            | Description                                                                                                       |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `-C, --path`    | The directory to setup when installing from config files (defaults to current directory).                         |
+| `--skip-env`    | Skip environment manager tool installation (only when installing from configs). Possible values: `true`, `false`. |
+| `--skip-python` | Skip Python dependency installation (only when installing from configs). Possible values: `true`, `false`.        |
+| `--skip-r`      | Skip R dependency installation (only when installing from configs). Possible values: `true`, `false`.             |
+| `-f, --force`   | Force installation even if the tool is already installed. Possible values: `true`, `false`.                       |
+| `--dry-run`     | Show which tools would be installed without actually installing them. Possible values: `true`, `false`.           |

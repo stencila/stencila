@@ -27,6 +27,6 @@ stencila login
 
 # Options
 
-| Name                    | Description                                                                            |
-| ----------------------- | -------------------------------------------------------------------------------------- |
-| `-m, --manual <MANUAL>` | Signin by manually entering a Stencila access token. Possible values: `true`, `false`. |
+| Name           | Description                                                                            |
+| -------------- | -------------------------------------------------------------------------------------- |
+| `-m, --manual` | Signin by manually entering a Stencila access token. Possible values: `true`, `false`. |

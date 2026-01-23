@@ -38,6 +38,6 @@ stencila config get packages[0].name
 
 # Options
 
-| Name            | Description                                                                                  |
-| --------------- | -------------------------------------------------------------------------------------------- |
-| `-a, --as <AS>` | Output format (toml, json, or yaml, default: toml). Possible values: `json`, `yaml`, `toml`. |
+| Name       | Description                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------------- |
+| `-a, --as` | Output format (toml, json, or yaml, default: toml). Possible values: `json`, `yaml`, `toml`. |

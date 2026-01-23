@@ -35,6 +35,6 @@ stencila themes show stencila --verbose
 
 # Options
 
-| Name                      | Description                                                    |
-| ------------------------- | -------------------------------------------------------------- |
-| `-v, --verbose <VERBOSE>` | Show resolved CSS variables. Possible values: `true`, `false`. |
+| Name            | Description                                                    |
+| --------------- | -------------------------------------------------------------- |
+| `-v, --verbose` | Show resolved CSS variables. Possible values: `true`, `false`. |

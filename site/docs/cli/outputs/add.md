@@ -49,10 +49,25 @@ stencila outputs add "{q}-report.pdf" report.md --command render --spread zip --
 
 # Options
 
-| Name                      | Description                                                                                                                                                                                                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `-c, --command <COMMAND>` | Processing command. Possible values: `render` (Execute code and convert to output format (default for different extensions)), `convert` (Format transformation only, no code execution), `none` (Copy file as-is (default for same extensions)). |
-| `-r, --refs`              | Git ref patterns for when to process this output.                                                                                                                                                                                                |
-| `-p, --pattern`           | Glob pattern for matching multiple source files.                                                                                                                                                                                                 |
-| `-e, --exclude`           | Glob patterns to exclude from pattern matches.                                                                                                                                                                                                   |
-| `--spread <SPREAD>`       | Spread mode for multi-variant outputs (grid or zip). Possible values: `grid` (Cartesian product of all arguments (default)), `zip` (Positional pairing of values (all params must have same length)).                                            |
+| Name            | Description                                          |
+| --------------- | ---------------------------------------------------- |
+| `-c, --command` | Processing command.                                  |
+| `-r, --refs`    | Git ref patterns for when to process this output.    |
+| `-p, --pattern` | Glob pattern for matching multiple source files.     |
+| `-e, --exclude` | Glob patterns to exclude from pattern matches.       |
+| `--spread`      | Spread mode for multi-variant outputs (grid or zip). |
+
+**Possible values of `--spread`**
+
+| Value  | Description                                                     |
+| ------ | --------------------------------------------------------------- |
+| `grid` | Cartesian product of all arguments (default)                    |
+| `zip`  | Positional pairing of values (all params must have same length) |
+
+**Possible values of `--command`**
+
+| Value     | Description                                                                  |
+| --------- | ---------------------------------------------------------------------------- |
+| `render`  | Execute code and convert to output format (default for different extensions) |
+| `convert` | Format transformation only, no code execution                                |
+| `none`    | Copy file as-is (default for same extensions)                                |

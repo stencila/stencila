@@ -41,8 +41,15 @@ stencila site add "/{q}-report/" quarterly.smd --spread zip -- q=q1,q2,q3,q4
 
 # Options
 
-| Name                | Description                                                                                                                                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-r, --redirect`    | Redirect URL (instead of a file).                                                                                                                                                                    |
-| `-s, --status`      | HTTP status code for redirect (301, 302, 303, 307, 308).                                                                                                                                             |
-| `--spread <SPREAD>` | Spread mode for multi-variant routes (grid or zip). Possible values: `grid` (Cartesian product of all arguments (default)), `zip` (Positional pairing of values (all params must have same length)). |
+| Name             | Description                                              |
+| ---------------- | -------------------------------------------------------- |
+| `-r, --redirect` | Redirect URL (instead of a file).                        |
+| `-s, --status`   | HTTP status code for redirect (301, 302, 303, 307, 308). |
+| `--spread`       | Spread mode for multi-variant routes (grid or zip).      |
+
+**Possible values of `--spread`**
+
+| Value  | Description                                                     |
+| ------ | --------------------------------------------------------------- |
+| `grid` | Cartesian product of all arguments (default)                    |
+| `zip`  | Positional pairing of values (all params must have same length) |

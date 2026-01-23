@@ -33,9 +33,9 @@ stencila site list --path docs/
 
 # Options
 
-| Name                    | Description                                                                        |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| `--expanded <EXPANDED>` | Show expanded spread route variants. Possible values: `true`, `false`.             |
-| `--statics <STATICS>`   | Show routes for static files (e.g. images, CSS). Possible values: `true`, `false`. |
-| `--route`               | Filter by route prefix.                                                            |
-| `--path`                | Filter by source file path prefix.                                                 |
+| Name         | Description                                                                        |
+| ------------ | ---------------------------------------------------------------------------------- |
+| `--expanded` | Show expanded spread route variants. Possible values: `true`, `false`.             |
+| `--statics`  | Show routes for static files (e.g. images, CSS). Possible values: `true`, `false`. |
+| `--route`    | Filter by route prefix.                                                            |
+| `--path`     | Filter by source file path prefix.                                                 |
