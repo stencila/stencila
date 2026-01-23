@@ -1,0 +1,34 @@
+/* Styled block and inline styles
+ *
+ * Schema: [StyledBlock](../../schema/StyledBlock.yaml), [StyledInline](../../schema/StyledInline.yaml)
+ * Purpose: User-defined styling containers for applying custom CSS to content.
+ *
+ * DOM Structure:
+ * <stencila-styled-block id=xxx depth=N ancestors=Parent code="..." css="...">
+ *     <div slot="content" class="...">
+ *         <!-- Block content -->
+ *     </div>
+ * </stencila-styled-block>
+ *
+ * <stencila-styled-inline id=xxx depth=N ancestors=Parent code="..." css="...">
+ *     <span slot="content" class="...">
+ *         <!-- Inline content -->
+ *     </span>
+ * </stencila-styled-inline>
+ *
+ * Notes:
+ * - StyledBlock and StyledInline allow authors to apply custom CSS to content
+ * - The `code` attribute contains the original style code (e.g., Tailwind classes or CSS)
+ * - The `css` attribute contains compiled CSS if applicable
+ * - Width constraints are applied by document types (Article, Page) not here
+ *
+ * Examples: examples/conversion/styled-block/styled-block.dom.html
+ */
+
+stencila-styled-block {
+    display: block;
+}
+
+stencila-styled-inline {
+    display: inline;
+}

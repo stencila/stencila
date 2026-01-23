@@ -160,8 +160,26 @@ stencila-article {
      * This allows breakout elements to exceed the default content width */
     >[slot="content"] {
 
-        /* Default max-width for all children */
+        /* Default max-width for all direct children */
         >* {
+            max-width: var(--article-content-max-width);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Pass-through containers: full width, no constraints.
+         * Their children get constraints via descendant selectors below. */
+        stencila-section,
+        stencila-styled-block {
+            max-width: none;
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        /* Default constraints for children inside pass-through containers */
+        stencila-section > *,
+        stencila-styled-block [slot="content"] > * {
             max-width: var(--article-content-max-width);
             margin-left: auto;
             margin-right: auto;
@@ -169,42 +187,58 @@ stencila-article {
 
         /* Breakout elements - wider max-width than default content
          * Using width: fit-content so elements are only as wide as needed,
-         * up to the max-width limit */
-        >stencila-table {
+         * up to the max-width limit.
+         * Note: Using descendant selectors (no >) so these also apply inside
+         * section and styled blocks which act as pass-through containers.
+         * Each rule includes centering since they may not be direct children. */
+        stencila-table {
             width: fit-content;
             max-width: var(--table-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        >stencila-datatable {
+        stencila-datatable {
             width: fit-content;
             max-width: var(--datatable-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        >stencila-figure {
+        stencila-figure {
             width: fit-content;
             max-width: var(--figure-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        >stencila-image-object {
+        stencila-image-object {
             width: fit-content;
             max-width: var(--image-block-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        >stencila-code-chunk {
-            /* Follow pattern of tables and figures because that is usually what is in their outputs */
+        stencila-code-chunk {
             width: fit-content;
             max-width: var(--code-chunk-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        >stencila-code-block {
+        stencila-code-block {
             width: fit-content;
             min-width: var(--code-block-min-width);
             max-width: var(--code-block-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        >stencila-quote-block {
+        stencila-quote-block {
             width: fit-content;
             max-width: var(--quote-block-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
     }
 }
