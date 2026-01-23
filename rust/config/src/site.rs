@@ -14,8 +14,8 @@ use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
-    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file,
-    layout::LayoutConfig, reviews::ReviewsSpec, validate_placeholders,
+    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file, layout::LayoutConfig,
+    reviews::ReviewsSpec, validate_placeholders,
 };
 
 /// Additional formats to generate alongside HTML during site rendering

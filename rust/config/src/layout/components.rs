@@ -191,7 +191,10 @@ pub enum ComponentConfig {
 
         /// Maximum depth to display (1 = top-level only)
         ///
-        /// Default: unlimited
+        /// Limits how deep the navigation menu renders. Horizontal dropdown menus
+        /// work best with shallow hierarchies.
+        ///
+        /// Default: 2
         depth: Option<u8>,
 
         /// How to render groups

@@ -1257,7 +1257,11 @@ fn first_line(s: &str) -> String {
 fn rest_of_lines(s: &str) -> String {
     let mut lines = s.lines();
     lines.next(); // Skip first line
-    lines.collect::<Vec<_>>().join("\n").trim_start().to_string()
+    lines
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim_start()
+        .to_string()
 }
 
 /// Get the primary Rust source file for a documentation page path
