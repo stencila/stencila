@@ -2,7 +2,7 @@
  * DOM, Range, and Selection utilities for site review components
  */
 
-import type { ReviewItem } from './site-review-types'
+import type { ReviewItem } from './types'
 
 /**
  * Check if CSS Custom Highlight API is supported

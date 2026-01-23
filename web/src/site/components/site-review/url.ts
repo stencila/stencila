@@ -5,7 +5,7 @@
  * Uses native CompressionStream API for compression.
  */
 
-import type { ReviewItem, SourceInfo } from './site-review-types'
+import type { ReviewItem, SourceInfo } from './types'
 
 /** Query parameter name for shared reviews */
 export const SHARE_PARAM = '~review'

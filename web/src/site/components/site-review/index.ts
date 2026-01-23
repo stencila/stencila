@@ -1,9 +1,9 @@
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import { GlideEvents } from '../glide/events'
-import { navigate } from '../glide/glide'
-import type { GlideEventDetail } from '../glide/types'
+import { GlideEvents } from '../../glide/events'
+import { navigate } from '../../glide/glide'
+import type { GlideEventDetail } from '../../glide/types'
 
 import {
   supportsHighlightAPI,
@@ -13,14 +13,14 @@ import {
   createRangeForItem,
   caretRangeFromPoint,
   rangeContainsPoint,
-} from './site-review-dom'
+} from './dom'
 import type {
   ItemAddDetail,
   ItemClickDetail,
   ItemDeleteDetail,
   ItemEditDetail,
   SelectionInfo,
-} from './site-review-item'
+} from './item'
 import type {
   ReviewItem,
   ReviewItemAnchor,
@@ -29,13 +29,13 @@ import type {
   ReviewResponse,
   ApiError,
   FooterState,
-} from './site-review-types'
+} from './types'
 import {
   SHARE_PARAM,
   encodeReviewForUrl,
   extractSharedReview,
   hasSharedReview,
-} from './site-review-url'
+} from './url'
 import {
   STORAGE_KEY_ITEMS,
   STORAGE_KEY_SOURCE,
@@ -46,8 +46,8 @@ import {
   getPathname,
   isStencilaHostedSite,
   isDevMode,
-} from './site-review-utils'
-import './site-review-item'
+} from './utils'
+import './item'
 
 /**
  * Site review component

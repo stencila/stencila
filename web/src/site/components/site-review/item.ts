@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ref, createRef, Ref } from 'lit/directives/ref.js'
 
-import type { ReviewItem, ReviewItemAnchor } from './site-review-types'
+import type { ReviewItem, ReviewItemAnchor } from './types'
 
 /**
  * Selection info passed from parent for input mode
