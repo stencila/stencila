@@ -38,16 +38,6 @@ pub enum ComponentConfig {
     /// When used as a bare `"logo"` string, inherits configuration from
     /// `site.logo`. When used as an object, can override any fields.
     ///
-    /// Available fields (all optional, inherit from `site.logo` if not specified):
-    /// - `default`: Default logo image path (desktop light mode)
-    /// - `dark`: Logo for dark mode (desktop)
-    /// - `mobile`: Logo for mobile breakpoint (< 640px)
-    /// - `tablet`: Logo for tablet breakpoint (640px - 768px)
-    /// - `dark-mobile`: Logo for dark mode on mobile
-    /// - `dark-tablet`: Logo for dark mode on tablet
-    /// - `link`: Link target when clicked (default: "/")
-    /// - `alt`: Alt text for accessibility
-    ///
     /// ```toml
     /// # Header logo using site defaults and overrides
     /// [site.layout.header]
