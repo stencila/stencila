@@ -46,7 +46,7 @@ stencila-paragraph {
 
     /* Spacing */
     margin-top: var(--paragraph-spacing);
-    margin-bottom: 0;
+    margin-bottom: var(--paragraph-spacing);
 
     p {
         /* Browser normalization */

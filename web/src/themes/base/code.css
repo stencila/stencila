@@ -369,6 +369,7 @@ stencila-code-chunk {
 
     /* Spacing */
     margin-top: var(--code-spacing);
+    margin-bottom: var(--code-spacing);
 
     pre {
         /* Browser normalization */

@@ -59,7 +59,7 @@ stencila-image-object {
     display: block;
 
     margin-top: var(--content-spacing);
-    margin-bottom: 0;
+    margin-bottom: var(--content-spacing);
 
     img,
     picture,

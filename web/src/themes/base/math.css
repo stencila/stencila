@@ -72,6 +72,7 @@ stencila-math-block {
 
     gap: var(--math-label-gap);
     margin-top: var(--math-spacing);
+    margin-bottom: var(--math-spacing);
 
     [slot="mathml"] {
         flex: 1;

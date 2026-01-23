@@ -141,6 +141,7 @@
 stencila-admonition {
     display: block;
     margin-top: var(--admonition-spacing);
+    margin-bottom: var(--admonition-spacing);
 }
 
 stencila-admonition details {
