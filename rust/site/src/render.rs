@@ -39,6 +39,7 @@ use crate::{
     list,
     logo::resolve_logo,
     nav_common::auto_generate_nav,
+    search::{SearchEntry, SearchIndexBuilder, extract_entries_with_config},
 };
 
 /// A document rendered to HTML
@@ -49,6 +50,9 @@ struct RenderedDocument {
 
     /// The computed route (e.g., "/report/")
     route: String,
+
+    /// Search entries extracted from this document (after stabilization)
+    search_entries: Vec<SearchEntry>,
 }
 
 /// Result of a render operation
@@ -465,6 +469,23 @@ where
         0
     };
 
+    // Generate search index if enabled in config
+    // Entries were extracted from each document after stabilization (node IDs assigned)
+    if site_config
+        .search
+        .as_ref()
+        .map(|s| s.is_enabled())
+        .unwrap_or(false)
+    {
+        let mut builder = SearchIndexBuilder::new();
+        for doc in &docs_rendered {
+            builder.add_entries(doc.search_entries.clone());
+        }
+        if let Err(e) = builder.write(&output_dir).await {
+            tracing::warn!("Failed to write search index: {}", e);
+        }
+    }
+
     let result = RenderResult {
         documents_ok: docs_rendered
             .iter()
@@ -546,6 +567,15 @@ async fn render_document_route(
     // This ensures the same source produces identical HTML/nodemap.json output,
     // enabling effective ETag-based caching and incremental uploads.
     stabilize(&mut node);
+
+    // Extract search entries from the stabilized node (node IDs are now assigned)
+    let search_entries = if let Some(search_config) = site_config.search.as_ref()
+        && search_config.is_enabled()
+    {
+        extract_entries_with_config(&node, &route, search_config)
+    } else {
+        Vec::new()
+    };
 
     // Render layout for the route
     let layout_html = render_layout(
@@ -631,6 +661,7 @@ async fn render_document_route(
     Ok(RenderedDocument {
         source_path: source_file.to_path_buf(),
         route,
+        search_entries,
     })
 }
 

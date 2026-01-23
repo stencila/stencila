@@ -40,6 +40,7 @@ collapsible = true
 | [`edit-source`](edit-source.md) | Edit source link for GitHub/GitLab/Bitbucket |
 | [`edit-on`](edit-on.md) | Edit on cloud service (Google Docs or Microsoft 365) |
 | [`copy-markdown`](copy-markdown.md) | Copy page as Markdown button |
+| [`site-search`](site-search.md) | Site search |
 
 
 ***

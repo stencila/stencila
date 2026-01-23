@@ -345,7 +345,7 @@ impl LayoutConfig {
         // 2. Merge global explicit config on top (so global customizations persist)
         // 3. Merge override's explicit regions on top
         //
-        // This ensures that global config like `header.end = ["search"]` applies
+        // This ensures that global config like `header.end = ["site-search"]` applies
         // everywhere, even on routes that switch to a different preset.
         let region_base = match &override_config.preset {
             Some(preset) => {
@@ -581,7 +581,7 @@ mod tests {
         "#;
         let result: Result<LayoutConfig, _> = toml::from_str(toml);
         assert!(result.is_err());
-        let err_msg = result.unwrap_err().to_string();
+        let err_msg = result.expect_err("should fail to parse").to_string();
         assert!(
             err_msg.contains("unknown field"),
             "Error should mention unknown field: {err_msg}"
@@ -1385,7 +1385,7 @@ mod tests {
             preset = "docs"
 
             [header]
-            end = ["search", "color-mode"]
+            end = ["site-search", "color-mode"]
 
             [[overrides]]
             routes = ["/blog/**"]
@@ -1398,7 +1398,7 @@ mod tests {
         let region_config = header.config().expect("should be config");
         let end = region_config.end.as_ref().expect("end should be present");
         assert_eq!(end.len(), 2);
-        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "search"));
+        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "site-search"));
 
         let resolved = config.resolve_for_route("/blog/post/");
         let header = resolved.header.as_ref().expect("header should be present");
@@ -1406,7 +1406,7 @@ mod tests {
         let end = region_config.end.as_ref().expect("end should be present");
         assert_eq!(end.len(), 2);
         assert!(
-            matches!(&end[0], ComponentSpec::Name(n) if n == "search"),
+            matches!(&end[0], ComponentSpec::Name(n) if n == "site-search"),
             "Global header.end config should persist through preset override"
         );
 
@@ -1419,7 +1419,7 @@ mod tests {
             preset = "docs"
 
             [header]
-            end = ["search", "color-mode"]
+            end = ["site-search", "color-mode"]
 
             [[overrides]]
             routes = ["/blog/**"]
@@ -1453,7 +1453,7 @@ mod tests {
             preset = "docs"
 
             [header]
-            end = ["search", "color-mode"]
+            end = ["site-search", "color-mode"]
         "#;
         let config: LayoutConfig = toml::from_str(toml)?;
 
@@ -1484,7 +1484,7 @@ mod tests {
 
         let end = region_config.end.as_ref().expect("end should be present");
         assert_eq!(end.len(), 2);
-        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "search"));
+        assert!(matches!(&end[0], ComponentSpec::Name(n) if n == "site-search"));
         assert!(matches!(&end[1], ComponentSpec::Name(n) if n == "color-mode"));
 
         Ok(())
@@ -1570,7 +1570,7 @@ mod tests {
             preset = "docs"
 
             [header]
-            end = ["search", "color-mode"]
+            end = ["site-search", "color-mode"]
 
             [[overrides]]
             routes = ["/landing/"]
@@ -1601,7 +1601,7 @@ mod tests {
         let end = region_config.end.as_ref().expect("end should be present");
         assert_eq!(end.len(), 2);
         assert!(
-            matches!(&end[0], ComponentSpec::Name(n) if n == "search"),
+            matches!(&end[0], ComponentSpec::Name(n) if n == "site-search"),
             "global header.end should persist through preset override"
         );
 

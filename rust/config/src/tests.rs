@@ -1446,8 +1446,9 @@ id = "ws1234567890"
 unknown_field = "test"
 "#;
     let result: Result<WorkspaceConfig, _> = toml::from_str(toml_str);
-    assert!(result.is_err(), "Direct toml should reject unknown fields");
-    let err = result.unwrap_err().to_string();
+    let err = result
+        .expect_err("direct toml should reject unknown fields")
+        .to_string();
     assert!(
         err.contains("unknown field"),
         "Error should mention unknown field: {}",
@@ -1463,9 +1464,9 @@ unknown_field = "test"
 "#;
     fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
 
-    let result = config_isolated(temp_dir.path());
-    assert!(result.is_err(), "Figment should also reject unknown fields");
-    let err = result.unwrap_err().to_string();
+    let err = config_isolated(temp_dir.path())
+        .expect_err("figment should also reject unknown fields")
+        .to_string();
     assert!(
         err.contains("unknown field") || err.contains("unknown_field"),
         "Error should mention unknown field: {}",

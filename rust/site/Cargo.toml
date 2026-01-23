@@ -35,6 +35,7 @@ stencila-spread = { path = "../spread" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+unicode-normalization = "0.1.24"
 url = { workspace = true }
 walkdir = { workspace = true }
 

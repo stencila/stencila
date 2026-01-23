@@ -619,6 +619,24 @@ pub struct SiteConfig {
     /// ```
     pub glide: Option<GlideConfig>,
 
+    /// Search configuration for client-side full-text search
+    ///
+    /// When enabled, a search index is generated during site rendering.
+    /// The index is sharded for efficient incremental loading and supports
+    /// Unicode text with diacritic folding, e.g.
+    /// ```toml
+    /// # Enable search with defaults
+    /// [site.search]
+    /// enabled = true
+    ///
+    /// # Customize search indexing
+    /// [site.search]
+    /// enabled = true
+    /// include-types = ["Heading", "Paragraph"]
+    /// exclude-routes = ["/api/**"]
+    /// ```
+    pub search: Option<SearchConfig>,
+
     /// Additional formats to generate alongside HTML
     ///
     /// Controls which format files are generated during site rendering and
@@ -929,6 +947,101 @@ pub struct RouteSpread {
     /// Keys are parameter names, values are arrays of possible values.
     /// Example: `{ region = ["north", "south"], species = ["A", "B"] }`
     pub arguments: HashMap<String, Vec<String>>,
+}
+
+/// Configuration for site search
+///
+/// When enabled, a search index is generated during site rendering that allows
+/// client-side full-text search without a backend server. The index is sharded
+/// by token prefix for efficient incremental loading, e.g.
+/// ```toml
+/// # Enable search with defaults
+/// [site.search]
+/// enabled = true
+///
+/// # Customize search indexing
+/// [site.search]
+/// enabled = true
+/// include-types = ["Heading", "Paragraph", "Datatable"]
+/// exclude-routes = ["/api/**", "/internal/**"]
+/// max-text-length = 500
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(default, rename_all = "kebab-case", deny_unknown_fields)]
+pub struct SearchConfig {
+    /// Enable search index generation
+    ///
+    /// When true, a search index is generated during site rendering.
+    /// Default: false
+    pub enabled: Option<bool>,
+
+    /// Node types to include in the search index
+    ///
+    /// Specifies which Stencila node types should be indexed.
+    /// When not specified, defaults to common content types:
+    /// `["Heading", "Paragraph", "Datatable", "CodeChunk", "Figure", "Table"]`
+    ///
+    /// Available types include: Article, Heading, Paragraph, Datatable,
+    /// CodeChunk, Figure, Table, and other Stencila node types.
+    pub include_types: Option<Vec<String>>,
+
+    /// Route patterns to exclude from indexing
+    ///
+    /// Glob patterns for routes that should not be indexed.
+    /// Useful for excluding API documentation, internal pages, etc.
+    ///
+    /// Example: `["/api/**", "/internal/**"]`
+    pub exclude_routes: Option<Vec<String>>,
+
+    /// Maximum text length per search entry
+    ///
+    /// Text content longer than this will be truncated.
+    /// Default: 500 characters
+    pub max_text_length: Option<usize>,
+}
+
+impl SearchConfig {
+    /// Check if search is enabled
+    pub fn is_enabled(&self) -> bool {
+        self.enabled.unwrap_or(false)
+    }
+
+    /// Get the maximum text length (with default)
+    pub fn max_text_length(&self) -> usize {
+        self.max_text_length.unwrap_or(500)
+    }
+
+    /// Get the node types to include (with defaults)
+    pub fn include_types(&self) -> Vec<String> {
+        self.include_types.clone().unwrap_or_else(|| {
+            vec![
+                "Article".to_string(),
+                "Heading".to_string(),
+                "Paragraph".to_string(),
+                "Datatable".to_string(),
+                "CodeChunk".to_string(),
+                "Figure".to_string(),
+                "Table".to_string(),
+            ]
+        })
+    }
+
+    /// Check if a route should be excluded from indexing
+    pub fn is_route_excluded(&self, route: &str) -> bool {
+        let Some(patterns) = &self.exclude_routes else {
+            return false;
+        };
+
+        for pattern in patterns {
+            if let Ok(glob) = glob::Pattern::new(pattern)
+                && glob.matches(route)
+            {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 /// Configuration for client-side navigation (glide)

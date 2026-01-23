@@ -389,6 +389,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
             "toc-tree" => render_toc_tree(&None, &None),
             "edit-source" => render_edit_source(&None, &None, &None, &None, &None, context),
             "copy-markdown" => render_copy_markdown(&None, &None, context),
+            "site-search" => render_search(&None, context),
             "edit-on:gdocs" => render_edit_on(&EditOnService::GDocs, &None, &None, context),
             "edit-on:m365" => render_edit_on(&EditOnService::M365, &None, &None, context),
             _ => format!("<stencila-{name}></stencila-{name}>"),
@@ -506,6 +507,7 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             text,
             style,
         } => render_edit_on(service, text, style, context),
+        ComponentConfig::SiteSearch { placeholder } => render_search(placeholder, context),
     }
 }
 
@@ -1108,6 +1110,33 @@ fn render_edit_on(
     format!(
         r#"<stencila-edit-on service="{service_param}"><a href="{url}" target="_blank" rel="noopener noreferrer">{inner_html}</a></stencila-edit-on>"#
     )
+}
+
+/// Render a search component
+///
+/// Renders the site search button/input. Only renders if search is enabled
+/// in the site configuration (`site.search.enabled = true`).
+/// Returns empty string if search is not enabled.
+fn render_search(placeholder: &Option<String>, context: &RenderContext) -> String {
+    // Check if search is enabled
+    let search_enabled = context
+        .site_config
+        .search
+        .as_ref()
+        .map(|s| s.is_enabled())
+        .unwrap_or(false);
+
+    if !search_enabled {
+        return String::new();
+    }
+
+    let mut attrs = String::new();
+
+    if let Some(placeholder_text) = placeholder {
+        attrs.push_str(&format!(r#" placeholder="{}""#, placeholder_text));
+    }
+
+    format!("<stencila-site-search{attrs}></stencila-site-search>")
 }
 
 /// Render a site review component

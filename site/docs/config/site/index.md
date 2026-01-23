@@ -264,6 +264,12 @@ Site layout configuration
 
 Glide configuration for client-side navigation
 
+# `search`
+
+**Type:** [`SearchConfig`](search.md) (optional)
+
+Search configuration for client-side full-text search
+
 # `formats`
 
 **Type:** `array` (optional)

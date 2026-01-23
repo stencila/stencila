@@ -593,6 +593,31 @@ pub enum ComponentConfig {
         /// Default: both
         style: Option<CopyMarkdownStyle>,
     },
+
+    /// Site search
+    ///
+    /// Displays a search button that opens a search modal when clicked.
+    /// Requires `site.search.enabled = true` in config to generate the search index.
+    ///
+    /// ```toml
+    /// # Enable search index generation
+    /// [site.search]
+    /// enabled = true
+    ///
+    /// # Add site-search to header
+    /// [site.layout.header]
+    /// end = "site-search"
+    ///
+    /// # Or with custom placeholder:
+    /// end = { type = "site-search", placeholder = "Search docs..." }
+    /// ```
+    #[schemars(title = "Site sSearch")]
+    SiteSearch {
+        /// Placeholder text for the search input
+        ///
+        /// Default: "Search..."
+        placeholder: Option<String>,
+    },
 }
 
 /// Built-in component type names (kebab-case as used in TOML)
@@ -611,6 +636,8 @@ pub const BUILTIN_COMPONENT_TYPES: &[&str] = &[
     "edit-on:gdocs",
     "edit-on:m365",
     "copy-markdown",
+    "site-search",
+    "site-review",
     "social-links",
 ];
 

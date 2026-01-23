@@ -14,6 +14,8 @@ mod nav_groups;
 mod nav_menu;
 mod nav_tree;
 
+pub mod search;
+
 mod list;
 pub use list::{RouteEntry, RouteType, list};
 

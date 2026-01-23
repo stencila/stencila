@@ -496,7 +496,7 @@ mod tests {
         let base = Some(RegionSpec::Config(RegionConfig {
             start: Some(vec![ComponentSpec::Name("logo".into())]),
             middle: Some(vec![ComponentSpec::Name("title".into())]),
-            end: Some(vec![ComponentSpec::Name("search".into())]),
+            end: Some(vec![ComponentSpec::Name("site-search".into())]),
             ..Default::default()
         }));
 

@@ -40,6 +40,7 @@ impl LayoutPreset {
         let header = Some(RegionSpec::Config(RegionConfig {
             start: Some(vec![ComponentSpec::Name("logo".into())]),
             middle: Some(vec![ComponentSpec::Name("nav-menu".into())]),
+            end: Some(vec![ComponentSpec::Name("site-search".into())]),
             ..Default::default()
         }));
 

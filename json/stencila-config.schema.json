@@ -452,6 +452,17 @@
             }
           ]
         },
+        "search": {
+          "description": "Search configuration for client-side full-text search\n\nWhen enabled, a search index is generated during site rendering.\nThe index is sharded for efficient incremental loading and supports\nUnicode text with diacritic folding, e.g.\n```toml\n# Enable search with defaults\n[site.search]\nenabled = true\n\n# Customize search indexing\n[site.search]\nenabled = true\ninclude-types = [\"Heading\", \"Paragraph\"]\nexclude-routes = [\"/api/**\"]\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SearchConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "formats": {
           "description": "Additional formats to generate alongside HTML\n\nControls which format files are generated during site rendering and\nwhich format-specific buttons are displayed. When a format is not\nin this list, its corresponding button (e.g., copy-markdown) is hidden.\n\nDefault: `[\"md\"]` (generates page.md files), e.g.\n```toml\n# Enable or disable additional formats\n[site]\nformats = [\"md\"]  # Generate page.md files, show copy-markdown button\nformats = []      # No additional formats, hide format buttons\n```",
           "type": [
@@ -1786,6 +1797,28 @@
           "required": [
             "type"
           ]
+        },
+        {
+          "title": "Site sSearch",
+          "description": "Site search\n\nDisplays a search button that opens a search modal when clicked.\nRequires `site.search.enabled = true` in config to generate the search index.\n\n```toml\n# Enable search index generation\n[site.search]\nenabled = true\n\n# Add site-search to header\n[site.layout.header]\nend = \"site-search\"\n\n# Or with custom placeholder:\nend = { type = \"site-search\", placeholder = \"Search docs...\" }\n```",
+          "type": "object",
+          "properties": {
+            "placeholder": {
+              "description": "Placeholder text for the search input\n\nDefault: \"Search...\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "site-search"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
         }
       ]
     },
@@ -2254,6 +2287,49 @@
         },
         "cache": {
           "description": "Maximum number of pages to cache\n\nControls how many pages are kept in the LRU cache for instant\nback/forward navigation. Set to 0 to disable caching.\nDefault: 10",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "SearchConfig": {
+      "description": "Configuration for site search\nhttps://stencila.io/docs/config/searchconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable search index generation\n\nWhen true, a search index is generated during site rendering.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "include-types": {
+          "description": "Node types to include in the search index\n\nSpecifies which Stencila node types should be indexed.\nWhen not specified, defaults to common content types:\n`[\"Heading\", \"Paragraph\", \"Datatable\", \"CodeChunk\", \"Figure\", \"Table\"]`\n\nAvailable types include: Article, Heading, Paragraph, Datatable,\nCodeChunk, Figure, Table, and other Stencila node types.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude-routes": {
+          "description": "Route patterns to exclude from indexing\n\nGlob patterns for routes that should not be indexed.\nUseful for excluding API documentation, internal pages, etc.\n\nExample: `[\"/api/**\", \"/internal/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "max-text-length": {
+          "description": "Maximum text length per search entry\n\nText content longer than this will be truncated.\nDefault: 500 characters",
           "type": [
             "integer",
             "null"

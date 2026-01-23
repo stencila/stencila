@@ -31,7 +31,7 @@ use super::regions::{RegionSpec, ResponsiveConfig};
 /// ```toml
 /// [site.layout]
 /// preset = "docs"
-/// header.end = ["search", "color-mode"]  # Global: search on all pages
+/// header.end = ["site-search", "color-mode"]  # Global: site-search on all pages
 ///
 /// # Blog routes use blog preset, but keep the global header customization
 /// [[site.layout.overrides]]
@@ -42,7 +42,7 @@ use super::regions::{RegionSpec, ResponsiveConfig};
 /// [[site.layout.overrides]]
 /// routes = ["/", "/features/"]
 /// preset = "landing"
-/// header.end = ["color-mode"]  # Override global: no search on landing
+/// header.end = ["color-mode"]  # Override global: no site-search on landing
 ///
 /// # Just override specific regions (no preset change)
 /// [[site.layout.overrides]]
