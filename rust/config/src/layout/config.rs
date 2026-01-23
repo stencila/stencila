@@ -11,7 +11,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use super::components::{
-    BUILTIN_COMPONENT_TYPES, ComponentConfig, ComponentSpec, is_builtin_component_type,
+    BUILTIN_COMPONENT_TYPES, ComponentConfig, ComponentSpec, components_map,
+    is_builtin_component_type,
 };
 use super::overrides::LayoutOverride;
 use super::presets::LayoutPreset;
@@ -147,15 +148,26 @@ pub struct LayoutConfig {
     /// Named component definitions for reuse
     ///
     /// Define components once and reference them by name in regions.
+    /// When the key matches a built-in component type (e.g., "nav-tree"),
+    /// the `type` field can be omitted.
     ///
     /// Example:
     /// ```toml
+    /// # Type inferred from key for built-in types:
+    /// [site.layout.components.nav-tree]
+    /// collapsible = true
+    /// depth = 3
+    ///
+    /// # Custom names require explicit type:
     /// [site.layout.components.main-nav]
     /// type = "nav-tree"
     /// collapsible = true
-    /// depth = 3
     /// ```
-    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    #[serde(
+        default,
+        skip_serializing_if = "HashMap::is_empty",
+        deserialize_with = "components_map::deserialize"
+    )]
     pub components: HashMap<String, ComponentConfig>,
 
     /// Route-specific layout overrides
@@ -521,6 +533,59 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_named_component_type_inference() -> Result<()> {
+        // When key matches a built-in type, "type" can be omitted
+        let toml = r#"
+            [components.nav-tree]
+            collapsible = true
+            depth = 3
+
+            [components.toc-tree]
+            depth = 4
+        "#;
+        let layout: LayoutConfig = toml::from_str(toml)?;
+
+        // nav-tree should have type inferred
+        assert!(layout.components.contains_key("nav-tree"));
+        if let ComponentConfig::NavTree {
+            collapsible, depth, ..
+        } = &layout.components["nav-tree"]
+        {
+            assert_eq!(*collapsible, Some(true));
+            assert_eq!(*depth, Some(3));
+        } else {
+            panic!("Expected NavTree component for key 'nav-tree'");
+        }
+
+        // toc-tree should also have type inferred
+        assert!(layout.components.contains_key("toc-tree"));
+        if let ComponentConfig::TocTree { depth, .. } = &layout.components["toc-tree"] {
+            assert_eq!(*depth, Some(4));
+        } else {
+            panic!("Expected TocTree component for key 'toc-tree'");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_component_unknown_field_rejected() {
+        // Unknown fields should be rejected with deny_unknown_fields
+        let toml = r#"
+            [components.nav-tree]
+            depth = 3
+            unknown_field = "should fail"
+        "#;
+        let result: Result<LayoutConfig, _> = toml::from_str(toml);
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("unknown field"),
+            "Error should mention unknown field: {err_msg}"
+        );
     }
 
     #[test]

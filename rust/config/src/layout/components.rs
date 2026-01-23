@@ -31,7 +31,7 @@ pub enum ComponentSpec {
 /// at resolution time.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(tag = "type", rename_all = "kebab-case")]
+#[serde(tag = "type", rename_all = "kebab-case", deny_unknown_fields)]
 pub enum ComponentConfig {
     /// Site logo image with responsive and dark mode variants
     ///
@@ -909,6 +909,62 @@ pub struct CustomSocialLink {
     pub icon: Option<String>,
 }
 
+/// Custom deserializer for the components HashMap that infers type from key
+///
+/// When the key matches a built-in component type (e.g., "nav-tree") and no
+/// `type` field is present, the type is inferred from the key. This allows:
+///
+/// ```toml
+/// [site.layout.components.nav-tree]
+/// depth = 3
+/// ```
+///
+/// Instead of requiring:
+///
+/// ```toml
+/// [site.layout.components.nav-tree]
+/// type = "nav-tree"
+/// depth = 3
+/// ```
+pub mod components_map {
+    use std::collections::HashMap;
+
+    use serde::{Deserialize, Deserializer};
+
+    use super::{ComponentConfig, is_builtin_component_type};
+
+    pub fn deserialize<'de, D>(
+        deserializer: D,
+    ) -> Result<HashMap<String, ComponentConfig>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // Deserialize as a map of key -> raw TOML value
+        let raw_map: HashMap<String, toml::Value> = HashMap::deserialize(deserializer)?;
+        let mut result = HashMap::new();
+
+        for (key, mut value) in raw_map {
+            // If key is a builtin type and value is a table without a "type" field,
+            // inject the type from the key
+            if is_builtin_component_type(&key)
+                && let toml::Value::Table(ref mut table) = value
+                && !table.contains_key("type")
+            {
+                table.insert("type".to_string(), toml::Value::String(key.clone()));
+            }
+
+            // Now deserialize the (possibly modified) value as ComponentConfig
+            let config: ComponentConfig = value.clone().try_into().map_err(|e| {
+                serde::de::Error::custom(format!("invalid component config for '{}': {}", key, e))
+            })?;
+
+            result.insert(key, config);
+        }
+
+        Ok(result)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use eyre::Result;
@@ -1513,8 +1569,7 @@ text = "Edit on GitHub"
 style = "both"
 base-url = "https://github.com/org/repo/edit/main/"
 branch = "develop"
-path-prefix = "docs/"
-show-platform = false"#,
+path-prefix = "docs/""#,
         )?;
 
         if let ComponentConfig::EditSource {
