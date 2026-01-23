@@ -56,18 +56,23 @@ pub struct SearchEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<DatatableMetadata>,
 
-    /// Pre-computed token trigrams for fuzzy matching
-    /// Only present if fuzzy search is enabled during indexing
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Pre-computed token trigrams for fuzzy matching (internal use only)
+    /// Populated during indexing, converted to `tokens` before serialization
+    #[serde(skip)]
     pub token_trigrams: Option<Vec<TokenTrigrams>>,
+
+    /// Compact token references: [[defIndex, start, end], ...]
+    /// Indexes into the shard's token_defs array
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tokens: Option<Vec<TokenRef>>,
 }
 
 /// Token with pre-computed trigrams for fuzzy matching
 ///
 /// Each token from the entry text is stored with its trigrams and
 /// position in the original text for highlighting.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+/// Used internally during indexing; not serialized directly to shard files.
+#[derive(Debug, Clone)]
 pub struct TokenTrigrams {
     /// Normalized token (lowercased, diacritics folded) for trigram matching
     pub token: String,
@@ -93,6 +98,32 @@ impl TokenTrigrams {
         }
     }
 }
+
+/// Token definition for fuzzy matching (shard-level, deduplicated)
+///
+/// Contains the token string and its trigrams, without position information.
+/// Stored once per unique token in a shard file.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenDef {
+    /// Normalized token (lowercased, diacritics folded)
+    pub token: String,
+
+    /// Pre-computed character trigrams (3-grams)
+    pub trigrams: Vec<String>,
+}
+
+impl TokenDef {
+    /// Create a new TokenDef
+    pub fn new(token: String, trigrams: Vec<String>) -> Self {
+        Self { token, trigrams }
+    }
+}
+
+/// Compact token reference: [tokenDefIndex, start, end]
+///
+/// References a TokenDef in the shard's token_defs array, with position
+/// information for highlighting in this specific entry.
+pub type TokenRef = [u32; 3];
 
 /// Additional metadata for datatable nodes
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -129,6 +160,7 @@ impl SearchEntry {
             depth,
             metadata: None,
             token_trigrams: None,
+            tokens: None,
         }
     }
 

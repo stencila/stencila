@@ -4,7 +4,7 @@
  * Manages loading and caching of search index shards.
  */
 
-import type { SearchEntry, SearchManifest, ShardInfo } from './types'
+import type { SearchEntry, SearchManifest, ShardData } from './types'
 
 /**
  * Manages loading and caching of search index shards
@@ -15,7 +15,6 @@ export class SearchIndexLoader {
   private shardCache: Map<string, SearchEntry[]> = new Map()
   private loadingShards: Map<string, Promise<SearchEntry[]>> = new Map()
   private basePath: string
-  private prefixToShard: Map<string, ShardInfo> = new Map()
 
   constructor(basePath: string = '/_search') {
     this.basePath = basePath
@@ -59,33 +58,7 @@ export class SearchIndexLoader {
     }
 
     this.manifest = await response.json()
-
-    // Build prefix-to-shard lookup by extracting prefix from filename
-    // e.g., "shards/ab.json" → "ab"
-    for (const shard of this.manifest.shards) {
-      const prefix = this.extractPrefix(shard.file)
-      if (prefix) {
-        this.prefixToShard.set(prefix, shard)
-      }
-    }
-
     return this.manifest
-  }
-
-  /**
-   * Extract the token prefix from a shard filename
-   *
-   * Examples:
-   * - "shards/ab.json" → "ab"
-   * - "ab.json" → "ab"
-   */
-  private extractPrefix(filename: string): string | null {
-    // Get basename and remove .json extension
-    const basename = filename.split('/').pop() ?? filename
-    if (basename.endsWith('.json')) {
-      return basename.slice(0, -5)
-    }
-    return null
   }
 
   /**
@@ -116,21 +89,20 @@ export class SearchIndexLoader {
       return this.shardCache.get(prefix)!
     }
 
-    // Find shard that contains this prefix
-    const shardInfo = this.prefixToShard.get(prefix)
-    if (!shardInfo) {
+    // Check if shard exists for this prefix (O(1) lookup)
+    if (!this.manifest!.shards[prefix]) {
       // No shard for this prefix - return empty
       return []
     }
 
-    // Check if this shard file is already loading (keyed by file, not prefix)
-    if (this.loadingShards.has(shardInfo.file)) {
-      return this.loadingShards.get(shardInfo.file)!
+    // Check if this shard is already loading
+    if (this.loadingShards.has(prefix)) {
+      return this.loadingShards.get(prefix)!
     }
 
-    // Load the shard (keyed by file to dedupe concurrent loads)
-    const loadPromise = this.fetchShard(shardInfo)
-    this.loadingShards.set(shardInfo.file, loadPromise)
+    // Load the shard
+    const loadPromise = this.fetchShard(prefix)
+    this.loadingShards.set(prefix, loadPromise)
 
     try {
       const entries = await loadPromise
@@ -138,16 +110,71 @@ export class SearchIndexLoader {
       this.shardCache.set(prefix, entries)
       return entries
     } finally {
-      this.loadingShards.delete(shardInfo.file)
+      this.loadingShards.delete(prefix)
     }
   }
 
-  private async fetchShard(info: ShardInfo): Promise<SearchEntry[]> {
-    const response = await fetch(`${this.basePath}/${info.file}`)
+  private async fetchShard(prefix: string): Promise<SearchEntry[]> {
+    const response = await fetch(`${this.basePath}/shards/${prefix}.json`)
     if (!response.ok) {
-      throw new Error(`Failed to load shard ${info.file}: ${response.status}`)
+      throw new Error(`Failed to load shard ${prefix}: ${response.status}`)
     }
-    return response.json()
+    const data: unknown = await response.json()
+    const shardData = this.validateShardData(data, prefix)
+    return this.expandTokens(shardData)
+  }
+
+  /**
+   * Validate that loaded data has the expected ShardData shape
+   *
+   * Fails fast with a clear error if the shard format is invalid,
+   * which can happen with stale cached shards or partial writes.
+   */
+  private validateShardData(data: unknown, prefix: string): ShardData {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      throw new Error(
+        `Shard ${prefix}: expected ShardData object, got ${Array.isArray(data) ? 'array (possibly old format)' : typeof data}`
+      )
+    }
+    const shard = data as Record<string, unknown>
+    if (!Array.isArray(shard.entries)) {
+      throw new Error(`Shard ${prefix}: missing or invalid 'entries' array`)
+    }
+    if (!Array.isArray(shard.tokenDefs)) {
+      throw new Error(`Shard ${prefix}: missing or invalid 'tokenDefs' array`)
+    }
+    return data as ShardData
+  }
+
+  /**
+   * Expand compact token references to full TokenTrigrams
+   *
+   * Converts the compact [defIndex, start, end] tuples in each entry
+   * to full TokenTrigrams objects using the shard's tokenDefs array.
+   * Skips invalid token refs (out of bounds) to handle stale/corrupted data.
+   * Deletes the compact form after expansion to reduce memory usage.
+   */
+  private expandTokens(data: ShardData): SearchEntry[] {
+    const tokenDefsLength = data.tokenDefs.length
+
+    for (const entry of data.entries) {
+      if (entry.tokens && tokenDefsLength > 0) {
+        // Filter out invalid token refs (idx out of bounds)
+        const validTokens = entry.tokens.filter(
+          ([idx]) => idx >= 0 && idx < tokenDefsLength
+        )
+
+        entry.tokenTrigrams = validTokens.map(([idx, start, end]) => ({
+          ...data.tokenDefs[idx],
+          start,
+          end,
+        }))
+
+        // Delete compact form - no longer needed after expansion
+        delete entry.tokens
+      }
+    }
+    return data.entries
   }
 
   /**
@@ -173,7 +200,7 @@ export class SearchIndexLoader {
   getCacheStats(): { cachedPrefixes: number; totalShards: number } {
     return {
       cachedPrefixes: this.shardCache.size,
-      totalShards: this.manifest?.shards.length ?? 0,
+      totalShards: this.manifest ? Object.keys(this.manifest.shards).length : 0,
     }
   }
 }

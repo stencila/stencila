@@ -22,12 +22,18 @@ export interface SearchEntry {
   depth: number
   /** For datatables: additional metadata */
   metadata?: DatatableMetadata
-  /** Pre-computed token trigrams for fuzzy matching (only present if fuzzy indexing enabled) */
+  /** Compact token refs from JSON: [[defIndex, start, end], ...] */
+  tokens?: Array<[number, number, number]>
+  /** Expanded token trigrams for fuzzy matching (populated at load time) */
   tokenTrigrams?: TokenTrigrams[]
+  /** Cached tokenized text (internal, populated lazily on first search) */
+  _cachedTokens?: string[]
 }
 
 /**
  * Token with pre-computed trigrams for fuzzy matching
+ *
+ * This is the expanded form used at runtime after loading from shard files.
  */
 export interface TokenTrigrams {
   /** Normalized token (lowercased, diacritics folded) for trigram matching */
@@ -38,6 +44,31 @@ export interface TokenTrigrams {
   start: number
   /** End position in original entry.text (UTF-16 code unit offset) */
   end: number
+}
+
+/**
+ * Token definition for fuzzy matching (shard-level, deduplicated)
+ *
+ * Contains the token string and its trigrams, without position information.
+ * Stored once per unique token in a shard file.
+ */
+export interface TokenDef {
+  /** Normalized token (lowercased, diacritics folded) */
+  token: string
+  /** Pre-computed character trigrams (3-grams) */
+  trigrams: string[]
+}
+
+/**
+ * Shard file structure with deduplicated tokens
+ *
+ * Contains token definitions (deduplicated) and entries with compact token references.
+ */
+export interface ShardData {
+  /** Deduplicated token definitions for fuzzy matching */
+  tokenDefs: TokenDef[]
+  /** Search entries with compact token references */
+  entries: SearchEntry[]
 }
 
 /**
@@ -62,22 +93,18 @@ export interface SearchManifest {
   totalEntries: number
   /** Total number of indexed documents/routes */
   totalRoutes: number
-  /** Information about each shard */
-  shards: ShardInfo[]
+  /** Information about each shard, keyed by prefix (e.g., "ab", "co") */
+  shards: Record<string, ShardInfo>
 }
 
 /**
  * Information about a single shard file
  *
- * The token prefix can be derived from the filename (e.g., "shards/ab.json" → "ab").
+ * The shard file can be derived as `shards/{prefix}.json`.
  */
 export interface ShardInfo {
-  /** Shard filename (e.g., "shards/ab.json") */
-  file: string
   /** Number of entries in this shard */
   entryCount: number
-  /** File size in bytes (after any compression) */
-  sizeBytes?: number
 }
 
 /**

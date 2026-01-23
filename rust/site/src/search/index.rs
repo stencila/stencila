@@ -107,17 +107,17 @@ impl SearchIndexBuilder {
 
         // Write shard files
         let mut shard_count = 0;
-        for (filename, entries) in &shard_result.shards {
-            let shard_path = search_dir.join(filename);
-            let json = serde_json::to_string(entries)?;
+        for (prefix, shard_data) in &shard_result.shards {
+            let shard_path = shards_dir.join(format!("{prefix}.json"));
+            let json = serde_json::to_string(shard_data)?;
             fs::write(&shard_path, &json).await?;
             shard_count += 1;
         }
 
         // Create manifest with file sizes
         let mut shard_infos = shard_result.shard_infos;
-        for info in &mut shard_infos {
-            let shard_path = search_dir.join(&info.file);
+        for (prefix, info) in &mut shard_infos {
+            let shard_path = shards_dir.join(format!("{prefix}.json"));
             if let Ok(metadata) = fs::metadata(&shard_path).await {
                 info.size_bytes = Some(metadata.len() as usize);
             }

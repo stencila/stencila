@@ -6,64 +6,69 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { SearchEngine } from './engine'
 
-// Mock fetch for testing
-const mockEntries = [
-  {
-    nodeId: 'hed_1',
-    nodeType: 'Heading',
-    route: '/docs/guide/',
-    text: 'Getting Started with Stencila',
-    weight: 8,
-    depth: 1,
-  },
-  {
-    nodeId: 'par_1',
-    nodeType: 'Paragraph',
-    route: '/docs/guide/',
-    text: 'This guide will help you get started with Stencila quickly.',
-    weight: 1,
-    depth: 2,
-  },
-  {
-    nodeId: 'hed_2',
-    nodeType: 'Heading',
-    route: '/docs/api/',
-    text: 'API Reference',
-    weight: 8,
-    depth: 1,
-  },
-  {
-    nodeId: 'par_2',
-    nodeType: 'Paragraph',
-    route: '/docs/api/',
-    text: 'The Stencila API provides programmatic access to documents.',
-    weight: 1,
-    depth: 2,
-  },
-  {
-    nodeId: 'dt_1',
-    nodeType: 'Datatable',
-    route: '/data/',
-    text: 'temperature humidity pressure',
-    weight: 5,
-    depth: 1,
-    metadata: {
-      columns: ['temperature', 'humidity', 'pressure'],
-      rowCount: 100,
+import type { ShardData } from './types'
+
+// Mock fetch for testing - using ShardData format
+const mockShardData: ShardData = {
+  tokenDefs: [], // No fuzzy data for basic tests
+  entries: [
+    {
+      nodeId: 'hed_1',
+      nodeType: 'Heading',
+      route: '/docs/guide/',
+      text: 'Getting Started with Stencila',
+      weight: 8,
+      depth: 1,
     },
-  },
-]
+    {
+      nodeId: 'par_1',
+      nodeType: 'Paragraph',
+      route: '/docs/guide/',
+      text: 'This guide will help you get started with Stencila quickly.',
+      weight: 1,
+      depth: 2,
+    },
+    {
+      nodeId: 'hed_2',
+      nodeType: 'Heading',
+      route: '/docs/api/',
+      text: 'API Reference',
+      weight: 8,
+      depth: 1,
+    },
+    {
+      nodeId: 'par_2',
+      nodeType: 'Paragraph',
+      route: '/docs/api/',
+      text: 'The Stencila API provides programmatic access to documents.',
+      weight: 1,
+      depth: 2,
+    },
+    {
+      nodeId: 'dt_1',
+      nodeType: 'Datatable',
+      route: '/data/',
+      text: 'temperature humidity pressure',
+      weight: 5,
+      depth: 1,
+      metadata: {
+        columns: ['temperature', 'humidity', 'pressure'],
+        rowCount: 100,
+      },
+    },
+  ],
+}
 
 const mockManifest = {
   version: 2,
-  totalEntries: mockEntries.length,
+  totalEntries: mockShardData.entries.length,
   totalRoutes: 3,
-  shards: [
-    { file: 'shards/ge.json', entryCount: 2 },
-    { file: 'shards/st.json', entryCount: 3 },
-    { file: 'shards/ap.json', entryCount: 1 },
-    { file: 'shards/te.json', entryCount: 1 },
-  ],
+  shards: {
+    ge: { entryCount: 2 },
+    st: { entryCount: 3 },
+    ap: { entryCount: 1 },
+    te: { entryCount: 1 },
+  },
 }
 
 // Setup fetch mock
@@ -74,8 +79,8 @@ beforeAll(() => {
     if (urlStr.endsWith('manifest.json')) {
       return new Response(JSON.stringify(mockManifest), { status: 200 })
     }
-    // Return all entries for any shard request (simplified for testing)
-    return new Response(JSON.stringify(mockEntries), { status: 200 })
+    // Return ShardData format for any shard request
+    return new Response(JSON.stringify(mockShardData), { status: 200 })
   }
 })
 
@@ -211,7 +216,7 @@ describe('SearchEngine', () => {
     await engine.search('test')
 
     const stats = engine.getStats()
-    expect(stats.totalEntries).toBe(mockEntries.length)
+    expect(stats.totalEntries).toBe(mockShardData.entries.length)
     expect(stats.cachedPrefixes).toBeGreaterThan(0)
   })
 
@@ -251,24 +256,27 @@ describe('SearchEngine', () => {
 
   test('highlights work with diacritics', async () => {
     // Create a custom mock with diacritic text
-    const diacriticEntries = [
-      {
-        nodeId: 'hed_cafe',
-        nodeType: 'Heading',
-        route: '/menu/',
-        text: 'Welcome to the café',
-        weight: 8,
-        depth: 1,
-      },
-      {
-        nodeId: 'par_naive',
-        nodeType: 'Paragraph',
-        route: '/docs/',
-        text: 'A naïve approach to the problem',
-        weight: 1,
-        depth: 2,
-      },
-    ]
+    const diacriticShardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_cafe',
+          nodeType: 'Heading',
+          route: '/menu/',
+          text: 'Welcome to the café',
+          weight: 8,
+          depth: 1,
+        },
+        {
+          nodeId: 'par_naive',
+          nodeType: 'Paragraph',
+          route: '/docs/',
+          text: 'A naïve approach to the problem',
+          weight: 1,
+          depth: 2,
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -277,12 +285,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/ca.json', entryCount: 1 }],
+            shards: { ca: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(diacriticEntries), { status: 200 })
+      return new Response(JSON.stringify(diacriticShardData), { status: 200 })
     }
 
     try {
@@ -312,16 +320,19 @@ describe('SearchEngine', () => {
   })
 
   test('highlights map correctly for text with multiple diacritics', async () => {
-    const diacriticEntries = [
-      {
-        nodeId: 'par_complex',
-        nodeType: 'Paragraph',
-        route: '/test/',
-        text: 'The résumé was très élégant',
-        weight: 1,
-        depth: 1,
-      },
-    ]
+    const diacriticShardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'par_complex',
+          nodeType: 'Paragraph',
+          route: '/test/',
+          text: 'The résumé was très élégant',
+          weight: 1,
+          depth: 1,
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -330,12 +341,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/re.json', entryCount: 1 }],
+            shards: { re: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(diacriticEntries), { status: 200 })
+      return new Response(JSON.stringify(diacriticShardData), { status: 200 })
     }
 
     try {
@@ -364,16 +375,19 @@ describe('SearchEngine', () => {
   test('highlights work correctly with emoji (astral characters)', async () => {
     // Emoji are astral characters (outside BMP) represented as surrogate pairs
     // in UTF-16, so they have length 2 in JavaScript strings
-    const emojiEntries = [
-      {
-        nodeId: 'par_emoji',
-        nodeType: 'Paragraph',
-        route: '/test/',
-        text: '😀 Welcome to the café! 🎉',
-        weight: 1,
-        depth: 1,
-      },
-    ]
+    const emojiShardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'par_emoji',
+          nodeType: 'Paragraph',
+          route: '/test/',
+          text: '😀 Welcome to the café! 🎉',
+          weight: 1,
+          depth: 1,
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -382,12 +396,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/ca.json', entryCount: 1 }],
+            shards: { ca: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(emojiEntries), { status: 200 })
+      return new Response(JSON.stringify(emojiShardData), { status: 200 })
     }
 
     try {
@@ -415,16 +429,19 @@ describe('SearchEngine', () => {
   })
 
   test('highlights work with emoji in the middle of text', async () => {
-    const emojiEntries = [
-      {
-        nodeId: 'par_emoji2',
-        nodeType: 'Paragraph',
-        route: '/test/',
-        text: 'Hello 🌍 world 🎉 test',
-        weight: 1,
-        depth: 1,
-      },
-    ]
+    const emojiShardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'par_emoji2',
+          nodeType: 'Paragraph',
+          route: '/test/',
+          text: 'Hello 🌍 world 🎉 test',
+          weight: 1,
+          depth: 1,
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -433,12 +450,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/te.json', entryCount: 1 }],
+            shards: { te: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(emojiEntries), { status: 200 })
+      return new Response(JSON.stringify(emojiShardData), { status: 200 })
     }
 
     try {
@@ -465,48 +482,50 @@ describe('SearchEngine', () => {
   })
 
   test('fuzzy matching finds entries with typos', async () => {
-    // Create entries with pre-computed tokenTrigrams for fuzzy matching
-    const fuzzyEntries = [
-      {
-        nodeId: 'hed_database',
-        nodeType: 'Heading',
-        route: '/docs/',
-        text: 'Introduction to the database system',
-        weight: 8,
-        depth: 1,
-        tokenTrigrams: [
-          {
-            token: 'introduction',
-            trigrams: [
-              'int',
-              'ntr',
-              'tro',
-              'rod',
-              'odu',
-              'duc',
-              'uct',
-              'cti',
-              'tio',
-              'ion',
-            ],
-            start: 0,
-            end: 12,
-          },
-          {
-            token: 'database',
-            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
-            start: 20,
-            end: 28,
-          },
-          {
-            token: 'system',
-            trigrams: ['sys', 'yst', 'ste', 'tem'],
-            start: 29,
-            end: 35,
-          },
-        ],
-      },
-    ]
+    // Create ShardData with tokenDefs and compact token references
+    const fuzzyShardData: ShardData = {
+      tokenDefs: [
+        {
+          token: 'introduction',
+          trigrams: [
+            'int',
+            'ntr',
+            'tro',
+            'rod',
+            'odu',
+            'duc',
+            'uct',
+            'cti',
+            'tio',
+            'ion',
+          ],
+        },
+        {
+          token: 'database',
+          trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+        },
+        {
+          token: 'system',
+          trigrams: ['sys', 'yst', 'ste', 'tem'],
+        },
+      ],
+      entries: [
+        {
+          nodeId: 'hed_database',
+          nodeType: 'Heading',
+          route: '/docs/',
+          text: 'Introduction to the database system',
+          weight: 8,
+          depth: 1,
+          // tokens: [[defIndex, start, end], ...]
+          tokens: [
+            [0, 0, 12], // introduction
+            [1, 20, 28], // database
+            [2, 29, 35], // system
+          ],
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -515,12 +534,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/da.json', entryCount: 1 }],
+            shards: { da: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(fuzzyEntries), { status: 200 })
+      return new Response(JSON.stringify(fuzzyShardData), { status: 200 })
     }
 
     try {
@@ -546,39 +565,41 @@ describe('SearchEngine', () => {
   })
 
   test('exact matches score higher than fuzzy matches', async () => {
-    const mixedEntries = [
-      {
-        nodeId: 'par_exact',
-        nodeType: 'Paragraph',
-        route: '/docs/',
-        text: 'The databse is great', // Contains exact "databse"
-        weight: 1,
-        depth: 1,
-        // No tokenTrigrams needed for exact match
-      },
-      {
-        nodeId: 'par_fuzzy',
-        nodeType: 'Paragraph',
-        route: '/docs/',
-        text: 'The database is better',
-        weight: 1,
-        depth: 1,
-        tokenTrigrams: [
-          {
-            token: 'database',
-            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
-            start: 4,
-            end: 12,
-          },
-          {
-            token: 'better',
-            trigrams: ['bet', 'ett', 'tte', 'ter'],
-            start: 16,
-            end: 22,
-          },
-        ],
-      },
-    ]
+    const mixedShardData: ShardData = {
+      tokenDefs: [
+        {
+          token: 'database',
+          trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+        },
+        {
+          token: 'better',
+          trigrams: ['bet', 'ett', 'tte', 'ter'],
+        },
+      ],
+      entries: [
+        {
+          nodeId: 'par_exact',
+          nodeType: 'Paragraph',
+          route: '/docs/',
+          text: 'The databse is great', // Contains exact "databse"
+          weight: 1,
+          depth: 1,
+          // No tokens needed for exact match
+        },
+        {
+          nodeId: 'par_fuzzy',
+          nodeType: 'Paragraph',
+          route: '/docs/',
+          text: 'The database is better',
+          weight: 1,
+          depth: 1,
+          tokens: [
+            [0, 4, 12], // database
+            [1, 16, 22], // better
+          ],
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -587,12 +608,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/da.json', entryCount: 2 }],
+            shards: { da: { entryCount: 2 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(mixedEntries), { status: 200 })
+      return new Response(JSON.stringify(mixedShardData), { status: 200 })
     }
 
     try {
@@ -618,24 +639,25 @@ describe('SearchEngine', () => {
   })
 
   test('fuzzy matching can be disabled', async () => {
-    const fuzzyEntries = [
-      {
-        nodeId: 'hed_test',
-        nodeType: 'Heading',
-        route: '/docs/',
-        text: 'Introduction to the database system',
-        weight: 8,
-        depth: 1,
-        tokenTrigrams: [
-          {
-            token: 'database',
-            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
-            start: 20,
-            end: 28,
-          },
-        ],
-      },
-    ]
+    const fuzzyShardData: ShardData = {
+      tokenDefs: [
+        {
+          token: 'database',
+          trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+        },
+      ],
+      entries: [
+        {
+          nodeId: 'hed_test',
+          nodeType: 'Heading',
+          route: '/docs/',
+          text: 'Introduction to the database system',
+          weight: 8,
+          depth: 1,
+          tokens: [[0, 20, 28]], // database
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -644,12 +666,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/da.json', entryCount: 1 }],
+            shards: { da: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(fuzzyEntries), { status: 200 })
+      return new Response(JSON.stringify(fuzzyShardData), { status: 200 })
     }
 
     try {
@@ -671,24 +693,25 @@ describe('SearchEngine', () => {
   })
 
   test('fuzzy threshold controls match sensitivity', async () => {
-    const fuzzyEntries = [
-      {
-        nodeId: 'hed_test',
-        nodeType: 'Heading',
-        route: '/docs/',
-        text: 'Working with the database',
-        weight: 8,
-        depth: 1,
-        tokenTrigrams: [
-          {
-            token: 'database',
-            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
-            start: 17,
-            end: 25,
-          },
-        ],
-      },
-    ]
+    const fuzzyShardData: ShardData = {
+      tokenDefs: [
+        {
+          token: 'database',
+          trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+        },
+      ],
+      entries: [
+        {
+          nodeId: 'hed_test',
+          nodeType: 'Heading',
+          route: '/docs/',
+          text: 'Working with the database',
+          weight: 8,
+          depth: 1,
+          tokens: [[0, 17, 25]], // database
+        },
+      ],
+    }
 
     const customFetch = global.fetch
     global.fetch = async (url: string | URL | Request) => {
@@ -697,12 +720,12 @@ describe('SearchEngine', () => {
         return new Response(
           JSON.stringify({
             ...mockManifest,
-            shards: [{ file: 'shards/da.json', entryCount: 1 }],
+            shards: { da: { entryCount: 1 } },
           }),
           { status: 200 }
         )
       }
-      return new Response(JSON.stringify(fuzzyEntries), { status: 200 })
+      return new Response(JSON.stringify(fuzzyShardData), { status: 200 })
     }
 
     try {

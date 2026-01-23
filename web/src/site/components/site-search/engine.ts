@@ -148,8 +148,9 @@ export class SearchEngine {
         continue
       }
 
-      // Tokenize entry text
-      const entryTokens = tokenize(entry.text)
+      // Get or compute tokenized entry text (lazy cache)
+      const entryTokens =
+        entry._cachedTokens ?? (entry._cachedTokens = tokenize(entry.text))
       if (entryTokens.length === 0) {
         continue
       }

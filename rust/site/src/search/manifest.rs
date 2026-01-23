@@ -1,5 +1,7 @@
 //! Search index manifest data structures
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 /// Current search index schema version
@@ -21,19 +23,16 @@ pub struct SearchManifest {
     /// Total number of indexed documents/routes
     pub total_routes: usize,
 
-    /// Information about each shard
-    pub shards: Vec<ShardInfo>,
+    /// Information about each shard, keyed by prefix (e.g., "ab", "co")
+    ///
+    /// The shard file can be derived as `shards/{prefix}.json`.
+    pub shards: BTreeMap<String, ShardInfo>,
 }
 
 /// Information about a single shard file
-///
-/// The token prefix can be derived from the filename (e.g., "shards/ab.json" → "ab").
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ShardInfo {
-    /// Shard filename (e.g., "shards/ab.json")
-    pub file: String,
-
     /// Number of entries in this shard
     pub entry_count: usize,
 
@@ -44,7 +43,11 @@ pub struct ShardInfo {
 
 impl SearchManifest {
     /// Create a new manifest
-    pub fn new(total_entries: usize, total_routes: usize, shards: Vec<ShardInfo>) -> Self {
+    pub fn new(
+        total_entries: usize,
+        total_routes: usize,
+        shards: BTreeMap<String, ShardInfo>,
+    ) -> Self {
         Self {
             version: SCHEMA_VERSION,
             total_entries,
@@ -56,17 +59,10 @@ impl SearchManifest {
 
 impl ShardInfo {
     /// Create a new shard info
-    pub fn new(file: String, entry_count: usize) -> Self {
+    pub fn new(entry_count: usize) -> Self {
         Self {
-            file,
             entry_count,
             size_bytes: None,
         }
-    }
-
-    /// Set the file size
-    pub fn with_size(mut self, size_bytes: usize) -> Self {
-        self.size_bytes = Some(size_bytes);
-        self
     }
 }
