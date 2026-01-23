@@ -12,9 +12,7 @@ use strum::IntoEnumIterator;
 use tokio::fs::{create_dir_all, read_dir, read_to_string, remove_dir_all, remove_file, write};
 
 use stencila_codecs::{EncodeOptions, Format};
-use stencila_schema::{
-    Article, ArticleOptions, Block, Inline, Node, Table, shortcuts::*,
-};
+use stencila_schema::{Article, ArticleOptions, Block, Inline, Node, Table, shortcuts::*};
 
 use crate::{
     schema::{Category, Items, ProptestLevel, Schema, Status, Type},
@@ -563,10 +561,7 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
                 }),
                 lnk(
                     [ci(title)],
-                    format!(
-                        "https://github.com/stencila/stencila/blob/main/python/python/stencila/types/{module}.py",
-                        module = title.to_snake_case()
-                    ),
+                    "https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py",
                 ),
             ]),
             li([
