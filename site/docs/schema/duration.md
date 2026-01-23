@@ -26,10 +26,10 @@ The `Duration` type is represented in:
 
 - [JSON-LD](https://stencila.org/Duration.jsonld)
 - [JSON Schema](https://stencila.org/Duration.schema.json)
-- Python class [`Duration`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/duration.py)
+- Python class [`Duration`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Duration`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/duration.rs)
 - TypeScript class [`Duration`](https://github.com/stencila/stencila/blob/main/ts/src/types/Duration.ts)
 
-# Source
+***
 
 This documentation was generated from [`Duration.yaml`](https://github.com/stencila/stencila/blob/main/schema/Duration.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

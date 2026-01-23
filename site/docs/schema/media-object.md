@@ -71,10 +71,10 @@ The `MediaObject` type is represented in:
 
 - [JSON-LD](https://stencila.org/MediaObject.jsonld)
 - [JSON Schema](https://stencila.org/MediaObject.schema.json)
-- Python class [`MediaObject`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/media_object.py)
+- Python class [`MediaObject`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`MediaObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/media_object.rs)
 - TypeScript class [`MediaObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/MediaObject.ts)
 
-# Source
+***
 
 This documentation was generated from [`MediaObject.yaml`](https://github.com/stencila/stencila/blob/main/schema/MediaObject.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

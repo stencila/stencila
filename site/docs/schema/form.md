@@ -44,10 +44,10 @@ The `Form` type is represented in:
 
 - [JSON-LD](https://stencila.org/Form.jsonld)
 - [JSON Schema](https://stencila.org/Form.schema.json)
-- Python class [`Form`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/form.py)
+- Python class [`Form`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Form`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/form.rs)
 - TypeScript class [`Form`](https://github.com/stencila/stencila/blob/main/ts/src/types/Form.ts)
 
-# Source
+***
 
 This documentation was generated from [`Form.yaml`](https://github.com/stencila/stencila/blob/main/schema/Form.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -25,10 +25,10 @@ The `ConfigPublish` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublish.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublish.schema.json)
-- Python class [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/config_publish.py)
+- Python class [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish.rs)
 - TypeScript class [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublish.ts)
 
-# Source
+***
 
 This documentation was generated from [`ConfigPublish.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublish.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

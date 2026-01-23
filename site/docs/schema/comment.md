@@ -72,10 +72,10 @@ The `Comment` type is represented in:
 
 - [JSON-LD](https://stencila.org/Comment.jsonld)
 - [JSON Schema](https://stencila.org/Comment.schema.json)
-- Python class [`Comment`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/comment.py)
+- Python class [`Comment`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Comment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/comment.rs)
 - TypeScript class [`Comment`](https://github.com/stencila/stencila/blob/main/ts/src/types/Comment.ts)
 
-# Source
+***
 
 This documentation was generated from [`Comment.yaml`](https://github.com/stencila/stencila/blob/main/schema/Comment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

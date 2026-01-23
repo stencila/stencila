@@ -56,10 +56,10 @@ The `SectionType` type is represented in:
 
 - [JSON-LD](https://stencila.org/SectionType.jsonld)
 - [JSON Schema](https://stencila.org/SectionType.schema.json)
-- Python type [`SectionType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/section_type.py)
+- Python type [`SectionType`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`SectionType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/section_type.rs)
 - TypeScript type [`SectionType`](https://github.com/stencila/stencila/blob/main/ts/src/types/SectionType.ts)
 
-# Source
+***
 
 This documentation was generated from [`SectionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/SectionType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

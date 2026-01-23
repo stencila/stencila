@@ -44,7 +44,7 @@ The `ListItem` type is represented in:
 
 - [JSON-LD](https://stencila.org/ListItem.jsonld)
 - [JSON Schema](https://stencila.org/ListItem.schema.json)
-- Python class [`ListItem`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list_item.py)
+- Python class [`ListItem`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ListItem`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_item.rs)
 - TypeScript class [`ListItem`](https://github.com/stencila/stencila/blob/main/ts/src/types/ListItem.ts)
 
@@ -61,10 +61,10 @@ During property-based (a.k.a generative) testing, the properties of the `ListIte
 |           | High+      | Generate up to two, arbitrary, non-list blocks  | `vec_blocks_list_item(2)` |
 |           | Max        | Generate up to four, arbitrary, non-list blocks | `vec_blocks_list_item(4)` |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`ListItem.yaml`](https://github.com/stencila/stencila/blob/main/schema/ListItem.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

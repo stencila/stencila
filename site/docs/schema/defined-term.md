@@ -36,10 +36,10 @@ The `DefinedTerm` type is represented in:
 
 - [JSON-LD](https://stencila.org/DefinedTerm.jsonld)
 - [JSON Schema](https://stencila.org/DefinedTerm.schema.json)
-- Python class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/defined_term.py)
+- Python class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/defined_term.rs)
 - TypeScript class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/ts/src/types/DefinedTerm.ts)
 
-# Source
+***
 
 This documentation was generated from [`DefinedTerm.yaml`](https://github.com/stencila/stencila/blob/main/schema/DefinedTerm.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

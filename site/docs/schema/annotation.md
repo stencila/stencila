@@ -26,10 +26,10 @@ The `Annotation` type is represented in:
 
 - [JSON-LD](https://stencila.org/Annotation.jsonld)
 - [JSON Schema](https://stencila.org/Annotation.schema.json)
-- Python class [`Annotation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/annotation.py)
+- Python class [`Annotation`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Annotation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/annotation.rs)
 - TypeScript class [`Annotation`](https://github.com/stencila/stencila/blob/main/ts/src/types/Annotation.ts)
 
-# Source
+***
 
 This documentation was generated from [`Annotation.yaml`](https://github.com/stencila/stencila/blob/main/schema/Annotation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

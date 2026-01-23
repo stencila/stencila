@@ -28,10 +28,10 @@ The `CompilationMessage` type is represented in:
 
 - [JSON-LD](https://stencila.org/CompilationMessage.jsonld)
 - [JSON Schema](https://stencila.org/CompilationMessage.schema.json)
-- Python class [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/compilation_message.py)
+- Python class [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/compilation_message.rs)
 - TypeScript class [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/CompilationMessage.ts)
 
-# Source
+***
 
 This documentation was generated from [`CompilationMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/CompilationMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

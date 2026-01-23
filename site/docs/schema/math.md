@@ -38,10 +38,10 @@ The `Math` type is represented in:
 
 - [JSON-LD](https://stencila.org/Math.jsonld)
 - [JSON Schema](https://stencila.org/Math.schema.json)
-- Python class [`Math`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/math.py)
+- Python class [`Math`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Math`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math.rs)
 - TypeScript class [`Math`](https://github.com/stencila/stencila/blob/main/ts/src/types/Math.ts)
 
-# Source
+***
 
 This documentation was generated from [`Math.yaml`](https://github.com/stencila/stencila/blob/main/schema/Math.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

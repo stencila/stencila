@@ -45,7 +45,7 @@ The `CallBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/CallBlock.jsonld)
 - [JSON Schema](https://stencila.org/CallBlock.schema.json)
-- Python class [`CallBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/call_block.py)
+- Python class [`CallBlock`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CallBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call_block.rs)
 - TypeScript class [`CallBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/CallBlock.ts)
 
@@ -65,10 +65,10 @@ During property-based (a.k.a generative) testing, the properties of the `CallBlo
 |             | Low+       | Generate up to 3 arbitrary arguments                                                                                                                                                                               | `vec(CallArgument::arbitrary(), size_range(0..=3))`  |
 |             | High+      | Generate up to 10 arbitrary arguments                                                                                                                                                                              | `vec(CallArgument::arbitrary(), size_range(0..=10))` |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`CallBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/CallBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

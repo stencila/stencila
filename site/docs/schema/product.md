@@ -45,10 +45,10 @@ The `Product` type is represented in:
 
 - [JSON-LD](https://stencila.org/Product.jsonld)
 - [JSON Schema](https://stencila.org/Product.schema.json)
-- Python class [`Product`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/product.py)
+- Python class [`Product`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Product`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/product.rs)
 - TypeScript class [`Product`](https://github.com/stencila/stencila/blob/main/ts/src/types/Product.ts)
 
-# Source
+***
 
 This documentation was generated from [`Product.yaml`](https://github.com/stencila/stencila/blob/main/schema/Product.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

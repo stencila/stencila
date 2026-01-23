@@ -43,10 +43,10 @@ The `Organization` type is represented in:
 
 - [JSON-LD](https://stencila.org/Organization.jsonld)
 - [JSON Schema](https://stencila.org/Organization.schema.json)
-- Python class [`Organization`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/organization.py)
+- Python class [`Organization`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Organization`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/organization.rs)
 - TypeScript class [`Organization`](https://github.com/stencila/stencila/blob/main/ts/src/types/Organization.ts)
 
-# Source
+***
 
 This documentation was generated from [`Organization.yaml`](https://github.com/stencila/stencila/blob/main/schema/Organization.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

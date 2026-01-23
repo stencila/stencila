@@ -25,10 +25,10 @@ The `StringHint` type is represented in:
 
 - [JSON-LD](https://stencila.org/StringHint.jsonld)
 - [JSON Schema](https://stencila.org/StringHint.schema.json)
-- Python class [`StringHint`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/string_hint.py)
+- Python class [`StringHint`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`StringHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_hint.rs)
 - TypeScript class [`StringHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringHint.ts)
 
-# Source
+***
 
 This documentation was generated from [`StringHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/StringHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

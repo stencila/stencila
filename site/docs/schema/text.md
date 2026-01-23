@@ -35,7 +35,7 @@ The `Text` type is represented in:
 
 - [JSON-LD](https://stencila.org/Text.jsonld)
 - [JSON Schema](https://stencila.org/Text.schema.json)
-- Python class [`Text`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/text.py)
+- Python class [`Text`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Text`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/text.rs)
 - TypeScript class [`Text`](https://github.com/stencila/stencila/blob/main/ts/src/types/Text.ts)
 
@@ -52,10 +52,10 @@ During property-based (a.k.a generative) testing, the properties of the `Text` t
 |          | High+      | Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace. | `r"[a-zA-Z0-9 \t\-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::from)` |
 |          | Max        | Generate an arbitrary string.                                                                                                  | `String::arbitrary().prop_map(Cord::from)`                      |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Text.yaml`](https://github.com/stencila/stencila/blob/main/schema/Text.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

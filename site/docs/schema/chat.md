@@ -82,10 +82,10 @@ The `Chat` type is represented in:
 
 - [JSON-LD](https://stencila.org/Chat.jsonld)
 - [JSON Schema](https://stencila.org/Chat.schema.json)
-- Python class [`Chat`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/chat.py)
+- Python class [`Chat`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Chat`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/chat.rs)
 - TypeScript class [`Chat`](https://github.com/stencila/stencila/blob/main/ts/src/types/Chat.ts)
 
-# Source
+***
 
 This documentation was generated from [`Chat.yaml`](https://github.com/stencila/stencila/blob/main/schema/Chat.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

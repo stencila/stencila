@@ -20,10 +20,10 @@ The `VerticalAlignment` type is represented in:
 
 - [JSON-LD](https://stencila.org/VerticalAlignment.jsonld)
 - [JSON Schema](https://stencila.org/VerticalAlignment.schema.json)
-- Python type [`VerticalAlignment`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/vertical_alignment.py)
+- Python type [`VerticalAlignment`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`VerticalAlignment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/vertical_alignment.rs)
 - TypeScript type [`VerticalAlignment`](https://github.com/stencila/stencila/blob/main/ts/src/types/VerticalAlignment.ts)
 
-# Source
+***
 
 This documentation was generated from [`VerticalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/VerticalAlignment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -21,10 +21,10 @@ The `HorizontalAlignment` type is represented in:
 
 - [JSON-LD](https://stencila.org/HorizontalAlignment.jsonld)
 - [JSON Schema](https://stencila.org/HorizontalAlignment.schema.json)
-- Python type [`HorizontalAlignment`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/horizontal_alignment.py)
+- Python type [`HorizontalAlignment`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`HorizontalAlignment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/horizontal_alignment.rs)
 - TypeScript type [`HorizontalAlignment`](https://github.com/stencila/stencila/blob/main/ts/src/types/HorizontalAlignment.ts)
 
-# Source
+***
 
 This documentation was generated from [`HorizontalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/HorizontalAlignment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

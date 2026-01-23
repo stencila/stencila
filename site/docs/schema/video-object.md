@@ -74,7 +74,7 @@ The `VideoObject` type is represented in:
 
 - [JSON-LD](https://stencila.org/VideoObject.jsonld)
 - [JSON Schema](https://stencila.org/VideoObject.schema.json)
-- Python class [`VideoObject`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/video_object.py)
+- Python class [`VideoObject`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`VideoObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/video_object.rs)
 - TypeScript class [`VideoObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/VideoObject.ts)
 
@@ -91,10 +91,10 @@ During property-based (a.k.a generative) testing, the properties of the `VideoOb
 |              | High+      | Generate a random string of up to 100 alphanumeric characters. | Regex `[a-zA-Z0-9]{1,100}`                      |
 |              | Max        | Generate an arbitrary string.                                  | `String::arbitrary()`                           |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`VideoObject.yaml`](https://github.com/stencila/stencila/blob/main/schema/VideoObject.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

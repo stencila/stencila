@@ -32,10 +32,10 @@ The `StringValidator` type is represented in:
 
 - [JSON-LD](https://stencila.org/StringValidator.jsonld)
 - [JSON Schema](https://stencila.org/StringValidator.schema.json)
-- Python class [`StringValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/string_validator.py)
+- Python class [`StringValidator`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`StringValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_validator.rs)
 - TypeScript class [`StringValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringValidator.ts)
 
-# Source
+***
 
 This documentation was generated from [`StringValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/StringValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

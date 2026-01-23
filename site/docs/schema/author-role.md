@@ -28,10 +28,10 @@ The `AuthorRole` type is represented in:
 
 - [JSON-LD](https://stencila.org/AuthorRole.jsonld)
 - [JSON Schema](https://stencila.org/AuthorRole.schema.json)
-- Python class [`AuthorRole`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/author_role.py)
+- Python class [`AuthorRole`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`AuthorRole`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/author_role.rs)
 - TypeScript class [`AuthorRole`](https://github.com/stencila/stencila/blob/main/ts/src/types/AuthorRole.ts)
 
-# Source
+***
 
 This documentation was generated from [`AuthorRole.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRole.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -55,10 +55,10 @@ The `CreativeWorkType` type is represented in:
 
 - [JSON-LD](https://stencila.org/CreativeWorkType.jsonld)
 - [JSON Schema](https://stencila.org/CreativeWorkType.schema.json)
-- Python type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/creative_work_type.py)
+- Python type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work_type.rs)
 - TypeScript type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWorkType.ts)
 
-# Source
+***
 
 This documentation was generated from [`CreativeWorkType.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWorkType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -68,10 +68,10 @@ The `Review` type is represented in:
 
 - [JSON-LD](https://stencila.org/Review.jsonld)
 - [JSON Schema](https://stencila.org/Review.schema.json)
-- Python class [`Review`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/review.py)
+- Python class [`Review`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Review`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/review.rs)
 - TypeScript class [`Review`](https://github.com/stencila/stencila/blob/main/ts/src/types/Review.ts)
 
-# Source
+***
 
 This documentation was generated from [`Review.yaml`](https://github.com/stencila/stencila/blob/main/schema/Review.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

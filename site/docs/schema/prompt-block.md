@@ -52,10 +52,10 @@ The `PromptBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/PromptBlock.jsonld)
 - [JSON Schema](https://stencila.org/PromptBlock.schema.json)
-- Python class [`PromptBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/prompt_block.py)
+- Python class [`PromptBlock`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`PromptBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/prompt_block.rs)
 - TypeScript class [`PromptBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/PromptBlock.ts)
 
-# Source
+***
 
 This documentation was generated from [`PromptBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/PromptBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

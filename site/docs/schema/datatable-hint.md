@@ -26,10 +26,10 @@ The `DatatableHint` type is represented in:
 
 - [JSON-LD](https://stencila.org/DatatableHint.jsonld)
 - [JSON Schema](https://stencila.org/DatatableHint.schema.json)
-- Python class [`DatatableHint`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/datatable_hint.py)
+- Python class [`DatatableHint`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`DatatableHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable_hint.rs)
 - TypeScript class [`DatatableHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/DatatableHint.ts)
 
-# Source
+***
 
 This documentation was generated from [`DatatableHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/DatatableHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -27,10 +27,10 @@ The `EnumValidator` type is represented in:
 
 - [JSON-LD](https://stencila.org/EnumValidator.jsonld)
 - [JSON Schema](https://stencila.org/EnumValidator.schema.json)
-- Python class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/enum_validator.py)
+- Python class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`EnumValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/enum_validator.rs)
 - TypeScript class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/EnumValidator.ts)
 
-# Source
+***
 
 This documentation was generated from [`EnumValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/EnumValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

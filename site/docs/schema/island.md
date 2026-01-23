@@ -30,10 +30,10 @@ The `Island` type is represented in:
 
 - [JSON-LD](https://stencila.org/Island.jsonld)
 - [JSON Schema](https://stencila.org/Island.schema.json)
-- Python class [`Island`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/island.py)
+- Python class [`Island`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Island`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/island.rs)
 - TypeScript class [`Island`](https://github.com/stencila/stencila/blob/main/ts/src/types/Island.ts)
 
-# Source
+***
 
 This documentation was generated from [`Island.yaml`](https://github.com/stencila/stencila/blob/main/schema/Island.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

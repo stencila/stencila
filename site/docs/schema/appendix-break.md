@@ -31,10 +31,10 @@ The `AppendixBreak` type is represented in:
 
 - [JSON-LD](https://stencila.org/AppendixBreak.jsonld)
 - [JSON Schema](https://stencila.org/AppendixBreak.schema.json)
-- Python class [`AppendixBreak`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/appendix_break.py)
+- Python class [`AppendixBreak`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`AppendixBreak`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/appendix_break.rs)
 - TypeScript class [`AppendixBreak`](https://github.com/stencila/stencila/blob/main/ts/src/types/AppendixBreak.ts)
 
-# Source
+***
 
 This documentation was generated from [`AppendixBreak.yaml`](https://github.com/stencila/stencila/blob/main/schema/AppendixBreak.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

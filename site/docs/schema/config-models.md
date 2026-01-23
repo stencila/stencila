@@ -26,10 +26,10 @@ The `ConfigModels` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigModels.jsonld)
 - [JSON Schema](https://stencila.org/ConfigModels.schema.json)
-- Python class [`ConfigModels`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/config_models.py)
+- Python class [`ConfigModels`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ConfigModels`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_models.rs)
 - TypeScript class [`ConfigModels`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigModels.ts)
 
-# Source
+***
 
 This documentation was generated from [`ConfigModels.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigModels.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

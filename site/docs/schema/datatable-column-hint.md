@@ -29,10 +29,10 @@ The `DatatableColumnHint` type is represented in:
 
 - [JSON-LD](https://stencila.org/DatatableColumnHint.jsonld)
 - [JSON Schema](https://stencila.org/DatatableColumnHint.schema.json)
-- Python class [`DatatableColumnHint`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/datatable_column_hint.py)
+- Python class [`DatatableColumnHint`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`DatatableColumnHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable_column_hint.rs)
 - TypeScript class [`DatatableColumnHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/DatatableColumnHint.ts)
 
-# Source
+***
 
 This documentation was generated from [`DatatableColumnHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/DatatableColumnHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

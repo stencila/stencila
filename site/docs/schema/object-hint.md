@@ -27,10 +27,10 @@ The `ObjectHint` type is represented in:
 
 - [JSON-LD](https://stencila.org/ObjectHint.jsonld)
 - [JSON Schema](https://stencila.org/ObjectHint.schema.json)
-- Python class [`ObjectHint`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/object_hint.py)
+- Python class [`ObjectHint`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ObjectHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/object_hint.rs)
 - TypeScript class [`ObjectHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/ObjectHint.ts)
 
-# Source
+***
 
 This documentation was generated from [`ObjectHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/ObjectHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

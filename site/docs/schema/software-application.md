@@ -71,10 +71,10 @@ The `SoftwareApplication` type is represented in:
 
 - [JSON-LD](https://stencila.org/SoftwareApplication.jsonld)
 - [JSON Schema](https://stencila.org/SoftwareApplication.schema.json)
-- Python class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/software_application.py)
+- Python class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/software_application.rs)
 - TypeScript class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/ts/src/types/SoftwareApplication.ts)
 
-# Source
+***
 
 This documentation was generated from [`SoftwareApplication.yaml`](https://github.com/stencila/stencila/blob/main/schema/SoftwareApplication.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

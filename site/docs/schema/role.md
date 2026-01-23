@@ -32,10 +32,10 @@ The `Role` type is represented in:
 
 - [JSON-LD](https://stencila.org/Role.jsonld)
 - [JSON Schema](https://stencila.org/Role.schema.json)
-- Python class [`Role`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/role.py)
+- Python class [`Role`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Role`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/role.rs)
 - TypeScript class [`Role`](https://github.com/stencila/stencila/blob/main/ts/src/types/Role.ts)
 
-# Source
+***
 
 This documentation was generated from [`Role.yaml`](https://github.com/stencila/stencila/blob/main/schema/Role.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -36,10 +36,10 @@ The `CitationMode` type is represented in:
 
 - [JSON-LD](https://stencila.org/CitationMode.jsonld)
 - [JSON Schema](https://stencila.org/CitationMode.schema.json)
-- Python type [`CitationMode`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation_mode.py)
+- Python type [`CitationMode`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`CitationMode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation_mode.rs)
 - TypeScript type [`CitationMode`](https://github.com/stencila/stencila/blob/main/ts/src/types/CitationMode.ts)
 
-# Source
+***
 
 This documentation was generated from [`CitationMode.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationMode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

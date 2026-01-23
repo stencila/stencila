@@ -25,10 +25,10 @@ The `Mark` type is represented in:
 
 - [JSON-LD](https://stencila.org/Mark.jsonld)
 - [JSON Schema](https://stencila.org/Mark.schema.json)
-- Python class [`Mark`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/mark.py)
+- Python class [`Mark`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Mark`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/mark.rs)
 - TypeScript class [`Mark`](https://github.com/stencila/stencila/blob/main/ts/src/types/Mark.ts)
 
-# Source
+***
 
 This documentation was generated from [`Mark.yaml`](https://github.com/stencila/stencila/blob/main/schema/Mark.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

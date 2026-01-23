@@ -48,10 +48,10 @@ The `CodeExecutable` type is represented in:
 
 - [JSON-LD](https://stencila.org/CodeExecutable.jsonld)
 - [JSON Schema](https://stencila.org/CodeExecutable.schema.json)
-- Python class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_executable.py)
+- Python class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_executable.rs)
 - TypeScript class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeExecutable.ts)
 
-# Source
+***
 
 This documentation was generated from [`CodeExecutable.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeExecutable.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

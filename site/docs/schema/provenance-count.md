@@ -27,10 +27,10 @@ The `ProvenanceCount` type is represented in:
 
 - [JSON-LD](https://stencila.org/ProvenanceCount.jsonld)
 - [JSON Schema](https://stencila.org/ProvenanceCount.schema.json)
-- Python class [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/provenance_count.py)
+- Python class [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/provenance_count.rs)
 - TypeScript class [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/ts/src/types/ProvenanceCount.ts)
 
-# Source
+***
 
 This documentation was generated from [`ProvenanceCount.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCount.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

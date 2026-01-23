@@ -28,7 +28,7 @@ The `CodeInline` type is represented in:
 
 - [JSON-LD](https://stencila.org/CodeInline.jsonld)
 - [JSON Schema](https://stencila.org/CodeInline.schema.json)
-- Python class [`CodeInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_inline.py)
+- Python class [`CodeInline`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CodeInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_inline.rs)
 - TypeScript class [`CodeInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeInline.ts)
 
@@ -49,10 +49,10 @@ During property-based (a.k.a generative) testing, the properties of the `CodeInl
 |                       | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                  | `option::of(r"[a-zA-Z0-9]{1,10}")`            |
 |                       | Max        | Generate an arbitrary string.                                                                                                  | `option::of(String::arbitrary())`             |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`CodeInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

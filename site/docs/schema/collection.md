@@ -69,10 +69,10 @@ The `Collection` type is represented in:
 
 - [JSON-LD](https://stencila.org/Collection.jsonld)
 - [JSON Schema](https://stencila.org/Collection.schema.json)
-- Python class [`Collection`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/collection.py)
+- Python class [`Collection`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Collection`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/collection.rs)
 - TypeScript class [`Collection`](https://github.com/stencila/stencila/blob/main/ts/src/types/Collection.ts)
 
-# Source
+***
 
 This documentation was generated from [`Collection.yaml`](https://github.com/stencila/stencila/blob/main/schema/Collection.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

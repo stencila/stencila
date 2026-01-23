@@ -30,10 +30,10 @@ The `InlinesBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/InlinesBlock.jsonld)
 - [JSON Schema](https://stencila.org/InlinesBlock.schema.json)
-- Python class [`InlinesBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/inlines_block.py)
+- Python class [`InlinesBlock`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`InlinesBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/inlines_block.rs)
 - TypeScript class [`InlinesBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/InlinesBlock.ts)
 
-# Source
+***
 
 This documentation was generated from [`InlinesBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/InlinesBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

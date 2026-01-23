@@ -108,10 +108,10 @@ The `CitationIntent` type is represented in:
 
 - [JSON-LD](https://stencila.org/CitationIntent.jsonld)
 - [JSON Schema](https://stencila.org/CitationIntent.schema.json)
-- Python type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation_intent.py)
+- Python type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation_intent.rs)
 - TypeScript type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/ts/src/types/CitationIntent.ts)
 
-# Source
+***
 
 This documentation was generated from [`CitationIntent.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationIntent.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

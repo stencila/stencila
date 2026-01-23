@@ -28,10 +28,10 @@ The `ConfigPublishGhost` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublishGhost.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublishGhost.schema.json)
-- Python class [`ConfigPublishGhost`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/config_publish_ghost.py)
+- Python class [`ConfigPublishGhost`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ConfigPublishGhost`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish_ghost.rs)
 - TypeScript class [`ConfigPublishGhost`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublishGhost.ts)
 
-# Source
+***
 
 This documentation was generated from [`ConfigPublishGhost.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhost.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

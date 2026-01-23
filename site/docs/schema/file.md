@@ -65,10 +65,10 @@ The `File` type is represented in:
 
 - [JSON-LD](https://stencila.org/File.jsonld)
 - [JSON Schema](https://stencila.org/File.schema.json)
-- Python class [`File`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/file.py)
+- Python class [`File`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`File`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/file.rs)
 - TypeScript class [`File`](https://github.com/stencila/stencila/blob/main/ts/src/types/File.ts)
 
-# Source
+***
 
 This documentation was generated from [`File.yaml`](https://github.com/stencila/stencila/blob/main/schema/File.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

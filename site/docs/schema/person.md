@@ -42,10 +42,10 @@ The `Person` type is represented in:
 
 - [JSON-LD](https://stencila.org/Person.jsonld)
 - [JSON Schema](https://stencila.org/Person.schema.json)
-- Python class [`Person`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/person.py)
+- Python class [`Person`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Person`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/person.rs)
 - TypeScript class [`Person`](https://github.com/stencila/stencila/blob/main/ts/src/types/Person.ts)
 
-# Source
+***
 
 This documentation was generated from [`Person.yaml`](https://github.com/stencila/stencila/blob/main/schema/Person.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

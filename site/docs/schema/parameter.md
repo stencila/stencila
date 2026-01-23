@@ -46,7 +46,7 @@ The `Parameter` type is represented in:
 
 - [JSON-LD](https://stencila.org/Parameter.jsonld)
 - [JSON Schema](https://stencila.org/Parameter.schema.json)
-- Python class [`Parameter`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/parameter.py)
+- Python class [`Parameter`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Parameter`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/parameter.rs)
 - TypeScript class [`Parameter`](https://github.com/stencila/stencila/blob/main/ts/src/types/Parameter.ts)
 
@@ -63,10 +63,10 @@ During property-based (a.k.a generative) testing, the properties of the `Paramet
 |          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                          | Regex `[^\p{C}]{1,100}`           |
 |          | Max        | Generate an arbitrary string.                                                                                                             | `String::arbitrary()`             |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Parameter.yaml`](https://github.com/stencila/stencila/blob/main/schema/Parameter.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -598,10 +598,10 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     ]
 }
 
-/// Generate a "Source" section for a schema
+/// Generate a source note
 fn source(title: &str) -> Vec<Block> {
     vec![
-        h1([t("Source")]),
+        tb(),
         p([
             t("This documentation was generated from "),
             lnk(

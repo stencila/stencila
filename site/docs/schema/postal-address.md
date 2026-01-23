@@ -39,10 +39,10 @@ The `PostalAddress` type is represented in:
 
 - [JSON-LD](https://stencila.org/PostalAddress.jsonld)
 - [JSON Schema](https://stencila.org/PostalAddress.schema.json)
-- Python class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/postal_address.py)
+- Python class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`PostalAddress`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/postal_address.rs)
 - TypeScript class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/ts/src/types/PostalAddress.ts)
 
-# Source
+***
 
 This documentation was generated from [`PostalAddress.yaml`](https://github.com/stencila/stencila/blob/main/schema/PostalAddress.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

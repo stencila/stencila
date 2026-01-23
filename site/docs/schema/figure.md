@@ -65,7 +65,7 @@ The `Figure` type is represented in:
 
 - [JSON-LD](https://stencila.org/Figure.jsonld)
 - [JSON Schema](https://stencila.org/Figure.schema.json)
-- Python class [`Figure`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/figure.py)
+- Python class [`Figure`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Figure`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/figure.rs)
 - TypeScript class [`Figure`](https://github.com/stencila/stencila/blob/main/ts/src/types/Figure.ts)
 
@@ -87,10 +87,10 @@ During property-based (a.k.a generative) testing, the properties of the `Figure`
 |           | Low+       | Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks). | `vec_blocks_figure_content(2)`            |
 |           | Max        | Generate up to four arbitrary, non-recursive, block nodes.                        | `vec_blocks_non_recursive(4)`             |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Figure.yaml`](https://github.com/stencila/stencila/blob/main/schema/Figure.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

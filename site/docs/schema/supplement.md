@@ -41,10 +41,10 @@ The `Supplement` type is represented in:
 
 - [JSON-LD](https://stencila.org/Supplement.jsonld)
 - [JSON Schema](https://stencila.org/Supplement.schema.json)
-- Python class [`Supplement`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/supplement.py)
+- Python class [`Supplement`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Supplement`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/supplement.rs)
 - TypeScript class [`Supplement`](https://github.com/stencila/stencila/blob/main/ts/src/types/Supplement.ts)
 
-# Source
+***
 
 This documentation was generated from [`Supplement.yaml`](https://github.com/stencila/stencila/blob/main/schema/Supplement.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -42,10 +42,10 @@ The `Reference` type is represented in:
 
 - [JSON-LD](https://stencila.org/Reference.jsonld)
 - [JSON Schema](https://stencila.org/Reference.schema.json)
-- Python class [`Reference`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/reference.py)
+- Python class [`Reference`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Reference`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/reference.rs)
 - TypeScript class [`Reference`](https://github.com/stencila/stencila/blob/main/ts/src/types/Reference.ts)
 
-# Source
+***
 
 This documentation was generated from [`Reference.yaml`](https://github.com/stencila/stencila/blob/main/schema/Reference.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

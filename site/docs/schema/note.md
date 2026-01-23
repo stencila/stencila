@@ -34,7 +34,7 @@ The `Note` type is represented in:
 
 - [JSON-LD](https://stencila.org/Note.jsonld)
 - [JSON Schema](https://stencila.org/Note.schema.json)
-- Python class [`Note`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/note.py)
+- Python class [`Note`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Note`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note.rs)
 - TypeScript class [`Note`](https://github.com/stencila/stencila/blob/main/ts/src/types/Note.ts)
 
@@ -50,10 +50,10 @@ During property-based (a.k.a generative) testing, the properties of the `Note` t
 |            | High+      | Generate an arbitrary note type.                                 | `NoteType::arbitrary()`          |
 | `content`  | Min+       | Generate a single paragraph (with no `Note` to avoid recursion). | `vec![p([t("Note paragraph")])]` |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Note.yaml`](https://github.com/stencila/stencila/blob/main/schema/Note.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -66,7 +66,7 @@ The `Table` type is represented in:
 
 - [JSON-LD](https://stencila.org/Table.jsonld)
 - [JSON Schema](https://stencila.org/Table.schema.json)
-- Python class [`Table`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table.py)
+- Python class [`Table`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Table`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table.rs)
 - TypeScript class [`Table`](https://github.com/stencila/stencila/blob/main/ts/src/types/Table.ts)
 
@@ -89,10 +89,10 @@ During property-based (a.k.a generative) testing, the properties of the `Table` 
 |           | Low+       | Generate an arbitrary paragraph.                            | `option::of(vec_paragraphs(1))`                 |
 |           | Max        | Generate up to two arbitrary, non-recursive, block nodes.   | `option::of(vec_blocks_non_recursive(2))`       |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Table.yaml`](https://github.com/stencila/stencila/blob/main/schema/Table.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

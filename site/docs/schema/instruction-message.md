@@ -29,10 +29,10 @@ The `InstructionMessage` type is represented in:
 
 - [JSON-LD](https://stencila.org/InstructionMessage.jsonld)
 - [JSON Schema](https://stencila.org/InstructionMessage.schema.json)
-- Python class [`InstructionMessage`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/instruction_message.py)
+- Python class [`InstructionMessage`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`InstructionMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction_message.rs)
 - TypeScript class [`InstructionMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructionMessage.ts)
 
-# Source
+***
 
 This documentation was generated from [`InstructionMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

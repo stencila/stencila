@@ -20,10 +20,10 @@ The `ExecutionDependencyRelation` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionDependencyRelation.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionDependencyRelation.schema.json)
-- Python type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_dependency_relation.py)
+- Python type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependency_relation.rs)
 - TypeScript type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependencyRelation.ts)
 
-# Source
+***
 
 This documentation was generated from [`ExecutionDependencyRelation.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependencyRelation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -40,10 +40,10 @@ The `Citation` type is represented in:
 
 - [JSON-LD](https://stencila.org/Citation.jsonld)
 - [JSON Schema](https://stencila.org/Citation.schema.json)
-- Python class [`Citation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation.py)
+- Python class [`Citation`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Citation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation.rs)
 - TypeScript class [`Citation`](https://github.com/stencila/stencila/blob/main/ts/src/types/Citation.ts)
 
-# Source
+***
 
 This documentation was generated from [`Citation.yaml`](https://github.com/stencila/stencila/blob/main/schema/Citation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

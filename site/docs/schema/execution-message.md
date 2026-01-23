@@ -29,10 +29,10 @@ The `ExecutionMessage` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionMessage.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionMessage.schema.json)
-- Python class [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_message.py)
+- Python class [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_message.rs)
 - TypeScript class [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionMessage.ts)
 
-# Source
+***
 
 This documentation was generated from [`ExecutionMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

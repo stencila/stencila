@@ -29,10 +29,10 @@ The `ArrayHint` type is represented in:
 
 - [JSON-LD](https://stencila.org/ArrayHint.jsonld)
 - [JSON Schema](https://stencila.org/ArrayHint.schema.json)
-- Python class [`ArrayHint`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/array_hint.py)
+- Python class [`ArrayHint`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ArrayHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array_hint.rs)
 - TypeScript class [`ArrayHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/ArrayHint.ts)
 
-# Source
+***
 
 This documentation was generated from [`ArrayHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/ArrayHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

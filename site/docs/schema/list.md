@@ -35,7 +35,7 @@ The `List` type is represented in:
 
 - [JSON-LD](https://stencila.org/List.jsonld)
 - [JSON Schema](https://stencila.org/List.schema.json)
-- Python class [`List`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list.py)
+- Python class [`List`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`List`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list.rs)
 - TypeScript class [`List`](https://github.com/stencila/stencila/blob/main/ts/src/types/List.ts)
 
@@ -55,10 +55,10 @@ During property-based (a.k.a generative) testing, the properties of the `List` t
 |          | Low+       | Randomly generate either an unordered, or ascending, list. | `prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]` |
 |          | High+      | Generate an arbitrary list ordering.                       | `ListOrder::arbitrary()`                                             |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`List.yaml`](https://github.com/stencila/stencila/blob/main/schema/List.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

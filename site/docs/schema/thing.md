@@ -30,10 +30,10 @@ The `Thing` type is represented in:
 
 - [JSON-LD](https://stencila.org/Thing.jsonld)
 - [JSON Schema](https://stencila.org/Thing.schema.json)
-- Python class [`Thing`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing.py)
+- Python class [`Thing`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Thing`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing.rs)
 - TypeScript class [`Thing`](https://github.com/stencila/stencila/blob/main/ts/src/types/Thing.ts)
 
-# Source
+***
 
 This documentation was generated from [`Thing.yaml`](https://github.com/stencila/stencila/blob/main/schema/Thing.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

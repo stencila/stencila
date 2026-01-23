@@ -52,7 +52,7 @@ The `Block` type is represented in:
 
 - [JSON-LD](https://stencila.org/Block.jsonld)
 - [JSON Schema](https://stencila.org/Block.schema.json)
-- Python type [`Block`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/block.py)
+- Python type [`Block`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`Block`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/block.rs)
 - TypeScript type [`Block`](https://github.com/stencila/stencila/blob/main/ts/src/types/Block.ts)
 
@@ -102,10 +102,10 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `VideoObject`      | Min+       | Do not generate `VideoObject` nodes in block content.      | -                 |
 | `Walkthrough`      | Min+       | Do not generate `Walkthrough` nodes in block content.      | -                 |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on the proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on the proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Block.yaml`](https://github.com/stencila/stencila/blob/main/schema/Block.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

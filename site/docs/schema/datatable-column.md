@@ -27,10 +27,10 @@ The `DatatableColumn` type is represented in:
 
 - [JSON-LD](https://stencila.org/DatatableColumn.jsonld)
 - [JSON Schema](https://stencila.org/DatatableColumn.schema.json)
-- Python class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/datatable_column.py)
+- Python class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable_column.rs)
 - TypeScript class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/ts/src/types/DatatableColumn.ts)
 
-# Source
+***
 
 This documentation was generated from [`DatatableColumn.yaml`](https://github.com/stencila/stencila/blob/main/schema/DatatableColumn.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

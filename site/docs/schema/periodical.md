@@ -69,10 +69,10 @@ The `Periodical` type is represented in:
 
 - [JSON-LD](https://stencila.org/Periodical.jsonld)
 - [JSON Schema](https://stencila.org/Periodical.schema.json)
-- Python class [`Periodical`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/periodical.py)
+- Python class [`Periodical`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Periodical`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/periodical.rs)
 - TypeScript class [`Periodical`](https://github.com/stencila/stencila/blob/main/ts/src/types/Periodical.ts)
 
-# Source
+***
 
 This documentation was generated from [`Periodical.yaml`](https://github.com/stencila/stencila/blob/main/schema/Periodical.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

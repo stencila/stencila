@@ -48,7 +48,7 @@ The `IfBlockClause` type is represented in:
 
 - [JSON-LD](https://stencila.org/IfBlockClause.jsonld)
 - [JSON Schema](https://stencila.org/IfBlockClause.schema.json)
-- Python class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/if_block_clause.py)
+- Python class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_block_clause.rs)
 - TypeScript class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/ts/src/types/IfBlockClause.ts)
 
@@ -72,10 +72,10 @@ During property-based (a.k.a generative) testing, the properties of the `IfBlock
 |                       | Low+       | Generate up to two arbitrary, non-recursive, block nodes.                                                                       | `vec_blocks_non_recursive(2)`                 |
 |                       | Max        | Generate up to four arbitrary, non-recursive, block nodes.                                                                      | `vec_blocks_non_recursive(4)`                 |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`IfBlockClause.yaml`](https://github.com/stencila/stencila/blob/main/schema/IfBlockClause.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

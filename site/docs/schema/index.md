@@ -58,6 +58,7 @@ includes the full set of properties and constraints.
 
 ***
 
+
 # Works
 
 - [`Article`](./article.md) - An article, including news and scholarly articles.

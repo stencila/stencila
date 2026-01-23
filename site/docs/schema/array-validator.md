@@ -30,10 +30,10 @@ The `ArrayValidator` type is represented in:
 
 - [JSON-LD](https://stencila.org/ArrayValidator.jsonld)
 - [JSON Schema](https://stencila.org/ArrayValidator.schema.json)
-- Python class [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/array_validator.py)
+- Python class [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array_validator.rs)
 - TypeScript class [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/ArrayValidator.ts)
 
-# Source
+***
 
 This documentation was generated from [`ArrayValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/ArrayValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

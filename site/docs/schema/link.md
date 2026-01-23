@@ -30,7 +30,7 @@ The `Link` type is represented in:
 
 - [JSON-LD](https://stencila.org/Link.jsonld)
 - [JSON Schema](https://stencila.org/Link.schema.json)
-- Python class [`Link`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/link.py)
+- Python class [`Link`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Link`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/link.rs)
 - TypeScript class [`Link`](https://github.com/stencila/stencila/blob/main/ts/src/types/Link.ts)
 
@@ -47,10 +47,10 @@ During property-based (a.k.a generative) testing, the properties of the `Link` t
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Link.yaml`](https://github.com/stencila/stencila/blob/main/schema/Link.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

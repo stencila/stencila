@@ -35,10 +35,10 @@ The `ModelParameters` type is represented in:
 
 - [JSON-LD](https://stencila.org/ModelParameters.jsonld)
 - [JSON Schema](https://stencila.org/ModelParameters.schema.json)
-- Python class [`ModelParameters`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/model_parameters.py)
+- Python class [`ModelParameters`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ModelParameters`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/model_parameters.rs)
 - TypeScript class [`ModelParameters`](https://github.com/stencila/stencila/blob/main/ts/src/types/ModelParameters.ts)
 
-# Source
+***
 
 This documentation was generated from [`ModelParameters.yaml`](https://github.com/stencila/stencila/blob/main/schema/ModelParameters.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

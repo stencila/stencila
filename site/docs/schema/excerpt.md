@@ -28,10 +28,10 @@ The `Excerpt` type is represented in:
 
 - [JSON-LD](https://stencila.org/Excerpt.jsonld)
 - [JSON Schema](https://stencila.org/Excerpt.schema.json)
-- Python class [`Excerpt`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/excerpt.py)
+- Python class [`Excerpt`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Excerpt`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/excerpt.rs)
 - TypeScript class [`Excerpt`](https://github.com/stencila/stencila/blob/main/ts/src/types/Excerpt.ts)
 
-# Source
+***
 
 This documentation was generated from [`Excerpt.yaml`](https://github.com/stencila/stencila/blob/main/schema/Excerpt.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -66,10 +66,10 @@ The `SoftwareSourceCode` type is represented in:
 
 - [JSON-LD](https://stencila.org/SoftwareSourceCode.jsonld)
 - [JSON Schema](https://stencila.org/SoftwareSourceCode.schema.json)
-- Python class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/software_source_code.py)
+- Python class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/software_source_code.rs)
 - TypeScript class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/ts/src/types/SoftwareSourceCode.ts)
 
-# Source
+***
 
 This documentation was generated from [`SoftwareSourceCode.yaml`](https://github.com/stencila/stencila/blob/main/schema/SoftwareSourceCode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

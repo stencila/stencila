@@ -27,10 +27,10 @@ The `ConfigPublishZenodo` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublishZenodo.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublishZenodo.schema.json)
-- Python class [`ConfigPublishZenodo`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/config_publish_zenodo.py)
+- Python class [`ConfigPublishZenodo`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ConfigPublishZenodo`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish_zenodo.rs)
 - TypeScript class [`ConfigPublishZenodo`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublishZenodo.ts)
 
-# Source
+***
 
 This documentation was generated from [`ConfigPublishZenodo.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishZenodo.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -38,10 +38,10 @@ The `CitationGroup` type is represented in:
 
 - [JSON-LD](https://stencila.org/CitationGroup.jsonld)
 - [JSON Schema](https://stencila.org/CitationGroup.schema.json)
-- Python class [`CitationGroup`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation_group.py)
+- Python class [`CitationGroup`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CitationGroup`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation_group.rs)
 - TypeScript class [`CitationGroup`](https://github.com/stencila/stencila/blob/main/ts/src/types/CitationGroup.ts)
 
-# Source
+***
 
 This documentation was generated from [`CitationGroup.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationGroup.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

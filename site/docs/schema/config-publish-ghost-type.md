@@ -16,10 +16,10 @@ The `ConfigPublishGhostType` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublishGhostType.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublishGhostType.schema.json)
-- Python type [`ConfigPublishGhostType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/config_publish_ghost_type.py)
+- Python type [`ConfigPublishGhostType`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`ConfigPublishGhostType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish_ghost_type.rs)
 - TypeScript type [`ConfigPublishGhostType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublishGhostType.ts)
 
-# Source
+***
 
 This documentation was generated from [`ConfigPublishGhostType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhostType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -90,7 +90,7 @@ The `Article` type is represented in:
 
 - [JSON-LD](https://stencila.org/Article.jsonld)
 - [JSON Schema](https://stencila.org/Article.schema.json)
-- Python class [`Article`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/article.py)
+- Python class [`Article`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Article`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/article.rs)
 - TypeScript class [`Article`](https://github.com/stencila/stencila/blob/main/ts/src/types/Article.ts)
 
@@ -107,10 +107,10 @@ During property-based (a.k.a generative) testing, the properties of the `Article
 |           | High+      | Generate up to four arbitrary block nodes  | `vec_blocks(4)` |
 |           | Max        | Generate up to eight arbitrary block nodes | `vec_blocks(8)` |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Article.yaml`](https://github.com/stencila/stencila/blob/main/schema/Article.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

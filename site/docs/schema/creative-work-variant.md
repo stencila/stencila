@@ -34,10 +34,10 @@ The `CreativeWorkVariant` type is represented in:
 
 - [JSON-LD](https://stencila.org/CreativeWorkVariant.jsonld)
 - [JSON Schema](https://stencila.org/CreativeWorkVariant.schema.json)
-- Python type [`CreativeWorkVariant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/creative_work_variant.py)
+- Python type [`CreativeWorkVariant`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`CreativeWorkVariant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work_variant.rs)
 - TypeScript type [`CreativeWorkVariant`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWorkVariant.ts)
 
-# Source
+***
 
 This documentation was generated from [`CreativeWorkVariant.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWorkVariant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

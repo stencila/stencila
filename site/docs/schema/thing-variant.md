@@ -47,10 +47,10 @@ The `ThingVariant` type is represented in:
 
 - [JSON-LD](https://stencila.org/ThingVariant.jsonld)
 - [JSON Schema](https://stencila.org/ThingVariant.schema.json)
-- Python type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing_variant.py)
+- Python type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_variant.rs)
 - TypeScript type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThingVariant.ts)
 
-# Source
+***
 
 This documentation was generated from [`ThingVariant.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThingVariant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

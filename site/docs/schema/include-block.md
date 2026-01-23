@@ -44,7 +44,7 @@ The `IncludeBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/IncludeBlock.jsonld)
 - [JSON Schema](https://stencila.org/IncludeBlock.schema.json)
-- Python class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/include_block.py)
+- Python class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/include_block.rs)
 - TypeScript class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/IncludeBlock.ts)
 
@@ -61,10 +61,10 @@ During property-based (a.k.a generative) testing, the properties of the `Include
 |          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                                                                                                   | Regex `[^\p{C}]{1,100}`               |
 |          | Max        | Generate an arbitrary string.                                                                                                                                                                                      | `String::arbitrary()`                 |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`IncludeBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/IncludeBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -45,10 +45,10 @@ The `ChatMessage` type is represented in:
 
 - [JSON-LD](https://stencila.org/ChatMessage.jsonld)
 - [JSON Schema](https://stencila.org/ChatMessage.schema.json)
-- Python class [`ChatMessage`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/chat_message.py)
+- Python class [`ChatMessage`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ChatMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/chat_message.rs)
 - TypeScript class [`ChatMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/ChatMessage.ts)
 
-# Source
+***
 
 This documentation was generated from [`ChatMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/ChatMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

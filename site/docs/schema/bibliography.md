@@ -52,10 +52,10 @@ The `Bibliography` type is represented in:
 
 - [JSON-LD](https://stencila.org/Bibliography.jsonld)
 - [JSON Schema](https://stencila.org/Bibliography.schema.json)
-- Python class [`Bibliography`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/bibliography.py)
+- Python class [`Bibliography`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Bibliography`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/bibliography.rs)
 - TypeScript class [`Bibliography`](https://github.com/stencila/stencila/blob/main/ts/src/types/Bibliography.ts)
 
-# Source
+***
 
 This documentation was generated from [`Bibliography.yaml`](https://github.com/stencila/stencila/blob/main/schema/Bibliography.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

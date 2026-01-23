@@ -28,7 +28,7 @@ The `CodeBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/CodeBlock.jsonld)
 - [JSON Schema](https://stencila.org/CodeBlock.schema.json)
-- Python class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_block.py)
+- Python class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CodeBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_block.rs)
 - TypeScript class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeBlock.ts)
 
@@ -49,10 +49,10 @@ During property-based (a.k.a generative) testing, the properties of the `CodeBlo
 |                       | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                  | `option::of(r"[a-zA-Z0-9]{1,10}")`            |
 |                       | Max        | Generate an arbitrary string.                                                                                                  | `option::of(String::arbitrary())`             |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`CodeBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

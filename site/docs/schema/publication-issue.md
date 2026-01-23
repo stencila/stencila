@@ -65,10 +65,10 @@ The `PublicationIssue` type is represented in:
 
 - [JSON-LD](https://stencila.org/PublicationIssue.jsonld)
 - [JSON Schema](https://stencila.org/PublicationIssue.schema.json)
-- Python class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/publication_issue.py)
+- Python class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/publication_issue.rs)
 - TypeScript class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/ts/src/types/PublicationIssue.ts)
 
-# Source
+***
 
 This documentation was generated from [`PublicationIssue.yaml`](https://github.com/stencila/stencila/blob/main/schema/PublicationIssue.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

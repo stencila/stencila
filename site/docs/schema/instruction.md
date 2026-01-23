@@ -43,10 +43,10 @@ The `Instruction` type is represented in:
 
 - [JSON-LD](https://stencila.org/Instruction.jsonld)
 - [JSON Schema](https://stencila.org/Instruction.schema.json)
-- Python class [`Instruction`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/instruction.py)
+- Python class [`Instruction`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Instruction`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction.rs)
 - TypeScript class [`Instruction`](https://github.com/stencila/stencila/blob/main/ts/src/types/Instruction.ts)
 
-# Source
+***
 
 This documentation was generated from [`Instruction.yaml`](https://github.com/stencila/stencila/blob/main/schema/Instruction.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

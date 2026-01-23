@@ -29,10 +29,10 @@ The `Primitive` type is represented in:
 
 - [JSON-LD](https://stencila.org/Primitive.jsonld)
 - [JSON Schema](https://stencila.org/Primitive.schema.json)
-- Python type [`Primitive`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/primitive.py)
+- Python type [`Primitive`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`Primitive`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/primitive.rs)
 - TypeScript type [`Primitive`](https://github.com/stencila/stencila/blob/main/ts/src/types/Primitive.ts)
 
-# Source
+***
 
 This documentation was generated from [`Primitive.yaml`](https://github.com/stencila/stencila/blob/main/schema/Primitive.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

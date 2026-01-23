@@ -81,10 +81,10 @@ The `Prompt` type is represented in:
 
 - [JSON-LD](https://stencila.org/Prompt.jsonld)
 - [JSON Schema](https://stencila.org/Prompt.schema.json)
-- Python class [`Prompt`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/prompt.py)
+- Python class [`Prompt`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Prompt`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/prompt.rs)
 - TypeScript class [`Prompt`](https://github.com/stencila/stencila/blob/main/ts/src/types/Prompt.ts)
 
-# Source
+***
 
 This documentation was generated from [`Prompt.yaml`](https://github.com/stencila/stencila/blob/main/schema/Prompt.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

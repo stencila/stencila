@@ -29,10 +29,10 @@ The `Function` type is represented in:
 
 - [JSON-LD](https://stencila.org/Function.jsonld)
 - [JSON Schema](https://stencila.org/Function.schema.json)
-- Python class [`Function`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/function.py)
+- Python class [`Function`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Function`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/function.rs)
 - TypeScript class [`Function`](https://github.com/stencila/stencila/blob/main/ts/src/types/Function.ts)
 
-# Source
+***
 
 This documentation was generated from [`Function.yaml`](https://github.com/stencila/stencila/blob/main/schema/Function.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -45,7 +45,7 @@ The `InstructionInline` type is represented in:
 
 - [JSON-LD](https://stencila.org/InstructionInline.jsonld)
 - [JSON Schema](https://stencila.org/InstructionInline.schema.json)
-- Python class [`InstructionInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/instruction_inline.py)
+- Python class [`InstructionInline`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`InstructionInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction_inline.rs)
 - TypeScript class [`InstructionInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructionInline.ts)
 
@@ -62,10 +62,10 @@ During property-based (a.k.a generative) testing, the properties of the `Instruc
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `option::of(vec_inlines_non_recursive(2))` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `option::of(vec_inlines_non_recursive(4))` |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`InstructionInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

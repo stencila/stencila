@@ -31,10 +31,10 @@ The `ProvenanceCategory` type is represented in:
 
 - [JSON-LD](https://stencila.org/ProvenanceCategory.jsonld)
 - [JSON Schema](https://stencila.org/ProvenanceCategory.schema.json)
-- Python type [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/provenance_category.py)
+- Python type [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/provenance_category.rs)
 - TypeScript type [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/ts/src/types/ProvenanceCategory.ts)
 
-# Source
+***
 
 This documentation was generated from [`ProvenanceCategory.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCategory.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

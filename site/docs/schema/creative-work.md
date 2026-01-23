@@ -66,10 +66,10 @@ The `CreativeWork` type is represented in:
 
 - [JSON-LD](https://stencila.org/CreativeWork.jsonld)
 - [JSON Schema](https://stencila.org/CreativeWork.schema.json)
-- Python class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/creative_work.py)
+- Python class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`CreativeWork`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work.rs)
 - TypeScript class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWork.ts)
 
-# Source
+***
 
 This documentation was generated from [`CreativeWork.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWork.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -66,10 +66,10 @@ The `Datatable` type is represented in:
 
 - [JSON-LD](https://stencila.org/Datatable.jsonld)
 - [JSON Schema](https://stencila.org/Datatable.schema.json)
-- Python class [`Datatable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/datatable.py)
+- Python class [`Datatable`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Datatable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable.rs)
 - TypeScript class [`Datatable`](https://github.com/stencila/stencila/blob/main/ts/src/types/Datatable.ts)
 
-# Source
+***
 
 This documentation was generated from [`Datatable.yaml`](https://github.com/stencila/stencila/blob/main/schema/Datatable.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

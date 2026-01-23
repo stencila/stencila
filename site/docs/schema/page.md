@@ -35,7 +35,7 @@ The `Page` type is represented in:
 
 - [JSON-LD](https://stencila.org/Page.jsonld)
 - [JSON Schema](https://stencila.org/Page.schema.json)
-- Python class [`Page`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/page.py)
+- Python class [`Page`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`Page`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/page.rs)
 - TypeScript class [`Page`](https://github.com/stencila/stencila/blob/main/ts/src/types/Page.ts)
 
@@ -55,10 +55,10 @@ During property-based (a.k.a generative) testing, the properties of the `Page` t
 |                 | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                     | `option::of(r"[a-zA-Z0-9]{1,10}")`                                                                                                                                          |
 |                 | Max        | Generate an arbitrary string.                                                                                                     | `option::of(String::arbitrary())`                                                                                                                                           |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`Page.yaml`](https://github.com/stencila/stencila/blob/main/schema/Page.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -68,10 +68,10 @@ The `PublicationVolume` type is represented in:
 
 - [JSON-LD](https://stencila.org/PublicationVolume.jsonld)
 - [JSON Schema](https://stencila.org/PublicationVolume.schema.json)
-- Python class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/publication_volume.py)
+- Python class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/publication_volume.rs)
 - TypeScript class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/ts/src/types/PublicationVolume.ts)
 
-# Source
+***
 
 This documentation was generated from [`PublicationVolume.yaml`](https://github.com/stencila/stencila/blob/main/schema/PublicationVolume.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

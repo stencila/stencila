@@ -154,10 +154,10 @@ The `Node` type is represented in:
 
 - [JSON-LD](https://stencila.org/Node.jsonld)
 - [JSON Schema](https://stencila.org/Node.schema.json)
-- Python type [`Node`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/node.py)
+- Python type [`Node`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust type [`Node`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/node.rs)
 - TypeScript type [`Node`](https://github.com/stencila/stencila/blob/main/ts/src/types/Node.ts)
 
-# Source
+***
 
 This documentation was generated from [`Node.yaml`](https://github.com/stencila/stencila/blob/main/schema/Node.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

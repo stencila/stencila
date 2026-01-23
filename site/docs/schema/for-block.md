@@ -50,7 +50,7 @@ The `ForBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/ForBlock.jsonld)
 - [JSON Schema](https://stencila.org/ForBlock.schema.json)
-- Python class [`ForBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/for_block.py)
+- Python class [`ForBlock`](https://github.com/stencila/stencila/blob/main/python/stencila_types/src/stencila_types/types.py)
 - Rust struct [`ForBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/for_block.rs)
 - TypeScript class [`ForBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/ForBlock.ts)
 
@@ -81,10 +81,10 @@ During property-based (a.k.a generative) testing, the properties of the `ForBloc
 |                       | Low+       | Generate up to two arbitrary, non-recursive, block nodes.                                                                                 | `option::of(vec_blocks_non_recursive(2))`     |
 |                       | Max        | Generate up to four arbitrary, non-recursive, block nodes.                                                                                | `option::of(vec_blocks_non_recursive(4))`     |
 
-See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the[`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
+See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 
 :::
 
-# Source
+***
 
 This documentation was generated from [`ForBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/ForBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
