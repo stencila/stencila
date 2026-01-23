@@ -323,11 +323,17 @@ export class StencilaSiteSearch extends LitElement {
     // Save to recent searches before navigating
     this.saveRecentSearch(result.entry)
 
-    const url = `${result.entry.route}#${result.entry.nodeId}`
+    // For root nodes (depth 0), navigate without hash to show from top
+    // For specific elements, include hash to scroll and highlight
+    const isRoot = result.entry.depth === 0
+    const url = isRoot
+      ? result.entry.route
+      : `${result.entry.route}#${result.entry.nodeId}`
+
     this.close()
 
     const navigated = await navigate(url, 'programmatic')
-    if (navigated) {
+    if (navigated && !isRoot) {
       // Delay to let scroll and page settle after navigation
       setTimeout(() => {
         this.highlightElement(result.entry.nodeId)
@@ -342,11 +348,17 @@ export class StencilaSiteSearch extends LitElement {
     // Move to front of recent searches
     this.saveRecentSearch(recent as SearchEntry)
 
-    const url = `${recent.route}#${recent.nodeId}`
+    // For root nodes (depth 0), navigate without hash to show from top
+    // For specific elements, include hash to scroll and highlight
+    const isRoot = recent.depth === 0
+    const url = isRoot
+      ? recent.route
+      : `${recent.route}#${recent.nodeId}`
+
     this.close()
 
     const navigated = await navigate(url, 'programmatic')
-    if (navigated) {
+    if (navigated && !isRoot) {
       // Delay to let scroll and page settle after navigation
       setTimeout(() => {
         this.highlightElement(recent.nodeId)
@@ -568,6 +580,7 @@ export class StencilaSiteSearch extends LitElement {
       nodeType: entry.nodeType,
       route: entry.route,
       text: entry.text,
+      depth: entry.depth,
     }
 
     // Remove any existing entry with the same route + nodeId (to move it to front)

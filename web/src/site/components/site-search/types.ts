@@ -131,6 +131,8 @@ export interface RecentSearch {
   route: string
   /** The text content to display */
   text: string
+  /** Depth in document (0=root/whole page, 1+=specific element) */
+  depth: number
 }
 
 /**
