@@ -1,0 +1,73 @@
+---
+title: Prev/Next Navigation
+description: |
+  Design tokens and examples for customizing previous/next page navigation links.
+---
+
+# Usage
+
+Prev/next navigation links appear at the bottom of pages. Start with:
+
+- `--prev-next-link-color` and `--prev-next-link-color-hover` for state colors
+- `--prev-next-icon-size` and icon content tokens for arrows
+- `--prev-next-gap` and `--prev-next-padding` for layout spacing
+- `--prev-next-border-*` tokens for separators from content
+
+# Tokens
+
+| Token                          | Description                        | Default Value                |
+| ------------------------------ | ---------------------------------- | ---------------------------- |
+| `--prev-next-font-family`      | Font family                        | `var(--layout-font-family)`  |
+| `--prev-next-gap`              | Gap between links                  | `var(--space-8)`             |
+| `--prev-next-gap-mobile`       | Gap on mobile (stacked)            | `var(--space-4)`             |
+| `--prev-next-icon-size`        | Icon size                          | `1.5rem`                     |
+| `--prev-next-prev-icon`        | Previous icon content              | `"\u2039"`                   |
+| `--prev-next-next-icon`        | Next icon content                  | `"\u203A"`                   |
+| `--prev-next-link-gap`         | Gap between icon and text          | `var(--space-1)`             |
+| `--prev-next-icon-color`       | Icon color                         | `var(--text-color-muted)`    |
+| `--prev-next-label-font-size`  | Label font size                    | `var(--font-size-xs)`        |
+| `--prev-next-label-font-weight` | Label font weight                 | `200`                        |
+| `--prev-next-label-text-transform` | Label text transform           | `none`                       |
+| `--prev-next-title-font-size`  | Title font size                    | `var(--text-font-size)`      |
+| `--prev-next-link-color`       | Link text color                    | `var(--text-color-secondary)` |
+| `--prev-next-link-color-hover` | Link hover color                   | `var(--text-color-primary)`  |
+| `--prev-next-separator-color`  | Separator color                    | `var(--text-color-muted)`    |
+| `--prev-next-position-color`   | Position indicator color           | `var(--text-color-muted)`    |
+| `--prev-next-border-color`     | Top border color                   | `var(--border-color-muted)`  |
+| `--prev-next-border-width`     | Top border width                   | `0`                          |
+| `--prev-next-padding`          | Vertical padding                   | `var(--space-6)`             |
+| `--prev-next-margin-top`       | Margin above component             | `var(--space-8)`             |
+
+# Examples
+
+## Divider Style
+
+Add a subtle divider from the content above:
+
+```css
+:root {
+  --prev-next-border-width: 1px;
+  --prev-next-border-color: var(--border-color-default);
+  --prev-next-padding: var(--space-4);
+}
+```
+
+## Compact Labels
+
+Smaller typography for dense layouts:
+
+```css
+:root {
+  --prev-next-title-font-size: var(--font-size-sm);
+  --prev-next-label-font-size: var(--font-size-2xs);
+  --prev-next-gap: var(--space-4);
+}
+```
+
+# Tips
+
+**Icon swaps**: Use `--prev-next-prev-icon` and `--prev-next-next-icon` to match your icon style.
+
+**Style variants**: The `style` attribute (minimal, compact, standard, detailed) controls which sub-elements are visible.
+
+**Mobile rhythm**: Keep `--prev-next-gap-mobile` smaller than the desktop gap for stacked layouts.

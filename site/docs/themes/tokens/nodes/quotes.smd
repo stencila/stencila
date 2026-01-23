@@ -13,48 +13,7 @@ Start with these tokens when customizing quotes:
 - `--quote-padding` and `--quote-spacing` for rhythm and inset
 - `--quote-inline-font-style` and `--quote-inline-quotes` for inline quote treatment
 
-## Block Quote Styling
-
-Block quotes use visual emphasis to distinguish quoted content from regular text. The design leverages semantic tokens for automatic responsive and dark mode behavior.
-
-**Visual hierarchy**: Block quotes use a colored left border, subtle background, larger font size, and italic styling to create clear visual separation from body text.
-
-**Responsive scaling**: Spacing, padding, and font size automatically scale with semantic tokens (`--content-spacing` and `--text-font-size`), ensuring proper proportions across desktop, tablet, and mobile devices without explicit media queries.
-
-**Dark mode**: Border and background colors automatically adapt to dark themes through semantic token variants.
-
-## Inline Quote Styling
-
-Inline quotes are designed to integrate within text flow while providing customization options:
-
-**Default behavior**: By default, inline quotes inherit typography from surrounding text and use browser-standard quotation marks. This ensures optimal readability and follows user language preferences.
-
-**Font styling**: Use `--quote-inline-font-style` to add emphasis through italic styling or maintain normal font weight for subtle integration.
-
-**Quotation marks**: The `--quote-inline-quotes` token provides control over quotation mark appearance:
-
-- `auto` - Browser defaults based on document language
-- `none` - No visible quotation marks (semantic meaning preserved)
-- Custom marks - Specify opening/closing quotes for different languages or styles
-
-**Integration considerations**: Since inline quotes flow within text, avoid heavy styling that disrupts reading flow. Changes to font color, size, or weight are generally discouraged as they can harm readability.
-
-## Integration with Semantic Tokens
-
-Quotes work with the design system's token architecture:
-
-- **Automatic responsive behavior**: Spacing, padding, and font size use semantic token calculations (`--content-spacing` and `--text-font-size`) which provide desktop, tablet, mobile, and print scaling without manual media queries
-- **Surface integration**: Background uses `--surface-sunken` which automatically provides light/dark variants and print optimization
-- **Border consistency**: Border color references `--border-color-emphasis` ensuring consistency with other emphasized elements
-- **Typography inheritance**: Font sizes reference semantic font tokens for system-wide typography consistency
-
-## Mobile Optimization
-
-Mobile devices automatically receive optimized spacing:
-
-- Horizontal margins collapse to zero through `--quote-spacing-horizontal-mobile` for full-width appearance
-- Padding automatically scales down through `--content-spacing` calculation (desktop: 1rem → mobile: 0.5rem)
-- Font size automatically scales with `--text-font-size` calculation
+Inline quotes inherit surrounding typography by default; use `--quote-inline-quotes` only when you need custom marks or to suppress them.
 
 # Tokens
 
@@ -86,6 +45,8 @@ Styling controls specifically for inline quotes within text flow.
 
 | Token                       | Description                                   | Default Value |
 | --------------------------- | --------------------------------------------- | ------------- |
+| `--quote-inline-font-style` | Font style for inline quotes                  | `inherit`     |
+| `--quote-inline-quotes`     | Quote marks (`quotes` CSS property)           | `auto`        |
 # Examples
 
 ## Default Block Quotes

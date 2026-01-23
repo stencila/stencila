@@ -128,16 +128,6 @@ Complete academic theme with proper typography:
 
 # Tips
 
-**Use font-display: swap**: Always include `display=swap` in Google Fonts URLs or `font-display: swap` in @font-face rules to prevent invisible text during font loading.
+**Extend, don't replace**: Use `'Your Font', var(--font-family-serif)` to keep the fallback stack intact.
 
-**Extend, don't replace**: Use `'Your Font', var(--font-family-serif)` instead of defining complete stacks to maintain fallbacks.
-
-**Load efficiently**: Combine multiple Google Fonts in a single import URL rather than multiple imports.
-
-**Test fallbacks**: Disable your custom fonts in browser dev tools to ensure fallback fonts look acceptable.
-
-**Weight ranges**: Use variable fonts or load specific weights you actually use to avoid loading unnecessary font data.
-
-**Performance**: Consider loading only essential weights initially and lazy-loading additional weights for better performance.
-
-**Accessibility**: Ensure sufficient contrast and readability across all your chosen fonts, including fallbacks.
+**Context mapping**: Set `--text-font-family`, `--heading-font-family`, `--code-font-family`, and `--math-font-family` to route stacks into each content context.

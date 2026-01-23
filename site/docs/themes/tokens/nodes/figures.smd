@@ -13,48 +13,7 @@ Start with these tokens when customizing figures:
 - `--figure-background`, `--figure-border-width`, and `--figure-border-radius` for containers
 - `--figure-caption-*` and `--figure-label-*` for caption typography
 
-## Figure Structure
-
-Figures combine visual content (images, charts, diagrams) with descriptive captions. The theming system provides:
-
-**Vertical spacing**: Figures use `--figure-spacing-top` and `--figure-spacing-bottom` based on `--content-spacing`, ensuring automatic responsive and print scaling without explicit media queries.
-
-**Optional isolation**: By default, figures have transparent backgrounds and no borders for a clean, minimal appearance. Theme authors can add visual separation through `--figure-background` and `--figure-border-*` tokens.
-
-**Caption hierarchy**: Captions use smaller font sizes and secondary text colors to create clear visual hierarchy. Labels (e.g., "Figure 1") receive bold or italic emphasis through semantic label tokens.
-
-**Responsive behavior**: All spacing tokens automatically scale with document rhythm through `--content-spacing` calculations, providing proper proportions across desktop, tablet, mobile, and print without manual breakpoints.
-
-**Print optimization**: Figures automatically optimize for print media with transparent backgrounds to save ink, page-break controls to prevent awkward splits across pages, and automatic spacing reduction through `--content-spacing-print`.
-
-## Caption Layout
-
-Caption styling supports both single and multi-paragraph captions:
-
-**First paragraph**: No top margin, aligning with the figcaption spacing from the image.
-
-**Subsequent paragraphs**: Use `--figure-caption-spacing-top` to maintain consistent spacing, similar to the pattern used in list items.
-
-**Typography**: Captions inherit from semantic caption tokens (`--caption-font-family`, `--caption-font-size`, `--caption-color`) which provide automatic dark mode support.
-
-## Integration with Semantic Tokens
-
-Figures integrate with the design system's token architecture:
-
-- **Automatic responsive behavior**: Spacing uses `--content-spacing` calculations which provide desktop, tablet, mobile, and print scaling automatically
-- **Surface integration**: Optional backgrounds use `--surface-*` tokens for consistent layering
-- **Border consistency**: Border colors reference semantic `--border-color-subtle` ensuring visual harmony
-- **Caption integration**: Caption tokens provide shared styling with table captions for consistency
-
-## Customization Patterns
-
-**Minimal figures** (default): Transparent background, no borders, just spacing and captions.
-
-**Isolated figures**: Add subtle backgrounds and borders to create visual containers for important figures.
-
-**Centered captions**: Change `--figure-caption-align` to `center` for symmetrical layouts.
-
-**Compact figures**: Reduce spacing tokens for documentation or high-density layouts.
+Figure captions and labels use the `--figure-caption-*` and `--figure-label-*` tokens, which align with the shared caption/label system for consistent typography.
 
 # Tokens
 
@@ -138,7 +97,7 @@ Standard figure styling with automatic responsive spacing and dark mode support:
 
 An example figure demonstrating default styling with a placeholder image and caption.
 
-![](https://placehold.co/600x400/93c5fd/ddd?text=1)
+![](https://placehold.co/600x400/2568ef/ddd?text=1)
 
 :::
 
@@ -164,7 +123,7 @@ Figures with background and border for enhanced visual separation:
 
 A figure with background, border, and padding to create a distinct visual container.
 
-![](https://placehold.co/600x400/93c5fd/ddd?text=2)
+![](https://placehold.co/600x400/2568ef/ddd?text=2)
 
 :::
 
@@ -191,7 +150,7 @@ Enhanced spacing and typography for scholarly documents:
 
 Scholarly figures benefit from increased vertical spacing, larger gaps between image and caption, smaller caption font sizes, and justified text alignment for a formal academic appearance.
 
-![](https://placehold.co/600x400/93c5fd/ddd?text=3)
+![](https://placehold.co/600x400/2568ef/ddd?text=3)
 
 :::
 
@@ -214,7 +173,7 @@ Symmetrical layout with centered caption text:
 
 Centered captions work well for symmetrical images and formal layouts where the caption should be balanced visually beneath the figure content.
 
-![](https://placehold.co/600x400/93c5fd/ddd?text=4)
+![](https://placehold.co/600x400/2568ef/ddd?text=4)
 
 :::
 
@@ -241,7 +200,7 @@ Reduced spacing for documentation or high-density layouts:
 
 Compact figures with minimal spacing, smaller sans-serif captions for technical documentation.
 
-![](https://placehold.co/600x400/93c5fd/ddd?text=5)
+![](https://placehold.co/600x400/2568ef/ddd?text=5)
 
 :::
 
@@ -270,7 +229,7 @@ This figure demonstrates multi-paragraph captions. The first paragraph introduce
 
 Subsequent paragraphs maintain consistent spacing through the `--figure-caption-spacing-top` token, ensuring proper visual hierarchy within the caption while remaining distinct from the image above. The background and border make it clear that both paragraphs are part of the figure.
 
-![](https://placehold.co/600x400/93c5fd/ddd?text=6)
+![](https://placehold.co/600x400/2568ef/ddd?text=6)
 
 :::
 
@@ -278,20 +237,10 @@ Subsequent paragraphs maintain consistent spacing through the `--figure-caption-
 
 # Tips
 
-**Leverage automatic responsive behavior**: Figure spacing tokens base on `--content-spacing`, so figures automatically scale for mobile, tablet, and print without explicit media queries. When you adjust document spacing, figures adapt proportionally. Print media automatically uses reduced spacing and transparent backgrounds.
+**Isolation**: Use `--figure-background` and `--figure-border-*` to add containers; leave them transparent for minimal layouts.
 
-**Choose appropriate isolation**: Default transparent backgrounds work well for most content, creating clean, minimal layouts. Add backgrounds and borders through `--figure-background` and `--figure-border-*` tokens when you need visual separation or want to group related figures.
+**Captions**: Use `--figure-caption-align` and `--figure-caption-max-width` to control caption readability independently of figure width.
 
-**Caption alignment matters**: Left-aligned captions (default) work best for multi-paragraph captions and asymmetric layouts. Center-aligned captions suit symmetrical images and formal presentations. Justified alignment works well for scholarly articles with longer captions.
+**Labels**: Figure labels inherit shared label tokens; override `--figure-label-*` only when you need to break that alignment.
 
-**Maintain label consistency**: Figure labels automatically inherit from semantic label tokens (`--label-font-weight`, `--label-font-style`), ensuring visual consistency with table and equation labels throughout your document.
-
-**Test multi-paragraph captions**: When using backgrounds and borders, verify that multi-paragraph captions clearly belong to the figure. The visual container helps readers understand the caption hierarchy.
-
-**Consider caption width**: The `--figure-caption-max-width` token allows you to constrain caption width independently from figure content width, which can improve readability for wide images with lengthy captions.
-
-**Dark mode integration**: Figure backgrounds and borders automatically adapt to dark themes through semantic token variants. When customizing these tokens, define both light and dark variants for optimal appearance in both modes.
-
-**Accessibility**: Ensure sufficient contrast between caption text color and backgrounds, particularly when using custom `--figure-background` values. Caption colors inherit from semantic caption tokens which provide automatic dark mode support.
-
-**Print customization**: Override `--figure-background-print` and `--figure-border-color-print` tokens to customize print appearance. For example, scholarly publications might want subtle borders even in print, while web documents typically prefer completely transparent figures to save ink.
+**Print overrides**: Use `--figure-background-print` and `--figure-border-color-print` for print-specific adjustments.

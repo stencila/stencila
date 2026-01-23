@@ -1,0 +1,97 @@
+---
+title: Navigation Groups
+description: |
+  Design tokens and examples for customizing grouped footer navigation lists.
+---
+
+# Usage
+
+Navigation groups are the footer-style link collections under headings. Start with:
+
+- `--nav-groups-heading-*` for heading typography
+- `--nav-groups-link-*` for link spacing and color
+- `--nav-groups-gap` and `--nav-groups-columns-min-width` for grid layout
+- `--nav-groups-focus-ring-*` for keyboard focus styling
+
+# Tokens
+
+## Typography Tokens
+
+| Token                              | Description               | Default Value               |
+| ---------------------------------- | ------------------------- | --------------------------- |
+| `--nav-groups-font-family`         | Font family               | `var(--layout-font-family)` |
+| `--nav-groups-heading-font-size`   | Heading font size         | `var(--font-size-xs)`       |
+| `--nav-groups-heading-font-weight` | Heading font weight       | `var(--font-weight-semibold)` |
+| `--nav-groups-heading-text-transform` | Heading text transform | `uppercase`                 |
+| `--nav-groups-heading-letter-spacing` | Heading letter spacing | `0.05em`                    |
+| `--nav-groups-heading-margin-bottom` | Spacing below heading   | `var(--space-1)`            |
+| `--nav-groups-link-font-size`      | Link font size            | `var(--font-size-sm)`       |
+| `--nav-groups-link-line-height`    | Link line height          | `var(--line-height-normal)` |
+
+## Color Tokens
+
+| Token                          | Description              | Default Value               |
+| ------------------------------ | ------------------------ | --------------------------- |
+| `--nav-groups-heading-color`   | Heading text color       | `var(--text-color-primary)` |
+| `--nav-groups-link-color`      | Link text color          | `var(--text-color-secondary)` |
+| `--nav-groups-link-color-hover` | Link hover color        | `var(--text-color-primary)` |
+| `--nav-groups-link-color-active` | Active link color       | `var(--color-accent)`       |
+
+## Grid Tokens
+
+| Token                          | Description                     | Default Value      |
+| ------------------------------ | ------------------------------- | ------------------ |
+| `--nav-groups-gap`             | Gap between groups              | `var(--space-8)`   |
+| `--nav-groups-columns-min-width` | Minimum column width          | `160px`            |
+
+## Link Layout Tokens
+
+| Token                         | Description                 | Default Value      |
+| ----------------------------- | --------------------------- | ------------------ |
+| `--nav-groups-link-gap`       | Gap between links           | `var(--space-2)`   |
+| `--nav-groups-link-padding-y` | Link vertical padding       | `var(--space-1)`   |
+| `--nav-groups-icon-size`      | Icon size                   | `1rem`             |
+| `--nav-groups-icon-gap`       | Gap between icon and label  | `var(--space-2)`   |
+
+## Interaction Tokens
+
+| Token                              | Description              | Default Value                    |
+| ---------------------------------- | ------------------------ | -------------------------------- |
+| `--nav-groups-transition-duration` | Hover transition         | `var(--transition-duration-fast)` |
+| `--nav-groups-focus-ring-width`    | Focus ring width         | `2px`                            |
+| `--nav-groups-focus-ring-color`    | Focus ring color         | `var(--color-accent)`            |
+| `--nav-groups-focus-ring-offset`   | Focus ring offset        | `2px`                            |
+
+# Examples
+
+## Compact Footer Links
+
+Reduce spacing for dense footers:
+
+```css
+:root {
+  --nav-groups-gap: var(--space-6);
+  --nav-groups-link-gap: var(--space-1);
+  --nav-groups-link-font-size: var(--font-size-xs);
+}
+```
+
+## Bold Section Headings
+
+Increase contrast between sections and links:
+
+```css
+:root {
+  --nav-groups-heading-font-size: var(--font-size-sm);
+  --nav-groups-heading-color: var(--text-color-primary);
+  --nav-groups-link-color: var(--text-color-muted);
+}
+```
+
+# Tips
+
+**Column sizing**: Increase `--nav-groups-columns-min-width` to avoid overly narrow columns on large screens.
+
+**Active links**: Use `--nav-groups-link-color-active` for a consistent current-page highlight.
+
+**Focus clarity**: Keep `--nav-groups-focus-ring-*` aligned with other site focus styles.

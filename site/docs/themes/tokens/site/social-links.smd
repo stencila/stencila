@@ -1,0 +1,50 @@
+---
+title: Social Links
+description: |
+  Design tokens and examples for customizing social link icon lists.
+---
+
+# Usage
+
+Social links render inline icons (and optional text). Start with:
+
+- `--social-links-icon-size` and `--social-links-gap` for spacing
+- `--social-links-color` and `--social-links-color-hover` for interaction
+- `--social-links-font-size` when showing text labels
+
+# Tokens
+
+| Token                        | Description             | Default Value               |
+| ---------------------------- | ----------------------- | --------------------------- |
+| `--social-links-font-family` | Font family             | `var(--layout-font-family)` |
+| `--social-links-font-size`   | Text font size          | `var(--font-size-sm)`       |
+| `--social-links-icon-size`   | Icon size               | `1.25rem`                   |
+| `--social-links-gap`         | Gap between links       | `var(--space-3)`            |
+| `--social-links-color`       | Link color              | `var(--text-color-secondary)` |
+| `--social-links-color-hover` | Hover color             | `var(--text-color-primary)` |
+
+# Examples
+
+## Large Icon Row
+
+```css
+:root {
+  --social-links-icon-size: 1.5rem;
+  --social-links-gap: var(--space-4);
+}
+```
+
+## Muted Footer Links
+
+```css
+:root {
+  --social-links-color: var(--text-color-muted);
+  --social-links-color-hover: var(--text-color-secondary);
+}
+```
+
+# Tips
+
+**Icon-only rows**: If you hide text, keep `--social-links-font-size` aligned with other utility links.
+
+**Hover emphasis**: Use a higher-contrast `--social-links-color-hover` for clear interactivity.

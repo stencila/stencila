@@ -1,0 +1,49 @@
+---
+title: Edit Source
+description: |
+  Design tokens and examples for customizing the "Edit" link to source repositories.
+---
+
+# Usage
+
+Edit source links are small inline utilities. Start with:
+
+- `--edit-source-font-size` and `--edit-source-icon-size` for scale
+- `--edit-source-color` and `--edit-source-color-hover` for link states
+
+# Tokens
+
+| Token                       | Description               | Default Value               |
+| --------------------------- | ------------------------- | --------------------------- |
+| `--edit-source-font-family` | Font family               | `var(--layout-font-family)` |
+| `--edit-source-icon-size`   | Icon size                 | `1em`                       |
+| `--edit-source-font-size`   | Text font size            | `var(--font-size-2xs)`      |
+| `--edit-source-gap`         | Gap between icon and text | `var(--space-2)`            |
+| `--edit-source-color`       | Link color                | `var(--text-color-secondary)` |
+| `--edit-source-color-hover` | Link hover color          | `var(--text-color-primary)` |
+
+# Examples
+
+## Quiet Utility Link
+
+```css
+:root {
+  --edit-source-color: var(--text-color-muted);
+  --edit-source-color-hover: var(--text-color-secondary);
+}
+```
+
+## Prominent Edit Link
+
+```css
+:root {
+  --edit-source-font-size: var(--font-size-xs);
+  --edit-source-color-hover: var(--color-accent);
+}
+```
+
+# Tips
+
+**Match utility links**: Keep edit-source tokens aligned with edit-on and copy-markdown for cohesion.
+
+**Icon scaling**: Use `--edit-source-icon-size` to align with your icon set.

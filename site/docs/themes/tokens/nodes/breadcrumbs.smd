@@ -1,0 +1,57 @@
+---
+title: Breadcrumbs
+description: |
+  Design tokens and examples for customizing breadcrumb navigation trails.
+---
+
+# Usage
+
+Breadcrumbs show the current page context within the site hierarchy. Start with:
+
+- `--breadcrumbs-separator` and `--breadcrumbs-gap` for layout rhythm
+- `--breadcrumbs-link-color` and `--breadcrumbs-current-color` for state styling
+- `--breadcrumbs-font-size` to align with site chrome typography
+
+# Tokens
+
+| Token                         | Description                      | Default Value                |
+| ----------------------------- | -------------------------------- | ---------------------------- |
+| `--breadcrumbs-font-family`   | Breadcrumb font family           | `var(--layout-font-family)`  |
+| `--breadcrumbs-font-size`     | Breadcrumb font size             | `var(--layout-font-size)`    |
+| `--breadcrumbs-separator`     | Separator character              | `"/"`                       |
+| `--breadcrumbs-separator-color` | Separator color                | `var(--text-color-muted)`    |
+| `--breadcrumbs-link-color`    | Link color                       | `var(--text-color-secondary)` |
+| `--breadcrumbs-link-color-hover` | Link hover color              | `var(--text-color-primary)`  |
+| `--breadcrumbs-current-color` | Current page color               | `var(--text-color-primary)`  |
+| `--breadcrumbs-gap`           | Gap between items                | `var(--space-1)`             |
+| `--breadcrumbs-margin-bottom` | Space below breadcrumbs           | `var(--space-4)`             |
+
+# Examples
+
+## Arrow Separators
+
+Use arrows for a stronger hierarchy cue:
+
+```css
+:root {
+  --breadcrumbs-separator: ">";
+  --breadcrumbs-gap: var(--space-2);
+}
+```
+
+## Subtle Breadcrumbs
+
+Keep breadcrumbs quiet while maintaining structure:
+
+```css
+:root {
+  --breadcrumbs-link-color: var(--text-color-muted);
+  --breadcrumbs-current-color: var(--text-color-secondary);
+}
+```
+
+# Tips
+
+**Separator spacing**: Use `--breadcrumbs-gap` to keep separators readable on narrow screens.
+
+**Hierarchy clarity**: Increase contrast for `--breadcrumbs-current-color` to emphasize the current page.

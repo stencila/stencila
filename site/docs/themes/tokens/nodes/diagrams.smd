@@ -13,71 +13,7 @@ Start with these tokens when customizing diagrams:
 - `--diagram-node-background` and `--diagram-node-border-color` for shapes
 - `--diagram-edge-color` and `--diagram-edge-width` for connections
 
-## Base Color System
-
-All diagram colors derive from a single base color for automatic theme integration:
-
-**`--diagram-base-color`** is the foundation:
-
-- Defaults to `var(--color-accent)` - diagrams automatically match your theme's accent color
-- All node, edge, and text colors are calculated from this base using `color-mix()`
-- Change one token to restyle entire diagrams
-
-**Quick theme changes**:
-
-```css
-/* Override base color for all diagrams */
-:root {
-  --diagram-base-color: var(--color-success); /* Green diagrams */
-}
-```
-
-**Fine-grained control**:
-
-```css
-/* Override specific calculated values */
-:root {
-  --diagram-base-color: var(--color-purple-600);
-  --diagram-node-background: var(--color-purple-50); /* Override calculation */
-  --diagram-edge-color: var(--color-purple-800); /* Different from base */
-}
-```
-
-**Color calculations**: All colors are calculated using consistent percentages in both light and dark modes by mixing `--diagram-base-color` with `--diagram-background`:
-
-- Text: 95% base color
-- Node backgrounds: 15%, 25%, 35% base color (primary, secondary, tertiary)
-- Node borders: 35% base color
-- Edges: 60% base color
-- Sections/clusters: 10% base color
-
-**State tokens**: Provide semantic control over different element states:
-
-- Inactive (default): Uses primary node background
-- Active: Uses tertiary node background (most saturated)
-- Complete: Uses secondary node background (middle saturation)
-- All state borders default to node border color
-
-This unified approach ensures diagrams adapt naturally to both light and dark themes without separate color logic. See token tables above for specific calculations.
-
-**Limitation**: Examples below cannot demonstrate inline token overrides since diagram theming reads from `document.documentElement`. To test custom styling, create a custom theme file with token overrides.
-
-## Tool Integration
-
-**Mermaid.js integration** uses the `base` theme with `themeVariables`:
-
-- All diagram tokens are automatically mapped to Mermaid's theme variables
-- Colors are converted from CSS custom properties to hex format as required by Mermaid
-- Computed values from `color-mix()` are converted from `color(srgb ...)` to hex
-- Theme is applied during diagram initialization and cached for performance
-
-**Cytoscape.js integration** uses style objects:
-
-- Subset of diagram tokens mapped to Cytoscape style properties
-- Theme styles are merged with existing graph styles if present
-- Applied during graph initialization and cached for performance
-
-**Dark mode**: All color tokens have `-dark` variants that automatically apply when system prefers dark mode or user explicitly sets dark theme.
+Most diagram colors derive from `--diagram-base-color` (defaults to `--color-accent`), so changing it re-tints nodes, edges, and text together. Set tokens on `:root` in your theme CSS so JS renderers can read them.
 
 # Tokens
 
@@ -328,16 +264,10 @@ Tests node styling, edge styling, and state selectors (selected nodes use active
 
 # Tips
 
-**Color coordination**: Use color families like `--color-blue-*` for node backgrounds and borders to maintain visual harmony across diagram elements.
+**Hierarchy**: Use `--diagram-node-background`, `--diagram-node-background-secondary`, and `--diagram-node-background-tertiary` to differentiate node states or groups.
 
-**Font sizing**: Keep `--diagram-font-size` at `--font-size-sm` or smaller to prevent text from overwhelming diagram shapes and maintain readability.
+**Edges**: Adjust `--diagram-edge-color` and `--diagram-edge-width` together so connectors stay legible against node fills.
 
-**Edge visibility**: Use `--color-gray-600` or darker for `--diagram-edge-color` to ensure connections are clearly visible against light backgrounds.
+**Text overrides**: Leave `--diagram-text-color` as the base and override `--diagram-node-text-color` only when you need extra contrast.
 
-**Node hierarchy**: Utilize the three node background tokens (`background`, `background-secondary`, `background-tertiary`) to create visual hierarchy in complex diagrams.
-
-**Text hierarchy**: Use `--diagram-text-color` as the base and override `--diagram-node-text-color` or `--diagram-edge-text-color` only when you need specific customization.
-
-**Dark mode consideration**: Ensure sufficient contrast between node backgrounds and text colors, especially when using colored backgrounds in dark themes.
-
-**Tool consistency**: Both Mermaid and Cytoscape inherit from the same tokens, so diagram appearance remains consistent regardless of the underlying visualization tool.
+**Renderer parity**: Mermaid and Cytoscape both read the same tokens, so keep customizations in token space instead of tool-specific CSS.

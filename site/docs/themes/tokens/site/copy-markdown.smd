@@ -1,0 +1,52 @@
+---
+title: Copy Markdown
+description: |
+  Design tokens and examples for customizing the copy-to-markdown utility button.
+---
+
+# Usage
+
+The copy markdown button is an inline utility. Start with:
+
+- `--copy-markdown-font-size` and `--copy-markdown-icon-size` for scale
+- `--copy-markdown-color` and `--copy-markdown-color-hover` for interaction
+- `--copy-markdown-color-success` and `--copy-markdown-color-error` for state feedback
+
+# Tokens
+
+| Token                            | Description                | Default Value                |
+| -------------------------------- | -------------------------- | ---------------------------- |
+| `--copy-markdown-font-family`    | Font family                | `var(--layout-font-family)`  |
+| `--copy-markdown-icon-size`      | Icon size                  | `1em`                        |
+| `--copy-markdown-font-size`      | Text font size             | `var(--font-size-2xs)`       |
+| `--copy-markdown-gap`            | Gap between icon and text  | `var(--space-2)`             |
+| `--copy-markdown-color`          | Button text color          | `var(--text-color-secondary)` |
+| `--copy-markdown-color-hover`    | Button hover color         | `var(--text-color-primary)`  |
+| `--copy-markdown-color-success`  | Success state color        | `var(--color-success, #22c55e)` |
+| `--copy-markdown-color-error`    | Error state color          | `var(--color-error, #ef4444)` |
+
+# Examples
+
+## Subtle Utility Button
+
+```css
+:root {
+  --copy-markdown-font-size: var(--font-size-3xs);
+  --copy-markdown-color: var(--text-color-muted);
+}
+```
+
+## Brighter State Feedback
+
+```css
+:root {
+  --copy-markdown-color-success: var(--color-green-600);
+  --copy-markdown-color-error: var(--color-red-600);
+}
+```
+
+# Tips
+
+**Consistency**: Align copy-markdown typography with edit links for a cohesive utility row.
+
+**Status clarity**: Keep success and error colors distinct from normal text colors.

@@ -18,74 +18,7 @@ Start with these tokens when customizing tables:
 - `--table-border-width` and `--table-border-color` for frame style
 - `--table-caption-*` and `--table-notes-*` for supporting text
 
-## Table Structure
-
-Tables combine tabular data with optional captions and notes. The theming system provides:
-
-**Vertical spacing**: Tables use `--table-spacing-top` and `--table-spacing-bottom` based on `--content-spacing`, ensuring automatic responsive and print scaling without explicit media queries.
-
-**Caption hierarchy**: Captions use semantic caption tokens for typography and secondary text colors to create clear visual hierarchy. Labels (e.g., "Table 1") receive bold or italic emphasis through semantic label tokens.
-
-**Header emphasis**: Headers use `--table-header-background` to visually distinguish column headers from data cells, with automatic dark mode adaptation.
-
-**Row striping**: By default, tables have no row striping (transparent) for a clean, minimal appearance. Enable alternating row backgrounds with `--table-row-striped` to improve readability of tables with many rows.
-
-**Interactive feedback**: Hover effects (`--table-row-hover`) provide visual feedback when users scan table rows.
-
-**Notes annotations**: Tables can include notes below the data using `--table-notes-*` tokens for smaller, secondary styling.
-
-**Responsive behavior**: All spacing tokens automatically scale with document rhythm through `--content-spacing` calculations, providing proper proportions across desktop, tablet, mobile, and print without manual breakpoints.
-
-**Print optimization**: Tables automatically optimize for print media with transparent striping to save ink, reduced cell padding for compactness, page-break controls to prevent awkward splits across pages, and automatic spacing reduction through `--content-spacing-print`.
-
-**Granular border control**: Individual border tokens enable classic typographic patterns like Tufte-style horizontal rules (top and bottom only), Booktabs formatting (thick rules at top/bottom, thin rule under header), or minimal styles (header separator only). Use edge-specific tokens to control each border independently without CSS overrides.
-
-## Caption and Label Layout
-
-Caption styling supports both single and multi-paragraph captions:
-
-**Position**: Captions appear above the table, providing context before users view the data.
-
-**First paragraph**: No top margin, with spacing controlled by `--table-caption-spacing-bottom` between caption and table.
-
-**Subsequent paragraphs**: Use `--table-caption-spacing-bottom` to maintain consistent spacing within multi-paragraph captions.
-
-**Typography**: Captions inherit from semantic caption tokens (`--caption-font-family`, `--caption-font-size`, `--caption-color`) which provide automatic dark mode support.
-
-**Labels**: Table labels (e.g., "Table 3") are styled with `--table-label-font-weight` and `--table-label-font-style` for emphasis and consistency with figure and equation labels.
-
-## Notes Layout
-
-Notes provide additional context or citations below the table:
-
-**Position**: Notes appear below the table data with spacing controlled by `--table-notes-spacing-top`.
-
-**Typography**: Notes use smaller font sizes (`--table-notes-font-size`) and secondary text colors to create visual hierarchy.
-
-**Multi-paragraph support**: Multiple paragraphs within notes maintain consistent spacing.
-
-## Integration with Semantic Tokens
-
-Tables integrate with the design system's token architecture:
-
-- **Automatic responsive behavior**: Spacing uses `--content-spacing` calculations which provide desktop, tablet, mobile, and print scaling automatically
-- **Border consistency**: Table borders reference semantic `--border-color-default` and `--border-width-default` tokens ensuring visual harmony
-- **Surface integration**: Header backgrounds use `--surface-sunken` for consistent depth hierarchy
-- **Caption integration**: Caption tokens provide shared styling with figure captions for consistency
-- **Typography integration**: Cell text uses `--text-font-family` with a slightly reduced size (`calc(var(--text-font-size) * 0.85)`)
-- **Color system**: Row hover and striping colors integrate with the neutral gray palette
-
-## Customization Patterns
-
-**Scholarly tables**: Increase spacing, use justified captions, add enhanced typography for formal academic documents.
-
-**Typed data tables**: For structured datasets with column types and validation, see [datatables](./datatables.smd) which offer specialized tokens and styling.
-
-**Styled tables**: Adjust borders, spacing, and cell padding. For header backgrounds and striping patterns, define these in theme CSS files where dark mode variants will work properly.
-
-**Minimal tables**: Use default transparent striping and subtle hover effects for clean presentation.
-
-**Print-optimized tables**: Customize print variants for optimal appearance in PDF exports and printed documents.
+Spacing derives from `--content-spacing`, and caption/notes typography aligns with the shared caption system. For typed data tables with column validation, use the datatable tokens instead.
 
 # Tokens
 
@@ -437,26 +370,10 @@ Thick rules at top and bottom, thin rule under header:
 
 # Tips
 
-**Leverage automatic responsive behavior**: Table spacing tokens base on `--content-spacing`, so tables automatically scale for mobile, tablet, and print without explicit media queries. When you adjust document spacing, tables adapt proportionally. Print media automatically uses reduced spacing and transparent striping to save ink.
+**Headers and striping**: Use `--table-header-background` and `--table-row-striped` (with `-dark` variants) to improve scanability.
 
-**Use appropriate striping**: Tables default to no striping (`transparent`) for a clean appearance. Enable row striping in your theme CSS file with `--table-row-striped: var(--color-gray-100)` for light mode and `--table-row-striped-dark: rgba(255, 255, 255, 0.03)` (a subtle white overlay) for dark mode to improve readability in tables with many rows. The subtle alternating backgrounds help eyes track across wide tables. Note that striping examples don't work well with inline style overrides due to dark mode media query limitations.
+**Row interactions**: Set `--table-row-hover` to add or remove hover feedback without custom CSS.
 
-**Customize hover feedback**: The `--table-row-hover` token provides interactive feedback when users scan tables. Match hover colors to your theme's accent color for brand consistency, or set to `transparent` to disable hover effects entirely.
+**Captions and notes**: Use `--table-caption-*` and `--table-notes-*` to match the shared caption/label system.
 
-**Header styling matters**: When tables include `<thead>` elements, use `--table-header-background` to distinguish headers from data. Define both light and dark variants (`--table-header-background-dark`) in your theme CSS file to ensure proper dark mode support. Note that simple markdown tables may not generate `<thead>` elements.
-
-**Caption position**: Table captions appear above the table, providing context before users view the data. This differs from figure captions, which traditionally appear below. Adjust `--table-caption-spacing-bottom` to control the gap between caption and data.
-
-**Maintain label consistency**: Table labels automatically inherit from semantic label tokens (`--label-font-weight`, `--label-font-style`), ensuring visual consistency with figure and equation labels throughout your document.
-
-**Notes for citations**: Use table notes for data sources, methodological notes, or statistical annotations. The smaller font size and secondary text color create appropriate visual hierarchy without overwhelming the main data.
-
-**Print optimization**: Tables automatically optimize for print with reduced cell padding (`--table-cell-padding-print`) and transparent striping (`--table-row-striped-print`). Override these tokens to customize print appearance for different document types.
-
-**Dark mode integration**: Table headers, row hover, and row striping automatically adapt to dark themes through token variants. When customizing these tokens, always define both light and dark variants for optimal appearance in both modes.
-
-**Test with real data**: Table styling looks different with actual data versus placeholder content. Test your customizations with representative datasets including edge cases like long cell content, empty cells, and varying row counts.
-
-**Accessibility considerations**: Ensure sufficient contrast between header backgrounds and text, particularly when using custom colors. Row hover effects should be visible but not distracting. Test with keyboard navigation to verify hover states work with focus indicators.
-
-**Granular border control**: Use edge-specific tokens (`--table-border-top-width`, `--table-border-bottom-width`, etc.) to achieve classic typographic patterns without custom CSS. For Tufte-style horizontal rules, set top and bottom widths to 1px and left/right to 0. For Booktabs formatting, use thicker top/bottom borders (2px) with a thin header separator (1px). The hierarchical token structure (base → edge-specific) lets you set defaults and override specific edges as needed.
+**Borders**: Use edge-specific tokens like `--table-border-top-width` and `--table-border-bottom-width` for booktabs-style rules without custom selectors.

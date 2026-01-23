@@ -6,87 +6,16 @@ description: |
 
 # Usage
 
-Datatables are specialized tables for typed data with column validation. Unlike [tables](./tables.smd), datatables are designed for structured datasets with column types (string, number, integer, date, boolean) and optional validation rules.
-
-By default, datatable tokens reference their table counterparts, so you can override only what needs to differ.
+Datatables are for typed datasets and default to table tokens. Override only what needs to differ from [tables](./tables.smd).
 
 Start with these tokens when customizing datatables:
 
 - `--datatable-spacing-top` and `--datatable-spacing-bottom` for vertical rhythm
 - `--datatable-header-background` and `--datatable-header-font-weight` for headers
-- `--datatable-row-striped` and `--datatable-row-hover` for scanning large datasets
+- `--datatable-row-striped` and `--datatable-row-hover` for scanability
 - `--datatable-cell-padding` and `--datatable-cell-font-size` for density
 - `--datatable-border-width` and `--datatable-border-color` for framing
 - `--datatable-caption-*` and `--datatable-notes-*` for supporting text
-
-## Datatable Structure
-
-Datatables combine typed data columns with optional captions and notes. The theming system provides:
-
-**Typed columns**: Each column has a specific data type (string, integer, number, date, boolean) with optional validation rules. This enables proper formatting, alignment, and future interactive features like sorting and filtering.
-
-**Vertical spacing**: Datatables use `--datatable-spacing-top` and `--datatable-spacing-bottom` based on content spacing, ensuring automatic responsive and print scaling without explicit media queries.
-
-**Caption hierarchy**: Captions use semantic caption tokens for typography and secondary text colors to create clear visual hierarchy. Labels (e.g., "Table 1") receive bold or italic emphasis through semantic label tokens.
-
-**Header emphasis**: Headers use `--datatable-header-background` to visually distinguish column headers from data cells, with automatic dark mode adaptation.
-
-**Row striping**: By default, datatables have no row striping (transparent) for a clean, minimal appearance. Enable alternating row backgrounds with `--datatable-row-striped` to improve readability of datatables with many rows.
-
-**Interactive feedback**: Hover effects (`--datatable-row-hover`) provide visual feedback when users scan datatable rows.
-
-**Notes annotations**: Datatables can include notes below the data using `--datatable-notes-*` tokens for smaller, secondary styling.
-
-**Responsive behavior**: All spacing tokens automatically scale with document rhythm through content-spacing calculations, providing proper proportions across desktop, tablet, mobile, and print without manual breakpoints.
-
-**Print optimization**: Datatables automatically optimize for print media with transparent striping to save ink, reduced cell padding for compactness, page-break controls to prevent awkward splits across pages, and automatic spacing reduction.
-
-## Caption and Label Layout
-
-Caption styling supports both single and multi-paragraph captions:
-
-**Position**: Captions appear above the datatable, providing context before users view the data.
-
-**First paragraph**: No top margin, with spacing controlled by `--datatable-caption-spacing-bottom` between caption and table.
-
-**Subsequent paragraphs**: Use `--datatable-caption-spacing-bottom` to maintain consistent spacing within multi-paragraph captions.
-
-**Typography**: Captions inherit from semantic caption tokens which provide automatic dark mode support.
-
-**Labels**: Datatable labels (e.g., "Table 3") are styled with `--datatable-label-font-weight` and `--datatable-label-font-style` for emphasis and consistency with figure and equation labels.
-
-## Notes Layout
-
-Notes provide additional context or citations below the datatable:
-
-**Position**: Notes appear below the datatable data with spacing controlled by `--datatable-notes-spacing-top`.
-
-**Typography**: Notes use smaller font sizes (`--datatable-notes-font-size`) and secondary text colors to create visual hierarchy.
-
-**Multi-paragraph support**: Multiple paragraphs within notes maintain consistent spacing.
-
-## Integration with Table Tokens
-
-Datatables integrate with the table token system for visual consistency:
-
-- **Token inheritance**: All datatable tokens default to their table counterparts for consistent styling
-- **Selective customization**: Theme authors can override specific datatable tokens to differentiate typed data from presentation tables
-- **Automatic responsive behavior**: Spacing uses content-spacing calculations which provide desktop, tablet, mobile, and print scaling automatically
-- **Border consistency**: Datatable borders reference the same semantic border tokens as tables
-- **Surface integration**: Header backgrounds use consistent surface tokens for depth hierarchy
-- **Typography integration**: Cell text uses the same semantic font tokens as tables
-
-## Customization Patterns
-
-**Compact datatables**: Reduce cell padding and spacing for datatables with many rows. Optionally enable row striping for improved scanability.
-
-**Scientific datatables**: Increase spacing, use monospace fonts for numerical precision, add enhanced typography for research documents.
-
-**Data-focused styling**: Differentiate datatables from presentation tables with distinct borders, backgrounds, or typography to signal typed data.
-
-**Minimal datatables**: Use default transparent striping and subtle hover effects for clean presentation.
-
-**Print-optimized datatables**: Customize print variants for optimal appearance in PDF exports and printed documents.
 
 # Tokens
 
@@ -217,6 +146,7 @@ Standard datatable styling with automatic responsive spacing and dark mode suppo
 ::: style
 
 | Species        | Count | Density |
+|----------------|-------|---------|
 | Arripis trutta | 123   | 4.56    |
 | Odax pullus    | 789   | 0.12    |
 | Haliotis iris  | 34    | 5.6     |
@@ -239,6 +169,7 @@ Compact layout with reduced spacing for datatables with many rows:
 ::: style --datatable-spacing-top: var(--space-4); --datatable-spacing-bottom: var(--space-4); --datatable-cell-padding: var(--space-2); --datatable-caption-spacing-bottom: var(--space-2);
 
 | ID   | Timestamp | Event  | User    | Status  |
+|------|-----------|--------|---------|---------|
 | 1001 | 09:15:23  | Login  | alice   | Success |
 | 1002 | 09:16:45  | Upload | bob     | Success |
 | 1003 | 09:17:12  | Delete | alice   | Failed  |
@@ -271,6 +202,7 @@ Enhanced spacing and typography for research data with numerical precision:
 Summary of experimental measurements showing treatment effects across three independent trials. Values represent mean ± standard deviation with significance levels indicated.
 
 | Treatment | Trial 1  | Trial 2  | Trial 3  | p-value |
+|-----------|----------|----------|----------|---------|
 | Control   | 12.3±2.1 | 11.8±1.9 | 12.6±2.3 | —       |
 | Drug A    | 18.7±3.2 | 19.1±2.8 | 18.3±3.5 | < 0.001 |
 | Drug B    | 15.4±2.6 | 16.2±2.4 | 15.8±2.9 | < 0.01  |
@@ -299,6 +231,7 @@ Performance metrics across three benchmark datasets. Execution time measured in 
 All tests were conducted with identical parameters and repeated 100 times. The values shown represent median execution time with 95% confidence intervals.
 
 | Algorithm | Dataset A | Dataset B | Dataset C |
+|-----------|-----------|-----------|-----------|
 | Method 1  | 23±2 ms   | 45±4 ms   | 67±5 ms   |
 | Method 2  | 18±1 ms   | 38±3 ms   | 55±4 ms   |
 | Method 3  | 31±3 ms   | 52±5 ms   | 78±6 ms   |
@@ -325,6 +258,7 @@ Datatables with annotations and additional context below the data:
 Population statistics by region for 2023-2024.
 
 | Region | Population | Growth | Density |
+|--------|------------|--------|---------|
 | North  | 2,450,000  | 1.2%   | 145/km² |
 | South  | 1,875,000  | 2.8%   | 98/km²  |
 | East   | 3,120,000  | 0.9%   | 201/km² |
@@ -338,26 +272,10 @@ Population data sourced from National Census Bureau. Growth rates calculated yea
 
 # Tips
 
-**Leverage automatic responsive behavior**: Datatable spacing tokens base on content-spacing, so datatables automatically scale for mobile, tablet, and print without explicit media queries. When you adjust document spacing, datatables adapt proportionally. Print media automatically uses reduced spacing and transparent striping to save ink.
+**Token inheritance**: Datatable tokens default to table tokens, so override only the pieces you want to distinguish from presentation tables.
 
-**Use appropriate striping**: Datatables default to no striping (`transparent`) for a clean appearance. Enable row striping in your theme CSS file with `--datatable-row-striped: var(--color-gray-100)` for light mode and `--datatable-row-striped-dark: rgba(255, 255, 255, 0.03)` (a subtle white overlay) for dark mode to improve readability in datatables with many rows. The subtle alternating backgrounds help eyes track across wide tables with typed data.
+**Headers and striping**: Use `--datatable-header-background` and `--datatable-row-striped` (with `-dark` variants) to improve scanability.
 
-**Customize hover feedback**: The `--datatable-row-hover` token provides interactive feedback when users scan datatables. Match hover colors to your theme's accent color for brand consistency, or set to `transparent` to disable hover effects entirely.
+**Row interactions**: Set `--datatable-row-hover` to add or remove hover feedback without custom CSS.
 
-**Header styling for typed columns**: Datatable headers always include proper `<thead>` elements with typed column information. Use `--datatable-header-background` to distinguish headers from data. Define both light and dark variants in your theme CSS file to ensure proper dark mode support.
-
-**Caption position**: Datatable captions appear above the data, providing context before users view the typed columns. Adjust `--datatable-caption-spacing-bottom` to control the gap between caption and data.
-
-**Maintain label consistency**: Datatable labels automatically inherit from semantic label tokens, ensuring visual consistency with figure and equation labels throughout your document.
-
-**Notes for metadata**: Use datatable notes for data sources, methodological notes, statistical annotations, or type validation information. The smaller font size and secondary text color create appropriate visual hierarchy.
-
-**Print optimization**: Datatables automatically optimize for print with reduced cell padding and transparent striping. Override these tokens to customize print appearance for different document types.
-
-**Dark mode integration**: Datatable headers, row hover, and row striping automatically adapt to dark themes through token variants. When customizing these tokens, always define both light and dark variants for optimal appearance in both modes.
-
-**Differentiate from presentation tables**: Consider using distinct datatable tokens to visually signal that certain tables contain typed, validated data versus presentation tables. For example, use a slightly different header background or border style for datatables.
-
-**Test with typed data**: Datatable styling should accommodate various data types including long strings, large numbers, dates, and boolean values. Test your customizations with representative typed datasets.
-
-**Accessibility considerations**: Ensure sufficient contrast between header backgrounds and text, particularly when using custom colors. Row hover effects should be visible but not distracting. Typed data should be clearly readable across all breakpoints.
+**Captions and notes**: Use `--datatable-caption-*` and `--datatable-notes-*` to match the shared caption/label system.

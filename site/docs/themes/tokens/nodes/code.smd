@@ -15,35 +15,7 @@ Start with these tokens when customizing code:
 - `--code-keyword`, `--code-string`, and `--code-comment` for syntax colors
 - `--code-selection-background` for editor focus states
 
-**Inline code** (`<code>`) uses tokens with the `-inline` suffix e.g
-
-- `--code-font-size-inline`
-- `--code-background-inline`
-- `--code-padding-inline`
-
-**Code blocks** (`<pre><code>`) use tokens with the `--block` suffix e.g.:
-
-- `--code-font-size-block`
-- `--code-background-block`
-- `--code-padding-block`
-
-**CodeMirror integration** is used for all code display in Stencila documents:
-
-- **Static code blocks** (`<pre><code>`) use CodeMirror for syntax highlighting when JavaScript loads
-- **Executable code chunks** use CodeMirror for both editing and display
-- **Fallback styling** uses base code tokens when JavaScript fails to load
-
-**Editor tokens** (`--code-*`) control the CodeMirror appearance and behavior:
-
-- Used for all code blocks and chunks when CodeMirror loads
-- Automatically inherit from base code tokens for consistency
-- Can be customized independently for editor-specific styling
-
-**Gutter and syntax tokens** provide fine-grained control:
-
-- **Gutter tokens** (`--code-gutter-*`) control line numbers and margins
-- **Syntax tokens** (`--code-*`) control code highlighting colors
-- All tokens support CSS variables and adapt to theme changes automatically
+Inline code uses the `-inline` tokens and code blocks use the `-block` tokens. The same `--code-*` overrides are applied by the editor renderer when it loads, so one set of tokens keeps inline, static, and executable code consistent.
 
 # Tokens
 
@@ -162,7 +134,7 @@ Set `--code-theme` to use a named theme preset or `custom` to apply the syntax h
 - `vscode-dark`
 
 > [!note]
-> To add more themes, see: `web/src/ui/nodes/properties/code/themes/README.md`
+> To add more themes, see: [`README.md`](https://github.com/stencila/stencila/blob/main/web/src/ui/nodes/properties/code/themes/README.md)
 
 > [!note]
 > Most color-related tokens have `-dark` variants (e.g., `--code-background-dark`, `--code-comment-dark`) that are applied automatically in dark mode.
@@ -425,18 +397,10 @@ HAVING COUNT(*) >= 3;                        -- Minimum measurement threshold
 
 # Tips
 
-**Theme presets**: Use `--code-theme` and `--code-theme-dark` with named theme presets (like `github-light`, `nord`, or `monokai`) for quick, consistent syntax highlighting. Set to `custom` only when you need full control over individual syntax highlighting tokens.
+**Theme presets**: Use `--code-theme`/`--code-theme-dark` for named presets, and switch to `custom` only when you need per-token syntax colors.
 
-**Size tokens**: Use `--font-size-sm` for both `--code-font-size-inline` and `--code-font-size-block` to maintain consistency with the design system.
+**Inline vs block**: Keep `--code-*-inline` and `--code-*-block` aligned to avoid mismatched sizing and backgrounds.
 
-**Padding hierarchy**: Inline code needs minimal padding (`0.05em 0.25em` by default), while blocks need generous vertical padding (`--space-4`) for readability.
+**Gutters and line numbers**: Use `--code-line-numbers` with `--code-gutter-*` to control editor chrome without touching block styles.
 
-**Border removal**: Set `--code-border-width: var(--space-0)` and `--code-gutter-border-width: var(--space-0)` for minimal styling patterns.
-
-**Gutter styling**: Use muted colors like `--color-gray-400` for `--code-gutter-color` and darker backgrounds like `--color-gray-800` for high contrast themes.
-
-**Syntax color balance**: Keywords (`--code-keyword`) should use strong colors like `--color-blue-600`, while comments (`--code-comment`) work best with muted grays like `--color-gray-500`.
-
-**Background coordination**: Keep `--code-background-inline` and `--code-background-block` consistent; the defaults use a subtle `color-mix()` based on `--surface-background`.
-
-**Selection visibility**: Use `--color-blue-200` for `--code-selection-background` to ensure clear text selection without overwhelming syntax colors.
+**Selection**: Set `--code-selection-background` to keep selection visible against your syntax palette.

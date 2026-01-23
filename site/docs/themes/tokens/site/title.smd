@@ -1,0 +1,47 @@
+---
+title: Site Title
+description: |
+  Design tokens and examples for customizing the site title component.
+---
+
+# Usage
+
+The site title is a text-only component used near the logo or header. Start with:
+
+- `--site-title-font-size` and `--site-title-font-weight` for emphasis
+- `--site-title-color` for contrast against the header background
+
+# Tokens
+
+| Token                    | Description         | Default Value               |
+| ------------------------ | ------------------- | --------------------------- |
+| `--site-title-font-family` | Font family        | `var(--layout-font-family)` |
+| `--site-title-font-size` | Font size           | `var(--font-size-lg)`       |
+| `--site-title-font-weight` | Font weight        | `600`                       |
+| `--site-title-color`     | Text color          | `var(--text-color-primary)` |
+
+# Examples
+
+## Subtle Title
+
+```css
+:root {
+  --site-title-font-size: var(--font-size-base);
+  --site-title-color: var(--text-color-secondary);
+}
+```
+
+## Bold Title
+
+```css
+:root {
+  --site-title-font-weight: 700;
+  --site-title-font-size: var(--font-size-xl);
+}
+```
+
+# Tips
+
+**Align with logo**: Use similar visual weight between logo and title for a cohesive header.
+
+**Header contrast**: Make sure `--site-title-color` is readable against `--header-background`.

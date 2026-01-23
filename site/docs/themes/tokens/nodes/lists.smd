@@ -13,31 +13,7 @@ Start with these tokens when customizing lists:
 - `--list-marker-color` and `--list-marker-gap` for marker readability
 - `--list-marker-content` or `--list-marker-unordered` to change bullet shapes
 
-The list system uses different token types to control list appearance and hierarchy:
-
-**Spacing tokens** control distances and positioning, with automatic responsive scaling:
-
-- `--list-spacing: var(--content-spacing)` - space before lists (scales automatically)
-- `--list-item-spacing: calc(var(--list-spacing) * 0.25)` - space between list items
-- `--list-indent: calc(var(--content-spacing) * 0.75)` - main indentation from page margin
-- `--list-marker-gap: var(--space-2)` - space between marker and content
-
-**Marker tokens** control visual appearance:
-
-- `--list-marker-content: normal` - custom text/character for unordered markers (when not `normal`, overrides `list-style-type`)
-- `--list-marker-nested-content: normal` - custom text/character for nested unordered markers
-- `--list-marker-unordered: disc` - bullet style keyword for main level (used when `--list-marker-content` is `normal`)
-- `--list-marker-nested-unordered: circle` - bullet style keyword for nested level (used when `--list-marker-nested-content` is `normal`)
-- `--list-marker-color: var(--text-color-muted)` - color of all markers
-
-The marker content tokens enable custom text markers (like en-dashes or arrows) that aren't available through CSS `list-style-type` keywords. When set to `normal`, the browser uses the `list-style-type` value. When set to a string like `'– '` or `'▸ '`, it displays that custom character.
-
-**Nested tokens** control nested list behavior:
-
-- `--list-indent-nested: calc(var(--content-spacing) * 0.25)` - additional indent for nested lists
-- `--list-spacing-nested: calc(var(--content-spacing) * 0.25)` - space before nested lists
-
-**Note:** Most spacing tokens are based on `--content-spacing` and automatically scale for mobile, tablet, and print without additional CSS. The lists component inherits responsive behavior automatically through this semantic token integration - no explicit responsive variants are needed.
+Spacing and indentation scale with `--content-spacing`. Use `--list-marker-content`/`--list-marker-nested-content` to supply custom glyphs; keep them set to `normal` to use the `--list-marker-unordered`/`--list-marker-ordered` keywords instead.
 
 # Tokens
 
@@ -214,20 +190,8 @@ Minimal lists with en-dash markers (Tufte's preferred style):
 
 # Tips
 
-**Maintain hierarchy**: Nested markers should be visually distinct from parent markers.
+**Custom markers**: Use `--list-marker-content` and `--list-marker-nested-content` to supply glyphs for unordered lists; keep them `normal` to use `list-style-type` keywords instead.
 
-**Consider content density**: Compact spacing works well for reference material, while spacious formatting suits presentations and educational content.
+**Ordered lists**: Use `--list-marker-ordered` and `--list-marker-nested-ordered` to control numbering styles for `<ol>`.
 
-**Test nested structures**: Ensure your token combinations work well at 2-3 levels of nesting, especially when mixing ordered and unordered lists.
-
-**Use semantic tokens**: Reference spacing tokens like `var(--space-2)` rather than hard-coded values for consistency with your design system.
-
-**Accessibility**: Ensure sufficient contrast between `--list-marker-color` and background, particularly when using custom colors.
-
-**Performance**: The `--list-marker-gap` controls readability, too little makes text crowded, too much disrupts scanning flow.
-
-**Print optimization**: Lists automatically optimize for print media with reduced nested spacing and improved page-break handling to prevent awkward breaks within list items.
-
-**Custom marker content**: Use `--list-marker-content` and `--list-marker-nested-content` to set custom text markers that aren't available through CSS keywords. Common examples include en-dashes (`'– '`), em-dashes (`'— '`), arrows (`'▸ '`, `'→ '`), or bullets (`'• '`). Remember to include a space after the character for proper spacing. Set to `normal` to revert to using `list-style-type` keywords (disc, circle, square, etc.). Note that custom content only applies to unordered lists (`<ul>`); ordered lists (`<ol>`) always use `list-style-type` for proper numbering.
-
-**Marker inheritance**: When `--list-marker-content` is `normal`, the browser uses the `list-style-type` value. When set to a string, it overrides the `list-style-type` completely. This allows you to mix keyword-based markers and custom text markers in the same theme.
+**Marker spacing**: Adjust `--list-marker-gap` to tune the distance between marker and content without changing list indentation.

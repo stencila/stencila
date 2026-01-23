@@ -1,0 +1,171 @@
+---
+title: Site Layout
+description: |
+  Design tokens and examples for customizing the site layout grid, regions, and responsive sidebar behavior in Stencila themes.
+---
+
+# Usage
+
+Site layout tokens control the grid-based region system used by the header, sidebars, main content, and footer. Start with:
+
+- `--layout-*` tokens for overall dimensions and typography
+- `--header-*`, `--left-sidebar-*`, and `--right-sidebar-*` for region colors and spacing
+- `--footer-*` and `--subregion-*` tokens for footer layout and component spacing
+- `--skip-link-*` tokens for accessibility styling
+- `--sidebar-*` and `--sidebar-toggle-*` tokens for responsive sidebar behavior
+
+Most tokens derive from semantic spacing, color, and typography values, so you can align layout changes with your theme by overriding shared primitives first.
+
+# Tokens
+
+## Layout Dimension Tokens
+
+Control the size and spacing of the main layout grid.
+
+| Token                        | Description                               | Default Value                  |
+| ---------------------------- | ----------------------------------------- | ------------------------------ |
+| `--layout-header-height`     | Header height                             | `64px`                         |
+| `--layout-left-sidebar-width`| Left sidebar width                        | `280px`                        |
+| `--layout-right-sidebar-width`| Right sidebar width                      | `220px`                        |
+| `--layout-main-max-width`    | Max width of main content                 | `800px`                        |
+| `--layout-main-padding`      | Padding around main content               | `var(--content-spacing)`       |
+| `--layout-border-width`      | Border width for layout regions           | `var(--border-width-default)`  |
+
+## Layout Typography Tokens
+
+Typography applied to site chrome components.
+
+| Token                    | Description             | Default Value          |
+| ------------------------ | ----------------------- | ---------------------- |
+| `--layout-font-family`   | Font family for layout  | `var(--font-family-sans)` |
+| `--layout-font-size`     | Base font size          | `var(--font-size-sm)`  |
+| `--layout-font-weight`   | Base font weight        | `400`                  |
+
+## Layering Tokens
+
+Z-index values for key layout layers.
+
+| Token                | Description                  | Default Value |
+| -------------------- | ---------------------------- | ------------- |
+| `--layout-z-header`  | Header z-index               | `100`         |
+| `--layout-z-skip-link` | Skip link z-index          | `1000`        |
+
+## Header Tokens
+
+Styling for the sticky header region.
+
+| Token               | Description                  | Default Value              |
+| ------------------- | ---------------------------- | -------------------------- |
+| `--header-background` | Header background color     | `var(--surface-raised)`    |
+| `--header-border-color` | Header border color       | `var(--border-color-default)` |
+| `--header-padding`  | Horizontal header padding    | `var(--space-4)`           |
+| `--header-gap`      | Gap between header items     | `var(--space-2)`           |
+
+## Sidebar Tokens
+
+Layout and styling for left and right sidebars.
+
+| Token                     | Description                     | Default Value               |
+| ------------------------- | ------------------------------- | --------------------------- |
+| `--sidebar-padding`       | Sidebar inner padding           | `var(--space-4)`            |
+| `--left-sidebar-background` | Left sidebar background       | `var(--surface-elevated)`   |
+| `--left-sidebar-border-color` | Left sidebar border color   | `var(--border-color-muted)` |
+| `--right-sidebar-background` | Right sidebar background      | `var(--surface-background)` |
+| `--right-sidebar-border-color` | Right sidebar border color | `none`                      |
+
+## Footer Tokens
+
+Styling for the footer region and its subregions.
+
+| Token               | Description              | Default Value              |
+| ------------------- | ------------------------ | -------------------------- |
+| `--footer-background` | Footer background color | `var(--surface-raised)`    |
+| `--footer-border-color` | Footer border color    | `var(--border-color-default)` |
+| `--footer-padding`  | Footer padding           | `var(--space-8) var(--space-6)` |
+| `--footer-gap`      | Gap between footer items | `var(--space-6)`           |
+
+## Sub-region Tokens
+
+Spacing for start/middle/end placement inside regions.
+
+| Token            | Description                  | Default Value       |
+| ---------------- | ---------------------------- | ------------------- |
+| `--subregion-gap` | Gap between subregion items | `var(--space-3)`    |
+
+## Row Gap Tokens
+
+Control spacing between multiple rows inside regions.
+
+| Token              | Description                  | Default Value               |
+| ------------------ | ---------------------------- | --------------------------- |
+| `--region-row-gap` | Default row gap              | `var(--space-1)`            |
+| `--header-row-gap` | Header row gap               | `var(--region-row-gap)`     |
+| `--top-row-gap`    | Top region row gap           | `var(--region-row-gap)`     |
+| `--bottom-row-gap` | Bottom region row gap        | `var(--region-row-gap)`     |
+| `--footer-row-gap` | Footer row gap               | `calc(var(--region-row-gap) * 5)` |
+
+## Skip Link Tokens
+
+Accessibility styling for the skip-to-content link.
+
+| Token                 | Description               | Default Value               |
+| --------------------- | ------------------------- | --------------------------- |
+| `--skip-link-background` | Skip link background     | `var(--color-accent)`       |
+| `--skip-link-color`   | Skip link text color      | `var(--text-color-inverse)` |
+
+## Responsive Sidebar Tokens
+
+Tokens used for responsive sidebar overlays and toggles.
+
+| Token                       | Description                     | Default Value                 |
+| --------------------------- | ------------------------------- | ----------------------------- |
+| `--sidebar-transition-duration` | Sidebar transition duration | `var(--transition-duration-base)` |
+| `--sidebar-overlay-background` | Overlay background color     | `rgba(0, 0, 0, 0.5)`           |
+| `--sidebar-toggle-top`      | Vertical position of toggle     | `25%`                         |
+| `--sidebar-toggle-width`    | Toggle width                    | `20px`                        |
+| `--sidebar-toggle-height`   | Toggle height                   | `40px`                        |
+| `--sidebar-toggle-left-icon` | Left toggle icon content       | `"\u203A"`                    |
+| `--sidebar-toggle-right-icon` | Right toggle icon content     | `"\u2039"`                    |
+| `--sidebar-toggle-icon-size` | Toggle icon size               | `1.5rem`                      |
+| `--sidebar-toggle-background` | Toggle background             | `var(--surface-elevated)`     |
+| `--sidebar-toggle-border-color` | Toggle border color         | `var(--border-color-default)` |
+| `--sidebar-toggle-color`    | Toggle icon color               | `var(--text-color-secondary)` |
+| `--sidebar-toggle-color-hover` | Toggle icon hover color      | `var(--text-color-primary)`   |
+| `--sidebar-toggle-z-index`  | Toggle z-index                  | `150`                         |
+
+# Examples
+
+## Spacious Sidebar Layout
+
+Wider sidebars with generous padding for navigation-heavy sites:
+
+```css
+:root {
+  --layout-left-sidebar-width: 320px;
+  --layout-right-sidebar-width: 260px;
+  --sidebar-padding: var(--space-6);
+  --layout-main-max-width: 720px;
+}
+```
+
+## Minimal Header
+
+Slim header with a subtle divider:
+
+```css
+:root {
+  --layout-header-height: 52px;
+  --header-padding: var(--space-3);
+  --header-border-color: var(--border-color-muted);
+}
+```
+
+# Tips
+
+**Start with semantic tokens**: Adjust `--surface-*` and `--content-spacing` before reaching for layout-specific overrides.
+
+**Keep widths balanced**: Pair `--layout-main-max-width` with sidebar widths to prevent cramped main content.
+
+**Accessible skip link**: Ensure `--skip-link-background` and `--skip-link-color` maintain high contrast.
+
+**Responsive behavior**: Use `--sidebar-transition-duration` and `--sidebar-overlay-background` to align sidebar animations with your theme.

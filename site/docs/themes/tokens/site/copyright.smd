@@ -1,0 +1,48 @@
+---
+title: Copyright
+description: |
+  Design tokens and examples for customizing the copyright notice component.
+---
+
+# Usage
+
+The copyright component is typically in the footer. Start with:
+
+- `--copyright-font-size` and `--copyright-color` for tone
+- `--copyright-link-color` and `--copyright-link-color-hover` for holder links
+
+# Tokens
+
+| Token                          | Description            | Default Value               |
+| ------------------------------ | ---------------------- | --------------------------- |
+| `--copyright-font-family`      | Font family            | `var(--layout-font-family)` |
+| `--copyright-font-size`        | Font size              | `var(--layout-font-size)`   |
+| `--copyright-color`            | Text color             | `var(--text-color-secondary)` |
+| `--copyright-link-color`       | Holder link color      | `var(--text-color-secondary)` |
+| `--copyright-link-color-hover` | Holder link hover color| `var(--text-color-primary)` |
+
+# Examples
+
+## Muted Footer Legal
+
+```css
+:root {
+  --copyright-color: var(--text-color-muted);
+  --copyright-link-color: var(--text-color-muted);
+  --copyright-link-color-hover: var(--text-color-secondary);
+}
+```
+
+## Compact Footer Text
+
+```css
+:root {
+  --copyright-font-size: var(--font-size-xs);
+}
+```
+
+# Tips
+
+**Match footer tone**: Use muted colors so legal text does not compete with navigation.
+
+**Link clarity**: Keep hover color distinct enough to signal interactivity.

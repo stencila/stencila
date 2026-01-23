@@ -1,0 +1,47 @@
+---
+title: Logo
+description: |
+  Design tokens and examples for customizing the site logo sizing and behavior.
+---
+
+# Usage
+
+The logo component renders a background image with responsive variants. Token control is limited to sizing:
+
+- `--logo-height` for the displayed height
+- `--logo-max-width` to reserve horizontal space for wide logos
+
+Logo image URLs are set via inline CSS custom properties on the element (e.g. `--logo`, `--logo-dark`).
+
+# Tokens
+
+| Token              | Description           | Default Value |
+| ------------------ | --------------------- | ------------- |
+| `--logo-height`    | Logo height           | `2rem`        |
+| `--logo-max-width` | Max logo width        | `20rem`       |
+
+# Examples
+
+## Compact Header Logo
+
+```css
+:root {
+  --logo-height: 1.5rem;
+  --logo-max-width: 12rem;
+}
+```
+
+## Spacious Brand Mark
+
+```css
+:root {
+  --logo-height: 3rem;
+  --logo-max-width: 24rem;
+}
+```
+
+# Tips
+
+**Image variants**: Use inline properties like `--logo-dark` and `--logo-mobile` for responsive assets.
+
+**Header alignment**: Match `--logo-height` with `--layout-header-height` to keep the header balanced.

@@ -1,0 +1,94 @@
+---
+title: Table of Contents Tree
+description: |
+  Design tokens and examples for customizing the on-page table of contents component.
+---
+
+# Usage
+
+The TOC tree is the right-sidebar list of headings with scroll-spy highlighting. Start with:
+
+- `--toc-item-*` tokens for typography, spacing, and colors
+- `--toc-indent` to control nesting
+- `--toc-border-*` tokens for the left rule emphasis
+- `--toc-sticky-top` and `--toc-max-height` for sticky behavior
+
+# Tokens
+
+## Title Tokens
+
+| Token                     | Description                          | Default Value              |
+| ------------------------- | ------------------------------------ | -------------------------- |
+| `--toc-font-family`       | TOC font family                      | `var(--layout-font-family)` |
+| `--toc-title-font-size`   | Title font size                      | `var(--font-size-xs)`      |
+| `--toc-title-font-weight` | Title font weight                    | `var(--font-weight-extralight)` |
+| `--toc-title-color`       | Title text color                     | `var(--text-color-secondary)` |
+| `--toc-title-gap`         | Gap between icon and text            | `var(--space-2)`           |
+| `--toc-title-margin-bottom` | Space below title                  | `var(--space-3)`           |
+| `--toc-title-icon`        | Title icon content                   | `none`                     |
+| `--toc-title-icon-size`   | Title icon size                      | `var(--font-size-xs)`      |
+
+## Item Tokens
+
+| Token                      | Description                      | Default Value              |
+| -------------------------- | -------------------------------- | -------------------------- |
+| `--toc-item-font-size`     | Item font size                   | `var(--font-size-sm)`      |
+| `--toc-item-line-height`   | Item line height                 | `var(--line-height-snug)`  |
+| `--toc-item-padding-y`     | Item vertical padding            | `var(--space-1)`           |
+| `--toc-item-padding-x`     | Item horizontal padding          | `var(--space-1)`           |
+| `--toc-item-color`         | Item text color                  | `var(--text-color-secondary)` |
+| `--toc-item-color-hover`   | Hover item color                 | `var(--text-color-primary)` |
+| `--toc-item-color-active`  | Active item color                | `var(--color-accent)`      |
+| `--toc-item-color-muted`   | Muted color for deep levels      | `var(--text-color-muted)`  |
+
+## Layout Tokens
+
+| Token              | Description                     | Default Value            |
+| ------------------ | ------------------------------- | ------------------------ |
+| `--toc-indent`     | Indent per heading level        | `var(--space-4)`         |
+| `--toc-sticky-top` | Sticky offset from top          | `var(--space-4)`         |
+| `--toc-max-height` | Maximum height when sticky      | `calc(100vh - var(--toc-sticky-top) * 2)` |
+
+## Border Tokens
+
+| Token                       | Description                         | Default Value               |
+| --------------------------- | ----------------------------------- | --------------------------- |
+| `--toc-border-width`        | Base border width                   | `var(--border-width-default)` |
+| `--toc-border-width-emphasis` | Border width on hover/active      | `var(--border-width-thick)` |
+| `--toc-border-color`        | Base border color                   | `var(--border-color-muted)` |
+| `--toc-border-color-hover`  | Hover border color                  | `var(--border-color-default)` |
+| `--toc-border-color-active` | Active border color                 | `var(--toc-item-color-active)` |
+
+# Examples
+
+## Compact Sidebar TOC
+
+Tighter typography and smaller indents:
+
+```css
+:root {
+  --toc-item-font-size: var(--font-size-xs);
+  --toc-item-padding-y: 2px;
+  --toc-indent: var(--space-3);
+}
+```
+
+## Emphasized Active Heading
+
+Make the active heading easy to spot:
+
+```css
+:root {
+  --toc-border-width-emphasis: 3px;
+  --toc-border-color-active: var(--color-accent);
+  --toc-item-color-active: var(--text-color-primary);
+}
+```
+
+# Tips
+
+**Sticky behavior**: Set `--toc-sticky-top: 0` to disable sticky positioning (it becomes static on smaller screens automatically).
+
+**Deep level clarity**: Adjust `--toc-item-color-muted` to keep deeper levels readable without overpowering top levels.
+
+**Title icon**: Use `--toc-title-icon` to add a lightweight marker (e.g. a unicode string).

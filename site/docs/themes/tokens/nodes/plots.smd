@@ -19,6 +19,8 @@ Plot theming is applied by the Stencila runtime when rendering plots. For consis
 
 Use `--plot-theme: none` when you want plotting libraries to use their own defaults. The `custom` theme applies the tokens above and dark variants automatically when the color scheme changes.
 
+See target-specific mappings in [Web/JS](../targets/web.md), [R](../targets/r.md), and [Python](../targets/python.md).
+
 # Tokens
 
 ## Theme Selection
@@ -26,6 +28,13 @@ Use `--plot-theme: none` when you want plotting libraries to use their own defau
 | Token         | Description                                                            | Default Value |
 | ------------- | ---------------------------------------------------------------------- | ------------- |
 | `--plot-theme` | Theme mode (`custom`, `none`, or a named theme preset if supported)   | `custom`      |
+
+**Available plot presets**:
+
+- `bold` (`themes/plots/bold.css`)
+- `light` (`themes/plots/light.css`)
+
+Set `--plot-theme` to one of these preset names to merge the preset into your theme before custom overrides are applied.
 
 ## Dimensions
 

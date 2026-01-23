@@ -30,6 +30,8 @@ Margin box content can reference injected metadata variables like `--document-ti
 | `--page-margin-right`     | Right margin                         | `var(--page-margin-horizontal)` |
 | `--page-margin-bottom`    | Bottom margin                        | `var(--page-margin-vertical)` |
 | `--page-margin-left`      | Left margin                          | `var(--page-margin-horizontal)` |
+| `--page-content-height`   | Computed content height (read by JS) | `calc(var(--page-height) - var(--page-margin-top) - var(--page-margin-bottom) - var(--page-padding-top) - var(--page-padding-bottom))` |
+| `--page-content-width`    | Computed content width (read by JS)  | `calc(var(--page-width) - var(--page-margin-left) - var(--page-margin-right))` |
 
 ## Page Padding
 
@@ -245,12 +247,10 @@ Stencila injects metadata variables into the document `<head>` that can be used 
 
 # Tips
 
-**Browser support**: CSS margin boxes are best supported in Chromium-based browsers and PDF exports. Safari and Firefox have limited support.
+**Margin boxes**: Margin content tokens default to `none`, so set only the boxes you want (`--page-top-*-content`, `--page-bottom-*-content`).
 
-**Use `none` for empty content**: The base theme sets margin content tokens to `none` to override browser defaults. Override specific boxes as needed.
+**Page size**: Use `--page-width` and `--page-height` to switch between formats like A4 and Letter.
 
-**Set sizes via tokens**: To switch from A4 to letter, update `--page-width` and `--page-height` (e.g., `8.5in` and `11in`).
+**First page overrides**: Use `--page1-*` tokens to change the title page without custom selectors.
 
-**Border hierarchy**: Prefer Level 1 tokens for global behavior and override with Level 2/3 only when you need exceptions.
-
-**Test print output**: Always check PDF output; spacing and margin box support can differ between browsers.
+**Borders**: Use the base `--page-border-*` tokens for global rules, then override per-box only when needed.

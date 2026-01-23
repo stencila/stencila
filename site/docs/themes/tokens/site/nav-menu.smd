@@ -1,0 +1,137 @@
+---
+title: Navigation Menu
+description: |
+  Design tokens and examples for customizing the top navigation menu and dropdowns.
+---
+
+# Usage
+
+The navigation menu is the horizontal header menu with dropdown panels and a mobile accordion. Start with:
+
+- `--nav-menu-color` and `--nav-menu-color-active` for link state colors
+- `--nav-menu-item-padding-*` and `--nav-menu-font-size` for density
+- `--nav-menu-dropdown-*` tokens for panel size and styling
+- `--nav-menu-transition-duration` and `--nav-menu-accordion-transition-duration` for motion
+- `--nav-menu-hover-delay`, `--nav-menu-close-delay`, and `--nav-menu-mobile-breakpoint` (read by JavaScript)
+
+# Tokens
+
+## Typography Tokens
+
+| Token                         | Description                | Default Value               |
+| ----------------------------- | -------------------------- | --------------------------- |
+| `--nav-menu-font-family`      | Font family for menu       | `var(--layout-font-family)` |
+| `--nav-menu-font-size`        | Font size for items        | `var(--font-size-sm)`       |
+| `--nav-menu-item-font-weight` | Font weight for items      | `var(--font-weight-medium)` |
+
+## Color Tokens
+
+| Token                         | Description                 | Default Value                |
+| ----------------------------- | --------------------------- | ---------------------------- |
+| `--nav-menu-color`            | Default item color          | `var(--text-color-secondary)` |
+| `--nav-menu-color-hover`      | Hover item color            | `var(--text-color-primary)`  |
+| `--nav-menu-color-active`     | Active item color           | `var(--color-accent)`        |
+| `--nav-menu-dropdown-bg`      | Dropdown background         | `var(--surface-elevated)`    |
+| `--nav-menu-dropdown-border`  | Dropdown border color       | `var(--border-color-default)` |
+| `--nav-menu-dropdown-shadow`  | Dropdown shadow             | `var(--shadow-lg)`           |
+| `--nav-menu-item-border-color`| Mobile item border color    | `var(--border-color-default)` |
+| `--nav-menu-description-color`| Description text color      | `var(--text-color-muted)`    |
+
+## Structure Tokens
+
+| Token                           | Description                | Default Value          |
+| ------------------------------- | -------------------------- | ---------------------- |
+| `--nav-menu-item-padding-x`     | Item horizontal padding    | `var(--space-3)`       |
+| `--nav-menu-item-padding-y`     | Item vertical padding      | `var(--space-2)`       |
+| `--nav-menu-dropdown-padding`   | Dropdown padding           | `var(--space-4)`       |
+| `--nav-menu-dropdown-max-width` | Dropdown max width         | `800px`                |
+| `--nav-menu-dropdown-min-width` | Dropdown min width         | `280px`                |
+
+## Icon Tokens
+
+| Token                      | Description               | Default Value      |
+| -------------------------- | ------------------------- | ------------------ |
+| `--nav-menu-icon-size`     | Icon size                 | `1.25rem`          |
+| `--nav-menu-icon-gap`      | Gap between icon and text | `var(--space-2)`   |
+| `--nav-menu-chevron-display` | Chevron display mode    | `none`             |
+| `--nav-menu-chevron-size`  | Chevron size              | `0.5em`            |
+
+## Description Tokens
+
+| Token                          | Description            | Default Value          |
+| ------------------------------ | ---------------------- | ---------------------- |
+| `--nav-menu-description-font-size` | Description font size | `var(--font-size-2xs)` |
+
+## Featured Panel Tokens
+
+| Token                         | Description                | Default Value           |
+| ----------------------------- | -------------------------- | ----------------------- |
+| `--nav-menu-featured-width`   | Featured panel width       | `280px`                 |
+| `--nav-menu-featured-bg`      | Featured panel background  | `var(--surface-elevated)` |
+| `--nav-menu-featured-padding` | Featured panel padding     | `var(--space-4)`        |
+
+## Section Title Tokens
+
+| Token                                 | Description             | Default Value               |
+| ------------------------------------- | ----------------------- | --------------------------- |
+| `--nav-menu-section-title-font-size`  | Section title size      | `var(--font-size-2xs)`      |
+| `--nav-menu-section-title-font-weight` | Section title weight   | `var(--font-weight-semibold)` |
+| `--nav-menu-section-title-color`      | Section title color     | `var(--text-color-muted)`   |
+| `--nav-menu-section-title-margin-bottom` | Section title spacing | `var(--space-2)`           |
+
+## Interaction Tokens
+
+| Token                                  | Description                  | Default Value                 |
+| -------------------------------------- | ---------------------------- | ----------------------------- |
+| `--nav-menu-transition-duration`       | Hover/focus transition       | `var(--transition-duration-base)` |
+| `--nav-menu-accordion-transition-duration` | Mobile accordion transition | `var(--transition-duration-slowest)` |
+| `--nav-menu-hover-delay`               | Hover open delay (JS)         | `150ms`                      |
+| `--nav-menu-close-delay`               | Hover close delay (JS)        | `300ms`                      |
+| `--nav-menu-mobile-breakpoint`         | Mobile breakpoint (JS)        | `1024px`                     |
+| `--nav-menu-focus-ring-width`          | Focus ring width              | `var(--focus-ring-width)`     |
+| `--nav-menu-focus-ring-color`          | Focus ring color              | `var(--focus-ring-color)`     |
+| `--nav-menu-focus-ring-offset`         | Focus ring offset             | `var(--focus-ring-offset)`    |
+| `--nav-menu-focus-radius`              | Focus ring radius             | `var(--radius-xs)`            |
+
+## Mobile Tokens
+
+| Token                         | Description            | Default Value     |
+| ----------------------------- | ---------------------- | ----------------- |
+| `--nav-menu-mobile-padding`   | Mobile menu padding    | `var(--space-4)`  |
+| `--nav-menu-accordion-max-height` | Accordion max height | `70vh`         |
+
+# Examples
+
+## Minimal Top Bar
+
+Reduce visual weight for content-first pages:
+
+```css
+:root {
+  --nav-menu-font-size: var(--font-size-xs);
+  --nav-menu-item-padding-x: var(--space-2);
+  --nav-menu-item-padding-y: var(--space-1);
+  --nav-menu-chevron-display: none;
+}
+```
+
+## Bold Dropdowns
+
+Make dropdown panels feel like panels:
+
+```css
+:root {
+  --nav-menu-dropdown-bg: var(--surface-raised);
+  --nav-menu-dropdown-shadow: var(--shadow-xl);
+  --nav-menu-dropdown-max-width: 960px;
+  --nav-menu-chevron-display: inline-flex;
+}
+```
+
+# Tips
+
+**JS-read tokens**: `--nav-menu-hover-delay`, `--nav-menu-close-delay`, and `--nav-menu-mobile-breakpoint` are read by JavaScript for behavior.
+
+**Hierarchy clarity**: Use `--nav-menu-description-color` and `--nav-menu-section-title-*` to keep dropdowns scannable.
+
+**Mobile density**: Adjust `--nav-menu-accordion-max-height` and `--nav-menu-mobile-padding` to suit shorter viewports.

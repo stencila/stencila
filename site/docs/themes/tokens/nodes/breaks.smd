@@ -151,20 +151,8 @@ The short rule creates a refined visual break.
 
 # Tips
 
-**Leverage automatic spacing**: Thematic break spacing is based on `--content-spacing`, so breaks automatically scale for mobile, tablet, and print. When you adjust document spacing, thematic breaks adapt proportionally.
+**Rhythm**: Break spacing is tied to `--content-spacing`, so adjust `--thematic-break-spacing-top/bottom` only when you want breaks to diverge from the document rhythm.
 
-**Match your design system**: Use `--thematic-break-border-color` to match your theme's accent color or keep it neutral with gray tones. Coordinate with other border colors in your design for visual consistency.
+**Alignment**: Use `--thematic-break-width` with left/right margins to create centered or inset rules without custom CSS.
 
-**Consider line weight**: Very thin rules (0.5px) work well in minimal designs but may be invisible on lower-resolution displays. Standard 1px rules provide reliable visibility across devices. Thicker rules (2-3px) create strong visual separation.
-
-**Use decorative styles intentionally**: `double`, `dashed`, and `dotted` styles add personality but can appear informal. Reserve decorative styles for appropriate contexts (e.g., dashed for casual blogs, double for formal documents).
-
-**Width and alignment patterns**: Full-width rules (`100%`) are standard and safe. Short centered rules (`30-50%`) create elegant, refined breaks but work best with ample spacing. Left or right-aligned short rules are uncommon and should be used sparingly.
-
-**Print optimization**: The `--thematic-break-border-width-print` token ensures rules remain visible in print. Most themes can use the same value for screen and print, but very thin rules (< 1px) may need to be thicker for print.
-
-**Spacing considerations**: Increase spacing (`--thematic-break-spacing-top/bottom`) for dramatic section breaks. Reduce spacing for frequent transitions in list-heavy or reference content. The default `var(--content-spacing)` works well for most documents.
-
-**Accessibility**: Thematic breaks have semantic meaning beyond visual appearance. Ensure sufficient visual distinction (color contrast, weight) so users can identify section boundaries. Avoid relying solely on subtle rules (< 1px) as the only indicator of content separation.
-
-**Test with content density**: Thematic break effectiveness varies with surrounding content density. Test your styling with realistic document structure to ensure breaks provide appropriate visual separation without disrupting reading flow.
+**Print**: Use `--thematic-break-border-width-print` when you want thinner rules in print than on screen.

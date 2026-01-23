@@ -1,0 +1,60 @@
+---
+title: Site Review
+description: |
+  Design tokens and examples for customizing site review highlight colors.
+---
+
+# Usage
+
+The site review component uses shared semantic tokens for layout and UI chrome, but defines custom tokens for highlight colors. Start with:
+
+- `--site-review-highlight-*` tokens for comment and suggestion highlights
+- Dark mode variants to tune contrast when the page is in dark mode
+
+# Tokens
+
+## Highlight Tokens
+
+| Token                                   | Description                          | Default Value |
+| --------------------------------------- | ------------------------------------ | ------------- |
+| `--site-review-highlight-comment`       | Comment highlight background         | `color-mix(in srgb, var(--color-yellow-400) 30%, transparent)` |
+| `--site-review-highlight-comment-active` | Active comment highlight            | `color-mix(in srgb, var(--color-yellow-400) 50%, transparent)` |
+| `--site-review-highlight-suggestion`    | Suggestion highlight background      | `color-mix(in srgb, var(--color-green-400) 25%, transparent)` |
+| `--site-review-highlight-suggestion-active` | Active suggestion highlight       | `color-mix(in srgb, var(--color-green-400) 45%, transparent)` |
+
+## Dark Mode Tokens
+
+These are mapped automatically when dark mode is active.
+
+| Token                                           | Description                       | Default Value |
+| ----------------------------------------------- | --------------------------------- | ------------- |
+| `--site-review-highlight-comment-dark`          | Comment highlight in dark mode    | `color-mix(in srgb, var(--color-amber-400) 25%, transparent)` |
+| `--site-review-highlight-comment-active-dark`   | Active comment highlight in dark mode | `color-mix(in srgb, var(--color-amber-400) 40%, transparent)` |
+| `--site-review-highlight-suggestion-dark`       | Suggestion highlight in dark mode | `color-mix(in srgb, var(--color-green-400) 20%, transparent)` |
+| `--site-review-highlight-suggestion-active-dark` | Active suggestion highlight in dark mode | `color-mix(in srgb, var(--color-green-400) 35%, transparent)` |
+
+# Examples
+
+## Softer Highlight Palette
+
+```css
+:root {
+  --site-review-highlight-comment: color-mix(in srgb, var(--color-yellow-300) 20%, transparent);
+  --site-review-highlight-suggestion: color-mix(in srgb, var(--color-green-300) 20%, transparent);
+}
+```
+
+## Strong Active States
+
+```css
+:root {
+  --site-review-highlight-comment-active: color-mix(in srgb, var(--color-amber-500) 60%, transparent);
+  --site-review-highlight-suggestion-active: color-mix(in srgb, var(--color-green-500) 55%, transparent);
+}
+```
+
+# Tips
+
+**Keep contrast subtle**: Highlights should support text selection without overpowering content.
+
+**Match dark mode**: Adjust dark variants to avoid neon-like glow against dark surfaces.

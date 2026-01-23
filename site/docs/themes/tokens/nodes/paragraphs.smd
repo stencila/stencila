@@ -14,49 +14,7 @@ Start with these tokens when customizing paragraphs:
 - `--paragraph-lead-font-size` and `--paragraph-lead-font-weight` for opening paragraphs
 - `--paragraph-hyphens` and `--paragraph-text-wrap` for text flow
 
-## Paragraph-Specific Customization
-
-Use paragraph tokens to customize typography and layout for different document contexts:
-
-**`--paragraph-spacing`**: Controls spacing between paragraphs. References `--content-spacing` by default, which provides automatic responsive behavior (desktop: 2rem, tablet: 1.5rem, mobile: 1rem, print: 0.5rem). This inheritance means paragraphs automatically scale with document rhythm without needing explicit responsive variants.
-
-**`--paragraph-line-height`**: Controls line spacing within paragraphs. References `--text-line-height` by default but can be customized for specific reading contexts.
-
-**`--paragraph-text-align`**: Choose alignment based on document style:
-
-- `left` - Web and technical documentation (default)
-- `justify` - Scholarly papers and formal documents
-- `center` - Special layouts or emphasis
-- `right` - Specialized design contexts
-
-**Lead paragraphs**: First paragraphs after headings automatically receive enhanced styling. Use `--paragraph-lead-font-size` and `--paragraph-lead-font-weight` to emphasize opening content.
-
-## Integration with Semantic Tokens
-
-Paragraphs work with the design system's responsive tokens:
-
-- **Automatic responsive behavior**: Spacing uses `--content-spacing` which automatically provides desktop (2rem), tablet (1.5rem), mobile (1rem), and print (0.5rem) variants without explicit media queries
-- **Content width optimization**: Uses `--content-width` for optimal reading line lengths across devices
-- **Typography inheritance**: Base typography and colors inherit from semantic text tokens, including automatic dark mode support through `--text-color-primary`
-- **System-wide consistency**: Changes to semantic tokens automatically propagate to paragraphs, maintaining design coherence
-
-## Text Flow and Advanced Features
-
-**Text indentation**: Use `--paragraph-text-indent` for traditional scholarly formatting:
-
-- `0` - Web/modern style (no indent, default)
-- `1.5em` - Standard scholarly indent
-- `1.463rem` - Traditional LaTeX paragraph indent
-
-**Hyphenation**: Control word breaking with `--paragraph-hyphens`:
-
-- `none` - No hyphenation (web default)
-- `auto` - Automatic hyphenation (recommended for justified text)
-- `manual` - Only break at explicit hyphens
-
-**Print control**: Use `--paragraph-orphans` and `--paragraph-widows` to prevent awkward line breaks across pages/columns.
-
-**Modern text wrapping**: Set `--paragraph-text-wrap: pretty` for improved line breaking in supported browsers.
+Lead paragraphs (first after headings) use the lead tokens automatically, and paragraph spacing derives from `--content-spacing` for responsive rhythm.
 
 # Tokens
 
@@ -82,6 +40,8 @@ Special styling for the first paragraph after headings.
 | Token                          | Description                                | Default Value |
 | ------------------------------ | ------------------------------------------ | ------------- |
 | `--paragraph-lead-font-size`   | Font size for lead paragraphs              | `inherit`     |
+| `--paragraph-lead-font-weight` | Font weight for lead paragraphs            | `inherit`     |
+| `--paragraph-lead-text-indent` | First-line indent for lead paragraphs      | `0`           |
 # Examples
 
 ## Default Paragraphs
@@ -174,16 +134,8 @@ Subsequent research has focused on integrating multiple data modalities, includi
 
 # Tips
 
-**Focus on paragraph tokens**: Use `--paragraph-*` tokens for typography-specific customizations. These integrate with the design system while providing paragraph-specific control.
+**Hanging indents**: Use `--paragraph-text-indent` when you want classic scholarly formatting.
 
-**Choose alignment for context**: Use `--paragraph-text-align: left` for web/technical content, `justify` for scholarly papers, but ensure proper hyphenation with justified text.
+**Justified text**: Pair `--paragraph-text-align: justify` with `--paragraph-hyphens: auto` for cleaner spacing.
 
-**Customize line height thoughtfully**: Use `--paragraph-line-height` to override the default text line height when specific reading contexts require it (e.g., dense academic text).
-
-**Consider hyphenation carefully**: Enable `--paragraph-hyphens: auto` only with justified text, and test across different browsers for consistent results.
-
-**Leverage semantic integration**: Paragraph spacing and content width use semantic tokens automatically, providing responsive and dark mode behavior without explicit CSS. Override `--content-spacing` or `--content-width` when needed for special layouts.
-
-**Modern text wrapping**: Use `--paragraph-text-wrap: pretty` in supported browsers for improved line breaking, especially in technical documentation.
-
-**Test across contexts**: Verify paragraph customizations work well in lists, blockquotes, and other content contexts where paragraphs appear.
+**Line breaking**: Use `--paragraph-text-wrap: pretty` where supported to improve rag control.

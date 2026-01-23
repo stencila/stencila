@@ -13,50 +13,7 @@ Start with these tokens when customizing references:
 - `--reference-text-indent` plus `--reference-padding-left` for hanging indents
 - `--reference-text-align` and `--reference-hyphens` for layout style
 
-## Reference-Specific Customization
-
-Use reference tokens to customize typography and layout for bibliography sections:
-
-**`--reference-spacing`**: Controls spacing between references. References `--content-spacing` by default, which provides automatic responsive behavior (desktop: 2rem, tablet: 1.5rem, mobile: 1rem, print: 0.5rem). This inheritance means references automatically scale with document rhythm without needing explicit responsive variants.
-
-**`--reference-font-size`**: Controls the size of reference text. Use smaller sizes (e.g., `var(--font-size-sm)`) for dense bibliographies to fit more content.
-
-**`--reference-line-height`**: Controls line spacing within references. References `--text-line-height` by default but can be customized for specific layouts.
-
-**`--reference-text-indent`**: Essential for traditional bibliography formatting. Use negative values (e.g., `-1.5em`) to create hanging indents where the first line extends left of subsequent lines.
-
-**`--reference-padding-left`**: Must be set to match the absolute value of negative `--reference-text-indent` to prevent text overflow. For example, if `--reference-text-indent: -1.5em`, set `--reference-padding-left: 1.5em`.
-
-**`--reference-text-align`**: Choose alignment based on bibliography style:
-- `left` - Most common for academic and technical documents (default)
-- `justify` - Dense academic bibliographies (pair with hyphenation)
-- `center` - Special layouts or design contexts
-- `right` - Specialized design contexts
-
-## Integration with Semantic Tokens
-
-References work with the design system's responsive tokens:
-
-- **Automatic responsive behavior**: Spacing uses `--content-spacing` which automatically provides desktop (2rem), tablet (1.5rem), mobile (1rem), and print (0.5rem) variants without explicit media queries
-- **Typography inheritance**: Base typography and colors inherit from semantic text tokens, including automatic dark mode support through `--text-color-primary`
-- **System-wide consistency**: Changes to semantic tokens automatically propagate to references, maintaining design coherence
-- **Print optimization**: References automatically optimize for print media with compact spacing and break-inside control
-
-## Text Flow and Advanced Features
-
-**Hanging indents**: Use `--reference-text-indent` with negative values for traditional bibliography formatting. Always pair with matching `--reference-padding-left`:
-- `0` + `0` - No indent (default)
-- `-1.5em` + `1.5em` - Standard hanging indent for bibliographies
-- `-2em` + `2em` - Larger hanging indent for emphasis
-
-**Hyphenation**: Control word breaking with `--reference-hyphens`:
-- `none` - No hyphenation (web default)
-- `auto` - Automatic hyphenation (recommended for justified text)
-- `manual` - Only break at explicit hyphens
-
-**Print control**: Use `--reference-orphans` and `--reference-widows` to prevent awkward line breaks across pages. References automatically use `break-inside: avoid` to prevent individual references from splitting.
-
-**Modern text wrapping**: Set `--reference-text-wrap: pretty` for improved line breaking in supported browsers.
+Pair a negative `--reference-text-indent` with a matching positive `--reference-padding-left` to create hanging indents without overflow. Spacing derives from `--content-spacing` for responsive rhythm.
 
 # Tokens
 
@@ -228,20 +185,10 @@ Generous spacing for enhanced readability in presentations or educational materi
 
 # Tips
 
-**Focus on reference tokens**: Use `--reference-*` tokens for bibliography-specific customizations. These integrate with the design system while providing reference-specific control.
+**Hanging indents**: Pair negative `--reference-text-indent` with matching `--reference-padding-left`.
 
-**Hanging indents require matching padding**: When using negative `--reference-text-indent` values, always set `--reference-padding-left` to the matching positive value to prevent text overflow.
+**Justified lists**: Use `--reference-text-align: justify` with `--reference-hyphens: auto` for dense bibliographies.
 
-**Combine tokens thoughtfully**: Dense bibliographies work well with `--space-3` spacing, `var(--font-size-sm)` font size, and optional hanging indents.
+**Long URLs**: Enable `--reference-text-wrap: pretty` to improve line breaks for DOI/URL-heavy entries.
 
-**Choose alignment for context**: Use `--reference-text-align: left` for most contexts, `justify` for traditional scholarly papers with hyphenation enabled.
-
-**Consider hyphenation with justification**: Enable `--reference-hyphens: auto` when using justified text to prevent awkward spacing.
-
-**Leverage semantic integration**: Reference spacing uses `--content-spacing` automatically, providing responsive and print behavior without explicit CSS. Override for special layouts only.
-
-**Modern text wrapping**: Use `--reference-text-wrap: pretty` in supported browsers for improved line breaking, especially with long URLs or DOIs.
-
-**Print optimization**: References automatically prevent page breaks within individual entries using `break-inside: avoid`. Adjust `--reference-orphans` and `--reference-widows` for additional control.
-
-**Test with real content**: Verify reference styling with actual citations including long author lists, titles, journal names, and DOI/URL strings.
+**Page breaks**: Tune `--reference-orphans` and `--reference-widows` to control splits in print output.

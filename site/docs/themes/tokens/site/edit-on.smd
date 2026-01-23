@@ -1,0 +1,48 @@
+---
+title: Edit On (Cloud)
+description: |
+  Design tokens and examples for customizing the "Edit on" link to cloud document services.
+---
+
+# Usage
+
+The edit-on component is a small inline link used in site chrome. Start with:
+
+- `--edit-on-font-size` and `--edit-on-icon-size` for density
+- `--edit-on-color` and `--edit-on-color-hover` for link states
+
+# Tokens
+
+| Token                   | Description              | Default Value               |
+| ----------------------- | ------------------------ | --------------------------- |
+| `--edit-on-font-family` | Font family              | `var(--layout-font-family)` |
+| `--edit-on-icon-size`   | Icon size                | `1em`                       |
+| `--edit-on-font-size`   | Text font size           | `var(--font-size-2xs)`      |
+| `--edit-on-gap`         | Gap between icon and text| `var(--space-2)`            |
+| `--edit-on-color`       | Link color               | `var(--text-color-secondary)` |
+| `--edit-on-color-hover` | Link hover color         | `var(--text-color-primary)` |
+
+# Examples
+
+## Compact Utility Link
+
+```css
+:root {
+  --edit-on-font-size: var(--font-size-3xs);
+  --edit-on-icon-size: 0.9em;
+}
+```
+
+## Accent Hover
+
+```css
+:root {
+  --edit-on-color-hover: var(--color-accent);
+}
+```
+
+# Tips
+
+**Keep it subtle**: Use muted colors so edit links stay supportive rather than primary.
+
+**Inline alignment**: Match `--edit-on-font-size` to other small utility links like copy buttons.

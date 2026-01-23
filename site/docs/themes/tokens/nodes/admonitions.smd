@@ -12,50 +12,9 @@ Start with these tokens when customizing admonitions:
 - `--admonition-border-width`, `--admonition-border-radius`, and `--admonition-accent-border-width` for container shape
 - `--admonition-title-font-size` and `--admonition-title-font-weight` for heading tone
 - `--admonition-title-background-tint` and `--admonition-content-background-tint` to control surface fill
-- `--admonition-icon-size` and `--admonition-chevron-size` for iconography
+- `--admonition-icon-size` and `--admonition-chevron-*` for icon and toggle affordances
 
-## Admonition Types
-
-Stencila supports nine admonition types, each with semantic meaning:
-
-- **Note**: Neutral information or side notes
-- **Info**: Informational content
-- **Tip**: Helpful suggestions or best practices
-- **Important**: Critical information requiring attention
-- **Success**: Positive outcomes or completion states
-- **Failure**: Negative outcomes or error states
-- **Warning**: Cautionary information
-- **Danger**: Critical warnings about potentially harmful actions
-- **Error**: Error messages or problematic states
-
-Each type receives a distinct icon via CSS `::before` pseudo-element using [Bootstrap Icons](https://icons.getbootstrap.com/):
-
-- **Note**: Pencil icon - implies note-taking and annotation
-- **Info**: Info-circle icon - standard information symbol
-- **Tip**: Fire icon - implies "hot tip" and useful insights
-- **Important**: Megaphone icon - conveys announcement and urgency
-- **Success**: Check-circle icon - indicates completion and positive outcome
-- **Failure**: X-circle icon - indicates failure and negative outcome
-- **Warning**: Exclamation-triangle icon - universal warning symbol
-- **Danger**: Exclamation-diamond icon - diamond/rotated square with exclamation mark
-- **Error**: X-octagon icon - stop sign shape with strong error signal
-
-Icons can be customized by overriding the icon size or by replacing the icon content entirely in custom themes.
-
-## Collapsible Behavior
-
-Admonitions support optional collapsible behavior using native HTML `<details>` and `<summary>` elements:
-
-- **Non-collapsible**: Default behavior, always visible
-- **Collapsible**: When `is-folded` attribute is present
-  - `is-folded="true"`: Initially collapsed
-  - `is-folded="false"`: Initially expanded, but user can collapse
-
-The chevron toggle icon is driven by `--admonition-chevron-size` and `--admonition-chevron-rotation`, and rotates via `--admonition-chevron-transition`.
-
-## Color Derivation
-
-Each admonition type uses a single base color to drive borders, title text, and backgrounds. Adjust `--admonition-border-opacity`, `--admonition-title-color-weight`, `--admonition-title-background-tint`, and `--admonition-content-background-tint` to change how the base color is mixed into the container.
+Admonition type tokens follow the `--admonition-<type>-*` pattern (note, info, tip, success, warning, etc.). Collapsible variants use the chevron tokens for the `<details>/<summary>` toggle.
 
 # Tokens
 
@@ -340,22 +299,10 @@ Minimal visual emphasis with subtle backgrounds and reduced opacity for discrete
 
 # Tips
 
-**Leverage semantic types**: Choose admonition types based on semantic meaning (Note, Warning, Error) rather than desired visual appearance. This ensures proper communication for screen readers and other assistive technologies.
+**Type palettes**: Set `--admonition-<type>-color` (and `-dark`) to update icon, border, and background tints together.
 
-**Use spacing tokens**: Customize spacing through `--admonition-spacing` and `--admonition-padding` rather than overriding semantic tokens like `--content-spacing`, which affects the entire document.
+**Spacing control**: Use `--admonition-spacing` and `--admonition-padding` to tune layout without changing global `--content-spacing`.
 
-**Prefer semantic integration**: Admonition spacing inherits from `--content-spacing` by default, providing automatic responsive behavior. Override only when specific adjustments are needed.
+**Toggle affordances**: Collapsible styles use `--admonition-chevron-*` tokens, so customize those to match your disclosure controls.
 
-**Color customization made simple**: Change type-specific color tokens (e.g., `--admonition-warning-color`) to update icon, border, and background colors simultaneously. Dark mode variants are applied automatically.
-
-**Icon customization**: Adjust icon size via `--admonition-icon-size` for visual hierarchy. Larger icons (1.5em+) work well for critical warnings, while smaller icons (1em) suit subtle notes.
-
-**Collapsible for optional content**: Use collapsible admonitions (`is-folded` attribute) for supplementary information that readers may want to skip. Keep critical warnings always visible.
-
-**Test dark mode**: When changing type-specific colors, set both the light and dark tokens (e.g., `--admonition-warning-color` and `--admonition-warning-color-dark`) to maintain intended contrast across color schemes.
-
-**Avoid heavy nesting**: While admonitions support nesting, limit depth to 2-3 levels maximum for readability. Deep nesting can confuse readers and create visual clutter.
-
-**Typography hierarchy**: Use `--admonition-title-font-size` and `--admonition-title-font-weight` to establish visual hierarchy. Important warnings benefit from bolder, larger titles.
-
-**Mobile considerations**: Test admonitions on mobile devices to ensure touch targets for collapsible toggles are adequately sized and spacing remains readable at smaller screen widths.
+**Title emphasis**: Use `--admonition-title-font-size` and `--admonition-title-font-weight` to distinguish title hierarchy.

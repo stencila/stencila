@@ -1,0 +1,194 @@
+---
+title: Articles
+description: |
+  Design tokens and examples for customizing article layout, title typography, and slot styling in Stencila themes.
+---
+
+# Usage
+
+Start with these tokens when customizing articles:
+
+- `--article-content-max-width` and `--article-content-max-width-mobile` for readable line length
+- `--article-title-*` tokens to control title typography, spacing, and alignment
+- `--article-authors-*` and `--article-abstract-*` to style metadata slots
+- `--article-toc` and `--article-toc-title` to toggle and label the table of contents
+
+Article tokens focus on the container and its major slots (title, authors, abstract, content, references). Content blocks inside the article still use their own node tokens (paragraphs, headings, figures, etc.).
+
+# Tokens
+
+## Layout Tokens
+
+Control the overall article width and responsive sizing.
+
+| Token                              | Description                                   | Default Value                    |
+| ---------------------------------- | --------------------------------------------- | -------------------------------- |
+| `--article-content-max-width`      | Max width for article content blocks          | `var(--content-width)`           |
+| `--article-content-max-width-mobile` | Max width for article content on mobile     | `var(--content-width-mobile)`    |
+
+## Title Tokens
+
+Typography and layout for the article title slot.
+
+| Token                              | Description                                      | Default Value                          |
+| ---------------------------------- | ------------------------------------------------ | -------------------------------------- |
+| `--article-title-font-family`      | Font family for the article title               | `var(--heading-font-family)`           |
+| `--article-title-font-size`        | Title font size                                  | `calc(var(--text-font-size) * 2.5)`    |
+| `--article-title-font-size-mobile` | Title font size on mobile                        | `calc(var(--text-font-size-print) * 2.0)` |
+| `--article-title-font-size-print`  | Title font size in print                         | `calc(var(--text-font-size-print) * 2.0)` |
+| `--article-title-font-weight`      | Title font weight                                | `var(--font-weight-bold)`              |
+| `--article-title-line-height`      | Title line height                                | `var(--line-height-tight)`             |
+| `--article-title-line-height-mobile` | Title line height on mobile                    | `var(--line-height-tight)`             |
+| `--article-title-letter-spacing`   | Letter spacing for the title                     | `-0.02em`                              |
+| `--article-title-color`            | Title text color                                 | `var(--text-color-primary)`            |
+| `--article-title-text-align`       | Title text alignment                             | `center`                               |
+| `--article-title-max-width`        | Max width for the title block                    | `calc(var(--article-content-max-width) * 0.9)` |
+| `--article-title-margin-bottom`    | Space below the title block                      | `var(--space-8)`                       |
+
+## Authors Tokens
+
+Typography and spacing for the authors slot.
+
+| Token                              | Description                                      | Default Value               |
+| ---------------------------------- | ------------------------------------------------ | --------------------------- |
+| `--article-authors-font-size`      | Authors font size                                | `var(--text-font-size)`     |
+| `--article-authors-color`          | Authors text color                               | `var(--text-color)`         |
+| `--article-authors-text-align`     | Authors text alignment                           | `left`                      |
+| `--article-authors-margin-bottom`  | Space below the authors block                    | `var(--space-6)`            |
+
+## Abstract Tokens
+
+Styling for the abstract slot and its background.
+
+| Token                              | Description                                      | Default Value               |
+| ---------------------------------- | ------------------------------------------------ | --------------------------- |
+| `--article-abstract-font-size`     | Abstract font size                               | `var(--text-font-size)`     |
+| `--article-abstract-color`         | Abstract text color                              | `var(--text-color)`         |
+| `--article-abstract-background`    | Abstract background color                        | `var(--surface-background)` |
+| `--article-abstract-text-align`    | Abstract text alignment                          | `left`                      |
+| `--article-abstract-max-width`     | Max width for abstract content                   | `var(--article-content-max-width)` |
+| `--article-abstract-margin-bottom` | Space below the abstract block                   | `var(--space-6)`            |
+
+## Table of Contents Tokens
+
+Configuration for the automatic article table of contents.
+
+| Token                              | Description                                         | Default Value |
+| ---------------------------------- | --------------------------------------------------- | ------------- |
+| `--article-toc`                    | TOC mode (`none`, `true`, or heading depth 1-6)     | `none`        |
+| `--article-toc-title`              | TOC heading text                                    | `"Contents"`  |
+
+# Examples
+
+## Default Article
+
+Standard article styling with the base layout and title treatments:
+
+```css
+:root {
+  /* No design token overrides */
+}
+```
+
+::: style
+
+```html raw
+<stencila-article>
+  <section slot="title">
+    <h1>Modeling coastal ecosystems under changing climates</h1>
+  </section>
+  <section slot="authors">
+    <p>Jordan Hayes, Priya Natarajan, and Emilio Vargas</p>
+  </section>
+  <section slot="abstract">
+    <stencila-heading><h1>Abstract</h1></stencila-heading>
+    <stencila-paragraph>
+      <p slot="content">We present a coupled hydrodynamic and ecological model that improves predictive accuracy for nutrient cycling in estuarine systems.</p>
+    </stencila-paragraph>
+  </section>
+  <section slot="content">
+    <stencila-paragraph>
+      <p slot="content">The model integrates tidal fluxes with species-level responses to temperature, producing stable forecasts across seasonal regimes.</p>
+    </stencila-paragraph>
+  </section>
+</stencila-article>
+```
+
+:::
+
+## Editorial Title Treatment
+
+Larger, left-aligned title with tighter tracking and centered authors:
+
+```css
+:root {
+  --article-title-text-align: left;
+  --article-title-font-size: calc(var(--text-font-size) * 3);
+  --article-title-letter-spacing: -0.03em;
+  --article-title-max-width: var(--article-content-max-width);
+  --article-authors-text-align: center;
+}
+```
+
+::: style --article-title-text-align: left; --article-title-font-size: calc(var(--text-font-size) * 3); --article-title-letter-spacing: -0.03em; --article-title-max-width: var(--article-content-max-width); --article-authors-text-align: center;
+
+```html raw
+<stencila-article>
+  <section slot="title">
+    <h1>Field notes from the edge of the ice</h1>
+  </section>
+  <section slot="authors">
+    <p>Marina Cho and Luca Romano</p>
+  </section>
+  <section slot="content">
+    <stencila-paragraph>
+      <p slot="content">This report documents daily observations gathered during the 2024 polar expedition, with a focus on sea ice melt and microbial activity.</p>
+    </stencila-paragraph>
+  </section>
+</stencila-article>
+```
+
+:::
+
+## Abstract Callout and TOC
+
+Highlight the abstract and enable a short table of contents:
+
+```css
+:root {
+  --article-abstract-background: var(--surface-sunken);
+  --article-abstract-text-align: justify;
+  --article-abstract-max-width: calc(var(--article-content-max-width) * 0.95);
+  --article-toc: 3;
+  --article-toc-title: "On this page";
+}
+```
+
+::: style --article-abstract-background: var(--surface-sunken); --article-abstract-text-align: justify; --article-abstract-max-width: calc(var(--article-content-max-width) * 0.95); --article-toc: 3; --article-toc-title: "On this page";
+
+```html raw
+<stencila-article>
+  <section slot="abstract">
+    <stencila-heading><h1>Abstract</h1></stencila-heading>
+    <stencila-paragraph>
+      <p slot="content">We introduce a new sampling method for long-term climate archives that reduces uncertainty in sediment-derived temperature reconstructions.</p>
+    </stencila-paragraph>
+  </section>
+  <section slot="content">
+    <stencila-heading><h2>Methods</h2></stencila-heading>
+    <stencila-paragraph>
+      <p slot="content">Core samples were extracted from five coastal sites and processed using standardized isotope ratios for calibration.</p>
+    </stencila-paragraph>
+  </section>
+</stencila-article>
+```
+
+:::
+
+# Tips
+
+**Readable width**: Adjust `--article-content-max-width` first, then tune `--article-title-max-width` for balance.
+
+**TOC depth**: Use `--article-toc: 3` (or any 1-6 value) to keep the contents concise.
+
+**Metadata alignment**: Match `--article-title-text-align` with `--article-authors-text-align` for a unified header.

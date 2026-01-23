@@ -1,0 +1,93 @@
+---
+title: Navigation Tree
+description: |
+  Design tokens and examples for customizing the hierarchical site navigation tree component.
+---
+
+# Usage
+
+The navigation tree is the collapsible hierarchy used in the left sidebar. Start with:
+
+- `--nav-tree-item-*` for typography, padding, and color
+- `--nav-tree-indent` to control nesting depth
+- `--nav-tree-item-bg-*` for hover and active backgrounds
+- `--nav-tree-transition-duration` for interaction timing
+- `--nav-tree-focus-ring-*` tokens for keyboard focus styling
+
+# Tokens
+
+## Typography Tokens
+
+| Token                        | Description                      | Default Value                |
+| ---------------------------- | -------------------------------- | ---------------------------- |
+| `--nav-tree-font-family`     | Font family for navigation       | `var(--layout-font-family)`  |
+| `--nav-tree-title-font-size` | Title font size                  | `var(--font-size-xs)`        |
+| `--nav-tree-title-font-weight` | Title font weight              | `var(--font-weight-semibold)` |
+| `--nav-tree-title-color`     | Title text color                 | `var(--text-color-secondary)` |
+| `--nav-tree-title-margin-bottom` | Space below title             | `var(--space-3)`             |
+| `--nav-tree-item-font-size`  | Item font size                   | `var(--font-size-sm)`        |
+| `--nav-tree-item-line-height` | Item line height                | `var(--line-height-snug)`    |
+| `--nav-tree-item-padding-y`  | Item vertical padding            | `var(--space-1)`             |
+| `--nav-tree-item-padding-x`  | Item horizontal padding          | `var(--space-2)`             |
+
+## Color Tokens
+
+| Token                         | Description                     | Default Value                |
+| ----------------------------- | ------------------------------- | ---------------------------- |
+| `--nav-tree-item-color`       | Default item text color         | `var(--text-color-secondary)` |
+| `--nav-tree-item-color-hover` | Hover item text color           | `var(--text-color-primary)`  |
+| `--nav-tree-item-color-active` | Active item text color         | `var(--color-accent)`        |
+| `--nav-tree-item-bg-hover`    | Hover item background           | `var(--surface-sunken)`      |
+| `--nav-tree-item-bg-active`   | Active item background          | `color-mix(in srgb, var(--color-accent) 10%, transparent)` |
+
+## Structure Tokens
+
+| Token                    | Description             | Default Value          |
+| ------------------------ | ----------------------- | ---------------------- |
+| `--nav-tree-indent`      | Indent per level        | `var(--space-4)`       |
+| `--nav-tree-toggle-size` | Toggle icon font size   | `var(--font-size-xs)`  |
+| `--nav-tree-chevron-size` | Chevron size           | `0.5em`                |
+
+## Interaction Tokens
+
+| Token                         | Description                 | Default Value                  |
+| ----------------------------- | --------------------------- | ------------------------------ |
+| `--nav-tree-transition-duration` | Interaction transition   | `var(--transition-duration-fast)` |
+| `--nav-tree-focus-ring-width` | Focus ring width           | `var(--focus-ring-width)`      |
+| `--nav-tree-focus-ring-color` | Focus ring color           | `var(--focus-ring-color)`      |
+| `--nav-tree-focus-ring-offset` | Focus ring offset         | `var(--focus-ring-offset)`     |
+| `--nav-tree-focus-radius`     | Focus ring radius          | `var(--radius-xs)`             |
+
+# Examples
+
+## Compact Tree
+
+Tighter spacing for dense navigation:
+
+```css
+:root {
+  --nav-tree-item-font-size: var(--font-size-xs);
+  --nav-tree-item-padding-y: 2px;
+  --nav-tree-indent: var(--space-3);
+}
+```
+
+## High-Contrast Active State
+
+Emphasize the current page:
+
+```css
+:root {
+  --nav-tree-item-color-active: var(--text-color-primary);
+  --nav-tree-item-bg-active: var(--surface-elevated);
+  --nav-tree-item-color-hover: var(--text-color-primary);
+}
+```
+
+# Tips
+
+**Indent control**: `--nav-tree-indent` affects all levels; reduce it for shorter sidebars.
+
+**Hover feedback**: Combine `--nav-tree-item-bg-hover` with `--nav-tree-item-color-hover` for clear interaction states.
+
+**Active emphasis**: Pair `--nav-tree-item-color-active` with `--nav-tree-item-bg-active` for strong current-page contrast.

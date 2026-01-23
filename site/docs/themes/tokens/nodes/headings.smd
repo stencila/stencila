@@ -14,53 +14,9 @@ Start with these tokens when customizing headings:
 - `--heading-spacing-top`, `--heading-spacing-bottom`, and `--heading-spacing-ratio` for rhythm
 - `--heading-numbering` when you need numbered headings
 
-The heading system uses three key token types to automatically calculate all heading properties:
+The heading scale is driven by `--heading-font-size` with `--heading-font-size-ratio`, and weights are driven by `--heading-font-weight` with `--heading-font-weight-decrement`. Spacing uses `--heading-spacing-*` and scales with `--content-spacing`.
 
-**Base tokens** define the starting point for `<h1>`:
-
-- `--heading-font-size: calc(var(--text-font-size) * 2.0)` - h1 font size
-- `--heading-font-weight: var(--font-weight-bold)` - h1 font weight
-- `--heading-spacing-top: calc(var(--content-spacing) * 1.5)` - h1 top spacing (scales with content rhythm)
-
-**Ratio tokens** control multiplicative scaling from the base. For example, if `--heading-font-size: calc(var(--text-font-size) * 2.0)` and `--heading-font-size-ratio: 0.85` then,
-
-- h1 = `2rem`
-- h2 = `1.7rem` (2 × 0.85)
-- h3 = `1.445rem` (1.7 × 0.85)
-
-**Decrement tokens** control linear reduction from the base. For example, if `--heading-font-weight: var(--font-weight-bold)` (700) and `--heading-font-weight-decrement: 50` then,
-
-- h1 = `700`
-- h2 = `650` (700 - 50)
-- h3 = `600` (650 - 50)
-
-**Semantic Integration**: Spacing tokens automatically scale with document spacing through `--content-spacing`. When content spacing changes for different screen sizes, heading spacing adjusts proportionally without explicit responsive tokens.
-
-**Per-level overrides** provide fine-grained control for classical typography patterns:
-
-- **Zone-based**: Use `--heading-upper-font-style` (h1-h3) and `--heading-lower-font-style` (h4-h6) for simple customization
-- **Per-level**: Override individual levels with `--heading-h1-font-style` through `--heading-h6-font-style` for advanced control
-- **Font variant**: Apply small-caps or other variants to specific levels (e.g., `--heading-h2-font-variant: small-caps`)
-- **Letter-spacing**: Adjust tracking per level (larger headings often need tighter spacing)
-- **Font-weight**: Override calculated weights (useful when combining italic style with lighter weight)
-
-The per-level tokens default to zone helpers, which default to sensible base values, maintaining full backward compatibility while enabling classical book typography patterns.
-
-**Border, background, and padding tokens** enable visual customization beyond typography:
-
-- **Borders**: Applied to `border-bottom` by default (theme authors can override for other positions). All border tokens default to 0 width, so borders are invisible until explicitly enabled. Use zone-based helpers (`--heading-upper-border-*`) or per-level overrides (`--heading-h1-border-*`) for fine control.
-- **Backgrounds**: All background colors default to `transparent`. Set zone-based or per-level background colors for callout-style headings.
-- **Padding**: Defaults to `0` but particularly useful when combined with borders or backgrounds. Works with zone-based or per-level tokens.
-
-For quick customization, focus on these tokens:
-
-- `--heading-color` - Change all heading colors at once (includes dark mode via `--heading-color-dark`)
-- `--heading-font-size` - Sets overall heading scale
-- `--heading-font-size-ratio` - Controls hierarchy contrast (0.9 = subtle, 0.7 = dramatic)
-- `--heading-font-weight` - Make headings lighter or bolder
-- `--heading-font-weight-decrement` - Fine-tune weight progression
-- `--heading-spacing-top` - Adjust spacing above headings (automatically responsive)
-- `--heading-spacing-ratio` - Control spacing scaling independently from font sizes
+Use zone helpers (`--heading-upper-*`, `--heading-lower-*`) for quick adjustments, or per-level overrides like `--heading-h1-*` and `--heading-h2-*` when you need finer control. Decorative styling is handled by `--heading-border-*`, `--heading-background-*`, and `--heading-padding`.
 
 # Tokens
 
@@ -496,49 +452,12 @@ Combining different border approaches for unique designs:
 
 # Tips
 
-**Choose appropriate ratios**: Larger ratios (0.87-0.9) create subtle hierarchy for dense content, while smaller ratios (0.6-0.75) create dramatic contrast for marketing or presentation materials.
+**Scale control**: Use `--heading-font-size` with `--heading-font-size-ratio` to set the hierarchy in one place.
 
-**Leverage responsive spacing**: Spacing tokens automatically scale with `--content-spacing`, so changing document spacing affects headings proportionally. For special mobile adjustments, use media queries targeting specific heading levels.
+**Weight progression**: Use `--heading-font-weight` and `--heading-font-weight-decrement` to tune level-to-level contrast.
 
-**Semantic spacing**: Base spacing tokens on `--content-spacing` multiples rather than fixed primitive tokens to maintain visual rhythm and automatic responsive behavior across the document.
+**Zone vs level**: Use `--heading-upper-*`/`--heading-lower-*` for grouped styling, and override with `--heading-h1-*`…`--heading-h6-*` only when needed.
 
-**Dark mode support**: Use `--heading-color-dark` to define heading colors for dark themes. The base theme automatically applies dark mode through system preference and explicit user choice.
+**Decorative treatments**: Use `--heading-border-*`, `--heading-background-*`, and `--heading-padding` for callout-style headings without custom CSS.
 
-**Maintain readability**: Keep `--heading-line-height` between 1.1 and 1.4 for optimal readability across different sizes.
-
-**Test weight decrements**: Ensure `--heading-font-weight-decrement` doesn't result in weights below 300 (too thin) or create insufficient contrast between levels.
-
-**Use opacity thoughtfully**: `--heading-color-opacity-decrement` creates subtle hierarchy through progressive opacity reduction. Start with small values (0.05-0.1) to maintain readability, especially in dark mode. With default value 0, each heading level has full opacity. Setting 0.08 creates: h1 (1.0), h2 (0.92), h3 (0.84), h4 (0.76), h5 (0.68), h6 (0.60). Avoid opacity below 0.6 for accessibility, particularly in dark themes where contrast is already reduced.
-
-**Responsive base size**: Consider using `clamp()` for `--heading-font-size` to create fluid typography:
-
-```css
---heading-font-size: clamp(2rem, 4vw, 3rem);
-```
-
-**Zone-based customization**: For simple patterns affecting groups of headings, use zone helpers (`--heading-upper-font-style` for h1-h3, `--heading-lower-font-style` for h4-h6). This is cleaner than setting six individual tokens when you want the same style applied to a group.
-
-**Per-level precision**: Override individual heading levels when you need specific treatments (e.g., `--heading-h2-font-variant: small-caps` for h2 only). Per-level tokens always take precedence over zone helpers.
-
-**Italic headings and weight**: When using italic for lower headings (`--heading-lower-font-style: italic`), typically reduce font-weight to normal (400) for those levels. Bold italic is rarely appropriate for body text-sized headings. Override calculated weights with `--heading-h4-font-weight`, `--heading-h5-font-weight`, and `--heading-h6-font-weight`.
-
-**Small-caps tracking**: When using `font-variant: small-caps`, increase `letter-spacing` slightly (0.03em-0.05em) for better readability. Small-caps characters appear crowded with default tracking.
-
-**Border positioning**: By default, border tokens apply to `border-bottom`, ideal for underlines and visual separators. For left accent borders or complete boxes, override in your custom theme CSS:
-
-```css
-/* Left accent border example */
-stencila-heading h1 {
-  border-bottom: none;
-  border-left: var(--heading-h1-border-width) var(--heading-h1-border-style) var(--heading-h1-border-color);
-  padding-left: 1rem; /* Add left padding when using left borders */
-}
-```
-
-**Padding with borders**: When using borders, add padding to create space between text and the border. For bottom borders, use `padding: 0 0 0.5rem 0` (bottom padding only). For backgrounds or complete boxes, use equal padding on all sides (e.g., `padding: 0.75rem 1rem`).
-
-**Background colors and readability**: When using background colors, ensure sufficient contrast with text. Lighter backgrounds (50-100 in color scale) work well with dark text. Test dark mode carefully - consider setting `--heading-background-color-dark` to slightly darker values to maintain contrast.
-
-**Zone-based border control**: Use zone helpers to apply borders to groups of headings. For example, `--heading-upper-border-width: 2px` adds borders to h1-h3, while `--heading-lower-border-width: 0` keeps h4-h6 borderless. Override specific levels as needed with per-level tokens.
-
-**Mixing visual styles**: Don't be afraid to mix borders and backgrounds across heading levels (see Mixed Border Styles example). h1 might have a thick border, h2 a background, and h3 a thin border - this creates visual hierarchy through variety while maintaining consistency through color and spacing.
+**Opacity hierarchy**: Use `--heading-color-opacity-decrement` to soften lower levels without changing the base color.

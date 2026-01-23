@@ -130,18 +130,10 @@ For accessibility-focused designs, [high-contrast links](https://example.com) us
 
 # Tips
 
-**Color accessibility**: Ensure link colors provide sufficient contrast against text and background colors. Test with color contrast analyzers and verify readability in both light and dark modes.
+**State colors**: Set `--link-color`, `--link-color-visited`, and `--link-color-hover` for predictable state changes without per-link CSS.
 
-**State differentiation**: Use distinct colors for different link states (default, visited, hover) to help users understand navigation context and interaction feedback.
+**Decoration**: Use `--link-decoration` and `--link-decoration-hover` to control underlines across all link states.
 
-**Decoration consistency**: Choose decoration patterns that match your content context - clean for modern interfaces, underlined for traditional web content, button-style for calls-to-action.
+**Focus ring**: Align link focus styling with the global focus system via `--link-focus-ring-*`.
 
-**Focus visibility**: Never remove focus rings without providing alternative focus indicators. The focus ring tokens ensure keyboard navigation remains accessible while matching your theme's visual style.
-
-**Semantic token leverage**: Link tokens reference semantic colors like `--color-accent` that automatically include dark mode variants. Override `--color-accent` to change the primary link color globally, or override specific `--link-color*` tokens for fine-grained control.
-
-**Transition timing**: Use semantic transition durations for consistency with other interface elements. Slower transitions work well for subtle links, faster transitions for high-interaction contexts.
-
-**Test interaction states**: Verify that hover, focus, and visited states provide clear feedback and maintain accessibility across different devices and input methods.
-
-**Content context**: Consider your content type when choosing link styling - academic papers benefit from subtle styling, marketing content from bold styling, and technical documentation from clear, functional styling.
+**Global accent**: Override `--color-accent` to shift the default link color everywhere, then fine-tune with specific `--link-*` tokens.
