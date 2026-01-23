@@ -1244,7 +1244,7 @@
               }
             },
             "depth": {
-              "description": "Maximum depth to display (1 = top-level only)\n\nDefault: unlimited",
+              "description": "Maximum depth to display (1 = top-level only)\n\nLimits how deep the navigation menu renders. Horizontal dropdown menus\nwork best with shallow hierarchies.\n\nDefault: 2",
               "type": [
                 "integer",
                 "null"

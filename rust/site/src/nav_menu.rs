@@ -55,7 +55,9 @@ pub(crate) fn render_nav_menu(
     let nav_items = filter_nav_items(nav_items, include, exclude);
 
     // Apply depth limit (converts empty groups to links or removes them)
-    let nav_items = apply_depth_limit(nav_items, *depth);
+    // Default to 2 for nav-menu since horizontal dropdowns work best with shallow hierarchies
+    let depth = depth.or(Some(2));
+    let nav_items = apply_depth_limit(nav_items, depth);
 
     // If no items, render empty component
     if nav_items.is_empty() {
