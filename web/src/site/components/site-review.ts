@@ -1026,7 +1026,6 @@ export class StencilaSiteReview extends LitElement {
     const currentPath = window.location.pathname
     const commentRanges: Range[] = []
     const suggestionRanges: Range[] = []
-    let mediaCount = 0
 
     this.pendingItems.forEach((item, index) => {
       // Only highlight items on current page
@@ -1044,7 +1043,6 @@ export class StencilaSiteReview extends LitElement {
           )
         ) {
           element.classList.add('review-has-comment')
-          mediaCount++
         }
         return
       }
@@ -1081,16 +1079,6 @@ export class StencilaSiteReview extends LitElement {
 
     // Add click listener for highlight detection
     document.addEventListener('click', this.handleDocumentClick)
-
-    console.log(
-      '[SiteReview] Applied highlights:',
-      commentRanges.length,
-      'comments,',
-      suggestionRanges.length,
-      'suggestions,',
-      mediaCount,
-      'media',
-    )
   }
 
   /**
