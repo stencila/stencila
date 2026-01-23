@@ -55,6 +55,43 @@ pub struct SearchEntry {
     /// For datatables: additional metadata
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<DatatableMetadata>,
+
+    /// Pre-computed token trigrams for fuzzy matching
+    /// Only present if fuzzy search is enabled during indexing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub token_trigrams: Option<Vec<TokenTrigrams>>,
+}
+
+/// Token with pre-computed trigrams for fuzzy matching
+///
+/// Each token from the entry text is stored with its trigrams and
+/// position in the original text for highlighting.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TokenTrigrams {
+    /// Normalized token (lowercased, diacritics folded) for trigram matching
+    pub token: String,
+
+    /// Pre-computed character trigrams (3-grams)
+    pub trigrams: Vec<String>,
+
+    /// Start position in original entry.text (UTF-16 code unit offset)
+    pub start: u32,
+
+    /// End position in original entry.text (UTF-16 code unit offset)
+    pub end: u32,
+}
+
+impl TokenTrigrams {
+    /// Create a new TokenTrigrams
+    pub fn new(token: String, trigrams: Vec<String>, start: u32, end: u32) -> Self {
+        Self {
+            token,
+            trigrams,
+            start,
+            end,
+        }
+    }
 }
 
 /// Additional metadata for datatable nodes
@@ -91,12 +128,19 @@ impl SearchEntry {
             weight,
             depth,
             metadata: None,
+            token_trigrams: None,
         }
     }
 
     /// Create a new search entry with datatable metadata
     pub fn with_metadata(mut self, metadata: DatatableMetadata) -> Self {
         self.metadata = Some(metadata);
+        self
+    }
+
+    /// Set token trigrams for fuzzy search
+    pub fn with_token_trigrams(mut self, token_trigrams: Vec<TokenTrigrams>) -> Self {
+        self.token_trigrams = Some(token_trigrams);
         self
     }
 }

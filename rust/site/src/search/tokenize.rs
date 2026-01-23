@@ -101,6 +101,118 @@ pub fn token_prefix(token: &str) -> String {
     token.chars().take(2).collect()
 }
 
+/// Generate character trigrams (3-grams) for fuzzy matching
+///
+/// Returns overlapping 3-character sequences from the token.
+/// Tokens with fewer than 3 characters return an empty vector.
+///
+/// This function must produce identical output to the TypeScript
+/// `generateTrigrams()` function for the same input.
+///
+/// Examples:
+/// - "search" → ["sea", "ear", "arc", "rch"]
+/// - "ab" → [] (too short)
+/// - "abc" → ["abc"] (exactly 3 chars = 1 trigram)
+pub fn generate_trigrams(token: &str) -> Vec<String> {
+    let chars: Vec<char> = token.chars().collect();
+    let len = chars.len();
+
+    if len < 3 {
+        return Vec::new();
+    }
+
+    let mut trigrams = Vec::with_capacity(len - 2);
+    for i in 0..=(len - 3) {
+        trigrams.push(chars[i..i + 3].iter().collect());
+    }
+
+    trigrams
+}
+
+/// Token with position information in original text
+///
+/// Used during trigram extraction to track where tokens appear.
+#[derive(Debug, Clone)]
+pub struct TokenWithPosition {
+    /// The normalized token (lowercased, diacritics folded)
+    pub token: String,
+    /// Start position in original text (UTF-16 code units)
+    pub start: u32,
+    /// End position in original text (UTF-16 code units)
+    pub end: u32,
+}
+
+/// Extract tokens with their positions from text
+///
+/// Splits text on non-alphanumeric boundaries, normalizes each word,
+/// and returns tokens with their UTF-16 positions in the original text.
+///
+/// Note: CamelCase tokens will have the same start/end as the original word
+/// since precise sub-positioning is complex and the highlighting will
+/// still be visually correct (highlighting the whole word).
+pub fn tokenize_with_positions(text: &str) -> Vec<TokenWithPosition> {
+    let mut result = Vec::new();
+
+    // Track position in UTF-16 code units
+    let mut utf16_pos: u32 = 0;
+    let mut word_start_utf16: u32 = 0;
+    let mut current_word = String::new();
+    let mut in_word = false;
+
+    for c in text.chars() {
+        let char_utf16_len = c.len_utf16() as u32;
+
+        if c.is_alphanumeric() {
+            if !in_word {
+                word_start_utf16 = utf16_pos;
+                in_word = true;
+            }
+            current_word.push(c);
+        } else {
+            // Non-alphanumeric boundary
+            if in_word && !current_word.is_empty() {
+                // Tokenize the word (normalizes and splits camelCase)
+                let tokens = tokenize(&current_word);
+                let word_end_utf16 = utf16_pos;
+
+                // All tokens from this word share the same position span
+                for token in tokens {
+                    if token.chars().count() >= 2 {
+                        result.push(TokenWithPosition {
+                            token,
+                            start: word_start_utf16,
+                            end: word_end_utf16,
+                        });
+                    }
+                }
+
+                current_word.clear();
+                in_word = false;
+            }
+        }
+
+        utf16_pos += char_utf16_len;
+    }
+
+    // Don't forget the last word
+    if in_word && !current_word.is_empty() {
+        let tokens = tokenize(&current_word);
+        let word_end_utf16 = utf16_pos;
+
+        for token in tokens {
+            if token.chars().count() >= 2 {
+                result.push(TokenWithPosition {
+                    token,
+                    start: word_start_utf16,
+                    end: word_end_utf16,
+                });
+            }
+        }
+    }
+
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -214,5 +326,126 @@ mod tests {
         // Token prefix should use code points, not UTF-16 units
         assert_eq!(token_prefix("𝒜𝒷𝒸"), "𝒜𝒷"); // First 2 code points
         assert_eq!(token_prefix("𝒜bc"), "𝒜b"); // Mixed astral and ASCII
+    }
+
+    // Trigram tests - these must match TypeScript tests exactly
+
+    #[test]
+    fn test_trigrams_basic() {
+        assert_eq!(
+            generate_trigrams("search"),
+            vec!["sea", "ear", "arc", "rch"]
+        );
+        assert_eq!(
+            generate_trigrams("database"),
+            vec!["dat", "ata", "tab", "aba", "bas", "ase"]
+        );
+        assert_eq!(generate_trigrams("hello"), vec!["hel", "ell", "llo"]);
+    }
+
+    #[test]
+    fn test_trigrams_short_tokens() {
+        // Tokens < 3 chars return empty vec
+        assert_eq!(generate_trigrams(""), Vec::<String>::new());
+        assert_eq!(generate_trigrams("a"), Vec::<String>::new());
+        assert_eq!(generate_trigrams("ab"), Vec::<String>::new());
+        // Exactly 3 chars = 1 trigram
+        assert_eq!(generate_trigrams("abc"), vec!["abc"]);
+    }
+
+    #[test]
+    fn test_trigrams_unicode() {
+        // Diacritics should already be folded before trigram generation
+        assert_eq!(generate_trigrams("cafe"), vec!["caf", "afe"]);
+        // CJK characters (each is 1 code point)
+        assert_eq!(generate_trigrams("你好世界"), vec!["你好世", "好世界"]);
+    }
+
+    #[test]
+    fn test_trigrams_astral() {
+        // Astral characters should be counted as single code points
+        // 𝒜𝒷𝒸𝒹 = 4 code points → 2 trigrams
+        assert_eq!(generate_trigrams("𝒜𝒷𝒸𝒹"), vec!["𝒜𝒷𝒸", "𝒷𝒸𝒹"]);
+    }
+
+    // tokenize_with_positions tests
+
+    #[test]
+    fn test_tokenize_with_positions_basic() {
+        let result = tokenize_with_positions("hello world");
+        assert_eq!(result.len(), 2);
+
+        assert_eq!(result[0].token, "hello");
+        assert_eq!(result[0].start, 0);
+        assert_eq!(result[0].end, 5);
+
+        assert_eq!(result[1].token, "world");
+        assert_eq!(result[1].start, 6);
+        assert_eq!(result[1].end, 11);
+    }
+
+    #[test]
+    fn test_tokenize_with_positions_camelcase() {
+        // "camelCase" should produce two tokens with same position span
+        let result = tokenize_with_positions("camelCase");
+        assert_eq!(result.len(), 2);
+
+        assert_eq!(result[0].token, "camel");
+        assert_eq!(result[0].start, 0);
+        assert_eq!(result[0].end, 9);
+
+        assert_eq!(result[1].token, "case");
+        assert_eq!(result[1].start, 0);
+        assert_eq!(result[1].end, 9);
+    }
+
+    #[test]
+    fn test_tokenize_with_positions_diacritics() {
+        // "café" is 4 UTF-16 code units (c, a, f, é)
+        // After normalization: "cafe"
+        let result = tokenize_with_positions("café test");
+        assert_eq!(result.len(), 2);
+
+        assert_eq!(result[0].token, "cafe");
+        assert_eq!(result[0].start, 0);
+        assert_eq!(result[0].end, 4); // UTF-16: c(1) a(1) f(1) é(1) = 4
+
+        assert_eq!(result[1].token, "test");
+        assert_eq!(result[1].start, 5);
+        assert_eq!(result[1].end, 9);
+    }
+
+    #[test]
+    fn test_tokenize_with_positions_emoji() {
+        // 👋 is 2 UTF-16 code units (surrogate pair)
+        // "👋hello" should have "hello" starting at UTF-16 offset 2
+        let result = tokenize_with_positions("👋hello");
+        assert_eq!(result.len(), 1);
+
+        assert_eq!(result[0].token, "hello");
+        assert_eq!(result[0].start, 2); // After emoji (2 UTF-16 units)
+        assert_eq!(result[0].end, 7); // 2 + 5
+    }
+
+    #[test]
+    fn test_tokenize_with_positions_short_tokens_filtered() {
+        // Single-char tokens should be filtered
+        let result = tokenize_with_positions("a b hello c");
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].token, "hello");
+    }
+
+    #[test]
+    fn test_tokenize_with_positions_punctuation() {
+        let result = tokenize_with_positions("hello, world!");
+        assert_eq!(result.len(), 2);
+
+        assert_eq!(result[0].token, "hello");
+        assert_eq!(result[0].start, 0);
+        assert_eq!(result[0].end, 5);
+
+        assert_eq!(result[1].token, "world");
+        assert_eq!(result[1].start, 7);
+        assert_eq!(result[1].end, 12);
     }
 }

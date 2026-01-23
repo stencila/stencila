@@ -14,7 +14,7 @@ mod manifest;
 mod shard;
 mod tokenize;
 
-pub use entry::{DatatableMetadata, SearchEntry, weights};
+pub use entry::{DatatableMetadata, SearchEntry, TokenTrigrams, weights};
 pub use extract::{extract_entries, extract_entries_with_config};
 pub use generate::{generate_search_index, generate_search_index_from_nodes};
 pub use index::{SearchIndexBuilder, SearchIndexStats};

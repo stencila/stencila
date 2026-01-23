@@ -8,9 +8,10 @@ use std::path::Path;
 use eyre::Result;
 use tokio::fs;
 
-use super::entry::SearchEntry;
+use super::entry::{SearchEntry, TokenTrigrams};
 use super::manifest::SearchManifest;
 use super::shard::shard_entries;
+use super::tokenize::{generate_trigrams, tokenize_with_positions};
 
 /// Builder for search index
 ///
@@ -21,6 +22,8 @@ pub struct SearchIndexBuilder {
     entries: Vec<SearchEntry>,
     /// Set of routes that have been indexed
     routes: HashSet<String>,
+    /// Whether to generate token trigrams for fuzzy search
+    enable_fuzzy: bool,
 }
 
 impl SearchIndexBuilder {
@@ -29,11 +32,50 @@ impl SearchIndexBuilder {
         Self::default()
     }
 
+    /// Enable fuzzy search by generating token trigrams
+    ///
+    /// When enabled, each entry will have pre-computed trigrams for its tokens,
+    /// enabling fuzzy matching in the search client.
+    pub fn with_fuzzy(mut self, enable: bool) -> Self {
+        self.enable_fuzzy = enable;
+        self
+    }
+
     /// Add entries to the index
     pub fn add_entries(&mut self, entries: Vec<SearchEntry>) {
-        for entry in entries {
+        for mut entry in entries {
             self.routes.insert(entry.route.clone());
+
+            // Generate token trigrams if fuzzy search is enabled
+            if self.enable_fuzzy {
+                entry = self.add_trigrams_to_entry(entry);
+            }
+
             self.entries.push(entry);
+        }
+    }
+
+    /// Add token trigrams to an entry for fuzzy search
+    fn add_trigrams_to_entry(&self, entry: SearchEntry) -> SearchEntry {
+        let tokens_with_positions = tokenize_with_positions(&entry.text);
+
+        let token_trigrams: Vec<TokenTrigrams> = tokens_with_positions
+            .into_iter()
+            .filter_map(|twp| {
+                let trigrams = generate_trigrams(&twp.token);
+                // Only include tokens with trigrams (>= 3 chars)
+                if trigrams.is_empty() {
+                    None
+                } else {
+                    Some(TokenTrigrams::new(twp.token, trigrams, twp.start, twp.end))
+                }
+            })
+            .collect();
+
+        if token_trigrams.is_empty() {
+            entry
+        } else {
+            entry.with_token_trigrams(token_trigrams)
         }
     }
 

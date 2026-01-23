@@ -471,13 +471,10 @@ where
 
     // Generate search index if enabled in config
     // Entries were extracted from each document after stabilization (node IDs assigned)
-    if site_config
-        .search
-        .as_ref()
-        .map(|s| s.is_enabled())
-        .unwrap_or(false)
+    if let Some(search_config) = site_config.search.as_ref()
+        && search_config.is_enabled()
     {
-        let mut builder = SearchIndexBuilder::new();
+        let mut builder = SearchIndexBuilder::new().with_fuzzy(search_config.is_fuzzy_enabled());
         for doc in &docs_rendered {
             builder.add_entries(doc.search_entries.clone());
         }

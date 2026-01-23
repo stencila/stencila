@@ -8,7 +8,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { tokenize, tokenPrefix } from './tokenize'
+import { generateTrigrams, tokenize, tokenPrefix } from './tokenize'
 
 describe('tokenize', () => {
   it('basic tokenization', () => {
@@ -109,5 +109,42 @@ describe('astral unicode', () => {
   it('tokenPrefix uses code points not UTF-16 units', () => {
     expect(tokenPrefix('𝒜𝒷𝒸')).toBe('𝒜𝒷') // First 2 code points
     expect(tokenPrefix('𝒜bc')).toBe('𝒜b') // Mixed astral and ASCII
+  })
+})
+
+// Trigram tests - these MUST match the Rust tests exactly
+describe('generateTrigrams', () => {
+  it('generates trigrams for basic tokens', () => {
+    expect(generateTrigrams('search')).toEqual(['sea', 'ear', 'arc', 'rch'])
+    expect(generateTrigrams('database')).toEqual([
+      'dat',
+      'ata',
+      'tab',
+      'aba',
+      'bas',
+      'ase',
+    ])
+    expect(generateTrigrams('hello')).toEqual(['hel', 'ell', 'llo'])
+  })
+
+  it('returns empty array for short tokens', () => {
+    expect(generateTrigrams('')).toEqual([])
+    expect(generateTrigrams('a')).toEqual([])
+    expect(generateTrigrams('ab')).toEqual([])
+    // Exactly 3 chars = 1 trigram
+    expect(generateTrigrams('abc')).toEqual(['abc'])
+  })
+
+  it('handles unicode correctly', () => {
+    // Diacritics should already be folded before trigram generation
+    expect(generateTrigrams('cafe')).toEqual(['caf', 'afe'])
+    // CJK characters (each is 1 code point)
+    expect(generateTrigrams('你好世界')).toEqual(['你好世', '好世界'])
+  })
+
+  it('handles astral characters correctly', () => {
+    // Astral characters should be counted as single code points
+    // 𝒜𝒷𝒸𝒹 = 4 code points → 2 trigrams
+    expect(generateTrigrams('𝒜𝒷𝒸𝒹')).toEqual(['𝒜𝒷𝒸', '𝒷𝒸𝒹'])
   })
 })

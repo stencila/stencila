@@ -5,12 +5,13 @@
  */
 
 import { SearchIndexLoader } from './loader'
-import { tokenize, tokenPrefix } from './tokenize'
+import { generateTrigrams, tokenize, tokenPrefix } from './tokenize'
 import type {
   SearchEntry,
   SearchOptions,
   SearchResult,
   TextHighlight,
+  TokenTrigrams,
 } from './types'
 
 /**
@@ -21,6 +22,34 @@ const DEFAULT_OPTIONS: Required<SearchOptions> = {
   offset: 0,
   nodeTypes: [],
   routes: [],
+  enableFuzzy: true,
+  fuzzyThreshold: 0.3,
+}
+
+/**
+ * Calculate Jaccard similarity between two sets of trigrams
+ *
+ * Returns a value between 0 and 1, where 1 means identical sets.
+ * Returns 0 if either set is empty (guard against division by zero).
+ */
+function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
+  // Guard: if either set is empty, return 0 (no similarity)
+  if (a.size === 0 || b.size === 0) {
+    return 0
+  }
+
+  // Calculate intersection
+  let intersectionSize = 0
+  for (const item of a) {
+    if (b.has(item)) {
+      intersectionSize++
+    }
+  }
+
+  // Union size = |A| + |B| - |A ∩ B|
+  const unionSize = a.size + b.size - intersectionSize
+
+  return intersectionSize / unionSize
 }
 
 /**
@@ -129,7 +158,8 @@ export class SearchEngine {
       const { score, highlights } = this.calculateScore(
         entry,
         entryTokens,
-        queryTokens
+        queryTokens,
+        options
       )
 
       if (score > 0) {
@@ -174,13 +204,15 @@ export class SearchEngine {
    * Scoring:
    * - Exact token match: 2 points
    * - Prefix match: 1 point
+   * - Fuzzy match (if enabled): 0.3 × similarity (max 0.3 points)
    * - Multiply by structural weight
    * - Multiply by query coverage ratio
    */
   private calculateScore(
     entry: SearchEntry,
     entryTokens: string[],
-    queryTokens: string[]
+    queryTokens: string[],
+    options: Required<SearchOptions>
   ): { score: number; highlights: TextHighlight[] } {
     let rawScore = 0
     let matchedQueryTokens = 0
@@ -188,6 +220,12 @@ export class SearchEngine {
 
     // Build a set of entry tokens for faster lookup
     const entryTokenSet = new Set(entryTokens)
+
+    // Check if fuzzy matching is available and enabled
+    const canFuzzy =
+      options.enableFuzzy &&
+      entry.tokenTrigrams &&
+      entry.tokenTrigrams.length > 0
 
     // Score each query token
     for (const queryToken of queryTokens) {
@@ -208,6 +246,26 @@ export class SearchEngine {
         matchedQueryTokens++
         const tokenHighlights = this.findHighlights(entry.text, queryToken)
         highlights.push(...tokenHighlights)
+        continue
+      }
+
+      // Try fuzzy matching if available
+      if (canFuzzy) {
+        const fuzzyResult = this.tryFuzzyMatch(
+          queryToken,
+          entry.tokenTrigrams!,
+          options.fuzzyThreshold
+        )
+        if (fuzzyResult) {
+          // Fuzzy score: 0.3 × similarity (max 0.3 points when similarity=1.0)
+          rawScore += 0.3 * fuzzyResult.similarity
+          matchedQueryTokens++
+          // Use the token position for highlighting
+          highlights.push({
+            start: fuzzyResult.matchedToken.start,
+            end: fuzzyResult.matchedToken.end,
+          })
+        }
       }
     }
 
@@ -228,6 +286,46 @@ export class SearchEngine {
     const mergedHighlights = this.mergeHighlights(highlights)
 
     return { score, highlights: mergedHighlights }
+  }
+
+  /**
+   * Try to find a fuzzy match for a query token against entry tokens
+   *
+   * Returns the best matching token and its similarity if above threshold,
+   * or null if no match meets the threshold.
+   */
+  private tryFuzzyMatch(
+    queryToken: string,
+    tokenTrigrams: TokenTrigrams[],
+    threshold: number
+  ): { matchedToken: TokenTrigrams; similarity: number } | null {
+    // Generate trigrams for the query token
+    const queryTrigrams = new Set(generateTrigrams(queryToken))
+
+    // If query token is too short for trigrams, no fuzzy match possible
+    if (queryTrigrams.size === 0) {
+      return null
+    }
+
+    let bestMatch: TokenTrigrams | null = null
+    let bestSimilarity = 0
+
+    // Find the best matching token
+    for (const tt of tokenTrigrams) {
+      const entryTrigrams = new Set(tt.trigrams)
+      const similarity = jaccardSimilarity(queryTrigrams, entryTrigrams)
+
+      if (similarity >= threshold && similarity > bestSimilarity) {
+        bestMatch = tt
+        bestSimilarity = similarity
+      }
+    }
+
+    if (bestMatch) {
+      return { matchedToken: bestMatch, similarity: bestSimilarity }
+    }
+
+    return null
   }
 
   /**

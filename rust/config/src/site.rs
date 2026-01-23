@@ -965,6 +965,7 @@ pub struct RouteSpread {
 /// include-types = ["Heading", "Paragraph", "Datatable"]
 /// exclude-routes = ["/api/**", "/internal/**"]
 /// max-text-length = 500
+/// fuzzy = true  # Enable fuzzy search (default: true)
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
@@ -999,6 +1000,14 @@ pub struct SearchConfig {
     /// Text content longer than this will be truncated.
     /// Default: 500 characters
     pub max_text_length: Option<usize>,
+
+    /// Enable fuzzy search support
+    ///
+    /// When true, pre-computed trigrams are included in the search index
+    /// to enable fuzzy matching (finding results with typos).
+    /// This increases index size by approximately 1KB per entry.
+    /// Default: true
+    pub fuzzy: Option<bool>,
 }
 
 impl SearchConfig {
@@ -1010,6 +1019,11 @@ impl SearchConfig {
     /// Get the maximum text length (with default)
     pub fn max_text_length(&self) -> usize {
         self.max_text_length.unwrap_or(500)
+    }
+
+    /// Check if fuzzy search is enabled (with default true)
+    pub fn is_fuzzy_enabled(&self) -> bool {
+        self.fuzzy.unwrap_or(true)
     }
 
     /// Get the node types to include (with defaults)

@@ -55,7 +55,7 @@ const mockEntries = [
 ]
 
 const mockManifest = {
-  version: 1,
+  version: 2,
   totalEntries: mockEntries.length,
   totalRoutes: 3,
   shards: [
@@ -459,6 +459,274 @@ describe('SearchEngine', () => {
         highlight.end
       )
       expect(highlightedText).toBe('test')
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('fuzzy matching finds entries with typos', async () => {
+    // Create entries with pre-computed tokenTrigrams for fuzzy matching
+    const fuzzyEntries = [
+      {
+        nodeId: 'hed_database',
+        nodeType: 'Heading',
+        route: '/docs/',
+        text: 'Introduction to the database system',
+        weight: 8,
+        depth: 1,
+        tokenTrigrams: [
+          {
+            token: 'introduction',
+            trigrams: [
+              'int',
+              'ntr',
+              'tro',
+              'rod',
+              'odu',
+              'duc',
+              'uct',
+              'cti',
+              'tio',
+              'ion',
+            ],
+            start: 0,
+            end: 12,
+          },
+          {
+            token: 'database',
+            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+            start: 20,
+            end: 28,
+          },
+          {
+            token: 'system',
+            trigrams: ['sys', 'yst', 'ste', 'tem'],
+            start: 29,
+            end: 35,
+          },
+        ],
+      },
+    ]
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: [{ file: 'shards/da.json', entryCount: 1 }],
+          }),
+          { status: 200 }
+        )
+      }
+      return new Response(JSON.stringify(fuzzyEntries), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // Search for "databse" (typo for "database")
+      const results = await engine.search('databse')
+      expect(results.length).toBeGreaterThan(0)
+
+      // Should find the database entry via fuzzy matching
+      const result = results.find((r) => r.entry.nodeId === 'hed_database')
+      expect(result).toBeDefined()
+
+      // Highlights should point to the matched token position
+      expect(result!.highlights.length).toBeGreaterThan(0)
+      const highlight = result!.highlights[0]
+      expect(highlight.start).toBe(20) // "database" starts at position 20
+      expect(highlight.end).toBe(28) // "database" ends at position 28
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('exact matches score higher than fuzzy matches', async () => {
+    const mixedEntries = [
+      {
+        nodeId: 'par_exact',
+        nodeType: 'Paragraph',
+        route: '/docs/',
+        text: 'The databse is great', // Contains exact "databse"
+        weight: 1,
+        depth: 1,
+        // No tokenTrigrams needed for exact match
+      },
+      {
+        nodeId: 'par_fuzzy',
+        nodeType: 'Paragraph',
+        route: '/docs/',
+        text: 'The database is better',
+        weight: 1,
+        depth: 1,
+        tokenTrigrams: [
+          {
+            token: 'database',
+            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+            start: 4,
+            end: 12,
+          },
+          {
+            token: 'better',
+            trigrams: ['bet', 'ett', 'tte', 'ter'],
+            start: 16,
+            end: 22,
+          },
+        ],
+      },
+    ]
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: [{ file: 'shards/da.json', entryCount: 2 }],
+          }),
+          { status: 200 }
+        )
+      }
+      return new Response(JSON.stringify(mixedEntries), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // Search for "databse" - one entry has exact match, one has fuzzy
+      const results = await engine.search('databse')
+      expect(results.length).toBeGreaterThanOrEqual(2)
+
+      // Find both results
+      const exactResult = results.find((r) => r.entry.nodeId === 'par_exact')
+      const fuzzyResult = results.find((r) => r.entry.nodeId === 'par_fuzzy')
+
+      expect(exactResult).toBeDefined()
+      expect(fuzzyResult).toBeDefined()
+
+      // Exact match should score higher
+      expect(exactResult!.score).toBeGreaterThan(fuzzyResult!.score)
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('fuzzy matching can be disabled', async () => {
+    const fuzzyEntries = [
+      {
+        nodeId: 'hed_test',
+        nodeType: 'Heading',
+        route: '/docs/',
+        text: 'Introduction to the database system',
+        weight: 8,
+        depth: 1,
+        tokenTrigrams: [
+          {
+            token: 'database',
+            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+            start: 20,
+            end: 28,
+          },
+        ],
+      },
+    ]
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: [{ file: 'shards/da.json', entryCount: 1 }],
+          }),
+          { status: 200 }
+        )
+      }
+      return new Response(JSON.stringify(fuzzyEntries), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // Search with fuzzy disabled - typo should not match
+      const results = await engine.search('databse', { enableFuzzy: false })
+      expect(results.length).toBe(0)
+
+      // Same search with fuzzy enabled should match
+      const resultsWithFuzzy = await engine.search('databse', {
+        enableFuzzy: true,
+      })
+      expect(resultsWithFuzzy.length).toBeGreaterThan(0)
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('fuzzy threshold controls match sensitivity', async () => {
+    const fuzzyEntries = [
+      {
+        nodeId: 'hed_test',
+        nodeType: 'Heading',
+        route: '/docs/',
+        text: 'Working with the database',
+        weight: 8,
+        depth: 1,
+        tokenTrigrams: [
+          {
+            token: 'database',
+            trigrams: ['dat', 'ata', 'tab', 'aba', 'bas', 'ase'],
+            start: 17,
+            end: 25,
+          },
+        ],
+      },
+    ]
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: [{ file: 'shards/da.json', entryCount: 1 }],
+          }),
+          { status: 200 }
+        )
+      }
+      return new Response(JSON.stringify(fuzzyEntries), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // "databse" vs "database" Jaccard similarity:
+      // "databse" trigrams: dat, ata, tab, abs, bse (5 unique)
+      // "database" trigrams: dat, ata, tab, aba, bas, ase (6 unique)
+      // Intersection: dat, ata, tab (3)
+      // Union: 8 unique trigrams
+      // Jaccard = 3/8 = 0.375
+      //
+      // With high threshold (0.5), should not match
+      const highThreshold = await engine.search('databse', {
+        fuzzyThreshold: 0.5,
+      })
+      expect(highThreshold.length).toBe(0)
+
+      // With lower threshold (0.3), should match
+      const lowThreshold = await engine.search('databse', {
+        fuzzyThreshold: 0.3,
+      })
+      expect(lowThreshold.length).toBeGreaterThan(0)
     } finally {
       global.fetch = customFetch
     }

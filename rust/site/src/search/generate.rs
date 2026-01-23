@@ -31,7 +31,7 @@ where
     F: Fn(std::path::PathBuf) -> Fut + Send + Sync,
     Fut: std::future::Future<Output = Result<Node>> + Send,
 {
-    let mut builder = SearchIndexBuilder::new();
+    let mut builder = SearchIndexBuilder::new().with_fuzzy(config.is_fuzzy_enabled());
 
     // List all routes
     let routes = list(true, false, None, None, None).await?;
@@ -88,7 +88,7 @@ pub async fn generate_search_index_from_nodes<'a, I>(
 where
     I: IntoIterator<Item = (&'a str, &'a Node)>,
 {
-    let mut builder = SearchIndexBuilder::new();
+    let mut builder = SearchIndexBuilder::new().with_fuzzy(config.is_fuzzy_enabled());
 
     for (route, node) in nodes {
         // Check if route should be excluded

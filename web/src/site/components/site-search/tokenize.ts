@@ -126,3 +126,34 @@ export function tokenPrefix(token: string): string {
   const codePoints = [...token]
   return codePoints.slice(0, Math.min(2, codePoints.length)).join('')
 }
+
+/**
+ * Generate character trigrams (3-grams) for fuzzy matching
+ *
+ * Returns overlapping 3-character sequences from the token.
+ * Tokens with fewer than 3 characters return an empty array.
+ *
+ * This function must produce identical output to the Rust
+ * `generate_trigrams()` function for the same input.
+ *
+ * Examples:
+ * - "search" → ["sea", "ear", "arc", "rch"]
+ * - "ab" → [] (too short)
+ * - "abc" → ["abc"] (exactly 3 chars = 1 trigram)
+ */
+export function generateTrigrams(token: string): string[] {
+  // Use spread to iterate code points, not UTF-16 code units
+  const chars = [...token]
+  const len = chars.length
+
+  if (len < 3) {
+    return []
+  }
+
+  const trigrams: string[] = []
+  for (let i = 0; i <= len - 3; i++) {
+    trigrams.push(chars.slice(i, i + 3).join(''))
+  }
+
+  return trigrams
+}

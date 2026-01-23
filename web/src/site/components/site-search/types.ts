@@ -22,6 +22,22 @@ export interface SearchEntry {
   depth: number
   /** For datatables: additional metadata */
   metadata?: DatatableMetadata
+  /** Pre-computed token trigrams for fuzzy matching (only present if fuzzy indexing enabled) */
+  tokenTrigrams?: TokenTrigrams[]
+}
+
+/**
+ * Token with pre-computed trigrams for fuzzy matching
+ */
+export interface TokenTrigrams {
+  /** Normalized token (lowercased, diacritics folded) for trigram matching */
+  token: string
+  /** Pre-computed character trigrams (3-grams) */
+  trigrams: string[]
+  /** Start position in original entry.text (UTF-16 code unit offset) */
+  start: number
+  /** End position in original entry.text (UTF-16 code unit offset) */
+  end: number
 }
 
 /**
@@ -112,4 +128,8 @@ export interface SearchOptions {
   nodeTypes?: string[]
   /** Filter by route prefixes */
   routes?: string[]
+  /** Enable fuzzy matching (default: true if tokenTrigrams present) */
+  enableFuzzy?: boolean
+  /** Minimum trigram similarity for fuzzy matches (0.0-1.0, default: 0.3) */
+  fuzzyThreshold?: number
 }
