@@ -3,7 +3,7 @@
 //! Displays hierarchical site navigation from `site.nav` configuration.
 //! If `site.nav` is not specified, auto-generates navigation from routes.
 
-use stencila_config::{NavItem, NavTreeExpanded, NavTreeIcons, SiteConfig};
+use stencila_config::{NavItem, NavTreeIcons, SiteConfig};
 
 use crate::nav_common::{apply_depth_limit, apply_icons, filter_nav_items, render_icon_span};
 
@@ -20,7 +20,8 @@ pub(crate) fn render_nav_tree(
     title: &Option<String>,
     depth: &Option<u8>,
     collapsible: &Option<bool>,
-    expanded: &Option<NavTreeExpanded>,
+    expand_depth: &Option<u8>,
+    expand_current: &Option<bool>,
     scroll_to_active: &Option<bool>,
     include: &Option<Vec<String>>,
     exclude: &Option<Vec<String>>,
@@ -29,7 +30,8 @@ pub(crate) fn render_nav_tree(
 ) -> String {
     // Get config values with defaults
     let collapsible = collapsible.unwrap_or(true);
-    let expanded = expanded.unwrap_or_default();
+    let expand_depth = expand_depth.or(Some(2));
+    let expand_current = expand_current.unwrap_or(true);
     let scroll_to_active = scroll_to_active.unwrap_or(true);
     let icons_mode = icons.unwrap_or_default();
 
@@ -65,15 +67,21 @@ pub(crate) fn render_nav_tree(
         &nav_items,
         context.route,
         1,
-        &expanded,
+        expand_depth,
+        expand_current,
         collapsible,
         "",
         &icons_mode,
     );
 
-    // Build attributes
+    // Build attributes for the web component
+    // expand-depth: if set, pass the value; if not set, omit (means unlimited)
+    // expand-current: pass the boolean value
+    let expand_depth_attr = expand_depth
+        .map(|d| format!(r#" expand-depth="{d}""#))
+        .unwrap_or_default();
     let attrs = format!(
-        r#" collapsible="{collapsible}" expanded="{expanded}" scroll-to-active="{scroll_to_active}""#
+        r#" collapsible="{collapsible}"{expand_depth_attr} expand-current="{expand_current}" scroll-to-active="{scroll_to_active}""#
     );
 
     format!(
@@ -87,7 +95,8 @@ fn render_nav_items(
     items: &[NavItem],
     current_route: &str,
     level: u8,
-    expanded: &NavTreeExpanded,
+    expand_depth: Option<u8>,
+    expand_current: bool,
     collapsible: bool,
     parent_id: &str,
     icons_mode: &NavTreeIcons,
@@ -122,8 +131,14 @@ fn render_nav_items(
                 ..
             } => {
                 // Determine if group should be expanded
-                let is_expanded =
-                    should_expand_group(expanded, level, route, children, current_route);
+                let is_expanded = should_expand_group(
+                    level,
+                    expand_depth,
+                    expand_current,
+                    route,
+                    children,
+                    current_route,
+                );
                 // Include parent_id to ensure unique IDs across the full tree
                 let label_slug = label.to_lowercase().replace(' ', "-");
                 let group_id = if parent_id.is_empty() {
@@ -181,7 +196,8 @@ fn render_nav_items(
                     children,
                     current_route,
                     level + 1,
-                    expanded,
+                    expand_depth,
+                    expand_current,
                     collapsible,
                     &group_id,
                     icons_mode,
@@ -215,29 +231,27 @@ fn render_nav_tree_icon(icon: &Option<String>, mode: &NavTreeIcons) -> String {
     }
 }
 
-/// Determine if a navigation group should be expanded based on the expansion mode
+/// Determine if a navigation group should be expanded based on expand-depth and expand-current
 fn should_expand_group(
-    expanded: &NavTreeExpanded,
     level: u8,
+    expand_depth: Option<u8>,
+    expand_current: bool,
     group_route: &Option<String>,
     children: &[NavItem],
     current_route: &str,
 ) -> bool {
-    match expanded {
-        NavTreeExpanded::All => true,
-        NavTreeExpanded::None => false,
-        NavTreeExpanded::FirstLevel => level == 1,
-        NavTreeExpanded::CurrentPath => {
-            // Expand if the group's own route is active
-            if let Some(r) = group_route
-                && r == current_route
-            {
-                return true;
-            }
-            // Or if any child (recursively) is the current route
-            contains_route(children, current_route)
-        }
+    // Check if this group is on the current path
+    let on_current_path = group_route.as_ref().is_some_and(|r| r == current_route)
+        || contains_route(children, current_route);
+
+    // If expand_current is true and this group is on the current path, expand it
+    if expand_current && on_current_path {
+        return true;
     }
+
+    // Otherwise, expand based on depth
+    // None means unlimited (all expanded)
+    expand_depth.is_none_or(|d| level <= d)
 }
 
 /// Check if any nav item (recursively) contains the given route

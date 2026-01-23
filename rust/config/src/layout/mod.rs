@@ -30,7 +30,7 @@ mod regions;
 pub use components::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
     EditOnService, EditSourceStyle, NavGroupsIcons, NavMenuDropdownStyle, NavMenuGroups,
-    NavMenuIcons, NavMenuTrigger, NavTreeExpanded, NavTreeIcons, PrevNextStyle, SocialLinkPlatform,
+    NavMenuIcons, NavMenuTrigger, NavTreeIcons, PrevNextStyle, SocialLinkPlatform,
     SocialLinksStyle,
 };
 pub use config::LayoutConfig;

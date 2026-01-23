@@ -50,9 +50,8 @@ pub use {
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
-        NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeExpanded,
-        NavTreeIcons, PrevNextStyle, RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform,
-        SocialLinksStyle,
+        NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeIcons,
+        PrevNextStyle, RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
     },
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{

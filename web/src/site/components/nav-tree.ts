@@ -24,10 +24,24 @@ export class StencilaNavTree extends LitElement {
   collapsible = true
 
   /**
-   * Default expansion state for collapsible groups
+   * How deep to expand groups by default
+   *
+   * - undefined = all groups expanded (unlimited)
+   * - 0 = all groups collapsed
+   * - 1 = only top-level groups expanded
+   * - 3 = groups expanded up to level 3
    */
-  @property({ type: String })
-  expanded: 'all' | 'none' | 'first-level' | 'current-path' = 'all'
+  @property({ type: Number, attribute: 'expand-depth' })
+  expandDepth?: number
+
+  /**
+   * Whether to expand groups containing the current page
+   *
+   * When true, groups that are ancestors of the current page are
+   * expanded regardless of expand-depth.
+   */
+  @property({ type: Boolean, attribute: 'expand-current' })
+  expandCurrent = true
 
   /**
    * Whether to scroll the active item into view on page load
@@ -107,8 +121,8 @@ export class StencilaNavTree extends LitElement {
     requestAnimationFrame(() => {
       this.updateActiveState()
 
-      // Re-expand groups in current path if using that mode
-      if (this.expanded === 'current-path') {
+      // Re-expand groups in current path if expand-current is enabled
+      if (this.expandCurrent) {
         this.expandCurrentPath()
       }
 
@@ -303,7 +317,7 @@ export class StencilaNavTree extends LitElement {
   reinitialize() {
     this.updateActiveState()
 
-    if (this.expanded === 'current-path') {
+    if (this.expandCurrent) {
       this.expandCurrentPath()
     }
 
@@ -319,7 +333,7 @@ export class StencilaNavTree extends LitElement {
   updateActiveLink(_url: string) {
     this.updateActiveState()
 
-    if (this.expanded === 'current-path') {
+    if (this.expandCurrent) {
       this.expandCurrentPath()
     }
 

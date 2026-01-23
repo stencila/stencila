@@ -111,7 +111,7 @@ pub enum ComponentConfig {
     /// start = "nav-tree"  # Uses defaults
     ///
     /// # Or with configuration:
-    /// start = { type = "nav-tree", title = "Documentation", expanded = "current-path" }
+    /// start = { type = "nav-tree", title = "Documentation", expand-depth = 3, expand-current = true }
     /// ```
     #[schemars(title = "NavTree")]
     NavTree {
@@ -134,10 +134,27 @@ pub enum ComponentConfig {
         /// Default: `true`
         collapsible: Option<bool>,
 
-        /// Default expansion state for collapsible groups
+        /// How deep to expand groups by default
         ///
-        /// Default: `all`
-        expanded: Option<NavTreeExpanded>,
+        /// Controls the initial expansion depth for collapsible groups.
+        /// - `0` = all groups collapsed
+        /// - `1` = only top-level groups expanded
+        /// - `2` = groups expanded up to level 2 (default)
+        /// - `3` = groups expanded up to level 3
+        ///
+        /// Default: `2`
+        #[serde(rename = "expand-depth")]
+        expand_depth: Option<u8>,
+
+        /// Whether to expand groups containing the current page
+        ///
+        /// When true, groups that are ancestors of the current page are
+        /// expanded regardless of `expand-depth`. This keeps navigation
+        /// focused on the user's current location.
+        ///
+        /// Default: `true`
+        #[serde(rename = "expand-current")]
+        expand_current: Option<bool>,
 
         /// Auto-scroll nav container to show active item on page load
         ///
@@ -712,38 +729,6 @@ pub enum PrevNextStyle {
     Detailed,
 }
 
-/// Default expansion state for NavTree groups
-///
-/// Controls the initial expand/collapse state of collapsible navigation groups.
-#[derive(
-    Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
-)]
-#[serde(rename_all = "kebab-case")]
-#[strum(serialize_all = "kebab-case")]
-pub enum NavTreeExpanded {
-    /// All groups expanded (default)
-    ///
-    /// Every collapsible group is initially open, showing all navigation items.
-    #[default]
-    All,
-
-    /// All groups collapsed
-    ///
-    /// Every collapsible group is initially closed. Users must click to expand.
-    None,
-
-    /// Only top-level groups expanded
-    ///
-    /// First-level groups are open, but nested groups are collapsed.
-    FirstLevel,
-
-    /// Expand groups containing the active page
-    ///
-    /// Only groups that are ancestors of the current page are expanded.
-    /// This keeps the navigation focused on the user's current location.
-    CurrentPath,
-}
-
 /// Whether to show icons in nav-tree
 #[derive(
     Debug, Clone, Copy, Default, Display, Serialize, Deserialize, PartialEq, Eq, JsonSchema,
@@ -1192,7 +1177,8 @@ separator = "|""#,
                 title: None,
                 depth: None,
                 collapsible: None,
-                expanded: None,
+                expand_depth: None,
+                expand_current: None,
                 scroll_to_active: None,
                 include: None,
                 exclude: None,
@@ -1236,14 +1222,14 @@ depth = 2"#,
     }
 
     #[test]
-    fn test_nav_tree_expanded_all() -> Result<()> {
+    fn test_nav_tree_expand_depth() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
             r#"type = "nav-tree"
-expanded = "all""#,
+expand-depth = 3"#,
         )?;
 
-        if let ComponentConfig::NavTree { expanded, .. } = config {
-            assert_eq!(expanded, Some(NavTreeExpanded::All));
+        if let ComponentConfig::NavTree { expand_depth, .. } = config {
+            assert_eq!(expand_depth, Some(3));
         } else {
             panic!("Expected ComponentConfig::NavTree");
         }
@@ -1252,14 +1238,14 @@ expanded = "all""#,
     }
 
     #[test]
-    fn test_nav_tree_expanded_none() -> Result<()> {
+    fn test_nav_tree_expand_current() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
             r#"type = "nav-tree"
-expanded = "none""#,
+expand-current = true"#,
         )?;
 
-        if let ComponentConfig::NavTree { expanded, .. } = config {
-            assert_eq!(expanded, Some(NavTreeExpanded::None));
+        if let ComponentConfig::NavTree { expand_current, .. } = config {
+            assert_eq!(expand_current, Some(true));
         } else {
             panic!("Expected ComponentConfig::NavTree");
         }
@@ -1268,30 +1254,21 @@ expanded = "none""#,
     }
 
     #[test]
-    fn test_nav_tree_expanded_first_level() -> Result<()> {
+    fn test_nav_tree_expand_depth_and_current() -> Result<()> {
         let config: ComponentConfig = toml::from_str(
             r#"type = "nav-tree"
-expanded = "first-level""#,
+expand-depth = 2
+expand-current = false"#,
         )?;
 
-        if let ComponentConfig::NavTree { expanded, .. } = config {
-            assert_eq!(expanded, Some(NavTreeExpanded::FirstLevel));
-        } else {
-            panic!("Expected ComponentConfig::NavTree");
-        }
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_nav_tree_expanded_current_path() -> Result<()> {
-        let config: ComponentConfig = toml::from_str(
-            r#"type = "nav-tree"
-expanded = "current-path""#,
-        )?;
-
-        if let ComponentConfig::NavTree { expanded, .. } = config {
-            assert_eq!(expanded, Some(NavTreeExpanded::CurrentPath));
+        if let ComponentConfig::NavTree {
+            expand_depth,
+            expand_current,
+            ..
+        } = config
+        {
+            assert_eq!(expand_depth, Some(2));
+            assert_eq!(expand_current, Some(false));
         } else {
             panic!("Expected ComponentConfig::NavTree");
         }
@@ -1341,7 +1318,8 @@ scroll-to-active = false"#,
 title = "Site Navigation"
 depth = 3
 collapsible = true
-expanded = "current-path"
+expand-depth = 2
+expand-current = true
 scroll-to-active = true"#,
         )?;
 
@@ -1349,7 +1327,8 @@ scroll-to-active = true"#,
             title,
             depth,
             collapsible,
-            expanded,
+            expand_depth,
+            expand_current,
             scroll_to_active,
             ..
         } = config
@@ -1357,7 +1336,8 @@ scroll-to-active = true"#,
             assert_eq!(title.as_deref(), Some("Site Navigation"));
             assert_eq!(depth, Some(3));
             assert_eq!(collapsible, Some(true));
-            assert_eq!(expanded, Some(NavTreeExpanded::CurrentPath));
+            assert_eq!(expand_depth, Some(2));
+            assert_eq!(expand_current, Some(true));
             assert_eq!(scroll_to_active, Some(true));
         } else {
             panic!("Expected ComponentConfig::NavTree");

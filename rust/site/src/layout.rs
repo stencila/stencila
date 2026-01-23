@@ -371,6 +371,7 @@ fn render_component_spec(component: &ComponentSpec, context: &RenderContext) -> 
                     &None,
                     &None,
                     &None,
+                    &None,
                     &tree_context,
                 )
             }
@@ -439,7 +440,8 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
             title,
             depth,
             collapsible,
-            expanded,
+            expand_depth,
+            expand_current,
             scroll_to_active,
             include,
             exclude,
@@ -454,7 +456,8 @@ fn render_component_config(component: &ComponentConfig, context: &RenderContext)
                 title,
                 depth,
                 collapsible,
-                expanded,
+                expand_depth,
+                expand_current,
                 scroll_to_active,
                 include,
                 exclude,
