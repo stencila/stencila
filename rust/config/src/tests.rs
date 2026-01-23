@@ -1433,3 +1433,44 @@ nav = [{ label = "Docs", children = ["/docs/", "https://example.com"] }]
 
     Ok(())
 }
+
+/// Test that deny_unknown_fields works with both direct toml deserialization
+/// and figment extraction
+#[test]
+fn test_deny_unknown_fields_behavior() -> Result<()> {
+    use crate::workspace::WorkspaceConfig;
+
+    // Direct toml deserialization SHOULD reject unknown fields
+    let toml_str = r#"
+id = "ws1234567890"
+unknown_field = "test"
+"#;
+    let result: Result<WorkspaceConfig, _> = toml::from_str(toml_str);
+    assert!(result.is_err(), "Direct toml should reject unknown fields");
+    let err = result.unwrap_err().to_string();
+    assert!(
+        err.contains("unknown field"),
+        "Error should mention unknown field: {}",
+        err
+    );
+
+    // Figment extraction ALSO rejects unknown fields when deny_unknown_fields is set
+    let temp_dir = TempDir::new()?;
+    let config_content = r#"
+[workspace]
+id = "ws1234567890"
+unknown_field = "test"
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let result = config_isolated(temp_dir.path());
+    assert!(result.is_err(), "Figment should also reject unknown fields");
+    let err = result.unwrap_err().to_string();
+    assert!(
+        err.contains("unknown field") || err.contains("unknown_field"),
+        "Error should mention unknown field: {}",
+        err
+    );
+
+    Ok(())
+}

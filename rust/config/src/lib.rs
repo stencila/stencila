@@ -118,6 +118,7 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 /// Stencila configuration
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// The workspace directory this config was loaded from
     ///

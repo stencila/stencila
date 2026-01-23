@@ -51,7 +51,7 @@ pub enum ReviewType {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct ReviewsConfig {
     /// Whether reviews are enabled
     ///

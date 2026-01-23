@@ -16,6 +16,7 @@ use crate::{WATCH_ID_REGEX, WORKSPACE_ID_REGEX};
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct WorkspaceConfig {
     /// The workspace public ID from Stencila Cloud.
     ///

@@ -67,7 +67,7 @@ pub enum LogoSpec {
 /// - `tablet` → `default`
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct LogoConfig {
     /// Default logo image path (used for desktop light mode)
     pub default: Option<String>,
@@ -288,7 +288,7 @@ impl NavItem {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct FeaturedContent {
     /// Badge text displayed above the title (e.g., "Featured", "New", "Spotlight")
     ///
@@ -316,6 +316,7 @@ pub struct FeaturedContent {
 
 /// Call-to-action button for featured content
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct FeaturedCta {
     /// Button label text
     pub label: String,
@@ -380,6 +381,7 @@ fn author_schema(_gen: &mut schemars::SchemaGenerator) -> schemars::Schema {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SiteConfig {
     /// Custom domain for the site
     ///
@@ -830,6 +832,7 @@ impl RouteTarget {
 /// A redirect configuration
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct RouteRedirect {
     /// The URL to redirect to
     ///
@@ -908,6 +911,7 @@ impl TryFrom<u16> for RedirectStatus {
 /// with different parameter values.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct RouteSpread {
     /// The source file for this spread route
     ///
@@ -939,7 +943,7 @@ pub struct RouteSpread {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct GlideConfig {
     /// Enable client-side navigation
     ///

@@ -890,6 +890,7 @@ pub enum SocialLinksStyle {
 /// Allows adding links to platforms not covered by `SocialLinkPlatform`,
 /// such as personal blogs, documentation sites, or lesser-known platforms.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct CustomSocialLink {
     /// Display name for the link (required)
     ///

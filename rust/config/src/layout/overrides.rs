@@ -52,7 +52,7 @@ use super::regions::{RegionSpec, ResponsiveConfig};
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct LayoutOverride {
     /// Glob patterns for routes this override applies to (required, non-empty)
     ///

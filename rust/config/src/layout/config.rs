@@ -35,7 +35,7 @@ use super::regions::{RegionSpec, ResponsiveConfig, merge_region, resolve_region}
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct LayoutConfig {
     /// Named preset to use as base (docs, blog, landing, api)
     ///

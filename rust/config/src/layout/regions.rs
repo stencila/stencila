@@ -82,7 +82,7 @@ impl RegionSpec {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct RegionConfig {
     /// Explicit enable/disable (for use in overrides that also set sub-regions)
     pub enabled: Option<bool>,
@@ -125,7 +125,7 @@ pub struct RegionConfig {
 /// the same sub-region structure as a single-row region.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct RowConfig {
     /// Components in the start sub-region (left for horizontal, top for vertical)
     #[serde(default, deserialize_with = "deserialize_component_list")]
@@ -242,7 +242,7 @@ pub enum SidebarToggleStyle {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
 pub struct ResponsiveConfig {
     /// Breakpoint at which sidebars collapse (in pixels)
     ///

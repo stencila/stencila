@@ -203,6 +203,7 @@ impl RemoteTarget {
 /// Remote synchronization information with watch ID
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct RemoteWatch {
     /// Remote URL
     ///
@@ -234,6 +235,7 @@ pub struct RemoteWatch {
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct RemoteSpread {
     /// Target service
     ///
