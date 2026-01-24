@@ -250,6 +250,23 @@ stencila-article {
         --article-title-font-size: var(--article-title-font-size-mobile);
         --article-title-line-height: var(--article-title-line-height-mobile);
     }
+
+    stencila-article {
+        >[slot="content"] {
+            /* Disable breakout on mobile - constrain all elements to viewport width */
+            stencila-table,
+            stencila-datatable,
+            stencila-figure,
+            stencila-image-object,
+            stencila-code-chunk,
+            stencila-code-block,
+            stencila-quote-block {
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+            }
+        }
+    }
 }
 
 @media print {

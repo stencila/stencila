@@ -370,6 +370,11 @@ stencila-code-chunk {
     /* Spacing */
     margin-top: var(--code-spacing);
     margin-bottom: var(--code-spacing);
+}
+
+/* Intermediate wrapper - needs block display for width constraints to work */
+stencila-ui-node-code-static {
+    display: block;
 
     pre {
         /* Browser normalization */
@@ -487,6 +492,27 @@ stencila-code-chunk {
         --code-block-min-width: var(--code-block-min-width-mobile);
         --code-block-max-width: var(--code-block-max-width-mobile);
         --code-chunk-max-width: var(--code-chunk-max-width-mobile);
+    }
+
+    /* Constrain code blocks to viewport on mobile.
+     * Uses !important to override higher-specificity desktop rules in articles.css.
+     * width: 0 + min-width: 100% breaks the circular width dependency that
+     * prevents overflow-x from working. */
+    stencila-code-block,
+    stencila-code-chunk {
+        display: block !important;
+        width: 0 !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Force pre to be constrained and enable horizontal scroll for long lines */
+    stencila-code-block pre,
+    stencila-code-chunk pre {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: auto !important;
     }
 }
 
