@@ -127,11 +127,13 @@ mod tests {
 
     #[test]
     fn test_shard_entries() {
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
         let entries = vec![
             SearchEntry::new(
                 "hed_1".to_string(),
                 "Heading",
                 "/test/".to_string(),
+                breadcrumbs.clone(),
                 "Hello World".to_string(),
                 8,
                 1,
@@ -140,6 +142,7 @@ mod tests {
                 "pgh_1".to_string(),
                 "Paragraph",
                 "/test/".to_string(),
+                breadcrumbs.clone(),
                 "Hello there".to_string(),
                 2,
                 2,
@@ -148,6 +151,7 @@ mod tests {
                 "pgh_2".to_string(),
                 "Paragraph",
                 "/test/".to_string(),
+                breadcrumbs.clone(),
                 "World peace".to_string(),
                 2,
                 2,
@@ -188,10 +192,12 @@ mod tests {
     #[test]
     fn test_token_deduplication() {
         // Create entries with token_trigrams to test deduplication
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
         let mut entry1 = SearchEntry::new(
             "hed_1".to_string(),
             "Heading",
             "/test/".to_string(),
+            breadcrumbs.clone(),
             "Hello World".to_string(),
             8,
             1,
@@ -215,6 +221,7 @@ mod tests {
             "pgh_1".to_string(),
             "Paragraph",
             "/test/".to_string(),
+            breadcrumbs.clone(),
             "Hello there".to_string(),
             2,
             2,

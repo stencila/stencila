@@ -39,7 +39,10 @@ use crate::{
     list,
     logo::resolve_logo,
     nav_common::auto_generate_nav,
-    search::{SearchEntry, SearchIndexBuilder, extract_entries_with_config},
+    search::{
+        SearchEntry, SearchIndexBuilder, build_breadcrumbs_map, extract_entries_with_config,
+        get_breadcrumbs,
+    },
 };
 
 /// A document rendered to HTML
@@ -270,6 +273,9 @@ where
         auto_generate_nav(&document_routes_all, &None, Some(&site_root))
     };
 
+    // Build breadcrumbs map once for search indexing
+    let breadcrumbs_map = build_breadcrumbs_map(&nav_items);
+
     // Resolve logo once (avoid per-document filesystem scanning)
     let resolved_logo = resolve_logo(None, site_config.logo.as_ref(), Some(&site_root));
 
@@ -286,6 +292,7 @@ where
     let document_routes = Arc::new(document_routes_all);
     let routes_set = Arc::new(routes_set);
     let nav_items = Arc::new(nav_items);
+    let breadcrumbs_map = Arc::new(breadcrumbs_map);
     let resolved_logo = Arc::new(resolved_logo);
     let workspace_id = Arc::new(workspace_id);
     let git_repo_root = Arc::new(git_repo_root.map(|p| p.to_path_buf()));
@@ -317,6 +324,7 @@ where
         let document_routes = Arc::clone(&document_routes);
         let routes_set = Arc::clone(&routes_set);
         let nav_items = Arc::clone(&nav_items);
+        let breadcrumbs_map = Arc::clone(&breadcrumbs_map);
         let resolved_logo = Arc::clone(&resolved_logo);
         let workspace_id = Arc::clone(&workspace_id);
         let git_repo_root = Arc::clone(&git_repo_root);
@@ -362,6 +370,7 @@ where
                     &document_routes,
                     &routes_set,
                     &nav_items,
+                    &breadcrumbs_map,
                     resolved_logo.as_ref().as_ref(),
                     workspace_id.as_deref(),
                     git_repo_root.as_deref(),
@@ -520,6 +529,7 @@ async fn render_document_route(
     routes: &[RouteEntry],
     routes_set: &HashSet<String>,
     nav_items: &Vec<NavItem>,
+    breadcrumbs_map: &std::collections::HashMap<String, Vec<String>>,
     resolved_logo: Option<&stencila_config::LogoConfig>,
     workspace_id: Option<&str>,
     git_repo_root: Option<&Path>,
@@ -569,7 +579,8 @@ async fn render_document_route(
     let search_entries = if let Some(search_spec) = site_config.search.as_ref()
         && search_spec.is_enabled()
     {
-        extract_entries_with_config(&node, &route, &search_spec.to_config())
+        let breadcrumbs = get_breadcrumbs(&route, breadcrumbs_map);
+        extract_entries_with_config(&node, &route, breadcrumbs, &search_spec.to_config())
     } else {
         Vec::new()
     };

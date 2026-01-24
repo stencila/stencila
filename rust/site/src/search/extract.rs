@@ -21,9 +21,17 @@ const MAX_TEXT_LENGTH: usize = 500;
 ///
 /// Walks through the document tree and creates search entries for
 /// indexable content like headings, paragraphs, datatables, etc.
-pub fn extract_entries(node: &Node, route: &str) -> Vec<SearchEntry> {
+pub fn extract_entries(node: &Node, route: &str, breadcrumbs: Vec<String>) -> Vec<SearchEntry> {
     let mut entries = Vec::new();
-    extract_from_node(node, route, 0, MAX_TEXT_LENGTH, &None, &mut entries);
+    extract_from_node(
+        node,
+        route,
+        &breadcrumbs,
+        0,
+        MAX_TEXT_LENGTH,
+        &None,
+        &mut entries,
+    );
     entries
 }
 
@@ -34,6 +42,7 @@ pub fn extract_entries(node: &Node, route: &str) -> Vec<SearchEntry> {
 pub fn extract_entries_with_config(
     node: &Node,
     route: &str,
+    breadcrumbs: Vec<String>,
     config: &SearchConfig,
 ) -> Vec<SearchEntry> {
     let mut entries = Vec::new();
@@ -44,6 +53,7 @@ pub fn extract_entries_with_config(
     extract_from_node(
         node,
         route,
+        &breadcrumbs,
         0,
         config.max_text_length(),
         &Some(include_types),
@@ -67,6 +77,7 @@ fn should_include(node_type: &str, include_types: &IncludeTypes) -> bool {
 fn extract_from_node(
     node: &Node,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -76,6 +87,7 @@ fn extract_from_node(
         Node::Article(article) => extract_from_article(
             article,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
@@ -84,39 +96,74 @@ fn extract_from_node(
         Node::Section(section) => extract_from_section(
             section,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
             entries,
         ),
         Node::Heading(heading) if should_include("Heading", include_types) => {
-            extract_from_heading(heading, route, depth, max_text_length, entries)
+            extract_from_heading(heading, route, breadcrumbs, depth, max_text_length, entries)
         }
         Node::Paragraph(paragraph) if should_include("Paragraph", include_types) => {
-            extract_from_paragraph(paragraph, route, depth, max_text_length, entries)
+            extract_from_paragraph(
+                paragraph,
+                route,
+                breadcrumbs,
+                depth,
+                max_text_length,
+                entries,
+            )
         }
         Node::CodeChunk(code_chunk) if should_include("CodeChunk", include_types) => {
-            extract_from_code_chunk(code_chunk, route, depth, max_text_length, entries)
+            extract_from_code_chunk(
+                code_chunk,
+                route,
+                breadcrumbs,
+                depth,
+                max_text_length,
+                entries,
+            )
         }
         Node::Datatable(datatable) if should_include("Datatable", include_types) => {
-            extract_from_datatable(datatable, route, depth, max_text_length, entries)
+            extract_from_datatable(
+                datatable,
+                route,
+                breadcrumbs,
+                depth,
+                max_text_length,
+                entries,
+            )
         }
         Node::Figure(figure) if should_include("Figure", include_types) => {
-            extract_from_figure(figure, route, depth, max_text_length, entries)
+            extract_from_figure(figure, route, breadcrumbs, depth, max_text_length, entries)
         }
         Node::Table(table) if should_include("Table", include_types) => {
-            extract_from_table(table, route, depth, max_text_length, entries)
+            extract_from_table(table, route, breadcrumbs, depth, max_text_length, entries)
         }
         // Container nodes - always recurse into their content
-        Node::QuoteBlock(quote) => {
-            extract_from_quote_block(quote, route, depth, max_text_length, include_types, entries)
-        }
-        Node::List(list) => {
-            extract_from_list(list, route, depth, max_text_length, include_types, entries)
-        }
+        Node::QuoteBlock(quote) => extract_from_quote_block(
+            quote,
+            route,
+            breadcrumbs,
+            depth,
+            max_text_length,
+            include_types,
+            entries,
+        ),
+        Node::List(list) => extract_from_list(
+            list,
+            route,
+            breadcrumbs,
+            depth,
+            max_text_length,
+            include_types,
+            entries,
+        ),
         Node::Admonition(admonition) => extract_from_admonition(
             admonition,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
@@ -125,6 +172,7 @@ fn extract_from_node(
         Node::StyledBlock(styled) => extract_from_styled_block(
             styled,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
@@ -139,6 +187,7 @@ fn extract_from_node(
 fn extract_from_article(
     article: &Article,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -154,6 +203,7 @@ fn extract_from_article(
                 article.node_id().to_string(),
                 "Article",
                 route.to_string(),
+                breadcrumbs.to_vec(),
                 text,
                 weights::TITLE,
                 depth,
@@ -166,6 +216,7 @@ fn extract_from_article(
         extract_from_block(
             block,
             route,
+            breadcrumbs,
             depth + 1,
             max_text_length,
             include_types,
@@ -178,6 +229,7 @@ fn extract_from_article(
 fn extract_from_section(
     section: &Section,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -187,6 +239,7 @@ fn extract_from_section(
         extract_from_block(
             block,
             route,
+            breadcrumbs,
             depth + 1,
             max_text_length,
             include_types,
@@ -199,6 +252,7 @@ fn extract_from_section(
 fn extract_from_block(
     block: &Block,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -208,39 +262,74 @@ fn extract_from_block(
         Block::Section(section) => extract_from_section(
             section,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
             entries,
         ),
         Block::Heading(heading) if should_include("Heading", include_types) => {
-            extract_from_heading(heading, route, depth, max_text_length, entries)
+            extract_from_heading(heading, route, breadcrumbs, depth, max_text_length, entries)
         }
         Block::Paragraph(paragraph) if should_include("Paragraph", include_types) => {
-            extract_from_paragraph(paragraph, route, depth, max_text_length, entries)
+            extract_from_paragraph(
+                paragraph,
+                route,
+                breadcrumbs,
+                depth,
+                max_text_length,
+                entries,
+            )
         }
         Block::CodeChunk(code_chunk) if should_include("CodeChunk", include_types) => {
-            extract_from_code_chunk(code_chunk, route, depth, max_text_length, entries)
+            extract_from_code_chunk(
+                code_chunk,
+                route,
+                breadcrumbs,
+                depth,
+                max_text_length,
+                entries,
+            )
         }
         Block::Datatable(datatable) if should_include("Datatable", include_types) => {
-            extract_from_datatable(datatable, route, depth, max_text_length, entries)
+            extract_from_datatable(
+                datatable,
+                route,
+                breadcrumbs,
+                depth,
+                max_text_length,
+                entries,
+            )
         }
         Block::Figure(figure) if should_include("Figure", include_types) => {
-            extract_from_figure(figure, route, depth, max_text_length, entries)
+            extract_from_figure(figure, route, breadcrumbs, depth, max_text_length, entries)
         }
         Block::Table(table) if should_include("Table", include_types) => {
-            extract_from_table(table, route, depth, max_text_length, entries)
+            extract_from_table(table, route, breadcrumbs, depth, max_text_length, entries)
         }
         // Container blocks - always recurse into their content
-        Block::QuoteBlock(quote) => {
-            extract_from_quote_block(quote, route, depth, max_text_length, include_types, entries)
-        }
-        Block::List(list) => {
-            extract_from_list(list, route, depth, max_text_length, include_types, entries)
-        }
+        Block::QuoteBlock(quote) => extract_from_quote_block(
+            quote,
+            route,
+            breadcrumbs,
+            depth,
+            max_text_length,
+            include_types,
+            entries,
+        ),
+        Block::List(list) => extract_from_list(
+            list,
+            route,
+            breadcrumbs,
+            depth,
+            max_text_length,
+            include_types,
+            entries,
+        ),
         Block::Admonition(admonition) => extract_from_admonition(
             admonition,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
@@ -249,6 +338,7 @@ fn extract_from_block(
         Block::StyledBlock(styled) => extract_from_styled_block(
             styled,
             route,
+            breadcrumbs,
             depth,
             max_text_length,
             include_types,
@@ -263,6 +353,7 @@ fn extract_from_block(
 fn extract_from_heading(
     heading: &Heading,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     entries: &mut Vec<SearchEntry>,
@@ -287,6 +378,7 @@ fn extract_from_heading(
         heading.node_id().to_string(),
         "Heading",
         route.to_string(),
+        breadcrumbs.to_vec(),
         text,
         weight,
         depth,
@@ -297,6 +389,7 @@ fn extract_from_heading(
 fn extract_from_paragraph(
     paragraph: &Paragraph,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     entries: &mut Vec<SearchEntry>,
@@ -310,6 +403,7 @@ fn extract_from_paragraph(
         paragraph.node_id().to_string(),
         "Paragraph",
         route.to_string(),
+        breadcrumbs.to_vec(),
         text,
         weights::PARAGRAPH,
         depth,
@@ -320,6 +414,7 @@ fn extract_from_paragraph(
 fn extract_from_code_chunk(
     code_chunk: &CodeChunk,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     entries: &mut Vec<SearchEntry>,
@@ -333,6 +428,7 @@ fn extract_from_code_chunk(
         code_chunk.node_id().to_string(),
         "CodeChunk",
         route.to_string(),
+        breadcrumbs.to_vec(),
         text,
         weights::CODE,
         depth,
@@ -343,6 +439,7 @@ fn extract_from_code_chunk(
 fn extract_from_datatable(
     datatable: &Datatable,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     entries: &mut Vec<SearchEntry>,
@@ -374,6 +471,7 @@ fn extract_from_datatable(
             datatable.node_id().to_string(),
             "Datatable",
             route.to_string(),
+            breadcrumbs.to_vec(),
             text,
             weights::DATATABLE,
             depth,
@@ -396,6 +494,7 @@ fn column_value_count(column: &DatatableColumn) -> usize {
 fn extract_from_figure(
     figure: &Figure,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     entries: &mut Vec<SearchEntry>,
@@ -407,6 +506,7 @@ fn extract_from_figure(
                 figure.node_id().to_string(),
                 "Figure",
                 route.to_string(),
+                breadcrumbs.to_vec(),
                 text,
                 weights::CAPTION,
                 depth,
@@ -419,6 +519,7 @@ fn extract_from_figure(
 fn extract_from_table(
     table: &Table,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     entries: &mut Vec<SearchEntry>,
@@ -430,6 +531,7 @@ fn extract_from_table(
                 table.node_id().to_string(),
                 "Table",
                 route.to_string(),
+                breadcrumbs.to_vec(),
                 text,
                 weights::CAPTION,
                 depth,
@@ -442,6 +544,7 @@ fn extract_from_table(
 fn extract_from_quote_block(
     quote: &QuoteBlock,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -451,6 +554,7 @@ fn extract_from_quote_block(
         extract_from_block(
             block,
             route,
+            breadcrumbs,
             depth + 1,
             max_text_length,
             include_types,
@@ -463,13 +567,22 @@ fn extract_from_quote_block(
 fn extract_from_list(
     list: &List,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
     entries: &mut Vec<SearchEntry>,
 ) {
     for item in &list.items {
-        extract_from_list_item(item, route, depth, max_text_length, include_types, entries);
+        extract_from_list_item(
+            item,
+            route,
+            breadcrumbs,
+            depth,
+            max_text_length,
+            include_types,
+            entries,
+        );
     }
 }
 
@@ -477,6 +590,7 @@ fn extract_from_list(
 fn extract_from_list_item(
     item: &ListItem,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -486,6 +600,7 @@ fn extract_from_list_item(
         extract_from_block(
             block,
             route,
+            breadcrumbs,
             depth + 1,
             max_text_length,
             include_types,
@@ -498,6 +613,7 @@ fn extract_from_list_item(
 fn extract_from_admonition(
     admonition: &Admonition,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -507,6 +623,7 @@ fn extract_from_admonition(
         extract_from_block(
             block,
             route,
+            breadcrumbs,
             depth + 1,
             max_text_length,
             include_types,
@@ -519,6 +636,7 @@ fn extract_from_admonition(
 fn extract_from_styled_block(
     styled: &StyledBlock,
     route: &str,
+    breadcrumbs: &[String],
     depth: u8,
     max_text_length: usize,
     include_types: &IncludeTypes,
@@ -528,6 +646,7 @@ fn extract_from_styled_block(
         extract_from_block(
             block,
             route,
+            breadcrumbs,
             depth + 1,
             max_text_length,
             include_types,
@@ -640,7 +759,8 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries(&Node::Article(article), "/test");
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs.clone());
 
         // Should have 2 entries: title and paragraph
         assert_eq!(entries.len(), 2);
@@ -650,11 +770,13 @@ mod tests {
         assert_eq!(entries[0].text, "My Article Title");
         assert_eq!(entries[0].weight, weights::TITLE);
         assert_eq!(entries[0].depth, 0);
+        assert_eq!(entries[0].breadcrumbs, breadcrumbs);
 
         // Second entry should be the paragraph
         assert_eq!(entries[1].node_type, "Paragraph");
         assert_eq!(entries[1].text, "Some content");
         assert_eq!(entries[1].depth, 1);
+        assert_eq!(entries[1].breadcrumbs, breadcrumbs);
     }
 
     #[test]
@@ -677,7 +799,9 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries_with_config(&Node::Article(article), "/test", &config);
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries =
+            extract_entries_with_config(&Node::Article(article), "/test", breadcrumbs, &config);
 
         // Should only have headings (no Article title, no Paragraphs)
         assert_eq!(entries.len(), 2);
@@ -700,7 +824,9 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries_with_config(&Node::Article(article), "/test", &config);
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries =
+            extract_entries_with_config(&Node::Article(article), "/test", breadcrumbs, &config);
 
         assert_eq!(entries.len(), 1);
         // Text should be truncated to around 50 chars (at word boundary)
@@ -729,7 +855,9 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries_with_config(&Node::Datatable(datatable), "/test", &config);
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries =
+            extract_entries_with_config(&Node::Datatable(datatable), "/test", breadcrumbs, &config);
 
         assert_eq!(entries.len(), 1);
         // Text should be truncated to around 100 chars
@@ -756,7 +884,8 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries(&Node::Article(article), "/test");
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         // Find the paragraphs
         let top_level = entries.iter().find(|e| e.text == "Top level");
@@ -784,7 +913,8 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries(&Node::Article(article), "/test");
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         let top_level = entries.iter().find(|e| e.text == "Top level");
         let list_para = entries.iter().find(|e| e.text == "List item text");
@@ -808,7 +938,8 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries(&Node::Article(article), "/test");
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         let h1 = entries
             .iter()
@@ -841,7 +972,8 @@ mod tests {
             ..Default::default()
         };
 
-        let entries = extract_entries(&Node::Article(article), "/test");
+        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         // Neither empty title nor empty paragraph should be indexed
         assert!(entries.is_empty());

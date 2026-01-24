@@ -14,6 +14,8 @@ export interface SearchEntry {
   nodeType: string
   /** The route where this node appears (e.g., "/docs/guide/") */
   route: string
+  /** Breadcrumb labels for the route (e.g., ["Home", "Docs", "Guide"]) */
+  breadcrumbs: string[]
   /** The indexed text content */
   text: string
   /** Structural weight for ranking (higher = more important) */
@@ -129,6 +131,8 @@ export interface RecentSearch {
   nodeType: string
   /** The route where this node appears */
   route: string
+  /** Breadcrumb labels for the route (e.g., ["Home", "Docs", "Guide"]) */
+  breadcrumbs: string[]
   /** The text content to display */
   text: string
   /** Depth in document (0=root/whole page, 1+=specific element) */

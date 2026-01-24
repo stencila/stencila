@@ -93,7 +93,7 @@ export class StencilaSiteSearch extends LitElement {
   /**
    * localStorage key for recent searches
    */
-  private readonly STORAGE_KEY = 'stencila-recent-searches'
+  private readonly STORAGE_KEY = 'stencila-site-search-recent'
 
   /**
    * Maximum number of recent searches to store
@@ -579,6 +579,7 @@ export class StencilaSiteSearch extends LitElement {
       nodeId: entry.nodeId,
       nodeType: entry.nodeType,
       route: entry.route,
+      breadcrumbs: entry.breadcrumbs,
       text: entry.text,
       depth: entry.depth,
     }
@@ -601,18 +602,28 @@ export class StencilaSiteSearch extends LitElement {
   }
 
   /**
-   * Format route for display
+   * Format breadcrumbs for display
    */
-  private formatRoute(route: string): string {
-    // Remove leading/trailing slashes and show a friendly path
-    return route.replace(/^\/|\/$/g, '') || 'Home'
+  private formatBreadcrumbs(breadcrumbs: string[] | undefined): string {
+    // Handle missing breadcrumbs (e.g., from old cached search index)
+    if (!breadcrumbs || breadcrumbs.length === 0) {
+      return 'Home'
+    }
+    // Join breadcrumb labels with chevron separator
+    return breadcrumbs.join(' > ')
   }
 
   /**
    * Render a single result item (reusable for results and recent searches)
    */
   private renderResultItem(
-    entry: { nodeId: string; nodeType: string; route: string; text: string },
+    entry: {
+      nodeId: string
+      nodeType: string
+      route: string
+      breadcrumbs?: string[]
+      text: string
+    },
     index: number,
     highlights: { start: number; end: number }[],
     onClick: () => void
@@ -630,7 +641,7 @@ export class StencilaSiteSearch extends LitElement {
       >
         <span class="${this.getNodeTypeIcon(entry.nodeType)} icon"></span>
         <div class="content">
-          <div class="path">${this.formatRoute(entry.route)}</div>
+          <div class="path">${this.formatBreadcrumbs(entry.breadcrumbs)}</div>
           <div class="text">
             ${this.renderHighlightedText(entry.text, highlights)}
           </div>

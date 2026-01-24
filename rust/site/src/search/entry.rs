@@ -43,6 +43,9 @@ pub struct SearchEntry {
     /// The route where this node appears (e.g., "/docs/guide/")
     pub route: String,
 
+    /// Breadcrumb labels for the route (e.g., ["Home", "Docs", "Guide"])
+    pub breadcrumbs: Vec<String>,
+
     /// The indexed text content
     pub text: String,
 
@@ -147,6 +150,7 @@ impl SearchEntry {
         node_id: String,
         node_type: impl Into<String>,
         route: String,
+        breadcrumbs: Vec<String>,
         text: String,
         weight: u8,
         depth: u8,
@@ -155,6 +159,7 @@ impl SearchEntry {
             node_id,
             node_type: node_type.into(),
             route,
+            breadcrumbs,
             text,
             weight,
             depth,
