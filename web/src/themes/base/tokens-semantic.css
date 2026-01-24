@@ -117,8 +117,8 @@
 
     /* Typography Semantic Tokens with responsive and print variants */
     --text-font-size: var(--font-size-md);
-    --text-font-size-tablet: var(--font-size-sm);
-    --text-font-size-mobile: var(--font-size-sm);
+    --text-font-size-tablet: var(--font-size-md);
+    --text-font-size-mobile: var(--font-size-md);
     --text-font-size-print: 10pt;
     --text-line-height: var(--line-height-normal);
     --text-line-height-mobile: var(--line-height-relaxed);
