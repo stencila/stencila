@@ -308,9 +308,15 @@ stencila-site-search .hint {
         max-height: calc(100vh - var(--space-8));
     }
 
-    /* Hide shortcut on mobile */
+    /* Hide label and shortcut on mobile - show only icon */
+    stencila-site-search .trigger .label,
     stencila-site-search .trigger .shortcut {
         display: none;
+    }
+
+    /* Adjust trigger padding for icon-only button */
+    stencila-site-search .trigger {
+        padding: 0 var(--space-2);
     }
 
     /* Hide footer hints on mobile - too cramped */
