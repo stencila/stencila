@@ -471,10 +471,10 @@ where
 
     // Generate search index if enabled in config
     // Entries were extracted from each document after stabilization (node IDs assigned)
-    if let Some(search_config) = site_config.search.as_ref()
-        && search_config.is_enabled()
+    if let Some(search_spec) = site_config.search.as_ref()
+        && search_spec.is_enabled()
     {
-        let mut builder = SearchIndexBuilder::new().with_fuzzy(search_config.is_fuzzy_enabled());
+        let mut builder = SearchIndexBuilder::new().with_fuzzy(search_spec.is_fuzzy_enabled());
         for doc in &docs_rendered {
             builder.add_entries(doc.search_entries.clone());
         }
@@ -566,10 +566,10 @@ async fn render_document_route(
     stabilize(&mut node);
 
     // Extract search entries from the stabilized node (node IDs are now assigned)
-    let search_entries = if let Some(search_config) = site_config.search.as_ref()
-        && search_config.is_enabled()
+    let search_entries = if let Some(search_spec) = site_config.search.as_ref()
+        && search_spec.is_enabled()
     {
-        extract_entries_with_config(&node, &route, search_config)
+        extract_entries_with_config(&node, &route, &search_spec.to_config())
     } else {
         Vec::new()
     };

@@ -623,11 +623,13 @@ pub struct SiteConfig {
     ///
     /// When enabled, a search index is generated during site rendering.
     /// The index is sharded for efficient incremental loading and supports
-    /// Unicode text with diacritic folding, e.g.
+    /// Unicode text with diacritic folding.
+    ///
+    /// Can be a simple boolean or a detailed configuration object, e.g.
     /// ```toml
     /// # Enable search with defaults
-    /// [site.search]
-    /// enabled = true
+    /// [site]
+    /// search = true
     ///
     /// # Customize search indexing
     /// [site.search]
@@ -635,7 +637,7 @@ pub struct SiteConfig {
     /// include-types = ["Heading", "Paragraph"]
     /// exclude-routes = ["/api/**"]
     /// ```
-    pub search: Option<SearchConfig>,
+    pub search: Option<SearchSpec>,
 
     /// Additional formats to generate alongside HTML
     ///
@@ -949,15 +951,14 @@ pub struct RouteSpread {
     pub arguments: HashMap<String, Vec<String>>,
 }
 
-/// Configuration for site search
+/// Configuration for site search (detailed form)
 ///
 /// When enabled, a search index is generated during site rendering that allows
 /// client-side full-text search without a backend server. The index is sharded
 /// by token prefix for efficient incremental loading, e.g.
 /// ```toml
 /// # Enable search with defaults
-/// [site.search]
-/// enabled = true
+/// search = true
 ///
 /// # Customize search indexing
 /// [site.search]
@@ -1055,6 +1056,67 @@ impl SearchConfig {
             }
         }
         false
+    }
+}
+
+/// Search specification - handles both boolean and detailed forms
+///
+/// Allows configuration as either:
+/// - Simple boolean: `search = true` or `search = false`
+/// - Detailed config: `[site.search]` with options
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum SearchSpec {
+    /// Simple boolean: search = true/false
+    Enabled(bool),
+    /// Detailed config: [site.search] with options
+    Config(SearchConfig),
+}
+
+impl SearchSpec {
+    /// Check if search is enabled
+    pub fn is_enabled(&self) -> bool {
+        match self {
+            SearchSpec::Enabled(enabled) => *enabled,
+            SearchSpec::Config(config) => config.is_enabled(),
+        }
+    }
+
+    /// Convert to a full SearchConfig, applying defaults for simple boolean form
+    pub fn to_config(&self) -> SearchConfig {
+        match self {
+            SearchSpec::Enabled(enabled) => SearchConfig {
+                enabled: Some(*enabled),
+                ..Default::default()
+            },
+            SearchSpec::Config(config) => config.clone(),
+        }
+    }
+
+    /// Check if fuzzy search is enabled (delegates to config)
+    pub fn is_fuzzy_enabled(&self) -> bool {
+        self.to_config().is_fuzzy_enabled()
+    }
+
+    /// Get the maximum text length (delegates to config)
+    pub fn max_text_length(&self) -> usize {
+        self.to_config().max_text_length()
+    }
+
+    /// Get the node types to include (delegates to config)
+    pub fn include_types(&self) -> Vec<String> {
+        self.to_config().include_types()
+    }
+
+    /// Check if a route should be excluded from indexing (delegates to config)
+    pub fn is_route_excluded(&self, route: &str) -> bool {
+        self.to_config().is_route_excluded(route)
+    }
+}
+
+impl Default for SearchSpec {
+    fn default() -> Self {
+        SearchSpec::Enabled(false)
     }
 }
 
@@ -1451,4 +1513,84 @@ pub fn config_add_redirect_route(
     fs::write(&config_path, doc.to_string())?;
 
     Ok(config_path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_search_spec_simple_true() -> Result<(), serde_json::Error> {
+        let spec: SearchSpec = serde_json::from_str("true")?;
+        assert!(spec.is_enabled());
+        let config = spec.to_config();
+        assert!(config.is_enabled());
+        assert!(config.is_fuzzy_enabled()); // default true
+        Ok(())
+    }
+
+    #[test]
+    fn test_search_spec_simple_false() -> Result<(), serde_json::Error> {
+        let spec: SearchSpec = serde_json::from_str("false")?;
+        assert!(!spec.is_enabled());
+        Ok(())
+    }
+
+    #[test]
+    fn test_search_spec_detailed() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "include-types": ["Heading", "Paragraph"],
+            "exclude-routes": ["/api/**"],
+            "max-text-length": 250,
+            "fuzzy": false
+        }"#;
+        let spec: SearchSpec = serde_json::from_str(json)?;
+        assert!(spec.is_enabled());
+
+        let config = spec.to_config();
+        assert!(config.is_enabled());
+        assert!(!config.is_fuzzy_enabled());
+        assert_eq!(config.max_text_length(), 250);
+        assert_eq!(
+            config.include_types(),
+            vec!["Heading".to_string(), "Paragraph".to_string()]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_search_spec_toml_simple() {
+        let toml_str = r#"
+            [site]
+            search = true
+        "#;
+        let config: SiteConfig =
+            toml::from_str::<std::collections::HashMap<String, SiteConfig>>(toml_str)
+                .expect("Failed to parse TOML")
+                .remove("site")
+                .expect("Missing site key");
+
+        assert!(config.search.is_some());
+        assert!(config.search.as_ref().unwrap().is_enabled());
+    }
+
+    #[test]
+    fn test_search_spec_toml_detailed() {
+        let toml_str = r#"
+            [site.search]
+            enabled = true
+            fuzzy = false
+        "#;
+        let config: SiteConfig =
+            toml::from_str::<std::collections::HashMap<String, SiteConfig>>(toml_str)
+                .expect("Failed to parse TOML")
+                .remove("site")
+                .expect("Missing site key");
+
+        assert!(config.search.is_some());
+        let search = config.search.as_ref().unwrap();
+        assert!(search.is_enabled());
+        assert!(!search.is_fuzzy_enabled());
+    }
 }

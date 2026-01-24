@@ -6,6 +6,8 @@ watch = "wardj3nsovuj"
 author = "Stencila"
 root = "site"
 exclude = ["tests/excluded.smd"]
+search = true
+reviews = true
 
 [site.icons]
 "/" = "home"
@@ -13,12 +15,6 @@ exclude = ["tests/excluded.smd"]
 [site.socials]
 github = "stencila/stencila"
 x = "stencila"
-
-[site.search]
-enabled = true
-
-[site.reviews]
-enabled = true
 
 [site.routes]
 "/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
