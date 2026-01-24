@@ -27,6 +27,24 @@ const DEFAULT_OPTIONS: Required<SearchOptions> = {
 }
 
 /**
+ * Adjacency scoring constants
+ */
+/** Maximum gap (in UTF-16 code units) between tokens to be considered adjacent */
+const ADJACENCY_GAP_THRESHOLD = 5
+
+/** Bonus points for each pair of adjacent query tokens in a contiguous chain */
+const ADJACENCY_BONUS = 1.5
+
+/** Max query tokens to consider for adjacency (caps exponential complexity) */
+const MAX_ADJACENCY_TOKENS = 6
+
+/** Max positions per token to consider (caps exponential complexity) */
+const MAX_POSITIONS_PER_TOKEN = 5
+
+/** Max unique prefix-matching tokens to consider (prevents hot spot on common prefixes) */
+const MAX_PREFIX_MATCHES = 3
+
+/**
  * Calculate Jaccard similarity between two sets of trigrams
  *
  * Returns a value between 0 and 1, where 1 means identical sets.
@@ -206,6 +224,7 @@ export class SearchEngine {
    * - Exact token match: 2 points
    * - Prefix match: 1 point
    * - Fuzzy match (if enabled): 0.3 × similarity (max 0.3 points)
+   * - Adjacency bonus: 1.5 points per adjacent pair in longest contiguous chain
    * - Multiply by structural weight
    * - Multiply by query coverage ratio
    */
@@ -219,6 +238,11 @@ export class SearchEngine {
     let matchedQueryTokens = 0
     const highlights: TextHighlight[] = []
 
+    // Track ALL match positions per query token index DURING matching
+    // (TextHighlight doesn't carry query token id, so we must track separately)
+    const positionsByQuery: Map<number, { start: number; end: number }[]> =
+      new Map()
+
     // Build a set of entry tokens for faster lookup
     const entryTokenSet = new Set(entryTokens)
 
@@ -229,7 +253,9 @@ export class SearchEngine {
       entry.tokenTrigrams.length > 0
 
     // Score each query token
-    for (const queryToken of queryTokens) {
+    for (let i = 0; i < queryTokens.length; i++) {
+      const queryToken = queryTokens[i]
+
       // Check for exact match
       if (entryTokenSet.has(queryToken)) {
         rawScore += 2
@@ -237,16 +263,48 @@ export class SearchEngine {
         // Find highlight positions
         const tokenHighlights = this.findHighlights(entry.text, queryToken)
         highlights.push(...tokenHighlights)
+        // Track positions for adjacency check
+        positionsByQuery.set(
+          i,
+          tokenHighlights
+            .map((h) => ({ start: h.start, end: h.end }))
+            .slice(0, MAX_POSITIONS_PER_TOKEN)
+        )
         continue
       }
 
-      // Check for prefix match
-      const prefixMatch = entryTokens.find((et) => et.startsWith(queryToken))
-      if (prefixMatch) {
+      // Check for prefix match - find unique matching tokens with early exit
+      // This ensures we don't miss better adjacency (e.g., "sta" matching both "start" and "stack")
+      // Use early-exit loop instead of filter+slice to avoid scanning all tokens
+      const prefixMatches: string[] = []
+      const seenPrefixTokens = new Set<string>()
+      for (const et of entryTokens) {
+        if (et.startsWith(queryToken) && !seenPrefixTokens.has(et)) {
+          seenPrefixTokens.add(et)
+          prefixMatches.push(et)
+          if (prefixMatches.length >= MAX_PREFIX_MATCHES) break // Early exit
+        }
+      }
+
+      if (prefixMatches.length > 0) {
         rawScore += 1
         matchedQueryTokens++
-        const tokenHighlights = this.findHighlights(entry.text, queryToken)
-        highlights.push(...tokenHighlights)
+
+        // For UI: highlight only the query prefix (what user typed)
+        const prefixHighlights = this.findHighlights(entry.text, queryToken)
+        highlights.push(...prefixHighlights)
+
+        // For adjacency: use full token positions (needed for accurate gap calculation)
+        // e.g., "data query" matching "database query" needs "database" end position
+        const allPositions: { start: number; end: number }[] = []
+        for (const match of prefixMatches) {
+          const tokenPositions = this.findHighlights(entry.text, match)
+          allPositions.push(
+            ...tokenPositions.map((h) => ({ start: h.start, end: h.end }))
+          )
+        }
+        // Cap positions to prevent exponential blowup
+        positionsByQuery.set(i, allPositions.slice(0, MAX_POSITIONS_PER_TOKEN))
         continue
       }
 
@@ -262,10 +320,12 @@ export class SearchEngine {
           rawScore += 0.3 * fuzzyResult.similarity
           matchedQueryTokens++
           // Use the token position for highlighting
-          highlights.push({
+          const pos = {
             start: fuzzyResult.matchedToken.start,
             end: fuzzyResult.matchedToken.end,
-          })
+          }
+          highlights.push(pos)
+          positionsByQuery.set(i, [pos])
         }
       }
     }
@@ -273,6 +333,13 @@ export class SearchEngine {
     if (rawScore === 0) {
       return { score: 0, highlights: [] }
     }
+
+    // Calculate adjacency bonus for phrase matching
+    const adjacencyBonus = this.calculateAdjacencyBonus(
+      queryTokens.length,
+      positionsByQuery
+    )
+    rawScore += adjacencyBonus
 
     // Apply structural weight (entry.weight is 1-10, normalize to 0.1-1.0)
     const weightMultiplier = entry.weight / 10
@@ -327,6 +394,93 @@ export class SearchEngine {
     }
 
     return null
+  }
+
+  /**
+   * Calculate adjacency bonus by finding the longest contiguous chain
+   *
+   * Tries starting from EVERY query token index (not just 0), so "brown fox"
+   * in query "quick brown fox" still gets adjacency bonus.
+   *
+   * Uses recursive search (not greedy) to find the optimal path when
+   * multiple occurrences exist.
+   *
+   * Complexity is capped by MAX_ADJACENCY_TOKENS (chain length) and MAX_POSITIONS_PER_TOKEN
+   * to prevent exponential blowup on long queries or common tokens.
+   */
+  private calculateAdjacencyBonus(
+    queryTokenCount: number,
+    positionsByQuery: Map<number, { start: number; end: number }[]>
+  ): number {
+    if (queryTokenCount < 2) return 0
+
+    let maxChainLength = 0
+
+    // Try starting a chain from EACH query token index (all tokens, not just first N)
+    // This allows phrases at the END of long queries to get adjacency bonus
+    for (let startIdx = 0; startIdx < queryTokenCount; startIdx++) {
+      const startPositions = positionsByQuery.get(startIdx) ?? []
+
+      for (const startPos of startPositions) {
+        // Recursively find the longest chain from this starting point
+        // Chain length is capped by MAX_ADJACENCY_TOKENS, not starting index
+        const chainLength = this.findLongestChain(
+          startIdx,
+          startPos.end,
+          queryTokenCount,
+          positionsByQuery,
+          1 // Start with chain length of 1 (current token)
+        )
+        maxChainLength = Math.max(maxChainLength, chainLength)
+      }
+    }
+
+    // Chain of length N has (N-1) adjacent pairs
+    return Math.max(0, maxChainLength - 1) * ADJACENCY_BONUS
+  }
+
+  /**
+   * Recursively find the longest chain starting at queryIdx with previous token ending at prevEnd
+   *
+   * Tries ALL adjacent positions for the next token (not just the first),
+   * ensuring we don't miss longer chains due to greedy selection.
+   *
+   * Chain length is capped at MAX_ADJACENCY_TOKENS to bound complexity.
+   */
+  private findLongestChain(
+    queryIdx: number,
+    prevEnd: number,
+    queryTokenCount: number,
+    positionsByQuery: Map<number, { start: number; end: number }[]>,
+    currentChainLength: number
+  ): number {
+    // Base case: no more tokens to chain, or chain length cap reached
+    if (
+      queryIdx + 1 >= queryTokenCount ||
+      currentChainLength >= MAX_ADJACENCY_TOKENS
+    ) {
+      return currentChainLength
+    }
+
+    const nextPositions = positionsByQuery.get(queryIdx + 1) ?? []
+    let maxChainLength = currentChainLength
+
+    // Try ALL adjacent positions, not just the first (non-greedy)
+    for (const nextPos of nextPositions) {
+      const gap = nextPos.start - prevEnd
+      if (gap >= 0 && gap <= ADJACENCY_GAP_THRESHOLD) {
+        const chainLength = this.findLongestChain(
+          queryIdx + 1,
+          nextPos.end,
+          queryTokenCount,
+          positionsByQuery,
+          currentChainLength + 1
+        )
+        maxChainLength = Math.max(maxChainLength, chainLength)
+      }
+    }
+
+    return maxChainLength
   }
 
   /**

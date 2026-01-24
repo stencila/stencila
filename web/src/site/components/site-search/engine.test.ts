@@ -16,6 +16,7 @@ const mockShardData: ShardData = {
       nodeId: 'hed_1',
       nodeType: 'Heading',
       route: '/docs/guide/',
+      breadcrumbs: ['Home', 'Docs', 'Guide'],
       text: 'Getting Started with Stencila',
       weight: 8,
       depth: 1,
@@ -24,6 +25,7 @@ const mockShardData: ShardData = {
       nodeId: 'par_1',
       nodeType: 'Paragraph',
       route: '/docs/guide/',
+      breadcrumbs: ['Home', 'Docs', 'Guide'],
       text: 'This guide will help you get started with Stencila quickly.',
       weight: 1,
       depth: 2,
@@ -32,6 +34,7 @@ const mockShardData: ShardData = {
       nodeId: 'hed_2',
       nodeType: 'Heading',
       route: '/docs/api/',
+      breadcrumbs: ['Home', 'Docs', 'API'],
       text: 'API Reference',
       weight: 8,
       depth: 1,
@@ -40,6 +43,7 @@ const mockShardData: ShardData = {
       nodeId: 'par_2',
       nodeType: 'Paragraph',
       route: '/docs/api/',
+      breadcrumbs: ['Home', 'Docs', 'API'],
       text: 'The Stencila API provides programmatic access to documents.',
       weight: 1,
       depth: 2,
@@ -48,6 +52,7 @@ const mockShardData: ShardData = {
       nodeId: 'dt_1',
       nodeType: 'Datatable',
       route: '/data/',
+      breadcrumbs: ['Home', 'Data'],
       text: 'temperature humidity pressure',
       weight: 5,
       depth: 1,
@@ -263,6 +268,7 @@ describe('SearchEngine', () => {
           nodeId: 'hed_cafe',
           nodeType: 'Heading',
           route: '/menu/',
+          breadcrumbs: ['Home', 'Menu'],
           text: 'Welcome to the café',
           weight: 8,
           depth: 1,
@@ -271,6 +277,7 @@ describe('SearchEngine', () => {
           nodeId: 'par_naive',
           nodeType: 'Paragraph',
           route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
           text: 'A naïve approach to the problem',
           weight: 1,
           depth: 2,
@@ -327,6 +334,7 @@ describe('SearchEngine', () => {
           nodeId: 'par_complex',
           nodeType: 'Paragraph',
           route: '/test/',
+          breadcrumbs: ['Home', 'Test'],
           text: 'The résumé was très élégant',
           weight: 1,
           depth: 1,
@@ -382,6 +390,7 @@ describe('SearchEngine', () => {
           nodeId: 'par_emoji',
           nodeType: 'Paragraph',
           route: '/test/',
+          breadcrumbs: ['Home', 'Test'],
           text: '😀 Welcome to the café! 🎉',
           weight: 1,
           depth: 1,
@@ -436,6 +445,7 @@ describe('SearchEngine', () => {
           nodeId: 'par_emoji2',
           nodeType: 'Paragraph',
           route: '/test/',
+          breadcrumbs: ['Home', 'Test'],
           text: 'Hello 🌍 world 🎉 test',
           weight: 1,
           depth: 1,
@@ -514,6 +524,7 @@ describe('SearchEngine', () => {
           nodeId: 'hed_database',
           nodeType: 'Heading',
           route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
           text: 'Introduction to the database system',
           weight: 8,
           depth: 1,
@@ -581,6 +592,7 @@ describe('SearchEngine', () => {
           nodeId: 'par_exact',
           nodeType: 'Paragraph',
           route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
           text: 'The databse is great', // Contains exact "databse"
           weight: 1,
           depth: 1,
@@ -590,6 +602,7 @@ describe('SearchEngine', () => {
           nodeId: 'par_fuzzy',
           nodeType: 'Paragraph',
           route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
           text: 'The database is better',
           weight: 1,
           depth: 1,
@@ -651,6 +664,7 @@ describe('SearchEngine', () => {
           nodeId: 'hed_test',
           nodeType: 'Heading',
           route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
           text: 'Introduction to the database system',
           weight: 8,
           depth: 1,
@@ -705,6 +719,7 @@ describe('SearchEngine', () => {
           nodeId: 'hed_test',
           nodeType: 'Heading',
           route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
           text: 'Working with the database',
           weight: 8,
           depth: 1,
@@ -750,6 +765,118 @@ describe('SearchEngine', () => {
         fuzzyThreshold: 0.3,
       })
       expect(lowThreshold.length).toBeGreaterThan(0)
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+})
+
+describe('Adjacency Bonus', () => {
+  test('adjacent tokens score higher than scattered tokens', async () => {
+    // Entry with "getting started" as adjacent phrase
+    const adjacentShardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_adjacent',
+          nodeType: 'Heading',
+          route: '/docs/getting-started/',
+          breadcrumbs: ['Home', 'Docs', 'Getting Started'],
+          text: 'Getting started with Stencila',
+          weight: 8,
+          depth: 1,
+        },
+        {
+          nodeId: 'hed_scattered',
+          nodeType: 'Heading',
+          route: '/docs/other/',
+          breadcrumbs: ['Home', 'Docs', 'Other'],
+          text: 'Getting help to get started later',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { ge: { entryCount: 2 }, st: { entryCount: 2 } },
+          }),
+          { status: 200 }
+        )
+      }
+      return new Response(JSON.stringify(adjacentShardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      const results = await engine.search('getting started')
+      expect(results.length).toBe(2)
+
+      // Find both results
+      const adjacentResult = results.find(
+        (r) => r.entry.nodeId === 'hed_adjacent'
+      )
+      const scatteredResult = results.find(
+        (r) => r.entry.nodeId === 'hed_scattered'
+      )
+
+      expect(adjacentResult).toBeDefined()
+      expect(scatteredResult).toBeDefined()
+
+      // Adjacent phrase should score higher due to adjacency bonus
+      expect(adjacentResult!.score).toBeGreaterThan(scatteredResult!.score)
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('single word queries receive no adjacency bonus', async () => {
+    const singleWordShardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_test',
+          nodeType: 'Heading',
+          route: '/docs/',
+          breadcrumbs: ['Home', 'Docs'],
+          text: 'Documentation overview',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { do: { entryCount: 1 } },
+          }),
+          { status: 200 }
+        )
+      }
+      return new Response(JSON.stringify(singleWordShardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // Single word query should work without adjacency bonus
+      const results = await engine.search('documentation')
+      expect(results.length).toBe(1)
+      expect(results[0].entry.nodeId).toBe('hed_test')
     } finally {
       global.fetch = customFetch
     }
