@@ -4,8 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { SearchEngine } from './engine'
-
+import { parseQuery, SearchEngine } from './engine'
 import type { ShardData } from './types'
 
 // Mock fetch for testing - using ShardData format
@@ -135,7 +134,7 @@ describe('SearchEngine', () => {
     // Find heading and paragraph results
     const headingResult = results.find((r) => r.entry.nodeType === 'Heading')
     const paragraphResult = results.find(
-      (r) => r.entry.nodeType === 'Paragraph'
+      (r) => r.entry.nodeType === 'Paragraph',
     )
 
     if (headingResult && paragraphResult) {
@@ -208,7 +207,7 @@ describe('SearchEngine', () => {
 
     // Should find the "Getting Started" heading
     const headingResult = results.find((r) =>
-      r.entry.text.toLowerCase().includes('getting started')
+      r.entry.text.toLowerCase().includes('getting started'),
     )
     expect(headingResult).toBeDefined()
   })
@@ -254,7 +253,7 @@ describe('SearchEngine', () => {
     }
 
     // Each nodeId should appear exactly once (no duplicates)
-    for (const [nodeId, count] of nodeIdCounts) {
+    for (const [_nodeId, count] of nodeIdCounts) {
       expect(count).toBe(1)
     }
   })
@@ -294,7 +293,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { ca: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(diacriticShardData), { status: 200 })
@@ -318,7 +317,7 @@ describe('SearchEngine', () => {
       const highlight = cafeResult!.highlights[0]
       const highlightedText = cafeResult!.entry.text.slice(
         highlight.start,
-        highlight.end
+        highlight.end,
       )
       expect(highlightedText.toLowerCase()).toBe('café')
     } finally {
@@ -351,7 +350,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { re: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(diacriticShardData), { status: 200 })
@@ -372,7 +371,7 @@ describe('SearchEngine', () => {
       const highlight = result.highlights[0]
       const highlightedText = result.entry.text.slice(
         highlight.start,
-        highlight.end
+        highlight.end,
       )
       expect(highlightedText).toBe('résumé')
     } finally {
@@ -407,7 +406,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { ca: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(emojiShardData), { status: 200 })
@@ -429,7 +428,7 @@ describe('SearchEngine', () => {
       const highlight = result.highlights[0]
       const highlightedText = result.entry.text.slice(
         highlight.start,
-        highlight.end
+        highlight.end,
       )
       expect(highlightedText).toBe('café')
     } finally {
@@ -462,7 +461,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { te: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(emojiShardData), { status: 200 })
@@ -483,7 +482,7 @@ describe('SearchEngine', () => {
       const highlight = result.highlights[0]
       const highlightedText = result.entry.text.slice(
         highlight.start,
-        highlight.end
+        highlight.end,
       )
       expect(highlightedText).toBe('test')
     } finally {
@@ -547,7 +546,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { da: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(fuzzyShardData), { status: 200 })
@@ -623,7 +622,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { da: { entryCount: 2 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(mixedShardData), { status: 200 })
@@ -682,7 +681,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { da: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(fuzzyShardData), { status: 200 })
@@ -737,7 +736,7 @@ describe('SearchEngine', () => {
             ...mockManifest,
             shards: { da: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(fuzzyShardData), { status: 200 })
@@ -807,7 +806,7 @@ describe('Adjacency Bonus', () => {
             ...mockManifest,
             shards: { ge: { entryCount: 2 }, st: { entryCount: 2 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(adjacentShardData), { status: 200 })
@@ -822,10 +821,10 @@ describe('Adjacency Bonus', () => {
 
       // Find both results
       const adjacentResult = results.find(
-        (r) => r.entry.nodeId === 'hed_adjacent'
+        (r) => r.entry.nodeId === 'hed_adjacent',
       )
       const scatteredResult = results.find(
-        (r) => r.entry.nodeId === 'hed_scattered'
+        (r) => r.entry.nodeId === 'hed_scattered',
       )
 
       expect(adjacentResult).toBeDefined()
@@ -863,7 +862,7 @@ describe('Adjacency Bonus', () => {
             ...mockManifest,
             shards: { do: { entryCount: 1 } },
           }),
-          { status: 200 }
+          { status: 200 },
         )
       }
       return new Response(JSON.stringify(singleWordShardData), { status: 200 })
@@ -880,5 +879,383 @@ describe('Adjacency Bonus', () => {
     } finally {
       global.fetch = customFetch
     }
+  })
+})
+
+describe('parseQuery', () => {
+  test('parses unquoted terms as optional', () => {
+    const result = parseQuery('cats and dogs')
+    expect(result.terms).toHaveLength(3)
+    expect(result.terms.every((t) => !t.required)).toBe(true)
+    expect(result.terms.every((t) => !t.adjacentRequired)).toBe(true)
+    expect(result.allTokens).toEqual(['cats', 'and', 'dogs'])
+  })
+
+  test('parses single quoted word as required', () => {
+    const result = parseQuery('"cats"')
+    expect(result.terms).toHaveLength(1)
+    expect(result.terms[0].required).toBe(true)
+    expect(result.terms[0].adjacentRequired).toBe(false)
+    expect(result.terms[0].tokens).toEqual(['cats'])
+  })
+
+  test('parses multi-word quoted phrase as required with adjacency', () => {
+    const result = parseQuery('"getting started"')
+    expect(result.terms).toHaveLength(1)
+    expect(result.terms[0].required).toBe(true)
+    expect(result.terms[0].adjacentRequired).toBe(true)
+    expect(result.terms[0].tokens).toEqual(['getting', 'started'])
+  })
+
+  test('parses mixed query with required and optional terms', () => {
+    const result = parseQuery('"cats" and dogs')
+    expect(result.terms).toHaveLength(3)
+    // First term is required (quoted)
+    expect(result.terms[0].required).toBe(true)
+    expect(result.terms[0].tokens).toEqual(['cats'])
+    // Remaining terms are optional
+    expect(result.terms[1].required).toBe(false)
+    expect(result.terms[2].required).toBe(false)
+    expect(result.allTokens).toEqual(['cats', 'and', 'dogs'])
+  })
+
+  test('parses multiple quoted terms', () => {
+    const result = parseQuery('"cats" "dogs"')
+    expect(result.terms).toHaveLength(2)
+    expect(result.terms[0].required).toBe(true)
+    expect(result.terms[0].tokens).toEqual(['cats'])
+    expect(result.terms[1].required).toBe(true)
+    expect(result.terms[1].tokens).toEqual(['dogs'])
+  })
+
+  test('handles unclosed quote by treating as quoted to end', () => {
+    const result = parseQuery('"cats and dogs')
+    expect(result.terms).toHaveLength(1)
+    expect(result.terms[0].required).toBe(true)
+    expect(result.terms[0].adjacentRequired).toBe(true) // Multi-word
+    expect(result.terms[0].tokens).toEqual(['cats', 'and', 'dogs'])
+  })
+
+  test('handles empty quotes', () => {
+    const result = parseQuery('""')
+    expect(result.terms).toHaveLength(0)
+    expect(result.allTokens).toHaveLength(0)
+  })
+
+  test('handles adjacent quotes', () => {
+    const result = parseQuery('"hello""world"')
+    expect(result.terms).toHaveLength(2)
+    expect(result.terms[0].required).toBe(true)
+    expect(result.terms[0].tokens).toEqual(['hello'])
+    expect(result.terms[1].required).toBe(true)
+    expect(result.terms[1].tokens).toEqual(['world'])
+  })
+
+  test('normalizes quoted terms (case insensitive, diacritics folded)', () => {
+    const result = parseQuery('"Café"')
+    expect(result.terms).toHaveLength(1)
+    expect(result.terms[0].tokens).toEqual(['cafe'])
+  })
+
+  test('handles empty query', () => {
+    const result = parseQuery('')
+    expect(result.terms).toHaveLength(0)
+    expect(result.allTokens).toHaveLength(0)
+  })
+
+  test('handles query with only whitespace', () => {
+    const result = parseQuery('   ')
+    expect(result.terms).toHaveLength(0)
+    expect(result.allTokens).toHaveLength(0)
+  })
+})
+
+describe('Quoted Term Filtering', () => {
+  test('required term filters out entries without it', async () => {
+    const shardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_cats',
+          nodeType: 'Heading',
+          route: '/cats/',
+          breadcrumbs: ['Home', 'Cats'],
+          text: 'All about cats',
+          weight: 8,
+          depth: 1,
+        },
+        {
+          nodeId: 'hed_dogs',
+          nodeType: 'Heading',
+          route: '/dogs/',
+          breadcrumbs: ['Home', 'Dogs'],
+          text: 'All about dogs',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { ca: { entryCount: 1 }, do: { entryCount: 1 } },
+          }),
+          { status: 200 },
+        )
+      }
+      return new Response(JSON.stringify(shardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // Search with quoted "cats" - should only return the cats entry
+      const results = await engine.search('"cats"')
+      expect(results.length).toBe(1)
+      expect(results[0].entry.nodeId).toBe('hed_cats')
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('quoted phrase requires adjacency', async () => {
+    const shardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_adjacent',
+          nodeType: 'Heading',
+          route: '/adjacent/',
+          breadcrumbs: ['Home', 'Adjacent'],
+          text: 'Getting started with coding',
+          weight: 8,
+          depth: 1,
+        },
+        {
+          nodeId: 'hed_scattered',
+          nodeType: 'Heading',
+          route: '/scattered/',
+          breadcrumbs: ['Home', 'Scattered'],
+          text: 'Getting help to get started later',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { ge: { entryCount: 2 }, st: { entryCount: 2 } },
+          }),
+          { status: 200 },
+        )
+      }
+      return new Response(JSON.stringify(shardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // Quoted phrase requires adjacency - only the adjacent entry matches
+      const results = await engine.search('"getting started"')
+      expect(results.length).toBe(1)
+      expect(results[0].entry.nodeId).toBe('hed_adjacent')
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('quoted phrase does not match substrings within larger words', async () => {
+    // Regression test: "getting started" should NOT match "forgetting started"
+    // because "getting" inside "forgetting" is not a separate token
+    const shardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_correct',
+          nodeType: 'Heading',
+          route: '/correct/',
+          breadcrumbs: ['Home', 'Correct'],
+          text: 'Getting started with coding',
+          weight: 8,
+          depth: 1,
+        },
+        {
+          nodeId: 'hed_substring',
+          nodeType: 'Heading',
+          route: '/substring/',
+          breadcrumbs: ['Home', 'Substring'],
+          text: 'Forgetting started tasks',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { ge: { entryCount: 2 }, st: { entryCount: 2 } },
+          }),
+          { status: 200 },
+        )
+      }
+      return new Response(JSON.stringify(shardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // "getting started" should only match the first entry
+      // It should NOT match "forgetting started" even though "getting" is a substring
+      const results = await engine.search('"getting started"')
+      expect(results.length).toBe(1)
+      expect(results[0].entry.nodeId).toBe('hed_correct')
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('optional terms boost but do not filter', async () => {
+    const shardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_both',
+          nodeType: 'Heading',
+          route: '/both/',
+          breadcrumbs: ['Home', 'Both'],
+          text: 'Cats and dogs together',
+          weight: 8,
+          depth: 1,
+        },
+        {
+          nodeId: 'hed_cats_only',
+          nodeType: 'Heading',
+          route: '/cats/',
+          breadcrumbs: ['Home', 'Cats'],
+          text: 'Just cats here',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { ca: { entryCount: 2 }, do: { entryCount: 1 } },
+          }),
+          { status: 200 },
+        )
+      }
+      return new Response(JSON.stringify(shardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // "cats" is required, "dogs" is optional boost
+      const results = await engine.search('"cats" dogs')
+      expect(results.length).toBe(2) // Both entries have "cats"
+
+      // Entry with both "cats" and "dogs" should score higher
+      expect(results[0].entry.nodeId).toBe('hed_both')
+      expect(results[1].entry.nodeId).toBe('hed_cats_only')
+      expect(results[0].score).toBeGreaterThan(results[1].score)
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('all-required query has coverage 1.0 (no NaN)', async () => {
+    const shardData: ShardData = {
+      tokenDefs: [],
+      entries: [
+        {
+          nodeId: 'hed_both',
+          nodeType: 'Heading',
+          route: '/both/',
+          breadcrumbs: ['Home', 'Both'],
+          text: 'Cats and dogs',
+          weight: 8,
+          depth: 1,
+        },
+      ],
+    }
+
+    const customFetch = global.fetch
+    global.fetch = async (url: string | URL | Request) => {
+      const urlStr = url.toString()
+      if (urlStr.endsWith('manifest.json')) {
+        return new Response(
+          JSON.stringify({
+            ...mockManifest,
+            shards: { ca: { entryCount: 1 }, do: { entryCount: 1 } },
+          }),
+          { status: 200 },
+        )
+      }
+      return new Response(JSON.stringify(shardData), { status: 200 })
+    }
+
+    try {
+      const engine = new SearchEngine()
+      await engine.initialize()
+
+      // All required terms - coverage should be 1.0, not NaN
+      const results = await engine.search('"cats" "dogs"')
+      expect(results.length).toBe(1)
+      expect(Number.isNaN(results[0].score)).toBe(false)
+      expect(results[0].score).toBeGreaterThan(0)
+    } finally {
+      global.fetch = customFetch
+    }
+  })
+
+  test('backward compatibility: unquoted query works as before', async () => {
+    const engine = new SearchEngine()
+    await engine.initialize()
+
+    // Unquoted queries should work exactly as before
+    const results = await engine.search('getting started')
+    expect(results.length).toBeGreaterThan(0)
+
+    // Should find entries with both tokens (not require adjacency)
+    const headingResult = results.find((r) =>
+      r.entry.text.toLowerCase().includes('getting started'),
+    )
+    expect(headingResult).toBeDefined()
+  })
+
+  test('required term that does not exist returns no results', async () => {
+    const engine = new SearchEngine()
+    await engine.initialize()
+
+    // Search for a term that doesn't exist in any entry
+    const results = await engine.search('"nonexistentterm12345"')
+    expect(results.length).toBe(0)
   })
 })

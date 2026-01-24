@@ -133,7 +133,7 @@ export class SearchIndexLoader {
   private validateShardData(data: unknown, prefix: string): ShardData {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
       throw new Error(
-        `Shard ${prefix}: expected ShardData object, got ${Array.isArray(data) ? 'array (possibly old format)' : typeof data}`
+        `Shard ${prefix}: expected ShardData object, got ${Array.isArray(data) ? 'array (possibly old format)' : typeof data}`,
       )
     }
     const shard = data as Record<string, unknown>
@@ -161,7 +161,7 @@ export class SearchIndexLoader {
       if (entry.tokens && tokenDefsLength > 0) {
         // Filter out invalid token refs (idx out of bounds)
         const validTokens = entry.tokens.filter(
-          ([idx]) => idx >= 0 && idx < tokenDefsLength
+          ([idx]) => idx >= 0 && idx < tokenDefsLength,
         )
 
         entry.tokenTrigrams = validTokens.map(([idx, start, end]) => ({

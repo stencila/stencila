@@ -7,6 +7,8 @@
 import { SearchIndexLoader } from './loader'
 import { generateTrigrams, tokenize, tokenPrefix } from './tokenize'
 import type {
+  ParsedQuery,
+  QueryTerm,
   SearchEntry,
   SearchOptions,
   SearchResult,
@@ -71,6 +73,89 @@ function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
 }
 
 /**
+ * Parse a query string into required and optional terms
+ *
+ * Quoted terms (e.g., "cats" or "getting started") are required - results must
+ * contain those exact normalized tokens. Multi-word quoted phrases require adjacency.
+ *
+ * Unquoted terms are optional boosters - they improve score but don't filter results.
+ *
+ * Unclosed quotes are treated as quoted to end of string.
+ *
+ * @param query - The raw query string
+ * @returns ParsedQuery with terms and flat token list
+ */
+export function parseQuery(query: string): ParsedQuery {
+  const terms: QueryTerm[] = []
+  const allTokens: string[] = []
+
+  let inQuote = false
+  let currentSegment = ''
+
+  // Character-by-character parsing to handle edge cases
+  for (const char of query) {
+    if (char === '"') {
+      // Finalize the current segment
+      if (currentSegment.length > 0) {
+        const tokens = tokenize(currentSegment)
+        if (tokens.length > 0) {
+          if (inQuote) {
+            // Quoted segment - required, adjacent if multi-word
+            terms.push({
+              tokens,
+              required: true,
+              adjacentRequired: tokens.length > 1,
+            })
+          } else {
+            // Unquoted segment - each token is optional
+            for (const token of tokens) {
+              terms.push({
+                tokens: [token],
+                required: false,
+                adjacentRequired: false,
+              })
+            }
+          }
+          allTokens.push(...tokens)
+        }
+        currentSegment = ''
+      }
+      // Toggle quote state
+      inQuote = !inQuote
+    } else {
+      currentSegment += char
+    }
+  }
+
+  // Handle remaining segment (including unclosed quotes - treat as quoted)
+  if (currentSegment.length > 0) {
+    const tokens = tokenize(currentSegment)
+    if (tokens.length > 0) {
+      if (inQuote) {
+        // Unclosed quote - treat as quoted phrase to end
+        terms.push({
+          tokens,
+          required: true,
+          adjacentRequired: tokens.length > 1,
+        })
+      } else {
+        // Unquoted segment - each token is optional
+        for (const token of tokens) {
+          terms.push({
+            tokens: [token],
+            required: false,
+            adjacentRequired: false,
+          })
+        }
+      }
+      allTokens.push(...tokens)
+    }
+  }
+
+  return { terms, allTokens }
+}
+
+/**
  * Search engine for querying the index
  */
 export class SearchEngine {
@@ -96,21 +181,26 @@ export class SearchEngine {
 
   /**
    * Execute a search query
+   *
+   * Supports quoted terms for exact/required matching:
+   * - "cats" - requires entries to contain the token "cats"
+   * - "getting started" - requires adjacent tokens "getting" and "started"
+   * - Unquoted terms boost score but don't filter
    */
   async search(
     query: string,
-    options: SearchOptions = {}
+    options: SearchOptions = {},
   ): Promise<SearchResult[]> {
     const opts = { ...DEFAULT_OPTIONS, ...options }
 
-    // Tokenize the query
-    const queryTokens = tokenize(query)
-    if (queryTokens.length === 0) {
+    // Parse the query into required and optional terms
+    const parsedQuery = parseQuery(query)
+    if (parsedQuery.allTokens.length === 0) {
       return []
     }
 
     // Get unique prefixes for shard loading
-    const prefixes = [...new Set(queryTokens.map(tokenPrefix))]
+    const prefixes = [...new Set(parsedQuery.allTokens.map(tokenPrefix))]
 
     // Load required shards
     const entries = await this.loader.loadShards(prefixes)
@@ -119,7 +209,7 @@ export class SearchEngine {
     const uniqueEntries = this.deduplicateEntries(entries)
 
     // Score and filter entries
-    const scored = this.scoreEntries(uniqueEntries, queryTokens, opts)
+    const scored = this.scoreEntries(uniqueEntries, parsedQuery, opts)
 
     // Sort by score descending
     scored.sort((a, b) => b.score - a.score)
@@ -151,12 +241,12 @@ export class SearchEngine {
   }
 
   /**
-   * Score entries against query tokens
+   * Score entries against parsed query
    */
   private scoreEntries(
     entries: SearchEntry[],
-    queryTokens: string[],
-    options: Required<SearchOptions>
+    parsedQuery: ParsedQuery,
+    options: Required<SearchOptions>,
   ): SearchResult[] {
     const results: SearchResult[] = []
 
@@ -174,15 +264,20 @@ export class SearchEngine {
       }
 
       // Calculate score and find highlights
-      const { score, highlights } = this.calculateScore(
+      // Returns null if required terms are not satisfied
+      const result = this.calculateScore(
         entry,
         entryTokens,
-        queryTokens,
-        options
+        parsedQuery,
+        options,
       )
 
-      if (score > 0) {
-        results.push({ entry, score, highlights })
+      if (result !== null && result.score > 0) {
+        results.push({
+          entry,
+          score: result.score,
+          highlights: result.highlights,
+        })
       }
     }
 
@@ -194,7 +289,7 @@ export class SearchEngine {
    */
   private matchesFilters(
     entry: SearchEntry,
-    options: Required<SearchOptions>
+    options: Required<SearchOptions>,
   ): boolean {
     // Filter by node types
     if (
@@ -207,7 +302,7 @@ export class SearchEngine {
     // Filter by route prefixes
     if (options.routes.length > 0) {
       const matchesRoute = options.routes.some((prefix) =>
-        entry.route.startsWith(prefix)
+        entry.route.startsWith(prefix),
       )
       if (!matchesRoute) {
         return false
@@ -218,33 +313,60 @@ export class SearchEngine {
   }
 
   /**
-   * Calculate score for an entry against query tokens
+   * Calculate score for an entry against a parsed query
+   *
+   * Required terms (quoted) must all be satisfied or the entry is filtered out (returns null).
+   * For multi-word quoted phrases, tokens must also be adjacent.
+   *
+   * Optional terms (unquoted) boost the score but never filter out entries.
    *
    * Scoring:
    * - Exact token match: 2 points
-   * - Prefix match: 1 point
-   * - Fuzzy match (if enabled): 0.3 × similarity (max 0.3 points)
+   * - Prefix match: 1 point (optional terms only)
+   * - Fuzzy match (if enabled): 0.3 × similarity (optional terms only)
    * - Adjacency bonus: 1.5 points per adjacent pair in longest contiguous chain
    * - Multiply by structural weight
-   * - Multiply by query coverage ratio
+   * - Multiply by optional query coverage ratio
    */
   private calculateScore(
     entry: SearchEntry,
     entryTokens: string[],
-    queryTokens: string[],
-    options: Required<SearchOptions>
-  ): { score: number; highlights: TextHighlight[] } {
+    parsedQuery: ParsedQuery,
+    options: Required<SearchOptions>,
+  ): { score: number; highlights: TextHighlight[] } | null {
+    // Build a set of entry tokens for faster lookup
+    const entryTokenSet = new Set(entryTokens)
+
+    // First pass: check all required terms are satisfied
+    // Required terms need exact matches only (no prefix/fuzzy)
+    for (const term of parsedQuery.terms) {
+      if (!term.required) continue
+
+      // All tokens in the term must be present
+      for (const token of term.tokens) {
+        if (!entryTokenSet.has(token)) {
+          return null // Required token missing - filter out
+        }
+      }
+
+      // For adjacent-required terms, check adjacency using token indices
+      // This ensures we match whole tokens, not substrings within larger words
+      if (term.adjacentRequired && term.tokens.length > 1) {
+        if (!this.checkAdjacency(entryTokens, term.tokens)) {
+          return null // Required adjacency not satisfied - filter out
+        }
+      }
+    }
+
+    // Second pass: calculate score for all tokens
     let rawScore = 0
-    let matchedQueryTokens = 0
+    let matchedOptionalTokens = 0
+    let totalOptionalTokens = 0
     const highlights: TextHighlight[] = []
 
     // Track ALL match positions per query token index DURING matching
-    // (TextHighlight doesn't carry query token id, so we must track separately)
     const positionsByQuery: Map<number, { start: number; end: number }[]> =
       new Map()
-
-    // Build a set of entry tokens for faster lookup
-    const entryTokenSet = new Set(entryTokens)
 
     // Check if fuzzy matching is available and enabled
     const canFuzzy =
@@ -252,81 +374,96 @@ export class SearchEngine {
       entry.tokenTrigrams &&
       entry.tokenTrigrams.length > 0
 
-    // Score each query token
-    for (let i = 0; i < queryTokens.length; i++) {
-      const queryToken = queryTokens[i]
+    // Process all tokens in order (for adjacency tracking)
+    let tokenIndex = 0
+    for (const term of parsedQuery.terms) {
+      const isRequired = term.required
 
-      // Check for exact match
-      if (entryTokenSet.has(queryToken)) {
-        rawScore += 2
-        matchedQueryTokens++
-        // Find highlight positions
-        const tokenHighlights = this.findHighlights(entry.text, queryToken)
-        highlights.push(...tokenHighlights)
-        // Track positions for adjacency check
-        positionsByQuery.set(
-          i,
-          tokenHighlights
-            .map((h) => ({ start: h.start, end: h.end }))
-            .slice(0, MAX_POSITIONS_PER_TOKEN)
-        )
-        continue
-      }
-
-      // Check for prefix match - find unique matching tokens with early exit
-      // This ensures we don't miss better adjacency (e.g., "sta" matching both "start" and "stack")
-      // Use early-exit loop instead of filter+slice to avoid scanning all tokens
-      const prefixMatches: string[] = []
-      const seenPrefixTokens = new Set<string>()
-      for (const et of entryTokens) {
-        if (et.startsWith(queryToken) && !seenPrefixTokens.has(et)) {
-          seenPrefixTokens.add(et)
-          prefixMatches.push(et)
-          if (prefixMatches.length >= MAX_PREFIX_MATCHES) break // Early exit
+      for (const queryToken of term.tokens) {
+        if (!isRequired) {
+          totalOptionalTokens++
         }
-      }
 
-      if (prefixMatches.length > 0) {
-        rawScore += 1
-        matchedQueryTokens++
+        // Check for exact match
+        if (entryTokenSet.has(queryToken)) {
+          rawScore += 2
+          if (!isRequired) matchedOptionalTokens++
 
-        // For UI: highlight only the query prefix (what user typed)
-        const prefixHighlights = this.findHighlights(entry.text, queryToken)
-        highlights.push(...prefixHighlights)
-
-        // For adjacency: use full token positions (needed for accurate gap calculation)
-        // e.g., "data query" matching "database query" needs "database" end position
-        const allPositions: { start: number; end: number }[] = []
-        for (const match of prefixMatches) {
-          const tokenPositions = this.findHighlights(entry.text, match)
-          allPositions.push(
-            ...tokenPositions.map((h) => ({ start: h.start, end: h.end }))
+          // Find highlight positions
+          const tokenHighlights = this.findHighlights(entry.text, queryToken)
+          highlights.push(...tokenHighlights)
+          // Track positions for adjacency check
+          positionsByQuery.set(
+            tokenIndex,
+            tokenHighlights
+              .map((h) => ({ start: h.start, end: h.end }))
+              .slice(0, MAX_POSITIONS_PER_TOKEN),
           )
+          tokenIndex++
+          continue
         }
-        // Cap positions to prevent exponential blowup
-        positionsByQuery.set(i, allPositions.slice(0, MAX_POSITIONS_PER_TOKEN))
-        continue
-      }
 
-      // Try fuzzy matching if available
-      if (canFuzzy) {
-        const fuzzyResult = this.tryFuzzyMatch(
-          queryToken,
-          entry.tokenTrigrams!,
-          options.fuzzyThreshold
-        )
-        if (fuzzyResult) {
-          // Fuzzy score: 0.3 × similarity (max 0.3 points when similarity=1.0)
-          rawScore += 0.3 * fuzzyResult.similarity
-          matchedQueryTokens++
-          // Use the token position for highlighting
-          const pos = {
-            start: fuzzyResult.matchedToken.start,
-            end: fuzzyResult.matchedToken.end,
-          }
-          highlights.push(pos)
-          positionsByQuery.set(i, [pos])
+        // For required terms, we already verified exact match above
+        // Only try prefix/fuzzy for optional terms
+        if (isRequired) {
+          tokenIndex++
+          continue
         }
+
+        // Check for prefix match - find unique matching tokens with early exit
+        const prefixMatches: string[] = []
+        const seenPrefixTokens = new Set<string>()
+        for (const et of entryTokens) {
+          if (et.startsWith(queryToken) && !seenPrefixTokens.has(et)) {
+            seenPrefixTokens.add(et)
+            prefixMatches.push(et)
+            if (prefixMatches.length >= MAX_PREFIX_MATCHES) break
+          }
+        }
+
+        if (prefixMatches.length > 0) {
+          rawScore += 1
+          matchedOptionalTokens++
+
+          // For UI: highlight only the query prefix
+          const prefixHighlights = this.findHighlights(entry.text, queryToken)
+          highlights.push(...prefixHighlights)
+
+          // For adjacency: use full token positions
+          const allPositions: { start: number; end: number }[] = []
+          for (const match of prefixMatches) {
+            const tokenPositions = this.findHighlights(entry.text, match)
+            allPositions.push(
+              ...tokenPositions.map((h) => ({ start: h.start, end: h.end })),
+            )
+          }
+          positionsByQuery.set(
+            tokenIndex,
+            allPositions.slice(0, MAX_POSITIONS_PER_TOKEN),
+          )
+          tokenIndex++
+          continue
+        }
+
+        // Try fuzzy matching if available
+        if (canFuzzy) {
+          const fuzzyResult = this.tryFuzzyMatch(
+            queryToken,
+            entry.tokenTrigrams!,
+            options.fuzzyThreshold,
+          )
+          if (fuzzyResult) {
+            rawScore += 0.3 * fuzzyResult.similarity
+            matchedOptionalTokens++
+            const pos = {
+              start: fuzzyResult.matchedToken.start,
+              end: fuzzyResult.matchedToken.end,
+            }
+            highlights.push(pos)
+            positionsByQuery.set(tokenIndex, [pos])
+          }
+        }
+        tokenIndex++
       }
     }
 
@@ -336,16 +473,23 @@ export class SearchEngine {
 
     // Calculate adjacency bonus for phrase matching
     const adjacencyBonus = this.calculateAdjacencyBonus(
-      queryTokens.length,
-      positionsByQuery
+      parsedQuery.allTokens.length,
+      positionsByQuery,
     )
     rawScore += adjacencyBonus
 
     // Apply structural weight (entry.weight is 1-10, normalize to 0.1-1.0)
     const weightMultiplier = entry.weight / 10
 
-    // Apply query coverage ratio (how many query tokens matched)
-    const coverageRatio = matchedQueryTokens / queryTokens.length
+    // Apply coverage ratio based on query type
+    // If there are required terms, they're already enforced by filtering.
+    // Optional terms should only boost, never penalize to zero.
+    const hasRequiredTerms = parsedQuery.terms.some((t) => t.required)
+    const coverageRatio = hasRequiredTerms
+      ? 1.0 // Required terms enforce filtering; optional just boosts
+      : totalOptionalTokens > 0
+        ? matchedOptionalTokens / totalOptionalTokens
+        : 1.0
 
     // Final score
     const score = rawScore * weightMultiplier * coverageRatio
@@ -357,6 +501,79 @@ export class SearchEngine {
   }
 
   /**
+   * Check if tokens appear adjacent in text (for quoted phrase matching)
+   *
+   * Uses token-index-based adjacency checking to ensure we're matching
+   * whole tokens, not substrings within larger words. This prevents
+   * "getting started" from matching "forgetting started".
+   *
+   * Tokens must be strictly adjacent (consecutive indices in the token array).
+   */
+  private checkAdjacency(
+    entryTokens: string[],
+    requiredTokens: string[],
+  ): boolean {
+    if (requiredTokens.length < 2) return true
+
+    // Build a map of token -> list of indices where it appears
+    const tokenIndices = new Map<string, number[]>()
+    for (let i = 0; i < entryTokens.length; i++) {
+      const token = entryTokens[i]
+      const indices = tokenIndices.get(token) ?? []
+      indices.push(i)
+      tokenIndices.set(token, indices)
+    }
+
+    // Check if required tokens can form a strictly adjacent sequence
+    // Cap the number of starting positions to prevent exponential blowup
+    const firstTokenIndices = tokenIndices.get(requiredTokens[0]) ?? []
+    const cappedFirstIndices = firstTokenIndices.slice(
+      0,
+      MAX_POSITIONS_PER_TOKEN,
+    )
+
+    for (const startIdx of cappedFirstIndices) {
+      if (
+        this.hasAdjacentTokenSequence(tokenIndices, requiredTokens, 1, startIdx)
+      ) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  /**
+   * Recursively check if tokens form a strictly adjacent sequence (consecutive indices)
+   */
+  private hasAdjacentTokenSequence(
+    tokenIndices: Map<string, number[]>,
+    requiredTokens: string[],
+    reqIdx: number,
+    prevIndex: number,
+  ): boolean {
+    if (reqIdx >= requiredTokens.length) {
+      return true // All tokens matched adjacently
+    }
+
+    const nextToken = requiredTokens[reqIdx]
+    const nextIndices = tokenIndices.get(nextToken) ?? []
+
+    // The next token must be at exactly prevIndex + 1 (strictly adjacent)
+    const expectedIndex = prevIndex + 1
+    if (nextIndices.includes(expectedIndex)) {
+      return this.hasAdjacentTokenSequence(
+        tokenIndices,
+        requiredTokens,
+        reqIdx + 1,
+        expectedIndex,
+      )
+    }
+
+    return false
+  }
+
+  /**
    * Try to find a fuzzy match for a query token against entry tokens
    *
    * Returns the best matching token and its similarity if above threshold,
@@ -365,7 +582,7 @@ export class SearchEngine {
   private tryFuzzyMatch(
     queryToken: string,
     tokenTrigrams: TokenTrigrams[],
-    threshold: number
+    threshold: number,
   ): { matchedToken: TokenTrigrams; similarity: number } | null {
     // Generate trigrams for the query token
     const queryTrigrams = new Set(generateTrigrams(queryToken))
@@ -410,7 +627,7 @@ export class SearchEngine {
    */
   private calculateAdjacencyBonus(
     queryTokenCount: number,
-    positionsByQuery: Map<number, { start: number; end: number }[]>
+    positionsByQuery: Map<number, { start: number; end: number }[]>,
   ): number {
     if (queryTokenCount < 2) return 0
 
@@ -429,7 +646,7 @@ export class SearchEngine {
           startPos.end,
           queryTokenCount,
           positionsByQuery,
-          1 // Start with chain length of 1 (current token)
+          1, // Start with chain length of 1 (current token)
         )
         maxChainLength = Math.max(maxChainLength, chainLength)
       }
@@ -452,7 +669,7 @@ export class SearchEngine {
     prevEnd: number,
     queryTokenCount: number,
     positionsByQuery: Map<number, { start: number; end: number }[]>,
-    currentChainLength: number
+    currentChainLength: number,
   ): number {
     // Base case: no more tokens to chain, or chain length cap reached
     if (
@@ -474,7 +691,7 @@ export class SearchEngine {
           nextPos.end,
           queryTokenCount,
           positionsByQuery,
-          currentChainLength + 1
+          currentChainLength + 1,
         )
         maxChainLength = Math.max(maxChainLength, chainLength)
       }
@@ -553,8 +770,8 @@ export class SearchEngine {
    * store one position entry per UTF-16 code unit in the output.
    */
   private normalizeWithPositions(text: string): {
-    normalized: string
-    positionMap: number[]
+    normalized: string;
+    positionMap: number[];
   } {
     // NFD normalize to separate base characters from combining marks
     const nfdText = text.normalize('NFD')

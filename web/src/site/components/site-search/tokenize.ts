@@ -98,7 +98,8 @@ function splitCamelCase(word: string): string[] {
     // Start new token if:
     // 1. Uppercase after lowercase (camelCase boundary): "camelCase" splits at 'C'
     // 2. Uppercase followed by lowercase in uppercase run (HTMLParser): "HTML" + "Parser"
-    const shouldSplit = isUpper && current.length > 0 && (wasLower || nextIsLower)
+    const shouldSplit =
+      isUpper && current.length > 0 && (wasLower || nextIsLower)
 
     if (shouldSplit) {
       tokens.push(current.toLowerCase())

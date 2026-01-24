@@ -9,27 +9,27 @@
  */
 export interface SearchEntry {
   /** The node ID (e.g., "hed_ABC123") */
-  nodeId: string
+  nodeId: string;
   /** The type of node (e.g., "Heading", "Paragraph", "Datatable") */
-  nodeType: string
+  nodeType: string;
   /** The route where this node appears (e.g., "/docs/guide/") */
-  route: string
+  route: string;
   /** Breadcrumb labels for the route (e.g., ["Home", "Docs", "Guide"]) */
-  breadcrumbs: string[]
+  breadcrumbs: string[];
   /** The indexed text content */
-  text: string
+  text: string;
   /** Structural weight for ranking (higher = more important) */
-  weight: number
+  weight: number;
   /** Depth in document (0=root article, 1=top-level section, etc.) */
-  depth: number
+  depth: number;
   /** For datatables: additional metadata */
-  metadata?: DatatableMetadata
+  metadata?: DatatableMetadata;
   /** Compact token refs from JSON: [[defIndex, start, end], ...] */
-  tokens?: Array<[number, number, number]>
+  tokens?: Array<[number, number, number]>;
   /** Expanded token trigrams for fuzzy matching (populated at load time) */
-  tokenTrigrams?: TokenTrigrams[]
+  tokenTrigrams?: TokenTrigrams[];
   /** Cached tokenized text (internal, populated lazily on first search) */
-  _cachedTokens?: string[]
+  _cachedTokens?: string[];
 }
 
 /**
@@ -39,13 +39,13 @@ export interface SearchEntry {
  */
 export interface TokenTrigrams {
   /** Normalized token (lowercased, diacritics folded) for trigram matching */
-  token: string
+  token: string;
   /** Pre-computed character trigrams (3-grams) */
-  trigrams: string[]
+  trigrams: string[];
   /** Start position in original entry.text (UTF-16 code unit offset) */
-  start: number
+  start: number;
   /** End position in original entry.text (UTF-16 code unit offset) */
-  end: number
+  end: number;
 }
 
 /**
@@ -56,9 +56,9 @@ export interface TokenTrigrams {
  */
 export interface TokenDef {
   /** Normalized token (lowercased, diacritics folded) */
-  token: string
+  token: string;
   /** Pre-computed character trigrams (3-grams) */
-  trigrams: string[]
+  trigrams: string[];
 }
 
 /**
@@ -68,9 +68,9 @@ export interface TokenDef {
  */
 export interface ShardData {
   /** Deduplicated token definitions for fuzzy matching */
-  tokenDefs: TokenDef[]
+  tokenDefs: TokenDef[];
   /** Search entries with compact token references */
-  entries: SearchEntry[]
+  entries: SearchEntry[];
 }
 
 /**
@@ -78,11 +78,11 @@ export interface ShardData {
  */
 export interface DatatableMetadata {
   /** Column names */
-  columns: string[]
+  columns: string[];
   /** Description if available */
-  description?: string
+  description?: string;
   /** Row count hint */
-  rowCount?: number
+  rowCount?: number;
 }
 
 /**
@@ -90,13 +90,13 @@ export interface DatatableMetadata {
  */
 export interface SearchManifest {
   /** Schema version for forward compatibility */
-  version: number
+  version: number;
   /** Total number of indexed entries across all shards */
-  totalEntries: number
+  totalEntries: number;
   /** Total number of indexed documents/routes */
-  totalRoutes: number
+  totalRoutes: number;
   /** Information about each shard, keyed by prefix (e.g., "ab", "co") */
-  shards: Record<string, ShardInfo>
+  shards: Record<string, ShardInfo>;
 }
 
 /**
@@ -106,7 +106,7 @@ export interface SearchManifest {
  */
 export interface ShardInfo {
   /** Number of entries in this shard */
-  entryCount: number
+  entryCount: number;
 }
 
 /**
@@ -114,11 +114,11 @@ export interface ShardInfo {
  */
 export interface SearchResult {
   /** The matched entry */
-  entry: SearchEntry
+  entry: SearchEntry;
   /** Relevance score (higher = better match) */
-  score: number
+  score: number;
   /** Highlighted text ranges */
-  highlights: TextHighlight[]
+  highlights: TextHighlight[];
 }
 
 /**
@@ -126,17 +126,17 @@ export interface SearchResult {
  */
 export interface RecentSearch {
   /** The node ID (e.g., "hed_ABC123") */
-  nodeId: string
+  nodeId: string;
   /** The type of node (e.g., "Heading", "Paragraph") */
-  nodeType: string
+  nodeType: string;
   /** The route where this node appears */
-  route: string
+  route: string;
   /** Breadcrumb labels for the route (e.g., ["Home", "Docs", "Guide"]) */
-  breadcrumbs: string[]
+  breadcrumbs: string[];
   /** The text content to display */
-  text: string
+  text: string;
   /** Depth in document (0=root/whole page, 1+=specific element) */
-  depth: number
+  depth: number;
 }
 
 /**
@@ -144,9 +144,9 @@ export interface RecentSearch {
  */
 export interface TextHighlight {
   /** Start character index */
-  start: number
+  start: number;
   /** End character index */
-  end: number
+  end: number;
 }
 
 /**
@@ -154,15 +154,44 @@ export interface TextHighlight {
  */
 export interface SearchOptions {
   /** Maximum number of results to return */
-  limit?: number
+  limit?: number;
   /** Number of results to skip (for pagination) */
-  offset?: number
+  offset?: number;
   /** Filter by node types */
-  nodeTypes?: string[]
+  nodeTypes?: string[];
   /** Filter by route prefixes */
-  routes?: string[]
+  routes?: string[];
   /** Enable fuzzy matching (default: true if tokenTrigrams present) */
-  enableFuzzy?: boolean
+  enableFuzzy?: boolean;
   /** Minimum trigram similarity for fuzzy matches (0.0-1.0, default: 0.3) */
-  fuzzyThreshold?: number
+  fuzzyThreshold?: number;
+}
+
+/**
+ * A single term in a parsed search query
+ *
+ * Represents either a quoted (required) term or an unquoted (optional/boost) term.
+ */
+export interface QueryTerm {
+  /** The tokenized form of the term (e.g., ["getting", "started"]) */
+  tokens: string[];
+  /** Whether this term is required (true if quoted) */
+  required: boolean;
+  /** Whether tokens must appear adjacent (true for multi-word quoted phrases) */
+  adjacentRequired: boolean;
+}
+
+/**
+ * A parsed search query with required and optional terms
+ *
+ * Created by parsing a query string that may contain quoted phrases.
+ * Example: `"cats" and dogs` produces:
+ * - One required term: ["cats"]
+ * - Two optional terms: ["and"], ["dogs"]
+ */
+export interface ParsedQuery {
+  /** All parsed terms (both required and optional) */
+  terms: QueryTerm[];
+  /** Flat list of all tokens for shard loading */
+  allTokens: string[];
 }

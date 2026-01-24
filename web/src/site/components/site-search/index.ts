@@ -176,7 +176,8 @@ export class StencilaSiteSearch extends LitElement {
    */
   private handleInputKeydown = (event: KeyboardEvent) => {
     // Determine which list we're navigating (results or recent searches)
-    const isShowingRecent = !this.query.trim() && this.recentSearches.length > 0
+    const isShowingRecent =
+      !this.query.trim() && this.recentSearches.length > 0
     const items = isShowingRecent ? this.recentSearches : this.results
     const maxIndex = items.length - 1
 
@@ -210,7 +211,7 @@ export class StencilaSiteSearch extends LitElement {
   private scrollToSelected() {
     const resultsList = this.querySelector('.results')
     const selectedItem = this.querySelector(
-      `.result[data-index="${this.selectedIndex}"]`
+      `.result[data-index="${this.selectedIndex}"]`,
     )
     if (resultsList && selectedItem) {
       selectedItem.scrollIntoView({ block: 'nearest' })
@@ -312,7 +313,7 @@ export class StencilaSiteSearch extends LitElement {
       () => {
         element.classList.remove(StencilaSiteSearch.HIGHLIGHT_CLASS)
       },
-      { once: true }
+      { once: true },
     )
   }
 
@@ -351,9 +352,7 @@ export class StencilaSiteSearch extends LitElement {
     // For root nodes (depth 0), navigate without hash to show from top
     // For specific elements, include hash to scroll and highlight
     const isRoot = recent.depth === 0
-    const url = isRoot
-      ? recent.route
-      : `${recent.route}#${recent.nodeId}`
+    const url = isRoot ? recent.route : `${recent.route}#${recent.nodeId}`
 
     this.close()
 
@@ -433,7 +432,10 @@ export class StencilaSiteSearch extends LitElement {
   /**
    * Render highlighted text with matches
    */
-  private renderHighlightedText(text: string, highlights: { start: number; end: number }[]) {
+  private renderHighlightedText(
+    text: string,
+    highlights: { start: number; end: number }[],
+  ) {
     if (highlights.length === 0) {
       return this.truncateText(text, 150)
     }
@@ -450,7 +452,11 @@ export class StencilaSiteSearch extends LitElement {
         parts.push(text.slice(lastIndex, highlight.start))
       }
       // Add highlighted text
-      parts.push(html`<mark class="highlight">${text.slice(highlight.start, highlight.end)}</mark>`)
+      parts.push(
+        html`<mark class="highlight"
+          >${text.slice(highlight.start, highlight.end)}</mark
+        >`,
+      )
       lastIndex = highlight.end
     }
 
@@ -464,10 +470,18 @@ export class StencilaSiteSearch extends LitElement {
       // Find a good truncation point near the first highlight
       const firstHighlight = sortedHighlights[0]
       // Use safe boundaries to avoid splitting surrogate pairs
-      const start = this.safeBoundary(text, Math.max(0, firstHighlight.start - 40))
+      const start = this.safeBoundary(
+        text,
+        Math.max(0, firstHighlight.start - 40),
+      )
       const end = this.safeBoundary(text, Math.min(text.length, start + 150))
 
-      return html`${start > 0 ? '...' : ''}${this.renderHighlightedTextSlice(text, sortedHighlights, start, end)}${end < text.length ? '...' : ''}`
+      return html`${start > 0 ? '...' : ''}${this.renderHighlightedTextSlice(
+        text,
+        sortedHighlights,
+        start,
+        end,
+      )}${end < text.length ? '...' : ''}`
     }
 
     return parts
@@ -484,7 +498,7 @@ export class StencilaSiteSearch extends LitElement {
     text: string,
     highlights: { start: number; end: number }[],
     sliceStart: number,
-    sliceEnd: number
+    sliceEnd: number,
   ) {
     const parts: (string | ReturnType<typeof html>)[] = []
     let lastIndex = sliceStart
@@ -498,11 +512,11 @@ export class StencilaSiteSearch extends LitElement {
       // Clamp highlight to slice bounds, using safe boundaries
       const highlightStart = this.safeBoundary(
         text,
-        Math.max(highlight.start, sliceStart)
+        Math.max(highlight.start, sliceStart),
       )
       const highlightEnd = this.safeBoundary(
         text,
-        Math.min(highlight.end, sliceEnd)
+        Math.min(highlight.end, sliceEnd),
       )
 
       // Add text before highlight
@@ -510,7 +524,11 @@ export class StencilaSiteSearch extends LitElement {
         parts.push(text.slice(lastIndex, highlightStart))
       }
       // Add highlighted text
-      parts.push(html`<mark class="highlight">${text.slice(highlightStart, highlightEnd)}</mark>`)
+      parts.push(
+        html`<mark class="highlight"
+          >${text.slice(highlightStart, highlightEnd)}</mark
+        >`,
+      )
       lastIndex = highlightEnd
     }
 
@@ -587,7 +605,7 @@ export class StencilaSiteSearch extends LitElement {
     // Remove any existing entry with the same route + nodeId (to move it to front)
     // Node IDs are document-scoped, so we need both to uniquely identify an entry
     const filtered = this.recentSearches.filter(
-      (r) => r.route !== recent.route || r.nodeId !== recent.nodeId
+      (r) => r.route !== recent.route || r.nodeId !== recent.nodeId,
     )
 
     // Add to front and limit to MAX_RECENT
@@ -595,7 +613,10 @@ export class StencilaSiteSearch extends LitElement {
 
     // Persist to localStorage
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.recentSearches))
+      localStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(this.recentSearches),
+      )
     } catch {
       // Ignore localStorage errors
     }
@@ -618,15 +639,15 @@ export class StencilaSiteSearch extends LitElement {
    */
   private renderResultItem(
     entry: {
-      nodeId: string
-      nodeType: string
-      route: string
-      breadcrumbs?: string[]
-      text: string
+      nodeId: string;
+      nodeType: string;
+      route: string;
+      breadcrumbs?: string[];
+      text: string;
     },
     index: number,
     highlights: { start: number; end: number }[],
-    onClick: () => void
+    onClick: () => void,
   ) {
     return html`
       <li
@@ -666,8 +687,8 @@ export class StencilaSiteSearch extends LitElement {
             recent,
             index,
             [], // No highlights for recent searches
-            () => this.navigateToRecent(recent)
-          )
+            () => this.navigateToRecent(recent),
+          ),
         )}
       </ul>
     `
@@ -695,7 +716,12 @@ export class StencilaSiteSearch extends LitElement {
     const modal = this.isOpen
       ? html`
           <div class="backdrop" @click=${this.handleBackdropClick}>
-            <div class="modal" role="dialog" aria-modal="true" aria-label="Search">
+            <div
+              class="modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Search"
+            >
               <div class="header">
                 <span class="i-lucide:search icon"></span>
                 <input
@@ -726,7 +752,6 @@ export class StencilaSiteSearch extends LitElement {
               ${this.error
                 ? html`<div class="error">${this.error}</div>`
                 : nothing}
-
               ${this.results.length > 0
                 ? html`
                     <ul class="results" role="listbox">
@@ -735,8 +760,8 @@ export class StencilaSiteSearch extends LitElement {
                           result.entry,
                           index,
                           result.highlights,
-                          () => this.navigateToResult(result)
-                        )
+                          () => this.navigateToResult(result),
+                        ),
                       )}
                     </ul>
                   `
@@ -747,15 +772,9 @@ export class StencilaSiteSearch extends LitElement {
                     : nothing}
 
               <div class="footer">
-                <span class="hint">
-                  <kbd>↑</kbd><kbd>↓</kbd> to navigate
-                </span>
-                <span class="hint">
-                  <kbd>↵</kbd> to select
-                </span>
-                <span class="hint">
-                  <kbd>esc</kbd> to close
-                </span>
+                <span class="hint"> <kbd>↑</kbd><kbd>↓</kbd> to navigate </span>
+                <span class="hint"> <kbd>↵</kbd> to select </span>
+                <span class="hint"> <kbd>esc</kbd> to close </span>
               </div>
             </div>
           </div>
@@ -768,6 +787,6 @@ export class StencilaSiteSearch extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'stencila-site-search': StencilaSiteSearch
+    'stencila-site-search': StencilaSiteSearch;
   }
 }
