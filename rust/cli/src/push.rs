@@ -37,11 +37,11 @@ use crate::{outputs, site};
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// Push site content to Stencila Cloud
-    #[arg(long, conflicts_with_all = ["path", "to", "new", "watch", "spread"])]
+    #[arg(long, conflicts_with_all = ["path", "url", "to", "new", "watch", "spread"])]
     site: bool,
 
     /// Push outputs to Stencila Cloud
-    #[arg(long, conflicts_with_all = ["path", "to", "new", "watch", "spread"])]
+    #[arg(long, conflicts_with_all = ["path", "url", "to", "new", "watch", "spread"])]
     outputs: bool,
 
     /// Push to remote document services (Google Docs, Microsoft 365)
@@ -49,7 +49,7 @@ pub struct Cli {
     remotes: bool,
 
     /// Push everything (site, outputs, and remotes)
-    #[arg(long, conflicts_with_all = ["site", "outputs", "remotes", "path", "to", "new", "watch", "spread"])]
+    #[arg(long, conflicts_with_all = ["site", "outputs", "remotes", "path", "url", "to", "new", "watch", "spread"])]
     all: bool,
 
     /// The path of the document to push (for remote push)
@@ -57,12 +57,17 @@ pub struct Cli {
     /// If omitted with --remotes, pushes all tracked files that have remotes.
     path: Option<PathBuf>,
 
-    /// The target to push to (for remote push)
+    /// The URL to push to (for remote push)
     ///
-    /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
-    /// service shorthand (e.g "gdoc" or "m365"). Omit to push to all tracked
-    /// remotes for the path.
-    #[arg(long, short)]
+    /// Can be a full URL (e.g., https://docs.google.com/document/d/...).
+    /// If omitted, pushes to the tracked remote(s) for this file.
+    url: Option<String>,
+
+    /// Select which remote service to push to
+    ///
+    /// Use a service shorthand (e.g., "gdoc" or "m365") to select from tracked
+    /// remotes, or to create a new document when no remote is tracked.
+    #[arg(long, short, conflicts_with = "url")]
     to: Option<String>,
 
     /// Create a new document instead of updating an existing one
@@ -116,7 +121,7 @@ pub struct Cli {
     /// - grid: Cartesian product of all parameter values (default)
     /// - zip: Positional pairing of values (all must have same length)
     /// - cases: Explicit parameter sets via --case
-    #[arg(long, value_name = "MODE", num_args = 0..=1, default_missing_value = "grid", conflicts_with = "watch")]
+    #[arg(long, value_name = "MODE", num_args = 0..=1, default_missing_value = "grid", conflicts_with_all = ["watch", "url"])]
     spread: Option<stencila_spread::SpreadMode>,
 
     /// Explicit cases for spread=cases mode
@@ -151,6 +156,24 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
+  <dim># Push to a specific Google Doc URL</dim>
+  <b>stencila push</> <g>document.smd</> <g>https://docs.google.com/document/d/abc123</>
+
+  <dim># Push to tracked remote(s)</dim>
+  <b>stencila push</> <g>document.smd</>
+
+  <dim># Push to Google Docs (create new or select from tracked)</dim>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</>
+
+  <dim># Push to Microsoft 365</dim>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
+
+  <dim># Push with execution first</dim>
+  <b>stencila push</> <g>report.smd</> <c>--</> <c>arg1=value1</>
+
+  <dim># Force create new document</dim>
+  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</> <c>--new</>
+
   <dim># Push everything (site, outputs, and remotes)</dim>
   <b>stencila push</> <c>--all</>
 
@@ -162,21 +185,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Push only remotes (Google Docs, M365)</dim>
   <b>stencila push</> <c>--remotes</>
-
-  <dim># Push a document to Google Docs</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</>
-
-  <dim># Push a document to Microsoft 365</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
-
-  <dim># Push to specific remote</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>https://docs.google.com/document/d/abc123</>
-
-  <dim># Push with execution first</dim>
-  <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--</> <c>arg1=value1</>
-
-  <dim># Force create new document</dim>
-  <b>stencila push</> <g>document.smd</> <c>--to</> <g>gdoc</> <c>--new</>
 
   <dim># Spread push to GDocs (creates multiple docs)</dim>
   <b>stencila push</> <g>report.smd</> <c>--to</> <g>gdoc</> <c>--spread</> <c>--</> <c>region=north,south</>
@@ -280,33 +288,45 @@ impl Cli {
         }
 
         // Determine target remote service, explicit URL, and execution args
-        // If the target string looks like an execution arg (starts with '-' or contains '='), treat it as such
-        let (service, explicit_target, execution_args) = if let Some(target_str) = self.to {
-            if target_str.starts_with('-') || target_str.contains('=') {
-                // Looks like an execution arg, not a target/service
-                let mut args = vec![target_str];
-                args.extend(self.args);
-                (None, None, args)
-            } else {
-                // Try to determine if it's a service shorthand or a URL
-                match target_str.as_str() {
-                    "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
-                    "m365" => (Some(RemoteService::Microsoft365), None, self.args),
-                    "site" | "sites" => {
-                        bail!(
-                            "Stencila Sites pushes should use `stencila site push` instead of `stencila push --to site`"
-                        );
-                    }
-                    _ => {
-                        // Try to parse as URL
-                        let url = Url::parse(&target_str).map_err(|_| {
-                            eyre!("Invalid target or service: `{target_str}`. Use 'gdoc', 'm365', or a full URL.")
-                        })?;
-                        let service = RemoteService::from_url(&url).ok_or_else(|| {
-                            eyre!("URL {url} is not from a supported remote service")
-                        })?;
-
-                        (Some(service), Some(url), self.args)
+        let (service, explicit_target, execution_args) = if let Some(url_str) = self.url {
+            // Positional URL provided - use it directly
+            let url = Url::parse(&url_str).map_err(|_| {
+                if url_str.contains('=') {
+                    eyre!(
+                        "Invalid URL: `{url_str}`\n\n\
+                         If this is an execution argument, use `--` to separate it:\n   \
+                         stencila push {path_display} -- {url_str}"
+                    )
+                } else {
+                    eyre!("Invalid URL: {url_str}")
+                }
+            })?;
+            let service = RemoteService::from_url(&url)
+                .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
+            (Some(service), Some(url), self.args)
+        } else if let Some(service_str) = self.to {
+            // Service shorthand specified
+            match service_str.as_str() {
+                "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
+                "m365" => (Some(RemoteService::Microsoft365), None, self.args),
+                "site" | "sites" => {
+                    bail!(
+                        "Stencila Sites pushes should use `stencila site push` instead of `stencila push --to site`"
+                    );
+                }
+                _ => {
+                    // Try parsing as URL for backwards compatibility
+                    if let Ok(url) = Url::parse(&service_str) {
+                        if let Some(service) = RemoteService::from_url(&url) {
+                            message!(
+                                "⚠️ Passing URLs via --to is deprecated. Use positional argument instead.",
+                            );
+                            (Some(service), Some(url), self.args)
+                        } else {
+                            bail!("URL {url} is not from a supported remote service");
+                        }
+                    } else {
+                        bail!("Unknown service: `{service_str}`. Use 'gdoc' or 'm365'.");
                     }
                 }
             }

@@ -24,12 +24,18 @@ pub struct Cli {
     /// attachments or GitHub Issues) using their embedded path metadata.
     path: PathBuf,
 
-    /// The target to pull from
+    /// The URL to pull from
     ///
-    /// Can be a full URL (e.g., https://docs.google.com/document/d/...) or a
-    /// service shorthand (e.g "gdoc" or "m365"). Omit to use the tracked
-    /// remote (errors if multiple remotes are tracked).
-    #[arg(long, short)]
+    /// Can be a full URL (e.g., https://docs.google.com/document/d/...).
+    /// If omitted, pulls from the tracked remote for this file.
+    url: Option<String>,
+
+    /// Select which remote service to pull from
+    ///
+    /// Use a service shorthand (e.g., "gdoc", "m365", or "ghi") to select
+    /// from tracked remotes when multiple exist, or to trigger the picker
+    /// workflow when no remotes are configured.
+    #[arg(long, short, conflicts_with = "url")]
     from: Option<String>,
 
     /// Do not merge, just replace
@@ -42,23 +48,23 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
+  <dim># Pull from a specific Google Doc URL</dim>
+  <b>stencila pull</> <g>document.smd</> <g>https://docs.google.com/document/d/abc123</>
+
   <dim># Pull from the tracked remote (if only one exists)</dim>
   <b>stencila pull</> <g>document.smd</>
 
-  <dim># Pull from tracked Google Doc</dim>
+  <dim># Pull from tracked Google Doc (when multiple remotes exist)</dim>
   <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</>
-
-  <dim># Pull from untracked Google Doc</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://docs.google.com/document/d/abc123</>
 
   <dim># Pull from tracked Microsoft 365 document</dim>
   <b>stencila pull</> <g>document.smd</> <c>--from</> <g>m365</>
 
-  <dim># Pull from GitHub Issue</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>https://github.com/org/repo/issues/123</>
+  <dim># Pull from a GitHub Issue URL</dim>
+  <b>stencila pull</> <g>document.smd</> <g>https://github.com/org/repo/issues/123</>
 
   <dim># Pull without merging (replace local file)</dim>
-  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</> <c>--no-merge</>
+  <b>stencila pull</> <g>document.smd</> <c>--no-merge</>
 
   <dim># Pull all documents from email attachments using embedded path metadata</dim>
   <b>stencila pull</> <g>-</> <c>--from</> <g>https://api.stencila.cloud/v1/watches/wAbC12345/email/attachments</>
@@ -82,9 +88,15 @@ impl Cli {
         };
 
         // Determine the target to pull from
-        let (service, url) = if let Some(target_str) = &self.from {
-            // Target or service shorthand specified
-            match target_str.as_str() {
+        let (service, url) = if let Some(url_str) = &self.url {
+            // Positional URL provided - use it directly
+            let url = Url::parse(url_str).map_err(|_| eyre!("Invalid URL: {url_str}"))?;
+            let service = RemoteService::from_url(&url)
+                .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
+            (service, url)
+        } else if let Some(service_str) = &self.from {
+            // Service shorthand specified - select from tracked remotes or trigger picker
+            match service_str.as_str() {
                 "gdoc" | "gdocs" => {
                     // Find configured Google Docs remote, or trigger picker if none
                     match remote_infos
@@ -121,12 +133,22 @@ impl Cli {
                     (RemoteService::GitHubIssues, url)
                 }
                 _ => {
-                    // Assume it's a URL
-                    let url = Url::parse(target_str)
-                        .map_err(|_| eyre!("Invalid target: {target_str}"))?;
-                    let service = RemoteService::from_url(&url)
-                        .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
-                    (service, url)
+                    // Try parsing as URL for backwards compatibility
+                    if let Ok(url) = Url::parse(service_str) {
+                        if let Some(service) = RemoteService::from_url(&url) {
+                            message!(
+                                "⚠️ Passing URLs via --from is deprecated. Use positional argument instead:\n   \
+                                 stencila pull {} {}",
+                                path_display,
+                                url
+                            );
+                            (service, url)
+                        } else {
+                            bail!("URL {url} is not from a supported remote service");
+                        }
+                    } else {
+                        bail!("Unknown service: `{service_str}`. Use 'gdoc', 'm365', or 'ghi'.");
+                    }
                 }
             }
         } else {
@@ -135,7 +157,7 @@ impl Cli {
                 if !self.path.exists() {
                     bail!(
                         "File `{path_display}` does not exist.\n\
-                         Use --from with a URL to pull and create the file."
+                         Provide a URL to pull from: stencila pull {path_display} <URL>"
                     );
                 }
                 bail!("No remotes configured for `{path_display}`");
@@ -404,14 +426,26 @@ impl Cli {
 
     /// Run batch pull mode, pulling all documents from a multi-file remote
     async fn run_batch_pull(&self) -> Result<()> {
-        // Require --from argument
-        let Some(target_str) = &self.from else {
-            bail!("The --from argument is required when using `-` to pull from path metadata");
-        };
+        // Get URL from positional argument or --from flag
+        let url_str = self.url.as_ref().or(self.from.as_ref()).ok_or_else(|| {
+            eyre!(
+                "A URL is required when using `-` to pull from path metadata.\n\
+                   Usage: stencila pull - <URL>"
+            )
+        })?;
 
         // Parse URL and get service
-        let url = Url::parse(target_str)
-            .map_err(|_| eyre!("Invalid URL for batch pull: {target_str}"))?;
+        let url = Url::parse(url_str).map_err(|_| {
+            // Check if it's a service shorthand - those don't work in batch mode
+            if matches!(url_str.as_str(), "gdoc" | "gdocs" | "m365" | "ghi") {
+                eyre!(
+                    "Batch pull requires a full URL, not a service name.\n\
+                     Usage: stencila pull - <URL>"
+                )
+            } else {
+                eyre!("Invalid URL for batch pull: {url_str}")
+            }
+        })?;
         let service = RemoteService::from_url(&url)
             .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))?;
 
