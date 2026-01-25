@@ -1,0 +1,306 @@
+/* Site Actions Component
+ *
+ * Unified zone for floating action buttons (reviews, uploads, etc.)
+ * Supports collapsed mode (expandable) and expanded mode (always visible)
+ *
+ * Structure:
+ * - stencila-site-actions: Custom element container (fixed position)
+ *   - .actions-container: Flex container for FAB and action buttons
+ *   - .actions-fab: Main FAB for collapsed mode (plus icon, rotates to X)
+ *   - .actions-buttons: Container for action buttons
+ *   - .action-button: Individual action buttons
+ *
+ * Uses semantic design tokens from tokens-semantic.css for colors, spacing,
+ * typography, shadows, and radii.
+ */
+
+/* Container - fixed position in corners */
+stencila-site-actions {
+  display: block;
+  font-family: var(--layout-font-family);
+  font-size: var(--font-size-sm);
+  position: fixed;
+  z-index: 9998; /* Just below individual component panels */
+}
+
+/* Position variants */
+stencila-site-actions[position="bottom-right"] {
+  bottom: var(--space-4);
+  right: var(--space-4);
+}
+
+stencila-site-actions[position="bottom-left"] {
+  bottom: var(--space-4);
+  left: var(--space-4);
+}
+
+stencila-site-actions[position="top-right"] {
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+stencila-site-actions[position="top-left"] {
+  top: var(--space-4);
+  left: var(--space-4);
+}
+
+/* Actions container */
+stencila-site-actions .actions-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Direction variants */
+stencila-site-actions .actions-container[data-direction="vertical"] {
+  flex-direction: column-reverse;
+}
+
+stencila-site-actions .actions-container[data-direction="horizontal"] {
+  flex-direction: row-reverse;
+}
+
+/* Position-based direction adjustments */
+stencila-site-actions[position="top-right"] .actions-container[data-direction="vertical"],
+stencila-site-actions[position="top-left"] .actions-container[data-direction="vertical"] {
+  flex-direction: column;
+}
+
+stencila-site-actions[position="bottom-left"] .actions-container[data-direction="horizontal"],
+stencila-site-actions[position="top-left"] .actions-container[data-direction="horizontal"] {
+  flex-direction: row;
+}
+
+/* ==========================================================================
+   Main FAB (Speed Dial trigger)
+   ========================================================================== */
+
+stencila-site-actions .actions-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-accent);
+  color: var(--text-color-inverse);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+stencila-site-actions .actions-fab:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-xl);
+}
+
+stencila-site-actions .actions-fab:active {
+  transform: scale(0.98);
+}
+
+stencila-site-actions .actions-fab .fab-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s ease;
+}
+
+stencila-site-actions .actions-fab.expanded .fab-icon {
+  transform: rotate(45deg);
+}
+
+stencila-site-actions .actions-fab .fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--color-red-500);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+/* ==========================================================================
+   Action Buttons Container
+   ========================================================================== */
+
+stencila-site-actions .actions-buttons {
+  display: flex;
+  gap: var(--space-2);
+  animation: actions-fade-in 0.15s ease-out;
+}
+
+stencila-site-actions .actions-container[data-direction="vertical"] .actions-buttons {
+  flex-direction: column-reverse;
+}
+
+stencila-site-actions .actions-container[data-direction="horizontal"] .actions-buttons {
+  flex-direction: row-reverse;
+}
+
+/* Position-based direction adjustments for buttons */
+stencila-site-actions[position="top-right"] .actions-container[data-direction="vertical"] .actions-buttons,
+stencila-site-actions[position="top-left"] .actions-container[data-direction="vertical"] .actions-buttons {
+  flex-direction: column;
+}
+
+stencila-site-actions[position="bottom-left"] .actions-container[data-direction="horizontal"] .actions-buttons,
+stencila-site-actions[position="top-left"] .actions-container[data-direction="horizontal"] .actions-buttons {
+  flex-direction: row;
+}
+
+@keyframes actions-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   Individual Action Buttons
+   ========================================================================== */
+
+stencila-site-actions .action-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-elevated);
+  color: var(--text-color-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+stencila-site-actions .action-button:hover {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-lg);
+  background: var(--surface-sunken);
+}
+
+stencila-site-actions .action-button:active {
+  transform: scale(0.95);
+}
+
+stencila-site-actions .action-button .action-icon {
+  width: 20px;
+  height: 20px;
+}
+
+stencila-site-actions .action-button .action-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--color-accent);
+  color: var(--text-color-inverse);
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Action label - shown on hover */
+stencila-site-actions .action-button .action-label {
+  position: absolute;
+  white-space: nowrap;
+  background: var(--surface-elevated);
+  color: var(--text-color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+/* Position label based on container direction and position */
+stencila-site-actions[position="bottom-right"] .action-button .action-label,
+stencila-site-actions[position="top-right"] .action-button .action-label {
+  right: calc(100% + var(--space-2));
+}
+
+stencila-site-actions[position="bottom-left"] .action-button .action-label,
+stencila-site-actions[position="top-left"] .action-button .action-label {
+  left: calc(100% + var(--space-2));
+}
+
+stencila-site-actions .action-button:hover .action-label {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Expanded Mode - Action buttons styled as primary FABs
+   ========================================================================== */
+
+stencila-site-actions[mode="expanded"] .action-button {
+  width: 56px;
+  height: 56px;
+  background: var(--color-accent);
+  color: var(--text-color-inverse);
+  box-shadow: var(--shadow-lg);
+}
+
+stencila-site-actions[mode="expanded"] .action-button:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-xl);
+  background: var(--color-accent);
+}
+
+stencila-site-actions[mode="expanded"] .action-button .action-icon {
+  width: 24px;
+  height: 24px;
+}
+
+stencila-site-actions[mode="expanded"] .action-button .action-badge {
+  top: -4px;
+  right: -4px;
+  background: var(--color-red-500);
+  color: white;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 6px;
+}
+
+/* ==========================================================================
+   Hide child FABs when inside site-actions
+   ========================================================================== */
+
+stencila-site-actions stencila-site-review[hide-fab] .review-fab,
+stencila-site-actions stencila-site-upload[hide-fab] .fab {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  stencila-site-actions .action-button .action-label {
+    display: none;
+  }
+}

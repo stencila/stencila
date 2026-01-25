@@ -133,9 +133,7 @@ impl List {
         for (key, target) in &outputs {
             let (source, command, refs) = match target {
                 OutputTarget::Source(path) => {
-                    let source_ext = Path::new(path)
-                        .extension()
-                        .and_then(|e| e.to_str());
+                    let source_ext = Path::new(path).extension().and_then(|e| e.to_str());
                     let key_ext = Path::new(key).extension().and_then(|e| e.to_str());
 
                     // Auto-detect command

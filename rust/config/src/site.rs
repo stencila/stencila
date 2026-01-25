@@ -14,8 +14,8 @@ use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
-    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file, layout::LayoutConfig,
-    reviews::ReviewsSpec, validate_placeholders,
+    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, actions::ActionsConfig, find_config_file,
+    layout::LayoutConfig, reviews::ReviewsSpec, uploads::UploadsSpec, validate_placeholders,
 };
 
 /// Additional formats to generate alongside HTML during site rendering
@@ -658,7 +658,7 @@ pub struct SiteConfig {
     ///
     /// Enables readers to submit comments and suggestions on site pages.
     /// Requires `workspace.id` to be configured for cloud enforcement of
-    /// public/anon settings.
+    /// public/anon settings. Position is controlled via `[site.actions]`.
     ///
     /// Can be a simple boolean or a detailed configuration object, e.g.
     /// ```toml
@@ -671,7 +671,6 @@ pub struct SiteConfig {
     /// enabled = true
     /// public = true           # Non-team members can submit
     /// anon = false            # Require GitHub auth
-    /// position = "bottom-right"
     /// types = ["comment", "suggestion"]
     /// min-selection = 10
     /// max-selection = 5000
@@ -680,6 +679,46 @@ pub struct SiteConfig {
     /// exclude = ["api/**"]    # Hide from API reference
     /// ```
     pub reviews: Option<ReviewsSpec>,
+
+    /// Site uploads configuration
+    ///
+    /// Enables users to upload files (e.g., CSV data updates) to the repository
+    /// via GitHub PRs. Requires `workspace.id` to be configured for cloud
+    /// enforcement of public/anon settings. Position is controlled via `[site.actions]`.
+    ///
+    /// Can be a simple boolean or a detailed configuration object, e.g.
+    /// ```toml
+    /// # Enable uploads with defaults
+    /// [site]
+    /// uploads = true
+    ///
+    /// # Detailed uploads configuration
+    /// [site.uploads]
+    /// enabled = true
+    /// path = "data"           # Widget on /data/**, files to data/
+    /// allowed-types = ["csv", "json", "xlsx"]
+    /// max-size = 10485760     # 10MB
+    /// public = false          # Only show to authenticated users
+    /// anon = false            # Require GitHub auth
+    /// user-path = true        # Allow custom paths
+    /// allow-overwrite = true  # Can replace existing files
+    /// require-message = true  # Must provide description
+    /// ```
+    pub uploads: Option<UploadsSpec>,
+
+    /// Site actions zone configuration
+    ///
+    /// Controls the position, direction, and mode of floating action buttons (FABs)
+    /// like reviews and uploads. All actions share a unified position on the page.
+    ///
+    /// ```toml
+    /// # Configure the actions zone
+    /// [site.actions]
+    /// position = "bottom-right"  # Corner position (default)
+    /// direction = "vertical"     # Stack direction (default)
+    /// mode = "collapsed"         # Display mode (default)
+    /// ```
+    pub actions: Option<ActionsConfig>,
 }
 
 impl SiteConfig {
@@ -700,6 +739,11 @@ impl SiteConfig {
         // Validate reviews configuration
         if let Some(reviews) = &self.reviews {
             reviews.validate()?;
+        }
+
+        // Validate uploads configuration
+        if let Some(uploads) = &self.uploads {
+            uploads.validate()?;
         }
 
         // Validate featured content (icon + image conflict)

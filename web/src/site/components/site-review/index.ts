@@ -1,9 +1,17 @@
-import { LitElement, html } from 'lit'
+import { html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../../glide/events'
 import { navigate } from '../../glide/glide'
 import type { GlideEventDetail } from '../../glide/types'
+import {
+  SiteAction,
+  type BaseFooterState,
+  isLocalhost,
+  getPathname,
+  isStencilaHosted,
+  isDevMode,
+} from '../site-action'
 
 import {
   supportsHighlightAPI,
@@ -28,7 +36,6 @@ import type {
   AuthStatusResponse,
   ReviewResponse,
   ApiError,
-  FooterState,
 } from './types'
 import {
   SHARE_PARAM,
@@ -41,11 +48,6 @@ import {
   STORAGE_KEY_SOURCE,
   REVIEW_AUTH_PATH,
   REVIEW_SUBMIT_PATH,
-  GITHUB_OAUTH_URL,
-  isLocalhost,
-  getPathname,
-  isStencilaHostedSite,
-  isDevMode,
 } from './utils'
 import './item'
 
@@ -57,19 +59,34 @@ import './item'
  * Persists review items in localStorage across page refreshes.
  */
 @customElement('stencila-site-review')
-export class StencilaSiteReview extends LitElement {
-  /**
-   * Workspace ID from site configuration
-   */
-  @property({ type: String, attribute: 'workspace-id' })
-  workspaceId: string = ''
+export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
+  // =========================================================================
+  // Abstract Method Implementations
+  // =========================================================================
 
-  /**
-   * Position of the review affordance on the page
-   */
-  @property({ type: String })
-  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' =
-    'bottom-right'
+  get actionId() {
+    return 'review'
+  }
+
+  get actionIcon() {
+    return 'i-lucide:message-square-plus'
+  }
+
+  get actionLabel() {
+    return 'Review'
+  }
+
+  get authEndpoint() {
+    return REVIEW_AUTH_PATH
+  }
+
+  get badgeCount() {
+    return this.pendingItems.length
+  }
+
+  // =========================================================================
+  // Review-Specific Properties
+  // =========================================================================
 
   /**
    * Allowed review types (comma-separated: "comment", "suggestion", or "comment,suggestion")
@@ -96,32 +113,6 @@ export class StencilaSiteReview extends LitElement {
   shortcuts: boolean = false
 
   /**
-   * Whether public (non-team) submissions are allowed
-   * This is informational - actual enforcement is server-side
-   */
-  @property({ type: Boolean })
-  public: boolean = true
-
-  /**
-   * Whether anonymous (no GitHub auth) submissions are allowed
-   * This is informational - actual enforcement is server-side
-   */
-  @property({ type: Boolean })
-  anon: boolean = false
-
-  /**
-   * Get the API base URL for review endpoints.
-   * On localhost, uses the workspace's stencila.site domain to test against production.
-   * On production (*.stencila.site), uses same-origin (empty string).
-   */
-  private get apiBase(): string {
-    if (isLocalhost() && this.workspaceId) {
-      return `https://${this.workspaceId}.stencila.site`
-    }
-    return ''
-  }
-
-  /**
    * Check if comments are allowed based on types attribute
    */
   private get allowsComments(): boolean {
@@ -135,15 +126,19 @@ export class StencilaSiteReview extends LitElement {
     return this.types.includes('suggestion')
   }
 
+  // =========================================================================
+  // Review-Specific State
+  // =========================================================================
+
   /**
    * Current selection anchors
    */
   @state()
   private currentSelection: {
-    start: ReviewItemAnchor;
-    end: ReviewItemAnchor;
-    selectedText: string;
-    rect: DOMRect;
+    start: ReviewItemAnchor
+    end: ReviewItemAnchor
+    selectedText: string
+    rect: DOMRect
   } | null = null
 
   /**
@@ -151,10 +146,10 @@ export class StencilaSiteReview extends LitElement {
    */
   @state()
   private currentMediaSelection: {
-    nodeId: string;
-    element: Element;
-    rect: DOMRect;
-    mediaType: string;
+    nodeId: string
+    element: Element
+    rect: DOMRect
+    mediaType: string
   } | null = null
 
   /**
@@ -182,28 +177,10 @@ export class StencilaSiteReview extends LitElement {
   private sourceInfo: SourceInfo | null = null
 
   /**
-   * Error message to display to the user
-   */
-  @state()
-  private errorMessage: string = ''
-
-  /**
    * Whether to show the commit mismatch modal (production only)
    */
   @state()
   private showCommitMismatch: boolean = false
-
-  /**
-   * Auth status from the API (single source of truth)
-   */
-  @state()
-  private authStatus: AuthStatusResponse | null = null
-
-  /**
-   * Whether auth status is being loaded
-   */
-  @state()
-  private authLoading: boolean = true
 
   /**
    * Whether a review submission is in progress
@@ -222,12 +199,6 @@ export class StencilaSiteReview extends LitElement {
    */
   @state()
   private submitError: string = ''
-
-  /**
-   * Whether the review panel is open (toggled by FAB)
-   */
-  @state()
-  private panelOpen: boolean = false
 
   /**
    * Whether the FAB is pulsing (after item added)
@@ -277,17 +248,13 @@ export class StencilaSiteReview extends LitElement {
   private activeHighlight: Highlight | null = null
   private inputHighlight: Highlight | null = null
 
-  /**
-   * Use Light DOM so theme CSS can style the component
-   */
-  protected override createRenderRoot() {
-    return this
-  }
+  // =========================================================================
+  // Lifecycle
+  // =========================================================================
 
   override connectedCallback() {
     super.connectedCallback()
     this.loadFromStorage()
-    this.refreshAuthStatus()
 
     // Check for shared review in URL parameter
     if (hasSharedReview()) {
@@ -326,14 +293,6 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Toggle the review panel open/closed
-   */
-  private togglePanel(event: Event) {
-    event.stopPropagation()
-    this.panelOpen = !this.panelOpen
-  }
-
-  /**
    * Handle keyboard shortcuts
    * - Ctrl+Shift+C: Add comment on current selection
    * - Ctrl+Shift+S: Add suggestion on current selection
@@ -345,8 +304,8 @@ export class StencilaSiteReview extends LitElement {
       if (this.showInput) {
         this.handleCancel()
         e.preventDefault()
-      } else if (this.panelOpen) {
-        this.panelOpen = false
+      } else if (this.isOpen) {
+        this.isOpen = false
         e.preventDefault()
       }
       return
@@ -385,6 +344,121 @@ export class StencilaSiteReview extends LitElement {
     if (document.visibilityState === 'visible') {
       this.refreshAuthStatus()
     }
+  }
+
+  // =========================================================================
+  // Abstract Method Implementations
+  // =========================================================================
+
+  /**
+   * Apply development defaults when on localhost and API is unavailable.
+   */
+  protected override applyDevDefaults() {
+    if (!isLocalhost()) {
+      return
+    }
+
+    console.log('[SiteReview] Using development defaults (localhost dev mode)')
+    this.authStatus = {
+      hasSiteAccess: true,
+      reviewConfig: {
+        enabled: true,
+        allowPublic: true,
+        allowAnonymous: true,
+      },
+      repo: {
+        isPrivate: false,
+        appInstalled: true,
+      },
+      authorship: {
+        canAuthorAsSelf: false,
+        willBeBotAuthored: true,
+        reason: 'Development mode - no GitHub connected',
+      },
+    }
+  }
+
+  /**
+   * Calculate the current footer state based on auth and submission status.
+   * Evaluated in priority order - first matching state wins.
+   */
+  protected override calculateFooterState(): BaseFooterState {
+    // 1. Loading
+    if (this.authLoading) {
+      return { type: 'loading' }
+    }
+
+    // 2. Submitting
+    if (this.submitting) {
+      return { type: 'submitting' }
+    }
+
+    // 3. Success (persists until next action)
+    if (this.submitResult) {
+      return {
+        type: 'success',
+        prNumber: this.submitResult.prNumber,
+        prUrl: this.submitResult.prUrl,
+      }
+    }
+
+    // 4. Error (clears on next action)
+    if (this.submitError) {
+      return { type: 'error', message: this.submitError }
+    }
+
+    // 5. Blocked: private repo without app
+    if (this.isBlockedPrivateRepo) {
+      return { type: 'blocked', reason: this.blockedReason ?? '' }
+    }
+
+    // 6. Need site access (site requires auth to submit)
+    const config = this.authStatus?.reviewConfig
+    if (config && !config.allowPublic && !this.authStatus?.hasSiteAccess) {
+      return { type: 'needSiteAccess', signInUrl: this.signInUrl }
+    }
+
+    // 7. Need Stencila sign-in (private repo - OAuth lacks scope)
+    if (this.requiresStencilaSignIn) {
+      return { type: 'needStencilaSignIn', signInUrl: this.signInUrl }
+    }
+
+    // 8. Need GitHub connect (public allows reviews but requires attribution)
+    if (this.showGitHubConnect) {
+      return { type: 'needGitHubConnect' }
+    }
+
+    // 9. Can submit
+    return { type: 'canSubmit', authorDescription: this.prAuthorDescription }
+  }
+
+  /**
+   * Render the review-specific panel content.
+   */
+  protected override renderPanelContent() {
+    const itemCount = this.pendingItems.length
+
+    if (itemCount === 0) {
+      return html`
+        <div class="site-action-empty-state">
+          <span class="i-lucide:message-square-dashed empty-icon"></span>
+          <h4>Ready for your feedback</h4>
+          <p>Select text on the page to comment or suggest a change.</p>
+          <button
+            class="site-action-btn site-action-btn-secondary add-page-comment"
+            @click=${(e: Event) => {
+              e.stopPropagation()
+              this.handlePageComment()
+            }}
+          >
+            <span class="i-lucide:message-circle site-action-btn-icon"></span>
+            Add page comment
+          </button>
+        </div>
+      `
+    }
+
+    return html` ${this.renderPanelItems()} ${this.renderPanelFooter()} `
   }
 
   /**
@@ -460,7 +534,7 @@ export class StencilaSiteReview extends LitElement {
       }
 
       this.saveToStorage()
-      this.panelOpen = true // Auto-open panel
+      this.isOpen = true // Auto-open panel
 
       // Apply highlights after a short delay for DOM to be ready
       requestAnimationFrame(() => {
@@ -535,140 +609,6 @@ export class StencilaSiteReview extends LitElement {
     setTimeout(() => {
       this.shareTooltip = ''
     }, duration)
-  }
-
-  // =========================================================================
-  // Authentication Methods
-  // =========================================================================
-
-  /**
-   * Get headers for API requests, including Clerk token if available
-   */
-  private async getAuthHeaders(): Promise<Record<string, string>> {
-    // Try to get Clerk token if Clerk SDK is available
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const clerk = (window as any).Clerk
-    if (clerk?.session) {
-      try {
-        const token = await clerk.session.getToken()
-        if (token) {
-          return { Authorization: `Bearer ${token}` }
-        }
-      } catch (e) {
-        console.warn('[SiteReview] Failed to get Clerk token:', e)
-      }
-    }
-    return {}
-  }
-
-  /**
-   * Unified API fetch helper with auth headers and credentials
-   */
-  private async apiFetch(
-    path: string,
-    options: { method?: string; body?: unknown } = {},
-  ): Promise<Response> {
-    const authHeaders = await this.getAuthHeaders()
-    const headers: Record<string, string> = { ...authHeaders }
-    if (options.body) {
-      headers['Content-Type'] = 'application/json'
-    }
-
-    return fetch(this.apiBase + path, {
-      method: options.method ?? 'GET',
-      headers,
-      credentials: isLocalhost() ? 'include' : 'same-origin',
-      ...(options.body && { body: JSON.stringify(options.body) }),
-    })
-  }
-
-  /**
-   * Refresh auth status from the API
-   * This is called on mount and after OAuth callback returns
-   */
-  private async refreshAuthStatus() {
-    this.authLoading = true
-
-    // In dev mode on localhost, skip API and use permissive defaults
-    if (isDevMode()) {
-      console.log('[SiteReview] Dev mode enabled, skipping API')
-      this.applyDevDefaults()
-      this.authLoading = false
-      return
-    }
-
-    console.log(
-      '[SiteReview] Fetching auth status from:',
-      this.apiBase + REVIEW_AUTH_PATH,
-    )
-
-    try {
-      const response = await this.apiFetch(REVIEW_AUTH_PATH)
-
-      if (response.ok) {
-        this.authStatus = await response.json()
-        console.log('[SiteReview] Auth status:', this.authStatus)
-      } else {
-        console.error(
-          '[SiteReview] Failed to fetch auth status:',
-          response.status,
-        )
-        // Use dev defaults on localhost when API unavailable
-        this.applyDevDefaults()
-      }
-    } catch (e) {
-      console.error('[SiteReview] Auth status fetch failed:', e)
-      // Use dev defaults on localhost when API unavailable
-      this.applyDevDefaults()
-    } finally {
-      this.authLoading = false
-    }
-  }
-
-  /**
-   * Apply development defaults when on localhost and API is unavailable,
-   * or when dev mode is explicitly enabled.
-   * This allows testing the UI flow without a backend.
-   *
-   * To enable dev mode:
-   *   - Add ?reviewDevMode=true to URL, or
-   *   - Run in console: localStorage.setItem('stencila-review-dev-mode', 'true')
-   *
-   * To test different scenarios, modify these values or use browser console:
-   *   document.querySelector('stencila-site-review').authStatus = { ... }
-   */
-  private applyDevDefaults() {
-    if (!isLocalhost()) {
-      return
-    }
-
-    console.log('[SiteReview] Using development defaults (localhost dev mode)')
-    this.authStatus = {
-      hasSiteAccess: true,
-      reviewConfig: {
-        enabled: true,
-        allowPublic: true,
-        allowAnonymous: true,
-      },
-      repo: {
-        isPrivate: false,
-        appInstalled: true,
-      },
-      authorship: {
-        canAuthorAsSelf: false,
-        willBeBotAuthored: true,
-        reason: 'Development mode - no GitHub connected',
-      },
-    }
-  }
-
-  /**
-   * Connect GitHub account
-   * - Stencila users: direct to profile page
-   * Redirects to GitHub OAuth flow
-   */
-  private connectGitHub() {
-    window.open(this.gitHubConnectUrl, '_blank')
   }
 
   // =========================================================================
@@ -747,7 +687,7 @@ export class StencilaSiteReview extends LitElement {
     if (this.authStatus?.repo?.isPrivate) return false
 
     // Only show if OAuth is available (Stencila-hosted site, public repo)
-    return isStencilaHostedSite()
+    return isStencilaHosted()
   }
 
   /**
@@ -782,68 +722,6 @@ export class StencilaSiteReview extends LitElement {
 
     // Need site access but don't have it
     return !this.authStatus?.hasSiteAccess
-  }
-
-  /**
-   * Get the sign-in URL with workspace ID and return URL
-   */
-  private get signInUrl(): string {
-    const url = new URL(
-      `https://${this.workspaceId}.stencila.site/__stencila-signin`,
-    )
-    url.searchParams.set('return', window.location.href)
-    return url.toString()
-  }
-
-  /**
-   * Get the GitHub connect URL with workspace ID and return URL
-   */
-  private get gitHubConnectUrl(): string {
-    const url = new URL(GITHUB_OAUTH_URL)
-    url.searchParams.set('workspace_id', this.workspaceId)
-    url.searchParams.set('return_url', window.location.href)
-    return url.toString()
-  }
-
-  /**
-   * Get CSS styles for FAB positioning
-   */
-  private get fabPositionStyles(): string {
-    const offset = '16px'
-    switch (this.position) {
-      case 'top-right':
-        return `top: ${offset}; right: ${offset};`
-      case 'top-left':
-        return `top: ${offset}; left: ${offset};`
-      case 'bottom-left':
-        return `bottom: ${offset}; left: ${offset};`
-      case 'bottom-right':
-      default:
-        return `bottom: ${offset}; right: ${offset};`
-    }
-  }
-
-  /**
-   * Get CSS styles for panel positioning (offset from FAB)
-   * Panel corner aligns below the center of the FAB
-   */
-  private get panelPositionStyles(): string {
-    const edgeOffset = '16px'
-    const fabEdgeOffset = 16
-    const fabSize = 48
-    // Position panel so its corner is at the FAB's center
-    const panelOffset = `${fabEdgeOffset + fabSize / 2}px` // 40px
-    switch (this.position) {
-      case 'top-right':
-        return `top: ${panelOffset}; right: ${edgeOffset};`
-      case 'top-left':
-        return `top: ${panelOffset}; left: ${edgeOffset};`
-      case 'bottom-left':
-        return `bottom: ${panelOffset}; left: ${edgeOffset};`
-      case 'bottom-right':
-      default:
-        return `bottom: ${panelOffset}; right: ${edgeOffset};`
-    }
   }
 
   /**
@@ -883,58 +761,15 @@ export class StencilaSiteReview extends LitElement {
     return 'Pull request will be created by Stencila bot'
   }
 
+  // =========================================================================
+  // GitHub Connect
+  // =========================================================================
+
   /**
-   * Get the unified footer state for rendering
-   * Evaluated in priority order - first matching state wins
+   * Open GitHub OAuth connect flow in new tab
    */
-  private get footerState(): FooterState {
-    // 1. Loading
-    if (this.authLoading) {
-      return { type: 'loading' }
-    }
-
-    // 2. Submitting
-    if (this.submitting) {
-      return { type: 'submitting' }
-    }
-
-    // 3. Success (persists until next action)
-    if (this.submitResult) {
-      return {
-        type: 'success',
-        prNumber: this.submitResult.prNumber,
-        prUrl: this.submitResult.prUrl,
-      }
-    }
-
-    // 4. Error (clears on next action)
-    if (this.submitError) {
-      return { type: 'error', message: this.submitError }
-    }
-
-    // 5. Blocked: private repo without app
-    if (this.isBlockedPrivateRepo) {
-      return { type: 'blocked', reason: this.blockedReason ?? '' }
-    }
-
-    // 6. Need site access (site requires auth to submit)
-    const config = this.authStatus?.reviewConfig
-    if (config && !config.allowPublic && !this.authStatus?.hasSiteAccess) {
-      return { type: 'needSiteAccess', signInUrl: this.signInUrl }
-    }
-
-    // 7. Need Stencila sign-in (private repo - OAuth lacks scope)
-    if (this.requiresStencilaSignIn) {
-      return { type: 'needStencilaSignIn', signInUrl: this.signInUrl }
-    }
-
-    // 8. Need GitHub connect (public allows reviews but requires attribution)
-    if (this.showGitHubConnect) {
-      return { type: 'needGitHubConnect' }
-    }
-
-    // 9. Can submit
-    return { type: 'canSubmit', authorDescription: this.prAuthorDescription }
+  private connectGitHub() {
+    window.open(this.gitHubConnectUrl, '_blank')
   }
 
   // =========================================================================
@@ -1187,8 +1022,8 @@ export class StencilaSiteReview extends LitElement {
         }
 
         // Open the panel if not already open
-        if (!this.panelOpen) {
-          this.panelOpen = true
+        if (!this.isOpen) {
+          this.isOpen = true
         }
 
         // Scroll the item into view in the panel after render
@@ -1408,13 +1243,6 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Dismiss error message
-   */
-  private dismissError() {
-    this.errorMessage = ''
-  }
-
-  /**
    * Handle selection changes
    */
   private handleSelectionChange = () => {
@@ -1468,8 +1296,8 @@ export class StencilaSiteReview extends LitElement {
           }
 
           // Open the panel if not already open
-          if (!this.panelOpen) {
-            this.panelOpen = true
+          if (!this.isOpen) {
+            this.isOpen = true
           }
 
           // Scroll the item into view in the panel after render
@@ -1977,7 +1805,7 @@ export class StencilaSiteReview extends LitElement {
     shareUrl.searchParams.set(SHARE_PARAM, shareResult.encoded)
 
     // In dev mode, mock a successful submission
-    if (isDevMode()) {
+    if (isDevMode(this.actionId)) {
       console.log('[SiteReview] Dev mode: mocking submit', {
         commit: this.sourceInfo.commit,
         items: this.pendingItems,
@@ -2054,34 +1882,40 @@ export class StencilaSiteReview extends LitElement {
 
   override render() {
     return html`
-      ${this.renderFab()} ${this.renderSelection()} ${this.renderInput()}
-      ${this.renderPanel()} ${this.renderErrorModal()}
+      ${this.renderReviewFab()} ${this.renderSelection()} ${this.renderInput()}
+      ${this.renderReviewPanel()} ${this.renderErrorModal()}
       ${this.renderCommitMismatchModal()}
     `
   }
 
   /**
    * Render the FAB (Floating Action Button) to toggle the review panel
+   * Uses shared CSS classes with review-specific pulsing animation
    */
-  private renderFab() {
+  private renderReviewFab() {
+    // Don't render FAB if inside a site-actions container
+    if (this.hideFab) {
+      return nothing
+    }
+
     const itemCount = this.pendingItems.length
 
     return html`
       <button
-        class="review-fab ${this.isFabPulsing ? 'pulsing' : ''}"
+        class="site-action-fab ${this.isFabPulsing ? 'pulsing' : ''}"
         style=${this.fabPositionStyles}
         @click=${this.togglePanel}
         aria-label=${itemCount > 0
           ? `Open review panel (${itemCount} pending)`
           : 'Open review panel'}
-        aria-expanded=${this.panelOpen}
+        aria-expanded=${this.isOpen}
       >
         <span class="i-lucide:message-square-plus fab-icon"></span>
         ${itemCount > 0
-          ? html`<span class="fab-badge"
+          ? html`<span class="site-action-badge"
               >${itemCount > 99 ? '99+' : itemCount}</span
             >`
-          : null}
+          : nothing}
       </button>
     `
   }
@@ -2092,7 +1926,7 @@ export class StencilaSiteReview extends LitElement {
    */
   private renderSelection() {
     if (this.showInput) {
-      return null
+      return nothing
     }
 
     // Handle media selection (only show Comment button)
@@ -2127,7 +1961,7 @@ export class StencilaSiteReview extends LitElement {
 
     // Handle text selection
     if (!this.currentSelection) {
-      return null
+      return nothing
     }
 
     // Position with right edge aligned to selection end, clamped within viewport
@@ -2184,11 +2018,11 @@ export class StencilaSiteReview extends LitElement {
    * - Returns arrow position for visual connection to selection
    */
   private calculatePopoverPosition(): {
-    top: number;
-    left: number;
-    maxWidth: number;
-    arrow: 'top' | 'bottom';
-    arrowLeft: number;
+    top: number
+    left: number
+    maxWidth: number
+    arrow: 'top' | 'bottom'
+    arrowLeft: number
   } | null {
     if (!this.currentSelection) return null
 
@@ -2253,7 +2087,7 @@ export class StencilaSiteReview extends LitElement {
    */
   private renderInput() {
     if (!this.showInput) {
-      return null
+      return nothing
     }
 
     // Calculate popover position if we have a selection
@@ -2263,7 +2097,10 @@ export class StencilaSiteReview extends LitElement {
     // Use modal mode for page-level comments (centered with backdrop)
     if (popoverPosition) {
       return html`
-        <div class="backdrop transparent" @click=${this.handleCancel}></div>
+        <div
+          class="site-action-backdrop-transparent"
+          @click=${this.handleCancel}
+        ></div>
         <stencila-site-review-item
           mode="input"
           type=${this.inputType}
@@ -2278,7 +2115,7 @@ export class StencilaSiteReview extends LitElement {
 
     // Modal mode for page-level comments (no selection)
     return html`
-      <div class="backdrop" @click=${this.handleCancel}></div>
+      <div class="site-action-backdrop" @click=${this.handleCancel}></div>
       <stencila-site-review-item
         mode="input"
         type=${this.inputType}
@@ -2305,7 +2142,7 @@ export class StencilaSiteReview extends LitElement {
       <div class="items-list">
         ${paths.map((path) => {
           const group = itemsByPage.get(path)
-          if (!group) return null
+          if (!group) return nothing
           return this.renderPageGroup(path, group)
         })}
       </div>
@@ -2453,11 +2290,11 @@ export class StencilaSiteReview extends LitElement {
    * Render the panel footer with submit button and actions
    */
   private renderPanelFooter() {
-    const state = this.footerState
+    const state = this.calculateFooterState()
     const canSubmit = state.type === 'canSubmit'
 
     return html`
-      <div class="panel-footer">
+      <div class="site-action-panel-footer">
         <button
           class="add-comment-fab"
           @click=${(e: Event) => {
@@ -2469,9 +2306,9 @@ export class StencilaSiteReview extends LitElement {
           <span class="i-lucide:plus"></span>
         </button>
 
-        <div class="footer-buttons">
+        <div class="site-action-footer-buttons">
           <button
-            class="btn primary"
+            class="site-action-btn site-action-btn-primary"
             @click=${this.handleSubmitReview}
             ?disabled=${!canSubmit}
           >
@@ -2479,7 +2316,7 @@ export class StencilaSiteReview extends LitElement {
           </button>
           <div class="share-btn-container">
             <button
-              class="btn secondary icon-only"
+              class="site-action-btn site-action-btn-secondary icon-only"
               @click=${(e: Event) => {
                 e.stopPropagation()
                 this.handleShare()
@@ -2491,7 +2328,7 @@ export class StencilaSiteReview extends LitElement {
             </button>
             ${this.shareTooltip
               ? html`<div class="share-tooltip">${this.shareTooltip}</div>`
-              : null}
+              : nothing}
           </div>
         </div>
 
@@ -2501,122 +2338,17 @@ export class StencilaSiteReview extends LitElement {
   }
 
   /**
-   * Render the footer status text based on current state
+   * Render the review panel using base class structure with shared CSS classes
    */
-  private renderFooterStatus() {
-    const state = this.footerState
-
-    switch (state.type) {
-      case 'loading':
-        return html`<p class="footer-status muted">Checking access...</p>`
-
-      case 'submitting':
-        return html`<p class="footer-status muted">Creating pull request...</p>`
-
-      case 'success':
-        return html`<p class="footer-status success">
-          PR #${state.prNumber} created
-          <a
-            href=${state.prUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="pr-link"
-            >View</a
-          >
-        </p>`
-
-      case 'error':
-        return html`<p class="footer-status error">${state.message}</p>`
-
-      case 'blocked':
-        return html`<p class="footer-status warning">
-          <span class="i-lucide:alert-triangle warning-icon"></span>
-          ${state.reason}
-        </p>`
-
-      case 'needSiteAccess':
-        return html`<p class="footer-status">
-          <a href=${state.signInUrl} class="auth-link"
-            >Sign in to site to submit</a
-          >
-        </p>`
-
-      case 'needStencilaSignIn':
-        return html`<p class="footer-status">
-          <a href=${state.signInUrl} class="auth-link"
-            >Sign in to Stencila</a
-          >
-          - required for private repos
-        </p>`
-
-      case 'needGitHubConnect':
-        return html`<p class="footer-status">
-          <a
-            href=${this.gitHubConnectUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="auth-link"
-            >Connect GitHub</a
-          >
-          to submit
-        </p>`
-
-      case 'canSubmit':
-        return html`<p class="footer-status muted">${state.authorDescription}</p>`
-    }
-  }
-
-  /**
-   * Render the review panel
-   */
-  private renderPanel() {
-    if (!this.panelOpen) {
-      return null
-    }
-
-    const itemCount = this.pendingItems.length
-
-    return html`
-      <div class="review-panel" style=${this.panelPositionStyles}>
-        ${itemCount === 0
-          ? html`
-              <div class="empty-state">
-                <span class="i-lucide:message-square-dashed empty-icon"></span>
-                <h4>Ready for your feedback</h4>
-                <p>Select text on the page to comment or suggest a change.</p>
-                <button
-                  class="btn secondary add-page-comment"
-                  @click=${(e: Event) => {
-                    e.stopPropagation()
-                    this.handlePageComment()
-                  }}
-                >
-                  <span class="i-lucide:message-circle btn-icon"></span>
-                  Add page comment
-                </button>
-              </div>
-            `
-          : html` ${this.renderPanelItems()} ${this.renderPanelFooter()} `}
-      </div>
-    `
-  }
-
-  /**
-   * Render error modal
-   */
-  private renderErrorModal() {
-    if (!this.errorMessage) {
-      return null
+  private renderReviewPanel() {
+    if (!this.isOpen) {
+      return nothing
     }
 
     return html`
-      <div class="backdrop" @click=${this.dismissError}></div>
-      <div class="modal error">
-        <h4>Review Error</h4>
-        <p>${this.errorMessage}</p>
-        <div class="buttons">
-          <button class="btn primary" @click=${this.dismissError}>OK</button>
-        </div>
+      <div class="site-action-panel" style=${this.panelPositionStyles}>
+        ${this.renderPanelHeader()}
+        <div class="site-action-panel-content">${this.renderPanelContent()}</div>
       </div>
     `
   }
@@ -2626,12 +2358,15 @@ export class StencilaSiteReview extends LitElement {
    */
   private renderCommitMismatchModal() {
     if (!this.showCommitMismatch) {
-      return null
+      return nothing
     }
 
     return html`
-      <div class="backdrop" @click=${this.dismissCommitMismatch}></div>
-      <div class="modal warning">
+      <div
+        class="site-action-backdrop"
+        @click=${this.dismissCommitMismatch}
+      ></div>
+      <div class="site-action-modal warning">
         <h4>Site Updated</h4>
         <p>
           The site has been updated since you started your review. Your pending
@@ -2639,10 +2374,16 @@ export class StencilaSiteReview extends LitElement {
           version and may no longer apply correctly.
         </p>
         <div class="buttons">
-          <button class="btn secondary" @click=${this.dismissCommitMismatch}>
+          <button
+            class="site-action-btn secondary"
+            @click=${this.dismissCommitMismatch}
+          >
             Keep Old Review
           </button>
-          <button class="btn warning" @click=${this.handleClearForNewCommit}>
+          <button
+            class="site-action-btn warning"
+            @click=${this.handleClearForNewCommit}
+          >
             Clear & Start Fresh
           </button>
         </div>

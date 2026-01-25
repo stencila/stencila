@@ -53,8 +53,11 @@
 @import url("./nav-menu.css");
 @import url("./nav-tree.css");
 @import url("./prev-next.css");
+@import url("./site-action.css");
+@import url("./site-actions.css");
 @import url("./site-review.css");
 @import url("./site-search.css");
+@import url("./site-upload.css");
 @import url("./social-links.css");
 @import url("./title.css");
 @import url("./toc-tree.css");

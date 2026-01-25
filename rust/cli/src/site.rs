@@ -21,9 +21,9 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access, update_site_reviews,
 };
 use stencila_config::{
-    ConfigTarget, LayoutConfig, ReviewsSpec, RouteSpread, SpreadMode, config_add_redirect_route,
-    config_add_route, config_remove_route, config_set_route_spread, get, set_value, unset_value,
-    validate_placeholders,
+    ConfigTarget, LayoutConfig, ReviewsSpec, RouteSpread, SpreadMode, UploadsSpec,
+    config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread, get,
+    set_value, unset_value, validate_placeholders,
 };
 use stencila_server::{ServeOptions, SiteMessage, get_server_token};
 use tokio::sync::{broadcast, mpsc};
@@ -267,6 +267,7 @@ enum SiteCommand {
     Push(Push),
     Access(Access),
     Reviews(Reviews),
+    Uploads(Uploads),
     Domain(Domain),
     Branch(Branch),
 }
@@ -285,6 +286,7 @@ impl Site {
             SiteCommand::Push(push) => push.run().await,
             SiteCommand::Access(access) => access.run().await,
             SiteCommand::Reviews(reviews) => reviews.run().await,
+            SiteCommand::Uploads(uploads) => uploads.run().await,
             SiteCommand::Domain(domain) => domain.run().await,
             SiteCommand::Branch(branch) => branch.run().await,
         }
@@ -1825,14 +1827,6 @@ impl Reviews {
             message!("Anonymous submissions: <r>no</>");
         }
 
-        let position = match reviews_config.position() {
-            stencila_config::ReviewsPosition::BottomRight => "bottom-right",
-            stencila_config::ReviewsPosition::BottomLeft => "bottom-left",
-            stencila_config::ReviewsPosition::TopRight => "top-right",
-            stencila_config::ReviewsPosition::TopLeft => "top-left",
-        };
-        message!("Position: <m>{}</>", position);
-
         message!(
             "Min selection: <c>{}</> chars",
             reviews_config.min_selection()
@@ -2022,10 +2016,6 @@ pub struct ReviewsConfig {
     #[arg(long, conflicts_with = "anon")]
     no_anon: bool,
 
-    /// Position for the review affordance
-    #[arg(long, value_parser = ["bottom-right", "bottom-left", "top-right", "top-left"])]
-    position: Option<String>,
-
     /// Allowed review types (can be specified multiple times)
     #[arg(long = "types", value_parser = ["comment", "suggestion"])]
     types: Option<Vec<String>>,
@@ -2069,9 +2059,6 @@ pub static REVIEWS_CONFIG_AFTER_LONG_HELP: &str = cstr!(
   <dim># Disallow anonymous submissions</dim>
   <b>stencila site reviews config</> <c>--no-anon</>
 
-  <dim># Set position to bottom-left</dim>
-  <b>stencila site reviews config</> <c>--position</> <g>bottom-left</>
-
   <dim># Only allow comments (not suggestions)</dim>
   <b>stencila site reviews config</> <c>--types</> <g>comment</>
 
@@ -2103,7 +2090,6 @@ impl ReviewsConfig {
             || self.no_public
             || self.anon
             || self.no_anon
-            || self.position.is_some()
             || self.types.is_some()
             || self.min_selection.is_some()
             || self.max_selection.is_some()
@@ -2135,11 +2121,6 @@ impl ReviewsConfig {
             set_value("site.reviews.anon", "true", ConfigTarget::Nearest)?;
         } else if self.no_anon {
             set_value("site.reviews.anon", "false", ConfigTarget::Nearest)?;
-        }
-
-        // Handle position
-        if let Some(position) = &self.position {
-            set_value("site.reviews.position", position, ConfigTarget::Nearest)?;
         }
 
         // Handle types
@@ -2848,4 +2829,535 @@ fn is_reviews_boolean(_path: &Path) -> bool {
         .and_then(|s| s.reviews.as_ref())
         .map(|r| matches!(r, ReviewsSpec::Enabled(_)))
         .unwrap_or(false)
+}
+
+/// Check if site.uploads is currently a boolean value (simple form)
+///
+/// Returns true if uploads is configured as `uploads = true` or `uploads = false`,
+/// rather than as a table `[site.uploads]`. We need to unset the boolean before
+/// setting nested keys like `site.uploads.enabled`.
+fn is_uploads_boolean(_path: &Path) -> bool {
+    let Ok(cfg) = get() else {
+        return false;
+    };
+
+    cfg.site
+        .as_ref()
+        .and_then(|s| s.uploads.as_ref())
+        .map(|u| matches!(u, UploadsSpec::Enabled(_)))
+        .unwrap_or(false)
+}
+
+/// Manage site file uploads
+///
+/// Configure the file upload feature that allows users to upload files to the
+/// repository via GitHub PRs. This enables non-technical users to contribute
+/// data updates (e.g., CSV files) without needing to use git directly.
+#[derive(Debug, Parser)]
+#[command(after_long_help = UPLOADS_AFTER_LONG_HELP)]
+pub struct Uploads {
+    /// Path to the workspace directory
+    ///
+    /// If not specified, uses the current directory
+    #[arg(long, short)]
+    path: Option<std::path::PathBuf>,
+
+    #[command(subcommand)]
+    command: Option<UploadsCommand>,
+}
+
+pub static UPLOADS_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Show current upload settings</dim>
+  <b>stencila site uploads</>
+
+  <dim># Enable uploads with defaults</dim>
+  <b>stencila site uploads on</>
+
+  <dim># Enable uploads for data directory</dim>
+  <b>stencila site uploads on</> <c>--path</> <g>data</>
+
+  <dim># Disable uploads</dim>
+  <b>stencila site uploads off</>
+
+  <dim># Configure allowed file types</dim>
+  <b>stencila site uploads config</> <c>--allowed-types</> <g>csv</> <c>--allowed-types</> <g>json</>
+"
+);
+
+#[derive(Debug, Subcommand)]
+enum UploadsCommand {
+    /// Enable uploads
+    On(UploadsOn),
+    /// Disable uploads
+    Off(UploadsOff),
+    /// Configure upload settings
+    Config(UploadsConfigCmd),
+}
+
+impl Uploads {
+    pub async fn run(self) -> Result<()> {
+        let path = self.path.clone().map_or_else(current_dir, Ok)?;
+
+        // If no subcommand, show current settings
+        let Some(command) = self.command else {
+            return Self::show(&path);
+        };
+
+        match command {
+            UploadsCommand::On(on) => on.run(&path).await,
+            UploadsCommand::Off(off) => off.run(&path).await,
+            UploadsCommand::Config(config) => config.run(&path).await,
+        }
+    }
+
+    fn show(_path: &Path) -> Result<()> {
+        let cfg = get()?;
+
+        let uploads_enabled = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.uploads.as_ref())
+            .map(|u| u.is_enabled())
+            .unwrap_or(false);
+
+        if !uploads_enabled {
+            message!("<bold>Uploads <dim>disabled</></>");
+            return Ok(());
+        }
+
+        let uploads_config = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.uploads.as_ref())
+            .map(|u| u.to_config())
+            .unwrap_or_default();
+
+        message!("<bold>Uploads <g>enabled</></>");
+        message!("──────────────────────");
+
+        if uploads_config.is_public() {
+            message!("Public: <g>yes</>");
+        } else {
+            message!("Public: <r>no</>");
+        }
+
+        if uploads_config.is_anon() {
+            message!("Anonymous: <g>yes</>");
+        } else {
+            message!("Anonymous: <r>no</>");
+        }
+
+        let target_path = uploads_config.target_path();
+        if target_path.is_empty() {
+            message!("Target path: <dim>(repo root)</>");
+        } else {
+            message!("Target path: <c>{}</>", target_path);
+        }
+
+        if let Some(types) = &uploads_config.allowed_types {
+            message!("Allowed types: <y>{}</>", types.join(", "));
+        } else {
+            message!("Allowed types: <dim>(all)</>");
+        }
+
+        message!(
+            "Max size: <c>{}</> bytes ({:.1} MB)",
+            uploads_config.max_size(),
+            uploads_config.max_size() as f64 / (1024.0 * 1024.0)
+        );
+
+        if uploads_config.user_path_enabled() {
+            message!("User path: <g>enabled</>");
+        } else {
+            message!("User path: <dim>disabled</>");
+        }
+
+        if uploads_config.allow_overwrite() {
+            message!("Allow overwrite: <g>yes</>");
+        } else {
+            message!("Allow overwrite: <r>no</>");
+        }
+
+        if uploads_config.require_message() {
+            message!("Require message: <g>yes</>");
+        } else {
+            message!("Require message: <dim>no</>");
+        }
+
+        Ok(())
+    }
+}
+
+/// Enable uploads
+#[derive(Debug, Args)]
+#[command(after_long_help = UPLOADS_ON_AFTER_LONG_HELP)]
+pub struct UploadsOn {
+    /// Unified path for visibility and destination
+    ///
+    /// Controls both which pages show the upload widget (widget on /{path}/** pages)
+    /// and where uploaded files are saved (in {path}/ directory).
+    #[arg(long)]
+    path: Option<String>,
+
+    /// Allowed file extensions (can be specified multiple times)
+    #[arg(long = "allowed-types")]
+    allowed_types: Option<Vec<String>>,
+
+    /// Allow public (non-team member) access
+    #[arg(long)]
+    public: bool,
+
+    /// Disallow public access
+    #[arg(long, conflicts_with = "public")]
+    no_public: bool,
+
+    /// Allow anonymous (no GitHub auth) submissions
+    #[arg(long)]
+    anon: bool,
+
+    /// Disallow anonymous submissions
+    #[arg(long, conflicts_with = "anon")]
+    no_anon: bool,
+}
+
+impl UploadsOn {
+    async fn run(self, path: &Path) -> Result<()> {
+        // Check if we need to convert from boolean to table form
+        if is_uploads_boolean(path) {
+            let _ = unset_value("site.uploads", ConfigTarget::Nearest);
+        }
+
+        // Always use the table form to preserve existing settings
+        set_value("site.uploads.enabled", "true", ConfigTarget::Nearest)?;
+
+        // Set path if specified
+        if let Some(p) = &self.path {
+            set_value("site.uploads.path", p, ConfigTarget::Nearest)?;
+        }
+
+        // Set allowed types if specified
+        if let Some(types) = &self.allowed_types {
+            let types_toml = format_toml_string_array(types);
+            set_value(
+                "site.uploads.allowed-types",
+                &types_toml,
+                ConfigTarget::Nearest,
+            )?;
+        }
+
+        // Set public/anon if specified
+        if self.public {
+            set_value("site.uploads.public", "true", ConfigTarget::Nearest)?;
+        } else if self.no_public {
+            set_value("site.uploads.public", "false", ConfigTarget::Nearest)?;
+        }
+        if self.anon {
+            set_value("site.uploads.anon", "true", ConfigTarget::Nearest)?;
+        } else if self.no_anon {
+            set_value("site.uploads.anon", "false", ConfigTarget::Nearest)?;
+        }
+
+        message!("✅ Uploads enabled");
+
+        // Re-read config to show current settings
+        let cfg = get()?;
+        if let Some(site) = &cfg.site
+            && let Some(uploads) = &site.uploads
+        {
+            let config = uploads.to_config();
+            let target = config.target_path();
+            if target.is_empty() {
+                message!("   Target: (repo root)");
+            } else {
+                message!("   Target: {}", target);
+            }
+        }
+
+        Ok(())
+    }
+}
+
+pub static UPLOADS_ON_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Enable uploads with default settings</dim>
+  <b>stencila site uploads on</>
+
+  <dim># Enable uploads for data directory</dim>
+  <b>stencila site uploads on</> <c>--path</> <g>data</>
+
+  <dim># Enable with allowed file types</dim>
+  <b>stencila site uploads on</> <c>--allowed-types</> <g>csv</> <c>--allowed-types</> <g>json</>
+
+  <dim># Enable but require authentication</dim>
+  <b>stencila site uploads on</> <c>--no-public</> <c>--no-anon</>
+"
+);
+
+/// Disable uploads
+#[derive(Debug, Args)]
+#[command(after_long_help = UPLOADS_OFF_AFTER_LONG_HELP)]
+pub struct UploadsOff;
+
+pub static UPLOADS_OFF_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Disable uploads</dim>
+  <b>stencila site uploads off</>
+"
+);
+
+impl UploadsOff {
+    async fn run(self, _path: &Path) -> Result<()> {
+        set_value("site.uploads", "false", ConfigTarget::Nearest)?;
+        message!("✅ Uploads disabled");
+        Ok(())
+    }
+}
+
+/// Configure upload settings
+#[derive(Debug, Args)]
+#[command(after_long_help = UPLOADS_CONFIG_AFTER_LONG_HELP)]
+pub struct UploadsConfigCmd {
+    /// Allow public (non-team member) access
+    #[arg(long)]
+    public: bool,
+
+    /// Disallow public access
+    #[arg(long, conflicts_with = "public")]
+    no_public: bool,
+
+    /// Allow anonymous (no GitHub auth) submissions
+    #[arg(long)]
+    anon: bool,
+
+    /// Disallow anonymous submissions
+    #[arg(long, conflicts_with = "anon")]
+    no_anon: bool,
+
+    /// Unified path for visibility and destination
+    #[arg(long)]
+    path: Option<String>,
+
+    /// Override: explicit target directory for uploads
+    #[arg(long)]
+    target_path: Option<String>,
+
+    /// Allowed file extensions (can be specified multiple times)
+    #[arg(long = "allowed-types")]
+    allowed_types: Option<Vec<String>>,
+
+    /// Maximum file size in bytes
+    #[arg(long)]
+    max_size: Option<u64>,
+
+    /// Allow users to specify custom upload paths
+    #[arg(long)]
+    user_path: bool,
+
+    /// Disallow custom upload paths
+    #[arg(long, conflicts_with = "user_path")]
+    no_user_path: bool,
+
+    /// Allow overwriting existing files
+    #[arg(long)]
+    allow_overwrite: bool,
+
+    /// Disallow overwriting existing files
+    #[arg(long, conflicts_with = "allow_overwrite")]
+    no_allow_overwrite: bool,
+
+    /// Require a description/commit message
+    #[arg(long)]
+    require_message: bool,
+
+    /// Don't require a message
+    #[arg(long, conflicts_with = "require_message")]
+    no_require_message: bool,
+
+    /// Glob patterns for pages to show widget on (can be specified multiple times)
+    #[arg(long = "include")]
+    include: Option<Vec<String>>,
+
+    /// Glob patterns for pages to hide widget from (can be specified multiple times)
+    #[arg(long = "exclude")]
+    exclude: Option<Vec<String>>,
+}
+
+pub static UPLOADS_CONFIG_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Set upload path</dim>
+  <b>stencila site uploads config</> <c>--path</> <g>data</>
+
+  <dim># Set allowed file types</dim>
+  <b>stencila site uploads config</> <c>--allowed-types</> <g>csv</> <c>--allowed-types</> <g>json</>
+
+  <dim># Set max file size (5MB)</dim>
+  <b>stencila site uploads config</> <c>--max-size</> <g>5242880</>
+
+  <dim># Require commit message</dim>
+  <b>stencila site uploads config</> <c>--require-message</>
+
+  <dim># Allow users to specify custom paths</dim>
+  <b>stencila site uploads config</> <c>--user-path</>
+
+  <dim># Only show on admin pages</dim>
+  <b>stencila site uploads config</> <c>--include</> <g>\"admin/**\"</>
+
+<bold><b>Note</b></bold>
+  Configuring upload settings will automatically enable uploads if not already enabled.
+  Use <b>stencila site uploads off</> afterward if you want to disable.
+"
+);
+
+impl UploadsConfigCmd {
+    async fn run(self, path: &Path) -> Result<()> {
+        // Check if any options were provided - if not, just show current config
+        let has_options = self.public
+            || self.no_public
+            || self.anon
+            || self.no_anon
+            || self.path.is_some()
+            || self.target_path.is_some()
+            || self.allowed_types.is_some()
+            || self.max_size.is_some()
+            || self.user_path
+            || self.no_user_path
+            || self.allow_overwrite
+            || self.no_allow_overwrite
+            || self.require_message
+            || self.no_require_message
+            || self.include.is_some()
+            || self.exclude.is_some();
+
+        if !has_options {
+            // No changes specified, show current config
+            return Uploads::show(path);
+        }
+
+        // Check if we need to convert from boolean to table form
+        if is_uploads_boolean(path) {
+            let _ = unset_value("site.uploads", ConfigTarget::Nearest);
+        }
+
+        // Handle public/no-public
+        if self.public {
+            set_value("site.uploads.public", "true", ConfigTarget::Nearest)?;
+        } else if self.no_public {
+            set_value("site.uploads.public", "false", ConfigTarget::Nearest)?;
+        }
+
+        // Handle anon/no-anon
+        if self.anon {
+            set_value("site.uploads.anon", "true", ConfigTarget::Nearest)?;
+        } else if self.no_anon {
+            set_value("site.uploads.anon", "false", ConfigTarget::Nearest)?;
+        }
+
+        // Handle path
+        if let Some(p) = &self.path {
+            set_value("site.uploads.path", p, ConfigTarget::Nearest)?;
+        }
+
+        // Handle target-path
+        if let Some(tp) = &self.target_path {
+            set_value("site.uploads.target-path", tp, ConfigTarget::Nearest)?;
+        }
+
+        // Handle allowed-types
+        if let Some(types) = &self.allowed_types {
+            let types_toml = format_toml_string_array(types);
+            set_value(
+                "site.uploads.allowed-types",
+                &types_toml,
+                ConfigTarget::Nearest,
+            )?;
+        }
+
+        // Handle max-size
+        if let Some(max_size) = self.max_size {
+            set_value(
+                "site.uploads.max-size",
+                &max_size.to_string(),
+                ConfigTarget::Nearest,
+            )?;
+        }
+
+        // Handle user-path
+        if self.user_path {
+            set_value("site.uploads.user-path", "true", ConfigTarget::Nearest)?;
+        } else if self.no_user_path {
+            set_value("site.uploads.user-path", "false", ConfigTarget::Nearest)?;
+        }
+
+        // Handle allow-overwrite
+        if self.allow_overwrite {
+            set_value(
+                "site.uploads.allow-overwrite",
+                "true",
+                ConfigTarget::Nearest,
+            )?;
+        } else if self.no_allow_overwrite {
+            set_value(
+                "site.uploads.allow-overwrite",
+                "false",
+                ConfigTarget::Nearest,
+            )?;
+        }
+
+        // Handle require-message
+        if self.require_message {
+            set_value(
+                "site.uploads.require-message",
+                "true",
+                ConfigTarget::Nearest,
+            )?;
+        } else if self.no_require_message {
+            set_value(
+                "site.uploads.require-message",
+                "false",
+                ConfigTarget::Nearest,
+            )?;
+        }
+
+        // Handle include patterns
+        if let Some(include) = &self.include {
+            let include_toml = format_toml_string_array(include);
+            set_value("site.uploads.include", &include_toml, ConfigTarget::Nearest)?;
+        }
+
+        // Handle exclude patterns
+        if let Some(exclude) = &self.exclude {
+            let exclude_toml = format_toml_string_array(exclude);
+            set_value("site.uploads.exclude", &exclude_toml, ConfigTarget::Nearest)?;
+        }
+
+        // Ensure uploads are enabled if configuring settings
+        let cfg = get()?;
+        let uploads_enabled = cfg
+            .site
+            .as_ref()
+            .and_then(|s| s.uploads.as_ref())
+            .map(|u| u.is_enabled())
+            .unwrap_or(false);
+
+        if !uploads_enabled {
+            set_value("site.uploads.enabled", "true", ConfigTarget::Nearest)?;
+        }
+
+        // Re-read and validate the updated config
+        let cfg = get()?;
+        if let Some(site) = &cfg.site
+            && let Some(uploads) = &site.uploads
+        {
+            uploads.validate()?;
+        }
+
+        if !uploads_enabled {
+            message!("✅ Uploads enabled and configured");
+        } else {
+            message!("✅ Upload settings updated");
+        }
+
+        Ok(())
+    }
 }

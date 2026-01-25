@@ -1,0 +1,570 @@
+/* Site Action Base Component
+ *
+ * Shared styles for site action components (review, upload, subscribe, connect).
+ * Provides common FAB, panel, button, and status styles.
+ *
+ * DEPENDENCY: This file MUST be imported after tokens-semantic.css which defines
+ * the semantic tokens used below.
+ *
+ * Structure:
+ * - .site-action-fab: Floating action button
+ * - .site-action-badge: Notification badge on FAB
+ * - .site-action-panel: Panel container
+ * - .site-action-panel-header: Panel header with title and close
+ * - .site-action-panel-content: Scrollable content area
+ * - .site-action-panel-footer: Footer with auth/submit UI
+ * - .site-action-backdrop: Semi-transparent overlay
+ * - .site-action-modal: Modal dialog
+ * - .site-action-btn: Button styles
+ * - .site-action-empty-state: Empty state display
+ */
+
+/* ==========================================================================
+   Design Tokens
+   ========================================================================== */
+
+:root {
+  /* Panel dimensions */
+  --site-action-panel-width: 360px;
+  --site-action-panel-max-height: calc(100vh - 80px);
+  --site-action-panel-padding: var(--space-3);
+
+  /* FAB dimensions */
+  --site-action-fab-size: 48px;
+  --site-action-fab-size-lg: 56px;
+  --site-action-fab-icon-size: 24px;
+  --site-action-fab-icon-size-sm: 20px;
+
+  /* Badge */
+  --site-action-badge-size: 20px;
+  --site-action-badge-size-sm: 16px;
+  --site-action-badge-offset: -4px;
+
+  /* Colors - reference semantic tokens */
+  --site-action-fab-bg: var(--color-accent);
+  --site-action-fab-bg-hover: var(--color-blue-600);
+  --site-action-fab-color: white;
+  --site-action-panel-bg: var(--surface-elevated);
+  --site-action-badge-bg: var(--color-red-500);
+  --site-action-badge-color: white;
+
+  /* Z-index layers */
+  --site-action-z-backdrop: 9999;
+  --site-action-z-panel: 9997;
+  --site-action-z-fab: 9998;
+  --site-action-z-modal: 10001;
+
+  /* Transitions */
+  --site-action-transition: var(--transition-duration-fast) ease;
+}
+
+/* ==========================================================================
+   FAB (Floating Action Button)
+   ========================================================================== */
+
+.site-action-fab {
+  position: fixed;
+  z-index: var(--site-action-z-fab);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--site-action-fab-size);
+  height: var(--site-action-fab-size);
+  border: none;
+  border-radius: 50%;
+  background: var(--site-action-fab-bg);
+  color: var(--site-action-fab-color);
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition:
+    transform var(--site-action-transition),
+    background var(--site-action-transition);
+}
+
+.site-action-fab:hover {
+  background: var(--site-action-fab-bg-hover);
+  transform: scale(1.05);
+}
+
+.site-action-fab:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.site-action-fab:active {
+  transform: scale(0.98);
+}
+
+.site-action-fab .fab-icon {
+  display: inline-block;
+  width: var(--site-action-fab-icon-size);
+  height: var(--site-action-fab-icon-size);
+  background-color: currentColor;
+}
+
+/* Large FAB variant (56px) */
+.site-action-fab-lg {
+  width: var(--site-action-fab-size-lg);
+  height: var(--site-action-fab-size-lg);
+}
+
+/* Secondary FAB variant (muted colors, smaller) */
+.site-action-fab-secondary {
+  width: calc(var(--site-action-fab-size) - 8px);
+  height: calc(var(--site-action-fab-size) - 8px);
+  background: var(--surface-elevated);
+  color: var(--text-color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.site-action-fab-secondary:hover {
+  background: var(--surface-sunken);
+  transform: scale(1.08);
+}
+
+.site-action-fab-secondary .fab-icon {
+  width: var(--site-action-fab-icon-size-sm);
+  height: var(--site-action-fab-icon-size-sm);
+}
+
+/* ==========================================================================
+   Badge
+   ========================================================================== */
+
+.site-action-badge {
+  position: absolute;
+  top: var(--site-action-badge-offset);
+  right: var(--site-action-badge-offset);
+  min-width: var(--site-action-badge-size);
+  height: var(--site-action-badge-size);
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--site-action-badge-bg);
+  color: var(--site-action-badge-color);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--site-action-badge-size);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.site-action-badge-sm {
+  min-width: var(--site-action-badge-size-sm);
+  height: var(--site-action-badge-size-sm);
+  padding: 0 4px;
+  font-size: 10px;
+  line-height: var(--site-action-badge-size-sm);
+}
+
+/* ==========================================================================
+   Panel
+   ========================================================================== */
+
+.site-action-panel {
+  position: fixed;
+  z-index: var(--site-action-z-panel);
+  display: flex;
+  flex-direction: column;
+  background: var(--site-action-panel-bg);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-lg);
+  padding: var(--site-action-panel-padding);
+  width: var(--site-action-panel-width);
+  max-width: calc(100vw - 32px);
+  max-height: var(--site-action-panel-max-height);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--layout-font-family);
+}
+
+/* Panel header */
+.site-action-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-color-default);
+}
+
+.site-action-panel-header .panel-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-color-primary);
+}
+
+.site-action-panel-header .panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--site-action-transition),
+    color var(--site-action-transition);
+}
+
+.site-action-panel-header .panel-close:hover {
+  background: var(--surface-sunken);
+  color: var(--text-color-primary);
+}
+
+.site-action-panel-header .panel-close span {
+  width: 18px;
+  height: 18px;
+}
+
+/* Panel content - scrollable area */
+.site-action-panel-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Panel footer */
+.site-action-panel-footer {
+  position: relative;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color-default);
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* ==========================================================================
+   Backdrop
+   ========================================================================== */
+
+.site-action-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--site-action-z-backdrop);
+  background: rgb(0 0 0 / 0.3);
+}
+
+.site-action-backdrop-transparent {
+  background: transparent;
+  z-index: 49;
+}
+
+/* ==========================================================================
+   Modal
+   ========================================================================== */
+
+.site-action-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--site-action-z-modal);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--layout-font-family);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color-default);
+}
+
+.site-action-modal h4 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-primary);
+}
+
+.site-action-modal p {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--text-color-secondary);
+}
+
+.site-action-modal .buttons {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+/* Error modal variant */
+.site-action-modal.error {
+  background: var(--color-error-muted);
+  border-color: var(--color-red-200);
+}
+
+.site-action-modal.error h4 {
+  color: var(--color-red-600);
+}
+
+.site-action-modal.error p {
+  color: var(--color-error);
+}
+
+/* Warning modal variant */
+.site-action-modal.warning {
+  background: var(--color-warning-muted);
+  border-color: var(--color-amber-300);
+}
+
+.site-action-modal.warning h4 {
+  color: var(--color-warning);
+}
+
+.site-action-modal.warning p {
+  color: var(--color-warning);
+}
+
+/* Success modal variant */
+.site-action-modal.success {
+  background: var(--color-success-muted);
+  border-color: var(--color-green-300);
+  text-align: center;
+}
+
+.site-action-modal.success h4 {
+  color: var(--color-success);
+  font-size: var(--font-size-base);
+}
+
+.site-action-modal.success p {
+  color: var(--color-success);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.site-action-btn {
+  display: inline-block;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color var(--site-action-transition);
+}
+
+.site-action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Primary button */
+.site-action-btn-primary,
+.site-action-btn.primary {
+  background: var(--color-accent);
+  color: white;
+}
+
+.site-action-btn-primary:hover:not(:disabled),
+.site-action-btn.primary:hover:not(:disabled) {
+  background: var(--color-blue-600);
+}
+
+/* Secondary button */
+.site-action-btn-secondary,
+.site-action-btn.secondary {
+  background: var(--surface-sunken);
+  color: var(--text-color-primary);
+}
+
+.site-action-btn-secondary:hover:not(:disabled),
+.site-action-btn.secondary:hover:not(:disabled) {
+  background: var(--border-color-default);
+}
+
+/* Warning button */
+.site-action-btn.warning {
+  background: var(--color-amber-500);
+  color: white;
+}
+
+.site-action-btn.warning:hover:not(:disabled) {
+  background: var(--color-amber-600);
+}
+
+/* Icon-only button */
+.site-action-btn.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.site-action-btn.icon-only span {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-color: currentColor;
+}
+
+/* Small button variant */
+.site-action-btn-sm {
+  padding: 6px var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+/* Button icon (inline) */
+.site-action-btn-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  vertical-align: -2px;
+  margin-right: var(--space-1);
+}
+
+/* ==========================================================================
+   Footer Status
+   ========================================================================== */
+
+.site-action-status,
+.footer-status {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-2xs);
+  text-align: center;
+  line-height: var(--line-height-normal);
+}
+
+.site-action-status.muted,
+.footer-status.muted {
+  color: var(--text-color-secondary);
+}
+
+.site-action-status.success,
+.footer-status.success {
+  color: var(--color-success);
+}
+
+.site-action-status.error,
+.footer-status.error {
+  color: var(--color-error);
+}
+
+.site-action-status.warning,
+.footer-status.warning {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-1);
+  color: var(--color-warning);
+}
+
+.site-action-status .warning-icon,
+.footer-status .warning-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+}
+
+/* Auth links in footer status */
+.site-action-status .auth-link,
+.footer-status .auth-link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.site-action-status .auth-link:hover,
+.footer-status .auth-link:hover {
+  text-decoration: underline;
+}
+
+/* PR link in success status */
+.site-action-status .pr-link,
+.footer-status .pr-link {
+  color: var(--color-success);
+  text-decoration: underline;
+  margin-left: var(--space-1);
+}
+
+.site-action-status .pr-link:hover,
+.footer-status .pr-link:hover {
+  color: var(--color-green-600);
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
+.site-action-empty-state {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.site-action-empty-state .empty-icon {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-3);
+  background-color: var(--text-color-muted);
+  opacity: 0.5;
+}
+
+.site-action-empty-state h4 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-primary);
+}
+
+.site-action-empty-state p {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  line-height: var(--line-height-normal);
+}
+
+/* ==========================================================================
+   Auth Prompt
+   ========================================================================== */
+
+.site-action-auth-prompt {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.site-action-auth-prompt a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.site-action-auth-prompt a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Footer Buttons Row
+   ========================================================================== */
+
+.site-action-footer-buttons,
+.footer-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.site-action-footer-buttons .site-action-btn-primary,
+.site-action-footer-buttons .btn.primary,
+.footer-buttons .btn.primary {
+  flex: 1;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  :root {
+    --site-action-panel-width: calc(100vw - 32px);
+  }
+}

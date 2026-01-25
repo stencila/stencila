@@ -9,21 +9,6 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// Position for the reviews widget on the page
-#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
-pub enum ReviewsPosition {
-    /// Bottom-right corner (default)
-    #[default]
-    BottomRight,
-    /// Bottom-left corner
-    BottomLeft,
-    /// Top-right corner
-    TopRight,
-    /// Top-left corner
-    TopLeft,
-}
-
 /// Allowed review item types
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
@@ -41,7 +26,6 @@ pub enum ReviewType {
 /// enabled = true
 /// public = true
 /// anon = false
-/// position = "bottom-right"
 /// types = ["comment", "suggestion"]
 /// min-selection = 3
 /// max-selection = 5000
@@ -49,6 +33,8 @@ pub enum ReviewType {
 /// include = ["docs/**"]
 /// exclude = ["api/**"]
 /// ```
+///
+/// Note: Position is configured via `[site.actions]`, not here.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case", deny_unknown_fields)]
@@ -72,11 +58,6 @@ pub struct ReviewsConfig {
     /// users must connect their GitHub account to submit reviews.
     /// Default: false
     pub anon: Option<bool>,
-
-    /// Position of the reviews widget on the page
-    ///
-    /// Default: bottom-right
-    pub position: Option<ReviewsPosition>,
 
     /// Allowed review item types
     ///
@@ -127,11 +108,6 @@ impl ReviewsConfig {
     /// Get the effective anon setting (defaults to false)
     pub fn is_anon(&self) -> bool {
         self.anon.unwrap_or(false)
-    }
-
-    /// Get the effective position (defaults to BottomRight)
-    pub fn position(&self) -> ReviewsPosition {
-        self.position.unwrap_or_default()
     }
 
     /// Get the effective min_selection (defaults to 1)
@@ -221,15 +197,20 @@ fn validate_glob_pattern(pattern: &str, field: &str) -> Result<()> {
             );
         }
 
-        // For patterns with **, we can't fully validate them with the glob crate
-        // since it doesn't support ** the same way. Just do basic validation
-        // of any character classes.
-        let without_stars = pattern.replace("**", "");
-        if (without_stars.contains('[') || without_stars.contains('*'))
-            && let Err(e) = glob::Pattern::new(&without_stars.replace('/', ""))
-        {
-            bail!("Invalid reviews config: {field} pattern \"{pattern}\" is not a valid glob: {e}");
+        // Reject patterns with glob metacharacters in the suffix (after **)
+        // Runtime uses literal string matching for suffix, so patterns like
+        // "docs/**/*.md" won't work as expected
+        let parts: Vec<&str> = pattern.split("**").collect();
+        if parts.len() == 2 {
+            let suffix = parts[1].trim_start_matches('/');
+            if suffix.contains('*') || suffix.contains('?') || suffix.contains('[') {
+                bail!(
+                    "Invalid reviews config: {field} pattern \"{pattern}\" has glob wildcards after **. \
+                    Use \"docs/**\" to match all files, not \"docs/**/*.md\""
+                );
+            }
         }
+
         return Ok(());
     }
 
@@ -322,7 +303,6 @@ mod tests {
             "enabled": true,
             "public": false,
             "anon": true,
-            "position": "top-left",
             "types": ["comment"],
             "min-selection": 20,
             "max-selection": 1000,
@@ -334,25 +314,11 @@ mod tests {
         let config = spec.to_config();
         assert!(!config.is_public());
         assert!(config.is_anon());
-        assert_eq!(config.position(), ReviewsPosition::TopLeft);
         assert!(config.allows_comments());
         assert!(!config.allows_suggestions());
         assert_eq!(config.min_selection(), 20);
         assert_eq!(config.max_selection(), 1000);
         assert!(config.shortcuts_enabled());
-        Ok(())
-    }
-
-    #[test]
-    fn test_reviews_position_serialization() -> Result<(), serde_json::Error> {
-        assert_eq!(
-            serde_json::to_string(&ReviewsPosition::BottomRight)?,
-            "\"bottom-right\""
-        );
-        assert_eq!(
-            serde_json::to_string(&ReviewsPosition::TopLeft)?,
-            "\"top-left\""
-        );
         Ok(())
     }
 

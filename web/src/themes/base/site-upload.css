@@ -1,0 +1,351 @@
+/* Site Upload Component
+ *
+ * Upload-specific styles for the site-upload component.
+ * Base panel, FAB, and button styles are in site-action.css
+ *
+ * Structure:
+ * - stencila-site-upload: Custom element (extends SiteAction)
+ *   - .tabs: Tab navigation
+ *   - .dropzone: Drag and drop area
+ *   - .file-browser: File browser for update mode
+ *   - .pending: List of pending uploads
+ *   - .message: Description textarea
+ */
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+stencila-site-upload {
+  display: block;
+  font-family: var(--layout-font-family);
+  font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+
+stencila-site-upload .tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color-default);
+}
+
+stencila-site-upload .tab {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+stencila-site-upload .tab:hover {
+  color: var(--text-color-primary);
+}
+
+stencila-site-upload .tab.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   Tab Content Area
+   ========================================================================== */
+
+stencila-site-upload .content {
+  padding: var(--space-4);
+}
+
+/* ==========================================================================
+   Dropzone
+   ========================================================================== */
+
+stencila-site-upload .dropzone {
+  border: 2px dashed var(--border-color-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+  position: relative;
+}
+
+stencila-site-upload .dropzone.drag-over {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
+
+stencila-site-upload .dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+stencila-site-upload .dropzone-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--text-color-muted);
+}
+
+stencila-site-upload .dropzone p {
+  margin: 0;
+  color: var(--text-color-primary);
+}
+
+stencila-site-upload .hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+stencila-site-upload .dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+stencila-site-upload .update-dropzone {
+  padding: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+/* ==========================================================================
+   File Browser (Update mode)
+   ========================================================================== */
+
+stencila-site-upload .file-browser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+stencila-site-upload .file-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-md);
+}
+
+stencila-site-upload .file-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+stencila-site-upload .file-item:hover {
+  background: var(--surface-sunken);
+}
+
+stencila-site-upload .file-item.selected {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+stencila-site-upload .file-icon {
+  color: var(--text-color-muted);
+  flex-shrink: 0;
+}
+
+stencila-site-upload .file-path {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+stencila-site-upload .file-size {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+stencila-site-upload .file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Loading / Empty States
+   ========================================================================== */
+
+stencila-site-upload .loading,
+stencila-site-upload .empty {
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--text-color-muted);
+}
+
+/* ==========================================================================
+   Pending Files
+   ========================================================================== */
+
+stencila-site-upload .pending {
+  border-top: 1px solid var(--border-color-default);
+  padding: var(--space-3) var(--space-4);
+}
+
+stencila-site-upload .pending-header {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-color-primary);
+}
+
+stencila-site-upload .pending-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+stencila-site-upload .pending-file {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-rows: auto auto;
+  gap: var(--space-1) var(--space-2);
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-color-muted);
+}
+
+stencila-site-upload .pending-file:last-child {
+  border-bottom: none;
+}
+
+stencila-site-upload .file-info {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow: hidden;
+}
+
+stencila-site-upload .overwrite-badge {
+  font-size: var(--font-size-xs);
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+stencila-site-upload .pending-file .file-size {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+stencila-site-upload .remove-btn {
+  grid-column: 3;
+  grid-row: 1;
+  background: none;
+  border: none;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  padding: var(--space-1);
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+stencila-site-upload .remove-btn:hover {
+  color: var(--color-red-500);
+  background: color-mix(in srgb, var(--color-red-500) 10%, transparent);
+}
+
+stencila-site-upload .pending-file .file-path {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+stencila-site-upload .path-input {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+}
+
+stencila-site-upload .pending-file .file-path span {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   Message Input
+   ========================================================================== */
+
+stencila-site-upload .message {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-color-default);
+}
+
+stencila-site-upload .message-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+stencila-site-upload .message-label .required {
+  color: var(--color-red-500);
+}
+
+stencila-site-upload .message-input {
+  width: 100%;
+  min-height: 60px;
+  padding: var(--space-2);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  resize: vertical;
+}
+
+stencila-site-upload .message-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme="light"]) stencila-site-upload .overwrite-badge {
+    background: var(--color-amber-900);
+    color: var(--color-amber-200);
+  }
+}
+
+:root[data-color-scheme="dark"] stencila-site-upload .overwrite-badge {
+  background: var(--color-amber-900);
+  color: var(--color-amber-200);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  stencila-site-upload .dropzone {
+    padding: var(--space-4);
+  }
+
+  stencila-site-upload .dropzone-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
