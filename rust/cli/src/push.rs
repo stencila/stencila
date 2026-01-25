@@ -15,6 +15,7 @@ use url::Url;
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
+use stencila_codec_gdoc::GDocError;
 use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 use stencila_codecs::PushResult;
 use stencila_document::Document;
@@ -432,6 +433,7 @@ impl Cli {
                             }
                         }
                         Err(error) => {
+                            let error = Self::gdoc_error_with_picker_url(error);
                             message!("❌ Failed to push to {}: {}", remote_url, error);
                             errors.push((remote_url.clone(), error.to_string()));
                         }
@@ -555,7 +557,8 @@ impl Cli {
             doc.path(),
             None,
         )
-        .await?;
+        .await
+        .map_err(Self::gdoc_error_with_picker_url)?;
 
         // Handle the result
         let url = match result {
@@ -867,6 +870,7 @@ impl Cli {
                         }
                     }
                     Err(error) => {
+                        let error = Self::gdoc_error_with_picker_url(error);
                         message!("❌ Failed to push to {}: {}", remote_url, error);
                         file_errors += 1;
                     }
@@ -1163,6 +1167,7 @@ impl Cli {
                     successes.push((run_args, url));
                 }
                 Err(e) => {
+                    let e = Self::gdoc_error_with_picker_url(e);
                     message!("  ✗ Error: {}", e);
                     errors.push((run_args.clone(), e.to_string()));
 
@@ -1265,5 +1270,37 @@ impl Cli {
                 .join("-");
             format!("{} - {}", base, variant_str)
         }
+    }
+
+    /// Convert a Google Docs error into a user-friendly message with picker URL
+    ///
+    /// If the error is a `GDocError::AccessDenied` or `GDocError::NotLinked`,
+    /// wraps with a helpful message including a link to grant access.
+    /// Preserves the original error chain for debugging.
+    fn gdoc_error_with_picker_url(error: eyre::Report) -> eyre::Report {
+        if let Some(gdoc_err) = error.downcast_ref::<GDocError>() {
+            match gdoc_err {
+                GDocError::AccessDenied { doc_id } => {
+                    let picker_url = stencila_cloud::google_picker_url(Some(doc_id));
+                    return error.wrap_err(format!(
+                        "Access denied to Google Doc.\n\n\
+                         Grant Stencila access by visiting:\n  {}\n\n\
+                         Then retry the push command.",
+                        picker_url
+                    ));
+                }
+                GDocError::NotLinked => {
+                    let picker_url = stencila_cloud::google_picker_url(None);
+                    return error.wrap_err(format!(
+                        "Google account not linked to Stencila.\n\n\
+                         Connect your account and grant access by visiting:\n  {}\n\n\
+                         Then retry the push command.",
+                        picker_url
+                    ));
+                }
+                GDocError::Other(_) => {}
+            }
+        }
+        error
     }
 }

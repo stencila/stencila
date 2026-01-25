@@ -65,10 +65,13 @@ struct DriveFileMetadata {
 /// If `existing_url` is provided, updates the existing document.
 /// Otherwise, creates a new document.
 ///
-/// This function will obtain a Google Drive access token from Stencila Cloud,
-/// prompting the user to connect their account if necessary.
+/// This function will obtain a Google Drive access token from Stencila Cloud.
 ///
-/// Returns a PushResult with the URL of the Google Doc.
+/// Returns `GDocError::NotLinked` if the Google account is not connected.
+/// Returns `GDocError::AccessDenied` if the app doesn't have access to the
+/// document (when updating an existing document).
+///
+/// Returns a PushResult with the URL of the Google Doc on success.
 pub async fn push(
     node: &Node,
     path: Option<&Path>,
@@ -76,9 +79,17 @@ pub async fn push(
     url: Option<&Url>,
     dry_run: Option<PushDryRunOptions>,
 ) -> Result<PushResult> {
-    // Get access token only if not in dry-run mode
+    // Get access token only if not in dry-run mode (non-retrying so caller can handle errors)
     let access_token = if dry_run.is_none() {
-        Some(stencila_cloud::get_token("google").await?)
+        match stencila_cloud::google_get_token_once().await {
+            Ok(token) => Some(token),
+            Err(stencila_cloud::GoogleTokenError::NotLinked { .. }) => {
+                return Err(GDocError::NotLinked.into());
+            }
+            Err(e) => {
+                return Err(GDocError::Other(eyre::eyre!("{e}")).into());
+            }
+        }
     } else {
         None
     };
@@ -285,6 +296,19 @@ async fn update(
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
+
+        // Check for access denied (403/404)
+        if status.as_u16() == 403
+            || status.as_u16() == 404
+            || error_text.contains("notFound")
+            || error_text.contains("forbidden")
+        {
+            return Err(GDocError::AccessDenied {
+                doc_id: doc_id.to_string(),
+            }
+            .into());
+        }
+
         bail!("Failed to update Google Doc ({status}): {error_text}");
     }
 
@@ -359,8 +383,7 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<(), GDocError> {
 
     // Pre-process the DOCX to restore inline code styling that may have been
     // lost in Google Docs (which doesn't support character styles like "Verbatim Char")
-    stencila_codec_docx::preprocess::restore_verbatim_char_style(dest)
-        .map_err(GDocError::Other)?;
+    stencila_codec_docx::preprocess::restore_verbatim_char_style(dest).map_err(GDocError::Other)?;
 
     Ok(())
 }

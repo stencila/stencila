@@ -338,7 +338,9 @@ impl Cli {
                 // Retry after user connects and grants access
                 stencila_codec_gdoc::pull(url, &pulled_path)
                     .await
-                    .map_err(|e| eyre!("{e}"))?;
+                    .map_err(|e| {
+                        eyre::Report::from(e).wrap_err("Pull failed after connecting account")
+                    })?;
             }
             Err(GDocError::AccessDenied { doc_id }) => {
                 // Access denied - open picker with specific doc_id so user can grant access
@@ -362,9 +364,11 @@ impl Cli {
                 // Retry after user grants access via picker
                 stencila_codec_gdoc::pull(url, &pulled_path)
                     .await
-                    .map_err(|e| eyre!("{e}"))?;
+                    .map_err(|e| {
+                        eyre::Report::from(e).wrap_err("Pull failed after granting access")
+                    })?;
             }
-            Err(e) => bail!("{e}"),
+            Err(e) => return Err(eyre::Report::from(e)),
         }
 
         // Merge or replace the local file
