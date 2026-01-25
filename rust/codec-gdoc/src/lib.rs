@@ -5,6 +5,7 @@ use eyre::{Result, bail, eyre};
 use reqwest::{Client, multipart};
 use serde::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
+use thiserror::Error;
 use url::Url;
 
 use stencila_codec::{
@@ -12,6 +13,30 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 use stencila_codec_docx::DocxCodec;
+
+/// Error type for Google Docs operations
+#[derive(Debug, Error)]
+pub enum GDocError {
+    /// Google account not linked to Stencila account
+    ///
+    /// The user needs to connect their Google account via the Stencila Cloud picker.
+    #[error("Google account not linked. Use Google Picker to connect and grant access.")]
+    NotLinked,
+
+    /// Access denied to the document (403/404)
+    ///
+    /// The user needs to grant access via the Google Picker.
+    /// The `doc_id` can be used to construct a picker URL.
+    #[error("Access denied to Google Doc '{doc_id}'. Use Google Picker to grant access.")]
+    AccessDenied {
+        /// The Google Doc ID that access was denied to
+        doc_id: String,
+    },
+
+    /// Other error
+    #[error("{0}")]
+    Other(#[from] eyre::Report),
+}
 
 /// Information about a Google Doc
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -273,14 +298,26 @@ async fn update(
 ///
 /// Downloads the document as DOCX and saves it to the specified path.
 ///
-/// This function will obtain a Google Drive access token from Stencila Cloud,
-/// prompting the user to connect their account if necessary.
-pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
-    // Get access token from Stencila Cloud
-    let access_token = stencila_cloud::get_token("google").await?;
-
-    // Extract document ID
+/// Returns `GDocError::NotLinked` if the Google account is not connected.
+/// Returns `GDocError::AccessDenied` if the app doesn't have access to the
+/// document. The caller should handle both by prompting the user via the
+/// Google Picker, then retrying.
+///
+/// This function uses a non-retrying token fetch so callers can handle
+/// connection errors appropriately (e.g., by opening the picker).
+pub async fn pull(url: &Url, dest: &Path) -> Result<(), GDocError> {
     let doc_id = extract_doc_id(url)?;
+
+    // Get access token from Stencila Cloud (non-retrying)
+    let access_token = match stencila_cloud::google_get_token_once().await {
+        Ok(token) => token,
+        Err(stencila_cloud::GoogleTokenError::NotLinked { .. }) => {
+            return Err(GDocError::NotLinked);
+        }
+        Err(e) => {
+            return Err(GDocError::Other(eyre::eyre!("{e}")));
+        }
+    };
 
     // Download the document as DOCX
     let client = Client::new();
@@ -290,21 +327,40 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
         ))
         .header("Authorization", format!("Bearer {access_token}"))
         .send()
-        .await?;
+        .await
+        .map_err(|e| GDocError::Other(e.into()))?;
 
-    if !response.status().is_success() {
-        let status = response.status();
+    let status = response.status();
+    if !status.is_success() {
         let error_text = response.text().await.unwrap_or_default();
-        bail!("Failed to download from Google Docs ({status}): {error_text}");
+
+        // Check for access denied (403/404)
+        if status.as_u16() == 403
+            || status.as_u16() == 404
+            || error_text.contains("notFound")
+            || error_text.contains("forbidden")
+        {
+            return Err(GDocError::AccessDenied { doc_id });
+        }
+
+        return Err(GDocError::Other(eyre::eyre!(
+            "Failed to download from Google Docs ({status}): {error_text}"
+        )));
     }
 
     // Write the downloaded bytes directly to the destination
-    let bytes = response.bytes().await?;
-    tokio::fs::write(dest, &bytes).await?;
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|error| GDocError::Other(error.into()))?;
+    tokio::fs::write(dest, &bytes)
+        .await
+        .map_err(|error| GDocError::Other(error.into()))?;
 
     // Pre-process the DOCX to restore inline code styling that may have been
     // lost in Google Docs (which doesn't support character styles like "Verbatim Char")
-    stencila_codec_docx::preprocess::restore_verbatim_char_style(dest)?;
+    stencila_codec_docx::preprocess::restore_verbatim_char_style(dest)
+        .map_err(GDocError::Other)?;
 
     Ok(())
 }

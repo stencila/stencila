@@ -168,7 +168,9 @@ impl RemoteService {
     /// the correct DOCX when multiple are attached.
     pub async fn pull(&self, url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<()> {
         match self {
-            Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest).await,
+            Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest)
+                .await
+                .map_err(|error| eyre!(error)),
             Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
             Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
             Self::StencilaEmail => stencila_cloud::email::pull(url, dest, target_path, None).await,

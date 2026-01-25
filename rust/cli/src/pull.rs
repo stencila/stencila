@@ -1,11 +1,16 @@
-use std::path::PathBuf;
+use std::{
+    io::{BufRead, Write},
+    path::PathBuf,
+};
 
 use chrono::Utc;
 use clap::Parser;
 use eyre::{Result, bail, eyre};
+use tempfile::tempdir;
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
+use stencila_codec_gdoc::GDocError;
 use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_remotes::{RemoteService, get_remotes_for_path, update_remote_timestamp};
 
@@ -69,27 +74,29 @@ impl Cli {
 
         let path_display = self.path.display();
 
-        // Validate input file exists
-        if !self.path.exists() {
-            bail!("File `{path_display}` does not exist");
-        }
-
-        // Get remotes for the path
-        let remote_infos = get_remotes_for_path(&self.path, None).await?;
+        // Get remotes for the path (only if file exists)
+        let remote_infos = if self.path.exists() {
+            get_remotes_for_path(&self.path, None).await?
+        } else {
+            Vec::new()
+        };
 
         // Determine the target to pull from
         let (service, url) = if let Some(target_str) = &self.from {
             // Target or service shorthand specified
             match target_str.as_str() {
                 "gdoc" | "gdocs" => {
-                    // Find configured Google Docs remote
-                    let url = remote_infos
+                    // Find configured Google Docs remote, or trigger picker if none
+                    match remote_infos
                         .iter()
                         .find(|info| RemoteService::GoogleDocs.matches_url(&info.url))
-                        .ok_or_else(|| eyre!("No Google Doc configured for `{path_display}`"))?
-                        .url
-                        .clone();
-                    (RemoteService::GoogleDocs, url)
+                    {
+                        Some(info) => (RemoteService::GoogleDocs, info.url.clone()),
+                        None => {
+                            // No configured remote - use browse workflow with picker
+                            return self.run_gdoc_picker_pull().await;
+                        }
+                    }
                 }
                 "m365" => {
                     // Find configured Microsoft 365 remote
@@ -125,7 +132,13 @@ impl Cli {
         } else {
             // No target or service specified, find any configured remote
             if remote_infos.is_empty() {
-                bail!("No remotes configured for `{path_display}`",);
+                if !self.path.exists() {
+                    bail!(
+                        "File `{path_display}` does not exist.\n\
+                         Use --from with a URL to pull and create the file."
+                    );
+                }
+                bail!("No remotes configured for `{path_display}`");
             }
 
             // Error if multiple remotes are configured
@@ -159,7 +172,23 @@ impl Cli {
 
         message!("⬇️ Pulling from {} at {}", service.display_name(), url);
 
-        // Pull and update the local file
+        // For Google Docs, use the picker-based pull with access denied retry
+        if matches!(service, RemoteService::GoogleDocs) {
+            self.pull_gdoc_with_retry(&url).await?;
+
+            // Track the remote pull
+            update_remote_timestamp(
+                &self.path,
+                url.as_ref(),
+                Some(Utc::now().timestamp() as u64),
+                None,
+            )
+            .await?;
+
+            return Ok(());
+        }
+
+        // Pull and update the local file (for non-Google Docs services)
         let modified_files = stencila_codecs::pull(
             &service,
             &url,
@@ -199,6 +228,178 @@ impl Cli {
         .await?;
 
         Ok(())
+    }
+
+    /// Run Google Docs picker pull mode (browse workflow)
+    ///
+    /// Opens the Google Picker to let the user browse and select a document,
+    /// then pulls and merges it with the local file.
+    #[allow(clippy::print_stderr)]
+    async fn run_gdoc_picker_pull(&self) -> Result<()> {
+        // Open the Google Picker in browser
+        let picker_url = stencila_cloud::google_picker_url(None);
+
+        message!("📂 Opening Google Picker to select a document...");
+
+        if let Err(err) = webbrowser::open(&picker_url) {
+            message!("⚠️ Failed to open browser: {}", err);
+            message!("Please visit manually: {}", picker_url);
+        }
+
+        // Wait for user to paste the selected URL (use eprint! for same-line prompt)
+        eprint!("After selecting a file, paste the Google Docs URL here: ");
+        std::io::stderr().flush()?;
+        let url_str = Self::read_line()?;
+
+        let selected_url = Url::parse(url_str.trim()).map_err(|e| eyre!("Invalid URL: {e}"))?;
+
+        // Validate it's a Google Docs URL before proceeding
+        if !RemoteService::GoogleDocs.matches_url(&selected_url) {
+            bail!(
+                "URL is not a Google Docs document: {}\n\
+                 Expected format: https://docs.google.com/document/d/...",
+                selected_url
+            );
+        }
+
+        // Pull from the selected URL (with access denied retry)
+        self.pull_gdoc_with_retry(&selected_url).await?;
+
+        // Track the remote for future pulls
+        update_remote_timestamp(
+            &self.path,
+            selected_url.as_ref(),
+            Some(Utc::now().timestamp() as u64),
+            None,
+        )
+        .await?;
+
+        message!("✅ Linked `{}` to {}", self.path.display(), selected_url);
+
+        Ok(())
+    }
+
+    /// Pull from a Google Doc URL with interactive retry on access denied
+    #[allow(clippy::print_stderr)]
+    async fn pull_gdoc_with_retry(&self, url: &Url) -> Result<()> {
+        // Create temp directory for the pulled DOCX
+        let temp_dir = tempdir()?;
+        let pulled_path = temp_dir.path().join("pulled.docx");
+
+        // First attempt
+        let result = stencila_codec_gdoc::pull(url, &pulled_path).await;
+
+        match result {
+            Ok(()) => {}
+            Err(GDocError::NotLinked) => {
+                // Google account not linked - open picker to connect and grant access
+                let doc_id = stencila_codec_gdoc::extract_doc_id(url)?;
+                let picker_url = stencila_cloud::google_picker_url(Some(&doc_id));
+
+                message!("🔗 Google account not linked to Stencila");
+                message!("🌐 Opening browser to connect your account and grant access...");
+
+                if let Err(err) = webbrowser::open(&picker_url) {
+                    message!("⚠️ Failed to open browser: {}", err);
+                    message!("Please visit manually: {}", picker_url);
+                }
+
+                // Use eprint! for same-line prompt
+                eprint!(
+                    "After connecting and granting access in the picker, press Enter to retry: "
+                );
+                std::io::stderr().flush()?;
+                Self::wait_for_enter()?;
+
+                message!("🔄 Retrying download...");
+
+                // Retry after user connects and grants access
+                stencila_codec_gdoc::pull(url, &pulled_path)
+                    .await
+                    .map_err(|e| eyre!("{e}"))?;
+            }
+            Err(GDocError::AccessDenied { doc_id }) => {
+                // Access denied - open picker with specific doc_id so user can grant access
+                let picker_url = stencila_cloud::google_picker_url(Some(&doc_id));
+
+                message!("🔒 Access denied to this Google Doc");
+                message!("🌐 Opening browser so you can grant Stencila access to this document...");
+
+                if let Err(err) = webbrowser::open(&picker_url) {
+                    message!("⚠️ Failed to open browser: {}", err);
+                    message!("Please visit manually: {}", picker_url);
+                }
+
+                // Use eprint! for same-line prompt
+                eprint!("After granting access in the picker, press Enter to retry: ");
+                std::io::stderr().flush()?;
+                Self::wait_for_enter()?;
+
+                message!("🔄 Retrying download...");
+
+                // Retry after user grants access via picker
+                stencila_codec_gdoc::pull(url, &pulled_path)
+                    .await
+                    .map_err(|e| eyre!("{e}"))?;
+            }
+            Err(e) => bail!("{e}"),
+        }
+
+        // Merge or replace the local file
+        if !self.no_merge && self.path.exists() {
+            let modified_files = stencila_codecs::merge(
+                &pulled_path,
+                Some(&self.path),
+                None,
+                None,
+                false,
+                DecodeOptions::default(),
+                EncodeOptions::default(),
+                None,
+            )
+            .await?;
+
+            if let Some(modified_files) = modified_files {
+                message!(
+                    "✅ Merge completed, {}",
+                    match modified_files.len() {
+                        0 => "no changes detected".to_string(),
+                        1 => "1 file modified".to_string(),
+                        count => format!("{count} files modified"),
+                    },
+                );
+            } else {
+                message("🚫 Merge cancelled");
+            }
+        } else {
+            // Convert to target format (or file doesn't exist yet)
+            stencila_codecs::convert(
+                Some(&pulled_path),
+                Some(&self.path),
+                Some(DecodeOptions::default()),
+                Some(EncodeOptions::default()),
+            )
+            .await?;
+            message!("✅ Created `{}` from Google Doc", self.path.display());
+        }
+
+        Ok(())
+    }
+
+    /// Wait for user to press Enter
+    fn wait_for_enter() -> Result<()> {
+        let stdin = std::io::stdin();
+        let mut line = String::new();
+        stdin.lock().read_line(&mut line)?;
+        Ok(())
+    }
+
+    /// Read a line from stdin
+    fn read_line() -> Result<String> {
+        let stdin = std::io::stdin();
+        let mut line = String::new();
+        stdin.lock().read_line(&mut line)?;
+        Ok(line)
     }
 
     /// Run batch pull mode, pulling all documents from a multi-file remote
