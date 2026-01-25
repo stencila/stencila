@@ -137,4 +137,20 @@ impl<C: LspClient> Ask for LspProvider<C> {
     ) -> Result<Vec<usize>> {
         bail!("Multi-selection is not supported in LSP context. Please use the CLI instead.")
     }
+
+    async fn wait_for_enter(&self, prompt: &str) -> Result<()> {
+        let params = ShowMessageRequestParams {
+            typ: MessageType::INFO,
+            message: prompt.into(),
+            actions: Some(vec![MessageActionItem {
+                title: "OK".to_string(),
+                properties: HashMap::new(),
+            }]),
+        };
+
+        // Wait for user to click OK
+        self.client.show_message_request(params).await?;
+
+        Ok(())
+    }
 }

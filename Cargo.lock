@@ -8891,6 +8891,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
+ "stencila-ask",
  "stencila-codec-docx",
  "stencila-codec-utils",
  "stencila-config",

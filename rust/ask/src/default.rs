@@ -79,4 +79,9 @@ impl Ask for DefaultProvider {
 
         Ok(selections)
     }
+
+    async fn wait_for_enter(&self, prompt: &str) -> Result<()> {
+        tracing::debug!("{prompt} (skipped, non-interactive)");
+        Ok(())
+    }
 }

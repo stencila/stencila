@@ -12,6 +12,9 @@ use textwrap::{termwidth, wrap};
 
 use crate::{Answer, Ask, AskLevel, AskOptions, InputOptions, MultiSelectOptions, SelectOptions};
 
+/// Prefix for wait_for_enter prompts
+const WAIT_PREFIX: &str = "⏳ ";
+
 /// CLI provider
 pub struct CliProvider;
 
@@ -237,5 +240,30 @@ impl Ask for CliProvider {
         }
 
         Ok(multi_select.interact()?)
+    }
+
+    async fn wait_for_enter(&self, prompt: &str) -> Result<()> {
+        // In non-interactive mode, bail with clear error to avoid retry loops
+        // that could spam browser opens or other repeated actions
+        if !stdin().is_terminal() {
+            bail!("Non-interactive environment detected. Cannot wait for user action: {prompt}");
+        }
+
+        let width = termwidth().min(120);
+        let prompt = wrap(
+            &format!("{prompt}: "),
+            textwrap::Options::new(width)
+                .initial_indent(WAIT_PREFIX)
+                .subsequent_indent("   "),
+        )
+        .join("\n");
+
+        eprint!("{prompt}");
+        stderr().flush()?;
+
+        let mut input = String::new();
+        stdin().read_line(&mut input)?;
+
+        Ok(())
     }
 }

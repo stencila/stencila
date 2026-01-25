@@ -196,6 +196,25 @@ pub async fn multi_select_with(
     }
 }
 
+/// Wait for user to press Enter to continue
+///
+/// Use this when you need to pause execution until the user is ready to proceed,
+/// such as after opening a browser window for authentication.
+///
+/// In non-interactive contexts (e.g., when stdin is not a TTY or when using the
+/// default provider), this will return immediately without waiting.
+pub async fn wait_for_enter(prompt: &str) -> Result<()> {
+    let guard = GLOBAL_CONTEXT.lock().await;
+    match guard.as_ref() {
+        Some(ctx) => ctx.wait_for_enter(prompt).await,
+        None => {
+            drop(guard);
+            let ctx = AskContext::default();
+            ctx.wait_for_enter(prompt).await
+        }
+    }
+}
+
 /// Core trait that all confirmation providers must implement.
 /// This abstraction allows different UI backends to provide user confirmation dialogs.
 #[async_trait]
@@ -224,6 +243,11 @@ trait Ask: Send + Sync {
         items: &[String],
         options: MultiSelectOptions,
     ) -> Result<Vec<usize>>;
+
+    /// Wait for the user to press Enter to continue.
+    ///
+    /// In non-interactive contexts, this should return immediately without waiting.
+    async fn wait_for_enter(&self, prompt: &str) -> Result<()>;
 }
 
 /// Configuration options for customizing confirmation dialogs.
@@ -384,6 +408,10 @@ impl AskContext {
         options: MultiSelectOptions,
     ) -> Result<Vec<usize>> {
         self.provider.multi_select(prompt, items, options).await
+    }
+
+    pub async fn wait_for_enter(&self, prompt: &str) -> Result<()> {
+        self.provider.wait_for_enter(prompt).await
     }
 }
 

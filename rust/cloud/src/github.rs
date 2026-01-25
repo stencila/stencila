@@ -1,4 +1,4 @@
-use std::{fmt, io::Write};
+use std::fmt;
 
 use eyre::{Result, bail};
 use serde::Deserialize;
@@ -190,10 +190,8 @@ pub async fn get_token_with_retry() -> Result<String> {
                 }
 
                 // Wait for user
-                eprint!("⏳ Press Enter after you've connected your account: ");
-                std::io::stderr().flush()?;
-                let mut input = String::new();
-                std::io::stdin().read_line(&mut input)?;
+                stencila_ask::wait_for_enter("Press Enter after you've connected your account")
+                    .await?;
 
                 eprintln!("🔄 Trying again...\n");
                 // Loop will retry

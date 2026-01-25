@@ -1,7 +1,4 @@
-use std::{
-    io::{BufRead, Write},
-    path::PathBuf,
-};
+use std::path::PathBuf;
 
 use chrono::Utc;
 use clap::Parser;
@@ -268,10 +265,9 @@ impl Cli {
             message!("Please visit manually: {}", picker_url);
         }
 
-        // Wait for user to paste the selected URL (use eprint! for same-line prompt)
-        eprint!("After selecting a file, paste the Google Docs URL here: ");
-        std::io::stderr().flush()?;
-        let url_str = Self::read_line()?;
+        // Wait for user to paste the selected URL
+        let url_str =
+            stencila_ask::input("After selecting a file, paste the Google Docs URL here").await?;
 
         let selected_url = Url::parse(url_str.trim()).map_err(|e| eyre!("Invalid URL: {e}"))?;
 
@@ -326,12 +322,10 @@ impl Cli {
                     message!("Please visit manually: {}", picker_url);
                 }
 
-                // Use eprint! for same-line prompt
-                eprint!(
-                    "After connecting and granting access in the picker, press Enter to retry: "
-                );
-                std::io::stderr().flush()?;
-                Self::wait_for_enter()?;
+                stencila_ask::wait_for_enter(
+                    "After connecting and granting access in the picker, press Enter to retry",
+                )
+                .await?;
 
                 message!("🔄 Retrying download...");
 
@@ -354,10 +348,10 @@ impl Cli {
                     message!("Please visit manually: {}", picker_url);
                 }
 
-                // Use eprint! for same-line prompt
-                eprint!("After granting access in the picker, press Enter to retry: ");
-                std::io::stderr().flush()?;
-                Self::wait_for_enter()?;
+                stencila_ask::wait_for_enter(
+                    "After granting access in the picker, press Enter to retry",
+                )
+                .await?;
 
                 message!("🔄 Retrying download...");
 
@@ -410,22 +404,6 @@ impl Cli {
         }
 
         Ok(())
-    }
-
-    /// Wait for user to press Enter
-    fn wait_for_enter() -> Result<()> {
-        let stdin = std::io::stdin();
-        let mut line = String::new();
-        stdin.lock().read_line(&mut line)?;
-        Ok(())
-    }
-
-    /// Read a line from stdin
-    fn read_line() -> Result<String> {
-        let stdin = std::io::stdin();
-        let mut line = String::new();
-        stdin.lock().read_line(&mut line)?;
-        Ok(line)
     }
 
     /// Run batch pull mode, pulling all documents from a multi-file remote
