@@ -166,6 +166,60 @@ pub enum WatchPrMode {
     Ready,
 }
 
+/// Create a watch and save the watch ID to config
+///
+/// This is a shared helper for push, pull, and watch commands.
+/// Validation (e.g., file on default branch for push) should be done
+/// by the caller before calling this function.
+///
+/// # Arguments
+///
+/// * `path` - Path to the local file
+/// * `url` - The remote URL to watch
+/// * `direction` - Sync direction (bi, from-remote, to-remote)
+/// * `pr_mode` - PR mode (draft, ready)
+/// * `debounce_seconds` - Debounce time in seconds
+///
+/// # Returns
+///
+/// The watch ID on success
+pub async fn create_and_save_watch(
+    path: &Path,
+    url: &Url,
+    direction: Option<WatchDirection>,
+    pr_mode: Option<WatchPrMode>,
+    debounce_seconds: Option<u64>,
+) -> Result<String> {
+    // Get git file info (path relative to repo root)
+    let git_info = stencila_codec_utils::git_file_info(path)?;
+
+    // Ensure workspace exists
+    let (workspace_id, _) = stencila_cloud::ensure_workspace(path).await?;
+
+    // Get file path relative to repo
+    let file_path = git_info.path.unwrap_or_else(|| {
+        path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("unknown")
+            .to_string()
+    });
+
+    // Create watch via Cloud API
+    let request = stencila_cloud::WatchRequest {
+        remote_url: url.to_string(),
+        file_path,
+        direction: direction.map(|d| d.to_string()),
+        pr_mode: pr_mode.map(|m| m.to_string()),
+        debounce_seconds,
+    };
+    let response = stencila_cloud::create_watch(&workspace_id, request).await?;
+
+    // Save watch ID to stencila.toml
+    stencila_config::config_update_remote_watch(path, url.as_ref(), Some(response.id.clone()))?;
+
+    Ok(response.id)
+}
+
 /// Remote tracking status indicating synchronization state
 ///
 /// This enum represents the synchronization status between a local file

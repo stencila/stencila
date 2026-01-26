@@ -1,16 +1,21 @@
-use std::path::PathBuf;
+use std::{env::current_dir, path::PathBuf};
 
 use chrono::Utc;
 use clap::Parser;
 use eyre::{Result, bail, eyre};
+use pathdiff::diff_paths;
 use tempfile::tempdir;
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_codec_gdoc::GDocError;
 use stencila_codec_m365::M365Error;
+use stencila_codec_utils::closest_git_repo;
 use stencila_codecs::{DecodeOptions, EncodeOptions};
-use stencila_remotes::{RemoteService, get_remotes_for_path, update_remote_timestamp};
+use stencila_remotes::{
+    RemoteService, WatchDirection, WatchPrMode, create_and_save_watch, get_remotes_for_path,
+    update_remote_timestamp,
+};
 
 /// Pull a document from a remote service
 #[derive(Debug, Parser)]
@@ -42,6 +47,36 @@ pub struct Cli {
     /// Use this flag to skip merging and just replace the local file.
     #[arg(long)]
     no_merge: bool,
+
+    /// Do not save remote to stencila.toml
+    ///
+    /// By default, new remotes are added to stencila.toml so team members
+    /// can push/pull the same remote. Use this flag to track locally only
+    /// (in .stencila/remotes.json).
+    #[arg(long)]
+    no_config: bool,
+
+    /// Enable watch after successful pull
+    ///
+    /// Creates a watch in Stencila Cloud to automatically sync changes
+    /// between the remote and repository via pull requests.
+    #[arg(long, short)]
+    watch: bool,
+
+    /// The sync direction (only used with --watch)
+    #[arg(long, short, requires = "watch")]
+    direction: Option<WatchDirection>,
+
+    /// The GitHub PR mode (only used with --watch)
+    #[arg(long, short, requires = "watch")]
+    pr_mode: Option<WatchPrMode>,
+
+    /// Debounce time in seconds (10-86400, only used with --watch)
+    ///
+    /// Time to wait after detecting changes before syncing to avoid
+    /// too frequent updates. Minimum 10 seconds, maximum 24 hours (86400 seconds).
+    #[arg(long, value_parser = clap::value_parser!(u64).range(10..=86400), requires = "watch")]
+    debounce_seconds: Option<u64>,
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -64,6 +99,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Pull without merging (replace local file)</dim>
   <b>stencila pull</> <g>document.smd</> <c>--no-merge</>
 
+  <dim># Pull without saving to stencila.toml</dim>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</> <c>--no-config</>
+
+  <dim># Pull and enable bi-directional watch</dim>
+  <b>stencila pull</> <g>document.smd</> <c>--from</> <g>gdoc</> <c>--watch</>
+
   <dim># Pull all documents from email attachments using embedded path metadata</dim>
   <b>stencila pull</> <g>-</> <c>--from</> <g>https://api.stencila.cloud/v1/watches/wAbC12345/email/attachments</>
 "
@@ -71,6 +112,16 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        // Validate --watch is not used with batch pull mode
+        if self.path == PathBuf::from("-") && self.watch {
+            bail!("Cannot use --watch with batch pull mode");
+        }
+
+        // Validate --watch is not used with --no-config (watch ID must be stored in config)
+        if self.watch && self.no_config {
+            bail!("Cannot use --watch with --no-config (watch ID must be stored in stencila.toml)");
+        }
+
         // Check for batch pull mode (path is "-")
         if self.path == PathBuf::from("-") {
             return self.run_batch_pull().await;
@@ -191,6 +242,11 @@ impl Cli {
             (service, remote_info.url.clone())
         };
 
+        // Check if this is a new remote (not already configured)
+        let existing_remote = remote_infos.iter().find(|r| r.url == url);
+        let is_new_remote = existing_remote.is_none();
+        let has_existing_watch = existing_remote.is_some_and(|r| r.watch_id.is_some());
+
         message!("⬇️ Pulling from {} at {}", service.display_name(), url);
 
         // For Google Docs, use the picker-based pull with access denied retry
@@ -205,6 +261,10 @@ impl Cli {
                 None,
             )
             .await?;
+
+            // Handle config saving and watch creation
+            self.post_pull_config_and_watch(&url, is_new_remote, has_existing_watch)
+                .await?;
 
             return Ok(());
         }
@@ -221,6 +281,10 @@ impl Cli {
                 None,
             )
             .await?;
+
+            // Handle config saving and watch creation
+            self.post_pull_config_and_watch(&url, is_new_remote, has_existing_watch)
+                .await?;
 
             return Ok(());
         }
@@ -263,6 +327,10 @@ impl Cli {
             None,
         )
         .await?;
+
+        // Handle config saving and watch creation
+        self.post_pull_config_and_watch(&url, is_new_remote, has_existing_watch)
+            .await?;
 
         Ok(())
     }
@@ -310,6 +378,10 @@ impl Cli {
         .await?;
 
         message!("✅ Linked `{}` to {}", self.path.display(), selected_url);
+
+        // Handle config saving and watch creation (picker flows always have new remotes, no existing watch)
+        self.post_pull_config_and_watch(&selected_url, true, false)
+            .await?;
 
         Ok(())
     }
@@ -473,6 +545,10 @@ impl Cli {
         .await?;
 
         message!("✅ Linked `{}` to {}", self.path.display(), selected_url);
+
+        // Handle config saving and watch creation (picker flows always have new remotes, no existing watch)
+        self.post_pull_config_and_watch(&selected_url, true, false)
+            .await?;
 
         Ok(())
     }
@@ -718,6 +794,79 @@ impl Cli {
         message!("✅ Successfully pulled {} document(s):", pulled_paths.len());
         for path in &pulled_paths {
             message!("  - {}", path.display());
+        }
+
+        Ok(())
+    }
+
+    /// Handle post-pull config saving and watch creation
+    ///
+    /// This is called after a successful pull to:
+    /// 1. Save the remote to stencila.toml (if new and not --no-config)
+    /// 2. Create a watch (if --watch is specified and no existing watch)
+    async fn post_pull_config_and_watch(
+        &self,
+        url: &Url,
+        is_new_remote: bool,
+        has_existing_watch: bool,
+    ) -> Result<()> {
+        // Save to config if this is a new remote (and not --no-config)
+        if is_new_remote && !self.no_config {
+            match stencila_config::config_add_remote(&self.path, url.as_ref()) {
+                Ok(config_path) => {
+                    let config_path = current_dir()
+                        .ok()
+                        .and_then(|cwd| diff_paths(&config_path, cwd))
+                        .unwrap_or(config_path);
+                    message!("📝 Remote added to `{}`", config_path.display());
+                }
+                Err(error) => {
+                    if self.watch {
+                        // If --watch is set and config write failed, bail out to avoid orphaned watch
+                        bail!(
+                            "Could not add remote to config: {}\n\
+                             Watch creation skipped to avoid orphaned watch in Cloud.",
+                            error
+                        );
+                    }
+                    message!("⚠️ Could not add to config: {}", error);
+                }
+            }
+        } else if is_new_remote && self.no_config {
+            // Note: --watch with --no-config is rejected at the start of run()
+            message!("💾 Remote tracked locally (not saved to `stencila.toml`)");
+        }
+
+        // Enable watch if requested
+        if self.watch {
+            // Skip if a watch already exists (to avoid orphaning the existing watch)
+            if has_existing_watch {
+                message!("👁️ Remote already has a watch configured, skipping watch creation");
+                return Ok(());
+            }
+
+            // For pull, just verify we're in a git repo (file may be new/uncommitted)
+            closest_git_repo(&self.path)?;
+
+            create_and_save_watch(
+                &self.path,
+                url,
+                self.direction,
+                self.pr_mode,
+                self.debounce_seconds,
+            )
+            .await?;
+
+            let direction_desc = match self.direction.unwrap_or_default() {
+                WatchDirection::Bi => "bi-directional",
+                WatchDirection::FromRemote => "from remote only",
+                WatchDirection::ToRemote => "to remote only",
+            };
+            message!(
+                "👁️ Watch created ({}). PRs will sync changes from {}",
+                direction_desc,
+                url
+            );
         }
 
         Ok(())

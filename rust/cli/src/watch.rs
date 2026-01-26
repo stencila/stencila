@@ -4,10 +4,12 @@ use clap::Parser;
 use eyre::{Result, bail, eyre};
 
 use stencila_cli_utils::{color_print::cstr, message};
-use stencila_cloud::{WatchRequest, create_watch, create_workspace_watch, ensure_workspace};
-use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
-use stencila_config::{ConfigTarget, config_update_remote_watch, set_value};
-use stencila_remotes::{RemoteService, WatchDirection, WatchPrMode, get_remotes_for_path};
+use stencila_cloud::{create_workspace_watch, ensure_workspace};
+use stencila_codec_utils::validate_file_on_default_branch;
+use stencila_config::{ConfigTarget, set_value};
+use stencila_remotes::{
+    RemoteService, WatchDirection, WatchPrMode, create_and_save_watch, get_remotes_for_path,
+};
 use url::Url;
 
 /// Enable automatic sync for the workspace or a document
@@ -96,12 +98,6 @@ impl Cli {
 
         // Validate file exists on the default branch (also validates it's in a git repo)
         validate_file_on_default_branch(path)?;
-
-        // Ensure workspace exists (required for creating watches)
-        let (workspace_id, _) = ensure_workspace(path).await?;
-
-        // Get git repository information
-        let git_file_info = git_file_info(path)?;
 
         let no_remotes = || {
             message!(
@@ -197,34 +193,15 @@ impl Cli {
             return Ok(());
         }
 
-        // Get file path relative to repo root
-        let file_path = git_file_info.path.unwrap_or_else(|| {
-            path.file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown")
-                .to_string()
-        });
-
-        // Create watch request
-        let request = WatchRequest {
-            remote_url: remote_info.url.to_string(),
-            file_path,
-            direction: self.direction.map(|dir| dir.to_string()),
-            pr_mode: self.pr_mode.map(|mode| mode.to_string()),
-            debounce_seconds: self.debounce_seconds,
-        };
-
-        // Call Cloud API to create watch
-        let response = create_watch(&workspace_id, request).await?;
-
-        // Update stencila.toml with watch ID
-        config_update_remote_watch(
+        // Create watch and save to config
+        create_and_save_watch(
             path,
-            remote_info.url.as_ref(),
-            Some(response.id.to_string()),
-        )?;
-
-        let remote_url_str = remote_info.url.to_string();
+            &remote_info.url,
+            self.direction,
+            self.pr_mode,
+            self.debounce_seconds,
+        )
+        .await?;
 
         // Success message
         let direction_desc = match self.direction.unwrap_or_default() {
@@ -237,7 +214,7 @@ impl Cli {
             "👁️ Watching `{}` ({}). PRs will be opened/updated on changes from {}.",
             path_display,
             direction_desc,
-            remote_url_str
+            remote_info.url
         );
 
         Ok(())

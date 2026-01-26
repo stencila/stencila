@@ -11045,6 +11045,7 @@ dependencies = [
  "stencila-codec-gdoc",
  "stencila-codec-github",
  "stencila-codec-m365",
+ "stencila-codec-utils",
  "stencila-config",
  "stencila-dirs",
  "strum",
