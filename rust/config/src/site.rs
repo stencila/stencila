@@ -14,8 +14,9 @@ use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
-    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, actions::ActionsConfig, find_config_file,
-    layout::LayoutConfig, reviews::ReviewsSpec, uploads::UploadsSpec, validate_placeholders,
+    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, site_actions::SiteActionsConfig, find_config_file,
+    layout::LayoutConfig, site_remotes::SiteRemotesSpec, site_reviews::SiteReviewsSpec, site_uploads::SiteUploadsSpec,
+    validate_placeholders,
 };
 
 /// Additional formats to generate alongside HTML during site rendering
@@ -678,7 +679,7 @@ pub struct SiteConfig {
     /// include = ["docs/**"]   # Only show on docs pages
     /// exclude = ["api/**"]    # Hide from API reference
     /// ```
-    pub reviews: Option<ReviewsSpec>,
+    pub reviews: Option<SiteReviewsSpec>,
 
     /// Site uploads configuration
     ///
@@ -704,7 +705,36 @@ pub struct SiteConfig {
     /// allow-overwrite = true  # Can replace existing files
     /// require-message = true  # Must provide description
     /// ```
-    pub uploads: Option<UploadsSpec>,
+    pub uploads: Option<SiteUploadsSpec>,
+
+    /// Site remotes configuration
+    ///
+    /// Enables users to add Google Docs or Microsoft 365 documents to the repository
+    /// via GitHub PRs, with optional bi-directional sync. Requires `workspace.id`
+    /// to be configured for cloud enforcement of public/anon settings.
+    /// Position is controlled via `[site.actions]`.
+    ///
+    /// Can be a simple boolean or a detailed configuration object, e.g.
+    /// ```toml
+    /// # Enable remotes with defaults
+    /// [site]
+    /// remotes = true
+    ///
+    /// # Detailed remotes configuration
+    /// [site.remotes]
+    /// enabled = true
+    /// path = "content"               # Default target directory
+    /// default-format = "smd"         # Stencila Markdown
+    /// allowed-formats = ["smd", "md"]
+    /// default-sync-direction = "bi"  # Bi-directional sync
+    /// public = false                 # Only show to authenticated users
+    /// anon = false                   # Require GitHub auth
+    /// user-path = true               # Allow custom target paths
+    /// require-message = false        # Optional PR description
+    /// include = ["docs/**"]          # Only show on docs pages
+    /// exclude = ["api/**"]           # Hide from API reference
+    /// ```
+    pub remotes: Option<SiteRemotesSpec>,
 
     /// Site actions zone configuration
     ///
@@ -718,7 +748,7 @@ pub struct SiteConfig {
     /// direction = "vertical"     # Stack direction (default)
     /// mode = "collapsed"         # Display mode (default)
     /// ```
-    pub actions: Option<ActionsConfig>,
+    pub actions: Option<SiteActionsConfig>,
 }
 
 impl SiteConfig {
@@ -744,6 +774,11 @@ impl SiteConfig {
         // Validate uploads configuration
         if let Some(uploads) = &self.uploads {
             uploads.validate()?;
+        }
+
+        // Validate remotes configuration
+        if let Some(remotes) = &self.remotes {
+            remotes.validate()?;
         }
 
         // Validate featured content (icon + image conflict)

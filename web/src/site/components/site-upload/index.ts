@@ -1,17 +1,15 @@
 import { html, nothing } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 
 import { SiteAction, type BaseFooterState, isDevMode } from '../site-action'
 
 import type {
   PendingFile,
   RepoFile,
-  UploadAuthStatusResponse,
   UploadResponse,
 } from './types'
 import {
   STORAGE_KEY_FILES,
-  UPLOAD_AUTH_PATH,
   UPLOAD_SUBMIT_PATH,
   UPLOAD_FILES_PATH,
   UPLOAD_CHECK_EXISTS_PATH,
@@ -31,7 +29,7 @@ import {
  * Supports both new file uploads and updating existing files.
  */
 @customElement('stencila-site-upload')
-export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
+export class StencilaSiteUpload extends SiteAction {
   // =========================================================================
   // Abstract Method Implementations
   // =========================================================================
@@ -48,60 +46,79 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
     return 'Upload'
   }
 
-  get authEndpoint() {
-    return UPLOAD_AUTH_PATH
-  }
-
   get badgeCount() {
     return this.pendingFiles.length
   }
 
+  get isActionAllowed() {
+    const config = this.authStatus?.uploadConfig
+    return config?.enabled === true && config?.allowed === true
+  }
+
   // =========================================================================
-  // Upload-Specific Properties
+  // Upload-Specific Computed Properties
   // =========================================================================
 
   /**
-   * Allowed file types (comma-separated extensions)
+   * Default max file size for dev mode (10MB)
    */
-  @property({ type: String, attribute: 'allowed-types' })
-  allowedTypes: string = ''
+  private static readonly DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024
 
   /**
-   * Maximum file size in bytes
+   * Normalize an extension by removing leading dot and lowercasing.
+   * e.g., ".CSV" -> "csv", "csv" -> "csv"
    */
-  @property({ type: Number, attribute: 'max-size' })
-  maxSize: number = 10 * 1024 * 1024 // 10MB default
+  private normalizeExtension(ext: string): string {
+    return ext.replace(/^\./, '').toLowerCase()
+  }
 
   /**
-   * Target path for uploads
+   * Get effective allowed extensions from server config.
+   * Extensions are normalized (no leading dot, lowercase).
+   *
+   * Returns `null` when any extension is allowed (server returned null or []).
    */
-  @property({ type: String, attribute: 'target-path' })
-  targetPath: string = ''
+  private get effectiveAllowedExtensions(): string[] | null {
+    const serverConfig = this.authStatus?.uploadConfig?.allowedExtensions
+    // null or empty array means any extension is allowed
+    if (serverConfig === null || serverConfig === undefined || serverConfig.length === 0) {
+      return null
+    }
+    // Normalize extensions (remove leading dots, lowercase)
+    return serverConfig.map((ext) => this.normalizeExtension(ext))
+  }
 
   /**
-   * Whether users can specify custom paths
+   * Get effective max file size from server config.
    */
-  @property({ type: Boolean, attribute: 'user-path' })
-  userPath: boolean = false
+  private get effectiveMaxFileSize(): number {
+    return this.authStatus?.uploadConfig?.maxFileSize ?? StencilaSiteUpload.DEFAULT_MAX_FILE_SIZE
+  }
 
   /**
-   * Whether overwriting existing files is allowed
+   * Get the path attribute from the closest root element.
+   * This is the source file path for the current page.
    */
-  @property({ type: Boolean, attribute: 'allow-overwrite' })
-  allowOverwrite: boolean = true
+  private getPathFromRoot(): string | null {
+    const root = document.querySelector('[root]')
+    return root?.getAttribute('path') ?? null
+  }
 
   /**
-   * Whether a message is required
+   * Get target path derived from source file path (parent directory).
+   * e.g., docs/guide/intro.smd → docs/guide
    */
-  @property({ type: Boolean, attribute: 'require-message' })
-  requireMessage: boolean = false
-
-  /**
-   * Get allowed types as array
-   */
-  private get allowedTypesArray(): string[] | null {
-    if (!this.allowedTypes) return null
-    return this.allowedTypes.split(',').map((t) => t.trim().toLowerCase())
+  private get effectiveTargetPath(): string {
+    const sourcePath = this.getPathFromRoot()
+    if (!sourcePath) {
+      return '' // Root level if no path found
+    }
+    // Get parent directory
+    const lastSlash = sourcePath.lastIndexOf('/')
+    if (lastSlash > 0) {
+      return sourcePath.substring(0, lastSlash)
+    }
+    return '' // Root level pages
   }
 
   // =========================================================================
@@ -186,14 +203,10 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
       },
       uploadConfig: {
         enabled: true,
-        allowPublic: true,
-        allowAnonymous: false,
-        allowedTypes: this.allowedTypesArray,
-        maxSize: this.maxSize,
-        targetPath: this.targetPath,
-        userPath: this.userPath,
-        allowOverwrite: this.allowOverwrite,
-        requireMessage: this.requireMessage,
+        allowed: true,
+        allowedDirectories: null, // Dev mode: no restrictions
+        maxFileSize: StencilaSiteUpload.DEFAULT_MAX_FILE_SIZE,
+        allowedExtensions: null, // Dev mode: any extension allowed
       },
       repo: { isPrivate: false, appInstalled: true },
       authorship: { canAuthorAsSelf: true, willBeBotAuthored: false },
@@ -225,14 +238,13 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
       return { type: 'blocked', reason: 'Uploads are disabled' }
     }
 
-    if (!this.authStatus.hasSiteAccess) {
+    // Use component attribute for public access (not server config)
+    if (!this.public && !this.authStatus.hasSiteAccess) {
       return { type: 'needSiteAccess', signInUrl: this.signInUrl }
     }
 
-    if (
-      !this.authStatus.uploadConfig.allowAnonymous &&
-      !this.authStatus.github?.connected
-    ) {
+    // If anonymous submissions not allowed, require GitHub connection
+    if (!this.anon && !this.authStatus.github?.connected) {
       if (!this.authStatus.user) {
         return { type: 'needStencilaSignIn', signInUrl: this.signInUrl }
       }
@@ -285,32 +297,27 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
 
   private async processFiles(files: File[]) {
     for (const file of files) {
-      // Validate extension
-      if (!isExtensionAllowed(file.name, this.allowedTypesArray)) {
+      // Validate extension (if restrictions apply)
+      if (!isExtensionAllowed(file.name, this.effectiveAllowedExtensions)) {
         this.errorMessage = `File type not allowed: ${getFileExtension(file.name)}`
         continue
       }
 
       // Validate size
-      if (file.size > this.maxSize) {
-        this.errorMessage = `File too large: ${formatFileSize(file.size)} (max ${formatFileSize(this.maxSize)})`
+      if (file.size > this.effectiveMaxFileSize) {
+        this.errorMessage = `File too large: ${formatFileSize(file.size)} (max ${formatFileSize(this.effectiveMaxFileSize)})`
         continue
       }
 
       // Read file content
       try {
         const content = await readFileAsBase64(file)
-        const targetPath = this.targetPath
-          ? joinPath(this.targetPath, file.name)
+        const targetPath = this.effectiveTargetPath
+          ? joinPath(this.effectiveTargetPath, file.name)
           : file.name
 
-        // Check if overwriting
+        // Check if overwriting (always allowed, but track for display)
         const isOverwrite = await this.checkFileExists(targetPath)
-
-        if (isOverwrite && !this.allowOverwrite) {
-          this.errorMessage = `Cannot overwrite existing file: ${targetPath}`
-          continue
-        }
 
         const pendingFile: PendingFile = {
           id: generateId(),
@@ -324,6 +331,8 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
 
         this.pendingFiles = [...this.pendingFiles, pendingFile]
         this.savePendingFiles()
+        // Clear previous PR success state when adding new files
+        this.submittedPr = null
       } catch (_err) {
         this.errorMessage = `Failed to read file: ${file.name}`
       }
@@ -352,13 +361,6 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
     this.savePendingFiles()
   }
 
-  private updateFilePath(id: string, newPath: string) {
-    this.pendingFiles = this.pendingFiles.map((f) =>
-      f.id === id ? { ...f, targetPath: newPath } : f
-    )
-    this.savePendingFiles()
-  }
-
   // Repo file browser (for update mode)
 
   private async fetchRepoFiles() {
@@ -373,11 +375,11 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
     this.repoFilesLoading = true
     try {
       const params = new URLSearchParams()
-      if (this.allowedTypesArray) {
-        params.set('extensions', this.allowedTypesArray.join(','))
+      if (this.effectiveAllowedExtensions) {
+        params.set('extensions', this.effectiveAllowedExtensions.join(','))
       }
-      if (this.targetPath) {
-        params.set('path', this.targetPath)
+      if (this.effectiveTargetPath) {
+        params.set('path', this.effectiveTargetPath)
       }
 
       const response = await this.apiFetch(`${UPLOAD_FILES_PATH}?${params}`)
@@ -410,8 +412,8 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
     const file = files[0]
 
     // Validate size
-    if (file.size > this.maxSize) {
-      this.errorMessage = `File too large: ${formatFileSize(file.size)} (max ${formatFileSize(this.maxSize)})`
+    if (file.size > this.effectiveMaxFileSize) {
+      this.errorMessage = `File too large: ${formatFileSize(file.size)} (max ${formatFileSize(this.effectiveMaxFileSize)})`
       return
     }
 
@@ -431,6 +433,8 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
       this.pendingFiles = [...this.pendingFiles, pendingFile]
       this.savePendingFiles()
       this.selectedRepoFile = null
+      // Clear previous PR success state when adding new files
+      this.submittedPr = null
     } catch {
       this.errorMessage = 'Failed to read file'
     }
@@ -449,11 +453,6 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
 
   private async handleSubmit() {
     if (this.pendingFiles.length === 0) return
-
-    if (this.requireMessage && !this.message.trim()) {
-      this.errorMessage = 'Please enter a description'
-      return
-    }
 
     this.isSubmitting = true
     this.submittedPr = null
@@ -475,13 +474,12 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
         method: 'POST',
         body: {
           files: this.pendingFiles.map((f) => ({
-            filename: f.filename,
-            targetPath: f.targetPath,
+            path: f.targetPath,
             content: f.content,
-            overwrite: f.isOverwrite,
+            size: f.size,
+            mimeType: f.mimeType,
           })),
-          message: this.message || 'Upload files via Stencila',
-          authorAsSelf: !this.authStatus?.authorship?.willBeBotAuthored,
+          message: this.message || undefined,
         },
       })
 
@@ -577,18 +575,18 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
         <div class="dropzone-content">
           <span class="i-lucide:upload dropzone-icon"></span>
           <p>Drop files here or click to browse</p>
-          ${this.allowedTypesArray
+          ${this.effectiveAllowedExtensions
             ? html`<p class="hint">
-                Allowed: ${this.allowedTypesArray.join(', ')}
+                Allowed: ${this.effectiveAllowedExtensions.join(', ')}
               </p>`
             : nothing}
-          <p class="hint">Max size: ${formatFileSize(this.maxSize)}</p>
+          <p class="hint">Max size: ${formatFileSize(this.effectiveMaxFileSize)}</p>
           <input
             type="file"
             multiple
             @change=${this.handleFileSelect}
-            accept=${this.allowedTypesArray
-              ? this.allowedTypesArray.map((t) => `.${t}`).join(',')
+            accept=${this.effectiveAllowedExtensions
+              ? this.effectiveAllowedExtensions.map((t) => `.${t}`).join(',')
               : ''}
           />
         </div>
@@ -664,18 +662,7 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
                     : nothing}
                 </div>
                 <div class="file-path">
-                  ${this.userPath
-                    ? html`<input
-                        type="text"
-                        class="path-input"
-                        .value=${file.targetPath}
-                        @change=${(e: Event) =>
-                          this.updateFilePath(
-                            file.id,
-                            (e.target as HTMLInputElement).value
-                          )}
-                      />`
-                    : html`<span>${file.targetPath}</span>`}
+                  <span>${file.targetPath}</span>
                 </div>
                 <div class="file-size">${formatFileSize(file.size)}</div>
                 <button
@@ -696,9 +683,7 @@ export class StencilaSiteUpload extends SiteAction<UploadAuthStatusResponse> {
   private renderMessageInput() {
     return html`
       <div class="message">
-        <label class="message-label">
-          Description ${this.requireMessage ? html`<span class="required">*</span>` : nothing}
-        </label>
+        <label class="message-label">Description</label>
         <textarea
           class="message-input"
           placeholder="Describe your changes..."

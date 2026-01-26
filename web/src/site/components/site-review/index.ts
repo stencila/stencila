@@ -33,7 +33,6 @@ import type {
   ReviewItem,
   ReviewItemAnchor,
   SourceInfo,
-  AuthStatusResponse,
   ReviewResponse,
   ApiError,
 } from './types'
@@ -46,7 +45,6 @@ import {
 import {
   STORAGE_KEY_ITEMS,
   STORAGE_KEY_SOURCE,
-  REVIEW_AUTH_PATH,
   REVIEW_SUBMIT_PATH,
 } from './utils'
 import './item'
@@ -59,7 +57,7 @@ import './item'
  * Persists review items in localStorage across page refreshes.
  */
 @customElement('stencila-site-review')
-export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
+export class StencilaSiteReview extends SiteAction {
   // =========================================================================
   // Abstract Method Implementations
   // =========================================================================
@@ -76,12 +74,13 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
     return 'Review'
   }
 
-  get authEndpoint() {
-    return REVIEW_AUTH_PATH
-  }
-
   get badgeCount() {
     return this.pendingItems.length
+  }
+
+  get isActionAllowed() {
+    const config = this.authStatus?.reviewConfig
+    return config?.enabled === true && config?.allowed === true
   }
 
   // =========================================================================
@@ -363,6 +362,7 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
       hasSiteAccess: true,
       reviewConfig: {
         enabled: true,
+        allowed: true,
         allowPublic: true,
         allowAnonymous: true,
       },
@@ -407,28 +407,32 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
       return { type: 'error', message: this.submitError }
     }
 
-    // 5. Blocked: private repo without app
+    // 5. Check if reviews are enabled (guards against missing/disabled reviewConfig)
+    if (!this.authStatus?.reviewConfig?.enabled) {
+      return { type: 'blocked', reason: 'Reviews are disabled' }
+    }
+
+    // 6. Blocked: private repo without app
     if (this.isBlockedPrivateRepo) {
       return { type: 'blocked', reason: this.blockedReason ?? '' }
     }
 
-    // 6. Need site access (site requires auth to submit)
-    const config = this.authStatus?.reviewConfig
-    if (config && !config.allowPublic && !this.authStatus?.hasSiteAccess) {
+    // 7. Need site access (site requires auth to submit)
+    if (!this.authStatus.reviewConfig.allowPublic && !this.authStatus.hasSiteAccess) {
       return { type: 'needSiteAccess', signInUrl: this.signInUrl }
     }
 
-    // 7. Need Stencila sign-in (private repo - OAuth lacks scope)
+    // 8. Need Stencila sign-in (private repo - OAuth lacks scope)
     if (this.requiresStencilaSignIn) {
       return { type: 'needStencilaSignIn', signInUrl: this.signInUrl }
     }
 
-    // 8. Need GitHub connect (public allows reviews but requires attribution)
+    // 9. Need GitHub connect (public allows reviews but requires attribution)
     if (this.showGitHubConnect) {
       return { type: 'needGitHubConnect' }
     }
 
-    // 9. Can submit
+    // 10. Can submit
     return { type: 'canSubmit', authorDescription: this.prAuthorDescription }
   }
 
@@ -626,8 +630,7 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
     if (!config.allowPublic && !this.authStatus?.hasSiteAccess) return false
 
     // Must have GitHub if anonymous not allowed
-    if (!config.allowAnonymous && !this.authStatus?.github?.connected)
-      return false
+    if (!config.allowAnonymous && !this.authStatus?.github?.connected) return false
 
     // Blocked: private repo, no push access, no app installed
     if (this.isBlockedPrivateRepo) return false
@@ -675,8 +678,8 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
     if (this.authStatus?.github?.connected) return false
 
     // Show if: anonymous not allowed OR has Stencila account (who might want attribution)
-    const wantsGitHub =
-      !this.authStatus?.reviewConfig.allowAnonymous || !!this.authStatus?.user
+    const allowAnon = this.authStatus?.reviewConfig?.allowAnonymous ?? false
+    const wantsGitHub = !allowAnon || !!this.authStatus?.user
     if (!wantsGitHub) return false
 
     // Stencila users can always connect via profile (regardless of repo visibility)
@@ -694,7 +697,7 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
    * Whether the user needs to sign in with Stencila (not just GitHub OAuth)
    *
    * Per spec, private repos can still allow anonymous/bot PRs if:
-   * - allowAnonymous is true, AND
+   * - anon attribute is true (anonymous submissions allowed), AND
    * - GitHub App is installed on the repo
    */
   private get requiresStencilaSignIn(): boolean {
@@ -705,12 +708,12 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
     if (this.authStatus?.github?.connected) return false
 
     const repo = this.authStatus?.repo
-    const config = this.authStatus?.reviewConfig
 
     // Private repo: check if bot PR is possible
     if (repo?.isPrivate) {
       // If app installed AND anonymous allowed → bot can create PR, no sign-in required
-      if (repo.appInstalled && config?.allowAnonymous) {
+      const allowAnon = this.authStatus?.reviewConfig?.allowAnonymous ?? false
+      if (repo.appInstalled && allowAnon) {
         return false
       }
       // Otherwise, private repo requires Stencila sign-in
@@ -718,7 +721,8 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
     }
 
     // Public repo: check site access requirements
-    if (config?.allowPublic) return false
+    const allowPublic = this.authStatus?.reviewConfig?.allowPublic ?? false
+    if (allowPublic) return false
 
     // Need site access but don't have it
     return !this.authStatus?.hasSiteAccess
@@ -1893,8 +1897,8 @@ export class StencilaSiteReview extends SiteAction<AuthStatusResponse> {
    * Uses shared CSS classes with review-specific pulsing animation
    */
   private renderReviewFab() {
-    // Don't render FAB if inside a site-actions container
-    if (this.hideFab) {
+    // Don't render FAB if inside a site-actions container or user not allowed
+    if (this.hideFab || (!this.authLoading && !this.isActionAllowed)) {
       return nothing
     }
 

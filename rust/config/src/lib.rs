@@ -32,16 +32,17 @@ static WATCH_ID_REGEX: LazyLock<Regex> =
 static DOMAIN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(DOMAIN_PATTERN).expect("Invalid regex"));
 
-mod actions;
 pub mod cli;
 mod init;
 mod layout;
 mod outputs;
 mod remotes;
-mod reviews;
 mod singleton;
 mod site;
-mod uploads;
+mod site_actions;
+mod site_remotes;
+mod site_reviews;
+mod site_uploads;
 mod utils;
 mod watch;
 mod workspace;
@@ -49,7 +50,6 @@ mod workspace;
 use crate::workspace::WorkspaceConfig;
 
 pub use {
-    actions::{ActionsConfig, ActionsDirection, ActionsMode, ActionsPosition},
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
@@ -61,14 +61,16 @@ pub use {
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,
         config_update_remote_watch,
     },
-    reviews::{ReviewType, ReviewsConfig, ReviewsSpec},
     singleton::{ConfigChangeEvent, get, load_and_validate, subscribe},
     site::{
         AuthorSpec, FeaturedContent, FeaturedCta, GlideConfig, LogoConfig, LogoSpec, NavItem,
         RedirectStatus, RouteSpread, SearchConfig, SearchSpec, SiteConfig, SiteFormat,
         config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread,
     },
-    uploads::{UploadsConfig, UploadsSpec},
+    site_actions::{SiteActionsConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition},
+    site_remotes::{SiteRemoteFormat, SiteRemoteSyncDirection, SiteRemotesConfig, SiteRemotesSpec},
+    site_reviews::{SiteReviewType, SiteReviewsConfig, SiteReviewsSpec},
+    site_uploads::{SiteUploadsConfig, SiteUploadsSpec},
     utils::{ConfigTarget, set_value, unset_value},
     watch::watch,
 };

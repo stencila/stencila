@@ -31,46 +31,11 @@ export interface RepoFile {
   lastModified: string
 }
 
-/**
- * Auth status response from /__stencila-upload/auth
- */
-export interface UploadAuthStatusResponse {
-  hasSiteAccess: boolean
-  user?: {
-    id: string
-    name: string
-    avatar: string
-  }
-  github?: {
-    connected: boolean
-    username: string
-    canPush: boolean
-    source: 'clerk' | 'oauth'
-  }
-  uploadConfig: {
-    enabled: boolean
-    allowPublic: boolean
-    allowAnonymous: boolean
-    allowedTypes: string[] | null
-    maxSize: number
-    targetPath: string
-    userPath: boolean
-    allowOverwrite: boolean
-    requireMessage: boolean
-  }
-  repo?: {
-    isPrivate: boolean
-    appInstalled: boolean
-  }
-  authorship?: {
-    canAuthorAsSelf: boolean
-    willBeBotAuthored: boolean
-    reason?: string
-  }
-}
+// Auth types (SiteAuthStatusResponse, UploadConfig) are defined in
+// site-action/types.ts and shared across all site actions.
 
 /**
- * Upload submission response from /__stencila-upload/submit
+ * Upload submission response from /__stencila/uploads
  */
 export interface UploadResponse {
   success: boolean

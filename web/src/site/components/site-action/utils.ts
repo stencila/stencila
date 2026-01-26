@@ -2,8 +2,125 @@
  * Shared utility functions for site action components
  */
 
+import type { SiteAuthStatusResponse } from './types'
+
 // External URLs
 export const GITHUB_OAUTH_URL = 'https://stencila.cloud/github/connect/site'
+
+// =============================================================================
+// Auth Status Cache
+// =============================================================================
+
+/**
+ * Cache entry for auth status
+ */
+interface AuthCacheEntry {
+  /** The promise that resolves to auth status */
+  promise: Promise<SiteAuthStatusResponse | null>
+  /** Timestamp when the cache entry was created */
+  timestamp: number
+}
+
+/** Cache TTL in milliseconds (5 minutes) */
+const AUTH_CACHE_TTL = 5 * 60 * 1000
+
+/** Module-level cache keyed by API base URL */
+const authCache = new Map<string, AuthCacheEntry>()
+
+/**
+ * Get cached auth status or fetch it.
+ *
+ * Multiple action components on the same page will share the same cached
+ * promise, avoiding duplicate requests.
+ *
+ * @param apiBase - The API base URL (empty string for same-origin)
+ * @param endpoint - The auth endpoint path
+ * @param getHeaders - Function to get auth headers
+ * @param forceRefresh - If true, bypass cache and fetch fresh data
+ */
+export async function getCachedAuthStatus(
+  apiBase: string,
+  endpoint: string,
+  getHeaders: () => Promise<Record<string, string>>,
+  forceRefresh: boolean = false
+): Promise<SiteAuthStatusResponse | null> {
+  const cacheKey = apiBase + endpoint
+  const now = Date.now()
+
+  // Check if we have a valid cached entry
+  const cached = authCache.get(cacheKey)
+  if (cached && !forceRefresh) {
+    const age = now - cached.timestamp
+    if (age < AUTH_CACHE_TTL) {
+      return cached.promise
+    }
+  }
+
+  // Create a new fetch promise
+  const fetchPromise = fetchAuthStatus(apiBase, endpoint, getHeaders)
+
+  // Store in cache immediately (so concurrent calls share the same promise)
+  authCache.set(cacheKey, {
+    promise: fetchPromise,
+    timestamp: now,
+  })
+
+  // Remove from cache if fetch fails (so retries don't wait for TTL)
+  fetchPromise.then((result) => {
+    if (result === null) {
+      authCache.delete(cacheKey)
+    }
+  })
+
+  return fetchPromise
+}
+
+/**
+ * Invalidate the auth cache for a specific API base, or all caches.
+ * Call this after sign-in/sign-out to force a fresh fetch.
+ */
+export function invalidateAuthCache(apiBase?: string): void {
+  if (apiBase !== undefined) {
+    // Remove entries that start with this API base
+    for (const key of authCache.keys()) {
+      if (key.startsWith(apiBase)) {
+        authCache.delete(key)
+      }
+    }
+  } else {
+    // Clear all cache entries
+    authCache.clear()
+  }
+}
+
+/**
+ * Internal function to fetch auth status
+ */
+async function fetchAuthStatus(
+  apiBase: string,
+  endpoint: string,
+  getHeaders: () => Promise<Record<string, string>>
+): Promise<SiteAuthStatusResponse | null> {
+  try {
+    const headers = await getHeaders()
+
+    const response = await fetch(apiBase + endpoint, {
+      method: 'GET',
+      headers,
+      credentials: isLocalhost() ? 'include' : 'same-origin',
+    })
+
+    if (response.ok) {
+      return await response.json()
+    }
+
+    console.error('[SiteAction] Failed to fetch auth status:', response.status)
+    return null
+  } catch (e) {
+    console.error('[SiteAction] Auth status fetch failed:', e)
+    return null
+  }
+}
 
 /**
  * Check if running on localhost

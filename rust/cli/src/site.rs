@@ -21,7 +21,7 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access, update_site_reviews,
 };
 use stencila_config::{
-    ConfigTarget, LayoutConfig, ReviewsSpec, RouteSpread, SpreadMode, UploadsSpec,
+    ConfigTarget, LayoutConfig, SiteReviewsSpec, RouteSpread, SpreadMode, SiteUploadsSpec,
     config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread, get,
     set_value, unset_value, validate_placeholders,
 };
@@ -2827,7 +2827,7 @@ fn is_reviews_boolean(_path: &Path) -> bool {
     cfg.site
         .as_ref()
         .and_then(|s| s.reviews.as_ref())
-        .map(|r| matches!(r, ReviewsSpec::Enabled(_)))
+        .map(|r| matches!(r, SiteReviewsSpec::Enabled(_)))
         .unwrap_or(false)
 }
 
@@ -2844,7 +2844,7 @@ fn is_uploads_boolean(_path: &Path) -> bool {
     cfg.site
         .as_ref()
         .and_then(|s| s.uploads.as_ref())
-        .map(|u| matches!(u, UploadsSpec::Enabled(_)))
+        .map(|u| matches!(u, SiteUploadsSpec::Enabled(_)))
         .unwrap_or(false)
 }
 
@@ -2926,65 +2926,6 @@ impl Uploads {
             return Ok(());
         }
 
-        let uploads_config = cfg
-            .site
-            .as_ref()
-            .and_then(|s| s.uploads.as_ref())
-            .map(|u| u.to_config())
-            .unwrap_or_default();
-
-        message!("<bold>Uploads <g>enabled</></>");
-        message!("──────────────────────");
-
-        if uploads_config.is_public() {
-            message!("Public: <g>yes</>");
-        } else {
-            message!("Public: <r>no</>");
-        }
-
-        if uploads_config.is_anon() {
-            message!("Anonymous: <g>yes</>");
-        } else {
-            message!("Anonymous: <r>no</>");
-        }
-
-        let target_path = uploads_config.target_path();
-        if target_path.is_empty() {
-            message!("Target path: <dim>(repo root)</>");
-        } else {
-            message!("Target path: <c>{}</>", target_path);
-        }
-
-        if let Some(types) = &uploads_config.allowed_types {
-            message!("Allowed types: <y>{}</>", types.join(", "));
-        } else {
-            message!("Allowed types: <dim>(all)</>");
-        }
-
-        message!(
-            "Max size: <c>{}</> bytes ({:.1} MB)",
-            uploads_config.max_size(),
-            uploads_config.max_size() as f64 / (1024.0 * 1024.0)
-        );
-
-        if uploads_config.user_path_enabled() {
-            message!("User path: <g>enabled</>");
-        } else {
-            message!("User path: <dim>disabled</>");
-        }
-
-        if uploads_config.allow_overwrite() {
-            message!("Allow overwrite: <g>yes</>");
-        } else {
-            message!("Allow overwrite: <r>no</>");
-        }
-
-        if uploads_config.require_message() {
-            message!("Require message: <g>yes</>");
-        } else {
-            message!("Require message: <dim>no</>");
-        }
-
         Ok(())
     }
 }
@@ -3059,20 +3000,6 @@ impl UploadsOn {
         }
 
         message!("✅ Uploads enabled");
-
-        // Re-read config to show current settings
-        let cfg = get()?;
-        if let Some(site) = &cfg.site
-            && let Some(uploads) = &site.uploads
-        {
-            let config = uploads.to_config();
-            let target = config.target_path();
-            if target.is_empty() {
-                message!("   Target: (repo root)");
-            } else {
-                message!("   Target: {}", target);
-            }
-        }
 
         Ok(())
     }

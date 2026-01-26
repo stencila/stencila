@@ -6,10 +6,9 @@
 export const STORAGE_KEY_FILES = 'stencila-site-upload-files'
 
 // API endpoint paths (relative, will be prefixed with apiBase)
-export const UPLOAD_AUTH_PATH = '/__stencila-upload/auth'
-export const UPLOAD_SUBMIT_PATH = '/__stencila-upload/submit'
-export const UPLOAD_FILES_PATH = '/__stencila-upload/files'
-export const UPLOAD_CHECK_EXISTS_PATH = '/__stencila-upload/check-exists'
+export const UPLOAD_SUBMIT_PATH = '/__stencila/uploads'
+export const UPLOAD_FILES_PATH = '/__stencila/uploads/files'
+export const UPLOAD_CHECK_EXISTS_PATH = '/__stencila/uploads/check-exists'
 
 // External URLs
 export const GITHUB_OAUTH_URL = 'https://stencila.cloud/github/connect/site'
@@ -73,15 +72,17 @@ export function getFileExtension(filename: string): string {
 }
 
 /**
- * Check if a file extension is allowed
+ * Check if a file extension is allowed.
+ * Handles extensions with or without leading dots (e.g., both "csv" and ".csv").
  */
 export function isExtensionAllowed(
   filename: string,
   allowedTypes: string[] | null
 ): boolean {
   if (!allowedTypes || allowedTypes.length === 0) return true
-  const ext = getFileExtension(filename)
-  return allowedTypes.some((t) => t.toLowerCase() === ext)
+  const ext = getFileExtension(filename).toLowerCase()
+  // Normalize allowed types by removing leading dots and lowercasing
+  return allowedTypes.some((t) => t.replace(/^\./, '').toLowerCase() === ext)
 }
 
 /**

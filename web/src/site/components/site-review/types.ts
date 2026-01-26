@@ -33,40 +33,11 @@ export interface SourceInfo {
   commit: string
 }
 
-/**
- * Auth status response from /__stencila-review/auth
- */
-export interface AuthStatusResponse {
-  hasSiteAccess: boolean
-  user?: {
-    id: string
-    name: string
-    avatar: string
-  }
-  github?: {
-    connected: boolean
-    username: string
-    canPush: boolean
-    source: 'clerk' | 'oauth'
-  }
-  reviewConfig: {
-    enabled: boolean
-    allowPublic: boolean
-    allowAnonymous: boolean
-  }
-  repo?: {
-    isPrivate: boolean
-    appInstalled: boolean
-  }
-  authorship?: {
-    canAuthorAsSelf: boolean
-    willBeBotAuthored: boolean
-    reason?: string
-  }
-}
+// Auth types (SiteAuthStatusResponse, ReviewConfig) are defined in
+// site-action/types.ts and shared across all site actions.
 
 /**
- * Review submission response from /__stencila-review/submit
+ * Review submission response from /__stencila/reviews
  */
 export interface ReviewResponse {
   success: boolean

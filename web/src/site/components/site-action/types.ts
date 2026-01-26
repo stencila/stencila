@@ -31,8 +31,117 @@ export interface BadgeUpdateDetail {
 }
 
 /**
- * Base auth response - shared fields between all actions.
- * Each action extends this with action-specific config (reviewConfig, uploadConfig, etc.)
+ * User info from auth status
+ */
+export interface AuthUser {
+  id: string
+  name: string
+  avatar: string
+}
+
+/**
+ * GitHub connection info from auth status
+ */
+export interface AuthGitHub {
+  connected: boolean
+  username: string
+  canPush: boolean
+  source: 'clerk' | 'oauth'
+}
+
+/**
+ * Repository info from auth status
+ */
+export interface AuthRepo {
+  isPrivate: boolean
+  appInstalled: boolean
+}
+
+/**
+ * Authorship info from auth status
+ */
+export interface AuthAuthorship {
+  canAuthorAsSelf: boolean
+  willBeBotAuthored: boolean
+  reason?: string
+}
+
+/**
+ * Review action config from auth status
+ *
+ * - `enabled`: Whether the review action is enabled for this site
+ * - `allowed`: Whether the current user is allowed to submit reviews
+ */
+export interface ReviewConfig {
+  enabled: boolean
+  allowed: boolean
+  allowPublic: boolean
+  allowAnonymous: boolean
+  types?: string[]
+  minSelection?: number
+  maxSelection?: number
+}
+
+/**
+ * Upload action config from auth status
+ *
+ * - `enabled`: Whether the upload action is enabled for this site
+ * - `allowed`: Whether the current user is allowed to upload files
+ *
+ * Note: public/anon visibility settings and other options (targetPath, userPath,
+ * allowOverwrite, requireMessage) are passed as component attributes,
+ * not in the auth response. The auth endpoint returns user-specific capabilities.
+ */
+export interface UploadConfig {
+  enabled: boolean
+  allowed: boolean
+  allowedDirectories: string[] | null
+  allowedExtensions: string[] | null
+  maxFileSize: number
+}
+
+/**
+ * Remote action config from auth status
+ *
+ * - `enabled`: Whether the remote action is enabled for this site
+ * - `allowed`: Whether the current user is allowed to add remote documents
+ *
+ * Formats are returned without dots (e.g., "smd", "md", "html")
+ *
+ * Note: public/anon visibility settings are passed as component attributes,
+ * not in the auth response. The auth endpoint returns user-specific capabilities.
+ */
+export interface RemoteConfig {
+  enabled: boolean
+  allowed: boolean
+  targetPath: string
+  userPath: boolean
+  defaultFormat: string
+  allowedFormats: string[]
+  defaultSyncDirection?: string
+  requireMessage?: boolean
+}
+
+/**
+ * Unified auth status response from /__stencila/auth/status
+ *
+ * This single endpoint serves all site actions (review, upload, remote).
+ * Each action reads its specific config section.
+ */
+export interface SiteAuthStatusResponse {
+  hasSiteAccess: boolean
+  user?: AuthUser
+  github?: AuthGitHub
+  repo?: AuthRepo
+  authorship?: AuthAuthorship
+  reviewConfig?: ReviewConfig
+  uploadConfig?: UploadConfig
+  remoteConfig?: RemoteConfig
+}
+
+/**
+ * @deprecated Use SiteAuthStatusResponse instead
+ * Base auth response - kept for backwards compatibility during migration
  */
 export interface BaseAuthStatusResponse {
   hasSiteAccess: boolean

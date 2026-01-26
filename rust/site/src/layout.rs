@@ -6,10 +6,10 @@
 use std::{collections::HashSet, path::Path};
 
 use stencila_config::{
-    ActionsDirection, ActionsMode, ActionsPosition, ColorModeStyle, ComponentConfig, ComponentSpec,
-    CopyMarkdownStyle, CustomSocialLink, EditOnService, EditSourceStyle, LayoutConfig, LogoConfig,
-    NavItem, PrevNextStyle, RegionSpec, ReviewsConfig, RowConfig, SiteConfig, SiteFormat,
-    SocialLinksStyle, UploadsConfig,
+    ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
+    EditOnService, EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec,
+    RowConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition, SiteConfig, SiteFormat,
+    SiteReviewsConfig, SiteUploadsConfig, SocialLinksStyle,
 };
 
 use crate::{
@@ -161,12 +161,8 @@ fn should_show_action_for_route(
 }
 
 /// Check if reviews should be shown for a given route based on include/exclude patterns
-pub fn should_show_reviews_for_route(route: &str, config: &ReviewsConfig) -> bool {
-    should_show_action_for_route(
-        route,
-        config.include.as_deref(),
-        config.exclude.as_deref(),
-    )
+pub fn should_show_reviews_for_route(route: &str, config: &SiteReviewsConfig) -> bool {
+    should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
 }
 
 /// Simple glob pattern matching supporting * and ** wildcards
@@ -1135,14 +1131,8 @@ fn render_search(placeholder: &Option<String>, context: &RenderContext) -> Strin
 }
 
 /// Check if uploads should be shown for a given route based on include/exclude patterns
-pub fn should_show_uploads_for_route(route: &str, config: &UploadsConfig) -> bool {
-    // Get include patterns (either explicit or derived from path)
-    let include_patterns = config.include_patterns();
-    should_show_action_for_route(
-        route,
-        include_patterns.as_deref(),
-        config.exclude.as_deref(),
-    )
+pub fn should_show_uploads_for_route(route: &str, config: &SiteUploadsConfig) -> bool {
+    should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
 }
 
 /// Render the unified site actions zone
@@ -1157,16 +1147,16 @@ fn render_site_actions(context: &RenderContext) -> String {
 
     // Build position attribute
     let position = match actions_config.position.unwrap_or_default() {
-        ActionsPosition::BottomRight => "bottom-right",
-        ActionsPosition::BottomLeft => "bottom-left",
-        ActionsPosition::TopRight => "top-right",
-        ActionsPosition::TopLeft => "top-left",
+        SiteActionsPosition::BottomRight => "bottom-right",
+        SiteActionsPosition::BottomLeft => "bottom-left",
+        SiteActionsPosition::TopRight => "top-right",
+        SiteActionsPosition::TopLeft => "top-left",
     };
 
     // Build direction attribute
     let direction = match actions_config.direction.unwrap_or_default() {
-        ActionsDirection::Vertical => "vertical",
-        ActionsDirection::Horizontal => "horizontal",
+        SiteActionsDirection::Vertical => "vertical",
+        SiteActionsDirection::Horizontal => "horizontal",
     };
 
     // Collect child components that are enabled for this route
@@ -1207,8 +1197,8 @@ fn render_site_actions(context: &RenderContext) -> String {
     // If explicitly configured, use that; otherwise default to "expanded" for single action,
     // "collapsed" for multiple actions
     let mode = match actions_config.mode {
-        Some(ActionsMode::Collapsed) => "collapsed",
-        Some(ActionsMode::Expanded) => "expanded",
+        Some(SiteActionsMode::Collapsed) => "collapsed",
+        Some(SiteActionsMode::Expanded) => "expanded",
         None => {
             if children.len() == 1 {
                 "expanded"
@@ -1226,7 +1216,7 @@ fn render_site_actions(context: &RenderContext) -> String {
 
 /// Render site review component with hide-fab attribute for use inside site-actions
 fn render_site_review_with_hide_fab(
-    config: &ReviewsConfig,
+    config: &SiteReviewsConfig,
     workspace_id: Option<&str>,
 ) -> Option<String> {
     // Require workspace.id for reviews to function
@@ -1273,7 +1263,7 @@ fn render_site_review_with_hide_fab(
 
 /// Render site upload component with hide-fab attribute for use inside site-actions
 fn render_site_upload_with_hide_fab(
-    config: &UploadsConfig,
+    _config: &SiteUploadsConfig,
     workspace_id: Option<&str>,
 ) -> Option<String> {
     // Require workspace.id for uploads to function
@@ -1285,49 +1275,8 @@ fn render_site_upload_with_hide_fab(
         return None;
     };
 
-    let mut attrs = format!(r#"workspace-id="{id}" hide-fab"#);
-
-    // Target path
-    let target_path = config.target_path();
-    if !target_path.is_empty() {
-        attrs.push_str(&format!(r#" target-path="{target_path}""#));
-    }
-
-    // Allowed types
-    if let Some(types) = &config.allowed_types {
-        let types_str = types.join(",");
-        attrs.push_str(&format!(r#" allowed-types="{types_str}""#));
-    }
-
-    // Max size
-    attrs.push_str(&format!(r#" max-size="{}""#, config.max_size()));
-
-    // User path
-    if config.user_path_enabled() {
-        attrs.push_str(r#" user-path="true""#);
-    }
-
-    // Allow overwrite (always emit to override component default)
-    attrs.push_str(&format!(
-        r#" allow-overwrite="{}""#,
-        config.allow_overwrite()
-    ));
-
-    // Require message
-    if config.require_message() {
-        attrs.push_str(r#" require-message="true""#);
-    }
-
-    // Public/anon settings (inform UI, enforced server-side)
-    if config.is_public() {
-        attrs.push_str(r#" public="true""#);
-    }
-    if config.is_anon() {
-        attrs.push_str(r#" anon="true""#);
-    }
-
     Some(format!(
-        "<stencila-site-upload {attrs}></stencila-site-upload>"
+        r#"<stencila-site-upload workspace-id="{id}" hide-fab></stencila-site-upload>"#
     ))
 }
 

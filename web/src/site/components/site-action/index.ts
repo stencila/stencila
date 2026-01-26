@@ -2,7 +2,7 @@ import { LitElement, html, nothing, type TemplateResult } from 'lit'
 import { property, state } from 'lit/decorators.js'
 
 import {
-  type BaseAuthStatusResponse,
+  type SiteAuthStatusResponse,
   type BaseFooterState,
   type ActionRegistration,
   type ActionPosition,
@@ -11,7 +11,13 @@ import {
   SITE_ACTION_UNREGISTER,
   SITE_ACTION_REQUEST_REGISTER,
 } from './types'
-import { isLocalhost, isDevMode, GITHUB_OAUTH_URL } from './utils'
+import {
+  isLocalhost,
+  isDevMode,
+  GITHUB_OAUTH_URL,
+  getCachedAuthStatus,
+  invalidateAuthCache,
+} from './utils'
 
 // Re-export types and utils for consumers
 export * from './types'
@@ -36,9 +42,7 @@ export * from './utils'
  * - calculateFooterState() method
  * - renderPanelContent() method
  */
-export abstract class SiteAction<
-  TAuth extends BaseAuthStatusResponse = BaseAuthStatusResponse,
-> extends LitElement {
+export abstract class SiteAction extends LitElement {
   // =========================================================================
   // Common Properties
   // =========================================================================
@@ -87,7 +91,7 @@ export abstract class SiteAction<
    * Auth status from the API
    */
   @state()
-  protected authStatus: TAuth | null = null
+  protected authStatus: SiteAuthStatusResponse | null = null
 
   /**
    * Whether auth status is being loaded
@@ -126,9 +130,11 @@ export abstract class SiteAction<
   abstract get actionLabel(): string
 
   /**
-   * API endpoint for auth status (e.g., '/__stencila-review/auth')
+   * API endpoint for auth status.
    */
-  abstract get authEndpoint(): string
+  get authEndpoint(): string {
+    return '/__stencila/auth/status'
+  }
 
   /**
    * Current badge count to display on FAB
@@ -136,9 +142,24 @@ export abstract class SiteAction<
   abstract get badgeCount(): number
 
   /**
+   * Whether the current user is allowed to use this action.
+   * Returns false if the action is disabled or the user lacks permission.
+   * Used to hide the FAB when the user cannot submit.
+   */
+  abstract get isActionAllowed(): boolean
+
+  /**
    * Apply development defaults when on localhost without API
    */
   protected abstract applyDevDefaults(): void
+
+  /**
+   * Optional hook called after auth status is successfully received.
+   * Subclasses can override to apply action-specific config from the response.
+   */
+  protected onAuthStatusReceived(): void {
+    // Default: no-op. Subclasses can override.
+  }
 
   /**
    * Calculate the current footer state based on auth and submission status
@@ -331,9 +352,14 @@ export abstract class SiteAction<
   }
 
   /**
-   * Fetch auth status from the API
+   * Fetch auth status from the API.
+   *
+   * Uses a shared cache so multiple action components on the same page
+   * don't make duplicate requests.
+   *
+   * @param forceRefresh - If true, bypass cache and fetch fresh data
    */
-  protected async fetchAuthStatus() {
+  protected async fetchAuthStatus(forceRefresh: boolean = false) {
     this.authLoading = true
 
     // In dev mode on localhost, skip API and use permissive defaults
@@ -346,20 +372,25 @@ export abstract class SiteAction<
 
     console.log(
       `[Site${this.actionLabel}] Fetching auth status from:`,
-      this.apiBase + this.authEndpoint
+      this.apiBase + this.authEndpoint,
+      forceRefresh ? '(forced refresh)' : '(may use cache)'
     )
 
     try {
-      const response = await this.apiFetch(this.authEndpoint)
+      // Use cached auth status (shared across all action components)
+      const result = await getCachedAuthStatus(
+        this.apiBase,
+        this.authEndpoint,
+        () => this.getAuthHeaders(),
+        forceRefresh
+      )
 
-      if (response.ok) {
-        this.authStatus = await response.json()
+      if (result) {
+        this.authStatus = result
         console.log(`[Site${this.actionLabel}] Auth status:`, this.authStatus)
+        this.onAuthStatusReceived()
       } else {
-        console.error(
-          `[Site${this.actionLabel}] Failed to fetch auth status:`,
-          response.status
-        )
+        console.error(`[Site${this.actionLabel}] Failed to fetch auth status`)
         this.applyDevDefaults()
       }
     } catch (e) {
@@ -371,10 +402,12 @@ export abstract class SiteAction<
   }
 
   /**
-   * Refresh auth status (e.g., after returning from sign-in)
+   * Refresh auth status (e.g., after returning from sign-in).
+   * Invalidates the cache and fetches fresh data.
    */
   protected refreshAuthStatus() {
-    this.fetchAuthStatus()
+    invalidateAuthCache(this.apiBase)
+    this.fetchAuthStatus(true)
   }
 
   // =========================================================================
@@ -386,7 +419,7 @@ export abstract class SiteAction<
    */
   protected get signInUrl(): string {
     const url = new URL(
-      `https://${this.workspaceId}.stencila.site/__stencila-signin`
+      `https://${this.workspaceId}.stencila.site/__stencila/auth/signin`
     )
     url.searchParams.set('return', window.location.href)
     return url.toString()
@@ -451,9 +484,11 @@ export abstract class SiteAction<
 
   /**
    * Render the FAB (Floating Action Button)
+   * Hidden when inside a site-actions container (hideFab) or when user is not allowed
    */
   protected renderFab() {
-    if (this.hideFab) {
+    // Hide FAB if inside container or user not allowed (after auth loaded)
+    if (this.hideFab || (!this.authLoading && !this.isActionAllowed)) {
       return nothing
     }
 
@@ -537,7 +572,7 @@ export abstract class SiteAction<
       case 'needStencilaSignIn':
         return html`<p class="footer-status">
           <a href=${state.signInUrl} class="auth-link">Sign in to Stencila</a>
-          - required for private repos
+          (required for private repos)
         </p>`
 
       case 'needGitHubConnect':

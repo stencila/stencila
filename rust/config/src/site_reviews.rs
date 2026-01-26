@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// Allowed review item types
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub enum ReviewType {
+pub enum SiteReviewType {
     /// Comment on selected text
     Comment,
     /// Suggestion to replace selected text
@@ -38,7 +38,7 @@ pub enum ReviewType {
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case", deny_unknown_fields)]
-pub struct ReviewsConfig {
+pub struct SiteReviewsConfig {
     /// Whether reviews are enabled
     ///
     /// When false, the review widget is not rendered.
@@ -62,7 +62,7 @@ pub struct ReviewsConfig {
     /// Allowed review item types
     ///
     /// Default: both comment and suggestion
-    pub types: Option<Vec<ReviewType>>,
+    pub types: Option<Vec<SiteReviewType>>,
 
     /// Minimum characters required to trigger the widget
     ///
@@ -99,7 +99,7 @@ pub struct ReviewsConfig {
     pub exclude: Option<Vec<String>>,
 }
 
-impl ReviewsConfig {
+impl SiteReviewsConfig {
     /// Get the effective public setting (defaults to true)
     pub fn is_public(&self) -> bool {
         self.public.unwrap_or(true)
@@ -128,7 +128,7 @@ impl ReviewsConfig {
     /// Check if comments are allowed
     pub fn allows_comments(&self) -> bool {
         match &self.types {
-            Some(types) => types.contains(&ReviewType::Comment),
+            Some(types) => types.contains(&SiteReviewType::Comment),
             None => true, // Both allowed by default
         }
     }
@@ -136,7 +136,7 @@ impl ReviewsConfig {
     /// Check if suggestions are allowed
     pub fn allows_suggestions(&self) -> bool {
         match &self.types {
-            Some(types) => types.contains(&ReviewType::Suggestion),
+            Some(types) => types.contains(&SiteReviewType::Suggestion),
             None => true, // Both allowed by default
         }
     }
@@ -231,46 +231,46 @@ fn validate_glob_pattern(pattern: &str, field: &str) -> Result<()> {
 /// - Detailed config: `[site.reviews]` with options
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(untagged)]
-pub enum ReviewsSpec {
+pub enum SiteReviewsSpec {
     /// Simple boolean: reviews = true/false
     Enabled(bool),
     /// Detailed config: [site.reviews] with options
-    Config(ReviewsConfig),
+    Config(SiteReviewsConfig),
 }
 
-impl ReviewsSpec {
+impl SiteReviewsSpec {
     /// Check if reviews are enabled
     pub fn is_enabled(&self) -> bool {
         match self {
-            ReviewsSpec::Enabled(enabled) => *enabled,
-            ReviewsSpec::Config(config) => config.enabled,
+            SiteReviewsSpec::Enabled(enabled) => *enabled,
+            SiteReviewsSpec::Config(config) => config.enabled,
         }
     }
 
     /// Convert to a full ReviewsConfig, applying defaults for simple boolean form
-    pub fn to_config(&self) -> ReviewsConfig {
+    pub fn to_config(&self) -> SiteReviewsConfig {
         match self {
-            ReviewsSpec::Enabled(enabled) => ReviewsConfig {
+            SiteReviewsSpec::Enabled(enabled) => SiteReviewsConfig {
                 enabled: *enabled,
                 ..Default::default()
             },
-            ReviewsSpec::Config(config) => config.clone(),
+            SiteReviewsSpec::Config(config) => config.clone(),
         }
     }
 }
 
-impl Default for ReviewsSpec {
+impl Default for SiteReviewsSpec {
     fn default() -> Self {
-        ReviewsSpec::Enabled(false)
+        SiteReviewsSpec::Enabled(false)
     }
 }
 
-impl ReviewsSpec {
+impl SiteReviewsSpec {
     /// Validate the reviews specification
     pub fn validate(&self) -> Result<()> {
         match self {
-            ReviewsSpec::Enabled(_) => Ok(()),
-            ReviewsSpec::Config(config) => config.validate(),
+            SiteReviewsSpec::Enabled(_) => Ok(()),
+            SiteReviewsSpec::Config(config) => config.validate(),
         }
     }
 }
@@ -281,7 +281,7 @@ mod tests {
 
     #[test]
     fn test_reviews_spec_simple_true() -> Result<(), serde_json::Error> {
-        let spec: ReviewsSpec = serde_json::from_str("true")?;
+        let spec: SiteReviewsSpec = serde_json::from_str("true")?;
         assert!(spec.is_enabled());
         let config = spec.to_config();
         assert!(config.enabled);
@@ -292,7 +292,7 @@ mod tests {
 
     #[test]
     fn test_reviews_spec_simple_false() -> Result<(), serde_json::Error> {
-        let spec: ReviewsSpec = serde_json::from_str("false")?;
+        let spec: SiteReviewsSpec = serde_json::from_str("false")?;
         assert!(!spec.is_enabled());
         Ok(())
     }
@@ -308,7 +308,7 @@ mod tests {
             "max-selection": 1000,
             "shortcuts": true
         }"#;
-        let spec: ReviewsSpec = serde_json::from_str(json)?;
+        let spec: SiteReviewsSpec = serde_json::from_str(json)?;
         assert!(spec.is_enabled());
 
         let config = spec.to_config();
@@ -324,9 +324,9 @@ mod tests {
 
     #[test]
     fn test_review_type_serialization() -> Result<(), serde_json::Error> {
-        assert_eq!(serde_json::to_string(&ReviewType::Comment)?, "\"comment\"");
+        assert_eq!(serde_json::to_string(&SiteReviewType::Comment)?, "\"comment\"");
         assert_eq!(
-            serde_json::to_string(&ReviewType::Suggestion)?,
+            serde_json::to_string(&SiteReviewType::Suggestion)?,
             "\"suggestion\""
         );
         Ok(())
@@ -334,7 +334,7 @@ mod tests {
 
     #[test]
     fn test_validate_min_greater_than_max() {
-        let config = ReviewsConfig {
+        let config = SiteReviewsConfig {
             min_selection: Some(100),
             max_selection: Some(10),
             ..Default::default()
@@ -349,7 +349,7 @@ mod tests {
 
     #[test]
     fn test_validate_empty_types() {
-        let config = ReviewsConfig {
+        let config = SiteReviewsConfig {
             types: Some(vec![]),
             ..Default::default()
         };
@@ -360,10 +360,10 @@ mod tests {
 
     #[test]
     fn test_validate_valid_config() {
-        let config = ReviewsConfig {
+        let config = SiteReviewsConfig {
             min_selection: Some(5),
             max_selection: Some(1000),
-            types: Some(vec![ReviewType::Comment]),
+            types: Some(vec![SiteReviewType::Comment]),
             ..Default::default()
         };
         assert!(config.validate().is_ok());
@@ -371,13 +371,13 @@ mod tests {
 
     #[test]
     fn test_validate_defaults() {
-        let config = ReviewsConfig::default();
+        let config = SiteReviewsConfig::default();
         assert!(config.validate().is_ok());
     }
 
     #[test]
     fn test_validate_valid_glob_patterns() {
-        let config = ReviewsConfig {
+        let config = SiteReviewsConfig {
             include: Some(vec![
                 "docs/**".to_string(),
                 "guides/*.md".to_string(),
@@ -391,7 +391,7 @@ mod tests {
 
     #[test]
     fn test_validate_invalid_glob_pattern() {
-        let config = ReviewsConfig {
+        let config = SiteReviewsConfig {
             include: Some(vec!["docs/[invalid".to_string()]),
             ..Default::default()
         };
@@ -402,7 +402,7 @@ mod tests {
 
     #[test]
     fn test_validate_multiple_double_star_segments() {
-        let config = ReviewsConfig {
+        let config = SiteReviewsConfig {
             include: Some(vec!["**/docs/**".to_string()]),
             ..Default::default()
         };

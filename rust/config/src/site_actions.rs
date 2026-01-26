@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// Position for the actions zone on the page
 #[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub enum ActionsPosition {
+pub enum SiteActionsPosition {
     /// Bottom-right corner (default)
     #[default]
     BottomRight,
@@ -27,7 +27,7 @@ pub enum ActionsPosition {
 /// Expansion direction for action buttons
 #[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub enum ActionsDirection {
+pub enum SiteActionsDirection {
     /// Vertical stack (default) - buttons expand upward/downward from corner
     #[default]
     Vertical,
@@ -38,7 +38,7 @@ pub enum ActionsDirection {
 /// Display mode for the actions zone
 #[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
-pub enum ActionsMode {
+pub enum SiteActionsMode {
     /// Collapsed (default) - main FAB expands on click to reveal action buttons
     #[default]
     Collapsed,
@@ -56,36 +56,36 @@ pub enum ActionsMode {
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "kebab-case", deny_unknown_fields)]
-pub struct ActionsConfig {
+pub struct SiteActionsConfig {
     /// Position of the actions zone on the page
     ///
     /// Default: bottom-right
-    pub position: Option<ActionsPosition>,
+    pub position: Option<SiteActionsPosition>,
 
     /// Direction for action buttons to expand
     ///
     /// Default: vertical
-    pub direction: Option<ActionsDirection>,
+    pub direction: Option<SiteActionsDirection>,
 
     /// Display mode for the actions zone
     ///
     /// Default: collapsed
-    pub mode: Option<ActionsMode>,
+    pub mode: Option<SiteActionsMode>,
 }
 
-impl ActionsConfig {
+impl SiteActionsConfig {
     /// Get the effective position (defaults to BottomRight)
-    pub fn position(&self) -> ActionsPosition {
+    pub fn position(&self) -> SiteActionsPosition {
         self.position.unwrap_or_default()
     }
 
     /// Get the effective direction (defaults to Vertical)
-    pub fn direction(&self) -> ActionsDirection {
+    pub fn direction(&self) -> SiteActionsDirection {
         self.direction.unwrap_or_default()
     }
 
     /// Get the effective mode (defaults to Collapsed)
-    pub fn mode(&self) -> ActionsMode {
+    pub fn mode(&self) -> SiteActionsMode {
         self.mode.unwrap_or_default()
     }
 }
@@ -97,11 +97,11 @@ mod tests {
     #[test]
     fn test_actions_position_serialization() -> Result<(), serde_json::Error> {
         assert_eq!(
-            serde_json::to_string(&ActionsPosition::BottomRight)?,
+            serde_json::to_string(&SiteActionsPosition::BottomRight)?,
             "\"bottom-right\""
         );
         assert_eq!(
-            serde_json::to_string(&ActionsPosition::TopLeft)?,
+            serde_json::to_string(&SiteActionsPosition::TopLeft)?,
             "\"top-left\""
         );
         Ok(())
@@ -110,11 +110,11 @@ mod tests {
     #[test]
     fn test_actions_direction_serialization() -> Result<(), serde_json::Error> {
         assert_eq!(
-            serde_json::to_string(&ActionsDirection::Vertical)?,
+            serde_json::to_string(&SiteActionsDirection::Vertical)?,
             "\"vertical\""
         );
         assert_eq!(
-            serde_json::to_string(&ActionsDirection::Horizontal)?,
+            serde_json::to_string(&SiteActionsDirection::Horizontal)?,
             "\"horizontal\""
         );
         Ok(())
@@ -123,11 +123,11 @@ mod tests {
     #[test]
     fn test_actions_mode_serialization() -> Result<(), serde_json::Error> {
         assert_eq!(
-            serde_json::to_string(&ActionsMode::Collapsed)?,
+            serde_json::to_string(&SiteActionsMode::Collapsed)?,
             "\"collapsed\""
         );
         assert_eq!(
-            serde_json::to_string(&ActionsMode::Expanded)?,
+            serde_json::to_string(&SiteActionsMode::Expanded)?,
             "\"expanded\""
         );
         Ok(())
@@ -135,10 +135,10 @@ mod tests {
 
     #[test]
     fn test_actions_config_defaults() {
-        let config = ActionsConfig::default();
-        assert_eq!(config.position(), ActionsPosition::BottomRight);
-        assert_eq!(config.direction(), ActionsDirection::Vertical);
-        assert_eq!(config.mode(), ActionsMode::Collapsed);
+        let config = SiteActionsConfig::default();
+        assert_eq!(config.position(), SiteActionsPosition::BottomRight);
+        assert_eq!(config.direction(), SiteActionsDirection::Vertical);
+        assert_eq!(config.mode(), SiteActionsMode::Collapsed);
     }
 
     #[test]
@@ -148,10 +148,10 @@ mod tests {
             "direction": "horizontal",
             "mode": "expanded"
         }"#;
-        let config: ActionsConfig = serde_json::from_str(json)?;
-        assert_eq!(config.position(), ActionsPosition::TopLeft);
-        assert_eq!(config.direction(), ActionsDirection::Horizontal);
-        assert_eq!(config.mode(), ActionsMode::Expanded);
+        let config: SiteActionsConfig = serde_json::from_str(json)?;
+        assert_eq!(config.position(), SiteActionsPosition::TopLeft);
+        assert_eq!(config.direction(), SiteActionsDirection::Horizontal);
+        assert_eq!(config.mode(), SiteActionsMode::Expanded);
         Ok(())
     }
 }
