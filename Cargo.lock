@@ -8800,6 +8800,7 @@ dependencies = [
  "stencila-cli-utils",
  "stencila-cloud",
  "stencila-codec-gdoc",
+ "stencila-codec-m365",
  "stencila-codec-utils",
  "stencila-codecs",
  "stencila-config",
@@ -9452,6 +9453,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-docx",
  "tempfile",
+ "thiserror 2.0.18",
  "tokio",
  "url",
 ]

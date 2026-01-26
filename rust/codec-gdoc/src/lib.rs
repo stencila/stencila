@@ -20,16 +20,32 @@ pub enum GDocError {
     /// Google account not linked to Stencila account
     ///
     /// The user needs to connect their Google account via the Stencila Cloud picker.
+    /// The `connect_url` may contain a tenant-specific URL for managed environments.
     #[error("Google account not linked. Use Google Picker to connect and grant access.")]
-    NotLinked,
+    NotLinked {
+        /// URL to connect the Google account (if available, may be tenant-specific)
+        connect_url: Option<String>,
+    },
 
-    /// Access denied to the document (403/404)
+    /// Access denied to the document (403)
     ///
     /// The user needs to grant access via the Google Picker.
     /// The `doc_id` can be used to construct a picker URL.
     #[error("Access denied to Google Doc '{doc_id}'. Use Google Picker to grant access.")]
     AccessDenied {
         /// The Google Doc ID that access was denied to
+        doc_id: String,
+    },
+
+    /// Document not found (404)
+    ///
+    /// The document doesn't exist or has been deleted. Unlike AccessDenied,
+    /// this error should not trigger the picker flow.
+    #[error(
+        "Google Doc '{doc_id}' not found. The document may have been deleted or the URL is incorrect."
+    )]
+    NotFound {
+        /// The Google Doc ID that was not found
         doc_id: String,
     },
 
@@ -83,8 +99,8 @@ pub async fn push(
     let access_token = if dry_run.is_none() {
         match stencila_cloud::google_get_token_once().await {
             Ok(token) => Some(token),
-            Err(stencila_cloud::GoogleTokenError::NotLinked { .. }) => {
-                return Err(GDocError::NotLinked.into());
+            Err(stencila_cloud::GoogleTokenError::NotLinked { connect_url }) => {
+                return Err(GDocError::NotLinked { connect_url }.into());
             }
             Err(e) => {
                 return Err(GDocError::Other(eyre::eyre!("{e}")).into());
@@ -297,12 +313,16 @@ async fn update(
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
 
-        // Check for access denied (403/404)
-        if status.as_u16() == 403
-            || status.as_u16() == 404
-            || error_text.contains("notFound")
-            || error_text.contains("forbidden")
-        {
+        // 404 or notFound -> document doesn't exist
+        if status.as_u16() == 404 || error_text.contains("notFound") {
+            return Err(GDocError::NotFound {
+                doc_id: doc_id.to_string(),
+            }
+            .into());
+        }
+
+        // 403 or forbidden -> permission issue, picker can help
+        if status.as_u16() == 403 || error_text.contains("forbidden") {
             return Err(GDocError::AccessDenied {
                 doc_id: doc_id.to_string(),
             }
@@ -335,8 +355,8 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<(), GDocError> {
     // Get access token from Stencila Cloud (non-retrying)
     let access_token = match stencila_cloud::google_get_token_once().await {
         Ok(token) => token,
-        Err(stencila_cloud::GoogleTokenError::NotLinked { .. }) => {
-            return Err(GDocError::NotLinked);
+        Err(stencila_cloud::GoogleTokenError::NotLinked { connect_url }) => {
+            return Err(GDocError::NotLinked { connect_url });
         }
         Err(e) => {
             return Err(GDocError::Other(eyre::eyre!("{e}")));
@@ -358,12 +378,13 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<(), GDocError> {
     if !status.is_success() {
         let error_text = response.text().await.unwrap_or_default();
 
-        // Check for access denied (403/404)
-        if status.as_u16() == 403
-            || status.as_u16() == 404
-            || error_text.contains("notFound")
-            || error_text.contains("forbidden")
-        {
+        // 404 or notFound -> document doesn't exist
+        if status.as_u16() == 404 || error_text.contains("notFound") {
+            return Err(GDocError::NotFound { doc_id });
+        }
+
+        // 403 or forbidden -> permission issue, picker can help
+        if status.as_u16() == 403 || error_text.contains("forbidden") {
             return Err(GDocError::AccessDenied { doc_id });
         }
 

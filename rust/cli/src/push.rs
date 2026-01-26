@@ -16,6 +16,7 @@ use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_cloud::{WatchRequest, create_watch};
 use stencila_codec_gdoc::GDocError;
+use stencila_codec_m365::M365Error;
 use stencila_codec_utils::{git_file_info, validate_file_on_default_branch};
 use stencila_codecs::PushResult;
 use stencila_document::Document;
@@ -433,7 +434,7 @@ impl Cli {
                             }
                         }
                         Err(error) => {
-                            let error = Self::gdoc_error_with_picker_url(error);
+                            let error = Self::remote_error_with_picker_url(error);
                             message!("❌ Failed to push to {}: {}", remote_url, error);
                             errors.push((remote_url.clone(), error.to_string()));
                         }
@@ -558,7 +559,7 @@ impl Cli {
             None,
         )
         .await
-        .map_err(Self::gdoc_error_with_picker_url)?;
+        .map_err(Self::remote_error_with_picker_url)?;
 
         // Handle the result
         let url = match result {
@@ -870,7 +871,7 @@ impl Cli {
                         }
                     }
                     Err(error) => {
-                        let error = Self::gdoc_error_with_picker_url(error);
+                        let error = Self::remote_error_with_picker_url(error);
                         message!("❌ Failed to push to {}: {}", remote_url, error);
                         file_errors += 1;
                     }
@@ -1167,7 +1168,7 @@ impl Cli {
                     successes.push((run_args, url));
                 }
                 Err(e) => {
-                    let e = Self::gdoc_error_with_picker_url(e);
+                    let e = Self::remote_error_with_picker_url(e);
                     message!("  ✗ Error: {}", e);
                     errors.push((run_args.clone(), e.to_string()));
 
@@ -1289,8 +1290,10 @@ impl Cli {
                         picker_url
                     ));
                 }
-                GDocError::NotLinked => {
-                    let picker_url = stencila_cloud::google_picker_url(None);
+                GDocError::NotLinked { connect_url } => {
+                    let picker_url = connect_url
+                        .clone()
+                        .unwrap_or_else(|| stencila_cloud::google_picker_url(None));
                     return error.wrap_err(format!(
                         "Google account not linked to Stencila.\n\n\
                          Connect your account and grant access by visiting:\n  {}\n\n\
@@ -1298,9 +1301,64 @@ impl Cli {
                         picker_url
                     ));
                 }
-                GDocError::Other(_) => {}
+                // NotFound errors should pass through without picker guidance
+                GDocError::NotFound { .. } | GDocError::Other(_) => {}
             }
         }
         error
+    }
+
+    /// Convert a Microsoft 365 error into a user-friendly message with picker URL
+    ///
+    /// If the error is a `M365Error::AccessDenied`, `M365Error::NotLinked`, or
+    /// `M365Error::RefreshFailed`, wraps with a helpful message including a link.
+    /// Preserves the original error chain for debugging.
+    fn m365_error_with_picker_url(error: eyre::Report) -> eyre::Report {
+        if let Some(m365_err) = error.downcast_ref::<M365Error>() {
+            match m365_err {
+                M365Error::AccessDenied { doc_id } => {
+                    let picker_url = stencila_cloud::microsoft_picker_url(Some(doc_id));
+                    return error.wrap_err(format!(
+                        "Access denied to Microsoft 365 document.\n\n\
+                         Grant Stencila access by visiting:\n  {}\n\n\
+                         Then retry the push command.",
+                        picker_url
+                    ));
+                }
+                M365Error::NotLinked { connect_url } => {
+                    let picker_url = connect_url
+                        .clone()
+                        .unwrap_or_else(|| stencila_cloud::microsoft_picker_url(None));
+                    return error.wrap_err(format!(
+                        "Microsoft account not linked to Stencila.\n\n\
+                         Connect your account and grant access by visiting:\n  {}\n\n\
+                         Then retry the push command.",
+                        picker_url
+                    ));
+                }
+                M365Error::RefreshFailed { connect_url } => {
+                    let picker_url = connect_url
+                        .clone()
+                        .unwrap_or_else(|| stencila_cloud::microsoft_picker_url(None));
+                    return error.wrap_err(format!(
+                        "Microsoft token refresh failed.\n\n\
+                         Reconnect your account by visiting:\n  {}\n\n\
+                         Then retry the push command.",
+                        picker_url
+                    ));
+                }
+                // NotFound errors should pass through without picker guidance
+                M365Error::NotFound { .. } | M365Error::Other(_) => {}
+            }
+        }
+        error
+    }
+
+    /// Convert both Google Docs and Microsoft 365 errors into user-friendly messages
+    fn remote_error_with_picker_url(error: eyre::Report) -> eyre::Report {
+        // Try Google Docs first
+        let error = Self::gdoc_error_with_picker_url(error);
+        // Then try Microsoft 365
+        Self::m365_error_with_picker_url(error)
     }
 }

@@ -25,7 +25,60 @@ use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use reqwest::Client;
 use serde::Deserialize;
 use tempfile::NamedTempFile;
+use thiserror::Error;
 use url::Url;
+
+/// Error type for Microsoft 365 / OneDrive operations
+#[derive(Debug, Error)]
+pub enum M365Error {
+    /// Microsoft account not linked to Stencila account
+    ///
+    /// The user needs to connect their Microsoft account via the Stencila Cloud picker.
+    /// The `connect_url` may contain a tenant-specific URL for managed environments.
+    #[error("Microsoft account not linked. Use Microsoft Picker to connect and grant access.")]
+    NotLinked {
+        /// URL to connect the Microsoft account (if available, may be tenant-specific)
+        connect_url: Option<String>,
+    },
+
+    /// Microsoft token refresh failed
+    ///
+    /// The stored refresh token has expired or been revoked. The user needs to
+    /// reconnect their Microsoft account.
+    #[error("Microsoft token refresh failed. Please reconnect your account.")]
+    RefreshFailed {
+        /// URL to reconnect the Microsoft account (if available)
+        connect_url: Option<String>,
+    },
+
+    /// Access denied to the document (403)
+    ///
+    /// The user needs to grant access via the Microsoft Picker.
+    /// The `doc_id` can be used to construct a picker URL.
+    #[error(
+        "Access denied to Microsoft 365 document '{doc_id}'. Use Microsoft Picker to grant access."
+    )]
+    AccessDenied {
+        /// The OneDrive item ID that access was denied to
+        doc_id: String,
+    },
+
+    /// Document not found (404)
+    ///
+    /// The document doesn't exist or has been deleted. Unlike AccessDenied,
+    /// this error should not trigger the picker flow.
+    #[error(
+        "Microsoft 365 document '{doc_id}' not found. The document may have been deleted or the URL is incorrect."
+    )]
+    NotFound {
+        /// The OneDrive item ID that was not found
+        doc_id: String,
+    },
+
+    /// Other error
+    #[error("{0}")]
+    Other(#[from] eyre::Report),
+}
 
 /// URL encoding set for OneDrive file paths
 /// Encodes control characters and special characters but preserves common filename characters
@@ -66,10 +119,14 @@ struct DriveItemMetadata {
 /// If `url` is provided, updates the existing document.
 /// Otherwise, creates a new document.
 ///
-/// This function will obtain a Microsoft access token from Stencila Cloud,
-/// prompting the user to connect their account if necessary.
+/// This function will obtain a Microsoft access token from Stencila Cloud.
 ///
-/// Returns a PushResult with the URL of the OneDrive document.
+/// Returns `M365Error::NotLinked` if the Microsoft account is not connected.
+/// Returns `M365Error::RefreshFailed` if the token refresh failed.
+/// Returns `M365Error::AccessDenied` if the app doesn't have access to the
+/// document (when updating an existing document).
+///
+/// Returns a PushResult with the URL of the OneDrive document on success.
 pub async fn push(
     node: &Node,
     path: Option<&Path>,
@@ -77,9 +134,20 @@ pub async fn push(
     url: Option<&Url>,
     dry_run: Option<PushDryRunOptions>,
 ) -> Result<PushResult> {
-    // Get access token only if not in dry-run mode
+    // Get access token only if not in dry-run mode (non-retrying so caller can handle errors)
     let access_token = if dry_run.is_none() {
-        Some(stencila_cloud::get_token("microsoft").await?)
+        match stencila_cloud::microsoft_get_token_once().await {
+            Ok(token) => Some(token),
+            Err(stencila_cloud::MicrosoftTokenError::NotLinked { connect_url }) => {
+                return Err(M365Error::NotLinked { connect_url }.into());
+            }
+            Err(stencila_cloud::MicrosoftTokenError::RefreshFailed { connect_url }) => {
+                return Err(M365Error::RefreshFailed { connect_url }.into());
+            }
+            Err(e) => {
+                return Err(M365Error::Other(eyre::eyre!("{e}")).into());
+            }
+        }
     } else {
         None
     };
@@ -239,14 +307,29 @@ async fn upload(
 ///
 /// Downloads the document as DOCX and saves it to the specified path.
 ///
-/// This function will obtain a Microsoft access token from Stencila Cloud,
-/// prompting the user to connect their account if necessary.
-pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
-    // Get access token from Stencila Cloud
-    let access_token = stencila_cloud::get_token("microsoft").await?;
-
-    // Extract item ID
+/// Returns `M365Error::NotLinked` if the Microsoft account is not connected.
+/// Returns `M365Error::RefreshFailed` if the token refresh failed.
+/// Returns `M365Error::AccessDenied` if the app doesn't have access (403).
+/// Returns `M365Error::NotFound` if the document doesn't exist (404).
+///
+/// This function uses a non-retrying token fetch so callers can handle
+/// connection errors appropriately (e.g., by opening the picker).
+pub async fn pull(url: &Url, dest: &Path) -> Result<(), M365Error> {
     let item_id = extract_item_id(url)?;
+
+    // Get access token from Stencila Cloud (non-retrying)
+    let access_token = match stencila_cloud::microsoft_get_token_once().await {
+        Ok(token) => token,
+        Err(stencila_cloud::MicrosoftTokenError::NotLinked { connect_url }) => {
+            return Err(M365Error::NotLinked { connect_url });
+        }
+        Err(stencila_cloud::MicrosoftTokenError::RefreshFailed { connect_url }) => {
+            return Err(M365Error::RefreshFailed { connect_url });
+        }
+        Err(e) => {
+            return Err(M365Error::Other(eyre::eyre!("{e}")));
+        }
+    };
 
     // Download the document
     let client = Client::new();
@@ -256,32 +339,42 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<()> {
         ))
         .header("Authorization", format!("Bearer {access_token}"))
         .send()
-        .await?;
+        .await
+        .map_err(|e| M365Error::Other(e.into()))?;
 
-    if !response.status().is_success() {
-        let status = response.status();
+    let status = response.status();
+    if !status.is_success() {
         let error_text = response.text().await.unwrap_or_default();
 
-        match status.as_u16() {
-            404 => bail!(
-                "OneDrive document not found ({status}). Please check the URL is correct \
-                and the document hasn't been deleted.\n\n\
-                Error details: {error_text}"
-            ),
-            401 | 403 => bail!(
-                "Access denied ({status}). You may not have permission to access this document.\n\n\
-                Error details: {error_text}"
-            ),
-            423 => bail!(
-                "The document is currently being edited in OneDrive/Office. Please close the document and try again."
-            ),
-            _ => bail!("Failed to download from OneDrive ({status}): {error_text}"),
+        // 404 or itemNotFound -> document doesn't exist
+        if status.as_u16() == 404 || error_text.contains("itemNotFound") {
+            return Err(M365Error::NotFound { doc_id: item_id });
         }
+
+        // 401/403 or accessDenied -> permission issue, picker can help
+        if status.as_u16() == 401 || status.as_u16() == 403 || error_text.contains("accessDenied") {
+            return Err(M365Error::AccessDenied { doc_id: item_id });
+        }
+
+        if status.as_u16() == 423 {
+            return Err(M365Error::Other(eyre::eyre!(
+                "The document is currently being edited in OneDrive/Office. Please close the document and try again."
+            )));
+        }
+
+        return Err(M365Error::Other(eyre::eyre!(
+            "Failed to download from OneDrive ({status}): {error_text}"
+        )));
     }
 
     // Write the downloaded bytes directly to the destination
-    let bytes = response.bytes().await?;
-    tokio::fs::write(dest, bytes).await?;
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|error| M365Error::Other(error.into()))?;
+    tokio::fs::write(dest, &bytes)
+        .await
+        .map_err(|error| M365Error::Other(error.into()))?;
 
     Ok(())
 }

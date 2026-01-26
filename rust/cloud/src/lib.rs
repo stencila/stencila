@@ -24,6 +24,10 @@ pub use github::get_repo_token;
 pub use google::{
     GoogleTokenError, get_token_once as google_get_token_once, picker_url as google_picker_url,
 };
+pub use microsoft::{
+    MicrosoftTokenError, get_token_once as microsoft_get_token_once,
+    picker_url as microsoft_picker_url,
+};
 pub use watch::*;
 pub use workspace::{WorkspaceResponse, create_or_get_workspace, ensure_workspace, get_workspace};
 

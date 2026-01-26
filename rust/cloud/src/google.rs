@@ -189,7 +189,12 @@ pub async fn get_token_with_retry() -> Result<String> {
 pub fn picker_url(doc_id: Option<&str>) -> String {
     const BASE: &str = "https://stencila.cloud/google/picker";
     match doc_id {
-        Some(id) => format!("{BASE}?doc_id={id}"),
+        Some(id) => {
+            // Use url crate to properly encode the doc_id parameter
+            let mut url = url::Url::parse(BASE).expect("valid base URL");
+            url.query_pairs_mut().append_pair("doc_id", id);
+            url.to_string()
+        }
         None => BASE.to_string(),
     }
 }

@@ -171,7 +171,9 @@ impl RemoteService {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest)
                 .await
                 .map_err(|error| eyre!(error)),
-            Self::Microsoft365 => stencila_codec_m365::pull(url, dest).await,
+            Self::Microsoft365 => stencila_codec_m365::pull(url, dest)
+                .await
+                .map_err(|error| eyre!(error)),
             Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
             Self::StencilaEmail => stencila_cloud::email::pull(url, dest, target_path, None).await,
         }

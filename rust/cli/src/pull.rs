@@ -8,6 +8,7 @@ use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_codec_gdoc::GDocError;
+use stencila_codec_m365::M365Error;
 use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_remotes::{RemoteService, get_remotes_for_path, update_remote_timestamp};
 
@@ -108,16 +109,17 @@ impl Cli {
                     }
                 }
                 "m365" => {
-                    // Find configured Microsoft 365 remote
-                    let url = remote_infos
+                    // Find configured Microsoft 365 remote, or trigger picker if none
+                    match remote_infos
                         .iter()
                         .find(|info| RemoteService::Microsoft365.matches_url(&info.url))
-                        .ok_or_else(|| {
-                            eyre!("No Microsoft 365 document configured for `{path_display}`")
-                        })?
-                        .url
-                        .clone();
-                    (RemoteService::Microsoft365, url)
+                    {
+                        Some(info) => (RemoteService::Microsoft365, info.url.clone()),
+                        None => {
+                            // No configured remote - use browse workflow with picker
+                            return self.run_m365_picker_pull().await;
+                        }
+                    }
                 }
                 "ghi" => {
                     // Find configured GitHub Issue remote
@@ -207,7 +209,23 @@ impl Cli {
             return Ok(());
         }
 
-        // Pull and update the local file (for non-Google Docs services)
+        // For Microsoft 365, use the picker-based pull with access denied retry
+        if matches!(service, RemoteService::Microsoft365) {
+            self.pull_m365_with_retry(&url).await?;
+
+            // Track the remote pull
+            update_remote_timestamp(
+                &self.path,
+                url.as_ref(),
+                Some(Utc::now().timestamp() as u64),
+                None,
+            )
+            .await?;
+
+            return Ok(());
+        }
+
+        // Pull and update the local file (for other services)
         let modified_files = stencila_codecs::pull(
             &service,
             &url,
@@ -253,7 +271,6 @@ impl Cli {
     ///
     /// Opens the Google Picker to let the user browse and select a document,
     /// then pulls and merges it with the local file.
-    #[allow(clippy::print_stderr)]
     async fn run_gdoc_picker_pull(&self) -> Result<()> {
         // Open the Google Picker in browser
         let picker_url = stencila_cloud::google_picker_url(None);
@@ -298,7 +315,6 @@ impl Cli {
     }
 
     /// Pull from a Google Doc URL with interactive retry on access denied
-    #[allow(clippy::print_stderr)]
     async fn pull_gdoc_with_retry(&self, url: &Url) -> Result<()> {
         // Create temp directory for the pulled DOCX
         let temp_dir = tempdir()?;
@@ -309,10 +325,11 @@ impl Cli {
 
         match result {
             Ok(()) => {}
-            Err(GDocError::NotLinked) => {
+            Err(GDocError::NotLinked { connect_url }) => {
                 // Google account not linked - open picker to connect and grant access
                 let doc_id = stencila_codec_gdoc::extract_doc_id(url)?;
-                let picker_url = stencila_cloud::google_picker_url(Some(&doc_id));
+                let picker_url =
+                    connect_url.unwrap_or_else(|| stencila_cloud::google_picker_url(Some(&doc_id)));
 
                 message!("🔗 Google account not linked to Stencila");
                 message!("🌐 Opening browser to connect your account and grant access...");
@@ -362,6 +379,13 @@ impl Cli {
                         eyre::Report::from(e).wrap_err("Pull failed after granting access")
                     })?;
             }
+            Err(GDocError::NotFound { doc_id }) => {
+                // Document not found - don't trigger picker, just show error
+                bail!(
+                    "Google Doc '{}' not found. The document may have been deleted or the URL is incorrect.",
+                    doc_id
+                );
+            }
             Err(e) => return Err(eyre::Report::from(e)),
         }
 
@@ -401,6 +425,199 @@ impl Cli {
             )
             .await?;
             message!("✅ Created `{}` from Google Doc", self.path.display());
+        }
+
+        Ok(())
+    }
+
+    /// Run Microsoft 365 picker pull mode (browse workflow)
+    ///
+    /// Opens the Microsoft Picker to let the user browse and select a document,
+    /// then pulls and merges it with the local file.
+    async fn run_m365_picker_pull(&self) -> Result<()> {
+        // Open the Microsoft Picker in browser
+        let picker_url = stencila_cloud::microsoft_picker_url(None);
+
+        message!("📂 Opening Microsoft Picker to select a document...");
+
+        if let Err(err) = webbrowser::open(&picker_url) {
+            message!("⚠️ Failed to open browser: {}", err);
+            message!("Please visit manually: {}", picker_url);
+        }
+
+        // Wait for user to paste the selected URL
+        let url_str =
+            stencila_ask::input("After selecting a file, paste the OneDrive URL here").await?;
+
+        let selected_url = Url::parse(url_str.trim()).map_err(|e| eyre!("Invalid URL: {e}"))?;
+
+        // Validate it's a Microsoft 365 URL before proceeding
+        if !RemoteService::Microsoft365.matches_url(&selected_url) {
+            bail!(
+                "URL is not a Microsoft 365 document: {}\n\
+                 Expected format: OneDrive or SharePoint URL",
+                selected_url
+            );
+        }
+
+        // Pull from the selected URL (with access denied retry)
+        self.pull_m365_with_retry(&selected_url).await?;
+
+        // Track the remote for future pulls
+        update_remote_timestamp(
+            &self.path,
+            selected_url.as_ref(),
+            Some(Utc::now().timestamp() as u64),
+            None,
+        )
+        .await?;
+
+        message!("✅ Linked `{}` to {}", self.path.display(), selected_url);
+
+        Ok(())
+    }
+
+    /// Pull from a Microsoft 365 URL with interactive retry on access denied
+    async fn pull_m365_with_retry(&self, url: &Url) -> Result<()> {
+        // Create temp directory for the pulled DOCX
+        let temp_dir = tempdir()?;
+        let pulled_path = temp_dir.path().join("pulled.docx");
+
+        // First attempt
+        let result = stencila_codec_m365::pull(url, &pulled_path).await;
+
+        match result {
+            Ok(()) => {}
+            Err(M365Error::NotLinked { connect_url }) => {
+                // Microsoft account not linked - open picker to connect and grant access
+                let doc_id = stencila_codec_m365::extract_item_id(url).ok();
+                let picker_url = connect_url
+                    .unwrap_or_else(|| stencila_cloud::microsoft_picker_url(doc_id.as_deref()));
+
+                message!("🔗 Microsoft account not linked to Stencila");
+                message!("🌐 Opening browser to connect your account and grant access...");
+
+                if let Err(err) = webbrowser::open(&picker_url) {
+                    message!("⚠️ Failed to open browser: {}", err);
+                    message!("Please visit manually: {}", picker_url);
+                }
+
+                stencila_ask::wait_for_enter(
+                    "After connecting and granting access in the picker, press Enter to retry",
+                )
+                .await?;
+
+                message!("🔄 Retrying download...");
+
+                // Retry after user connects and grants access
+                stencila_codec_m365::pull(url, &pulled_path)
+                    .await
+                    .map_err(|e| {
+                        eyre::Report::from(e).wrap_err("Pull failed after connecting account")
+                    })?;
+            }
+            Err(M365Error::RefreshFailed { connect_url }) => {
+                // Token refresh failed - open picker to reconnect account
+                let picker_url =
+                    connect_url.unwrap_or_else(|| stencila_cloud::microsoft_picker_url(None));
+
+                message!("🔄 Microsoft token refresh failed");
+                message!("🌐 Opening browser to reconnect your account...");
+
+                if let Err(err) = webbrowser::open(&picker_url) {
+                    message!("⚠️ Failed to open browser: {}", err);
+                    message!("Please visit manually: {}", picker_url);
+                }
+
+                stencila_ask::wait_for_enter(
+                    "After reconnecting your account in the picker, press Enter to retry",
+                )
+                .await?;
+
+                message!("🔄 Retrying download...");
+
+                // Retry after user reconnects
+                stencila_codec_m365::pull(url, &pulled_path)
+                    .await
+                    .map_err(|e| {
+                        eyre::Report::from(e).wrap_err("Pull failed after reconnecting account")
+                    })?;
+            }
+            Err(M365Error::AccessDenied { doc_id }) => {
+                // Access denied - open picker with specific doc_id so user can grant access
+                let picker_url = stencila_cloud::microsoft_picker_url(Some(&doc_id));
+
+                message!("🔒 Access denied to this Microsoft 365 document");
+                message!("🌐 Opening browser so you can grant Stencila access to this document...");
+
+                if let Err(err) = webbrowser::open(&picker_url) {
+                    message!("⚠️ Failed to open browser: {}", err);
+                    message!("Please visit manually: {}", picker_url);
+                }
+
+                stencila_ask::wait_for_enter(
+                    "After granting access in the picker, press Enter to retry",
+                )
+                .await?;
+
+                message!("🔄 Retrying download...");
+
+                // Retry after user grants access via picker
+                stencila_codec_m365::pull(url, &pulled_path)
+                    .await
+                    .map_err(|e| {
+                        eyre::Report::from(e).wrap_err("Pull failed after granting access")
+                    })?;
+            }
+            Err(M365Error::NotFound { doc_id }) => {
+                // Document not found - don't trigger picker, just show error
+                bail!(
+                    "Microsoft 365 document '{}' not found. The document may have been deleted or the URL is incorrect.",
+                    doc_id
+                );
+            }
+            Err(e) => return Err(eyre::Report::from(e)),
+        }
+
+        // Merge or replace the local file
+        if !self.no_merge && self.path.exists() {
+            let modified_files = stencila_codecs::merge(
+                &pulled_path,
+                Some(&self.path),
+                None,
+                None,
+                false,
+                DecodeOptions::default(),
+                EncodeOptions::default(),
+                None,
+            )
+            .await?;
+
+            if let Some(modified_files) = modified_files {
+                message!(
+                    "✅ Merge completed, {}",
+                    match modified_files.len() {
+                        0 => "no changes detected".to_string(),
+                        1 => "1 file modified".to_string(),
+                        count => format!("{count} files modified"),
+                    },
+                );
+            } else {
+                message("🚫 Merge cancelled");
+            }
+        } else {
+            // Convert to target format (or file doesn't exist yet)
+            stencila_codecs::convert(
+                Some(&pulled_path),
+                Some(&self.path),
+                Some(DecodeOptions::default()),
+                Some(EncodeOptions::default()),
+            )
+            .await?;
+            message!(
+                "✅ Created `{}` from Microsoft 365 doc",
+                self.path.display()
+            );
         }
 
         Ok(())

@@ -14,6 +14,7 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-docx = { path = "../codec-docx" }
 tempfile = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true }
 url = { workspace = true }
 

@@ -181,7 +181,7 @@ impl Ask for CliProvider {
 
         let theme = ColorfulTheme::default();
         let mut input: Input<String> = Input::with_theme(&theme);
-        input = input.with_prompt(prompt);
+        input = input.with_prompt(prompt).report(false);
 
         if let Some(default) = options.default {
             input = input.default(default);
