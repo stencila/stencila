@@ -262,11 +262,14 @@ export class StencilaSiteActions extends LitElement {
       return nothing
     }
 
+    // Sort actions by order (lower = closer to FAB)
+    const sortedActions = Array.from(this.actions.values()).sort(
+      (a, b) => a.order - b.order
+    )
+
     return html`
       <div class="actions-buttons">
-        ${Array.from(this.actions.values()).map((action) =>
-          this.renderActionButton(action),
-        )}
+        ${sortedActions.map((action) => this.renderActionButton(action))}
       </div>
     `
   }

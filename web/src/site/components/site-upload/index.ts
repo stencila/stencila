@@ -45,6 +45,10 @@ export class StencilaSiteUpload extends SiteAction {
     return 'Upload'
   }
 
+  get actionOrder() {
+    return 1
+  }
+
   get badgeCount() {
     return this.pendingFiles.length
   }

@@ -23,7 +23,7 @@ import {
 /**
  * Site remote component
  *
- * Enables users to add Google Docs or Microsoft 365 documents to the repository
+ * Enables users to connect Google Docs or Microsoft 365 documents to the repository
  * via GitHub PRs, with optional bi-directional sync.
  */
 @customElement('stencila-site-remote')
@@ -41,7 +41,11 @@ export class StencilaSiteRemote extends SiteAction {
   }
 
   get actionLabel() {
-    return 'Add Remote'
+    return 'Connect'
+  }
+
+  get actionOrder() {
+    return 2
   }
 
   get badgeCount() {
@@ -435,7 +439,7 @@ export class StencilaSiteRemote extends SiteAction {
   private renderServiceSelection() {
     return html`
       <div class="remote-service-selection">
-        <p class="remote-instruction">Select a document to add to this site</p>
+        <p class="remote-instruction">Select a document to connect to this site</p>
         <div class="remote-service-buttons">
           <button
             class="remote-service-btn"

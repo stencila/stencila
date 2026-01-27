@@ -19,6 +19,7 @@ export interface ActionRegistration {
   id: string
   icon: string
   label: string
+  order: number
   openPanel: () => void // Must be arrow function to preserve binding
 }
 

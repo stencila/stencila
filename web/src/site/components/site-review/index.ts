@@ -73,6 +73,10 @@ export class StencilaSiteReview extends SiteAction {
     return 'Review'
   }
 
+  get actionOrder() {
+    return 0
+  }
+
   get badgeCount() {
     return this.pendingItems.length
   }

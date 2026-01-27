@@ -140,6 +140,11 @@ export abstract class SiteAction extends LitElement {
   abstract get actionLabel(): string
 
   /**
+   * Display order for this action (lower = closer to FAB)
+   */
+  abstract get actionOrder(): number
+
+  /**
    * API endpoint for auth status.
    */
   get authEndpoint(): string {
@@ -272,6 +277,7 @@ export abstract class SiteAction extends LitElement {
       id: this.actionId,
       icon: this.actionIcon,
       label: this.actionLabel,
+      order: this.actionOrder,
       openPanel: () => this.openPanel(),
     }
 
