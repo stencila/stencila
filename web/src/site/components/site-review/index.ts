@@ -440,7 +440,7 @@ export class StencilaSiteReview extends SiteAction {
           <h4>Share your feedback</h4>
           <p>Select text to comment or suggest changes.</p>
           <button
-            class="add-comment-btn"
+            class="site-action-btn site-action-btn-secondary add-comment-btn"
             @click=${(e: Event) => {
               e.stopPropagation()
               this.handlePageComment()
@@ -2046,7 +2046,7 @@ export class StencilaSiteReview extends SiteAction {
           return this.renderPageGroup(path, group)
         })}
         <button
-          class="add-comment-btn"
+          class="site-action-btn site-action-btn-secondary add-comment-btn"
           @click=${(e: Event) => {
             e.stopPropagation()
             this.handlePageComment()

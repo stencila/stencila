@@ -599,6 +599,7 @@ stencila-site-review .review-item .edit-btn.save:disabled {
 
 /* ==========================================================================
    Add Comment Button (at bottom of items list)
+   Uses .site-action-btn-secondary for base styles and hover effect
    ========================================================================== */
 
 stencila-site-review .add-comment-btn {
@@ -607,19 +608,8 @@ stencila-site-review .add-comment-btn {
   justify-content: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-2) var(--space-3);
   margin-top: var(--space-2);
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--surface-sunken);
-  color: var(--text-color-primary);
   font-size: var(--font-size-xs);
-  cursor: pointer;
-  transition: background var(--transition-duration-fast);
-}
-
-stencila-site-review .add-comment-btn:hover {
-  background: var(--border-color-default);
 }
 
 stencila-site-review .add-comment-btn span:first-child {

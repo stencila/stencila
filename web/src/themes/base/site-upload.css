@@ -87,7 +87,7 @@ stencila-site-upload .dropzone {
 
 stencila-site-upload .dropzone.drag-over {
   border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 8%, var(--surface-sunken));
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--surface-sunken));
   transform: scale(1.01);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
@@ -431,11 +431,19 @@ stencila-site-upload .message-input:focus {
    ========================================================================== */
 
 @media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme="light"]) stencila-site-upload .dropzone.drag-over {
+    background: color-mix(in srgb, var(--color-accent) 15%, var(--surface-sunken));
+  }
+
   :root:not([data-color-scheme="light"]) stencila-site-upload .file-badge.new {
     background: var(--color-green-900);
     color: var(--color-green-200);
     border-color: var(--color-green-800);
   }
+}
+
+:root[data-color-scheme="dark"] stencila-site-upload .dropzone.drag-over {
+  background: color-mix(in srgb, var(--color-accent) 15%, var(--surface-sunken));
 }
 
 :root[data-color-scheme="dark"] stencila-site-upload .file-badge.new {

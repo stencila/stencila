@@ -397,7 +397,9 @@
   text-decoration: none;
   text-align: center;
   box-sizing: border-box;
-  transition: background-color var(--site-action-transition);
+  transition:
+    background-color var(--site-action-transition),
+    border-color var(--site-action-transition);
 }
 
 .site-action-btn:disabled {
@@ -420,13 +422,15 @@
 /* Secondary button */
 .site-action-btn-secondary,
 .site-action-btn.secondary {
-  background: var(--surface-sunken);
+  background: var(--surface-base);
   color: var(--text-color-primary);
+  border: 1px solid var(--border-color-default);
 }
 
 .site-action-btn-secondary:hover:not(:disabled),
 .site-action-btn.secondary:hover:not(:disabled) {
-  background: var(--border-color-default);
+  border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
 }
 
 /* Warning button */
@@ -603,6 +607,22 @@
 .site-action-footer-buttons .btn.primary,
 .footer-buttons .btn.primary {
   flex: 1;
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme="light"]) .site-action-btn-secondary:hover:not(:disabled),
+  :root:not([data-color-scheme="light"]) .site-action-btn.secondary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+}
+
+:root[data-color-scheme="dark"] .site-action-btn-secondary:hover:not(:disabled),
+:root[data-color-scheme="dark"] .site-action-btn.secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 /* ==========================================================================
