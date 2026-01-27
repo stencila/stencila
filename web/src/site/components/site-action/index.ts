@@ -487,6 +487,44 @@ export abstract class SiteAction extends LitElement {
     return url.toString()
   }
 
+  /**
+   * Get description of who will author the PR.
+   * Used in footer status to inform users about PR attribution.
+   *
+   * Decision tree:
+   * 1. GitHub connected + canPush → Direct PR as user
+   * 2. GitHub connected + !canPush + private repo → Bot PR (can't fork private repos)
+   * 3. GitHub connected + !canPush + public repo → Fork PR as user
+   * 4. Stencila user without GitHub → Bot PR attributed to user
+   * 5. Anonymous → Bot PR
+   */
+  protected getAuthorDescription(): string {
+    const github = this.authStatus?.github
+    const user = this.authStatus?.user
+    const repo = this.authStatus?.repo
+
+    if (github?.connected) {
+      // Has push access - direct PR regardless of repo visibility
+      if (github.canPush) {
+        return `Pull request will be created as @${github.username}`
+      }
+      // No push access on private repo - must use bot (can't fork private repos)
+      if (repo?.isPrivate) {
+        return `Pull request will be created by Stencila bot, attributed to @${github.username}`
+      }
+      // No push access on public repo - fork to user's account
+      return `Pull request will be created as @${github.username} from a fork`
+    }
+
+    // Stencila user without GitHub - bot PR with attribution
+    if (user) {
+      return `Pull request will be created by Stencila bot, attributed to ${user.name}`
+    }
+
+    // Anonymous - bot PR without attribution
+    return 'Pull request will be created by Stencila bot'
+  }
+
   // =========================================================================
   // Common Position Helpers
   // =========================================================================

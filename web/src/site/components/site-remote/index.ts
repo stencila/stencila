@@ -237,23 +237,6 @@ export class StencilaSiteRemote extends SiteAction {
     }
   }
 
-  private getAuthorDescription(): string {
-    if (!this.authStatus) return ''
-
-    if (this.authStatus.authorship?.willBeBotAuthored) {
-      if (this.authStatus.user) {
-        return `PR will be created by Stencila bot on behalf of ${this.authStatus.user.name}`
-      }
-      return 'PR will be created by Stencila bot'
-    }
-
-    if (this.authStatus.github?.connected) {
-      return `PR will be created as ${this.authStatus.github.username}`
-    }
-
-    return ''
-  }
-
   // =========================================================================
   // Picker Handling
   // =========================================================================
