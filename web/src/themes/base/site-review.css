@@ -185,6 +185,10 @@ stencila-site-review-item .review-input-popover {
   box-shadow: var(--shadow-lg);
   font-family: var(--layout-font-family);
   animation: popover-in var(--transition-duration-fast) ease-out;
+  /* Transition for fly-out animation - must be on base element */
+  transition:
+    opacity var(--transition-duration-base) ease,
+    transform var(--transition-duration-base) ease;
 }
 
 @keyframes popover-in {
@@ -201,9 +205,6 @@ stencila-site-review-item .review-input-popover {
 stencila-site-review-item .review-input-popover.flying {
   opacity: 0;
   transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.1);
-  transition:
-    opacity var(--transition-duration-base) ease,
-    transform var(--transition-duration-base) ease;
   pointer-events: none;
 }
 
@@ -280,6 +281,75 @@ stencila-site-review-item .review-input-popover[data-arrow="bottom"]::before {
 stencila-site-review-item .review-input-popover[data-arrow="bottom"]::after {
   top: 100%;
   border-top-color: var(--surface-elevated);
+}
+
+/* ==========================================================================
+   Input Modal - Centered for page-level comments
+   ========================================================================== */
+
+stencila-site-review-item .site-action-modal.input {
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  /* Transition for fly-out animation - must be on base element */
+  transition:
+    opacity var(--transition-duration-base) ease,
+    transform var(--transition-duration-base) ease;
+}
+
+stencila-site-review-item .site-action-modal.input.flying {
+  opacity: 0;
+  transform: translate(calc(-50% + var(--fly-x, 0)), calc(-50% + var(--fly-y, 0))) scale(0.1);
+  pointer-events: none;
+}
+
+/* Modal header */
+stencila-site-review-item .site-action-modal.input .item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-color-default);
+}
+
+stencila-site-review-item .site-action-modal.input .item-header .type-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-color: var(--color-amber-500);
+  flex-shrink: 0;
+}
+
+stencila-site-review-item .site-action-modal.input .item-header .item-path {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Modal textarea */
+stencila-site-review-item .site-action-modal.input textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: var(--space-2);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  color: var(--text-color-primary);
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color var(--transition-duration-fast);
+}
+
+stencila-site-review-item .site-action-modal.input textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+stencila-site-review-item .site-action-modal.input textarea::placeholder {
+  color: var(--text-color-muted);
 }
 
 /* ==========================================================================
@@ -626,6 +696,8 @@ stencila-site-review .page-group-header {
   width: 100%;
   padding: var(--space-2) var(--space-3);
   border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
   cursor: pointer;
   font-size: var(--font-size-sm);
   text-align: left;

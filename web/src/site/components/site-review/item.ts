@@ -165,12 +165,6 @@ export class StencilaSiteReviewItem extends LitElement {
   private inputContent = ''
 
   /**
-   * Whether the input modal is animating (flying to FAB)
-   */
-  @state()
-  private isFlying = false
-
-  /**
    * Ref for the input/edit textarea (for auto-focus)
    */
   private textareaRef: Ref<HTMLTextAreaElement> = createRef()
@@ -432,12 +426,10 @@ export class StencilaSiteReviewItem extends LitElement {
       return
     }
 
-    // Calculate fly-to-FAB animation
-    this.setupFlyAnimation()
+    // Run fly-to-FAB animation using Web Animations API
+    const animationDuration = this.runFlyAnimation()
 
-    // Trigger fly animation
-    this.isFlying = true
-
+    // Dispatch event and reset state after animation completes
     setTimeout(() => {
       this.dispatchEvent(
         new CustomEvent<ItemAddDetail>('item-add', {
@@ -451,22 +443,23 @@ export class StencilaSiteReviewItem extends LitElement {
         }),
       )
 
-      // Reset state after dispatch
-      this.isFlying = false
       this.inputContent = ''
-    }, 300) // Duration of fly animation
+    }, animationDuration)
   }
 
   /**
-   * Set up the fly-to-FAB animation by calculating translation
+   * Run the fly-to-FAB animation using Web Animations API.
+   * Returns the animation duration in milliseconds.
    */
-  private setupFlyAnimation() {
+  private runFlyAnimation(): number {
+    const duration = 300
     const container = this.inputContainerRef.value
-    if (!container) return
 
-    // Find the FAB element
-    const fab = document.querySelector('.review-fab')
-    if (!fab) return
+    if (!container) return duration
+
+    // Find the FAB element (either standalone or inside site-actions container)
+    const fab = document.querySelector('.site-action-fab, .actions-fab')
+    if (!fab) return duration
 
     // Get bounding rects
     const containerRect = container.getBoundingClientRect()
@@ -481,9 +474,23 @@ export class StencilaSiteReviewItem extends LitElement {
     const translateX = fabCenterX - containerCenterX
     const translateY = fabCenterY - containerCenterY
 
-    // Set CSS custom properties for the animation
-    container.style.setProperty('--fly-x', `${translateX}px`)
-    container.style.setProperty('--fly-y', `${translateY}px`)
+    // Use Web Animations API for reliable animation
+    container.animate(
+      [
+        { opacity: 1, transform: 'translate(0, 0) scale(1)' },
+        {
+          opacity: 0,
+          transform: `translate(${translateX}px, ${translateY}px) scale(0.1)`,
+        },
+      ],
+      {
+        duration,
+        easing: 'ease-out',
+        fill: 'forwards',
+      },
+    )
+
+    return duration
   }
 
   /**
@@ -644,7 +651,7 @@ export class StencilaSiteReviewItem extends LitElement {
       return html`
         <div
           ${ref(this.inputContainerRef)}
-          class="review-input-popover ${this.isFlying ? 'flying' : ''}"
+          class="review-input-popover"
           style=${positionStyle}
           data-arrow=${arrow}
         >
@@ -660,11 +667,11 @@ export class StencilaSiteReviewItem extends LitElement {
             rows="3"
           ></textarea>
           <div class="popover-actions">
-            <button class="btn secondary btn-sm" @click=${this.handleCancel}>
+            <button class="site-action-btn site-action-btn-sm secondary" @click=${this.handleCancel}>
               Cancel
             </button>
             <button
-              class="btn primary btn-sm"
+              class="site-action-btn site-action-btn-sm primary"
               @click=${this.handleAdd}
               ?disabled=${!this.canSubmitInput}
             >
@@ -679,7 +686,7 @@ export class StencilaSiteReviewItem extends LitElement {
     return html`
       <div
         ${ref(this.inputContainerRef)}
-        class="modal input ${this.isFlying ? 'flying' : ''}"
+        class="site-action-modal input"
       >
         <div class="item-header">
           <span
@@ -702,11 +709,11 @@ export class StencilaSiteReviewItem extends LitElement {
             : `Suggest replacement text ${submitTip}`}
         ></textarea>
         <div class="buttons">
-          <button class="btn secondary btn-sm" @click=${this.handleCancel}>
+          <button class="site-action-btn site-action-btn-sm secondary" @click=${this.handleCancel}>
             Cancel
           </button>
           <button
-            class="btn primary btn-sm"
+            class="site-action-btn site-action-btn-sm primary"
             @click=${this.handleAdd}
             ?disabled=${!this.canSubmitInput}
           >
