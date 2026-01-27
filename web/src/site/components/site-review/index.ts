@@ -1730,10 +1730,11 @@ export class StencilaSiteReview extends SiteAction {
         },
       })
 
-      // Clear pending items
+      // Clear pending items and highlights
       this.pendingItems = []
       this.sourceInfo = null
       this.saveToStorage()
+      this.clearHighlights()
       this.isSubmitting = false
       return
     }
@@ -1761,10 +1762,11 @@ export class StencilaSiteReview extends SiteAction {
       // Show success result
       this.submitResult = result
 
-      // Clear pending items after successful submission
+      // Clear pending items and highlights after successful submission
       this.pendingItems = []
       this.sourceInfo = null
       this.saveToStorage()
+      this.clearHighlights()
     } catch (e) {
       console.error('[SiteReview] Submit failed:', e)
       this.submitError =
