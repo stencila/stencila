@@ -29,10 +29,8 @@ stencila-site-remote .remote-service-selection {
   padding: var(--space-4);
 }
 
-stencila-site-remote .remote-instruction {
-  margin: 0 0 var(--space-4);
-  color: var(--text-color-secondary);
-  text-align: center;
+stencila-site-remote .remote-service-selection p {
+  margin-bottom: var(--space-4);
 }
 
 stencila-site-remote .remote-service-buttons {

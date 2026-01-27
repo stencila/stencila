@@ -550,6 +550,12 @@ export class StencilaSiteUpload extends SiteAction {
    */
   protected override renderPanelContent() {
     return html`
+      <!-- Header -->
+      <div class="site-action-intro">
+        <h4>Contribute files</h4>
+        <p>Add new files or update existing ones.</p>
+      </div>
+
       <!-- Tabs -->
       <div class="tabs" role="tablist" aria-label="Upload options">
         <button
@@ -560,7 +566,7 @@ export class StencilaSiteUpload extends SiteAction {
           aria-controls="upload-panel"
           @click=${() => (this.activeTab = 'upload')}
         >
-          Upload New
+          Add New
         </button>
         <button
           class="tab ${this.activeTab === 'update' ? 'active' : ''}"

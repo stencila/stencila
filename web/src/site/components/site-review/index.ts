@@ -436,9 +436,9 @@ export class StencilaSiteReview extends SiteAction {
 
     if (itemCount === 0) {
       return html`
-        <div class="site-action-empty-state">
-          <h4>Ready for your feedback</h4>
-          <p>Select text on the page to comment or suggest a change.</p>
+        <div class="site-action-empty-state site-action-intro">
+          <h4>Share your feedback</h4>
+          <p>Select text to comment or suggest changes.</p>
           <button
             class="add-comment-btn"
             @click=${(e: Event) => {

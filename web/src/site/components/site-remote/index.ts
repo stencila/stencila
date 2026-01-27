@@ -438,8 +438,9 @@ export class StencilaSiteRemote extends SiteAction {
 
   private renderServiceSelection() {
     return html`
-      <div class="remote-service-selection">
-        <p class="remote-instruction">Select a document to connect to this site</p>
+      <div class="remote-service-selection site-action-intro">
+        <h4>Connect a document</h4>
+        <p>Link a cloud document to sync with this site.</p>
         <div class="remote-service-buttons">
           <button
             class="remote-service-btn"

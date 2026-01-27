@@ -548,16 +548,21 @@
 
 .site-action-empty-state {
   padding: var(--space-6) var(--space-4);
+}
+
+/* Intro header (for panels with content below) */
+.site-action-intro {
+  padding: var(--space-3) var(--space-3) var(--space-2);
   text-align: center;
 }
 
-.site-action-empty-state h4 {
-  margin: 0 0 var(--space-2);
+.site-action-intro h4 {
+  margin: 0 0 var(--space-1);
   font-size: var(--font-size-sm);
   color: var(--text-color-primary);
 }
 
-.site-action-empty-state p {
+.site-action-intro p {
   margin: 0;
   font-size: var(--font-size-xs);
   color: var(--text-color-secondary);
