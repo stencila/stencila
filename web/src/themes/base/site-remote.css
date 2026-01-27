@@ -1,0 +1,480 @@
+/* Site Remote Component
+ *
+ * Remote-specific styles for the site-remote component.
+ * Base panel, FAB, and button styles are in site-action.css
+ *
+ * Structure:
+ * - stencila-site-remote: Custom element (extends SiteAction)
+ *   - .remote-service-selection: Initial service selection view
+ *   - .remote-waiting: Waiting for picker selection
+ *   - .remote-configure: Document configuration view
+ *   - .remote-success: Success state view
+ */
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+stencila-site-remote {
+  display: block;
+  font-family: var(--layout-font-family);
+  font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   Service Selection
+   ========================================================================== */
+
+stencila-site-remote .remote-service-selection {
+  padding: var(--space-4);
+}
+
+stencila-site-remote .remote-instruction {
+  margin: 0 0 var(--space-4);
+  color: var(--text-color-secondary);
+  text-align: center;
+}
+
+stencila-site-remote .remote-service-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+stencila-site-remote .remote-service-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+stencila-site-remote .remote-service-btn:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
+
+stencila-site-remote .service-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent);
+  background-color: currentColor;
+}
+
+stencila-site-remote .service-name {
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+stencila-site-remote .service-action {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+/* ==========================================================================
+   Waiting State
+   ========================================================================== */
+
+stencila-site-remote .remote-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+stencila-site-remote .remote-waiting-icon {
+  color: var(--color-accent);
+}
+
+stencila-site-remote .remote-waiting-icon .spinning {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background-color: currentColor;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+stencila-site-remote .remote-waiting-title {
+  margin: 0;
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+stencila-site-remote .remote-waiting-hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+/* ==========================================================================
+   Configure State
+   ========================================================================== */
+
+stencila-site-remote .remote-configure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ==========================================================================
+   Sync Cards (Two-card layout)
+   ========================================================================== */
+
+stencila-site-remote .sync-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+}
+
+stencila-site-remote .card-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  background-color: currentColor;
+  color: var(--text-color-secondary);
+}
+
+/* Local file card (GitHub) */
+stencila-site-remote .local-card .card-icon {
+  color: var(--text-color-primary);
+}
+
+stencila-site-remote .file-path-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-color-primary);
+}
+
+stencila-site-remote .file-path-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+/* Remote document card */
+stencila-site-remote .remote-card .card-icon {
+  color: var(--color-accent);
+}
+
+stencila-site-remote .doc-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+stencila-site-remote .doc-title {
+  font-weight: 500;
+  color: var(--text-color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+stencila-site-remote .doc-service {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+stencila-site-remote .change-btn {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+stencila-site-remote .change-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
+
+/* ==========================================================================
+   Sync Badge
+   ========================================================================== */
+
+stencila-site-remote .sync-badge-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-1) 0;
+  position: relative;
+}
+
+stencila-site-remote .sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+stencila-site-remote .sync-badge:hover {
+  opacity: 0.85;
+}
+
+stencila-site-remote .sync-badge.bi {
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  color: var(--color-accent);
+}
+
+stencila-site-remote .sync-badge.from {
+  background: color-mix(in srgb, var(--color-green-500) 15%, transparent);
+  color: var(--color-green-600);
+}
+
+stencila-site-remote .sync-badge.to {
+  background: color-mix(in srgb, var(--color-purple-500) 15%, transparent);
+  color: var(--color-purple-600);
+}
+
+stencila-site-remote .sync-badge.none {
+  background: var(--surface-sunken);
+  color: var(--text-color-muted);
+}
+
+stencila-site-remote .sync-arrows {
+  font-family: var(--font-mono);
+}
+
+stencila-site-remote .sync-badge .sync-arrows {
+  font-size: var(--font-size-sm);
+}
+
+stencila-site-remote .sync-dropdown-item .sync-arrows {
+  font-size: 10px;
+}
+
+stencila-site-remote .caret {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+  background-color: currentColor;
+}
+
+/* ==========================================================================
+   Sync Dropdown
+   ========================================================================== */
+
+stencila-site-remote .sync-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  margin-top: 4px;
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+stencila-site-remote .sync-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+stencila-site-remote .sync-dropdown-item:hover {
+  background: var(--surface-sunken);
+}
+
+stencila-site-remote .sync-dropdown-item.selected {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+stencila-site-remote .sync-dropdown-item.bi {
+  color: var(--color-accent);
+}
+
+stencila-site-remote .sync-dropdown-item.from {
+  color: var(--color-green-600);
+}
+
+stencila-site-remote .sync-dropdown-item.to {
+  color: var(--color-purple-600);
+}
+
+stencila-site-remote .sync-dropdown-item.none {
+  color: var(--text-color-muted);
+}
+
+/* ==========================================================================
+   Form fields (Description)
+   ========================================================================== */
+
+stencila-site-remote .remote-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+stencila-site-remote .remote-label {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+stencila-site-remote .remote-label .required {
+  color: var(--color-red-500);
+}
+
+stencila-site-remote .remote-textarea {
+  padding: var(--space-2);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  background: var(--surface-base);
+  color: var(--text-color-primary);
+  min-height: 60px;
+  resize: vertical;
+}
+
+stencila-site-remote .remote-textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+/* ==========================================================================
+   Success State
+   ========================================================================== */
+
+stencila-site-remote .remote-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+stencila-site-remote .remote-success-icon {
+  color: var(--color-success);
+}
+
+stencila-site-remote .remote-success-icon span {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  background-color: currentColor;
+}
+
+stencila-site-remote .remote-success-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  color: var(--color-success);
+}
+
+stencila-site-remote .remote-success-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+stencila-site-remote .remote-success-link:hover {
+  text-decoration: underline;
+}
+
+stencila-site-remote .remote-success-hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+stencila-site-remote .remote-sync-enabled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: var(--color-success);
+  font-size: var(--font-size-xs);
+}
+
+stencila-site-remote .remote-sync-enabled span {
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme="light"]) stencila-site-remote .remote-service-btn:hover {
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+}
+
+:root[data-color-scheme="dark"] stencila-site-remote .remote-service-btn:hover {
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  stencila-site-remote .remote-service-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  stencila-site-remote .remote-service-btn {
+    padding: var(--space-3);
+  }
+}

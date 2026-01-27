@@ -10,7 +10,6 @@ import {
   isLocalhost,
   getPathname,
   isStencilaHosted,
-  isDevMode,
 } from '../site-action'
 
 import {
@@ -350,14 +349,9 @@ export class StencilaSiteReview extends SiteAction {
   // =========================================================================
 
   /**
-   * Apply development defaults when on localhost and API is unavailable.
+   * Apply permissive defaults for localhost preview.
    */
-  protected override applyDevDefaults() {
-    if (!isLocalhost()) {
-      return
-    }
-
-    console.log('[SiteReview] Using development defaults (localhost dev mode)')
+  protected override applyPreviewDefaults() {
     this.authStatus = {
       hasSiteAccess: true,
       reviewConfig: {
@@ -373,7 +367,7 @@ export class StencilaSiteReview extends SiteAction {
       authorship: {
         canAuthorAsSelf: false,
         willBeBotAuthored: true,
-        reason: 'Development mode - no GitHub connected',
+        reason: 'Preview mode - no GitHub connected',
       },
     }
   }
@@ -445,7 +439,6 @@ export class StencilaSiteReview extends SiteAction {
     if (itemCount === 0) {
       return html`
         <div class="site-action-empty-state">
-          <span class="i-lucide:message-square-dashed empty-icon"></span>
           <h4>Ready for your feedback</h4>
           <p>Select text on the page to comment or suggest a change.</p>
           <button
@@ -1808,37 +1801,18 @@ export class StencilaSiteReview extends SiteAction {
     const shareUrl = new URL(window.location.href)
     shareUrl.searchParams.set(SHARE_PARAM, shareResult.encoded)
 
-    // In dev mode, mock a successful submission
-    if (isDevMode(this.actionId)) {
-      console.log('[SiteReview] Dev mode: mocking submit', {
-        commit: this.sourceInfo.commit,
-        items: this.pendingItems,
-        shareUrl: shareUrl.toString(),
-      })
-
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      const commentCount = this.pendingItems.filter(
-        (i) => i.type === 'comment',
-      ).length
-      const suggestionCount = this.pendingItems.filter(
-        (i) => i.type === 'suggestion',
-      ).length
-
-      this.submitResult = {
-        success: true,
-        prNumber: 999,
-        prUrl: 'https://github.com/example/repo/pull/999',
-        branchName: 'stencila-review-dev-mode',
-        authoredBy: 'bot',
-        usedFork: false,
-        counts: {
-          comments: commentCount,
-          suggestions: suggestionCount,
-          fallbacks: 0,
+    // On localhost preview, show the payload that would be submitted
+    if (isLocalhost()) {
+      this.showPreviewMock({
+        endpoint: REVIEW_SUBMIT_PATH,
+        method: 'POST',
+        body: {
+          commit: this.sourceInfo.commit,
+          items: this.pendingItems,
+          authorAsSelf: true,
+          shareUrl: shareUrl.toString(),
         },
-      }
+      })
 
       // Clear pending items
       this.pendingItems = []
@@ -1888,7 +1862,7 @@ export class StencilaSiteReview extends SiteAction {
     return html`
       ${this.renderReviewFab()} ${this.renderSelection()} ${this.renderInput()}
       ${this.renderReviewPanel()} ${this.renderErrorModal()}
-      ${this.renderCommitMismatchModal()}
+      ${this.renderCommitMismatchModal()} ${this.renderPreviewMockModal()}
     `
   }
 

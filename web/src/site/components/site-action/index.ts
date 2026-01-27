@@ -13,7 +13,6 @@ import {
 } from './types'
 import {
   isLocalhost,
-  isDevMode,
   GITHUB_OAUTH_URL,
   getCachedAuthStatus,
   invalidateAuthCache,
@@ -38,7 +37,7 @@ export * from './utils'
  * - actionId, actionIcon, actionLabel getters
  * - authEndpoint getter
  * - badgeCount getter
- * - applyDevDefaults() method
+ * - applyPreviewDefaults() method
  * - calculateFooterState() method
  * - renderPanelContent() method
  */
@@ -106,9 +105,20 @@ export abstract class SiteAction extends LitElement {
   protected errorMessage: string = ''
 
   /**
+   * Preview mock payload to display in modal (for localhost preview)
+   */
+  @state()
+  protected previewMockPayload: unknown = null
+
+  /**
    * Last badge count dispatched (for dedup)
    */
   private lastBadgeCount: number = -1
+
+  /**
+   * Whether this action is currently registered with parent site-actions
+   */
+  private isRegistered: boolean = false
 
   // =========================================================================
   // Abstract Methods - Must be implemented by subclasses
@@ -149,9 +159,9 @@ export abstract class SiteAction extends LitElement {
   abstract get isActionAllowed(): boolean
 
   /**
-   * Apply development defaults when on localhost without API
+   * Apply permissive defaults for localhost preview
    */
-  protected abstract applyDevDefaults(): void
+  protected abstract applyPreviewDefaults(): void
 
   /**
    * Optional hook called after auth status is successfully received.
@@ -215,8 +225,12 @@ export abstract class SiteAction extends LitElement {
   }
 
   protected override firstUpdated() {
-    // Dispatch registration event to parent site-actions
-    this.dispatchRegistration()
+    // Register with parent site-actions if auth is still loading (optimistic)
+    // or if auth is loaded and action is allowed.
+    // If auth later shows not allowed, updateRegistration() will unregister.
+    if (this.authLoading || this.isActionAllowed) {
+      this.dispatchRegistration()
+    }
   }
 
   protected override updated() {
@@ -242,13 +256,18 @@ export abstract class SiteAction extends LitElement {
    * Handle request to re-register (fallback from parent scan)
    */
   private handleRequestRegister = () => {
-    this.dispatchRegistration()
+    // Only register if auth is loaded and action is allowed
+    if (!this.authLoading && this.isActionAllowed) {
+      this.dispatchRegistration()
+    }
   }
 
   /**
    * Dispatch registration event to parent
    */
   private dispatchRegistration() {
+    if (this.isRegistered) return
+
     const registration: ActionRegistration = {
       id: this.actionId,
       icon: this.actionIcon,
@@ -266,6 +285,36 @@ export abstract class SiteAction extends LitElement {
 
     // Set data attribute for parent fallback scan
     this.setAttribute('data-site-action', this.actionId)
+    this.isRegistered = true
+  }
+
+  /**
+   * Dispatch unregistration event to parent
+   */
+  private dispatchUnregistration() {
+    if (!this.isRegistered) return
+
+    this.dispatchEvent(
+      new CustomEvent(SITE_ACTION_UNREGISTER, {
+        bubbles: true,
+        composed: true,
+        detail: { id: this.actionId },
+      })
+    )
+
+    this.isRegistered = false
+  }
+
+  /**
+   * Update registration state based on whether the action is allowed.
+   * Called after auth status is received to register/unregister as needed.
+   */
+  private updateRegistration() {
+    if (this.isActionAllowed) {
+      this.dispatchRegistration()
+    } else {
+      this.dispatchUnregistration()
+    }
   }
 
   // =========================================================================
@@ -362,11 +411,12 @@ export abstract class SiteAction extends LitElement {
   protected async fetchAuthStatus(forceRefresh: boolean = false) {
     this.authLoading = true
 
-    // In dev mode on localhost, skip API and use permissive defaults
-    if (isDevMode(this.actionId)) {
-      console.log(`[Site${this.actionLabel}] Dev mode enabled, skipping API`)
-      this.applyDevDefaults()
+    // On localhost preview, skip API and use permissive defaults
+    if (isLocalhost()) {
+      console.log(`[Site${this.actionLabel}] Localhost preview, using defaults`)
+      this.applyPreviewDefaults()
       this.authLoading = false
+      this.updateRegistration()
       return
     }
 
@@ -391,13 +441,15 @@ export abstract class SiteAction extends LitElement {
         this.onAuthStatusReceived()
       } else {
         console.error(`[Site${this.actionLabel}] Failed to fetch auth status`)
-        this.applyDevDefaults()
+        this.applyPreviewDefaults()
       }
     } catch (e) {
       console.error(`[Site${this.actionLabel}] Auth status fetch failed:`, e)
-      this.applyDevDefaults()
+      this.applyPreviewDefaults()
     } finally {
       this.authLoading = false
+      // Update registration based on whether this action is allowed
+      this.updateRegistration()
     }
   }
 
@@ -518,6 +570,7 @@ export abstract class SiteAction extends LitElement {
   protected renderPanelHeader() {
     return html`
       <div class="site-action-panel-header">
+        <span class="${this.actionIcon} panel-icon"></span>
         <span class="panel-title">${this.actionLabel}</span>
         <button
           class="panel-close"
@@ -628,6 +681,42 @@ export abstract class SiteAction extends LitElement {
         <p>${this.errorMessage}</p>
         <div class="buttons">
           <button class="site-action-btn primary" @click=${() => (this.errorMessage = '')}>OK</button>
+        </div>
+      </div>
+    `
+  }
+
+  /**
+   * Show a preview mock modal with the given payload.
+   * Used by subclasses during localhost preview submissions.
+   */
+  protected showPreviewMock(payload: unknown) {
+    this.previewMockPayload = payload
+  }
+
+  /**
+   * Close the preview mock modal
+   */
+  private closePreviewMock = () => {
+    this.previewMockPayload = null
+  }
+
+  /**
+   * Render preview mock modal (for localhost preview submissions)
+   */
+  protected renderPreviewMockModal() {
+    if (!this.previewMockPayload) {
+      return nothing
+    }
+
+    return html`
+      <div class="site-action-backdrop" @click=${this.closePreviewMock}></div>
+      <div class="site-action-modal preview-mock">
+        <h4>Preview Mode</h4>
+        <p class="preview-mock-info">This is the payload that would be submitted:</p>
+        <pre class="preview-mock-payload">${JSON.stringify(this.previewMockPayload, null, 2)}</pre>
+        <div class="buttons">
+          <button class="site-action-btn primary" @click=${this.closePreviewMock}>OK</button>
         </div>
       </div>
     `

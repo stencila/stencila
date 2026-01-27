@@ -117,7 +117,7 @@ export interface RemoteConfig {
   targetPath: string
   userPath: boolean
   defaultFormat: string
-  allowedFormats: string[]
+  allowedFormats?: string[]
   defaultSyncDirection?: string
   requireMessage?: boolean
 }

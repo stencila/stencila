@@ -1,7 +1,9 @@
 import { html, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
-import { SiteAction, type BaseFooterState, isDevMode } from '../site-action'
+import { GlideEvents } from '../../glide/events'
+import { SiteAction, type BaseFooterState, isLocalhost } from '../site-action'
+import { FilesIndexLoader } from '../site-files'
 
 import type {
   PendingFile,
@@ -11,8 +13,6 @@ import type {
 import {
   STORAGE_KEY_FILES,
   UPLOAD_SUBMIT_PATH,
-  UPLOAD_FILES_PATH,
-  UPLOAD_CHECK_EXISTS_PATH,
   formatFileSize,
   getFileExtension,
   isExtensionAllowed,
@@ -137,6 +137,11 @@ export class StencilaSiteUpload extends SiteAction {
   @state()
   private repoFilesLoading: boolean = false
 
+  /**
+   * Loader for files index (used to browse existing files)
+   */
+  private filesLoader = new FilesIndexLoader()
+
   @state()
   private selectedRepoFile: RepoFile | null = null
 
@@ -146,6 +151,9 @@ export class StencilaSiteUpload extends SiteAction {
   @state()
   private isDragOver: boolean = false
 
+  @state()
+  private fileSearchQuery: string = ''
+
   // Note: authStatus, errorMessage are inherited from SiteAction base class
 
   // Lifecycle
@@ -154,6 +162,32 @@ export class StencilaSiteUpload extends SiteAction {
     super.connectedCallback()
     this.loadPendingFiles()
     // Note: fetchAuthStatus() is called by base class
+
+    // Listen for client-side navigation to refresh file list
+    window.addEventListener(GlideEvents.END, this.handleGlideEnd)
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener(GlideEvents.END, this.handleGlideEnd)
+  }
+
+  /**
+   * Handle Glide navigation end - clear and refresh file list for new page
+   */
+  private handleGlideEnd = () => {
+    // Clear current file list, selection, and search
+    this.repoFiles = []
+    this.selectedRepoFile = null
+    this.fileSearchQuery = ''
+
+    // Clear the files loader cache for this directory since we navigated away
+    this.filesLoader.clearCache()
+
+    // If the Update Existing tab is active, fetch files for the new page
+    if (this.activeTab === 'update') {
+      this.fetchRepoFiles()
+    }
   }
 
   // Note: openPanel(), closePanel() are inherited from SiteAction base class
@@ -189,24 +223,24 @@ export class StencilaSiteUpload extends SiteAction {
   // =========================================================================
 
   /**
-   * Apply development defaults when on localhost without API
+   * Apply permissive defaults for localhost preview
    */
-  protected override applyDevDefaults(): void {
+  protected override applyPreviewDefaults(): void {
     this.authStatus = {
       hasSiteAccess: true,
-      user: { id: 'dev', name: 'Dev User', avatar: '' },
+      user: { id: 'preview', name: 'Preview User', avatar: '' },
       github: {
         connected: true,
-        username: 'dev-user',
+        username: 'preview-user',
         canPush: true,
         source: 'oauth',
       },
       uploadConfig: {
         enabled: true,
         allowed: true,
-        allowedDirectories: null, // Dev mode: no restrictions
+        allowedDirectories: null,
         maxFileSize: StencilaSiteUpload.DEFAULT_MAX_FILE_SIZE,
-        allowedExtensions: null, // Dev mode: any extension allowed
+        allowedExtensions: null,
       },
       repo: { isPrivate: false, appInstalled: true },
       authorship: { canAuthorAsSelf: true, willBeBotAuthored: false },
@@ -235,7 +269,7 @@ export class StencilaSiteUpload extends SiteAction {
     }
 
     if (!this.authStatus.uploadConfig?.enabled) {
-      return { type: 'blocked', reason: 'Uploads are disabled' }
+      return { type: 'blocked', reason: 'Uploads are disabled for this site' }
     }
 
     // Use component attribute for public access (not server config)
@@ -340,20 +374,20 @@ export class StencilaSiteUpload extends SiteAction {
   }
 
   private async checkFileExists(path: string): Promise<boolean> {
-    if (isDevMode(this.actionId)) return false
+    if (isLocalhost()) return false
 
     try {
-      const response = await this.apiFetch(
-        `${UPLOAD_CHECK_EXISTS_PATH}?path=${encodeURIComponent(path)}`
-      )
-      if (response.ok) {
-        const data = await response.json()
-        return data.exists
-      }
+      // Get the directory from the path
+      const lastSlash = path.lastIndexOf('/')
+      const directory = lastSlash > 0 ? path.substring(0, lastSlash) : ''
+
+      // Load files from the index
+      const files = await this.filesLoader.loadDirectory(directory)
+      return files.some((f) => f.path === path)
     } catch {
       // Assume file doesn't exist on error
+      return false
     }
-    return false
   }
 
   private removeFile(id: string) {
@@ -364,31 +398,30 @@ export class StencilaSiteUpload extends SiteAction {
   // Repo file browser (for update mode)
 
   private async fetchRepoFiles() {
-    if (isDevMode(this.actionId)) {
-      this.repoFiles = [
-        { path: 'data/sample.csv', size: 1234, lastModified: '2024-01-15' },
-        { path: 'data/config.json', size: 567, lastModified: '2024-01-10' },
-      ]
-      return
-    }
-
     this.repoFilesLoading = true
     try {
-      const params = new URLSearchParams()
-      if (this.effectiveAllowedExtensions) {
-        params.set('extensions', this.effectiveAllowedExtensions.join(','))
-      }
-      if (this.effectiveTargetPath) {
-        params.set('path', this.effectiveTargetPath)
-      }
+      // Get current directory from document path
+      const directory = this.effectiveTargetPath
 
-      const response = await this.apiFetch(`${UPLOAD_FILES_PATH}?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        this.repoFiles = data.files || []
-      }
+      // Load files from the static _files index (available in local previews too)
+      const entries = await this.filesLoader.loadDirectory(directory)
+
+      // Filter by allowed extensions if configured
+      const filtered = this.effectiveAllowedExtensions
+        ? entries.filter((f) =>
+            this.effectiveAllowedExtensions!.includes(f.extension.toLowerCase())
+          )
+        : entries
+
+      // Map to RepoFile format
+      this.repoFiles = filtered.map((f) => ({
+        path: f.path,
+        size: f.size,
+        lastModified: f.lastModified,
+      }))
     } catch {
       // Failed to load files
+      this.repoFiles = []
     }
     this.repoFilesLoading = false
   }
@@ -409,7 +442,20 @@ export class StencilaSiteUpload extends SiteAction {
       return
     }
 
-    const file = files[0]
+    await this.processUpdateFile(files[0])
+  }
+
+  private async handleUpdateFileSelect(e: Event) {
+    const input = e.target as HTMLInputElement
+    const files = input.files
+    if (!files || files.length === 0) return
+
+    await this.processUpdateFile(files[0])
+    input.value = '' // Reset input
+  }
+
+  private async processUpdateFile(file: File) {
+    if (!this.selectedRepoFile) return
 
     // Validate size
     if (file.size > this.effectiveMaxFileSize) {
@@ -457,13 +503,23 @@ export class StencilaSiteUpload extends SiteAction {
     this.isSubmitting = true
     this.submittedPr = null
 
-    if (isDevMode(this.actionId)) {
-      // Simulate upload in dev mode
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      this.submittedPr = {
-        number: 123,
-        url: 'https://github.com/example/repo/pull/123',
-      }
+    if (isLocalhost()) {
+      // Show the payload that would be submitted (truncate content for display)
+      this.showPreviewMock({
+        endpoint: UPLOAD_SUBMIT_PATH,
+        method: 'POST',
+        body: {
+          files: this.pendingFiles.map((f) => ({
+            path: f.targetPath,
+            content: f.content.length > 200
+              ? f.content.substring(0, 200) + '... (truncated)'
+              : f.content,
+            size: f.size,
+            mimeType: f.mimeType,
+          })),
+          message: this.message || undefined,
+        },
+      })
       this.isSubmitting = false
       this.clearPendingFiles()
       return
@@ -511,6 +567,7 @@ export class StencilaSiteUpload extends SiteAction {
       ${this.renderFab()}
       ${this.renderPanel()}
       ${this.renderErrorModal()}
+      ${this.renderPreviewMockModal()}
     `
   }
 
@@ -520,15 +577,23 @@ export class StencilaSiteUpload extends SiteAction {
   protected override renderPanelContent() {
     return html`
       <!-- Tabs -->
-      <div class="tabs">
+      <div class="tabs" role="tablist" aria-label="Upload options">
         <button
           class="tab ${this.activeTab === 'upload' ? 'active' : ''}"
+          role="tab"
+          id="upload-tab"
+          aria-selected=${this.activeTab === 'upload'}
+          aria-controls="upload-panel"
           @click=${() => (this.activeTab = 'upload')}
         >
           Upload New
         </button>
         <button
           class="tab ${this.activeTab === 'update' ? 'active' : ''}"
+          role="tab"
+          id="update-tab"
+          aria-selected=${this.activeTab === 'update'}
+          aria-controls="update-panel"
           @click=${() => {
             this.activeTab = 'update'
             if (this.repoFiles.length === 0) {
@@ -541,7 +606,12 @@ export class StencilaSiteUpload extends SiteAction {
       </div>
 
       <!-- Tab Content -->
-      <div class="content">
+      <div
+        class="content"
+        role="tabpanel"
+        id="${this.activeTab}-panel"
+        aria-labelledby="${this.activeTab}-tab"
+      >
         ${this.activeTab === 'upload'
           ? this.renderUploadTab()
           : this.renderUpdateTab()}
@@ -565,6 +635,8 @@ export class StencilaSiteUpload extends SiteAction {
     return html`
       <div
         class="dropzone ${this.isDragOver ? 'drag-over' : ''}"
+        role="region"
+        aria-label="File upload drop zone"
         @dragover=${(e: DragEvent) => {
           e.preventDefault()
           this.isDragOver = true
@@ -573,18 +645,17 @@ export class StencilaSiteUpload extends SiteAction {
         @drop=${this.handleFileDrop}
       >
         <div class="dropzone-content">
-          <span class="i-lucide:upload dropzone-icon"></span>
           <p>Drop files here or click to browse</p>
           ${this.effectiveAllowedExtensions
             ? html`<p class="hint">
                 Allowed: ${this.effectiveAllowedExtensions.join(', ')}
               </p>`
             : nothing}
-          <p class="hint">Max size: ${formatFileSize(this.effectiveMaxFileSize)}</p>
           <input
             type="file"
             multiple
             @change=${this.handleFileSelect}
+            aria-label="Select files to upload"
             accept=${this.effectiveAllowedExtensions
               ? this.effectiveAllowedExtensions.map((t) => `.${t}`).join(',')
               : ''}
@@ -600,46 +671,98 @@ export class StencilaSiteUpload extends SiteAction {
     }
 
     if (this.repoFiles.length === 0) {
-      return html`<div class="empty">No files found in repository</div>`
+      return html`<div class="empty">No files found in this directory</div>`
     }
+
+    // Filter files by search query
+    const filteredFiles = this.fileSearchQuery
+      ? this.repoFiles.filter((file) => {
+          const filename = file.path.split('/').pop() || file.path
+          return filename.toLowerCase().includes(this.fileSearchQuery.toLowerCase())
+        })
+      : this.repoFiles
 
     return html`
       <div class="file-browser">
-        <div class="file-list">
-          ${this.repoFiles.map(
-            (file) => html`
-              <div
-                class="file-item ${this.selectedRepoFile?.path === file.path
-                  ? 'selected'
-                  : ''}"
-                @click=${() => this.selectRepoFile(file)}
-              >
-                <span class="file-icon">${getFileIcon(file.path)}</span>
-                <span class="file-path">${file.path}</span>
-                <span class="file-size">${formatFileSize(file.size)}</span>
+        <!-- Search filter for file lists with many items -->
+        ${this.repoFiles.length > 5
+          ? html`
+              <div class="file-search">
+                <span class="i-lucide:search file-search-icon"></span>
+                <input
+                  type="text"
+                  class="file-search-input"
+                  placeholder="Filter files..."
+                  .value=${this.fileSearchQuery}
+                  @input=${(e: Event) =>
+                    (this.fileSearchQuery = (e.target as HTMLInputElement).value)}
+                  aria-label="Filter files"
+                />
               </div>
             `
-          )}
+          : nothing}
+
+        <div class="file-list" role="listbox" aria-label="Files in current directory">
+          ${filteredFiles.map((file) => {
+            const filename = file.path.split('/').pop() || file.path
+            const isSelected = this.selectedRepoFile?.path === file.path
+            // Check if this file has a pending replacement
+            const hasPendingReplacement = this.pendingFiles.some(
+              (pf) => pf.targetPath === file.path && pf.isOverwrite
+            )
+
+            return html`
+              <div
+                class="file-item ${isSelected ? 'selected' : ''} ${hasPendingReplacement ? 'has-pending' : ''}"
+                role="option"
+                aria-selected=${isSelected}
+                tabindex="0"
+                @click=${() => this.selectRepoFile(file)}
+                @keydown=${(e: KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    this.selectRepoFile(file)
+                  }
+                }}
+              >
+                <span class="file-icon">
+                  <span class="i-lucide:${getFileIcon(filename)}"></span>
+                </span>
+                <span class="file-name">${filename}</span>
+                <span class="file-size">${formatFileSize(file.size)}</span>
+                ${hasPendingReplacement
+                  ? html`
+                      <span class="pending-indicator" title="Replacement queued">
+                        <span class="i-lucide:clock"></span>
+                      </span>
+                    `
+                  : nothing}
+              </div>
+            `
+          })}
         </div>
 
-        ${this.selectedRepoFile
-          ? html`
-              <div
-                class="dropzone update-dropzone ${this.isDragOver
-                  ? 'drag-over'
-                  : ''}"
-                @dragover=${(e: DragEvent) => {
-                  e.preventDefault()
-                  this.isDragOver = true
-                }}
-                @dragleave=${() => (this.isDragOver = false)}
-                @drop=${this.handleUpdateFile}
-              >
-                <p>Drop replacement file for:</p>
-                <strong>${this.selectedRepoFile.path}</strong>
-              </div>
-            `
-          : html`<p class="hint">Select a file to replace</p>`}
+        <div
+          class="dropzone update-dropzone ${this.isDragOver ? 'drag-over' : ''} ${!this.selectedRepoFile ? 'disabled' : ''}"
+          @dragover=${(e: DragEvent) => {
+            if (!this.selectedRepoFile) return
+            e.preventDefault()
+            this.isDragOver = true
+          }}
+          @dragleave=${() => (this.isDragOver = false)}
+          @drop=${this.handleUpdateFile}
+        >
+          <span class="i-lucide:replace dropzone-icon" aria-hidden="true"></span>
+          ${this.selectedRepoFile
+            ? html`<p>Drop a file, or click to select, a file to replace <strong>${this.selectedRepoFile.path.split('/').pop()}</strong></p>`
+            : html`<p class="hint">Select a file from the list above first</p>`}
+          <input
+            type="file"
+            @change=${this.handleUpdateFileSelect}
+            aria-label="Select replacement file"
+            ?disabled=${!this.selectedRepoFile}
+          />
+        </div>
       </div>
     `
   }
@@ -649,17 +772,16 @@ export class StencilaSiteUpload extends SiteAction {
 
     return html`
       <div class="pending">
-        <h4 class="pending-header">Pending Uploads (${this.pendingFiles.length})</h4>
         <ul class="pending-list">
           ${this.pendingFiles.map(
             (file) => html`
               <li class="pending-file">
                 <div class="file-info">
-                  <span class="file-icon">${getFileIcon(file.filename)}</span>
+                  <span class="file-icon"><span class="i-lucide:${getFileIcon(file.filename)}"></span></span>
                   <span class="file-name">${file.filename}</span>
                   ${file.isOverwrite
-                    ? html`<span class="overwrite-badge">update</span>`
-                    : nothing}
+                    ? html`<span class="file-badge update">update</span>`
+                    : html`<span class="file-badge new">new</span>`}
                 </div>
                 <div class="file-path">
                   <span>${file.targetPath}</span>
@@ -683,14 +805,15 @@ export class StencilaSiteUpload extends SiteAction {
   private renderMessageInput() {
     return html`
       <div class="message">
-        <label class="message-label">Description</label>
         <textarea
           class="message-input"
-          placeholder="Describe your changes..."
+          placeholder="Briefly describe what you're uploading and why..."
+          aria-label="Pull request description"
           .value=${this.message}
           @input=${(e: Event) =>
             (this.message = (e.target as HTMLTextAreaElement).value)}
         ></textarea>
+        <p class="message-hint">This will be the commit message for your pull request</p>
       </div>
     `
   }

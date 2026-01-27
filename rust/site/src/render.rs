@@ -492,6 +492,23 @@ where
         }
     }
 
+    // Generate files index if uploads are enabled
+    if let Some(uploads_spec) = site_config.uploads.as_ref()
+        && uploads_spec.is_enabled()
+    {
+        let uploads_config = uploads_spec.to_config();
+        if let Err(e) = crate::files::generate_files_index(
+            &config.workspace_dir,
+            &site_root,
+            &output_dir,
+            uploads_config.extensions.as_deref(),
+        )
+        .await
+        {
+            tracing::warn!("Failed to write files index: {}", e);
+        }
+    }
+
     let result = RenderResult {
         documents_ok: docs_rendered
             .iter()

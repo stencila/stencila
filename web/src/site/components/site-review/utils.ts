@@ -1,8 +1,8 @@
 /**
  * Constants for site review components
  *
- * Note: Shared utility functions (isLocalhost, getPathname, isStencilaHostedSite, isDevMode)
- * have been moved to ../site-action/utils.ts
+ * Note: Shared utility functions (isLocalhost, getPathname, isStencilaHosted)
+ * are in ../site-action/utils.ts
  */
 
 // Storage keys

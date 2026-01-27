@@ -14,6 +14,7 @@ mod nav_groups;
 mod nav_menu;
 mod nav_tree;
 
+pub mod files;
 pub mod search;
 
 mod list;

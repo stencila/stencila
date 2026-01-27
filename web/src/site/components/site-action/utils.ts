@@ -154,23 +154,6 @@ export function isStencilaHosted(): boolean {
 }
 
 /**
- * Check if dev mode is enabled for a specific action.
- * Enable by adding ?{actionId}DevMode=true to the URL or setting localStorage.
- *
- * @param actionId - The action identifier (e.g., 'review', 'upload')
- */
-export function isDevMode(actionId: string): boolean {
-  if (!isLocalhost()) return false
-
-  const urlParams = new URLSearchParams(window.location.search)
-  if (urlParams.get(`${actionId}DevMode`) === 'true') return true
-  if (localStorage.getItem(`stencila-${actionId}-dev-mode`) === 'true')
-    return true
-
-  return false
-}
-
-/**
  * Extract pathname from a URL string
  */
 export function getPathname(url: string): string {

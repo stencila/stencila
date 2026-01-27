@@ -40,6 +40,14 @@ pub struct SiteUploadsConfig {
     /// Widget is hidden on pages matching these patterns.
     /// Example: `["api/**", "internal/**"]`
     pub exclude: Option<Vec<String>>,
+
+    /// File extensions to include in the `_files` index
+    ///
+    /// When specified, only files with these extensions are indexed.
+    /// When `None` (default), all files are indexed.
+    /// Extensions are matched case-insensitively, without leading dot.
+    /// Example: `["csv", "json", "xlsx"]`
+    pub extensions: Option<Vec<String>>,
 }
 
 impl SiteUploadsConfig {
@@ -186,6 +194,27 @@ mod tests {
 
         let config = spec.to_config();
         assert_eq!(config.include, Some(vec!["data/**".to_string()]));
+        Ok(())
+    }
+
+    #[test]
+    fn test_uploads_spec_with_extensions() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "extensions": ["csv", "json", "xlsx"]
+        }"#;
+        let spec: SiteUploadsSpec = serde_json::from_str(json)?;
+        assert!(spec.is_enabled());
+
+        let config = spec.to_config();
+        assert_eq!(
+            config.extensions,
+            Some(vec![
+                "csv".to_string(),
+                "json".to_string(),
+                "xlsx".to_string()
+            ])
+        );
         Ok(())
     }
 

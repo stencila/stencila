@@ -324,7 +324,10 @@ mod tests {
 
     #[test]
     fn test_review_type_serialization() -> Result<(), serde_json::Error> {
-        assert_eq!(serde_json::to_string(&SiteReviewType::Comment)?, "\"comment\"");
+        assert_eq!(
+            serde_json::to_string(&SiteReviewType::Comment)?,
+            "\"comment\""
+        );
         assert_eq!(
             serde_json::to_string(&SiteReviewType::Suggestion)?,
             "\"suggestion\""

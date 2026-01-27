@@ -7,49 +7,6 @@ export const STORAGE_KEY_FILES = 'stencila-site-upload-files'
 
 // API endpoint paths (relative, will be prefixed with apiBase)
 export const UPLOAD_SUBMIT_PATH = '/__stencila/uploads'
-export const UPLOAD_FILES_PATH = '/__stencila/uploads/files'
-export const UPLOAD_CHECK_EXISTS_PATH = '/__stencila/uploads/check-exists'
-
-// External URLs
-export const GITHUB_OAUTH_URL = 'https://stencila.cloud/github/connect/site'
-
-/**
- * Check if running on localhost
- */
-export function isLocalhost(): boolean {
-  const hostname = window.location.hostname
-  return hostname === 'localhost' || hostname === '127.0.0.1'
-}
-
-/**
- * Check if this is a Stencila-hosted site (*.stencila.site or localhost)
- */
-export function isStencilaHostedSite(): boolean {
-  const hostname = window.location.hostname
-  if (hostname.endsWith('.stencila.site')) return true
-  if (hostname === 'localhost' || hostname === '127.0.0.1') return true
-  const thirdPartyHosts = [
-    'netlify.app',
-    'netlify.com',
-    'github.io',
-    'vercel.app',
-    'pages.dev',
-    'surge.sh',
-    'render.com',
-  ]
-  return !thirdPartyHosts.some((host) => hostname.endsWith(host))
-}
-
-/**
- * Check if dev mode is enabled
- */
-export function isDevMode(): boolean {
-  if (!isLocalhost()) return false
-  const urlParams = new URLSearchParams(window.location.search)
-  if (urlParams.get('uploadDevMode') === 'true') return true
-  if (localStorage.getItem('stencila-upload-dev-mode') === 'true') return true
-  return false
-}
 
 /**
  * Format file size for display

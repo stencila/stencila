@@ -9,7 +9,7 @@ use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
     EditOnService, EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec,
     RowConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition, SiteConfig, SiteFormat,
-    SiteReviewsConfig, SiteUploadsConfig, SocialLinksStyle,
+    SiteRemoteFormat, SiteRemotesConfig, SiteReviewsConfig, SiteUploadsConfig, SocialLinksStyle,
 };
 
 use crate::{
@@ -1135,9 +1135,14 @@ pub fn should_show_uploads_for_route(route: &str, config: &SiteUploadsConfig) ->
     should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
 }
 
+/// Check if remotes should be shown for a given route based on include/exclude patterns
+pub fn should_show_remotes_for_route(route: &str, config: &SiteRemotesConfig) -> bool {
+    should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
+}
+
 /// Render the unified site actions zone
 ///
-/// Wraps enabled action components (reviews, uploads) in a single container
+/// Wraps enabled action components (reviews, uploads, remotes) in a single container
 /// with configurable position, direction, and mode (speed-dial vs expanded).
 /// Child components receive the `hide-fab` attribute so they don't render
 /// their own floating action buttons.
@@ -1185,6 +1190,19 @@ fn render_site_actions(context: &RenderContext) -> String {
                 render_site_upload_with_hide_fab(&config, context.workspace_id)
         {
             children.push(upload_html);
+        }
+    }
+
+    // Check remotes
+    if let Some(remotes_spec) = &context.site_config.remotes
+        && remotes_spec.is_enabled()
+    {
+        let config = remotes_spec.to_config();
+        if should_show_remotes_for_route(context.route, &config)
+            && let Some(remote_html) =
+                render_site_remote_with_hide_fab(&config, context.workspace_id)
+        {
+            children.push(remote_html);
         }
     }
 
@@ -1277,6 +1295,70 @@ fn render_site_upload_with_hide_fab(
 
     Some(format!(
         r#"<stencila-site-upload workspace-id="{id}" hide-fab></stencila-site-upload>"#
+    ))
+}
+
+/// Render site remote component with hide-fab attribute for use inside site-actions
+fn render_site_remote_with_hide_fab(
+    config: &SiteRemotesConfig,
+    workspace_id: Option<&str>,
+) -> Option<String> {
+    // Require workspace.id for remotes to function
+    let Some(id) = workspace_id else {
+        tracing::warn!(
+            "Remotes are enabled but no workspace.id is configured - remote widget will not render. \
+            Run `stencila site push` to configure a workspace."
+        );
+        return None;
+    };
+
+    let mut attrs = format!(r#"workspace-id="{id}" hide-fab"#);
+
+    // Target path
+    let target_path = config.target_path();
+    if !target_path.is_empty() {
+        attrs.push_str(&format!(r#" target-path="{target_path}""#));
+    }
+
+    // User path
+    if config.user_path_enabled() {
+        attrs.push_str(r#" user-path="true""#);
+    }
+
+    // Helper to convert format enum to lowercase string
+    fn format_to_str(f: &SiteRemoteFormat) -> &'static str {
+        match f {
+            SiteRemoteFormat::Smd => "smd",
+            SiteRemoteFormat::Md => "md",
+            SiteRemoteFormat::Html => "html",
+        }
+    }
+
+    // Default format
+    let default_format = format_to_str(&config.default_format());
+    attrs.push_str(&format!(r#" default-format="{default_format}""#));
+
+    // Allowed formats (comma-separated)
+    if let Some(formats) = &config.allowed_formats {
+        let formats_str: Vec<&str> = formats.iter().map(format_to_str).collect();
+        attrs.push_str(&format!(r#" allowed-formats="{}""#, formats_str.join(",")));
+    }
+
+    // Require message
+    if config.require_message() {
+        attrs.push_str(r#" require-message="true""#);
+    }
+
+    // Public/anon settings (inform UI, enforced server-side)
+    if config.is_public() {
+        attrs.push_str(r#" public="true""#);
+    }
+    if config.is_anon() {
+        attrs.push_str(r#" anon="true""#);
+    }
+
+    Some(format!(
+        "<stencila-site-remote {attrs}></stencila-site-remote>"
     ))
 }
 
