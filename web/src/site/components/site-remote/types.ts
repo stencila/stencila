@@ -6,14 +6,14 @@
  */
 
 /**
- * Sync direction options
+ * Watch sync direction options
  */
-export type SyncDirection = 'from-remote' | 'bi' | 'to-remote'
+export type WatchDirection = 'from-remote' | 'bi' | 'to-remote'
 
 /**
- * Sync mode options (includes 'none' for no sync)
+ * Watch sync mode options (includes 'none' for no sync)
  */
-export type SyncMode = SyncDirection | 'none'
+export type WatchMode = WatchDirection | 'none'
 
 /**
  * Remote service types
@@ -32,12 +32,10 @@ export interface PendingRemote {
   service: RemoteService
   /** Target path in the repository */
   targetPath: string
-  /** Target format (without dot, e.g., "smd", "md", "html") */
-  format: string
-  /** Whether to enable sync */
-  enableSync: boolean
+  /** Whether to create watch */
+  watch: boolean
   /** Sync direction (if sync enabled) */
-  syncDirection: SyncDirection
+  watchDirection: WatchDirection
 }
 
 /**
@@ -50,8 +48,6 @@ export interface RemoteResponse {
   branchName: string
   authoredBy: 'user' | 'bot'
   authorUsername?: string
-  watchId?: string
-  syncDirection?: SyncDirection
 }
 
 /**

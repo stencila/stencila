@@ -6,8 +6,8 @@ import { SiteAction, type BaseFooterState, isLocalhost } from '../site-action'
 import type {
   RemoteResponse,
   RemoteService,
-  SyncDirection,
-  SyncMode,
+  WatchDirection,
+  WatchMode,
   PickerMessage,
 } from './types'
 import {
@@ -18,7 +18,6 @@ import {
   PICKER_POLL_INTERVAL,
   generateTargetPath,
   getServiceDisplayName,
-  getFormatFromPath,
 } from './utils'
 
 /**
@@ -116,7 +115,7 @@ export class StencilaSiteRemote extends SiteAction {
 
   /** Sync mode (includes direction or 'none' for no sync) */
   @state()
-  private syncMode: SyncMode = 'bi'
+  private syncMode: WatchMode = 'bi'
 
   /** Whether sync dropdown is open */
   @state()
@@ -165,7 +164,7 @@ export class StencilaSiteRemote extends SiteAction {
 
     // Apply default sync direction from server
     if (config.defaultSyncDirection) {
-      this.syncMode = config.defaultSyncDirection as SyncMode
+      this.syncMode = config.defaultSyncDirection as WatchMode
     }
   }
 
@@ -349,25 +348,26 @@ export class StencilaSiteRemote extends SiteAction {
     this.isSubmitting = true
     this.submittedPr = null
 
-    // Map syncMode to enableSync and syncDirection for API
-    const enableSync = this.syncMode !== 'none'
-    const syncDirection = enableSync ? (this.syncMode as SyncDirection) : undefined
+    // Map syncMode to watch and syncDirection for API
+    const watch = this.syncMode !== 'none'
+    const watchDirection = watch ? (this.syncMode as WatchDirection) : undefined
+
+    const body = {
+          remoteUrl: this.remoteUrl,
+          service: this.service,
+          targetPath: this.targetFilePath,
+          watch,
+          watchDirection,
+          message: this.message || `Add ${this.documentTitle} from ${getServiceDisplayName(this.service!)}`,
+          authorAsSelf: !this.authStatus?.authorship?.willBeBotAuthored,
+        }
 
     if (isLocalhost()) {
       // Show the payload that would be submitted
       this.showPreviewMock({
         endpoint: REMOTE_SUBMIT_PATH,
         method: 'POST',
-        body: {
-          remoteUrl: this.remoteUrl,
-          service: this.service,
-          targetPath: this.targetFilePath,
-          format: getFormatFromPath(this.targetFilePath),
-          enableSync,
-          syncDirection,
-          message: this.message || `Add ${this.documentTitle} from ${getServiceDisplayName(this.service!)}`,
-          authorAsSelf: !this.authStatus?.authorship?.willBeBotAuthored,
-        },
+        body,
       })
       this.isSubmitting = false
       return
@@ -376,16 +376,7 @@ export class StencilaSiteRemote extends SiteAction {
     try {
       const response = await this.apiFetch(REMOTE_SUBMIT_PATH, {
         method: 'POST',
-        body: {
-          remoteUrl: this.remoteUrl,
-          service: this.service,
-          targetPath: this.targetFilePath,
-          format: getFormatFromPath(this.targetFilePath),
-          enableSync,
-          syncDirection,
-          message: this.message || `Add ${this.documentTitle} from ${getServiceDisplayName(this.service!)}`,
-          authorAsSelf: !this.authStatus?.authorship?.willBeBotAuthored,
-        },
+        body,
       })
 
       if (response.ok) {
@@ -393,7 +384,6 @@ export class StencilaSiteRemote extends SiteAction {
         this.submittedPr = {
           number: data.prNumber,
           url: data.prUrl,
-          watchId: data.watchId,
         }
       } else {
         const error = await response.json()
@@ -543,7 +533,7 @@ export class StencilaSiteRemote extends SiteAction {
    * Render sync direction badge with dropdown
    */
   private renderSyncBadge() {
-    const labels: Record<SyncMode, { arrows: string; text: string; className: string }> = {
+    const labels: Record<WatchMode, { arrows: string; text: string; className: string }> = {
       'bi': { arrows: '↑↓', text: 'BI-DIRECTIONAL', className: 'bi' },
       'from-remote': { arrows: '↓', text: 'FROM REMOTE', className: 'from' },
       'to-remote': { arrows: '↑', text: 'TO REMOTE', className: 'to' },
@@ -572,9 +562,9 @@ export class StencilaSiteRemote extends SiteAction {
    * Render sync direction dropdown options
    */
   private renderSyncDropdown(
-    labels: Record<SyncMode, { arrows: string; text: string; className: string }>
+    labels: Record<WatchMode, { arrows: string; text: string; className: string }>
   ) {
-    const options: SyncMode[] = ['bi', 'from-remote', 'to-remote', 'none']
+    const options: WatchMode[] = ['bi', 'from-remote', 'to-remote', 'none']
 
     return html`
       <div class="sync-dropdown" role="listbox">
@@ -607,7 +597,7 @@ export class StencilaSiteRemote extends SiteAction {
   /**
    * Select a sync mode and close dropdown
    */
-  private selectSyncMode(mode: SyncMode) {
+  private selectSyncMode(mode: WatchMode) {
     this.syncMode = mode
     this.showSyncDropdown = false
   }
