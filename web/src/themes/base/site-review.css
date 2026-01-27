@@ -367,7 +367,7 @@ stencila-site-review .items-list {
 /* Individual review item */
 stencila-site-review .review-item {
   position: relative;
-  padding: 10px var(--space-3);
+  padding: 10px var(--space-1);
   padding-right: 36px;
   font-size: var(--font-size-xs);
   border-bottom: 1px solid var(--border-color-default);
@@ -406,13 +406,21 @@ stencila-site-review .review-item .type-icon {
   margin-top: 2px;
 }
 
-/* Comment icon - amber */
+/* Comment icon - muted amber by default, full amber when active */
 stencila-site-review .review-item .type-icon[data-type="comment"] {
+  background-color: var(--color-amber-300);
+}
+
+stencila-site-review .review-item[data-active="true"] .type-icon[data-type="comment"] {
   background-color: var(--color-amber-500);
 }
 
-/* Suggestion icon - green */
+/* Suggestion icon - muted green by default, full green when active */
 stencila-site-review .review-item .type-icon[data-type="suggestion"] {
+  background-color: var(--color-green-300);
+}
+
+stencila-site-review .review-item[data-active="true"] .type-icon[data-type="suggestion"] {
   background-color: var(--color-green-500);
 }
 
@@ -590,41 +598,34 @@ stencila-site-review .review-item .edit-btn.save:disabled {
 }
 
 /* ==========================================================================
-   Panel Footer (Review-specific)
+   Add Comment Button (at bottom of items list)
    ========================================================================== */
 
-/* Add comment FAB - centered over the dividing line */
-stencila-site-review .add-comment-fab {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -50%);
+stencila-site-review .add-comment-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border-color-default);
-  border-radius: 50%;
-  background: var(--surface-elevated);
-  color: var(--text-color-secondary);
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  margin-top: var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text-color-primary);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  transition:
-    color var(--transition-duration-fast),
-    border-color var(--transition-duration-fast),
-    box-shadow var(--transition-duration-fast);
+  transition: background var(--transition-duration-fast);
 }
 
-stencila-site-review .add-comment-fab:hover {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-xs);
+stencila-site-review .add-comment-btn:hover {
+  background: var(--border-color-default);
 }
 
-stencila-site-review .add-comment-fab span {
+stencila-site-review .add-comment-btn span:first-child {
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: currentColor;
 }
 
@@ -670,8 +671,8 @@ stencila-site-review .share-tooltip::after {
   }
 }
 
-/* Add page comment button in empty state */
-stencila-site-review .add-page-comment {
+/* Add comment button - extra margin in empty state */
+stencila-site-review .site-action-empty-state .add-comment-btn {
   margin-top: var(--space-4);
 }
 
@@ -694,7 +695,7 @@ stencila-site-review .page-group-header {
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-1);
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -741,17 +742,6 @@ stencila-site-review .page-group-header .chevron {
 /* Items container within a page group */
 stencila-site-review .page-group-items {
   background: var(--surface-elevated);
-}
-
-/* Active item in panel (selected) - colored left border matching icon */
-stencila-site-review .review-item[data-active="true"] {
-  border-left: 1px solid var(--color-amber-500);
-  padding-left: calc(var(--space-3) - 1px);
-}
-
-stencila-site-review
-  .review-item[data-active="true"]:has(.type-icon[data-type="suggestion"]) {
-  border-left-color: var(--color-green-500);
 }
 
 /* Active item text is primary color */

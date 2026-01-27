@@ -436,14 +436,14 @@ export class StencilaSiteReview extends SiteAction {
           <h4>Ready for your feedback</h4>
           <p>Select text on the page to comment or suggest a change.</p>
           <button
-            class="site-action-btn site-action-btn-secondary add-page-comment"
+            class="add-comment-btn"
             @click=${(e: Event) => {
               e.stopPropagation()
               this.handlePageComment()
             }}
           >
-            <span class="i-lucide:message-circle site-action-btn-icon"></span>
-            Add page comment
+            <span class="i-lucide:message-circle"></span>
+            <span>Add page comment</span>
           </button>
         </div>
       `
@@ -2039,6 +2039,17 @@ export class StencilaSiteReview extends SiteAction {
           if (!group) return nothing
           return this.renderPageGroup(path, group)
         })}
+        <button
+          class="add-comment-btn"
+          @click=${(e: Event) => {
+            e.stopPropagation()
+            this.handlePageComment()
+          }}
+          aria-label="Add page comment"
+        >
+          <span class="i-lucide:message-circle"></span>
+          <span>Add page comment</span>
+        </button>
       </div>
     `
   }
@@ -2181,26 +2192,12 @@ export class StencilaSiteReview extends SiteAction {
   }
 
   /**
-   * Render the panel footer with submit button and add comment action
+   * Render the panel footer with submit button
    */
   private renderReviewFooter() {
-    const addButton = html`
-      <button
-        class="add-comment-fab"
-        @click=${(e: Event) => {
-          e.stopPropagation()
-          this.handlePageComment()
-        }}
-        aria-label="Add page comment"
-      >
-        <span class="i-lucide:plus"></span>
-      </button>
-    `
-
     return this.renderPanelFooter({
       disabled: this.isSubmitting,
       onSubmit: () => this.handleSubmitReview(),
-      leftSlot: addButton,
     })
   }
 
