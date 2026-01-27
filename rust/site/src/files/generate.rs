@@ -107,6 +107,11 @@ async fn collect_files_recursive(
             continue;
         }
 
+        // Skip files starting with underscore (e.g., _nav.yaml)
+        if file_name_str.starts_with('_') {
+            continue;
+        }
+
         // Skip common non-content directories
         if file_name_str == "node_modules" || file_name_str == "__pycache__" {
             continue;
@@ -319,6 +324,42 @@ mod tests {
         .await?;
 
         assert_eq!(stats.total_files, 1);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_skips_underscore_prefixed_files() -> Result<()> {
+        let workspace = TempDir::new()?;
+        let output_dir = TempDir::new()?;
+
+        // Create regular files and underscore-prefixed files
+        create_test_file(workspace.path(), "readme.md", "# Hello").await?;
+        create_test_file(workspace.path(), "_nav.yaml", "nav: []").await?;
+        create_test_file(workspace.path(), "_config.json", "{}").await?;
+        create_test_file(workspace.path(), "data/_hidden.csv", "a,b").await?;
+        create_test_file(workspace.path(), "data/visible.csv", "c,d").await?;
+
+        let stats =
+            generate_files_index(workspace.path(), workspace.path(), output_dir.path(), None)
+                .await?;
+
+        // Only readme.md and data/visible.csv should be included
+        assert_eq!(stats.total_files, 2);
+
+        // Verify root index only contains readme.md
+        let root_index = output_dir.path().join("_files/_root.json");
+        let root_content: Vec<FileEntry> =
+            serde_json::from_str(&fs::read_to_string(&root_index).await?)?;
+        assert_eq!(root_content.len(), 1);
+        assert_eq!(root_content[0].path, "readme.md");
+
+        // Verify data index only contains visible.csv
+        let data_index = output_dir.path().join("_files/data.json");
+        let data_content: Vec<FileEntry> =
+            serde_json::from_str(&fs::read_to_string(&data_index).await?)?;
+        assert_eq!(data_content.len(), 1);
+        assert_eq!(data_content[0].path, "data/visible.csv");
 
         Ok(())
     }
