@@ -190,3 +190,77 @@ export function buildGitHubConnectUrl(
   const encodedReturn = encodeURIComponent(returnUrl)
   return `${GITHUB_OAUTH_URL}?returnUrl=${encodedReturn}`
 }
+
+/**
+ * Join path segments, handling leading/trailing slashes
+ */
+export function joinPath(...segments: string[]): string {
+  return segments
+    .map((s) => s.replace(/^\/+|\/+$/g, ''))
+    .filter((s) => s.length > 0)
+    .join('/')
+}
+
+/**
+ * Generic localStorage manager for persisting typed data.
+ * Handles JSON serialization/deserialization with error handling.
+ *
+ * @example
+ * ```typescript
+ * const storage = new LocalStorageManager<PendingFile[]>('my-key', [])
+ * const files = storage.load() // Get stored files or empty array
+ * storage.save([...files, newFile]) // Save updated files
+ * storage.clear() // Remove from storage
+ * ```
+ */
+export class LocalStorageManager<T> {
+  constructor(
+    private readonly key: string,
+    private readonly defaultValue: T
+  ) {}
+
+  /**
+   * Load data from localStorage.
+   * Returns the default value if no data exists or if parsing fails.
+   */
+  load(): T {
+    try {
+      const stored = localStorage.getItem(this.key)
+      if (stored) {
+        return JSON.parse(stored) as T
+      }
+    } catch (e) {
+      console.error(`[LocalStorageManager] Failed to load '${this.key}':`, e)
+    }
+    return this.defaultValue
+  }
+
+  /**
+   * Save data to localStorage.
+   */
+  save(data: T): void {
+    try {
+      localStorage.setItem(this.key, JSON.stringify(data))
+    } catch (e) {
+      console.error(`[LocalStorageManager] Failed to save '${this.key}':`, e)
+    }
+  }
+
+  /**
+   * Remove data from localStorage.
+   */
+  clear(): void {
+    try {
+      localStorage.removeItem(this.key)
+    } catch (e) {
+      console.error(`[LocalStorageManager] Failed to clear '${this.key}':`, e)
+    }
+  }
+
+  /**
+   * Check if data exists in localStorage.
+   */
+  exists(): boolean {
+    return localStorage.getItem(this.key) !== null
+  }
+}

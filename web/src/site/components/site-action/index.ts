@@ -695,6 +695,87 @@ export abstract class SiteAction extends LitElement {
   }
 
   /**
+   * Handle localhost preview for submissions.
+   * Shows a preview mock modal and calls the optional reset callback.
+   *
+   * @param endpoint - The API endpoint path
+   * @param payload - The request payload
+   * @param onReset - Optional callback to reset submission state
+   * @returns true if handled (localhost), false otherwise
+   */
+  protected handleLocalhostPreview(
+    endpoint: string,
+    payload: unknown,
+    onReset?: () => void
+  ): boolean {
+    if (!isLocalhost()) {
+      return false
+    }
+
+    this.showPreviewMock({
+      endpoint,
+      method: 'POST',
+      body: payload,
+    })
+
+    if (onReset) {
+      onReset()
+    }
+
+    return true
+  }
+
+  /**
+   * Handle API submission with standard error handling.
+   * Abstracts the common try/catch/finally pattern.
+   *
+   * @param endpoint - The API endpoint path
+   * @param payload - The request payload
+   * @returns Result with either success data or error info
+   */
+  protected async handleApiSubmit<T>(
+    endpoint: string,
+    payload: unknown
+  ): Promise<
+    | { ok: true; data: T }
+    | { ok: false; error: string; statusCode?: number; errorData?: unknown }
+  > {
+    try {
+      const response = await this.apiFetch(endpoint, {
+        method: 'POST',
+        body: payload,
+      })
+
+      if (response.ok) {
+        const data: T = await response.json()
+        return { ok: true, data }
+      }
+
+      // Try to parse error response
+      try {
+        const errorData = await response.json()
+        return {
+          ok: false,
+          error: errorData.message || `Request failed with status ${response.status}`,
+          statusCode: response.status,
+          errorData,
+        }
+      } catch {
+        return {
+          ok: false,
+          error: `Request failed with status ${response.status}`,
+          statusCode: response.status,
+        }
+      }
+    } catch {
+      return {
+        ok: false,
+        error: 'Network error. Please check your connection and try again.',
+      }
+    }
+  }
+
+  /**
    * Close the preview mock modal
    */
   private closePreviewMock = () => {
@@ -719,6 +800,23 @@ export abstract class SiteAction extends LitElement {
           <button class="site-action-btn primary" @click=${this.closePreviewMock}>OK</button>
         </div>
       </div>
+    `
+  }
+
+  // =========================================================================
+  // Default Render
+  // =========================================================================
+
+  /**
+   * Default render method for action components.
+   * Subclasses can override for custom rendering (e.g., site-review).
+   */
+  override render() {
+    return html`
+      ${this.renderFab()}
+      ${this.renderPanel()}
+      ${this.renderErrorModal()}
+      ${this.renderPreviewMockModal()}
     `
   }
 }

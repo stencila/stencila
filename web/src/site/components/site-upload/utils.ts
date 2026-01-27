@@ -87,13 +87,3 @@ export function getFileIcon(filename: string): string {
   }
   return iconMap[ext] || 'file'
 }
-
-/**
- * Join path segments, handling leading/trailing slashes
- */
-export function joinPath(...segments: string[]): string {
-  return segments
-    .map((s) => s.replace(/^\/+|\/+$/g, ''))
-    .filter((s) => s.length > 0)
-    .join('/')
-}

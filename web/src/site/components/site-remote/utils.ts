@@ -2,6 +2,8 @@
  * Constants and utility functions for site remote components
  */
 
+import { joinPath } from '../site-action/utils'
+
 // Storage keys
 export const STORAGE_KEY_PENDING = 'stencila-site-remote-pending'
 
@@ -114,16 +116,6 @@ export function generateTargetPath(
   const slug = slugify(title)
   const filename = slug + formatToExtension(format)
   return targetDir ? joinPath(targetDir, filename) : filename
-}
-
-/**
- * Join path segments, handling leading/trailing slashes
- */
-export function joinPath(...segments: string[]): string {
-  return segments
-    .map((s) => s.replace(/^\/+|\/+$/g, ''))
-    .filter((s) => s.length > 0)
-    .join('/')
 }
 
 /**

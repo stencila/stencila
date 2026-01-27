@@ -2,7 +2,7 @@ import { html, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../../glide/events'
-import { SiteAction, type BaseFooterState, isLocalhost } from '../site-action'
+import { SiteAction, type BaseFooterState, isLocalhost, joinPath } from '../site-action'
 import { FilesIndexLoader } from '../site-files'
 
 import type {
@@ -19,7 +19,6 @@ import {
   generateId,
   readFileAsBase64,
   getFileIcon,
-  joinPath,
 } from './utils'
 
 /**
@@ -558,18 +557,6 @@ export class StencilaSiteUpload extends SiteAction {
   // =========================================================================
   // Rendering
   // =========================================================================
-
-  /**
-   * Main render method - uses base class FAB, panel, and error modal
-   */
-  override render() {
-    return html`
-      ${this.renderFab()}
-      ${this.renderPanel()}
-      ${this.renderErrorModal()}
-      ${this.renderPreviewMockModal()}
-    `
-  }
 
   /**
    * Render upload-specific panel content (abstract method implementation)

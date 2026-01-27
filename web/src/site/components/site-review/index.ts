@@ -184,7 +184,7 @@ export class StencilaSiteReview extends SiteAction {
    * Whether a review submission is in progress
    */
   @state()
-  private submitting: boolean = false
+  private isSubmitting: boolean = false
 
   /**
    * Result from successful review submission
@@ -383,7 +383,7 @@ export class StencilaSiteReview extends SiteAction {
     }
 
     // 2. Submitting
-    if (this.submitting) {
+    if (this.isSubmitting) {
       return { type: 'submitting' }
     }
 
@@ -1790,7 +1790,7 @@ export class StencilaSiteReview extends SiteAction {
       return
     }
 
-    this.submitting = true
+    this.isSubmitting = true
     this.submitError = ''
 
     // Generate share URL for the review
@@ -1818,7 +1818,7 @@ export class StencilaSiteReview extends SiteAction {
       this.pendingItems = []
       this.sourceInfo = null
       this.saveToStorage()
-      this.submitting = false
+      this.isSubmitting = false
       return
     }
 
@@ -1854,7 +1854,7 @@ export class StencilaSiteReview extends SiteAction {
       this.submitError =
         'Failed to submit review. Please check your connection and try again.'
     } finally {
-      this.submitting = false
+      this.isSubmitting = false
     }
   }
 

@@ -191,6 +191,13 @@ export type ActionPosition =
   | 'top-left'
 
 /**
+ * Result type for API submissions
+ */
+export type ApiSubmitResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string; statusCode?: number; errorData?: unknown }
+
+/**
  * Custom event type declarations for TypeScript
  */
 declare global {

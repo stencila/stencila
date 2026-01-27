@@ -439,15 +439,6 @@ export class StencilaSiteRemote extends SiteAction {
   // Rendering
   // =========================================================================
 
-  override render() {
-    return html`
-      ${this.renderFab()}
-      ${this.renderPanel()}
-      ${this.renderErrorModal()}
-      ${this.renderPreviewMockModal()}
-    `
-  }
-
   protected override renderPanelContent() {
     // Show success state
     if (this.submittedPr) {
