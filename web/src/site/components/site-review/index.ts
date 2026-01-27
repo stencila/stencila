@@ -432,6 +432,11 @@ export class StencilaSiteReview extends SiteAction {
    * Render the review-specific panel content.
    */
   protected override renderPanelContent() {
+    // Show success state (real or preview)
+    if (this.submitResult || this.isPreviewSuccess) {
+      return this.renderSuccessState()
+    }
+
     const itemCount = this.pendingItems.length
 
     if (itemCount === 0) {
@@ -687,6 +692,21 @@ export class StencilaSiteReview extends SiteAction {
    */
   private connectGitHub() {
     window.open(this.gitHubConnectUrl, '_blank')
+  }
+
+  /**
+   * Reset state for another review.
+   * Context-aware: preserves expanded page groups, clears items and results.
+   */
+  protected override resetForAnother() {
+    this.pendingItems = []
+    this.sourceInfo = null
+    this.submitResult = null
+    this.submitError = ''
+    this.activeItemIndex = null
+    this.saveToStorage()
+    this.clearHighlights()
+    // Keep expandedPageGroups (context-aware)
   }
 
   // =========================================================================
@@ -1778,6 +1798,25 @@ export class StencilaSiteReview extends SiteAction {
     } finally {
       this.isSubmitting = false
     }
+  }
+
+  /**
+   * Render success state after review submission
+   */
+  private renderSuccessState() {
+    const isPreview = this.isPreviewSuccess
+    const prNumber = isPreview ? 0 : this.submitResult!.prNumber
+    const prUrl = isPreview ? '#' : this.submitResult!.prUrl
+
+    return this.renderSuccessStateBase({
+      title: 'Feedback submitted',
+      prNumber,
+      prUrl,
+      hintText:
+        'Your feedback has been submitted for review. Site maintainers will be notified.',
+      addAnotherLabel: 'Submit More',
+      isPreview,
+    })
   }
 
   override render() {

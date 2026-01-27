@@ -610,8 +610,84 @@
 }
 
 /* ==========================================================================
+   Success State
+   ========================================================================== */
+
+.site-action-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.site-action-success .success-preview-indicator {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.site-action-success .success-icon {
+  color: var(--color-success);
+}
+
+.site-action-success .success-icon span {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  background-color: currentColor;
+}
+
+.site-action-success .success-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  color: var(--color-success);
+}
+
+.site-action-success .success-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.site-action-success .success-link:hover {
+  text-decoration: underline;
+}
+
+.site-action-success .success-link.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  text-decoration: none;
+  pointer-events: none;
+}
+
+.site-action-success .success-hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-color-muted);
+}
+
+/* ==========================================================================
    Dark Mode Overrides
    ========================================================================== */
+
+/* Dark mode for preview indicator */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme="light"]) .site-action-success .success-preview-indicator {
+    background: var(--color-amber-900);
+    color: var(--color-amber-300);
+  }
+}
+
+:root[data-color-scheme="dark"] .site-action-success .success-preview-indicator {
+  background: var(--color-amber-900);
+  color: var(--color-amber-300);
+}
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-color-scheme="light"]) .site-action-btn-secondary:hover:not(:disabled),

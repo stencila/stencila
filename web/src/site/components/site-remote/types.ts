@@ -40,14 +40,15 @@ export interface PendingRemote {
 
 /**
  * Remote submission response from POST /__stencila/remotes
+ *
+ * Note: A PR is not created immediately. Instead, a Stencila sync session
+ * is created which will create a branch and PR asynchronously. The user
+ * will receive an email notification when the PR is ready.
  */
 export interface RemoteResponse {
   success: boolean
-  prNumber: number
-  prUrl: string
-  branchName: string
-  authoredBy: 'user' | 'bot'
-  authorUsername?: string
+  /** Session ID for the sync session (if sync enabled) */
+  sessionId?: string
 }
 
 /**

@@ -170,11 +170,15 @@ export interface BaseAuthStatusResponse {
 
 /**
  * Base footer states - actions can extend with additional states
+ *
+ * For 'success' state:
+ * - prNumber/prUrl: Shown when PR was created immediately (upload, review)
+ * - Without prNumber/prUrl: For async PR creation (remote) where PR will be created later
  */
 export type BaseFooterState =
   | { type: 'loading' }
   | { type: 'submitting' }
-  | { type: 'success'; prNumber: number; prUrl: string }
+  | { type: 'success'; prNumber?: number; prUrl?: string }
   | { type: 'error'; message: string }
   | { type: 'blocked'; reason: string }
   | { type: 'needSiteAccess'; signInUrl: string }

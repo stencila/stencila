@@ -111,6 +111,12 @@ export abstract class SiteAction extends LitElement {
   protected previewMockPayload: unknown = null
 
   /**
+   * Whether showing preview success state (after preview mock OK)
+   */
+  @state()
+  protected isPreviewSuccess: boolean = false
+
+  /**
    * Last badge count dispatched (for dedup)
    */
   private lastBadgeCount: number = -1
@@ -185,6 +191,13 @@ export abstract class SiteAction extends LitElement {
    * Render the action-specific panel content
    */
   protected abstract renderPanelContent(): TemplateResult | typeof nothing
+
+  /**
+   * Reset state for another submission.
+   * Called by the shared "Add Another" button in success state.
+   * Subclasses implement context-aware reset logic.
+   */
+  protected abstract resetForAnother(): void
 
   // =========================================================================
   // Lifecycle
@@ -641,16 +654,20 @@ export abstract class SiteAction extends LitElement {
         return html`<p class="footer-status muted">Creating pull request...</p>`
 
       case 'success':
-        return html`<p class="footer-status success">
-          PR #${state.prNumber} created
-          <a
-            href=${state.prUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="pr-link"
-            >View</a
-          >
-        </p>`
+        // PR info may not be available for async operations (e.g., site-remote)
+        if (state.prNumber !== undefined && state.prUrl !== undefined) {
+          return html`<p class="footer-status success">
+            PR #${state.prNumber} created
+            <a
+              href=${state.prUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="pr-link"
+              >View</a
+            >
+          </p>`
+        }
+        return html`<p class="footer-status success">Submitted</p>`
 
       case 'error':
         return html`<p class="footer-status error">${state.message}</p>`
@@ -857,6 +874,77 @@ export abstract class SiteAction extends LitElement {
   }
 
   /**
+   * Close the preview mock modal and show success state preview
+   */
+  private closePreviewMockAndShowSuccess = () => {
+    this.previewMockPayload = null
+    this.isPreviewSuccess = true
+  }
+
+  /**
+   * Handle "Add Another" button click in success state.
+   * Clears preview success state and calls subclass reset.
+   */
+  protected handleAddAnother = () => {
+    this.isPreviewSuccess = false
+    this.resetForAnother()
+  }
+
+  /**
+   * Options for rendering success state
+   */
+  protected renderSuccessStateBase(options: {
+    title: string
+    hintText: string
+    /** PR number - if provided, shows "View Pull Request" link */
+    prNumber?: number
+    /** PR URL - if provided, shows "View Pull Request" link */
+    prUrl?: string
+    extraContent?: TemplateResult | typeof nothing
+    addAnotherLabel?: string
+    isPreview?: boolean
+    /** Custom icon class (defaults to check-circle) */
+    icon?: string
+  }): TemplateResult {
+    const isPreview = options.isPreview ?? false
+    const hasPrLink = options.prNumber !== undefined && options.prUrl !== undefined
+    const iconClass = options.icon ?? 'i-lucide:check-circle'
+
+    return html`
+      <div class="site-action-success">
+        ${isPreview
+          ? html`<div class="success-preview-indicator">Preview</div>`
+          : nothing}
+        <div class="success-icon">
+          <span class="${iconClass}"></span>
+        </div>
+        <p class="success-title">${options.title}</p>
+        ${hasPrLink
+          ? html`
+              <a
+                href=${options.prUrl!}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="success-link ${isPreview ? 'disabled' : ''}"
+                @click=${isPreview ? (e: Event) => e.preventDefault() : nothing}
+              >
+                View Pull Request →
+              </a>
+            `
+          : nothing}
+        <p class="success-hint">${options.hintText}</p>
+        ${options.extraContent ?? nothing}
+        <button
+          class="site-action-btn site-action-btn-secondary"
+          @click=${this.handleAddAnother}
+        >
+          ${options.addAnotherLabel ?? 'Add Another'}
+        </button>
+      </div>
+    `
+  }
+
+  /**
    * Render preview mock modal (for localhost preview submissions)
    */
   protected renderPreviewMockModal() {
@@ -865,13 +953,13 @@ export abstract class SiteAction extends LitElement {
     }
 
     return html`
-      <div class="site-action-backdrop" @click=${this.closePreviewMock}></div>
+      <div class="site-action-backdrop"></div>
       <div class="site-action-modal preview-mock">
         <h4>Preview Mode</h4>
         <p class="preview-mock-info">This is the payload that would be submitted:</p>
         <pre class="preview-mock-payload">${JSON.stringify(this.previewMockPayload, null, 2)}</pre>
         <div class="buttons">
-          <button class="site-action-btn primary" @click=${this.closePreviewMock}>OK</button>
+          <button class="site-action-btn primary" @click=${this.closePreviewMockAndShowSuccess}>OK</button>
         </div>
       </div>
     `

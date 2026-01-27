@@ -385,51 +385,9 @@ stencila-site-remote .remote-textarea:focus {
 }
 
 /* ==========================================================================
-   Success State
+   Success State - Component-specific
+   (Base success styles are in site-action.css)
    ========================================================================== */
-
-stencila-site-remote .remote-success {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-6);
-  text-align: center;
-}
-
-stencila-site-remote .remote-success-icon {
-  color: var(--color-success);
-}
-
-stencila-site-remote .remote-success-icon span {
-  display: inline-block;
-  width: 48px;
-  height: 48px;
-  background-color: currentColor;
-}
-
-stencila-site-remote .remote-success-title {
-  margin: 0;
-  font-weight: 600;
-  font-size: var(--font-size-base);
-  color: var(--color-success);
-}
-
-stencila-site-remote .remote-success-link {
-  color: var(--color-accent);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-stencila-site-remote .remote-success-link:hover {
-  text-decoration: underline;
-}
-
-stencila-site-remote .remote-success-hint {
-  margin: 0;
-  font-size: var(--font-size-xs);
-  color: var(--text-color-muted);
-}
 
 stencila-site-remote .remote-sync-enabled {
   display: flex;

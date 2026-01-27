@@ -4,7 +4,6 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { SiteAction, type BaseFooterState, isLocalhost } from '../site-action'
 
 import type {
-  RemoteResponse,
   RemoteService,
   WatchDirection,
   WatchMode,
@@ -133,10 +132,9 @@ export class StencilaSiteRemote extends SiteAction {
   @state()
   private isSubmitting: boolean = false
 
-  /** Submitted PR info */
+  /** Whether submission was successful (PR creation is async) */
   @state()
-  private submittedPr: { number: number; url: string; watchId?: string } | null =
-    null
+  private isSubmitted: boolean = false
 
   /** Picker window reference */
   private pickerWindow: Window | null = null
@@ -206,12 +204,9 @@ export class StencilaSiteRemote extends SiteAction {
       return { type: 'submitting' }
     }
 
-    if (this.submittedPr) {
-      return {
-        type: 'success',
-        prNumber: this.submittedPr.number,
-        prUrl: this.submittedPr.url,
-      }
+    if (this.isSubmitted) {
+      // PR creation is async for remote connections - no PR info yet
+      return { type: 'success' }
     }
 
     if (this.authLoading || !this.authStatus) {
@@ -350,7 +345,7 @@ export class StencilaSiteRemote extends SiteAction {
     }
 
     this.isSubmitting = true
-    this.submittedPr = null
+    this.isSubmitted = false
 
     // Map syncMode to watch and syncDirection for API
     const watch = this.syncMode !== 'none'
@@ -384,11 +379,10 @@ export class StencilaSiteRemote extends SiteAction {
       })
 
       if (response.ok) {
-        const data: RemoteResponse = await response.json()
-        this.submittedPr = {
-          number: data.prNumber,
-          url: data.prUrl,
-        }
+        // PR creation is async - just mark as submitted
+        // User will receive email notification when PR is ready
+        await response.json() // consume response
+        this.isSubmitted = true
       } else {
         const error = await response.json()
         this.errorMessage = error.message || 'Failed to add remote document'
@@ -400,15 +394,19 @@ export class StencilaSiteRemote extends SiteAction {
     }
   }
 
-  private handleAddAnother() {
-    // Reset state for another document
+  /**
+   * Reset state for another document.
+   * Context-aware: preserves nothing, fully resets to initial state.
+   */
+  protected override resetForAnother() {
     this.remoteUrl = ''
     this.documentTitle = ''
     this.service = null
     this.targetFilePath = ''
     this.message = ''
-    this.submittedPr = null
-    this.syncMode = 'bi'
+    this.isSubmitted = false
+    this.syncMode =
+      (this.authStatus?.remoteConfig?.defaultSyncDirection as WatchMode) ?? 'bi'
     this.showSyncDropdown = false
   }
 
@@ -417,8 +415,8 @@ export class StencilaSiteRemote extends SiteAction {
   // =========================================================================
 
   protected override renderPanelContent() {
-    // Show success state
-    if (this.submittedPr) {
+    // Show success state (real or preview)
+    if (this.isSubmitted || this.isPreviewSuccess) {
       return this.renderSuccessState()
     }
 
@@ -636,38 +634,16 @@ export class StencilaSiteRemote extends SiteAction {
   }
 
   private renderSuccessState() {
-    return html`
-      <div class="remote-success">
-        <div class="remote-success-icon">
-          <span class="i-lucide:check-circle"></span>
-        </div>
-        <p class="remote-success-title">
-          PR #${this.submittedPr!.number} created
-        </p>
-        <a
-          href=${this.submittedPr!.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="remote-success-link"
-        >
-          View Pull Request →
-        </a>
-        <p class="remote-success-hint">
-          The document has been added to the site. Once merged, it will be
-          available.
-        </p>
-        ${this.submittedPr!.watchId
-          ? html`
-              <p class="remote-sync-enabled">
-                <span class="i-lucide:refresh-cw"></span>
-                Sync enabled - changes will automatically update the site.
-              </p>
-            `
-          : nothing}
-        <button class="site-action-btn" @click=${this.handleAddAnother}>
-          Add Another
-        </button>
-      </div>
-    `
+    const isPreview = this.isPreviewSuccess
+
+    return this.renderSuccessStateBase({
+      title: 'Request submitted',
+      hintText:
+        "Your connection request is being processed. You'll receive an email when it's ready for review.",
+      addAnotherLabel: 'Connect More',
+      isPreview,
+      icon: 'i-lucide:clock',
+      // No prNumber/prUrl - PR creation is async
+    })
   }
 }

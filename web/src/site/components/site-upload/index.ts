@@ -483,11 +483,18 @@ export class StencilaSiteUpload extends SiteAction {
   @state()
   private submittedPr: { number: number; url: string } | null = null
 
+  /**
+   * Track file count before clearing (for success message)
+   */
+  @state()
+  private lastUploadCount: number = 0
+
   private async handleSubmit() {
     if (this.pendingFiles.length === 0) return
 
     this.isSubmitting = true
     this.submittedPr = null
+    this.lastUploadCount = this.pendingFiles.length
 
     if (isLocalhost()) {
       // Show the payload that would be submitted (truncate content for display)
@@ -541,6 +548,19 @@ export class StencilaSiteUpload extends SiteAction {
     }
   }
 
+  /**
+   * Reset state for another upload.
+   * Context-aware: preserves activeTab, clears files and message.
+   */
+  protected override resetForAnother() {
+    this.clearPendingFiles()
+    this.message = ''
+    this.submittedPr = null
+    this.isDragOver = false
+    this.selectedRepoFile = null
+    // Keep activeTab (context-aware)
+  }
+
   // =========================================================================
   // Rendering
   // =========================================================================
@@ -549,6 +569,11 @@ export class StencilaSiteUpload extends SiteAction {
    * Render upload-specific panel content (abstract method implementation)
    */
   protected override renderPanelContent() {
+    // Show success state (real or preview)
+    if (this.submittedPr || this.isPreviewSuccess) {
+      return this.renderSuccessState()
+    }
+
     return html`
       <!-- Header -->
       <div class="site-action-intro">
@@ -796,5 +821,22 @@ export class StencilaSiteUpload extends SiteAction {
         <p class="message-hint">This will be the commit message for your pull request</p>
       </div>
     `
+  }
+
+  private renderSuccessState() {
+    const isPreview = this.isPreviewSuccess
+    const prNumber = isPreview ? 0 : this.submittedPr!.number
+    const prUrl = isPreview ? '#' : this.submittedPr!.url
+    const fileCount = this.lastUploadCount || 1
+
+    return this.renderSuccessStateBase({
+      title: fileCount === 1 ? 'File submitted' : `${fileCount} files submitted`,
+      prNumber,
+      prUrl,
+      hintText:
+        "Your files have been submitted for review. Once approved, they'll appear on the site.",
+      addAnotherLabel: 'Upload More',
+      isPreview,
+    })
   }
 }
