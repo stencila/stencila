@@ -259,9 +259,9 @@ async fn walk_directory(path: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>)> {
         }
         let file_path = entry.path().to_path_buf();
 
-        // Skip navigation override files (_nav.yaml, _nav.yml, _nav.toml, _nav.json)
+        // Skip navigation override files and redirect files
         if let Some(file_name) = file_path.file_name().and_then(|n| n.to_str())
-            && file_name.starts_with("_nav.")
+            && (file_name.starts_with("_nav.") || file_name == "_redirect.json")
         {
             continue;
         }

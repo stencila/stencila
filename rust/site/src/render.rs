@@ -15,6 +15,7 @@ use std::{
 
 use eyre::Result;
 use futures::future::{join_all, try_join_all};
+use serde::Deserialize;
 use serde_json::json;
 use stencila_node_media::collect_media;
 use tokio::{
@@ -56,6 +57,18 @@ struct RenderedDocument {
 
     /// Search entries extracted from this document (after stabilization)
     search_entries: Vec<SearchEntry>,
+}
+
+/// User-defined redirect from a `_redirect.json` file
+#[derive(Debug, Deserialize)]
+struct RedirectFile {
+    /// Target URL or path for the redirect
+    location: String,
+
+    /// HTTP status code (301, 302, 303, 307, 308)
+    /// Defaults to 302 (TemporaryRedirect) if not specified
+    #[serde(default)]
+    status: Option<u16>,
 }
 
 /// Result of a render operation
@@ -217,22 +230,37 @@ where
         }
     }
 
-    // Add site-level redirects from config
+    // Discover user-defined redirect files (these take precedence over config)
+    let user_redirects = discover_user_redirects(&site_root, &config).await?;
+    let user_redirect_routes: HashSet<String> = user_redirects
+        .iter()
+        .map(|(route, _, _)| route.clone())
+        .collect();
+
+    // Add site-level redirects from config (skipping routes with user-defined redirects)
     if let Some(site) = &config.site
         && let Some(routes) = &site.routes
     {
         for (route_path, target) in routes {
             if let Some(redirect_config) = target.redirect() {
-                redirects.push((
-                    route_path.clone(),
-                    redirect_config.redirect.clone(),
-                    redirect_config
-                        .status
-                        .unwrap_or(RedirectStatus::TemporaryRedirect),
-                ));
+                // Normalize route for comparison (ensures trailing slash consistency)
+                let normalized_route = normalize_route(route_path);
+                // Skip if user has defined a redirect for this route
+                if !user_redirect_routes.contains(&normalized_route) {
+                    redirects.push((
+                        route_path.clone(),
+                        redirect_config.redirect.clone(),
+                        redirect_config
+                            .status
+                            .unwrap_or(RedirectStatus::TemporaryRedirect),
+                    ));
+                }
             }
         }
     }
+
+    // Add user-defined redirects
+    redirects.extend(user_redirects);
 
     send_progress!(RenderProgress::FilesFound {
         documents: document_routes_render.len(),
@@ -690,6 +718,140 @@ async fn render_document_route(
     })
 }
 
+/// Normalize a route to always have a trailing slash
+///
+/// This ensures consistent route comparison between user-defined redirects
+/// (which always have trailing slashes) and config-defined routes (which may not).
+fn normalize_route(route: &str) -> String {
+    if route == "/" || route.ends_with('/') {
+        route.to_string()
+    } else {
+        format!("{route}/")
+    }
+}
+
+/// Load a user-defined redirect file from a directory if one exists
+///
+/// Looks for `_redirect.json` in the specified directory and parses it.
+/// Returns None if the file doesn't exist or fails to parse.
+async fn load_user_redirect(dir: &Path) -> Option<(String, RedirectStatus)> {
+    let redirect_file = dir.join("_redirect.json");
+    let content = read_to_string(&redirect_file).await.ok()?;
+
+    match serde_json::from_str::<RedirectFile>(&content) {
+        Ok(redirect) => {
+            let status = redirect
+                .status
+                .and_then(|s| RedirectStatus::try_from(s).ok())
+                .unwrap_or(RedirectStatus::TemporaryRedirect);
+            Some((redirect.location, status))
+        }
+        Err(err) => {
+            tracing::warn!(
+                "Failed to parse redirect file {}: {}",
+                redirect_file.display(),
+                err
+            );
+            None
+        }
+    }
+}
+
+/// Discover user-defined redirect files in the site directory
+///
+/// Walks the site root and finds all `_redirect.json` files,
+/// converting their paths to routes. Respects site.exclude patterns
+/// and other standard exclusions.
+async fn discover_user_redirects(
+    site_root: &Path,
+    config: &stencila_config::Config,
+) -> Result<Vec<(String, String, RedirectStatus)>> {
+    use ignore::{WalkBuilder, overrides::OverrideBuilder};
+
+    let site_root = site_root.to_path_buf();
+    let excludes: Vec<String> = config
+        .site
+        .as_ref()
+        .and_then(|s| s.exclude.clone())
+        .unwrap_or_default();
+
+    // Walk directory in blocking task since WalkBuilder is sync
+    let redirect_paths: Vec<PathBuf> = tokio::task::spawn_blocking(move || {
+        let mut builder = WalkBuilder::new(&site_root);
+        builder
+            .hidden(false)
+            .git_ignore(true)
+            .git_global(true)
+            .git_exclude(true);
+
+        // Build overrides to exclude sensitive directories (same as list.rs)
+        let mut overrides = OverrideBuilder::new(&site_root);
+        const SENSITIVE_PATTERNS: &[&str] = &[
+            "!.git/",
+            "!.stencila/",
+            "!.env",
+            "!.env.*",
+            "!node_modules/",
+        ];
+        for pattern in SENSITIVE_PATTERNS {
+            if overrides.add(pattern).is_err() {
+                continue;
+            }
+        }
+
+        // Add user-configured exclude patterns
+        for pattern in &excludes {
+            let exclude_pattern = format!("!{pattern}");
+            if overrides.add(&exclude_pattern).is_err() {
+                continue;
+            }
+        }
+
+        if let Ok(built) = overrides.build() {
+            builder.overrides(built);
+        }
+
+        let mut paths = Vec::new();
+        for entry in builder.build().flatten() {
+            if let Some(file_name) = entry.file_name().to_str()
+                && file_name == "_redirect.json"
+            {
+                paths.push(entry.into_path());
+            }
+        }
+        paths
+    })
+    .await?;
+
+    // Load each redirect file asynchronously
+    let site_root = config
+        .site
+        .as_ref()
+        .and_then(|s| s.root.as_ref())
+        .map(|r| config.workspace_dir.join(r))
+        .unwrap_or_else(|| config.workspace_dir.clone());
+
+    let mut redirects = Vec::new();
+    for path in redirect_paths {
+        let dir = path.parent().unwrap_or(&site_root);
+
+        // Convert directory path to route
+        let route = if dir == site_root {
+            "/".to_string()
+        } else if let Ok(rel) = dir.strip_prefix(&site_root) {
+            format!("/{}/", rel.to_string_lossy().replace('\\', "/"))
+        } else {
+            continue;
+        };
+
+        if let Some((target, status)) = load_user_redirect(dir).await {
+            redirects.push((route, target, status));
+        }
+    }
+
+    Ok(redirects)
+}
+
 /// Render a redirect route to a JSON file
 async fn render_redirect_route(
     route: &str,
@@ -699,9 +861,9 @@ async fn render_redirect_route(
 ) -> Result<()> {
     let trimmed = route.trim_matches('/');
     let storage_path = if trimmed.is_empty() {
-        "redirect.json".to_string()
+        "_redirect.json".to_string()
     } else {
-        format!("{trimmed}/redirect.json")
+        format!("{trimmed}/_redirect.json")
     };
     let redirect_path = output_dir.join(&storage_path);
     if let Some(parent) = redirect_path.parent() {
@@ -728,6 +890,8 @@ fn normalize_storage_path(path: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use tempfile::TempDir;
 
     #[test]
     fn test_normalize_storage_path() {
@@ -739,5 +903,138 @@ mod tests {
             normalize_storage_path("assets\\style.css"),
             "assets/style.css"
         );
+    }
+
+    #[test]
+    fn test_normalize_route() {
+        assert_eq!(normalize_route("/"), "/");
+        assert_eq!(normalize_route("/path"), "/path/");
+        assert_eq!(normalize_route("/path/"), "/path/");
+        assert_eq!(normalize_route("/deep/nested/path"), "/deep/nested/path/");
+        assert_eq!(normalize_route("/deep/nested/path/"), "/deep/nested/path/");
+    }
+
+    #[tokio::test]
+    async fn test_load_user_redirect_valid() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+        let redirect_content = r#"{"location": "/new-path/", "status": 301}"#;
+        fs::write(temp_dir.path().join("_redirect.json"), redirect_content)?;
+
+        let result = load_user_redirect(temp_dir.path()).await;
+        let (location, status) = result.ok_or_else(|| eyre::eyre!("expected redirect"))?;
+        assert_eq!(location, "/new-path/");
+        assert_eq!(status, RedirectStatus::MovedPermanently);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_load_user_redirect_default_status() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+        let redirect_content = r#"{"location": "https://example.com"}"#;
+        fs::write(temp_dir.path().join("_redirect.json"), redirect_content)?;
+
+        let result = load_user_redirect(temp_dir.path()).await;
+        let (location, status) = result.ok_or_else(|| eyre::eyre!("expected redirect"))?;
+        assert_eq!(location, "https://example.com");
+        assert_eq!(status, RedirectStatus::TemporaryRedirect);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_load_user_redirect_invalid_status() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+        // 404 is not a valid redirect status, should fall back to default
+        let redirect_content = r#"{"location": "/path/", "status": 404}"#;
+        fs::write(temp_dir.path().join("_redirect.json"), redirect_content)?;
+
+        let result = load_user_redirect(temp_dir.path()).await;
+        let (_, status) = result.ok_or_else(|| eyre::eyre!("expected redirect"))?;
+        assert_eq!(status, RedirectStatus::TemporaryRedirect);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_load_user_redirect_missing() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+        let result = load_user_redirect(temp_dir.path()).await;
+        assert!(result.is_none());
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_discover_user_redirects() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+
+        // Create redirect at root
+        fs::write(
+            temp_dir.path().join("_redirect.json"),
+            r#"{"location": "/home/"}"#,
+        )?;
+
+        // Create redirect in subdirectory
+        let subdir = temp_dir.path().join("old-section");
+        fs::create_dir_all(&subdir)?;
+        fs::write(
+            subdir.join("_redirect.json"),
+            r#"{"location": "/new-section/", "status": 301}"#,
+        )?;
+
+        // Create a minimal config pointing to the temp directory
+        let config = stencila_config::Config {
+            workspace_dir: temp_dir.path().to_path_buf(),
+            workspace: None,
+            remotes: None,
+            outputs: None,
+            site: None,
+        };
+
+        let redirects = discover_user_redirects(temp_dir.path(), &config).await?;
+        assert_eq!(redirects.len(), 2);
+
+        // Check routes exist (order not guaranteed)
+        let routes: Vec<_> = redirects.iter().map(|(r, _, _)| r.as_str()).collect();
+        assert!(routes.contains(&"/"));
+        assert!(routes.contains(&"/old-section/"));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_discover_user_redirects_respects_excludes() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+
+        // Create redirect at root (should be included)
+        fs::write(
+            temp_dir.path().join("_redirect.json"),
+            r#"{"location": "/home/"}"#,
+        )?;
+
+        // Create redirect in excluded directory (should be excluded)
+        let excluded_dir = temp_dir.path().join("excluded");
+        fs::create_dir_all(&excluded_dir)?;
+        fs::write(
+            excluded_dir.join("_redirect.json"),
+            r#"{"location": "/should-not-appear/"}"#,
+        )?;
+
+        // Create config with exclude pattern
+        let config = stencila_config::Config {
+            workspace_dir: temp_dir.path().to_path_buf(),
+            workspace: None,
+            remotes: None,
+            outputs: None,
+            site: Some(stencila_config::SiteConfig {
+                exclude: Some(vec!["excluded/".to_string()]),
+                ..Default::default()
+            }),
+        };
+
+        let redirects = discover_user_redirects(temp_dir.path(), &config).await?;
+
+        // Should only have the root redirect, not the excluded one
+        assert_eq!(redirects.len(), 1);
+        let routes: Vec<_> = redirects.iter().map(|(r, _, _)| r.as_str()).collect();
+        assert!(routes.contains(&"/"));
+        assert!(!routes.iter().any(|r| r.contains("excluded")));
+        Ok(())
     }
 }
