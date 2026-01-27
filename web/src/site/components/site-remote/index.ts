@@ -514,10 +514,10 @@ export class StencilaSiteRemote extends SiteAction {
           : nothing}
 
         <!-- Footer -->
-        <div class="site-action-panel-footer">
-          ${this.renderFooterStatus()}
-          ${this.renderSubmitButton()}
-        </div>
+        ${this.renderPanelFooter({
+          disabled: !this.remoteUrl || !this.targetFilePath || this.isSubmitting,
+          onSubmit: () => this.handleSubmit(),
+        })}
       </div>
     `
   }
@@ -637,24 +637,6 @@ export class StencilaSiteRemote extends SiteAction {
           Change
         </button>
       </div>
-    `
-  }
-
-  private renderSubmitButton() {
-    const state = this.calculateFooterState()
-
-    if (state.type !== 'canSubmit') {
-      return nothing
-    }
-
-    return html`
-      <button
-        class="site-action-btn primary"
-        ?disabled=${!this.remoteUrl || !this.targetFilePath || this.isSubmitting}
-        @click=${this.handleSubmit}
-      >
-        ${this.isSubmitting ? 'Creating PR...' : 'Create PR'}
-      </button>
     `
   }
 

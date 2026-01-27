@@ -593,11 +593,11 @@ export class StencilaSiteUpload extends SiteAction {
       <!-- Message Input -->
       ${this.renderMessageInput()}
 
-      <!-- Footer with status and submit button -->
-      <div class="site-action-panel-footer">
-        ${this.renderFooterStatus()}
-        ${this.renderSubmitButton()}
-      </div>
+      <!-- Footer with submit button and status -->
+      ${this.renderPanelFooter({
+        disabled: this.pendingFiles.length === 0 || this.isSubmitting,
+        onSubmit: () => this.handleSubmit(),
+      })}
     `
   }
 
@@ -785,31 +785,6 @@ export class StencilaSiteUpload extends SiteAction {
         ></textarea>
         <p class="message-hint">This will be the commit message for your pull request</p>
       </div>
-    `
-  }
-
-  /**
-   * Render the submit button with file count
-   */
-  private renderSubmitButton() {
-    const state = this.calculateFooterState()
-    const fileCount = this.pendingFiles.length
-
-    // Only show submit button when user can submit
-    if (state.type !== 'canSubmit') {
-      return nothing
-    }
-
-    return html`
-      <button
-        class="site-action-btn primary"
-        ?disabled=${fileCount === 0 || this.isSubmitting}
-        @click=${this.handleSubmit}
-      >
-        ${this.isSubmitting
-          ? 'Creating PR...'
-          : `Create PR (${fileCount} file${fileCount !== 1 ? 's' : ''})`}
-      </button>
     `
   }
 }

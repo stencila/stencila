@@ -242,6 +242,21 @@
   border-top: 1px solid var(--border-color-default);
   padding-top: var(--space-3);
   margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Make submit button full width in footer */
+.site-action-panel-footer > .site-action-btn {
+  flex: 1;
+}
+
+/* Footer status takes full width below button */
+.site-action-panel-footer > .footer-status {
+  flex-basis: 100%;
+  margin: var(--space-2) 0 0;
 }
 
 /* ==========================================================================

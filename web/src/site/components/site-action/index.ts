@@ -687,6 +687,36 @@ export abstract class SiteAction extends LitElement {
   }
 
   /**
+   * Render the standard panel footer with submit button and status.
+   * Layout: [leftSlot] [Submit button] [Status message below]
+   *
+   * Subclasses can override or call with options for customization.
+   */
+  protected renderPanelFooter(options?: {
+    buttonText?: string
+    disabled?: boolean
+    onSubmit?: () => void
+    leftSlot?: TemplateResult | typeof nothing
+  }) {
+    const state = this.calculateFooterState()
+    const canSubmit = state.type === 'canSubmit'
+
+    return html`
+      <div class="site-action-panel-footer">
+        ${options?.leftSlot ?? nothing}
+        <button
+          class="site-action-btn primary"
+          ?disabled=${!canSubmit || options?.disabled}
+          @click=${options?.onSubmit}
+        >
+          ${options?.buttonText ?? 'Submit'}
+        </button>
+        ${this.renderFooterStatus()}
+      </div>
+    `
+  }
+
+  /**
    * Render the complete panel structure
    */
   protected renderPanel() {

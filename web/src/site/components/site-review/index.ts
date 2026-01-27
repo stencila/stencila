@@ -218,12 +218,6 @@ export class StencilaSiteReview extends SiteAction {
   private expandedPageGroups: Set<string> = new Set()
 
   /**
-   * Tooltip message to show near share button
-   */
-  @state()
-  private shareTooltip: string = ''
-
-  /**
    * Item index to activate after cross-page navigation completes
    */
   private pendingActivation: number | null = null
@@ -455,7 +449,7 @@ export class StencilaSiteReview extends SiteAction {
       `
     }
 
-    return html` ${this.renderPanelItems()} ${this.renderPanelFooter()} `
+    return html` ${this.renderPanelItems()} ${this.renderReviewFooter()} `
   }
 
   /**
@@ -565,47 +559,6 @@ export class StencilaSiteReview extends SiteAction {
 
     const uniqueItems = newItems.filter((item) => !isDuplicate(item))
     this.pendingItems = [...this.pendingItems, ...uniqueItems]
-  }
-
-  /**
-   * Generate share URL, copy to clipboard, and show tooltip
-   */
-  private async handleShare(): Promise<void> {
-    const result = await encodeReviewForUrl(
-      this.pendingItems,
-      this.sourceInfo ?? undefined,
-    )
-
-    const url = new URL(window.location.href)
-    url.searchParams.set(SHARE_PARAM, result.encoded)
-
-    try {
-      await navigator.clipboard.writeText(url.toString())
-
-      // Show appropriate tooltip message
-      if (result.truncated) {
-        this.showShareTooltip(
-          `Copied ${result.includedCount} of ${this.pendingItems.length}`,
-        )
-      } else {
-        this.showShareTooltip('Copied!')
-      }
-
-      console.log('[SiteReview] Share URL copied to clipboard')
-    } catch (e) {
-      console.error('[SiteReview] Failed to copy share URL:', e)
-      this.showShareTooltip('Failed to copy')
-    }
-  }
-
-  /**
-   * Show tooltip near share button briefly
-   */
-  private showShareTooltip(message: string, duration: number = 1500): void {
-    this.shareTooltip = message
-    setTimeout(() => {
-      this.shareTooltip = ''
-    }, duration)
   }
 
   // =========================================================================
@@ -2228,54 +2181,27 @@ export class StencilaSiteReview extends SiteAction {
   }
 
   /**
-   * Render the panel footer with submit button and actions
+   * Render the panel footer with submit button and add comment action
    */
-  private renderPanelFooter() {
-    const state = this.calculateFooterState()
-    const canSubmit = state.type === 'canSubmit'
-
-    return html`
-      <div class="site-action-panel-footer">
-        <button
-          class="add-comment-fab"
-          @click=${(e: Event) => {
-            e.stopPropagation()
-            this.handlePageComment()
-          }}
-          aria-label="Add page comment"
-        >
-          <span class="i-lucide:plus"></span>
-        </button>
-
-        <div class="site-action-footer-buttons">
-          <button
-            class="site-action-btn site-action-btn-primary"
-            @click=${this.handleSubmitReview}
-            ?disabled=${!canSubmit}
-          >
-            Submit
-          </button>
-          <div class="share-btn-container">
-            <button
-              class="site-action-btn site-action-btn-secondary icon-only"
-              @click=${(e: Event) => {
-                e.stopPropagation()
-                this.handleShare()
-              }}
-              aria-label="Share review"
-              ?disabled=${this.pendingItems.length === 0}
-            >
-              <span class="i-lucide:share-2"></span>
-            </button>
-            ${this.shareTooltip
-              ? html`<div class="share-tooltip">${this.shareTooltip}</div>`
-              : nothing}
-          </div>
-        </div>
-
-        ${this.renderFooterStatus()}
-      </div>
+  private renderReviewFooter() {
+    const addButton = html`
+      <button
+        class="add-comment-fab"
+        @click=${(e: Event) => {
+          e.stopPropagation()
+          this.handlePageComment()
+        }}
+        aria-label="Add page comment"
+      >
+        <span class="i-lucide:plus"></span>
+      </button>
     `
+
+    return this.renderPanelFooter({
+      disabled: this.isSubmitting,
+      onSubmit: () => this.handleSubmitReview(),
+      leftSlot: addButton,
+    })
   }
 
   /**
