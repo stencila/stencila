@@ -79,6 +79,12 @@ pub fn load_and_validate(workspace_dir: &Path) -> Result<Config> {
         site.validate()?;
     }
 
+    // Warn if site features require workspace.id but it's not configured
+    let has_workspace_id = config.workspace.as_ref().is_some_and(|w| w.id.is_some());
+    if let Some(site) = &config.site {
+        site.warn_if_missing_workspace_id(has_workspace_id);
+    }
+
     // Validate site navigation items (must be internal routes)
     if let Some(site) = &config.site
         && let Some(nav) = &site.nav

@@ -2,6 +2,9 @@
 //!
 //! Access restrictions control which users can access specific routes on a site.
 //! Access levels form a cumulative hierarchy: public < subscriber < password < team.
+//!
+//! Access restrictions require hosting by Stencila Cloud to be enforced. When
+//! configured but `workspace.id` is not set, a warning is emitted during validation.
 
 use std::{borrow::Cow, collections::HashMap};
 

@@ -846,6 +846,53 @@ impl SiteConfig {
                 matches!(format, SiteFormat::Md)
             })
     }
+
+    /// Warn if site features require `workspace.id` but it is not configured
+    ///
+    /// Several site features (reviews, uploads, remotes, access) require hosting
+    /// by Stencila Cloud and a configured `workspace.id` to function properly.
+    /// This method emits warnings for any enabled features when workspace.id is missing.
+    pub fn warn_if_missing_workspace_id(&self, has_workspace_id: bool) {
+        if has_workspace_id {
+            return;
+        }
+
+        if let Some(reviews) = &self.reviews
+            && reviews.is_enabled()
+        {
+            tracing::warn!(
+                "site.reviews is enabled but workspace.id is not configured; \
+                reviews require hosting by Stencila Cloud"
+            );
+        }
+
+        if let Some(uploads) = &self.uploads
+            && uploads.is_enabled()
+        {
+            tracing::warn!(
+                "site.uploads is enabled but workspace.id is not configured; \
+                uploads require hosting by Stencila Cloud"
+            );
+        }
+
+        if let Some(remotes) = &self.remotes
+            && remotes.is_enabled()
+        {
+            tracing::warn!(
+                "site.remotes is enabled but workspace.id is not configured; \
+                remotes require hosting by Stencila Cloud"
+            );
+        }
+
+        if let Some(access) = &self.access
+            && access.has_restrictions()
+        {
+            tracing::warn!(
+                "site.access has non-public restrictions but workspace.id is not configured; \
+                access restrictions require hosting by Stencila Cloud"
+            );
+        }
+    }
 }
 
 /// Target for a route - either a file path, a redirect, or a spread
