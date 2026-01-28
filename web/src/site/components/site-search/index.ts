@@ -2,6 +2,13 @@ import { LitElement, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { navigate } from '../../glide'
+import {
+  getAccessBadgeIcon,
+  getAccessBadgeTitle,
+  getAccessibleLevels,
+} from '../../utils/access'
+import type { AccessLevel } from '../site-action/types'
+import { getCachedAuthStatus, isLocalhost } from '../site-action/utils'
 
 import { SearchEngine } from './engine'
 import type { RecentSearch, SearchEntry, SearchResult } from './types'
@@ -127,12 +134,50 @@ export class StencilaSiteSearch extends LitElement {
     this.engine = new SearchEngine(this.indexPath)
     try {
       await this.engine.initialize()
+
+      // Configure accessible levels based on auth status
+      await this.configureAccessLevels()
     } catch (e) {
       console.warn('Search index not available:', e)
     }
 
     // Listen for keyboard shortcuts
     document.addEventListener('keydown', this.handleGlobalKeydown)
+  }
+
+  /**
+   * Configure search engine accessible levels based on auth status
+   *
+   * For authenticated users, this allows searching content at their access level.
+   * On localhost, grants team-level access for development/preview.
+   */
+  private async configureAccessLevels(): Promise<void> {
+    if (!this.engine) return
+
+    try {
+      // On localhost preview, grant team access (user has repo access)
+      if (isLocalhost()) {
+        this.engine.setAccessibleLevels(['public', 'subscriber', 'password', 'team'])
+        return
+      }
+
+      // Fetch auth status to get user's access level
+      const authStatus = await getCachedAuthStatus(
+        '',
+        '/__stencila/auth/status',
+        async () => ({})
+      )
+
+      // Get user's access level, defaulting to public
+      const userLevel = authStatus?.userAccessLevel ?? 'public'
+
+      // Convert to list of accessible levels (cumulative hierarchy)
+      const accessibleLevels = getAccessibleLevels(userLevel)
+      this.engine.setAccessibleLevels(accessibleLevels)
+    } catch (e) {
+      // On error, fall back to public-only access
+      console.warn('Failed to configure search access levels:', e)
+    }
   }
 
   override disconnectedCallback() {
@@ -600,6 +645,7 @@ export class StencilaSiteSearch extends LitElement {
       breadcrumbs: entry.breadcrumbs,
       text: entry.text,
       depth: entry.depth,
+      accessLevel: entry.accessLevel,
     }
 
     // Remove any existing entry with the same route + nodeId (to move it to front)
@@ -644,6 +690,7 @@ export class StencilaSiteSearch extends LitElement {
       route: string;
       breadcrumbs?: string[];
       text: string;
+      accessLevel?: AccessLevel;
     },
     index: number,
     highlights: { start: number; end: number }[],
@@ -662,7 +709,19 @@ export class StencilaSiteSearch extends LitElement {
       >
         <span class="${this.getNodeTypeIcon(entry.nodeType)} icon"></span>
         <div class="content">
-          <div class="path">${this.formatBreadcrumbs(entry.breadcrumbs)}</div>
+          <div class="path">
+            ${this.formatBreadcrumbs(entry.breadcrumbs)}${entry.accessLevel &&
+            entry.accessLevel !== 'public'
+              ? html`<span
+                  class="nav-access-badge"
+                  data-level=${entry.accessLevel}
+                  title=${getAccessBadgeTitle(entry.accessLevel)}
+                  ><span
+                    class="icon ${getAccessBadgeIcon(entry.accessLevel)}"
+                  ></span
+                ></span>`
+              : nothing}
+          </div>
           <div class="text">
             ${this.renderHighlightedText(entry.text, highlights)}
           </div>

@@ -1011,20 +1011,30 @@ fn access_level_to_str(level: AccessLevel) -> &'static str {
 ///
 /// Ensures routes that look like directories (no file extension) end with "/".
 /// This is required because access config keys must end with "/" for prefix matching.
+/// Uses a heuristic to distinguish files from directories with dots in their names:
+/// - If extension is purely numeric (e.g., "2" in "/docs/v1.2"), treat as directory
+/// - Otherwise treat as file (e.g., "/data/export.zip", "/data/file.parquet")
+///
+/// This works because real file extensions are almost never purely numeric,
+/// while version numbers in directory names typically are (v1.2, 2.0.0, etc.).
 fn normalize_route_for_access(route: &str) -> std::borrow::Cow<'_, str> {
-    // If already ends with "/" or has a file extension, use as-is
     if route.ends_with('/') {
         return std::borrow::Cow::Borrowed(route);
     }
 
-    // Check if route has a file extension (contains "." in the last segment)
+    // Check if route has an extension in the last segment
     if let Some(last_segment) = route.rsplit('/').next()
-        && last_segment.contains('.') {
-            // Has file extension (e.g., "/docs/guide.html"), don't add trailing slash
+        && let Some(ext_pos) = last_segment.rfind('.')
+    {
+        let ext = &last_segment[ext_pos + 1..];
+        // If extension is non-empty and NOT purely numeric, treat as file
+        // Purely numeric extensions (like "2" in "v1.2") indicate version directories
+        if !ext.is_empty() && !ext.chars().all(|c| c.is_ascii_digit()) {
             return std::borrow::Cow::Borrowed(route);
         }
+    }
 
-    // Looks like a directory, add trailing slash
+    // No extension or numeric extension - treat as directory
     std::borrow::Cow::Owned(format!("{route}/"))
 }
 

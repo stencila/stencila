@@ -234,12 +234,22 @@ stencila-site-search .result .content {
 
 /* Path/breadcrumb shown above the result text */
 stencila-site-search .result .path {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
     font-size: var(--font-size-xs);
     color: var(--text-color-muted);
     margin-bottom: var(--space-1);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Override badge margin since .path uses gap, and adjust alignment */
+stencila-site-search .result .path .nav-access-badge {
+    margin-left: var(--space-1);
+    position: relative;
+    top: -1px;
 }
 
 stencila-site-search .result .text {

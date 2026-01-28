@@ -63,10 +63,21 @@ const mockShardData: ShardData = {
   ],
 }
 
+// Root manifest with access-level sharding (single 'public' level for tests)
 const mockManifest = {
   version: 2,
   totalEntries: mockShardData.entries.length,
   totalRoutes: 3,
+  levels: {
+    public: {
+      entryCount: mockShardData.entries.length,
+      shardCount: 4,
+    },
+  },
+}
+
+// Per-level manifest for 'public' level
+const mockLevelManifest = {
   shards: {
     ge: { entryCount: 2 },
     st: { entryCount: 3 },
@@ -75,15 +86,67 @@ const mockManifest = {
   },
 }
 
-// Setup fetch mock
+/**
+ * Helper to create a fetch mock for access-level sharded search index
+ * @param shards - Map of shard prefix to entry count
+ * @param shardData - The shard data to return
+ * @param entryCount - Optional total entry count (defaults to shardData.entries.length)
+ */
+function createFetchMock(
+  shards: Record<string, { entryCount: number }>,
+  shardData: ShardData,
+  entryCount?: number,
+) {
+  const totalEntries = entryCount ?? shardData.entries.length
+  const rootManifest = {
+    version: 2,
+    totalEntries,
+    totalRoutes: 1,
+    levels: {
+      public: {
+        entryCount: totalEntries,
+        shardCount: Object.keys(shards).length,
+      },
+    },
+  }
+  const levelManifest = { shards }
+
+  return async (url: string | URL | Request) => {
+    const urlStr = url.toString()
+    // Root manifest
+    if (urlStr.endsWith('/_search/manifest.json')) {
+      return new Response(JSON.stringify(rootManifest), { status: 200 })
+    }
+    // Level manifest
+    if (urlStr.match(/\/_search\/\w+\/manifest\.json$/)) {
+      return new Response(JSON.stringify(levelManifest), { status: 200 })
+    }
+    // Shards
+    return new Response(JSON.stringify(shardData), { status: 200 })
+  }
+}
+
+// Setup fetch mock for access-level sharded index
 const originalFetch = global.fetch
 beforeAll(() => {
   global.fetch = async (url: string | URL | Request) => {
     const urlStr = url.toString()
+    // Root manifest at /_search/manifest.json
+    if (urlStr.endsWith('/_search/manifest.json')) {
+      return new Response(JSON.stringify(mockManifest), { status: 200 })
+    }
+    // Level manifest at /_search/{level}/manifest.json
+    if (urlStr.match(/\/_search\/\w+\/manifest\.json$/)) {
+      return new Response(JSON.stringify(mockLevelManifest), { status: 200 })
+    }
+    // Shards at /_search/{level}/shards/{prefix}.json
+    if (urlStr.match(/\/_search\/\w+\/shards\/\w+\.json$/)) {
+      return new Response(JSON.stringify(mockShardData), { status: 200 })
+    }
+    // Fallback for backward compatibility with any manifest.json
     if (urlStr.endsWith('manifest.json')) {
       return new Response(JSON.stringify(mockManifest), { status: 200 })
     }
-    // Return ShardData format for any shard request
     return new Response(JSON.stringify(mockShardData), { status: 200 })
   }
 })
@@ -221,7 +284,7 @@ describe('SearchEngine', () => {
 
     const stats = engine.getStats()
     expect(stats.totalEntries).toBe(mockShardData.entries.length)
-    expect(stats.cachedPrefixes).toBeGreaterThan(0)
+    expect(stats.cachedShards).toBeGreaterThan(0)
   })
 
   test('clears cache', async () => {
@@ -230,11 +293,11 @@ describe('SearchEngine', () => {
 
     // Perform a search to populate cache
     await engine.search('test')
-    expect(engine.getStats().cachedPrefixes).toBeGreaterThan(0)
+    expect(engine.getStats().cachedShards).toBeGreaterThan(0)
 
     // Clear cache
     engine.clearCache()
-    expect(engine.getStats().cachedPrefixes).toBe(0)
+    expect(engine.getStats().cachedShards).toBe(0)
   })
 
   test('de-duplicates entries from multiple shards', async () => {
@@ -285,19 +348,7 @@ describe('SearchEngine', () => {
     }
 
     const customFetch = global.fetch
-    global.fetch = async (url: string | URL | Request) => {
-      const urlStr = url.toString()
-      if (urlStr.endsWith('manifest.json')) {
-        return new Response(
-          JSON.stringify({
-            ...mockManifest,
-            shards: { ca: { entryCount: 1 } },
-          }),
-          { status: 200 },
-        )
-      }
-      return new Response(JSON.stringify(diacriticShardData), { status: 200 })
-    }
+    global.fetch = createFetchMock({ ca: { entryCount: 1 } }, diacriticShardData)
 
     try {
       const engine = new SearchEngine()

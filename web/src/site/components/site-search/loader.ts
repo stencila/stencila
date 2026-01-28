@@ -2,18 +2,42 @@
  * Search index loader
  *
  * Manages loading and caching of search index shards.
+ * Shards are organized by access level at `_search/{level}/shards/{prefix}.json`.
  */
 
-import type { SearchEntry, SearchManifest, ShardData } from './types'
+import type { AccessLevel } from '../site-action/types'
+
+import type {
+  SearchEntry,
+  SearchManifest,
+  SearchRootManifest,
+  ShardData,
+} from './types'
 
 /**
  * Manages loading and caching of search index shards
+ *
+ * The search index is sharded by access level, with each level containing
+ * only entries at that level. Call `setAccessibleLevels()` to configure
+ * which levels to load from based on user authentication.
  */
 export class SearchIndexLoader {
-  private manifest: SearchManifest | null = null
-  private manifestLoading: Promise<SearchManifest> | null = null
+  /** Root manifest listing available access levels */
+  private rootManifest: SearchRootManifest | null = null
+  private rootManifestLoading: Promise<SearchRootManifest> | null = null
+
+  /** Per-level manifests, keyed by level name */
+  private levelManifests: Map<string, SearchManifest> = new Map()
+  private levelManifestsLoading: Map<string, Promise<SearchManifest>> =
+    new Map()
+
+  /** Shard cache, keyed by "{level}/{prefix}" */
   private shardCache: Map<string, SearchEntry[]> = new Map()
   private loadingShards: Map<string, Promise<SearchEntry[]>> = new Map()
+
+  /** Access levels the user can access (defaults to public only) */
+  private accessibleLevels: AccessLevel[] = ['public']
+
   private basePath: string
 
   constructor(basePath: string = '/_search') {
@@ -21,107 +45,237 @@ export class SearchIndexLoader {
   }
 
   /**
-   * Load the manifest (call once at initialization)
+   * Set the access levels the user can access
+   *
+   * Call this with the user's accessible levels from auth status.
+   * Example: For a team member, pass ['public', 'subscriber', 'password', 'team']
+   */
+  setAccessibleLevels(levels: AccessLevel[]): void {
+    this.accessibleLevels = levels
+  }
+
+  /**
+   * Get the currently configured accessible levels
+   */
+  getAccessibleLevels(): AccessLevel[] {
+    return this.accessibleLevels
+  }
+
+  /**
+   * Load the root manifest (call once at initialization)
    *
    * Safe to call concurrently - only one fetch will be made.
    */
-  async loadManifest(): Promise<SearchManifest> {
+  async loadRootManifest(): Promise<SearchRootManifest> {
     // Return cached manifest
-    if (this.manifest) {
-      return this.manifest
+    if (this.rootManifest) {
+      return this.rootManifest
     }
 
     // Return in-flight promise if already loading
-    if (this.manifestLoading) {
-      return this.manifestLoading
+    if (this.rootManifestLoading) {
+      return this.rootManifestLoading
     }
 
     // Start loading and cache the promise
-    this.manifestLoading = this.fetchManifest()
+    this.rootManifestLoading = this.fetchRootManifest()
 
     try {
-      const manifest = await this.manifestLoading
+      const manifest = await this.rootManifestLoading
       return manifest
     } finally {
       // Clear loading state (but keep manifest cached)
-      this.manifestLoading = null
+      this.rootManifestLoading = null
     }
   }
 
   /**
-   * Fetch and process the manifest
+   * Fetch the root manifest
    */
-  private async fetchManifest(): Promise<SearchManifest> {
+  private async fetchRootManifest(): Promise<SearchRootManifest> {
     const response = await fetch(`${this.basePath}/manifest.json`)
     if (!response.ok) {
       throw new Error(`Failed to load search manifest: ${response.status}`)
     }
 
-    this.manifest = await response.json()
-    return this.manifest
+    const data = await response.json()
+
+    if (!('levels' in data) || typeof data.levels !== 'object') {
+      throw new Error('Invalid search manifest format: missing "levels"')
+    }
+
+    this.rootManifest = data as SearchRootManifest
+    return this.rootManifest
   }
 
   /**
-   * Check if manifest is loaded
+   * Load a per-level manifest
+   */
+  private async loadLevelManifest(
+    level: string,
+  ): Promise<SearchManifest | null> {
+    // Check cache
+    if (this.levelManifests.has(level)) {
+      return this.levelManifests.get(level)!
+    }
+
+    // Check if already loading
+    if (this.levelManifestsLoading.has(level)) {
+      return this.levelManifestsLoading.get(level)!
+    }
+
+    // Check if level exists in root manifest
+    if (this.rootManifest && !this.rootManifest.levels[level]) {
+      return null
+    }
+
+    // Start loading
+    const loadPromise = this.fetchLevelManifest(level)
+    this.levelManifestsLoading.set(level, loadPromise)
+
+    try {
+      const manifest = await loadPromise
+      this.levelManifests.set(level, manifest)
+      return manifest
+    } finally {
+      this.levelManifestsLoading.delete(level)
+    }
+  }
+
+  /**
+   * Fetch a per-level manifest
+   */
+  private async fetchLevelManifest(level: string): Promise<SearchManifest> {
+    const response = await fetch(`${this.basePath}/${level}/manifest.json`)
+    if (!response.ok) {
+      throw new Error(
+        `Failed to load search manifest for ${level}: ${response.status}`,
+      )
+    }
+    return response.json()
+  }
+
+  /**
+   * Check if root manifest is loaded
    */
   isLoaded(): boolean {
-    return this.manifest !== null
+    return this.rootManifest !== null
   }
 
   /**
-   * Get total entry count from manifest
+   * Get total entry count across all accessible levels
    */
   getTotalEntries(): number {
-    return this.manifest?.totalEntries ?? 0
+    if (!this.rootManifest) {
+      return 0
+    }
+
+    let total = 0
+    for (const level of this.accessibleLevels) {
+      const levelInfo = this.rootManifest.levels[level]
+      if (levelInfo) {
+        total += levelInfo.entryCount
+      }
+    }
+    return total
   }
 
   /**
-   * Load entries for a specific token prefix
+   * Load entries for a specific token prefix from all accessible levels
    */
   async loadShard(prefix: string): Promise<SearchEntry[]> {
-    // Ensure manifest is loaded
-    if (!this.manifest) {
-      await this.loadManifest()
+    // Ensure root manifest is loaded
+    if (!this.rootManifest) {
+      await this.loadRootManifest()
     }
+
+    // Load manifests and shards from all accessible levels in parallel
+    const loadPromises: Promise<SearchEntry[]>[] = []
+
+    for (const level of this.accessibleLevels) {
+      // Skip if this level doesn't exist in the index
+      if (!this.rootManifest!.levels[level]) {
+        continue
+      }
+
+      loadPromises.push(this.loadShardFromLevel(level, prefix))
+    }
+
+    const results = await Promise.all(loadPromises)
+    return results.flat()
+  }
+
+  /**
+   * Load a shard from a specific access level
+   */
+  private async loadShardFromLevel(
+    level: string,
+    prefix: string,
+  ): Promise<SearchEntry[]> {
+    const cacheKey = `${level}/${prefix}`
 
     // Check cache first
-    if (this.shardCache.has(prefix)) {
-      return this.shardCache.get(prefix)!
+    if (this.shardCache.has(cacheKey)) {
+      return this.shardCache.get(cacheKey)!
     }
 
-    // Check if shard exists for this prefix (O(1) lookup)
-    if (!this.manifest!.shards[prefix]) {
-      // No shard for this prefix - return empty
+    // Ensure level manifest is loaded
+    const levelManifest = await this.loadLevelManifest(level)
+    if (!levelManifest) {
+      return []
+    }
+
+    // Check if shard exists for this prefix in this level
+    if (!levelManifest.shards[prefix]) {
       return []
     }
 
     // Check if this shard is already loading
-    if (this.loadingShards.has(prefix)) {
-      return this.loadingShards.get(prefix)!
+    if (this.loadingShards.has(cacheKey)) {
+      return this.loadingShards.get(cacheKey)!
     }
 
     // Load the shard
-    const loadPromise = this.fetchShard(prefix)
-    this.loadingShards.set(prefix, loadPromise)
+    const loadPromise = this.fetchShardFromLevel(level, prefix)
+    this.loadingShards.set(cacheKey, loadPromise)
 
     try {
       const entries = await loadPromise
-      // Cache entries for this prefix
-      this.shardCache.set(prefix, entries)
+      // Cache entries for this level/prefix
+      this.shardCache.set(cacheKey, entries)
       return entries
     } finally {
-      this.loadingShards.delete(prefix)
+      this.loadingShards.delete(cacheKey)
     }
   }
 
-  private async fetchShard(prefix: string): Promise<SearchEntry[]> {
-    const response = await fetch(`${this.basePath}/shards/${prefix}.json`)
+  /**
+   * Fetch a shard from a specific access level
+   */
+  private async fetchShardFromLevel(
+    level: string,
+    prefix: string,
+  ): Promise<SearchEntry[]> {
+    const response = await fetch(
+      `${this.basePath}/${level}/shards/${prefix}.json`,
+    )
     if (!response.ok) {
-      throw new Error(`Failed to load shard ${prefix}: ${response.status}`)
+      throw new Error(
+        `Failed to load shard ${level}/${prefix}: ${response.status}`,
+      )
     }
     const data: unknown = await response.json()
-    const shardData = this.validateShardData(data, prefix)
-    return this.expandTokens(shardData)
+    const shardData = this.validateShardData(data, `${level}/${prefix}`)
+    const entries = this.expandTokens(shardData)
+
+    // Tag entries with their access level (skip for public to save memory)
+    if (level !== 'public') {
+      for (const entry of entries) {
+        entry.accessLevel = level as AccessLevel
+      }
+    }
+
+    return entries
   }
 
   /**
@@ -133,7 +287,7 @@ export class SearchIndexLoader {
   private validateShardData(data: unknown, prefix: string): ShardData {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
       throw new Error(
-        `Shard ${prefix}: expected ShardData object, got ${Array.isArray(data) ? 'array (possibly old format)' : typeof data}`,
+        `Shard ${prefix}: expected ShardData object, got ${Array.isArray(data) ? 'array' : typeof data}`,
       )
     }
     const shard = data as Record<string, unknown>
@@ -188,19 +342,36 @@ export class SearchIndexLoader {
   }
 
   /**
-   * Clear the shard cache (useful for memory management)
+   * Clear all caches (useful for memory management or after access level change)
    */
   clearCache(): void {
     this.shardCache.clear()
+    this.levelManifests.clear()
   }
 
   /**
    * Get cache statistics
    */
-  getCacheStats(): { cachedPrefixes: number; totalShards: number } {
+  getCacheStats(): {
+    cachedShards: number;
+    cachedLevels: number;
+    totalShards: number;
+  } {
+    // Count total shards across accessible levels
+    let totalShards = 0
+    if (this.rootManifest) {
+      for (const level of this.accessibleLevels) {
+        const levelInfo = this.rootManifest.levels[level]
+        if (levelInfo) {
+          totalShards += levelInfo.shardCount
+        }
+      }
+    }
+
     return {
-      cachedPrefixes: this.shardCache.size,
-      totalShards: this.manifest ? Object.keys(this.manifest.shards).length : 0,
+      cachedShards: this.shardCache.size,
+      cachedLevels: this.levelManifests.size,
+      totalShards,
     }
   }
 }

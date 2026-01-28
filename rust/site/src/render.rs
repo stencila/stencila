@@ -28,7 +28,7 @@ use stencila_codec_info::Shifter;
 use stencila_codec_markdown::to_markdown;
 use stencila_codec_utils::git_repo_info;
 use stencila_codecs::to_string_with_info;
-use stencila_config::{NavItem, RedirectStatus, SiteConfig, SiteFormat};
+use stencila_config::{AccessLevel, NavItem, RedirectStatus, SiteConfig, SiteFormat};
 use stencila_format::Format;
 use stencila_node_stabilize::stabilize;
 
@@ -628,11 +628,25 @@ async fn render_document_route(
     stabilize(&mut node);
 
     // Extract search entries from the stabilized node (node IDs are now assigned)
+    // Tag entries with access level if access restrictions are configured
     let search_entries = if let Some(search_spec) = site_config.search.as_ref()
         && search_spec.is_enabled()
     {
         let breadcrumbs = get_breadcrumbs(&route, breadcrumbs_map);
-        extract_entries_with_config(&node, &route, breadcrumbs, &search_spec.to_config())
+        let entries = extract_entries_with_config(&node, &route, breadcrumbs, &search_spec.to_config());
+
+        // Determine access level for this route
+        let access_level = site_config
+            .access
+            .as_ref()
+            .map(|config| config.get_access_level(&route))
+            .unwrap_or(AccessLevel::Public);
+
+        // Tag all entries with the route's access level
+        entries
+            .into_iter()
+            .map(|e| e.with_access_level(access_level))
+            .collect()
     } else {
         Vec::new()
     };

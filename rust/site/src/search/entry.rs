@@ -1,6 +1,7 @@
 //! Search index entry data structures
 
 use serde::{Deserialize, Serialize};
+use stencila_config::AccessLevel;
 
 /// Structural weights for different node types
 ///
@@ -58,6 +59,13 @@ pub struct SearchEntry {
     /// For datatables: additional metadata
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<DatatableMetadata>,
+
+    /// Access level required to view this content
+    ///
+    /// Used for sharding entries by access level during index generation.
+    /// Not serialized since entries are separated into access-level directories.
+    #[serde(skip)]
+    pub access_level: AccessLevel,
 
     /// Pre-computed token trigrams for fuzzy matching (internal use only)
     /// Populated during indexing, converted to `tokens` before serialization
@@ -164,9 +172,16 @@ impl SearchEntry {
             weight,
             depth,
             metadata: None,
+            access_level: AccessLevel::Public,
             token_trigrams: None,
             tokens: None,
         }
+    }
+
+    /// Set the access level for this entry
+    pub fn with_access_level(mut self, access_level: AccessLevel) -> Self {
+        self.access_level = access_level;
+        self
     }
 
     /// Create a new search entry with datatable metadata

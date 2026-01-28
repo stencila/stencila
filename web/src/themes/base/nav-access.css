@@ -58,7 +58,8 @@
 .item:hover .nav-access-badge,
 .link:hover .nav-access-badge,
 .dropdown-item:hover .nav-access-badge,
-.group-heading:hover .nav-access-badge {
+.group-heading:hover .nav-access-badge,
+.result:hover .nav-access-badge {
     opacity: var(--nav-access-badge-opacity-hover);
 }
 

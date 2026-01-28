@@ -169,7 +169,7 @@ export class SearchEngine {
    * Initialize the search engine by loading the manifest
    */
   async initialize(): Promise<void> {
-    await this.loader.loadManifest()
+    await this.loader.loadRootManifest()
   }
 
   /**
@@ -177,6 +177,25 @@ export class SearchEngine {
    */
   isReady(): boolean {
     return this.loader.isLoaded()
+  }
+
+  /**
+   * Set the access levels the user can access
+   *
+   * Call this with the user's accessible levels from auth status.
+   * Example: For a team member, pass ['public', 'subscriber', 'password', 'team']
+   */
+  setAccessibleLevels(
+    levels: import('../site-action/types').AccessLevel[],
+  ): void {
+    this.loader.setAccessibleLevels(levels)
+  }
+
+  /**
+   * Get the currently configured accessible levels
+   */
+  getAccessibleLevels(): import('../site-action/types').AccessLevel[] {
+    return this.loader.getAccessibleLevels()
   }
 
   /**
@@ -856,7 +875,12 @@ export class SearchEngine {
   /**
    * Get search statistics
    */
-  getStats(): { totalEntries: number; cachedPrefixes: number } {
+  getStats(): {
+    totalEntries: number;
+    cachedShards: number;
+    cachedLevels: number;
+    totalShards: number;
+  } {
     return {
       totalEntries: this.loader.getTotalEntries(),
       ...this.loader.getCacheStats(),

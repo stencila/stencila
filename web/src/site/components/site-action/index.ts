@@ -867,13 +867,6 @@ export abstract class SiteAction extends LitElement {
   }
 
   /**
-   * Close the preview mock modal
-   */
-  private closePreviewMock = () => {
-    this.previewMockPayload = null
-  }
-
-  /**
    * Close the preview mock modal and show success state preview
    */
   private closePreviewMockAndShowSuccess = () => {

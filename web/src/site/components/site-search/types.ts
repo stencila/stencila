@@ -4,6 +4,8 @@
  * These types mirror the Rust structures in `rust/site/src/search/`
  */
 
+import type { AccessLevel } from '../site-action/types'
+
 /**
  * A single indexed entry in the search index
  */
@@ -30,6 +32,8 @@ export interface SearchEntry {
   tokenTrigrams?: TokenTrigrams[];
   /** Cached tokenized text (internal, populated lazily on first search) */
   _cachedTokens?: string[];
+  /** Access level (populated at load time from shard directory) */
+  accessLevel?: AccessLevel;
 }
 
 /**
@@ -86,14 +90,43 @@ export interface DatatableMetadata {
 }
 
 /**
- * Manifest file describing the search index
+ * Root manifest file for access-level sharded search index
+ *
+ * Lists available access levels and aggregate statistics.
+ * Client loads this first, then loads per-level manifests based on user's access.
+ */
+export interface SearchRootManifest {
+  /** Schema version for forward compatibility */
+  version: number;
+  /** Total number of indexed entries across all access levels */
+  totalEntries: number;
+  /** Total number of indexed documents/routes */
+  totalRoutes: number;
+  /** Available access levels with entry counts */
+  levels: Record<string, AccessLevelInfo>;
+}
+
+/**
+ * Information about a single access level's index
+ */
+export interface AccessLevelInfo {
+  /** Number of entries at this access level */
+  entryCount: number;
+  /** Number of shards in this level's directory */
+  shardCount: number;
+}
+
+/**
+ * Manifest file describing the search index for a single access level
+ *
+ * Located at `_search/{level}/manifest.json`.
  */
 export interface SearchManifest {
   /** Schema version for forward compatibility */
   version: number;
   /** Total number of indexed entries across all shards */
   totalEntries: number;
-  /** Total number of indexed documents/routes */
+  /** Total number of indexed documents/routes at this level */
   totalRoutes: number;
   /** Information about each shard, keyed by prefix (e.g., "ab", "co") */
   shards: Record<string, ShardInfo>;
@@ -107,6 +140,8 @@ export interface SearchManifest {
 export interface ShardInfo {
   /** Number of entries in this shard */
   entryCount: number;
+  /** File size in bytes */
+  sizeBytes?: number;
 }
 
 /**
@@ -137,6 +172,8 @@ export interface RecentSearch {
   text: string;
   /** Depth in document (0=root/whole page, 1+=specific element) */
   depth: number;
+  /** Access level for badge display */
+  accessLevel?: AccessLevel;
 }
 
 /**

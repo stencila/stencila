@@ -2,14 +2,15 @@
 //!
 //! Collects search entries during rendering and writes the final index.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::path::Path;
 
 use eyre::Result;
+use stencila_config::AccessLevel;
 use tokio::fs;
 
 use super::entry::{SearchEntry, TokenTrigrams};
-use super::manifest::SearchManifest;
+use super::manifest::{AccessLevelInfo, SearchManifest, SearchRootManifest};
 use super::shard::shard_entries;
 use super::tokenize::{generate_trigrams, tokenize_with_positions};
 
@@ -91,50 +92,107 @@ impl SearchIndexBuilder {
 
     /// Write the search index to the output directory
     ///
-    /// Creates:
-    /// - `_search/manifest.json` - Index manifest
-    /// - `_search/shards/{prefix}.json` - Shard files
+    /// Creates access-level sharded structure:
+    /// - `_search/manifest.json` - Root manifest listing access levels
+    /// - `_search/{level}/manifest.json` - Per-level manifest
+    /// - `_search/{level}/shards/{prefix}.json` - Per-level shard files
+    ///
+    /// Each access level directory contains only entries at that level (non-cumulative).
+    /// Client loads shards from all accessible levels and merges results.
     pub async fn write(self, output_dir: &Path) -> Result<SearchIndexStats> {
         let search_dir = output_dir.join("_search");
-        let shards_dir = search_dir.join("shards");
-        fs::create_dir_all(&shards_dir).await?;
+        fs::create_dir_all(&search_dir).await?;
 
         let total_entries = self.entries.len();
         let total_routes = self.routes.len();
 
-        // Shard the entries
-        let shard_result = shard_entries(self.entries);
+        // Group entries by access level
+        let mut entries_by_level: BTreeMap<AccessLevel, Vec<SearchEntry>> = BTreeMap::new();
+        let mut routes_by_level: BTreeMap<AccessLevel, HashSet<String>> = BTreeMap::new();
 
-        // Write shard files
-        let mut shard_count = 0;
-        for (prefix, shard_data) in &shard_result.shards {
-            let shard_path = shards_dir.join(format!("{prefix}.json"));
-            let json = serde_json::to_string(shard_data)?;
-            fs::write(&shard_path, &json).await?;
-            shard_count += 1;
+        for entry in self.entries {
+            let level = entry.access_level;
+            routes_by_level
+                .entry(level)
+                .or_default()
+                .insert(entry.route.clone());
+            entries_by_level.entry(level).or_default().push(entry);
         }
 
-        // Create manifest with file sizes
-        let mut shard_infos = shard_result.shard_infos;
-        for (prefix, info) in &mut shard_infos {
-            let shard_path = shards_dir.join(format!("{prefix}.json"));
-            if let Ok(metadata) = fs::metadata(&shard_path).await {
-                info.size_bytes = Some(metadata.len() as usize);
+        // Track per-level info for root manifest
+        let mut level_infos: BTreeMap<String, AccessLevelInfo> = BTreeMap::new();
+        let mut total_shard_count = 0;
+
+        // Write each access level's index
+        for (level, entries) in entries_by_level {
+            let level_name = access_level_to_string(level);
+            let level_dir = search_dir.join(&level_name);
+            let shards_dir = level_dir.join("shards");
+            fs::create_dir_all(&shards_dir).await?;
+
+            let level_entry_count = entries.len();
+            let level_route_count = routes_by_level
+                .get(&level)
+                .map(|r| r.len())
+                .unwrap_or_default();
+
+            // Shard the entries for this level
+            let shard_result = shard_entries(entries);
+            let level_shard_count = shard_result.shards.len();
+
+            // Write shard files
+            for (prefix, shard_data) in &shard_result.shards {
+                let shard_path = shards_dir.join(format!("{prefix}.json"));
+                let json = serde_json::to_string(shard_data)?;
+                fs::write(&shard_path, &json).await?;
             }
+
+            // Create per-level manifest with file sizes
+            let mut shard_infos = shard_result.shard_infos;
+            for (prefix, info) in &mut shard_infos {
+                let shard_path = shards_dir.join(format!("{prefix}.json"));
+                if let Ok(metadata) = fs::metadata(&shard_path).await {
+                    info.size_bytes = Some(metadata.len() as usize);
+                }
+            }
+
+            let level_manifest =
+                SearchManifest::new(level_entry_count, level_route_count, shard_infos);
+
+            // Write per-level manifest
+            let manifest_path = level_dir.join("manifest.json");
+            let manifest_json = serde_json::to_string_pretty(&level_manifest)?;
+            fs::write(&manifest_path, &manifest_json).await?;
+
+            // Track for root manifest
+            level_infos.insert(
+                level_name,
+                AccessLevelInfo::new(level_entry_count, level_shard_count),
+            );
+            total_shard_count += level_shard_count;
         }
 
-        let manifest = SearchManifest::new(total_entries, total_routes, shard_infos);
-
-        // Write manifest
-        let manifest_path = search_dir.join("manifest.json");
-        let manifest_json = serde_json::to_string_pretty(&manifest)?;
-        fs::write(&manifest_path, &manifest_json).await?;
+        // Write root manifest
+        let root_manifest = SearchRootManifest::new(total_entries, total_routes, level_infos);
+        let root_manifest_path = search_dir.join("manifest.json");
+        let root_manifest_json = serde_json::to_string_pretty(&root_manifest)?;
+        fs::write(&root_manifest_path, &root_manifest_json).await?;
 
         Ok(SearchIndexStats {
             total_entries,
             total_routes,
-            shard_count,
+            shard_count: total_shard_count,
         })
+    }
+}
+
+/// Convert an access level to its string representation for directory names
+fn access_level_to_string(level: AccessLevel) -> String {
+    match level {
+        AccessLevel::Public => "public".to_string(),
+        AccessLevel::Subscriber => "subscriber".to_string(),
+        AccessLevel::Password => "password".to_string(),
+        AccessLevel::Team => "team".to_string(),
     }
 }
 
