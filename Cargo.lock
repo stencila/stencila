@@ -11208,6 +11208,7 @@ dependencies = [
  "eyre",
  "futures",
  "glob",
+ "html-escape",
  "ignore",
  "indexmap 2.13.0",
  "md-5",

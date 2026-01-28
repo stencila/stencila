@@ -52,10 +52,10 @@ pub enum NavOverrideItem {
 pub enum NavOverrideChild {
     /// Simple route reference (just a command/page name)
     Route(String),
-    
+
     /// Route with explicit label, different from its name
     LabeledRoute { name: String, label: String },
-    
+
     /// Route with nested children (for preserving order of subcommands)
     Nested {
         name: String,

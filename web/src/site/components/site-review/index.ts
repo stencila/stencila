@@ -746,6 +746,22 @@ export class StencilaSiteReview extends SiteAction {
   }
 
   /**
+   * Get spread route arguments from the closest root element
+   */
+  private getSpreadArgsFromRoot(): Record<string, string> | null {
+    const root = document.querySelector('[root]')
+    const spreadArgsJson = root?.getAttribute('spread-args')
+    if (!spreadArgsJson) return null
+
+    try {
+      return JSON.parse(spreadArgsJson)
+    } catch (e) {
+      console.warn('[SiteReview] Failed to parse spread-args:', e)
+      return null
+    }
+  }
+
+  /**
    * Check if source info (repository, commit) matches the current page's source
    */
   private checkSourceConsistency(currentSource: SourceInfo): boolean {
@@ -1575,6 +1591,9 @@ export class StencilaSiteReview extends SiteAction {
       itemSelected = selection.selectedText
     }
 
+    // Get spread args if this is a spread route page
+    const spreadArgs = this.getSpreadArgsFromRoot()
+
     const item: ReviewItem = {
       type,
       path,
@@ -1584,6 +1603,7 @@ export class StencilaSiteReview extends SiteAction {
       end: itemEnd,
       selected: itemSelected,
       content,
+      ...(spreadArgs && { spreadArgs }),
     }
 
     // Clear any previous submission state when adding new items

@@ -22,6 +22,7 @@ export interface ReviewItem {
   end: ReviewItemAnchor
   selected: string
   content: string
+  spreadArgs?: Record<string, string>
 }
 
 /**

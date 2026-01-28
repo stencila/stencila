@@ -404,6 +404,7 @@ where
                     git_repo_root.as_deref(),
                     git_origin.as_deref(),
                     git_branch.as_deref(),
+                    &arguments,
                 )
                 .await
             }
@@ -587,6 +588,7 @@ async fn render_document_route(
     git_repo_root: Option<&Path>,
     git_origin: Option<&str>,
     git_branch: Option<&str>,
+    spread_arguments: &HashMap<String, String>,
 ) -> Result<RenderedDocument> {
     // Ensure route ends with /
     let route = if route.ends_with('/') {
@@ -680,6 +682,30 @@ async fn render_document_route(
         Some(site),
     )
     .await?;
+
+    // Inject spread-args attribute on root element if this is a spread route.
+    // The root element has a boolean `root` attribute (e.g., `<stencila-article root ...>`).
+    // We match ` root` followed by a space or `>` to avoid matching content text.
+    let html = if !spread_arguments.is_empty() {
+        let spread_json = serde_json::to_string(spread_arguments)?;
+        let escaped = html_escape::encode_double_quoted_attribute(&spread_json);
+        let spread_attr = format!(" root spread-args=\"{escaped}\"");
+
+        // Try matching " root " (followed by another attribute) first, then " root>" (end of tag)
+        if html.contains(" root ") {
+            html.replacen(" root ", &format!("{spread_attr} "), 1)
+        } else if html.contains(" root>") {
+            html.replacen(" root>", &format!("{spread_attr}>"), 1)
+        } else {
+            // Fallback: root attribute not found in expected format, skip injection
+            tracing::warn!(
+                "Could not inject spread-args: root attribute not found in expected format"
+            );
+            html
+        }
+    } else {
+        html
+    };
 
     // Write to output HTML file
     if let Some(parent) = html_file.parent() {

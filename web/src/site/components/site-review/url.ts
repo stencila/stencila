@@ -41,6 +41,7 @@ interface CompactReviewItem {
   e: [string, number] // end: [nodeId, offset]
   x: string // selected text
   c: string // content
+  a?: Record<string, string> // spreadArgs (optional)
 }
 
 /**
@@ -129,6 +130,7 @@ function toCompactItem(item: ReviewItem): CompactReviewItem {
     e: [item.end.nodeId, item.end.offset],
     x: item.selected,
     c: item.content,
+    ...(item.spreadArgs && { a: item.spreadArgs }),
   }
 }
 
@@ -145,6 +147,7 @@ function fromCompactItem(compact: CompactReviewItem): ReviewItem {
     end: { nodeId: compact.e[0], offset: compact.e[1] },
     selected: compact.x,
     content: compact.c,
+    ...(compact.a && { spreadArgs: compact.a }),
   }
 }
 
@@ -174,6 +177,13 @@ function isValidCompactReview(data: unknown): data is CompactReview {
     if (!Array.isArray(i.e) || i.e.length !== 2) return false
     if (typeof i.x !== 'string') return false
     if (typeof i.c !== 'string') return false
+    // Validate optional spreadArgs field
+    if (i.a !== undefined) {
+      if (typeof i.a !== 'object' || i.a === null || Array.isArray(i.a)) return false
+      for (const val of Object.values(i.a)) {
+        if (typeof val !== 'string') return false
+      }
+    }
   }
 
   return true
