@@ -39,6 +39,7 @@ mod outputs;
 mod remotes;
 mod singleton;
 mod site;
+mod site_access;
 mod site_actions;
 mod site_remotes;
 mod site_reviews;
@@ -67,6 +68,7 @@ pub use {
         RedirectStatus, RouteSpread, SearchConfig, SearchSpec, SiteConfig, SiteFormat,
         config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread,
     },
+    site_access::{AccessLevel, SiteAccessConfig},
     site_actions::{SiteActionsConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition},
     site_remotes::{SiteRemoteFormat, SiteRemoteSyncDirection, SiteRemotesConfig, SiteRemotesSpec},
     site_reviews::{SiteReviewType, SiteReviewsConfig, SiteReviewsSpec},

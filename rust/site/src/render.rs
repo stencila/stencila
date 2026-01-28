@@ -537,6 +537,13 @@ where
         }
     }
 
+    // Generate access index if access restrictions are configured
+    if let Some(access_config) = site_config.access.as_ref()
+        && let Err(e) = crate::access::generate_access_index(access_config, &output_dir).await
+    {
+        tracing::warn!("Failed to write access index: {}", e);
+    }
+
     let result = RenderResult {
         documents_ok: docs_rendered
             .iter()

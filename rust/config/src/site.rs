@@ -15,8 +15,8 @@ use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
     CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file, layout::LayoutConfig,
-    site_actions::SiteActionsConfig, site_remotes::SiteRemotesSpec, site_reviews::SiteReviewsSpec,
-    site_uploads::SiteUploadsSpec, validate_placeholders,
+    site_access::SiteAccessConfig, site_actions::SiteActionsConfig, site_remotes::SiteRemotesSpec,
+    site_reviews::SiteReviewsSpec, site_uploads::SiteUploadsSpec, validate_placeholders,
 };
 
 /// Additional formats to generate alongside HTML during site rendering
@@ -577,6 +577,26 @@ pub struct SiteConfig {
     /// Example: `["**/*.draft.md", "temp/**"]`
     pub exclude: Option<Vec<String>>,
 
+    /// Route access restrictions
+    ///
+    /// Restricts access to specific routes based on user access level.
+    /// Uses path prefix matching with longest match wins.
+    ///
+    /// Access levels (cumulative hierarchy):
+    /// - `public`: Anyone can access (default)
+    /// - `subscriber`: Subscribers to the site
+    /// - `password`: Users with the site password
+    /// - `team`: Team members only
+    ///
+    /// ```toml
+    /// # Configure route access restrictions
+    /// [site.access]
+    /// default = "public"
+    /// "/data" = "password"
+    /// "/internal" = "team"
+    /// ```
+    pub access: Option<SiteAccessConfig>,
+
     /// Custom routes for serving content
     ///
     /// Routes map URL paths to files, redirects, or spread configurations.
@@ -779,6 +799,11 @@ impl SiteConfig {
         // Validate remotes configuration
         if let Some(remotes) = &self.remotes {
             remotes.validate()?;
+        }
+
+        // Validate access configuration
+        if let Some(access) = &self.access {
+            access.validate()?;
         }
 
         // Validate featured content (icon + image conflict)
