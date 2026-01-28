@@ -45,16 +45,23 @@ pub enum NavOverrideItem {
 
 /// A child item in a navigation override group
 ///
-/// Can be either a simple string (route name) or an object with nested children.
+/// Can be either a simple string (route name), an object with an explicit label,
+/// or an object with nested children.
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum NavOverrideChild {
     /// Simple route reference (just a command/page name)
     Route(String),
+    
+    /// Route with explicit label, different from its name
+    LabeledRoute { name: String, label: String },
+    
     /// Route with nested children (for preserving order of subcommands)
     Nested {
         name: String,
         children: Vec<NavOverrideChild>,
+        #[serde(default)]
+        label: Option<String>,
     },
 }
 
@@ -372,9 +379,60 @@ pub(crate) fn auto_generate_nav(
                         }
                     }
                 }
+                NavOverrideChild::LabeledRoute { name, label } => {
+                    // Route with explicit label (e.g., for "JATS" instead of "Jats")
+                    if let Some(child_node) = node.children.get(name) {
+                        let child_path = if segment_path.is_empty() {
+                            name.clone()
+                        } else {
+                            format!("{segment_path}/{name}")
+                        };
+
+                        if child_node.children.is_empty() {
+                            // Leaf node with explicit label
+                            if let Some(route) = &child_node.route {
+                                items.push(NavItem::Link {
+                                    id: None,
+                                    label: label.clone(),
+                                    route: route.clone(),
+                                    icon: None,
+                                    description: None,
+                                });
+                            }
+                        } else {
+                            // Has nested children - recursively build with explicit label
+                            let nested = build_nav_items(
+                                child_node,
+                                &child_path,
+                                site_root,
+                                depth + 1,
+                                max_depth,
+                            );
+                            if !nested.is_empty() || child_node.route.is_some() {
+                                items.push(NavItem::Group {
+                                    id: None,
+                                    label: label.clone(),
+                                    route: child_node.route.clone(),
+                                    children: nested,
+                                    icon: None,
+                                    section_title: None,
+                                });
+                            } else if let Some(route) = &child_node.route {
+                                items.push(NavItem::Link {
+                                    id: None,
+                                    label: label.clone(),
+                                    route: route.clone(),
+                                    icon: None,
+                                    description: None,
+                                });
+                            }
+                        }
+                    }
+                }
                 NavOverrideChild::Nested {
                     name,
                     children: nested_children,
+                    label,
                 } => {
                     if let Some(child_node) = node.children.get(name) {
                         let child_path = if segment_path.is_empty() {
@@ -392,10 +450,15 @@ pub(crate) fn auto_generate_nav(
                             depth + 1,
                             max_depth,
                         );
+                        // Use explicit label if provided, otherwise derive from name
+                        let item_label = label
+                            .as_ref()
+                            .cloned()
+                            .unwrap_or_else(|| segment_to_label(name));
                         if !nested.is_empty() || child_node.route.is_some() {
                             items.push(NavItem::Group {
                                 id: None,
-                                label: segment_to_label(name),
+                                label: item_label,
                                 route: child_node.route.clone(),
                                 children: nested,
                                 icon: None,

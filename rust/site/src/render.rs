@@ -633,7 +633,8 @@ async fn render_document_route(
         && search_spec.is_enabled()
     {
         let breadcrumbs = get_breadcrumbs(&route, breadcrumbs_map);
-        let entries = extract_entries_with_config(&node, &route, breadcrumbs, &search_spec.to_config());
+        let entries =
+            extract_entries_with_config(&node, &route, breadcrumbs, &search_spec.to_config());
 
         // Determine access level for this route
         let access_level = site_config

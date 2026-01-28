@@ -20,5 +20,7 @@ pub use entry::{DatatableMetadata, SearchEntry, TokenTrigrams, weights};
 pub use extract::{extract_entries, extract_entries_with_config};
 pub use generate::{generate_search_index, generate_search_index_from_nodes};
 pub use index::{SearchIndexBuilder, SearchIndexStats};
-pub use manifest::{AccessLevelInfo, SCHEMA_VERSION, SearchManifest, SearchRootManifest, ShardInfo};
+pub use manifest::{
+    AccessLevelInfo, SCHEMA_VERSION, SearchManifest, SearchRootManifest, ShardInfo,
+};
 pub use tokenize::{token_prefix, tokenize};
