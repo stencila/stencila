@@ -1,0 +1,78 @@
+# Navigation for format documentation
+# Groups formats by category, with explicit labels for proper capitalization
+
+items:
+  - label: "Markdown"
+    children:
+      - { name: "markdown", label: "Markdown" }
+      - { name: "md", label: "CommonMark" }
+      - { name: "smd", label: "Stencila Markdown" }
+      - { name: "myst", label: "MyST Markdown" }
+      - { name: "qmd", label: "Quarto Markdown" }
+      - { name: "llmd", label: "LLM Markdown" }
+
+  - label: "Markup"
+    children:
+      - { name: "dom", label: "DOM HTML" }
+      - { name: "html", label: "HTML" }
+      - { name: "jats", label: "JATS" }
+
+  - label: "Typesetting"
+    children:
+      - { name: "latex", label: "LaTeX" }
+      - { name: "tex", label: "TeX" }
+      - { name: "rnw", label: "RNW" }
+      - { name: "pdf", label: "PDF" }
+      - { name: "text", label: "Plain Text" }
+
+  - label: "Notebooks"
+    children:
+      - { name: "ipynb", label: "Jupyter Notebook" }
+
+  - label: "Word Processors"
+    children:
+      - { name: "docx", label: "Word DOCX" }
+      - { name: "odt", label: "Open Office ODT" }
+
+  - label: "Data & Spreadsheets"
+    children:
+      - { name: "csv", label: "CSV" }
+      - { name: "tsv", label: "TSV" }
+      - { name: "xlsx", label: "Excel XLSX" }
+      - { name: "xls", label: "Excel XLS" }
+      - { name: "ods", label: "Open Office ODS" }
+
+  - label: "Bibliographies"
+    children:
+      - { name: "csl", label: "CSL-JSON" }
+      - { name: "cff", label: "CFF" }
+
+  - label: "Email"
+    children:
+      - { name: "email", label: "Email HTML" }
+      - { name: "mjml", label: "MJML" }
+
+  - label: "Images"
+    children:
+      - { name: "png", label: "PNG" }
+
+  - label: "Archives & Bundles"
+    children:
+      - { name: "meca", label: "MECA" }
+      - { name: "pmcoa", label: "PMC OA" }
+
+  - label: "Serialization"
+    children:
+      - { name: "json", label: "JSON" }
+      - { name: "json5", label: "JSON5" }
+      - { name: "jsonld", label: "JSON-LD" }
+      - { name: "jsonzip", label: "JSON+Zip" }
+      - { name: "cbor", label: "CBOR" }
+      - { name: "cborzstd", label: "CBOR+Zstd" }
+      - { name: "yaml", label: "YAML" }
+
+  - label: "Interoperability"
+    children:
+      - { name: "pandoc", label: "Pandoc JSON" }
+      - { name: "lexical", label: "Lexical JSON" }
+      - { name: "koenig", label: "Koenig JSON" }
