@@ -6,13 +6,14 @@
 use std::collections::HashMap;
 
 use stencila_config::{
-    FeaturedContent, NavItem, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger,
-    SiteConfig,
+    AccessLevel, FeaturedContent, NavItem, NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons,
+    NavMenuTrigger, SiteAccessConfig, SiteConfig,
 };
 
 use crate::nav_common::{
     apply_depth_limit, apply_descriptions, apply_icons, filter_nav_items, label_to_segment,
-    normalize_icon_name, render_icon_span, route_to_label,
+    normalize_icon_name, render_access_attr_if_more_restrictive, render_group_access_attr,
+    render_icon_span, route_to_label,
 };
 
 /// Context for rendering navigation components
@@ -65,6 +66,8 @@ pub(crate) fn render_nav_menu(
     }
 
     // Render nav items for the menu
+    // Start with Public as inherited level - badges show when a route is MORE
+    // restrictive than what's been indicated on ancestors (nothing at root)
     let items_html = render_nav_menu_items(
         &nav_items,
         context.route,
@@ -72,6 +75,8 @@ pub(crate) fn render_nav_menu(
         &icons_mode,
         descriptions,
         &context.site_config.featured,
+        context.site_config.access.as_ref(),
+        AccessLevel::Public,
     );
 
     // Build attributes
@@ -85,6 +90,7 @@ pub(crate) fn render_nav_menu(
 }
 
 /// Render nav menu items (top-level horizontal bar)
+#[allow(clippy::too_many_arguments)]
 fn render_nav_menu_items(
     items: &[NavItem],
     current_route: &str,
@@ -92,6 +98,8 @@ fn render_nav_menu_items(
     icons_mode: &NavMenuIcons,
     descriptions: bool,
     featured: &Option<HashMap<String, FeaturedContent>>,
+    access_config: Option<&SiteAccessConfig>,
+    inherited_access: AccessLevel,
 ) -> String {
     let mut html = String::new();
 
@@ -100,8 +108,10 @@ fn render_nav_menu_items(
             NavItem::Route(route) => {
                 let is_active = route == current_route;
                 let label = route_to_label(route);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="item" data-type="link"><a href="{route}"{}>{label}</a></li>"#,
+                    r#"<li class="item" data-type="link"{access_attr}><a href="{route}"{}>{label}</a></li>"#,
                     if is_active {
                         r#" aria-current="page""#
                     } else {
@@ -114,8 +124,10 @@ fn render_nav_menu_items(
             } => {
                 let is_active = route == current_route;
                 let icon_html = render_menu_icon(icon, icons_mode, false, false);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="item" data-type="link"><a href="{route}"{}>{icon_html}{label}</a></li>"#,
+                    r#"<li class="item" data-type="link"{access_attr}><a href="{route}"{}>{icon_html}{label}</a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -141,7 +153,12 @@ fn render_nav_menu_items(
                     );
                     let icon_html = render_menu_icon(icon, icons_mode, false, false);
 
-                    // Build dropdown panel content
+                    // Get access attr and inherited level for dropdown contents
+                    // (derives route from label if not present)
+                    let (access_attr, dropdown_inherited) =
+                        render_group_access_attr(route, label, inherited_access, access_config);
+
+                    // Build dropdown panel content, passing the inherited level
                     let dropdown_html = render_nav_menu_dropdown(
                         children,
                         current_route,
@@ -150,17 +167,24 @@ fn render_nav_menu_items(
                         label,
                         route,
                         featured,
+                        access_config,
+                        dropdown_inherited,
                     );
 
                     html.push_str(&format!(
-                        r#"<li class="item" data-type="dropdown"><button class="trigger" aria-expanded="false" aria-controls="{dropdown_id}">{icon_html}{label}<span class="chevron"></span></button><div id="{dropdown_id}" class="dropdown">{dropdown_html}</div></li>"#
+                        r#"<li class="item" data-type="dropdown"{access_attr}><button class="trigger" aria-expanded="false" aria-controls="{dropdown_id}">{icon_html}{label}<span class="chevron"></span></button><div id="{dropdown_id}" class="dropdown">{dropdown_html}</div></li>"#
                     ));
                 } else if let Some(group_route) = route {
                     // Render as link
                     let is_active = group_route == current_route;
                     let icon_html = render_menu_icon(icon, icons_mode, false, false);
+                    let (access_attr, _) = render_access_attr_if_more_restrictive(
+                        group_route,
+                        inherited_access,
+                        access_config,
+                    );
                     html.push_str(&format!(
-                        r#"<li class="item" data-type="link"><a href="{group_route}"{}>{icon_html}{label}</a></li>"#,
+                        r#"<li class="item" data-type="link"{access_attr}><a href="{group_route}"{}>{icon_html}{label}</a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
                     ));
                 }
@@ -208,6 +232,7 @@ fn render_menu_icon(
 }
 
 /// Render a dropdown panel for a nav menu group
+#[allow(clippy::too_many_arguments)]
 fn render_nav_menu_dropdown(
     children: &[NavItem],
     current_route: &str,
@@ -216,6 +241,8 @@ fn render_nav_menu_dropdown(
     group_label: &str,
     group_route: &Option<String>,
     featured: &Option<HashMap<String, FeaturedContent>>,
+    access_config: Option<&SiteAccessConfig>,
+    inherited_access: AccessLevel,
 ) -> String {
     let mut main_html = String::new();
 
@@ -246,8 +273,10 @@ fn render_nav_menu_dropdown(
                 let label = route_to_label(route);
                 // Route items have no icon, but need placeholder for alignment if others have icons
                 let icon_html = render_menu_icon(&None, icons_mode, true, has_icons);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 section_items.push_str(&format!(
-                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
+                    r#"<li class="dropdown-item"{access_attr}><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -268,8 +297,10 @@ fn render_nav_menu_dropdown(
                 } else {
                     String::new()
                 };
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 section_items.push_str(&format!(
-                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span>{desc_html}</span></a></li>"#,
+                    r#"<li class="dropdown-item"{access_attr}><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span>{desc_html}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -280,6 +311,10 @@ fn render_nav_menu_dropdown(
                 children: nested_children,
                 ..
             } => {
+                // Get access level for nested group (derives route from label if not present)
+                let (group_access_attr, nested_inherited) =
+                    render_group_access_attr(route, label, inherited_access, access_config);
+
                 // Nested groups in dropdown - render as nested list (not full dropdown)
                 if !nested_children.is_empty() {
                     let nested_items = render_nested_dropdown_items(
@@ -287,18 +322,20 @@ fn render_nav_menu_dropdown(
                         current_route,
                         icons_mode,
                         descriptions,
+                        access_config,
+                        nested_inherited,
                     );
                     // Only render if nested_items produced output
                     if !nested_items.is_empty() {
                         section_items.push_str(&format!(
-                            r#"<li class="dropdown-group"><span class="section-title">{label}</span><ul class="nested-list">{nested_items}</ul></li>"#
+                            r#"<li class="dropdown-group"{group_access_attr}><span class="section-title">{label}</span><ul class="nested-list">{nested_items}</ul></li>"#
                         ));
                     } else if let Some(group_route) = route {
                         // Children produced no output but group has route - render as link
                         let is_active = group_route == current_route;
                         let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                         section_items.push_str(&format!(
-                            r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
+                            r#"<li class="dropdown-item"{group_access_attr}><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                             if is_active { r#" aria-current="page""# } else { "" }
                         ));
                     }
@@ -308,7 +345,7 @@ fn render_nav_menu_dropdown(
                     let is_active = group_route == current_route;
                     let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
                     section_items.push_str(&format!(
-                        r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
+                        r#"<li class="dropdown-item"{group_access_attr}><a href="{group_route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
                     ));
                 }
@@ -338,6 +375,8 @@ fn render_nested_dropdown_items(
     current_route: &str,
     icons_mode: &NavMenuIcons,
     descriptions: bool,
+    access_config: Option<&SiteAccessConfig>,
+    inherited_access: AccessLevel,
 ) -> String {
     let mut html = String::new();
 
@@ -351,8 +390,10 @@ fn render_nested_dropdown_items(
                 let label = route_to_label(route);
                 // Route items have no icon, but need placeholder for alignment if others have icons
                 let icon_html = render_menu_icon(&None, icons_mode, true, has_icons);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
+                    r#"<li class="dropdown-item"{access_attr}><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -373,8 +414,10 @@ fn render_nested_dropdown_items(
                 } else {
                     String::new()
                 };
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="dropdown-item"><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span>{desc_html}</span></a></li>"#,
+                    r#"<li class="dropdown-item"{access_attr}><a href="{route}"{}>{icon_html}<span class="content"><span class="label">{label}</span>{desc_html}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -388,8 +431,13 @@ fn render_nested_dropdown_items(
                 if let Some(group_route) = route {
                     let is_active = group_route == current_route;
                     let icon_html = render_menu_icon(icon, icons_mode, true, has_icons);
+                    let (access_attr, _) = render_access_attr_if_more_restrictive(
+                        group_route,
+                        inherited_access,
+                        access_config,
+                    );
                     html.push_str(&format!(
-                        r#"<li class="dropdown-item"><a href="{group_route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
+                        r#"<li class="dropdown-item"{access_attr}><a href="{group_route}"{}>{icon_html}<span class="content"><span class="label">{label}</span></span></a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
                     ));
                 }

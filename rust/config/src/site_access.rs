@@ -82,6 +82,7 @@ impl SiteAccessConfig {
     /// Checks that all route keys:
     /// - Start with "/"
     /// - End with "/" (required to match post-redirect form)
+    /// - Are not less restrictive than any parent prefix (monotonic restriction)
     pub fn validate(&self) -> Result<()> {
         for key in self.routes.keys() {
             if !key.starts_with('/') {
@@ -95,6 +96,35 @@ impl SiteAccessConfig {
                 );
             }
         }
+
+        // Check monotonic restriction: child routes cannot be less restrictive than parents
+        // This ensures the "top-most badge only" UI logic works correctly
+        for (route, level) in &self.routes {
+            // Check against default level first
+            if *level < self.default {
+                bail!(
+                    "Invalid access config: route \"{route}\" has access level \"{level:?}\" which is less restrictive than the default \"{:?}\". Child routes cannot be less restrictive than their parent.",
+                    self.default
+                );
+            }
+
+            // Check against all parent prefixes
+            for (other_route, other_level) in &self.routes {
+                // Skip self and non-parent routes
+                if other_route == route || !route.starts_with(other_route.as_str()) {
+                    continue;
+                }
+
+                // other_route is a prefix of route (parent)
+                // Child level must be >= parent level
+                if *level < *other_level {
+                    bail!(
+                        "Invalid access config: route \"{route}\" has access level \"{level:?}\" which is less restrictive than its parent \"{other_route}\" with level \"{other_level:?}\". Child routes cannot be less restrictive than their parent."
+                    );
+                }
+            }
+        }
+
         Ok(())
     }
 
@@ -408,6 +438,71 @@ mod tests {
 
         let config = SiteAccessConfig {
             default: AccessLevel::Public,
+            routes,
+        };
+
+        assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn test_validate_accepts_monotonic_restrictions() {
+        // Child routes can be MORE restrictive than parents - this is valid
+        let mut routes = HashMap::new();
+        routes.insert("/docs/".to_string(), AccessLevel::Subscriber);
+        routes.insert("/docs/internal/".to_string(), AccessLevel::Team);
+
+        let config = SiteAccessConfig {
+            default: AccessLevel::Public,
+            routes,
+        };
+
+        assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn test_validate_rejects_child_less_restrictive_than_parent() {
+        // Child route is LESS restrictive than parent - this is invalid
+        let mut routes = HashMap::new();
+        routes.insert("/docs/".to_string(), AccessLevel::Password);
+        routes.insert("/docs/public/".to_string(), AccessLevel::Public); // Less restrictive!
+
+        let config = SiteAccessConfig {
+            default: AccessLevel::Public,
+            routes,
+        };
+
+        let result = config.validate();
+        let err = result.expect_err("validation should fail for non-monotonic restriction");
+        assert!(err.to_string().contains("/docs/public/"));
+        assert!(err.to_string().contains("less restrictive"));
+    }
+
+    #[test]
+    fn test_validate_rejects_route_less_restrictive_than_default() {
+        // Route is LESS restrictive than default - this is invalid
+        let mut routes = HashMap::new();
+        routes.insert("/public/".to_string(), AccessLevel::Public);
+
+        let config = SiteAccessConfig {
+            default: AccessLevel::Password, // Default is password
+            routes,
+        };
+
+        let result = config.validate();
+        let err =
+            result.expect_err("validation should fail when route is less restrictive than default");
+        assert!(err.to_string().contains("/public/"));
+        assert!(err.to_string().contains("less restrictive"));
+    }
+
+    #[test]
+    fn test_validate_accepts_route_equal_to_default() {
+        // Route equal to default is valid
+        let mut routes = HashMap::new();
+        routes.insert("/docs/".to_string(), AccessLevel::Password);
+
+        let config = SiteAccessConfig {
+            default: AccessLevel::Password,
             routes,
         };
 

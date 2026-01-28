@@ -10,7 +10,7 @@
 use std::{collections::HashMap, path::Path};
 
 use serde::Deserialize;
-use stencila_config::NavItem;
+use stencila_config::{AccessLevel, NavItem, SiteAccessConfig};
 use tracing::warn;
 
 use crate::RouteEntry;
@@ -991,4 +991,103 @@ fn lookup_description_by_route(
     descriptions: &HashMap<String, String>,
 ) -> Option<String> {
     lookup_by_route(route, descriptions, |v| v.clone())
+}
+
+// =============================================================================
+// Access Level Rendering
+// =============================================================================
+
+/// Convert AccessLevel to string for data attribute
+fn access_level_to_str(level: AccessLevel) -> &'static str {
+    match level {
+        AccessLevel::Public => "public",
+        AccessLevel::Subscriber => "subscriber",
+        AccessLevel::Password => "password",
+        AccessLevel::Team => "team",
+    }
+}
+
+/// Normalize a route for access config lookup.
+///
+/// Ensures routes that look like directories (no file extension) end with "/".
+/// This is required because access config keys must end with "/" for prefix matching.
+fn normalize_route_for_access(route: &str) -> std::borrow::Cow<'_, str> {
+    // If already ends with "/" or has a file extension, use as-is
+    if route.ends_with('/') {
+        return std::borrow::Cow::Borrowed(route);
+    }
+
+    // Check if route has a file extension (contains "." in the last segment)
+    if let Some(last_segment) = route.rsplit('/').next()
+        && last_segment.contains('.') {
+            // Has file extension (e.g., "/docs/guide.html"), don't add trailing slash
+            return std::borrow::Cow::Borrowed(route);
+        }
+
+    // Looks like a directory, add trailing slash
+    std::borrow::Cow::Owned(format!("{route}/"))
+}
+
+/// Render the data-access attribute only if the route's access level is more
+/// restrictive than the inherited level.
+///
+/// This prevents badges from appearing on every item when a parent already
+/// indicates the restriction. Only the "top-most" restricted item in a
+/// hierarchy will have the attribute.
+///
+/// Routes are normalized to ensure directory-style paths have trailing slashes,
+/// which is required for matching against access config keys.
+///
+/// Returns the new inherited access level for children (the more restrictive
+/// of the current inherited level and this route's level).
+pub(crate) fn render_access_attr_if_more_restrictive(
+    route: &str,
+    inherited_level: AccessLevel,
+    access_config: Option<&SiteAccessConfig>,
+) -> (String, AccessLevel) {
+    let Some(config) = access_config else {
+        return (String::new(), inherited_level);
+    };
+
+    // Normalize route for access lookup (ensure trailing slash for directories)
+    let normalized_route = normalize_route_for_access(route);
+    let level = config.get_access_level(&normalized_route);
+
+    // The new inherited level for children is the more restrictive of the two
+    let new_inherited = if level > inherited_level {
+        level
+    } else {
+        inherited_level
+    };
+
+    // Only add attribute if this route is MORE restrictive than inherited
+    if level > inherited_level {
+        (
+            format!(r#" data-access="{}""#, access_level_to_str(level)),
+            new_inherited,
+        )
+    } else {
+        (String::new(), new_inherited)
+    }
+}
+
+/// Render access attribute for a group, deriving route from label if not present.
+///
+/// Groups without explicit routes (e.g., a "Docs" group with no index.html)
+/// still need access badges if their derived path (e.g., "/docs/") is restricted.
+/// This function derives the route from the label and checks access.
+pub(crate) fn render_group_access_attr(
+    route: &Option<String>,
+    label: &str,
+    inherited_level: AccessLevel,
+    access_config: Option<&SiteAccessConfig>,
+) -> (String, AccessLevel) {
+    // If group has an explicit route, use it
+    if let Some(r) = route {
+        return render_access_attr_if_more_restrictive(r, inherited_level, access_config);
+    }
+
+    // Otherwise, derive route from label (e.g., "Docs" -> "/docs/")
+    let derived_route = format!("/{}/", label_to_segment(label));
+    render_access_attr_if_more_restrictive(&derived_route, inherited_level, access_config)
 }

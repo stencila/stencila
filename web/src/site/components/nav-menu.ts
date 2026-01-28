@@ -2,6 +2,18 @@ import { LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../glide/events'
+import {
+  getAccessConfig,
+  canAccess,
+  addAccessBadgeToItem,
+} from '../utils/access'
+
+import type {
+  AccessLevel,
+  RouteAccessConfig,
+  SiteAuthStatusResponse,
+} from './site-action/types'
+import { getCachedAuthStatus, isLocalhost } from './site-action/utils'
 
 /**
  * Navigation menu component
@@ -55,10 +67,37 @@ export class StencilaNavMenu extends LitElement {
   mobileExpanded = false
 
   /**
+   * How to handle items requiring higher access than user has
+   * - 'hide': Hide items user cannot access (default)
+   * - 'show': Show all items (restricted items remain visible)
+   */
+  @property({ type: String, attribute: 'restricted-items' })
+  restrictedItems: 'hide' | 'show' = 'hide'
+
+  /**
+   * Whether to show access badges on items that are restricted
+   * Badges indicate the required access level (password, team, etc.)
+   */
+  @property({ type: Boolean, attribute: 'show-access-badges' })
+  showAccessBadges = true
+
+  /**
    * Whether we're in mobile mode
    */
   @state()
   private isMobileMode = false
+
+  /**
+   * Access configuration (from _access.json)
+   */
+  @state()
+  private accessConfig: RouteAccessConfig | undefined = undefined
+
+  /**
+   * User's access level from auth status
+   */
+  @state()
+  private userAccessLevel: AccessLevel = 'public'
 
   /**
    * Timeout for delayed dropdown open
@@ -127,6 +166,9 @@ export class StencilaNavMenu extends LitElement {
     this.setupMobileMenu()
     this.setupMediaQuery()
 
+    // Load access configuration and apply filtering
+    this.loadAccessAndFilter()
+
     // Listen for SPA navigation
     window.addEventListener(GlideEvents.END, this.handleGlideEnd)
 
@@ -135,6 +177,102 @@ export class StencilaNavMenu extends LitElement {
 
     // Listen for Escape key
     document.addEventListener('keydown', this.handleKeydown)
+  }
+
+  /**
+   * Load access configuration and user access level, then apply filtering
+   */
+  private async loadAccessAndFilter() {
+    try {
+      // On localhost preview, grant team access (user has repo access)
+      if (isLocalhost()) {
+        this.userAccessLevel = 'team'
+        // Still fetch access config to show badges
+        this.accessConfig = await getAccessConfig()
+        if (this.accessConfig) {
+          this.applyAccessFiltering()
+        }
+        return
+      }
+
+      // Fetch access config and auth status in parallel
+      const [config, authStatus] = await Promise.all([
+        getAccessConfig(),
+        this.fetchAuthStatus(),
+      ])
+
+      this.accessConfig = config
+      this.userAccessLevel = authStatus?.userAccessLevel ?? 'public'
+
+      // Apply access filtering if we have restrictions
+      if (config) {
+        this.applyAccessFiltering()
+      }
+    } catch (error) {
+      console.warn('[StencilaNavMenu] Failed to load access config:', error)
+    }
+  }
+
+  /**
+   * Fetch auth status to get user's access level
+   */
+  private async fetchAuthStatus(): Promise<SiteAuthStatusResponse | null> {
+    try {
+      // Use the cached auth status fetcher
+      return await getCachedAuthStatus(
+        '',
+        '/__stencila/auth/status',
+        async () => ({})
+      )
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * Apply access-based filtering to nav items
+   *
+   * Hides items the user cannot access (if restrictedItems='hide')
+   * and adds badges to restricted items (if showAccessBadges=true).
+   */
+  private applyAccessFiltering() {
+    if (!this.accessConfig) {
+      return
+    }
+
+    // Filter top-level items (.item with data-access)
+    const items = this.querySelectorAll<HTMLElement>('.item[data-access]')
+
+    for (const item of items) {
+      const requiredLevel = item.dataset.access as AccessLevel
+      const userCanAccess = canAccess(this.userAccessLevel, requiredLevel)
+
+      if (!userCanAccess && this.restrictedItems === 'hide') {
+        // Hide items user cannot access
+        item.style.display = 'none'
+      } else if (this.showAccessBadges) {
+        // Add badge to indicate access restriction
+        addAccessBadgeToItem(item, requiredLevel, 'a, .trigger')
+      }
+    }
+
+    // Filter dropdown items (.dropdown-item with data-access)
+    const dropdownItems = this.querySelectorAll<HTMLElement>(
+      '.dropdown-item[data-access]'
+    )
+
+    for (const item of dropdownItems) {
+      const requiredLevel = item.dataset.access as AccessLevel
+      const userCanAccess = canAccess(this.userAccessLevel, requiredLevel)
+
+      if (!userCanAccess && this.restrictedItems === 'hide') {
+        // Hide items user cannot access
+        item.style.display = 'none'
+      } else if (this.showAccessBadges) {
+        // Add badge to indicate access restriction
+        addAccessBadgeToItem(item, requiredLevel, 'a .label')
+      }
+    }
   }
 
   override disconnectedCallback() {

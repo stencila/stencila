@@ -3,9 +3,12 @@
 //! Displays hierarchical site navigation from `site.nav` configuration.
 //! If `site.nav` is not specified, auto-generates navigation from routes.
 
-use stencila_config::{NavItem, NavTreeIcons, SiteConfig};
+use stencila_config::{AccessLevel, NavItem, NavTreeIcons, SiteAccessConfig, SiteConfig};
 
-use crate::nav_common::{apply_depth_limit, apply_icons, filter_nav_items, render_icon_span};
+use crate::nav_common::{
+    apply_depth_limit, apply_icons, filter_nav_items, render_access_attr_if_more_restrictive,
+    render_group_access_attr, render_icon_span,
+};
 
 /// Context for rendering the nav tree
 pub(crate) struct NavTreeContext<'a> {
@@ -63,6 +66,8 @@ pub(crate) fn render_nav_tree(
         .unwrap_or_default();
 
     // Render nav items recursively (empty string for root-level parent_id)
+    // Start with Public as inherited level - badges show when a route is MORE
+    // restrictive than what's been indicated on ancestors (nothing at root)
     let items_html = render_nav_items(
         &nav_items,
         context.route,
@@ -72,6 +77,8 @@ pub(crate) fn render_nav_tree(
         collapsible,
         "",
         &icons_mode,
+        context.site_config.access.as_ref(),
+        AccessLevel::Public,
     );
 
     // Build attributes for the web component
@@ -100,6 +107,8 @@ fn render_nav_items(
     collapsible: bool,
     parent_id: &str,
     icons_mode: &NavTreeIcons,
+    access_config: Option<&SiteAccessConfig>,
+    inherited_access: AccessLevel,
 ) -> String {
     let mut html = String::new();
 
@@ -108,8 +117,10 @@ fn render_nav_items(
             NavItem::Route(route) => {
                 let is_active = route == current_route;
                 let label = crate::nav_common::route_to_label(route);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{label}</a></li>"#,
+                    r#"<li class="item" data-type="link" data-active="{is_active}" data-level="{level}"{access_attr} role="treeitem"{}><a href="{route}">{label}</a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -118,8 +129,10 @@ fn render_nav_items(
             } => {
                 let is_active = route == current_route;
                 let icon_html = render_nav_tree_icon(icon, icons_mode);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="item" data-type="link" data-active="{is_active}" data-level="{level}" role="treeitem"{}><a href="{route}">{icon_html}{label}</a></li>"#,
+                    r#"<li class="item" data-type="link" data-active="{is_active}" data-level="{level}"{access_attr} role="treeitem"{}><a href="{route}">{icon_html}{label}</a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -149,6 +162,11 @@ fn render_nav_items(
 
                 // Check if the group header itself is active (if it has a route)
                 let header_active = route.as_ref().is_some_and(|r| r == current_route);
+
+                // Get access level for group (derives route from label if not present)
+                // Also get the new inherited level for children
+                let (access_attr, new_inherited) =
+                    render_group_access_attr(route, label, inherited_access, access_config);
 
                 // Build icon HTML
                 let icon_html = render_nav_tree_icon(icon, icons_mode);
@@ -192,6 +210,7 @@ fn render_nav_items(
                 let display_expanded = if collapsible { is_expanded } else { true };
 
                 // Render children, passing this group's ID as parent for nested groups
+                // Use the new inherited access level for children
                 let children_html = render_nav_items(
                     children,
                     current_route,
@@ -201,10 +220,12 @@ fn render_nav_items(
                     collapsible,
                     &group_id,
                     icons_mode,
+                    access_config,
+                    new_inherited,
                 );
 
                 html.push_str(&format!(
-                    r#"<li class="item" data-type="group" data-expanded="{display_expanded}" data-active="{header_active}" data-level="{level}" role="treeitem"{}>{header_html}<ul id="{group_id}" class="children" role="group">{children_html}</ul></li>"#,
+                    r#"<li class="item" data-type="group" data-expanded="{display_expanded}" data-active="{header_active}" data-level="{level}"{access_attr} role="treeitem"{}>{header_html}<ul id="{group_id}" class="children" role="group">{children_html}</ul></li>"#,
                     if collapsible {
                         format!(r#" aria-expanded="{display_expanded}""#)
                     } else {

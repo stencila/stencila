@@ -1,7 +1,19 @@
 import { LitElement } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../glide/events'
+import {
+  getAccessConfig,
+  canAccess,
+  addAccessBadgeToItem,
+} from '../utils/access'
+
+import type {
+  AccessLevel,
+  RouteAccessConfig,
+  SiteAuthStatusResponse,
+} from './site-action/types'
+import { getCachedAuthStatus, isLocalhost } from './site-action/utils'
 
 /**
  * Navigation tree component
@@ -11,9 +23,10 @@ import { GlideEvents } from '../glide/events'
  * - Active page highlighting with SPA navigation support
  * - Keyboard navigation (arrow keys)
  * - Auto-scroll to show active item
+ * - Access-aware filtering (hide/show restricted items)
  *
  * The HTML structure is rendered server-side by Rust. This component
- * adds client-side interactivity.
+ * adds client-side interactivity and access-based filtering.
  */
 @customElement('stencila-nav-tree')
 export class StencilaNavTree extends LitElement {
@@ -50,6 +63,33 @@ export class StencilaNavTree extends LitElement {
   scrollToActive = true
 
   /**
+   * How to handle items requiring higher access than user has
+   * - 'hide': Hide items user cannot access (default)
+   * - 'show': Show all items (restricted items remain visible)
+   */
+  @property({ type: String, attribute: 'restricted-items' })
+  restrictedItems: 'hide' | 'show' = 'hide'
+
+  /**
+   * Whether to show access badges on items that are restricted
+   * Badges indicate the required access level (password, team, etc.)
+   */
+  @property({ type: Boolean, attribute: 'show-access-badges' })
+  showAccessBadges = true
+
+  /**
+   * Access configuration (from _access.json)
+   */
+  @state()
+  private accessConfig: RouteAccessConfig | undefined = undefined
+
+  /**
+   * User's access level from auth status
+   */
+  @state()
+  private userAccessLevel: AccessLevel = 'public'
+
+  /**
    * Use Light DOM so theme CSS can style the component
    */
   protected override createRenderRoot() {
@@ -60,6 +100,9 @@ export class StencilaNavTree extends LitElement {
     super.connectedCallback()
     this.setupToggleListeners()
 
+    // Load access configuration and apply filtering
+    this.loadAccessAndFilter()
+
     if (this.scrollToActive) {
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
@@ -69,6 +112,83 @@ export class StencilaNavTree extends LitElement {
 
     // Listen for SPA navigation to update active state
     window.addEventListener(GlideEvents.END, this.handleGlideEnd)
+  }
+
+  /**
+   * Load access configuration and user access level, then apply filtering
+   */
+  private async loadAccessAndFilter() {
+    try {
+      // On localhost preview, grant team access (user has repo access)
+      if (isLocalhost()) {
+        this.userAccessLevel = 'team'
+        // Still fetch access config to show badges
+        this.accessConfig = await getAccessConfig()
+        if (this.accessConfig) {
+          this.applyAccessFiltering()
+        }
+        return
+      }
+
+      // Fetch access config and auth status in parallel
+      const [config, authStatus] = await Promise.all([
+        getAccessConfig(),
+        this.fetchAuthStatus(),
+      ])
+
+      this.accessConfig = config
+      this.userAccessLevel = authStatus?.userAccessLevel ?? 'public'
+
+      // Apply access filtering if we have restrictions
+      if (config) {
+        this.applyAccessFiltering()
+      }
+    } catch (error) {
+      console.warn('[StencilaNavTree] Failed to load access config:', error)
+    }
+  }
+
+  /**
+   * Fetch auth status to get user's access level
+   */
+  private async fetchAuthStatus(): Promise<SiteAuthStatusResponse | null> {
+    try {
+      // Use the cached auth status fetcher
+      return await getCachedAuthStatus(
+        '',
+        '/__stencila/auth/status',
+        async () => ({})
+      )
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * Apply access-based filtering to nav items
+   *
+   * Hides items the user cannot access (if restrictedItems='hide')
+   * and adds badges to restricted items (if showAccessBadges=true).
+   */
+  private applyAccessFiltering() {
+    if (!this.accessConfig) {
+      return
+    }
+
+    const items = this.querySelectorAll<HTMLElement>('.item[data-access]')
+
+    for (const item of items) {
+      const requiredLevel = item.dataset.access as AccessLevel
+      const userCanAccess = canAccess(this.userAccessLevel, requiredLevel)
+
+      if (!userCanAccess && this.restrictedItems === 'hide') {
+        // Hide items user cannot access
+        item.style.display = 'none'
+      } else if (this.showAccessBadges) {
+        // Add badge to indicate access restriction
+        addAccessBadgeToItem(item, requiredLevel, 'a, .group-link, .label')
+      }
+    }
   }
 
   override disconnectedCallback() {

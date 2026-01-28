@@ -4,9 +4,12 @@
 //! Top-level nav items become group headings, their children become links.
 //! Uses CSS grid for responsive auto-columns.
 
-use stencila_config::{NavGroupsIcons, NavItem, SiteConfig};
+use stencila_config::{AccessLevel, NavGroupsIcons, NavItem, SiteAccessConfig, SiteConfig};
 
-use crate::nav_common::{apply_depth_limit, apply_icons, filter_nav_items, render_icon_span};
+use crate::nav_common::{
+    apply_depth_limit, apply_icons, filter_nav_items, render_access_attr_if_more_restrictive,
+    render_group_access_attr, render_icon_span,
+};
 
 /// Context for rendering nav groups
 pub(crate) struct NavGroupsContext<'a> {
@@ -49,7 +52,15 @@ pub(crate) fn render_nav_groups(
     }
 
     // Render groups
-    let groups_html = render_groups(&nav_items, context.route, &icons_mode);
+    // Start with Public as inherited level - badges show when a route is MORE
+    // restrictive than what's been indicated on ancestors (nothing at root)
+    let groups_html = render_groups(
+        &nav_items,
+        context.route,
+        &icons_mode,
+        context.site_config.access.as_ref(),
+        AccessLevel::Public,
+    );
 
     format!(
         r#"<stencila-nav-groups><nav aria-label="Footer navigation"><div class="groups">{groups_html}</div></nav></stencila-nav-groups>"#
@@ -57,7 +68,13 @@ pub(crate) fn render_nav_groups(
 }
 
 /// Render navigation groups
-fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIcons) -> String {
+fn render_groups(
+    items: &[NavItem],
+    current_route: &str,
+    icons_mode: &NavGroupsIcons,
+    access_config: Option<&SiteAccessConfig>,
+    inherited_access: AccessLevel,
+) -> String {
     let mut html = String::new();
 
     for item in items {
@@ -66,8 +83,10 @@ fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsI
             NavItem::Route(route) => {
                 let label = crate::nav_common::route_to_label(route);
                 let is_active = route == current_route;
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<div class="group"><ul class="group-links"><li class="link" data-active="{is_active}"><a href="{route}"{}><span class="label">{label}</span></a></li></ul></div>"#,
+                    r#"<div class="group"><ul class="group-links"><li class="link" data-active="{is_active}"{access_attr}><a href="{route}"{}><span class="label">{label}</span></a></li></ul></div>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -77,8 +96,10 @@ fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsI
             } => {
                 let is_active = route == current_route;
                 let icon_html = render_icon(icon, icons_mode);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<div class="group"><ul class="group-links"><li class="link" data-active="{is_active}"><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li></ul></div>"#,
+                    r#"<div class="group"><ul class="group-links"><li class="link" data-active="{is_active}"{access_attr}><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li></ul></div>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -89,11 +110,16 @@ fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsI
                 children,
                 ..
             } => {
+                // Get access attr and inherited level for children
+                // (derives route from label if not present)
+                let (heading_access_attr, children_inherited) =
+                    render_group_access_attr(route, label, inherited_access, access_config);
+
                 // Render heading (optionally as a link)
                 let heading_html = if let Some(group_route) = route {
                     let is_active = group_route == current_route;
                     format!(
-                        r#"<h3 class="group-heading"><a href="{group_route}"{}>{label}</a></h3>"#,
+                        r#"<h3 class="group-heading"{heading_access_attr}><a href="{group_route}"{}>{label}</a></h3>"#,
                         if is_active {
                             r#" aria-current="page""#
                         } else {
@@ -101,11 +127,18 @@ fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsI
                         }
                     )
                 } else {
-                    format!(r#"<h3 class="group-heading">{label}</h3>"#)
+                    // Group without route - still add access attr to heading if restricted
+                    format!(r#"<h3 class="group-heading"{heading_access_attr}>{label}</h3>"#)
                 };
 
                 // Render children as links (depth already applied)
-                let links_html = render_links(children, current_route, icons_mode);
+                let links_html = render_links(
+                    children,
+                    current_route,
+                    icons_mode,
+                    access_config,
+                    children_inherited,
+                );
 
                 html.push_str(&format!(
                     r#"<div class="group">{heading_html}<ul class="group-links">{links_html}</ul></div>"#
@@ -118,7 +151,13 @@ fn render_groups(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsI
 }
 
 /// Render navigation links (children of a group)
-fn render_links(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIcons) -> String {
+fn render_links(
+    items: &[NavItem],
+    current_route: &str,
+    icons_mode: &NavGroupsIcons,
+    access_config: Option<&SiteAccessConfig>,
+    inherited_access: AccessLevel,
+) -> String {
     let mut html = String::new();
 
     for item in items {
@@ -126,8 +165,10 @@ fn render_links(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIc
             NavItem::Route(route) => {
                 let label = crate::nav_common::route_to_label(route);
                 let is_active = route == current_route;
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="link" data-active="{is_active}"><a href="{route}"{}><span class="label">{label}</span></a></li>"#,
+                    r#"<li class="link" data-active="{is_active}"{access_attr}><a href="{route}"{}><span class="label">{label}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -136,8 +177,10 @@ fn render_links(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIc
             } => {
                 let is_active = route == current_route;
                 let icon_html = render_icon(icon, icons_mode);
+                let (access_attr, _) =
+                    render_access_attr_if_more_restrictive(route, inherited_access, access_config);
                 html.push_str(&format!(
-                    r#"<li class="link" data-active="{is_active}"><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
+                    r#"<li class="link" data-active="{is_active}"{access_attr}><a href="{route}"{}>{icon_html}<span class="label">{label}</span></a></li>"#,
                     if is_active { r#" aria-current="page""# } else { "" }
                 ));
             }
@@ -146,8 +189,13 @@ fn render_links(items: &[NavItem], current_route: &str, icons_mode: &NavGroupsIc
             NavItem::Group { label, route, .. } => {
                 if let Some(group_route) = route {
                     let is_active = group_route == current_route;
+                    let (access_attr, _) = render_access_attr_if_more_restrictive(
+                        group_route,
+                        inherited_access,
+                        access_config,
+                    );
                     html.push_str(&format!(
-                        r#"<li class="link" data-active="{is_active}"><a href="{group_route}"{}><span class="label">{label}</span></a></li>"#,
+                        r#"<li class="link" data-active="{is_active}"{access_attr}><a href="{group_route}"{}><span class="label">{label}</span></a></li>"#,
                         if is_active { r#" aria-current="page""# } else { "" }
                     ));
                 }

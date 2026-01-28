@@ -6,7 +6,36 @@
  * the site-actions container.
  */
 
+// =============================================================================
+// Access Control Types
+// =============================================================================
+
+/**
+ * Access level for site routes
+ *
+ * Levels form a cumulative hierarchy where higher levels include access
+ * to all lower levels:
+ * - `public`: Anyone can access (default)
+ * - `subscriber`: Subscribers to the site
+ * - `password`: Users with site password
+ * - `team`: Team members only
+ */
+export type AccessLevel = 'public' | 'subscriber' | 'password' | 'team'
+
+/**
+ * Route access configuration from _access.json
+ */
+export interface RouteAccessConfig {
+  /** Default access level for routes not explicitly configured */
+  default: AccessLevel
+  /** Route path to access level mappings */
+  routes: Record<string, AccessLevel>
+}
+
+// =============================================================================
 // Event type constants
+// =============================================================================
+
 export const SITE_ACTION_REGISTER = 'site-action-register'
 export const SITE_ACTION_BADGE_UPDATE = 'site-action-badge-update'
 export const SITE_ACTION_UNREGISTER = 'site-action-unregister'
@@ -131,6 +160,8 @@ export interface RemoteConfig {
  */
 export interface SiteAuthStatusResponse {
   hasSiteAccess: boolean
+  /** User's maximum access level for this site (for route access restrictions) */
+  userAccessLevel?: AccessLevel
   user?: AuthUser
   github?: AuthGitHub
   repo?: AuthRepo

@@ -1,0 +1,76 @@
+/* Navigation Access Badges
+ *
+ * Shared styles for access level badges in navigation components.
+ * Used by stencila-nav-tree, stencila-nav-menu, and stencila-nav-groups.
+ *
+ * Badges indicate restricted access levels (subscriber, password, team)
+ * on navigation items. They appear as small icons next to the item label.
+ *
+ * CSS custom properties for theming:
+ * - --nav-access-badge-size: Icon size (default: 1em)
+ * - --nav-access-badge-gap: Space before badge (default: var(--space-1))
+ * - --nav-access-badge-opacity: Default opacity (default: 0.7)
+ * - --nav-access-badge-opacity-hover: Opacity on hover (default: 1)
+ * - --nav-access-badge-subscriber-color: Subscriber badge color
+ * - --nav-access-badge-password-color: Password badge color
+ * - --nav-access-badge-team-color: Team badge color
+ * - --nav-access-badge-transition-duration: Hover transition speed
+ */
+
+:root {
+    /* Size and spacing */
+    --nav-access-badge-size: 1em;
+    --nav-access-badge-gap: var(--space-1);
+
+    /* Opacity */
+    --nav-access-badge-opacity: 0.7;
+    --nav-access-badge-opacity-hover: 1;
+
+    /* Colors by access level */
+    --nav-access-badge-subscriber-color: var(--color-accent);
+    --nav-access-badge-password-color: var(--color-accent);
+    --nav-access-badge-team-color: var(--color-accent);
+
+    /* Animation */
+    --nav-access-badge-transition-duration: var(--transition-duration-fast);
+}
+
+/* Badge container */
+.nav-access-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: var(--nav-access-badge-gap);
+    font-size: var(--nav-access-badge-size);
+    opacity: var(--nav-access-badge-opacity);
+    transition: opacity var(--nav-access-badge-transition-duration);
+}
+
+/* Badge icon */
+.nav-access-badge .icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+}
+
+/* Hover state - show badge at full opacity
+ * Applied when hovering any common nav item patterns */
+.item:hover .nav-access-badge,
+.link:hover .nav-access-badge,
+.dropdown-item:hover .nav-access-badge,
+.group-heading:hover .nav-access-badge {
+    opacity: var(--nav-access-badge-opacity-hover);
+}
+
+/* Badge colors by access level */
+.nav-access-badge[data-level="subscriber"] {
+    color: var(--nav-access-badge-subscriber-color);
+}
+
+.nav-access-badge[data-level="password"] {
+    color: var(--nav-access-badge-password-color);
+}
+
+.nav-access-badge[data-level="team"] {
+    color: var(--nav-access-badge-team-color);
+}
