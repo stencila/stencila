@@ -576,7 +576,6 @@ stencila-nav-menu[data-mobile-mode="true"] .item {
 stencila-nav-menu[data-mobile-mode="true"] .item > a,
 stencila-nav-menu[data-mobile-mode="true"] .trigger {
     width: 100%;
-    justify-content: space-between;
 }
 
 stencila-nav-menu[data-mobile-mode="true"] .list > .item > a,
@@ -653,6 +652,8 @@ stencila-nav-menu[data-mobile-mode="true"] .featured-cta {
 
 stencila-nav-menu[data-mobile-mode="true"] .chevron {
     display: inline-flex;
+    order: 999; /* Ensure chevron appears last visually */
+    margin-left: auto; /* Push to the right */
 }
 
 stencila-nav-menu[data-mobile-mode="true"] .nested-list {
