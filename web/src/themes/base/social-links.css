@@ -5,7 +5,7 @@
  * Structure:
  * - stencila-social-links: Custom element container
  *   - a[aria-label]: Link to social platform (opens in new tab by default)
- *     - span.icon.i-simple-icons:*: Platform icon (via UnoCSS)
+ *     - span.icon.i-bi:*: Platform icon (via UnoCSS)
  *     - span.text: Link text (for "text" or "both" style)
  *
  * CSS custom properties for theming:

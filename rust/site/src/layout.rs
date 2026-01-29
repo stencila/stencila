@@ -839,12 +839,12 @@ impl EditPlatform {
         }
     }
 
-    /// Icon class for this platform (using simple-icons via UnoCSS)
+    /// Icon class for this platform (using Bootstrap Icons via UnoCSS)
     fn icon_class(&self) -> &'static str {
         match self {
-            Self::GitHub => "i-simple-icons:github",
-            Self::GitLab => "i-simple-icons:gitlab",
-            Self::Bitbucket => "i-simple-icons:bitbucket",
+            Self::GitHub => "i-bi:github",
+            Self::GitLab => "i-bi:gitlab",
+            Self::Bitbucket => "i-bi:bitbucket",
         }
     }
 
@@ -1530,20 +1530,20 @@ fn render_social_links(
 
 /// Get the icon class for a known social platform
 fn get_social_icon_class(platform: &str) -> String {
-    // Use simple-icons for brand icons via UnoCSS
+    // Use Bootstrap Icons for brand icons via UnoCSS
     match platform.to_lowercase().as_str() {
-        "bluesky" => "i-simple-icons:bluesky".to_string(),
-        "discord" => "i-simple-icons:discord".to_string(),
-        "facebook" => "i-simple-icons:facebook".to_string(),
-        "github" => "i-simple-icons:github".to_string(),
-        "gitlab" => "i-simple-icons:gitlab".to_string(),
-        "instagram" => "i-simple-icons:instagram".to_string(),
-        "linkedin" => "i-simple-icons:linkedin".to_string(),
-        "mastodon" => "i-simple-icons:mastodon".to_string(),
-        "reddit" => "i-simple-icons:reddit".to_string(),
-        "twitch" => "i-simple-icons:twitch".to_string(),
-        "twitter" | "x" => "i-simple-icons:x".to_string(),
-        "youtube" => "i-simple-icons:youtube".to_string(),
+        "bluesky" => "i-bi:bluesky".to_string(),
+        "discord" => "i-bi:discord".to_string(),
+        "facebook" => "i-bi:facebook".to_string(),
+        "github" => "i-bi:github".to_string(),
+        "gitlab" => "i-bi:gitlab".to_string(),
+        "instagram" => "i-bi:instagram".to_string(),
+        "linkedin" => "i-bi:linkedin".to_string(),
+        "mastodon" => "i-bi:mastodon".to_string(),
+        "reddit" => "i-bi:reddit".to_string(),
+        "twitch" => "i-bi:twitch".to_string(),
+        "twitter" | "x" => "i-bi:twitter-x".to_string(),
+        "youtube" => "i-bi:youtube".to_string(),
         // Fallback to lucide link icon for unknown platforms
         _ => "i-lucide:link".to_string(),
     }

@@ -17,8 +17,18 @@ export function initUno() {
     defaults: {
       presets: [
         presetWind4(),
-        presetIcons({ cdn: 'https://esm.sh/' }),
-      ]
+        presetIcons({
+          // Bundled icon sets loaded async on first request for icon from that set
+          // These will be served from Stencila's embedded server (e.g. when previewing
+          // a site when offline) and should be preferred for any UI icons
+          collections: {
+            lucide: () => import('@iconify-json/lucide/icons.json'),
+            bi: () => import('@iconify-json/bi/icons.json'),
+          },
+          // Fallback to CDN if icon is not from these icon sets
+          cdn: 'https://esm.sh/'
+        }),
+      ],
     },
   })
 }

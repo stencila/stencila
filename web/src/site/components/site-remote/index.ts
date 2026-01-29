@@ -521,7 +521,7 @@ export class StencilaSiteRemote extends SiteAction {
   private renderLocalFileCard() {
     return html`
       <div class="sync-card local-card">
-        <span class="i-simple-icons:github card-icon"></span>
+        <span class="i-bi:github card-icon"></span>
         <input
           type="text"
           class="file-path-input"

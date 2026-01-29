@@ -82,6 +82,8 @@
     "@codemirror/state": "6.5.4",
     "@codemirror/view": "6.39.11",
     "@lezer/highlight": "1.2.3",
+    "@iconify-json/bi": "^1.2.7",
+    "@iconify-json/lucide": "^1.2.87",
     "@lit-labs/observers": "2.1.0",
     "@lit/context": "1.1.6",
     "@shoelace-style/shoelace": "2.20.1",

@@ -5,7 +5,7 @@
  * Structure:
  * - stencila-edit-on: Custom element container (with service attribute: "gdocs" or "m365")
  *   - a: Edit link (opens in new tab)
- *     - span.icon: Service icon (e.g., i-simple-icons:googledocs) via UnoCSS
+ *     - span.icon: Service icon (e.g., i-bi:google) via UnoCSS
  *     - span.text: Link text (default: "Edit on Google Docs" or "Edit on Microsoft 365")
  *
  * Design tokens:
@@ -52,7 +52,7 @@ stencila-edit-on a:focus-visible {
     border-radius: var(--border-radius-default);
 }
 
-/* Icon - styled via UnoCSS icon classes (e.g., i-simple-icons:google) */
+/* Icon - styled via UnoCSS icon classes (e.g., i-bi:google) */
 stencila-edit-on .icon {
     display: inline-block;
     width: var(--edit-on-icon-size);

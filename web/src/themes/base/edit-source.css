@@ -5,7 +5,7 @@
  * Structure:
  * - stencila-edit-source: Custom element container
  *   - a: Edit link (opens in new tab, with title for hover tooltip)
- *     - span.icon: Platform icon (e.g., i-simple-icons:github) via UnoCSS
+ *     - span.icon: Platform icon (e.g., i-bi:github) via UnoCSS
  *     - span.text: Link text (default: "Edit")
  *
  * Design tokens:
@@ -52,7 +52,7 @@ stencila-edit-source a:focus-visible {
     border-radius: var(--border-radius-default);
 }
 
-/* Icon - styled via UnoCSS icon classes (e.g., i-simple-icons:github) */
+/* Icon - styled via UnoCSS icon classes (e.g., i-bi:github) */
 stencila-edit-source .icon {
     display: inline-block;
     width: var(--edit-source-icon-size);
