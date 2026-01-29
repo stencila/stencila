@@ -115,11 +115,11 @@
     "vega-lite": "6.4.2"
   },
   "devDependencies": {
-    "@argos-ci/playwright": "6.3.10",
+    "@argos-ci/playwright": "6.4.0",
     "@parcel/compressor-brotli": "2.16.3",
     "@parcel/transformer-inline-string": "2.16.3",
     "@parcel/transformer-typescript-tsc": "2.16.3",
-    "@playwright/test": "1.57.0",
+    "@playwright/test": "1.58.0",
     "@tailwindcss/postcss": "4.1.18",
     "@types/katex": "0.16.8",
     "@types/plotly.js-dist-min": "2.3.4",
