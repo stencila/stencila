@@ -68,29 +68,10 @@ export class StencilaSiteRemote extends SiteAction {
   targetPath: string = ''
 
   /**
-   * Whether users can specify custom paths
-   */
-  @property({ type: Boolean, attribute: 'user-path' })
-  userPath: boolean = false
-
-  /**
    * Default output format (without dot, e.g., "smd", "md", "html")
    */
   @property({ type: String, attribute: 'default-format' })
   defaultFormat: string = 'smd'
-
-  /**
-   * Whether a message is required
-   */
-  @property({ type: Boolean, attribute: 'require-message' })
-  requireMessage: boolean = false
-
-  /**
-   * Get effective require message setting - uses server config if available, otherwise property
-   */
-  private get effectiveRequireMessage(): boolean {
-    return this.authStatus?.remoteConfig?.requireMessage ?? this.requireMessage
-  }
 
   // =========================================================================
   // Remote-Specific State
@@ -188,7 +169,6 @@ export class StencilaSiteRemote extends SiteAction {
         enabled: true,
         allowed: true,
         targetPath: this.targetPath,
-        userPath: this.userPath,
         defaultFormat: this.defaultFormat,
         defaultSyncDirection: 'bi',
       },
@@ -339,11 +319,6 @@ export class StencilaSiteRemote extends SiteAction {
   private async handleSubmit() {
     if (!this.remoteUrl || !this.targetFilePath) return
 
-    if (this.effectiveRequireMessage && !this.message.trim()) {
-      this.errorMessage = 'Please enter a description'
-      return
-    }
-
     this.isSubmitting = true
     this.isSubmitted = false
 
@@ -487,24 +462,6 @@ export class StencilaSiteRemote extends SiteAction {
         ${this.renderRemoteDocCard()}
         ${this.renderSyncBadge()}
         ${this.renderLocalFileCard()}
-
-        <!-- Message input (only if required) -->
-        ${this.effectiveRequireMessage
-          ? html`
-              <div class="remote-field">
-                <label class="remote-label">
-                  Description <span class="required">*</span>
-                </label>
-                <textarea
-                  class="remote-textarea"
-                  placeholder="Describe this addition..."
-                  .value=${this.message}
-                  @input=${(e: Event) =>
-                    (this.message = (e.target as HTMLTextAreaElement).value)}
-                ></textarea>
-              </div>
-            `
-          : nothing}
 
         <!-- Footer -->
         ${this.renderPanelFooter({

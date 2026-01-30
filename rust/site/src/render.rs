@@ -723,12 +723,17 @@ async fn render_document_route(
     // Generate nodemap.json for page review feature (only if reviews enabled for this route)
     // Re-encode to source format to get mapping, then use Shifter to translate
     // positions from generated content back to original source file positions
+    let is_spread = !spread_arguments.is_empty();
     let should_generate_nodemap = site_config
         .reviews
         .as_ref()
         .map(|reviews| {
             reviews.is_enabled()
-                && crate::layout::should_show_reviews_for_route(&route, &reviews.to_config())
+                && crate::layout::should_show_reviews_for_route(
+                    &route,
+                    &reviews.to_config(),
+                    is_spread,
+                )
         })
         .unwrap_or(false);
 

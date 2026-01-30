@@ -19,9 +19,7 @@ github = "stencila/stencila"
 x = "stencila"
 
 [site.access]
-default="subscriber"
-"/tests/" = "password"
-"/tests/file/" = "team"
+"/tests/" = "team"
 
 [site.routes]
 "/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }

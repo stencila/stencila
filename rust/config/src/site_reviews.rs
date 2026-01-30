@@ -97,6 +97,13 @@ pub struct SiteReviewsConfig {
     /// Reviews are hidden on pages matching these patterns.
     /// Example: `["api/**", "changelog/**"]`
     pub exclude: Option<Vec<String>>,
+
+    /// Show review widget on spread routes (virtual routes from templates)
+    ///
+    /// When true, reviews are shown on spread routes like `/{region}/`.
+    /// When false (default), reviews are hidden on spread routes to avoid
+    /// confusion about which document is being reviewed.
+    pub spread_routes: Option<bool>,
 }
 
 impl SiteReviewsConfig {
@@ -123,6 +130,11 @@ impl SiteReviewsConfig {
     /// Get the effective shortcuts setting (defaults to true)
     pub fn shortcuts_enabled(&self) -> bool {
         self.shortcuts.unwrap_or(true)
+    }
+
+    /// Get the effective spread_routes setting (defaults to false)
+    pub fn spread_routes_enabled(&self) -> bool {
+        self.spread_routes.unwrap_or(false)
     }
 
     /// Check if comments are allowed
@@ -412,5 +424,35 @@ mod tests {
         let result = config.validate();
         let err = result.expect_err("should fail validation");
         assert!(err.to_string().contains("multiple ** segments"));
+    }
+
+    #[test]
+    fn test_spread_routes_default_false() {
+        let config = SiteReviewsConfig::default();
+        assert!(!config.spread_routes_enabled());
+    }
+
+    #[test]
+    fn test_spread_routes_explicit_true() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "spread-routes": true
+        }"#;
+        let spec: SiteReviewsSpec = serde_json::from_str(json)?;
+        let config = spec.to_config();
+        assert!(config.spread_routes_enabled());
+        Ok(())
+    }
+
+    #[test]
+    fn test_spread_routes_explicit_false() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "spread-routes": false
+        }"#;
+        let spec: SiteReviewsSpec = serde_json::from_str(json)?;
+        let config = spec.to_config();
+        assert!(!config.spread_routes_enabled());
+        Ok(())
     }
 }

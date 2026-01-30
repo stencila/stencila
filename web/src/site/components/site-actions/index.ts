@@ -1,6 +1,7 @@
 import { LitElement, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { GlideEvents } from '../../glide/events'
 import {
   SITE_ACTION_REGISTER,
   SITE_ACTION_BADGE_UPDATE,
@@ -43,10 +44,23 @@ export class StencilaSiteActions extends LitElement {
   mode: 'collapsed' | 'expanded' = 'collapsed'
 
   /**
+   * Comma-separated list of action IDs enabled for this route
+   * Actions not in this list will be hidden
+   */
+  @property({ type: String })
+  enabled: string = ''
+
+  /**
    * Whether the collapsed FAB is expanded
    */
   @state()
   private expanded = false
+
+  /**
+   * Set of action IDs that are enabled for this route
+   */
+  @state()
+  private enabledSet: Set<string> = new Set()
 
   /**
    * Registered actions from child components
@@ -70,6 +84,9 @@ export class StencilaSiteActions extends LitElement {
   override connectedCallback() {
     super.connectedCallback()
 
+    // Parse initial enabled attribute
+    this.parseEnabledAttribute()
+
     // Add event listeners for self-registration
     this.addEventListener(SITE_ACTION_REGISTER, this.handleRegister as EventListener)
     this.addEventListener(SITE_ACTION_BADGE_UPDATE, this.handleBadgeUpdate as EventListener)
@@ -78,6 +95,9 @@ export class StencilaSiteActions extends LitElement {
     // Global event listeners
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('click', this.handleDocumentClick)
+
+    // Listen for glide navigation to update visibility
+    window.addEventListener(GlideEvents.END, this.handleGlideEnd)
 
     // Fallback: scan for children that may have connected before listeners attached
     requestAnimationFrame(() => this.scanForUnregisteredChildren())
@@ -92,6 +112,7 @@ export class StencilaSiteActions extends LitElement {
     // Remove global event listeners
     document.removeEventListener('keydown', this.handleKeyDown)
     document.removeEventListener('click', this.handleDocumentClick)
+    window.removeEventListener(GlideEvents.END, this.handleGlideEnd)
 
     super.disconnectedCallback()
   }
@@ -114,6 +135,17 @@ export class StencilaSiteActions extends LitElement {
     if (child) {
       child.setAttribute('position', this.position)
       child.setAttribute('hide-fab', '')
+
+      // Apply visibility based on enabled set
+      const isVisible =
+        this.enabledSet.size === 0 || this.enabledSet.has(e.detail.id)
+      if (isVisible) {
+        child.removeAttribute('data-action-hidden')
+        child.style.display = ''
+      } else {
+        child.setAttribute('data-action-hidden', '')
+        child.style.display = 'none'
+      }
     }
 
     console.log(`[SiteActions] Registered action: ${e.detail.id}`)
@@ -160,6 +192,79 @@ export class StencilaSiteActions extends LitElement {
   }
 
   // =========================================================================
+  // Visibility Management
+  // =========================================================================
+
+  /**
+   * Parse the enabled attribute into a Set of action IDs
+   */
+  private parseEnabledAttribute() {
+    if (!this.enabled) {
+      this.enabledSet = new Set()
+    } else {
+      this.enabledSet = new Set(
+        this.enabled
+          .split(',')
+          .map((id) => id.trim())
+          .filter((id) => id.length > 0)
+      )
+    }
+    this.updateChildVisibility()
+  }
+
+  /**
+   * Handle glide navigation end - read new enabled list from DOM
+   */
+  private handleGlideEnd = () => {
+    // Look for the visibility data element that was swapped in with the new page
+    const dataEl = document.querySelector('[data-stencila-actions-enabled]')
+    if (dataEl) {
+      const newEnabled = dataEl.getAttribute('data-stencila-actions-enabled') ?? ''
+      this.enabled = newEnabled
+      this.parseEnabledAttribute()
+    }
+  }
+
+  /**
+   * Update visibility of child action components based on enabledSet
+   * If enabledSet is empty, all actions are shown (no filtering)
+   */
+  private updateChildVisibility() {
+    // Query all direct child action components
+    const children = this.querySelectorAll(
+      'stencila-site-review, stencila-site-upload, stencila-site-remote'
+    )
+
+    children.forEach((child) => {
+      const actionId = child.getAttribute('data-site-action')
+      if (!actionId) return
+
+      // If enabledSet is empty, show all; otherwise check if action is in the set
+      const isVisible = this.enabledSet.size === 0 || this.enabledSet.has(actionId)
+
+      if (isVisible) {
+        child.removeAttribute('data-action-hidden')
+        ;(child as HTMLElement).style.display = ''
+      } else {
+        child.setAttribute('data-action-hidden', '')
+        ;(child as HTMLElement).style.display = 'none'
+      }
+    })
+
+    // Trigger re-render to update FAB buttons
+    this.requestUpdate()
+  }
+
+  /**
+   * React to enabled attribute changes
+   */
+  override updated(changedProperties: Map<string, unknown>) {
+    if (changedProperties.has('enabled')) {
+      this.parseEnabledAttribute()
+    }
+  }
+
+  // =========================================================================
   // UI Event Handlers
   // =========================================================================
 
@@ -201,14 +306,27 @@ export class StencilaSiteActions extends LitElement {
   }
 
   /**
-   * Get total badge count across all actions
+   * Get total badge count across visible actions only
    */
   private get totalBadgeCount(): number {
     let total = 0
-    for (const count of this.badges.values()) {
-      total += count
+    for (const [actionId, count] of this.badges.entries()) {
+      // Only count if action is visible (enabledSet is empty or contains this action)
+      if (this.enabledSet.size === 0 || this.enabledSet.has(actionId)) {
+        total += count
+      }
     }
     return total
+  }
+
+  /**
+   * Get visible actions (filtered by enabledSet)
+   */
+  private get visibleActions(): ActionRegistration[] {
+    return Array.from(this.actions.values()).filter(
+      (action) =>
+        this.enabledSet.size === 0 || this.enabledSet.has(action.id)
+    )
   }
 
   // =========================================================================
@@ -218,6 +336,11 @@ export class StencilaSiteActions extends LitElement {
   override render() {
     // If no actions registered, just render the slot (children render their own FABs)
     if (this.actions.size === 0) {
+      return html`<slot></slot>`
+    }
+
+    // If no visible actions for this route, just render the hidden slot
+    if (this.visibleActions.length === 0) {
       return html`<slot></slot>`
     }
 
@@ -253,7 +376,7 @@ export class StencilaSiteActions extends LitElement {
   }
 
   /**
-   * Render the action buttons
+   * Render the action buttons (only visible actions)
    */
   private renderActionButtons() {
     const showButtons = this.mode === 'expanded' || this.expanded
@@ -262,10 +385,8 @@ export class StencilaSiteActions extends LitElement {
       return nothing
     }
 
-    // Sort actions by order (lower = closer to FAB)
-    const sortedActions = Array.from(this.actions.values()).sort(
-      (a, b) => a.order - b.order
-    )
+    // Sort visible actions by order (lower = closer to FAB)
+    const sortedActions = this.visibleActions.sort((a, b) => a.order - b.order)
 
     return html`
       <div class="actions-buttons">

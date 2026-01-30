@@ -87,12 +87,6 @@ pub struct SiteRemotesConfig {
     /// Example: "content" or "docs"
     pub path: Option<String>,
 
-    /// Allow users to specify custom target paths
-    ///
-    /// When true, users can edit the target path for each document.
-    /// Default: false
-    pub user_path: Option<bool>,
-
     /// Default output format for pulled documents
     ///
     /// Default: smd (Stencila Markdown)
@@ -109,13 +103,6 @@ pub struct SiteRemotesConfig {
     /// Default: bi (bi-directional)
     pub default_sync_direction: Option<SiteRemoteSyncDirection>,
 
-    /// Require a description/commit message
-    ///
-    /// When true, users must provide a message describing their addition.
-    /// This becomes the PR description.
-    /// Default: false
-    pub require_message: Option<bool>,
-
     /// Glob patterns for paths to show widget on
     ///
     /// If specified, widget is only shown on pages matching these patterns.
@@ -127,6 +114,14 @@ pub struct SiteRemotesConfig {
     /// Widget is hidden on pages matching these patterns.
     /// Example: `["api/**", "internal/**"]`
     pub exclude: Option<Vec<String>>,
+
+    /// Show remote widget on spread routes (virtual routes from templates)
+    ///
+    /// When true, remotes are shown on spread routes like `/{region}/`.
+    /// When false (default), remotes are hidden on spread routes to avoid
+    /// confusion about where documents are added (documents go to a fixed
+    /// directory, not the virtual route path).
+    pub spread_routes: Option<bool>,
 }
 
 impl SiteRemotesConfig {
@@ -145,11 +140,6 @@ impl SiteRemotesConfig {
         self.path.clone().unwrap_or_default()
     }
 
-    /// Get the effective user_path setting (defaults to false)
-    pub fn user_path_enabled(&self) -> bool {
-        self.user_path.unwrap_or(false)
-    }
-
     /// Get the effective default format (defaults to Smd)
     pub fn default_format(&self) -> SiteRemoteFormat {
         self.default_format.unwrap_or_default()
@@ -160,9 +150,9 @@ impl SiteRemotesConfig {
         self.default_sync_direction.unwrap_or_default()
     }
 
-    /// Get the effective require_message setting (defaults to false)
-    pub fn require_message(&self) -> bool {
-        self.require_message.unwrap_or(false)
+    /// Get the effective spread_routes setting (defaults to false)
+    pub fn spread_routes_enabled(&self) -> bool {
+        self.spread_routes.unwrap_or(false)
     }
 
     /// Check if a format is allowed
@@ -330,9 +320,7 @@ mod tests {
             "path": "content",
             "default-format": "md",
             "allowed-formats": ["smd", "md"],
-            "default-sync-direction": "from-remote",
-            "user-path": true,
-            "require-message": true
+            "default-sync-direction": "from-remote"
         }"#;
         let spec: SiteRemotesSpec = serde_json::from_str(json)?;
         assert!(spec.is_enabled());
@@ -349,8 +337,6 @@ mod tests {
             config.default_sync_direction(),
             SiteRemoteSyncDirection::FromRemote
         );
-        assert!(config.user_path_enabled());
-        assert!(config.require_message());
         Ok(())
     }
 
@@ -465,5 +451,35 @@ mod tests {
             ..Default::default()
         };
         assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn test_spread_routes_default_false() {
+        let config = SiteRemotesConfig::default();
+        assert!(!config.spread_routes_enabled());
+    }
+
+    #[test]
+    fn test_spread_routes_explicit_true() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "spread-routes": true
+        }"#;
+        let spec: SiteRemotesSpec = serde_json::from_str(json)?;
+        let config = spec.to_config();
+        assert!(config.spread_routes_enabled());
+        Ok(())
+    }
+
+    #[test]
+    fn test_spread_routes_explicit_false() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "spread-routes": false
+        }"#;
+        let spec: SiteRemotesSpec = serde_json::from_str(json)?;
+        let config = spec.to_config();
+        assert!(!config.spread_routes_enabled());
+        Ok(())
     }
 }

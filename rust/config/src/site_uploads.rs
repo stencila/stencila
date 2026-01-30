@@ -14,11 +14,11 @@ use serde_with::skip_serializing_none;
 /// # Enable uploads on specific pages
 /// [site.uploads]
 /// enabled = true
+/// public = false
+/// anon = false
+/// path = "data"
 /// include = ["data/**"]
 /// ```
-///
-/// Note: Most upload settings (allowed extensions, max file size, target path, etc.)
-/// are controlled by the server via the auth status response, not in the config.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(rename_all = "kebab-case", deny_unknown_fields)]
@@ -28,6 +28,26 @@ pub struct SiteUploadsConfig {
     /// When false, the upload widget is not rendered.
     #[serde(default)]
     pub enabled: bool,
+
+    /// Whether public (non-team members) can upload files
+    ///
+    /// This is enforced server-side by Stencila Cloud. When false,
+    /// the upload widget is hidden from non-authenticated users.
+    /// Default: false
+    pub public: Option<bool>,
+
+    /// Whether anonymous (no GitHub auth) submissions are allowed
+    ///
+    /// This is enforced server-side by Stencila Cloud. When false,
+    /// users must connect their GitHub account to upload files.
+    /// Default: false
+    pub anon: Option<bool>,
+
+    /// Default target directory for uploaded files
+    ///
+    /// Path is relative to repo root.
+    /// Example: "data" or "uploads"
+    pub path: Option<String>,
 
     /// Override: glob patterns for pages to show widget on
     ///
@@ -48,9 +68,37 @@ pub struct SiteUploadsConfig {
     /// Extensions are matched case-insensitively, without leading dot.
     /// Example: `["csv", "json", "xlsx"]`
     pub extensions: Option<Vec<String>>,
+
+    /// Show upload widget on spread routes (virtual routes from templates)
+    ///
+    /// When true, uploads are shown on spread routes like `/{region}/`.
+    /// When false (default), uploads are hidden on spread routes to avoid
+    /// confusion about where files are uploaded (files go to the source
+    /// file's directory, not the virtual route path).
+    pub spread_routes: Option<bool>,
 }
 
 impl SiteUploadsConfig {
+    /// Get the effective public setting (defaults to false)
+    pub fn is_public(&self) -> bool {
+        self.public.unwrap_or(false)
+    }
+
+    /// Get the effective anon setting (defaults to false)
+    pub fn is_anon(&self) -> bool {
+        self.anon.unwrap_or(false)
+    }
+
+    /// Get the effective target path (defaults to empty string / repo root)
+    pub fn target_path(&self) -> String {
+        self.path.clone().unwrap_or_default()
+    }
+
+    /// Get the effective spread_routes setting (defaults to false)
+    pub fn spread_routes_enabled(&self) -> bool {
+        self.spread_routes.unwrap_or(false)
+    }
+
     /// Validate the uploads configuration
     pub fn validate(&self) -> Result<()> {
         // Validate include patterns are valid globs
@@ -173,6 +221,9 @@ mod tests {
         assert!(spec.is_enabled());
         let config = spec.to_config();
         assert!(config.enabled);
+        assert!(!config.is_public());
+        assert!(!config.is_anon());
+        assert!(config.target_path().is_empty());
         Ok(())
     }
 
@@ -187,12 +238,18 @@ mod tests {
     fn test_uploads_spec_detailed() -> Result<(), serde_json::Error> {
         let json = r#"{
             "enabled": true,
+            "public": true,
+            "anon": false,
+            "path": "uploads",
             "include": ["data/**"]
         }"#;
         let spec: SiteUploadsSpec = serde_json::from_str(json)?;
         assert!(spec.is_enabled());
 
         let config = spec.to_config();
+        assert!(config.is_public());
+        assert!(!config.is_anon());
+        assert_eq!(config.target_path(), "uploads");
         assert_eq!(config.include, Some(vec!["data/**".to_string()]));
         Ok(())
     }
@@ -258,5 +315,35 @@ mod tests {
         let result = config.validate();
         let err = result.expect_err("should fail validation");
         assert!(err.to_string().contains("multiple ** segments"));
+    }
+
+    #[test]
+    fn test_spread_routes_default_false() {
+        let config = SiteUploadsConfig::default();
+        assert!(!config.spread_routes_enabled());
+    }
+
+    #[test]
+    fn test_spread_routes_explicit_true() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "spread-routes": true
+        }"#;
+        let spec: SiteUploadsSpec = serde_json::from_str(json)?;
+        let config = spec.to_config();
+        assert!(config.spread_routes_enabled());
+        Ok(())
+    }
+
+    #[test]
+    fn test_spread_routes_explicit_false() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "spread-routes": false
+        }"#;
+        let spec: SiteUploadsSpec = serde_json::from_str(json)?;
+        let config = spec.to_config();
+        assert!(!config.spread_routes_enabled());
+        Ok(())
     }
 }

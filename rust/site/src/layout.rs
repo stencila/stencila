@@ -13,7 +13,7 @@ use stencila_config::{
 };
 
 use crate::{
-    RouteEntry, logo,
+    RouteEntry, RouteType, logo,
     nav_common::{normalize_icon_name, segment_to_label},
     nav_groups::{self, NavGroupsContext},
     nav_menu::{self, NavMenuContext},
@@ -102,7 +102,16 @@ pub(crate) fn render_layout(
     let responsive_attrs = build_responsive_attributes(&resolved);
 
     // Render unified site actions zone (reviews, uploads, etc.)
-    let site_actions = render_site_actions(&context);
+    // Returns tuple of (site_actions_html, enabled_actions_attr)
+    let (site_actions, actions_enabled) = render_site_actions(&context);
+
+    // Hidden element with actions visibility for client-side navigation updates
+    // This lives inside .layout-main so it gets swapped by glide
+    let actions_visibility = if actions_enabled.is_empty() {
+        String::new()
+    } else {
+        format!(r#"<div data-stencila-actions-enabled="{actions_enabled}" hidden></div>"#)
+    };
 
     format!(
         r##"<stencila-layout{regions_enabled}{responsive_attrs}>
@@ -114,6 +123,7 @@ pub(crate) fn render_layout(
       {top}
       <main id="main-content" tabindex="-1"><!--MAIN CONTENT--></main>
       {bottom}
+      {actions_visibility}
     </div>
     {right_sidebar}
   </div>
@@ -161,7 +171,17 @@ fn should_show_action_for_route(
 }
 
 /// Check if reviews should be shown for a given route based on include/exclude patterns
-pub fn should_show_reviews_for_route(route: &str, config: &SiteReviewsConfig) -> bool {
+/// and spread route settings
+pub fn should_show_reviews_for_route(
+    route: &str,
+    config: &SiteReviewsConfig,
+    is_spread: bool,
+) -> bool {
+    // Check spread route setting first
+    if is_spread && !config.spread_routes_enabled() {
+        return false;
+    }
+
     should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
 }
 
@@ -1130,13 +1150,41 @@ fn render_search(placeholder: &Option<String>, context: &RenderContext) -> Strin
     format!("<stencila-site-search{attrs}></stencila-site-search>")
 }
 
+/// Check if the current route is a spread route by looking it up in the routes list
+fn is_spread_route(route: &str, routes: &[RouteEntry]) -> bool {
+    routes
+        .iter()
+        .find(|r| r.route == route)
+        .is_some_and(|r| matches!(r.route_type, RouteType::Spread))
+}
+
 /// Check if uploads should be shown for a given route based on include/exclude patterns
-pub fn should_show_uploads_for_route(route: &str, config: &SiteUploadsConfig) -> bool {
+/// and spread route settings
+pub fn should_show_uploads_for_route(
+    route: &str,
+    config: &SiteUploadsConfig,
+    is_spread: bool,
+) -> bool {
+    // Check spread route setting first
+    if is_spread && !config.spread_routes_enabled() {
+        return false;
+    }
+
     should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
 }
 
 /// Check if remotes should be shown for a given route based on include/exclude patterns
-pub fn should_show_remotes_for_route(route: &str, config: &SiteRemotesConfig) -> bool {
+/// and spread route settings
+pub fn should_show_remotes_for_route(
+    route: &str,
+    config: &SiteRemotesConfig,
+    is_spread: bool,
+) -> bool {
+    // Check spread route setting first
+    if is_spread && !config.spread_routes_enabled() {
+        return false;
+    }
+
     should_show_action_for_route(route, config.include.as_deref(), config.exclude.as_deref())
 }
 
@@ -1146,7 +1194,10 @@ pub fn should_show_remotes_for_route(route: &str, config: &SiteRemotesConfig) ->
 /// with configurable position, direction, and mode (speed-dial vs expanded).
 /// Child components receive the `hide-fab` attribute so they don't render
 /// their own floating action buttons.
-fn render_site_actions(context: &RenderContext) -> String {
+///
+/// Returns a tuple of (html, enabled_actions) where enabled_actions is a
+/// comma-separated list of action IDs that should be visible for this route.
+fn render_site_actions(context: &RenderContext) -> (String, String) {
     // Get actions config with defaults
     let actions_config = context.site_config.actions.clone().unwrap_or_default();
 
@@ -1164,61 +1215,66 @@ fn render_site_actions(context: &RenderContext) -> String {
         SiteActionsDirection::Horizontal => "horizontal",
     };
 
-    // Collect child components that are enabled for this route
+    // Collect child components and track which are enabled for this route
     let mut children: Vec<String> = Vec::new();
+    let mut enabled_actions: Vec<&str> = Vec::new();
 
-    // Check reviews
+    // Determine if current route is a spread route (do this once)
+    let is_spread = is_spread_route(context.route, context.routes);
+
+    // Reviews - always render if globally enabled, track if enabled for this route
     if let Some(reviews_spec) = &context.site_config.reviews
         && reviews_spec.is_enabled()
     {
         let config = reviews_spec.to_config();
-        if should_show_reviews_for_route(context.route, &config)
-            && let Some(review_html) =
-                render_site_review_with_hide_fab(&config, context.workspace_id)
-        {
+        if let Some(review_html) = render_site_review_with_hide_fab(&config, context.workspace_id) {
             children.push(review_html);
+            if should_show_reviews_for_route(context.route, &config, is_spread) {
+                enabled_actions.push("review");
+            }
         }
     }
 
-    // Check uploads
+    // Uploads - always render if globally enabled, track if enabled for this route
     if let Some(uploads_spec) = &context.site_config.uploads
         && uploads_spec.is_enabled()
     {
         let config = uploads_spec.to_config();
-        if should_show_uploads_for_route(context.route, &config)
-            && let Some(upload_html) =
-                render_site_upload_with_hide_fab(&config, context.workspace_id)
-        {
+        if let Some(upload_html) = render_site_upload_with_hide_fab(&config, context.workspace_id) {
             children.push(upload_html);
+            if should_show_uploads_for_route(context.route, &config, is_spread) {
+                enabled_actions.push("upload");
+            }
         }
     }
 
-    // Check remotes
+    // Remotes - always render if globally enabled, track if enabled for this route
     if let Some(remotes_spec) = &context.site_config.remotes
         && remotes_spec.is_enabled()
     {
         let config = remotes_spec.to_config();
-        if should_show_remotes_for_route(context.route, &config)
-            && let Some(remote_html) =
-                render_site_remote_with_hide_fab(&config, context.workspace_id)
-        {
+        if let Some(remote_html) = render_site_remote_with_hide_fab(&config, context.workspace_id) {
             children.push(remote_html);
+            if should_show_remotes_for_route(context.route, &config, is_spread) {
+                enabled_actions.push("remote");
+            }
         }
     }
 
-    // If no children enabled, return empty (don't render the container)
+    // If no children at all, return empty (don't render the container)
     if children.is_empty() {
-        return String::new();
+        return (String::new(), String::new());
     }
 
     // Build mode attribute
-    // If explicitly configured, use that; otherwise default to "expanded" for single action,
-    // "collapsed" for multiple actions
+    // If explicitly configured, use that; otherwise default to "expanded" for single visible action,
+    // "collapsed" for multiple visible actions
+    let visible_count = enabled_actions.len();
     let mode = match actions_config.mode {
         Some(SiteActionsMode::Collapsed) => "collapsed",
         Some(SiteActionsMode::Expanded) => "expanded",
         None => {
-            if children.len() == 1 {
+            if visible_count <= 1 {
                 "expanded"
             } else {
                 "collapsed"
@@ -1226,10 +1282,15 @@ fn render_site_actions(context: &RenderContext) -> String {
         }
     };
 
+    // Build enabled attribute for client-side visibility control
+    let enabled_attr = enabled_actions.join(",");
+
     let children_html = children.join("");
-    format!(
-        r#"<stencila-site-actions position="{position}" direction="{direction}" mode="{mode}">{children_html}</stencila-site-actions>"#
-    )
+    let html = format!(
+        r#"<stencila-site-actions position="{position}" direction="{direction}" mode="{mode}" enabled="{enabled_attr}">{children_html}</stencila-site-actions>"#
+    );
+
+    (html, enabled_attr)
 }
 
 /// Render site review component with hide-fab attribute for use inside site-actions
@@ -1281,7 +1342,7 @@ fn render_site_review_with_hide_fab(
 
 /// Render site upload component with hide-fab attribute for use inside site-actions
 fn render_site_upload_with_hide_fab(
-    _config: &SiteUploadsConfig,
+    config: &SiteUploadsConfig,
     workspace_id: Option<&str>,
 ) -> Option<String> {
     // Require workspace.id for uploads to function
@@ -1293,8 +1354,24 @@ fn render_site_upload_with_hide_fab(
         return None;
     };
 
+    let mut attrs = format!(r#"workspace-id="{id}" hide-fab"#);
+
+    // Target path
+    let target_path = config.target_path();
+    if !target_path.is_empty() {
+        attrs.push_str(&format!(r#" target-path="{target_path}""#));
+    }
+
+    // Public/anon settings (inform UI, enforced server-side)
+    if config.is_public() {
+        attrs.push_str(r#" public="true""#);
+    }
+    if config.is_anon() {
+        attrs.push_str(r#" anon="true""#);
+    }
+
     Some(format!(
-        r#"<stencila-site-upload workspace-id="{id}" hide-fab></stencila-site-upload>"#
+        "<stencila-site-upload {attrs}></stencila-site-upload>"
     ))
 }
 
@@ -1320,11 +1397,6 @@ fn render_site_remote_with_hide_fab(
         attrs.push_str(&format!(r#" target-path="{target_path}""#));
     }
 
-    // User path
-    if config.user_path_enabled() {
-        attrs.push_str(r#" user-path="true""#);
-    }
-
     // Helper to convert format enum to lowercase string
     fn format_to_str(f: &SiteRemoteFormat) -> &'static str {
         match f {
@@ -1342,11 +1414,6 @@ fn render_site_remote_with_hide_fab(
     if let Some(formats) = &config.allowed_formats {
         let formats_str: Vec<&str> = formats.iter().map(format_to_str).collect();
         attrs.push_str(&format!(r#" allowed-formats="{}""#, formats_str.join(",")));
-    }
-
-    // Require message
-    if config.require_message() {
-        attrs.push_str(r#" require-message="true""#);
     }
 
     // Public/anon settings (inform UI, enforced server-side)
