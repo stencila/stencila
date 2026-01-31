@@ -5,6 +5,7 @@ edition = "2024"
 description = "Stabilize node UIDs for deterministic site rendering"
 
 [dependencies]
+stencila-codec-text = { path = "../codec-text" }
 stencila-node-id = { path = "../node-id" }
 stencila-schema = { path = "../schema" }
 

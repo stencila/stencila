@@ -10755,6 +10755,7 @@ dependencies = [
 name = "stencila-node-stabilize"
 version = "0.0.0"
 dependencies = [
+ "stencila-codec-text",
  "stencila-node-id",
  "stencila-schema",
 ]

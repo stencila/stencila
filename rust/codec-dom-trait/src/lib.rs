@@ -202,29 +202,37 @@ impl DomEncodeContext {
         node_type: NodeType,
         node_id: NodeId,
     ) -> &mut Self {
-        let id = node_id.to_string();
-        let depth = self.node_types.len().to_string();
-        let ancestors = self
-            .node_types
-            .iter()
-            .map(|node_type| node_type.to_string())
-            .join(".");
-
         if self.view_is_static {
             if matches!(node_type, NodeType::Heading) {
                 // For headings table of contents (TOC) to work we need ids, even in
-                // static mode.
-                // TODO: replace this with a generation of heading ids based on content
-                // and wrapping id elements as done for tables etc
-                self.enter_elem_attrs(name, [("id", &id)]);
+                // static mode. Use just the uid (content-based slug for headings).
+                let id = node_id.uid_str();
+                if id.is_empty() {
+                    self.enter_elem(name);
+                } else {
+                    self.enter_elem_attrs(name, [("id", id)]);
+                }
             } else {
                 self.enter_elem(name);
             }
         } else if self.view_is_site {
-            // Site view: include node IDs for page review feature, but skip
-            // depth/ancestors to save space
-            self.enter_elem_attrs(name, [("id", &id)]);
+            // Site view: use just the uid for cleaner IDs (e.g., "my-heading"
+            // instead of "hea_my-heading"). Skip empty UIDs (e.g., root article).
+            let id = node_id.uid_str();
+            if id.is_empty() {
+                self.enter_elem(name);
+            } else {
+                self.enter_elem_attrs(name, [("id", id)]);
+            }
         } else {
+            // Other views: use full node ID with type prefix and include depth/ancestors
+            let id = node_id.to_string();
+            let depth = self.node_types.len().to_string();
+            let ancestors = self
+                .node_types
+                .iter()
+                .map(|node_type| node_type.to_string())
+                .join(".");
             self.enter_elem_attrs(
                 name,
                 [("id", &id), ("depth", &depth), ("ancestors", &ancestors)],

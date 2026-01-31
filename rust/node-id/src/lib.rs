@@ -93,9 +93,14 @@ impl NodeId {
         str::from_utf8(&self.nick).expect("node type nicknames should always be utf8")
     }
 
-    /// Get the unique id part of the node id
+    /// Get the unique id part of the node id as bytes
     pub fn uid(&self) -> &[u8] {
         &self.uid
+    }
+
+    /// Get the unique id part of the node id as a string
+    pub fn uid_str(&self) -> &str {
+        str::from_utf8(&self.uid).expect("node uid should always be utf8")
     }
 }
 

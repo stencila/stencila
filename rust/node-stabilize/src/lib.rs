@@ -4,11 +4,14 @@
 //! path-based UIDs. This ensures that the same source document produces identical
 //! HTML and nodemap.json output on re-render, enabling effective ETag-based caching.
 
+use std::collections::HashMap;
+
+use stencila_codec_text::to_text;
 use stencila_node_id::NodeUid;
 use stencila_schema::{
-    Block, Citation, IfBlockClause, Inline, ListItem, Node, NodePath, NodeProperty, NodeSlot,
-    SuggestionBlock, SuggestionInline, TableCell, TableRow, VisitorMut, WalkControl, WalkNode,
-    WalkthroughStep,
+    Block, Citation, Heading, IfBlockClause, Inline, ListItem, Node, NodePath, NodeProperty,
+    NodeSlot, SuggestionBlock, SuggestionInline, TableCell, TableRow, VisitorMut, WalkControl,
+    WalkNode, WalkthroughStep,
 };
 
 /// Stabilize all node UIDs in a document tree.
@@ -36,10 +39,13 @@ pub fn stabilize(node: &mut Node) {
 ///
 /// Each node's UID is replaced with a deterministic value derived from its
 /// position (properties and indices) in the document tree.
+/// Headings get special treatment with content-based slugs.
 #[derive(Default)]
 pub struct Stabilizer {
     /// Current path including both properties and indices
     path: NodePath,
+    /// Tracks heading slugs for duplicate detection
+    heading_slugs: HashMap<String, usize>,
 }
 
 impl Stabilizer {
@@ -50,8 +56,8 @@ impl Stabilizer {
 
     /// Get the current path as a deterministic UID
     ///
-    /// Encodes the path as underscore-separated property names and indices.
-    /// Example: "content_0_rows_1" for content[0].rows[1]
+    /// Encodes the path as hyphen-separated property names and indices.
+    /// Example: "content-0-rows-1" for content[0].rows[1]
     fn uid_from_path(&self) -> NodeUid {
         let encoded = self
             .path
@@ -61,8 +67,46 @@ impl Stabilizer {
                 NodeSlot::Index(idx) => idx.to_string(),
             })
             .collect::<Vec<_>>()
-            .join("_");
+            .join("-");
         NodeUid::from(encoded.into_bytes())
+    }
+
+    /// Generate a unique slug for a heading based on its content
+    ///
+    /// Converts heading text to a URL-friendly slug and handles duplicates
+    /// by appending -2, -3, etc.
+    fn heading_slug(&mut self, heading: &Heading) -> NodeUid {
+        // Extract plain text from heading content
+        let text = to_text(&heading.content);
+
+        // Convert to slug: lowercase, replace non-alphanumeric with hyphens
+        // Use is_alphanumeric() to support Unicode letters/numbers (e.g., 日本語)
+        let slug: String = text
+            .to_lowercase()
+            .chars()
+            .map(|c| if c.is_alphanumeric() { c } else { '-' })
+            .collect();
+
+        // Collapse consecutive hyphens and trim
+        let mut slug = slug
+            .split('-')
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<_>>()
+            .join("-");
+
+        // Handle empty slugs
+        if slug.is_empty() {
+            slug = "heading".to_string();
+        }
+
+        // Handle duplicates
+        let count = self.heading_slugs.entry(slug.clone()).or_insert(0);
+        *count += 1;
+        if *count > 1 {
+            slug = format!("{}-{}", slug, count);
+        }
+
+        NodeUid::from(slug.into_bytes())
     }
 }
 
@@ -244,12 +288,19 @@ impl VisitorMut for Stabilizer {
     }
 
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
+        // Handle headings specially with content-based slugs
+        if let Block::Heading(heading) = block {
+            heading.uid = self.heading_slug(heading);
+            return WalkControl::Continue;
+        }
+
         let uid = self.uid_from_path();
 
         macro_rules! variants {
             ($( $variant:ident ),*) => {
                 match block {
                     $(Block::$variant(node) => node.uid = uid,)*
+                    Block::Heading(..) => unreachable!(),
                 }
             };
         }
@@ -271,7 +322,6 @@ impl VisitorMut for Stabilizer {
             File,
             ForBlock,
             Form,
-            Heading,
             IfBlock,
             ImageObject,
             IncludeBlock,
@@ -396,7 +446,7 @@ impl VisitorMut for Stabilizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_schema::{Article, Paragraph, Text};
+    use stencila_schema::{Article, Heading, Paragraph, Text};
 
     #[test]
     fn test_stabilize_simple_document() {
@@ -431,7 +481,7 @@ mod tests {
         };
 
         // Root article should have empty path UID
-        assert_eq!(stabilized.to_string(), "");
+        assert_eq!(stabilized.node_id().uid_str(), "");
 
         // The paragraphs should have deterministic UIDs based on their path
         // Path includes property name and index
@@ -442,10 +492,10 @@ mod tests {
             panic!("Expected Paragraph");
         };
 
-        // First paragraph: content property, index 0
-        assert_eq!(para1.to_string(), "pgh_content_0");
+        // First paragraph: content property, index 0 (kebab-case)
+        assert_eq!(para1.node_id().to_string(), "pgh_content-0");
         // Second paragraph: content property, index 1
-        assert_eq!(para2.to_string(), "pgh_content_1");
+        assert_eq!(para2.node_id().to_string(), "pgh_content-1");
 
         // The text nodes inside should have their own paths
         let Inline::Text(text1) = &para1.content[0] else {
@@ -455,10 +505,10 @@ mod tests {
             panic!("Expected Text");
         };
 
-        // First text: content[0].content[0]
-        assert_eq!(text1.to_string(), "pgh_content_0_content_0");
+        // First text: content[0].content[0] (kebab-case)
+        assert_eq!(text1.node_id().to_string(), "txt_content-0-content-0");
         // Second text: content[1].content[0]
-        assert_eq!(text2.to_string(), "pgh_content_1_content_0");
+        assert_eq!(text2.node_id().to_string(), "txt_content-1-content-0");
     }
 
     #[test]
@@ -497,6 +547,155 @@ mod tests {
         };
 
         // UIDs should be identical
-        assert_eq!(para1.to_string(), para2.to_string());
+        assert_eq!(para1.node_id().to_string(), para2.node_id().to_string());
+    }
+
+    #[test]
+    fn test_heading_slugs() {
+        // Create a document with headings
+        let article = Article {
+            content: vec![
+                Block::Heading(Heading {
+                    content: vec![Inline::Text(Text {
+                        value: "Introduction".into(),
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+                Block::Heading(Heading {
+                    content: vec![Inline::Text(Text {
+                        value: "Hello World!".into(),
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+                Block::Heading(Heading {
+                    content: vec![Inline::Text(Text {
+                        value: "Introduction".into(),
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut node = Node::Article(article);
+        stabilize(&mut node);
+
+        let Node::Article(stabilized) = node else {
+            panic!("Expected Article");
+        };
+
+        // First heading: "Introduction" -> "introduction"
+        let Block::Heading(heading1) = &stabilized.content[0] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading1.node_id().to_string(), "hea_introduction");
+
+        // Second heading: "Hello World!" -> "hello-world"
+        let Block::Heading(heading2) = &stabilized.content[1] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading2.node_id().to_string(), "hea_hello-world");
+
+        // Third heading: duplicate "Introduction" -> "introduction-2"
+        let Block::Heading(heading3) = &stabilized.content[2] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading3.node_id().to_string(), "hea_introduction-2");
+    }
+
+    #[test]
+    fn test_heading_slugs_unicode() {
+        // Test non-ASCII heading content (Unicode support)
+        let article = Article {
+            content: vec![
+                Block::Heading(Heading {
+                    content: vec![Inline::Text(Text {
+                        value: "日本語タイトル".into(),
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+                Block::Heading(Heading {
+                    content: vec![Inline::Text(Text {
+                        value: "Ελληνικά".into(),
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+                Block::Heading(Heading {
+                    content: vec![Inline::Text(Text {
+                        value: "日本語タイトル".into(),
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut node = Node::Article(article);
+        stabilize(&mut node);
+
+        let Node::Article(stabilized) = node else {
+            panic!("Expected Article");
+        };
+
+        // Japanese heading preserved (lowercased where applicable)
+        let Block::Heading(heading1) = &stabilized.content[0] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading1.node_id().uid_str(), "日本語タイトル");
+
+        // Greek heading lowercased
+        let Block::Heading(heading2) = &stabilized.content[1] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading2.node_id().uid_str(), "ελληνικά");
+
+        // Duplicate Japanese heading gets suffix
+        let Block::Heading(heading3) = &stabilized.content[2] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading3.node_id().uid_str(), "日本語タイトル-2");
+    }
+
+    #[test]
+    fn test_heading_slugs_empty_content() {
+        // Test empty heading content falls back to "heading"
+        let article = Article {
+            content: vec![
+                Block::Heading(Heading {
+                    content: vec![],
+                    ..Default::default()
+                }),
+                Block::Heading(Heading {
+                    content: vec![],
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut node = Node::Article(article);
+        stabilize(&mut node);
+
+        let Node::Article(stabilized) = node else {
+            panic!("Expected Article");
+        };
+
+        // Empty heading falls back to "heading"
+        let Block::Heading(heading1) = &stabilized.content[0] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading1.node_id().uid_str(), "heading");
+
+        // Second empty heading gets suffix
+        let Block::Heading(heading2) = &stabilized.content[1] else {
+            panic!("Expected Heading");
+        };
+        assert_eq!(heading2.node_id().uid_str(), "heading-2");
     }
 }
