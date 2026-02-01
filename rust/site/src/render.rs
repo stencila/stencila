@@ -41,8 +41,8 @@ use crate::{
     logo::resolve_logo,
     nav_common::auto_generate_nav,
     search::{
-        SearchEntry, SearchIndexBuilder, build_breadcrumbs_map, extract_entries_with_config,
-        get_breadcrumbs,
+        Breadcrumb, SearchEntry, SearchIndexBuilder, build_breadcrumbs_map,
+        extract_entries_with_config, get_breadcrumbs,
     },
 };
 
@@ -398,7 +398,7 @@ where
                     &document_routes,
                     &routes_set,
                     &nav_items,
-                    &breadcrumbs_map,
+                    breadcrumbs_map.as_ref(),
                     resolved_logo.as_ref().as_ref(),
                     workspace_id.as_deref(),
                     git_repo_root.as_deref(),
@@ -582,7 +582,7 @@ async fn render_document_route(
     routes: &[RouteEntry],
     routes_set: &HashSet<String>,
     nav_items: &Vec<NavItem>,
-    breadcrumbs_map: &std::collections::HashMap<String, Vec<String>>,
+    breadcrumbs_map: &HashMap<String, Vec<Breadcrumb>>,
     resolved_logo: Option<&stencila_config::LogoConfig>,
     workspace_id: Option<&str>,
     git_repo_root: Option<&Path>,
@@ -661,6 +661,7 @@ async fn render_document_route(
         routes,
         routes_set,
         nav_items,
+        breadcrumbs_map,
         resolved_logo,
         workspace_id,
         git_repo_root,

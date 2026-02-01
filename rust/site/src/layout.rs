@@ -3,7 +3,10 @@
 //! This module handles rendering the overall site layout structure including
 //! regions (header, footer, sidebars) and dispatching to component renderers.
 
-use std::{collections::HashSet, path::Path};
+use std::{
+    collections::{HashMap, HashSet},
+    path::Path,
+};
 
 use stencila_config::{
     ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
@@ -14,10 +17,11 @@ use stencila_config::{
 
 use crate::{
     RouteEntry, RouteType, logo,
-    nav_common::{normalize_icon_name, segment_to_label},
+    nav_common::normalize_icon_name,
     nav_groups::{self, NavGroupsContext},
     nav_menu::{self, NavMenuContext},
     nav_tree::{self, NavTreeContext},
+    search::{Breadcrumb, get_breadcrumbs},
 };
 
 pub(crate) struct RenderContext<'a> {
@@ -26,6 +30,7 @@ pub(crate) struct RenderContext<'a> {
     pub routes: &'a [RouteEntry],
     pub routes_set: &'a HashSet<String>,
     pub nav_items: &'a Vec<NavItem>,
+    pub breadcrumbs_map: &'a HashMap<String, Vec<Breadcrumb>>,
     pub resolved_logo: Option<&'a LogoConfig>,
     pub workspace_id: Option<&'a str>,
     pub git_repo_root: Option<&'a Path>,
@@ -41,6 +46,7 @@ pub(crate) struct RenderContext<'a> {
 /// * `routes` - All document routes for prev/next navigation etc
 /// * `routes_set` - Set of valid routes (precomputed for O(1) lookups)
 /// * `nav_items` - Nav items (either from site.nav config or auto-generated once)
+/// * `breadcrumbs_map` - Route-to-breadcrumbs lookup map for nav-aware labels
 /// * `resolved_logo` - Pre-resolved logo config (computed once per render)
 /// * `workspace_id` - Optional workspace ID from config
 /// * `git_repo_root` - Optional git repository root (for edit-source/edit-on)
@@ -53,6 +59,7 @@ pub(crate) fn render_layout(
     routes: &[RouteEntry],
     routes_set: &HashSet<String>,
     nav_items: &Vec<NavItem>,
+    breadcrumbs_map: &HashMap<String, Vec<Breadcrumb>>,
     resolved_logo: Option<&LogoConfig>,
     workspace_id: Option<&str>,
     git_repo_root: Option<&Path>,
@@ -65,6 +72,7 @@ pub(crate) fn render_layout(
         routes,
         routes_set,
         nav_items,
+        breadcrumbs_map,
         resolved_logo,
         workspace_id,
         git_repo_root,
@@ -558,54 +566,44 @@ fn render_logo(logo_config: Option<&LogoConfig>, context: &RenderContext) -> Str
 /// Render a breadcrumbs component
 ///
 /// Generates semantic HTML for breadcrumb navigation based on the route path.
-/// For example, `/docs/guide/getting-started/` generates:
-///   Home > Docs > Guide > Getting Started
+/// Uses labels from `_nav.yaml` when available for consistency with nav-tree and nav-menu.
+/// For example, `/docs/formats/html/` generates:
+///   Home > Docs > Formats > HTML (using "HTML" from nav config, not "Html")
 ///
-/// Intermediate segments are only rendered as links if the route exists.
-/// Non-existent routes are rendered as non-clickable text (similar to nav-tree groups).
+/// Nav groups without routes (like "Markup" in formats) are rendered as non-clickable text.
+/// Intermediate routes are only rendered as links if they exist in the site's routes.
 fn render_breadcrumbs(context: &RenderContext) -> String {
-    // Parse the route into segments
-    let segments: Vec<&str> = context
-        .route
-        .trim_matches('/')
-        .split('/')
-        .filter(|s| !s.is_empty())
-        .collect();
+    // Get breadcrumbs from nav structure (each with label and optional route)
+    let breadcrumbs = get_breadcrumbs(context.route, context.breadcrumbs_map);
 
     // Build the breadcrumb list items
     let mut items = String::new();
-    let mut current_path = String::new();
+    let breadcrumb_count = breadcrumbs.len();
 
-    // Home link (always first)
-    items.push_str(r#"<li><a href="/">Home</a></li>"#);
+    for (index, (label, route)) in breadcrumbs.iter().enumerate() {
+        let is_first = index == 0;
+        let is_last = index == breadcrumb_count - 1;
 
-    // Add intermediate segments
-    let segment_count = segments.len();
-    for (index, segment) in segments.iter().enumerate() {
-        current_path.push('/');
-        current_path.push_str(segment);
-
-        // Convert segment to title case (e.g., "getting-started" -> "Getting Started")
-        let label = segment_to_label(segment);
-
-        if index == segment_count - 1 {
-            // Last segment: current page (no link)
+        if is_first {
+            // Home is always a link (even on root page)
+            items.push_str(r#"<li><a href="/">Home</a></li>"#);
+        } else if is_last {
+            // Last breadcrumb: current page (no link)
             items.push_str(&format!(r#"<li aria-current="page">{label}</li>"#));
-        } else {
-            // Intermediate segment: check if route exists (O(1) HashSet lookup)
-            let route_with_slash = format!("{current_path}/");
-            let route_exists = context.routes_set.contains(&route_with_slash)
-                || context.routes_set.contains(&current_path);
+        } else if let Some(href) = route {
+            // Intermediate breadcrumb with route: only link if route exists
+            let route_exists = context.routes_set.contains(href)
+                || context.routes_set.contains(href.trim_end_matches('/'));
 
             if route_exists {
-                // Route exists: render as clickable link
-                items.push_str(&format!(
-                    r#"<li><a href="{current_path}/">{label}</a></li>"#
-                ));
+                items.push_str(&format!(r#"<li><a href="{href}">{label}</a></li>"#));
             } else {
                 // Route doesn't exist: render as non-clickable text
                 items.push_str(&format!(r#"<li><span>{label}</span></li>"#));
             }
+        } else {
+            // No route (nav group without page): render as non-clickable text
+            items.push_str(&format!(r#"<li><span>{label}</span></li>"#));
         }
     }
 

@@ -15,7 +15,7 @@ mod manifest;
 mod shard;
 mod tokenize;
 
-pub use breadcrumbs::{build_breadcrumbs_map, get_breadcrumbs};
+pub use breadcrumbs::{Breadcrumb, build_breadcrumbs_map, get_breadcrumbs};
 pub use entry::{DatatableMetadata, SearchEntry, TokenTrigrams, weights};
 pub use extract::{extract_entries, extract_entries_with_config};
 pub use generate::{generate_search_index, generate_search_index_from_nodes};

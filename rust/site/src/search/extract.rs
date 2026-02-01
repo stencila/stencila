@@ -12,21 +12,28 @@ use stencila_codec::stencila_schema::{
 use stencila_codec_text::to_text;
 use stencila_config::SearchConfig;
 
+use super::breadcrumbs::Breadcrumb;
 use super::entry::{DatatableMetadata, SearchEntry, weights};
 
 /// Maximum text length to index per entry (Unicode code points)
 const MAX_TEXT_LENGTH: usize = 500;
 
+/// Extract just the labels from breadcrumbs for search entry display
+fn breadcrumb_labels(breadcrumbs: &[Breadcrumb]) -> Vec<String> {
+    breadcrumbs.iter().map(|(label, _)| label.clone()).collect()
+}
+
 /// Extract searchable entries from a document node
 ///
 /// Walks through the document tree and creates search entries for
 /// indexable content like headings, paragraphs, datatables, etc.
-pub fn extract_entries(node: &Node, route: &str, breadcrumbs: Vec<String>) -> Vec<SearchEntry> {
+pub fn extract_entries(node: &Node, route: &str, breadcrumbs: Vec<Breadcrumb>) -> Vec<SearchEntry> {
+    let labels = breadcrumb_labels(&breadcrumbs);
     let mut entries = Vec::new();
     extract_from_node(
         node,
         route,
-        &breadcrumbs,
+        &labels,
         0,
         MAX_TEXT_LENGTH,
         &None,
@@ -42,9 +49,10 @@ pub fn extract_entries(node: &Node, route: &str, breadcrumbs: Vec<String>) -> Ve
 pub fn extract_entries_with_config(
     node: &Node,
     route: &str,
-    breadcrumbs: Vec<String>,
+    breadcrumbs: Vec<Breadcrumb>,
     config: &SearchConfig,
 ) -> Vec<SearchEntry> {
+    let labels = breadcrumb_labels(&breadcrumbs);
     let mut entries = Vec::new();
 
     // Convert include_types to a HashSet for efficient lookup
@@ -53,7 +61,7 @@ pub fn extract_entries_with_config(
     extract_from_node(
         node,
         route,
-        &breadcrumbs,
+        &labels,
         0,
         config.max_text_length(),
         &Some(include_types),
@@ -759,24 +767,30 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs.clone());
 
         // Should have 2 entries: title and paragraph
         assert_eq!(entries.len(), 2);
+
+        // Expected labels (search entries only store labels, not routes)
+        let expected_labels = vec!["Home".to_string(), "Test".to_string()];
 
         // First entry should be the article title
         assert_eq!(entries[0].node_type, "Article");
         assert_eq!(entries[0].text, "My Article Title");
         assert_eq!(entries[0].weight, weights::TITLE);
         assert_eq!(entries[0].depth, 0);
-        assert_eq!(entries[0].breadcrumbs, breadcrumbs);
+        assert_eq!(entries[0].breadcrumbs, expected_labels);
 
         // Second entry should be the paragraph
         assert_eq!(entries[1].node_type, "Paragraph");
         assert_eq!(entries[1].text, "Some content");
         assert_eq!(entries[1].depth, 1);
-        assert_eq!(entries[1].breadcrumbs, breadcrumbs);
+        assert_eq!(entries[1].breadcrumbs, expected_labels);
     }
 
     #[test]
@@ -799,7 +813,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries =
             extract_entries_with_config(&Node::Article(article), "/test", breadcrumbs, &config);
 
@@ -824,7 +841,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries =
             extract_entries_with_config(&Node::Article(article), "/test", breadcrumbs, &config);
 
@@ -855,7 +875,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries =
             extract_entries_with_config(&Node::Datatable(datatable), "/test", breadcrumbs, &config);
 
@@ -884,7 +907,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         // Find the paragraphs
@@ -913,7 +939,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         let top_level = entries.iter().find(|e| e.text == "Top level");
@@ -938,7 +967,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         let h1 = entries
@@ -972,7 +1004,10 @@ mod tests {
             ..Default::default()
         };
 
-        let breadcrumbs = vec!["Home".to_string(), "Test".to_string()];
+        let breadcrumbs = vec![
+            ("Home".to_string(), Some("/".to_string())),
+            ("Test".to_string(), Some("/test/".to_string())),
+        ];
         let entries = extract_entries(&Node::Article(article), "/test", breadcrumbs);
 
         // Neither empty title nor empty paragraph should be indexed
