@@ -1,4 +1,4 @@
-use stencila_schema::{ExecutionBounds, SuggestionBlock, SuggestionStatus};
+use stencila_schema::{SuggestionBlock, SuggestionStatus};
 
 use crate::prelude::*;
 
@@ -75,12 +75,18 @@ impl Executable for SuggestionBlock {
                 }
             }
             Some(SuggestionStatus::Rejected) | None => {
-                // Suggestion is rejected or proposed so execute within a fork, but only if that is possible
-                let forkable = executor
-                    .kernels()
-                    .await
-                    .can_replicate(ExecutionBounds::Fork)
-                    .await;
+                // Suggestion is rejected or proposed so execute within a fork,
+                // but only if that is possible This is currently disabled
+                // because (a) it causes R and Python micro-kernels to hang (may
+                // be a bug elsewhere), and (b) it is not necessary anyway
+                // unless there is executable content withing the suggestion
+                // (this should be checked first before going to the effort of
+                // forking)
+                let forkable = false; /*executor
+                .kernels()
+                .await
+                .can_replicate(ExecutionBounds::Fork)
+                .await;*/
                 if forkable {
                     tracing::trace!(
                         "Executing proposed suggestion block `{node_id}` with forked executor"
