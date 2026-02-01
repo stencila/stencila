@@ -144,6 +144,7 @@ pub async fn render<F, Fut>(
     source_dir: &Path,
     output_dir: &Path,
     base_url: &str,
+    web_base: Option<&str>,
     route_filter: Option<&str>,
     path_filter: Option<&str>,
     source_files: Option<&[PathBuf]>,
@@ -343,6 +344,7 @@ where
     let total = document_routes_render.len() + auto_index_routes_render.len();
     let source_dir = Arc::new(source_dir.to_path_buf());
     let base_url = Arc::new(base_url.to_string());
+    let web_base = Arc::new(web_base.map(|s| s.to_string()));
     let glide_attrs = Arc::new(glide_attrs);
     let site_config = Arc::new(site_config);
     let output_dir = Arc::new(output_dir.to_path_buf());
@@ -375,6 +377,7 @@ where
         let processed = Arc::clone(&processed);
         let source_dir = Arc::clone(&source_dir);
         let base_url = Arc::clone(&base_url);
+        let web_base = Arc::clone(&web_base);
         let glide_attrs = Arc::clone(&glide_attrs);
         let site_config = Arc::clone(&site_config);
         let output_dir = Arc::clone(&output_dir);
@@ -420,6 +423,7 @@ where
                     &route,
                     node,
                     &base_url,
+                    web_base.as_deref(),
                     &glide_attrs,
                     &site_config,
                     &source_path,
@@ -504,6 +508,7 @@ where
         let result = render_auto_index_route(
             &entry.route,
             &base_url,
+            web_base.as_deref(),
             &glide_attrs,
             &site_config,
             &output_dir,
@@ -658,6 +663,7 @@ async fn render_document_route(
     route: &str,
     mut node: Node,
     base_url: &str,
+    web_base: Option<&str>,
     glide_attrs: &str,
     site_config: &SiteConfig,
     source_file: &Path,
@@ -728,6 +734,7 @@ async fn render_document_route(
         &node,
         Some(EncodeOptions {
             base_url: Some(base_url.to_string()),
+            web_base: web_base.map(|s| s.to_string()),
             view: Some("site".to_string()),
             ..Default::default()
         }),
@@ -830,6 +837,7 @@ async fn render_document_route(
 async fn render_auto_index_route(
     route: &str,
     base_url: &str,
+    web_base: Option<&str>,
     glide_attrs: &str,
     site_config: &SiteConfig,
     output_dir: &Path,
@@ -885,6 +893,7 @@ async fn render_auto_index_route(
         &node,
         Some(EncodeOptions {
             base_url: Some(base_url.to_string()),
+            web_base: web_base.map(|s| s.to_string()),
             view: Some("site".to_string()),
             ..Default::default()
         }),

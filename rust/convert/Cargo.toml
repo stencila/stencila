@@ -14,7 +14,6 @@ regex = { workspace = true }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-themes = { path = "../themes" }
 stencila-tools = { path = "../tools" }
-stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
 tokio = { workspace = true }
 tracing = { workspace = true }

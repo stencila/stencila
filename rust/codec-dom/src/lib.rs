@@ -17,7 +17,7 @@ use stencila_codec_dom_trait::{
 use stencila_codec_text_trait::to_text;
 use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
-use stencila_version::STENCILA_VERSION;
+use stencila_web_dist::{web_base_cdn, web_base_localhost_default};
 
 // Re-export to_dom
 pub use stencila_codec_dom_trait::to_dom;
@@ -192,12 +192,18 @@ pub async fn encode(
 
         let extra_head = (!extra_head.is_empty()).then_some(extra_head);
 
-        // Use local or production web assets based on STENCILA_DEV_LOCALHOST env var
-        let web_base = if cfg!(debug_assertions) && use_localhost() {
-            "http://localhost:9000/~static/dev".to_string()
-        } else {
-            ["https://stencila.io/web/v", STENCILA_VERSION].concat()
-        };
+        // Use web_base from options if provided, otherwise fall back to
+        // localhost (if STENCILA_DEV_LOCALHOST env var is set) or production CDN
+        let web_base = options
+            .as_ref()
+            .and_then(|opts| opts.web_base.clone())
+            .unwrap_or_else(|| {
+                if cfg!(debug_assertions) && use_localhost() {
+                    web_base_localhost_default()
+                } else {
+                    web_base_cdn()
+                }
+            });
 
         // Get theme name from options
         let theme_name = options.as_ref().and_then(|options| options.theme.clone());

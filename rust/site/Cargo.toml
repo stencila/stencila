@@ -33,6 +33,7 @@ stencila-format = { path = "../format" }
 stencila-node-media = { path = "../node-media" }
 stencila-node-stabilize = { path = "../node-stabilize" }
 stencila-spread = { path = "../spread" }
+stencila-web-dist = { path = "../web-dist" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

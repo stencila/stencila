@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 rust-embed = { workspace = true }
+stencila-version = { path = "../version" }
 
 [lints]
 workspace = true

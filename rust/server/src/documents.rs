@@ -37,11 +37,9 @@ use uuid::Uuid;
 use stencila_codecs::{DecodeOptions, EncodeOptions};
 use stencila_document::{Document, SyncDirection, stencila_schema::Node};
 use stencila_format::Format;
+use stencila_web_dist::{web_static_path_dev, web_static_path_versioned};
 
-use crate::{
-    errors::InternalError,
-    server::{STENCILA_VERSION, ServerState},
-};
+use crate::{errors::InternalError, server::ServerState};
 
 /// A store of documents
 #[derive(Debug, Default)]
@@ -245,9 +243,9 @@ pub async fn serve_path(
 
     // The URL prefix for Stencila's web distribution
     let web = if cfg!(debug_assertions) {
-        "/~static/dev".to_string()
+        web_static_path_dev()
     } else {
-        ["/~static/", STENCILA_VERSION].concat()
+        web_static_path_versioned()
     };
 
     // Get options for generating standalone HTML

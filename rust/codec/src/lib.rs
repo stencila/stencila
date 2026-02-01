@@ -661,6 +661,12 @@ pub struct EncodeOptions {
     /// Used by some codecs when it is necessary to create absolute URLs.
     pub base_url: Option<String>,
 
+    /// The base URL for web assets (themes, views, JS, CSS)
+    ///
+    /// When not set, defaults to production CDN or localhost based on
+    /// the `STENCILA_DEV_LOCALHOST` environment variable.
+    pub web_base: Option<String>,
+
     /// Scopes defining which properties of nodes should be stripped before encoding
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_scopes: Vec<StripScope>,

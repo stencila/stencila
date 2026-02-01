@@ -46,8 +46,7 @@ use itertools::Itertools;
 use stencila_codec_utils::is_in_container;
 use stencila_themes::LengthConversion;
 use stencila_tools::{install_sync, is_installable, is_installed};
-use stencila_version::STENCILA_VERSION;
-use stencila_web_dist::Web;
+use stencila_web_dist::{Web, web_base_cdn, web_base_localhost_default};
 
 /// Duration in seconds to keep browser open for inspection during development.
 /// Set to 0 for normal operation (headless mode).
@@ -1050,9 +1049,9 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
 fn wrap_html(html: &str) -> String {
     // Use local or production web assets based on STENCILA_DEV_LOCALHOST env var
     let web_base = if cfg!(debug_assertions) && use_localhost() {
-        "http://localhost:9000/~static/dev".to_string()
+        web_base_localhost_default()
     } else {
-        ["https://stencila.io/web/v", STENCILA_VERSION].concat()
+        web_base_cdn()
     };
 
     // Add theme CSS

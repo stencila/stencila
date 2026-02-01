@@ -8828,6 +8828,7 @@ dependencies = [
  "stencila-themes",
  "stencila-tools",
  "stencila-version",
+ "stencila-web-dist",
  "strum",
  "tar",
  "tempfile",
@@ -9123,7 +9124,7 @@ dependencies = [
  "stencila-config",
  "stencila-node-media",
  "stencila-themes",
- "stencila-version",
+ "stencila-web-dist",
  "tokio",
 ]
 
@@ -9880,7 +9881,6 @@ dependencies = [
  "stencila-codec-utils",
  "stencila-themes",
  "stencila-tools",
- "stencila-version",
  "stencila-web-dist",
  "test-log",
  "tokio",
@@ -11232,6 +11232,7 @@ dependencies = [
  "stencila-node-media",
  "stencila-node-stabilize",
  "stencila-spread",
+ "stencila-web-dist",
  "tempfile",
  "tokio",
  "toml 0.9.11+spec-1.1.0",
@@ -11333,6 +11334,7 @@ name = "stencila-web-dist"
 version = "0.0.0"
 dependencies = [
  "rust-embed",
+ "stencila-version",
 ]
 
 [[package]]

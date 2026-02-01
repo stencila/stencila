@@ -14,6 +14,7 @@ use tokio::sync::mpsc;
 
 use stencila_codec::stencila_schema::Node;
 use stencila_codec_utils::get_current_branch;
+use stencila_web_dist::web_base_cdn;
 
 use crate::{
     render::{self, RenderProgress, RenderResult},
@@ -178,6 +179,9 @@ where
         path,
         temp_dir.path(),
         &base_url,
+        // Use explicit production CDN URL for web assets to ensure push never
+        // accidentally uses localhost URLs (even if STENCILA_DEV_LOCALHOST is set)
+        Some(&web_base_cdn()),
         route_filter,
         path_filter,
         source_files,

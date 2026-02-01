@@ -26,6 +26,7 @@ use stencila_config::{
     set_value, unset_value, validate_placeholders,
 };
 use stencila_server::{ServeOptions, SiteMessage, get_server_token};
+use stencila_web_dist::web_base_localhost;
 use tokio::sync::{broadcast, mpsc};
 
 /// Helper for managing render progress display with spinner and progress bar
@@ -735,6 +736,13 @@ pub struct Render {
     /// Filter by source file path prefix
     #[arg(long = "path")]
     pub path_filter: Option<String>,
+
+    /// Base URL for web assets (themes, views, JS, CSS)
+    ///
+    /// Defaults to production CDN. Use this option for custom deployments
+    /// or to use a local development server.
+    #[arg(long)]
+    pub web_base: Option<String>,
 }
 
 pub static RENDER_AFTER_LONG_HELP: &str = cstr!(
@@ -788,6 +796,7 @@ impl Render {
             &source,
             &self.output,
             &base_url,
+            self.web_base.as_deref(),
             self.route_filter.as_deref(),
             self.path_filter.as_deref(),
             None, // No source files filter for CLI
@@ -924,7 +933,7 @@ impl Preview {
 
         // Initial render (render() outputs uncompressed HTML with flat structure)
         message!("📁 Rendering site to temporary directory...");
-        Self::render_site(&site_root, &temp_path, layout.as_ref(), None).await?;
+        Self::render_site(&site_root, &temp_path, self.port, layout.as_ref(), None).await?;
 
         // Serve directly from temp_path (render uses flat structure, no decompression needed)
         let serve_dir = temp_path.clone();
@@ -983,6 +992,7 @@ impl Preview {
                 &cfg.workspace_dir,
                 &site_root,
                 &temp_path,
+                self.port,
                 layout,
                 site_notify_tx,
             )
@@ -1005,6 +1015,7 @@ impl Preview {
     async fn render_site(
         source: &Path,
         output: &Path,
+        port: u16,
         _layout: Option<&LayoutConfig>,
         changed_paths: Option<&[PathBuf]>,
     ) -> Result<()> {
@@ -1015,7 +1026,11 @@ impl Preview {
         let (tx, mut rx) = tokio::sync::mpsc::channel::<RenderProgress>(100);
 
         // Base URL for local preview
-        let base_url = "http://localhost:9000".to_string();
+        let base_url = format!("http://localhost:{port}");
+
+        // Web base URL for preview: always use localhost since the preview server
+        // serves bundled web assets at /~static/dev (works offline, ensures version consistency)
+        let web_base = web_base_localhost(port);
 
         // Create progress bar
         let mut progress = RenderProgressBar::new("Discovering routes...");
@@ -1025,6 +1040,7 @@ impl Preview {
             source,
             output,
             &base_url,
+            Some(web_base.as_str()),
             None,          // route_filter
             None,          // path_filter (prefix)
             changed_paths, // source_files (exact match)
@@ -1083,6 +1099,7 @@ impl Preview {
         workspace_root: &Path,
         site_root: &Path,
         output: &Path,
+        port: u16,
         mut layout: Option<LayoutConfig>,
         site_notify: broadcast::Sender<SiteMessage>,
     ) -> Result<()> {
@@ -1136,7 +1153,7 @@ impl Preview {
                             let output = output.to_path_buf();
                             let layout_clone = layout.clone();
                             let handle = tokio::spawn(async move {
-                                Self::render_site(&site_root, &output, layout_clone.as_ref(), None).await
+                                Self::render_site(&site_root, &output, port, layout_clone.as_ref(), None).await
                             });
                             pending_render = Some((handle, RenderTrigger::Config));
                         }
@@ -1204,6 +1221,7 @@ impl Preview {
                         Self::render_site(
                             &site_root,
                             &output,
+                            port,
                             layout_clone.as_ref(),
                             changed_paths.as_deref(),
                         )
