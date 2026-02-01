@@ -7,7 +7,7 @@ edition = "2024"
 async-trait = { workspace = true }
 dialoguer = { version = "0.12", default-features = false }
 eyre = { workspace = true }
-lsp-types = { version = "0.95.1" }
+lsp-types = { version = "0.97.0" }
 owo-colors = "4.2.3"
 rpassword = "7.4.0"
 strum = { workspace = true }
