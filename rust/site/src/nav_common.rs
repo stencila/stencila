@@ -306,6 +306,8 @@ pub(crate) fn auto_generate_nav(
                         max_depth,
                     );
                     if !group_children.is_empty() {
+                        // Route is None - will be set by update_nav_items_with_auto_index
+                        // if auto-index is enabled and creates a page for this group
                         items.push(NavItem::Group {
                             id: None,
                             label,

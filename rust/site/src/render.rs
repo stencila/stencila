@@ -34,10 +34,11 @@ use stencila_node_stabilize::stabilize;
 
 use crate::{
     RouteEntry, RouteType,
+    auto_index::{find_nav_group_children, generate_auto_index_article, get_child_pages_from_nav},
     glide::render_glide,
     layout::render_layout,
     links::{build_routes_set, rewrite_links},
-    list,
+    list::{list, update_nav_items_with_auto_index},
     logo::resolve_logo,
     nav_common::auto_generate_nav,
     search::{
@@ -194,38 +195,43 @@ where
     }
 
     // Partition routes by type
+    // Auto-index routes are now included from list() which applies filters
     let mut document_routes_all: Vec<RouteEntry> = Vec::new();
     let mut document_routes_render: Vec<RouteEntry> = Vec::new();
+    let mut auto_index_routes_all: Vec<RouteEntry> = Vec::new();
+    let mut auto_index_routes_render: Vec<RouteEntry> = Vec::new();
     let mut static_files: Vec<PathBuf> = Vec::new();
     let mut redirects: Vec<(String, String, RedirectStatus)> = Vec::new();
 
     for entry in all_routes {
         match entry.route_type {
-            RouteType::File | RouteType::Implied | RouteType::Spread => {
-                if entry.source_path.is_some() {
-                    document_routes_all.push(entry);
-                }
+            _ if entry.route_type.is_document() && entry.source_path.is_some() => {
+                document_routes_all.push(entry);
             }
-            RouteType::Static | RouteType::Redirect => {
-                // Ignored for nav/routes_set
+            RouteType::AutoIndex => {
+                auto_index_routes_all.push(entry);
+            }
+            _ => {
+                // Static and Redirect are handled separately
             }
         }
     }
 
     for entry in render_routes {
         match entry.route_type {
-            RouteType::File | RouteType::Implied | RouteType::Spread => {
-                if entry.source_path.is_some() {
-                    document_routes_render.push(entry);
-                }
+            _ if entry.route_type.is_document() && entry.source_path.is_some() => {
+                document_routes_render.push(entry);
             }
             RouteType::Static => {
                 if let Some(path) = entry.source_path {
                     static_files.push(path);
                 }
             }
-            RouteType::Redirect => {
-                // Collect redirects for later
+            RouteType::AutoIndex => {
+                auto_index_routes_render.push(entry);
+            }
+            _ => {
+                // Redirect handled separately
             }
         }
     }
@@ -263,7 +269,7 @@ where
     redirects.extend(user_redirects);
 
     send_progress!(RenderProgress::FilesFound {
-        documents: document_routes_render.len(),
+        documents: document_routes_render.len() + auto_index_routes_render.len(),
         static_files: static_files.len(),
     });
 
@@ -295,13 +301,36 @@ where
 
     // Get or generate nav items once (avoid expensive auto-generation per document)
     // If site.nav is configured, use it; otherwise auto-generate from routes
-    let nav_items: Vec<NavItem> = if let Some(ref nav) = site_config.nav {
+    let mut nav_items: Vec<NavItem> = if let Some(ref nav) = site_config.nav {
         nav.clone()
     } else {
         auto_generate_nav(&document_routes_all, &None, Some(&site_root))
     };
 
-    // Build breadcrumbs map once for search indexing
+    // Auto-index routes come from list() which already applies filters
+    // auto_index_routes_all: for navigation (all auto-index routes matching route_filter/path_filter)
+    // auto_index_routes_render: for rendering (filtered by source_files too, if specified)
+
+    // Add auto-index routes to the document routes and routes_set for navigation
+    let mut routes_set = routes_set;
+    for entry in &auto_index_routes_all {
+        document_routes_all.push(entry.clone());
+        routes_set.insert(entry.route.clone());
+    }
+
+    // Build set of auto-index routes for updating nav items
+    let auto_index_route_set: HashSet<String> = auto_index_routes_all
+        .iter()
+        .map(|e| e.route.clone())
+        .collect();
+
+    // Update nav items to include routes for auto-index pages
+    // This makes auto-index routes clickable in nav-tree, breadcrumbs, etc.
+    if !auto_index_routes_all.is_empty() {
+        update_nav_items_with_auto_index(&mut nav_items, &auto_index_route_set);
+    }
+
+    // Build breadcrumbs map once for search indexing (after nav items are updated)
     let breadcrumbs_map = build_breadcrumbs_map(&nav_items);
 
     // Resolve logo once (avoid per-document filesystem scanning)
@@ -311,7 +340,7 @@ where
     let decode_fn = Arc::new(decode_document_fn);
     let progress = Arc::new(progress);
     let processed = Arc::new(AtomicUsize::new(0));
-    let total = document_routes_render.len();
+    let total = document_routes_render.len() + auto_index_routes_render.len();
     let source_dir = Arc::new(source_dir.to_path_buf());
     let base_url = Arc::new(base_url.to_string());
     let glide_attrs = Arc::new(glide_attrs);
@@ -458,6 +487,60 @@ where
         }
     }
 
+    // Render auto-index routes (directories without content files)
+    // Uses auto_index_routes_render which respects filters (route_filter, path_filter, source_files)
+    for entry in &auto_index_routes_render {
+        // Update progress for auto-index routes (use route as synthetic path)
+        let index = processed.fetch_add(1, Ordering::SeqCst);
+        if let Some(tx) = progress.as_ref() {
+            let _ = tx.try_send(RenderProgress::EncodingDocument {
+                path: PathBuf::from(&entry.route),
+                relative_path: format!("[auto-index] {}", entry.route),
+                index,
+                total,
+            });
+        }
+
+        let result = render_auto_index_route(
+            &entry.route,
+            &base_url,
+            &glide_attrs,
+            &site_config,
+            &output_dir,
+            &document_routes,
+            &routes_set,
+            &nav_items,
+            &breadcrumbs_map,
+            resolved_logo.as_ref().as_ref(),
+            workspace_id.as_deref(),
+            git_repo_root.as_deref(),
+            git_origin.as_deref(),
+            git_branch.as_deref(),
+        )
+        .await;
+
+        match result {
+            Ok(rendered) => {
+                if let Some(tx) = progress.as_ref() {
+                    let _ = tx.try_send(RenderProgress::DocumentEncoded {
+                        path: PathBuf::from(&entry.route),
+                        route: rendered.route.clone(),
+                    });
+                }
+                docs_rendered.push(rendered);
+            }
+            Err(e) => {
+                tracing::warn!("Failed to render auto-index route {}: {}", entry.route, e);
+                if let Some(tx) = progress.as_ref() {
+                    let _ = tx.try_send(RenderProgress::DocumentFailed {
+                        path: PathBuf::from(&entry.route),
+                        error: e.to_string(),
+                    });
+                }
+            }
+        }
+    }
+
     // Write redirect files
     for (route, target, status) in &redirects {
         render_redirect_route(route, target, status, &output_dir).await?;
@@ -590,21 +673,11 @@ async fn render_document_route(
     git_branch: Option<&str>,
     spread_arguments: &HashMap<String, String>,
 ) -> Result<RenderedDocument> {
-    // Ensure route ends with /
-    let route = if route.ends_with('/') {
-        route.to_string()
-    } else {
-        format!("{route}/")
-    };
+    // Normalize route to ensure trailing slash
+    let route = normalize_route(route);
 
-    // Convert route to HTML file path (e.g., "/docs/report/" -> "docs/report/index.html")
-    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
-    let html_file = if trimmed.is_empty() {
-        "index.html".to_string()
-    } else {
-        format!("{trimmed}/index.html")
-    };
-    let html_file = output_dir.join(&html_file);
+    // Convert route to HTML file path
+    let html_file = route_to_html_path(&route, output_dir);
 
     // Create media directory at output root for shared deduplication
     let media_dir = output_dir.join("media");
@@ -630,29 +703,7 @@ async fn render_document_route(
     stabilize(&mut node);
 
     // Extract search entries from the stabilized node (node IDs are now assigned)
-    // Tag entries with access level if access restrictions are configured
-    let search_entries = if let Some(search_spec) = site_config.search.as_ref()
-        && search_spec.is_enabled()
-    {
-        let breadcrumbs = get_breadcrumbs(&route, breadcrumbs_map);
-        let entries =
-            extract_entries_with_config(&node, &route, breadcrumbs, &search_spec.to_config());
-
-        // Determine access level for this route
-        let access_level = site_config
-            .access
-            .as_ref()
-            .map(|config| config.get_access_level(&route))
-            .unwrap_or(AccessLevel::Public);
-
-        // Tag all entries with the route's access level
-        entries
-            .into_iter()
-            .map(|e| e.with_access_level(access_level))
-            .collect()
-    } else {
-        Vec::new()
-    };
+    let search_entries = extract_search_entries(&node, &route, site_config, breadcrumbs_map);
 
     // Render layout for the route
     let layout_html = render_layout(
@@ -772,6 +823,94 @@ async fn render_document_route(
     })
 }
 
+/// Render an auto-generated index page for a directory without content
+///
+/// Creates an Article with a list of child page links and renders it to HTML.
+#[allow(clippy::too_many_arguments)]
+async fn render_auto_index_route(
+    route: &str,
+    base_url: &str,
+    glide_attrs: &str,
+    site_config: &SiteConfig,
+    output_dir: &Path,
+    routes: &[RouteEntry],
+    routes_set: &HashSet<String>,
+    nav_items: &Vec<NavItem>,
+    breadcrumbs_map: &HashMap<String, Vec<Breadcrumb>>,
+    resolved_logo: Option<&stencila_config::LogoConfig>,
+    workspace_id: Option<&str>,
+    git_repo_root: Option<&Path>,
+    git_origin: Option<&str>,
+    git_branch: Option<&str>,
+) -> Result<RenderedDocument> {
+    // Normalize route to ensure trailing slash
+    let route = normalize_route(route);
+
+    // Find children for this route from the nav tree
+    let children = if let Some(child_items) = find_nav_group_children(nav_items, &route) {
+        get_child_pages_from_nav(child_items)
+    } else {
+        Vec::new()
+    };
+
+    // Generate the Article node
+    let mut node = generate_auto_index_article(&route, children);
+
+    // Stabilize node UIDs for deterministic rendering
+    stabilize(&mut node);
+
+    // Extract search entries from the stabilized node
+    let search_entries = extract_search_entries(&node, &route, site_config, breadcrumbs_map);
+
+    // Render layout for the route
+    let layout_html = render_layout(
+        site_config,
+        &route,
+        routes,
+        routes_set,
+        nav_items,
+        breadcrumbs_map,
+        resolved_logo,
+        workspace_id,
+        git_repo_root,
+        git_origin,
+        git_branch,
+    );
+
+    // Generate site body
+    let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");
+
+    // Generate standalone html with "site" view
+    let (html, ..) = stencila_codec_dom::encode(
+        &node,
+        Some(EncodeOptions {
+            base_url: Some(base_url.to_string()),
+            view: Some("site".to_string()),
+            ..Default::default()
+        }),
+        Some(site),
+    )
+    .await?;
+
+    // Convert route to HTML file path
+    let html_file = route_to_html_path(&route, output_dir);
+
+    // Write to output HTML file
+    if let Some(parent) = html_file.parent() {
+        create_dir_all(parent).await?;
+    }
+    write(&html_file, html).await?;
+
+    // Use a synthetic source path for auto-index routes
+    let source_path = PathBuf::from(format!("[auto-index:{route}]"));
+
+    Ok(RenderedDocument {
+        source_path,
+        route,
+        search_entries,
+    })
+}
+
 /// Normalize a route to always have a trailing slash
 ///
 /// This ensures consistent route comparison between user-defined redirects
@@ -782,6 +921,60 @@ fn normalize_route(route: &str) -> String {
     } else {
         format!("{route}/")
     }
+}
+
+/// Convert a route to an HTML output file path
+///
+/// For example:
+/// - "/" -> "index.html"
+/// - "/docs/" -> "docs/index.html"
+/// - "/docs/guide/" -> "docs/guide/index.html"
+fn route_to_html_path(route: &str, output_dir: &Path) -> PathBuf {
+    let trimmed = route.trim_start_matches('/').trim_end_matches('/');
+    let relative_path = if trimmed.is_empty() {
+        "index.html".to_string()
+    } else {
+        format!("{trimmed}/index.html")
+    };
+    output_dir.join(relative_path)
+}
+
+/// Extract search entries from a node with access level tagging
+///
+/// Handles the common pattern of:
+/// 1. Checking if search is enabled
+/// 2. Getting breadcrumbs for the route
+/// 3. Extracting search entries
+/// 4. Tagging with access level
+fn extract_search_entries(
+    node: &Node,
+    route: &str,
+    site_config: &SiteConfig,
+    breadcrumbs_map: &HashMap<String, Vec<Breadcrumb>>,
+) -> Vec<SearchEntry> {
+    let Some(search_spec) = site_config.search.as_ref() else {
+        return Vec::new();
+    };
+
+    if !search_spec.is_enabled() {
+        return Vec::new();
+    }
+
+    let breadcrumbs = get_breadcrumbs(route, breadcrumbs_map);
+    let entries = extract_entries_with_config(node, route, breadcrumbs, &search_spec.to_config());
+
+    // Determine access level for this route
+    let access_level = site_config
+        .access
+        .as_ref()
+        .map(|config| config.get_access_level(route))
+        .unwrap_or(AccessLevel::Public);
+
+    // Tag all entries with the route's access level
+    entries
+        .into_iter()
+        .map(|e| e.with_access_level(access_level))
+        .collect()
 }
 
 /// Load a user-defined redirect file from a directory if one exists

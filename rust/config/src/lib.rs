@@ -64,9 +64,10 @@ pub use {
     },
     singleton::{ConfigChangeEvent, get, load_and_validate, subscribe},
     site::{
-        AuthorSpec, FeaturedContent, FeaturedCta, GlideConfig, LogoConfig, LogoSpec, NavItem,
-        RedirectStatus, RouteSpread, SearchConfig, SearchSpec, SiteConfig, SiteFormat,
-        config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread,
+        AuthorSpec, AutoIndexConfig, AutoIndexSpec, FeaturedContent, FeaturedCta, GlideConfig,
+        LogoConfig, LogoSpec, NavItem, RedirectStatus, RouteSpread, SearchConfig, SearchSpec,
+        SiteConfig, SiteFormat, config_add_redirect_route, config_add_route, config_remove_route,
+        config_set_route_spread,
     },
     site_access::{AccessLevel, SiteAccessConfig},
     site_actions::{SiteActionsConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition},

@@ -13,9 +13,14 @@ use eyre::{Result, bail, eyre};
 use ignore::WalkBuilder;
 use indexmap::IndexMap;
 
-use stencila_config::Config;
+use stencila_config::{Config, NavItem};
 use stencila_format::Format;
 use stencila_spread::{ParameterValues, Parameters, Run, SpreadMode, apply_template};
+
+use crate::auto_index::{
+    derive_group_route, derive_label_based_route, identify_auto_index_routes, normalize_route,
+};
+use crate::nav_common::auto_generate_nav;
 
 /// Category of a file for site listing and push
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -343,6 +348,17 @@ pub enum RouteType {
     Implied,
     /// Static file (CSS, JS, images, etc.)
     Static,
+    /// Auto-generated index page for directories without content
+    AutoIndex,
+}
+
+impl RouteType {
+    /// Check if this route type represents a document that should be rendered
+    ///
+    /// Document types are: File, Implied, and Spread (but not Static, Redirect, or AutoIndex)
+    pub fn is_document(&self) -> bool {
+        matches!(self, Self::File | Self::Implied | Self::Spread)
+    }
 }
 
 /// A route entry for display and processing
@@ -582,7 +598,47 @@ pub async fn list(
         }
     }
 
-    // Apply filters
+    // Identify and add auto-index routes (directories without content files)
+    // This must happen BEFORE filtering so auto-index routes are also filtered
+    let auto_index_config = config
+        .site
+        .as_ref()
+        .and_then(|site| site.auto_index.as_ref())
+        .map(|spec| spec.to_config())
+        .unwrap_or_default();
+
+    if auto_index_config.is_enabled() {
+        // Build existing routes set for checking
+        // Include document routes AND redirect routes - redirects should not get auto-index pages
+        // Normalize routes to handle /docs vs /docs/ from config
+        let existing_routes: HashSet<String> = routes
+            .iter()
+            .filter(|e| e.route_type.is_document() || e.route_type == RouteType::Redirect)
+            .map(|e| normalize_route(&e.route).into_owned())
+            .collect();
+
+        // Build nav tree from document routes to identify groups without content
+        // Use site.nav config if present (consistent with render behavior)
+        let document_routes: Vec<RouteEntry> = routes
+            .iter()
+            .filter(|e| e.route_type.is_document())
+            .cloned()
+            .collect();
+
+        let nav_items = if let Some(ref site) = config.site
+            && let Some(ref nav) = site.nav
+        {
+            nav.clone()
+        } else {
+            auto_generate_nav(&document_routes, &None, Some(&site_root))
+        };
+
+        let auto_routes =
+            identify_auto_index_routes(&existing_routes, &nav_items, &auto_index_config);
+        routes.extend(auto_routes);
+    }
+
+    // Apply filters (after auto-index routes are added so they're also filtered)
     if route_filter.is_some() || path_filter.is_some() || source_files.is_some() {
         routes.retain(|entry| {
             // Check route filter
@@ -593,6 +649,7 @@ pub async fn list(
             }
 
             // Check path filter (prefix match against source paths)
+            // Note: Auto-index routes have targets like "[auto-index: Label]" and no source_path
             if let Some(filter) = path_filter {
                 // Match against target (relative path) or source_path
                 let matches_target = entry.target.starts_with(filter);
@@ -610,6 +667,7 @@ pub async fn list(
             }
 
             // Check source files (exact match against source paths)
+            // Note: Auto-index routes have no source_path, so they won't match
             if let Some(files) = source_files {
                 let matches = entry
                     .source_path
@@ -628,6 +686,54 @@ pub async fn list(
     routes.sort_by(|a, b| a.route.cmp(&b.route));
 
     Ok(routes)
+}
+
+/// Update navigation items to include auto-index routes
+///
+/// This function takes nav items that may have groups with `route: None` and
+/// updates them to include the routes for auto-index pages. This makes
+/// nav-tree, breadcrumbs, and other nav components show these routes as clickable.
+///
+/// # Arguments
+/// * `nav_items` - The navigation items to update (will be modified in place)
+/// * `auto_index_routes` - Set of routes that have auto-index pages
+pub fn update_nav_items_with_auto_index(
+    nav_items: &mut [NavItem],
+    auto_index_routes: &HashSet<String>,
+) {
+    for item in nav_items.iter_mut() {
+        if let NavItem::Group {
+            label,
+            route,
+            children,
+            ..
+        } = item
+        {
+            if let Some(explicit_route) = route {
+                // Group has explicit route - normalize it if there's a matching auto-index page
+                // This ensures nav links match the generated auto-index page URL
+                // (e.g., /docs -> /docs/ if auto-index created /docs/)
+                let normalized = normalize_route(explicit_route).into_owned();
+                if auto_index_routes.contains(&normalized) && *explicit_route != normalized {
+                    *explicit_route = normalized;
+                }
+            } else if !children.is_empty() {
+                // No explicit route - check if there's an auto-index route for it
+                // Try label-based route first (for logical groups), then common parent
+                let derived_route = derive_label_based_route(label, children)
+                    .or_else(|| derive_group_route(children));
+
+                if let Some(derived) = derived_route
+                    && auto_index_routes.contains(&derived)
+                {
+                    *route = Some(derived);
+                }
+            }
+
+            // Recurse into children
+            update_nav_items_with_auto_index(children, auto_index_routes);
+        }
+    }
 }
 
 #[cfg(test)]

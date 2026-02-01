@@ -21,7 +21,7 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access, update_site_reviews,
 };
 use stencila_config::{
-    ConfigTarget, LayoutConfig, SiteReviewsSpec, RouteSpread, SpreadMode, SiteUploadsSpec,
+    ConfigTarget, LayoutConfig, RouteSpread, SiteReviewsSpec, SiteUploadsSpec, SpreadMode,
     config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread, get,
     set_value, unset_value, validate_placeholders,
 };
@@ -478,6 +478,7 @@ impl List {
                 }
                 RouteType::Implied => "implied".to_string(),
                 RouteType::Static => "static".to_string(),
+                RouteType::AutoIndex => "auto-index".to_string(),
             };
 
             let type_cell = match entry.route_type {
@@ -486,6 +487,7 @@ impl List {
                 RouteType::Spread => Cell::new(&type_str).fg(Color::Magenta),
                 RouteType::Implied => Cell::new(&type_str).fg(Color::Grey),
                 RouteType::Static => Cell::new(&type_str).fg(Color::Blue),
+                RouteType::AutoIndex => Cell::new(&type_str).fg(Color::Cyan),
             };
 
             // Format target with spread arguments if present

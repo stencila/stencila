@@ -769,6 +769,30 @@ pub struct SiteConfig {
     /// mode = "collapsed"         # Display mode (default)
     /// ```
     pub actions: Option<SiteActionsConfig>,
+
+    /// Auto-index configuration for directories without content files
+    ///
+    /// When enabled (default), directories that appear in navigation but lack
+    /// content files (main.md, README.md, index.md, etc.) will have index pages
+    /// auto-generated listing their child pages with links.
+    ///
+    /// Can be a simple boolean or a detailed configuration object, e.g.
+    /// ```toml
+    /// # Enable auto-index (default)
+    /// [site]
+    /// auto-index = true
+    ///
+    /// # Disable auto-index
+    /// [site]
+    /// auto-index = false
+    ///
+    /// # Enable with exclusions
+    /// [site.auto-index]
+    /// enabled = true
+    /// exclude = ["/api/**", "/internal/**"]
+    /// ```
+    #[serde(alias = "auto-index")]
+    pub auto_index: Option<AutoIndexSpec>,
 }
 
 impl SiteConfig {
@@ -1304,6 +1328,125 @@ pub struct GlideConfig {
     /// back/forward navigation. Set to 0 to disable caching.
     /// Default: 10
     pub cache: Option<usize>,
+}
+
+/// Auto-index specification - handles both boolean and detailed forms
+///
+/// Allows configuration as either:
+/// - Simple boolean: `auto-index = true` or `auto-index = false`
+/// - Detailed config: `[site.auto-index]` with options
+///
+/// When enabled, directories that appear in navigation but lack content files
+/// (main.md, README.md, index.md, etc.) will have index pages auto-generated
+/// listing their child pages.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum AutoIndexSpec {
+    /// Simple boolean: auto-index = true/false
+    Enabled(bool),
+    /// Detailed config: [site.auto-index] with options
+    Config(AutoIndexConfig),
+}
+
+impl AutoIndexSpec {
+    /// Check if auto-index is enabled
+    pub fn is_enabled(&self) -> bool {
+        match self {
+            AutoIndexSpec::Enabled(enabled) => *enabled,
+            AutoIndexSpec::Config(config) => config.is_enabled(),
+        }
+    }
+
+    /// Convert to a full AutoIndexConfig, applying defaults for simple boolean form
+    pub fn to_config(&self) -> AutoIndexConfig {
+        match self {
+            AutoIndexSpec::Enabled(enabled) => AutoIndexConfig {
+                enabled: Some(*enabled),
+                ..Default::default()
+            },
+            AutoIndexSpec::Config(config) => config.clone(),
+        }
+    }
+
+    /// Check if a route should be excluded from auto-indexing
+    pub fn is_route_excluded(&self, route: &str) -> bool {
+        self.to_config().is_route_excluded(route)
+    }
+}
+
+impl Default for AutoIndexSpec {
+    fn default() -> Self {
+        // Enabled by default
+        AutoIndexSpec::Enabled(true)
+    }
+}
+
+/// Configuration for auto-generated index pages
+///
+/// Controls which routes get auto-generated index pages when they lack
+/// content files.
+///
+/// ```toml
+/// # Enable with exclusions
+/// [site.auto-index]
+/// enabled = true
+/// exclude = ["/api/**", "/internal/**"]
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(default, deny_unknown_fields)]
+pub struct AutoIndexConfig {
+    /// Enable auto-index generation
+    ///
+    /// When true, directories without index files get auto-generated pages.
+    /// Default: true
+    pub enabled: Option<bool>,
+
+    /// Glob patterns for routes to exclude from auto-indexing
+    ///
+    /// Routes matching any of these patterns will not have auto-generated
+    /// index pages, even if they lack content files.
+    ///
+    /// Example: `["/api/**", "/internal/**"]`
+    pub exclude: Option<Vec<String>>,
+}
+
+impl AutoIndexConfig {
+    /// Check if auto-index is enabled (defaults to true)
+    pub fn is_enabled(&self) -> bool {
+        self.enabled.unwrap_or(true)
+    }
+
+    /// Check if a route should be excluded from auto-indexing
+    ///
+    /// Patterns ending with `/**` match both the parent directory and all children.
+    /// For example, `api/**` matches `api`, `api/foo`, and `api/foo/bar`.
+    pub fn is_route_excluded(&self, route: &str) -> bool {
+        let Some(patterns) = &self.exclude else {
+            return false;
+        };
+
+        let normalized = route.trim_matches('/');
+        for pattern in patterns {
+            let pattern_normalized = pattern.trim_matches('/');
+
+            // Check if glob pattern matches
+            if let Ok(glob) = glob::Pattern::new(pattern_normalized)
+                && glob.matches(normalized)
+            {
+                return true;
+            }
+
+            // Special case: patterns ending with /** should also match the parent directory
+            // e.g., "api/**" should match "api" (the directory itself), not just "api/foo"
+            if let Some(parent_pattern) = pattern_normalized.strip_suffix("/**")
+                && normalized == parent_pattern
+            {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 /// Add a route to the [site.routes] section of stencila.toml

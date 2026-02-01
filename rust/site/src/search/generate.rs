@@ -12,6 +12,9 @@ use stencila_config::{AccessLevel, NavItem, SearchConfig, SiteAccessConfig};
 use super::breadcrumbs::{build_breadcrumbs_map, get_breadcrumbs};
 use super::extract::extract_entries_with_config;
 use super::index::{SearchIndexBuilder, SearchIndexStats};
+use crate::auto_index::{
+    find_nav_group_children, generate_auto_index_article, get_child_pages_from_nav,
+};
 use crate::{RouteType, list};
 
 /// Normalize a route for access config lookup.
@@ -88,29 +91,40 @@ where
     // List all routes
     let routes = list(true, false, None, None, None).await?;
 
-    // Process each document route
+    // Process each route
     for entry in routes {
-        if !matches!(
-            entry.route_type,
-            RouteType::File | RouteType::Implied | RouteType::Spread
-        ) {
-            continue;
-        }
-
         // Check if route should be excluded
         if config.is_route_excluded(&entry.route) {
             continue;
         }
 
-        let Some(source_path) = entry.source_path else {
-            continue;
-        };
-
-        // Decode the document
-        let node = match decode_fn(source_path.clone()).await {
-            Ok(node) => node,
-            Err(e) => {
-                tracing::warn!("Failed to decode {}: {}", source_path.display(), e);
+        // Get the node for this route (different handling for auto-index vs document routes)
+        let node = match entry.route_type {
+            RouteType::File | RouteType::Implied | RouteType::Spread => {
+                // Document route - decode from source file
+                let Some(source_path) = entry.source_path else {
+                    continue;
+                };
+                match decode_fn(source_path.clone()).await {
+                    Ok(node) => node,
+                    Err(e) => {
+                        tracing::warn!("Failed to decode {}: {}", source_path.display(), e);
+                        continue;
+                    }
+                }
+            }
+            RouteType::AutoIndex => {
+                // Auto-index route - generate Article node from nav children
+                let children =
+                    if let Some(child_items) = find_nav_group_children(nav_items, &entry.route) {
+                        get_child_pages_from_nav(child_items)
+                    } else {
+                        Vec::new()
+                    };
+                generate_auto_index_article(&entry.route, children)
+            }
+            RouteType::Static | RouteType::Redirect => {
+                // Static files and redirects are not indexed
                 continue;
             }
         };
