@@ -178,6 +178,16 @@ impl Executable for InstructionBlock {
             executor.patch(&node_id, [none(NodeProperty::Suggestions)]);
         }
 
+        // Execute the message content to resolve any code expressions (like {{ variable }})
+        // This allows variable interpolation similar to chat messages
+        if let Err(error) = executor
+            .fork_for_all()
+            .compile_prepare_execute(&mut self.message.content)
+            .await
+        {
+            tracing::error!("While executing instruction message: {error}");
+        }
+
         // Create a future for each replicate
         let mut futures = FuturesUnordered::new();
         for _ in 0..replicates {
