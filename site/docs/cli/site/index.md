@@ -61,5 +61,6 @@ stencila site access password --clear
 | [`push`](push.md)             | Push site content to Stencila Cloud                 |
 | [`access`](access/index.md)   | Manage access restrictions for the workspace site   |
 | [`reviews`](reviews/index.md) | Manage site reviews configuration                   |
+| [`uploads`](uploads/index.md) | Manage site file uploads                            |
 | [`domain`](domain/index.md)   | Manage custom domain for the workspace site         |
 | [`branch`](branch/index.md)   | Manage branches for the workspace site              |

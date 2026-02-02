@@ -20,9 +20,6 @@ stencila site reviews config --public
 # Disallow anonymous submissions
 stencila site reviews config --no-anon
 
-# Set position to bottom-left
-stencila site reviews config --position bottom-left
-
 # Only allow comments (not suggestions)
 stencila site reviews config --types comment
 
@@ -44,20 +41,19 @@ stencila site reviews config --exclude "api/**" --exclude "changelog/**"
 
 # Options
 
-| Name              | Description                                                                                                  |
-| ----------------- | ------------------------------------------------------------------------------------------------------------ |
-| `--public`        | Allow public (non-team member) submissions. Possible values: `true`, `false`.                                |
-| `--no-public`     | Disallow public submissions. Possible values: `true`, `false`.                                               |
-| `--anon`          | Allow anonymous (no GitHub auth) submissions. Possible values: `true`, `false`.                              |
-| `--no-anon`       | Disallow anonymous submissions. Possible values: `true`, `false`.                                            |
-| `--position`      | Position for the review affordance. Possible values: `bottom-right`, `bottom-left`, `top-right`, `top-left`. |
-| `--types`         | Allowed review types (can be specified multiple times). Possible values: `comment`, `suggestion`.            |
-| `--min-selection` | Minimum selection length in characters.                                                                      |
-| `--max-selection` | Maximum selection length in characters.                                                                      |
-| `--shortcuts`     | Enable keyboard shortcuts. Possible values: `true`, `false`.                                                 |
-| `--no-shortcuts`  | Disable keyboard shortcuts. Possible values: `true`, `false`.                                                |
-| `--include`       | Glob patterns for paths to show reviews on (can be specified multiple times).                                |
-| `--exclude`       | Glob patterns for paths to hide reviews from (can be specified multiple times).                              |
+| Name              | Description                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| `--public`        | Allow public (non-team member) submissions. Possible values: `true`, `false`.                     |
+| `--no-public`     | Disallow public submissions. Possible values: `true`, `false`.                                    |
+| `--anon`          | Allow anonymous (no GitHub auth) submissions. Possible values: `true`, `false`.                   |
+| `--no-anon`       | Disallow anonymous submissions. Possible values: `true`, `false`.                                 |
+| `--types`         | Allowed review types (can be specified multiple times). Possible values: `comment`, `suggestion`. |
+| `--min-selection` | Minimum selection length in characters.                                                           |
+| `--max-selection` | Maximum selection length in characters.                                                           |
+| `--shortcuts`     | Enable keyboard shortcuts. Possible values: `true`, `false`.                                      |
+| `--no-shortcuts`  | Disable keyboard shortcuts. Possible values: `true`, `false`.                                     |
+| `--include`       | Glob patterns for paths to show reviews on (can be specified multiple times).                     |
+| `--exclude`       | Glob patterns for paths to hide reviews from (can be specified multiple times).                   |
 
 # Note
 

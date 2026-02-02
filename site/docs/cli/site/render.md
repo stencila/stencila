@@ -37,3 +37,4 @@ stencila site render ./dist --source ./content
 | `-s, --source` | Source directory (uses site.root if configured, otherwise current directory). |
 | `--route`      | Filter by route prefix (only render matching routes).                         |
 | `--path`       | Filter by source file path prefix.                                            |
+| `--web-base`   | Base URL for web assets (themes, views, JS, CSS).                             |

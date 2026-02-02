@@ -142,6 +142,11 @@ items:
               - "on"
               - "off"
               - "config"
+          - name: "uploads"
+            children:
+              - "on"
+              - "off"
+              - "config"
           - name: "domain"
             children:
               - "set"

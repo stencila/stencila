@@ -10,12 +10,30 @@ This unified command can push sites, outputs, and remote documents. Use flags to
 # Usage
 
 ```sh
-stencila push [OPTIONS] [PATH] [-- <ARGS>...]
+stencila push [OPTIONS] [PATH] [URL] [-- <ARGS>...]
 ```
 
 # Examples
 
 ```bash
+# Push to a specific Google Doc URL
+stencila push document.smd https://docs.google.com/document/d/abc123
+
+# Push to tracked remote(s)
+stencila push document.smd
+
+# Push to Google Docs (create new or select from tracked)
+stencila push document.smd --to gdoc
+
+# Push to Microsoft 365
+stencila push document.smd --to m365
+
+# Push with execution first
+stencila push report.smd -- arg1=value1
+
+# Force create new document
+stencila push document.smd --to gdoc --new
+
 # Push everything (site, outputs, and remotes)
 stencila push --all
 
@@ -28,21 +46,6 @@ stencila push --outputs
 # Push only remotes (Google Docs, M365)
 stencila push --remotes
 
-# Push a document to Google Docs
-stencila push document.smd --to gdoc
-
-# Push a document to Microsoft 365
-stencila push document.smd --to m365
-
-# Push to specific remote
-stencila push document.smd --to https://docs.google.com/document/d/abc123
-
-# Push with execution first
-stencila push report.smd --to gdoc -- arg1=value1
-
-# Force create new document
-stencila push document.smd --to gdoc --new
-
 # Spread push to GDocs (creates multiple docs)
 stencila push report.smd --to gdoc --spread -- region=north,south
 ```
@@ -52,6 +55,7 @@ stencila push report.smd --to gdoc --spread -- region=north,south
 | Name     | Description                                         |
 | -------- | --------------------------------------------------- |
 | `[PATH]` | The path of the document to push (for remote push). |
+| `[URL]`  | The URL to push to (for remote push).               |
 | `[ARGS]` | Arguments to pass to the document for execution.    |
 
 # Options
@@ -62,7 +66,7 @@ stencila push report.smd --to gdoc --spread -- region=north,south
 | `--outputs`          | Push outputs to Stencila Cloud. Possible values: `true`, `false`.                                                                              |
 | `--remotes`          | Push to remote document services (Google Docs, Microsoft 365). Possible values: `true`, `false`.                                               |
 | `--all`              | Push everything (site, outputs, and remotes). Possible values: `true`, `false`.                                                                |
-| `-t, --to`           | The target to push to (for remote push).                                                                                                       |
+| `-t, --to`           | Select which remote service to push to.                                                                                                        |
 | `-n, --new`          | Create a new document instead of updating an existing one. Possible values: `true`, `false`.                                                   |
 | `--no-execute`       | Do not execute the document before pushing it. Possible values: `true`, `false`.                                                               |
 | `--no-config`        | Do not save remote to stencila.toml. Possible values: `true`, `false`.                                                                         |
