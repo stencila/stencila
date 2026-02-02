@@ -38,21 +38,25 @@ start     end        offsets   node_type+property                   authorship
    291    344         (0, 0)   Text
    291    344         (0, 0)   Paragraph.content
    291    345         (0, 1)   Paragraph
-   346    345        (55, 0)   InstructionBlock
-   346    384        (0, 39)   Text.value
-   346    384         (0, 0)   Text
-   346    384         (0, 0)   Paragraph.content
-   346    385         (0, 1)   Paragraph
-   386    417       (40, 32)   Text.value
-   386    417         (0, 0)   Text
-   386    417         (0, 0)   Paragraph.content
-   386    418         (0, 1)   Paragraph
-   386    419         (0, 1)   InstructionBlock.content
-   386    418        (0, -1)   InstructionBlock
-   419    462       (33, 44)   Text.value
-   419    462         (0, 0)   Text
-   419    462         (0, 0)   Paragraph.content
-   419    463         (0, 1)   Paragraph
-   464    463        (45, 0)   InstructionBlock
-     0    464      (-464, 1)   Article.content
-     0    464         (0, 0)   Article
+   350    350        (59, 5)   CodeChunk.programmingLanguage
+   352    362        (2, 12)   CodeChunk.code
+   346    366        (-6, 4)   CodeChunk
+   346    368         (0, 2)   InstructionBlock.content
+   346    367        (0, -1)   InstructionBlock
+   368    406       (22, 39)   Text.value
+   368    406         (0, 0)   Text
+   368    406         (0, 0)   Paragraph.content
+   368    407         (0, 1)   Paragraph
+   408    439       (40, 32)   Text.value
+   408    439         (0, 0)   Text
+   408    439         (0, 0)   Paragraph.content
+   408    440         (0, 1)   Paragraph
+   408    441         (0, 1)   InstructionBlock.content
+   408    440        (0, -1)   InstructionBlock
+   441    484       (33, 44)   Text.value
+   441    484         (0, 0)   Text
+   441    484         (0, 0)   Paragraph.content
+   441    485         (0, 1)   Paragraph
+   486    485        (45, 0)   InstructionBlock
+     0    486      (-486, 1)   Article.content
+     0    486         (0, 0)   Article
