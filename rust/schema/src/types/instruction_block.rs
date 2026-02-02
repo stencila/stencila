@@ -26,7 +26,7 @@ use super::unsigned_integer::UnsignedInteger;
 /// An instruction to edit some block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -57,21 +57,18 @@ pub struct InstructionBlock {
     /// The prompt selected, rendered and provided to the model
     #[serde(default)]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[dom(elem = "div")]
     pub prompt: PromptBlock,
 
     /// The instruction message, possibly including images, audio, or other media.
     #[serde(default)]
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[dom(elem = "div")]
     pub message: InstructionMessage,
 
     /// Model selection and inference parameters.
     #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]
     #[serde(default)]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[dom(elem = "div")]
     pub model_parameters: Box<ModelParameters>,
 
     /// The index of the suggestion that is currently active
@@ -86,7 +83,6 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_blocks_non_recursive(1))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(4))"#))]
-    #[dom(elem = "div")]
     pub content: Option<Vec<Block>>,
 
     /// Suggestions for the instruction
@@ -94,7 +90,6 @@ pub struct InstructionBlock {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
     pub suggestions: Option<Vec<SuggestionBlock>>,
 
     /// Non-core optional fields
@@ -111,7 +106,7 @@ pub struct InstructionBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct InstructionBlockOptions {
@@ -119,7 +114,6 @@ pub struct InstructionBlockOptions {
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
@@ -127,14 +121,12 @@ pub struct InstructionBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
@@ -142,7 +134,6 @@ pub struct InstructionBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
@@ -150,7 +141,6 @@ pub struct InstructionBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
@@ -158,7 +148,6 @@ pub struct InstructionBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -189,14 +178,12 @@ pub struct InstructionBlockOptions {
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution, timestamps)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
     #[serde(alias = "execution-duration", alias = "execution_duration")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Duration::to_dom_attr")]
     pub execution_duration: Option<Duration>,
 
     /// Messages emitted while executing the node.
@@ -204,7 +191,6 @@ pub struct InstructionBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 }
 

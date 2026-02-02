@@ -1,6 +1,9 @@
 use stencila_codec_info::{lost_exec_options, lost_options};
 
-use crate::{ExecutionMode, InstructionBlock, InstructionType, Node, merge, patch, prelude::*};
+use crate::{
+    ExecutionMode, InstructionBlock, InstructionBlockOptions, InstructionType, Node,
+    SuggestionStatus, merge, patch, prelude::*,
+};
 
 /// Implementation of [`PatchNode`] for [`InstructionBlock`] to customize diffing and
 /// patching from Markdown-based formats
@@ -432,6 +435,90 @@ impl PatchNode for InstructionBlock {
     }
 }
 
+impl DomCodec for InstructionBlockOptions {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        self.compilation_digest
+            .to_dom_attr("compilation-digest", context);
+        self.compilation_messages
+            .to_dom_attr("compilation-messages", context);
+        self.execution_digest
+            .to_dom_attr("execution-digest", context);
+        self.execution_dependencies
+            .to_dom_attr("execution-dependencies", context);
+        self.execution_dependants
+            .to_dom_attr("execution-dependants", context);
+        self.execution_tags.to_dom_attr("execution-tags", context);
+        self.execution_count.to_dom_attr("execution-count", context);
+        self.execution_required
+            .to_dom_attr("execution-required", context);
+        self.execution_status
+            .to_dom_attr("execution-status", context);
+        self.execution_instance
+            .to_dom_attr("execution-instance", context);
+        self.execution_ended.to_dom_attr("execution-ended", context);
+        self.execution_duration
+            .to_dom_attr("execution-duration", context);
+        self.execution_messages
+            .to_dom_attr("execution-messages", context);
+    }
+}
+
+impl DomCodec for InstructionBlock {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        if context.render {
+            // When rendering, encode only the content, or if none, the first accepted suggestion,
+            // or if none accepted, the first non-rejected suggestion
+            if let Some(content) = &self.content {
+                content.to_dom(context);
+            } else if let Some(suggestions) = &self.suggestions {
+                let suggestion = suggestions
+                    .iter()
+                    .find(|s| matches!(s.suggestion_status, Some(SuggestionStatus::Accepted)))
+                    .or_else(|| {
+                        suggestions.iter().find(|s| {
+                            !matches!(s.suggestion_status, Some(SuggestionStatus::Rejected))
+                        })
+                    });
+
+                if let Some(suggestion) = suggestion {
+                    suggestion.content.to_dom(context);
+                }
+            }
+        } else {
+            // When not rendering, encode all fields as the derived implementation would
+            context.enter_node(self.node_type(), self.node_id());
+
+            context.push_id(&self.id);
+
+            self.execution_mode.to_dom_attr("execution-mode", context);
+            self.instruction_type
+                .to_dom_attr("instruction-type", context);
+            self.active_suggestion
+                .to_dom_attr("active-suggestion", context);
+
+            self.options.to_dom(context);
+
+            context.push_slot_fn("div", "prompt", |context| self.prompt.to_dom(context));
+            context.push_slot_fn("div", "message", |context| self.message.to_dom(context));
+            context.push_slot_fn("div", "model-parameters", |context| {
+                self.model_parameters.to_dom(context)
+            });
+
+            if self.content.is_some() {
+                context.push_slot_fn("div", "content", |context| self.content.to_dom(context));
+            }
+
+            if self.suggestions.is_some() {
+                context.push_slot_fn("div", "suggestions", |context| {
+                    self.suggestions.to_dom(context)
+                });
+            }
+
+            context.exit_node();
+        }
+    }
+}
+
 impl MarkdownCodec for InstructionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
@@ -440,12 +527,29 @@ impl MarkdownCodec for InstructionBlock {
             .merge_losses(lost_exec_options!(self));
 
         // If rendering, or format is anything other than Stencila Markdown or
-        // MyST, then encode `content` only (if any)
+        // MyST, then encode `content` (if any), otherwise the first accepted suggestion,
+        // otherwise the first non-rejected suggestion
         if context.render || !matches!(context.format, Format::Smd | Format::Myst) {
             if let Some(content) = &self.content {
                 context.push_prop_fn(NodeProperty::Content, |context| {
                     content.to_markdown(context)
                 });
+            } else if let Some(suggestions) = &self.suggestions {
+                // First accepted suggestion, otherwise first non-rejected suggestion
+                let suggestion = suggestions
+                    .iter()
+                    .find(|s| matches!(s.suggestion_status, Some(SuggestionStatus::Accepted)))
+                    .or_else(|| {
+                        suggestions.iter().find(|s| {
+                            !matches!(s.suggestion_status, Some(SuggestionStatus::Rejected))
+                        })
+                    });
+
+                if let Some(suggestion) = suggestion {
+                    context.push_prop_fn(NodeProperty::Content, |context| {
+                        suggestion.content.to_markdown(context)
+                    });
+                }
             }
 
             context.exit_node();

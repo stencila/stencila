@@ -6,6 +6,8 @@ category: edits
 description: An instruction to edit some block content.
 patch:
   derive: false
+dom:
+  derive: false
 markdown:
   derive: false
 proptest: {}

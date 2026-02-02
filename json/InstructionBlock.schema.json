@@ -12,6 +12,9 @@
   "patch": {
     "derive": false
   },
+  "dom": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },

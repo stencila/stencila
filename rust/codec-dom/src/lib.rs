@@ -125,7 +125,10 @@ pub async fn encode(
     site: Option<String>,
 ) -> Result<(String, EncodeInfo)> {
     // Encode to DOM HTML
-    let mut context = DomEncodeContext::new(options.as_ref().and_then(|opts| opts.view.as_deref()));
+    let mut context = DomEncodeContext::new(
+        options.as_ref().and_then(|opts| opts.view.as_deref()),
+        options.as_ref().and_then(|opts| opts.render),
+    );
     node.to_dom(&mut context);
 
     // Add the root attribute to the root node (the first opening tag)

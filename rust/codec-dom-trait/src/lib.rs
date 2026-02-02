@@ -18,7 +18,7 @@ pub fn to_dom<T>(node: &T) -> String
 where
     T: DomCodec,
 {
-    let mut context = DomEncodeContext::new(None);
+    let mut context = DomEncodeContext::new(None, None);
     node.to_dom(&mut context);
     context.content
 }
@@ -117,6 +117,9 @@ where
 
 #[derive(SmartDefault)]
 pub struct DomEncodeContext {
+    /// Encode the outputs, rather than the source, of executable nodes
+    pub render: bool,
+
     /// Whether encoding the "static" view
     ///
     /// Used to determine whether to encode the node id and other attributes
@@ -153,8 +156,9 @@ pub struct DomEncodeContext {
 }
 
 impl DomEncodeContext {
-    pub fn new(view: Option<&str>) -> Self {
+    pub fn new(view: Option<&str>, render: Option<bool>) -> Self {
         Self {
+            render: render.unwrap_or_default(),
             view_is_static: view == Some("static"),
             view_is_site: view == Some("site"),
             ..Default::default()
