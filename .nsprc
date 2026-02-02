@@ -1,4 +1,5 @@
 {
-  "1111271": "Dev dependency parcel -> @parcel/reporter-dev-server",
-  "1112154": "Dev dependency wrangler -> miniflare -> undici"
+  "1112666": "Dev dependency parcel -> @parcel/reporter-dev-server",
+  "1112497": "Dev dependency wrangler -> miniflare -> undici",
+  "1112453": "lodash-es"
 }
