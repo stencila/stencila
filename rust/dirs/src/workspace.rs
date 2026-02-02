@@ -8,7 +8,6 @@ use smart_default::SmartDefault;
 use tokio::fs::{create_dir_all, write};
 
 pub const STENCILA_DIR: &str = ".stencila";
-pub const CONFIG_FILE: &str = "config.yaml";
 pub const DOCS_FILE: &str = "docs.json";
 pub const CACHE_DIR: &str = "cache";
 pub const ARTIFACTS_DIR: &str = "artifacts";
@@ -16,9 +15,6 @@ pub const DB_FILE: &str = "db.kuzu";
 
 #[derive(SmartDefault)]
 pub struct CreateStencilaDirOptions {
-    #[default = true]
-    pub config_file: bool,
-
     #[default = true]
     pub docs_file: bool,
 
@@ -37,10 +33,6 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
         create_dir_all(path).await?;
     }
 
-    if options.config_file {
-        stencila_config_file(path, true).await?;
-    }
-
     if options.docs_file {
         stencila_docs_file(path, true).await?;
     }
@@ -54,17 +46,6 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
     }
 
     Ok(())
-}
-
-/// Get the path of the `.stencila/config.yaml` file and optionally ensure it exists
-pub async fn stencila_config_file(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let config_file = stencila_dir.join(CONFIG_FILE);
-
-    if ensure && !config_file.exists() {
-        write(&config_file, "\n").await?;
-    }
-
-    Ok(config_file)
 }
 
 /// Get the path of the `.stencila/docs.json` file and optionally ensure it exists
@@ -195,14 +176,6 @@ pub async fn closest_artifacts_for(path: &Path, key: &str) -> Result<PathBuf> {
     create_dir_all(&artifact_dir).await?;
 
     Ok(artifact_dir)
-}
-
-/// Get the path of the closest `.stencila/config.yaml` file to a path
-///
-/// Unless `ensure` is true, the returned path may not exist
-pub async fn closest_config_file(path: &Path, ensure: bool) -> Result<PathBuf> {
-    let stencila_dir = closest_stencila_dir(path, ensure).await?;
-    stencila_config_file(&stencila_dir, ensure).await
 }
 
 /// Get the path of the closest `.stencila/docs.json` file to a path

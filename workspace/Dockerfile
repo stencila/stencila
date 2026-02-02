@@ -218,10 +218,6 @@ RUN if [ "$INSTALL_PACKAGES" = "true" ]; then \
 # This prevents changes to these files from invalidating the package installation layer
 COPY --chown=${USERNAME}:${USERNAME} defaults/*.sh /home/workspace/stencila/defaults/
 
-# Add Stencila user level config
-# COPY creates parent directories automatically, no mkdir needed
-COPY --chown=${USERNAME}:${USERNAME} config.yaml /home/workspace/.config/stencila/
-
 # Add OpenVSCode Server settings
 # Placed near the end for optimal cache invalidation - these settings change frequently
 # during development but don't affect any subsequent layers, making iteration fast

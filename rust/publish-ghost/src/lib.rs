@@ -17,7 +17,7 @@ use url::Host;
 use stencila_cli_utils::parse_host;
 use stencila_document::{
     DecodeOptions, Document, EncodeOptions, Format, LossesResponse, stencila_codecs,
-    stencila_schema::{ConfigPublishGhostState, ConfigPublishGhostType, Node, shortcuts::t},
+    stencila_schema::{Node, shortcuts::t},
 };
 use stencila_remotes::{get_remotes_for_path, update_remote_timestamp};
 
@@ -230,29 +230,11 @@ impl Cli {
 
         tracing::trace!("Publishing document to {base_url}");
 
-        // Determine the type of resource
-        let resource_type = if self.post {
-            ResourceType::Post
-        } else if self.page {
+        // Determine the type of resource from CLI options (default to post)
+        let resource_type = if self.page {
             ResourceType::Page
         } else {
-            // get resource type from YAML header if none provided in cli
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root
-                    && let Some(config) = &article.options.config
-                    && let Some(publish) = &config.publish
-                    && let Some(publisher) = &publish.ghost
-                    && let Some(r#type) = &publisher.r#type
-                {
-                    return match r#type {
-                        ConfigPublishGhostType::Page => ResourceType::Page,
-                        ConfigPublishGhostType::Post => ResourceType::Post,
-                    };
-                }
-                //Default to post
-                ResourceType::Post
-            })
-            .await
+            ResourceType::Post
         };
 
         // Generate JWT for request
@@ -521,99 +503,50 @@ impl Cli {
         doc: &Document,
         updated_at: Option<String>,
     ) -> Result<Payload> {
-        // Get document meta data if fields aren't filled
-        let (title, slug, featured, excerpt, status, schedule, tags) = doc
+        // Get document meta data from article or CLI options
+        let (title, excerpt) = doc
             .inspect(|root: &Node| {
-                let mut title = None;
-                let mut slug = None;
-                let mut featured = None;
-                let mut excerpt = None;
-                let mut status = None;
-                let mut schedule: Option<DateTime<Utc>> = None;
-                let mut tags = None;
+                let mut title = self.title.clone();
+                let mut excerpt = self.excerpt.clone();
 
                 if let Node::Article(article) = root {
-                    //Get document title
-                    if self.title.is_none() {
-                        if let Some(inlines) = &article.title {
-                            title = Some(stencila_codec_text::to_text(inlines));
-                        }
-                    } else {
-                        title = self.title.clone();
+                    // Get document title from article if not provided on CLI
+                    if title.is_none()
+                        && let Some(inlines) = &article.title
+                    {
+                        title = Some(stencila_codec_text::to_text(inlines));
                     }
 
                     // If no custom excerpt provided, use the article description
-                    if self.excerpt.is_none() {
+                    if excerpt.is_none() {
                         excerpt = article.options.description.clone();
-                    } else {
-                        excerpt = self.excerpt.clone();
                     }
-
-                    //Get config meta data
-                    if let Some(config) = &article.options.config
-                        && let Some(publish) = &config.publish
-                            && let Some(publisher) = &publish.ghost {
-                                if self.slug.is_some() {
-                                    slug = self.slug.clone();
-                                } else {
-                                    slug = publisher.slug.clone();
-                                }
-
-                                if self.featured {
-                                    featured = Some(self.featured);
-                                } else {
-                                    featured = publisher.featured;
-                                }
-
-                                if !self.publish && !self.draft && self.schedule.is_none() {
-                                    if let Some(doc_schedule) = &publisher.schedule {
-                                        status = Some(Status::Scheduled);
-                                        schedule =
-                                            DateTime::from_str(doc_schedule.value.as_str()).ok();
-                                        if schedule <= Some(Utc::now()){
-                                            bail!(
-                                                "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                                                self.schedule,
-                                                Utc::now()
-                                            );
-                                        }
-                                    } else {
-                                        status = match publisher.state {
-                                            Some(ConfigPublishGhostState::Publish) => {
-                                                Some(Status::Published)
-                                            }
-                                            _ => Some(Status::Draft),
-                                        };
-                                    }
-                                } else {
-                                    status = if self.publish {
-                                        Some(Status::Published)
-                                    } else {
-                                        Some(Status::Draft)
-                                    };
-
-                                    if self.schedule.is_some() {
-                                        if self.schedule <= Some(Utc::now()) {
-                                            bail!(
-                                                "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                                                self.schedule,
-                                                Utc::now()
-                                            );
-                                        }
-                                        schedule = self.schedule;
-                                    }
-                                }
-
-                                if self.tags.is_some() {
-                                    tags = self.tags.clone();
-                                } else {
-                                    tags = publisher.tags.clone();
-                                }
-                            }
                 }
-                Ok((title, slug, featured, excerpt, status, schedule, tags))
+
+                (title, excerpt)
             })
-            .await?;
+            .await;
+
+        // Use CLI options for Ghost-specific settings
+        let slug = self.slug.clone();
+        let featured = if self.featured { Some(true) } else { None };
+        let tags = self.tags.clone();
+
+        // Determine status and schedule from CLI options
+        let (status, schedule) = if let Some(schedule_time) = self.schedule {
+            if schedule_time <= Utc::now() {
+                bail!(
+                    "Scheduled time must be in the future, current time:{:?}, scheduled time:{:?}",
+                    Utc::now(),
+                    schedule_time
+                );
+            }
+            (Some(Status::Scheduled), Some(schedule_time))
+        } else if self.publish {
+            (Some(Status::Published), None)
+        } else {
+            (Some(Status::Draft), None)
+        };
 
         let tags = tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect());
 

@@ -348,10 +348,7 @@ pub enum NodeProperty {{
             .schemas
             .iter()
             .filter(|(.., schema)| {
-                !schema.r#abstract
-                    && schema.is_object()
-                    && !schema.properties.is_empty()
-                    && !schema.is_config()
+                !schema.r#abstract && schema.is_object() && !schema.properties.is_empty()
             })
             .map(|(title, schema)| {
                 let properties = schema
@@ -737,7 +734,7 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
             let name = name.to_snake_case();
 
             // Determine Rust type for the property
-            let (mut typ, is_vec) = if name == "type" && !schema.is_config() {
+            let (mut typ, is_vec) = if name == "type" {
                 (format!(r#"MustBe!("{title}")"#), false)
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property)?;
@@ -1085,18 +1082,11 @@ pub struct {title}Options {{
         .collect();
         let nick = format!("const NICK: [u8; 3] = *b\"{nick}\";");
 
-        let fn_node_type = if schema.is_config() {
-            "pub fn node_type(&self) -> NodeType {
-        NodeType::Config
-    }"
-            .to_string()
-        } else {
-            format!(
-                "pub fn node_type(&self) -> NodeType {{
+        let fn_node_type = format!(
+            "pub fn node_type(&self) -> NodeType {{
         NodeType::{title}
     }}"
-            )
-        };
+        );
 
         write(
             path,

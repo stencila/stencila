@@ -23,14 +23,13 @@ use stencila_node_execute::CompileOptions;
 use stencila_node_find::find;
 use stencila_node_first::first;
 use stencila_schema::{
-    Article, AuthorRole, Chat, Config, ContentType, ExecutionBounds, File, Node, NodeId,
-    NodeProperty, NodeType, Null, Patch, Prompt,
+    Article, AuthorRole, Chat, ContentType, ExecutionBounds, File, Node, NodeId, NodeProperty,
+    NodeType, Null, Patch, Prompt,
 };
 
 #[allow(clippy::print_stderr)]
 pub mod cli;
 
-mod config;
 pub mod demo;
 mod files;
 mod sync_directory;
@@ -82,10 +81,7 @@ pub struct LogEntry {
 #[serde(tag = "command", rename_all = "kebab-case")]
 pub enum Command {
     /// Compile the document
-    CompileDocument {
-        config: Config,
-        compile_options: CompileOptions,
-    },
+    CompileDocument { compile_options: CompileOptions },
 
     /// Execute the entire document
     ExecuteDocument(ExecuteOptions),
@@ -344,14 +340,12 @@ impl Document {
         // Start the update task
         {
             let root = root.clone();
-            let path = path.clone();
             let command_sender = command_sender.clone();
             tokio::spawn(async move {
                 Self::update_task(
                     update_receiver,
                     patch_receiver,
                     root,
-                    path,
                     watch_sender,
                     command_sender,
                 )
@@ -754,9 +748,7 @@ impl Document {
     pub async fn compile(&self) -> Result<()> {
         tracing::trace!("Compiling document");
 
-        let config = self.config().await?;
         self.command_wait(Command::CompileDocument {
-            config,
             compile_options: CompileOptions::default(),
         })
         .await
@@ -767,9 +759,7 @@ impl Document {
     pub async fn lint(&self, should_format: bool, should_fix: bool) -> Result<()> {
         tracing::trace!("Linting document");
 
-        let config = self.config().await?;
         self.command_wait(Command::CompileDocument {
-            config,
             compile_options: CompileOptions {
                 should_lint: true,
                 should_format,

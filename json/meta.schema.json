@@ -431,11 +431,6 @@
           "const": "edits"
         },
         {
-          "description": "Types related to Stencila configuration",
-          "type": "string",
-          "const": "config"
-        },
-        {
           "description": "All other node types",
           "type": "string",
           "const": "other"

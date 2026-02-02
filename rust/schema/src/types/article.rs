@@ -8,7 +8,6 @@ use super::block::Block;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
-use super::config::Config;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
 use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
@@ -439,12 +438,6 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub pagination: Option<String>,
-
-    /// Configuration options for the document.
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub config: Option<Config>,
 
     /// A list of links to headings, including implied section headings, within the document
     #[strip(content, temporary)]

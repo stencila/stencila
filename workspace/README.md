@@ -137,16 +137,6 @@ The scripts are executed in CI mode when specified via the `STENCILA_SCRIPT` env
 
 ## Configuration Files
 
-### `config.yaml`
-
-Provides default Stencila configuration:
-
-- `executeContent: true` - Enables automatic content execution
-- `executionBounds: Box` - Sets execution boundaries
-- `maximumRetries: 2` - Configures retry logic
-
-Copied to `/home/workspace/.config/stencila/` in the container.
-
 ### `settings.jsonc`
 
 Machine-level VSCode settings:

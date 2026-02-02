@@ -240,7 +240,6 @@
     "commit": "stencila:commit",
     "compilationDigest": "stencila:compilationDigest",
     "compilationMessages": "stencila:compilationMessages",
-    "config": "stencila:config",
     "contactPoints": "schema:contactPoint",
     "contains": "stencila:contains",
     "content": "stencila:content",

@@ -14,7 +14,7 @@ use stencila_codecs::{DecodeOptions, Format};
 use stencila_kernels::Kernels;
 use stencila_linters::LintingOptions;
 use stencila_schema::{
-    AuthorRole, AuthorRoleName, Block, CitationGroup, CompilationMessage, Config, ExecutionBounds,
+    AuthorRole, AuthorRoleName, Block, CitationGroup, CompilationMessage, ExecutionBounds,
     ExecutionMode, ExecutionRequired, ExecutionStatus, IfBlockClause, Inline, LabelType, Link,
     List, ListItem, ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch,
     PatchNode, PatchOp, PatchValue, Reference, SuggestionBlock, Timestamp, VisitorAsync,
@@ -67,14 +67,12 @@ pub async fn compile(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    config: Config,
     patch_sender: Option<PatchSender>,
     decode_options: Option<DecodeOptions>,
     compile_options: Option<CompileOptions>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender);
-    executor.config = Some(config);
     executor.decode_options = decode_options;
     executor.compile_options = compile_options;
     executor.compile(&mut root).await?;
@@ -258,9 +256,6 @@ pub struct Executor {
     /// Used for `IfBlock` (and possibly others in the future) to control behavior of
     /// execution of child nodes.
     is_last: bool,
-
-    /// Configuration options
-    config: Option<Config>,
 
     /// Execution options
     execute_options: Option<ExecuteOptions>,
@@ -456,7 +451,6 @@ impl Executor {
             linting_context: Vec::new(),
             force_all: false,
             is_last: false,
-            config: None,
             execute_options: None,
         }
     }

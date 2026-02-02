@@ -12,7 +12,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use stencila_cli_utils::{color_print::cstr, parse_host};
-use stencila_codec::stencila_schema::ConfigPublishZenodoAccessRight;
 use stencila_document::{Document, stencila_schema, stencila_schema::Node};
 
 mod metadata_extraction;
@@ -450,65 +449,17 @@ impl Cli {
                 }
             }
 
-            // Config YAML header
-            let mut embargoed = None;
-            let mut access_right = None;
-            let mut notes = None;
-            let mut method = None;
-
-            tracing::debug!("article:{:?}",article);
-            if let Some(config) = &article.options.config {
-                tracing::debug!("config:{:?}",config);
-                if let Some(publish) = &config.publish
-                    && let Some(publisher) = &publish.zenodo{
-                        embargoed = publisher.embargoed.clone();
-                        access_right = publisher.access_right;
-                        notes = publisher.notes.clone();
-                        method = publisher.method.clone();
-                    }
-            }
-
-            Some((title, description, creators, doi, embargoed, access_right, notes, method))
+            Some((title, description, creators, doi))
         }).await;
 
         let mut doi_from_doc = None;
         let mut deposit = json!({ "metadata": json!({}) });
 
-        if let Some((title, description, creators, doi, embargoed, access_right, notes, method)) =
-            metadata_from_doc.clone()
-        {
+        if let Some((title, description, creators, doi)) = metadata_from_doc.clone() {
             deposit["metadata"]["title"] = json!(title);
             deposit["metadata"]["description"] = json!(description);
             deposit["metadata"]["creators"] = json!(creators);
             doi_from_doc = doi;
-
-            tracing::debug!("{:?}", embargoed);
-            tracing::debug!("{:?}", access_right);
-            if let Some(stencila_schema::Date {
-                value: embargo_date,
-                ..
-            }) = embargoed
-            {
-                debug_assert_eq!(
-                    access_right,
-                    Some(ConfigPublishZenodoAccessRight::Embargoed),
-                    "logic error: --embargoed={embargo_date:?} is set, but --access_right={access_right:?}"
-                );
-                if access_right != Some(ConfigPublishZenodoAccessRight::Embargoed) {
-                    tracing::info!(
-                        "Note: An embargo date ({}) has been provided, but access right is set to {:?}. Replacing access right to `embargoed`.",
-                        embargo_date,
-                        access_right
-                    );
-                }
-                deposit["metadata"]["embargo_date"] = json!(embargo_date);
-                deposit["metadata"]["access_right"] = json!("embargoed");
-            }
-
-            tracing::debug!("{:?}", notes);
-            deposit["metadata"]["notes"] = json!(notes);
-            tracing::debug!("{:?}", method);
-            deposit["metadata"]["method"] = json!(method);
         }
 
         if let Some(title_from_args) = self.title {
@@ -610,18 +561,8 @@ impl Cli {
             deposit["metadata"]["doi"] = json!(doi)
         }
 
-        tracing::debug!("{:?}", metadata_from_doc);
-        if let Some(metadata) = metadata_from_doc.clone() {
-            if let Some(access_right) = metadata.5 {
-                tracing::debug!("access_right:{:?}", access_right);
-                deposit["metadata"]["access_right"] =
-                    json!(access_right.to_string().to_lowercase().clone());
-            } else {
-                deposit["metadata"]["access_right"] = json!(self.access_right.clone());
-            }
-        } else {
-            deposit["metadata"]["access_right"] = json!(self.access_right.clone());
-        }
+        // Use CLI access_right (no longer reading from document config)
+        deposit["metadata"]["access_right"] = json!(self.access_right.clone());
         //if let Some((..,license,..)) = metadata_from_doc.clone(){
         deposit["metadata"]["license"] = json!(self.license);
         //}

@@ -192,10 +192,7 @@ impl Document {
                     send_status(&status_sender, status).await;
                 }
 
-                CompileDocument {
-                    config,
-                    compile_options,
-                } => {
+                CompileDocument { compile_options } => {
                     let status_sender_clone = status_sender.clone();
                     let decode_options = decode_options.clone();
                     let task = tokio::spawn(async move {
@@ -203,7 +200,6 @@ impl Document {
                             home,
                             root,
                             kernels,
-                            config,
                             Some(patch_sender),
                             decode_options,
                             Some(compile_options),

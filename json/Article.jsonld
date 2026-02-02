@@ -1018,15 +1018,6 @@
       }
     },
     {
-      "@id": "stencila:config",
-      "@type": "rdfs:Property",
-      "rdfs:label": "config",
-      "rdfs:comment": "Configuration options for the document.",
-      "schema:domainIncludes": {
-        "@id": "schema:Article"
-      }
-    },
-    {
       "@id": "stencila:headings",
       "@type": "rdfs:Property",
       "rdfs:label": "headings",

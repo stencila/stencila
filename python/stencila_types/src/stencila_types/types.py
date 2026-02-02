@@ -209,35 +209,6 @@ class ClaimType(StrEnum):
     Corollary = "Corollary"
 
 
-class ConfigPublishGhostState(StrEnum):
-    """
-    The state of Ghost resource
-    """
-
-    Draft = "Draft"
-    Publish = "Publish"
-
-
-class ConfigPublishGhostType(StrEnum):
-    """
-    The type of Ghost resource
-    """
-
-    Page = "Page"
-    Post = "Post"
-
-
-class ConfigPublishZenodoAccessRight(StrEnum):
-    """
-    The access right type
-    """
-
-    Open = "Open"
-    Embargoed = "Embargoed"
-    Restricted = "Restricted"
-    Closed = "Closed"
-
-
 class CreativeWorkType(StrEnum):
     """
     The kind of a creative work.
@@ -1232,9 +1203,6 @@ class Article(CreativeWork, Executable):
 
     frontmatter: str | None = None
     """Frontmatter containing document metadata."""
-
-    config: Config | None = None
-    """Configuration options for the document."""
 
     headings: List | None = None
     """A list of links to headings, including implied section headings, within the document"""

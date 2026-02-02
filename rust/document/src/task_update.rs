@@ -1,7 +1,5 @@
-use std::path::PathBuf;
-
 use stencila_node_execute::{CompileOptions, ExecuteOptions};
-use stencila_schema::{Config, Node, PatchNode, PatchOp, authorship};
+use stencila_schema::{Node, PatchNode, PatchOp, authorship};
 
 use crate::{
     Command, CommandNodes, CommandScope, Document, DocumentCommandSender, DocumentPatchReceiver,
@@ -24,21 +22,10 @@ impl Document {
         mut update_receiver: DocumentUpdateReceiver,
         mut patch_receiver: DocumentPatchReceiver,
         root: DocumentRoot,
-        path: Option<PathBuf>,
         watch_sender: DocumentWatchSender,
         command_sender: DocumentCommandSender,
     ) {
         tracing::debug!("Document update task started");
-
-        // Get the initial config associated with the document.
-        // This avoids doing this relatively expensive operation within the loop.
-        let config = match Document::config_for(&root, &path).await {
-            Ok((config, ..)) => config,
-            Err(error) => {
-                tracing::warn!("While getting document config: {error}");
-                Config::default()
-            }
-        };
 
         loop {
             let (compile, lint, execute, ack) = tokio::select! {
@@ -112,10 +99,7 @@ impl Document {
 
             // Lint, or just compile, if requested.
             if lint || compile {
-                let config = Document::config_merge_root(config.clone(), &root).await;
-
                 let command = Command::CompileDocument {
-                    config,
                     compile_options: CompileOptions {
                         should_lint: lint,
                         ..Default::default()

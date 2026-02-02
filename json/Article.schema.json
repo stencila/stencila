@@ -996,23 +996,6 @@
       },
       "type": "string"
     },
-    "config": {
-      "@id": "stencila:config",
-      "description": "Configuration options for the document.",
-      "strip": [
-        "metadata"
-      ],
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "$ref": "Config.schema.json"
-    },
     "headings": {
       "@id": "stencila:headings",
       "description": "A list of links to headings, including implied section headings, within the document",

@@ -32,8 +32,7 @@ impl Schemas {
         try_join_all(futures).await?;
 
         // Ignore config types
-        let mut schemas: BTreeMap<String, Schema> = self.schemas.clone();
-        schemas.retain(|_, schema| !schema.is_config());
+        let schemas: BTreeMap<String, Schema> = self.schemas.clone();
 
         // For each property determine its `domainIncludes` (type it exists on)
         // and `rangeIncludes` (types it can have).

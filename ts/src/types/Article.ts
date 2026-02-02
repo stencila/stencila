@@ -1,7 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
-import { Config } from "./Config.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 import { List } from "./List.js";
@@ -34,11 +33,6 @@ export class Article extends CreativeWork {
    * Frontmatter containing document metadata.
    */
   frontmatter?: string;
-
-  /**
-   * Configuration options for the document.
-   */
-  config?: Config;
 
   /**
    * A list of links to headings, including implied section headings, within the document

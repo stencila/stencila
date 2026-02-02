@@ -2,7 +2,6 @@ use std::ops::Deref;
 
 use futures::{StreamExt, stream::FuturesUnordered};
 use itertools::Itertools;
-use serde_json::json;
 
 use stencila_models::{ModelMessage, ModelTask};
 use stencila_node_diagnostics::{DiagnosticLevel, diagnostics_gte};
@@ -53,36 +52,6 @@ impl Executable for Chat {
                 NodePath::from([NodeProperty::Prompt, NodeProperty::Target]),
                 PatchOp::Set(PatchValue::String(target)),
             ));
-        }
-
-        // Apply configuration settings to model parameters
-        if let Some(config) = executor
-            .config
-            .as_ref()
-            .and_then(|config| config.models.as_ref())
-        {
-            if self.model_parameters.execute_content.is_none() {
-                self.model_parameters.execute_content = config.execute_content;
-                ops.push((
-                    NodePath::from([NodeProperty::ModelParameters, NodeProperty::ExecuteContent]),
-                    PatchOp::Set(PatchValue::Json(json!(config.execute_content))),
-                ));
-            }
-            if self.model_parameters.execution_bounds.is_none() {
-                self.model_parameters.execution_bounds = config.execution_bounds;
-                ops.push((
-                    NodePath::from([NodeProperty::ModelParameters, NodeProperty::ExecutionBounds]),
-                    PatchOp::Set(PatchValue::Json(json!(config.execution_bounds))),
-                ));
-            }
-            if self.model_parameters.maximum_retries.is_none() {
-                let num = config.maximum_retries.map(|num| num as u64);
-                self.model_parameters.maximum_retries = num;
-                ops.push((
-                    NodePath::from([NodeProperty::ModelParameters, NodeProperty::MaximumRetries]),
-                    PatchOp::Set(PatchValue::Json(json!(num))),
-                ));
-            }
         }
 
         if !ops.is_empty() {

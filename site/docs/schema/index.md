@@ -248,17 +248,6 @@ includes the full set of properties and constraints.
 - [`SuggestionInline`](./suggestion-inline.md) - Abstract base type for nodes that indicate a suggested change to inline content.
 - [`SuggestionStatus`](./suggestion-status.md) - The status of an instruction.
 
-# Config
-
-- [`Config`](./config.md) - Stencila document configuration options.
-- [`ConfigModels`](./config-models.md) - Model selection and execution options.
-- [`ConfigPublish`](./config-publish.md) - Publishing options.
-- [`ConfigPublishGhost`](./config-publish-ghost.md) - Ghost publishing options.
-- [`ConfigPublishGhostState`](./config-publish-ghost-state.md) - The state of Ghost resource
-- [`ConfigPublishGhostType`](./config-publish-ghost-type.md) - The type of Ghost resource
-- [`ConfigPublishZenodo`](./config-publish-zenodo.md) - Zenodo publishing options.
-- [`ConfigPublishZenodoAccessRight`](./config-publish-zenodo-access-right.md) - The access right type
-
 # Other
 
 - [`Brand`](./brand.md) - A brand used by an organization or person for labeling a product, product group, or similar.

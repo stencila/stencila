@@ -191,17 +191,6 @@ items:
       - "suggestion-inline"
       - "suggestion-status"
 
-  - label: "Config"
-    children:
-      - "config"
-      - "config-models"
-      - "config-publish"
-      - "config-publish-ghost"
-      - "config-publish-ghost-state"
-      - "config-publish-ghost-type"
-      - "config-publish-zenodo"
-      - "config-publish-zenodo-access-right"
-
   - label: "Other"
     children:
       - "brand"

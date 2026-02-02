@@ -124,13 +124,8 @@ pub async fn subscribe(
 
     let doc = doc.read().await;
 
-    // Get the document theme
-    let theme = doc
-        .config()
-        .await
-        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?
-        .theme
-        .unwrap_or_else(|| "stencila".into());
+    // Use default theme
+    let theme = "stencila".to_string();
 
     // Start the DOM syncing task and the initial HTML content
     let html = doc

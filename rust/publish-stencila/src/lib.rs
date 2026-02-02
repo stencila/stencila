@@ -57,12 +57,8 @@ async fn publish_path(
         let doc = Document::open(path, None).await?;
         doc.compile().await?;
 
-        let theme = doc.config().await?.theme;
         let root = doc.root().await;
-        let options = EncodeOptions {
-            theme,
-            ..Default::default()
-        };
+        let options = EncodeOptions::default();
 
         publish_node(&root, options, key, dry_run, swb).await
     } else {

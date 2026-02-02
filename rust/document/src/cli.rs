@@ -193,43 +193,6 @@ impl Query {
     }
 }
 
-/// Display the configuration for a document
-#[derive(Debug, Parser)]
-#[command(after_long_help = CONFIG_AFTER_LONG_HELP)]
-pub struct Config {
-    /// The path to the document to resolve
-    file: PathBuf,
-}
-
-pub static CONFIG_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Show configuration for a document</dim>
-  <b>stencila config</> <g>document.md</>
-
-<bold><b>Note</b></bold>
-  Shows both the configuration sources (from workspace,
-  user, and document-specific configs) and the final
-  merged configuration that will be used for the document.
-"
-);
-
-impl Config {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        let doc = Document::open(&self.file, None).await?;
-
-        let (config, sources) = doc.config_with_sources().await?;
-
-        Code::new(Format::Markdown, "# Config sources").to_stdout();
-        Code::new_from(Format::Yaml, &sources)?.to_stdout();
-
-        Code::new(Format::Markdown, "# Merged config").to_stdout();
-        Code::new_from(Format::Yaml, &config)?.to_stdout();
-
-        Ok(())
-    }
-}
-
 /// Start tracking a document
 #[derive(Debug, Parser)]
 #[command(after_long_help = TRACK_AFTER_LONG_HELP)]

@@ -192,7 +192,6 @@ pub async fn serve_path(
         .await
         .map_err(InternalError::new)?;
     let doc_id = uuid.to_string();
-    let config = doc.config().await.map_err(InternalError::new)?;
 
     // Early-returned response for raw
     if query.contains_key("~raw") {
@@ -253,8 +252,8 @@ pub async fn serve_path(
         .get("~view")
         .map_or("dynamic", |value: &String| value.as_ref());
 
-    // Get theme name from query or config
-    let theme_name = query.get("~theme").cloned().or(config.theme.clone());
+    // Get theme name from query (default theme is used if not specified)
+    let theme_name = query.get("~theme").cloned();
 
     // Resolve theme if theme_name is not "none"
     let theme = if theme_name.as_deref() != Some("none") {

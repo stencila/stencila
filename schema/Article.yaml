@@ -60,13 +60,6 @@ properties:
     strip: [metadata]
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-  config:
-    "@id": stencila:config
-    description: Configuration options for the document.
-    $ref: Config
-    strip: [metadata]
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   headings:
     "@id": stencila:headings
     description: A list of links to headings, including implied section headings, within the document

@@ -400,8 +400,6 @@ pub enum Category {
     Style,
     /// Node types related to editing documents
     Edits,
-    /// Types related to Stencila configuration
-    Config,
     /// All other node types
     #[default]
     Other,
@@ -933,10 +931,6 @@ impl Schema {
 
     pub fn is_array(&self) -> bool {
         matches!(self.r#type, Some(Type::Array))
-    }
-
-    pub fn is_config(&self) -> bool {
-        matches!(self.category, Category::Config)
     }
 }
 
