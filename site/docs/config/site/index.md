@@ -232,6 +232,29 @@ Default exclusions (`.git/`, `node_modules/`, etc.) are applied automatically.
 
 Example: `["**/*.draft.md", "temp/**"]`
 
+# `access`
+
+**Type:** `SiteAccessConfig` (optional)
+
+Route access restrictions
+
+Restricts access to specific routes based on user access level.
+Uses path prefix matching with longest match wins.
+
+Access levels (cumulative hierarchy):
+- `public`: Anyone can access (default)
+- `subscriber`: Subscribers to the site
+- `password`: Users with the site password
+- `team`: Team members only
+
+```toml
+# Configure route access restrictions
+[site.access]
+default = "public"
+"/data" = "password"
+"/internal" = "team"
+```
+
 # `routes`
 
 **Type:** `object` (optional)
@@ -290,9 +313,33 @@ formats = []      # No additional formats, hide format buttons
 
 # `reviews`
 
-**Type:** [`ReviewsConfig`](reviews.md) (optional)
+**Type:** [`SiteReviewsConfig`](reviews.md) (optional)
 
 Site reviews configuration
+
+# `uploads`
+
+**Type:** [`SiteUploadsConfig`](uploads.md) (optional)
+
+Site uploads configuration
+
+# `remotes`
+
+**Type:** [`SiteRemotesConfig`](remotes.md) (optional)
+
+Site remotes configuration
+
+# `actions`
+
+**Type:** [`SiteActionsConfig`](actions.md) (optional)
+
+Site actions zone configuration
+
+# `auto_index`
+
+**Type:** [`AutoIndexConfig`](auto_index.md) (optional)
+
+Auto-index configuration for directories without content files
 
 
 ***

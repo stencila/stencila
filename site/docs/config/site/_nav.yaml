@@ -6,3 +6,7 @@ items:
   - "glide"
   - "search"
   - "reviews"
+  - "uploads"
+  - "remotes"
+  - "actions"
+  - "auto_index"

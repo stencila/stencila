@@ -7,11 +7,13 @@ Search configuration for client-side full-text search
 
 When enabled, a search index is generated during site rendering.
 The index is sharded for efficient incremental loading and supports
-Unicode text with diacritic folding, e.g.
+Unicode text with diacritic folding.
+
+Can be a simple boolean or a detailed configuration object, e.g.
 ```toml
 # Enable search with defaults
-[site.search]
-enabled = true
+[site]
+search = true
 
 # Customize search indexing
 [site.search]
@@ -63,6 +65,17 @@ Maximum text length per search entry
 
 Text content longer than this will be truncated.
 Default: 500 characters
+
+# `fuzzy`
+
+**Type:** `boolean` (optional)
+
+Enable fuzzy search support
+
+When true, pre-computed trigrams are included in the search index
+to enable fuzzy matching (finding results with typos).
+This increases index size by approximately 1KB per entry.
+Default: true
 
 
 ***

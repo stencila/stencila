@@ -7,7 +7,7 @@ Site reviews configuration
 
 Enables readers to submit comments and suggestions on site pages.
 Requires `workspace.id` to be configured for cloud enforcement of
-public/anon settings.
+public/anon settings. Position is controlled via `[site.actions]`.
 
 Can be a simple boolean or a detailed configuration object, e.g.
 ```toml
@@ -20,7 +20,6 @@ reviews = true
 enabled = true
 public = true           # Non-team members can submit
 anon = false            # Require GitHub auth
-position = "bottom-right"
 types = ["comment", "suggestion"]
 min-selection = 10
 max-selection = 5000
@@ -29,7 +28,7 @@ include = ["docs/**"]   # Only show on docs pages
 exclude = ["api/**"]    # Hide from API reference
 ```
 
-**Type:** `ReviewsConfig`
+**Type:** `SiteReviewsConfig`
 
 # `enabled`
 
@@ -58,21 +57,6 @@ Whether anonymous (no GitHub auth) submissions are allowed
 This is enforced server-side by Stencila Cloud. When false,
 users must connect their GitHub account to submit reviews.
 Default: false
-
-# `position`
-
-**Type:** `ReviewsPosition` (optional)
-
-Position of the reviews widget on the page
-
-Default: bottom-right
-
-| Value | Description |
-|-------|-------------|
-| `bottom-right` | Bottom-right corner (default) |
-| `bottom-left` | Bottom-left corner |
-| `top-right` | Top-right corner |
-| `top-left` | Top-left corner |
 
 # `types`
 
@@ -130,6 +114,16 @@ Glob patterns for paths to hide reviews from
 
 Reviews are hidden on pages matching these patterns.
 Example: `["api/**", "changelog/**"]`
+
+# `spread-routes`
+
+**Type:** `boolean` (optional)
+
+Show review widget on spread routes (virtual routes from templates)
+
+When true, reviews are shown on spread routes like `/{region}/`.
+When false (default), reviews are hidden on spread routes to avoid
+confusion about which document is being reviewed.
 
 
 ***
