@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.13.0 2026-02-02
+
+- Based on Stencila CLI [v2.13.0](https://github.com/stencila/stencila/releases/tag/v2.13.0) which introduces a comprehensive site layout system with navigation menus, sidebar trees, table-of-contents, and glide navigation for smooth page transitions. Adds full-text site search with fuzzy matching and quoted phrase support, site review comments with shareable URLs, and access control configuration. Also includes a new email codec, design tokens for heading numbering and colors, and the ability to pull Google Docs and Microsoft 365 documents not created by Stencila. Performance improvements include parallel document rendering and optimized caching for large sites
+
+
+
 ## 2.12.0 2025-12-23
 
 - Based on Stencila CLI [v2.12.0](https://github.com/stencila/stencila/releases/tag/v2.12.0) which adds a new `outputs` command for managing output configurations, interactive select/multiselect prompts for the `ask` command, and treats Mermaid code blocks as executable by default

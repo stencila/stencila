@@ -1,3 +1,48 @@
+# [2.13.0](https://github.com/stencila/stencila/compare/v2.12.0...v2.13.0) (2026-02-02)
+
+
+### Features
+
+* **Sites:** This release introduces a comprehensive site layout system with configurable components including navigation menus, sidebar trees, table-of-contents, breadcrumbs, previous/next navigation, and footer elements. Layout presets allow quick configuration of common patterns, with support for region overrides and responsive sidebars. The new "glide" navigation provides smooth view transitions when navigating between pages with link prefetching for improved performance.
+
+* **Sites:** Add full-text search with fuzzy matching, quoted phrase support, and smart ranking with adjacency bonuses. Search results integrate with site navigation and highlight matching content on the target page.
+
+* **Sites:** Add site review feature allowing collaborators to select text and leave comments on any page. Reviews can be shared via URL and include support for media objects, with a UI for managing review items across pages.
+
+* **Sites:** Add access control configuration for restricting site visibility, with corresponding UI rendering. Add auto-index generation for routes and support for `_redirect.json` files.
+
+* **CLI:** Enable pulling of Google Docs and Microsoft 365 documents not originally created by Stencila, expanding remote document workflow options ([e933c8d](https://github.com/stencila/stencila/commit/e933c8da94), [9602e94](https://github.com/stencila/stencila/commit/9602e94910)).
+
+* **Email codec:** Add initial email codec for encoding documents as email-compatible HTML with optimized images ([c3bb85c](https://github.com/stencila/stencila/commit/c3bb85cc19)).
+
+* **Themes:** Add design tokens for heading numbering (`--heading-numbering`) and per-heading colors (`--heading-h{n}-color`) with support in both HTML and DOCX output. Add `--article-toc` token for document table-of-contents configuration ([d22e4c6](https://github.com/stencila/stencila/commit/d22e4c6631), [dd807582](https://github.com/stencila/stencila/commit/dd807582ee), [dcc9021](https://github.com/stencila/stencila/commit/dcc9021faa)).
+
+* **CLI:** Add progress bars for site render and push operations, improving visibility into long-running tasks ([f06122e](https://github.com/stencila/stencila/commit/f06122eab9)).
+
+* **CLI:** Add `config check` command for validating configuration files ([fc52d8c](https://github.com/stencila/stencila/commit/fc52d8cfd3)).
+
+
+### Bug Fixes
+
+* **LaTeX codec:** Improve handling of line comments, `\ContinuedFloat` command, and additional `\usepackage` cases. Extract article metadata when decoding and optimize island images for DOCX output ([30b0efcb](https://github.com/stencila/stencila/commit/30b0efcb47), [b314a0d](https://github.com/stencila/stencila/commit/b314a0db5f), [c0b92673](https://github.com/stencila/stencila/commit/c0b92673e3), [09f764d](https://github.com/stencila/stencila/commit/09f764d685)).
+
+* **Config:** Enforce strict validation by denying unknown fields in configuration, with improved error messages when workspace ID is missing for features that require it ([15abb6946](https://github.com/stencila/stencila/commit/15abb6946f), [311f69d](https://github.com/stencila/stencila/commit/311f69d1ee)).
+
+* **Web:** Improve mobile layout including article width, navigation menu behavior, font scaling, and sidebar toggles. Bundle icons for better offline support ([e7b3a26](https://github.com/stencila/stencila/commit/e3fbfb53e6), [3d6c80c](https://github.com/stencila/stencila/commit/3d6c80c0aa), [439f02a](https://github.com/stencila/stencila/commit/439f02a1c7)).
+
+* **Themes:** Fix layouts for styled blocks and sections, consistently apply spacing to block margins, and cache resolved variables for improved performance ([1d6f45b](https://github.com/stencila/stencila/commit/1d6f45b8dc), [7c86a92](https://github.com/stencila/stencila/commit/7c86a92ae3), [dd153980](https://github.com/stencila/stencila/commit/dd15398088)).
+
+
+### Performance Improvements
+
+* **Sites:** Render documents in parallel, precompute navigation structures once per render, resolve logo once, and get repository info once for significant speed improvements on large sites ([e53be57](https://github.com/stencila/stencila/commit/e53be57a84), [e4386b3](https://github.com/stencila/stencila/commit/e4386b3ea3), [52355166](https://github.com/stencila/stencila/commit/52355166fa)).
+
+* **Bibliography codec:** Lazily load citation locales once rather than on each citation ([670425d](https://github.com/stencila/stencila/commit/670425d169)).
+
+* **Config:** Use global singleton config object to avoid repeated parsing ([46a1dc47](https://github.com/stencila/stencila/commit/46a1dc4738))
+
+
+
 # [2.12.0](https://github.com/stencila/stencila/compare/v2.11.0...v2.12.0) (2025-12-23)
 
 
