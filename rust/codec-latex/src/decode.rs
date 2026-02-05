@@ -834,16 +834,23 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
 
             let content = mat.as_str();
 
-            // If no id is specified, try to get from the \label command within the table
+            // Extract all labels from the content (for subfigures/subtables)
+            let mut other_ids = None;
             if id.is_none() {
                 static RE: LazyLock<Regex> =
                     LazyLock::new(|| Regex::new(r"\\label\{([^}]+)\}").expect("invalid regex"));
-                if let Some(label) = RE
-                    .captures(content)
-                    .and_then(|caps| caps.get(1))
-                    .map(|mat| mat.as_str())
-                {
-                    id = Some(label.to_string())
+
+                // Collect all labels found in content
+                let labels: Vec<String> = RE
+                    .captures_iter(content)
+                    .filter_map(|caps| caps.get(1).map(|m| m.as_str().to_string()))
+                    .collect();
+
+                if !labels.is_empty() {
+                    // Use the last label as primary ID (main figure/table label is typically after caption)
+                    id = labels.last().cloned();
+                    // Store all labels for registration during compilation
+                    other_ids = Some(labels);
                 }
             }
 
@@ -861,6 +868,7 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
                 label_type,
                 label,
                 label_automatically,
+                other_ids,
                 style,
                 content: latex_to_blocks(content, island_style),
                 ..Default::default()

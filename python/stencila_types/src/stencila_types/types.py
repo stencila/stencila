@@ -2263,6 +2263,9 @@ class Island(Entity):
     label_automatically: bool | None = None
     """Whether the label should be automatically updated."""
 
+    other_ids: list[str] | None = None
+    """Other IDs for the island, in addition to the primary `id`."""
+
     style: str | None = None
     """The style to apply to the island."""
 

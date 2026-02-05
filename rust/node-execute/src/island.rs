@@ -23,12 +23,21 @@ impl Executable for Island {
             }
         }
 
-        // If has id, label type and label may be a link target so register
-        if let (Some(id), Some(label_type), Some(label)) = (&self.id, &self.label_type, &self.label)
-        {
-            executor
-                .labels
-                .insert(id.clone(), (*label_type, label.clone()));
+        // Register all label IDs as link targets (including subfigure/subtable labels)
+        if let (Some(label_type), Some(label)) = (&self.label_type, &self.label) {
+            // If other_ids is set, register all of them
+            if let Some(other_ids) = &self.other_ids {
+                for label_id in other_ids {
+                    executor
+                        .labels
+                        .insert(label_id.clone(), (*label_type, label.clone()));
+                }
+            } else if let Some(id) = &self.id {
+                // Fallback to just the primary id if other_ids is not set
+                executor
+                    .labels
+                    .insert(id.clone(), (*label_type, label.clone()));
+            }
         }
 
         WalkControl::Continue

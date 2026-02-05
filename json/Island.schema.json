@@ -21,6 +21,7 @@
     "labelType",
     "label",
     "labelAutomatically",
+    "otherIds",
     "style"
   ],
   "properties": {
@@ -129,6 +130,27 @@
         ]
       },
       "type": "boolean"
+    },
+    "otherIds": {
+      "@id": "stencila:otherIds",
+      "description": "Other IDs for the island, in addition to the primary `id`.",
+      "$comment": "Used to register secondary IDs (e.g. subfigure labels) as link targets.\nThe primary `id` is typically the last label (main figure/table label),\nand these other IDs are also registered for cross-referencing.\n",
+      "aliases": [
+        "other-ids",
+        "other_ids",
+        "otherId",
+        "other-id",
+        "other_id"
+      ],
+      "patch": {
+        "formats": [
+          "latex"
+        ]
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "style": {
       "@id": "stencila:style",

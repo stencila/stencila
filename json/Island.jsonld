@@ -254,6 +254,18 @@
       }
     },
     {
+      "@id": "stencila:otherIds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "otherIds",
+      "rdfs:comment": "Other IDs for the island, in addition to the primary `id`.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Island"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:style",
       "@type": "rdfs:Property",
       "rdfs:label": "style",

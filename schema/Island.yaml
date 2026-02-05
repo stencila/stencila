@@ -13,6 +13,7 @@ core:
   - labelType
   - label
   - labelAutomatically
+  - otherIds
   - style
 properties:
   content:
@@ -54,6 +55,18 @@ properties:
     type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd, latex]
+  otherIds:
+    "@id": stencila:otherIds
+    description: Other IDs for the island, in addition to the primary `id`.
+    $comment: |
+      Used to register secondary IDs (e.g. subfigure labels) as link targets.
+      The primary `id` is typically the last label (main figure/table label),
+      and these other IDs are also registered for cross-referencing.
+    type: array
+    items:
+      type: string
+    patch:
+      formats: [latex]
   style:
     "@id": stencila:style
     description: The style to apply to the island.

@@ -37,6 +37,11 @@ export class Island extends Entity {
   labelAutomatically?: boolean;
 
   /**
+   * Other IDs for the island, in addition to the primary `id`.
+   */
+  otherIds?: string[];
+
+  /**
    * The style to apply to the island.
    */
   style?: string;

@@ -386,6 +386,7 @@
     "operatingSystem": "schema:operatingSystem",
     "orcid": "stencila:orcid",
     "order": "schema:itemListOrder",
+    "otherIds": "stencila:otherIds",
     "otherwise": "stencila:otherwise",
     "output": "stencila:output",
     "outputs": "stencila:outputs",

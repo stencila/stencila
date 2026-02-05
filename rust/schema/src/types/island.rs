@@ -58,6 +58,13 @@ pub struct Island {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_automatically: Option<Boolean>,
 
+    /// Other IDs for the island, in addition to the primary `id`.
+    #[serde(alias = "other-ids", alias = "other_ids", alias = "otherId", alias = "other-id", alias = "other_id")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[patch(format = "latex")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub other_ids: Option<Vec<String>>,
+
     /// The style to apply to the island.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
