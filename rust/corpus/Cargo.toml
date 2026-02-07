@@ -1,0 +1,31 @@
+[package]
+name = "stencila-corpus"
+version = "0.0.0"
+edition = "2024"
+
+[features]
+default = ["fts"]
+fts = []
+
+[dependencies]
+blake3 = "1"
+chrono = { workspace = true }
+eyre = { workspace = true }
+glob = { workspace = true }
+rusqlite = { version = "0.35", features = ["bundled"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-text-trait = { path = "../codec-text-trait" }
+stencila-codecs = { path = "../codecs" }
+stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+walkdir = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[lints]
+workspace = true
