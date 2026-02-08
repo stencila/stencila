@@ -19,6 +19,10 @@ pub enum Error {
     Io(std::io::Error),
     /// JSON serialization/deserialization error.
     Json(serde_json::Error),
+    /// HTTP / cloud sync error.
+    Http(reqwest::Error),
+    /// Cloud API returned an error.
+    Cloud(u16, String),
     /// Generic error message.
     Other(String),
 }
@@ -38,6 +42,8 @@ impl std::fmt::Display for Error {
             Error::Sqlite(e) => write!(f, "sqlite error: {e}"),
             Error::Io(e) => write!(f, "io error: {e}"),
             Error::Json(e) => write!(f, "json error: {e}"),
+            Error::Http(e) => write!(f, "http error: {e}"),
+            Error::Cloud(status, msg) => write!(f, "cloud API error ({status}): {msg}"),
             Error::Other(e) => write!(f, "{e}"),
         }
     }
@@ -60,6 +66,12 @@ impl From<std::io::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(e: serde_json::Error) -> Self {
         Error::Json(e)
+    }
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(e: reqwest::Error) -> Self {
+        Error::Http(e)
     }
 }
 

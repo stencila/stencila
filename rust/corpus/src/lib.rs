@@ -47,6 +47,7 @@ pub mod query;
 pub mod schema;
 pub mod segment;
 pub mod state;
+pub mod sync;
 
 use std::path::{Path, PathBuf};
 
@@ -55,6 +56,7 @@ pub use manifest::{Manifest, ManifestDiff, SegmentMeta};
 pub use query::{CorpusQuery, QueryEngine, QueryResult};
 pub use segment::{ChunkRow, QueryHit, Segment, SegmentId};
 pub use state::State;
+pub use sync::{SyncClient, SyncReport};
 
 use error::Result;
 
@@ -194,6 +196,45 @@ impl Corpus {
             manifest_version: self.manifest.version,
             has_active_segment: self.manifest.active_segment.is_some(),
         }
+    }
+
+    /// Push the corpus to Stencila Cloud.
+    ///
+    /// Seals the active segment first, then uploads any segments the server
+    /// doesn't already have, and stores the manifest.
+    pub async fn push(
+        &mut self,
+        workspace_id: &str,
+        corpus_id: &str,
+        manifest_name: &str,
+    ) -> Result<SyncReport> {
+        // Seal before push so everything is content-addressable.
+        self.seal()?;
+
+        let client = SyncClient::new(workspace_id, corpus_id, manifest_name)
+            .await
+            .map_err(|e| error::Error::Other(format!("failed to create sync client: {e}")))?;
+
+        client.push(&self.corpus_dir, &self.manifest).await
+    }
+
+    /// Pull the corpus from Stencila Cloud.
+    ///
+    /// Downloads any missing segments from the server and replaces the
+    /// local manifest with the remote one.
+    pub async fn pull(
+        &mut self,
+        workspace_id: &str,
+        corpus_id: &str,
+        manifest_name: &str,
+    ) -> Result<SyncReport> {
+        let client = SyncClient::new(workspace_id, corpus_id, manifest_name)
+            .await
+            .map_err(|e| error::Error::Other(format!("failed to create sync client: {e}")))?;
+
+        let (remote_manifest, report) = client.pull(&self.corpus_dir).await?;
+        self.manifest = remote_manifest;
+        Ok(report)
     }
 
     /// Path to the `.corpus/` directory.
