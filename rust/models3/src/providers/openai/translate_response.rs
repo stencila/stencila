@@ -10,7 +10,7 @@ use crate::types::response::Response;
 use crate::types::role::Role;
 use crate::types::usage::Usage;
 
-/// Translate an `OpenAI` Responses API body into a unified response.
+/// Translate an OpenAI Responses API body into a unified response.
 ///
 /// # Errors
 ///

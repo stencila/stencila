@@ -14,14 +14,14 @@ use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
 
-/// Native `OpenAI` adapter using the Responses API (`/v1/responses`).
+/// Native OpenAI adapter using the Responses API (`/v1/responses`).
 #[derive(Clone, Debug)]
 pub struct OpenAIAdapter {
     http: HttpClient,
 }
 
 impl OpenAIAdapter {
-    /// Create an adapter with the default `OpenAI` API base URL.
+    /// Create an adapter with the default OpenAI API base URL.
     ///
     /// # Errors
     ///

@@ -16,7 +16,7 @@ struct ToolCallState {
     arguments: String,
 }
 
-/// Stateful translator for `OpenAI` Responses API SSE events.
+/// Stateful translator for OpenAI Responses API SSE events.
 #[derive(Debug, Clone, Default)]
 pub struct OpenAIStreamState {
     emitted_stream_start: bool,
@@ -40,7 +40,7 @@ impl OpenAIStreamState {
 /// # Errors
 ///
 /// Returns `SdkError::Stream` if the SSE payload is not valid JSON when a
-/// mapped `OpenAI` event requires JSON decoding.
+/// mapped OpenAI event requires JSON decoding.
 #[allow(clippy::too_many_lines)]
 pub fn translate_sse_event(
     event: &SseEvent,

@@ -11,19 +11,19 @@ use crate::types::response_format::{ResponseFormat, ResponseFormatType};
 use crate::types::role::Role;
 use crate::types::tool::{ToolChoice, ToolDefinition};
 
-/// `OpenAI` Responses API translated request body + per-request headers.
+/// OpenAI Responses API translated request body + per-request headers.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TranslatedOpenAIRequest {
     pub body: Value,
     pub headers: HeaderMap,
 }
 
-/// Translate a unified request into an `OpenAI` Responses API request.
+/// Translate a unified request into an OpenAI Responses API request.
 ///
 /// # Errors
 ///
 /// Returns `SdkError::InvalidRequest` when the request contains unsupported
-/// content for `OpenAI` Responses translation, or invalid provider options.
+/// content for OpenAI Responses translation, or invalid provider options.
 pub fn translate_request(request: &Request, stream: bool) -> SdkResult<TranslatedOpenAIRequest> {
     let mut body = Map::new();
     body.insert("model".to_string(), Value::String(request.model.clone()));
