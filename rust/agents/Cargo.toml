@@ -1,0 +1,16 @@
+[package]
+name = "stencila-agents"
+edition = "2024"
+version.workspace = true
+
+[dependencies]
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+stencila-models3 = { path = "../models3" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+
+[lints]
+workspace = true
