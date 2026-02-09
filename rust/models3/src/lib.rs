@@ -58,5 +58,7 @@ pub mod provider;
 pub mod providers;
 /// Retry policy and exponential backoff (mostly internal).
 pub mod retry;
+/// Secret retrieval with optional keyring support (via `secrets` feature).
+pub mod secret;
 /// Unified request, response, message, and content types.
 pub mod types;

@@ -55,23 +55,20 @@ impl Secret {
 
 // Constants exported to avoid typos when using public functions
 
-pub const STENCILA_API_TOKEN: &str = "STENCILA_API_TOKEN";
 pub const ANTHROPIC_API_KEY: &str = "ANTHROPIC_API_KEY";
-pub const GOOGLE_AI_API_KEY: &str = "GOOGLE_AI_API_KEY";
-pub const GITHUB_TOKEN: &str = "GITHUB_TOKEN";
-pub const OPENAI_API_KEY: &str = "OPENAI_API_KEY";
-pub const MISTRAL_API_KEY: &str = "MISTRAL_API_KEY";
+pub const DEEPSEEK_API_KEY: &str = "DEEPSEEK_API_KEY";
+pub const GEMINI_API_KEY: &str = "GEMINI_API_KEY";
 pub const GHOST_ADMIN_API_KEY: &str = "GHOST_ADMIN_API_KEY";
+pub const GITHUB_TOKEN: &str = "GITHUB_TOKEN";
+pub const GOOGLE_AI_API_KEY: &str = "GOOGLE_AI_API_KEY";
+pub const GOOGLE_API_KEY: &str = "GOOGLE_API_KEY";
+pub const MISTRAL_API_KEY: &str = "MISTRAL_API_KEY";
+pub const OPENAI_API_KEY: &str = "OPENAI_API_KEY";
+pub const STENCILA_API_TOKEN: &str = "STENCILA_API_TOKEN";
 
 /// A list of secrets used by Stencila
 static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
     vec![
-        Secret::new(
-            SecretCategory::AiApiKey,
-            STENCILA_API_TOKEN,
-            "Stencila API Token",
-            "Used for Stencila Cloud's model router and other services",
-        ),
         Secret::new(
             SecretCategory::AiApiKey,
             ANTHROPIC_API_KEY,
@@ -80,9 +77,21 @@ static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            GOOGLE_AI_API_KEY,
-            "Google AI API Key",
-            "Used to access the Google AI API",
+            DEEPSEEK_API_KEY,
+            "DeepSeek API Key",
+            "Used to access the DeepSeek API",
+        ),
+        Secret::new(
+            SecretCategory::AiApiKey,
+            GEMINI_API_KEY,
+            "Gemini API Key",
+            "Used to access the Gemini API",
+        ),
+        Secret::new(
+            SecretCategory::ReadWriteApiKey,
+            GHOST_ADMIN_API_KEY,
+            "Ghost Admin API Key",
+            "Used to read from and publish to Ghost",
         ),
         Secret::new(
             SecretCategory::RestApiKey,
@@ -92,9 +101,15 @@ static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            OPENAI_API_KEY,
-            "OpenAI API Key",
-            "Used to access the OpenAI API",
+            GOOGLE_AI_API_KEY,
+            "Google AI API Key",
+            "Used to access the Google AI API",
+        ),
+        Secret::new(
+            SecretCategory::AiApiKey,
+            GOOGLE_API_KEY,
+            "Google API Key",
+            "Used to access Google AI APIs (Gemini fallback)",
         ),
         Secret::new(
             SecretCategory::AiApiKey,
@@ -103,10 +118,16 @@ static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
             "Used to access the Mistral API",
         ),
         Secret::new(
-            SecretCategory::ReadWriteApiKey,
-            GHOST_ADMIN_API_KEY,
-            "Ghost Admin API Key",
-            "Used to read from and publish to Ghost",
+            SecretCategory::AiApiKey,
+            OPENAI_API_KEY,
+            "OpenAI API Key",
+            "Used to access the OpenAI API",
+        ),
+        Secret::new(
+            SecretCategory::AiApiKey,
+            STENCILA_API_TOKEN,
+            "Stencila API Token",
+            "Used for Stencila Cloud's model router and other services",
         ),
     ]
 });

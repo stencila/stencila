@@ -6,6 +6,7 @@ use crate::provider::{BoxStream, ProviderAdapter};
 use crate::providers::{
     AnthropicAdapter, DeepSeekAdapter, GeminiAdapter, MistralAdapter, OllamaAdapter, OpenAIAdapter,
 };
+use crate::secret::get_secret;
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
@@ -62,7 +63,7 @@ impl Client {
         let mut builder = ClientBuilder::new();
 
         // OpenAI (native Responses API)
-        if let Ok(api_key) = std::env::var("OPENAI_API_KEY") {
+        if let Some(api_key) = get_secret("OPENAI_API_KEY") {
             let base_url = std::env::var("OPENAI_BASE_URL")
                 .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
             let org = std::env::var("OPENAI_ORG_ID").ok();
@@ -72,25 +73,25 @@ impl Client {
         }
 
         // Anthropic
-        if std::env::var("ANTHROPIC_API_KEY").is_ok() {
+        if get_secret("ANTHROPIC_API_KEY").is_some() {
             builder = builder.add_provider(AnthropicAdapter::from_env()?);
         }
 
         // Gemini (with GOOGLE_API_KEY fallback)
-        if std::env::var("GEMINI_API_KEY").is_ok() {
+        if get_secret("GEMINI_API_KEY").is_some() {
             builder = builder.add_provider(GeminiAdapter::from_env()?);
-        } else if let Ok(api_key) = std::env::var("GOOGLE_API_KEY") {
+        } else if let Some(api_key) = get_secret("GOOGLE_API_KEY") {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
             builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
         }
 
         // Mistral
-        if std::env::var("MISTRAL_API_KEY").is_ok() {
+        if get_secret("MISTRAL_API_KEY").is_some() {
             builder = builder.add_provider(MistralAdapter::from_env()?);
         }
 
         // DeepSeek
-        if std::env::var("DEEPSEEK_API_KEY").is_ok() {
+        if get_secret("DEEPSEEK_API_KEY").is_some() {
             builder = builder.add_provider(DeepSeekAdapter::from_env()?);
         }
 

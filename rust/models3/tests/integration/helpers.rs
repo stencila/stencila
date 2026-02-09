@@ -10,14 +10,16 @@ use stencila_models3::error::{SdkError, SdkResult};
 /// Check whether the API key env-var for `provider` is set.
 /// Returns `true` when the provider is available for testing.
 pub fn has_provider(provider: &str) -> bool {
+    use stencila_models3::secret::get_secret;
+
     match provider {
-        "openai" => std::env::var("OPENAI_API_KEY").is_ok(),
-        "anthropic" => std::env::var("ANTHROPIC_API_KEY").is_ok(),
+        "openai" => get_secret("OPENAI_API_KEY").is_some(),
+        "anthropic" => get_secret("ANTHROPIC_API_KEY").is_some(),
         "gemini" => {
-            std::env::var("GEMINI_API_KEY").is_ok() || std::env::var("GOOGLE_API_KEY").is_ok()
+            get_secret("GEMINI_API_KEY").is_some() || get_secret("GOOGLE_API_KEY").is_some()
         }
-        "mistral" => std::env::var("MISTRAL_API_KEY").is_ok(),
-        "deepseek" => std::env::var("DEEPSEEK_API_KEY").is_ok(),
+        "mistral" => get_secret("MISTRAL_API_KEY").is_some(),
+        "deepseek" => get_secret("DEEPSEEK_API_KEY").is_some(),
         "ollama" => {
             std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok()
         }

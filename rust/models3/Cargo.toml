@@ -3,6 +3,10 @@ name = "stencila-models3"
 edition = "2024"
 version.workspace = true
 
+[features]
+default = []
+secrets = ["dep:stencila-secrets"]
+
 [dependencies]
 base64 = { workspace = true }
 bytes = { workspace = true }
@@ -12,6 +16,7 @@ rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-secrets = { path = "../secrets", optional = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 uuid = { workspace = true }

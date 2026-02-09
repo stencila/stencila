@@ -9,6 +9,7 @@ use crate::http::client::HttpClient;
 use crate::http::headers::parse_rate_limit_headers;
 use crate::http::sse::parse_sse;
 use crate::provider::{BoxFuture, BoxStream, ProviderAdapter};
+use crate::secret::get_secret;
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
@@ -56,7 +57,7 @@ impl OllamaAdapter {
     /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
     pub fn from_env() -> SdkResult<Self> {
         let base_url = Self::base_url_from_env();
-        let api_key = std::env::var("OLLAMA_API_KEY").ok();
+        let api_key = get_secret("OLLAMA_API_KEY");
         Self::new(base_url, api_key)
     }
 

@@ -9,6 +9,7 @@ use crate::http::client::HttpClient;
 use crate::http::headers::parse_rate_limit_headers;
 use crate::http::sse::parse_sse;
 use crate::provider::{BoxFuture, BoxStream, ProviderAdapter};
+use crate::secret::{get_secret, secret_source_description};
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
@@ -50,8 +51,11 @@ impl AnthropicAdapter {
     ///
     /// Returns `SdkError::Configuration` if `ANTHROPIC_API_KEY` is not set.
     pub fn from_env() -> SdkResult<Self> {
-        let api_key = std::env::var("ANTHROPIC_API_KEY").map_err(|_| SdkError::Configuration {
-            message: "ANTHROPIC_API_KEY environment variable not set".into(),
+        let api_key = get_secret("ANTHROPIC_API_KEY").ok_or(SdkError::Configuration {
+            message: format!(
+                "ANTHROPIC_API_KEY not found in {}",
+                secret_source_description()
+            ),
         })?;
         let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
         Self::new(api_key, base_url)
