@@ -959,6 +959,8 @@ fn document_data_round_trip() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn timeout_round_trip() -> Result<(), Box<dyn std::error::Error>> {
     let timeout = Timeout {
+        total: Some(120.0),
+        per_step: Some(30.0),
         request: Some(30.0),
         connect: Some(5.0),
         stream_idle: None,

@@ -74,6 +74,8 @@ pub enum StreamEventType {
     ToolCallEnd,
     /// Generation complete.
     Finish,
+    /// A tool-loop step completed; tools executed, next model call starting.
+    StepFinish,
     /// Error during streaming.
     Error,
     /// Raw provider event not mapped to unified model.
@@ -96,6 +98,7 @@ impl Serialize for StreamEventType {
             Self::ToolCallDelta => "tool_call_delta",
             Self::ToolCallEnd => "tool_call_end",
             Self::Finish => "finish",
+            Self::StepFinish => "step_finish",
             Self::Error => "error",
             Self::ProviderEvent => "provider_event",
             Self::Unknown(s) => s.as_str(),
@@ -119,6 +122,7 @@ impl<'de> Deserialize<'de> for StreamEventType {
             "tool_call_delta" => Self::ToolCallDelta,
             "tool_call_end" => Self::ToolCallEnd,
             "finish" => Self::Finish,
+            "step_finish" => Self::StepFinish,
             "error" => Self::Error,
             "provider_event" => Self::ProviderEvent,
             _ => Self::Unknown(s),
@@ -149,6 +153,24 @@ impl StreamEvent {
     pub fn finish(finish_reason: FinishReason, usage: Usage) -> Self {
         Self {
             event_type: StreamEventType::Finish,
+            delta: None,
+            text_id: None,
+            reasoning_delta: None,
+            tool_call: None,
+            finish_reason: Some(finish_reason),
+            usage: Some(usage),
+            response: None,
+            error: None,
+            warnings: None,
+            raw: None,
+        }
+    }
+
+    /// Create a step-finish event emitted between tool-loop steps.
+    #[must_use]
+    pub fn step_finish(finish_reason: FinishReason, usage: Usage) -> Self {
+        Self {
+            event_type: StreamEventType::StepFinish,
             delta: None,
             text_id: None,
             reasoning_delta: None,

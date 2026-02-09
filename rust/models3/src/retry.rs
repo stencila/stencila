@@ -132,7 +132,7 @@ fn apply_jitter(delay: f64) -> f64 {
 /// Callback invoked before each retry attempt.
 ///
 /// Receives the error, the attempt number (0-indexed), and the delay in seconds.
-pub type OnRetryFn = dyn Fn(&SdkError, u32, f64);
+pub type OnRetryFn = dyn Fn(&SdkError, u32, f64) + Send + Sync;
 
 /// Predicate that decides whether a specific error should be retried.
 ///
@@ -141,7 +141,7 @@ pub type OnRetryFn = dyn Fn(&SdkError, u32, f64);
 /// constraints such as:
 /// - No retry after partial stream delivery
 /// - No retry for schema validation failures
-pub type ShouldRetryFn = dyn Fn(&SdkError) -> bool;
+pub type ShouldRetryFn = dyn Fn(&SdkError) -> bool + Send + Sync;
 
 /// Retry an async operation according to the given policy.
 ///

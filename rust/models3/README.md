@@ -37,4 +37,4 @@ cargo test -p stencila-models3
 ```
 
 For test organization and TDD conventions, see `tests/README.md`.
-For spec coverage tracking, see `tests/spec-traceability.md`.
+For spec coverage tracking, including deferred conformance gaps, see `tests/spec-traceability.md`.

@@ -5,6 +5,7 @@
 #![allow(clippy::result_large_err)]
 #![warn(clippy::pedantic)]
 
+pub mod api;
 pub mod catalog;
 pub mod client;
 pub mod error;
