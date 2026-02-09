@@ -1,6 +1,7 @@
 //! Shared integration-test helpers live here.
 //!
 //! Keep helpers deterministic and free of real network calls.
+#![allow(dead_code)]
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};

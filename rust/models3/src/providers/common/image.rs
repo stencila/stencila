@@ -69,7 +69,10 @@ pub(crate) fn read_local_image_from_url(
         },
     })?;
 
-    let media_type = explicit_media_type.map_or_else(|| infer_media_type_from_path(&path).to_string(), ToString::to_string);
+    let media_type = explicit_media_type.map_or_else(
+        || infer_media_type_from_path(&path).to_string(),
+        ToString::to_string,
+    );
 
     Ok(Some((data, media_type)))
 }

@@ -2,6 +2,7 @@
 //!
 //! All real-provider tests should call [`require_provider`] at the top.
 //! Tests skip (return `Ok(())`) rather than fail when keys are absent.
+#![allow(clippy::result_large_err)]
 
 use stencila_models3::client::Client;
 use stencila_models3::error::{SdkError, SdkResult};

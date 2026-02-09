@@ -11,6 +11,7 @@
 //! OPENAI_API_KEY=... ANTHROPIC_API_KEY=... GEMINI_API_KEY=... \
 //!   cargo test -p stencila-models3 -- spec_8
 //! ```
+#![allow(clippy::result_large_err)]
 
 mod integration;
 

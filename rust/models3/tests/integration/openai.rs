@@ -1,6 +1,7 @@
 //! OpenAI-specific integration tests.
 //!
 //! All tests are env-gated behind `OPENAI_API_KEY`.
+#![allow(clippy::result_large_err)]
 
 use stencila_models3::api::generate::{GenerateOptions, generate};
 use stencila_models3::error::SdkResult;

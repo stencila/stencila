@@ -6,6 +6,7 @@
 //! - Tool failure propagation as tool results (not hard aborts)
 //! - Unknown tool handling
 //! - max_tool_rounds enforcement
+#![allow(clippy::result_large_err)]
 
 mod common;
 

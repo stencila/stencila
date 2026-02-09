@@ -8,6 +8,7 @@
 //! - Prompt standardization (prompt vs messages, system)
 //! - Usage aggregation across steps
 //! - Cancellation via abort signal
+#![allow(clippy::result_large_err)]
 
 mod common;
 
