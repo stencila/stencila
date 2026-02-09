@@ -39,10 +39,6 @@ cargo test -p stencila-models3
 cargo test -p stencila-models3 --all-features
 ```
 
-## Rust Doc Comments
-
-- In Rust doc comments, do not put model provider names in backticks. Use `OpenAI` not `` `OpenAI` ``, `DeepSeek` not `` `DeepSeek` ``, etc. Backticks in doc comments create intra-doc links, which will produce warnings for names that aren't Rust items.
-
 ## Rust Guidelines
 
 - Write idiomatic Rust:
