@@ -44,6 +44,10 @@ pub enum AgentError {
     #[error("unknown tool: {name}")]
     UnknownTool { name: String },
 
+    /// General I/O error during tool execution (filesystem, process, etc.).
+    #[error("i/o error: {message}")]
+    Io { message: String },
+
     // --- Session-level errors (Appendix B) ---
     /// The session has been closed and cannot accept further input.
     #[error("session closed")]
@@ -78,7 +82,8 @@ impl AgentError {
             | Self::ShellExitError { .. }
             | Self::PermissionDenied { .. }
             | Self::ValidationError { .. }
-            | Self::UnknownTool { .. } => true,
+            | Self::UnknownTool { .. }
+            | Self::Io { .. } => true,
 
             Self::SessionClosed
             | Self::TurnLimitExceeded { .. }
@@ -121,7 +126,8 @@ impl AgentError {
             | Self::ShellExitError { .. }
             | Self::PermissionDenied { .. }
             | Self::ValidationError { .. }
-            | Self::UnknownTool { .. } => false,
+            | Self::UnknownTool { .. }
+            | Self::Io { .. } => false,
         }
     }
 
@@ -139,10 +145,29 @@ impl AgentError {
             Self::PermissionDenied { .. } => "PERMISSION_DENIED",
             Self::ValidationError { .. } => "VALIDATION_ERROR",
             Self::UnknownTool { .. } => "UNKNOWN_TOOL",
+            Self::Io { .. } => "IO_ERROR",
             Self::SessionClosed => "SESSION_CLOSED",
             Self::TurnLimitExceeded { .. } => "TURN_LIMIT_EXCEEDED",
             Self::ContextLengthExceeded { .. } => "CONTEXT_LENGTH_EXCEEDED",
             Self::Sdk(_) => "SDK_ERROR",
+        }
+    }
+}
+
+impl AgentError {
+    /// Convert an `io::Error` into the most specific `AgentError` variant,
+    /// using `path` for context in the error message.
+    pub fn from_io(err: std::io::Error, path: &std::path::Path) -> Self {
+        match err.kind() {
+            std::io::ErrorKind::NotFound => Self::FileNotFound {
+                path: path.display().to_string(),
+            },
+            std::io::ErrorKind::PermissionDenied => Self::PermissionDenied {
+                path: path.display().to_string(),
+            },
+            _ => Self::Io {
+                message: format!("{}: {err}", path.display()),
+            },
         }
     }
 }

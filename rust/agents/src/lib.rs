@@ -24,6 +24,9 @@
 /// Agent-level error hierarchy.
 pub mod error;
 
+/// Execution environment abstraction and local implementation (spec 4.1-4.2).
+pub mod execution;
+
 /// Tool output truncation: character-based and line-based (spec 5.1-5.3).
 pub mod truncation;
 

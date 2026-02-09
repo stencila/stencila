@@ -135,6 +135,9 @@ fn error_is_tool_error_for_all_tool_variants() {
         AgentError::PermissionDenied { path: "x".into() },
         AgentError::ValidationError { reason: "x".into() },
         AgentError::UnknownTool { name: "x".into() },
+        AgentError::Io {
+            message: "disk full".into(),
+        },
     ];
     for err in &tool_errors {
         assert!(err.is_tool_error(), "{err:?} should be a tool error");
@@ -291,6 +294,13 @@ fn error_code_values() {
         "SHELL_EXIT_ERROR"
     );
     assert_eq!(AgentError::SessionClosed.code(), "SESSION_CLOSED");
+    assert_eq!(
+        AgentError::Io {
+            message: "x".into()
+        }
+        .code(),
+        "IO_ERROR"
+    );
     assert_eq!(
         AgentError::Sdk(SdkError::Network {
             message: "x".into()

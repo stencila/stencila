@@ -54,6 +54,29 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 5.3 | Pipeline per-tool behavior | spec_5_truncation.rs | truncate_tool_output_below_all_limits, truncate_tool_output_unknown_tool_uses_generous_default, truncate_tool_output_read_file_no_line_limit, truncate_tool_output_grep_uses_tail_mode, truncate_tool_output_shell_uses_head_tail_mode | Pass |
 | 5.1 | TruncationMode traits/serde | spec_5_truncation.rs | truncation_mode_debug_and_clone, truncation_mode_serde_roundtrip | Pass |
 
+## Phase 3: ExecutionEnvironment and Local Implementation
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 4.1 | read_file text with line numbers | spec_4_execution.rs | read_file_text_with_line_numbers | Pass |
+| 4.1 | read_file offset and limit | spec_4_execution.rs | read_file_with_offset_and_limit | Pass |
+| 4.1 | read_file not found | spec_4_execution.rs | read_file_not_found | Pass |
+| 4.1 | read_file image detection | spec_4_execution.rs | read_file_image_returns_image_content, read_file_jpeg_detected | Pass |
+| 4.1 | write_file | spec_4_execution.rs | write_file_creates_file, write_file_creates_parent_directories, write_file_overwrites_existing | Pass |
+| 4.1 | file_exists | spec_4_execution.rs | file_exists_true_and_false | Pass |
+| 4.1 | list_directory | spec_4_execution.rs | list_directory_basic, list_directory_with_depth | Pass |
+| 4.2 | exec_command success | spec_4_execution.rs | exec_command_success, exec_command_exit_code, exec_command_stderr_captured | Pass |
+| 4.2, 5.4 | exec_command timeout (flag, partial output, error message) | spec_4_execution.rs | exec_command_timeout, exec_command_partial_output_on_timeout, exec_command_timeout_message_in_stderr | Pass |
+| 4.2 | exec_command working_dir | spec_4_execution.rs | exec_command_with_working_dir | Pass |
+| 4.2 | exec_command custom env vars | spec_4_execution.rs | exec_command_with_custom_env_vars | Pass |
+| 4.2 | Env var denylist | spec_4_execution.rs | filter_env_vars_filtered_excludes_api_keys, filter_env_vars_filtered_case_insensitive_deny | Pass |
+| 4.2 | Env var allowlist | spec_4_execution.rs | filter_env_vars_filtered_allowlist_always_present | Pass |
+| 4.2 | Env var policy variants | spec_4_execution.rs | filter_env_vars_inherit_all_includes_everything, filter_env_vars_inherit_none_only_allowlist, filter_env_vars_default_policy_is_filtered | Pass |
+| 4.1 | grep search | spec_4_execution.rs | grep_basic_match, grep_case_insensitive, grep_max_results, grep_single_file, grep_path_not_found | Pass |
+| 4.1 | glob search | spec_4_execution.rs | glob_basic, glob_path_not_found, glob_sorted_by_mtime_newest_first | Pass |
+| 4.1 | Metadata | spec_4_execution.rs | working_directory_returns_configured_path, platform_returns_spec_value, os_version_returns_nonempty | Pass |
+| App B | Io error variant | spec_1_types.rs | error_is_tool_error_for_all_tool_variants, error_code_values | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
