@@ -4,7 +4,6 @@ This directory is organized for spec-driven TDD.
 
 ## Layout
 
-- `smoke.rs`: basic harness sanity check.
 - `spec_2_client.rs` to `spec_8_acceptance.rs`: conformance-focused integration test files grouped by spec section.
 - `spec-traceability.md`: living matrix from spec requirements to concrete test coverage.
 - `common/`: shared deterministic test helpers.

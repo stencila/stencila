@@ -105,6 +105,28 @@ pub struct ToolCall {
     pub parse_error: Option<String>,
 }
 
+impl ToolCall {
+    /// Parse a raw argument string into structured JSON.
+    ///
+    /// Returns `(parsed_value, parse_error)`. If the raw string is empty,
+    /// returns an empty object. If parsing fails, returns the raw string
+    /// as `Value::String` and the parse error message.
+    #[must_use]
+    pub fn parse_arguments(raw: &str) -> (serde_json::Value, Option<String>) {
+        if raw.is_empty() {
+            return (serde_json::Value::Object(serde_json::Map::new()), None);
+        }
+
+        match serde_json::from_str::<serde_json::Value>(raw) {
+            Ok(parsed) => (parsed, None),
+            Err(e) => (
+                serde_json::Value::String(raw.to_string()),
+                Some(e.to_string()),
+            ),
+        }
+    }
+}
+
 /// A unified tool result returned from tool execution.
 ///
 /// Unlike `ToolResultData` (which lives in message content and carries

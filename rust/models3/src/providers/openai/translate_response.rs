@@ -1,0 +1,304 @@
+use reqwest::header::HeaderMap;
+use serde_json::Value;
+
+use crate::error::{ProviderDetails, SdkError, SdkResult};
+use crate::http::headers::parse_rate_limit_headers;
+use crate::types::content::{ContentPart, ThinkingData, ToolCallData};
+use crate::types::finish_reason::{FinishReason, Reason};
+use crate::types::message::Message;
+use crate::types::response::Response;
+use crate::types::role::Role;
+use crate::types::usage::Usage;
+
+/// Translate an `OpenAI` Responses API body into a unified response.
+///
+/// # Errors
+///
+/// Returns `SdkError::InvalidRequest` when required response fields are missing.
+pub fn translate_response(raw_response: Value, headers: Option<&HeaderMap>) -> SdkResult<Response> {
+    let id = raw_response
+        .get("id")
+        .and_then(Value::as_str)
+        .ok_or_else(|| SdkError::InvalidRequest {
+            message: "OpenAI response missing id".to_string(),
+            details: ProviderDetails {
+                provider: Some("openai".to_string()),
+                raw: Some(raw_response.clone()),
+                ..ProviderDetails::default()
+            },
+        })?
+        .to_string();
+
+    let model = raw_response
+        .get("model")
+        .and_then(Value::as_str)
+        .ok_or_else(|| SdkError::InvalidRequest {
+            message: "OpenAI response missing model".to_string(),
+            details: ProviderDetails {
+                provider: Some("openai".to_string()),
+                raw: Some(raw_response.clone()),
+                ..ProviderDetails::default()
+            },
+        })?
+        .to_string();
+
+    let content = translate_output_content(&raw_response);
+    let finish_reason = extract_finish_reason(&raw_response, &content);
+
+    let usage = parse_usage(raw_response.get("usage"));
+
+    let rate_limit = headers.and_then(parse_rate_limit_headers);
+
+    Ok(Response {
+        id,
+        model,
+        provider: "openai".to_string(),
+        message: Message {
+            role: Role::Assistant,
+            content,
+            name: None,
+            tool_call_id: None,
+        },
+        finish_reason,
+        usage,
+        raw: Some(raw_response),
+        warnings: None,
+        rate_limit,
+    })
+}
+
+fn translate_output_content(raw_response: &Value) -> Vec<ContentPart> {
+    let mut content = Vec::new();
+
+    if let Some(output) = raw_response.get("output").and_then(Value::as_array) {
+        for item in output {
+            translate_output_item(item, &mut content);
+        }
+    }
+
+    if content.is_empty()
+        && let Some(output_text) = raw_response.get("output_text").and_then(Value::as_str)
+    {
+        content.push(ContentPart::Text {
+            text: output_text.to_string(),
+        });
+    }
+
+    content
+}
+
+fn translate_output_item(item: &Value, content: &mut Vec<ContentPart>) {
+    let Some(item_type) = item.get("type").and_then(Value::as_str) else {
+        return;
+    };
+
+    match item_type {
+        "message" => {
+            if let Some(parts) = item.get("content").and_then(Value::as_array) {
+                for part in parts {
+                    translate_message_content_part(part, content);
+                }
+            }
+        }
+        "function_call" => {
+            if let Some(tool_call) = parse_tool_call(item) {
+                content.push(ContentPart::ToolCall { tool_call });
+            }
+        }
+        "output_text" => {
+            if let Some(text) = item.get("text").and_then(Value::as_str) {
+                content.push(ContentPart::Text {
+                    text: text.to_string(),
+                });
+            }
+        }
+        "reasoning" => {
+            let maybe_text = item
+                .get("text")
+                .and_then(Value::as_str)
+                .or_else(|| item.get("summary").and_then(Value::as_str));
+            if let Some(text) = maybe_text {
+                content.push(ContentPart::Thinking {
+                    thinking: ThinkingData {
+                        text: text.to_string(),
+                        signature: None,
+                        redacted: false,
+                    },
+                });
+            }
+        }
+        _ => {
+            // Preserve forward compatibility by ignoring unknown output item types.
+        }
+    }
+}
+
+fn translate_message_content_part(part: &Value, content: &mut Vec<ContentPart>) {
+    let Some(part_type) = part.get("type").and_then(Value::as_str) else {
+        return;
+    };
+
+    match part_type {
+        "output_text" | "input_text" | "text" => {
+            if let Some(text) = part.get("text").and_then(Value::as_str) {
+                content.push(ContentPart::Text {
+                    text: text.to_string(),
+                });
+            }
+        }
+        "function_call" => {
+            if let Some(tool_call) = parse_tool_call(part) {
+                content.push(ContentPart::ToolCall { tool_call });
+            }
+        }
+        "reasoning" => {
+            if let Some(text) = part
+                .get("text")
+                .and_then(Value::as_str)
+                .or_else(|| part.get("summary").and_then(Value::as_str))
+            {
+                content.push(ContentPart::Thinking {
+                    thinking: ThinkingData {
+                        text: text.to_string(),
+                        signature: None,
+                        redacted: false,
+                    },
+                });
+            }
+        }
+        _ => {}
+    }
+}
+
+fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
+    let id = value
+        .get("id")
+        .and_then(Value::as_str)
+        .or_else(|| value.get("call_id").and_then(Value::as_str))?
+        .to_string();
+    let name = value
+        .get("name")
+        .and_then(Value::as_str)
+        .or_else(|| value.pointer("/function/name").and_then(Value::as_str))?
+        .to_string();
+
+    let arguments = value
+        .get("arguments")
+        .cloned()
+        .or_else(|| value.pointer("/function/arguments").cloned())
+        .unwrap_or(Value::Object(serde_json::Map::new()));
+
+    let arguments = if let Some(arguments_str) = arguments.as_str() {
+        serde_json::from_str::<Value>(arguments_str)
+            .unwrap_or_else(|_| Value::String(arguments_str.to_string()))
+    } else {
+        arguments
+    };
+
+    Some(ToolCallData {
+        id,
+        name,
+        arguments,
+        call_type: "function".to_string(),
+    })
+}
+
+pub(crate) fn parse_usage(usage: Option<&Value>) -> Usage {
+    let Some(usage) = usage else {
+        return Usage::default();
+    };
+
+    let input_tokens = usage
+        .get("prompt_tokens")
+        .and_then(Value::as_u64)
+        .or_else(|| usage.get("input_tokens").and_then(Value::as_u64))
+        .unwrap_or(0);
+
+    let output_tokens = usage
+        .get("completion_tokens")
+        .and_then(Value::as_u64)
+        .or_else(|| usage.get("output_tokens").and_then(Value::as_u64))
+        .unwrap_or(0);
+
+    let total_tokens = usage
+        .get("total_tokens")
+        .and_then(Value::as_u64)
+        .unwrap_or(input_tokens + output_tokens);
+
+    let reasoning_tokens = usage
+        .pointer("/completion_tokens_details/reasoning_tokens")
+        .and_then(Value::as_u64)
+        .or_else(|| {
+            usage
+                .pointer("/output_tokens_details/reasoning_tokens")
+                .and_then(Value::as_u64)
+        });
+
+    let cache_read_tokens = usage
+        .pointer("/prompt_tokens_details/cached_tokens")
+        .and_then(Value::as_u64)
+        .or_else(|| {
+            usage
+                .pointer("/input_tokens_details/cached_tokens")
+                .and_then(Value::as_u64)
+        });
+
+    let cache_write_tokens = usage
+        .get("cache_creation_input_tokens")
+        .and_then(Value::as_u64);
+
+    Usage {
+        input_tokens,
+        output_tokens,
+        total_tokens,
+        reasoning_tokens,
+        cache_read_tokens,
+        cache_write_tokens,
+        raw: Some(usage.clone()),
+    }
+}
+
+fn extract_finish_reason(raw_response: &Value, content: &[ContentPart]) -> FinishReason {
+    let raw = raw_response
+        .get("finish_reason")
+        .and_then(Value::as_str)
+        .map(ToString::to_string)
+        .or_else(|| {
+            raw_response
+                .get("output")
+                .and_then(Value::as_array)
+                .and_then(|arr| {
+                    arr.iter()
+                        .find_map(|item| item.get("finish_reason").and_then(Value::as_str))
+                        .map(ToString::to_string)
+                })
+        })
+        .or_else(|| {
+            raw_response
+                .get("status")
+                .and_then(Value::as_str)
+                .map(ToString::to_string)
+        });
+
+    let reason = if content
+        .iter()
+        .any(|part| matches!(part, ContentPart::ToolCall { .. }))
+    {
+        Reason::ToolCalls
+    } else {
+        map_finish_reason(raw.as_deref())
+    };
+
+    FinishReason { reason, raw }
+}
+
+pub(crate) fn map_finish_reason(raw: Option<&str>) -> Reason {
+    match raw {
+        Some("stop" | "completed" | "end_turn") | None => Reason::Stop,
+        Some("length" | "max_tokens" | "incomplete") => Reason::Length,
+        Some("tool_calls" | "function_call") => Reason::ToolCalls,
+        Some("content_filter" | "safety") => Reason::ContentFilter,
+        Some("error" | "failed") => Reason::Error,
+        Some(_) => Reason::Other,
+    }
+}

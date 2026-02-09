@@ -230,6 +230,27 @@ pub struct DocumentData {
     pub file_name: Option<String>,
 }
 
+impl DocumentData {
+    /// Validate that exactly one of `url` or `data` is set.
+    ///
+    /// # Errors
+    ///
+    /// Returns `SdkError::InvalidRequest` if both or neither are set.
+    pub fn validate(&self) -> SdkResult<()> {
+        match (&self.url, &self.data) {
+            (Some(_), Some(_)) => Err(SdkError::InvalidRequest {
+                message: "DocumentData: both url and data are set; exactly one required".into(),
+                details: ProviderDetails::default(),
+            }),
+            (None, None) => Err(SdkError::InvalidRequest {
+                message: "DocumentData: neither url nor data is set; exactly one required".into(),
+                details: ProviderDetails::default(),
+            }),
+            _ => Ok(()),
+        }
+    }
+}
+
 /// Data for a tool call initiated by the model.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ToolCallData {

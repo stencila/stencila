@@ -179,4 +179,84 @@ impl StreamEvent {
             raw: None,
         }
     }
+
+    /// Create a stream start event.
+    #[must_use]
+    pub fn stream_start() -> Self {
+        Self {
+            event_type: StreamEventType::StreamStart,
+            delta: None,
+            text_id: None,
+            reasoning_delta: None,
+            tool_call: None,
+            finish_reason: None,
+            usage: None,
+            response: None,
+            error: None,
+            warnings: None,
+            raw: None,
+        }
+    }
+
+    /// Create a provider event (raw passthrough).
+    #[must_use]
+    pub fn provider_event(raw: serde_json::Value) -> Self {
+        Self {
+            event_type: StreamEventType::ProviderEvent,
+            delta: None,
+            text_id: None,
+            reasoning_delta: None,
+            tool_call: None,
+            finish_reason: None,
+            usage: None,
+            response: None,
+            error: None,
+            warnings: None,
+            raw: Some(raw),
+        }
+    }
+
+    /// Create a tool call event (start, delta, or end).
+    #[must_use]
+    pub fn tool_call_event(
+        event_type: StreamEventType,
+        tool_call: ToolCall,
+        raw: serde_json::Value,
+    ) -> Self {
+        Self {
+            event_type,
+            delta: None,
+            text_id: None,
+            reasoning_delta: None,
+            tool_call: Some(tool_call),
+            finish_reason: None,
+            usage: None,
+            response: None,
+            error: None,
+            warnings: None,
+            raw: Some(raw),
+        }
+    }
+
+    /// Create a simple event with an event type, optional `text_id`, and raw payload.
+    #[must_use]
+    pub fn simple(
+        event_type: StreamEventType,
+        text_id: Option<String>,
+        raw: serde_json::Value,
+    ) -> Self {
+        Self {
+            event_type,
+            delta: None,
+            text_id,
+            reasoning_delta: None,
+            tool_call: None,
+            finish_reason: None,
+            usage: None,
+            response: None,
+            error: None,
+            warnings: None,
+            raw: Some(raw),
+        }
+    }
 }
