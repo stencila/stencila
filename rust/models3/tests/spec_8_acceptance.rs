@@ -60,7 +60,14 @@ fn is_openai_invalid_image_error(error: &SdkError) -> bool {
 /// §8.10 test 1: Basic generation across all available providers.
 #[tokio::test]
 async fn smoke_basic_generation() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }
@@ -108,7 +115,14 @@ async fn smoke_basic_generation() -> SdkResult<()> {
 /// Verifies that concatenated TEXT_DELTA events match the final response text.
 #[tokio::test]
 async fn smoke_streaming() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }
@@ -283,7 +297,14 @@ async fn smoke_structured_output() -> SdkResult<()> {
 /// an appropriate error (NotFound, InvalidRequest, or Server error).
 #[tokio::test]
 async fn smoke_error_handling_nonexistent_model() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }
@@ -329,7 +350,14 @@ async fn smoke_error_handling_nonexistent_model() -> SdkResult<()> {
 /// `SdkError::Abort` when the abort signal is already triggered.
 #[tokio::test]
 async fn smoke_cancellation() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }
@@ -384,7 +412,14 @@ async fn smoke_cancellation() -> SdkResult<()> {
 /// §8.9 parity: Simple text generation across all providers.
 #[tokio::test]
 async fn parity_simple_text_generation() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }
@@ -417,7 +452,14 @@ async fn parity_simple_text_generation() -> SdkResult<()> {
 /// §8.9 parity: Streaming text generation across all providers.
 #[tokio::test]
 async fn parity_streaming_text() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }
@@ -509,7 +551,14 @@ async fn parity_single_tool_call() -> SdkResult<()> {
 /// §8.9 parity: Usage token counts are reported across all providers.
 #[tokio::test]
 async fn parity_usage_token_counts() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini", "mistral", "deepseek"]);
+    let available = available_providers(&[
+        "openai",
+        "anthropic",
+        "gemini",
+        "mistral",
+        "deepseek",
+        "ollama",
+    ]);
     if available.is_empty() {
         return Ok(());
     }

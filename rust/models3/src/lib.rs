@@ -1,4 +1,4 @@
-//! Unified LLM client for OpenAI, Anthropic, Gemini, Mistral, and DeepSeek.
+//! Unified LLM client for OpenAI, Anthropic, Gemini, Mistral, DeepSeek, and Ollama.
 //!
 //! This crate provides a single interface across multiple LLM providers,
 //! using each provider's **native API** (not compatibility layers), plus an
@@ -26,7 +26,7 @@
 //!
 //! - [`types`] — Unified request/response types shared across all providers.
 //! - [`provider`] — The `ProviderAdapter` trait that each provider implements.
-//! - [`providers`] — Concrete adapter implementations (OpenAI, Anthropic, Gemini, Mistral, DeepSeek, Chat Completions).
+//! - [`providers`] — Concrete adapter implementations (OpenAI, Anthropic, Gemini, Mistral, DeepSeek, Ollama, Chat Completions).
 //! - [`client`] — The `Client` orchestration layer with routing and middleware.
 //! - [`middleware`] — The `Middleware` trait for intercepting requests and responses.
 //! - [`api`] — High-level functions: `generate()`, `stream_generate()`, `generate_object()`.

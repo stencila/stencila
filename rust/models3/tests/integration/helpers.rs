@@ -18,6 +18,9 @@ pub fn has_provider(provider: &str) -> bool {
         }
         "mistral" => std::env::var("MISTRAL_API_KEY").is_ok(),
         "deepseek" => std::env::var("DEEPSEEK_API_KEY").is_ok(),
+        "ollama" => {
+            std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok()
+        }
         _ => false,
     }
 }
@@ -41,6 +44,7 @@ pub fn test_model(provider: &str) -> &'static str {
         "gemini" => "gemini-2.0-flash",
         "mistral" => "mistral-small-latest",
         "deepseek" => "deepseek-chat",
+        "ollama" => "llama3.2:1b",
         _ => "unknown",
     }
 }
@@ -53,6 +57,7 @@ pub fn vision_test_model(provider: &str) -> &'static str {
         "gemini" => "gemini-2.0-flash",
         "mistral" => "mistral-small-latest",
         "deepseek" => "deepseek-chat",
+        "ollama" => "llama3.2:1b",
         _ => "unknown",
     }
 }

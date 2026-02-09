@@ -4,7 +4,7 @@ use crate::error::{SdkError, SdkResult};
 use crate::middleware::{Middleware, NextComplete, NextStream};
 use crate::provider::{BoxStream, ProviderAdapter};
 use crate::providers::{
-    AnthropicAdapter, DeepSeekAdapter, GeminiAdapter, MistralAdapter, OpenAIAdapter,
+    AnthropicAdapter, DeepSeekAdapter, GeminiAdapter, MistralAdapter, OllamaAdapter, OpenAIAdapter,
 };
 use crate::types::request::Request;
 use crate::types::response::Response;
@@ -44,8 +44,13 @@ impl Client {
     /// | Gemini    | `GEMINI_API_KEY`       | `GEMINI_BASE_URL`                                  |
     /// | Mistral   | `MISTRAL_API_KEY`      | `MISTRAL_BASE_URL`                                 |
     /// | DeepSeek  | `DEEPSEEK_API_KEY`     | `DEEPSEEK_BASE_URL`                                |
+    /// | Ollama    | *(auto-detected)*      | `OLLAMA_BASE_URL`, `OLLAMA_HOST`, `OLLAMA_API_KEY` |
     ///
     /// `GOOGLE_API_KEY` is accepted as a fallback for `GEMINI_API_KEY`.
+    ///
+    /// Ollama is registered when `OLLAMA_BASE_URL` or `OLLAMA_HOST` is set.
+    /// Use [`OllamaAdapter::is_available`] to probe for a running instance
+    /// before registering manually.
     ///
     /// # Errors
     ///
@@ -87,6 +92,11 @@ impl Client {
         // DeepSeek
         if std::env::var("DEEPSEEK_API_KEY").is_ok() {
             builder = builder.add_provider(DeepSeekAdapter::from_env()?);
+        }
+
+        // Ollama (no API key required — register when explicitly configured)
+        if std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok() {
+            builder = builder.add_provider(OllamaAdapter::from_env()?);
         }
 
         builder.build()
