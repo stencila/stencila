@@ -16,7 +16,9 @@ Use this matrix to track MUST/SHOULD requirements from `specs/unified-llm-spec.m
 | 5.5 | Active vs passive tools behavior | MUST | `tests/spec_5_tools.rs` | Planned | Passive returns tool calls |
 | 5.7 | Parallel tool execution with result ordering | MUST | `tests/spec_5_tools.rs` | Planned | Batch continuation |
 | 6.4 | HTTP status -> error mapping | MUST | `tests/spec_6_errors_retry.rs` | Covered | 16 tests: status mapping, retryable, classify, serde, unknown-status retryable agreement, error_code preservation |
-| 6.6 | Retry policy constraints | MUST | `tests/spec_6_errors_retry.rs` | Planned | No retry after partial stream |
+| 6.6 | Retry policy constraints | MUST | `tests/spec_6_errors_retry.rs` + `src/retry.rs` | Covered | 11 tests: backoff growth, max_delay cap, jitter range, resolve_delay (non-retryable, exhausted, retry-after override/exceed, zero retries), retry fn (success, transient, exhausted, non-retryable, callback) |
+| 6.7 | Rate limit header parsing | SHOULD | `src/http/headers.rs` | Covered | 7 tests: OpenAI headers, Anthropic headers, partial, missing, Retry-After int/float/invalid/missing, reset_at |
+| 7.7 | SSE parsing (all 5 line types + [DONE]) | MUST | `src/http/sse.rs` | Covered | 18 tests: simple data, event type, multi-line, multiple events, comments, retry, retry persistence, invalid retry, [DONE], empty data, no-space, blank lines, CRLF, chunked, Anthropic-style, OpenAI-style, unknown fields, trailing-newline-less |
 | 7.x | Provider request/response/stream/error translation | MUST | `tests/spec_7_adapters.rs` | Planned | Fixture-based translation |
 | 7.10 | OpenAI-compatible adapter uses Chat Completions | MUST | `tests/spec_7_adapters.rs` | Planned | No Responses-only features |
 | 8.x | Validation checklist and cross-provider parity | MUST | `tests/spec_8_acceptance.rs` | Planned | Env-gated integration |

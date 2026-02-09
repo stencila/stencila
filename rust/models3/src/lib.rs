@@ -7,5 +7,7 @@
 
 pub mod catalog;
 pub mod error;
+pub mod http;
 pub mod provider;
+pub mod retry;
 pub mod types;

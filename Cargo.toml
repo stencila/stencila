@@ -12,6 +12,7 @@ Inflector = "0.11.4"
 async-recursion = "1.1.1"
 async-trait = "0.1.89"
 base64 = "0.22.1"
+bytes = "1"
 brotli = "8.0.2"
 bs58 = "0.5.1"
 cached = { version = "0.56.0", features = ["async"] }
