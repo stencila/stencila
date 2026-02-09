@@ -46,7 +46,7 @@ pub struct SseEvent {
     pub retry: Option<u64>,
 }
 
-/// Sentinel value that signals the end of an SSE stream (`OpenAI` convention).
+/// Sentinel value that signals the end of an SSE stream (OpenAI convention).
 pub const DONE_SENTINEL: &str = "[DONE]";
 
 /// Parse a byte stream into SSE events.

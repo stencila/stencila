@@ -151,6 +151,7 @@ REFRESH_MODEL_CATALOG=1 \
   OPENAI_API_KEY=sk-... \
   ANTHROPIC_API_KEY=sk-ant-... \
   GEMINI_API_KEY=AI... \
+  MISTRAL_API_KEY=... \
   cargo build -p stencila-models3
 ```
 

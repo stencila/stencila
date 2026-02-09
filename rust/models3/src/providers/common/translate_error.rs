@@ -5,6 +5,7 @@ use crate::error::{ErrorClassification, ProviderDetails, SdkError};
 /// Each provider creates a `const` instance of this struct and passes
 /// it to [`translate_error`] to get shared enrichment + refinement
 /// with provider-specific details.
+#[derive(Debug, Clone, Copy)]
 pub(crate) struct ErrorConfig {
     /// Provider name set on `details.provider` if missing.
     pub provider_name: &'static str,

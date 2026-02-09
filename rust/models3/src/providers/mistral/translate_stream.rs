@@ -1,39 +1,30 @@
 use crate::error::SdkResult;
 use crate::http::sse::SseEvent;
 use crate::providers::common::chat_completions::ChatCompletionsStreamState;
-use crate::providers::common::translate_error::ErrorConfig;
 use crate::types::rate_limit::RateLimitInfo;
 use crate::types::stream_event::StreamEvent;
 
-static ERROR_CONFIG: ErrorConfig = ErrorConfig {
-    provider_name: "openai_chat_completions",
-    error_code_pointers: &["/error/code", "/error/type"],
-    allow_numeric_codes: false,
-    quota_keywords: &["quota", "insufficient_quota"],
-    quota_codes: &["insufficient_quota", "quota_exceeded"],
-};
+use super::translate_error::ERROR_CONFIG;
 
-/// Stateful translator for OpenAI-compatible Chat Completions SSE events.
-///
-/// This is a newtype wrapper around the shared [`ChatCompletionsStreamState`].
+/// Stateful translator for Mistral Chat Completions SSE events.
 #[derive(Debug, Clone)]
-pub struct OpenAIChatCompletionsStreamState(ChatCompletionsStreamState);
+pub struct MistralStreamState(ChatCompletionsStreamState);
 
-impl Default for OpenAIChatCompletionsStreamState {
+impl Default for MistralStreamState {
     fn default() -> Self {
         Self(ChatCompletionsStreamState::new(
-            "openai_chat_completions",
+            "mistral",
             None,
             ERROR_CONFIG,
         ))
     }
 }
 
-impl OpenAIChatCompletionsStreamState {
+impl MistralStreamState {
     #[must_use]
     pub fn with_rate_limit(rate_limit: Option<RateLimitInfo>) -> Self {
         Self(ChatCompletionsStreamState::new(
-            "openai_chat_completions",
+            "mistral",
             rate_limit,
             ERROR_CONFIG,
         ))
@@ -47,7 +38,7 @@ impl OpenAIChatCompletionsStreamState {
 /// Returns `SdkError::Stream` when provider event payloads are malformed JSON.
 pub fn translate_sse_event(
     event: &SseEvent,
-    state: &mut OpenAIChatCompletionsStreamState,
+    state: &mut MistralStreamState,
 ) -> SdkResult<Vec<StreamEvent>> {
     crate::providers::common::chat_completions::translate_sse_event(event, &mut state.0)
 }
@@ -60,6 +51,6 @@ pub fn translate_sse_stream<'a>(
 ) -> crate::provider::BoxStream<'a, SdkResult<StreamEvent>> {
     crate::providers::common::chat_completions::translate_sse_stream(
         sse_stream,
-        ChatCompletionsStreamState::new("openai_chat_completions", rate_limit, ERROR_CONFIG),
+        ChatCompletionsStreamState::new("mistral", rate_limit, ERROR_CONFIG),
     )
 }

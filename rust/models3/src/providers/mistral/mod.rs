@@ -4,55 +4,61 @@ pub mod translate_response;
 pub mod translate_stream;
 
 use crate::catalog::ModelInfo;
-use crate::error::SdkResult;
+use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;
 use crate::http::headers::parse_rate_limit_headers;
 use crate::http::sse::parse_sse;
 use crate::provider::{BoxFuture, BoxStream, ProviderAdapter};
-use crate::providers::common::openai_shared::is_excluded_openai_model;
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
 
-/// OpenAI-compatible adapter for Chat Completions endpoints.
+/// Default Mistral API base URL.
+const DEFAULT_BASE_URL: &str = "https://api.mistral.ai/v1";
+
+/// Mistral AI adapter using the Chat Completions API.
 ///
-/// This is intended for third-party services that implement `/v1/chat/completions`.
+/// Mistral uses the same wire format as OpenAI Chat Completions, with one
+/// notable difference: Mistral rejects `null` values in request bodies.
 #[derive(Clone, Debug)]
-pub struct OpenAIChatCompletionsAdapter {
+pub struct MistralAdapter {
     http: HttpClient,
 }
 
-impl OpenAIChatCompletionsAdapter {
-    /// Create an adapter with the default OpenAI base URL.
+impl MistralAdapter {
+    /// Create an adapter with an explicit API key and optional base URL.
     ///
     /// # Errors
     ///
     /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
-    pub fn new(api_key: impl Into<String>) -> SdkResult<Self> {
-        Self::with_base_url(api_key, "https://api.openai.com/v1")
+    pub fn new(api_key: impl Into<String>, base_url: Option<String>) -> SdkResult<Self> {
+        let base = base_url.unwrap_or_else(|| DEFAULT_BASE_URL.to_string());
+        let http = HttpClient::builder(base)
+            .header("authorization", format!("Bearer {}", api_key.into()))
+            .header("content-type", "application/json")
+            .build()?;
+        Ok(Self { http })
     }
 
-    /// Create an adapter with a custom OpenAI-compatible base URL.
+    /// Create an adapter from environment variables.
+    ///
+    /// Reads `MISTRAL_API_KEY` (required) and `MISTRAL_BASE_URL` (optional).
     ///
     /// # Errors
     ///
-    /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
-    pub fn with_base_url(
-        api_key: impl Into<String>,
-        base_url: impl Into<String>,
-    ) -> SdkResult<Self> {
-        Ok(Self {
-            http: HttpClient::builder(base_url)
-                .header("authorization", format!("Bearer {}", api_key.into()))
-                .header("content-type", "application/json")
-                .build()?,
-        })
+    /// Returns `SdkError::Configuration` if `MISTRAL_API_KEY` is not set.
+    pub fn from_env() -> SdkResult<Self> {
+        let api_key = std::env::var("MISTRAL_API_KEY").map_err(|_| SdkError::Configuration {
+            message: "MISTRAL_API_KEY environment variable not set".into(),
+        })?;
+        let base_url = std::env::var("MISTRAL_BASE_URL").ok();
+        Self::new(api_key, base_url)
     }
 }
 
-impl ProviderAdapter for OpenAIChatCompletionsAdapter {
+impl ProviderAdapter for MistralAdapter {
     fn name(&self) -> &'static str {
-        "openai_chat_completions"
+        "mistral"
     }
 
     fn complete(&self, request: Request) -> BoxFuture<'_, SdkResult<Response>> {
@@ -120,17 +126,40 @@ impl ProviderAdapter for OpenAIChatCompletionsAdapter {
                     arr.iter()
                         .filter_map(|m| {
                             let id = m.get("id")?.as_str()?.to_string();
-                            if is_excluded_openai_model(&id) {
+
+                            // Extract capabilities from Mistral's richer response
+                            let capabilities = m.get("capabilities");
+
+                            // Only include models that support chat completions
+                            let supports_chat = capabilities
+                                .and_then(|c| c.get("completion_chat"))
+                                .and_then(serde_json::Value::as_bool)
+                                .unwrap_or(false);
+                            if !supports_chat {
                                 return None;
                             }
+                            let supports_tools = capabilities
+                                .and_then(|c| c.get("function_calling"))
+                                .and_then(serde_json::Value::as_bool)
+                                .unwrap_or(false);
+                            let supports_vision = capabilities
+                                .and_then(|c| c.get("vision"))
+                                .and_then(serde_json::Value::as_bool)
+                                .unwrap_or(false);
+
+                            let context_window = m
+                                .get("max_context_length")
+                                .and_then(serde_json::Value::as_u64)
+                                .unwrap_or(0);
+
                             Some(ModelInfo {
                                 id: id.clone(),
-                                provider: "openai_chat_completions".into(),
+                                provider: "mistral".into(),
                                 display_name: id,
-                                context_window: 0,
+                                context_window,
                                 max_output: None,
-                                supports_tools: false,
-                                supports_vision: false,
+                                supports_tools,
+                                supports_vision,
                                 supports_reasoning: false,
                                 input_cost_per_million: None,
                                 output_cost_per_million: None,

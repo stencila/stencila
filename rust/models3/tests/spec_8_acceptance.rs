@@ -8,7 +8,7 @@
 //!
 //! Run with:
 //! ```sh
-//! OPENAI_API_KEY=... ANTHROPIC_API_KEY=... GEMINI_API_KEY=... \
+//! OPENAI_API_KEY=... ANTHROPIC_API_KEY=... GEMINI_API_KEY=... MISTRAL_API_KEY=... \
 //!   cargo test -p stencila-models3 -- spec_8
 //! ```
 #![allow(clippy::result_large_err)]
@@ -60,7 +60,7 @@ fn is_openai_invalid_image_error(error: &SdkError) -> bool {
 /// §8.10 test 1: Basic generation across all available providers.
 #[tokio::test]
 async fn smoke_basic_generation() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -108,7 +108,7 @@ async fn smoke_basic_generation() -> SdkResult<()> {
 /// Verifies that concatenated TEXT_DELTA events match the final response text.
 #[tokio::test]
 async fn smoke_streaming() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -186,7 +186,7 @@ async fn smoke_streaming() -> SdkResult<()> {
 /// executes them, feeding results back for a multi-step loop.
 #[tokio::test]
 async fn smoke_tool_calling() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -234,7 +234,7 @@ async fn smoke_tool_calling() -> SdkResult<()> {
 /// so we only test OpenAI and Gemini here.
 #[tokio::test]
 async fn smoke_structured_output() -> SdkResult<()> {
-    let available = available_providers(&["openai", "gemini"]);
+    let available = available_providers(&["openai", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -283,7 +283,7 @@ async fn smoke_structured_output() -> SdkResult<()> {
 /// an appropriate error (NotFound, InvalidRequest, or Server error).
 #[tokio::test]
 async fn smoke_error_handling_nonexistent_model() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -329,7 +329,7 @@ async fn smoke_error_handling_nonexistent_model() -> SdkResult<()> {
 /// `SdkError::Abort` when the abort signal is already triggered.
 #[tokio::test]
 async fn smoke_cancellation() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -384,7 +384,7 @@ async fn smoke_cancellation() -> SdkResult<()> {
 /// §8.9 parity: Simple text generation across all providers.
 #[tokio::test]
 async fn parity_simple_text_generation() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -417,7 +417,7 @@ async fn parity_simple_text_generation() -> SdkResult<()> {
 /// §8.9 parity: Streaming text generation across all providers.
 #[tokio::test]
 async fn parity_streaming_text() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -466,7 +466,7 @@ async fn parity_streaming_text() -> SdkResult<()> {
 /// §8.9 parity: Single tool call + execution across all providers.
 #[tokio::test]
 async fn parity_single_tool_call() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -509,7 +509,7 @@ async fn parity_single_tool_call() -> SdkResult<()> {
 /// §8.9 parity: Usage token counts are reported across all providers.
 #[tokio::test]
 async fn parity_usage_token_counts() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -555,11 +555,14 @@ async fn parity_usage_token_counts() -> SdkResult<()> {
 /// are already in an integration-test environment.
 #[tokio::test]
 async fn parity_error_invalid_api_key() -> SdkResult<()> {
-    use stencila_models3::providers::{AnthropicAdapter, GeminiAdapter, OpenAIAdapter};
+    use stencila_models3::providers::{
+        AnthropicAdapter, GeminiAdapter, MistralAdapter, OpenAIAdapter,
+    };
 
     let any_available = helpers::has_provider("openai")
         || helpers::has_provider("anthropic")
-        || helpers::has_provider("gemini");
+        || helpers::has_provider("gemini")
+        || helpers::has_provider("mistral");
     if !any_available {
         return Ok(());
     }
@@ -636,13 +639,42 @@ async fn parity_error_invalid_api_key() -> SdkResult<()> {
         assert!(result.is_err(), "gemini: expected error with bad key");
     }
 
+    // Mistral
+    if helpers::has_provider("mistral") {
+        let adapter = MistralAdapter::new("invalid-key-for-testing", None)?;
+        let client = Client::builder().add_provider(adapter).build()?;
+        let opts = GenerateOptions::new("mistral-small-latest")
+            .prompt("test")
+            .max_tokens(helpers::provider_max_tokens("mistral", 5))
+            .max_retries(0)
+            .client(&client);
+
+        let result = generate(opts).await;
+        assert!(result.is_err(), "mistral: expected error with bad key");
+        let err = match result {
+            Ok(_) => {
+                return Err(SdkError::Configuration {
+                    message: "mistral: expected error with bad key".to_string(),
+                });
+            }
+            Err(error) => error,
+        };
+        assert!(
+            matches!(
+                err,
+                SdkError::Authentication { .. } | SdkError::Server { .. }
+            ),
+            "mistral: expected auth/server error, got: {err}"
+        );
+    }
+
     Ok(())
 }
 
 /// §8.9 parity: Streaming with tool calls across providers.
 #[tokio::test]
 async fn parity_streaming_with_tools() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -695,7 +727,7 @@ async fn parity_streaming_with_tools() -> SdkResult<()> {
 /// §8.9 parity: Structured output (generate_object) for providers that support it.
 #[tokio::test]
 async fn parity_structured_output() -> SdkResult<()> {
-    let available = available_providers(&["openai", "gemini"]);
+    let available = available_providers(&["openai", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }
@@ -743,7 +775,7 @@ async fn parity_structured_output() -> SdkResult<()> {
 /// Uses a 16x16 PNG to verify image content parts are accepted.
 #[tokio::test]
 async fn parity_image_input_base64() -> SdkResult<()> {
-    let available = available_providers(&["openai", "anthropic", "gemini"]);
+    let available = available_providers(&["openai", "anthropic", "gemini", "mistral"]);
     if available.is_empty() {
         return Ok(());
     }

@@ -8,7 +8,7 @@ use crate::types::content::ImageData;
 use crate::types::response_format::{ResponseFormat, ResponseFormatType};
 use crate::types::tool::ToolChoice;
 
-/// ID prefixes for non-chat `OpenAI` models (embeddings, image gen, TTS, etc.).
+/// ID prefixes for non-chat OpenAI models (embeddings, image gen, TTS, etc.).
 const EXCLUDED_OPENAI_PREFIXES: &[&str] = &[
     "text-embedding-",
     "dall-e-",
@@ -24,7 +24,7 @@ const EXCLUDED_OPENAI_PREFIXES: &[&str] = &[
     "computer-use-",
 ];
 
-/// Substrings that indicate non-chat `OpenAI` model variants.
+/// Substrings that indicate non-chat OpenAI model variants.
 const EXCLUDED_OPENAI_SUBSTRINGS: &[&str] = &[
     "-tts",
     "-realtime",
@@ -34,7 +34,7 @@ const EXCLUDED_OPENAI_SUBSTRINGS: &[&str] = &[
     "-deep-research",
 ];
 
-/// Returns `true` if the given `OpenAI` model ID should be excluded from the
+/// Returns `true` if the given OpenAI model ID should be excluded from the
 /// catalog because it is not a chat/completions model.
 pub(crate) fn is_excluded_openai_model(id: &str) -> bool {
     EXCLUDED_OPENAI_PREFIXES
@@ -45,7 +45,7 @@ pub(crate) fn is_excluded_openai_model(id: &str) -> bool {
             .any(|sub| id.contains(sub))
 }
 
-/// Translate a unified `ToolChoice` into the `OpenAI` JSON shape.
+/// Translate a unified `ToolChoice` into the OpenAI JSON shape.
 ///
 /// This is identical for both the Responses API and the Chat Completions API.
 pub(crate) fn translate_tool_choice(tool_choice: &ToolChoice) -> Value {
@@ -60,7 +60,7 @@ pub(crate) fn translate_tool_choice(tool_choice: &ToolChoice) -> Value {
     }
 }
 
-/// Translate a unified `ResponseFormat` into the `OpenAI` JSON shape.
+/// Translate a unified `ResponseFormat` into the OpenAI JSON shape.
 ///
 /// This is identical for both the Responses API and the Chat Completions API.
 pub(crate) fn translate_response_format(format: &ResponseFormat) -> Value {

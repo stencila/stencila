@@ -10,7 +10,7 @@ use crate::types::rate_limit::RateLimitInfo;
 
 /// Parse rate-limit headers from a response into [`RateLimitInfo`].
 ///
-/// Checks the following header families (used by `OpenAI`, Anthropic,
+/// Checks the following header families (used by OpenAI, Anthropic,
 /// and other providers):
 ///
 /// - `x-ratelimit-remaining-requests` / `x-ratelimit-limit-requests`

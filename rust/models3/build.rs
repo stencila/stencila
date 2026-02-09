@@ -8,8 +8,17 @@
 //!   - `OPENAI_API_KEY` — for OpenAI model listing
 //!   - `ANTHROPIC_API_KEY` — for Anthropic model listing
 //!   - `GEMINI_API_KEY` — for Gemini model listing
+//!   - `MISTRAL_API_KEY` — for Mistral model listing
 //!
 //! Providers whose keys are absent are silently skipped.
+//!
+//! # Data sources and precedence
+//!
+//! Each provider's own API is the primary source for model metadata
+//! (context window, capabilities). The [models.dev](https://models.dev)
+//! aggregator is used as a secondary source to fill in gaps — primarily
+//! cost data, which provider APIs do not expose. Provider-reported values
+//! are never overwritten by models.dev.
 //!
 //! # Why `ureq`?
 //!
@@ -21,9 +30,13 @@
 #![allow(clippy::print_stderr)]
 
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
+
+const MODELS_DEV_API_URL: &str = "https://models.dev/api.json";
+const MODELS_DEV_CACHE_FILE: &str = "stencila-models3-modelsdev-api.json";
 
 /// Mirrors `catalog::ModelInfo` for the build script (which cannot import
 /// the crate's own types).
@@ -49,6 +62,52 @@ struct ModelInfo {
     aliases: Vec<String>,
 }
 
+type ModelsDevCatalog = HashMap<String, ModelsDevProvider>;
+
+/// A provider entry in the models.dev API response.
+#[derive(Debug, Clone, Deserialize)]
+struct ModelsDevProvider {
+    #[serde(default)]
+    models: HashMap<String, ModelsDevModel>,
+}
+
+/// A single model entry in the models.dev API response.
+#[derive(Debug, Clone, Deserialize)]
+struct ModelsDevModel {
+    #[serde(default)]
+    tool_call: Option<bool>,
+    #[serde(default)]
+    reasoning: Option<bool>,
+    #[serde(default)]
+    cost: Option<ModelsDevCost>,
+    #[serde(default)]
+    limit: Option<ModelsDevLimit>,
+    #[serde(default)]
+    modalities: Option<ModelsDevModalities>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ModelsDevCost {
+    #[serde(default)]
+    input: Option<f64>,
+    #[serde(default)]
+    output: Option<f64>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ModelsDevLimit {
+    #[serde(default)]
+    context: Option<u64>,
+    #[serde(default)]
+    output: Option<u64>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ModelsDevModalities {
+    #[serde(default)]
+    input: Vec<String>,
+}
+
 fn main() {
     // Always tell cargo to rerun if the catalog source changes
     println!("cargo:rerun-if-changed=src/catalog/models.json");
@@ -58,6 +117,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=ANTHROPIC_API_KEY");
     println!("cargo:rerun-if-env-changed=GEMINI_API_KEY");
     println!("cargo:rerun-if-env-changed=GOOGLE_API_KEY");
+    println!("cargo:rerun-if-env-changed=MISTRAL_API_KEY");
 
     if std::env::var("REFRESH_MODEL_CATALOG").as_deref() != Ok("1") {
         return;
@@ -145,21 +205,42 @@ fn main() {
         }
     }
 
+    // Mistral
+    if let Ok(api_key) = std::env::var("MISTRAL_API_KEY") {
+        match fetch_mistral_models(&api_key) {
+            Ok(models) => {
+                for m in models {
+                    let key = (m.provider.clone(), m.id.clone());
+                    if !known_keys.contains(&key) {
+                        let pos = catalog
+                            .iter()
+                            .rposition(|c| c.provider == m.provider)
+                            .map_or(catalog.len(), |last| last + 1);
+                        known_keys.insert(key);
+                        catalog.insert(pos, m);
+                        added += 1;
+                    }
+                }
+            }
+            Err(e) => eprintln!("build.rs: Mistral model list failed: {e}"),
+        }
+    }
+
     if added > 0 {
         eprintln!("build.rs: added {added} new model(s) to catalog");
     } else {
         eprintln!("build.rs: catalog is up-to-date, no new models");
     }
 
-    // Enrich catalog with LiteLLM metadata (context windows, capabilities, costs)
-    let enriched = match fetch_litellm_metadata() {
+    // Enrich catalog with models.dev metadata (context windows, capabilities, costs)
+    let enriched = match fetch_models_dev_metadata() {
         Ok(metadata) => {
             enrich_catalog(&mut catalog, &metadata);
-            eprintln!("build.rs: enriched catalog with LiteLLM metadata");
+            eprintln!("build.rs: enriched catalog with models.dev metadata");
             true
         }
         Err(e) => {
-            eprintln!("build.rs: LiteLLM metadata fetch failed (non-fatal): {e}");
+            eprintln!("build.rs: models.dev metadata fetch failed (non-fatal): {e}");
             false
         }
     };
@@ -284,56 +365,64 @@ fn fetch_openai_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
         .unwrap_or_default())
 }
 
-fn fetch_litellm_metadata() -> Result<HashMap<String, serde_json::Value>, String> {
-    let url = "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json";
-    let resp: serde_json::Value = ureq::get(url)
+fn fetch_mistral_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
+    let resp: serde_json::Value = ureq::get("https://api.mistral.ai/v1/models")
+        .set("Authorization", &format!("Bearer {api_key}"))
         .call()
         .map_err(|e| e.to_string())?
         .into_json()
         .map_err(|e| e.to_string())?;
 
-    let map: HashMap<String, serde_json::Value> =
-        serde_json::from_value(resp).map_err(|e| e.to_string())?;
-    Ok(map)
-}
+    Ok(resp
+        .get("data")
+        .and_then(|d| d.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|m| {
+                    let id = m.get("id")?.as_str()?.to_string();
 
-fn enrich_catalog(catalog: &mut [ModelInfo], metadata: &HashMap<String, serde_json::Value>) {
-    for model in catalog.iter_mut() {
-        let litellm_key = match model.provider.as_str() {
-            "anthropic" | "openai" => model.id.clone(),
-            "gemini" => format!("gemini/{}", model.id),
-            _ => continue,
-        };
+                    let capabilities = m.get("capabilities");
 
-        let Some(entry) = metadata.get(&litellm_key) else {
-            continue;
-        };
+                    // Only include models that support chat completions
+                    let supports_chat = capabilities
+                        .and_then(|c| c.get("completion_chat"))
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+                    if !supports_chat {
+                        return None;
+                    }
 
-        if let Some(v) = entry.get("max_input_tokens").and_then(|v| v.as_u64()) {
-            model.context_window = v;
-        }
-        if let Some(v) = entry.get("max_output_tokens").and_then(|v| v.as_u64()) {
-            model.max_output = Some(v);
-        }
-        if let Some(v) = entry
-            .get("supports_function_calling")
-            .and_then(|v| v.as_bool())
-        {
-            model.supports_tools = v;
-        }
-        if let Some(v) = entry.get("supports_vision").and_then(|v| v.as_bool()) {
-            model.supports_vision = v;
-        }
-        if let Some(v) = entry.get("supports_reasoning").and_then(|v| v.as_bool()) {
-            model.supports_reasoning = v;
-        }
-        if let Some(v) = entry.get("input_cost_per_token").and_then(|v| v.as_f64()) {
-            model.input_cost_per_million = Some(v * 1_000_000.0);
-        }
-        if let Some(v) = entry.get("output_cost_per_token").and_then(|v| v.as_f64()) {
-            model.output_cost_per_million = Some(v * 1_000_000.0);
-        }
-    }
+                    let supports_tools = capabilities
+                        .and_then(|c| c.get("function_calling"))
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+                    let supports_vision = capabilities
+                        .and_then(|c| c.get("vision"))
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+
+                    let context_window = m
+                        .get("max_context_length")
+                        .and_then(|v| v.as_u64())
+                        .unwrap_or(0);
+
+                    Some(ModelInfo {
+                        id: id.clone(),
+                        provider: "mistral".into(),
+                        display_name: id,
+                        context_window,
+                        max_output: None,
+                        supports_tools,
+                        supports_vision,
+                        supports_reasoning: false,
+                        input_cost_per_million: None,
+                        output_cost_per_million: None,
+                        aliases: vec![],
+                    })
+                })
+                .collect()
+        })
+        .unwrap_or_default())
 }
 
 fn fetch_gemini_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
@@ -395,4 +484,110 @@ fn fetch_gemini_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
                 .collect()
         })
         .unwrap_or_default())
+}
+
+fn models_dev_cache_path() -> PathBuf {
+    std::env::temp_dir().join(MODELS_DEV_CACHE_FILE)
+}
+
+fn fetch_models_dev_metadata() -> Result<ModelsDevCatalog, String> {
+    let cache_path = models_dev_cache_path();
+
+    if cache_path.exists() {
+        match load_models_dev_cache(&cache_path) {
+            Ok(metadata) => return Ok(metadata),
+            Err(e) => eprintln!(
+                "build.rs: models.dev cache {} invalid, re-downloading: {e}",
+                cache_path.display()
+            ),
+        }
+    }
+
+    let mut reader = ureq::get(MODELS_DEV_API_URL)
+        .call()
+        .map_err(|e| e.to_string())?
+        .into_reader();
+
+    let mut bytes = Vec::new();
+    reader.read_to_end(&mut bytes).map_err(|e| e.to_string())?;
+
+    let metadata: ModelsDevCatalog = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+
+    if let Some(parent) = cache_path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+
+    std::fs::write(&cache_path, bytes).map_err(|e| e.to_string())?;
+    eprintln!(
+        "build.rs: downloaded models.dev metadata to {}",
+        cache_path.display()
+    );
+
+    Ok(metadata)
+}
+
+fn load_models_dev_cache(path: &Path) -> Result<ModelsDevCatalog, String> {
+    let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
+    serde_json::from_slice(&bytes).map_err(|e| e.to_string())
+}
+
+fn models_dev_provider_key(provider: &str) -> Option<&'static str> {
+    match provider {
+        "anthropic" => Some("anthropic"),
+        "openai" => Some("openai"),
+        "gemini" => Some("google"),
+        "mistral" => Some("mistral"),
+        _ => None,
+    }
+}
+
+/// Enrich catalog entries with models.dev metadata, filling in gaps only.
+///
+/// Provider API data is treated as authoritative — models.dev values are only
+/// applied when the provider left a field at its default/empty value.
+fn enrich_catalog(catalog: &mut [ModelInfo], metadata: &ModelsDevCatalog) {
+    for model in catalog.iter_mut() {
+        let Some(provider_key) = models_dev_provider_key(&model.provider) else {
+            continue;
+        };
+        let Some(provider_data) = metadata.get(provider_key) else {
+            continue;
+        };
+        let Some(entry) = provider_data.models.get(&model.id) else {
+            continue;
+        };
+
+        if let Some(limit) = &entry.limit {
+            if model.context_window == 0
+                && let Some(v) = limit.context {
+                    model.context_window = v;
+                }
+            if model.max_output.is_none() {
+                model.max_output = limit.output;
+            }
+        }
+        // Costs are never set by provider APIs, always fill from models.dev
+        if let Some(cost) = &entry.cost {
+            if model.input_cost_per_million.is_none() {
+                model.input_cost_per_million = cost.input;
+            }
+            if model.output_cost_per_million.is_none() {
+                model.output_cost_per_million = cost.output;
+            }
+        }
+        // Boolean capabilities: only override if the provider left them false
+        // (provider APIs that report capabilities are authoritative)
+        if !model.supports_tools
+            && let Some(v) = entry.tool_call {
+                model.supports_tools = v;
+            }
+        if !model.supports_vision
+            && let Some(modalities) = &entry.modalities {
+                model.supports_vision = modalities.input.iter().any(|m| m == "image");
+            }
+        if !model.supports_reasoning
+            && let Some(v) = entry.reasoning {
+                model.supports_reasoning = v;
+            }
+    }
 }

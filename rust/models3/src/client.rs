@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::error::{SdkError, SdkResult};
 use crate::middleware::{Middleware, NextComplete, NextStream};
 use crate::provider::{BoxStream, ProviderAdapter};
-use crate::providers::{AnthropicAdapter, GeminiAdapter, OpenAIAdapter};
+use crate::providers::{AnthropicAdapter, GeminiAdapter, MistralAdapter, OpenAIAdapter};
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
@@ -37,9 +37,10 @@ impl Client {
     ///
     /// | Provider  | Required               | Optional                                           |
     /// |-----------|------------------------|----------------------------------------------------|
-    /// | `OpenAI`    | `OPENAI_API_KEY`       | `OPENAI_BASE_URL`, `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID` |
+    /// | OpenAI    | `OPENAI_API_KEY`       | `OPENAI_BASE_URL`, `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID` |
     /// | Anthropic | `ANTHROPIC_API_KEY`    | `ANTHROPIC_BASE_URL`                               |
     /// | Gemini    | `GEMINI_API_KEY`       | `GEMINI_BASE_URL`                                  |
+    /// | Mistral   | `MISTRAL_API_KEY`      | `MISTRAL_BASE_URL`                                 |
     ///
     /// `GOOGLE_API_KEY` is accepted as a fallback for `GEMINI_API_KEY`.
     ///
@@ -73,6 +74,11 @@ impl Client {
         } else if let Ok(api_key) = std::env::var("GOOGLE_API_KEY") {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
             builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
+        }
+
+        // Mistral
+        if std::env::var("MISTRAL_API_KEY").is_ok() {
+            builder = builder.add_provider(MistralAdapter::from_env()?);
         }
 
         builder.build()

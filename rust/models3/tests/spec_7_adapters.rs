@@ -16,7 +16,7 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use stencila_models3::error::{ProviderDetails, SdkError};
 use stencila_models3::http::sse::SseEvent;
 use stencila_models3::providers::{
-    anthropic, gemini, openai,
+    anthropic, gemini, mistral, openai,
     openai_chat_completions::{self as chat},
 };
 use stencila_models3::types::{
@@ -1515,4 +1515,234 @@ fn gemini_request_translation_rejects_unknown_tool_call_id() {
 
     let result = gemini::translate_request::translate_request(&request);
     assert!(matches!(result, Err(SdkError::InvalidRequest { .. })));
+}
+
+// ──────────────── Mistral adapter tests ────────────────
+
+#[test]
+fn mistral_request_translation_basic() -> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "mistral-small-latest",
+        vec![Message::system("sys"), Message::user("hi")],
+    );
+
+    let translated = mistral::translate_request::translate_request(&request, false)?;
+
+    assert_eq!(translated.body["model"], "mistral-small-latest");
+    assert!(translated.body.get("messages").is_some());
+    assert_eq!(translated.body.get("stream"), None);
+
+    Ok(())
+}
+
+#[test]
+fn mistral_request_translation_omits_null_content() -> Result<(), Box<dyn std::error::Error>> {
+    // Mistral rejects null values — assistant messages with only tool calls
+    // must omit the content key entirely, not send "content": null.
+    let request = Request::new(
+        "mistral-small-latest",
+        vec![
+            Message::user("hi"),
+            Message::new(
+                Role::Assistant,
+                vec![ContentPart::ToolCall {
+                    tool_call: ToolCallData {
+                        id: "call_1".to_string(),
+                        name: "get_weather".to_string(),
+                        arguments: serde_json::json!({"city": "Paris"}),
+                        call_type: "function".to_string(),
+                    },
+                }],
+            ),
+            Message::tool_result("call_1", serde_json::json!({"temp": 22}), false),
+        ],
+    );
+
+    let translated = mistral::translate_request::translate_request(&request, false)?;
+    let messages = translated
+        .body
+        .get("messages")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing messages")?;
+    let assistant = messages
+        .iter()
+        .find(|m| m.get("role").and_then(serde_json::Value::as_str) == Some("assistant"))
+        .ok_or("missing assistant message")?;
+
+    // The "content" key should NOT be present (not null, not empty string).
+    assert!(
+        assistant.get("content").is_none(),
+        "Mistral: content key should be omitted, not set to null"
+    );
+
+    // Tool calls should still be present
+    assert!(
+        assistant.get("tool_calls").is_some(),
+        "Mistral: tool_calls should be present"
+    );
+
+    // Tool result content (a JSON object) should be stringified for Mistral.
+    let tool_msg = messages
+        .iter()
+        .find(|m| m.get("role").and_then(serde_json::Value::as_str) == Some("tool"))
+        .ok_or("missing tool message")?;
+    let tool_content = tool_msg
+        .get("content")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("tool content should be a string")?;
+    assert!(
+        tool_content.contains("\"temp\""),
+        "stringified tool content should contain the original JSON: {tool_content}"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn mistral_request_translation_omits_null_image_detail() -> Result<(), Box<dyn std::error::Error>> {
+    // Mistral rejects null values — image_url objects must not include "detail": null.
+    let request = Request::new(
+        "mistral-small-latest",
+        vec![Message::new(
+            Role::User,
+            vec![
+                ContentPart::text("describe this"),
+                ContentPart::image_url("https://example.com/img.png"),
+            ],
+        )],
+    );
+
+    let translated = mistral::translate_request::translate_request(&request, false)?;
+    let messages = translated
+        .body
+        .get("messages")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing messages")?;
+    let user = messages
+        .iter()
+        .find(|m| m.get("role").and_then(serde_json::Value::as_str) == Some("user"))
+        .ok_or("missing user message")?;
+
+    // Find the image_url part
+    let content = user
+        .get("content")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing content array")?;
+    let image_part = content
+        .iter()
+        .find(|p| p.get("type").and_then(serde_json::Value::as_str) == Some("image_url"))
+        .ok_or("missing image_url part")?;
+    let image_url = image_part
+        .get("image_url")
+        .ok_or("missing image_url object")?;
+
+    // detail key should NOT be present when the source ImageData has detail: None.
+    assert!(
+        image_url.get("detail").is_none(),
+        "Mistral: detail should be omitted when None, not set to null"
+    );
+    assert_eq!(
+        image_url.get("url").and_then(serde_json::Value::as_str),
+        Some("https://example.com/img.png")
+    );
+
+    Ok(())
+}
+
+#[test]
+fn mistral_request_translation_provider_options_namespace() -> Result<(), Box<dyn std::error::Error>>
+{
+    let mut request = Request::new("mistral-small-latest", vec![Message::user("hi")]);
+
+    let mut provider_options = HashMap::new();
+    provider_options.insert(
+        "mistral".to_string(),
+        serde_json::json!({"safe_prompt": true}),
+    );
+    request.provider_options = Some(provider_options);
+
+    let translated = mistral::translate_request::translate_request(&request, false)?;
+    assert_eq!(translated.body["safe_prompt"], true);
+
+    Ok(())
+}
+
+#[test]
+fn mistral_response_translation_basic() -> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("mistral/response_basic.json")?;
+
+    let response = mistral::translate_response::translate_response(raw_response, None)?;
+
+    assert_eq!(response.provider, "mistral");
+    assert_eq!(response.model, "mistral-small-latest");
+    assert_eq!(response.text(), "Hello from Mistral!");
+    assert_eq!(response.finish_reason.reason, Reason::Stop);
+    assert_eq!(response.usage.input_tokens, 8);
+    assert_eq!(response.usage.output_tokens, 4);
+    assert_eq!(response.usage.total_tokens, 12);
+
+    Ok(())
+}
+
+#[test]
+fn mistral_stream_translation_text_and_finish() -> Result<(), Box<dyn std::error::Error>> {
+    let mut state = mistral::translate_stream::MistralStreamState::default();
+
+    let delta_event = fixture_sse_event("message", "mistral/stream_text_delta.json")?;
+
+    let events = mistral::translate_stream::translate_sse_event(&delta_event, &mut state)?;
+    assert_eq!(events[0].event_type, StreamEventType::StreamStart);
+    assert_eq!(events[1].event_type, StreamEventType::TextStart);
+    assert_eq!(events[2].event_type, StreamEventType::TextDelta);
+    assert_eq!(events[2].delta.as_deref(), Some("Hel"));
+
+    let finish_event = fixture_sse_event("message", "mistral/stream_finish.json")?;
+
+    let finish_events = mistral::translate_stream::translate_sse_event(&finish_event, &mut state)?;
+
+    let text_end = finish_events
+        .iter()
+        .find(|e| e.event_type == StreamEventType::TextEnd);
+    assert!(text_end.is_some(), "expected TextEnd event");
+
+    let finish = finish_events
+        .iter()
+        .find(|e| e.event_type == StreamEventType::Finish)
+        .ok_or("missing finish event")?;
+    assert_eq!(
+        finish.finish_reason.as_ref().map(|f| f.reason),
+        Some(Reason::Stop)
+    );
+    assert_eq!(finish.usage.as_ref().map(|u| u.total_tokens), Some(8));
+
+    // Verify provider attribution in the accumulated response
+    let response = finish
+        .response
+        .as_ref()
+        .ok_or("missing response in finish event")?;
+    assert_eq!(response.provider, "mistral");
+
+    Ok(())
+}
+
+#[test]
+fn mistral_error_translation_refines_not_found() {
+    let err = SdkError::Server {
+        message: "Model not found".to_string(),
+        details: ProviderDetails {
+            provider: None,
+            status_code: Some(500),
+            error_code: None,
+            retryable: true,
+            retry_after: None,
+            raw: None,
+        },
+    };
+
+    let translated = mistral::translate_error::translate_error(err);
+    assert!(matches!(translated, SdkError::NotFound { .. }));
+
+    if let SdkError::NotFound { details, .. } = translated {
+        assert_eq!(details.provider.as_deref(), Some("mistral"));
+    }
 }
