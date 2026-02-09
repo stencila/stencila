@@ -36,6 +36,24 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | App B | SdkError wrapper | spec_1_types.rs | error_from_sdk_error, error_sdk_wrapper_display | Pass |
 | App B | Error serialization | spec_1_types.rs | error_serialize_json | Pass |
 
+## Phase 2: Tool Output Truncation
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 5.1 | truncate_output below limit | spec_5_truncation.rs | truncate_output_below_limit_passthrough, truncate_output_exactly_at_limit_passthrough, truncate_output_empty_string_passthrough | Pass |
+| 5.1 | head_tail mode | spec_5_truncation.rs | truncate_output_head_tail_splits_evenly, truncate_output_head_tail_marker_contains_removed_count, truncate_output_head_tail_marker_mentions_event_stream, truncate_output_head_tail_odd_limit, truncate_output_large_input | Pass |
+| 5.1 | tail mode | spec_5_truncation.rs | truncate_output_tail_mode_keeps_end, truncate_output_tail_mode_marker_contains_removed_count, truncate_output_tail_mode_no_head_content | Pass |
+| 5.1 | UTF-8 / multibyte safety | spec_5_truncation.rs | truncate_output_multibyte_head_tail_no_panic, truncate_output_multibyte_tail_no_panic, truncate_output_emoji_no_panic, truncate_output_mixed_ascii_multibyte | Pass |
+| 5.1 | Zero/small limit boundaries | spec_5_truncation.rs | truncate_output_zero_limit_head_tail, truncate_output_zero_limit_tail, truncate_output_limit_one_head_tail | Pass |
+| 5.2 | Default policies (consolidated) | spec_5_truncation.rs | default_policies_char_limits_match_spec_table, default_policies_modes_match_spec_table, default_policies_line_limits_match_spec_table | Pass |
+| 5.2 | TruncationConfig overrides | spec_5_truncation.rs | truncation_config_default_has_empty_overrides, truncation_config_custom_char_limit_overrides_default, truncation_config_custom_line_limit_overrides_default | Pass |
+| 5.3 | truncate_lines below limit | spec_5_truncation.rs | truncate_lines_below_limit_passthrough, truncate_lines_exactly_at_limit_passthrough, truncate_lines_empty_string_passthrough, truncate_lines_single_line_over_limit_passthrough | Pass |
+| 5.3 | truncate_lines head/tail | spec_5_truncation.rs | truncate_lines_head_tail_split, truncate_lines_marker_format | Pass |
+| 5.3 | truncate_lines zero limit | spec_5_truncation.rs | truncate_lines_zero_limit | Pass |
+| 5.3 | Full pipeline ordering | spec_5_truncation.rs | truncate_tool_output_char_truncation_runs_first, truncate_tool_output_line_truncation_runs_after_char | Pass |
+| 5.3 | Pipeline per-tool behavior | spec_5_truncation.rs | truncate_tool_output_below_all_limits, truncate_tool_output_unknown_tool_uses_generous_default, truncate_tool_output_read_file_no_line_limit, truncate_tool_output_grep_uses_tail_mode, truncate_tool_output_shell_uses_head_tail_mode | Pass |
+| 5.1 | TruncationMode traits/serde | spec_5_truncation.rs | truncation_mode_debug_and_clone, truncation_mode_serde_roundtrip | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |

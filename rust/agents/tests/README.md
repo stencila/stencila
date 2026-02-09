@@ -7,10 +7,10 @@ Tests are organized by spec section, following the same convention as `stencila-
 | File | Spec Section | Phase | Description |
 |---|---|---|---|
 | `spec_1_types.rs` | 2.1-2.4, 2.9, 4.1, App B | 1 | Core types, error hierarchy, serde round-trips |
+| `spec_5_truncation.rs` | 5.1-5.3 | 2 | Tool output truncation: char-based, line-based, pipeline |
 
 Files for future phases (added as implemented):
 
-- `spec_5_truncation.rs` — Tool output truncation (5.1-5.3)
 - `spec_4_execution.rs` — Execution environment (4.1-4.2)
 - `spec_2_events.rs` — Event system (2.9)
 - `spec_3_registry.rs` — Tool registry (3.8)

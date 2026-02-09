@@ -24,5 +24,8 @@
 /// Agent-level error hierarchy.
 pub mod error;
 
+/// Tool output truncation: character-based and line-based (spec 5.1-5.3).
+pub mod truncation;
+
 /// Core domain types: configuration, session state, turns, events.
 pub mod types;
