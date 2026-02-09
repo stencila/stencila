@@ -1,0 +1,8 @@
+{
+  "type": "message_start",
+  "message": {
+    "id": "msg_stream_1",
+    "model": "claude-sonnet-4-5-20250929",
+    "usage": {"input_tokens": 10}
+  }
+}

@@ -22,4 +22,5 @@ This directory is organized for spec-driven TDD.
 - Prefer fixture-based tests for protocol translation and serialization.
 - Keep tests deterministic: no wall-clock dependence, randomness, or live network by default.
 - Gate real-provider tests in `tests/integration/` behind explicit environment variables.
+- In env-gated live-provider tests, skip provider-scoped cases when transient quota/rate-limit constraints prevent execution.
 - If any part of a spec subsection remains deferred, keep that row `In Progress` in `spec-traceability.md` and record the gap in the `Deferred Items` table.

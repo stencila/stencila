@@ -1,0 +1,7 @@
+{
+  "type": "response.output_item.done",
+  "item": {
+    "id": "text_0_0",
+    "type": "message"
+  }
+}

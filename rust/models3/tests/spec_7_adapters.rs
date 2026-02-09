@@ -7,6 +7,8 @@
 //! - OpenAI-ChatCompletions adapter constraints
 
 use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
 
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use stencila_models3::error::{ProviderDetails, SdkError};
@@ -35,6 +37,23 @@ fn make_headers(pairs: &[(&str, &str)]) -> Result<HeaderMap, Box<dyn std::error:
         );
     }
     Ok(map)
+}
+
+fn fixture_json(path: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let full_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("fixtures")
+        .join(path);
+    let contents = fs::read_to_string(full_path)?;
+    Ok(serde_json::from_str(&contents)?)
+}
+
+fn fixture_sse_event(event_type: &str, path: &str) -> Result<SseEvent, Box<dyn std::error::Error>> {
+    Ok(SseEvent {
+        event_type: event_type.to_string(),
+        data: fixture_json(path)?.to_string(),
+        retry: None,
+    })
 }
 
 #[test]
@@ -102,6 +121,14 @@ fn openai_request_translation_includes_provider_options() -> Result<(), Box<dyn 
     assert_eq!(translated.body["max_output_tokens"], 512);
     assert_eq!(translated.body["stop"], serde_json::json!(["END"]));
     assert_eq!(translated.body["service_tier"], "flex");
+    assert_eq!(translated.body["text"]["format"]["type"], "json_schema");
+    assert_eq!(translated.body["text"]["format"]["name"], "response");
+    assert_eq!(
+        translated.body["text"]["format"]["schema"]["type"],
+        "object"
+    );
+    assert_eq!(translated.body["tool_choice"]["type"], "function");
+    assert_eq!(translated.body["tool_choice"]["name"], "get_weather");
 
     let tools = translated
         .body
@@ -109,6 +136,9 @@ fn openai_request_translation_includes_provider_options() -> Result<(), Box<dyn 
         .and_then(serde_json::Value::as_array)
         .ok_or("tools should be array")?;
     assert_eq!(tools.len(), 2);
+    assert_eq!(tools[0]["type"], "function");
+    assert_eq!(tools[0]["name"], "get_weather");
+    assert_eq!(tools[0]["parameters"]["type"], "object");
 
     let header = translated
         .headers
@@ -133,34 +163,80 @@ fn openai_request_translation_rejects_non_object_provider_options() {
 }
 
 #[test]
-fn openai_response_translation_maps_usage_fields() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "id": "resp_123",
-        "model": "gpt-5.2",
-        "status": "completed",
-        "output": [
-            {
-                "type": "message",
-                "content": [
-                    {"type": "output_text", "text": "Result: "},
-                    {"type": "output_text", "text": "sunny"}
-                ]
-            },
-            {
-                "type": "function_call",
-                "id": "call_1",
-                "name": "get_weather",
-                "arguments": "{\"city\":\"Paris\"}"
-            }
+fn openai_request_translation_uses_call_id_for_tool_history()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.2",
+        vec![
+            Message::user("What is the weather in Paris?"),
+            Message::new(
+                Role::Assistant,
+                vec![ContentPart::tool_call(
+                    "call_1",
+                    "get_weather",
+                    serde_json::json!({"city": "Paris"}),
+                )],
+            ),
+            Message::tool_result("call_1", serde_json::json!({"temperature": "72F"}), false),
         ],
-        "usage": {
-            "input_tokens": 20,
-            "output_tokens": 30,
-            "total_tokens": 50,
-            "output_tokens_details": {"reasoning_tokens": 11},
-            "prompt_tokens_details": {"cached_tokens": 7}
-        }
-    });
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("input should be array")?;
+
+    let tool_call = input
+        .iter()
+        .find(|item| item.get("type").and_then(serde_json::Value::as_str) == Some("function_call"))
+        .ok_or("missing function_call item")?;
+
+    assert_eq!(tool_call["call_id"], "call_1");
+    assert!(tool_call.get("id").is_none());
+
+    Ok(())
+}
+
+#[test]
+fn openai_request_translation_serializes_tool_result_output()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::tool_result(
+            "call_1",
+            serde_json::json!({"temperature": "72F"}),
+            false,
+        )],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("input should be array")?;
+
+    let tool_output = input
+        .iter()
+        .find(|item| {
+            item.get("type").and_then(serde_json::Value::as_str) == Some("function_call_output")
+        })
+        .ok_or("missing function_call_output item")?;
+
+    let output = tool_output
+        .get("output")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("output should be string")?;
+    assert_eq!(output, r#"{"temperature":"72F"}"#);
+
+    Ok(())
+}
+
+#[test]
+fn openai_response_translation_maps_usage_fields() -> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("openai/response_translation_maps_usage_fields.json")?;
 
     let headers = make_headers(&[
         ("x-ratelimit-remaining-requests", "9"),
@@ -218,17 +294,10 @@ fn openai_error_translation_refines_quota_and_provider() {
 fn openai_stream_translation_maps_text_and_finish() -> Result<(), Box<dyn std::error::Error>> {
     let mut state = openai::translate_stream::OpenAIStreamState::default();
 
-    let delta_event = SseEvent {
-        event_type: "response.output_text.delta".to_string(),
-        data: serde_json::json!({
-            "type": "response.output_text.delta",
-            "delta": "Hel",
-            "output_index": 0,
-            "content_index": 0
-        })
-        .to_string(),
-        retry: None,
-    };
+    let delta_event = fixture_sse_event(
+        "response.output_text.delta",
+        "openai/stream_translation_text_and_finish_delta.json",
+    )?;
 
     let events = openai::translate_stream::translate_sse_event(&delta_event, &mut state)?;
     assert_eq!(events[0].event_type, StreamEventType::StreamStart);
@@ -236,45 +305,18 @@ fn openai_stream_translation_maps_text_and_finish() -> Result<(), Box<dyn std::e
     assert_eq!(events[2].event_type, StreamEventType::TextDelta);
     assert_eq!(events[2].delta.as_deref(), Some("Hel"));
 
-    let end_event = SseEvent {
-        event_type: "response.output_item.done".to_string(),
-        data: serde_json::json!({
-            "type": "response.output_item.done",
-            "item": {
-                "id": "text_0_0",
-                "type": "message"
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let end_event = fixture_sse_event(
+        "response.output_item.done",
+        "openai/stream_translation_text_and_finish_item_done.json",
+    )?;
 
     let end_events = openai::translate_stream::translate_sse_event(&end_event, &mut state)?;
     assert_eq!(end_events[0].event_type, StreamEventType::TextEnd);
 
-    let completed_event = SseEvent {
-        event_type: "response.completed".to_string(),
-        data: serde_json::json!({
-            "type": "response.completed",
-            "response": {
-                "id": "resp_final",
-                "model": "gpt-5.2",
-                "status": "completed",
-                "output": [{
-                    "type": "message",
-                    "content": [{"type": "output_text", "text": "Hello"}]
-                }],
-                "usage": {
-                    "input_tokens": 3,
-                    "output_tokens": 4,
-                    "total_tokens": 7,
-                    "output_tokens_details": {"reasoning_tokens": 1}
-                }
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let completed_event = fixture_sse_event(
+        "response.completed",
+        "openai/stream_translation_text_and_finish_completed.json",
+    )?;
 
     let done_events = openai::translate_stream::translate_sse_event(&completed_event, &mut state)?;
     let finish = done_events
@@ -366,24 +408,8 @@ fn chat_request_translation_rejects_builtin_tools_via_adapter_options() {
 
 #[test]
 fn chat_response_translation_omits_reasoning_tokens() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "id": "chatcmpl_123",
-        "model": "llama-3.1-70b",
-        "choices": [{
-            "index": 0,
-            "message": {
-                "role": "assistant",
-                "content": "Hello"
-            },
-            "finish_reason": "stop"
-        }],
-        "usage": {
-            "prompt_tokens": 10,
-            "completion_tokens": 6,
-            "total_tokens": 16,
-            "prompt_tokens_details": {"cached_tokens": 3}
-        }
-    });
+    let raw_response =
+        fixture_json("openai_chat/response_translation_omits_reasoning_tokens.json")?;
 
     let response = chat::translate_response::translate_response(raw_response, None)?;
 
@@ -403,43 +429,18 @@ fn chat_response_translation_omits_reasoning_tokens() -> Result<(), Box<dyn std:
 fn chat_stream_translation_maps_tool_calls_and_finish() -> Result<(), Box<dyn std::error::Error>> {
     let mut state = chat::translate_stream::OpenAIChatCompletionsStreamState::default();
 
-    let usage_event = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "usage": {
-                "prompt_tokens": 4,
-                "completion_tokens": 3,
-                "total_tokens": 7
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let usage_event = fixture_sse_event(
+        "message",
+        "openai_chat/stream_translation_maps_tool_calls_and_finish_usage.json",
+    )?;
 
     let usage_events = chat::translate_stream::translate_sse_event(&usage_event, &mut state)?;
     assert_eq!(usage_events[0].event_type, StreamEventType::StreamStart);
 
-    let tool_delta_1 = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "choices": [{
-                "index": 0,
-                "delta": {
-                    "tool_calls": [{
-                        "index": 0,
-                        "id": "call_1",
-                        "function": {
-                            "name": "get_weather",
-                            "arguments": "{\"city\":\"Par"
-                        }
-                    }]
-                },
-                "finish_reason": null
-            }]
-        })
-        .to_string(),
-        retry: None,
-    };
+    let tool_delta_1 = fixture_sse_event(
+        "message",
+        "openai_chat/stream_translation_maps_tool_calls_and_finish_tool_delta_1.json",
+    )?;
 
     let tool_events_1 = chat::translate_stream::translate_sse_event(&tool_delta_1, &mut state)?;
     assert!(
@@ -453,38 +454,17 @@ fn chat_stream_translation_maps_tool_calls_and_finish() -> Result<(), Box<dyn st
             .any(|event| event.event_type == StreamEventType::ToolCallDelta)
     );
 
-    let tool_delta_2 = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "choices": [{
-                "index": 0,
-                "delta": {
-                    "tool_calls": [{
-                        "index": 0,
-                        "function": {"arguments": "is\"}"}
-                    }]
-                },
-                "finish_reason": null
-            }]
-        })
-        .to_string(),
-        retry: None,
-    };
+    let tool_delta_2 = fixture_sse_event(
+        "message",
+        "openai_chat/stream_translation_maps_tool_calls_and_finish_tool_delta_2.json",
+    )?;
 
     let _tool_events_2 = chat::translate_stream::translate_sse_event(&tool_delta_2, &mut state)?;
 
-    let finish_event = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "choices": [{
-                "index": 0,
-                "delta": {},
-                "finish_reason": "tool_calls"
-            }]
-        })
-        .to_string(),
-        retry: None,
-    };
+    let finish_event = fixture_sse_event(
+        "message",
+        "openai_chat/stream_translation_maps_tool_calls_and_finish_finish.json",
+    )?;
 
     let finish_events = chat::translate_stream::translate_sse_event(&finish_event, &mut state)?;
 
@@ -515,18 +495,10 @@ fn chat_stream_translation_emits_error_for_error_payload() -> Result<(), Box<dyn
     let mut state = chat::translate_stream::OpenAIChatCompletionsStreamState::default();
 
     // An error chunk with no choices should produce an Error event, not a ProviderEvent
-    let error_event = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "error": {
-                "message": "Internal server error",
-                "type": "server_error",
-                "code": "internal_error"
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let error_event = fixture_sse_event(
+        "message",
+        "openai_chat/stream_translation_emits_error_for_error_payload.json",
+    )?;
 
     let events = chat::translate_stream::translate_sse_event(&error_event, &mut state)?;
     let error = events
@@ -620,28 +592,7 @@ fn anthropic_request_translation_system_and_tools() -> Result<(), Box<dyn std::e
 
 #[test]
 fn anthropic_response_translation_content_blocks() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "id": "msg_123",
-        "type": "message",
-        "role": "assistant",
-        "model": "claude-sonnet-4-5-20250929",
-        "content": [
-            {"type": "text", "text": "Here's the weather:"},
-            {
-                "type": "tool_use",
-                "id": "toolu_1",
-                "name": "get_weather",
-                "input": {"city": "Paris"}
-            }
-        ],
-        "stop_reason": "tool_use",
-        "usage": {
-            "input_tokens": 15,
-            "output_tokens": 25,
-            "cache_read_input_tokens": 5,
-            "cache_creation_input_tokens": 3
-        }
-    });
+    let raw_response = fixture_json("anthropic/response_translation_content_blocks.json")?;
 
     let response = anthropic::translate_response::translate_response(raw_response, None)?;
 
@@ -661,22 +612,7 @@ fn anthropic_response_translation_content_blocks() -> Result<(), Box<dyn std::er
 
 #[test]
 fn anthropic_response_translation_thinking() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "id": "msg_think",
-        "type": "message",
-        "role": "assistant",
-        "model": "claude-sonnet-4-5-20250929",
-        "content": [
-            {
-                "type": "thinking",
-                "thinking": "Let me think about this...",
-                "signature": "sig_abc"
-            },
-            {"type": "text", "text": "The answer is 42"}
-        ],
-        "stop_reason": "end_turn",
-        "usage": {"input_tokens": 10, "output_tokens": 20}
-    });
+    let raw_response = fixture_json("anthropic/response_translation_thinking.json")?;
 
     let response = anthropic::translate_response::translate_response(raw_response, None)?;
 
@@ -694,80 +630,45 @@ fn anthropic_response_translation_thinking() -> Result<(), Box<dyn std::error::E
 fn anthropic_stream_translation_full_sequence() -> Result<(), Box<dyn std::error::Error>> {
     let mut state = anthropic::translate_stream::AnthropicStreamState::default();
 
-    // message_start
-    let msg_start = SseEvent {
-        event_type: "message_start".to_string(),
-        data: serde_json::json!({
-            "type": "message_start",
-            "message": {
-                "id": "msg_stream_1",
-                "model": "claude-sonnet-4-5-20250929",
-                "usage": {"input_tokens": 10}
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let msg_start = fixture_sse_event(
+        "message_start",
+        "anthropic/stream_translation_full_sequence_message_start.json",
+    )?;
     let events = anthropic::translate_stream::translate_sse_event(&msg_start, &mut state)?;
     assert_eq!(events[0].event_type, StreamEventType::StreamStart);
 
-    // content_block_start (text)
-    let block_start = SseEvent {
-        event_type: "content_block_start".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_start",
-            "index": 0,
-            "content_block": {"type": "text", "text": ""}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let block_start = fixture_sse_event(
+        "content_block_start",
+        "anthropic/stream_translation_full_sequence_content_block_start.json",
+    )?;
     let events = anthropic::translate_stream::translate_sse_event(&block_start, &mut state)?;
     assert_eq!(events[0].event_type, StreamEventType::TextStart);
 
-    // content_block_delta (text)
-    let block_delta = SseEvent {
-        event_type: "content_block_delta".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_delta",
-            "index": 0,
-            "delta": {"type": "text_delta", "text": "Hello!"}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let block_delta = fixture_sse_event(
+        "content_block_delta",
+        "anthropic/stream_translation_full_sequence_content_block_delta.json",
+    )?;
     let events = anthropic::translate_stream::translate_sse_event(&block_delta, &mut state)?;
     assert_eq!(events[0].event_type, StreamEventType::TextDelta);
     assert_eq!(events[0].delta.as_deref(), Some("Hello!"));
 
-    // content_block_stop
-    let block_stop = SseEvent {
-        event_type: "content_block_stop".to_string(),
-        data: serde_json::json!({"type": "content_block_stop", "index": 0}).to_string(),
-        retry: None,
-    };
+    let block_stop = fixture_sse_event(
+        "content_block_stop",
+        "anthropic/stream_translation_full_sequence_content_block_stop.json",
+    )?;
     let events = anthropic::translate_stream::translate_sse_event(&block_stop, &mut state)?;
     assert_eq!(events[0].event_type, StreamEventType::TextEnd);
 
-    // message_delta
-    let msg_delta = SseEvent {
-        event_type: "message_delta".to_string(),
-        data: serde_json::json!({
-            "type": "message_delta",
-            "delta": {"stop_reason": "end_turn"},
-            "usage": {"output_tokens": 8}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let msg_delta = fixture_sse_event(
+        "message_delta",
+        "anthropic/stream_translation_full_sequence_message_delta.json",
+    )?;
     let _events = anthropic::translate_stream::translate_sse_event(&msg_delta, &mut state)?;
 
-    // message_stop
-    let msg_stop = SseEvent {
-        event_type: "message_stop".to_string(),
-        data: serde_json::json!({"type": "message_stop"}).to_string(),
-        retry: None,
-    };
+    let msg_stop = fixture_sse_event(
+        "message_stop",
+        "anthropic/stream_translation_full_sequence_message_stop.json",
+    )?;
     let events = anthropic::translate_stream::translate_sse_event(&msg_stop, &mut state)?;
     let finish = events
         .iter()
@@ -791,121 +692,64 @@ fn anthropic_stream_translation_preserves_thinking_signature()
 -> Result<(), Box<dyn std::error::Error>> {
     let mut state = anthropic::translate_stream::AnthropicStreamState::default();
 
-    // message_start
-    let msg_start = SseEvent {
-        event_type: "message_start".to_string(),
-        data: serde_json::json!({
-            "type": "message_start",
-            "message": {
-                "id": "msg_sig_1",
-                "model": "claude-sonnet-4-5-20250929",
-                "usage": {"input_tokens": 10}
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let msg_start = fixture_sse_event(
+        "message_start",
+        "anthropic/stream_translation_preserves_thinking_signature_message_start.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&msg_start, &mut state)?;
 
-    // content_block_start (thinking)
-    let block_start = SseEvent {
-        event_type: "content_block_start".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_start",
-            "index": 0,
-            "content_block": {"type": "thinking", "thinking": ""}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let block_start = fixture_sse_event(
+        "content_block_start",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_start_thinking.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&block_start, &mut state)?;
 
-    // content_block_delta (thinking text)
-    let thinking_delta = SseEvent {
-        event_type: "content_block_delta".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_delta",
-            "index": 0,
-            "delta": {"type": "thinking_delta", "thinking": "Let me reason..."}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let thinking_delta = fixture_sse_event(
+        "content_block_delta",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_delta_thinking.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&thinking_delta, &mut state)?;
 
-    // content_block_delta (signature)
-    let sig_delta = SseEvent {
-        event_type: "content_block_delta".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_delta",
-            "index": 0,
-            "delta": {"type": "signature_delta", "signature": "sig_abc123"}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let sig_delta = fixture_sse_event(
+        "content_block_delta",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_delta_signature.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&sig_delta, &mut state)?;
 
-    // content_block_stop
-    let block_stop = SseEvent {
-        event_type: "content_block_stop".to_string(),
-        data: serde_json::json!({"type": "content_block_stop", "index": 0}).to_string(),
-        retry: None,
-    };
+    let block_stop = fixture_sse_event(
+        "content_block_stop",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_stop_thinking.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&block_stop, &mut state)?;
 
-    // content_block_start (text)
-    let text_start = SseEvent {
-        event_type: "content_block_start".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_start",
-            "index": 1,
-            "content_block": {"type": "text", "text": ""}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let text_start = fixture_sse_event(
+        "content_block_start",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_start_text.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&text_start, &mut state)?;
 
-    // content_block_delta (text)
-    let text_delta = SseEvent {
-        event_type: "content_block_delta".to_string(),
-        data: serde_json::json!({
-            "type": "content_block_delta",
-            "index": 1,
-            "delta": {"type": "text_delta", "text": "The answer."}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let text_delta = fixture_sse_event(
+        "content_block_delta",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_delta_text.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&text_delta, &mut state)?;
 
-    // content_block_stop (text)
-    let text_stop = SseEvent {
-        event_type: "content_block_stop".to_string(),
-        data: serde_json::json!({"type": "content_block_stop", "index": 1}).to_string(),
-        retry: None,
-    };
+    let text_stop = fixture_sse_event(
+        "content_block_stop",
+        "anthropic/stream_translation_preserves_thinking_signature_content_block_stop_text.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&text_stop, &mut state)?;
 
-    // message_delta + message_stop to get the final response
-    let msg_delta = SseEvent {
-        event_type: "message_delta".to_string(),
-        data: serde_json::json!({
-            "type": "message_delta",
-            "delta": {"stop_reason": "end_turn"},
-            "usage": {"output_tokens": 15}
-        })
-        .to_string(),
-        retry: None,
-    };
+    let msg_delta = fixture_sse_event(
+        "message_delta",
+        "anthropic/stream_translation_preserves_thinking_signature_message_delta.json",
+    )?;
     anthropic::translate_stream::translate_sse_event(&msg_delta, &mut state)?;
 
-    let msg_stop = SseEvent {
-        event_type: "message_stop".to_string(),
-        data: serde_json::json!({"type": "message_stop"}).to_string(),
-        retry: None,
-    };
+    let msg_stop = fixture_sse_event(
+        "message_stop",
+        "anthropic/stream_translation_preserves_thinking_signature_message_stop.json",
+    )?;
     let events = anthropic::translate_stream::translate_sse_event(&msg_stop, &mut state)?;
 
     let finish = events
@@ -1164,25 +1008,7 @@ fn gemini_request_translation_system_and_tools() -> Result<(), Box<dyn std::erro
 
 #[test]
 fn gemini_response_translation_candidates_and_usage() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "modelVersion": "gemini-2.5-pro",
-        "candidates": [{
-            "content": {
-                "parts": [
-                    {"text": "Rust is a systems language."}
-                ],
-                "role": "model"
-            },
-            "finishReason": "STOP"
-        }],
-        "usageMetadata": {
-            "promptTokenCount": 12,
-            "candidatesTokenCount": 8,
-            "totalTokenCount": 20,
-            "cachedContentTokenCount": 4,
-            "thoughtsTokenCount": 2
-        }
-    });
+    let raw_response = fixture_json("gemini/response_translation_candidates_and_usage.json")?;
 
     let response = gemini::translate_response::translate_response(raw_response, None)?;
 
@@ -1201,26 +1027,7 @@ fn gemini_response_translation_candidates_and_usage() -> Result<(), Box<dyn std:
 
 #[test]
 fn gemini_response_translation_function_call() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "modelVersion": "gemini-2.5-pro",
-        "candidates": [{
-            "content": {
-                "parts": [{
-                    "functionCall": {
-                        "name": "search",
-                        "args": {"query": "Rust programming"}
-                    }
-                }],
-                "role": "model"
-            },
-            "finishReason": "STOP"
-        }],
-        "usageMetadata": {
-            "promptTokenCount": 10,
-            "candidatesTokenCount": 5,
-            "totalTokenCount": 15
-        }
-    });
+    let raw_response = fixture_json("gemini/response_translation_function_call.json")?;
 
     let response = gemini::translate_response::translate_response(raw_response, None)?;
 
@@ -1234,25 +1041,7 @@ fn gemini_response_translation_function_call() -> Result<(), Box<dyn std::error:
 
 #[test]
 fn gemini_response_translation_thinking() -> Result<(), Box<dyn std::error::Error>> {
-    let raw_response = serde_json::json!({
-        "modelVersion": "gemini-2.5-pro",
-        "candidates": [{
-            "content": {
-                "parts": [
-                    {"text": "Thinking deeply...", "thought": true},
-                    {"text": "The answer is 42"}
-                ],
-                "role": "model"
-            },
-            "finishReason": "STOP"
-        }],
-        "usageMetadata": {
-            "promptTokenCount": 5,
-            "candidatesTokenCount": 10,
-            "totalTokenCount": 15,
-            "thoughtsTokenCount": 3
-        }
-    });
+    let raw_response = fixture_json("gemini/response_translation_thinking.json")?;
 
     let response = gemini::translate_response::translate_response(raw_response, None)?;
 
@@ -1267,20 +1056,10 @@ fn gemini_stream_translation_text_and_finish() -> Result<(), Box<dyn std::error:
     let mut state = gemini::translate_stream::GeminiStreamState::default();
 
     // First chunk with text
-    let chunk1 = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "modelVersion": "gemini-2.5-pro",
-            "candidates": [{
-                "content": {
-                    "parts": [{"text": "Hello "}],
-                    "role": "model"
-                }
-            }]
-        })
-        .to_string(),
-        retry: None,
-    };
+    let chunk1 = fixture_sse_event(
+        "message",
+        "gemini/stream_translation_text_and_finish_chunk_1.json",
+    )?;
 
     let events = gemini::translate_stream::translate_sse_event(&chunk1, &mut state)?;
     assert!(
@@ -1300,25 +1079,10 @@ fn gemini_stream_translation_text_and_finish() -> Result<(), Box<dyn std::error:
     );
 
     // Second chunk with finish reason and usage
-    let chunk2 = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "candidates": [{
-                "content": {
-                    "parts": [{"text": "world!"}],
-                    "role": "model"
-                },
-                "finishReason": "STOP"
-            }],
-            "usageMetadata": {
-                "promptTokenCount": 5,
-                "candidatesTokenCount": 3,
-                "totalTokenCount": 8
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let chunk2 = fixture_sse_event(
+        "message",
+        "gemini/stream_translation_text_and_finish_chunk_2.json",
+    )?;
 
     let events = gemini::translate_stream::translate_sse_event(&chunk2, &mut state)?;
     assert!(
@@ -1342,31 +1106,7 @@ fn gemini_stream_translation_text_and_finish() -> Result<(), Box<dyn std::error:
 fn gemini_stream_translation_function_call() -> Result<(), Box<dyn std::error::Error>> {
     let mut state = gemini::translate_stream::GeminiStreamState::default();
 
-    let chunk = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "modelVersion": "gemini-2.5-pro",
-            "candidates": [{
-                "content": {
-                    "parts": [{
-                        "functionCall": {
-                            "name": "search",
-                            "args": {"query": "Rust"}
-                        }
-                    }],
-                    "role": "model"
-                },
-                "finishReason": "STOP"
-            }],
-            "usageMetadata": {
-                "promptTokenCount": 5,
-                "candidatesTokenCount": 3,
-                "totalTokenCount": 8
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let chunk = fixture_sse_event("message", "gemini/stream_translation_function_call.json")?;
 
     let events = gemini::translate_stream::translate_sse_event(&chunk, &mut state)?;
     assert!(
@@ -1401,18 +1141,10 @@ fn gemini_stream_translation_emits_error_for_error_payload()
     let mut state = gemini::translate_stream::GeminiStreamState::default();
 
     // An error chunk in the stream should produce an Error event
-    let error_event = SseEvent {
-        event_type: "message".to_string(),
-        data: serde_json::json!({
-            "error": {
-                "code": 500,
-                "message": "Internal error",
-                "status": "INTERNAL"
-            }
-        })
-        .to_string(),
-        retry: None,
-    };
+    let error_event = fixture_sse_event(
+        "message",
+        "gemini/stream_translation_emits_error_for_error_payload.json",
+    )?;
 
     let events = gemini::translate_stream::translate_sse_event(&error_event, &mut state)?;
     assert!(

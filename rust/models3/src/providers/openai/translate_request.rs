@@ -3,13 +3,13 @@ use serde_json::{Map, Value, json};
 
 use crate::error::{ProviderDetails, SdkError, SdkResult};
 use crate::providers::common::openai_shared::{
-    image_to_openai_url, parse_custom_headers, translate_response_format, translate_tool_choice,
-    value_to_json_string,
+    image_to_openai_url, parse_custom_headers, value_to_json_string,
 };
 use crate::types::content::ContentPart;
 use crate::types::request::Request;
+use crate::types::response_format::{ResponseFormat, ResponseFormatType};
 use crate::types::role::Role;
-use crate::types::tool::ToolDefinition;
+use crate::types::tool::{ToolChoice, ToolDefinition};
 
 /// `OpenAI` Responses API translated request body + per-request headers.
 #[derive(Debug, Clone, PartialEq)]
@@ -65,8 +65,8 @@ pub fn translate_request(request: &Request, stream: bool) -> SdkResult<Translate
 
     if let Some(response_format) = &request.response_format {
         body.insert(
-            "response_format".to_string(),
-            translate_response_format(response_format),
+            "text".to_string(),
+            json!({"format": translate_response_format(response_format)}),
         );
     }
 
@@ -161,7 +161,7 @@ fn translate_message(
                     ContentPart::ToolCall { tool_call } => {
                         input.push(json!({
                             "type": "function_call",
-                            "id": tool_call.id,
+                            "call_id": tool_call.id,
                             "name": tool_call.name,
                             "arguments": value_to_json_string(&tool_call.arguments, "openai")?
                         }));
@@ -170,7 +170,7 @@ fn translate_message(
                         input.push(json!({
                             "type": "function_call_output",
                             "call_id": tool_result.tool_call_id,
-                            "output": tool_result.content
+                            "output": value_to_json_string(&tool_result.content, "openai")?
                         }));
                     }
                     ContentPart::Thinking { .. }
@@ -211,7 +211,7 @@ fn translate_message(
                         input.push(json!({
                             "type": "function_call_output",
                             "call_id": tool_result.tool_call_id,
-                            "output": tool_result.content
+                            "output": value_to_json_string(&tool_result.content, "openai")?
                         }));
                     }
                     ContentPart::Text { text } => {
@@ -249,24 +249,47 @@ fn translate_message(
     Ok(())
 }
 
+fn translate_response_format(format: &ResponseFormat) -> Value {
+    match format.format_type {
+        ResponseFormatType::Text => json!({"type": "text"}),
+        ResponseFormatType::Json => json!({"type": "json_object"}),
+        ResponseFormatType::JsonSchema => json!({
+            "type": "json_schema",
+            "name": "response",
+            "schema": format.json_schema.clone().unwrap_or(Value::Null),
+            "strict": format.strict
+        }),
+    }
+}
+
 fn translate_tool_definition(tool: &ToolDefinition) -> SdkResult<Value> {
     tool.validate()?;
 
-    let mut function = Map::new();
-    function.insert("name".to_string(), Value::String(tool.name.clone()));
-    function.insert(
+    let mut translated = Map::new();
+    translated.insert("type".to_string(), Value::String("function".to_string()));
+    translated.insert("name".to_string(), Value::String(tool.name.clone()));
+    translated.insert(
         "description".to_string(),
         Value::String(tool.description.clone()),
     );
-    function.insert("parameters".to_string(), tool.parameters.clone());
+    translated.insert("parameters".to_string(), tool.parameters.clone());
     if tool.strict {
-        function.insert("strict".to_string(), Value::Bool(true));
+        translated.insert("strict".to_string(), Value::Bool(true));
     }
 
-    Ok(json!({
-        "type": "function",
-        "function": function
-    }))
+    Ok(Value::Object(translated))
+}
+
+fn translate_tool_choice(tool_choice: &ToolChoice) -> Value {
+    match tool_choice {
+        ToolChoice::Auto => Value::String("auto".to_string()),
+        ToolChoice::None => Value::String("none".to_string()),
+        ToolChoice::Required => Value::String("required".to_string()),
+        ToolChoice::Tool(name) => json!({
+            "type": "function",
+            "name": name
+        }),
+    }
 }
 
 fn apply_provider_options(

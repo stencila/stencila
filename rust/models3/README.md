@@ -36,5 +36,7 @@ cargo clippy --fix --allow-dirty --all-targets -p stencila-models3
 cargo test -p stencila-models3
 ```
 
+Acceptance tests in `tests/spec_8_acceptance.rs` are env-gated and skip per-provider when live API quota/rate-limit conditions prevent execution.
+
 For test organization and TDD conventions, see `tests/README.md`.
 For spec coverage tracking, including deferred conformance gaps, see `tests/spec-traceability.md`.

@@ -1,0 +1,9 @@
+{
+  "choices": [
+    {
+      "index": 0,
+      "delta": {},
+      "finish_reason": "tool_calls"
+    }
+  ]
+}

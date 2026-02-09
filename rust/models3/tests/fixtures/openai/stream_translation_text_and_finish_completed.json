@@ -1,0 +1,22 @@
+{
+  "type": "response.completed",
+  "response": {
+    "id": "resp_final",
+    "model": "gpt-5.2",
+    "status": "completed",
+    "output": [
+      {
+        "type": "message",
+        "content": [
+          {"type": "output_text", "text": "Hello"}
+        ]
+      }
+    ],
+    "usage": {
+      "input_tokens": 3,
+      "output_tokens": 4,
+      "total_tokens": 7,
+      "output_tokens_details": {"reasoning_tokens": 1}
+    }
+  }
+}

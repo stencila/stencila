@@ -1,0 +1,16 @@
+{
+  "id": "msg_think",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "content": [
+    {
+      "type": "thinking",
+      "thinking": "Let me think about this...",
+      "signature": "sig_abc"
+    },
+    {"type": "text", "text": "The answer is 42"}
+  ],
+  "stop_reason": "end_turn",
+  "usage": {"input_tokens": 10, "output_tokens": 20}
+}

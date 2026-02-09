@@ -1,0 +1,16 @@
+{
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "tool_calls": [
+          {
+            "index": 0,
+            "function": {"arguments": "is\"}"}
+          }
+        ]
+      },
+      "finish_reason": null
+    }
+  ]
+}
