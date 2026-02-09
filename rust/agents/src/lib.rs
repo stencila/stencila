@@ -24,6 +24,9 @@
 /// Agent-level error hierarchy.
 pub mod error;
 
+/// Async event delivery: emitter/receiver pair for session events (spec 2.9).
+pub mod events;
+
 /// Execution environment abstraction and local implementation (spec 4.1-4.2).
 pub mod execution;
 

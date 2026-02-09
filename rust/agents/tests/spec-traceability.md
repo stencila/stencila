@@ -77,6 +77,28 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 4.1 | Metadata | spec_4_execution.rs | working_directory_returns_configured_path, platform_returns_spec_value, os_version_returns_nonempty | Pass |
 | App B | Io error variant | spec_1_types.rs | error_is_tool_error_for_all_tool_variants, error_code_values | Pass |
 
+## Phase 4: Event System
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 2.9 | Channel construction (UUID) | spec_2_events.rs | channel_returns_emitter_and_receiver | Pass |
+| 2.9 | Channel with deterministic ID | spec_2_events.rs | channel_with_id_uses_provided_id | Pass |
+| 2.9 | SESSION_START event | spec_2_events.rs | emit_session_start | Pass |
+| 2.9 | SESSION_END event | spec_2_events.rs | emit_session_end | Pass |
+| 2.9 | USER_INPUT event | spec_2_events.rs | emit_user_input | Pass |
+| 2.9 | ASSISTANT_TEXT lifecycle | spec_2_events.rs | emit_assistant_text_lifecycle | Pass |
+| 2.9 | TOOL_CALL lifecycle | spec_2_events.rs | emit_tool_call_lifecycle | Pass |
+| 9.10 | TOOL_CALL_END full output | spec_2_events.rs | emit_tool_call_end_carries_full_untruncated_output | Pass |
+| 2.9 | TOOL_CALL_END error | spec_2_events.rs | emit_tool_call_end_error | Pass |
+| 2.9 | STEERING_INJECTED event | spec_2_events.rs | emit_steering_injected | Pass |
+| 2.9 | TURN_LIMIT event | spec_2_events.rs | emit_turn_limit | Pass |
+| 2.9 | LOOP_DETECTION event | spec_2_events.rs | emit_loop_detection | Pass |
+| 2.9 | ERROR event | spec_2_events.rs | emit_error | Pass |
+| 2.9 | Strict emission ordering | spec_2_events.rs | events_received_in_emission_order | Pass |
+| 2.9 | All kinds carry session_id + timestamp | spec_2_events.rs | all_events_carry_session_id_and_timestamp | Pass |
+| 2.9 | Receiver None after emitter dropped | spec_2_events.rs | receiver_returns_none_when_emitter_dropped | Pass |
+| 2.9 | Silent discard after receiver dropped | spec_2_events.rs | emit_after_receiver_dropped_does_not_panic | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
