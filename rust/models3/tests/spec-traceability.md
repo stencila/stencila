@@ -4,10 +4,12 @@ Use this matrix to track MUST/SHOULD requirements from `specs/unified-llm-spec.m
 
 | Spec Section | Requirement Summary | Priority | Test File | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 2.3 | Middleware applies to both `complete()` and `stream()` | MUST | `tests/spec_2_client.rs` | Planned | Verify onion order and stream wrapping |
+| 2.2 | Client construction, routing, from_env | MUST | `tests/spec_2_client.rs` | Covered | 9 tests: empty builder, single/multi provider, default selection, explicit default, invalid default, no-providers-with-default, debug format, from_env safety |
+| 2.3 | Middleware applies to both `complete()` and `stream()` | MUST | `tests/spec_2_client.rs` | Covered | 8 tests: passthrough, execution order (complete + stream), request/response modification, short-circuit, stream event observation, object safety |
+| 2.4 | ProviderAdapter trait defaults and object safety | MUST | `tests/spec_2_client.rs` | Covered | 6 tests: name, close, initialize, supports_tool_choice, list_models default, object safety |
 | 2.5 | Module-level default client behavior | MUST | `tests/spec_2_client.rs` | Planned | Lazy init + override |
-| 2.4 | ProviderAdapter trait defaults and object safety | MUST | `tests/spec_2_client.rs` | Covered | 5 tests: name, close, initialize, supports_tool_choice, object safety |
-| 2.9 | Model catalog lookup/list/latest helpers | SHOULD | `tests/spec_2_client.rs` | Covered | 11 tests: lookup, alias, filter, latest, capabilities, unknown capability |
+| 2.6 | Concurrent provider requests | MUST | `tests/spec_2_client.rs` | Covered | 1 test: tokio::join concurrent complete to different providers |
+| 2.9 | Model catalog lookup/list/latest/merge/refresh | SHOULD | `tests/spec_2_client.rs` + `src/catalog.rs` | Covered | 22 tests: lookup by ID/alias, filter by provider, latest with/without capability, unknown provider/capability, required fields, merge add/update/prepend/composite-key, refresh (add/append-order/dedup/errors) |
 | 3.x | Core type serde round-trips and boundary cases | MUST | `tests/spec_3_types.rs` | Covered | 72 tests: all types, ContentPart validate (Extension fallback detection), ToolDefinition validate (name/desc/params), ToolChoice shape, malformed tool args parse_error |
 | 4.1-4.2 | Low-level `Client.complete()` / `Client.stream()` behavior | MUST | `tests/spec_4_generation_streaming.rs` | Planned | No automatic retries |
 | 4.3-4.6 | High-level `generate()`, `stream()`, object APIs | MUST | `tests/spec_4_generation_streaming.rs` | Planned | Prompt/messages exclusivity |

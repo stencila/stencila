@@ -3,11 +3,13 @@ pub mod translate_request;
 pub mod translate_response;
 pub mod translate_stream;
 
+use crate::catalog::ModelInfo;
 use crate::error::SdkResult;
 use crate::http::client::HttpClient;
 use crate::http::headers::parse_rate_limit_headers;
 use crate::http::sse::parse_sse;
 use crate::provider::{BoxFuture, BoxStream, ProviderAdapter};
+use crate::providers::common::openai_shared::is_excluded_openai_model;
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
@@ -102,5 +104,44 @@ impl ProviderAdapter for OpenAIChatCompletionsAdapter {
 
     fn supports_tool_choice(&self, _choice: &crate::types::tool::ToolChoice) -> bool {
         true
+    }
+
+    fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
+        Box::pin(async move {
+            let (body, _headers): (serde_json::Value, _) = self
+                .http
+                .get_json::<serde_json::Value>("/models", None)
+                .await?;
+
+            let models = body
+                .get("data")
+                .and_then(|d| d.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|m| {
+                            let id = m.get("id")?.as_str()?.to_string();
+                            if is_excluded_openai_model(&id) {
+                                return None;
+                            }
+                            Some(ModelInfo {
+                                id: id.clone(),
+                                provider: "openai_chat_completions".into(),
+                                display_name: id,
+                                context_window: 0,
+                                max_output: None,
+                                supports_tools: false,
+                                supports_vision: false,
+                                supports_reasoning: false,
+                                input_cost_per_million: None,
+                                output_cost_per_million: None,
+                                aliases: vec![],
+                            })
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+
+            Ok(models)
+        })
     }
 }

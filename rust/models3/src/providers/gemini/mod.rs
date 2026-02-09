@@ -3,6 +3,7 @@ pub mod translate_request;
 pub mod translate_response;
 pub mod translate_stream;
 
+use crate::catalog::ModelInfo;
 use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;
 use crate::http::headers::parse_rate_limit_headers;
@@ -118,5 +119,70 @@ impl ProviderAdapter for GeminiAdapter {
             choice,
             ToolChoice::Auto | ToolChoice::Required | ToolChoice::Tool(_) | ToolChoice::None
         )
+    }
+
+    fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
+        Box::pin(async move {
+            let path = format!("/v1beta/models?key={}", self.api_key);
+            let (body, _headers): (serde_json::Value, _) =
+                self.http.get_json::<serde_json::Value>(&path, None).await?;
+
+            let models = body
+                .get("models")
+                .and_then(|d| d.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|m| {
+                            // Only include models that support generateContent
+                            let supports_generate = m
+                                .get("supportedGenerationMethods")
+                                .and_then(|v| v.as_array())
+                                .is_some_and(|methods| {
+                                    methods
+                                        .iter()
+                                        .any(|v| v.as_str() == Some("generateContent"))
+                                });
+                            if !supports_generate {
+                                return None;
+                            }
+
+                            // Gemini returns "models/gemini-2.0-flash", strip prefix
+                            let raw_name = m.get("name")?.as_str()?;
+                            let id = raw_name
+                                .strip_prefix("models/")
+                                .unwrap_or(raw_name)
+                                .to_string();
+                            let display_name = m
+                                .get("displayName")
+                                .and_then(|n| n.as_str())
+                                .unwrap_or(&id)
+                                .to_string();
+                            let context_window = m
+                                .get("inputTokenLimit")
+                                .and_then(serde_json::Value::as_u64)
+                                .unwrap_or(0);
+                            let max_output = m
+                                .get("outputTokenLimit")
+                                .and_then(serde_json::Value::as_u64);
+                            Some(ModelInfo {
+                                id,
+                                provider: "gemini".into(),
+                                display_name,
+                                context_window,
+                                max_output,
+                                supports_tools: false,
+                                supports_vision: false,
+                                supports_reasoning: false,
+                                input_cost_per_million: None,
+                                output_cost_per_million: None,
+                                aliases: vec![],
+                            })
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+
+            Ok(models)
+        })
     }
 }

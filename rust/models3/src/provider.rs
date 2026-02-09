@@ -2,6 +2,7 @@ use std::pin::Pin;
 
 use futures::Stream;
 
+use crate::catalog::ModelInfo;
 use crate::error::SdkResult;
 use crate::types::request::Request;
 use crate::types::response::Response;
@@ -57,5 +58,16 @@ pub trait ProviderAdapter: Send + Sync {
     /// Default: true for all choices.
     fn supports_tool_choice(&self, _choice: &ToolChoice) -> bool {
         true
+    }
+
+    /// List models available from this provider.
+    ///
+    /// Calls the provider's native model-listing endpoint and returns
+    /// basic `ModelInfo` for each discovered model. Fields not available
+    /// from the listing API are filled with defaults.
+    ///
+    /// Default: returns an empty list (provider doesn't support listing).
+    fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
+        Box::pin(async { Ok(vec![]) })
     }
 }

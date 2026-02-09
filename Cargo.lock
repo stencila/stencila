@@ -10543,6 +10543,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-models3"
+version = "2.13.0"
+dependencies = [
+ "base64 0.22.1",
+ "bytes",
+ "futures",
+ "rand 0.9.2",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "ureq 2.12.1",
+ "uuid",
+]
+
+[[package]]
 name = "stencila-node"
 version = "2.13.0"
 dependencies = [

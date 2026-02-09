@@ -6,8 +6,10 @@
 #![warn(clippy::pedantic)]
 
 pub mod catalog;
+pub mod client;
 pub mod error;
 pub mod http;
+pub mod middleware;
 pub mod provider;
 pub mod providers;
 pub mod retry;

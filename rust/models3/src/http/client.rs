@@ -45,6 +45,67 @@ impl HttpClient {
         &self.base_url
     }
 
+    /// Send a GET request and return the parsed JSON response body.
+    ///
+    /// Used for model listing endpoints that return JSON.
+    ///
+    /// # Errors
+    ///
+    /// Returns an appropriate `SdkError` variant for network failures,
+    /// timeouts, and non-success HTTP status codes.
+    pub async fn get_json<R: serde::de::DeserializeOwned>(
+        &self,
+        path: &str,
+        headers: Option<&HeaderMap>,
+    ) -> SdkResult<(R, HeaderMap)> {
+        let url = format!("{}{path}", self.base_url);
+
+        let mut request = self.inner.get(&url).headers(self.default_headers.clone());
+
+        if let Some(h) = headers {
+            request = request.headers(h.clone());
+        }
+
+        let response = request.send().await.map_err(|e| {
+            if e.is_timeout() {
+                SdkError::RequestTimeout {
+                    message: e.to_string(),
+                }
+            } else if e.is_connect() {
+                SdkError::Network {
+                    message: format!("connection failed: {e}"),
+                }
+            } else {
+                SdkError::Network {
+                    message: e.to_string(),
+                }
+            }
+        })?;
+
+        let status = response.status();
+        let response_headers = response.headers().clone();
+
+        if !status.is_success() {
+            let raw_body = response.text().await.unwrap_or_else(|_| String::new());
+            let raw_json: Option<serde_json::Value> = serde_json::from_str(&raw_body).ok();
+            let message = extract_error_message(raw_json.as_ref(), &raw_body);
+            return Err(SdkError::from_status_code(
+                status.as_u16(),
+                message,
+                None,
+                None,
+                crate::http::headers::parse_retry_after(&response_headers),
+                raw_json,
+            ));
+        }
+
+        let body: R = response.json().await.map_err(|e| SdkError::Network {
+            message: format!("failed to parse response body: {e}"),
+        })?;
+
+        Ok((body, response_headers))
+    }
+
     /// Send a JSON POST request and return the parsed response body.
     ///
     /// The `path` is appended to the base URL. Additional `headers` are

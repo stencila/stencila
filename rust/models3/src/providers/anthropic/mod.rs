@@ -3,6 +3,7 @@ pub mod translate_request;
 pub mod translate_response;
 pub mod translate_stream;
 
+use crate::catalog::ModelInfo;
 use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;
 use crate::http::headers::parse_rate_limit_headers;
@@ -114,5 +115,46 @@ impl ProviderAdapter for AnthropicAdapter {
             choice,
             ToolChoice::Auto | ToolChoice::Required | ToolChoice::Tool(_) | ToolChoice::None
         )
+    }
+
+    fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
+        Box::pin(async move {
+            let (body, _headers): (serde_json::Value, _) = self
+                .http
+                .get_json::<serde_json::Value>("/v1/models", None)
+                .await?;
+
+            let models = body
+                .get("data")
+                .and_then(|d| d.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|m| {
+                            let id = m.get("id")?.as_str()?.to_string();
+                            let display_name = m
+                                .get("display_name")
+                                .and_then(|n| n.as_str())
+                                .unwrap_or(&id)
+                                .to_string();
+                            Some(ModelInfo {
+                                id,
+                                provider: "anthropic".into(),
+                                display_name,
+                                context_window: 0,
+                                max_output: None,
+                                supports_tools: false,
+                                supports_vision: false,
+                                supports_reasoning: false,
+                                input_cost_per_million: None,
+                                output_cost_per_million: None,
+                                aliases: vec![],
+                            })
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+
+            Ok(models)
+        })
     }
 }

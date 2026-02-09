@@ -7,6 +7,43 @@ use crate::types::content::ImageData;
 use crate::types::response_format::{ResponseFormat, ResponseFormatType};
 use crate::types::tool::ToolChoice;
 
+/// ID prefixes for non-chat `OpenAI` models (embeddings, image gen, TTS, etc.).
+const EXCLUDED_OPENAI_PREFIXES: &[&str] = &[
+    "text-embedding-",
+    "dall-e-",
+    "gpt-image-",
+    "tts-",
+    "whisper-",
+    "sora-",
+    "davinci-",
+    "babbage-",
+    "codex-",
+    "omni-moderation-",
+    "chatgpt-image-",
+    "computer-use-",
+];
+
+/// Substrings that indicate non-chat `OpenAI` model variants.
+const EXCLUDED_OPENAI_SUBSTRINGS: &[&str] = &[
+    "-tts",
+    "-realtime",
+    "-audio-",
+    "-transcribe",
+    "-search-",
+    "-deep-research",
+];
+
+/// Returns `true` if the given `OpenAI` model ID should be excluded from the
+/// catalog because it is not a chat/completions model.
+pub(crate) fn is_excluded_openai_model(id: &str) -> bool {
+    EXCLUDED_OPENAI_PREFIXES
+        .iter()
+        .any(|prefix| id.starts_with(prefix))
+        || EXCLUDED_OPENAI_SUBSTRINGS
+            .iter()
+            .any(|sub| id.contains(sub))
+}
+
 /// Translate a unified `ToolChoice` into the `OpenAI` JSON shape.
 ///
 /// This is identical for both the Responses API and the Chat Completions API.
