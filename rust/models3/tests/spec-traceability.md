@@ -1,0 +1,35 @@
+# Spec Traceability Matrix
+
+Use this matrix to track MUST/SHOULD requirements from `specs/unified-llm-spec.md` to test coverage.
+
+| Spec Section | Requirement Summary | Priority | Test File | Status | Notes |
+| --- | --- | --- | --- | --- | --- |
+| 2.3 | Middleware applies to both `complete()` and `stream()` | MUST | `tests/spec_2_client.rs` | Planned | Verify onion order and stream wrapping |
+| 2.5 | Module-level default client behavior | MUST | `tests/spec_2_client.rs` | Planned | Lazy init + override |
+| 2.4 | ProviderAdapter trait defaults and object safety | MUST | `tests/spec_2_client.rs` | Covered | 5 tests: name, close, initialize, supports_tool_choice, object safety |
+| 2.9 | Model catalog lookup/list/latest helpers | SHOULD | `tests/spec_2_client.rs` | Covered | 11 tests: lookup, alias, filter, latest, capabilities, unknown capability |
+| 3.x | Core type serde round-trips and boundary cases | MUST | `tests/spec_3_types.rs` | Covered | 72 tests: all types, ContentPart validate (Extension fallback detection), ToolDefinition validate (name/desc/params), ToolChoice shape, malformed tool args parse_error |
+| 4.1-4.2 | Low-level `Client.complete()` / `Client.stream()` behavior | MUST | `tests/spec_4_generation_streaming.rs` | Planned | No automatic retries |
+| 4.3-4.6 | High-level `generate()`, `stream()`, object APIs | MUST | `tests/spec_4_generation_streaming.rs` | Planned | Prompt/messages exclusivity |
+| 5.1 | Tool definition validation (name format, description, params root) | MUST | `tests/spec_3_types.rs` | Covered | 4 tests: validate round-trip, bad name, empty desc, non-object params |
+| 5.3 | ToolChoice modes and wire shape | MUST | `tests/spec_3_types.rs` | Covered | Rust enum shape documented; adapters translate to wire format. 2 tests: round-trip + shape |
+| 5.5 | Active vs passive tools behavior | MUST | `tests/spec_5_tools.rs` | Planned | Passive returns tool calls |
+| 5.7 | Parallel tool execution with result ordering | MUST | `tests/spec_5_tools.rs` | Planned | Batch continuation |
+| 6.4 | HTTP status -> error mapping | MUST | `tests/spec_6_errors_retry.rs` | Covered | 16 tests: status mapping, retryable, classify, serde, unknown-status retryable agreement, error_code preservation |
+| 6.6 | Retry policy constraints | MUST | `tests/spec_6_errors_retry.rs` | Planned | No retry after partial stream |
+| 7.x | Provider request/response/stream/error translation | MUST | `tests/spec_7_adapters.rs` | Planned | Fixture-based translation |
+| 7.10 | OpenAI-compatible adapter uses Chat Completions | MUST | `tests/spec_7_adapters.rs` | Planned | No Responses-only features |
+| 8.x | Validation checklist and cross-provider parity | MUST | `tests/spec_8_acceptance.rs` | Planned | Env-gated integration |
+
+## Intentional Spec Deviations
+
+| Area | Spec Shape | Rust Shape | Rationale |
+| --- | --- | --- | --- |
+| ToolChoice | `{ mode, tool_name? }` record | `enum { Auto, None, Required, Tool(String) }` | Makes invalid states unrepresentable; adapters translate to wire format |
+| ProviderAdapter::stream | Returns `Stream<StreamEvent>` | Returns `Future<Result<Stream<Result<StreamEvent>>>>` | Two-phase: outer Future for connection, inner Stream for events. Distinguishes connection-time vs streaming failures |
+
+## Status Values
+
+- `Planned`: requirement identified, tests not implemented yet.
+- `In Progress`: at least one failing/passing test exists; coverage incomplete.
+- `Covered`: success/failure/boundary behavior implemented and passing.
