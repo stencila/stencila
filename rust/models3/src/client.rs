@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use crate::error::{SdkError, SdkResult};
 use crate::middleware::{Middleware, NextComplete, NextStream};
 use crate::provider::{BoxStream, ProviderAdapter};
-use crate::providers::{AnthropicAdapter, GeminiAdapter, MistralAdapter, OpenAIAdapter};
+use crate::providers::{
+    AnthropicAdapter, DeepSeekAdapter, GeminiAdapter, MistralAdapter, OpenAIAdapter,
+};
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
@@ -41,6 +43,7 @@ impl Client {
     /// | Anthropic | `ANTHROPIC_API_KEY`    | `ANTHROPIC_BASE_URL`                               |
     /// | Gemini    | `GEMINI_API_KEY`       | `GEMINI_BASE_URL`                                  |
     /// | Mistral   | `MISTRAL_API_KEY`      | `MISTRAL_BASE_URL`                                 |
+    /// | DeepSeek  | `DEEPSEEK_API_KEY`     | `DEEPSEEK_BASE_URL`                                |
     ///
     /// `GOOGLE_API_KEY` is accepted as a fallback for `GEMINI_API_KEY`.
     ///
@@ -79,6 +82,11 @@ impl Client {
         // Mistral
         if std::env::var("MISTRAL_API_KEY").is_ok() {
             builder = builder.add_provider(MistralAdapter::from_env()?);
+        }
+
+        // DeepSeek
+        if std::env::var("DEEPSEEK_API_KEY").is_ok() {
+            builder = builder.add_provider(DeepSeekAdapter::from_env()?);
         }
 
         builder.build()

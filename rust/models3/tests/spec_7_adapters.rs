@@ -16,7 +16,7 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use stencila_models3::error::{ProviderDetails, SdkError};
 use stencila_models3::http::sse::SseEvent;
 use stencila_models3::providers::{
-    anthropic, gemini, mistral, openai,
+    anthropic, deepseek, gemini, mistral, openai,
     openai_chat_completions::{self as chat},
 };
 use stencila_models3::types::{
@@ -1744,5 +1744,169 @@ fn mistral_error_translation_refines_not_found() {
 
     if let SdkError::NotFound { details, .. } = translated {
         assert_eq!(details.provider.as_deref(), Some("mistral"));
+    }
+}
+
+// ──────────────── DeepSeek adapter tests ────────────────
+
+#[test]
+fn deepseek_request_translation_basic() -> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "deepseek-chat",
+        vec![Message::system("sys"), Message::user("hi")],
+    );
+
+    let translated = deepseek::translate_request::translate_request(&request, false)?;
+
+    assert_eq!(translated.body["model"], "deepseek-chat");
+    assert!(translated.body.get("messages").is_some());
+    assert_eq!(translated.body.get("stream"), None);
+
+    Ok(())
+}
+
+#[test]
+fn deepseek_request_translation_provider_options_namespace()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut request = Request::new("deepseek-chat", vec![Message::user("hi")]);
+
+    let mut provider_options = HashMap::new();
+    provider_options.insert(
+        "deepseek".to_string(),
+        serde_json::json!({"temperature": 0.5}),
+    );
+    request.provider_options = Some(provider_options);
+
+    let translated = deepseek::translate_request::translate_request(&request, false)?;
+    assert_eq!(translated.body["temperature"], 0.5);
+
+    Ok(())
+}
+
+#[test]
+fn deepseek_request_translation_openai_compatible_namespace()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut request = Request::new("deepseek-chat", vec![Message::user("hi")]);
+
+    let mut provider_options = HashMap::new();
+    provider_options.insert(
+        "openai_compatible".to_string(),
+        serde_json::json!({"frequency_penalty": 0.2}),
+    );
+    request.provider_options = Some(provider_options);
+
+    let translated = deepseek::translate_request::translate_request(&request, false)?;
+    assert_eq!(translated.body["frequency_penalty"], 0.2);
+
+    Ok(())
+}
+
+#[test]
+fn deepseek_request_translation_rejects_builtin_tools() -> Result<(), Box<dyn std::error::Error>> {
+    let mut request = Request::new("deepseek-chat", vec![Message::user("search for cats")]);
+
+    let mut provider_options = HashMap::new();
+    provider_options.insert(
+        "deepseek".to_string(),
+        serde_json::json!({"built_in_tools": [{"type": "web_search"}]}),
+    );
+    request.provider_options = Some(provider_options);
+
+    let result = deepseek::translate_request::translate_request(&request, false);
+    match result {
+        Err(SdkError::InvalidRequest { message, .. }) => {
+            assert!(
+                message.contains("built-in tools"),
+                "expected built-in tools rejection: {message}"
+            );
+        }
+        Err(other) => {
+            return Err(format!("expected InvalidRequest, got: {other}").into());
+        }
+        Ok(_) => {
+            return Err("expected error for built-in tools, got Ok".into());
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn deepseek_response_translation_basic() -> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("deepseek/response_basic.json")?;
+
+    let response = deepseek::translate_response::translate_response(raw_response, None)?;
+
+    assert_eq!(response.provider, "deepseek");
+    assert_eq!(response.model, "deepseek-chat");
+    assert_eq!(response.text(), "Hello from DeepSeek!");
+    assert_eq!(response.finish_reason.reason, Reason::Stop);
+    assert_eq!(response.usage.input_tokens, 8);
+    assert_eq!(response.usage.output_tokens, 4);
+    assert_eq!(response.usage.total_tokens, 12);
+
+    Ok(())
+}
+
+#[test]
+fn deepseek_stream_translation_text_and_finish() -> Result<(), Box<dyn std::error::Error>> {
+    let mut state = deepseek::translate_stream::DeepSeekStreamState::default();
+
+    let delta_event = fixture_sse_event("message", "deepseek/stream_text_delta.json")?;
+
+    let events = deepseek::translate_stream::translate_sse_event(&delta_event, &mut state)?;
+    assert_eq!(events[0].event_type, StreamEventType::StreamStart);
+    assert_eq!(events[1].event_type, StreamEventType::TextStart);
+    assert_eq!(events[2].event_type, StreamEventType::TextDelta);
+    assert_eq!(events[2].delta.as_deref(), Some("Hel"));
+
+    let finish_event = fixture_sse_event("message", "deepseek/stream_finish.json")?;
+
+    let finish_events = deepseek::translate_stream::translate_sse_event(&finish_event, &mut state)?;
+
+    let text_end = finish_events
+        .iter()
+        .find(|e| e.event_type == StreamEventType::TextEnd);
+    assert!(text_end.is_some(), "expected TextEnd event");
+
+    let finish = finish_events
+        .iter()
+        .find(|e| e.event_type == StreamEventType::Finish)
+        .ok_or("missing finish event")?;
+    assert_eq!(
+        finish.finish_reason.as_ref().map(|f| f.reason),
+        Some(Reason::Stop)
+    );
+    assert_eq!(finish.usage.as_ref().map(|u| u.total_tokens), Some(8));
+
+    // Verify provider attribution in the accumulated response
+    let response = finish
+        .response
+        .as_ref()
+        .ok_or("missing response in finish event")?;
+    assert_eq!(response.provider, "deepseek");
+
+    Ok(())
+}
+
+#[test]
+fn deepseek_error_translation_refines_not_found() {
+    let err = SdkError::Server {
+        message: "Model not found".to_string(),
+        details: ProviderDetails {
+            provider: None,
+            status_code: Some(500),
+            error_code: None,
+            retryable: true,
+            retry_after: None,
+            raw: None,
+        },
+    };
+
+    let translated = deepseek::translate_error::translate_error(err);
+    assert!(matches!(translated, SdkError::NotFound { .. }));
+
+    if let SdkError::NotFound { details, .. } = translated {
+        assert_eq!(details.provider.as_deref(), Some("deepseek"));
     }
 }

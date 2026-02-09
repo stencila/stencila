@@ -17,6 +17,7 @@ pub fn has_provider(provider: &str) -> bool {
             std::env::var("GEMINI_API_KEY").is_ok() || std::env::var("GOOGLE_API_KEY").is_ok()
         }
         "mistral" => std::env::var("MISTRAL_API_KEY").is_ok(),
+        "deepseek" => std::env::var("DEEPSEEK_API_KEY").is_ok(),
         _ => false,
     }
 }
@@ -39,6 +40,7 @@ pub fn test_model(provider: &str) -> &'static str {
         "anthropic" => "claude-sonnet-4-5-20250929",
         "gemini" => "gemini-2.0-flash",
         "mistral" => "mistral-small-latest",
+        "deepseek" => "deepseek-chat",
         _ => "unknown",
     }
 }
@@ -50,6 +52,7 @@ pub fn vision_test_model(provider: &str) -> &'static str {
         "anthropic" => "claude-sonnet-4-5-20250929",
         "gemini" => "gemini-2.0-flash",
         "mistral" => "mistral-small-latest",
+        "deepseek" => "deepseek-chat",
         _ => "unknown",
     }
 }

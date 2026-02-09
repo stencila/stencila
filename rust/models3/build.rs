@@ -9,6 +9,7 @@
 //!   - `ANTHROPIC_API_KEY` — for Anthropic model listing
 //!   - `GEMINI_API_KEY` — for Gemini model listing
 //!   - `MISTRAL_API_KEY` — for Mistral model listing
+//!   - `DEEPSEEK_API_KEY` — for DeepSeek model listing
 //!
 //! Providers whose keys are absent are silently skipped.
 //!
@@ -118,6 +119,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=GEMINI_API_KEY");
     println!("cargo:rerun-if-env-changed=GOOGLE_API_KEY");
     println!("cargo:rerun-if-env-changed=MISTRAL_API_KEY");
+    println!("cargo:rerun-if-env-changed=DEEPSEEK_API_KEY");
 
     if std::env::var("REFRESH_MODEL_CATALOG").as_deref() != Ok("1") {
         return;
@@ -223,6 +225,27 @@ fn main() {
                 }
             }
             Err(e) => eprintln!("build.rs: Mistral model list failed: {e}"),
+        }
+    }
+
+    // DeepSeek
+    if let Ok(api_key) = std::env::var("DEEPSEEK_API_KEY") {
+        match fetch_deepseek_models(&api_key) {
+            Ok(models) => {
+                for m in models {
+                    let key = (m.provider.clone(), m.id.clone());
+                    if !known_keys.contains(&key) {
+                        let pos = catalog
+                            .iter()
+                            .rposition(|c| c.provider == m.provider)
+                            .map_or(catalog.len(), |last| last + 1);
+                        known_keys.insert(key);
+                        catalog.insert(pos, m);
+                        added += 1;
+                    }
+                }
+            }
+            Err(e) => eprintln!("build.rs: DeepSeek model list failed: {e}"),
         }
     }
 
@@ -425,6 +448,41 @@ fn fetch_mistral_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
         .unwrap_or_default())
 }
 
+fn fetch_deepseek_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
+    let resp: serde_json::Value = ureq::get("https://api.deepseek.com/v1/models")
+        .set("Authorization", &format!("Bearer {api_key}"))
+        .call()
+        .map_err(|e| e.to_string())?
+        .into_json()
+        .map_err(|e| e.to_string())?;
+
+    Ok(resp
+        .get("data")
+        .and_then(|d| d.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|m| {
+                    let id = m.get("id")?.as_str()?.to_string();
+
+                    Some(ModelInfo {
+                        id: id.clone(),
+                        provider: "deepseek".into(),
+                        display_name: id,
+                        context_window: 0,
+                        max_output: None,
+                        supports_tools: false,
+                        supports_vision: false,
+                        supports_reasoning: false,
+                        input_cost_per_million: None,
+                        output_cost_per_million: None,
+                        aliases: vec![],
+                    })
+                })
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
 fn fetch_gemini_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
     let url = format!("https://generativelanguage.googleapis.com/v1beta/models?key={api_key}");
     let resp: serde_json::Value = ureq::get(&url)
@@ -537,6 +595,7 @@ fn models_dev_provider_key(provider: &str) -> Option<&'static str> {
         "openai" => Some("openai"),
         "gemini" => Some("google"),
         "mistral" => Some("mistral"),
+        "deepseek" => Some("deepseek"),
         _ => None,
     }
 }
@@ -559,9 +618,10 @@ fn enrich_catalog(catalog: &mut [ModelInfo], metadata: &ModelsDevCatalog) {
 
         if let Some(limit) = &entry.limit {
             if model.context_window == 0
-                && let Some(v) = limit.context {
-                    model.context_window = v;
-                }
+                && let Some(v) = limit.context
+            {
+                model.context_window = v;
+            }
             if model.max_output.is_none() {
                 model.max_output = limit.output;
             }
@@ -578,16 +638,19 @@ fn enrich_catalog(catalog: &mut [ModelInfo], metadata: &ModelsDevCatalog) {
         // Boolean capabilities: only override if the provider left them false
         // (provider APIs that report capabilities are authoritative)
         if !model.supports_tools
-            && let Some(v) = entry.tool_call {
-                model.supports_tools = v;
-            }
+            && let Some(v) = entry.tool_call
+        {
+            model.supports_tools = v;
+        }
         if !model.supports_vision
-            && let Some(modalities) = &entry.modalities {
-                model.supports_vision = modalities.input.iter().any(|m| m == "image");
-            }
+            && let Some(modalities) = &entry.modalities
+        {
+            model.supports_vision = modalities.input.iter().any(|m| m == "image");
+        }
         if !model.supports_reasoning
-            && let Some(v) = entry.reasoning {
-                model.supports_reasoning = v;
-            }
+            && let Some(v) = entry.reasoning
+        {
+            model.supports_reasoning = v;
+        }
     }
 }
