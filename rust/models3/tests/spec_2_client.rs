@@ -9,10 +9,11 @@
 
 mod common;
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use futures::StreamExt;
 
+use stencila_models3::api::default_client;
 use stencila_models3::catalog::{
     ModelInfo, get_latest_model, get_model_info, list_models, merge_models, refresh,
 };
@@ -1073,6 +1074,34 @@ fn client_from_env_returns_valid_client() {
             );
         }
     }
+}
+
+#[test]
+fn default_client_set_can_override_previous_value() -> Result<(), Box<dyn std::error::Error>> {
+    // Global default client state is process-wide; serialize this test.
+    static TEST_MUTEX: OnceLock<Mutex<()>> = OnceLock::new();
+    let _guard = TEST_MUTEX
+        .get_or_init(|| Mutex::new(()))
+        .lock()
+        .map_err(|e| format!("lock: {e}"))?;
+
+    let client_a = Client::builder()
+        .add_provider(MockAdapter::with_text("alpha", "a"))
+        .build()?;
+    default_client::set_default_client(client_a);
+
+    let resolved_a = default_client::get_default_client()?;
+    assert_eq!(resolved_a.default_provider(), Some("alpha"));
+
+    let client_b = Client::builder()
+        .add_provider(MockAdapter::with_text("beta", "b"))
+        .build()?;
+    default_client::set_default_client(client_b);
+
+    let resolved_b = default_client::get_default_client()?;
+    assert_eq!(resolved_b.default_provider(), Some("beta"));
+
+    Ok(())
 }
 
 // ── Middleware is object-safe ─────────────────────────────────────────

@@ -2,6 +2,7 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde_json::{Map, Value, json};
 
 use crate::error::{ProviderDetails, SdkError, SdkResult};
+use crate::providers::common::image::read_local_image_from_url;
 use crate::types::content::ContentPart;
 use crate::types::message::Message;
 use crate::types::request::Request;
@@ -238,6 +239,17 @@ fn translate_single_content_part(
 
 fn translate_image(image: &crate::types::content::ImageData) -> SdkResult<Value> {
     if let Some(url) = &image.url {
+        if let Some((data, media_type)) =
+            read_local_image_from_url(url, image.media_type.as_deref(), "anthropic")?
+        {
+            use base64::Engine;
+            let encoded = base64::engine::general_purpose::STANDARD.encode(data);
+            return Ok(json!({
+                "type": "image",
+                "source": {"type": "base64", "media_type": media_type, "data": encoded}
+            }));
+        }
+
         Ok(json!({
             "type": "image",
             "source": {"type": "url", "url": url}

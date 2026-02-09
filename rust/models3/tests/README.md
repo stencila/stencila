@@ -21,6 +21,7 @@ This directory is organized for spec-driven TDD.
 
 - Prefer fixture-based tests for protocol translation and serialization.
 - Keep tests deterministic: no wall-clock dependence, randomness, or live network by default.
+- Keep default-client behavior checks in `spec_2_client.rs` and provider translation edge cases (e.g. local image paths, reasoning-token mapping) in `spec_7_adapters.rs` aligned with `spec-traceability.md`.
 - Gate real-provider tests in `tests/integration/` behind explicit environment variables.
 - In env-gated live-provider tests, skip provider-scoped cases when transient quota/rate-limit constraints prevent execution.
 - If any part of a spec subsection remains deferred, keep that row `In Progress` in `spec-traceability.md` and record the gap in the `Deferred Items` table.

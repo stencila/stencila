@@ -5,7 +5,9 @@ use serde_json::Value;
 use crate::error::{ProviderDetails, SdkError, SdkResult};
 use crate::http::sse::SseEvent;
 use crate::providers::anthropic::translate_error::translate_error;
-use crate::providers::anthropic::translate_response::{map_finish_reason, parse_usage};
+use crate::providers::anthropic::translate_response::{
+    estimate_reasoning_tokens_from_content, map_finish_reason, parse_usage,
+};
 use crate::types::content::{ContentPart, ThinkingData, ToolCallData};
 use crate::types::finish_reason::FinishReason;
 use crate::types::message::Message;
@@ -411,6 +413,7 @@ fn handle_message_stop(
     usage = usage + output_usage;
 
     let content = std::mem::take(&mut state.accumulated_content);
+    usage.reasoning_tokens = estimate_reasoning_tokens_from_content(&content);
 
     let reason = if content
         .iter()

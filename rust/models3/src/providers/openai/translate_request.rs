@@ -173,9 +173,21 @@ fn translate_message(
                             "output": value_to_json_string(&tool_result.content, "openai")?
                         }));
                     }
-                    ContentPart::Thinking { .. }
-                    | ContentPart::RedactedThinking { .. }
-                    | ContentPart::Audio { .. }
+                    ContentPart::Thinking { thinking } => {
+                        let content_type = if message.role == Role::User {
+                            "input_text"
+                        } else {
+                            "output_text"
+                        };
+                        // Cross-provider portability: when replaying Anthropic thinking
+                        // blocks into OpenAI, keep text but strip signatures.
+                        message_content.push(json!({"type": content_type, "text": thinking.text}));
+                    }
+                    ContentPart::RedactedThinking { .. } => {
+                        // Opaque redacted thinking cannot be meaningfully translated.
+                        // Drop it when switching providers.
+                    }
+                    ContentPart::Audio { .. }
                     | ContentPart::Document { .. }
                     | ContentPart::Extension(_) => {
                         return Err(SdkError::InvalidRequest {

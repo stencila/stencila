@@ -9,7 +9,9 @@
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 
+use base64::Engine;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use stencila_models3::error::{ProviderDetails, SdkError};
 use stencila_models3::http::sse::SseEvent;
@@ -18,7 +20,7 @@ use stencila_models3::providers::{
     openai_chat_completions::{self as chat},
 };
 use stencila_models3::types::{
-    content::{ContentPart, ToolCallData},
+    content::{ContentPart, ThinkingData, ToolCallData},
     finish_reason::Reason,
     message::Message,
     request::Request,
@@ -54,6 +56,16 @@ fn fixture_sse_event(event_type: &str, path: &str) -> Result<SseEvent, Box<dyn s
         data: fixture_json(path)?.to_string(),
         retry: None,
     })
+}
+
+fn write_temp_image_file(
+    extension: &str,
+    bytes: &[u8],
+) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
+    let unique = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos();
+    let path = std::env::temp_dir().join(format!("models3-spec7-{unique}.{extension}"));
+    fs::write(&path, bytes)?;
+    Ok(path)
 }
 
 #[test]
@@ -160,6 +172,123 @@ fn openai_request_translation_rejects_non_object_provider_options() {
 
     let result = openai::translate_request::translate_request(&request, false);
     assert!(matches!(result, Err(SdkError::InvalidRequest { .. })));
+}
+
+#[test]
+fn openai_request_translation_local_image_path_becomes_data_uri()
+-> Result<(), Box<dyn std::error::Error>> {
+    let path = write_temp_image_file("png", &[137, 80, 78, 71, 13, 10, 26, 10])?;
+
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::new(
+            Role::User,
+            vec![ContentPart::image_url(path.to_string_lossy())],
+        )],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let _ = fs::remove_file(&path);
+
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing input array")?;
+    let user_message = input
+        .iter()
+        .find(|item| item.get("type").and_then(serde_json::Value::as_str) == Some("message"))
+        .ok_or("missing message input item")?;
+    let content = user_message
+        .get("content")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing message content")?;
+    let image_part = content
+        .iter()
+        .find(|part| part.get("type").and_then(serde_json::Value::as_str) == Some("input_image"))
+        .ok_or("missing input_image part")?;
+    let image_url = image_part
+        .get("image_url")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("input_image.image_url should be string")?;
+
+    assert!(image_url.starts_with("data:image/png;base64,"));
+    Ok(())
+}
+
+#[test]
+fn openai_request_translation_missing_local_image_path_errors() {
+    let unique = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    let missing_path = std::env::temp_dir().join(format!("models3-missing-{unique}.png"));
+    let _ = fs::remove_file(&missing_path);
+
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::new(
+            Role::User,
+            vec![ContentPart::image_url(missing_path.to_string_lossy())],
+        )],
+    );
+
+    let result = openai::translate_request::translate_request(&request, false);
+    assert!(matches!(result, Err(SdkError::InvalidRequest { .. })));
+}
+
+#[test]
+fn openai_request_translation_portably_maps_thinking_blocks()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::new(
+            Role::Assistant,
+            vec![
+                ContentPart::Thinking {
+                    thinking: ThinkingData {
+                        text: "Reasoning context".to_string(),
+                        signature: Some("sig_should_not_be_sent".to_string()),
+                        redacted: false,
+                    },
+                },
+                ContentPart::RedactedThinking {
+                    thinking: ThinkingData {
+                        text: "opaque".to_string(),
+                        signature: None,
+                        redacted: true,
+                    },
+                },
+                ContentPart::text("Visible answer"),
+            ],
+        )],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing input array")?;
+    let assistant_message = input
+        .iter()
+        .find(|item| {
+            item.get("type").and_then(serde_json::Value::as_str) == Some("message")
+                && item.get("role").and_then(serde_json::Value::as_str) == Some("assistant")
+        })
+        .ok_or("missing assistant message")?;
+    let content = assistant_message
+        .get("content")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("assistant content should be array")?;
+
+    assert_eq!(content.len(), 2, "redacted thinking should be omitted");
+    assert_eq!(content[0]["type"], "output_text");
+    assert_eq!(content[0]["text"], "Reasoning context");
+    assert_eq!(content[1]["type"], "output_text");
+    assert_eq!(content[1]["text"], "Visible answer");
+
+    Ok(())
 }
 
 #[test]
@@ -367,6 +496,52 @@ fn chat_request_translation_uses_messages_shape() -> Result<(), Box<dyn std::err
     assert_eq!(translated.body["stream"], true);
     assert_eq!(translated.body["tool_choice"], "required");
 
+    Ok(())
+}
+
+#[test]
+fn chat_request_translation_portably_maps_thinking_blocks() -> Result<(), Box<dyn std::error::Error>>
+{
+    let request = Request::new(
+        "llama-3.1-70b",
+        vec![Message::new(
+            Role::Assistant,
+            vec![
+                ContentPart::Thinking {
+                    thinking: ThinkingData {
+                        text: "Prior reasoning ".to_string(),
+                        signature: Some("sig_abc".to_string()),
+                        redacted: false,
+                    },
+                },
+                ContentPart::RedactedThinking {
+                    thinking: ThinkingData {
+                        text: "opaque".to_string(),
+                        signature: None,
+                        redacted: true,
+                    },
+                },
+                ContentPart::text("final answer"),
+            ],
+        )],
+    );
+
+    let translated = chat::translate_request::translate_request(&request, false)?;
+    let messages = translated
+        .body
+        .get("messages")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing messages")?;
+    let assistant = messages
+        .iter()
+        .find(|m| m.get("role").and_then(serde_json::Value::as_str) == Some("assistant"))
+        .ok_or("missing assistant message")?;
+    let content = assistant
+        .get("content")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("assistant content should be text")?;
+
+    assert_eq!(content, "Prior reasoning final answer");
     Ok(())
 }
 
@@ -591,6 +766,46 @@ fn anthropic_request_translation_system_and_tools() -> Result<(), Box<dyn std::e
 }
 
 #[test]
+fn anthropic_request_translation_local_image_path_uses_base64_source()
+-> Result<(), Box<dyn std::error::Error>> {
+    let path = write_temp_image_file("jpg", &[255, 216, 255, 224, 0, 16, 74, 70, 73, 70])?;
+
+    let request = Request::new(
+        "claude-sonnet-4-5-20250929",
+        vec![Message::new(
+            Role::User,
+            vec![ContentPart::image_url(path.to_string_lossy())],
+        )],
+    );
+
+    let translated = anthropic::translate_request::translate_request(&request, false)?;
+    let _ = fs::remove_file(&path);
+
+    let messages = translated
+        .body
+        .get("messages")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("messages should be array")?;
+    let first_message = messages.first().ok_or("missing first message")?;
+    let content = first_message
+        .get("content")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing content array")?;
+    let image = content.first().ok_or("missing image block")?;
+
+    assert_eq!(image["type"], "image");
+    assert_eq!(image["source"]["type"], "base64");
+    assert_eq!(image["source"]["media_type"], "image/jpeg");
+    let encoded = image["source"]["data"]
+        .as_str()
+        .ok_or("missing base64 image data")?;
+    let decoded = base64::engine::general_purpose::STANDARD.decode(encoded)?;
+    assert_eq!(decoded, vec![255, 216, 255, 224, 0, 16, 74, 70, 73, 70]);
+
+    Ok(())
+}
+
+#[test]
 fn anthropic_response_translation_content_blocks() -> Result<(), Box<dyn std::error::Error>> {
     let raw_response = fixture_json("anthropic/response_translation_content_blocks.json")?;
 
@@ -622,6 +837,7 @@ fn anthropic_response_translation_thinking() -> Result<(), Box<dyn std::error::E
     );
     assert_eq!(response.text(), "The answer is 42");
     assert_eq!(response.finish_reason.reason, Reason::Stop);
+    assert_eq!(response.usage.reasoning_tokens, Some(5));
 
     Ok(())
 }
@@ -771,6 +987,10 @@ fn anthropic_stream_translation_preserves_thinking_signature()
     }
 
     assert_eq!(resp.text(), "The answer.");
+    assert_eq!(
+        finish.usage.as_ref().and_then(|u| u.reasoning_tokens),
+        Some(3)
+    );
 
     Ok(())
 }
@@ -1002,6 +1222,48 @@ fn gemini_request_translation_system_and_tools() -> Result<(), Box<dyn std::erro
         .and_then(serde_json::Value::as_array)
         .ok_or("tools should be array")?;
     assert!(!tools.is_empty());
+
+    Ok(())
+}
+
+#[test]
+fn gemini_request_translation_local_image_path_uses_inline_data()
+-> Result<(), Box<dyn std::error::Error>> {
+    let path = write_temp_image_file("webp", &[82, 73, 70, 70, 0, 0, 0, 0, 87, 69, 66, 80])?;
+
+    let request = Request::new(
+        "gemini-2.5-pro",
+        vec![Message::new(
+            Role::User,
+            vec![ContentPart::image_url(path.to_string_lossy())],
+        )],
+    );
+
+    let translated = gemini::translate_request::translate_request(&request)?;
+    let _ = fs::remove_file(&path);
+
+    let contents = translated
+        .get("contents")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("contents should be array")?;
+    let first = contents.first().ok_or("missing first content entry")?;
+    let parts = first
+        .get("parts")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("parts should be array")?;
+    let image = parts.first().ok_or("missing image part")?;
+
+    assert!(image.get("inlineData").is_some(), "should use inlineData");
+    assert!(
+        image.get("fileData").is_none(),
+        "local image paths should not use fileData"
+    );
+    assert_eq!(image["inlineData"]["mimeType"], "image/webp");
+    let encoded = image["inlineData"]["data"]
+        .as_str()
+        .ok_or("missing inline base64 data")?;
+    let decoded = base64::engine::general_purpose::STANDARD.decode(encoded)?;
+    assert_eq!(decoded, vec![82, 73, 70, 70, 0, 0, 0, 0, 87, 69, 66, 80]);
 
     Ok(())
 }

@@ -3,6 +3,7 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde_json::{Map, Value, json};
 
 use crate::error::{ProviderDetails, SdkError, SdkResult};
+use crate::providers::common::image::read_local_image_from_url;
 use crate::types::content::ImageData;
 use crate::types::response_format::{ResponseFormat, ResponseFormatType};
 use crate::types::tool::ToolChoice;
@@ -85,6 +86,12 @@ pub(crate) fn translate_response_format(format: &ResponseFormat) -> Value {
 /// Returns `SdkError::InvalidRequest` when image data is missing.
 pub(crate) fn image_to_openai_url(image: &ImageData, provider: &str) -> SdkResult<String> {
     if let Some(url) = &image.url {
+        if let Some((data, media_type)) =
+            read_local_image_from_url(url, image.media_type.as_deref(), provider)?
+        {
+            let encoded = base64::engine::general_purpose::STANDARD.encode(data);
+            return Ok(format!("data:{media_type};base64,{encoded}"));
+        }
         return Ok(url.clone());
     }
 

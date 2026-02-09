@@ -1,6 +1,7 @@
 use serde_json::{Map, Value, json};
 
 use crate::error::{ProviderDetails, SdkError, SdkResult};
+use crate::providers::common::image::read_local_image_from_url;
 use crate::types::content::ContentPart;
 use crate::types::message::Message;
 use crate::types::request::Request;
@@ -220,13 +221,26 @@ fn translate_content_parts(
             ContentPart::Image { image } => {
                 image.validate()?;
                 if let Some(url) = &image.url {
-                    let media_type = image.effective_media_type().unwrap_or("image/png");
-                    result.push(json!({
-                        "fileData": {
-                            "mimeType": media_type,
-                            "fileUri": url
-                        }
-                    }));
+                    if let Some((data, media_type)) =
+                        read_local_image_from_url(url, image.media_type.as_deref(), "gemini")?
+                    {
+                        use base64::Engine;
+                        let encoded = base64::engine::general_purpose::STANDARD.encode(data);
+                        result.push(json!({
+                            "inlineData": {
+                                "mimeType": media_type,
+                                "data": encoded
+                            }
+                        }));
+                    } else {
+                        let media_type = image.effective_media_type().unwrap_or("image/png");
+                        result.push(json!({
+                            "fileData": {
+                                "mimeType": media_type,
+                                "fileUri": url
+                            }
+                        }));
+                    }
                 } else if let Some(data) = &image.data {
                     use base64::Engine;
                     let media_type = image.effective_media_type().unwrap_or("image/png");

@@ -40,3 +40,4 @@ Acceptance tests in `tests/spec_8_acceptance.rs` are env-gated and skip per-prov
 
 For test organization and TDD conventions, see `tests/README.md`.
 For spec coverage tracking, including deferred conformance gaps, see `tests/spec-traceability.md`.
+Current spec-focused coverage includes default-client override behavior (`§2.5`) plus provider translation edge cases such as local image-file paths and reasoning-token mapping (`§8.3`, `§8.5`).

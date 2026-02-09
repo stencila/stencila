@@ -150,6 +150,15 @@ fn translate_message(
             for part in &message.content {
                 match part {
                     ContentPart::Text { text } => text_parts.push(text.clone()),
+                    ContentPart::Thinking { thinking } => {
+                        // Cross-provider portability: preserve thinking text while
+                        // stripping provider-specific signatures.
+                        text_parts.push(thinking.text.clone());
+                    }
+                    ContentPart::RedactedThinking { .. } => {
+                        // Opaque redacted thinking is dropped when translating
+                        // across providers.
+                    }
                     ContentPart::ToolCall { tool_call } => {
                         tool_calls.push(json!({
                             "id": tool_call.id,
@@ -160,9 +169,7 @@ fn translate_message(
                             }
                         }));
                     }
-                    ContentPart::Thinking { .. }
-                    | ContentPart::RedactedThinking { .. }
-                    | ContentPart::Audio { .. }
+                    ContentPart::Audio { .. }
                     | ContentPart::Document { .. }
                     | ContentPart::Image { .. }
                     | ContentPart::ToolResult { .. }
@@ -246,6 +253,12 @@ fn translate_user_content_parts(parts: &[ContentPart]) -> SdkResult<Value> {
         match part {
             ContentPart::Text { text } => {
                 items.push(json!({"type": "text", "text": text}));
+            }
+            ContentPart::Thinking { thinking } => {
+                items.push(json!({"type": "text", "text": thinking.text}));
+            }
+            ContentPart::RedactedThinking { .. } => {
+                // Opaque redacted thinking is dropped when switching providers.
             }
             ContentPart::Image { image } => {
                 image.validate()?;

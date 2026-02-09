@@ -46,7 +46,8 @@ pub fn translate_response(
 
     let content = translate_content_blocks(&raw_response);
     let finish_reason = extract_finish_reason(&raw_response, &content);
-    let usage = parse_usage(raw_response.get("usage"));
+    let mut usage = parse_usage(raw_response.get("usage"));
+    usage.reasoning_tokens = estimate_reasoning_tokens_from_content(&content);
 
     Ok(Response {
         id,
@@ -180,6 +181,32 @@ pub(crate) fn parse_usage(usage: Option<&Value>) -> Usage {
         cache_write_tokens,
         raw: Some(usage.clone()),
     }
+}
+
+/// Estimate Anthropic reasoning tokens from thinking content blocks.
+///
+/// Anthropic does not provide a dedicated reasoning-token usage field.
+/// We estimate by counting whitespace-delimited tokens in thinking blocks.
+#[must_use]
+pub(crate) fn estimate_reasoning_tokens_from_content(content: &[ContentPart]) -> Option<u64> {
+    let total: u64 = content
+        .iter()
+        .filter_map(|part| match part {
+            ContentPart::Thinking { thinking } | ContentPart::RedactedThinking { thinking } => {
+                Some(estimate_reasoning_tokens_from_text(&thinking.text))
+            }
+            _ => None,
+        })
+        .sum();
+
+    if total == 0 { None } else { Some(total) }
+}
+
+#[must_use]
+fn estimate_reasoning_tokens_from_text(text: &str) -> u64 {
+    text.split_whitespace()
+        .filter(|chunk| !chunk.is_empty())
+        .count() as u64
 }
 
 fn extract_finish_reason(raw_response: &Value, content: &[ContentPart]) -> FinishReason {
