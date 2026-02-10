@@ -8,7 +8,7 @@ use std::sync::Arc;
 use eyre::{Result, bail, eyre};
 use serde::Deserialize;
 
-use crate::auth::{OAuthCredentials, RefreshFn};
+use crate::credentials::{OAuthCredentials, RefreshFn};
 use crate::persist;
 
 // ---------------------------------------------------------------------------

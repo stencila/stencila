@@ -9,7 +9,7 @@ use std::sync::Arc;
 use eyre::{Result, bail, eyre};
 use serde::Deserialize;
 
-use crate::auth::{GetApiKeyFn, OAuthCredentials, RefreshFn};
+use crate::credentials::{GetApiKeyFn, OAuthCredentials, RefreshFn};
 use crate::persist;
 use crate::pkce;
 

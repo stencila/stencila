@@ -258,17 +258,14 @@ fn has_openai_api_access(token: &str) -> bool {
             })
         });
 
-    let has_api_audience = payload
-        .get("aud")
-        .map(|aud| match aud {
-            serde_json::Value::String(value) => value == "https://api.openai.com/v1",
-            serde_json::Value::Array(values) => values
-                .iter()
-                .filter_map(serde_json::Value::as_str)
-                .any(|value| value == "https://api.openai.com/v1"),
-            _ => false,
-        })
-        .unwrap_or(false);
+    let has_api_audience = payload.get("aud").is_some_and(|aud| match aud {
+        serde_json::Value::String(value) => value == "https://api.openai.com/v1",
+        serde_json::Value::Array(values) => values
+            .iter()
+            .filter_map(serde_json::Value::as_str)
+            .any(|value| value == "https://api.openai.com/v1"),
+        _ => false,
+    });
 
     has_api_scope || has_api_audience
 }
