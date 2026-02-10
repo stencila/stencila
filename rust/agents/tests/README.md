@@ -17,14 +17,13 @@ Tests are organized by spec section, following the same convention as `stencila-
 | `spec_6_prompts.rs` | 6.1-6.5 | 7b | System prompts: environment context, git context, project docs, prompt assembly |
 | `spec_2_loop.rs` | 2.1, 2.5-2.8, 2.10, App B | 8 | Session and agentic loop: mock client, tool execution, steering, follow-up, loop detection, error handling, parity |
 | `spec_7_subagents.rs` | 7.1-7.4 | 9 | Subagent lifecycle: spawn, send_input, wait, close_agent, depth limiting, auto-registration |
-
-Files for future phases (added as implemented):
-- `spec_9_acceptance.rs` — Live integration tests (9.12-9.13)
+| `spec_9_acceptance.rs` | 9.12-9.13 | 10 | Live integration tests: parity matrix + smoke tests (env-gated, skip when API keys absent) |
 
 ## Conventions
 
 - **No `unwrap()`**: workspace lints deny `clippy::unwrap_used`. Use `?` with `AgentResult` or `.ok_or()`.
 - **Deterministic**: No real network calls, no wall-clock dependence. Mock `Client` and `ExecutionEnvironment`.
+- **Env-gated**: Live integration tests skip silently when API keys are absent — no CI failures. Provider-side `RateLimit` and `QuotaExceeded` errors are also treated as skips (not test failures) to avoid flaky results from transient provider issues.
 - **TDD**: Test file created/updated before source file in each phase.
 - **Traceability**: Every test maps to a spec section in `spec-traceability.md`.
 - **Clippy lint suppression**: Integration-style test files (e.g. `spec_2_loop.rs`) use `#![allow(clippy::result_large_err)]` at the crate level because test helpers return `AgentResult` with a large error variant. This is expected and should not produce warning noise in `cargo clippy`.

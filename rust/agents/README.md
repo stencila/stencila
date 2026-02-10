@@ -4,7 +4,69 @@ A Rust implementation of the [Coding Agent Loop Specification](specs/coding-agen
 
 ## Usage
 
-TODO
+### Run a session and consume events
+
+Create a profile, execution environment, and models3 client, then submit user
+input and drain the resulting events:
+
+```rust,no_run
+use std::sync::Arc;
+
+use stencila_agents::{
+    execution::LocalExecutionEnvironment,
+    profiles::AnthropicProfile,
+    prompts,
+    session::{Models3Client, Session},
+    types::SessionConfig,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let profile = Box::new(AnthropicProfile::new("claude-sonnet-4-5-20250929")?);
+    let env = Arc::new(LocalExecutionEnvironment::new("."));
+    let client = Arc::new(Models3Client::new(
+        stencila_models3::client::Client::from_env()?,
+    ));
+    let system_prompt = prompts::build_system_prompt(&*profile, &*env).await?;
+    let config = SessionConfig::default();
+
+    let (mut session, mut receiver) =
+        Session::new(profile, env, client, config, system_prompt, 0);
+
+    session.submit("Create hello.py that prints 'Hello World'").await?;
+    session.close();
+
+    // Drain events
+    while let Some(event) = receiver.recv().await {
+        println!("{:?}: {:?}", event.kind, event.data);
+    }
+    Ok(())
+}
+```
+
+### Steer a running session
+
+Inject a steering message before or during the agentic loop. Steering messages
+are appended to the next LLM request and emit a `SteeringInjected` event:
+
+```rust,ignore
+session.steer("Use Python 3 type hints in all new code.");
+session.submit("Refactor utils.py to use dataclasses").await?;
+```
+
+### Abort a session
+
+Use `AbortController` to cancel a running session from another task:
+
+```rust,ignore
+use stencila_agents::session::AbortController;
+
+let controller = AbortController::new();
+session.set_abort_signal(controller.signal());
+
+// In another task:
+controller.abort();
+```
 
 ## Development
 
@@ -68,6 +130,7 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `spec_6_prompts.rs` | 6.1-6.5 | System prompts: environment context, git context, project docs, prompt assembly |
 | `spec_2_loop.rs` | 2.1, 2.5-2.8, 2.10, App B | Session and agentic loop: tool execution, steering, follow-up, loop detection, error handling, parity |
 | `spec_7_subagents.rs` | 7.1-7.4 | Subagent lifecycle: spawn, send_input, wait, close_agent, depth limiting, auto-registration |
+| `spec_9_acceptance.rs` | 9.12-9.13 | Live integration tests: parity matrix + smoke tests (env-gated) |
 
 Use the crate workflow below:
 

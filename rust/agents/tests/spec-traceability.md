@@ -333,6 +333,27 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 9.9 | Anthropic profile includes subagent tools | spec_7_subagents.rs | anthropic_profile_includes_subagent_tools_after_registration | Pass |
 | 9.9 | Gemini profile includes subagent tools | spec_7_subagents.rs | gemini_profile_includes_subagent_tools_after_registration | Pass |
 
+## Phase 10: Live Integration Tests
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 9.12 | Simple file creation (parity) | spec_9_acceptance.rs | parity_simple_file_creation | Pass (env-gated) |
+| 9.12 | Read then edit (parity) | spec_9_acceptance.rs | parity_read_then_edit | Pass (env-gated) |
+| 9.12 | Multi-file edit (parity) | spec_9_acceptance.rs | parity_multi_file_edit | Pass (env-gated) |
+| 9.12 | Shell execution (parity) | spec_9_acceptance.rs | parity_shell_execution | Pass (env-gated) |
+| 9.12 | Shell timeout (parity) | spec_9_acceptance.rs | parity_shell_timeout | Pass (env-gated) |
+| 9.12 | Grep + glob (parity) | spec_9_acceptance.rs | parity_grep_glob | Pass (env-gated) |
+| 9.12 | Multi-step task (parity) | spec_9_acceptance.rs | parity_multi_step_task | Pass (env-gated) |
+| 9.12 | Truncation (parity) | spec_9_acceptance.rs | parity_truncation | Pass (env-gated) |
+| 9.12 | Provider-specific editing (parity) | spec_9_acceptance.rs | parity_provider_specific_editing | Pass (env-gated) |
+| 9.13 | File creation (smoke) | spec_9_acceptance.rs | smoke_file_creation | Pass (env-gated) |
+| 9.13 | Read and edit (smoke) | spec_9_acceptance.rs | smoke_read_and_edit | Pass (env-gated) |
+| 9.13 | Shell execution (smoke) | spec_9_acceptance.rs | smoke_shell_execution | Pass (env-gated) |
+| 9.13 | Truncation (smoke) | spec_9_acceptance.rs | smoke_truncation | Pass (env-gated) |
+| 9.13 | Steering (smoke) | spec_9_acceptance.rs | smoke_steering | Pass (env-gated) |
+| 9.13 | Subagent (smoke) | spec_9_acceptance.rs | smoke_subagent | Pass (env-gated) |
+| 9.13 | Timeout (smoke) | spec_9_acceptance.rs | smoke_timeout | Pass (env-gated) |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
