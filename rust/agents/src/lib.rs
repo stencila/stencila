@@ -53,3 +53,9 @@ pub mod tools;
 
 /// Core domain types: configuration, session state, turns, events.
 pub mod types;
+
+/// Tool-call loop detection (spec 2.10).
+pub mod loop_detection;
+
+/// Agent session and core agentic loop (spec 2.1, 2.5-2.8, 2.10, Appendix B).
+pub mod session;

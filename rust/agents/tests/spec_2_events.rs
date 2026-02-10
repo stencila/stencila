@@ -7,7 +7,7 @@
 
 use stencila_agents::error::AgentError;
 use stencila_agents::events::{channel, channel_with_id};
-use stencila_agents::types::{EventKind, SessionEvent};
+use stencila_agents::types::{EventKind, SessionEvent, SessionState};
 
 // ---------------------------------------------------------------------------
 // Test helpers
@@ -94,11 +94,15 @@ async fn emit_session_start() -> Result<(), AgentError> {
 #[tokio::test]
 async fn emit_session_end() -> Result<(), AgentError> {
     let (emitter, mut rx) = channel_with_id("s1".into());
-    emitter.emit_session_end();
+    emitter.emit_session_end(SessionState::Closed);
 
     let event = recv_event(&mut rx).await?;
     assert_eq!(event.kind, EventKind::SessionEnd);
-    assert!(event.data.is_empty());
+    assert_eq!(
+        event.data.get("final_state").and_then(|v| v.as_str()),
+        Some("CLOSED"),
+        "SESSION_END should include SCREAMING_SNAKE_CASE final_state"
+    );
     Ok(())
 }
 
@@ -292,7 +296,7 @@ async fn events_received_in_emission_order() -> Result<(), AgentError> {
     emitter.emit_tool_call_output_delta("c1", "out");
     emitter.emit_tool_call_end("c1", "out");
     emitter.emit_error("E1", "oops");
-    emitter.emit_session_end();
+    emitter.emit_session_end(SessionState::Closed);
 
     let expected_kinds = [
         EventKind::SessionStart,
@@ -321,7 +325,7 @@ async fn all_events_carry_session_id_and_timestamp() -> Result<(), AgentError> {
 
     // Emit one event per kind (13 total).
     emitter.emit_session_start();
-    emitter.emit_session_end();
+    emitter.emit_session_end(SessionState::Closed);
     emitter.emit_user_input("x");
     emitter.emit_assistant_text_start();
     emitter.emit_assistant_text_delta("d");
@@ -353,7 +357,7 @@ async fn receiver_returns_none_when_emitter_dropped() -> Result<(), AgentError> 
 
     // Emit two events then drop the emitter.
     emitter.emit_session_start();
-    emitter.emit_session_end();
+    emitter.emit_session_end(SessionState::Closed);
     drop(emitter);
 
     // Drain the two buffered events.

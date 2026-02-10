@@ -1,9 +1,12 @@
-//! System prompt helpers: environment context and git context (spec 6.3-6.4).
+//! System prompt helpers: environment context, git context, and full prompt
+//! assembly (spec 6.1, 6.3-6.4).
 //!
 //! These helpers are called by the session layer to produce pre-formatted
 //! strings that get passed to [`ProviderProfile::build_system_prompt()`].
 
+use crate::error::AgentResult;
 use crate::execution::ExecutionEnvironment;
+use crate::profile::ProviderProfile;
 
 // ---------------------------------------------------------------------------
 // GitContext (spec 6.4)
@@ -226,4 +229,29 @@ pub fn format_git_summary(git_context: &GitContext) -> String {
     }
 
     parts.join("\n")
+}
+
+// ---------------------------------------------------------------------------
+// Full prompt assembly (spec 6.1)
+// ---------------------------------------------------------------------------
+
+/// Build the system prompt for a session by gathering environment context
+/// and project docs.
+///
+/// Convenience async function that combines profile, environment context,
+/// and project doc discovery into a complete system prompt string.
+pub async fn build_system_prompt(
+    profile: &dyn ProviderProfile,
+    env: &dyn ExecutionEnvironment,
+) -> AgentResult<String> {
+    let env_context = build_environment_context_from_env(env, profile.model(), None).await;
+
+    let git_root = find_git_root(env).await;
+    let working_dir = env.working_directory();
+    let root = git_root.as_deref().unwrap_or(working_dir);
+
+    let project_docs =
+        crate::project_docs::discover_project_docs(env, profile.id(), root, working_dir).await?;
+
+    Ok(profile.build_system_prompt(&env_context, &project_docs))
 }

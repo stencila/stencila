@@ -339,6 +339,10 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
         #[cfg(unix)]
         cmd.process_group(0);
 
+        // Ensure child process is killed when its handle is dropped (e.g.
+        // when an abort signal cancels the owning future via tokio::select!).
+        cmd.kill_on_drop(true);
+
         let start = std::time::Instant::now();
         let mut child = cmd.spawn().map_err(|e| AgentError::Io {
             message: format!("failed to spawn command: {e}"),

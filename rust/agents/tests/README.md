@@ -15,9 +15,9 @@ Tests are organized by spec section, following the same convention as `stencila-
 | `spec_3_patch.rs` | App A | 6b | apply_patch tool: v4a parser (success + parse failures), applicator, executor |
 | `spec_3_profiles.rs` | 3.1-3.7 | 7a | Provider profiles: tool sets, capability flags, timeout defaults, schema parity |
 | `spec_6_prompts.rs` | 6.1-6.5 | 7b | System prompts: environment context, git context, project docs, prompt assembly |
+| `spec_2_loop.rs` | 2.1, 2.5-2.8, 2.10, App B | 8 | Session and agentic loop: mock client, tool execution, steering, follow-up, loop detection, error handling, parity |
 
 Files for future phases (added as implemented):
-- `spec_2_loop.rs` — Session and agentic loop (2.1, 2.5-2.8, 2.10)
 - `spec_7_subagents.rs` — Subagents (7.1-7.4)
 - `spec_9_acceptance.rs` — Live integration tests (9.12-9.13)
 
@@ -27,6 +27,7 @@ Files for future phases (added as implemented):
 - **Deterministic**: No real network calls, no wall-clock dependence. Mock `Client` and `ExecutionEnvironment`.
 - **TDD**: Test file created/updated before source file in each phase.
 - **Traceability**: Every test maps to a spec section in `spec-traceability.md`.
+- **Clippy lint suppression**: Integration-style test files (e.g. `spec_2_loop.rs`) use `#![allow(clippy::result_large_err)]` at the crate level because test helpers return `AgentResult` with a large error variant. This is expected and should not produce warning noise in `cargo clippy`.
 
 ## Running Tests
 

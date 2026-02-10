@@ -84,7 +84,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.9 | Channel construction (UUID) | spec_2_events.rs | channel_returns_emitter_and_receiver | Pass |
 | 2.9 | Channel with deterministic ID | spec_2_events.rs | channel_with_id_uses_provided_id | Pass |
 | 2.9 | SESSION_START event | spec_2_events.rs | emit_session_start | Pass |
-| 2.9 | SESSION_END event | spec_2_events.rs | emit_session_end | Pass |
+| 2.9 | SESSION_END event (includes final_state) | spec_2_events.rs | emit_session_end | Pass |
 | 2.9 | USER_INPUT event | spec_2_events.rs | emit_user_input | Pass |
 | 2.9 | ASSISTANT_TEXT lifecycle | spec_2_events.rs | emit_assistant_text_lifecycle | Pass |
 | 2.9 | TOOL_CALL lifecycle | spec_2_events.rs | emit_tool_call_lifecycle | Pass |
@@ -237,6 +237,67 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 6.5 | directories_from_root_to_working_dir | project_docs.rs (unit) | directories_same_root_and_wd, directories_nested_wd, directories_wd_not_under_root, directories_sibling_path_not_misclassified | Pass |
 | 6.5 | safe_truncation_point UTF-8 | project_docs.rs (unit) | safe_truncation_ascii, safe_truncation_multibyte | Pass |
 
+## Phase 8: Session and Core Agentic Loop
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 2.1 | Natural completion (text-only) | spec_2_loop.rs | natural_completion_text_only | Pass |
+| 2.1 | Session id present | spec_2_loop.rs | session_id_is_present | Pass |
+| 2.1 | Config returns default values | spec_2_loop.rs | config_returns_default_values | Pass |
+| 2.5 | Single tool round | spec_2_loop.rs | single_tool_round | Pass |
+| 2.5 | Multi tool rounds | spec_2_loop.rs | multi_tool_rounds | Pass |
+| 2.5 | Unknown tool returns error result | spec_2_loop.rs | unknown_tool_returns_error_result | Pass |
+| 2.5 | Tool error sent as error result | spec_2_loop.rs | tool_error_sent_as_error_result | Pass |
+| 2.5 | Tool output full in event truncated for LLM | spec_2_loop.rs | tool_output_full_in_event_truncated_for_llm | Pass |
+| 2.5 | Parallel tool execution | spec_2_loop.rs | parallel_tool_execution | Pass |
+| 2.5 | Sequential tool execution | spec_2_loop.rs | sequential_tool_execution | Pass |
+| 2.6 | Round limit reached | spec_2_loop.rs | round_limit_reached | Pass |
+| 2.6 | Session turn limit | spec_2_loop.rs | session_turn_limit | Pass |
+| 2.6 | Turn limit is idle not closed | spec_2_loop.rs | turn_limit_is_idle_not_closed | Pass |
+| 2.6 | Abort stops loop | spec_2_loop.rs | abort_stops_loop | Pass |
+| 2.6 | Abort mid tool loop | spec_2_loop.rs | abort_mid_tool_loop | Pass |
+| 2.6 | Abort cancels in-flight tool execution | spec_2_loop.rs | abort_cancels_in_flight_tool_execution | Pass |
+| 2.6 | Close emits session end only once | spec_2_loop.rs | close_emits_session_end_only_once | Pass |
+| 2.6 | Submit on closed session errors | spec_2_loop.rs | submit_on_closed_session_errors | Pass |
+| 2.7 | Steering injection between tool rounds | spec_2_loop.rs | steer_between_tool_rounds | Pass |
+| 2.7 | Reasoning effort passthrough | spec_2_loop.rs | reasoning_effort_passthrough | Pass |
+| 2.7 | Reasoning effort mid-session change | spec_2_loop.rs | reasoning_effort_mid_session_change | Pass |
+| 2.8 | Follow-up after completion | spec_2_loop.rs | follow_up_after_completion | Pass |
+| 2.8 | Follow-up processed after turn limit | spec_2_loop.rs | follow_up_processed_after_turn_limit | Pass |
+| 2.8 | Sequential inputs | spec_2_loop.rs | sequential_inputs | Pass |
+| 2.9 | Events natural completion | spec_2_loop.rs | events_natural_completion | Pass |
+| 2.9 | Events tool loop | spec_2_loop.rs | events_tool_loop | Pass |
+| 2.9 | Events session close (verifies final_state in SESSION_END) | spec_2_loop.rs | events_session_close | Pass |
+| 2.10 | Loop detection injects steering | spec_2_loop.rs | loop_detection_injects_steering | Pass |
+| 2.10 | Loop detection disabled | spec_2_loop.rs | loop_detection_disabled | Pass |
+| 5.5 | Context usage warning when exceeding 80% | spec_2_loop.rs | context_usage_warning_emitted_at_80_percent | Pass |
+| 5.5 | No warning below threshold | spec_2_loop.rs | context_usage_no_warning_below_threshold | Pass |
+| App B | Authentication error closes session | spec_2_loop.rs | authentication_error_closes_session | Pass |
+| App B | Context length error closes session with warning severity | spec_2_loop.rs | context_length_error_closes_session_with_warning_severity | Pass |
+| App B | Server error closes session | spec_2_loop.rs | server_error_closes_session | Pass |
+| App B | Rate limit error closes session | spec_2_loop.rs | rate_limit_error_closes_session | Pass |
+| App B | Network error closes session | spec_2_loop.rs | network_error_closes_session | Pass |
+| 2.1 | System prompt in request | spec_2_loop.rs | system_prompt_in_request | Pass |
+| 2.1 | End-to-end prompt has base instructions and env context | spec_2_loop.rs | end_to_end_prompt_has_base_instructions_and_env_context | Pass |
+| 6.1, 6.5 | Prompt includes project docs layer when present | spec_2_loop.rs | end_to_end_prompt_includes_project_docs_layer | Pass |
+| 6.1 | Prompt in request matches build_system_prompt output | spec_2_loop.rs | end_to_end_prompt_in_request_matches_build_system_prompt | Pass |
+| 2.1 | History to messages (user turn) | spec_2_loop.rs | history_to_messages_user_turn | Pass |
+| 2.1 | History to messages (assistant with tools) | spec_2_loop.rs | history_to_messages_assistant_with_tools | Pass |
+| 2.1 | History to messages (steering as user) | spec_2_loop.rs | history_to_messages_steering_as_user | Pass |
+| 2.1 | Request includes tools from profile | spec_2_loop.rs | request_includes_tools_from_profile | Pass |
+| 2.1 | Request has tool_choice auto | spec_2_loop.rs | request_has_tool_choice_auto | Pass |
+| 2.1 | Request has provider_id | spec_2_loop.rs | request_has_provider_id | Pass |
+| 9.12 | OpenAI profile has apply_patch tool | spec_2_loop.rs | openai_profile_has_apply_patch_tool | Pass |
+| 9.12 | Anthropic profile has edit_file tool | spec_2_loop.rs | anthropic_profile_has_edit_file_tool | Pass |
+| 9.12 | Gemini profile has extended tools | spec_2_loop.rs | gemini_profile_has_extended_tools | Pass |
+| 9.12 | Parity: OpenAI session wires correct tools + shell 10s timeout | spec_2_loop.rs | parity_openai_session_wires_correct_tools | Pass |
+| 9.12 | Parity: Anthropic session wires correct tools + shell 120s timeout | spec_2_loop.rs | parity_anthropic_session_wires_correct_tools | Pass |
+| 9.12 | Parity: Gemini session wires correct tools + shell 10s timeout | spec_2_loop.rs | parity_gemini_session_wires_correct_tools | Pass |
+| 9.12 | Parity: file-creation → write tool available | spec_2_loop.rs | parity_{openai,anthropic,gemini}_session_wires_correct_tools (asserts write_file/edit_file present) | Pass |
+| 9.12 | Parity: read+edit → both tools available | spec_3_profiles.rs + spec_2_loop.rs | {openai,anthropic,gemini}_profile_tool_names + parity tests | Pass |
+| 9.12 | Parity: shell timeout per provider | spec_2_loop.rs | parity tests (assert timeout_ms via CapturingExecEnv) | Pass |
+| 9.12 | Parity: truncation shape (full in event, truncated for LLM) | spec_2_loop.rs | tool_output_full_in_event_truncated_for_llm | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
@@ -261,6 +322,9 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 |---|---|---|---|
 | App A (1368) | "The implementation uses this hint plus the context lines to locate the correct position" | `context_hint` is not used for matching — only context/delete lines in the hunk body are matched. First match wins. | The spec is ambiguous on whether the hint is a hard matching requirement or a human-readable label. codex-rs treats it as a label. Using it for proximity-based disambiguation would add complexity with limited benefit; the vast majority of patches are unambiguous from hunk body context alone. |
 | App A (1370) | "fuzzy matching (whitespace normalization, Unicode punctuation equivalence)" | Only whitespace normalization is implemented; Unicode punctuation equivalence is not. | Unicode punctuation equivalence is rare in practice and adds a dependency (unicode-normalization crate) for a marginal benefit. Can be added if real-world patches require it. |
+| 2.9 (301, 413) | Pseudocode emits SESSION_END on every loop completion (IDLE transition) | SESSION_END is only emitted on close/error/abort — not on IDLE transitions. | The event definition says "session closed", and emitting on every IDLE transition would create excessive noise for callers. See `session.rs` TODO(spec-ambiguity). |
+| 2.8 (371, 296) | Follow-ups trigger "after the current input is fully handled (model has produced a text-only response)" | Follow-ups are processed on both natural completion and limit paths. | Pseudocode places the check after the loop break (reached on limits too). Callers that queue follow-ups expect them to run regardless of exit path. See `session.rs` TODO(spec-ambiguity). |
+| 5.5 | `emit(WARNING, ...)` for context usage | No WARNING EventKind — ERROR with `"severity": "warning"` used instead. | The spec EventKind enum has no WARNING variant. Using ERROR with a severity field is a pragmatic alternative that preserves the warning semantics. See `session.rs` TODO(spec-ambiguity). |
 
 ## Deferred Items
 

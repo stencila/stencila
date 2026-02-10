@@ -90,9 +90,14 @@ impl EventEmitter {
         self.emit(EventKind::SessionStart, serde_json::Map::new());
     }
 
-    /// Emit a `SESSION_END` event.
-    pub fn emit_session_end(&self) {
-        self.emit(EventKind::SessionEnd, serde_json::Map::new());
+    /// Emit a `SESSION_END` event with the final session state.
+    pub fn emit_session_end(&self, final_state: crate::types::SessionState) {
+        let mut data = serde_json::Map::new();
+        // Use serde serialization for SCREAMING_SNAKE_CASE consistency
+        if let Ok(val) = serde_json::to_value(final_state) {
+            data.insert("final_state".into(), val);
+        }
+        self.emit(EventKind::SessionEnd, data);
     }
 
     /// Emit a `USER_INPUT` event with the user's content.

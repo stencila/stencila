@@ -6,6 +6,7 @@ version.workspace = true
 [dependencies]
 async-trait = { workspace = true }
 chrono = { workspace = true }
+futures = { workspace = true }
 glob = { workspace = true }
 indexmap = { workspace = true }
 jsonschema = { workspace = true }
