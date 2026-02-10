@@ -81,10 +81,10 @@ fn parse_credentials_json(data: &str) -> Option<CodexCliCredentials> {
         .and_then(parse_client_id_claim)
         .unwrap_or_else(|| CLIENT_ID.to_string());
 
-    // Codex stores identity-scoped OAuth tokens. For OpenAI `/v1/responses`,
-    // either an exchanged API key (OPENAI_API_KEY) must be present or the token
-    // must already include API scopes.
-    if api_key.is_none() && !has_openai_api_scope(&tokens.access_token) {
+    // Codex stores OAuth tokens with evolving claim formats. Accept credentials
+    // when either an exchanged API key is present, API scopes are present, or
+    // the token audience is the OpenAI API.
+    if api_key.is_none() && !has_openai_api_access(&tokens.access_token) {
         return None;
     }
 
@@ -204,10 +204,19 @@ fn parse_exp_millis(token: &str) -> Option<u64> {
 }
 
 fn parse_account_id_claim(token: &str) -> Option<String> {
-    decode_jwt_payload(token)?
+    let claims = decode_jwt_payload(token)?;
+
+    claims
         .get("chatgpt_account_id")
         .and_then(serde_json::Value::as_str)
         .map(str::to_string)
+        .or_else(|| {
+            claims
+                .get("https://api.openai.com/auth")
+                .and_then(|auth| auth.get("chatgpt_account_id"))
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_string)
+        })
 }
 
 fn parse_client_id_claim(token: &str) -> Option<String> {
@@ -233,21 +242,35 @@ fn decode_jwt_payload(token: &str) -> Option<serde_json::Value> {
     serde_json::from_slice(&decoded).ok()
 }
 
-fn has_openai_api_scope(token: &str) -> bool {
-    let Some(scp) = decode_jwt_payload(token).and_then(|payload| payload.get("scp").cloned())
-    else {
+fn has_openai_api_access(token: &str) -> bool {
+    let Some(payload) = decode_jwt_payload(token) else {
         return false;
     };
 
-    let Some(scopes) = scp.as_array() else {
-        return false;
-    };
+    let has_api_scope = payload
+        .get("scp")
+        .and_then(serde_json::Value::as_array)
+        .is_some_and(|scopes| {
+            scopes.iter().any(|scope| {
+                scope
+                    .as_str()
+                    .is_some_and(|value| value == "api.responses.write")
+            })
+        });
 
-    scopes.iter().any(|scope| {
-        scope
-            .as_str()
-            .is_some_and(|value| value == "api.responses.write")
-    })
+    let has_api_audience = payload
+        .get("aud")
+        .map(|aud| match aud {
+            serde_json::Value::String(value) => value == "https://api.openai.com/v1",
+            serde_json::Value::Array(values) => values
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .any(|value| value == "https://api.openai.com/v1"),
+            _ => false,
+        })
+        .unwrap_or(false);
+
+    has_api_scope || has_api_audience
 }
 
 // ---------------------------------------------------------------------------
@@ -345,11 +368,13 @@ mod tests {
     fn parse_uses_id_token_account_id_when_field_missing() {
         let access_token = jwt(&serde_json::json!({
             "exp": 1_700_000_000_u64,
-            "scp": ["api.responses.write"]
+            "aud": ["https://api.openai.com/v1"]
         }));
         let id_token = jwt(&serde_json::json!({
             "aud": "client-from-token",
-            "chatgpt_account_id": "acct-from-token"
+            "https://api.openai.com/auth": {
+                "chatgpt_account_id": "acct-from-token"
+            }
         }));
         let json = format!(
             r#"{{
@@ -370,7 +395,7 @@ mod tests {
     fn parse_uses_default_client_id_when_aud_missing() {
         let access_token = jwt(&serde_json::json!({
             "exp": 1_700_000_000_u64,
-            "scp": ["api.responses.write"]
+            "aud": ["https://api.openai.com/v1"]
         }));
         let id_token = jwt(&serde_json::json!({ "chatgpt_account_id": "acct-from-token" }));
         let json = format!(
@@ -391,7 +416,7 @@ mod tests {
     fn parse_uses_first_aud_array_entry() {
         let access_token = jwt(&serde_json::json!({
             "exp": 1_700_000_000_u64,
-            "scp": ["api.responses.write"]
+            "aud": ["https://api.openai.com/v1"]
         }));
         let id_token = jwt(&serde_json::json!({
             "aud": ["client-1", "client-2"]
@@ -485,6 +510,31 @@ mod tests {
 
         let creds = parse_or_panic(&json);
         assert_eq!(creds.api_key.as_deref(), Some("sk-from-codex"));
+    }
+
+    #[test]
+    fn parse_accepts_api_audience_without_api_scope() {
+        let access_token = jwt(&serde_json::json!({
+            "exp": 1_700_000_000_u64,
+            "aud": ["https://api.openai.com/v1"],
+            "scp": ["openid", "profile", "email", "offline_access"]
+        }));
+        let id_token = jwt(&serde_json::json!({
+            "aud": "client-from-token",
+            "chatgpt_account_id": "acct-from-token"
+        }));
+        let json = format!(
+            r#"{{
+                "tokens": {{
+                    "access_token": "{access_token}",
+                    "refresh_token": "rt-123",
+                    "id_token": "{id_token}"
+                }}
+            }}"#
+        );
+
+        let creds = parse_or_panic(&json);
+        assert_eq!(creds.oauth.access_token, access_token);
     }
 
     #[test]
