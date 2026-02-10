@@ -179,6 +179,64 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | Ext | delete_file removes file (impl extension for App A) | spec_4_execution.rs | delete_file_removes_file | Pass |
 | Ext | delete_file not found (impl extension for App A) | spec_4_execution.rs | delete_file_not_found | Pass |
 
+## Phase 7a: Provider Profiles
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 3.2 | ProviderProfile trait | spec_3_profiles.rs | profiles_usable_as_trait_objects | Pass |
+| 3.2 | Profile id/model | spec_3_profiles.rs | openai_profile_id, openai_profile_model, anthropic_profile_id, anthropic_profile_model, gemini_profile_id, gemini_profile_model | Pass |
+| 3.2 | Capability flags | spec_3_profiles.rs | openai_capability_flags, anthropic_capability_flags, gemini_capability_flags | Pass |
+| 3.2 | provider_options default None | spec_3_profiles.rs | default_provider_options_are_none | Pass |
+| 3.2 | build_system_prompt placeholder | spec_3_profiles.rs | build_system_prompt_contains_base_instructions | Pass |
+| 3.2 | tools() returns definitions | spec_3_profiles.rs | openai_profile_tools_returns_definitions, tools_method_matches_registry_definitions | Pass |
+| 3.4 | OpenAI tool set (6 tools) | spec_3_profiles.rs | openai_profile_tool_count, openai_profile_tool_names | Pass |
+| 3.4 | OpenAI uses apply_patch not edit_file | spec_3_profiles.rs | openai_profile_has_apply_patch_not_edit_file | Pass |
+| 3.5 | Anthropic tool set (6 tools) | spec_3_profiles.rs | anthropic_profile_tool_count, anthropic_profile_tool_names | Pass |
+| 3.5 | Anthropic uses edit_file not apply_patch | spec_3_profiles.rs | anthropic_profile_has_edit_file_not_apply_patch | Pass |
+| 3.6 | Gemini tool set (8 tools) | spec_3_profiles.rs | gemini_profile_tool_count, gemini_profile_tool_names | Pass |
+| 3.6 | Gemini has read_many_files + list_dir | spec_3_profiles.rs | gemini_profile_has_gemini_specific_tools | Pass |
+| 3.4 | OpenAI shell default timeout 10s | spec_3_profiles.rs | openai_shell_default_timeout_is_10s | Pass |
+| 3.5 | Anthropic shell default timeout 120s | spec_3_profiles.rs | anthropic_shell_default_timeout_is_120s | Pass |
+| 3.6 | Gemini shell default timeout 10s | spec_3_profiles.rs | gemini_shell_default_timeout_is_10s | Pass |
+| 3.4-3.6 | Shell tool present in all profiles | spec_3_profiles.rs | all_profiles_have_shell_tool | Pass |
+| 3.4-3.6 | Schema parity for assembled profiles | spec_3_profiles.rs | openai_profile_schema_parity, anthropic_profile_schema_parity, gemini_profile_schema_parity | Pass |
+| 3.7 | Custom tool registration | spec_3_profiles.rs | custom_tool_registration | Pass |
+| 3.7 | Custom tool override (latest-wins) | spec_3_profiles.rs | custom_tool_override_replaces_existing | Pass |
+| 3.7 | Override preserves position | spec_3_profiles.rs | custom_tool_override_preserves_position | Pass |
+| 7.1-7.4 | No subagent tools yet (Phase 9) | spec_3_profiles.rs | profiles_have_no_subagent_tools | Pass |
+| 3.2 | Debug output | spec_3_profiles.rs | profile_debug_output | Pass |
+
+## Phase 7b: System Prompts and Project Doc Discovery
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 6.3 | Environment context XML format (incl. knowledge cutoff, git status, recent commits) | spec_6_prompts.rs | environment_context_format | Pass |
+| 6.3 | Environment context without git (no branch/status/commits/cutoff) | spec_6_prompts.rs | environment_context_no_git | Pass |
+| 6.3 | Environment context includes date | spec_6_prompts.rs | environment_context_date_is_present | Pass |
+| 6.4 | Gather git context in repo | spec_6_prompts.rs | gather_git_context_in_repo | Pass |
+| 6.4 | Gather git context not a repo | spec_6_prompts.rs | gather_git_context_not_a_repo | Pass |
+| 6.4 | Format git summary with data | spec_6_prompts.rs | format_git_summary_with_data | Pass |
+| 6.4 | Format git summary not a repo | spec_6_prompts.rs | format_git_summary_not_a_repo | Pass |
+| 6.5 | AGENTS.md always loaded | spec_6_prompts.rs | discover_agents_md_always_loaded | Pass |
+| 6.5 | Anthropic loads CLAUDE.md not GEMINI.md | spec_6_prompts.rs | discover_anthropic_loads_claude_md_not_gemini | Pass |
+| 6.5 | OpenAI loads .codex/instructions.md not CLAUDE.md | spec_6_prompts.rs | discover_openai_loads_codex_not_claude | Pass |
+| 6.5 | Gemini loads GEMINI.md not CLAUDE.md | spec_6_prompts.rs | discover_gemini_loads_gemini_md_not_claude | Pass |
+| 6.5 | Root-first, subdirectory appended | spec_6_prompts.rs | discover_root_first_subdirectory_appended | Pass |
+| 6.5 | 32KB budget enforcement | spec_6_prompts.rs | discover_32kb_budget_enforcement | Pass |
+| 6.5 | Budget stops at second file | spec_6_prompts.rs | discover_budget_stops_at_second_file | Pass |
+| 6.5 | No docs returns empty | spec_6_prompts.rs | discover_no_docs_returns_empty | Pass |
+| 6.5 | Nested path ordering | spec_6_prompts.rs | discover_nested_path | Pass |
+| 6.1 | System prompt contains base instructions | spec_6_prompts.rs | system_prompt_contains_base_instructions | Pass |
+| 6.1 | System prompt layer ordering | spec_6_prompts.rs | system_prompt_layer_ordering | Pass |
+| 6.1 | Empty layers omitted | spec_6_prompts.rs | system_prompt_empty_layers_omitted | Pass |
+| 6.1 | All layers assembled together | spec_6_prompts.rs | system_prompt_with_all_layers | Pass |
+| 6.2 | OpenAI base instructions topics | spec_6_prompts.rs | openai_base_instructions_topics | Pass |
+| 6.2 | Anthropic base instructions topics | spec_6_prompts.rs | anthropic_base_instructions_topics | Pass |
+| 6.2 | Gemini base instructions topics | spec_6_prompts.rs | gemini_base_instructions_topics | Pass |
+| 6.5 | instruction_files per provider | project_docs.rs (unit) | instruction_files_openai, instruction_files_anthropic, instruction_files_gemini, instruction_files_unknown_only_agents | Pass |
+| 6.5 | directories_from_root_to_working_dir | project_docs.rs (unit) | directories_same_root_and_wd, directories_nested_wd, directories_wd_not_under_root, directories_sibling_path_not_misclassified | Pass |
+| 6.5 | safe_truncation_point UTF-8 | project_docs.rs (unit) | safe_truncation_ascii, safe_truncation_multibyte | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
@@ -211,3 +269,4 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | context_hint proximity matching | App A (1368) | Use `context_hint` text to disambiguate when multiple hunk body matches exist in a file | Low priority — no reports of mis-matching in practice |
 | Unicode punctuation equivalence | App A (1370) | Fuzzy matching via Unicode normalization (e.g., smart quotes → ASCII quotes) | Needs unicode-normalization crate; no demand yet |
 | Test mock consolidation | — | Extract `MockExecutionEnvironment` into `tests/common/mod.rs` shared across test crates | Refactoring only — no functional impact |
+| Tool-descriptions layer (layer 3) | 6.1 (986) | Dedicated layer serializing full tool JSON schemas into the system prompt | Most LLM APIs pass tool definitions as a separate `tools` parameter; base instructions already mention tools by name. PLAN.md:251 defers full prompt text vendoring. |

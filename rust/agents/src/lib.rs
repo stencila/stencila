@@ -36,6 +36,18 @@ pub mod truncation;
 /// Tool registry: name → executor mapping with validation (spec 3.8).
 pub mod registry;
 
+/// Provider profile trait: tool set + capability metadata (spec 3.2).
+pub mod profile;
+
+/// Provider profile implementations: OpenAI, Anthropic, Gemini (spec 3.4-3.6).
+pub mod profiles;
+
+/// System prompt helpers: environment context, git context (spec 6.3-6.4).
+pub mod prompts;
+
+/// Project document discovery: AGENTS.md, CLAUDE.md, etc. (spec 6.5).
+pub mod project_docs;
+
 /// Core tool implementations: executors and schema definitions (spec 3.3, 3.6).
 pub mod tools;
 

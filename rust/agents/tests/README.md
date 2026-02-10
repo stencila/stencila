@@ -13,10 +13,10 @@ Tests are organized by spec section, following the same convention as `stencila-
 | `spec_3_registry.rs` | 3.8 | 5 | Tool registry: register/unregister, lookup, execute, argument validation |
 | `spec_3_tools.rs` | 3.3, 3.6 | 5b+6a | Core tool implementations: executors, schema parity, registration |
 | `spec_3_patch.rs` | App A | 6b | apply_patch tool: v4a parser (success + parse failures), applicator, executor |
+| `spec_3_profiles.rs` | 3.1-3.7 | 7a | Provider profiles: tool sets, capability flags, timeout defaults, schema parity |
+| `spec_6_prompts.rs` | 6.1-6.5 | 7b | System prompts: environment context, git context, project docs, prompt assembly |
 
 Files for future phases (added as implemented):
-- `spec_3_profiles.rs` — Provider profiles (3.1-3.7)
-- `spec_6_prompts.rs` — System prompts (6.1-6.5)
 - `spec_2_loop.rs` — Session and agentic loop (2.1, 2.5-2.8, 2.10)
 - `spec_7_subagents.rs` — Subagents (7.1-7.4)
 - `spec_9_acceptance.rs` — Live integration tests (9.12-9.13)
