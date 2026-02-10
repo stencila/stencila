@@ -298,6 +298,41 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 9.12 | Parity: shell timeout per provider | spec_2_loop.rs | parity tests (assert timeout_ms via CapturingExecEnv) | Pass |
 | 9.12 | Parity: truncation shape (full in event, truncated for LLM) | spec_2_loop.rs | tool_output_full_in_event_truncated_for_llm | Pass |
 
+## Phase 9: Subagents
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 7.2 | spawn_agent tool definition valid | spec_7_subagents.rs | spawn_agent_definition_valid | Pass |
+| 7.2 | send_input tool definition valid | spec_7_subagents.rs | send_input_definition_valid | Pass |
+| 7.2 | wait tool definition valid | spec_7_subagents.rs | wait_definition_valid | Pass |
+| 7.2 | close_agent tool definition valid | spec_7_subagents.rs | close_agent_definition_valid | Pass |
+| 7.2 | All four definitions returned | spec_7_subagents.rs | subagent_definitions_returns_four | Pass |
+| 7.2 | Registration adds four tools | spec_7_subagents.rs | register_subagent_tools_adds_four_tools | Pass |
+| 7.1, 7.3, 9.9 | Spawn creates independent session | spec_7_subagents.rs | spawn_creates_independent_session | Pass |
+| 7.1, 9.9 | Spawn shares execution environment | spec_7_subagents.rs | spawn_shares_execution_environment | Pass |
+| 7.2 | Spawn with custom max_turns (asserts turns_used) | spec_7_subagents.rs | spawn_with_custom_max_turns | Pass |
+| 7.2 | Spawn with working_dir scopes system prompt | spec_7_subagents.rs | spawn_with_working_dir_scopes_system_prompt | Pass |
+| 7.2 | Spawn with model override uses custom model | spec_7_subagents.rs | spawn_with_model_override_uses_custom_model | Pass |
+| 7.3, 9.9 | Depth limiting blocks sub-sub-agents | spec_7_subagents.rs | depth_limiting_blocks_sub_sub_agents | Pass |
+| 7.3 | Depth zero allows no subagents | spec_7_subagents.rs | depth_zero_allows_no_subagents | Pass |
+| 7.2 | send_input success after spawn | spec_7_subagents.rs | send_input_success_after_spawn | Pass |
+| 7.2 | wait success after spawn | spec_7_subagents.rs | wait_success_after_spawn | Pass |
+| 7.2 | close_agent success after spawn | spec_7_subagents.rs | close_agent_success_after_spawn | Pass |
+| 7.2 | close then wait returns error (handle removed) | spec_7_subagents.rs | close_then_wait_returns_error | Pass |
+| 7.2 | send_input to failed agent returns error | spec_7_subagents.rs | send_input_to_failed_agent_returns_error | Pass |
+| 7.2, 9.9 | Unknown agent_id error (send_input) | spec_7_subagents.rs | unknown_agent_id_returns_error | Pass |
+| 7.2, 9.9 | Unknown agent_id error (wait) | spec_7_subagents.rs | wait_unknown_agent_returns_error | Pass |
+| 7.2, 9.9 | Unknown agent_id error (close_agent) | spec_7_subagents.rs | close_unknown_agent_returns_error | Pass |
+| 7.1 | is_subagent_tool classification | spec_7_subagents.rs | is_subagent_tool_recognizes_all_four, is_subagent_tool_rejects_regular_tools | Pass |
+| 7.3 | SubAgentResult serde roundtrip | spec_7_subagents.rs | subagent_result_serde_roundtrip | Pass |
+| 7.3 | SubAgentStatus serde roundtrip | spec_7_subagents.rs | subagent_status_serde_roundtrip | Pass |
+| 7.2 | spawn_agent missing task parameter | spec_7_subagents.rs | spawn_without_task_returns_error | Pass |
+| 7.1 | Auto-register subagent tools when depth allows | spec_7_subagents.rs | session_auto_registers_subagent_tools_when_depth_allows | Pass |
+| 7.1 | Skip auto-register at max depth | spec_7_subagents.rs | session_does_not_register_subagent_tools_at_max_depth | Pass |
+| 9.9 | OpenAI profile includes subagent tools | spec_7_subagents.rs | openai_profile_includes_subagent_tools_after_registration | Pass |
+| 9.9 | Anthropic profile includes subagent tools | spec_7_subagents.rs | anthropic_profile_includes_subagent_tools_after_registration | Pass |
+| 9.9 | Gemini profile includes subagent tools | spec_7_subagents.rs | gemini_profile_includes_subagent_tools_after_registration | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
@@ -325,6 +360,9 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.9 (301, 413) | Pseudocode emits SESSION_END on every loop completion (IDLE transition) | SESSION_END is only emitted on close/error/abort — not on IDLE transitions. | The event definition says "session closed", and emitting on every IDLE transition would create excessive noise for callers. See `session.rs` TODO(spec-ambiguity). |
 | 2.8 (371, 296) | Follow-ups trigger "after the current input is fully handled (model has produced a text-only response)" | Follow-ups are processed on both natural completion and limit paths. | Pseudocode places the check after the loop break (reached on limits too). Callers that queue follow-ups expect them to run regardless of exit path. See `session.rs` TODO(spec-ambiguity). |
 | 5.5 | `emit(WARNING, ...)` for context usage | No WARNING EventKind — ERROR with `"severity": "warning"` used instead. | The spec EventKind enum has no WARNING variant. Using ERROR with a severity field is a pragmatic alternative that preserves the warning semantics. See `session.rs` TODO(spec-ambiguity). |
+
+| 7.2 (send_input) | `send_input` targets a "running" subagent | Accepts any non-`Failed` agent (including `Completed`) | In the synchronous model, agents are always `Completed` after spawn — never truly "running". Accepting `Completed` allows the LLM to send follow-up messages. Will be tightened to `Running` only once async spawn is implemented. |
+| 7.4 | Parallel subagent exploration | `spawn_agent` blocks until child session completes | True async spawning with `tokio::spawn` is deferred. `wait` is effectively a no-op. See module-level docs in `subagents.rs`. |
 
 ## Deferred Items
 

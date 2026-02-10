@@ -16,6 +16,7 @@ serde_json = { workspace = true }
 stencila-models3 = { path = "../models3" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
+tracing = { workspace = true }
 uuid = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]

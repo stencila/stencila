@@ -96,11 +96,14 @@ pub trait ProviderProfile: fmt::Debug + Send + Sync {
     /// The model's context window size in tokens.
     fn context_window_size(&self) -> u64;
 
-    /// Extension point for registering subagent tools (Phase 9).
+    /// Register the four subagent tools (`spawn_agent`, `send_input`,
+    /// `wait`, `close_agent`) into this profile's tool registry.
     ///
-    /// Default implementation is a no-op. Phase 9 will override this to
-    /// add `spawn_agent`, `send_input`, `wait`, and `close_agent` tools.
+    /// Called by [`Session::new()`](crate::session::Session::new) when the
+    /// session depth allows spawning. The default implementation delegates
+    /// to [`subagents::register_subagent_tools()`](crate::subagents::register_subagent_tools)
+    /// which works for any profile that exposes [`tool_registry_mut()`].
     fn register_subagent_tools(&mut self) -> crate::error::AgentResult<()> {
-        Ok(())
+        crate::subagents::register_subagent_tools(self.tool_registry_mut())
     }
 }

@@ -57,5 +57,8 @@ pub mod types;
 /// Tool-call loop detection (spec 2.10).
 pub mod loop_detection;
 
+/// Subagent spawning and lifecycle management (spec 7.1-7.4).
+pub mod subagents;
+
 /// Agent session and core agentic loop (spec 2.1, 2.5-2.8, 2.10, Appendix B).
 pub mod session;

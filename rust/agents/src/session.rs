@@ -30,6 +30,7 @@ use crate::events::{self, EventEmitter, EventReceiver};
 use crate::execution::ExecutionEnvironment;
 use crate::loop_detection;
 use crate::profile::ProviderProfile;
+use crate::subagents::SubAgentManager;
 use crate::truncation::{TruncationConfig, truncate_tool_output};
 use crate::types::{SessionConfig, SessionState, Turn, now_timestamp};
 
@@ -168,6 +169,8 @@ pub struct Session {
     truncation_config: TruncationConfig,
     /// Bounded sliding window of tool-call signatures for loop detection.
     tool_call_signatures: VecDeque<String>,
+    /// Manager for child agent sessions (spec 7.1).
+    subagent_manager: SubAgentManager,
 }
 
 impl std::fmt::Debug for Session {
@@ -187,14 +190,17 @@ impl Session {
     /// The caller is responsible for building the system prompt (see
     /// [`build_system_prompt()`] helper).
     ///
+    /// The `current_depth` parameter controls subagent nesting: 0 for a
+    /// top-level session, incremented by 1 for each child.
+    ///
     /// Emits a `SESSION_START` event immediately.
-    #[must_use]
     pub fn new(
-        profile: Box<dyn ProviderProfile>,
+        mut profile: Box<dyn ProviderProfile>,
         execution_env: Arc<dyn ExecutionEnvironment>,
         client: Arc<dyn LlmClient>,
         config: SessionConfig,
         system_prompt: String,
+        current_depth: u32,
     ) -> (Self, EventReceiver) {
         let (emitter, receiver) = events::channel();
         emitter.emit_session_start();
@@ -203,6 +209,23 @@ impl Session {
             tool_output_limits: config.tool_output_limits.clone(),
             tool_line_limits: std::collections::HashMap::new(),
         };
+
+        let max_depth = config.max_subagent_depth;
+
+        // Auto-register subagent tools when this session is allowed to spawn
+        // subagents (depth < max_depth). Errors are logged but non-fatal.
+        if current_depth < max_depth
+            && let Err(e) = profile.register_subagent_tools()
+        {
+            tracing::warn!("failed to register subagent tools: {e}");
+        }
+
+        let subagent_manager = SubAgentManager::new(
+            Arc::clone(&execution_env),
+            Arc::clone(&client),
+            current_depth,
+            max_depth,
+        );
 
         let session = Self {
             config,
@@ -219,6 +242,7 @@ impl Session {
             total_turns: 0,
             truncation_config,
             tool_call_signatures: VecDeque::new(),
+            subagent_manager,
         };
 
         (session, receiver)
@@ -268,6 +292,8 @@ impl Session {
     // error/abort to avoid noisy events on every IDLE transition. (spec: 2.9)
     pub fn close(&mut self) {
         if self.state != SessionState::Closed {
+            // Clean up active subagents before closing (spec graceful shutdown, line 1431)
+            self.subagent_manager.close_all();
             self.state = SessionState::Closed;
             self.events.emit_session_end(self.state);
         }
@@ -307,6 +333,12 @@ impl Session {
     #[must_use]
     pub fn session_id(&self) -> &str {
         self.events.session_id()
+    }
+
+    /// Total number of LLM request/response cycles in this session.
+    #[must_use]
+    pub fn total_turns(&self) -> u32 {
+        self.total_turns
     }
 
     // -- Core loop (spec 2.5) --
@@ -519,11 +551,26 @@ impl Session {
     /// Returns `None` if the abort signal fires during execution (spec
     /// Graceful Shutdown Sequence). Parallel execution when the profile
     /// supports it, sequential otherwise.
+    ///
+    /// Subagent tool calls (`spawn_agent`, `send_input`, `wait`,
+    /// `close_agent`) are intercepted and routed to the [`SubAgentManager`]
+    /// rather than through the regular tool executor path (spec 7.1).
     async fn execute_tool_calls(&mut self, tool_calls: &[ToolCall]) -> Option<Vec<ToolResult>> {
         let abort = self.abort_signal.clone();
 
         let work = async {
-            if self.profile.supports_parallel_tool_calls() && tool_calls.len() > 1 {
+            // Separate subagent calls from regular calls.
+            // Subagent calls must run sequentially through &mut self because
+            // SubAgentManager needs mutable access.
+            let has_subagent = tool_calls
+                .iter()
+                .any(|tc| SubAgentManager::is_subagent_tool(&tc.name));
+
+            if has_subagent {
+                // When any subagent tool is present, run all calls sequentially
+                // to avoid borrow conflicts with the subagent manager.
+                self.execute_tools_with_subagents(tool_calls).await
+            } else if self.profile.supports_parallel_tool_calls() && tool_calls.len() > 1 {
                 self.execute_tools_parallel(tool_calls).await
             } else {
                 self.execute_tools_sequential(tool_calls).await
@@ -565,6 +612,59 @@ impl Session {
             .collect();
 
         futures::future::join_all(futs).await
+    }
+
+    /// Execute tool calls when subagent tools are present.
+    ///
+    /// Runs all calls sequentially, routing subagent tools through the
+    /// [`SubAgentManager`] and regular tools through the normal executor.
+    async fn execute_tools_with_subagents(&mut self, tool_calls: &[ToolCall]) -> Vec<ToolResult> {
+        let mut results = Vec::with_capacity(tool_calls.len());
+        for tc in tool_calls {
+            if self.is_aborted() {
+                break;
+            }
+            if SubAgentManager::is_subagent_tool(&tc.name) {
+                results.push(self.execute_subagent_tool(tc).await);
+            } else {
+                results.push(self.execute_single_tool(tc).await);
+            }
+        }
+        results
+    }
+
+    /// Execute a subagent tool call via the SubAgentManager.
+    async fn execute_subagent_tool(&mut self, tool_call: &ToolCall) -> ToolResult {
+        self.events
+            .emit_tool_call_start(&tool_call.name, &tool_call.id);
+
+        let result = self
+            .subagent_manager
+            .execute(&tool_call.name, tool_call.arguments.clone(), &*self.profile)
+            .await;
+
+        match result {
+            Ok(output) => {
+                self.events.emit_tool_call_end(&tool_call.id, &output);
+                let truncated =
+                    truncate_tool_output(&output, &tool_call.name, &self.truncation_config);
+                ToolResult {
+                    tool_call_id: tool_call.id.clone(),
+                    content: Value::String(truncated),
+                    is_error: false,
+                }
+            }
+            Err(e) => {
+                let error_msg = e.to_string();
+                self.events
+                    .emit_tool_call_end_error(&tool_call.id, &error_msg);
+                ToolResult {
+                    tool_call_id: tool_call.id.clone(),
+                    content: Value::String(error_msg),
+                    is_error: true,
+                }
+            }
+        }
     }
 
     /// Execute a single tool call: emit events, run executor, truncate output.

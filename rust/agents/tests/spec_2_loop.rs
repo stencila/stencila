@@ -492,6 +492,7 @@ fn test_session_with_profile(
         client.clone(),
         config,
         "test system prompt".into(),
+        0,
     );
     Ok((session, receiver, client))
 }
@@ -1502,6 +1503,7 @@ async fn run_parity_session(
             client.clone(),
             SessionConfig::default(),
             "parity test".into(),
+            0,
         );
         (s, r, client.clone())
     };
@@ -1679,6 +1681,7 @@ async fn abort_cancels_in_flight_tool_execution() -> AgentResult<()> {
             client.clone(),
             SessionConfig::default(),
             "test system prompt".into(),
+            0,
         );
         (s, r, client.clone())
     };
@@ -1770,6 +1773,7 @@ async fn context_usage_warning_emitted_at_80_percent() -> AgentResult<()> {
             client.clone(),
             SessionConfig::default(),
             huge_prompt,
+            0,
         );
         (s, r, client.clone())
     };
@@ -1895,6 +1899,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
             client.clone(),
             SessionConfig::default(),
             prompt.clone(),
+            0,
         );
         (s, r, client.clone())
     };

@@ -67,6 +67,7 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `spec_3_profiles.rs` | 3.1-3.7 | Provider profiles: tool sets, capability flags, timeout defaults, schema parity |
 | `spec_6_prompts.rs` | 6.1-6.5 | System prompts: environment context, git context, project docs, prompt assembly |
 | `spec_2_loop.rs` | 2.1, 2.5-2.8, 2.10, App B | Session and agentic loop: tool execution, steering, follow-up, loop detection, error handling, parity |
+| `spec_7_subagents.rs` | 7.1-7.4 | Subagent lifecycle: spawn, send_input, wait, close_agent, depth limiting, auto-registration |
 
 Use the crate workflow below:
 
