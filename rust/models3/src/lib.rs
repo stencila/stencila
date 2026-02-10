@@ -44,6 +44,9 @@
 pub mod api;
 /// Model metadata catalog with lookup, listing, and runtime refresh.
 pub mod catalog;
+/// Command-line interface for listing models and running prompts.
+#[cfg(feature = "cli")]
+pub mod cli;
 /// Client construction, provider routing, and middleware application.
 pub mod client;
 /// Unified error hierarchy and retryability classification.

@@ -261,7 +261,7 @@ pub enum Command {
     Db(db::Cli),
 
     Prompts(stencila_prompts::cli::Cli),
-    Models(stencila_models::cli::Cli),
+    Models(stencila_models3::cli::Cli),
     Kernels(stencila_kernels::cli::Cli),
     Linters(stencila_linters::cli::Cli),
     Formats(stencila_codecs::cli::Cli),

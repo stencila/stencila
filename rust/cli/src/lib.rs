@@ -119,9 +119,9 @@ mod tests {
             ("prompts::update", stencila_prompts::cli::UPDATE_AFTER_LONG_HELP),
             ("prompts::reset", stencila_prompts::cli::RESET_AFTER_LONG_HELP),
             // Models module help strings
-            ("models::cli", stencila_models::cli::CLI_AFTER_LONG_HELP),
-            ("models::list", stencila_models::cli::LIST_AFTER_LONG_HELP),
-            ("models::run", stencila_models::cli::RUN_AFTER_LONG_HELP),
+            ("models::cli", stencila_models3::cli::CLI_AFTER_LONG_HELP),
+            ("models::list", stencila_models3::cli::LIST_AFTER_LONG_HELP),
+            ("models::run", stencila_models3::cli::RUN_AFTER_LONG_HELP),
             // Kernels module help strings
             ("kernels::cli", stencila_kernels::cli::CLI_AFTER_LONG_HELP),
             ("kernels::list", stencila_kernels::cli::LIST_AFTER_LONG_HELP),

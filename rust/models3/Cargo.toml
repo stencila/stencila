@@ -5,20 +5,26 @@ version.workspace = true
 
 [features]
 default = []
+cli = ["dep:clap", "dep:eyre", "dep:serde_yaml", "dep:stencila-cli-utils", "dep:tracing"]
 secrets = ["dep:stencila-secrets"]
 
 [dependencies]
 base64 = { workspace = true }
 bytes = { workspace = true }
+clap = { workspace = true, optional = true }
+eyre = { workspace = true, optional = true }
 futures = { workspace = true }
 jsonschema = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_yaml = { workspace = true, optional = true }
+stencila-cli-utils = { path = "../cli-utils", optional = true }
 stencila-secrets = { path = "../secrets", optional = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
+tracing = { workspace = true, optional = true }
 uuid = { workspace = true }
 
 [build-dependencies]
