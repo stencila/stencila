@@ -151,8 +151,23 @@ impl ProviderProfile for GeminiProfile {
     }
 
     fn provider_options(&self) -> Option<HashMap<String, Value>> {
-        // TODO: Populate with Gemini-specific options per spec 3.6
-        // (e.g. safety settings, grounding configuration).
-        Some(HashMap::new())
+        Some(HashMap::from([(
+            "gemini".into(),
+            serde_json::json!({
+                // Relax safety filters for a coding-agent context. Strict
+                // defaults can block legitimate code output (e.g. security
+                // tool examples, error messages containing profanity).
+                "safetySettings": [
+                    {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_ONLY_HIGH"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
+                    {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_ONLY_HIGH"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+                ]
+                // NOTE: Grounding (google_search_retrieval) is intentionally
+                // omitted — a coding agent already has file/code search tools
+                // and web grounding adds marginal value with extra latency.
+                // See README § Limitations for details.
+            }),
+        )]))
     }
 }

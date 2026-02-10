@@ -1,6 +1,6 @@
 # Stencila Agents
 
-An implementation of the [Coding Agent Loop Specification](specs/coding-agent-loop-spec.md) with extensions for Stencila.
+An implementation of the [Coding Agent Loop Specification](https://github.com/strongdm/attractor/blob/main/coding-agent-loop-spec.md) with extensions for Stencila.
 
 ## Usage
 
@@ -102,10 +102,6 @@ The spec emphasizes parallel subagent exploration. This implementation currently
 
 `spawn_agent.working_dir` is currently advisory only: it is appended to the child prompt but not enforced by the execution environment.
 
-### Provider options wiring (`§3.4-§3.6`)
-
-Profiles currently return empty provider options maps (`Some(HashMap::new())`) and do not yet wire concrete provider-specific options.
-
 ### Delta event emission (`§2.9`)
 
 `ASSISTANT_TEXT_DELTA` is emitted incrementally during streaming. `TOOL_CALL_OUTPUT_DELTA` is defined but not yet emitted by the tool execution pipeline.
@@ -146,9 +142,9 @@ Enforcement of `working_dir` requires a scoped/sandboxed execution environment w
 
 The session loop streams LLM responses via `Client::stream()`, emitting `ASSISTANT_TEXT_DELTA` events incrementally. When the profile does not support streaming or the stream setup returns a configuration/not-found error, it falls back to `Client::complete()` with a single synthesized delta. Mid-stream errors (network, provider) propagate as SDK errors. On abort or error, `TEXT_END` carries any partial text accumulated from prior deltas. `TOOL_CALL_OUTPUT_DELTA` events are not yet emitted.
 
-### Provider-specific options population (`§3.4-§3.6`)
+### Gemini grounding configuration (`§3.6`)
 
-Provider profiles have option stubs but no concrete provider-options payloads are populated yet (e.g., Anthropic beta headers, Gemini safety settings).
+The spec says provider options should configure "safety settings and grounding." Safety settings are wired (`BLOCK_ONLY_HIGH` for all categories), but grounding (`google_search_retrieval`) is not configured. A coding agent already has file search, code search, and shell tools, so web grounding adds marginal value while introducing potential noise and latency.
 
 ### `apply_patch` context_hint proximity matching (Appendix A)
 

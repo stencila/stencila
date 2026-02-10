@@ -143,8 +143,9 @@ impl ProviderProfile for OpenAiProfile {
     }
 
     fn provider_options(&self) -> Option<HashMap<String, Value>> {
-        // TODO: Populate with provider-specific options per spec 3.4
-        // (e.g. model version pinning, response format preferences).
-        Some(HashMap::new())
+        // OpenAI provider options are not needed: the spec's §3.4 requirement
+        // to set `reasoning.effort` is handled by the unified Request field
+        // (request.reasoning_effort → OpenAI's `reasoning.effort` body param).
+        None
     }
 }

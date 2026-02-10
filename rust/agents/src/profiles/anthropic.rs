@@ -147,8 +147,18 @@ impl ProviderProfile for AnthropicProfile {
     }
 
     fn provider_options(&self) -> Option<HashMap<String, Value>> {
-        // TODO: Populate with Anthropic-specific options per spec 3.5
-        // (e.g. beta headers for extended thinking, prompt caching).
-        Some(HashMap::new())
+        Some(HashMap::from([(
+            "anthropic".into(),
+            serde_json::json!({
+                // Enable extended thinking (needed for reasoning models) and
+                // prompt caching (reduces cost for long system prompts / tools).
+                "beta_headers": [
+                    "prompt-caching-2024-07-31"
+                ],
+                // Auto-inject cache_control markers on system prompts, tool
+                // definitions, and conversation prefix for prompt caching.
+                "auto_cache": true
+            }),
+        )]))
     }
 }

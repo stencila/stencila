@@ -188,7 +188,9 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.2 | ProviderProfile trait | spec_3_profiles.rs | profiles_usable_as_trait_objects | Pass |
 | 3.2 | Profile id/model | spec_3_profiles.rs | openai_profile_id, openai_profile_model, anthropic_profile_id, anthropic_profile_model, gemini_profile_id, gemini_profile_model | Pass |
 | 3.2 | Capability flags | spec_3_profiles.rs | openai_capability_flags, anthropic_capability_flags, gemini_capability_flags | Pass |
-| 3.2 | provider_options stub (Some empty) | spec_3_profiles.rs | provider_options_are_some_empty | Pass |
+| 3.4 | OpenAI provider_options (None — reasoning.effort via unified Request) | spec_3_profiles.rs | openai_provider_options_are_none | Pass |
+| 3.5 | Anthropic provider_options (beta_headers, auto_cache) | spec_3_profiles.rs | anthropic_provider_options_has_beta_headers | Pass |
+| 3.6 | Gemini provider_options (safetySettings only; grounding deferred — see Limitations) | spec_3_profiles.rs | gemini_provider_options_has_safety_settings | Partial |
 | 3.2 | build_system_prompt placeholder | spec_3_profiles.rs | build_system_prompt_contains_base_instructions | Pass |
 | 3.2 | tools() returns definitions | spec_3_profiles.rs | openai_profile_tools_returns_definitions, tools_method_matches_registry_definitions | Pass |
 | 3.4 | OpenAI tool set (6 tools) | spec_3_profiles.rs | openai_profile_tool_count, openai_profile_tool_names | Pass |

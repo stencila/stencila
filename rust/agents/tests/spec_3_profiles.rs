@@ -295,20 +295,92 @@ fn gemini_capability_flags() -> AgentResult<()> {
 }
 
 // =========================================================================
-// Provider options (spec 3.2)
+// Provider options (spec 3.2, 3.4-3.6)
 // =========================================================================
 
 #[test]
-fn provider_options_are_some_empty() -> AgentResult<()> {
+fn openai_provider_options_are_none() -> AgentResult<()> {
+    // OpenAI reasoning.effort is handled by the unified Request field, so
+    // no extra provider_options are needed.
     let openai = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
-    let anthropic = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
-    let gemini = GeminiProfile::new("gemini-3-flash", 600_000)?;
+    assert!(openai.provider_options().is_none());
+    Ok(())
+}
 
-    // All profiles return Some(empty map) — proves plumbing works
-    // without committing to specific provider-version-dependent values.
-    assert!(openai.provider_options().is_some_and(|m| m.is_empty()));
-    assert!(anthropic.provider_options().is_some_and(|m| m.is_empty()));
-    assert!(gemini.provider_options().is_some_and(|m| m.is_empty()));
+#[test]
+fn anthropic_provider_options_has_beta_headers() -> AgentResult<()> {
+    let anthropic = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    let val_err = |reason: &str| AgentError::ValidationError {
+        reason: reason.into(),
+    };
+
+    let opts = anthropic
+        .provider_options()
+        .ok_or_else(|| val_err("Anthropic should return Some"))?;
+    let anthropic_opts = opts
+        .get("anthropic")
+        .ok_or_else(|| val_err("missing 'anthropic' key"))?;
+
+    // Must include beta_headers array
+    let beta = anthropic_opts
+        .get("beta_headers")
+        .ok_or_else(|| val_err("missing beta_headers"))?;
+    let headers: Vec<&str> = beta
+        .as_array()
+        .ok_or_else(|| val_err("beta_headers should be an array"))?
+        .iter()
+        .filter_map(|v| v.as_str())
+        .collect();
+    assert!(
+        headers.contains(&"prompt-caching-2024-07-31"),
+        "missing prompt-caching beta header: {headers:?}"
+    );
+
+    // Must include auto_cache = true
+    let auto_cache = anthropic_opts
+        .get("auto_cache")
+        .and_then(|v| v.as_bool())
+        .ok_or_else(|| val_err("missing auto_cache bool"))?;
+    assert!(auto_cache, "auto_cache should be true");
+
+    Ok(())
+}
+
+#[test]
+fn gemini_provider_options_has_safety_settings() -> AgentResult<()> {
+    let gemini = GeminiProfile::new("gemini-3-flash", 600_000)?;
+    let val_err = |reason: &str| AgentError::ValidationError {
+        reason: reason.into(),
+    };
+
+    let opts = gemini
+        .provider_options()
+        .ok_or_else(|| val_err("Gemini should return Some"))?;
+    let gemini_opts = opts
+        .get("gemini")
+        .ok_or_else(|| val_err("missing 'gemini' key"))?;
+
+    // Must include safetySettings array
+    let settings = gemini_opts
+        .get("safetySettings")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| val_err("missing safetySettings array"))?;
+
+    // Should have 4 categories
+    assert_eq!(settings.len(), 4, "expected 4 safety categories");
+
+    // Each entry should have category and threshold
+    for setting in settings {
+        assert!(
+            setting.get("category").is_some(),
+            "missing category: {setting}"
+        );
+        assert!(
+            setting.get("threshold").is_some(),
+            "missing threshold: {setting}"
+        );
+    }
+
     Ok(())
 }
 
