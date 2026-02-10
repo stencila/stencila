@@ -7,6 +7,10 @@
 //! Tool set: `read_file`, `write_file`, `edit_file`, `shell` (120s timeout),
 //! `grep`, `glob`. Subagent tools added in Phase 9.
 
+use std::collections::HashMap;
+
+use serde_json::Value;
+
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
@@ -68,6 +72,10 @@ pub struct AnthropicProfile {
 impl AnthropicProfile {
     /// Create a new Anthropic profile with the given model identifier.
     ///
+    /// `max_command_timeout_ms` clamps per-call `timeout_ms` on the shell tool
+    /// to prevent unbounded execution. Pass [`SessionConfig::max_command_timeout_ms`]
+    /// (default 600 000 = 10 minutes).
+    ///
     /// Populates the tool registry with the Anthropic-specific tool set:
     /// `read_file`, `write_file`, `edit_file`, `shell` (120s default),
     /// `grep`, `glob`.
@@ -75,7 +83,7 @@ impl AnthropicProfile {
     /// # Errors
     ///
     /// Returns an error if tool registration fails (e.g. invalid definition).
-    pub fn new(model: impl Into<String>) -> AgentResult<Self> {
+    pub fn new(model: impl Into<String>, max_command_timeout_ms: u64) -> AgentResult<Self> {
         let mut registry = ToolRegistry::new();
 
         // Register tools in the order listed in spec 3.5.
@@ -85,7 +93,7 @@ impl AnthropicProfile {
             RegisteredTool::new(edit_file::definition(), edit_file::executor()),
             RegisteredTool::new(
                 shell::definition(),
-                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS),
+                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS, max_command_timeout_ms),
             ),
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
@@ -136,5 +144,11 @@ impl ProviderProfile for AnthropicProfile {
 
     fn context_window_size(&self) -> u64 {
         200_000
+    }
+
+    fn provider_options(&self) -> Option<HashMap<String, Value>> {
+        // TODO: Populate with Anthropic-specific options per spec 3.5
+        // (e.g. beta headers for extended thinking, prompt caching).
+        Some(HashMap::new())
     }
 }

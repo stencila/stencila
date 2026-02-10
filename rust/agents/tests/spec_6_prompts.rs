@@ -489,7 +489,7 @@ async fn discover_nested_path() -> AgentResult<()> {
 
 #[test]
 fn system_prompt_contains_base_instructions() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let prompt = profile.build_system_prompt("", "");
     assert!(prompt.contains("apply_patch"));
     assert!(prompt.contains("coding assistant"));
@@ -498,7 +498,7 @@ fn system_prompt_contains_base_instructions() -> AgentResult<()> {
 
 #[test]
 fn system_prompt_layer_ordering() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let env_ctx = "<environment>\nWorking directory: /project\n</environment>";
     let project_docs = "# Project Instructions\nDo things.";
 
@@ -522,7 +522,7 @@ fn system_prompt_layer_ordering() -> AgentResult<()> {
 
 #[test]
 fn system_prompt_empty_layers_omitted() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2")?;
+    let profile = OpenAiProfile::new("gpt-5.2", 600_000)?;
     let prompt = profile.build_system_prompt("", "");
 
     // Should not have double blank lines from empty layers
@@ -532,7 +532,7 @@ fn system_prompt_empty_layers_omitted() -> AgentResult<()> {
 
 #[test]
 fn system_prompt_with_all_layers() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     let env_ctx = "<environment>\nPlatform: linux\n</environment>";
     let project_docs = "Follow GEMINI.md conventions.";
 
@@ -550,7 +550,7 @@ fn system_prompt_with_all_layers() -> AgentResult<()> {
 
 #[test]
 fn openai_base_instructions_topics() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let base = profile.base_instructions();
 
     assert!(
@@ -564,7 +564,7 @@ fn openai_base_instructions_topics() -> AgentResult<()> {
 
 #[test]
 fn anthropic_base_instructions_topics() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let base = profile.base_instructions();
 
     assert!(
@@ -584,7 +584,7 @@ fn anthropic_base_instructions_topics() -> AgentResult<()> {
 
 #[test]
 fn gemini_base_instructions_topics() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     let base = profile.base_instructions();
 
     assert!(

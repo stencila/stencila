@@ -53,6 +53,10 @@ pub enum AgentError {
     #[error("session closed")]
     SessionClosed,
 
+    /// The session is not in the expected state for the requested operation.
+    #[error("invalid state: expected {expected}, got {actual}")]
+    InvalidState { expected: String, actual: String },
+
     /// Turn or tool-round limit has been exceeded.
     #[error("turn limit exceeded: {message}")]
     TurnLimitExceeded { message: String },
@@ -86,6 +90,7 @@ impl AgentError {
             | Self::Io { .. } => true,
 
             Self::SessionClosed
+            | Self::InvalidState { .. }
             | Self::TurnLimitExceeded { .. }
             | Self::ContextLengthExceeded { .. }
             | Self::Sdk(_) => false,
@@ -115,6 +120,7 @@ impl AgentError {
     pub fn is_session_error(&self) -> bool {
         match self {
             Self::SessionClosed
+            | Self::InvalidState { .. }
             | Self::TurnLimitExceeded { .. }
             | Self::ContextLengthExceeded { .. } => true,
 
@@ -147,6 +153,7 @@ impl AgentError {
             Self::UnknownTool { .. } => "UNKNOWN_TOOL",
             Self::Io { .. } => "IO_ERROR",
             Self::SessionClosed => "SESSION_CLOSED",
+            Self::InvalidState { .. } => "INVALID_STATE",
             Self::TurnLimitExceeded { .. } => "TURN_LIMIT_EXCEEDED",
             Self::ContextLengthExceeded { .. } => "CONTEXT_LENGTH_EXCEEDED",
             Self::Sdk(_) => "SDK_ERROR",

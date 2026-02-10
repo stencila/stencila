@@ -27,7 +27,6 @@ use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
 use crate::error::{AgentError, AgentResult};
-use crate::events;
 use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
@@ -113,8 +112,6 @@ pub struct SubAgentHandle {
     session: Session,
     /// Current status.
     status: SubAgentStatus,
-    /// Event receiver (kept alive so events are not lost).
-    _receiver: events::EventReceiver,
 }
 
 impl std::fmt::Debug for SubAgentHandle {
@@ -242,7 +239,11 @@ impl SubAgentManager {
         // Use parent's profile type to create child profile, with optional model override.
         // Subagent tools are registered by Session::new() based on depth.
         let child_model = model_override.as_deref();
-        let child_profile = create_child_profile(parent_profile, child_model)?;
+        let child_profile = create_child_profile(
+            parent_profile,
+            child_model,
+            child_config.max_command_timeout_ms,
+        )?;
 
         // Build system prompt for child, including working_dir scope if specified
         let mut system_prompt =
@@ -254,8 +255,10 @@ impl SubAgentManager {
             ));
         }
 
-        // Create the child session
-        let (session, receiver) = Session::new(
+        // Create the child session. The receiver is dropped immediately —
+        // the emitter silently discards events when no receiver exists,
+        // avoiding unbounded memory growth from unconsumed child events.
+        let (session, _receiver) = Session::new(
             child_profile,
             Arc::clone(&self.execution_env),
             Arc::clone(&self.client),
@@ -272,7 +275,6 @@ impl SubAgentManager {
             id: agent_id.clone(),
             session,
             status: SubAgentStatus::Running,
-            _receiver: receiver,
         };
 
         self.agents.insert(agent_id.clone(), handle);
@@ -596,47 +598,42 @@ fn extract_result(handle: &SubAgentHandle) -> SubAgentResult {
 /// parent's. Subagent tool registration is handled by [`Session::new()`]
 /// based on the child's depth — this function only creates the base profile.
 ///
-/// Any custom tools registered on the parent profile (beyond the base set)
-/// are copied into the child as passive definitions so the LLM sees the
-/// same tool surface. Tool executors are not copied — custom tools on the
-/// child will be routed through the child's own registry.
+/// Custom tools from the parent are **not** copied into the child. The child
+/// only has the base tools for its provider, plus subagent tools if depth
+/// permits. Copying tool definitions without their executors would advertise
+/// tools that always fail at execution time.
 fn create_child_profile(
     parent_profile: &dyn ProviderProfile,
     model_override: Option<&str>,
+    max_command_timeout_ms: u64,
 ) -> AgentResult<Box<dyn ProviderProfile>> {
     let model = model_override.unwrap_or(parent_profile.model());
     let provider_id = parent_profile.id();
 
-    let mut profile: Box<dyn ProviderProfile> = match provider_id {
-        "openai" => Box::new(crate::profiles::OpenAiProfile::new(model)?),
-        "anthropic" => Box::new(crate::profiles::AnthropicProfile::new(model)?),
-        "gemini" => Box::new(crate::profiles::GeminiProfile::new(model)?),
+    let profile: Box<dyn ProviderProfile> = match provider_id {
+        "openai" => Box::new(crate::profiles::OpenAiProfile::new(
+            model,
+            max_command_timeout_ms,
+        )?),
+        "anthropic" => Box::new(crate::profiles::AnthropicProfile::new(
+            model,
+            max_command_timeout_ms,
+        )?),
+        "gemini" => Box::new(crate::profiles::GeminiProfile::new(
+            model,
+            max_command_timeout_ms,
+        )?),
         _ => {
             tracing::warn!(
                 provider_id,
                 "unknown provider for subagent — falling back to Anthropic profile"
             );
-            Box::new(crate::profiles::AnthropicProfile::new(model)?)
+            Box::new(crate::profiles::AnthropicProfile::new(
+                model,
+                max_command_timeout_ms,
+            )?)
         }
     };
-
-    // Copy parent's custom tool definitions that aren't in the child's base set.
-    // Uses no-op executors since tool calls route through the child's own session.
-    let child_names: Vec<String> = profile
-        .tool_registry()
-        .names()
-        .iter()
-        .map(|n| n.to_string())
-        .collect();
-    for def in parent_profile.tool_registry().definitions() {
-        if !child_names.iter().any(|n| n == &def.name)
-            && !SUBAGENT_TOOL_NAMES.contains(&def.name.as_str())
-        {
-            profile
-                .tool_registry_mut()
-                .register(RegisteredTool::new(def, noop_executor()))?;
-        }
-    }
 
     Ok(profile)
 }

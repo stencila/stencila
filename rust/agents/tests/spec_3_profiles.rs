@@ -56,21 +56,21 @@ fn custom_tool(name: &str) -> RegisteredTool {
 
 #[test]
 fn openai_profile_id() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     assert_eq!(profile.id(), "openai");
     Ok(())
 }
 
 #[test]
 fn openai_profile_model() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     assert_eq!(profile.model(), "gpt-5.2-codex");
     Ok(())
 }
 
 #[test]
 fn openai_profile_tool_count() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     // Spec 3.4: read_file, apply_patch, write_file, shell, grep, glob
     assert_eq!(profile.tool_registry().len(), 6);
     Ok(())
@@ -78,7 +78,7 @@ fn openai_profile_tool_count() -> AgentResult<()> {
 
 #[test]
 fn openai_profile_tool_names() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let names = profile.tool_registry().names();
     assert_eq!(
         names,
@@ -96,7 +96,7 @@ fn openai_profile_tool_names() -> AgentResult<()> {
 
 #[test]
 fn openai_profile_has_apply_patch_not_edit_file() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     assert!(profile.tool_registry().get("apply_patch").is_some());
     assert!(profile.tool_registry().get("edit_file").is_none());
     Ok(())
@@ -104,7 +104,7 @@ fn openai_profile_has_apply_patch_not_edit_file() -> AgentResult<()> {
 
 #[test]
 fn openai_profile_tools_returns_definitions() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let tools = profile.tools();
     assert_eq!(tools.len(), 6);
     let tool_names: Vec<&str> = tools.iter().map(|t| t.name.as_str()).collect();
@@ -128,21 +128,21 @@ fn openai_profile_tools_returns_definitions() -> AgentResult<()> {
 
 #[test]
 fn anthropic_profile_id() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     assert_eq!(profile.id(), "anthropic");
     Ok(())
 }
 
 #[test]
 fn anthropic_profile_model() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     assert_eq!(profile.model(), "claude-opus-4-6");
     Ok(())
 }
 
 #[test]
 fn anthropic_profile_tool_count() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     // Spec 3.5: read_file, write_file, edit_file, shell, grep, glob
     assert_eq!(profile.tool_registry().len(), 6);
     Ok(())
@@ -150,7 +150,7 @@ fn anthropic_profile_tool_count() -> AgentResult<()> {
 
 #[test]
 fn anthropic_profile_tool_names() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let names = profile.tool_registry().names();
     assert_eq!(
         names,
@@ -168,7 +168,7 @@ fn anthropic_profile_tool_names() -> AgentResult<()> {
 
 #[test]
 fn anthropic_profile_has_edit_file_not_apply_patch() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     assert!(profile.tool_registry().get("edit_file").is_some());
     assert!(profile.tool_registry().get("apply_patch").is_none());
     Ok(())
@@ -180,21 +180,21 @@ fn anthropic_profile_has_edit_file_not_apply_patch() -> AgentResult<()> {
 
 #[test]
 fn gemini_profile_id() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     assert_eq!(profile.id(), "gemini");
     Ok(())
 }
 
 #[test]
 fn gemini_profile_model() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     assert_eq!(profile.model(), "gemini-3-flash");
     Ok(())
 }
 
 #[test]
 fn gemini_profile_tool_count() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     // Spec 3.6: read_file, read_many_files, write_file, edit_file, shell, grep, glob, list_dir
     assert_eq!(profile.tool_registry().len(), 8);
     Ok(())
@@ -202,7 +202,7 @@ fn gemini_profile_tool_count() -> AgentResult<()> {
 
 #[test]
 fn gemini_profile_tool_names() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     let names = profile.tool_registry().names();
     assert_eq!(
         names,
@@ -222,7 +222,7 @@ fn gemini_profile_tool_names() -> AgentResult<()> {
 
 #[test]
 fn gemini_profile_has_gemini_specific_tools() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     assert!(profile.tool_registry().get("read_many_files").is_some());
     assert!(profile.tool_registry().get("list_dir").is_some());
     // Gemini uses edit_file, not apply_patch
@@ -239,9 +239,9 @@ fn gemini_profile_has_gemini_specific_tools() -> AgentResult<()> {
 fn profiles_have_no_subagent_tools() -> AgentResult<()> {
     let subagent_tools = ["spawn_agent", "send_input", "wait", "close_agent"];
 
-    let openai = OpenAiProfile::new("gpt-5.2-codex")?;
-    let anthropic = AnthropicProfile::new("claude-opus-4-6")?;
-    let gemini = GeminiProfile::new("gemini-3-flash")?;
+    let openai = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let anthropic = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    let gemini = GeminiProfile::new("gemini-3-flash", 600_000)?;
 
     for name in &subagent_tools {
         assert!(
@@ -266,7 +266,7 @@ fn profiles_have_no_subagent_tools() -> AgentResult<()> {
 
 #[test]
 fn openai_capability_flags() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     assert!(profile.supports_reasoning());
     assert!(profile.supports_streaming());
     assert!(profile.supports_parallel_tool_calls());
@@ -276,7 +276,7 @@ fn openai_capability_flags() -> AgentResult<()> {
 
 #[test]
 fn anthropic_capability_flags() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     assert!(profile.supports_reasoning());
     assert!(profile.supports_streaming());
     assert!(profile.supports_parallel_tool_calls());
@@ -286,7 +286,7 @@ fn anthropic_capability_flags() -> AgentResult<()> {
 
 #[test]
 fn gemini_capability_flags() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     assert!(profile.supports_reasoning());
     assert!(profile.supports_streaming());
     assert!(profile.supports_parallel_tool_calls());
@@ -299,14 +299,16 @@ fn gemini_capability_flags() -> AgentResult<()> {
 // =========================================================================
 
 #[test]
-fn default_provider_options_are_none() -> AgentResult<()> {
-    let openai = OpenAiProfile::new("gpt-5.2-codex")?;
-    let anthropic = AnthropicProfile::new("claude-opus-4-6")?;
-    let gemini = GeminiProfile::new("gemini-3-flash")?;
+fn provider_options_are_some_empty() -> AgentResult<()> {
+    let openai = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let anthropic = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    let gemini = GeminiProfile::new("gemini-3-flash", 600_000)?;
 
-    assert!(openai.provider_options().is_none());
-    assert!(anthropic.provider_options().is_none());
-    assert!(gemini.provider_options().is_none());
+    // All profiles return Some(empty map) — proves plumbing works
+    // without committing to specific provider-version-dependent values.
+    assert!(openai.provider_options().is_some_and(|m| m.is_empty()));
+    assert!(anthropic.provider_options().is_some_and(|m| m.is_empty()));
+    assert!(gemini.provider_options().is_some_and(|m| m.is_empty()));
     Ok(())
 }
 
@@ -316,9 +318,9 @@ fn default_provider_options_are_none() -> AgentResult<()> {
 
 #[test]
 fn build_system_prompt_contains_base_instructions() -> AgentResult<()> {
-    let openai = OpenAiProfile::new("gpt-5.2-codex")?;
-    let anthropic = AnthropicProfile::new("claude-opus-4-6")?;
-    let gemini = GeminiProfile::new("gemini-3-flash")?;
+    let openai = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let anthropic = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    let gemini = GeminiProfile::new("gemini-3-flash", 600_000)?;
 
     assert!(
         openai
@@ -344,7 +346,7 @@ fn build_system_prompt_contains_base_instructions() -> AgentResult<()> {
 
 #[test]
 fn custom_tool_registration() -> AgentResult<()> {
-    let mut profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let mut profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     assert_eq!(profile.tool_registry().len(), 6);
 
     profile
@@ -357,7 +359,7 @@ fn custom_tool_registration() -> AgentResult<()> {
 
 #[test]
 fn custom_tool_override_replaces_existing() -> AgentResult<()> {
-    let mut profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let mut profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
 
     // Override edit_file with a custom version.
     let original_desc = profile
@@ -385,7 +387,7 @@ fn custom_tool_override_replaces_existing() -> AgentResult<()> {
 
 #[test]
 fn custom_tool_override_preserves_position() -> AgentResult<()> {
-    let mut profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let mut profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let original_names: Vec<String> = profile
         .tool_registry()
         .names()
@@ -554,7 +556,7 @@ async fn execute_shell_default_timeout(profile: &dyn ProviderProfile) -> AgentRe
 
 #[tokio::test]
 async fn openai_shell_default_timeout_is_10s() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let timeout = execute_shell_default_timeout(&profile).await?;
     assert_eq!(timeout, 10_000, "OpenAI shell default should be 10s");
     Ok(())
@@ -562,7 +564,7 @@ async fn openai_shell_default_timeout_is_10s() -> AgentResult<()> {
 
 #[tokio::test]
 async fn anthropic_shell_default_timeout_is_120s() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let timeout = execute_shell_default_timeout(&profile).await?;
     assert_eq!(timeout, 120_000, "Anthropic shell default should be 120s");
     Ok(())
@@ -570,7 +572,7 @@ async fn anthropic_shell_default_timeout_is_120s() -> AgentResult<()> {
 
 #[tokio::test]
 async fn gemini_shell_default_timeout_is_10s() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     let timeout = execute_shell_default_timeout(&profile).await?;
     assert_eq!(timeout, 10_000, "Gemini shell default should be 10s");
     Ok(())
@@ -578,9 +580,9 @@ async fn gemini_shell_default_timeout_is_10s() -> AgentResult<()> {
 
 #[test]
 fn all_profiles_have_shell_tool() -> AgentResult<()> {
-    let openai = OpenAiProfile::new("gpt-5.2-codex")?;
-    let anthropic = AnthropicProfile::new("claude-opus-4-6")?;
-    let gemini = GeminiProfile::new("gemini-3-flash")?;
+    let openai = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let anthropic = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    let gemini = GeminiProfile::new("gemini-3-flash", 600_000)?;
 
     assert!(openai.tool_registry().get("shell").is_some());
     assert!(anthropic.tool_registry().get("shell").is_some());
@@ -644,19 +646,19 @@ fn assert_profile_schema_parity(profile: &dyn ProviderProfile) -> Result<(), Str
 
 #[test]
 fn openai_profile_schema_parity() -> Result<(), String> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex").map_err(|e| e.to_string())?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000).map_err(|e| e.to_string())?;
     assert_profile_schema_parity(&profile)
 }
 
 #[test]
 fn anthropic_profile_schema_parity() -> Result<(), String> {
-    let profile = AnthropicProfile::new("claude-opus-4-6").map_err(|e| e.to_string())?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000).map_err(|e| e.to_string())?;
     assert_profile_schema_parity(&profile)
 }
 
 #[test]
 fn gemini_profile_schema_parity() -> Result<(), String> {
-    let profile = GeminiProfile::new("gemini-3-flash").map_err(|e| e.to_string())?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000).map_err(|e| e.to_string())?;
     assert_profile_schema_parity(&profile)
 }
 
@@ -667,9 +669,9 @@ fn gemini_profile_schema_parity() -> Result<(), String> {
 #[test]
 fn profiles_usable_as_trait_objects() -> AgentResult<()> {
     let profiles: Vec<Box<dyn ProviderProfile>> = vec![
-        Box::new(OpenAiProfile::new("gpt-5.2-codex")?),
-        Box::new(AnthropicProfile::new("claude-opus-4-6")?),
-        Box::new(GeminiProfile::new("gemini-3-flash")?),
+        Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?),
+        Box::new(AnthropicProfile::new("claude-opus-4-6", 600_000)?),
+        Box::new(GeminiProfile::new("gemini-3-flash", 600_000)?),
     ];
 
     let ids: Vec<&str> = profiles.iter().map(|p| p.id()).collect();
@@ -679,7 +681,7 @@ fn profiles_usable_as_trait_objects() -> AgentResult<()> {
 
 #[test]
 fn profile_debug_output() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let debug = format!("{profile:?}");
     assert!(debug.contains("OpenAiProfile"));
     assert!(debug.contains("gpt-5.2-codex"));
@@ -692,7 +694,7 @@ fn profile_debug_output() -> AgentResult<()> {
 
 #[test]
 fn tools_method_matches_registry_definitions() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-3-flash")?;
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
     let from_method = profile.tools();
     let from_registry = profile.tool_registry().definitions();
     assert_eq!(from_method.len(), from_registry.len());

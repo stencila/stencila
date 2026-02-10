@@ -22,7 +22,7 @@ use stencila_agents::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let profile = Box::new(AnthropicProfile::new("claude-sonnet-4-5-20250929")?);
+    let profile = Box::new(AnthropicProfile::new("claude-sonnet-4-5-20250929", 600_000)?);
     let env = Arc::new(LocalExecutionEnvironment::new("."));
     let client = Arc::new(Models3Client::new(
         stencila_models3::client::Client::from_env()?,
@@ -68,6 +68,100 @@ session.set_abort_signal(controller.signal());
 controller.abort();
 ```
 
+## Extensions
+
+The following extensions to the spec implemented in this crate.
+
+TODO
+
+## Deviations
+
+These are intentional deviations from the spec.
+
+### `SESSION_END` emission timing (`§2.9`)
+
+The pseudocode emits `SESSION_END` at each loop completion, but this implementation emits it only when a session is actually closed (close/error/abort), to avoid noisy lifecycle events for normal idle transitions.
+
+### `follow_up()` processing scope (`§2.8`)
+
+The spec text implies follow-ups run after natural completion (text-only model response). This implementation processes follow-ups after loop exit on both natural-completion and turn-limit paths.
+
+### Context warning event kind (`§5.5`)
+
+The spec pseudocode uses a `WARNING` event, but the spec event enum does not define that kind. This implementation emits `ERROR` events with `"severity": "warning"` for context-usage warnings.
+
+### `send_input` target status (`§7.2`)
+
+Spec wording says `send_input` targets a running subagent. In this implementation, subagents currently run synchronously and are usually already completed, so `send_input` accepts non-failed agents.
+
+### Subagent parallelism (`§7.4`)
+
+The spec emphasizes parallel subagent exploration. This implementation currently runs `spawn_agent` synchronously and blocks until completion, so `wait` is effectively immediate/no-op in most cases.
+
+### Subagent `working_dir` scope (`§7.2`)
+
+`spawn_agent.working_dir` is currently advisory only: it is appended to the child prompt but not enforced by the execution environment.
+
+### Provider options wiring (`§3.4-§3.6`)
+
+Profiles currently return empty provider options maps (`Some(HashMap::new())`) and do not yet wire concrete provider-specific options.
+
+### Delta event emission (`§2.9`)
+
+`ASSISTANT_TEXT_DELTA` and `TOOL_CALL_OUTPUT_DELTA` event kinds are defined but not emitted by the session loop, which currently uses non-streaming `Client::complete()`.
+
+### Session command timeout source (`§2.2`)
+
+`SessionConfig.default_command_timeout_ms` exists but profile-specific shell defaults remain the effective source of default timeout behavior (OpenAI/Gemini 10s, Anthropic 120s).
+
+### `apply_patch` context hint matching (Appendix A)
+
+The `context_hint` label is not used for matching; matching uses context/delete lines in hunk bodies. This follows practical behavior from reference tooling and avoids complexity for marginal gain.
+
+### `apply_patch` Unicode punctuation fuzziness (Appendix A)
+
+Fuzzy matching currently includes whitespace normalization only; Unicode punctuation equivalence is not implemented.
+
+## Limitations
+
+The following are known limitations of this implementation of the spec.
+
+### Tool descriptions prompt layer (`§6.1`)
+
+Tool schemas are passed through the API `tools` parameter rather than serialized into a dedicated system-prompt layer.
+
+### Image tool output support (`§3.3`)
+
+`read_file` currently returns an image placeholder string for image files. Proper multimodal tool output requires a richer non-string tool output type across the tool pipeline.
+
+### AwaitingInput auto-detection (`§2.3`)
+
+`AwaitingInput` is supported as session state, but detection is host-driven (`set_awaiting_input()`) rather than automatically inferred by the session.
+
+### Scoped subagent `working_dir` enforcement (`§7.2`)
+
+Enforcement of `working_dir` requires a scoped/sandboxed execution environment wrapper and is not yet implemented.
+
+### Streaming session loop (`§2.9`)
+
+The session loop does not yet consume `Client::stream()` and emit delta events in real time; it currently processes full responses.
+
+### Provider-specific options population (`§3.4-§3.6`)
+
+Provider profiles have option stubs but no concrete provider-options payloads are populated yet (e.g., Anthropic beta headers, Gemini safety settings).
+
+### `apply_patch` context_hint proximity matching (Appendix A)
+
+Disambiguation using `context_hint` proximity is not implemented.
+
+### `apply_patch` Unicode punctuation normalization (Appendix A)
+
+Unicode punctuation equivalence in fuzzy matching is not implemented.
+
+### Test mock consolidation (internal)
+
+`MockExecutionEnvironment` duplication across test modules is still present and not yet consolidated into shared test helpers.
+
 ## Development
 
 ### Updating the spec
@@ -97,7 +191,7 @@ git --no-pager diff -- specs/coding-agent-loop-spec.md
 - Update requirement rows and status in `tests/spec-traceability.md`.
 - Add or update failing tests in the matching `tests/spec_*.rs` file(s) first.
 - Implement the minimum code changes in `src/` and adapters until tests pass.
-- Keep deferred subsections explicit in the `Deferred Items` table if any gaps remain.
+- Keep deferred subsections explicit in `## Limitations` if any gaps remain.
 
 5. Run the required crate workflow:
 

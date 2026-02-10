@@ -482,7 +482,7 @@ fn register_subagent_tools_adds_four_tools() -> AgentResult<()> {
 
 #[test]
 fn openai_profile_includes_subagent_tools_after_registration() -> AgentResult<()> {
-    let mut profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let mut profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     // Before registration: no subagent tools
     assert!(
         !profile.tool_registry().names().contains(&"spawn_agent"),
@@ -507,7 +507,7 @@ fn openai_profile_includes_subagent_tools_after_registration() -> AgentResult<()
 
 #[test]
 fn anthropic_profile_includes_subagent_tools_after_registration() -> AgentResult<()> {
-    let mut profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let mut profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     profile.register_subagent_tools()?;
 
     let names = profile.tool_registry().names();
@@ -522,7 +522,7 @@ fn anthropic_profile_includes_subagent_tools_after_registration() -> AgentResult
 
 #[test]
 fn gemini_profile_includes_subagent_tools_after_registration() -> AgentResult<()> {
-    let mut profile = GeminiProfile::new("gemini-2.5-pro")?;
+    let mut profile = GeminiProfile::new("gemini-2.5-pro", 600_000)?;
     profile.register_subagent_tools()?;
 
     let names = profile.tool_registry().names();
@@ -1201,7 +1201,7 @@ async fn session_auto_registers_subagent_tools_when_depth_allows() -> AgentResul
     // When max_subagent_depth > 0 and current_depth < max_depth,
     // Session::new should auto-register subagent tools.
     // We verify by submitting and checking the LLM request includes them.
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     assert!(
         !profile.tool_registry().names().contains(&"spawn_agent"),
         "Profile should not have spawn_agent before session creation"

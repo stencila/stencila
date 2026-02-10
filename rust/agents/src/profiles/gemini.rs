@@ -7,6 +7,10 @@
 //! `shell` (10s timeout), `grep`, `glob`, `list_dir`.
 //! Subagent tools added in Phase 9.
 
+use std::collections::HashMap;
+
+use serde_json::Value;
+
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
@@ -70,6 +74,10 @@ pub struct GeminiProfile {
 impl GeminiProfile {
     /// Create a new Gemini profile with the given model identifier.
     ///
+    /// `max_command_timeout_ms` clamps per-call `timeout_ms` on the shell tool
+    /// to prevent unbounded execution. Pass [`SessionConfig::max_command_timeout_ms`]
+    /// (default 600 000 = 10 minutes).
+    ///
     /// Populates the tool registry with the Gemini-specific tool set:
     /// `read_file`, `read_many_files`, `write_file`, `edit_file`,
     /// `shell`, `grep`, `glob`, `list_dir`.
@@ -77,7 +85,7 @@ impl GeminiProfile {
     /// # Errors
     ///
     /// Returns an error if tool registration fails (e.g. invalid definition).
-    pub fn new(model: impl Into<String>) -> AgentResult<Self> {
+    pub fn new(model: impl Into<String>, max_command_timeout_ms: u64) -> AgentResult<Self> {
         let mut registry = ToolRegistry::new();
 
         // Register tools in the order listed in spec 3.6.
@@ -88,7 +96,7 @@ impl GeminiProfile {
             RegisteredTool::new(edit_file::definition(), edit_file::executor()),
             RegisteredTool::new(
                 shell::definition(),
-                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS),
+                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS, max_command_timeout_ms),
             ),
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
@@ -140,5 +148,11 @@ impl ProviderProfile for GeminiProfile {
 
     fn context_window_size(&self) -> u64 {
         1_000_000
+    }
+
+    fn provider_options(&self) -> Option<HashMap<String, Value>> {
+        // TODO: Populate with Gemini-specific options per spec 3.6
+        // (e.g. safety settings, grounding configuration).
+        Some(HashMap::new())
     }
 }

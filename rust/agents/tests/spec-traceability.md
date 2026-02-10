@@ -112,7 +112,8 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.8 | Override latest-wins | spec_3_registry.rs | register_override_latest_wins | Pass |
 | 3.8 | Override preserves position | spec_3_registry.rs | register_override_preserves_position | Pass |
 | 3.8 | RegisteredTool execution (direct) | spec_3_registry.rs | execute_tool_success, execute_tool_error_propagates | Pass |
-| 3.8 | Integrated lookup → validate → execute | spec_3_registry.rs | lookup_validate_execute_integrated, lookup_validate_execute_rejects_invalid_args | Pass |
+| 3.8 | Integrated lookup → validate → execute | spec_3_registry.rs | lookup_validate_execute_integrated, lookup_validate_execute_rejects_invalid_args | Pass (unit) |
+| 3.8 | Runtime schema validation before tool execution | spec_2_loop.rs | invalid_tool_args_returns_validation_error | Pass |
 | 3.8 | Argument validation (valid) | spec_3_registry.rs | validate_arguments_valid | Pass |
 | 3.8 | Argument validation (invalid) | spec_3_registry.rs | validate_arguments_invalid | Pass |
 | 3.8 | Unknown tool validation | spec_3_registry.rs | validate_arguments_unknown_tool | Pass |
@@ -136,6 +137,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.3 | write_file executor | spec_3_tools.rs | write_file_success_with_byte_count, write_file_records_write, write_file_missing_content | Pass |
 | 3.3 | edit_file executor | spec_3_tools.rs | edit_file_single_replace, edit_file_replace_all, edit_file_not_found, edit_file_old_string_missing, edit_file_not_unique, edit_file_correct_writeback | Pass |
 | 3.3 | shell executor | spec_3_tools.rs | shell_success_format, shell_exit_code, shell_custom_timeout, shell_per_call_timeout_overrides_default | Pass |
+| 2.2 | max_command_timeout_ms clamping | spec_2_loop.rs | shell_timeout_clamped_to_max | Pass |
 | 3.3 | grep executor | spec_3_tools.rs | grep_basic, grep_with_options, grep_default_path, grep_missing_pattern | Pass |
 | 3.3 | glob executor | spec_3_tools.rs | glob_basic, glob_empty_results, glob_default_path, glob_missing_pattern | Pass |
 | 3.6 | read_many_files executor | spec_3_tools.rs | read_many_files_batch, read_many_files_partial_failure, read_many_files_empty_paths | Pass |
@@ -186,7 +188,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.2 | ProviderProfile trait | spec_3_profiles.rs | profiles_usable_as_trait_objects | Pass |
 | 3.2 | Profile id/model | spec_3_profiles.rs | openai_profile_id, openai_profile_model, anthropic_profile_id, anthropic_profile_model, gemini_profile_id, gemini_profile_model | Pass |
 | 3.2 | Capability flags | spec_3_profiles.rs | openai_capability_flags, anthropic_capability_flags, gemini_capability_flags | Pass |
-| 3.2 | provider_options default None | spec_3_profiles.rs | default_provider_options_are_none | Pass |
+| 3.2 | provider_options stub (Some empty) | spec_3_profiles.rs | provider_options_are_some_empty | Pass |
 | 3.2 | build_system_prompt placeholder | spec_3_profiles.rs | build_system_prompt_contains_base_instructions | Pass |
 | 3.2 | tools() returns definitions | spec_3_profiles.rs | openai_profile_tools_returns_definitions, tools_method_matches_registry_definitions | Pass |
 | 3.4 | OpenAI tool set (6 tools) | spec_3_profiles.rs | openai_profile_tool_count, openai_profile_tool_names | Pass |
@@ -257,6 +259,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.6 | Abort stops loop | spec_2_loop.rs | abort_stops_loop | Pass |
 | 2.6 | Abort mid tool loop | spec_2_loop.rs | abort_mid_tool_loop | Pass |
 | 2.6 | Abort cancels in-flight tool execution | spec_2_loop.rs | abort_cancels_in_flight_tool_execution | Pass |
+| 2.6 | Abort cancels in-flight LLM call | spec_2_loop.rs | abort_during_llm_call | Pass |
 | 2.6 | Close emits session end only once | spec_2_loop.rs | close_emits_session_end_only_once | Pass |
 | 2.6 | Submit on closed session errors | spec_2_loop.rs | submit_on_closed_session_errors | Pass |
 | 2.7 | Steering injection between tool rounds | spec_2_loop.rs | steer_between_tool_rounds | Pass |
@@ -372,24 +375,9 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 9.12 Parity Matrix | spec_2_loop.rs (shape) + spec_9_acceptance.rs (live) | Mock + env-gated | 8 + 10 |
 | 9.13 Smoke Test | spec_9_acceptance.rs | Env-gated only | 10 |
 
-## Intentional Spec Deviations
+## Spec Gaps and Deviations
 
-| Spec Section | Spec Requirement | Deviation | Rationale |
-|---|---|---|---|
-| App A (1368) | "The implementation uses this hint plus the context lines to locate the correct position" | `context_hint` is not used for matching — only context/delete lines in the hunk body are matched. First match wins. | The spec is ambiguous on whether the hint is a hard matching requirement or a human-readable label. codex-rs treats it as a label. Using it for proximity-based disambiguation would add complexity with limited benefit; the vast majority of patches are unambiguous from hunk body context alone. |
-| App A (1370) | "fuzzy matching (whitespace normalization, Unicode punctuation equivalence)" | Only whitespace normalization is implemented; Unicode punctuation equivalence is not. | Unicode punctuation equivalence is rare in practice and adds a dependency (unicode-normalization crate) for a marginal benefit. Can be added if real-world patches require it. |
-| 2.9 (301, 413) | Pseudocode emits SESSION_END on every loop completion (IDLE transition) | SESSION_END is only emitted on close/error/abort — not on IDLE transitions. | The event definition says "session closed", and emitting on every IDLE transition would create excessive noise for callers. See `session.rs` TODO(spec-ambiguity). |
-| 2.8 (371, 296) | Follow-ups trigger "after the current input is fully handled (model has produced a text-only response)" | Follow-ups are processed on both natural completion and limit paths. | Pseudocode places the check after the loop break (reached on limits too). Callers that queue follow-ups expect them to run regardless of exit path. See `session.rs` TODO(spec-ambiguity). |
-| 5.5 | `emit(WARNING, ...)` for context usage | No WARNING EventKind — ERROR with `"severity": "warning"` used instead. | The spec EventKind enum has no WARNING variant. Using ERROR with a severity field is a pragmatic alternative that preserves the warning semantics. See `session.rs` TODO(spec-ambiguity). |
+Intentional spec deviations and current deferred items are documented in the crate README:
 
-| 7.2 (send_input) | `send_input` targets a "running" subagent | Accepts any non-`Failed` agent (including `Completed`) | In the synchronous model, agents are always `Completed` after spawn — never truly "running". Accepting `Completed` allows the LLM to send follow-up messages. Will be tightened to `Running` only once async spawn is implemented. |
-| 7.4 | Parallel subagent exploration | `spawn_agent` blocks until child session completes | True async spawning with `tokio::spawn` is deferred. `wait` is effectively a no-op. See module-level docs in `subagents.rs`. |
-
-## Deferred Items
-
-| Item | Spec Section | Description | Blocked By |
-|---|---|---|---|
-| context_hint proximity matching | App A (1368) | Use `context_hint` text to disambiguate when multiple hunk body matches exist in a file | Low priority — no reports of mis-matching in practice |
-| Unicode punctuation equivalence | App A (1370) | Fuzzy matching via Unicode normalization (e.g., smart quotes → ASCII quotes) | Needs unicode-normalization crate; no demand yet |
-| Test mock consolidation | — | Extract `MockExecutionEnvironment` into `tests/common/mod.rs` shared across test crates | Refactoring only — no functional impact |
-| Tool-descriptions layer (layer 3) | 6.1 (986) | Dedicated layer serializing full tool JSON schemas into the system prompt | Most LLM APIs pass tool definitions as a separate `tools` parameter; base instructions already mention tools by name. PLAN.md:251 defers full prompt text vendoring. |
+- `README.md` → `## Deviations`
+- `README.md` → `## Limitations`

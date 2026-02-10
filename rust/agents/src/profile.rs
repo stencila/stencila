@@ -46,13 +46,18 @@ pub trait ProviderProfile: fmt::Debug + Send + Sync {
     /// Assembles layers 1-4 of the system prompt:
     /// 1. Provider-specific base instructions (from [`base_instructions()`])
     /// 2. Environment context (pre-built by [`prompts::build_environment_context()`])
-    /// 3. Tool descriptions (included in base instructions for topic-level coverage)
+    /// 3. Tool descriptions — not serialized as a separate layer; tool definitions
+    ///    are passed via the API's `tools` parameter, and base instructions already
+    ///    mention tools by name for topic-level coverage. This is pragmatic: most
+    ///    LLM APIs handle tool schemas separately from the system prompt.
     /// 4. Project-specific instructions (pre-built by [`project_docs::discover_project_docs()`])
     ///
-    /// Layer 5 (user instructions override) is appended by the session layer.
+    /// Layer 5 (user instructions override) is appended by the session layer
+    /// via [`SessionConfig::user_instructions`].
     ///
     /// [`prompts::build_environment_context()`]: crate::prompts::build_environment_context
     /// [`project_docs::discover_project_docs()`]: crate::project_docs::discover_project_docs
+    /// [`SessionConfig::user_instructions`]: crate::types::SessionConfig
     fn build_system_prompt(&self, environment_context: &str, project_docs: &str) -> String {
         let mut prompt = self.base_instructions().to_string();
 

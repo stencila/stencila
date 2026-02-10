@@ -43,12 +43,14 @@ pub fn definition() -> ToolDefinition {
 
 /// Executor that delegates to `env.read_file()`.
 ///
-// TODO(spec-ambiguity): The spec (line 500) says image data should be returned
-// for multimodal models, and PLAN.md:199 expects `FileContent::Image` to be
-// mapped to image content. However, `ToolExecutorFn` returns `String`, so raw
-// image bytes cannot flow through without either base64 encoding or changing
-// the return type to support multi-part content. Returning a placeholder string
-// for now; proper image support requires a return type change (spec: 3.3).
+// TODO(image-support): The spec (line 500) says image data should be returned
+// for multimodal models. Currently `ToolExecutorFn` returns `String`, so raw
+// image bytes cannot flow through. The planned approach:
+//   1. Introduce a `ToolOutput` enum: `ToolOutput::Text(String)` | `ToolOutput::Parts(Vec<ContentPart>)`
+//   2. Update `ToolExecutorFn` return type from `String` to `ToolOutput`
+//   3. Map `FileContent::Image` to a `ContentPart::image(...)` part
+// This is a significant refactor touching every tool file — deferred to a
+// dedicated PR. See README.md "Known Limitations". (spec: 3.3)
 pub fn executor() -> ToolExecutorFn {
     Box::new(
         |args: Value, env: &dyn crate::execution::ExecutionEnvironment| {

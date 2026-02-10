@@ -152,6 +152,10 @@ fn error_is_tool_error_for_all_tool_variants() {
 fn error_is_session_error_for_agent_native_variants() {
     let session_errors: Vec<AgentError> = vec![
         AgentError::SessionClosed,
+        AgentError::InvalidState {
+            expected: "Idle".into(),
+            actual: "Processing".into(),
+        },
         AgentError::TurnLimitExceeded {
             message: "x".into(),
         },
@@ -294,6 +298,14 @@ fn error_code_values() {
         "SHELL_EXIT_ERROR"
     );
     assert_eq!(AgentError::SessionClosed.code(), "SESSION_CLOSED");
+    assert_eq!(
+        AgentError::InvalidState {
+            expected: "Idle".into(),
+            actual: "Processing".into()
+        }
+        .code(),
+        "INVALID_STATE"
+    );
     assert_eq!(
         AgentError::Io {
             message: "x".into()

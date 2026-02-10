@@ -72,11 +72,13 @@ pub async fn discover_project_docs(
                 Err(_) => continue,
             };
 
-            let content_bytes = content.len();
+            // Account for the "\n\n" separator between documents
+            let separator_len = if result.is_empty() { 0 } else { 2 };
+            let content_bytes = content.len() + separator_len;
 
             if total_bytes + content_bytes > MAX_PROJECT_DOCS_BYTES {
                 // Append what fits, then truncation marker
-                let remaining = MAX_PROJECT_DOCS_BYTES.saturating_sub(total_bytes);
+                let remaining = MAX_PROJECT_DOCS_BYTES.saturating_sub(total_bytes + separator_len);
                 if remaining > 0 {
                     if !result.is_empty() {
                         result.push_str("\n\n");

@@ -92,6 +92,10 @@ pub struct SessionConfig {
     #[serde(default)]
     pub tool_output_limits: std::collections::HashMap<String, usize>,
 
+    /// Per-tool line output limits (overrides defaults from spec 5.2).
+    #[serde(default)]
+    pub tool_line_limits: std::collections::HashMap<String, usize>,
+
     /// Whether loop detection is enabled.
     #[serde(default = "default_true")]
     pub enable_loop_detection: bool,
@@ -103,6 +107,10 @@ pub struct SessionConfig {
     /// Maximum nesting level for subagents.
     #[serde(default = "default_max_subagent_depth")]
     pub max_subagent_depth: u32,
+
+    /// User instruction override text (spec layer 5, appended last to system prompt).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user_instructions: Option<String>,
 }
 
 fn default_max_tool_rounds() -> u32 {
@@ -133,9 +141,11 @@ impl Default for SessionConfig {
             max_command_timeout_ms: default_max_command_timeout_ms(),
             reasoning_effort: None,
             tool_output_limits: std::collections::HashMap::new(),
+            tool_line_limits: std::collections::HashMap::new(),
             enable_loop_detection: true,
             loop_detection_window: default_loop_detection_window(),
             max_subagent_depth: default_max_subagent_depth(),
+            user_instructions: None,
         }
     }
 }

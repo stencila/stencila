@@ -1416,7 +1416,7 @@ async fn request_has_provider_id() -> AgentResult<()> {
 
 #[tokio::test]
 async fn openai_profile_has_apply_patch_tool() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let names = profile.tool_registry().names();
     assert!(
         names.contains(&"apply_patch"),
@@ -1441,7 +1441,7 @@ async fn openai_profile_has_apply_patch_tool() -> AgentResult<()> {
 
 #[tokio::test]
 async fn anthropic_profile_has_edit_file_tool() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let names = profile.tool_registry().names();
     assert!(
         names.contains(&"edit_file"),
@@ -1462,7 +1462,7 @@ async fn anthropic_profile_has_edit_file_tool() -> AgentResult<()> {
 
 #[tokio::test]
 async fn gemini_profile_has_extended_tools() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-2.5-pro")?;
+    let profile = GeminiProfile::new("gemini-2.5-pro", 600_000)?;
     let names = profile.tool_registry().names();
     assert!(
         names.contains(&"read_many_files"),
@@ -1525,7 +1525,7 @@ async fn run_parity_session(
 
 #[tokio::test]
 async fn parity_openai_session_wires_correct_tools() -> AgentResult<()> {
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let (tool_names, calls) = run_parity_session(profile).await?;
 
     assert!(
@@ -1552,7 +1552,7 @@ async fn parity_openai_session_wires_correct_tools() -> AgentResult<()> {
 
 #[tokio::test]
 async fn parity_anthropic_session_wires_correct_tools() -> AgentResult<()> {
-    let profile = AnthropicProfile::new("claude-opus-4-6")?;
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     let (tool_names, calls) = run_parity_session(profile).await?;
 
     assert!(
@@ -1579,7 +1579,7 @@ async fn parity_anthropic_session_wires_correct_tools() -> AgentResult<()> {
 
 #[tokio::test]
 async fn parity_gemini_session_wires_correct_tools() -> AgentResult<()> {
-    let profile = GeminiProfile::new("gemini-2.5-pro")?;
+    let profile = GeminiProfile::new("gemini-2.5-pro", 600_000)?;
     let (tool_names, calls) = run_parity_session(profile).await?;
 
     assert!(
@@ -1834,7 +1834,7 @@ async fn context_usage_no_warning_below_threshold() -> AgentResult<()> {
 async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResult<()> {
     // Use build_system_prompt with a real profile to verify layers are
     // assembled in the correct order (spec 6.1).
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
 
     let prompt = stencila_agents::session::build_system_prompt(
@@ -1881,7 +1881,7 @@ async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResul
 #[tokio::test]
 async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResult<()> {
     // Verify the prompt passed to Session::new() is the one sent in the LLM request.
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
 
     let prompt = stencila_agents::session::build_system_prompt(
@@ -1890,7 +1890,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
     )
     .await?;
 
-    let profile2 = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile2 = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let client = Arc::new(MockClient::new(vec![text_response("ok")]));
     let (mut session, _rx, _) = {
         let (s, r) = Session::new(
@@ -2003,7 +2003,7 @@ async fn end_to_end_prompt_includes_project_docs_layer() -> AgentResult<()> {
     let env: Arc<dyn ExecutionEnvironment> =
         Arc::new(MockExecEnvWithDocs::new(project_instructions));
 
-    let profile = OpenAiProfile::new("gpt-5.2-codex")?;
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let prompt = stencila_agents::session::build_system_prompt(
         &*Box::new(profile) as &dyn ProviderProfile,
         &*env,
@@ -2045,6 +2045,182 @@ async fn end_to_end_prompt_includes_project_docs_layer() -> AgentResult<()> {
     assert!(
         env_pos < docs_pos,
         "Environment context (layer 2) must precede project docs (layer 4)"
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// Abort-aware LLM call (Finding 3, spec Graceful Shutdown)
+// ===========================================================================
+
+/// Mock client with configurable delay before returning the response.
+struct DelayedClient {
+    delay: Duration,
+    response: Mutex<Option<Result<Response, SdkError>>>,
+}
+
+impl DelayedClient {
+    fn new(delay: Duration, response: Result<Response, SdkError>) -> Self {
+        Self {
+            delay,
+            response: Mutex::new(Some(response)),
+        }
+    }
+}
+
+#[async_trait]
+impl LlmClient for DelayedClient {
+    async fn complete(&self, _request: Request) -> Result<Response, SdkError> {
+        tokio::time::sleep(self.delay).await;
+        self.response
+            .lock()
+            .map_err(|e| SdkError::Configuration {
+                message: format!("mock lock: {e}"),
+            })?
+            .take()
+            .unwrap_or_else(|| {
+                Err(SdkError::Configuration {
+                    message: "no more mock responses".into(),
+                })
+            })
+    }
+}
+
+#[tokio::test]
+async fn abort_during_llm_call() -> AgentResult<()> {
+    // Use a delayed client (500ms) and abort after 50ms.
+    // The session should close without waiting for the LLM response.
+    let client: Arc<dyn LlmClient> = Arc::new(DelayedClient::new(
+        Duration::from_millis(500),
+        text_response("slow response"),
+    ));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, _rx) = Session::new(
+        Box::new(profile),
+        env,
+        client,
+        SessionConfig::default(),
+        "test prompt".into(),
+        0,
+    );
+
+    let controller = AbortController::new();
+    session.set_abort_signal(controller.signal());
+
+    // Abort after a short delay — while the LLM call is still in-flight
+    let ctrl = controller.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        ctrl.abort();
+    });
+
+    let start = std::time::Instant::now();
+    session.submit("Test abort during LLM").await?;
+    let elapsed = start.elapsed();
+
+    assert_eq!(session.state(), SessionState::Closed);
+    // Should complete much faster than the 500ms LLM delay
+    assert!(
+        elapsed < Duration::from_millis(300),
+        "Abort should cancel in-flight LLM call: took {elapsed:?}"
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// Schema validation at runtime (Finding 1, spec 3.8 step 2)
+// ===========================================================================
+
+#[tokio::test]
+async fn invalid_tool_args_returns_validation_error() -> AgentResult<()> {
+    // The echo tool requires "text" (a string). Sending an integer should
+    // fail schema validation and return is_error: true without executing.
+    let call = ToolCall {
+        id: format!("call-{}", uuid::Uuid::new_v4()),
+        name: "echo".into(),
+        arguments: json!({"text": 42}), // wrong type: integer instead of string
+        raw_arguments: None,
+        parse_error: None,
+    };
+
+    let (mut session, _rx, _) = test_session(vec![
+        tool_call_response("", vec![call]),
+        text_response("Saw the validation error"),
+    ])?;
+
+    session.submit("Send invalid args").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    // Find the ToolResults turn and verify it has is_error: true
+    let tool_results_turn = session
+        .history()
+        .iter()
+        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
+    assert!(
+        tool_results_turn.is_some(),
+        "Expected ToolResults turn in history"
+    );
+
+    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results_turn {
+        assert_eq!(results.len(), 1);
+        assert!(
+            results[0].is_error,
+            "Invalid args should produce is_error: true"
+        );
+        let content = results[0].content.as_str().unwrap_or("");
+        assert!(
+            content.contains("validation") || content.contains("not of type"),
+            "Error should mention validation failure: {content}"
+        );
+    }
+
+    Ok(())
+}
+
+// ===========================================================================
+// Shell timeout clamping (Finding 2, max_command_timeout_ms)
+// ===========================================================================
+
+#[tokio::test]
+async fn shell_timeout_clamped_to_max() -> AgentResult<()> {
+    // Shell tool call requests a 999 second timeout, but max is 600_000ms (10 min).
+    // Verify the exec_command receives the clamped value.
+    let call = ToolCall {
+        id: format!("call-{}", uuid::Uuid::new_v4()),
+        name: "shell".into(),
+        arguments: json!({"command": "echo hi", "timeout_ms": 999_000}),
+        raw_arguments: None,
+        parse_error: None,
+    };
+
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![call]),
+        text_response("ok"),
+    ]));
+    let env = Arc::new(CapturingExecEnv::new());
+    let (mut session, _rx, _) = {
+        let (s, r) = Session::new(
+            Box::new(profile),
+            env.clone() as Arc<dyn ExecutionEnvironment>,
+            client.clone(),
+            SessionConfig::default(),
+            "test".into(),
+            0,
+        );
+        (s, r, client.clone())
+    };
+
+    session.submit("clamp test").await?;
+
+    let calls = env.take_calls()?;
+    assert_eq!(calls.len(), 1, "Expected one exec_command call");
+    assert_eq!(
+        calls[0].1, 600_000,
+        "timeout should be clamped to max_command_timeout_ms (600_000)"
     );
 
     Ok(())

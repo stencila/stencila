@@ -23,9 +23,10 @@ cargo test -p stencila-agents
 ## Documentation
 
 - Keep a concise `Testing` section in the root `README.md` with the canonical command sequence.
+- Keep intentional spec deviations and deferred/known limitations in the root `README.md` under `## Deviations` and `## Limitations`.
 - Keep detailed test structure and conventions in `tests/README.md`.
 - Keep spec coverage tracking in `tests/spec-traceability.md`.
-- When testing workflow or spec-conformance coverage changes, update all three docs in the same change.
+- When testing workflow or spec-conformance coverage changes, update all relevant docs in the same change (`README.md`, `tests/README.md`, `tests/spec-traceability.md`).
 
 ## Definition of Done
 

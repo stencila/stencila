@@ -648,7 +648,7 @@ async fn shell_custom_timeout() -> AgentResult<()> {
             duration_ms: 100,
         },
     );
-    let exec = tools::shell::executor_with_timeout(120_000);
+    let exec = tools::shell::executor_with_timeout(120_000, 600_000);
     exec(json!({"command": "slow"}), &env).await?;
 
     let calls = env.recorded_exec_calls();
@@ -671,7 +671,7 @@ async fn shell_per_call_timeout_overrides_default() -> AgentResult<()> {
             duration_ms: 10,
         },
     );
-    let exec = tools::shell::executor_with_timeout(120_000);
+    let exec = tools::shell::executor_with_timeout(120_000, 600_000);
     exec(json!({"command": "quick", "timeout_ms": 5000}), &env).await?;
 
     let calls = env.recorded_exec_calls();

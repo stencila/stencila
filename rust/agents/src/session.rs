@@ -207,7 +207,14 @@ impl Session {
 
         let truncation_config = TruncationConfig {
             tool_output_limits: config.tool_output_limits.clone(),
-            tool_line_limits: std::collections::HashMap::new(),
+            tool_line_limits: config.tool_line_limits.clone(),
+        };
+
+        // Layer 5: append user instruction override if present (spec 6.1)
+        let system_prompt = if let Some(ref user_instr) = config.user_instructions {
+            format!("{system_prompt}\n\n{user_instr}")
+        } else {
+            system_prompt
         };
 
         let max_depth = config.max_subagent_depth;
@@ -256,6 +263,7 @@ impl Session {
     /// # State transitions
     ///
     /// - IDLE → PROCESSING → IDLE (natural completion or turn limit)
+    /// - AWAITING_INPUT → PROCESSING → IDLE (user answered a question)
     /// - IDLE → PROCESSING → CLOSED (unrecoverable error or abort)
     ///
     /// # Errors
@@ -269,6 +277,27 @@ impl Session {
 
         self.state = SessionState::Processing;
         self.process_input(input).await
+    }
+
+    /// Transition the session to AwaitingInput state (spec 2.3).
+    ///
+    /// This is a host-driven API: after [`submit()`](Self::submit) returns,
+    /// the host inspects the last assistant turn. If the model asked a
+    /// question, the host calls this method. When the user answers, the host
+    /// calls [`submit()`](Self::submit) again.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(InvalidState)` if the session is not in the Idle state.
+    pub fn set_awaiting_input(&mut self) -> AgentResult<()> {
+        if self.state != SessionState::Idle {
+            return Err(AgentError::InvalidState {
+                expected: "Idle".into(),
+                actual: format!("{:?}", self.state),
+            });
+        }
+        self.state = SessionState::AwaitingInput;
+        Ok(())
     }
 
     /// Queue a steering message to be injected after the current tool round.
@@ -382,11 +411,24 @@ impl Session {
             // 4. Context-usage warning (spec 5.5)
             self.check_context_usage();
 
-            // 5. Build and send LLM request
+            // 5. Build and send LLM request (abort-aware)
             let request = self.build_request();
-            let response = match self.client.complete(request).await {
-                Ok(r) => r,
-                Err(e) => return self.handle_sdk_error(e),
+            let response = if let Some(ref signal) = self.abort_signal {
+                tokio::select! {
+                    result = self.client.complete(request) => match result {
+                        Ok(r) => r,
+                        Err(e) => return self.handle_sdk_error(e),
+                    },
+                    () = signal.cancelled() => {
+                        self.close();
+                        return Ok(());
+                    },
+                }
+            } else {
+                match self.client.complete(request).await {
+                    Ok(r) => r,
+                    Err(e) => return self.handle_sdk_error(e),
+                }
             };
 
             // 6. Record assistant turn
@@ -837,6 +879,10 @@ impl Session {
 
 /// Execute a single tool call. Factored out as a free function so it can be
 /// called in parallel without borrowing `&mut Session`.
+///
+/// Performs schema validation (spec 3.8 step 2) between tool lookup and
+/// execution. Invalid arguments produce an `is_error: true` result without
+/// invoking the executor.
 async fn execute_tool(
     tool_call: &ToolCall,
     registry: &crate::registry::ToolRegistry,
@@ -845,6 +891,17 @@ async fn execute_tool(
     trunc_config: &TruncationConfig,
 ) -> ToolResult {
     events.emit_tool_call_start(&tool_call.name, &tool_call.id);
+
+    // VALIDATE (spec 3.8 step 2) — before execute
+    if let Err(e) = registry.validate_arguments(&tool_call.name, &tool_call.arguments) {
+        let error_msg = e.to_string();
+        events.emit_tool_call_end_error(&tool_call.id, &error_msg);
+        return ToolResult {
+            tool_call_id: tool_call.id.clone(),
+            content: Value::String(error_msg),
+            is_error: true,
+        };
+    }
 
     let result = match registry.get(&tool_call.name) {
         Some(tool) => tool.execute(tool_call.arguments.clone(), env).await,

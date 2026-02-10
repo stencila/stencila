@@ -94,9 +94,9 @@ pub async fn live_session(
 
     // Build profile
     let profile: Box<dyn stencila_agents::profile::ProviderProfile> = match provider {
-        "openai" => Box::new(OpenAiProfile::new(model)?),
-        "anthropic" => Box::new(AnthropicProfile::new(model)?),
-        "gemini" => Box::new(GeminiProfile::new(model)?),
+        "openai" => Box::new(OpenAiProfile::new(model, 600_000)?),
+        "anthropic" => Box::new(AnthropicProfile::new(model, 600_000)?),
+        "gemini" => Box::new(GeminiProfile::new(model, 600_000)?),
         _ => {
             return Err(AgentError::Io {
                 message: format!("unknown provider: {provider}"),

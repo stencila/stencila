@@ -7,6 +7,10 @@
 //! Tool set: `read_file`, `apply_patch`, `write_file`, `shell` (10s timeout),
 //! `grep`, `glob`. Subagent tools added in Phase 9.
 
+use std::collections::HashMap;
+
+use serde_json::Value;
+
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
@@ -65,13 +69,17 @@ pub struct OpenAiProfile {
 impl OpenAiProfile {
     /// Create a new OpenAI profile with the given model identifier.
     ///
+    /// `max_command_timeout_ms` clamps per-call `timeout_ms` on the shell tool
+    /// to prevent unbounded execution. Pass [`SessionConfig::max_command_timeout_ms`]
+    /// (default 600 000 = 10 minutes).
+    ///
     /// Populates the tool registry with the OpenAI-specific tool set:
     /// `read_file`, `apply_patch`, `write_file`, `shell`, `grep`, `glob`.
     ///
     /// # Errors
     ///
     /// Returns an error if tool registration fails (e.g. invalid definition).
-    pub fn new(model: impl Into<String>) -> AgentResult<Self> {
+    pub fn new(model: impl Into<String>, max_command_timeout_ms: u64) -> AgentResult<Self> {
         let mut registry = ToolRegistry::new();
 
         // Register tools in the order listed in spec 3.4.
@@ -81,7 +89,7 @@ impl OpenAiProfile {
             RegisteredTool::new(write_file::definition(), write_file::executor()),
             RegisteredTool::new(
                 shell::definition(),
-                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS),
+                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS, max_command_timeout_ms),
             ),
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
@@ -132,5 +140,11 @@ impl ProviderProfile for OpenAiProfile {
 
     fn context_window_size(&self) -> u64 {
         200_000
+    }
+
+    fn provider_options(&self) -> Option<HashMap<String, Value>> {
+        // TODO: Populate with provider-specific options per spec 3.4
+        // (e.g. model version pinning, response format preferences).
+        Some(HashMap::new())
     }
 }

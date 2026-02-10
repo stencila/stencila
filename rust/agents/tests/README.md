@@ -26,6 +26,7 @@ Tests are organized by spec section, following the same convention as `stencila-
 - **Env-gated**: Live integration tests skip silently when API keys are absent — no CI failures. Provider-side `RateLimit` and `QuotaExceeded` errors are also treated as skips (not test failures) to avoid flaky results from transient provider issues.
 - **TDD**: Test file created/updated before source file in each phase.
 - **Traceability**: Every test maps to a spec section in `spec-traceability.md`.
+- **Spec gaps/deviations**: Keep intentional deviations and deferred/known limitations in `README.md` under `## Deviations` and `## Limitations`.
 - **Clippy lint suppression**: Integration-style test files (e.g. `spec_2_loop.rs`) use `#![allow(clippy::result_large_err)]` at the crate level because test helpers return `AgentResult` with a large error variant. This is expected and should not produce warning noise in `cargo clippy`.
 
 ## Running Tests

@@ -41,15 +41,20 @@ pub fn definition() -> ToolDefinition {
     }
 }
 
-/// Executor with the default 10-second timeout.
+/// Default maximum timeout in milliseconds (10 minutes).
+const DEFAULT_MAX_TIMEOUT_MS: u64 = 600_000;
+
+/// Executor with the default 10-second timeout and 10-minute max.
 pub fn executor() -> ToolExecutorFn {
-    executor_with_timeout(DEFAULT_TIMEOUT_MS)
+    executor_with_timeout(DEFAULT_TIMEOUT_MS, DEFAULT_MAX_TIMEOUT_MS)
 }
 
-/// Executor with a custom default timeout (overridable per-call via `timeout_ms` arg).
+/// Executor with a custom default timeout and maximum timeout.
 ///
 /// Provider profiles use this to set profile-specific defaults (e.g. Anthropic 120s).
-pub fn executor_with_timeout(default_timeout_ms: u64) -> ToolExecutorFn {
+/// The `max_timeout_ms` parameter clamps any per-call `timeout_ms` value to prevent
+/// unbounded execution time (spec `max_command_timeout_ms`).
+pub fn executor_with_timeout(default_timeout_ms: u64, max_timeout_ms: u64) -> ToolExecutorFn {
     Box::new(
         move |args: Value, env: &dyn crate::execution::ExecutionEnvironment| {
             Box::pin(async move {
@@ -57,7 +62,8 @@ pub fn executor_with_timeout(default_timeout_ms: u64) -> ToolExecutorFn {
                 let timeout_ms = args
                     .get("timeout_ms")
                     .and_then(Value::as_u64)
-                    .unwrap_or(default_timeout_ms);
+                    .unwrap_or(default_timeout_ms)
+                    .min(max_timeout_ms);
 
                 let result = env.exec_command(command, timeout_ms, None, None).await?;
 
