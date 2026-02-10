@@ -15,7 +15,7 @@
 //! delegates to [`complete()`](LlmClient::complete), so mocks only need
 //! to implement `complete`.
 
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -37,6 +37,7 @@ use crate::events::{self, EventEmitter, EventReceiver};
 use crate::execution::ExecutionEnvironment;
 use crate::loop_detection;
 use crate::profile::ProviderProfile;
+use crate::registry::ToolOutput;
 use crate::subagents::SubAgentManager;
 use crate::truncation::{TruncationConfig, truncate_tool_output};
 use crate::types::{SessionConfig, SessionState, Turn, now_timestamp};
@@ -202,6 +203,16 @@ impl AbortSignal {
 }
 
 // ---------------------------------------------------------------------------
+// ImageAttachment
+// ---------------------------------------------------------------------------
+
+/// Image data attached to a tool result for multimodal providers.
+struct ImageAttachment {
+    data: Vec<u8>,
+    media_type: String,
+}
+
+// ---------------------------------------------------------------------------
 // Session
 // ---------------------------------------------------------------------------
 
@@ -235,6 +246,10 @@ pub struct Session {
     tool_call_signatures: VecDeque<String>,
     /// Manager for child agent sessions (spec 7.1).
     subagent_manager: SubAgentManager,
+    /// Image attachments from tool results, keyed by tool_call_id.
+    /// Provider-generated tool_call_ids are UUIDs, so collisions are
+    /// not a practical concern.
+    image_attachments: HashMap<String, ImageAttachment>,
 }
 
 impl std::fmt::Debug for Session {
@@ -314,6 +329,7 @@ impl Session {
             truncation_config,
             tool_call_signatures: VecDeque::new(),
             subagent_manager,
+            image_attachments: HashMap::new(),
         };
 
         (session, receiver)
@@ -678,7 +694,26 @@ impl Session {
                     }
                 }
                 Turn::ToolResults { results, .. } => {
+                    let include_images = self.profile.id() == "anthropic";
                     for result in results {
+                        if include_images
+                            && let Some(att) = self.image_attachments.get(&result.tool_call_id)
+                        {
+                            let mut msg = Message::new(
+                                Role::Tool,
+                                vec![
+                                    ContentPart::tool_result(
+                                        &result.tool_call_id,
+                                        result.content.clone(),
+                                        result.is_error,
+                                    ),
+                                    ContentPart::image_data(att.data.clone(), &att.media_type),
+                                ],
+                            );
+                            msg.tool_call_id = Some(result.tool_call_id.clone());
+                            messages.push(msg);
+                            continue;
+                        }
                         messages.push(Message::tool_result(
                             &result.tool_call_id,
                             result.content.clone(),
@@ -752,7 +787,9 @@ impl Session {
             if self.is_aborted() {
                 break;
             }
-            results.push(self.execute_single_tool(tc).await);
+            let (result, attachment) = self.execute_single_tool(tc).await;
+            self.store_attachment_if_supported(attachment);
+            results.push(result);
         }
         results
     }
@@ -769,7 +806,13 @@ impl Session {
             .map(|tc| execute_tool(tc, registry, env, events, trunc_config))
             .collect();
 
-        futures::future::join_all(futs).await
+        let pairs = futures::future::join_all(futs).await;
+        let mut results = Vec::with_capacity(pairs.len());
+        for (result, attachment) in pairs {
+            self.store_attachment_if_supported(attachment);
+            results.push(result);
+        }
+        results
     }
 
     /// Execute tool calls when subagent tools are present.
@@ -785,7 +828,9 @@ impl Session {
             if SubAgentManager::is_subagent_tool(&tc.name) {
                 results.push(self.execute_subagent_tool(tc).await);
             } else {
-                results.push(self.execute_single_tool(tc).await);
+                let (result, attachment) = self.execute_single_tool(tc).await;
+                self.store_attachment_if_supported(attachment);
+                results.push(result);
             }
         }
         results
@@ -825,8 +870,24 @@ impl Session {
         }
     }
 
+    /// Store an image attachment only when the provider supports images in
+    /// tool results. Avoids accumulating dead weight for providers that
+    /// receive only the text fallback (OpenAI, Gemini).
+    fn store_attachment_if_supported(&mut self, attachment: Option<(String, ImageAttachment)>) {
+        if let Some((id, img)) = attachment {
+            if self.profile.id() == "anthropic" {
+                self.image_attachments.insert(id, img);
+            }
+        }
+    }
+
     /// Execute a single tool call: emit events, run executor, truncate output.
-    async fn execute_single_tool(&self, tool_call: &ToolCall) -> ToolResult {
+    ///
+    /// Returns `(ToolResult, Option<(tool_call_id, ImageAttachment)>)`.
+    async fn execute_single_tool(
+        &self,
+        tool_call: &ToolCall,
+    ) -> (ToolResult, Option<(String, ImageAttachment)>) {
         execute_tool(
             tool_call,
             self.profile.tool_registry(),
@@ -999,24 +1060,31 @@ impl Session {
 /// Performs schema validation (spec 3.8 step 2) between tool lookup and
 /// execution. Invalid arguments produce an `is_error: true` result without
 /// invoking the executor.
+///
+/// Returns `(ToolResult, Option<(tool_call_id, ImageAttachment)>)`. The
+/// second element is `Some` when the tool produced image data that should
+/// be attached to the tool result message for multimodal providers.
 async fn execute_tool(
     tool_call: &ToolCall,
     registry: &crate::registry::ToolRegistry,
     env: &dyn ExecutionEnvironment,
     events: &EventEmitter,
     trunc_config: &TruncationConfig,
-) -> ToolResult {
+) -> (ToolResult, Option<(String, ImageAttachment)>) {
     events.emit_tool_call_start(&tool_call.name, &tool_call.id);
 
     // VALIDATE (spec 3.8 step 2) — before execute
     if let Err(e) = registry.validate_arguments(&tool_call.name, &tool_call.arguments) {
         let error_msg = e.to_string();
         events.emit_tool_call_end_error(&tool_call.id, &error_msg);
-        return ToolResult {
-            tool_call_id: tool_call.id.clone(),
-            content: Value::String(error_msg),
-            is_error: true,
-        };
+        return (
+            ToolResult {
+                tool_call_id: tool_call.id.clone(),
+                content: Value::String(error_msg),
+                is_error: true,
+            },
+            None,
+        );
     }
 
     let result = match registry.get(&tool_call.name) {
@@ -1028,24 +1096,39 @@ async fn execute_tool(
 
     match result {
         Ok(output) => {
+            let text = output.as_text();
             // Full output in event (spec 2.9: TOOL_CALL_END has untruncated output)
-            events.emit_tool_call_end(&tool_call.id, &output);
+            events.emit_tool_call_end(&tool_call.id, text);
             // Truncated version for LLM
-            let truncated = truncate_tool_output(&output, &tool_call.name, trunc_config);
-            ToolResult {
-                tool_call_id: tool_call.id.clone(),
-                content: Value::String(truncated),
-                is_error: false,
-            }
+            let truncated = truncate_tool_output(text, &tool_call.name, trunc_config);
+
+            let attachment = match output {
+                ToolOutput::ImageWithText {
+                    data, media_type, ..
+                } => Some((tool_call.id.clone(), ImageAttachment { data, media_type })),
+                ToolOutput::Text(_) => None,
+            };
+
+            (
+                ToolResult {
+                    tool_call_id: tool_call.id.clone(),
+                    content: Value::String(truncated),
+                    is_error: false,
+                },
+                attachment,
+            )
         }
         Err(e) => {
             let error_msg = e.to_string();
             events.emit_tool_call_end_error(&tool_call.id, &error_msg);
-            ToolResult {
-                tool_call_id: tool_call.id.clone(),
-                content: Value::String(error_msg),
-                is_error: true,
-            }
+            (
+                ToolResult {
+                    tool_call_id: tool_call.id.clone(),
+                    content: Value::String(error_msg),
+                    is_error: true,
+                },
+                None,
+            )
         }
     }
 }

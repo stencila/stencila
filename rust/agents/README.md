@@ -78,13 +78,21 @@ TODO
 
 These are intentional deviations from the spec.
 
-### `SESSION_END` emission timing (`§2.9`)
+### Session command timeout source (`§2.2`)
 
-The pseudocode emits `SESSION_END` at each loop completion, but this implementation emits it only when a session is actually closed (close/error/abort), to avoid noisy lifecycle events for normal idle transitions.
+`SessionConfig.default_command_timeout_ms` exists but profile-specific shell defaults remain the effective source of default timeout behavior (OpenAI/Gemini 10s, Anthropic 120s).
 
 ### `follow_up()` processing scope (`§2.8`)
 
 The spec text implies follow-ups run after natural completion (text-only model response). This implementation processes follow-ups after loop exit on both natural-completion and turn-limit paths.
+
+### Delta event emission (`§2.9`)
+
+`ASSISTANT_TEXT_DELTA` is emitted incrementally during streaming. `TOOL_CALL_OUTPUT_DELTA` is defined but not yet emitted by the tool execution pipeline.
+
+### `SESSION_END` emission timing (`§2.9`)
+
+The pseudocode emits `SESSION_END` at each loop completion, but this implementation emits it only when a session is actually closed (close/error/abort), to avoid noisy lifecycle events for normal idle transitions.
 
 ### Context warning event kind (`§5.5`)
 
@@ -94,21 +102,13 @@ The spec pseudocode uses a `WARNING` event, but the spec event enum does not def
 
 Spec wording says `send_input` targets a running subagent. In this implementation, subagents currently run synchronously and are usually already completed, so `send_input` accepts non-failed agents.
 
-### Subagent parallelism (`§7.4`)
-
-The spec emphasizes parallel subagent exploration. This implementation currently runs `spawn_agent` synchronously and blocks until completion, so `wait` is effectively immediate/no-op in most cases.
-
 ### Subagent `working_dir` scope (`§7.2`)
 
 `spawn_agent.working_dir` is currently advisory only: it is appended to the child prompt but not enforced by the execution environment.
 
-### Delta event emission (`§2.9`)
+### Subagent parallelism (`§7.4`)
 
-`ASSISTANT_TEXT_DELTA` is emitted incrementally during streaming. `TOOL_CALL_OUTPUT_DELTA` is defined but not yet emitted by the tool execution pipeline.
-
-### Session command timeout source (`§2.2`)
-
-`SessionConfig.default_command_timeout_ms` exists but profile-specific shell defaults remain the effective source of default timeout behavior (OpenAI/Gemini 10s, Anthropic 120s).
+The spec emphasizes parallel subagent exploration. This implementation currently runs `spawn_agent` synchronously and blocks until completion, so `wait` is effectively immediate/no-op in most cases.
 
 ### `apply_patch` Unicode punctuation fuzziness (Appendix A)
 
@@ -124,7 +124,7 @@ Tool schemas are passed through the API `tools` parameter rather than serialized
 
 ### Image tool output support (`§3.3`)
 
-`read_file` currently returns an image placeholder string for image files. Proper multimodal tool output requires a richer non-string tool output type across the tool pipeline.
+`read_file` returns image data for multimodal providers via the `ToolOutput::ImageWithText` variant. Image content is currently included in tool result messages for Anthropic only; OpenAI and Gemini receive the text placeholder because their adapters do not support non-text content parts in tool-role messages. Images larger than 5 MB fall back to the text placeholder.
 
 ### AwaitingInput auto-detection (`§2.3`)
 

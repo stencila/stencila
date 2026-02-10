@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -86,7 +86,7 @@ pub fn executor_with_timeout(default_timeout_ms: u64, max_timeout_ms: u64) -> To
                     output.push_str(&result.stderr);
                 }
 
-                Ok(output)
+                Ok(ToolOutput::Text(output))
             })
         },
     )

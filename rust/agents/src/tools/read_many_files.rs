@@ -5,7 +5,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 use crate::error::{AgentError, AgentResult};
 use crate::execution::FileContent;
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 /// Tool definition matching `tests/fixtures/tool_schemas/read_many_files.json`.
 pub fn definition() -> ToolDefinition {
@@ -72,7 +72,7 @@ pub fn executor() -> ToolExecutorFn {
                     }
                 }
 
-                Ok(parts.join("\n"))
+                Ok(ToolOutput::Text(parts.join("\n")))
             })
         },
     )

@@ -9,7 +9,7 @@ use std::sync::Arc;
 use serde_json::json;
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::ExecutionEnvironment;
-use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolRegistry};
+use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput, ToolRegistry};
 use stencila_models3::types::tool::ToolDefinition;
 
 // ===========================================================================
@@ -37,7 +37,7 @@ fn mock_executor(output: &str) -> ToolExecutorFn {
     let output = Arc::new(output.to_string());
     Box::new(move |_args, _env| {
         let output = Arc::clone(&output);
-        Box::pin(async move { Ok((*output).clone()) })
+        Box::pin(async move { Ok(ToolOutput::Text((*output).clone())) })
     })
 }
 
@@ -313,7 +313,7 @@ async fn execute_tool_success() -> AgentResult<()> {
     let tool = RegisteredTool::new(mock_definition("echo"), mock_executor("hello world"));
     let env = MockEnv;
     let result = tool.execute(json!({"input": "test"}), &env).await?;
-    assert_eq!(result, "hello world");
+    assert_eq!(result.as_text(), "hello world");
     Ok(())
 }
 
@@ -410,7 +410,7 @@ async fn lookup_validate_execute_integrated() -> AgentResult<()> {
     // 3. Execute
     let env = MockEnv;
     let output = tool.execute(args, &env).await?;
-    assert_eq!(output, "hello!");
+    assert_eq!(output.as_text(), "hello!");
     Ok(())
 }
 

@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 use crate::types::GrepOptions;
 
 use super::required_str;
@@ -74,7 +74,9 @@ pub fn executor() -> ToolExecutorFn {
                         .map_or(100, |v| v as u32),
                 };
 
-                env.grep(pattern, path, &options).await
+                env.grep(pattern, path, &options)
+                    .await
+                    .map(ToolOutput::Text)
             })
         },
     )

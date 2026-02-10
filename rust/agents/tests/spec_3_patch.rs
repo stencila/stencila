@@ -829,7 +829,7 @@ async fn apply_patch_executor_end_to_end() -> AgentResult<()> {
 
     let exec = tools::apply_patch::executor();
     let result = exec(json!({"patch": patch_str}), &env).await?;
-    assert!(result.contains("Updated"));
+    assert!(result.as_text().contains("Updated"));
 
     let content = env.file_content("src/lib.rs");
     let c = content.as_deref().unwrap_or("");

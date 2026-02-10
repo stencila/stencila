@@ -16,7 +16,7 @@ use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
-use stencila_agents::registry::{RegisteredTool, ToolExecutorFn};
+use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
 use stencila_models3::types::tool::ToolDefinition;
 
@@ -28,8 +28,8 @@ fn noop_executor() -> ToolExecutorFn {
     Box::new(
         |_args: Value,
          _env: &dyn ExecutionEnvironment|
-         -> Pin<Box<dyn Future<Output = AgentResult<String>> + Send + '_>> {
-            Box::pin(async { Ok("ok".into()) })
+         -> Pin<Box<dyn Future<Output = AgentResult<ToolOutput>> + Send + '_>> {
+            Box::pin(async { Ok(ToolOutput::Text("ok".into())) })
         },
     )
 }

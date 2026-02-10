@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -44,7 +44,9 @@ pub fn executor() -> ToolExecutorFn {
                 env.write_file(file_path, content).await?;
 
                 let n = content.len();
-                Ok(format!("Successfully wrote {n} bytes to {file_path}"))
+                Ok(ToolOutput::Text(format!(
+                    "Successfully wrote {n} bytes to {file_path}"
+                )))
             })
         },
     )

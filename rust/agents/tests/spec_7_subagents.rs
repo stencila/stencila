@@ -25,7 +25,7 @@ use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
-use stencila_agents::registry::{RegisteredTool, ToolRegistry};
+use stencila_agents::registry::{RegisteredTool, ToolOutput, ToolRegistry};
 use stencila_agents::session::{LlmClient, Session};
 use stencila_agents::subagents;
 use stencila_agents::types::{DirEntry, EventKind, ExecResult, GrepOptions, SessionConfig};
@@ -250,7 +250,7 @@ fn echo_tool() -> RegisteredTool {
                     .get("text")
                     .and_then(|v| v.as_str())
                     .unwrap_or("no text");
-                Ok(text.to_string())
+                Ok(ToolOutput::Text(text.to_string()))
             })
         }),
     )

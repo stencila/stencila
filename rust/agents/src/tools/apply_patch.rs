@@ -9,7 +9,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 use crate::error::{AgentError, AgentResult};
 use crate::execution::ExecutionEnvironment;
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -655,7 +655,7 @@ pub fn executor() -> ToolExecutorFn {
             let patch_str = required_str(&args, "patch")?;
             let patch = parse_patch(patch_str)?;
             let summaries = apply_patch_ops(&patch, env).await?;
-            Ok(summaries.join("\n"))
+            Ok(ToolOutput::Text(summaries.join("\n")))
         })
     })
 }

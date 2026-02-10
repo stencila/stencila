@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -62,9 +62,9 @@ pub fn executor() -> ToolExecutorFn {
                     .collect();
 
                 if lines.is_empty() {
-                    Ok("Empty directory.".into())
+                    Ok(ToolOutput::Text("Empty directory.".into()))
                 } else {
-                    Ok(lines.join("\n"))
+                    Ok(ToolOutput::Text(lines.join("\n")))
                 }
             })
         },

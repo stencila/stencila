@@ -11,7 +11,7 @@ use async_trait::async_trait;
 use serde_json::json;
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
-use stencila_agents::registry::ToolRegistry;
+use stencila_agents::registry::{MAX_IMAGE_BYTES, ToolOutput, ToolRegistry};
 use stencila_agents::tools;
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
 use stencila_models3::types::tool::ToolDefinition;
@@ -114,6 +114,20 @@ impl MockExecutionEnvironment {
                 path.into(),
                 MockFileContent::Image {
                     data: vec![0x89, 0x50, 0x4E, 0x47],
+                    media_type: media_type.into(),
+                },
+            );
+        }
+        self
+    }
+
+    fn with_image_data(self, path: &str, media_type: &str, data: Vec<u8>) -> Self {
+        {
+            let mut files = self.files.lock().expect("lock poisoned");
+            files.insert(
+                path.into(),
+                MockFileContent::Image {
+                    data,
                     media_type: media_type.into(),
                 },
             );
@@ -373,8 +387,9 @@ async fn read_file_text_content() -> AgentResult<()> {
     let exec = tools::read_file::executor();
     let result = exec(json!({"file_path": "/test/hello.rs"}), &env).await?;
 
-    assert!(result.contains("fn main()"));
-    assert!(result.contains("println!"));
+    let text = result.as_text();
+    assert!(text.contains("fn main()"));
+    assert!(text.contains("println!"));
     Ok(())
 }
 
@@ -389,20 +404,53 @@ async fn read_file_with_offset_and_limit() -> AgentResult<()> {
     )
     .await?;
 
-    assert!(result.contains("line2"));
-    assert!(result.contains("line3"));
-    assert!(!result.contains("line1"));
-    assert!(!result.contains("line4"));
+    let text = result.as_text();
+    assert!(text.contains("line2"));
+    assert!(text.contains("line3"));
+    assert!(!text.contains("line1"));
+    assert!(!text.contains("line4"));
     Ok(())
 }
 
 #[tokio::test]
-async fn read_file_image_returns_placeholder() -> AgentResult<()> {
+async fn read_file_image_returns_image_with_text() -> AgentResult<()> {
     let env = MockExecutionEnvironment::new().with_image("/test/photo.png", "image/png");
     let exec = tools::read_file::executor();
     let result = exec(json!({"file_path": "/test/photo.png"}), &env).await?;
 
-    assert_eq!(result, "[Image file: /test/photo.png (image/png)]");
+    match result {
+        ToolOutput::ImageWithText {
+            text,
+            data,
+            media_type,
+        } => {
+            assert_eq!(text, "[Image file: /test/photo.png (image/png)]");
+            assert_eq!(data, vec![0x89, 0x50, 0x4E, 0x47]);
+            assert_eq!(media_type, "image/png");
+        }
+        ToolOutput::Text(_) => panic!("expected ImageWithText, got Text"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn read_file_large_image_falls_back_to_text() -> AgentResult<()> {
+    let env = MockExecutionEnvironment::new().with_image_data(
+        "/test/huge.png",
+        "image/png",
+        vec![0u8; MAX_IMAGE_BYTES + 1],
+    );
+    let exec = tools::read_file::executor();
+    let result = exec(json!({"file_path": "/test/huge.png"}), &env).await?;
+
+    match result {
+        ToolOutput::Text(text) => {
+            assert_eq!(text, "[Image file: /test/huge.png (image/png)]");
+        }
+        ToolOutput::ImageWithText { .. } => {
+            panic!("expected Text fallback for large image, got ImageWithText")
+        }
+    }
     Ok(())
 }
 
@@ -429,8 +477,9 @@ async fn write_file_success_with_byte_count() -> AgentResult<()> {
     )
     .await?;
 
-    assert!(result.contains("11 bytes"));
-    assert!(result.contains("/test/out.txt"));
+    let text = result.as_text();
+    assert!(text.contains("11 bytes"));
+    assert!(text.contains("/test/out.txt"));
     Ok(())
 }
 
@@ -478,7 +527,7 @@ async fn edit_file_single_replace() -> AgentResult<()> {
     )
     .await?;
 
-    assert!(result.contains("1 occurrence"));
+    assert!(result.as_text().contains("1 occurrence"));
 
     // Verify the written content
     let writes = env.recorded_writes();
@@ -503,7 +552,7 @@ async fn edit_file_replace_all() -> AgentResult<()> {
     )
     .await?;
 
-    assert!(result.contains("3 occurrence"));
+    assert!(result.as_text().contains("3 occurrence"));
     let writes = env.recorded_writes();
     assert_eq!(writes[0].content, "qux bar qux baz qux");
     Ok(())
@@ -606,11 +655,12 @@ async fn shell_success_format() -> AgentResult<()> {
     let exec = tools::shell::executor();
     let result = exec(json!({"command": "echo hello"}), &env).await?;
 
-    assert!(result.contains("Exit code: 0"));
-    assert!(result.contains("Duration: 42ms"));
-    assert!(result.contains("STDOUT:"));
-    assert!(result.contains("hello"));
-    assert!(!result.contains("STDERR:"));
+    let text = result.as_text();
+    assert!(text.contains("Exit code: 0"));
+    assert!(text.contains("Duration: 42ms"));
+    assert!(text.contains("STDOUT:"));
+    assert!(text.contains("hello"));
+    assert!(!text.contains("STDERR:"));
     Ok(())
 }
 
@@ -629,9 +679,10 @@ async fn shell_exit_code() -> AgentResult<()> {
     let exec = tools::shell::executor();
     let result = exec(json!({"command": "false"}), &env).await?;
 
-    assert!(result.contains("Exit code: 1"));
-    assert!(result.contains("STDERR:"));
-    assert!(result.contains("error"));
+    let text = result.as_text();
+    assert!(text.contains("Exit code: 1"));
+    assert!(text.contains("STDERR:"));
+    assert!(text.contains("error"));
     Ok(())
 }
 
@@ -691,7 +742,7 @@ async fn grep_basic() -> AgentResult<()> {
     let exec = tools::grep::executor();
     let result = exec(json!({"pattern": "TODO", "path": "/some/dir"}), &env).await?;
 
-    assert!(result.contains("TODO: fix this"));
+    assert!(result.as_text().contains("TODO: fix this"));
 
     let calls = env.recorded_grep_calls();
     assert_eq!(calls.len(), 1);
@@ -716,7 +767,7 @@ async fn grep_with_options() -> AgentResult<()> {
     )
     .await?;
 
-    assert!(result.contains("handle_error"));
+    assert!(result.as_text().contains("handle_error"));
 
     // Verify parameters were forwarded correctly
     let calls = env.recorded_grep_calls();
@@ -761,8 +812,9 @@ async fn glob_basic() -> AgentResult<()> {
     let exec = tools::glob::executor();
     let result = exec(json!({"pattern": "**/*.rs", "path": "/project"}), &env).await?;
 
-    assert!(result.contains("src/main.rs"));
-    assert!(result.contains("src/lib.rs"));
+    let text = result.as_text();
+    assert!(text.contains("src/main.rs"));
+    assert!(text.contains("src/lib.rs"));
 
     let calls = env.recorded_glob_calls();
     assert_eq!(calls.len(), 1);
@@ -777,7 +829,7 @@ async fn glob_empty_results() -> AgentResult<()> {
     let exec = tools::glob::executor();
     let result = exec(json!({"pattern": "*.xyz"}), &env).await?;
 
-    assert_eq!(result, "No files found.");
+    assert_eq!(result.as_text(), "No files found.");
     Ok(())
 }
 
@@ -815,10 +867,11 @@ async fn read_many_files_batch() -> AgentResult<()> {
     let exec = tools::read_many_files::executor();
     let result = exec(json!({"paths": ["/a.txt", "/b.txt"]}), &env).await?;
 
-    assert!(result.contains("=== /a.txt ==="));
-    assert!(result.contains("=== /b.txt ==="));
-    assert!(result.contains("content a"));
-    assert!(result.contains("content b"));
+    let text = result.as_text();
+    assert!(text.contains("=== /a.txt ==="));
+    assert!(text.contains("=== /b.txt ==="));
+    assert!(text.contains("content a"));
+    assert!(text.contains("content b"));
     Ok(())
 }
 
@@ -828,9 +881,10 @@ async fn read_many_files_partial_failure() -> AgentResult<()> {
     let exec = tools::read_many_files::executor();
     let result = exec(json!({"paths": ["/good.txt", "/bad.txt"]}), &env).await?;
 
-    assert!(result.contains("=== /good.txt ==="));
-    assert!(result.contains("=== /bad.txt ==="));
-    assert!(result.contains("[Error:"));
+    let text = result.as_text();
+    assert!(text.contains("=== /good.txt ==="));
+    assert!(text.contains("=== /bad.txt ==="));
+    assert!(text.contains("[Error:"));
     Ok(())
 }
 
@@ -840,7 +894,7 @@ async fn read_many_files_empty_paths() -> AgentResult<()> {
     let exec = tools::read_many_files::executor();
     let result = exec(json!({"paths": []}), &env).await?;
 
-    assert!(result.is_empty());
+    assert!(result.as_text().is_empty());
     Ok(())
 }
 
@@ -868,8 +922,9 @@ async fn list_dir_basic() -> AgentResult<()> {
     let exec = tools::list_dir::executor();
     let result = exec(json!({"path": "/project"}), &env).await?;
 
-    assert!(result.contains("src/"));
-    assert!(result.contains("Cargo.toml (256 bytes)"));
+    let text = result.as_text();
+    assert!(text.contains("src/"));
+    assert!(text.contains("Cargo.toml (256 bytes)"));
     Ok(())
 }
 

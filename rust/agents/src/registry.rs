@@ -16,11 +16,53 @@ use crate::error::{AgentError, AgentResult};
 use crate::execution::ExecutionEnvironment;
 
 // ---------------------------------------------------------------------------
+// ToolOutput
+// ---------------------------------------------------------------------------
+
+/// Maximum image file size (bytes) for multimodal tool output.
+/// Larger images fall back to the text placeholder to avoid
+/// inflating memory and request payloads across the session.
+pub const MAX_IMAGE_BYTES: usize = 5 * 1024 * 1024;
+
+/// Output from a tool executor.
+///
+/// Most tools return plain text. Tools that produce multimodal content
+/// (e.g. `read_file` for images) return the richer `ImageWithText` variant,
+/// which carries both a text summary (for events, truncation, fallback) and
+/// the raw image bytes.
+#[derive(Debug, Clone)]
+pub enum ToolOutput {
+    /// Plain text output (most tools).
+    Text(String),
+    /// Image output with a text fallback.
+    ImageWithText {
+        /// Human-readable summary (used for events, truncation, and providers
+        /// that do not support images in tool results).
+        text: String,
+        /// Raw image bytes.
+        data: Vec<u8>,
+        /// MIME type (e.g. `"image/png"`).
+        media_type: String,
+    },
+}
+
+impl ToolOutput {
+    /// Text representation (always available).
+    #[must_use]
+    pub fn as_text(&self) -> &str {
+        match self {
+            Self::Text(s) => s,
+            Self::ImageWithText { text, .. } => text,
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // ToolExecutorFn
 // ---------------------------------------------------------------------------
 
 /// Async tool executor: takes JSON arguments and an execution environment,
-/// returns the tool's output string.
+/// returns the tool's output.
 ///
 /// The closure must be `Send + Sync` so registries can be shared across tasks.
 /// The returned future borrows the environment reference for its lifetime.
@@ -28,7 +70,7 @@ pub type ToolExecutorFn = Box<
     dyn Fn(
             Value,
             &dyn ExecutionEnvironment,
-        ) -> Pin<Box<dyn Future<Output = AgentResult<String>> + Send + '_>>
+        ) -> Pin<Box<dyn Future<Output = AgentResult<ToolOutput>> + Send + '_>>
         + Send
         + Sync,
 >;
@@ -66,7 +108,7 @@ impl RegisteredTool {
         &self,
         args: Value,
         env: &dyn ExecutionEnvironment,
-    ) -> AgentResult<String> {
+    ) -> AgentResult<ToolOutput> {
         (self.executor)(args, env).await
     }
 }

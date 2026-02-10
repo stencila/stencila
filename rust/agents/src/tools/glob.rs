@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -47,9 +47,9 @@ pub fn executor() -> ToolExecutorFn {
                 let files = env.glob_files(pattern, path).await?;
 
                 if files.is_empty() {
-                    Ok("No files found.".into())
+                    Ok(ToolOutput::Text("No files found.".into()))
                 } else {
-                    Ok(files.join("\n"))
+                    Ok(ToolOutput::Text(files.join("\n")))
                 }
             })
         },

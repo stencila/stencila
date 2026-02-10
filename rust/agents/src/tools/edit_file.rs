@@ -5,7 +5,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 use crate::error::AgentError;
 use crate::execution::ExecutionEnvironment;
-use crate::registry::ToolExecutorFn;
+use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -95,7 +95,9 @@ pub fn executor() -> ToolExecutorFn {
             // Write back
             env.write_file(file_path, &updated).await?;
 
-            Ok(format!("Replaced {count} occurrence(s) in {file_path}"))
+            Ok(ToolOutput::Text(format!(
+                "Replaced {count} occurrence(s) in {file_path}"
+            )))
         })
     })
 }

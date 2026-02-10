@@ -26,7 +26,7 @@ use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
-use stencila_agents::registry::{RegisteredTool, ToolRegistry};
+use stencila_agents::registry::{RegisteredTool, ToolOutput, ToolRegistry};
 use stencila_agents::session::{AbortController, LlmClient, Session};
 use stencila_agents::types::{
     DirEntry, EventKind, ExecResult, GrepOptions, ReasoningEffort, SessionConfig, SessionState,
@@ -88,13 +88,21 @@ impl LlmClient for MockClient {
 /// Minimal mock execution environment for tests.
 struct MockExecEnv {
     working_dir: String,
+    /// When set, `read_file` returns image content instead of text.
+    image_mode: bool,
 }
 
 impl MockExecEnv {
     fn new() -> Self {
         Self {
             working_dir: "/tmp/test".into(),
+            image_mode: false,
         }
+    }
+
+    fn with_image_mode(mut self) -> Self {
+        self.image_mode = true;
+        self
     }
 }
 
@@ -106,7 +114,14 @@ impl ExecutionEnvironment for MockExecEnv {
         _offset: Option<usize>,
         _limit: Option<usize>,
     ) -> AgentResult<FileContent> {
-        Ok(FileContent::Text(format!("     1\t| content of {path}")))
+        if self.image_mode {
+            Ok(FileContent::Image {
+                data: vec![0x89, 0x50, 0x4E, 0x47],
+                media_type: "image/png".into(),
+            })
+        } else {
+            Ok(FileContent::Text(format!("     1\t| content of {path}")))
+        }
     }
     async fn write_file(&self, _path: &str, _content: &str) -> AgentResult<()> {
         Ok(())
@@ -329,7 +344,7 @@ fn echo_tool() -> RegisteredTool {
                     .get("text")
                     .and_then(|v| v.as_str())
                     .unwrap_or("no text");
-                Ok(text.to_string())
+                Ok(ToolOutput::Text(text.to_string()))
             })
         }),
     )
@@ -347,7 +362,7 @@ fn slow_tool(sleep_ms: u64) -> RegisteredTool {
         Box::new(move |_args, _env| {
             Box::pin(async move {
                 tokio::time::sleep(Duration::from_millis(sleep_ms)).await;
-                Ok("done".to_string())
+                Ok(ToolOutput::Text("done".to_string()))
             })
         }),
     )
@@ -879,7 +894,7 @@ async fn tool_output_full_in_event_truncated_for_llm() -> AgentResult<()> {
         Box::new(|_args, _env| {
             Box::pin(async move {
                 // 50K characters — well above default 30K fallback limit
-                Ok("x".repeat(50_000))
+                Ok(ToolOutput::Text("x".repeat(50_000)))
             })
         }),
     );
@@ -2779,6 +2794,126 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
     assert_eq!(
         end_text, "partial respon",
         "TEXT_END should carry partial text on mid-stream error"
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// Image tool output tests (§3.3 — provider-gated multimodal messages)
+// ===========================================================================
+
+/// Build a `read_file` ToolCall for image tests.
+fn read_file_call(path: &str) -> ToolCall {
+    ToolCall {
+        id: format!("call-{}", uuid::Uuid::new_v4()),
+        name: "read_file".into(),
+        arguments: json!({"file_path": path}),
+        raw_arguments: None,
+        parse_error: None,
+    }
+}
+
+#[tokio::test]
+async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<()> {
+    // Setup: Anthropic profile with read_file tool that returns image content.
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    let rf_call = read_file_call("/test/photo.png");
+
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![rf_call]),
+        text_response("I see a PNG image"),
+    ]));
+    let env = Arc::new(MockExecEnv::new().with_image_mode());
+    let (mut session, _rx) = Session::new(
+        Box::new(profile),
+        env as Arc<dyn ExecutionEnvironment>,
+        client.clone(),
+        SessionConfig::default(),
+        "image test".into(),
+        0,
+    );
+
+    session.submit("describe photo.png").await?;
+
+    // The second request (after tool result) should have an image content part
+    // in one of the tool-role messages.
+    let requests = client.take_requests()?;
+    assert!(
+        requests.len() >= 2,
+        "expected at least 2 requests (tool call + follow-up), got {}",
+        requests.len()
+    );
+
+    let second_req = &requests[1];
+    let has_image = second_req.messages.iter().any(|msg| {
+        msg.role == Role::Tool
+            && msg
+                .content
+                .iter()
+                .any(|part| matches!(part, ContentPart::Image { .. }))
+    });
+    assert!(
+        has_image,
+        "Anthropic tool result message should include an Image content part"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn openai_image_tool_result_excludes_image_from_message() -> AgentResult<()> {
+    // Setup: OpenAI profile with read_file tool that returns image content.
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let rf_call = read_file_call("/test/photo.png");
+
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![rf_call]),
+        text_response("I see a PNG image"),
+    ]));
+    let env = Arc::new(MockExecEnv::new().with_image_mode());
+    let (mut session, _rx) = Session::new(
+        Box::new(profile),
+        env as Arc<dyn ExecutionEnvironment>,
+        client.clone(),
+        SessionConfig::default(),
+        "image test".into(),
+        0,
+    );
+
+    session.submit("describe photo.png").await?;
+
+    let requests = client.take_requests()?;
+    assert!(
+        requests.len() >= 2,
+        "expected at least 2 requests, got {}",
+        requests.len()
+    );
+
+    let second_req = &requests[1];
+    let has_image = second_req.messages.iter().any(|msg| {
+        msg.role == Role::Tool
+            && msg
+                .content
+                .iter()
+                .any(|part| matches!(part, ContentPart::Image { .. }))
+    });
+    assert!(
+        !has_image,
+        "OpenAI tool result message should NOT include an Image content part"
+    );
+
+    // Verify it still has the text placeholder in the tool result
+    let has_tool_result = second_req.messages.iter().any(|msg| {
+        msg.role == Role::Tool
+            && msg.content.iter().any(|part| {
+                matches!(part, ContentPart::ToolResult { tool_result }
+                    if tool_result.content.as_str().is_some_and(|s| s.contains("[Image file:")))
+            })
+    });
+    assert!(
+        has_tool_result,
+        "OpenAI tool result should contain text placeholder for image"
     );
 
     Ok(())

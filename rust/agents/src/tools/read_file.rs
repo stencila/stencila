@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
 use crate::execution::FileContent;
-use crate::registry::ToolExecutorFn;
+use crate::registry::{MAX_IMAGE_BYTES, ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
@@ -43,14 +43,10 @@ pub fn definition() -> ToolDefinition {
 
 /// Executor that delegates to `env.read_file()`.
 ///
-// TODO(image-support): The spec (line 500) says image data should be returned
-// for multimodal models. Currently `ToolExecutorFn` returns `String`, so raw
-// image bytes cannot flow through. The planned approach:
-//   1. Introduce a `ToolOutput` enum: `ToolOutput::Text(String)` | `ToolOutput::Parts(Vec<ContentPart>)`
-//   2. Update `ToolExecutorFn` return type from `String` to `ToolOutput`
-//   3. Map `FileContent::Image` to a `ContentPart::image(...)` part
-// This is a significant refactor touching every tool file — deferred to a
-// dedicated PR. See README.md "Known Limitations". (spec: 3.3)
+/// For image files, returns `ToolOutput::ImageWithText` carrying the raw
+/// bytes alongside a text placeholder. Images larger than [`MAX_IMAGE_BYTES`]
+/// fall back to `ToolOutput::Text` with just the placeholder to avoid
+/// inflating memory and request payloads. (spec: 3.3, line 500)
 pub fn executor() -> ToolExecutorFn {
     Box::new(
         |args: Value, env: &dyn crate::execution::ExecutionEnvironment| {
@@ -68,9 +64,18 @@ pub fn executor() -> ToolExecutorFn {
                 let content = env.read_file(file_path, offset, limit).await?;
 
                 let output = match content {
-                    FileContent::Text(text) => text,
-                    FileContent::Image { media_type, .. } => {
-                        format!("[Image file: {file_path} ({media_type})]")
+                    FileContent::Text(text) => ToolOutput::Text(text),
+                    FileContent::Image { data, media_type } => {
+                        let text = format!("[Image file: {file_path} ({media_type})]");
+                        if data.len() <= MAX_IMAGE_BYTES {
+                            ToolOutput::ImageWithText {
+                                text,
+                                data,
+                                media_type,
+                            }
+                        } else {
+                            ToolOutput::Text(text)
+                        }
                     }
                 };
 

@@ -133,7 +133,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.3 | glob schema parity | spec_3_tools.rs | glob_schema_matches_fixture | Pass |
 | 3.6 | read_many_files schema parity | spec_3_tools.rs | read_many_files_schema_matches_fixture | Pass |
 | 3.6 | list_dir schema parity | spec_3_tools.rs | list_dir_schema_matches_fixture | Pass |
-| 3.3 | read_file executor | spec_3_tools.rs | read_file_text_content, read_file_with_offset_and_limit, read_file_image_returns_placeholder, read_file_not_found | Pass |
+| 3.3 | read_file executor | spec_3_tools.rs | read_file_text_content, read_file_with_offset_and_limit, read_file_image_returns_image_with_text, read_file_large_image_falls_back_to_text, read_file_not_found | Pass |
 | 3.3 | write_file executor | spec_3_tools.rs | write_file_success_with_byte_count, write_file_records_write, write_file_missing_content | Pass |
 | 3.3 | edit_file executor | spec_3_tools.rs | edit_file_single_replace, edit_file_replace_all, edit_file_not_found, edit_file_old_string_missing, edit_file_not_unique, edit_file_correct_writeback | Pass |
 | 3.3 | shell executor | spec_3_tools.rs | shell_success_format, shell_exit_code, shell_custom_timeout, shell_per_call_timeout_overrides_default | Pass |
