@@ -271,6 +271,16 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.9 | Events natural completion | spec_2_loop.rs | events_natural_completion | Pass |
 | 2.9 | Events tool loop | spec_2_loop.rs | events_tool_loop | Pass |
 | 2.9 | Events session close (verifies final_state in SESSION_END) | spec_2_loop.rs | events_session_close | Pass |
+| 2.9 | Streaming emits ASSISTANT_TEXT_DELTA events | spec_2_loop.rs | streaming_emits_text_deltas | Pass |
+| 2.9 | Streaming event ordering (START < DELTA < END) | spec_2_loop.rs | streaming_text_start_before_delta_before_end | Pass |
+| 2.9 | No delta for empty text (tool-call-only response) | spec_2_loop.rs | streaming_no_delta_for_empty_text | Pass |
+| 2.9 | Streaming deltas emitted per tool-loop round | spec_2_loop.rs | streaming_tool_loop_emits_deltas_per_round | Pass |
+| 2.9 | Incremental streaming with multiple deltas | spec_2_loop.rs | streaming_real_incremental_deltas | Pass |
+| 2.9 | Non-streaming profile falls back to complete() | spec_2_loop.rs | non_streaming_profile_falls_back_to_complete | Pass |
+| 2.9 | Pre-abort closes before LLM call (no TEXT events) | spec_2_loop.rs | pre_abort_closes_before_llm_call | Pass |
+| 2.9 | In-flight abort preserves partial text in TEXT_END | spec_2_loop.rs | inflight_abort_preserves_partial_text_in_text_end | Pass |
+| 2.9 | Error before streaming emits empty TEXT_END (strict pairing) | spec_2_loop.rs | error_before_streaming_emits_empty_text_end | Pass |
+| 2.9 | Mid-stream error preserves partial text in TEXT_END | spec_2_loop.rs | midstream_error_preserves_partial_text_in_text_end | Pass |
 | 2.10 | Loop detection injects steering | spec_2_loop.rs | loop_detection_injects_steering | Pass |
 | 2.10 | Loop detection disabled | spec_2_loop.rs | loop_detection_disabled | Pass |
 | 5.5 | Context usage warning when exceeding 80% | spec_2_loop.rs | context_usage_warning_emitted_at_80_percent | Pass |

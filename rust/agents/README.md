@@ -1,6 +1,6 @@
 # Stencila Agents
 
-A Rust implementation of the [Coding Agent Loop Specification](specs/coding-agent-loop-spec.md).
+An implementation of the [Coding Agent Loop Specification](specs/coding-agent-loop-spec.md) with extensions for Stencila.
 
 ## Usage
 
@@ -70,7 +70,7 @@ controller.abort();
 
 ## Extensions
 
-The following extensions to the spec implemented in this crate.
+The following extensions to the spec implemented.
 
 TODO
 
@@ -108,7 +108,7 @@ Profiles currently return empty provider options maps (`Some(HashMap::new())`) a
 
 ### Delta event emission (`§2.9`)
 
-`ASSISTANT_TEXT_DELTA` and `TOOL_CALL_OUTPUT_DELTA` event kinds are defined but not emitted by the session loop, which currently uses non-streaming `Client::complete()`.
+`ASSISTANT_TEXT_DELTA` is emitted incrementally during streaming. `TOOL_CALL_OUTPUT_DELTA` is defined but not yet emitted by the tool execution pipeline.
 
 ### Session command timeout source (`§2.2`)
 
@@ -144,7 +144,7 @@ Enforcement of `working_dir` requires a scoped/sandboxed execution environment w
 
 ### Streaming session loop (`§2.9`)
 
-The session loop does not yet consume `Client::stream()` and emit delta events in real time; it currently processes full responses.
+The session loop streams LLM responses via `Client::stream()`, emitting `ASSISTANT_TEXT_DELTA` events incrementally. When the profile does not support streaming or the stream setup returns a configuration/not-found error, it falls back to `Client::complete()` with a single synthesized delta. Mid-stream errors (network, provider) propagate as SDK errors. On abort or error, `TEXT_END` carries any partial text accumulated from prior deltas. `TOOL_CALL_OUTPUT_DELTA` events are not yet emitted.
 
 ### Provider-specific options population (`§3.4-§3.6`)
 

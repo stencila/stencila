@@ -2,27 +2,34 @@
 //!
 //! The [`Session`] struct manages the conversation lifecycle: accepting user
 //! input, building LLM requests, executing tool calls, emitting events, and
-//! handling errors. It uses [`Client::complete()`] directly (not the
-//! high-level `generate()`) so it can interleave tool execution with
-//! truncation, steering injection, event emission, and loop detection.
+//! handling errors. It uses [`Client::stream()`] for incremental token
+//! delivery (spec 2.9), falling back to [`Client::complete()`] via the
+//! default [`LlmClient::stream_complete()`] implementation when the client
+//! does not support streaming.
 //!
 //! # Testing
 //!
 //! The [`LlmClient`] trait abstracts the LLM call for testability. Tests
-//! inject a mock that returns predetermined responses.
+//! inject a mock that returns predetermined responses. The default
+//! [`stream_complete()`](LlmClient::stream_complete) implementation
+//! delegates to [`complete()`](LlmClient::complete), so mocks only need
+//! to implement `complete`.
 
 use std::collections::VecDeque;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use async_trait::async_trait;
+use futures::StreamExt;
 use serde_json::Value;
+use stencila_models3::api::accumulator::StreamAccumulator;
 use stencila_models3::error::SdkError;
 use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::message::Message;
 use stencila_models3::types::request::Request;
 use stencila_models3::types::response::Response;
 use stencila_models3::types::role::Role;
+use stencila_models3::types::stream_event::{StreamEvent, StreamEventType};
 use stencila_models3::types::tool::{ToolCall, ToolChoice, ToolResult};
 
 use crate::error::{AgentError, AgentResult};
@@ -46,6 +53,28 @@ use crate::types::{SessionConfig, SessionState, Turn, now_timestamp};
 pub trait LlmClient: Send + Sync {
     /// Send a completion request to the LLM.
     async fn complete(&self, request: Request) -> Result<Response, SdkError>;
+
+    /// Stream a completion request, calling `on_event` for each stream event.
+    ///
+    /// Returns the accumulated [`Response`] after the stream completes.
+    /// The default implementation falls back to [`complete()`](Self::complete)
+    /// and synthesizes a single text-delta event for the full response text,
+    /// so mock clients only need to implement `complete`.
+    ///
+    /// Events are passed by value (owned) rather than by reference to avoid
+    /// lifetime issues with the `async_trait` macro and HRTB closures.
+    async fn stream_complete(
+        &self,
+        request: Request,
+        on_event: &(dyn Fn(StreamEvent) + Send + Sync),
+    ) -> Result<Response, SdkError> {
+        let response = self.complete(request).await?;
+        let text = response.text();
+        if !text.is_empty() {
+            on_event(StreamEvent::text_delta(&text));
+        }
+        Ok(response)
+    }
 }
 
 /// Real implementation wrapping the models3 [`Client`](stencila_models3::client::Client).
@@ -64,6 +93,41 @@ impl Models3Client {
 impl LlmClient for Models3Client {
     async fn complete(&self, request: Request) -> Result<Response, SdkError> {
         self.client.complete(request).await
+    }
+
+    async fn stream_complete(
+        &self,
+        request: Request,
+        on_event: &(dyn Fn(StreamEvent) + Send + Sync),
+    ) -> Result<Response, SdkError> {
+        // Try streaming first; fall back to complete() only if the provider
+        // signals that streaming is unsupported (Configuration / InvalidRequest).
+        // Auth, rate-limit, network, and other errors must propagate.
+        match self.client.stream(request.clone()).await {
+            Ok(mut stream) => {
+                let mut accumulator = StreamAccumulator::new();
+                while let Some(result) = stream.next().await {
+                    let event = result?;
+                    accumulator.process(&event);
+                    on_event(event);
+                }
+                Ok(accumulator.response())
+            }
+            Err(
+                SdkError::Configuration { .. }
+                | SdkError::InvalidRequest { .. }
+                | SdkError::NotFound { .. },
+            ) => {
+                // Runtime safety net: streaming unsupported by provider/model.
+                let response = self.client.complete(request).await?;
+                let text = response.text();
+                if !text.is_empty() {
+                    on_event(StreamEvent::text_delta(&text));
+                }
+                Ok(response)
+            }
+            Err(e) => Err(e),
+        }
     }
 }
 
@@ -411,23 +475,76 @@ impl Session {
             // 4. Context-usage warning (spec 5.5)
             self.check_context_usage();
 
-            // 5. Build and send LLM request (abort-aware)
+            // 5. Build and send LLM request (streaming, abort-aware)
             let request = self.build_request();
-            let response = if let Some(ref signal) = self.abort_signal {
-                tokio::select! {
-                    result = self.client.complete(request) => match result {
-                        Ok(r) => r,
-                        Err(e) => return self.handle_sdk_error(e),
-                    },
-                    () = signal.cancelled() => {
-                        self.close();
-                        return Ok(());
-                    },
+            self.events.emit_assistant_text_start();
+
+            // Stream the LLM response, emitting text deltas incrementally.
+            // When the profile does not support streaming, fall back to
+            // complete() with a single synthesized delta (avoids a wasted
+            // stream() round-trip).  The block isolates borrows of
+            // self.events / self.abort_signal so that self.close() /
+            // self.handle_sdk_error() can take &mut self after the block
+            // ends.
+            //
+            // `partial_text` accumulates streamed deltas so that abort and
+            // error paths can emit TEXT_END with the text received so far
+            // (instead of an empty string that contradicts earlier deltas).
+            let partial_text = std::sync::Mutex::new(String::new());
+            let stream_result: Option<Result<Response, SdkError>> = {
+                let events_ref = &self.events;
+                let partial_ref = &partial_text;
+                let on_event = |event: StreamEvent| {
+                    if event.event_type == StreamEventType::TextDelta
+                        && let Some(ref delta) = event.delta
+                    {
+                        if let Ok(mut buf) = partial_ref.lock() {
+                            buf.push_str(delta);
+                        }
+                        events_ref.emit_assistant_text_delta(delta);
+                    }
+                };
+
+                let client = Arc::clone(&self.client);
+                let use_streaming = self.profile.supports_streaming();
+
+                let call = async {
+                    if use_streaming {
+                        client.stream_complete(request, &on_event).await
+                    } else {
+                        let response = client.complete(request).await?;
+                        let text = response.text();
+                        if !text.is_empty() {
+                            on_event(StreamEvent::text_delta(&text));
+                        }
+                        Ok(response)
+                    }
+                };
+
+                if let Some(ref signal) = self.abort_signal {
+                    tokio::select! {
+                        result = call => Some(result),
+                        () = signal.cancelled() => None,
+                    }
+                } else {
+                    Some(call.await)
                 }
-            } else {
-                match self.client.complete(request).await {
-                    Ok(r) => r,
-                    Err(e) => return self.handle_sdk_error(e),
+            };
+
+            let response = match stream_result {
+                None => {
+                    // Abort: emit TEXT_END with any partial text received.
+                    let text = partial_text.into_inner().unwrap_or_default();
+                    self.events.emit_assistant_text_end(&text, None);
+                    self.close();
+                    return Ok(());
+                }
+                Some(Ok(r)) => r,
+                Some(Err(e)) => {
+                    // Error: emit TEXT_END with any partial text received.
+                    let text = partial_text.into_inner().unwrap_or_default();
+                    self.events.emit_assistant_text_end(&text, None);
+                    return self.handle_sdk_error(e);
                 }
             };
 
@@ -438,7 +555,6 @@ impl Session {
             let usage = response.usage.clone();
             let response_id = response.id.clone();
 
-            self.events.emit_assistant_text_start();
             self.events
                 .emit_assistant_text_end(&text, reasoning.clone());
 

@@ -237,12 +237,13 @@ impl ExecutionEnvironment for CapturingExecEnv {
     }
 }
 
-/// Test profile with configurable tools and parallel support.
+/// Test profile with configurable tools, parallel, and streaming support.
 #[derive(Debug)]
 struct TestProfile {
     registry: ToolRegistry,
     model: String,
     supports_parallel: bool,
+    supports_streaming: bool,
 }
 
 impl TestProfile {
@@ -253,11 +254,17 @@ impl TestProfile {
             registry,
             model: "test-model".into(),
             supports_parallel: false,
+            supports_streaming: true,
         })
     }
 
     fn with_parallel(mut self) -> Self {
         self.supports_parallel = true;
+        self
+    }
+
+    fn without_streaming(mut self) -> Self {
+        self.supports_streaming = false;
         self
     }
 
@@ -287,7 +294,7 @@ impl ProviderProfile for TestProfile {
         true
     }
     fn supports_streaming(&self) -> bool {
-        true
+        self.supports_streaming
     }
     fn supports_parallel_tool_calls(&self) -> bool {
         self.supports_parallel
@@ -2221,6 +2228,557 @@ async fn shell_timeout_clamped_to_max() -> AgentResult<()> {
     assert_eq!(
         calls[0].1, 600_000,
         "timeout should be clamped to max_command_timeout_ms (600_000)"
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// Streaming tests (spec 2.9)
+// ===========================================================================
+
+#[tokio::test]
+async fn streaming_emits_text_deltas() -> AgentResult<()> {
+    // The default stream_complete impl synthesizes a TextDelta from the
+    // response text. Verify the session emits ASSISTANT_TEXT_DELTA events.
+    let (mut session, mut rx, _) = test_session(vec![text_response("Hello, world!")])?;
+
+    session.submit("Hi").await?;
+    let events = drain_events(&mut rx).await;
+
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    // TEXT_START, TEXT_DELTA, TEXT_END should all be present
+    assert!(
+        kinds.contains(&EventKind::AssistantTextStart),
+        "Expected ASSISTANT_TEXT_START"
+    );
+    assert!(
+        kinds.contains(&EventKind::AssistantTextDelta),
+        "Expected ASSISTANT_TEXT_DELTA"
+    );
+    assert!(
+        kinds.contains(&EventKind::AssistantTextEnd),
+        "Expected ASSISTANT_TEXT_END"
+    );
+
+    // Delta text should match the full response
+    let delta_event = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextDelta);
+    let delta_text = delta_event
+        .and_then(|e| e.data.get("delta"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(
+        delta_text, "Hello, world!",
+        "Delta should contain the full response text"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn streaming_text_start_before_delta_before_end() -> AgentResult<()> {
+    // Verify event ordering: TEXT_START < TEXT_DELTA < TEXT_END
+    let (mut session, mut rx, _) = test_session(vec![text_response("order test")])?;
+
+    session.submit("Hi").await?;
+    let events = drain_events(&mut rx).await;
+
+    let text_start_pos = events
+        .iter()
+        .position(|e| e.kind == EventKind::AssistantTextStart);
+    let text_delta_pos = events
+        .iter()
+        .position(|e| e.kind == EventKind::AssistantTextDelta);
+    let text_end_pos = events
+        .iter()
+        .position(|e| e.kind == EventKind::AssistantTextEnd);
+
+    assert!(text_start_pos.is_some(), "TEXT_START must be present");
+    assert!(text_delta_pos.is_some(), "TEXT_DELTA must be present");
+    assert!(text_end_pos.is_some(), "TEXT_END must be present");
+
+    let start = text_start_pos.expect("checked above");
+    let delta = text_delta_pos.expect("checked above");
+    let end = text_end_pos.expect("checked above");
+
+    assert!(
+        start < delta,
+        "TEXT_START (pos {start}) should precede TEXT_DELTA (pos {delta})"
+    );
+    assert!(
+        delta < end,
+        "TEXT_DELTA (pos {delta}) should precede TEXT_END (pos {end})"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn streaming_no_delta_for_empty_text() -> AgentResult<()> {
+    // When the response has no text (tool-call-only), no TEXT_DELTA should
+    // be emitted (though TEXT_START and TEXT_END are still emitted).
+    let (mut session, mut rx, _) = test_session(vec![
+        tool_call_response("", vec![echo_call("test")]),
+        text_response("Done"),
+    ])?;
+
+    session.submit("Use tool").await?;
+    let events = drain_events(&mut rx).await;
+
+    // There should be two TEXT_START events (one per LLM round)
+    let text_start_count = events
+        .iter()
+        .filter(|e| e.kind == EventKind::AssistantTextStart)
+        .count();
+    assert_eq!(
+        text_start_count, 2,
+        "Two TEXT_START events (one per LLM call)"
+    );
+
+    // The first round (tool-call response with empty text) should not have a delta
+    let text_deltas: Vec<_> = events
+        .iter()
+        .filter(|e| e.kind == EventKind::AssistantTextDelta)
+        .collect();
+    // Only the second round should produce a delta (for "Done")
+    assert_eq!(
+        text_deltas.len(),
+        1,
+        "Only one TEXT_DELTA for the text-bearing response"
+    );
+    let delta_text = text_deltas[0]
+        .data
+        .get("delta")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(delta_text, "Done", "Delta should be from the text response");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn streaming_tool_loop_emits_deltas_per_round() -> AgentResult<()> {
+    // Multi-round tool use: each round with text should emit a delta.
+    let (mut session, mut rx, _) = test_session(vec![
+        tool_call_response("thinking...", vec![echo_call("step1")]),
+        text_response("All done"),
+    ])?;
+
+    session.submit("Go").await?;
+    let events = drain_events(&mut rx).await;
+
+    let text_deltas: Vec<_> = events
+        .iter()
+        .filter(|e| e.kind == EventKind::AssistantTextDelta)
+        .collect();
+
+    // Both rounds have text: "thinking..." and "All done"
+    assert_eq!(
+        text_deltas.len(),
+        2,
+        "Two deltas for two text-bearing rounds"
+    );
+
+    let first = text_deltas[0]
+        .data
+        .get("delta")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    let second = text_deltas[1]
+        .data
+        .get("delta")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(first, "thinking...");
+    assert_eq!(second, "All done");
+
+    Ok(())
+}
+
+/// Mock client that provides real streaming via a per-response sequence of
+/// StreamEvents. This tests the full stream_complete override path.
+struct StreamingMockClient {
+    /// Each entry is a sequence of stream events for one call.
+    streams:
+        Mutex<VecDeque<Vec<Result<stencila_models3::types::stream_event::StreamEvent, SdkError>>>>,
+}
+
+impl StreamingMockClient {
+    fn new(
+        streams: Vec<Vec<Result<stencila_models3::types::stream_event::StreamEvent, SdkError>>>,
+    ) -> Self {
+        Self {
+            streams: Mutex::new(VecDeque::from(streams)),
+        }
+    }
+}
+
+#[async_trait]
+impl LlmClient for StreamingMockClient {
+    async fn complete(&self, _request: Request) -> Result<Response, SdkError> {
+        Err(SdkError::Configuration {
+            message: "StreamingMockClient does not support complete()".into(),
+        })
+    }
+
+    async fn stream_complete(
+        &self,
+        _request: Request,
+        on_event: &(dyn Fn(stencila_models3::types::stream_event::StreamEvent) + Send + Sync),
+    ) -> Result<Response, SdkError> {
+        let events = self
+            .streams
+            .lock()
+            .map_err(|e| SdkError::Configuration {
+                message: format!("mock lock: {e}"),
+            })?
+            .pop_front()
+            .ok_or_else(|| SdkError::Configuration {
+                message: "no more mock streams".into(),
+            })?;
+
+        let mut accumulator = stencila_models3::api::accumulator::StreamAccumulator::new();
+        for result in events {
+            let event = result?;
+            accumulator.process(&event);
+            on_event(event);
+        }
+        Ok(accumulator.response())
+    }
+}
+
+#[tokio::test]
+async fn streaming_real_incremental_deltas() -> AgentResult<()> {
+    use stencila_models3::types::stream_event::{StreamEvent as SE, StreamEventType as SET};
+
+    // Simulate a stream with multiple text deltas
+    let stream_events: Vec<Result<SE, SdkError>> = vec![
+        Ok(SE {
+            event_type: SET::StreamStart,
+            ..SE::stream_start()
+        }),
+        Ok(SE::text_delta("Hello")),
+        Ok(SE::text_delta(", ")),
+        Ok(SE::text_delta("world!")),
+        Ok(SE::finish(
+            FinishReason::new(Reason::Stop, None),
+            Usage::default(),
+        )),
+    ];
+
+    let client: Arc<dyn LlmClient> = Arc::new(StreamingMockClient::new(vec![stream_events]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, mut rx) = Session::new(
+        Box::new(profile),
+        env,
+        client,
+        SessionConfig::default(),
+        "test prompt".into(),
+        0,
+    );
+
+    session.submit("Stream me").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    let events = drain_events(&mut rx).await;
+
+    // Should have 3 incremental ASSISTANT_TEXT_DELTA events
+    let deltas: Vec<_> = events
+        .iter()
+        .filter(|e| e.kind == EventKind::AssistantTextDelta)
+        .collect();
+    assert_eq!(deltas.len(), 3, "Should have 3 incremental deltas");
+
+    let delta_texts: Vec<&str> = deltas
+        .iter()
+        .filter_map(|e| e.data.get("delta").and_then(|v| v.as_str()))
+        .collect();
+    assert_eq!(delta_texts, vec!["Hello", ", ", "world!"]);
+
+    // TEXT_END should have the full accumulated text
+    let text_end = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextEnd);
+    let full_text = text_end
+        .and_then(|e| e.data.get("text"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(full_text, "Hello, world!");
+
+    // History should contain the accumulated text
+    assert_eq!(session.history().len(), 2); // User + Assistant
+    if let stencila_agents::types::Turn::Assistant { content, .. } = &session.history()[1] {
+        assert_eq!(content, "Hello, world!");
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn non_streaming_profile_falls_back_to_complete() -> AgentResult<()> {
+    // When supports_streaming() is false, the session should use complete()
+    // instead of stream_complete(), still synthesizing a single delta.
+    let profile = TestProfile::new()?.without_streaming();
+
+    let (mut session, mut rx, _) = test_session_with_profile(
+        vec![text_response("non-streamed response")],
+        SessionConfig::default(),
+        profile,
+    )?;
+
+    session.submit("Hi").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    let events = drain_events(&mut rx).await;
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    // Should still emit TEXT_START, TEXT_DELTA (synthesized), TEXT_END
+    assert!(kinds.contains(&EventKind::AssistantTextStart));
+    assert!(kinds.contains(&EventKind::AssistantTextDelta));
+    assert!(kinds.contains(&EventKind::AssistantTextEnd));
+
+    // Delta text should be the full response
+    let delta = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextDelta)
+        .and_then(|e| e.data.get("delta"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(delta, "non-streamed response");
+
+    // History should be normal
+    assert_eq!(session.history().len(), 2);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn pre_abort_closes_before_llm_call() -> AgentResult<()> {
+    // When abort fires before the LLM call (top-of-loop check),
+    // no TEXT_START/TEXT_END should be emitted.
+    let controller = AbortController::new();
+    controller.abort(); // pre-abort
+
+    let (mut session, mut rx, _) = test_session(vec![text_response("won't reach")])?;
+    session.set_abort_signal(controller.signal());
+
+    session.submit("Go").await?;
+    assert_eq!(session.state(), SessionState::Closed);
+
+    let events = drain_events(&mut rx).await;
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    // TEXT_START should NOT be present because abort fires before the LLM
+    // call (at the top-of-loop check, before build_request).
+    assert!(kinds.contains(&EventKind::SessionStart));
+    assert!(kinds.contains(&EventKind::UserInput));
+    assert!(kinds.contains(&EventKind::SessionEnd));
+    assert!(
+        !kinds.contains(&EventKind::AssistantTextStart),
+        "no TEXT_START expected for pre-abort"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> {
+    use stencila_models3::types::stream_event::{StreamEvent as SE, StreamEventType as SET};
+
+    // Create a streaming client that yields two deltas, then blocks long
+    // enough for the abort to fire before the stream finishes.
+    struct SlowStreamClient {
+        controller: AbortController,
+    }
+
+    #[async_trait]
+    impl LlmClient for SlowStreamClient {
+        async fn complete(&self, _request: Request) -> Result<Response, SdkError> {
+            Err(SdkError::Configuration {
+                message: "use stream_complete".into(),
+            })
+        }
+
+        async fn stream_complete(
+            &self,
+            _request: Request,
+            on_event: &(dyn Fn(SE) + Send + Sync),
+        ) -> Result<Response, SdkError> {
+            // Emit two deltas, then trigger abort, then "block".
+            on_event(SE {
+                event_type: SET::StreamStart,
+                ..SE::stream_start()
+            });
+            on_event(SE::text_delta("Hello"));
+            on_event(SE::text_delta(", wor"));
+            // Trigger abort mid-stream
+            self.controller.abort();
+            // Sleep long enough for tokio::select! to pick up the abort
+            tokio::time::sleep(Duration::from_secs(10)).await;
+            // Should never reach here
+            Err(SdkError::Configuration {
+                message: "unreachable: abort should fire first".into(),
+            })
+        }
+    }
+
+    let controller = AbortController::new();
+    let client: Arc<dyn LlmClient> = Arc::new(SlowStreamClient {
+        controller: controller.clone(),
+    });
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, mut rx) = Session::new(
+        Box::new(profile),
+        env,
+        client,
+        SessionConfig::default(),
+        "test prompt".into(),
+        0,
+    );
+    session.set_abort_signal(controller.signal());
+
+    session.submit("Stream and abort").await?;
+    assert_eq!(session.state(), SessionState::Closed);
+
+    let events = drain_events(&mut rx).await;
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    // Should have TEXT_START, deltas, TEXT_END, SESSION_END
+    assert!(kinds.contains(&EventKind::AssistantTextStart));
+    assert!(kinds.contains(&EventKind::AssistantTextEnd));
+    assert!(kinds.contains(&EventKind::SessionEnd));
+
+    // TEXT_END should carry the partial text accumulated before abort
+    let text_end = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextEnd);
+    let end_text = text_end
+        .and_then(|e| e.data.get("text"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("MISSING");
+    assert_eq!(
+        end_text, "Hello, wor",
+        "TEXT_END should carry partial text on abort"
+    );
+
+    // Should have 2 delta events
+    let deltas: Vec<_> = events
+        .iter()
+        .filter(|e| e.kind == EventKind::AssistantTextDelta)
+        .collect();
+    assert_eq!(deltas.len(), 2);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn error_before_streaming_emits_empty_text_end() -> AgentResult<()> {
+    // When the error occurs before any streaming (complete() fails),
+    // TEXT_END should have empty text and still pair with TEXT_START.
+    let (mut session, mut rx, _) = test_session(vec![Err(SdkError::Server {
+        message: "500 error".into(),
+        details: ProviderDetails::default(),
+    })])?;
+
+    let result = session.submit("Hi").await;
+    assert!(result.is_err());
+    assert_eq!(session.state(), SessionState::Closed);
+
+    let events = drain_events(&mut rx).await;
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    assert!(
+        kinds.contains(&EventKind::AssistantTextStart),
+        "TEXT_START should be present: {kinds:?}"
+    );
+    assert!(
+        kinds.contains(&EventKind::AssistantTextEnd),
+        "TEXT_END should be present for strict pairing: {kinds:?}"
+    );
+    assert!(kinds.contains(&EventKind::Error));
+    assert!(kinds.contains(&EventKind::SessionEnd));
+
+    // TEXT_START must come before TEXT_END
+    let start_pos = events
+        .iter()
+        .position(|e| e.kind == EventKind::AssistantTextStart);
+    let end_pos = events
+        .iter()
+        .position(|e| e.kind == EventKind::AssistantTextEnd);
+    assert!(start_pos < end_pos, "TEXT_START must precede TEXT_END");
+
+    // No streaming happened, so TEXT_END should carry empty text.
+    let text_end = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextEnd);
+    let end_text = text_end
+        .and_then(|e| e.data.get("text"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("MISSING");
+    assert_eq!(
+        end_text, "",
+        "TEXT_END on pre-stream error should have empty text"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()> {
+    use stencila_models3::types::stream_event::{StreamEvent as SE, StreamEventType as SET};
+
+    // Simulate a stream that delivers two deltas then fails mid-stream.
+    let stream_events: Vec<Result<SE, SdkError>> = vec![
+        Ok(SE {
+            event_type: SET::StreamStart,
+            ..SE::stream_start()
+        }),
+        Ok(SE::text_delta("partial ")),
+        Ok(SE::text_delta("respon")),
+        Err(SdkError::Stream {
+            message: "connection reset".into(),
+        }),
+    ];
+
+    let client: Arc<dyn LlmClient> = Arc::new(StreamingMockClient::new(vec![stream_events]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, mut rx) = Session::new(
+        Box::new(profile),
+        env,
+        client,
+        SessionConfig::default(),
+        "test prompt".into(),
+        0,
+    );
+
+    let result = session.submit("Stream error").await;
+    assert!(result.is_err());
+    assert_eq!(session.state(), SessionState::Closed);
+
+    let events = drain_events(&mut rx).await;
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    assert!(kinds.contains(&EventKind::AssistantTextStart));
+    assert!(kinds.contains(&EventKind::AssistantTextEnd));
+    assert!(kinds.contains(&EventKind::Error));
+
+    // TEXT_END should carry the partial text accumulated before the error.
+    let text_end = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextEnd);
+    let end_text = text_end
+        .and_then(|e| e.data.get("text"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("MISSING");
+    assert_eq!(
+        end_text, "partial respon",
+        "TEXT_END should carry partial text on mid-stream error"
     );
 
     Ok(())
