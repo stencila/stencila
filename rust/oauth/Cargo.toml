@@ -1,0 +1,36 @@
+[package]
+name = "stencila-oauth"
+version = "0.0.0"
+edition = "2024"
+
+[features]
+default = ["anthropic", "gemini", "copilot", "openai"]
+anthropic = []
+gemini = []
+copilot = []
+openai = []
+cli = ["dep:clap", "dep:stencila-cli-utils"]
+
+[dependencies]
+base64 = { workspace = true }
+clap = { workspace = true, optional = true }
+eyre = { workspace = true }
+rand = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+stencila-ask = { path = "../ask" }
+stencila-cli-utils = { path = "../cli-utils", optional = true }
+stencila-models3 = { path = "../models3" }
+stencila-secrets = { path = "../secrets" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+webbrowser = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+
+[lints]
+workspace = true
