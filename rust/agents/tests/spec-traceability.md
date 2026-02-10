@@ -177,6 +177,11 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | App A | Update file >2000 lines | spec_3_patch.rs | apply_update_file_beyond_2000_lines | Pass |
 | App A | Move to same path (no delete) | spec_3_patch.rs | apply_update_move_to_same_path | Pass |
 | App A | Executor end-to-end | spec_3_patch.rs | apply_patch_executor_end_to_end | Pass |
+| App A | context_hint disambiguates repeated pattern | spec_3_patch.rs | context_hint_disambiguates_repeated_pattern | Pass |
+| App A | Empty context_hint falls back to first match | spec_3_patch.rs | context_hint_empty_falls_back_to_first_match | Pass |
+| App A | Unfound context_hint falls back to first match | spec_3_patch.rs | context_hint_not_found_falls_back_to_first_match | Pass |
+| App A | Fuzzy + context_hint disambiguation combined | spec_3_patch.rs | context_hint_fuzzy_whitespace_with_disambiguation | Pass |
+| App A | context_hint prefers exact line over earlier substring | spec_3_patch.rs | context_hint_ignores_earlier_comment_substring | Pass |
 | App A | OpenAI registration | spec_3_patch.rs | register_openai_tools_adds_one | Pass |
 | Ext | delete_file removes file (impl extension for App A) | spec_4_execution.rs | delete_file_removes_file | Pass |
 | Ext | delete_file not found (impl extension for App A) | spec_4_execution.rs | delete_file_not_found | Pass |

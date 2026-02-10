@@ -110,10 +110,6 @@ The spec emphasizes parallel subagent exploration. This implementation currently
 
 `SessionConfig.default_command_timeout_ms` exists but profile-specific shell defaults remain the effective source of default timeout behavior (OpenAI/Gemini 10s, Anthropic 120s).
 
-### `apply_patch` context hint matching (Appendix A)
-
-The `context_hint` label is not used for matching; matching uses context/delete lines in hunk bodies. This follows practical behavior from reference tooling and avoids complexity for marginal gain.
-
 ### `apply_patch` Unicode punctuation fuzziness (Appendix A)
 
 Fuzzy matching currently includes whitespace normalization only; Unicode punctuation equivalence is not implemented.
@@ -145,10 +141,6 @@ The session loop streams LLM responses via `Client::stream()`, emitting `ASSISTA
 ### Gemini grounding configuration (`§3.6`)
 
 The spec says provider options should configure "safety settings and grounding." Safety settings are wired (`BLOCK_ONLY_HIGH` for all categories), but grounding (`google_search_retrieval`) is not configured. A coding agent already has file search, code search, and shell tools, so web grounding adds marginal value while introducing potential noise and latency.
-
-### `apply_patch` context_hint proximity matching (Appendix A)
-
-Disambiguation using `context_hint` proximity is not implemented.
 
 ### `apply_patch` Unicode punctuation normalization (Appendix A)
 

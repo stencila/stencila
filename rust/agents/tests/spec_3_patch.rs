@@ -839,6 +839,216 @@ async fn apply_patch_executor_end_to_end() -> AgentResult<()> {
 }
 
 // =========================================================================
+// Context-hint proximity disambiguation (spec App A line 1368)
+// =========================================================================
+
+#[tokio::test]
+async fn context_hint_disambiguates_repeated_pattern() -> AgentResult<()> {
+    // File with two identical blocks — only the function names differ.
+    // The context_hint should steer the hunk to the correct block.
+    let env = MockExecutionEnvironment::new().with_file(
+        "src/lib.rs",
+        "fn alpha() {\n    do_work();\n}\n\nfn beta() {\n    do_work();\n}\n",
+    );
+
+    // Hunk targets the "do_work()" line (matches in both blocks).
+    // context_hint says "beta", so the second block should be patched.
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/lib.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: "fn beta()".into(),
+                lines: vec![
+                    HunkLine::Context("    do_work();".into()),
+                    HunkLine::Add("    do_extra_work();".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/lib.rs").unwrap_or_default();
+    // alpha block should be untouched
+    assert!(
+        content.contains("fn alpha() {\n    do_work();\n}"),
+        "alpha block should be unchanged: {content}"
+    );
+    // beta block should have the addition
+    assert!(
+        content.contains("fn beta() {\n    do_work();\n    do_extra_work();\n}"),
+        "beta block should have the new line: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_hint_empty_falls_back_to_first_match() -> AgentResult<()> {
+    // When context_hint is empty, first match wins (backward-compatible).
+    let env = MockExecutionEnvironment::new().with_file(
+        "src/lib.rs",
+        "fn alpha() {\n    do_work();\n}\n\nfn beta() {\n    do_work();\n}\n",
+    );
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/lib.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    HunkLine::Context("    do_work();".into()),
+                    HunkLine::Add("    first_match();".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/lib.rs").unwrap_or_default();
+    // First match (alpha block) should be patched
+    assert!(
+        content.contains("fn alpha() {\n    do_work();\n    first_match();\n}"),
+        "first block should be patched when hint is empty: {content}"
+    );
+    // Second block should remain unchanged
+    assert!(
+        content.contains("fn beta() {\n    do_work();\n}"),
+        "second block should be untouched: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_hint_not_found_falls_back_to_first_match() -> AgentResult<()> {
+    // When context_hint text isn't found anywhere in the file, first match wins.
+    let env = MockExecutionEnvironment::new().with_file(
+        "src/lib.rs",
+        "fn alpha() {\n    do_work();\n}\n\nfn beta() {\n    do_work();\n}\n",
+    );
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/lib.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: "fn nonexistent_function".into(),
+                lines: vec![
+                    HunkLine::Context("    do_work();".into()),
+                    HunkLine::Add("    fallback();".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/lib.rs").unwrap_or_default();
+    // First match (alpha block) should be patched as fallback
+    assert!(
+        content.contains("fn alpha() {\n    do_work();\n    fallback();\n}"),
+        "first block should be patched when hint not found: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_hint_fuzzy_whitespace_with_disambiguation() -> AgentResult<()> {
+    // File with repeated patterns; the hunk lines differ only in whitespace
+    // from the file. context_hint should still disambiguate.
+    let env = MockExecutionEnvironment::new().with_file(
+        "src/lib.rs",
+        "fn first() {\n  val = 1;\n}\n\nfn second() {\n  val = 1;\n}\n",
+    );
+
+    // Hunk context uses different whitespace ("    val = 1;" vs "  val = 1;")
+    // so exact match fails, fuzzy matches both. Hint selects second.
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/lib.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: "fn second()".into(),
+                lines: vec![
+                    HunkLine::Delete("    val = 1;".into()),
+                    HunkLine::Add("    val = 2;".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/lib.rs").unwrap_or_default();
+    // first() should still have val = 1
+    assert!(
+        content.contains("fn first() {\n  val = 1;\n}"),
+        "first block should be unchanged: {content}"
+    );
+    // second() should have val = 2
+    assert!(
+        content.contains("fn second() {\n    val = 2;\n}"),
+        "second block should be updated: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_hint_ignores_earlier_comment_substring() -> AgentResult<()> {
+    // The hint text "fn beta()" appears as a substring in a comment on line 0,
+    // AND as an exact full-line match on line 5. The disambiguation should
+    // prefer the exact full-line match, not the comment substring.
+    let file = "\
+# This module provides fn alpha() and fn beta() helpers
+fn alpha() {
+    do_work();
+}
+
+fn beta() {
+    do_work();
+}
+";
+    let env = MockExecutionEnvironment::new().with_file("src/lib.rs", file);
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/lib.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: "fn beta()".into(),
+                lines: vec![
+                    HunkLine::Context("    do_work();".into()),
+                    HunkLine::Add("    do_extra();".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/lib.rs").unwrap_or_default();
+    // alpha block should be untouched (the comment mentioning "fn beta" must
+    // not attract the match toward alpha's do_work() line).
+    assert!(
+        content.contains("fn alpha() {\n    do_work();\n}"),
+        "alpha block should be unchanged: {content}"
+    );
+    // beta block should have the addition
+    assert!(
+        content.contains("fn beta() {\n    do_work();\n    do_extra();\n}"),
+        "beta block should have the new line: {content}"
+    );
+    Ok(())
+}
+
+// =========================================================================
 // Registration Test
 // =========================================================================
 

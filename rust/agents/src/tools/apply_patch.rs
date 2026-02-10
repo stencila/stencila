@@ -450,23 +450,29 @@ fn apply_hunk(file_lines: &[String], hunk: &Hunk) -> AgentResult<Vec<String>> {
         return Ok(result);
     }
 
-    // TODO: Use context_hint for proximity-based disambiguation when multiple
-    // matches exist (spec App A line 1368). Currently first match wins.
-
-    // Try exact match first
-    let match_pos = find_sequence_exact(file_lines, &expected);
-
-    // If no exact match, try fuzzy (whitespace normalization)
+    // Try exact match first, then fuzzy (whitespace normalization).
     // TODO: Add Unicode punctuation equivalence (spec App A line 1370).
-    let match_pos = match match_pos {
-        Some(pos) => pos,
-        None => {
-            find_sequence_fuzzy(file_lines, &expected).ok_or_else(|| AgentError::EditConflict {
+    let candidates = find_all_sequence_exact(file_lines, &expected);
+    let candidates = if candidates.is_empty() {
+        find_all_sequence_fuzzy(file_lines, &expected)
+    } else {
+        candidates
+    };
+
+    let match_pos = match candidates.len() {
+        0 => {
+            return Err(AgentError::EditConflict {
                 reason: format!(
                     "could not locate hunk in file (context_hint: '{}')",
                     hunk.context_hint
                 ),
-            })?
+            });
+        }
+        1 => candidates[0],
+        _ => {
+            // Multiple matches — use context_hint proximity to disambiguate
+            // (spec App A line 1368).
+            disambiguate_by_hint(file_lines, &candidates, &hunk.context_hint)
         }
     };
 
@@ -503,36 +509,112 @@ fn apply_hunk(file_lines: &[String], hunk: &Hunk) -> AgentResult<Vec<String>> {
     Ok(result)
 }
 
-/// Find exact match of a sequence in file lines. Returns start index.
-fn find_sequence_exact(file_lines: &[String], expected: &[&str]) -> Option<usize> {
-    if expected.is_empty() {
-        return Some(0);
+/// Find all exact matches of a sequence in file lines. Returns start indices.
+fn find_all_sequence_exact(file_lines: &[String], expected: &[&str]) -> Vec<usize> {
+    if expected.is_empty() || expected.len() > file_lines.len() {
+        return if expected.is_empty() { vec![0] } else { vec![] };
     }
-    if expected.len() > file_lines.len() {
-        return None;
-    }
-    (0..=file_lines.len() - expected.len()).find(|&start| {
-        file_lines[start..start + expected.len()]
-            .iter()
-            .zip(expected.iter())
-            .all(|(fl, ex)| fl == ex)
-    })
+    (0..=file_lines.len() - expected.len())
+        .filter(|&start| {
+            file_lines[start..start + expected.len()]
+                .iter()
+                .zip(expected.iter())
+                .all(|(fl, ex)| fl.as_str() == *ex)
+        })
+        .collect()
 }
 
-/// Find fuzzy match using whitespace normalization. Returns start index.
-fn find_sequence_fuzzy(file_lines: &[String], expected: &[&str]) -> Option<usize> {
-    if expected.is_empty() {
-        return Some(0);
+/// Find all fuzzy matches using whitespace normalization. Returns start indices.
+fn find_all_sequence_fuzzy(file_lines: &[String], expected: &[&str]) -> Vec<usize> {
+    if expected.is_empty() || expected.len() > file_lines.len() {
+        return if expected.is_empty() { vec![0] } else { vec![] };
     }
-    if expected.len() > file_lines.len() {
-        return None;
+    (0..=file_lines.len() - expected.len())
+        .filter(|&start| {
+            file_lines[start..start + expected.len()]
+                .iter()
+                .zip(expected.iter())
+                .all(|(fl, ex)| normalize_whitespace(fl) == normalize_whitespace(ex))
+        })
+        .collect()
+}
+
+/// When multiple hunk matches exist, pick the one closest to the context_hint
+/// location in the file (spec App A line 1368).
+///
+/// Collects **all** file lines that match the hint (preferring exact full-line
+/// matches over substring hits), then scores each candidate by its distance
+/// to the nearest hint-hit line. The candidate with the smallest min-distance
+/// wins. On ties the first candidate is chosen (preserving backward compat).
+/// Falls back to the first candidate if the hint is empty or not found.
+fn disambiguate_by_hint(file_lines: &[String], candidates: &[usize], hint: &str) -> usize {
+    if hint.is_empty() || candidates.is_empty() {
+        return candidates.first().copied().unwrap_or(0);
     }
-    (0..=file_lines.len() - expected.len()).find(|&start| {
-        file_lines[start..start + expected.len()]
-            .iter()
-            .zip(expected.iter())
-            .all(|(fl, ex)| normalize_whitespace(fl) == normalize_whitespace(ex))
-    })
+
+    let hint_lines = find_all_hint_lines(file_lines, hint);
+    if hint_lines.is_empty() {
+        return candidates[0];
+    }
+
+    // Score each candidate by min distance to any hint-hit line.
+    // On equal scores the earlier candidate wins (stable).
+    candidates
+        .iter()
+        .copied()
+        .min_by_key(|&pos| {
+            hint_lines
+                .iter()
+                .map(|&h| pos.abs_diff(h))
+                .min()
+                .unwrap_or(usize::MAX)
+        })
+        .unwrap_or(candidates[0])
+}
+
+/// Collect all file lines that match the context_hint.
+///
+/// Prefers **exact full-line** matches (trimmed line == trimmed hint) over
+/// substring matches.  If any exact-line matches exist, only those are
+/// returned so that incidental substring hits in comments/strings are
+/// ignored.  When no exact-line matches exist, falls back to substring
+/// matches, then whitespace-normalized substring matches.
+fn find_all_hint_lines(file_lines: &[String], hint: &str) -> Vec<usize> {
+    let trimmed_hint = hint.trim();
+    if trimmed_hint.is_empty() {
+        return vec![];
+    }
+
+    // 1. Exact full-line match (strongest signal)
+    let exact_line: Vec<usize> = file_lines
+        .iter()
+        .enumerate()
+        .filter(|(_, l)| l.trim() == trimmed_hint)
+        .map(|(i, _)| i)
+        .collect();
+    if !exact_line.is_empty() {
+        return exact_line;
+    }
+
+    // 2. Exact substring match
+    let substr: Vec<usize> = file_lines
+        .iter()
+        .enumerate()
+        .filter(|(_, l)| l.contains(trimmed_hint))
+        .map(|(i, _)| i)
+        .collect();
+    if !substr.is_empty() {
+        return substr;
+    }
+
+    // 3. Whitespace-normalized substring match
+    let norm_hint = normalize_whitespace(trimmed_hint);
+    file_lines
+        .iter()
+        .enumerate()
+        .filter(|(_, l)| normalize_whitespace(l).contains(&norm_hint))
+        .map(|(i, _)| i)
+        .collect()
 }
 
 /// Collapse whitespace runs to a single space and trim.
