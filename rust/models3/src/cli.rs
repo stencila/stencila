@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
@@ -10,9 +10,12 @@ use stencila_cli_utils::{
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
 
-use crate::catalog::{self, ModelInfo};
 use crate::client::{AuthOptions, AuthOverrides};
 use crate::secret::get_secret;
+use crate::{
+    catalog::{self, ModelInfo},
+    providers::{anthropic::claude_code, openai::codex_cli},
+};
 
 /// Manage and interact with generative AI models
 #[derive(Debug, Parser)]
@@ -186,19 +189,18 @@ fn is_provider_available(provider: &str, overrides: &AuthOverrides) -> bool {
         return true;
     }
     match provider {
-        "openai" => get_secret("OPENAI_API_KEY").is_some(),
+        "openai" => {
+            get_secret("OPENAI_API_KEY").is_some() || codex_cli::load_credentials().is_some()
+        }
         "anthropic" => {
-            get_secret("ANTHROPIC_API_KEY").is_some()
-                || crate::providers::anthropic::claude_code::load_credentials().is_some()
+            get_secret("ANTHROPIC_API_KEY").is_some() || claude_code::load_credentials().is_some()
         }
         "gemini" => {
             get_secret("GEMINI_API_KEY").is_some() || get_secret("GOOGLE_API_KEY").is_some()
         }
         "mistral" => get_secret("MISTRAL_API_KEY").is_some(),
         "deepseek" => get_secret("DEEPSEEK_API_KEY").is_some(),
-        "ollama" => {
-            std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok()
-        }
+        "ollama" => env::var("OLLAMA_BASE_URL").is_ok() || env::var("OLLAMA_HOST").is_ok(),
         _ => false,
     }
 }

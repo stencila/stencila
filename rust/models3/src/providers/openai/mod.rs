@@ -1,3 +1,4 @@
+pub(crate) mod codex_cli;
 pub mod translate_error;
 pub mod translate_request;
 pub mod translate_response;

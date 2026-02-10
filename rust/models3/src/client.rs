@@ -7,6 +7,7 @@ use crate::middleware::{Middleware, NextComplete, NextStream};
 use crate::provider::{BoxStream, ProviderAdapter};
 use crate::providers::{
     AnthropicAdapter, DeepSeekAdapter, GeminiAdapter, MistralAdapter, OllamaAdapter, OpenAIAdapter,
+    anthropic::claude_code, openai::codex_cli,
 };
 use crate::secret::get_secret;
 use crate::types::request::Request;
@@ -74,6 +75,8 @@ impl Client {
     /// | Ollama    | *(auto-detected)*      | `OLLAMA_BASE_URL`, `OLLAMA_HOST`, `OLLAMA_API_KEY` |
     ///
     /// `GOOGLE_API_KEY` is accepted as a fallback for `GEMINI_API_KEY`.
+    /// When `OPENAI_API_KEY` is absent, Codex CLI OAuth credentials from
+    /// `~/.codex/auth.json` are used when available.
     ///
     /// Ollama is registered when `OLLAMA_BASE_URL` or `OLLAMA_HOST` is set.
     /// Use [`OllamaAdapter::is_available`] to probe for a running instance
@@ -90,23 +93,36 @@ impl Client {
 
         // OpenAI (native Responses API)
         if let Some(api_key) = get_secret("OPENAI_API_KEY") {
+            if codex_cli::load_credentials().is_some() {
+                tracing::info!("OPENAI_API_KEY is set; ignoring Codex CLI OAuth credentials");
+            }
             let base_url = std::env::var("OPENAI_BASE_URL")
                 .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
                 builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
+        } else if let Some(creds) = codex_cli::load_credentials() {
+            tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
+            let (auth, account_id) = codex_cli::build_auth_credential(creds);
+            let base_url = std::env::var("OPENAI_BASE_URL")
+                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let org = std::env::var("OPENAI_ORG_ID").ok();
+            let project = std::env::var("OPENAI_PROJECT_ID").ok();
+            builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
+                auth, base_url, org, project, account_id,
+            )?);
         }
 
         // Anthropic
         if get_secret("ANTHROPIC_API_KEY").is_some() {
-            if crate::providers::anthropic::claude_code::load_credentials().is_some() {
+            if claude_code::load_credentials().is_some() {
                 tracing::info!("ANTHROPIC_API_KEY is set; ignoring Claude Code OAuth credentials");
             }
             builder = builder.add_provider(AnthropicAdapter::from_env()?);
-        } else if let Some(creds) = crate::providers::anthropic::claude_code::load_credentials() {
+        } else if let Some(creds) = claude_code::load_credentials() {
             tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
-            let auth = crate::providers::anthropic::claude_code::build_auth_credential(creds);
+            let auth = claude_code::build_auth_credential(creds);
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
             builder = builder.add_provider(AnthropicAdapter::with_auth(auth, base_url)?);
         }
@@ -197,6 +213,18 @@ impl Client {
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
                 builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
+        } else if let Some(creds) = crate::providers::openai::codex_cli::load_credentials() {
+            tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
+            let (auth, detected_account_id) =
+                crate::providers::openai::codex_cli::build_auth_credential(creds);
+            let account_id = detected_account_id.or_else(|| options.openai_account_id.clone());
+            let base_url = std::env::var("OPENAI_BASE_URL")
+                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let org = std::env::var("OPENAI_ORG_ID").ok();
+            let project = std::env::var("OPENAI_PROJECT_ID").ok();
+            builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
+                auth, base_url, org, project, account_id,
+            )?);
         }
 
         // Anthropic

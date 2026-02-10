@@ -99,19 +99,26 @@ if let Some(output) = result.output {
 
 ## Extensions to the Unified LLM Client Spec
 
-### OAuth and Claude Code credential auto-detection
+### OAuth credential auto-detection
 
 The spec does not define an authentication layer beyond API keys. This crate extends `Client::from_env()` and `Client::from_env_with_auth()` with:
 
 - **`AuthCredential` trait** — abstracts over static API keys and expiring OAuth tokens, with automatic refresh via `OAuthToken`.
 - **`AuthOverrides`** — per-provider credential injection for explicit OAuth login flows (via the `stencila-oauth` crate).
 - **Claude Code auto-detection** — when no `ANTHROPIC_API_KEY` is set, the client automatically checks the system keyring (`Claude Code-credentials` service) and `~/.claude/.credentials.json` for existing Claude Code OAuth credentials. This lets Claude Code subscribers use Anthropic models out of the box without any extra setup.
+- **Codex CLI auto-detection (OpenAI)** — when no `OPENAI_API_KEY` is set, the client checks `~/.codex/auth.json` and uses exchanged `OPENAI_API_KEY` values when present; otherwise it requires OAuth tokens that already include `api.responses.write`.
 
 Credential precedence for Anthropic in `from_env()`:
 
 1. `ANTHROPIC_API_KEY` (env/keyring) — `x-api-key` header
 2. Claude Code credentials (keyring, then file) — `Authorization: Bearer` with OAuth beta headers
 3. Neither — Anthropic provider not registered
+
+Credential precedence for OpenAI in `from_env()`:
+
+1. `OPENAI_API_KEY` (env/keyring) — `Authorization: Bearer` API key
+2. Codex CLI credentials (`~/.codex/auth.json`) — exchanged `OPENAI_API_KEY` (preferred) or OAuth bearer token with `api.responses.write`, plus optional `ChatGPT-Account-Id`
+3. Neither — OpenAI provider not registered
 
 ## Development
 
