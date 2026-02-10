@@ -1,6 +1,6 @@
 # Stencila Models
 
-A Rust implementation of the [Unified LLM Client Specification](https://github.com/strongdm/attractor/blob/main/unified-llm-spec.md). This crate provides a single interface across multiple LLM providers (OpenAI, Anthropic, Google Gemini, and others), allowing provider-agnostic code where switching models requires changing only a single string identifier.
+An implementation of the [Unified LLM Client Specification](https://github.com/strongdm/attractor/blob/main/unified-llm-spec.md) with extensions for Stencila.
 
 ## Usage
 
