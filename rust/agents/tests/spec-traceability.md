@@ -99,6 +99,27 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.9 | Receiver None after emitter dropped | spec_2_events.rs | receiver_returns_none_when_emitter_dropped | Pass |
 | 2.9 | Silent discard after receiver dropped | spec_2_events.rs | emit_after_receiver_dropped_does_not_panic | Pass |
 
+## Phase 5: Tool Registry
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 3.8 | Empty registry | spec_3_registry.rs | new_registry_is_empty, empty_registry_definitions_and_names | Pass |
+| 3.8 | Register and lookup | spec_3_registry.rs | register_and_get, get_unknown_returns_none | Pass |
+| 3.8 | Register validates definition | spec_3_registry.rs | register_rejects_invalid_definition, register_rejects_non_object_schema | Pass |
+| 3.8 | Insertion-order definitions | spec_3_registry.rs | register_returns_definitions_in_order | Pass |
+| 3.8 | Insertion-order names | spec_3_registry.rs | register_returns_names_in_order | Pass |
+| 3.8 | Unregister | spec_3_registry.rs | unregister_existing, unregister_nonexistent | Pass |
+| 3.8 | Override latest-wins | spec_3_registry.rs | register_override_latest_wins | Pass |
+| 3.8 | Override preserves position | spec_3_registry.rs | register_override_preserves_position | Pass |
+| 3.8 | RegisteredTool execution (direct) | spec_3_registry.rs | execute_tool_success, execute_tool_error_propagates | Pass |
+| 3.8 | Integrated lookup → validate → execute | spec_3_registry.rs | lookup_validate_execute_integrated, lookup_validate_execute_rejects_invalid_args | Pass |
+| 3.8 | Argument validation (valid) | spec_3_registry.rs | validate_arguments_valid | Pass |
+| 3.8 | Argument validation (invalid) | spec_3_registry.rs | validate_arguments_invalid | Pass |
+| 3.8 | Unknown tool validation | spec_3_registry.rs | validate_arguments_unknown_tool | Pass |
+| 3.8 | Uncompilable schema graceful skip | spec_3_registry.rs | validate_arguments_uncompilable_schema_skips | Pass |
+| 3.8 | Definitions are cloned | spec_3_registry.rs | definitions_clones_not_references | Pass |
+| 3.8 | Multiple tools independent | spec_3_registry.rs | multiple_tools_independent | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |

@@ -33,5 +33,8 @@ pub mod execution;
 /// Tool output truncation: character-based and line-based (spec 5.1-5.3).
 pub mod truncation;
 
+/// Tool registry: name → executor mapping with validation (spec 3.8).
+pub mod registry;
+
 /// Core domain types: configuration, session state, turns, events.
 pub mod types;

@@ -8765,6 +8765,8 @@ dependencies = [
  "async-trait",
  "chrono",
  "glob",
+ "indexmap 2.13.0",
+ "jsonschema",
  "libc",
  "regex",
  "serde",
@@ -8773,6 +8775,7 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -8827,7 +8830,7 @@ dependencies = [
  "stencila-kernels",
  "stencila-linters",
  "stencila-lsp",
- "stencila-models",
+ "stencila-models3",
  "stencila-node-db",
  "stencila-node-diagnostics",
  "stencila-node-execute",
@@ -10565,15 +10568,20 @@ version = "2.13.0"
 dependencies = [
  "base64 0.22.1",
  "bytes",
+ "clap",
+ "eyre",
  "futures",
  "jsonschema",
  "rand 0.9.2",
  "reqwest 0.13.1",
  "serde",
  "serde_json",
+ "serde_yaml",
+ "stencila-cli-utils",
  "stencila-secrets",
  "thiserror 2.0.18",
  "tokio",
+ "tracing",
  "ureq 2.12.1",
  "uuid",
 ]

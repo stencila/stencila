@@ -10,9 +10,9 @@ Tests are organized by spec section, following the same convention as `stencila-
 | `spec_5_truncation.rs` | 5.1-5.3 | 2 | Tool output truncation: char-based, line-based, pipeline |
 | `spec_4_execution.rs` | 4.1-4.2, 5.4 | 3 | Execution environment: file ops, command exec, env filtering, search |
 | `spec_2_events.rs` | 2.9 | 4 | Event system: emitter/receiver channel, all 13 event kinds, ordering, drop semantics |
+| `spec_3_registry.rs` | 3.8 | 5 | Tool registry: register/unregister, lookup, execute, argument validation |
 
 Files for future phases (added as implemented):
-- `spec_3_registry.rs` — Tool registry (3.8)
 - `spec_3_tools.rs` — Core tool implementations (3.3, 3.6)
 - `spec_3_patch.rs` — apply_patch parser (Appendix A)
 - `spec_3_profiles.rs` — Provider profiles (3.1-3.7)
