@@ -107,6 +107,7 @@ import { type Reference } from "./Reference.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type Sentence } from "./Sentence.js";
+import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
@@ -251,6 +252,7 @@ export type Node =
   Review |
   Section |
   Sentence |
+  Skill |
   SoftwareApplication |
   SoftwareSourceCode |
   Strikeout |
@@ -393,6 +395,7 @@ export function node(other: Node): Node {
     case "Review":
     case "Section":
     case "Sentence":
+    case "Skill":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Strikeout":

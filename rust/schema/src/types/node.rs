@@ -110,6 +110,7 @@ use super::reference::Reference;
 use super::review::Review;
 use super::section::Section;
 use super::sentence::Sentence;
+use super::skill::Skill;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::strikeout::Strikeout;
@@ -363,6 +364,8 @@ pub enum Node {
     Section(Section),
 
     Sentence(Sentence),
+
+    Skill(Skill),
 
     SoftwareApplication(SoftwareApplication),
 

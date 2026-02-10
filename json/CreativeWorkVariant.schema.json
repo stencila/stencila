@@ -52,6 +52,9 @@
       "$ref": "Review.schema.json"
     },
     {
+      "$ref": "Skill.schema.json"
+    },
+    {
       "$ref": "SoftwareApplication.schema.json"
     },
     {

@@ -31,6 +31,7 @@ export type CreativeWorkType =
   'PublicationVolume' |
   'Report' |
   'Review' |
+  'Skill' |
   'SoftwareApplication' |
   'SoftwareRepository' |
   'SoftwareSourceCode' |

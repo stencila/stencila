@@ -242,6 +242,7 @@ class CreativeWorkType(StrEnum):
     PublicationVolume = "PublicationVolume"
     Report = "Report"
     Review = "Review"
+    Skill = "Skill"
     SoftwareApplication = "SoftwareApplication"
     SoftwareRepository = "SoftwareRepository"
     SoftwareSourceCode = "SoftwareSourceCode"
@@ -2934,6 +2935,27 @@ class Sentence(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Skill(CreativeWork):
+    """
+    An agent skill providing instructions for AI agents.
+    """
+
+    type: Literal["Skill"] = "Skill"
+
+    frontmatter: str | None = None
+    """Frontmatter containing skill metadata."""
+
+    content: list[Block]
+    """The content of the skill (the Markdown body)."""
+
+    compatibility: str | None = None
+    """Environment requirements for the skill."""
+
+    allowed_tools: list[str] | None = None
+    """Pre-approved tools for the skill."""
+
+
+@dataclass(kw_only=True, repr=False)
 class SoftwareApplication(CreativeWork):
     """
     A software application.
@@ -3454,6 +3476,7 @@ CreativeWorkVariant = Union[
     PublicationIssue,
     PublicationVolume,
     Review,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Table,
@@ -3644,6 +3667,7 @@ Node = Union[
     Review,
     Section,
     Sentence,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
@@ -3712,6 +3736,7 @@ ThingVariant = Union[
     PublicationIssue,
     PublicationVolume,
     Review,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Table,
@@ -3856,6 +3881,7 @@ TYPES = [
     Review,
     Section,
     Sentence,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,

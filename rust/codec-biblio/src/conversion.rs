@@ -692,6 +692,7 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
         | CreativeWorkType::Prompt
         | CreativeWorkType::PublicationIssue
         | CreativeWorkType::PublicationVolume
+        | CreativeWorkType::Skill
         | CreativeWorkType::Table
         | CreativeWorkType::Workflow => EntryType::Misc,
     }

@@ -23,6 +23,7 @@ impl CreativeWorkVariant {
             CreativeWorkVariant::SoftwareApplication(..) => CreativeWorkType::SoftwareApplication,
             CreativeWorkVariant::SoftwareSourceCode(..) => CreativeWorkType::SoftwareSourceCode,
             CreativeWorkVariant::Table(..) => CreativeWorkType::Table,
+            CreativeWorkVariant::Skill(..) => CreativeWorkType::Skill,
             CreativeWorkVariant::VideoObject(..) => CreativeWorkType::VideoObject,
         }
     }
@@ -53,6 +54,7 @@ impl CreativeWorkVariant {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
@@ -91,6 +93,7 @@ impl CreativeWorkVariant {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Table
@@ -126,6 +129,7 @@ impl TryFrom<Node> for CreativeWorkVariant {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Table,

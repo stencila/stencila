@@ -13,7 +13,8 @@ use stencila_codec::{
     eyre::{Result, eyre},
     stencila_format::Format,
     stencila_schema::{
-        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
+        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, Skill, VisitorMut,
+        WalkControl,
     },
 };
 
@@ -33,6 +34,8 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         .as_ref()
         .and_then(|options| options.format.clone())
         .unwrap_or(Format::Smd); // Default to Stencila Markdown
+
+    let node_type = options.as_ref().and_then(|options| options.node_type);
 
     // Check the content and return early if any messages and in strict mode
     let messages = check::check(content, &format);
@@ -70,13 +73,18 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Decode frontmatter (which may have a `type`, but defaults to `Article`)
     let mut node = if let Some(yaml) = context.yaml.take() {
-        match decode_frontmatter(&yaml, None).0 {
+        match decode_frontmatter(&yaml, node_type).0 {
             Node::Article(rest) => Node::Article(Article {
                 content,
                 frontmatter: Some(yaml),
                 ..rest
             }),
             Node::Prompt(rest) => Node::Prompt(Prompt {
+                content,
+                frontmatter: Some(yaml),
+                ..rest
+            }),
+            Node::Skill(rest) => Node::Skill(Skill {
                 content,
                 frontmatter: Some(yaml),
                 ..rest

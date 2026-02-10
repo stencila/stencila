@@ -529,8 +529,7 @@
             "$ref": "CreativeWorkVariant.schema.json"
           },
           {
-            "type": "string",
-            "pattern": "url"
+            "type": "string"
           }
         ]
       }

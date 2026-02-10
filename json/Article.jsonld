@@ -1011,6 +1011,9 @@
         },
         {
           "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:Skill"
         }
       ],
       "schema:rangeIncludes": {
@@ -1133,6 +1136,9 @@
         },
         {
           "@id": "stencila:Sentence"
+        },
+        {
+          "@id": "stencila:Skill"
         },
         {
           "@id": "stencila:StyledBlock"

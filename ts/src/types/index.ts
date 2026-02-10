@@ -153,6 +153,7 @@ export * from "./Role.js";
 export * from "./Section.js";
 export * from "./SectionType.js";
 export * from "./Sentence.js";
+export * from "./Skill.js";
 export * from "./SoftwareApplication.js";
 export * from "./SoftwareSourceCode.js";
 export * from "./SoftwareSourceCodeOrSoftwareApplicationOrString.js";

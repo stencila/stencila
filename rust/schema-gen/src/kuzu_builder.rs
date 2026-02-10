@@ -194,6 +194,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "PromptBlock",
                 "PropertyValue",
                 "ProvenanceCount",
+                "Skill",
                 "SoftwareApplication",
                 "Strikeout",
                 "Strong",

@@ -243,6 +243,10 @@
       "const": "Review"
     },
     {
+      "@id": "stencila:SkillCreativeWorkType",
+      "const": "Skill"
+    },
+    {
       "@id": "stencila:SoftwareApplicationCreativeWorkType",
       "const": "SoftwareApplication"
     },

@@ -18,6 +18,7 @@ import { type Prompt } from "./Prompt.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Review } from "./Review.js";
+import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Table } from "./Table.js";
@@ -43,6 +44,7 @@ export type CreativeWorkVariant =
   PublicationIssue |
   PublicationVolume |
   Review |
+  Skill |
   SoftwareApplication |
   SoftwareSourceCode |
   Table |
@@ -69,6 +71,7 @@ export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVar
     case "PublicationIssue":
     case "PublicationVolume":
     case "Review":
+    case "Skill":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Table":

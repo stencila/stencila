@@ -519,6 +519,13 @@ pub struct DecodeOptions {
 
     /// Options for structuring the decode node
     pub structuring_options: StructuringOptions,
+
+    /// A hint for the expected node type
+    ///
+    /// Used when the document format does not include an explicit type field
+    /// (e.g. SKILL.md files which follow the Agent Skills Spec).
+    #[serde(skip)]
+    pub node_type: Option<NodeType>,
 }
 
 impl DecodeOptions {

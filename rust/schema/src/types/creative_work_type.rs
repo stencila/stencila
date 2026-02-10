@@ -63,6 +63,8 @@ pub enum CreativeWorkType {
 
     Review,
 
+    Skill,
+
     SoftwareApplication,
 
     SoftwareRepository,

@@ -64,6 +64,8 @@ anyOf:
     "@id": stencila:ReportCreativeWorkType
   - const: Review
     "@id": stencila:ReviewCreativeWorkType
+  - const: Skill
+    "@id": stencila:SkillCreativeWorkType
   - const: SoftwareApplication
     "@id": stencila:SoftwareApplicationCreativeWorkType
   - const: SoftwareRepository

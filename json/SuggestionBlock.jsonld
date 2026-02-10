@@ -290,6 +290,9 @@
           "@id": "stencila:Sentence"
         },
         {
+          "@id": "stencila:Skill"
+        },
+        {
           "@id": "stencila:StyledBlock"
         },
         {

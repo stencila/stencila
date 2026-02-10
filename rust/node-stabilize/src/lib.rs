@@ -252,6 +252,7 @@ impl VisitorMut for Stabilizer {
             Review,
             Section,
             Sentence,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Strikeout,

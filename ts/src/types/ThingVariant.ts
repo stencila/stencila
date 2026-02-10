@@ -28,6 +28,7 @@ import { type PropertyValue } from "./PropertyValue.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Review } from "./Review.js";
+import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Table } from "./Table.js";
@@ -66,6 +67,7 @@ export type ThingVariant =
   PublicationIssue |
   PublicationVolume |
   Review |
+  Skill |
   SoftwareApplication |
   SoftwareSourceCode |
   Table |

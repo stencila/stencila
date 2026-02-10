@@ -18,6 +18,7 @@ use super::prompt::Prompt;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::review::Review;
+use super::skill::Skill;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::table::Table;
@@ -59,6 +60,8 @@ pub enum CreativeWorkVariant {
     PublicationVolume(PublicationVolume),
 
     Review(Review),
+
+    Skill(Skill),
 
     SoftwareApplication(SoftwareApplication),
 

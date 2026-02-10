@@ -77,6 +77,7 @@ mod raw_block;
 mod reference;
 mod section;
 mod section_type;
+mod skill;
 mod software_application;
 mod string_or_number;
 mod styled_block;

@@ -116,6 +116,7 @@ pub enum NodeType {
     Review,
     Section,
     Sentence,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
@@ -157,7 +158,7 @@ impl NodeType {
     /// Is the node type a creative work type?
     pub fn is_creative_work(&self) -> bool {
         use NodeType::*;
-        matches!(self, Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
+        matches!(self, Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
     }
 
     /// Is the node type a block content type?
@@ -294,6 +295,7 @@ impl TryFrom<&NodeId> for NodeType {
             "rev" => Review,
             "sec" => Section,
             "sen" => Sentence,
+            "skl" => Skill,
             "sap" => SoftwareApplication,
             "ssc" => SoftwareSourceCode,
             "stk" => Strikeout,
