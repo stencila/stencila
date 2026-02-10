@@ -7,8 +7,8 @@
 use std::sync::Arc;
 
 use eyre::{Result, bail, eyre};
-use stencila_models3::auth::{OAuthCredentials, RefreshFn};
 
+use crate::auth::{OAuthCredentials, RefreshFn};
 use crate::persist;
 use crate::pkce;
 
@@ -201,7 +201,7 @@ pub async fn refresh(old_credentials: OAuthCredentials) -> Result<OAuthCredentia
 /// Build a [`RefreshFn`] for Anthropic tokens.
 #[must_use]
 pub fn refresh_fn() -> RefreshFn {
-    Arc::new(|old_creds| Box::pin(async move { persist::to_sdk_result(refresh(old_creds).await) }))
+    Arc::new(|old_creds| Box::pin(async move { persist::to_auth_result(refresh(old_creds).await) }))
 }
 
 // ---------------------------------------------------------------------------

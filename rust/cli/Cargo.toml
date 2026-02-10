@@ -31,6 +31,7 @@ semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-ask = { path = "../ask" }
+stencila-auth = { path = "../auth", features = ["cli"] }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
 stencila-codec-utils = { path = "../codec-utils" }

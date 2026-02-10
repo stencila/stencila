@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 use eyre::{Result, bail, eyre};
 use serde::Deserialize;
-use stencila_models3::auth::{OAuthCredentials, RefreshFn};
 
+use crate::auth::{OAuthCredentials, RefreshFn};
 use crate::persist;
 
 // ---------------------------------------------------------------------------

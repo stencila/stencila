@@ -6,8 +6,8 @@ pub mod translate_stream;
 use std::sync::Arc;
 
 use reqwest::header::HeaderMap;
+use stencila_auth::{AuthCredential, StaticKey, bearer_header};
 
-use crate::auth::{AuthCredential, StaticKey, bearer_header};
 use crate::catalog::ModelInfo;
 use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;

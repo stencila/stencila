@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use stencila_auth::AuthError;
 
 /// Convenience alias for `Result<T, SdkError>`.
 pub type SdkResult<T> = Result<T, SdkError>;
@@ -270,6 +271,18 @@ impl SdkError {
             Some(ErrorClassification::ContentFilter)
         } else {
             None
+        }
+    }
+}
+
+impl From<AuthError> for SdkError {
+    fn from(err: AuthError) -> Self {
+        match err {
+            AuthError::Authentication(msg) => Self::Authentication {
+                message: msg,
+                details: ProviderDetails::default(),
+            },
+            AuthError::Configuration(msg) => Self::Configuration { message: msg },
         }
     }
 }

@@ -9,13 +9,37 @@
 //! [`AuthCredential::get_token`] on each request, so tokens can be
 //! refreshed transparently without rebuilding the adapter or client.
 
+use std::collections::HashMap;
+use std::pin::Pin;
 use std::sync::Arc;
 
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use tokio::sync::RwLock;
 
-use crate::error::{SdkError, SdkResult};
-use crate::provider::BoxFuture;
+// ---------------------------------------------------------------------------
+// BoxFuture (same definition as in models3's provider.rs)
+// ---------------------------------------------------------------------------
+
+/// A boxed future that is Send.
+pub type BoxFuture<'a, T> = Pin<Box<dyn std::future::Future<Output = T> + Send + 'a>>;
+
+// ---------------------------------------------------------------------------
+// Error types
+// ---------------------------------------------------------------------------
+
+/// Error type for authentication operations.
+#[derive(Debug, Clone, thiserror::Error)]
+pub enum AuthError {
+    /// An authentication operation failed (e.g. token refresh).
+    #[error("authentication error: {0}")]
+    Authentication(String),
+    /// A configuration issue (e.g. invalid header value).
+    #[error("configuration error: {0}")]
+    Configuration(String),
+}
+
+/// Convenience alias for `Result<T, AuthError>`.
+pub type AuthResult<T> = Result<T, AuthError>;
 
 // ---------------------------------------------------------------------------
 // Trait
@@ -27,7 +51,7 @@ use crate::provider::BoxFuture;
 /// handle refresh transparently before returning.
 pub trait AuthCredential: Send + Sync {
     /// Return a valid API key or access token for making LLM API calls.
-    fn get_token(&self) -> BoxFuture<'_, SdkResult<String>>;
+    fn get_token(&self) -> BoxFuture<'_, AuthResult<String>>;
 }
 
 impl std::fmt::Debug for dyn AuthCredential {
@@ -61,7 +85,7 @@ impl std::fmt::Debug for StaticKey {
 }
 
 impl AuthCredential for StaticKey {
-    fn get_token(&self) -> BoxFuture<'_, SdkResult<String>> {
+    fn get_token(&self) -> BoxFuture<'_, AuthResult<String>> {
         let token = self.0.clone();
         Box::pin(async move { Ok(token) })
     }
@@ -97,14 +121,14 @@ pub struct OAuthCredentials {
 /// Takes the current credentials and returns new credentials (the refresh
 /// token may have rotated).
 pub type RefreshFn =
-    Arc<dyn Fn(OAuthCredentials) -> BoxFuture<'static, SdkResult<OAuthCredentials>> + Send + Sync>;
+    Arc<dyn Fn(OAuthCredentials) -> BoxFuture<'static, AuthResult<OAuthCredentials>> + Send + Sync>;
 
 /// Callback to convert credentials to the value the LLM API needs.
 ///
 /// Default behavior (when not provided): returns `credentials.access_token`.
 /// Override for providers like GitHub Copilot that need an extra exchange step.
 pub type GetApiKeyFn =
-    Arc<dyn Fn(&OAuthCredentials) -> BoxFuture<'_, SdkResult<String>> + Send + Sync>;
+    Arc<dyn Fn(&OAuthCredentials) -> BoxFuture<'_, AuthResult<String>> + Send + Sync>;
 
 /// Callback invoked after credentials are refreshed.
 ///
@@ -183,7 +207,7 @@ impl OAuthToken {
 }
 
 impl AuthCredential for OAuthToken {
-    fn get_token(&self) -> BoxFuture<'_, SdkResult<String>> {
+    fn get_token(&self) -> BoxFuture<'_, AuthResult<String>> {
         Box::pin(async move {
             loop {
                 // Fast path: read lock — token is valid and no refresh in progress.
@@ -257,6 +281,34 @@ impl AuthCredential for OAuthToken {
 }
 
 // ---------------------------------------------------------------------------
+// AuthOverrides and AuthOptions
+// ---------------------------------------------------------------------------
+
+/// Per-provider authentication overrides.
+///
+/// Maps provider names (e.g. `"openai"`, `"anthropic"`) to credential
+/// objects. When passed to a client constructor, providers with an override
+/// use the supplied credential instead of reading API keys from environment
+/// variables or the system keyring.
+pub type AuthOverrides = HashMap<String, Arc<dyn AuthCredential>>;
+
+/// Authentication configuration for client construction.
+///
+/// Wraps [`AuthOverrides`] together with provider-specific metadata
+/// that cannot be expressed through the [`AuthCredential`] trait alone
+/// (e.g. the `OpenAI` `ChatGPT-Account-Id` header required for OAuth tokens).
+#[derive(Default)]
+pub struct AuthOptions {
+    /// Per-provider credential overrides.
+    pub overrides: AuthOverrides,
+    /// `OpenAI` `ChatGPT` account ID extracted from the JWT during OAuth login.
+    ///
+    /// Sent as the `ChatGPT-Account-Id` header with every `OpenAI` API request
+    /// when authenticating via OAuth (Codex flow).
+    pub openai_account_id: Option<String>,
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -266,16 +318,13 @@ impl AuthCredential for OAuthToken {
 ///
 /// # Errors
 ///
-/// Returns `SdkError::Configuration` if the token contains characters
+/// Returns `AuthError::Configuration` if the token contains characters
 /// that are invalid in an HTTP header value.
-pub fn bearer_header(token: &str) -> SdkResult<HeaderMap> {
+pub fn bearer_header(token: &str) -> AuthResult<HeaderMap> {
     let mut headers = HeaderMap::new();
-    let value: HeaderValue =
-        format!("Bearer {token}")
-            .parse()
-            .map_err(|e| SdkError::Configuration {
-                message: format!("invalid auth token for header: {e}"),
-            })?;
+    let value: HeaderValue = format!("Bearer {token}")
+        .parse()
+        .map_err(|e| AuthError::Configuration(format!("invalid auth token for header: {e}")))?;
     headers.insert(HeaderName::from_static("authorization"), value);
     Ok(headers)
 }
@@ -286,13 +335,13 @@ pub fn bearer_header(token: &str) -> SdkResult<HeaderMap> {
 ///
 /// # Errors
 ///
-/// Returns `SdkError::Configuration` if the token contains characters
+/// Returns `AuthError::Configuration` if the token contains characters
 /// that are invalid in an HTTP header value.
-pub fn api_key_header(token: &str) -> SdkResult<HeaderMap> {
+pub fn api_key_header(token: &str) -> AuthResult<HeaderMap> {
     let mut headers = HeaderMap::new();
-    let value: HeaderValue = token.parse().map_err(|e| SdkError::Configuration {
-        message: format!("invalid auth token for header: {e}"),
-    })?;
+    let value: HeaderValue = token
+        .parse()
+        .map_err(|e| AuthError::Configuration(format!("invalid auth token for header: {e}")))?;
     headers.insert(HeaderName::from_static("x-api-key"), value);
     Ok(headers)
 }
@@ -308,7 +357,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn static_key_returns_key() -> SdkResult<()> {
+    async fn static_key_returns_key() -> AuthResult<()> {
         let key = StaticKey::new("sk-test-123");
         assert_eq!(key.get_token().await?, "sk-test-123");
         Ok(())
@@ -323,19 +372,16 @@ mod tests {
     }
 
     #[test]
-    fn oauth_credentials_serde_roundtrip() -> SdkResult<()> {
+    fn oauth_credentials_serde_roundtrip() -> AuthResult<()> {
         let creds = OAuthCredentials {
             refresh_token: "rt-123".into(),
             access_token: "at-456".into(),
             expires_at: Some(1_700_000_000_000),
         };
-        let json = serde_json::to_string(&creds).map_err(|e| SdkError::Configuration {
-            message: e.to_string(),
-        })?;
+        let json =
+            serde_json::to_string(&creds).map_err(|e| AuthError::Configuration(e.to_string()))?;
         let parsed: OAuthCredentials =
-            serde_json::from_str(&json).map_err(|e| SdkError::Configuration {
-                message: e.to_string(),
-            })?;
+            serde_json::from_str(&json).map_err(|e| AuthError::Configuration(e.to_string()))?;
         assert_eq!(parsed.refresh_token, "rt-123");
         assert_eq!(parsed.access_token, "at-456");
         assert_eq!(parsed.expires_at, Some(1_700_000_000_000));
@@ -343,7 +389,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn oauth_token_returns_access_token_when_valid() -> SdkResult<()> {
+    async fn oauth_token_returns_access_token_when_valid() -> AuthResult<()> {
         let creds = OAuthCredentials {
             refresh_token: "rt".into(),
             access_token: "valid-token".into(),
@@ -356,7 +402,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn oauth_token_refreshes_when_expired() -> SdkResult<()> {
+    async fn oauth_token_refreshes_when_expired() -> AuthResult<()> {
         let creds = OAuthCredentials {
             refresh_token: "rt-old".into(),
             access_token: "expired-token".into(),
@@ -378,7 +424,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn oauth_token_calls_on_refresh() -> SdkResult<()> {
+    async fn oauth_token_calls_on_refresh() -> AuthResult<()> {
         let persist_count = Arc::new(AtomicU32::new(0));
         let persist_count_clone = persist_count.clone();
 
@@ -411,7 +457,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn oauth_token_uses_get_api_key_fn() -> SdkResult<()> {
+    async fn oauth_token_uses_get_api_key_fn() -> AuthResult<()> {
         let creds = OAuthCredentials {
             refresh_token: "rt".into(),
             access_token: "raw-access".into(),
@@ -428,7 +474,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn oauth_token_singleflight_refresh() -> SdkResult<()> {
+    async fn oauth_token_singleflight_refresh() -> AuthResult<()> {
         let refresh_count = Arc::new(AtomicU32::new(0));
         let refresh_count_clone = refresh_count.clone();
 
@@ -461,9 +507,9 @@ mod tests {
         }
 
         for handle in handles {
-            let result = handle.await.map_err(|e| SdkError::Configuration {
-                message: e.to_string(),
-            })??;
+            let result = handle
+                .await
+                .map_err(|e| AuthError::Configuration(e.to_string()))??;
             assert_eq!(result, "fresh");
         }
 
@@ -480,12 +526,7 @@ mod tests {
             expires_at: Some(0),
         };
         let refresh_fn: RefreshFn = Arc::new(|_| {
-            Box::pin(async {
-                Err(SdkError::Authentication {
-                    message: "refresh failed".into(),
-                    details: crate::error::ProviderDetails::default(),
-                })
-            })
+            Box::pin(async { Err(AuthError::Authentication("refresh failed".into())) })
         });
         let token = OAuthToken::new(creds, refresh_fn, None, None);
         let result = token.get_token().await;
@@ -493,7 +534,7 @@ mod tests {
     }
 
     #[test]
-    fn bearer_header_creates_valid_header() -> SdkResult<()> {
+    fn bearer_header_creates_valid_header() -> AuthResult<()> {
         let headers = bearer_header("my-token")?;
         let val = headers.get("authorization").expect("missing header");
         assert_eq!(val.to_str().unwrap_or(""), "Bearer my-token");
@@ -501,7 +542,7 @@ mod tests {
     }
 
     #[test]
-    fn api_key_header_creates_valid_header() -> SdkResult<()> {
+    fn api_key_header_creates_valid_header() -> AuthResult<()> {
         let headers = api_key_header("my-key")?;
         let val = headers.get("x-api-key").expect("missing header");
         assert_eq!(val.to_str().unwrap_or(""), "my-key");

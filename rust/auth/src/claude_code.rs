@@ -8,8 +8,7 @@
 
 use std::sync::Arc;
 
-use crate::auth::{AuthCredential, OAuthCredentials, OAuthToken, RefreshFn};
-use crate::error::{ProviderDetails, SdkError};
+use crate::{AuthCredential, AuthError, OAuthCredentials, OAuthToken, RefreshFn};
 
 // ---------------------------------------------------------------------------
 // Constants (matching pi-mono / oauth crate Anthropic configuration)
@@ -85,7 +84,7 @@ fn load_from_file() -> Option<OAuthCredentials> {
 /// Checks the system keyring (`Claude Code-credentials` service), then
 /// falls back to `~/.claude/.credentials.json`. Returns `None` if
 /// neither source contains valid credentials.
-pub(crate) fn load_credentials() -> Option<OAuthCredentials> {
+pub fn load_credentials() -> Option<OAuthCredentials> {
     load_from_keyring().or_else(load_from_file)
 }
 
@@ -112,28 +111,23 @@ fn refresh_fn() -> RefreshFn {
                 .json(&body)
                 .send()
                 .await
-                .map_err(|e| SdkError::Authentication {
-                    message: format!("Claude Code token refresh failed: {e}"),
-                    details: ProviderDetails::default(),
+                .map_err(|e| {
+                    AuthError::Authentication(format!("Claude Code token refresh failed: {e}"))
                 })?;
 
             if !response.status().is_success() {
                 let status = response.status();
                 let text = response.text().await.unwrap_or_default();
-                return Err(SdkError::Authentication {
-                    message: format!("Claude Code token refresh failed ({status}): {text}"),
-                    details: ProviderDetails::default(),
-                });
+                return Err(AuthError::Authentication(format!(
+                    "Claude Code token refresh failed ({status}): {text}"
+                )));
             }
 
-            let token_data: TokenResponse =
-                response
-                    .json()
-                    .await
-                    .map_err(|e| SdkError::Authentication {
-                        message: format!("failed to parse Claude Code refresh response: {e}"),
-                        details: ProviderDetails::default(),
-                    })?;
+            let token_data: TokenResponse = response.json().await.map_err(|e| {
+                AuthError::Authentication(format!(
+                    "failed to parse Claude Code refresh response: {e}"
+                ))
+            })?;
 
             let now_ms = now_millis();
             let expires_at = now_ms + token_data.expires_in * 1000;
@@ -155,7 +149,8 @@ fn refresh_fn() -> RefreshFn {
 ///
 /// Wraps the credentials in an [`OAuthToken`] that will automatically
 /// refresh when expired.
-pub(crate) fn build_auth_credential(creds: OAuthCredentials) -> Arc<dyn AuthCredential> {
+#[must_use]
+pub fn build_auth_credential(creds: OAuthCredentials) -> Arc<dyn AuthCredential> {
     Arc::new(OAuthToken::new(creds, refresh_fn(), None, None))
 }
 

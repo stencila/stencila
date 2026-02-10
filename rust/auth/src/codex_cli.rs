@@ -11,8 +11,7 @@ use base64::{
     engine::general_purpose::{URL_SAFE, URL_SAFE_NO_PAD},
 };
 
-use crate::auth::{AuthCredential, OAuthCredentials, OAuthToken, RefreshFn, StaticKey};
-use crate::error::{ProviderDetails, SdkError};
+use crate::{AuthCredential, AuthError, OAuthCredentials, OAuthToken, RefreshFn, StaticKey};
 
 // ---------------------------------------------------------------------------
 // Constants (matching Codex CLI OAuth configuration)
@@ -26,7 +25,7 @@ const TOKEN_URL: &str = "https://auth.openai.com/oauth/token";
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone)]
-pub(crate) struct CodexCliCredentials {
+pub struct CodexCliCredentials {
     oauth: OAuthCredentials,
     account_id: Option<String>,
     api_key: Option<String>,
@@ -101,7 +100,7 @@ fn parse_credentials_json(data: &str) -> Option<CodexCliCredentials> {
     })
 }
 
-/// Load OpenAI OAuth credentials from Codex CLI's auth file.
+/// Load `OpenAI` OAuth credentials from Codex CLI's auth file.
 fn load_from_file() -> Option<CodexCliCredentials> {
     let home = directories::UserDirs::new()?.home_dir().to_path_buf();
     let path = home.join(".codex").join("auth.json");
@@ -109,8 +108,9 @@ fn load_from_file() -> Option<CodexCliCredentials> {
     parse_credentials_json(&data)
 }
 
-/// Load Codex CLI OAuth credentials for OpenAI API calls.
-pub(crate) fn load_credentials() -> Option<CodexCliCredentials> {
+/// Load Codex CLI OAuth credentials for `OpenAI` API calls.
+#[must_use]
+pub fn load_credentials() -> Option<CodexCliCredentials> {
     load_from_file()
 }
 
@@ -136,28 +136,23 @@ fn refresh_fn(client_id: String) -> RefreshFn {
                 .body(body)
                 .send()
                 .await
-                .map_err(|e| SdkError::Authentication {
-                    message: format!("Codex CLI token refresh failed: {e}"),
-                    details: ProviderDetails::default(),
+                .map_err(|e| {
+                    AuthError::Authentication(format!("Codex CLI token refresh failed: {e}"))
                 })?;
 
             if !response.status().is_success() {
                 let status = response.status();
                 let text = response.text().await.unwrap_or_default();
-                return Err(SdkError::Authentication {
-                    message: format!("Codex CLI token refresh failed ({status}): {text}"),
-                    details: ProviderDetails::default(),
-                });
+                return Err(AuthError::Authentication(format!(
+                    "Codex CLI token refresh failed ({status}): {text}"
+                )));
             }
 
-            let token_data: TokenResponse =
-                response
-                    .json()
-                    .await
-                    .map_err(|e| SdkError::Authentication {
-                        message: format!("failed to parse Codex CLI refresh response: {e}"),
-                        details: ProviderDetails::default(),
-                    })?;
+            let token_data: TokenResponse = response.json().await.map_err(|e| {
+                AuthError::Authentication(format!(
+                    "failed to parse Codex CLI refresh response: {e}"
+                ))
+            })?;
 
             let expires_at = token_data
                 .expires_in
@@ -178,7 +173,8 @@ fn refresh_fn(client_id: String) -> RefreshFn {
 // ---------------------------------------------------------------------------
 
 /// Build an auth credential and optional `ChatGPT` account ID header value.
-pub(crate) fn build_auth_credential(
+#[must_use]
+pub fn build_auth_credential(
     creds: CodexCliCredentials,
 ) -> (Arc<dyn AuthCredential>, Option<String>) {
     let CodexCliCredentials {

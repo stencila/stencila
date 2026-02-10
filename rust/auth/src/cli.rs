@@ -17,16 +17,16 @@ pub struct Cli {
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Check which providers you are logged in to</dim>
-  <b>stencila oauth</>
+  <b>stencila auth</>
 
   <dim># Login to Anthropic via OAuth</dim>
-  <b>stencila oauth login</> <g>anthropic</>
+  <b>stencila auth login</> <g>anthropic</>
 
   <dim># Login to GitHub Copilot</dim>
-  <b>stencila oauth login</> <g>copilot</>
+  <b>stencila auth login</> <g>copilot</>
 
   <dim># Logout from a provider</dim>
-  <b>stencila oauth logout</> <g>gemini</>
+  <b>stencila auth logout</> <g>gemini</>
 "
 );
 
@@ -98,8 +98,8 @@ struct Status;
 pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># See which providers you are logged in to</dim>
-  <b>stencila oauth status</>
-  <b>stencila oauth</>
+  <b>stencila auth status</>
+  <b>stencila auth</>
 "
 );
 
@@ -112,22 +112,38 @@ impl Status {
             Provider::Openai,
         ];
 
-        let mut any_logged_in = false;
+        let mut any_authenticated = false;
         for provider in providers {
-            let has_creds = persist::load_credentials(provider.secret_key())?.is_some();
-            if has_creds {
+            let has_oauth = persist::load_credentials(provider.secret_key())?.is_some();
+            let detected_source = detect_external_credentials(provider);
+
+            if has_oauth {
                 message!("  {} {}", "\u{2705}", provider);
-                any_logged_in = true;
+                any_authenticated = true;
+            } else if let Some(source) = detected_source {
+                message!("  {} {} <dim>(via {})</>", "\u{2705}", provider, source);
+                any_authenticated = true;
             } else {
                 message!("  {} {}", "\u{274c}", provider);
             }
         }
 
-        if !any_logged_in {
-            message("\n\u{1f4a1} To login, run *stencila oauth login PROVIDER*");
+        if !any_authenticated {
+            message("\n\u{1f4a1} To login, run *stencila auth login PROVIDER*");
         }
 
         Ok(())
+    }
+}
+
+/// Check whether external tools (Claude Code, Codex CLI) provide
+/// credentials for a given provider. Returns a human-readable source
+/// name when detected, `None` otherwise.
+fn detect_external_credentials(provider: Provider) -> Option<&'static str> {
+    match provider {
+        Provider::Anthropic => crate::claude_code::load_credentials().map(|_| "Claude Code"),
+        Provider::Openai => crate::codex_cli::load_credentials().map(|_| "Codex CLI"),
+        _ => None,
     }
 }
 
@@ -146,16 +162,16 @@ struct Login {
 pub static LOGIN_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Login to Anthropic</dim>
-  <b>stencila oauth login</> <g>anthropic</>
+  <b>stencila auth login</> <g>anthropic</>
 
   <dim># Login to GitHub Copilot</dim>
-  <b>stencila oauth login</> <g>copilot</>
+  <b>stencila auth login</> <g>copilot</>
 
   <dim># Login to Google Gemini</dim>
-  <b>stencila oauth login</> <g>gemini</>
+  <b>stencila auth login</> <g>gemini</>
 
   <dim># Login to OpenAI</dim>
-  <b>stencila oauth login</> <g>openai</>
+  <b>stencila auth login</> <g>openai</>
 "
 );
 
@@ -214,10 +230,10 @@ struct Logout {
 pub static LOGOUT_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Logout from Anthropic</dim>
-  <b>stencila oauth logout</> <g>anthropic</>
+  <b>stencila auth logout</> <g>anthropic</>
 
   <dim># Logout from GitHub Copilot</dim>
-  <b>stencila oauth logout</> <g>copilot</>
+  <b>stencila auth logout</> <g>copilot</>
 "
 );
 

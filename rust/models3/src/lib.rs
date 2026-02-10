@@ -42,8 +42,6 @@
 
 /// High-level generation, streaming, structured output, and tool execution.
 pub mod api;
-/// Authentication credentials (static keys and OAuth tokens).
-pub mod auth;
 /// Model metadata catalog with lookup, listing, and runtime refresh.
 pub mod catalog;
 /// Command-line interface for listing models and running prompts.

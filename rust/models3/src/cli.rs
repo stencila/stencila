@@ -2,6 +2,7 @@ use std::{env, path::PathBuf};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
+use stencila_auth::{AuthOptions, AuthOverrides};
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
@@ -10,12 +11,10 @@ use stencila_cli_utils::{
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
 
-use crate::client::{AuthOptions, AuthOverrides};
 use crate::secret::get_secret;
-use crate::{
-    catalog::{self, ModelInfo},
-    providers::{anthropic::claude_code, openai::codex_cli},
-};
+use stencila_auth::{claude_code, codex_cli};
+
+use crate::catalog::{self, ModelInfo};
 
 /// Manage and interact with generative AI models
 #[derive(Debug, Parser)]
@@ -166,7 +165,7 @@ impl List {
         let total = models.len();
         if enabled < total {
             message!(
-                "{} of {} models enabled. Use <b>stencila oauth login</>, <b>stencila signin</>, or <b>stencila secrets set</> to enable more.\n\
+                "{} of {} models enabled. Use <b>stencila signin</>, <b>stencila auth login <<provider>> </>, or <b>stencila secrets set <<key>></> to enable more.\n\
                  Capabilities: <bold>T</>ools <bold>V</>ision <bold>R</>easoning",
                 enabled,
                 total

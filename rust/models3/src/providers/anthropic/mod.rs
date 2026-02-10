@@ -1,4 +1,3 @@
-pub(crate) mod claude_code;
 pub mod translate_error;
 pub mod translate_request;
 pub mod translate_response;
@@ -7,8 +6,8 @@ pub mod translate_stream;
 use std::sync::Arc;
 
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use stencila_auth::{AuthCredential, StaticKey, api_key_header, bearer_header};
 
-use crate::auth::{AuthCredential, StaticKey, api_key_header, bearer_header};
 use crate::catalog::ModelInfo;
 use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;
@@ -113,11 +112,11 @@ impl AnthropicAdapter {
     /// Get the auth header for a request.
     async fn auth_headers(&self) -> SdkResult<HeaderMap> {
         let token = self.auth.get_token().await?;
-        if self.use_bearer {
-            bearer_header(&token)
+        Ok(if self.use_bearer {
+            bearer_header(&token)?
         } else {
-            api_key_header(&token)
-        }
+            api_key_header(&token)?
+        })
     }
 
     /// System prompt prefix for OAuth requests, `None` for API key requests.

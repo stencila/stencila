@@ -1,42 +1,19 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
-use crate::auth::AuthCredential;
+use stencila_auth::AuthOptions;
+
 use crate::error::{SdkError, SdkResult};
 use crate::middleware::{Middleware, NextComplete, NextStream};
 use crate::provider::{BoxStream, ProviderAdapter};
+use stencila_auth::{claude_code, codex_cli};
+
 use crate::providers::{
     AnthropicAdapter, DeepSeekAdapter, GeminiAdapter, MistralAdapter, OllamaAdapter, OpenAIAdapter,
-    anthropic::claude_code, openai::codex_cli,
 };
 use crate::secret::get_secret;
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
-
-/// Per-provider authentication overrides.
-///
-/// Maps provider names (e.g. `"openai"`, `"anthropic"`) to credential
-/// objects. When passed to [`Client::from_env_with_auth`], providers
-/// with an override use the supplied credential instead of reading
-/// API keys from environment variables or the system keyring.
-pub type AuthOverrides = HashMap<String, Arc<dyn AuthCredential>>;
-
-/// Authentication configuration for [`Client::from_env_with_auth`].
-///
-/// Wraps [`AuthOverrides`] together with provider-specific metadata
-/// that cannot be expressed through the [`AuthCredential`] trait alone
-/// (e.g. the OpenAI `ChatGPT-Account-Id` header required for OAuth tokens).
-#[derive(Default)]
-pub struct AuthOptions {
-    /// Per-provider credential overrides.
-    pub overrides: AuthOverrides,
-    /// OpenAI `ChatGPT` account ID extracted from the JWT during OAuth login.
-    ///
-    /// Sent as the `ChatGPT-Account-Id` header with every OpenAI API request
-    /// when authenticating via OAuth (Codex flow).
-    pub openai_account_id: Option<String>,
-}
 
 /// The main orchestration layer.
 ///
@@ -213,10 +190,9 @@ impl Client {
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
                 builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
-        } else if let Some(creds) = crate::providers::openai::codex_cli::load_credentials() {
+        } else if let Some(creds) = codex_cli::load_credentials() {
             tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
-            let (auth, detected_account_id) =
-                crate::providers::openai::codex_cli::build_auth_credential(creds);
+            let (auth, detected_account_id) = codex_cli::build_auth_credential(creds);
             let account_id = detected_account_id.or_else(|| options.openai_account_id.clone());
             let base_url = std::env::var("OPENAI_BASE_URL")
                 .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
@@ -233,9 +209,9 @@ impl Client {
             builder = builder.add_provider(AnthropicAdapter::with_auth(auth.clone(), base_url)?);
         } else if get_secret("ANTHROPIC_API_KEY").is_some() {
             builder = builder.add_provider(AnthropicAdapter::from_env()?);
-        } else if let Some(creds) = crate::providers::anthropic::claude_code::load_credentials() {
+        } else if let Some(creds) = claude_code::load_credentials() {
             tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
-            let auth = crate::providers::anthropic::claude_code::build_auth_credential(creds);
+            let auth = claude_code::build_auth_credential(creds);
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
             builder = builder.add_provider(AnthropicAdapter::with_auth(auth, base_url)?);
         }

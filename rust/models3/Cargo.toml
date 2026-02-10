@@ -12,16 +12,15 @@ secrets = ["dep:stencila-secrets"]
 base64 = { workspace = true }
 bytes = { workspace = true }
 clap = { workspace = true, optional = true }
-directories = { workspace = true }
 eyre = { workspace = true, optional = true }
 futures = { workspace = true }
 jsonschema = { workspace = true }
-keyring = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true, optional = true }
+stencila-auth = { path = "../auth", default-features = false, features = ["login"] }
 stencila-cli-utils = { path = "../cli-utils", optional = true }
 stencila-secrets = { path = "../secrets", optional = true }
 thiserror = { workspace = true }

@@ -1,27 +1,44 @@
-//! Direct OAuth login flows for LLM providers.
+//! Authentication types and OAuth login flows for LLM providers.
 //!
-//! This crate implements browser-based OAuth flows that obtain credentials
-//! for use with the [`stencila_models3`] client. Each provider module
-//! handles the specific OAuth grant type required by that provider:
+//! The [`auth`] module provides the core credential abstraction
+//! ([`auth::AuthCredential`], [`auth::StaticKey`], [`auth::OAuthToken`])
+//! used by LLM client crates. These types are always available, even
+//! without the `login` feature.
+//!
+//! When the `login` feature is enabled, this crate also provides
+//! browser-based OAuth login flows for specific providers:
 //!
 //! - **Anthropic** — Authorization Code + PKCE with manual code paste.
 //! - **Gemini** — Authorization Code + PKCE with local callback server.
-//! - **OpenAI (Codex)** — Authorization Code + PKCE with local callback server.
+//! - **`OpenAI` (Codex)** — Authorization Code + PKCE with local callback server.
 //! - **GitHub Copilot** — Device Code Grant with poll-based verification.
 //!
 //! Credentials are persisted to the system keyring via [`stencila_secrets`]
-//! and can be loaded into [`stencila_models3::auth::OAuthToken`] for
-//! automatic refresh during API calls.
+//! and can be loaded into [`auth::OAuthToken`] for automatic refresh during
+//! API calls.
 
 #![allow(clippy::result_large_err)]
 #![warn(clippy::pedantic)]
+
+/// Authentication credentials (static keys and OAuth tokens).
+mod auth;
+pub use auth::*;
 
 /// Anthropic OAuth login flow (Authorization Code + PKCE).
 #[cfg(feature = "anthropic")]
 pub mod anthropic;
 
+/// Auto-detect Claude Code OAuth credentials.
+#[cfg(feature = "login")]
+pub mod claude_code;
+
 /// Local HTTP callback server for OAuth redirects.
+#[cfg(feature = "login")]
 pub mod callback;
+
+/// Auto-detect Codex CLI OAuth credentials.
+#[cfg(feature = "login")]
+pub mod codex_cli;
 
 /// Command-line interface for OAuth login commands.
 #[cfg(feature = "cli")]
@@ -40,22 +57,21 @@ pub mod gemini;
 pub mod openai;
 
 /// PKCE (Proof Key for Code Exchange) challenge generation.
+#[cfg(feature = "login")]
 pub mod pkce;
 
 /// Shared utilities for credential persistence and token helpers.
+#[cfg(feature = "login")]
 pub mod persist;
 
+#[cfg(feature = "login")]
 use std::sync::Arc;
-
-use stencila_models3::auth::{
-    AuthCredential, OAuthCredentials, OAuthToken, OnRefreshFn, RefreshFn,
-};
-use stencila_models3::client::{AuthOptions, AuthOverrides};
 
 /// Secret name prefix for OAuth credentials stored in the keyring.
 ///
 /// Each provider stores its credentials as JSON under a key like
 /// `STENCILA_OAUTH_ANTHROPIC`, `STENCILA_OAUTH_GEMINI`, etc.
+#[cfg(feature = "login")]
 const OAUTH_SECRET_PREFIX: &str = "STENCILA_OAUTH";
 
 /// Build an [`OAuthToken`] from persisted credentials and provider-specific callbacks.
@@ -67,6 +83,7 @@ const OAUTH_SECRET_PREFIX: &str = "STENCILA_OAUTH";
 /// # Errors
 ///
 /// Returns an error if the credential JSON cannot be deserialized.
+#[cfg(feature = "login")]
 pub fn build_oauth_token(
     credentials: OAuthCredentials,
     refresh_fn: RefreshFn,
@@ -87,6 +104,7 @@ pub fn build_oauth_token(
 /// function and adds it to the options map.
 ///
 /// Providers without stored credentials are silently skipped.
+#[cfg(feature = "login")]
 #[allow(clippy::missing_panics_doc)]
 #[must_use]
 pub fn load_auth_overrides() -> AuthOptions {

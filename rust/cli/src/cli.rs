@@ -267,6 +267,7 @@ pub enum Command {
     Formats(stencila_codecs::cli::Cli),
     Themes(stencila_themes::cli::Cli),
     Secrets(stencila_secrets::cli::Cli),
+    Auth(stencila_auth::cli::Cli),
     Tools(stencila_tools::cli::Cli),
 
     Serve(ServeOptions),
@@ -329,12 +330,19 @@ impl Cli {
             Command::Db(db) => db.run().await,
 
             Command::Prompts(prompts) => prompts.run().await,
-            Command::Models(models) => models.run().await,
+            Command::Models(models) => {
+                // models3 depends on oauth (types only, no login feature),
+                // so it can't load persisted credentials. The CLI wires in the
+                // login-capable oauth crate as the composition root.
+                let auth = stencila_auth::load_auth_overrides();
+                models.run_with_auth(&auth).await
+            }
             Command::Kernels(kernels) => kernels.run().await,
             Command::Linters(linters) => linters.run().await,
             Command::Formats(codecs) => codecs.run().await,
             Command::Themes(themes) => themes.run().await,
             Command::Secrets(secrets) => secrets.run().await,
+            Command::Auth(oauth) => oauth.run().await,
             Command::Tools(tools) => tools.run().await,
 
             Command::Serve(options) => stencila_server::serve(options).await,

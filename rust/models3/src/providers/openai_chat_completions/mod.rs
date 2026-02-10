@@ -6,8 +6,8 @@ pub mod translate_stream;
 use std::sync::Arc;
 
 use reqwest::header::HeaderMap;
+use stencila_auth::{AuthCredential, StaticKey, bearer_header};
 
-use crate::auth::{AuthCredential, StaticKey, bearer_header};
 use crate::catalog::ModelInfo;
 use crate::error::SdkResult;
 use crate::http::client::HttpClient;
@@ -99,7 +99,7 @@ impl OpenAIChatCompletionsAdapter {
     /// Get the auth header for a request.
     async fn auth_headers(&self) -> SdkResult<HeaderMap> {
         let token = self.auth.get_token().await?;
-        bearer_header(&token)
+        Ok(bearer_header(&token)?)
     }
 }
 

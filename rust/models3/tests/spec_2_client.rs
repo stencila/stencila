@@ -13,6 +13,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 
 use futures::StreamExt;
 
+use stencila_auth::{AuthOptions, AuthOverrides, StaticKey};
 use stencila_models3::api::default_client;
 use stencila_models3::catalog::{
     ModelInfo, get_latest_model, get_model_info, list_models, merge_models, refresh,
@@ -1108,13 +1109,10 @@ fn default_client_set_can_override_previous_value() -> Result<(), Box<dyn std::e
 
 #[test]
 fn from_env_with_auth_unknown_provider_returns_error() {
-    use stencila_models3::auth::StaticKey;
-    use stencila_models3::client::{AuthOptions, AuthOverrides};
-
     let mut overrides = AuthOverrides::new();
     overrides.insert(
         "opanai".to_string(), // typo
-        std::sync::Arc::new(StaticKey::new("key")),
+        Arc::new(StaticKey::new("key")),
     );
     let options = AuthOptions {
         overrides,
@@ -1129,13 +1127,10 @@ fn from_env_with_auth_unknown_provider_returns_error() {
 
 #[test]
 fn from_env_with_auth_registers_override_provider() {
-    use stencila_models3::auth::StaticKey;
-    use stencila_models3::client::{AuthOptions, AuthOverrides};
-
     let mut overrides = AuthOverrides::new();
     overrides.insert(
         "anthropic".to_string(),
-        std::sync::Arc::new(StaticKey::new("override-key")),
+        Arc::new(StaticKey::new("override-key")),
     );
     let options = AuthOptions {
         overrides,
@@ -1164,8 +1159,6 @@ fn from_env_with_auth_registers_override_provider() {
 
 #[test]
 fn from_env_with_auth_empty_overrides_same_as_from_env() {
-    use stencila_models3::client::AuthOptions;
-
     let options = AuthOptions::default();
     // With no overrides, behavior should be equivalent to from_env.
     // NOTE: We accept Configuration errors because the result depends on

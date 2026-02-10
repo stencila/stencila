@@ -8,10 +8,9 @@
 use std::sync::Arc;
 
 use eyre::{Result, eyre};
-use stencila_models3::auth::{OAuthCredentials, OnRefreshFn};
-use stencila_models3::error::SdkResult;
 
 use crate::OAUTH_SECRET_PREFIX;
+use crate::auth::{AuthError, AuthResult, OAuthCredentials, OnRefreshFn};
 
 /// Keyring secret name for a provider's OAuth credentials.
 #[must_use]
@@ -69,7 +68,7 @@ pub fn delete_credentials(provider: &str) -> Result<()> {
 
 /// Create an [`OnRefreshFn`] that persists credentials to the keyring.
 ///
-/// This is typically passed to [`stencila_models3::auth::OAuthToken::new`]
+/// This is typically passed to [`crate::auth::OAuthToken::new`]
 /// so that refreshed tokens are automatically saved.
 #[must_use]
 pub fn on_refresh_persist(provider: &str) -> OnRefreshFn {
@@ -85,15 +84,12 @@ pub fn on_refresh_persist(provider: &str) -> OnRefreshFn {
     })
 }
 
-/// Convert an `eyre::Report` to an `SdkError::Authentication`.
-pub(crate) fn to_auth_error(e: &eyre::Report) -> stencila_models3::error::SdkError {
-    stencila_models3::error::SdkError::Authentication {
-        message: e.to_string(),
-        details: stencila_models3::error::ProviderDetails::default(),
-    }
+/// Convert an `eyre::Report` to an `AuthError::Authentication`.
+pub(crate) fn to_auth_error(e: &eyre::Report) -> AuthError {
+    AuthError::Authentication(e.to_string())
 }
 
-/// Convert an `eyre::Report` to an `SdkResult`.
-pub(crate) fn to_sdk_result<T>(result: Result<T>) -> SdkResult<T> {
+/// Convert an `eyre::Result` to an `AuthResult`.
+pub(crate) fn to_auth_result<T>(result: Result<T>) -> AuthResult<T> {
     result.map_err(|e| to_auth_error(&e))
 }
