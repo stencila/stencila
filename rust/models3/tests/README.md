@@ -24,4 +24,5 @@ This directory is organized for spec-driven TDD.
 - Keep default-client behavior checks in `spec_2_client.rs` and provider translation edge cases (e.g. local image paths, reasoning-token mapping) in `spec_7_adapters.rs` aligned with `spec-traceability.md`.
 - Gate real-provider tests in `tests/integration/` behind explicit environment variables.
 - In env-gated live-provider tests, skip provider-scoped cases when transient quota/rate-limit constraints prevent execution.
-- If any part of a spec subsection remains deferred, keep that row `In Progress` in `spec-traceability.md` and record the gap in the `Deferred Items` table.
+- If any part of a spec subsection remains deferred, keep that row `In Progress` in `spec-traceability.md` and record the gap in `README.md` under `## Limitations`.
+- Record intentional spec deviations and implementation limitations in the crate `README.md` under `## Deviations` and `## Limitations`.

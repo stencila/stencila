@@ -97,7 +97,9 @@ if let Some(output) = result.output {
 # }
 ```
 
-## Extensions to the Unified LLM Client Spec
+## Extensions
+
+The following extensions to the spec are implemented.
 
 ### OAuth credential auto-detection
 
@@ -119,6 +121,61 @@ Credential precedence for OpenAI in `from_env()`:
 1. `OPENAI_API_KEY` (env/keyring) — `Authorization: Bearer` API key
 2. Codex CLI credentials (`~/.codex/auth.json`) — exchanged `OPENAI_API_KEY` (preferred) or OAuth bearer token with `api.responses.write`, plus optional `ChatGPT-Account-Id`
 3. Neither — OpenAI provider not registered
+
+### Secrets integration
+
+When compiled with the `secrets` feature, `get_secret` reads API keys from environment variables first, then the OS keyring via `stencila-secrets`; without it, env vars are used only.
+
+### Command line interface
+
+When compiled with the `cli` feature, this crate exposes CLI access to model listing/model info parts of the spec, plus generation workflows (primarily for testing and validation).
+For full command and option details, run `stencila models --help`.
+
+## Deviations
+
+These are intentional deviations from the spec.
+
+### `ToolChoice` shape
+
+- Spec shape: `{ mode, tool_name? }` record
+- Rust shape: `enum { Auto, None, Required, Tool(String) }`
+- Rationale: invalid states are unrepresentable in Rust; adapters translate to wire format.
+
+### `ProviderAdapter` stream shape
+
+- Spec shape: `Stream<StreamEvent>`
+- Rust shape: `Future<Result<Stream<Result<StreamEvent>>>>`
+- Rationale: two-phase stream setup separates connection-time failures from in-stream event failures.
+
+### High-level stream function naming
+
+- Spec naming: `stream()`
+- Rust naming: `stream_generate()`
+- Rationale: avoids collision with low-level `Client::stream()`.
+
+## Limitations
+
+These are known limitations of this implementation of the spec.
+
+### Incremental partial-object streaming (`§4.6`)
+
+`stream_object()` currently collects the full stream and parses once at the end; incremental partial-object parsing is not yet implemented.
+
+### Anthropic structured output fallback (`§4.5`)
+
+Anthropic does not natively support `json_schema` response format in the same way as other providers; fallback strategies (system-prompt shaping or tool-based extraction) are not yet implemented.
+
+### Streaming total timeout (`§4.7`)
+
+`stream_generate()` does not enforce `total` timeout internally because streams are lazy; callers should wrap stream consumption in `tokio::time::timeout`.
+
+### Streaming per-step timeout scope (`§4.7`)
+
+`per_step` timeout currently applies to provider stream connection setup, not per-event reads after connection is established.
+
+### StreamAccumulator multi-segment support (`§4.4`)
+
+Accumulator behavior currently assumes a single text segment per step; concurrent/interleaved multi-segment assembly is not yet supported.
 
 ## Development
 
@@ -149,7 +206,7 @@ git --no-pager diff -- specs/unified-llm-spec.md
 - Update requirement rows and status in `tests/spec-traceability.md`.
 - Add or update failing tests in the matching `tests/spec_*.rs` file(s) first.
 - Implement the minimum code changes in `src/` and adapters until tests pass.
-- Keep deferred subsections explicit in the `Deferred Items` table if any gaps remain.
+- Keep deferred subsections explicit in `## Limitations` if any gaps remain.
 
 5. Run the required crate workflow:
 

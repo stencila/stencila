@@ -33,23 +33,12 @@ Use this matrix to track MUST/SHOULD requirements from `specs/unified-llm-spec.m
 | 8.10 | Integration smoke test | MUST | `tests/spec_8_acceptance.rs` | Covered | 6 tests (env-gated): basic generation, streaming, tool calling, structured output, error handling, cancellation — per spec §8.10 scenarios 1-3, 5-6; Ollama included for basic text/streaming/error/cancellation only; provider-scoped cases skip on quota/rate-limit constraints |
 | 8.x | Provider options end-to-end | SHOULD | `tests/integration/{openai,anthropic,gemini,mistral,deepseek,ollama}.rs` | Covered | 7 tests (env-gated): Anthropic beta_headers, Anthropic auto_cache disabled, Gemini safety settings, OpenAI custom headers, Mistral basic generation, DeepSeek basic generation, Ollama basic generation |
 
-## Intentional Spec Deviations
+## Spec Gaps and Deviations
 
-| Area | Spec Shape | Rust Shape | Rationale |
-| --- | --- | --- | --- |
-| ToolChoice | `{ mode, tool_name? }` record | `enum { Auto, None, Required, Tool(String) }` | Makes invalid states unrepresentable; adapters translate to wire format |
-| ProviderAdapter::stream | Returns `Stream<StreamEvent>` | Returns `Future<Result<Stream<Result<StreamEvent>>>>` | Two-phase: outer Future for connection, inner Stream for events. Distinguishes connection-time vs streaming failures |
-| Function naming | Spec: `stream()` | Rust: `stream_generate()` | Avoids collision with `Client::stream()` (low-level). The high-level API uses `stream_generate` to clearly distinguish it from the provider-level stream method on `Client` |
+Intentional spec deviations and current deferred items are documented in the crate README:
 
-## Deferred Items
-
-| Area | Spec Section | Description |
-| --- | --- | --- |
-| Incremental partial-object streaming | §4.6 | `stream_object()` collects the entire stream then parses; incremental JSON parsing for partial objects not yet implemented |
-| Anthropic structured output fallback | §4.5 | Anthropic doesn't natively support `json_schema` response format; needs system-prompt injection or tool-based extraction fallback |
-| Streaming total timeout | §4.7 | `total` timeout not enforced within `stream_generate()` because the stream is lazy; callers can wrap with `tokio::time::timeout` |
-| Streaming per-step timeout scope | §4.7 | `per_step` timeout in `stream_generate()` currently wraps provider stream connection setup, not inter-event reads after connection is established |
-| StreamAccumulator multi-segment | §4.4 | Accumulator assumes a single text segment per step; concurrent/interleaved segments not yet supported |
+- `README.md` → `## Deviations`
+- `README.md` → `## Limitations`
 
 ## Status Values
 
