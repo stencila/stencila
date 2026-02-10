@@ -50,11 +50,11 @@ pub struct OpenAICredentials {
 // Login flow
 // ---------------------------------------------------------------------------
 
-/// Perform the `OpenAI` Codex OAuth login flow.
+/// Perform the OpenAI Codex OAuth login flow.
 ///
 /// 1. Generates a PKCE challenge.
 /// 2. Starts a local callback server on port 1455.
-/// 3. Opens the browser to the `OpenAI` authorization page.
+/// 3. Opens the browser to the OpenAI authorization page.
 /// 4. Waits for the callback (or falls back to manual paste).
 /// 5. Exchanges the code for tokens.
 /// 6. Decodes the JWT to extract the account ID.
@@ -183,7 +183,7 @@ async fn exchange_code(code: &str, verifier: &str) -> Result<OpenAICredentials> 
 // Token refresh
 // ---------------------------------------------------------------------------
 
-/// Refresh an `OpenAI` Codex OAuth token.
+/// Refresh an OpenAI Codex OAuth token.
 ///
 /// # Errors
 ///
@@ -232,7 +232,7 @@ pub async fn refresh(old_credentials: OAuthCredentials) -> Result<OpenAICredenti
     })
 }
 
-/// Build a [`RefreshFn`] for `OpenAI` tokens.
+/// Build a [`RefreshFn`] for OpenAI tokens.
 #[must_use]
 pub fn refresh_fn() -> RefreshFn {
     Arc::new(|old_creds| {
@@ -366,7 +366,7 @@ fn persist_openai_credentials(creds: &OpenAICredentials) -> Result<()> {
     stencila_secrets::set(&name, &json).map_err(|e| eyre!("failed to save OpenAI credentials: {e}"))
 }
 
-/// Load persisted `OpenAI` credentials (including account ID).
+/// Load persisted OpenAI credentials (including account ID).
 ///
 /// # Errors
 ///
