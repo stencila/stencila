@@ -1,0 +1,19 @@
+{
+  "name": "write_file",
+  "description": "Write content to a file, creating it and any parent directories if they do not exist. Overwrites the file if it already exists.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "file_path": {
+        "type": "string",
+        "description": "Absolute path to the file to write."
+      },
+      "content": {
+        "type": "string",
+        "description": "The content to write to the file."
+      }
+    },
+    "required": ["file_path", "content"],
+    "additionalProperties": false
+  }
+}

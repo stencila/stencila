@@ -1,0 +1,19 @@
+{
+  "name": "glob",
+  "description": "Find files matching a glob pattern. Returns file paths sorted by modification time (newest first).",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "pattern": {
+        "type": "string",
+        "description": "Glob pattern to match files (e.g., \"**/*.rs\", \"src/*.py\")."
+      },
+      "path": {
+        "type": "string",
+        "description": "Base directory for the search. Defaults to the working directory."
+      }
+    },
+    "required": ["pattern"],
+    "additionalProperties": false
+  }
+}

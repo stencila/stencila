@@ -36,5 +36,8 @@ pub mod truncation;
 /// Tool registry: name → executor mapping with validation (spec 3.8).
 pub mod registry;
 
+/// Core tool implementations: executors and schema definitions (spec 3.3, 3.6).
+pub mod tools;
+
 /// Core domain types: configuration, session state, turns, events.
 pub mod types;

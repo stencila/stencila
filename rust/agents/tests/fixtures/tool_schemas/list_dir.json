@@ -1,0 +1,20 @@
+{
+  "name": "list_dir",
+  "description": "List the contents of a directory. Directories are shown with a trailing slash; files include their size.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string",
+        "description": "Absolute path to the directory to list."
+      },
+      "depth": {
+        "type": "integer",
+        "description": "Maximum depth to recurse. Defaults to 1 (immediate children only).",
+        "minimum": 1
+      }
+    },
+    "required": ["path"],
+    "additionalProperties": false
+  }
+}

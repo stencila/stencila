@@ -1,0 +1,28 @@
+{
+  "name": "edit_file",
+  "description": "Perform an exact string replacement in a file. The old_string must match exactly (including whitespace and indentation). For multiple replacements, set replace_all to true.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "file_path": {
+        "type": "string",
+        "description": "Absolute path to the file to edit."
+      },
+      "old_string": {
+        "type": "string",
+        "description": "The exact string to find and replace."
+      },
+      "new_string": {
+        "type": "string",
+        "description": "The replacement string."
+      },
+      "replace_all": {
+        "type": "boolean",
+        "description": "If true, replace all occurrences. If false (default), the old_string must appear exactly once.",
+        "default": false
+      }
+    },
+    "required": ["file_path", "old_string", "new_string"],
+    "additionalProperties": false
+  }
+}

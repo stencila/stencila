@@ -120,6 +120,31 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.8 | Definitions are cloned | spec_3_registry.rs | definitions_clones_not_references | Pass |
 | 3.8 | Multiple tools independent | spec_3_registry.rs | multiple_tools_independent | Pass |
 
+## Phase 5b+6a: Core Tool Implementations
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| 3.3 | read_file schema parity | spec_3_tools.rs | read_file_schema_matches_fixture | Pass |
+| 3.3 | write_file schema parity | spec_3_tools.rs | write_file_schema_matches_fixture | Pass |
+| 3.3 | edit_file schema parity | spec_3_tools.rs | edit_file_schema_matches_fixture | Pass |
+| 3.3 | shell schema parity | spec_3_tools.rs | shell_schema_matches_fixture | Pass |
+| 3.3 | grep schema parity | spec_3_tools.rs | grep_schema_matches_fixture | Pass |
+| 3.3 | glob schema parity | spec_3_tools.rs | glob_schema_matches_fixture | Pass |
+| 3.6 | read_many_files schema parity | spec_3_tools.rs | read_many_files_schema_matches_fixture | Pass |
+| 3.6 | list_dir schema parity | spec_3_tools.rs | list_dir_schema_matches_fixture | Pass |
+| 3.3 | read_file executor | spec_3_tools.rs | read_file_text_content, read_file_with_offset_and_limit, read_file_image_returns_placeholder, read_file_not_found | Pass |
+| 3.3 | write_file executor | spec_3_tools.rs | write_file_success_with_byte_count, write_file_records_write, write_file_missing_content | Pass |
+| 3.3 | edit_file executor | spec_3_tools.rs | edit_file_single_replace, edit_file_replace_all, edit_file_not_found, edit_file_old_string_missing, edit_file_not_unique, edit_file_correct_writeback | Pass |
+| 3.3 | shell executor | spec_3_tools.rs | shell_success_format, shell_exit_code, shell_custom_timeout, shell_per_call_timeout_overrides_default | Pass |
+| 3.3 | grep executor | spec_3_tools.rs | grep_basic, grep_with_options, grep_default_path, grep_missing_pattern | Pass |
+| 3.3 | glob executor | spec_3_tools.rs | glob_basic, glob_empty_results, glob_default_path, glob_missing_pattern | Pass |
+| 3.6 | read_many_files executor | spec_3_tools.rs | read_many_files_batch, read_many_files_partial_failure, read_many_files_empty_paths | Pass |
+| 3.6 | list_dir executor | spec_3_tools.rs | list_dir_basic, list_dir_with_depth, list_dir_not_found | Pass |
+| 3.3, 3.6 | Core registration (6 tools) | spec_3_tools.rs | register_core_tools_adds_six | Pass |
+| 3.6 | Gemini registration (+2) | spec_3_tools.rs | register_gemini_tools_adds_two_more | Pass |
+| 3.3 | strip_line_numbers helper | spec_3_tools.rs | strip_line_numbers_basic, strip_line_numbers_preserves_trailing_newline, strip_line_numbers_no_trailing_newline, strip_line_numbers_passthrough | Pass |
+| 3.3 | required_str helper | spec_3_tools.rs | required_str_extracts_value, required_str_missing_returns_error | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
