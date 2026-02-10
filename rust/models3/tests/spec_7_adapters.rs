@@ -733,7 +733,7 @@ fn anthropic_request_translation_system_and_tools() -> Result<(), Box<dyn std::e
     }]);
     request.tool_choice = Some(ToolChoice::Auto);
 
-    let translated = anthropic::translate_request::translate_request(&request, false)?;
+    let translated = anthropic::translate_request::translate_request(&request, false, None)?;
 
     assert_eq!(translated.body["model"], "claude-sonnet-4-5-20250929");
     assert_eq!(translated.body["max_tokens"], 1024);
@@ -778,7 +778,7 @@ fn anthropic_request_translation_local_image_path_uses_base64_source()
         )],
     );
 
-    let translated = anthropic::translate_request::translate_request(&request, false)?;
+    let translated = anthropic::translate_request::translate_request(&request, false, None)?;
     let _ = fs::remove_file(&path);
 
     let messages = translated
@@ -1035,7 +1035,7 @@ fn anthropic_auto_cache_injects_on_system_tools_and_conversation_prefix()
         ],
     );
 
-    let translated = anthropic::translate_request::translate_request(&request, false)?;
+    let translated = anthropic::translate_request::translate_request(&request, false, None)?;
 
     // System block should have cache_control
     let system = translated
@@ -1105,7 +1105,7 @@ fn anthropic_request_translation_provider_options() -> Result<(), Box<dyn std::e
     );
     request.provider_options = Some(provider_options);
 
-    let translated = anthropic::translate_request::translate_request(&request, false)?;
+    let translated = anthropic::translate_request::translate_request(&request, false, None)?;
 
     // beta_headers joined into anthropic-beta header
     let beta = translated
@@ -1151,7 +1151,7 @@ fn anthropic_request_translation_beta_features_alias() -> Result<(), Box<dyn std
     );
     request.provider_options = Some(provider_options);
 
-    let translated = anthropic::translate_request::translate_request(&request, false)?;
+    let translated = anthropic::translate_request::translate_request(&request, false, None)?;
 
     let beta = translated
         .headers

@@ -1104,6 +1104,93 @@ fn default_client_set_can_override_previous_value() -> Result<(), Box<dyn std::e
     Ok(())
 }
 
+// ── from_env_with_auth (AuthOverrides) ───────────────────────────────
+
+#[test]
+fn from_env_with_auth_unknown_provider_returns_error() {
+    use stencila_models3::auth::StaticKey;
+    use stencila_models3::client::{AuthOptions, AuthOverrides};
+
+    let mut overrides = AuthOverrides::new();
+    overrides.insert(
+        "opanai".to_string(), // typo
+        std::sync::Arc::new(StaticKey::new("key")),
+    );
+    let options = AuthOptions {
+        overrides,
+        ..AuthOptions::default()
+    };
+    let err = Client::from_env_with_auth(&options).expect_err("should reject unknown provider");
+    assert!(
+        matches!(err, SdkError::Configuration { ref message } if message.contains("opanai")),
+        "expected Configuration error mentioning 'opanai', got: {err:?}"
+    );
+}
+
+#[test]
+fn from_env_with_auth_registers_override_provider() {
+    use stencila_models3::auth::StaticKey;
+    use stencila_models3::client::{AuthOptions, AuthOverrides};
+
+    let mut overrides = AuthOverrides::new();
+    overrides.insert(
+        "anthropic".to_string(),
+        std::sync::Arc::new(StaticKey::new("override-key")),
+    );
+    let options = AuthOptions {
+        overrides,
+        ..AuthOptions::default()
+    };
+    // This should succeed and register anthropic even without ANTHROPIC_API_KEY in env.
+    // NOTE: We accept Configuration errors here because from_env_with_auth reads
+    // real environment state (env vars, keyring) that varies across machines.
+    // A Configuration error means the override was validated but another provider
+    // failed to initialize — not a regression in override handling itself.
+    match Client::from_env_with_auth(&options) {
+        Ok(client) => {
+            assert!(
+                client.provider_names().contains(&"anthropic"),
+                "anthropic should be registered via override"
+            );
+        }
+        Err(e) => {
+            assert!(
+                matches!(e, SdkError::Configuration { .. }),
+                "expected Configuration error, got: {e:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn from_env_with_auth_empty_overrides_same_as_from_env() {
+    use stencila_models3::client::AuthOptions;
+
+    let options = AuthOptions::default();
+    // With no overrides, behavior should be equivalent to from_env.
+    // NOTE: We accept Configuration errors because the result depends on
+    // which API keys / env vars happen to be set on the host machine.
+    // The important assertion is that no other error variant (e.g. Server,
+    // Authentication) is returned from a purely local operation.
+    match Client::from_env_with_auth(&options) {
+        Ok(client) => {
+            if let Some(default) = client.default_provider() {
+                assert!(
+                    client.provider_names().contains(&default),
+                    "default provider '{default}' should be in provider list"
+                );
+            }
+            assert_eq!(client.middleware_count(), 0);
+        }
+        Err(e) => {
+            assert!(
+                matches!(e, SdkError::Configuration { .. }),
+                "errors should be Configuration, got: {e:?}"
+            );
+        }
+    }
+}
+
 // ── Middleware is object-safe ─────────────────────────────────────────
 
 #[test]

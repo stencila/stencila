@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
+use crate::auth::AuthCredential;
 use crate::error::{SdkError, SdkResult};
 use crate::middleware::{Middleware, NextComplete, NextStream};
 use crate::provider::{BoxStream, ProviderAdapter};
@@ -10,6 +12,30 @@ use crate::secret::get_secret;
 use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
+
+/// Per-provider authentication overrides.
+///
+/// Maps provider names (e.g. `"openai"`, `"anthropic"`) to credential
+/// objects. When passed to [`Client::from_env_with_auth`], providers
+/// with an override use the supplied credential instead of reading
+/// API keys from environment variables or the system keyring.
+pub type AuthOverrides = HashMap<String, Arc<dyn AuthCredential>>;
+
+/// Authentication configuration for [`Client::from_env_with_auth`].
+///
+/// Wraps [`AuthOverrides`] together with provider-specific metadata
+/// that cannot be expressed through the [`AuthCredential`] trait alone
+/// (e.g. the OpenAI `ChatGPT-Account-Id` header required for OAuth tokens).
+#[derive(Default)]
+pub struct AuthOptions {
+    /// Per-provider credential overrides.
+    pub overrides: AuthOverrides,
+    /// OpenAI `ChatGPT` account ID extracted from the JWT during OAuth login.
+    ///
+    /// Sent as the `ChatGPT-Account-Id` header with every OpenAI API request
+    /// when authenticating via OAuth (Codex flow).
+    pub openai_account_id: Option<String>,
+}
 
 /// The main orchestration layer.
 ///
@@ -74,7 +100,15 @@ impl Client {
 
         // Anthropic
         if get_secret("ANTHROPIC_API_KEY").is_some() {
+            if crate::providers::anthropic::claude_code::load_credentials().is_some() {
+                tracing::info!("ANTHROPIC_API_KEY is set; ignoring Claude Code OAuth credentials");
+            }
             builder = builder.add_provider(AnthropicAdapter::from_env()?);
+        } else if let Some(creds) = crate::providers::anthropic::claude_code::load_credentials() {
+            tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
+            let auth = crate::providers::anthropic::claude_code::build_auth_credential(creds);
+            let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
+            builder = builder.add_provider(AnthropicAdapter::with_auth(auth, base_url)?);
         }
 
         // Gemini (with GOOGLE_API_KEY fallback)
@@ -97,6 +131,119 @@ impl Client {
 
         // Ollama (no API key required — register when explicitly configured)
         if std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok() {
+            builder = builder.add_provider(OllamaAdapter::from_env()?);
+        }
+
+        builder.build()
+    }
+
+    /// Create a client from environment variables with authentication overrides.
+    ///
+    /// Like [`from_env`](Self::from_env), but providers whose names appear in
+    /// `options.overrides` use the supplied [`AuthCredential`] instead of reading
+    /// keys from the environment. This is the primary entry point for OAuth-based
+    /// authentication.
+    ///
+    /// A provider with an override is registered even if its corresponding
+    /// environment variable is absent — the override *is* the credential.
+    ///
+    /// # Errors
+    ///
+    /// Returns `SdkError::Configuration` if an override key does not match
+    /// any known provider name (to prevent silent typos like `"opanai"`).
+    pub fn from_env_with_auth(options: &AuthOptions) -> SdkResult<Self> {
+        // Validate override keys against known provider names.
+        const KNOWN_PROVIDERS: &[&str] = &[
+            "openai",
+            "anthropic",
+            "gemini",
+            "mistral",
+            "deepseek",
+            "ollama",
+        ];
+
+        let overrides = &options.overrides;
+        for key in overrides.keys() {
+            if !KNOWN_PROVIDERS.contains(&key.as_str()) {
+                return Err(SdkError::Configuration {
+                    message: format!(
+                        "unknown provider in auth overrides: '{key}'. \
+                         Known providers: {}",
+                        KNOWN_PROVIDERS.join(", ")
+                    ),
+                });
+            }
+        }
+
+        let mut builder = ClientBuilder::new();
+
+        // OpenAI (native Responses API)
+        if let Some(auth) = overrides.get("openai") {
+            let base_url = std::env::var("OPENAI_BASE_URL")
+                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let org = std::env::var("OPENAI_ORG_ID").ok();
+            let project = std::env::var("OPENAI_PROJECT_ID").ok();
+            builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
+                auth.clone(),
+                base_url,
+                org,
+                project,
+                options.openai_account_id.clone(),
+            )?);
+        } else if let Some(api_key) = get_secret("OPENAI_API_KEY") {
+            let base_url = std::env::var("OPENAI_BASE_URL")
+                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let org = std::env::var("OPENAI_ORG_ID").ok();
+            let project = std::env::var("OPENAI_PROJECT_ID").ok();
+            builder =
+                builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
+        }
+
+        // Anthropic
+        if let Some(auth) = overrides.get("anthropic") {
+            let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
+            builder = builder.add_provider(AnthropicAdapter::with_auth(auth.clone(), base_url)?);
+        } else if get_secret("ANTHROPIC_API_KEY").is_some() {
+            builder = builder.add_provider(AnthropicAdapter::from_env()?);
+        } else if let Some(creds) = crate::providers::anthropic::claude_code::load_credentials() {
+            tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
+            let auth = crate::providers::anthropic::claude_code::build_auth_credential(creds);
+            let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
+            builder = builder.add_provider(AnthropicAdapter::with_auth(auth, base_url)?);
+        }
+
+        // Gemini (with GOOGLE_API_KEY fallback)
+        if let Some(auth) = overrides.get("gemini") {
+            let base_url = std::env::var("GEMINI_BASE_URL").ok();
+            builder = builder.add_provider(GeminiAdapter::with_auth(auth.clone(), base_url)?);
+        } else if get_secret("GEMINI_API_KEY").is_some() {
+            builder = builder.add_provider(GeminiAdapter::from_env()?);
+        } else if let Some(api_key) = get_secret("GOOGLE_API_KEY") {
+            let base_url = std::env::var("GEMINI_BASE_URL").ok();
+            builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
+        }
+
+        // Mistral
+        if let Some(auth) = overrides.get("mistral") {
+            let base_url = std::env::var("MISTRAL_BASE_URL").ok();
+            builder = builder.add_provider(MistralAdapter::with_auth(auth.clone(), base_url)?);
+        } else if get_secret("MISTRAL_API_KEY").is_some() {
+            builder = builder.add_provider(MistralAdapter::from_env()?);
+        }
+
+        // DeepSeek
+        if let Some(auth) = overrides.get("deepseek") {
+            let base_url = std::env::var("DEEPSEEK_BASE_URL").ok();
+            builder = builder.add_provider(DeepSeekAdapter::with_auth(auth.clone(), base_url)?);
+        } else if get_secret("DEEPSEEK_API_KEY").is_some() {
+            builder = builder.add_provider(DeepSeekAdapter::from_env()?);
+        }
+
+        // Ollama
+        if let Some(auth) = overrides.get("ollama") {
+            let base_url = OllamaAdapter::base_url_from_env_or_default();
+            builder = builder.add_provider(OllamaAdapter::with_auth(base_url, Some(auth.clone()))?);
+        } else if std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok() {
             builder = builder.add_provider(OllamaAdapter::from_env()?);
         }
 
@@ -288,6 +435,25 @@ impl ClientBuilder {
     #[must_use]
     pub fn add_provider(mut self, adapter: impl ProviderAdapter + 'static) -> Self {
         let name = adapter.name().to_string();
+        if self.default_provider.is_none() {
+            self.default_provider = Some(name.clone());
+        }
+        self.providers.insert(name, Box::new(adapter));
+        self
+    }
+
+    /// Register a provider adapter under a custom name.
+    ///
+    /// Use this when an adapter should serve requests for a provider
+    /// name different from its own `name()` (e.g. using the Chat
+    /// Completions adapter to serve `"openai"` catalog models).
+    #[must_use]
+    pub fn add_provider_as(
+        mut self,
+        name: impl Into<String>,
+        adapter: impl ProviderAdapter + 'static,
+    ) -> Self {
+        let name = name.into();
         if self.default_provider.is_none() {
             self.default_provider = Some(name.clone());
         }

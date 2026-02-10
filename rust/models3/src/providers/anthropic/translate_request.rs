@@ -21,11 +21,18 @@ pub struct TranslatedAnthropicRequest {
 
 /// Translate a unified request into an Anthropic Messages API request.
 ///
+/// When `system_prefix` is `Some`, its text is prepended as the first system
+/// block before any system messages from the request.
+///
 /// # Errors
 ///
 /// Returns `SdkError::InvalidRequest` when the request contains unsupported
 /// content for Anthropic Messages translation, or invalid provider options.
-pub fn translate_request(request: &Request, stream: bool) -> SdkResult<TranslatedAnthropicRequest> {
+pub fn translate_request(
+    request: &Request,
+    stream: bool,
+    system_prefix: Option<&str>,
+) -> SdkResult<TranslatedAnthropicRequest> {
     let mut body = Map::new();
     body.insert("model".to_string(), Value::String(request.model.clone()));
 
@@ -36,6 +43,11 @@ pub fn translate_request(request: &Request, stream: bool) -> SdkResult<Translate
     // Separate system messages from conversation messages
     let mut system_blocks = Vec::new();
     let mut conversation_messages: Vec<Value> = Vec::new();
+
+    // Prepend system prefix if provided (e.g. for OAuth identity)
+    if let Some(prefix) = system_prefix {
+        system_blocks.push(json!({"type": "text", "text": prefix}));
+    }
 
     for message in &request.messages {
         translate_message(message, &mut system_blocks, &mut conversation_messages)?;

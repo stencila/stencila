@@ -20,6 +20,9 @@ enum SecretCategory {
     /// Used to publish Stencila documents to an external service,
     /// and/or to update a document based on externally-hosted content.
     ReadWriteApiKey,
+
+    /// OAuth credentials (JSON-serialized) for direct provider authentication.
+    OAuthCredential,
 }
 
 #[skip_serializing_none]
@@ -65,6 +68,10 @@ pub const GOOGLE_API_KEY: &str = "GOOGLE_API_KEY";
 pub const MISTRAL_API_KEY: &str = "MISTRAL_API_KEY";
 pub const OPENAI_API_KEY: &str = "OPENAI_API_KEY";
 pub const STENCILA_API_TOKEN: &str = "STENCILA_API_TOKEN";
+pub const STENCILA_OAUTH_ANTHROPIC: &str = "STENCILA_OAUTH_ANTHROPIC";
+pub const STENCILA_OAUTH_COPILOT: &str = "STENCILA_OAUTH_COPILOT";
+pub const STENCILA_OAUTH_GEMINI: &str = "STENCILA_OAUTH_GEMINI";
+pub const STENCILA_OAUTH_OPENAI: &str = "STENCILA_OAUTH_OPENAI";
 
 /// A list of secrets used by Stencila
 static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
@@ -128,6 +135,30 @@ static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
             STENCILA_API_TOKEN,
             "Stencila API Token",
             "Used for Stencila Cloud's model router and other services",
+        ),
+        Secret::new(
+            SecretCategory::OAuthCredential,
+            STENCILA_OAUTH_ANTHROPIC,
+            "Anthropic OAuth Credentials",
+            "OAuth credentials for direct Anthropic API authentication",
+        ),
+        Secret::new(
+            SecretCategory::OAuthCredential,
+            STENCILA_OAUTH_COPILOT,
+            "GitHub Copilot OAuth Credentials",
+            "OAuth credentials for GitHub Copilot API authentication",
+        ),
+        Secret::new(
+            SecretCategory::OAuthCredential,
+            STENCILA_OAUTH_GEMINI,
+            "Google Gemini OAuth Credentials",
+            "OAuth credentials for Google Gemini API authentication",
+        ),
+        Secret::new(
+            SecretCategory::OAuthCredential,
+            STENCILA_OAUTH_OPENAI,
+            "OpenAI OAuth Credentials",
+            "OAuth credentials for direct OpenAI API authentication",
         ),
     ]
 });
@@ -243,6 +274,22 @@ pub fn get(name: &str) -> Result<String> {
     tracing::trace!("Getting secret `{name}`");
 
     Ok(entry(name)?.get_password()?)
+}
+
+/// Get a secret, returning `None` if no entry exists.
+///
+/// Unlike [`get`], this function distinguishes "no entry" (returns `Ok(None)`)
+/// from actual keyring errors (returns `Err`).
+#[tracing::instrument]
+pub fn get_optional(name: &str) -> Result<Option<String>> {
+    tracing::trace!("Getting optional secret `{name}`");
+
+    let entry = entry(name)?;
+    match entry.get_password() {
+        Ok(password) => Ok(Some(password)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(e) => Err(e.into()),
+    }
 }
 
 /// Get an environment variable or secret

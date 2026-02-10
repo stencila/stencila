@@ -6,7 +6,8 @@
 //!
 //! - **Anthropic** — Authorization Code + PKCE with manual code paste.
 //! - **Gemini** — Authorization Code + PKCE with local callback server.
-//! - **`OpenAI` (Codex)** — Authorization Code + PKCE with local callback server.
+//! - **OpenAI (Codex)** — Authorization Code + PKCE with local callback server.
+//! - **GitHub Copilot** — Device Code Grant with poll-based verification.
 //!
 //! Credentials are persisted to the system keyring via [`stencila_secrets`]
 //! and can be loaded into [`stencila_models3::auth::OAuthToken`] for
@@ -25,6 +26,10 @@ pub mod callback;
 /// Command-line interface for OAuth login commands.
 #[cfg(feature = "cli")]
 pub mod cli;
+
+/// GitHub Copilot OAuth login flow (Device Code Grant).
+#[cfg(feature = "copilot")]
+pub mod copilot;
 
 /// Google Gemini OAuth login flow (Authorization Code + PKCE).
 #[cfg(feature = "gemini")]

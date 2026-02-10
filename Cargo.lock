@@ -8764,6 +8764,7 @@ version = "2.13.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "futures",
  "glob",
  "indexmap 2.13.0",
  "jsonschema",
@@ -8836,6 +8837,7 @@ dependencies = [
  "stencila-node-execute",
  "stencila-node-strip",
  "stencila-node-supplements",
+ "stencila-oauth",
  "stencila-prompts",
  "stencila-publish",
  "stencila-remotes",
@@ -10569,9 +10571,11 @@ dependencies = [
  "base64 0.22.1",
  "bytes",
  "clap",
+ "directories",
  "eyre",
  "futures",
  "jsonschema",
+ "keyring",
  "rand 0.9.2",
  "reqwest 0.13.1",
  "serde",
@@ -10936,6 +10940,28 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.114",
+]
+
+[[package]]
+name = "stencila-oauth"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "clap",
+ "eyre",
+ "rand 0.9.2",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-models3",
+ "stencila-secrets",
+ "tokio",
+ "tracing",
+ "url",
+ "webbrowser",
 ]
 
 [[package]]

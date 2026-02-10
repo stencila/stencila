@@ -11,6 +11,7 @@ use stencila_cli_utils::{
 };
 
 use crate::catalog::{self, ModelInfo};
+use crate::client::{AuthOptions, AuthOverrides};
 use crate::secret::get_secret;
 
 /// Manage and interact with generative AI models
@@ -54,14 +55,22 @@ enum Command {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        self.run_with_auth(&AuthOptions::default()).await
+    }
+
+    /// Run the CLI command with the given auth options.
+    ///
+    /// Providers present in the overrides are treated as available even
+    /// when no API key secret is set.
+    pub async fn run_with_auth(self, auth: &AuthOptions) -> Result<()> {
         let Some(command) = self.command else {
-            List::default().run().await?;
+            List::default().run(auth).await?;
             return Ok(());
         };
 
         match command {
-            Command::List(list) => list.run().await?,
-            Command::Run(run) => run.run().await?,
+            Command::List(list) => list.run(auth).await?,
+            Command::Run(run) => run.run(auth).await?,
         }
 
         Ok(())
@@ -100,7 +109,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl List {
-    async fn run(self) -> Result<()> {
+    async fn run(self, auth: &AuthOptions) -> Result<()> {
         let mut models = catalog::list_models(None).map_err(|e| eyre::eyre!("{e}"))?;
 
         if let Some(prefix) = &self.prefix {
@@ -127,7 +136,7 @@ impl List {
         ]);
 
         for model in &models {
-            let available = is_provider_available(&model.provider);
+            let available = is_provider_available(&model.provider, &auth.overrides);
             let id_cell = if available {
                 Cell::new(&model.id).add_attribute(Attribute::Bold)
             } else {
@@ -149,12 +158,12 @@ impl List {
         // Summary and legend
         let enabled = models
             .iter()
-            .filter(|m| is_provider_available(&m.provider))
+            .filter(|m| is_provider_available(&m.provider, &auth.overrides))
             .count();
         let total = models.len();
         if enabled < total {
             message!(
-                "{} of {} models enabled. Use <b>stencila signin</> or <b>stencila secrets set</> to enable more.\n\
+                "{} of {} models enabled. Use <b>stencila oauth login</>, <b>stencila signin</>, or <b>stencila secrets set</> to enable more.\n\
                  Capabilities: <bold>T</>ools <bold>V</>ision <bold>R</>easoning",
                 enabled,
                 total
@@ -171,11 +180,17 @@ impl List {
     }
 }
 
-/// Check whether a provider's API key (or equivalent) is available.
-fn is_provider_available(provider: &str) -> bool {
+/// Check whether a provider's API key, OAuth credential, or equivalent is available.
+fn is_provider_available(provider: &str, overrides: &AuthOverrides) -> bool {
+    if overrides.contains_key(provider) {
+        return true;
+    }
     match provider {
         "openai" => get_secret("OPENAI_API_KEY").is_some(),
-        "anthropic" => get_secret("ANTHROPIC_API_KEY").is_some(),
+        "anthropic" => {
+            get_secret("ANTHROPIC_API_KEY").is_some()
+                || crate::providers::anthropic::claude_code::load_credentials().is_some()
+        }
         "gemini" => {
             get_secret("GEMINI_API_KEY").is_some() || get_secret("GOOGLE_API_KEY").is_some()
         }
@@ -319,7 +334,7 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
 
 impl Run {
     #[allow(clippy::print_stdout, clippy::print_stderr)]
-    async fn run(self) -> Result<()> {
+    async fn run(self, auth: &AuthOptions) -> Result<()> {
         // Build prompt from args: detect file paths and read their content
         let mut parts = Vec::new();
         for arg in &self.args {
@@ -342,7 +357,12 @@ impl Run {
         }
 
         // Resolve model: use --model if given, otherwise pick the latest for the provider
-        let client = crate::client::Client::from_env().map_err(|e| eyre::eyre!("{e}"))?;
+        let client = if auth.overrides.is_empty() {
+            crate::client::Client::from_env()
+        } else {
+            crate::client::Client::from_env_with_auth(auth)
+        }
+        .map_err(|e| eyre::eyre!("{e}"))?;
 
         let model_id = match &self.model {
             Some(id) => id.clone(),

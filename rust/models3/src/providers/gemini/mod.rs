@@ -3,6 +3,11 @@ pub mod translate_request;
 pub mod translate_response;
 pub mod translate_stream;
 
+use std::sync::Arc;
+
+use reqwest::header::HeaderMap;
+
+use crate::auth::{AuthCredential, StaticKey, bearer_header};
 use crate::catalog::ModelInfo;
 use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;
@@ -17,29 +22,75 @@ use crate::types::tool::ToolChoice;
 
 const DEFAULT_BASE_URL: &str = "https://generativelanguage.googleapis.com";
 
+/// How the Gemini adapter transmits its authentication credential.
+#[derive(Debug, Clone)]
+enum GeminiAuthTransport {
+    /// API key appended as `?key={token}` query parameter (standard Gemini API keys).
+    QueryParam,
+    /// OAuth token sent as `Authorization: Bearer {token}` header.
+    /// Used for Google Cloud OAuth so tokens are not leaked in URLs.
+    BearerHeader,
+}
+
 /// Native Gemini adapter using the Gemini API.
 ///
-/// Authentication is performed via an API key passed as a query parameter
-/// on each request, following the Gemini API convention.
-#[derive(Clone, Debug)]
+/// Supports two authentication transports:
+/// - **Query parameter** (default for API keys): `?key={token}`
+/// - **Bearer header** (for OAuth tokens): `Authorization: Bearer {token}`
+#[derive(Clone)]
 pub struct GeminiAdapter {
     http: HttpClient,
-    api_key: String,
+    auth: Arc<dyn AuthCredential>,
+    transport: GeminiAuthTransport,
+}
+
+impl std::fmt::Debug for GeminiAdapter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GeminiAdapter")
+            .field("transport", &self.transport)
+            .finish_non_exhaustive()
+    }
 }
 
 impl GeminiAdapter {
     /// Create an adapter with an explicit API key and optional base URL.
+    ///
+    /// Uses query-parameter authentication (the standard Gemini API key transport).
     ///
     /// # Errors
     ///
     /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
     pub fn new(api_key: impl Into<String>, base_url: Option<String>) -> SdkResult<Self> {
         let base = base_url.unwrap_or_else(|| DEFAULT_BASE_URL.to_string());
-        let api_key = api_key.into();
+        let auth: Arc<dyn AuthCredential> = Arc::new(StaticKey::new(api_key));
         let http = HttpClient::builder(base)
             .header("content-type", "application/json")
             .build()?;
-        Ok(Self { http, api_key })
+        Ok(Self {
+            http,
+            auth,
+            transport: GeminiAuthTransport::QueryParam,
+        })
+    }
+
+    /// Create an adapter with an [`AuthCredential`] using Bearer header transport.
+    ///
+    /// This is the correct transport for OAuth tokens (Google Cloud OAuth),
+    /// preventing token leakage in URLs and server logs.
+    ///
+    /// # Errors
+    ///
+    /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
+    pub fn with_auth(auth: Arc<dyn AuthCredential>, base_url: Option<String>) -> SdkResult<Self> {
+        let base = base_url.unwrap_or_else(|| DEFAULT_BASE_URL.to_string());
+        let http = HttpClient::builder(base)
+            .header("content-type", "application/json")
+            .build()?;
+        Ok(Self {
+            http,
+            auth,
+            transport: GeminiAuthTransport::BearerHeader,
+        })
     }
 
     /// Create an adapter from environment variables.
@@ -59,6 +110,49 @@ impl GeminiAdapter {
         let base_url = std::env::var("GEMINI_BASE_URL").ok();
         Self::new(api_key, base_url)
     }
+
+    /// Build the request path for a generate call, including auth if using query params.
+    async fn generate_path(&self, model: &str, stream: bool) -> SdkResult<String> {
+        let method = if stream {
+            "streamGenerateContent"
+        } else {
+            "generateContent"
+        };
+        let mut path = if stream {
+            format!("/v1beta/models/{model}:{method}?alt=sse")
+        } else {
+            format!("/v1beta/models/{model}:{method}")
+        };
+
+        if matches!(self.transport, GeminiAuthTransport::QueryParam) {
+            let token = self.auth.get_token().await?;
+            let separator = if path.contains('?') { '&' } else { '?' };
+            path = format!("{path}{separator}key={token}");
+        }
+
+        Ok(path)
+    }
+
+    /// Build auth headers for Bearer transport, or empty headers for query param.
+    async fn auth_headers(&self) -> SdkResult<Option<HeaderMap>> {
+        match self.transport {
+            GeminiAuthTransport::BearerHeader => {
+                let token = self.auth.get_token().await?;
+                Ok(Some(bearer_header(&token)?))
+            }
+            GeminiAuthTransport::QueryParam => Ok(None),
+        }
+    }
+
+    /// Build the path for listing models, including auth if using query params.
+    async fn list_models_path(&self) -> SdkResult<String> {
+        let mut path = "/v1beta/models".to_string();
+        if matches!(self.transport, GeminiAuthTransport::QueryParam) {
+            let token = self.auth.get_token().await?;
+            path = format!("{path}?key={token}");
+        }
+        Ok(path)
+    }
 }
 
 impl ProviderAdapter for GeminiAdapter {
@@ -70,24 +164,21 @@ impl ProviderAdapter for GeminiAdapter {
         Box::pin(async move {
             let timeout = request.timeout;
             let translated_body = translate_request::translate_request(&request)?;
+            let path = self.generate_path(&request.model, false).await?;
+            let headers = self.auth_headers().await?;
 
-            let path = format!(
-                "/v1beta/models/{}:generateContent?key={}",
-                request.model, self.api_key
-            );
-
-            let (raw_response, headers) = self
+            let (raw_response, resp_headers) = self
                 .http
                 .post_json::<serde_json::Value, serde_json::Value>(
                     &path,
                     &translated_body,
-                    None,
+                    headers.as_ref(),
                     timeout.as_ref(),
                 )
                 .await
                 .map_err(translate_error::translate_error)?;
 
-            let rate_limit = parse_rate_limit_headers(&headers);
+            let rate_limit = parse_rate_limit_headers(&resp_headers);
             translate_response::translate_response(raw_response, rate_limit)
         })
     }
@@ -99,19 +190,16 @@ impl ProviderAdapter for GeminiAdapter {
         Box::pin(async move {
             let timeout = request.timeout;
             let translated_body = translate_request::translate_request(&request)?;
+            let path = self.generate_path(&request.model, true).await?;
+            let headers = self.auth_headers().await?;
 
-            let path = format!(
-                "/v1beta/models/{}:streamGenerateContent?alt=sse&key={}",
-                request.model, self.api_key
-            );
-
-            let (byte_stream, headers) = self
+            let (byte_stream, resp_headers) = self
                 .http
-                .post_stream(&path, &translated_body, None, timeout.as_ref())
+                .post_stream(&path, &translated_body, headers.as_ref(), timeout.as_ref())
                 .await
                 .map_err(translate_error::translate_error)?;
 
-            let rate_limit = parse_rate_limit_headers(&headers);
+            let rate_limit = parse_rate_limit_headers(&resp_headers);
             let sse_stream = parse_sse(byte_stream);
             let unified_stream = translate_stream::translate_sse_stream(sse_stream, rate_limit);
             Ok(unified_stream)
@@ -127,9 +215,13 @@ impl ProviderAdapter for GeminiAdapter {
 
     fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
         Box::pin(async move {
-            let path = format!("/v1beta/models?key={}", self.api_key);
-            let (body, _headers): (serde_json::Value, _) =
-                self.http.get_json::<serde_json::Value>(&path, None).await?;
+            let path = self.list_models_path().await?;
+            let headers = self.auth_headers().await?;
+
+            let (body, _headers): (serde_json::Value, _) = self
+                .http
+                .get_json::<serde_json::Value>(&path, headers.as_ref())
+                .await?;
 
             let models = body
                 .get("models")

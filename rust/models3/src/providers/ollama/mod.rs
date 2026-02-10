@@ -3,6 +3,11 @@ pub mod translate_request;
 pub mod translate_response;
 pub mod translate_stream;
 
+use std::sync::Arc;
+
+use reqwest::header::HeaderMap;
+
+use crate::auth::{AuthCredential, StaticKey, bearer_header};
 use crate::catalog::ModelInfo;
 use crate::error::SdkResult;
 use crate::http::client::HttpClient;
@@ -21,10 +26,19 @@ const DEFAULT_BASE_URL: &str = "http://localhost:11434/v1";
 ///
 /// Ollama runs locally and does not require an API key by default.
 /// An optional `OLLAMA_API_KEY` is supported for deployments behind
-/// an auth proxy.
-#[derive(Clone, Debug)]
+/// an auth proxy. An [`AuthCredential`] can be provided for OAuth.
+#[derive(Clone)]
 pub struct OllamaAdapter {
     http: HttpClient,
+    auth: Option<Arc<dyn AuthCredential>>,
+}
+
+impl std::fmt::Debug for OllamaAdapter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("OllamaAdapter")
+            .field("has_auth", &self.auth.is_some())
+            .finish_non_exhaustive()
+    }
 }
 
 impl OllamaAdapter {
@@ -37,13 +51,26 @@ impl OllamaAdapter {
     ///
     /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
     pub fn new(base_url: impl Into<String>, api_key: Option<String>) -> SdkResult<Self> {
+        let auth = api_key.map(|key| Arc::new(StaticKey::new(key)) as Arc<dyn AuthCredential>);
+        Self::with_auth(base_url, auth)
+    }
+
+    /// Create an adapter with an [`AuthCredential`] for dynamic token resolution.
+    ///
+    /// Pass `None` for `auth` when no authentication is needed (the common local case).
+    ///
+    /// # Errors
+    ///
+    /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
+    pub fn with_auth(
+        base_url: impl Into<String>,
+        auth: Option<Arc<dyn AuthCredential>>,
+    ) -> SdkResult<Self> {
         let base = base_url.into();
-        let mut builder = HttpClient::builder(base).header("content-type", "application/json");
-        if let Some(key) = api_key {
-            builder = builder.header("authorization", format!("Bearer {key}"));
-        }
-        let http = builder.build()?;
-        Ok(Self { http })
+        let http = HttpClient::builder(base)
+            .header("content-type", "application/json")
+            .build()?;
+        Ok(Self { http, auth })
     }
 
     /// Create an adapter from environment variables.
@@ -56,15 +83,19 @@ impl OllamaAdapter {
     ///
     /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
     pub fn from_env() -> SdkResult<Self> {
-        let base_url = Self::base_url_from_env();
+        let base_url = Self::base_url_from_env_or_default();
         let api_key = get_secret("OLLAMA_API_KEY");
         Self::new(base_url, api_key)
     }
 
-    /// Derive the base URL from environment variables.
+    /// Derive the base URL from environment variables, falling back to the default.
     ///
     /// Priority: `OLLAMA_BASE_URL` > `OLLAMA_HOST` (with scheme and `/v1` suffix) > default.
-    fn base_url_from_env() -> String {
+    ///
+    /// This is public so that [`crate::client::Client::from_env_with_auth`] can
+    /// resolve the Ollama URL without duplicating the logic.
+    #[must_use]
+    pub fn base_url_from_env_or_default() -> String {
         if let Ok(url) = std::env::var("OLLAMA_BASE_URL") {
             return url;
         }
@@ -99,6 +130,17 @@ impl OllamaAdapter {
         };
         addrs.any(|a| TcpStream::connect_timeout(&a, std::time::Duration::from_secs(1)).is_ok())
     }
+
+    /// Get the auth header for a request, if authentication is configured.
+    async fn auth_headers(&self) -> SdkResult<Option<HeaderMap>> {
+        match &self.auth {
+            Some(auth) => {
+                let token = auth.get_token().await?;
+                Ok(Some(bearer_header(&token)?))
+            }
+            None => Ok(None),
+        }
+    }
 }
 
 impl ProviderAdapter for OllamaAdapter {
@@ -111,18 +153,29 @@ impl ProviderAdapter for OllamaAdapter {
             let timeout = request.timeout;
             let translated = translate_request::translate_request(&request, false)?;
 
-            let (raw_response, headers) = self
+            let auth_headers = self.auth_headers().await?;
+            let headers = match auth_headers {
+                Some(mut auth) => {
+                    for (k, v) in &translated.headers {
+                        auth.insert(k, v.clone());
+                    }
+                    auth
+                }
+                None => translated.headers.clone(),
+            };
+
+            let (raw_response, resp_headers) = self
                 .http
                 .post_json::<serde_json::Value, serde_json::Value>(
                     "/chat/completions",
                     &translated.body,
-                    Some(&translated.headers),
+                    Some(&headers),
                     timeout.as_ref(),
                 )
                 .await
                 .map_err(translate_error::translate_error)?;
 
-            translate_response::translate_response(raw_response, Some(&headers))
+            translate_response::translate_response(raw_response, Some(&resp_headers))
         })
     }
 
@@ -134,18 +187,29 @@ impl ProviderAdapter for OllamaAdapter {
             let timeout = request.timeout;
             let translated = translate_request::translate_request(&request, true)?;
 
-            let (byte_stream, headers) = self
+            let auth_headers = self.auth_headers().await?;
+            let headers = match auth_headers {
+                Some(mut auth) => {
+                    for (k, v) in &translated.headers {
+                        auth.insert(k, v.clone());
+                    }
+                    auth
+                }
+                None => translated.headers.clone(),
+            };
+
+            let (byte_stream, resp_headers) = self
                 .http
                 .post_stream(
                     "/chat/completions",
                     &translated.body,
-                    Some(&translated.headers),
+                    Some(&headers),
                     timeout.as_ref(),
                 )
                 .await
                 .map_err(translate_error::translate_error)?;
 
-            let rate_limit = parse_rate_limit_headers(&headers);
+            let rate_limit = parse_rate_limit_headers(&resp_headers);
             let sse_stream = parse_sse(byte_stream);
             Ok(translate_stream::translate_sse_stream(
                 sse_stream, rate_limit,
@@ -159,9 +223,11 @@ impl ProviderAdapter for OllamaAdapter {
 
     fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
         Box::pin(async move {
+            let auth_headers = self.auth_headers().await?;
+
             let (body, _headers): (serde_json::Value, _) = self
                 .http
-                .get_json::<serde_json::Value>("/models", None)
+                .get_json::<serde_json::Value>("/models", auth_headers.as_ref())
                 .await?;
 
             let models = body

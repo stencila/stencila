@@ -3,6 +3,11 @@ pub mod translate_request;
 pub mod translate_response;
 pub mod translate_stream;
 
+use std::sync::Arc;
+
+use reqwest::header::HeaderMap;
+
+use crate::auth::{AuthCredential, StaticKey, bearer_header};
 use crate::catalog::ModelInfo;
 use crate::error::{SdkError, SdkResult};
 use crate::http::client::HttpClient;
@@ -21,9 +26,16 @@ const DEFAULT_BASE_URL: &str = "https://api.mistral.ai/v1";
 ///
 /// Mistral uses the same wire format as OpenAI Chat Completions, with one
 /// notable difference: Mistral rejects `null` values in request bodies.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct MistralAdapter {
     http: HttpClient,
+    auth: Arc<dyn AuthCredential>,
+}
+
+impl std::fmt::Debug for MistralAdapter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MistralAdapter").finish_non_exhaustive()
+    }
 }
 
 impl MistralAdapter {
@@ -33,12 +45,21 @@ impl MistralAdapter {
     ///
     /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
     pub fn new(api_key: impl Into<String>, base_url: Option<String>) -> SdkResult<Self> {
+        let auth: Arc<dyn AuthCredential> = Arc::new(StaticKey::new(api_key));
+        Self::with_auth(auth, base_url)
+    }
+
+    /// Create an adapter with an [`AuthCredential`] for dynamic token resolution.
+    ///
+    /// # Errors
+    ///
+    /// Returns `SdkError::Configuration` if HTTP client configuration is invalid.
+    pub fn with_auth(auth: Arc<dyn AuthCredential>, base_url: Option<String>) -> SdkResult<Self> {
         let base = base_url.unwrap_or_else(|| DEFAULT_BASE_URL.to_string());
         let http = HttpClient::builder(base)
-            .header("authorization", format!("Bearer {}", api_key.into()))
             .header("content-type", "application/json")
             .build()?;
-        Ok(Self { http })
+        Ok(Self { http, auth })
     }
 
     /// Create an adapter from environment variables.
@@ -58,6 +79,12 @@ impl MistralAdapter {
         let base_url = std::env::var("MISTRAL_BASE_URL").ok();
         Self::new(api_key, base_url)
     }
+
+    /// Get the auth header for a request.
+    async fn auth_headers(&self) -> SdkResult<HeaderMap> {
+        let token = self.auth.get_token().await?;
+        bearer_header(&token)
+    }
 }
 
 impl ProviderAdapter for MistralAdapter {
@@ -70,18 +97,23 @@ impl ProviderAdapter for MistralAdapter {
             let timeout = request.timeout;
             let translated = translate_request::translate_request(&request, false)?;
 
-            let (raw_response, headers) = self
+            let mut headers = self.auth_headers().await?;
+            for (k, v) in &translated.headers {
+                headers.insert(k, v.clone());
+            }
+
+            let (raw_response, resp_headers) = self
                 .http
                 .post_json::<serde_json::Value, serde_json::Value>(
                     "/chat/completions",
                     &translated.body,
-                    Some(&translated.headers),
+                    Some(&headers),
                     timeout.as_ref(),
                 )
                 .await
                 .map_err(translate_error::translate_error)?;
 
-            translate_response::translate_response(raw_response, Some(&headers))
+            translate_response::translate_response(raw_response, Some(&resp_headers))
         })
     }
 
@@ -93,18 +125,23 @@ impl ProviderAdapter for MistralAdapter {
             let timeout = request.timeout;
             let translated = translate_request::translate_request(&request, true)?;
 
-            let (byte_stream, headers) = self
+            let mut headers = self.auth_headers().await?;
+            for (k, v) in &translated.headers {
+                headers.insert(k, v.clone());
+            }
+
+            let (byte_stream, resp_headers) = self
                 .http
                 .post_stream(
                     "/chat/completions",
                     &translated.body,
-                    Some(&translated.headers),
+                    Some(&headers),
                     timeout.as_ref(),
                 )
                 .await
                 .map_err(translate_error::translate_error)?;
 
-            let rate_limit = parse_rate_limit_headers(&headers);
+            let rate_limit = parse_rate_limit_headers(&resp_headers);
             let sse_stream = parse_sse(byte_stream);
             Ok(translate_stream::translate_sse_stream(
                 sse_stream, rate_limit,
@@ -118,9 +155,11 @@ impl ProviderAdapter for MistralAdapter {
 
     fn list_models(&self) -> BoxFuture<'_, SdkResult<Vec<ModelInfo>>> {
         Box::pin(async move {
+            let auth_headers = self.auth_headers().await?;
+
             let (body, _headers): (serde_json::Value, _) = self
                 .http
-                .get_json::<serde_json::Value>("/models", None)
+                .get_json::<serde_json::Value>("/models", Some(&auth_headers))
                 .await?;
 
             let models = body
