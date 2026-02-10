@@ -70,9 +70,11 @@ controller.abort();
 
 ## Extensions
 
-The following extensions to the spec implemented.
+The following extensions to the spec are implemented.
 
-TODO
+### AwaitingInput auto-detection (`§2.3`)
+
+The spec defines a `PROCESSING → AWAITING_INPUT` transition but does not specify a detection mechanism. This implementation adds heuristic detection: when the model produces a text-only response (no tool calls) whose last line ends with `?` or begins with a solicitation phrase ("Would you like...", "Shall I...", "Let me know..."), the session transitions to `AwaitingInput` instead of `Idle`. Detection only runs on natural completions, not limit-triggered exits. The host can disable this via `SessionConfig::auto_detect_awaiting_input = false` and use the manual `set_awaiting_input()` API instead.
 
 ## Deviations
 
@@ -125,10 +127,6 @@ Tool schemas are passed through the API `tools` parameter rather than serialized
 ### Image tool output support (`§3.3`)
 
 `read_file` returns image data for multimodal providers via the `ToolOutput::ImageWithText` variant. Image content is currently included in tool result messages for Anthropic only; OpenAI and Gemini receive the text placeholder because their adapters do not support non-text content parts in tool-role messages. Images larger than 5 MB fall back to the text placeholder.
-
-### AwaitingInput auto-detection (`§2.3`)
-
-`AwaitingInput` is supported as session state, but detection is host-driven (`set_awaiting_input()`) rather than automatically inferred by the session.
 
 ### Scoped subagent `working_dir` enforcement (`§7.2`)
 

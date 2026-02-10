@@ -2918,3 +2918,288 @@ async fn openai_image_tool_result_excludes_image_from_message() -> AgentResult<(
 
     Ok(())
 }
+
+// ===========================================================================
+// AwaitingInput auto-detection tests (spec 2.3, Phase 5)
+// ===========================================================================
+
+#[tokio::test]
+async fn awaiting_input_auto_detected_question_mark() -> AgentResult<()> {
+    // Model responds with a question ending in '?' → AwaitingInput.
+    let (mut session, _rx, _) = test_session(vec![text_response("What file should I edit?")])?;
+
+    session.submit("Fix the bug").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::AwaitingInput,
+        "Question ending with '?' should trigger AwaitingInput"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_auto_detected_interrogative_phrase() -> AgentResult<()> {
+    // Model responds with an interrogative phrase (no trailing '?').
+    let (mut session, _rx, _) = test_session(vec![text_response(
+        "I found several options.\nWould you like me to proceed with option A",
+    )])?;
+
+    session.submit("Refactor the module").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::AwaitingInput,
+        "Interrogative phrase should trigger AwaitingInput"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_not_triggered_for_statement() -> AgentResult<()> {
+    // Model responds with a statement → stays Idle.
+    let (mut session, _rx, _) =
+        test_session(vec![text_response("I have completed the refactoring.")])?;
+
+    session.submit("Refactor the module").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Statement should stay Idle"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_not_triggered_for_declarative_interrogative_word() -> AgentResult<()> {
+    // Declarative sentences starting with interrogative words (e.g. "What",
+    // "How") must NOT trigger AwaitingInput without a trailing '?'.
+    for text in [
+        "What follows is the implementation summary.",
+        "How the module works is explained below.",
+        "Which files were changed is listed above.",
+        "Where the config lives is documented in README.",
+    ] {
+        let (mut session, _rx, _) = test_session(vec![text_response(text)])?;
+
+        session.submit("Explain").await?;
+        assert_eq!(
+            session.state(),
+            SessionState::Idle,
+            "Declarative '{text}' should stay Idle"
+        );
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_disabled_via_config() -> AgentResult<()> {
+    // Even with a question, disabled config should stay Idle.
+    let config = SessionConfig {
+        auto_detect_awaiting_input: false,
+        ..SessionConfig::default()
+    };
+
+    let (mut session, _rx, _) =
+        test_session_with_config(vec![text_response("What file should I edit?")], config)?;
+
+    session.submit("Fix the bug").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Disabled auto-detection should stay Idle"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_submit_resumes_to_idle() -> AgentResult<()> {
+    // After auto-detecting AwaitingInput, the next submit() should
+    // resume processing and transition back to Idle (or AwaitingInput again).
+    let (mut session, _rx, _) = test_session(vec![
+        text_response("Which approach do you prefer?"),
+        text_response("Done! I applied option B."),
+    ])?;
+
+    session.submit("Fix the bug").await?;
+    assert_eq!(session.state(), SessionState::AwaitingInput);
+
+    // User answers → resumes processing → model responds with statement → Idle.
+    session.submit("Option B").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "After answering, non-question response should be Idle"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_not_triggered_after_tool_calls() -> AgentResult<()> {
+    // If the model used tool calls and then asked a question with its final
+    // text response, it should still trigger AwaitingInput (natural completion
+    // with a question). But a tool-call response itself should NOT.
+    let (mut session, _rx, _) = test_session(vec![
+        tool_call_response("", vec![echo_call("step1")]),
+        text_response("I found a bug. Should I fix it?"),
+    ])?;
+
+    session.submit("Look at the code").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::AwaitingInput,
+        "Final text-only question after tool calls should trigger AwaitingInput"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_not_triggered_on_turn_limit() -> AgentResult<()> {
+    // When the loop exits due to a limit (not natural completion),
+    // auto-detection is skipped entirely — only natural completions
+    // (text-only responses) are eligible for question detection.
+    let config = SessionConfig {
+        max_tool_rounds_per_input: 1,
+        ..SessionConfig::default()
+    };
+
+    let (mut session, _rx, _) = test_session_with_config(
+        vec![tool_call_response(
+            "Should I continue?",
+            vec![echo_call("step1")],
+        )],
+        config,
+    )?;
+
+    session.submit("Start").await?;
+    // The last assistant turn has tool calls, so even though text is a question,
+    // looks_like_question returns false because tool_calls is not empty.
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Turn limit with tool calls should stay Idle"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_empty_text_stays_idle() -> AgentResult<()> {
+    // Model returns empty text with no tool calls (unusual but valid).
+    let (mut session, _rx, _) = test_session(vec![text_response("")])?;
+
+    session.submit("Hi").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Empty response should stay Idle"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_multiline_question() -> AgentResult<()> {
+    // Multi-paragraph response where only the last line is a question.
+    let response_text = "I analyzed the codebase and found three issues:\n\
+                         1. Missing error handling in auth.rs\n\
+                         2. Unused imports in main.rs\n\
+                         3. Deprecated API usage in client.rs\n\
+                         Which issue should I fix first?";
+
+    let (mut session, _rx, _) = test_session(vec![text_response(response_text)])?;
+
+    session.submit("Review the code").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::AwaitingInput,
+        "Multi-line response with trailing question should trigger AwaitingInput"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_let_me_know_pattern() -> AgentResult<()> {
+    // "Let me know" is a common question-like phrase.
+    let (mut session, _rx, _) = test_session(vec![text_response(
+        "I've prepared the changes.\nLet me know if you want me to apply them.",
+    )])?;
+
+    session.submit("Prepare changes").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::AwaitingInput,
+        "'Let me know' pattern should trigger AwaitingInput"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_not_triggered_on_max_turns_with_prior_question() -> AgentResult<()> {
+    // Regression: if a prior submit() ended with a question (AwaitingInput),
+    // and the next submit() hits max_turns before getting a new model response,
+    // the session must NOT re-enter AwaitingInput from the stale question.
+    let config = SessionConfig {
+        max_turns: 1,
+        ..SessionConfig::default()
+    };
+
+    let (mut session, _rx, _) = test_session_with_config(
+        vec![
+            // First submit: model asks a question → AwaitingInput.
+            text_response("Which file should I edit?"),
+            // Second submit: model won't be reached because max_turns is already 1.
+        ],
+        config,
+    )?;
+
+    // First submit: question → AwaitingInput, total_turns becomes 1.
+    session.submit("Fix the bug").await?;
+    assert_eq!(session.state(), SessionState::AwaitingInput);
+
+    // Second submit: max_turns (1) already reached → loop breaks immediately.
+    // Must be Idle, NOT AwaitingInput from the stale question.
+    session.submit("src/main.rs").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "max_turns limit should not re-trigger AwaitingInput from prior question"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn awaiting_input_not_triggered_on_zero_rounds_with_prior_question() -> AgentResult<()> {
+    // Regression: max_tool_rounds_per_input = 0 means the round limit is hit
+    // on the very first iteration (before any LLM call). A prior question in
+    // history must not leak into the state.
+    //
+    // Setup: first submit with default config produces a question → AwaitingInput.
+    // Then change round limit to 0 so the next submit breaks immediately.
+    let (mut session, _rx, _) = test_session_with_config(
+        vec![text_response("What approach do you prefer?")],
+        SessionConfig::default(),
+    )?;
+
+    session.submit("Refactor").await?;
+    assert_eq!(session.state(), SessionState::AwaitingInput);
+
+    // Now set round limit to 0 — next submit breaks immediately.
+    session.config_mut().max_tool_rounds_per_input = 0;
+    session.submit("Option A").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Zero-round limit should not re-trigger AwaitingInput from prior question"
+    );
+
+    Ok(())
+}

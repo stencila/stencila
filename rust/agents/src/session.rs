@@ -343,6 +343,7 @@ impl Session {
     /// # State transitions
     ///
     /// - IDLE → PROCESSING → IDLE (natural completion or turn limit)
+    /// - IDLE → PROCESSING → AWAITING_INPUT (model asked a question, auto-detected)
     /// - AWAITING_INPUT → PROCESSING → IDLE (user answered a question)
     /// - IDLE → PROCESSING → CLOSED (unrecoverable error or abort)
     ///
@@ -359,12 +360,13 @@ impl Session {
         self.process_input(input).await
     }
 
-    /// Transition the session to AwaitingInput state (spec 2.3).
+    /// Manually transition the session to AwaitingInput state (spec 2.3).
     ///
-    /// This is a host-driven API: after [`submit()`](Self::submit) returns,
-    /// the host inspects the last assistant turn. If the model asked a
-    /// question, the host calls this method. When the user answers, the host
-    /// calls [`submit()`](Self::submit) again.
+    /// By default, the session auto-detects questions and transitions to
+    /// `AwaitingInput` automatically (see
+    /// [`SessionConfig::auto_detect_awaiting_input`]). This method is a
+    /// manual override for hosts that disable auto-detection or need to
+    /// force the transition based on their own heuristics.
     ///
     /// # Errors
     ///
@@ -463,6 +465,10 @@ impl Session {
         self.events.emit_user_input(input);
 
         let mut round_count: u32 = 0;
+        // Set to true only when the loop exits via natural completion
+        // (text-only assistant response). Prevents question detection from
+        // matching stale assistant turns when exiting via limits.
+        let mut natural_completion = false;
 
         // The loop runs until natural completion, a limit, or abort.
         // SDK errors propagate immediately (session → CLOSED).
@@ -586,6 +592,7 @@ impl Session {
 
             // 7. Natural completion: no tool calls
             if tool_calls.is_empty() {
+                natural_completion = true;
                 break;
             }
 
@@ -627,8 +634,80 @@ impl Session {
             return Box::pin(self.process_input(&followup)).await;
         }
 
-        self.state = SessionState::Idle;
+        // Auto-detect AwaitingInput (spec 2.3): only on natural completion
+        // (text-only response). Limit-triggered exits must not inspect stale
+        // assistant turns from earlier in the history.
+        self.state = if natural_completion
+            && self.config.auto_detect_awaiting_input
+            && self.looks_like_question()
+        {
+            SessionState::AwaitingInput
+        } else {
+            SessionState::Idle
+        };
         Ok(())
+    }
+
+    /// Check whether the last assistant turn looks like a question to the user.
+    ///
+    /// Returns `true` when the most recent assistant turn has no tool calls and
+    /// the last line of the text matches a question-like pattern: a trailing
+    /// `?`, a solicitation phrase ("let me know", "would you like", etc.), or
+    /// an interrogative word prefix **combined with** a trailing `?`.
+    ///
+    /// Interrogative words alone (e.g. "What follows is...") are not enough
+    /// because they frequently begin declarative sentences.
+    fn looks_like_question(&self) -> bool {
+        let last = self
+            .history
+            .iter()
+            .rev()
+            .find(|t| matches!(t, Turn::Assistant { .. }));
+
+        match last {
+            Some(Turn::Assistant {
+                content,
+                tool_calls,
+                ..
+            }) => {
+                // Only consider text-only responses (natural completion).
+                if !tool_calls.is_empty() {
+                    return false;
+                }
+
+                let trimmed = content.trim();
+                if trimmed.is_empty() {
+                    return false;
+                }
+
+                // Check for trailing question mark — always sufficient.
+                if trimmed.ends_with('?') {
+                    return true;
+                }
+
+                // Check the last line for solicitation phrases that reliably
+                // indicate the model is waiting for user input, even without
+                // a trailing `?`.
+                let last_line = trimmed.lines().next_back().unwrap_or("").trim();
+                let lower = last_line.to_lowercase();
+
+                // Solicitation phrases: almost always request user action.
+                let solicitation_prefixes = [
+                    "would you",
+                    "shall i",
+                    "do you",
+                    "should i",
+                    "let me know",
+                    "please confirm",
+                    "please let me know",
+                ];
+
+                solicitation_prefixes
+                    .iter()
+                    .any(|prefix| lower.starts_with(prefix))
+            }
+            _ => false,
+        }
     }
 
     // -- Request building --
@@ -874,10 +953,10 @@ impl Session {
     /// tool results. Avoids accumulating dead weight for providers that
     /// receive only the text fallback (OpenAI, Gemini).
     fn store_attachment_if_supported(&mut self, attachment: Option<(String, ImageAttachment)>) {
-        if let Some((id, img)) = attachment {
-            if self.profile.id() == "anthropic" {
-                self.image_attachments.insert(id, img);
-            }
+        if let Some((id, img)) = attachment
+            && self.profile.id() == "anthropic"
+        {
+            self.image_attachments.insert(id, img);
         }
     }
 

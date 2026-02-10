@@ -13,6 +13,9 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.3 | SessionState enum | spec_1_types.rs | session_state_all_variants_exist, session_state_default_is_idle, session_state_equality | Pass |
 | 2.3 | SessionState serde | spec_1_types.rs | session_state_serde_roundtrip, session_state_serializes_screaming_snake | Pass |
 | 2.3 | SessionState negative | spec_1_types.rs | session_state_invalid_string_rejected | Pass |
+| 2.3 | AwaitingInput auto-detect | spec_2_loop.rs | awaiting_input_auto_detected_question_mark, awaiting_input_auto_detected_interrogative_phrase, awaiting_input_multiline_question, awaiting_input_let_me_know_pattern | Pass |
+| 2.3 | AwaitingInput negative | spec_2_loop.rs | awaiting_input_not_triggered_for_statement, awaiting_input_disabled_via_config, awaiting_input_not_triggered_after_tool_calls, awaiting_input_not_triggered_on_turn_limit, awaiting_input_empty_text_stays_idle, awaiting_input_not_triggered_on_max_turns_with_prior_question, awaiting_input_not_triggered_on_zero_rounds_with_prior_question | Pass |
+| 2.3 | AwaitingInput resume | spec_2_loop.rs | awaiting_input_submit_resumes_to_idle | Pass |
 | 2.4 | Turn::User | spec_1_types.rs | turn_user_construction, turn_user_has_valid_timestamp, turn_serde_roundtrip_user | Pass |
 | 2.4 | Turn::Assistant | spec_1_types.rs | turn_assistant_construction, turn_serde_roundtrip_assistant_with_tool_calls | Pass |
 | 2.4 | Turn::ToolResults | spec_1_types.rs | turn_tool_results_construction | Pass |

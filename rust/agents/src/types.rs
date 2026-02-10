@@ -111,6 +111,11 @@ pub struct SessionConfig {
     /// User instruction override text (spec layer 5, appended last to system prompt).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user_instructions: Option<String>,
+
+    /// Whether to auto-detect when the model is asking the user a question
+    /// and transition to `AwaitingInput` instead of `Idle` (spec 2.3).
+    #[serde(default = "default_true")]
+    pub auto_detect_awaiting_input: bool,
 }
 
 fn default_max_tool_rounds() -> u32 {
@@ -146,6 +151,7 @@ impl Default for SessionConfig {
             loop_detection_window: default_loop_detection_window(),
             max_subagent_depth: default_max_subagent_depth(),
             user_instructions: None,
+            auto_detect_awaiting_input: true,
         }
     }
 }
