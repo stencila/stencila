@@ -84,6 +84,10 @@ impl ExecutionEnvironment for MockEnv {
         false
     }
 
+    async fn delete_file(&self, _path: &str) -> AgentResult<()> {
+        Ok(())
+    }
+
     async fn list_directory(
         &self,
         _path: &str,

@@ -63,6 +63,7 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `spec_2_events.rs` | 2.9 | Event system |
 | `spec_3_registry.rs` | 3.8 | Tool registry |
 | `spec_3_tools.rs` | 3.3, 3.6 | Core tool implementations, schema parity |
+| `spec_3_patch.rs` | App A | apply_patch tool: v4a parser (success + parse failures), applicator, executor |
 
 Use the crate workflow below:
 

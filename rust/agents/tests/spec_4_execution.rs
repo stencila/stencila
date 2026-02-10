@@ -250,6 +250,37 @@ async fn list_directory_with_depth() -> Result<(), AgentError> {
 }
 
 // =========================================================================
+// Delete file
+// =========================================================================
+
+#[tokio::test]
+async fn delete_file_removes_file() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    write_tmp(&tmp.path().join("doomed.txt"), "bye")?;
+
+    let env = local_env(tmp.path());
+    assert!(env.file_exists("doomed.txt").await);
+    env.delete_file("doomed.txt").await?;
+    assert!(!env.file_exists("doomed.txt").await);
+    Ok(())
+}
+
+#[tokio::test]
+async fn delete_file_not_found() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let env = local_env(tmp.path());
+    let result = env.delete_file("nonexistent.txt").await;
+    assert!(result.is_err());
+    match result {
+        Err(AgentError::FileNotFound { path }) => {
+            assert!(path.contains("nonexistent.txt"), "got path: {path}");
+        }
+        other => panic!("expected FileNotFound, got: {other:?}"),
+    }
+    Ok(())
+}
+
+// =========================================================================
 // Command execution
 // =========================================================================
 

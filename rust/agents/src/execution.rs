@@ -124,6 +124,9 @@ pub trait ExecutionEnvironment: Send + Sync {
     /// Check whether `path` exists.
     async fn file_exists(&self, path: &str) -> bool;
 
+    /// Delete a file at `path`.
+    async fn delete_file(&self, path: &str) -> AgentResult<()>;
+
     /// List directory entries up to the given `depth` (1 = immediate children).
     async fn list_directory(&self, path: &str, depth: usize) -> AgentResult<Vec<DirEntry>>;
 
@@ -277,6 +280,13 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
     async fn file_exists(&self, path: &str) -> bool {
         let resolved = self.resolve_path(path);
         tokio::fs::try_exists(&resolved).await.unwrap_or(false)
+    }
+
+    async fn delete_file(&self, path: &str) -> AgentResult<()> {
+        let resolved = self.resolve_path(path);
+        tokio::fs::remove_file(&resolved)
+            .await
+            .map_err(|e| AgentError::from_io(e, &resolved))
     }
 
     async fn list_directory(&self, path: &str, depth: usize) -> AgentResult<Vec<DirEntry>> {

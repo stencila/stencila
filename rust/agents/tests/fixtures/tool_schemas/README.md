@@ -1,13 +1,13 @@
 # Tool Schema Fixtures
 
 These JSON files are reference schemas for the core tools, derived from the
-Coding Agent Loop Specification sections 3.3 and 3.6 (spec revision: 2025-06,
-`specs/coding-agent-loop-spec.md` in this repository).
+Coding Agent Loop Specification sections 3.3, 3.6, and Appendix A (spec
+revision: 2025-06, `specs/coding-agent-loop-spec.md` in this repository).
 
 Each file deserializes as a `ToolDefinition` from `stencila-models3` and serves
-as a test fixture in `tests/spec_3_tools.rs`. The schema parity tests verify
-that the `definition()` function of each tool module produces a schema matching
-its fixture.
+as a test fixture in `tests/spec_3_tools.rs` or `tests/spec_3_patch.rs`. The
+schema parity tests verify that the `definition()` function of each tool module
+produces a schema matching its fixture.
 
 **Note on duplication:** The schema content is intentionally duplicated between
 these fixture files and the Rust `definition()` functions in `src/tools/`. The
@@ -27,5 +27,6 @@ upstream sources (codex-rs, gemini-cli, etc.).
 | `shell.json`           | shell           | 3.3          |
 | `grep.json`            | grep            | 3.3          |
 | `glob.json`            | glob            | 3.3          |
-| `read_many_files.json` | read_many_files | 3.6 (Gemini) |
-| `list_dir.json`        | list_dir        | 3.6 (Gemini) |
+| `read_many_files.json` | read_many_files | 3.6 (Gemini)   |
+| `list_dir.json`        | list_dir        | 3.6 (Gemini)   |
+| `apply_patch.json`     | apply_patch     | App A (OpenAI) |

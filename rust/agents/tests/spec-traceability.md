@@ -145,6 +145,40 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.3 | strip_line_numbers helper | spec_3_tools.rs | strip_line_numbers_basic, strip_line_numbers_preserves_trailing_newline, strip_line_numbers_no_trailing_newline, strip_line_numbers_passthrough | Pass |
 | 3.3 | required_str helper | spec_3_tools.rs | required_str_extracts_value, required_str_missing_returns_error | Pass |
 
+## Phase 6b: apply_patch Tool (v4a Format)
+
+| Spec Section | Requirement | Test File | Test(s) | Status |
+|---|---|---|---|---|
+| App A | apply_patch schema parity | spec_3_patch.rs | apply_patch_schema_matches_fixture | Pass |
+| App A | v4a parse Add File | spec_3_patch.rs | parse_add_file | Pass |
+| App A | v4a parse Delete File | spec_3_patch.rs | parse_delete_file | Pass |
+| App A | v4a parse Update (single hunk) | spec_3_patch.rs | parse_update_single_hunk | Pass |
+| App A | v4a parse Update with Move | spec_3_patch.rs | parse_update_with_move | Pass |
+| App A | v4a parse multi-hunk | spec_3_patch.rs | parse_multi_hunk_update | Pass |
+| App A | Parse error: missing begin | spec_3_patch.rs | parse_error_missing_begin | Pass |
+| App A | Parse error: missing end | spec_3_patch.rs | parse_error_missing_end | Pass |
+| App A | Parse error: update without hunks | spec_3_patch.rs | parse_error_update_without_hunks | Pass |
+| App A | Parse error: trailing content after end marker | spec_3_patch.rs | parse_error_trailing_content_after_end_patch | Pass |
+| App A | Parse error: empty hunk (EOF marker) | spec_3_patch.rs | parse_error_empty_hunk_lines | Pass |
+| App A | Parse error: empty hunk (next hunk header) | spec_3_patch.rs | parse_error_empty_hunk_before_next_hunk | Pass |
+| App A | Parse error: empty hunk (operation boundary) | spec_3_patch.rs | parse_error_empty_hunk_before_operation | Pass |
+| App A | Applicator: add file | spec_3_patch.rs | apply_add_file_creates_file | Pass |
+| App A | Applicator: delete file | spec_3_patch.rs | apply_delete_file_removes_file | Pass |
+| App A | Applicator: update single hunk | spec_3_patch.rs | apply_update_file_single_hunk | Pass |
+| App A | Applicator: update multi hunk | spec_3_patch.rs | apply_update_file_multi_hunk | Pass |
+| App A | Applicator: move (rename) | spec_3_patch.rs | apply_update_with_move_renames | Pass |
+| App A | Applicator: file not found | spec_3_patch.rs | apply_update_file_not_found | Pass |
+| App A | Applicator: hunk mismatch | spec_3_patch.rs | apply_hunk_mismatch_returns_edit_conflict | Pass |
+| App A | Fuzzy whitespace match | spec_3_patch.rs | apply_update_fuzzy_whitespace_match | Pass |
+| App A | EOF marker before End Patch | spec_3_patch.rs | parse_eof_marker_before_end_patch | Pass |
+| App A | EOF marker between operations | spec_3_patch.rs | parse_eof_marker_between_operations | Pass |
+| App A | Update file >2000 lines | spec_3_patch.rs | apply_update_file_beyond_2000_lines | Pass |
+| App A | Move to same path (no delete) | spec_3_patch.rs | apply_update_move_to_same_path | Pass |
+| App A | Executor end-to-end | spec_3_patch.rs | apply_patch_executor_end_to_end | Pass |
+| App A | OpenAI registration | spec_3_patch.rs | register_openai_tools_adds_one | Pass |
+| Ext | delete_file removes file (impl extension for App A) | spec_4_execution.rs | delete_file_removes_file | Pass |
+| Ext | delete_file not found (impl extension for App A) | spec_4_execution.rs | delete_file_not_found | Pass |
+
 ## Spec 9 Conformance Coverage
 
 | Spec 9 Section | Covered By | Test Type | Phase |
@@ -162,3 +196,18 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 9.11 Error Handling | spec_2_loop.rs | Mock Client | 8 |
 | 9.12 Parity Matrix | spec_2_loop.rs (shape) + spec_9_acceptance.rs (live) | Mock + env-gated | 8 + 10 |
 | 9.13 Smoke Test | spec_9_acceptance.rs | Env-gated only | 10 |
+
+## Intentional Spec Deviations
+
+| Spec Section | Spec Requirement | Deviation | Rationale |
+|---|---|---|---|
+| App A (1368) | "The implementation uses this hint plus the context lines to locate the correct position" | `context_hint` is not used for matching — only context/delete lines in the hunk body are matched. First match wins. | The spec is ambiguous on whether the hint is a hard matching requirement or a human-readable label. codex-rs treats it as a label. Using it for proximity-based disambiguation would add complexity with limited benefit; the vast majority of patches are unambiguous from hunk body context alone. |
+| App A (1370) | "fuzzy matching (whitespace normalization, Unicode punctuation equivalence)" | Only whitespace normalization is implemented; Unicode punctuation equivalence is not. | Unicode punctuation equivalence is rare in practice and adds a dependency (unicode-normalization crate) for a marginal benefit. Can be added if real-world patches require it. |
+
+## Deferred Items
+
+| Item | Spec Section | Description | Blocked By |
+|---|---|---|---|
+| context_hint proximity matching | App A (1368) | Use `context_hint` text to disambiguate when multiple hunk body matches exist in a file | Low priority — no reports of mis-matching in practice |
+| Unicode punctuation equivalence | App A (1370) | Fuzzy matching via Unicode normalization (e.g., smart quotes → ASCII quotes) | Needs unicode-normalization crate; no demand yet |
+| Test mock consolidation | — | Extract `MockExecutionEnvironment` into `tests/common/mod.rs` shared across test crates | Refactoring only — no functional impact |

@@ -3,11 +3,11 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 
-use crate::error::{AgentError, AgentResult};
-use crate::execution::{ExecutionEnvironment, FileContent};
+use crate::error::AgentError;
+use crate::execution::ExecutionEnvironment;
 use crate::registry::ToolExecutorFn;
 
-use super::{required_str, strip_line_numbers};
+use super::required_str;
 
 /// Tool definition matching `tests/fixtures/tool_schemas/edit_file.json`.
 pub fn definition() -> ToolDefinition {
@@ -45,17 +45,6 @@ pub fn definition() -> ToolDefinition {
     }
 }
 
-/// Read file content, strip line numbers, and return raw text.
-async fn read_raw_content(env: &dyn ExecutionEnvironment, file_path: &str) -> AgentResult<String> {
-    let content = env.read_file(file_path, None, None).await?;
-    match content {
-        FileContent::Text(text) => Ok(strip_line_numbers(&text)),
-        FileContent::Image { .. } => Err(AgentError::ValidationError {
-            reason: format!("cannot edit binary/image file: {file_path}"),
-        }),
-    }
-}
-
 /// Executor that performs exact string replacement.
 pub fn executor() -> ToolExecutorFn {
     Box::new(|args: Value, env: &dyn ExecutionEnvironment| {
@@ -75,8 +64,8 @@ pub fn executor() -> ToolExecutorFn {
                 });
             }
 
-            // Read and strip line numbers
-            let raw = read_raw_content(env, file_path).await?;
+            // Read full file and strip line numbers
+            let raw = super::read_raw_content(env, file_path).await?;
 
             // Count occurrences
             let count = raw.matches(old_string).count();

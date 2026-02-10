@@ -1,9 +1,11 @@
-//! Core tool implementations (spec 3.3, 3.6).
+//! Core tool implementations (spec 3.3, 3.6, Appendix A).
 //!
 //! Each submodule exposes `definition() -> ToolDefinition` and
 //! `executor() -> ToolExecutorFn`. Registration functions group tools
-//! into the shared core set and the Gemini-specific extensions.
+//! into the shared core set, Gemini-specific extensions, and
+//! OpenAI-specific extensions.
 
+pub mod apply_patch;
 pub mod edit_file;
 pub mod glob;
 pub mod grep;
@@ -16,6 +18,7 @@ pub mod write_file;
 use serde_json::Value;
 
 use crate::error::{AgentError, AgentResult};
+use crate::execution::{ExecutionEnvironment, FileContent};
 use crate::registry::{RegisteredTool, ToolRegistry};
 
 /// Register the 6 shared core tools (spec 3.3).
@@ -52,6 +55,18 @@ pub fn register_gemini_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
     Ok(())
 }
 
+/// Register the 1 OpenAI-specific tool (spec Appendix A).
+///
+/// This tool is added on top of the core set for OpenAI profiles:
+/// `apply_patch`.
+pub fn register_openai_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
+    registry.register(RegisteredTool::new(
+        apply_patch::definition(),
+        apply_patch::executor(),
+    ))?;
+    Ok(())
+}
+
 /// Strip line-number prefixes from `FileContent::Text` output.
 ///
 /// The line format is `"{:>6} | {content}"` — this function finds the
@@ -72,6 +87,32 @@ pub fn strip_line_numbers(text: &str) -> String {
     }
 
     result
+}
+
+/// Read the full text content of a file, stripping line-number prefixes.
+///
+/// Uses `usize::MAX` as the line limit to ensure the entire file is read,
+/// not just the default 2000 lines that `read_file` returns for the
+/// user-facing tool.
+///
+/// Shared by `edit_file` and `apply_patch` — both need raw file content
+/// for search-and-replace or hunk application.
+///
+/// # Errors
+///
+/// Returns `FileNotFound` if the path does not exist, or `ValidationError`
+/// if the file is a binary/image file.
+pub async fn read_raw_content(
+    env: &dyn ExecutionEnvironment,
+    file_path: &str,
+) -> AgentResult<String> {
+    let content = env.read_file(file_path, None, Some(usize::MAX)).await?;
+    match content {
+        FileContent::Text(text) => Ok(strip_line_numbers(&text)),
+        FileContent::Image { .. } => Err(AgentError::ValidationError {
+            reason: format!("cannot edit binary/image file: {file_path}"),
+        }),
+    }
 }
 
 /// Extract a required string parameter from JSON arguments.

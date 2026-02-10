@@ -223,6 +223,15 @@ impl ExecutionEnvironment for MockExecutionEnvironment {
         files.contains_key(path)
     }
 
+    async fn delete_file(&self, path: &str) -> AgentResult<()> {
+        let mut files = self.files.lock().expect("lock poisoned");
+        if files.remove(path).is_some() {
+            Ok(())
+        } else {
+            Err(AgentError::FileNotFound { path: path.into() })
+        }
+    }
+
     async fn list_directory(&self, path: &str, depth: usize) -> AgentResult<Vec<DirEntry>> {
         {
             let mut calls = self.list_dir_calls.lock().expect("lock poisoned");
@@ -334,6 +343,7 @@ macro_rules! schema_parity_test {
             assert_eq!(definition.name, fixture.name);
             assert_eq!(definition.description, fixture.description);
             assert_eq!(definition.parameters, fixture.parameters);
+            assert_eq!(definition.strict, fixture.strict);
             Ok(())
         }
     };
