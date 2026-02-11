@@ -5,6 +5,7 @@ version.workspace = true
 
 [dependencies]
 async-trait = { workspace = true }
+jsonschema = { workspace = true }
 rquickjs = { version = "0.11.0", features = ["futures", "macro", "parallel", "loader"] }
 serde = { workspace = true }
 serde_json = { workspace = true }

@@ -3,6 +3,7 @@ mod globals;
 mod limits;
 mod polyfills;
 
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
@@ -21,7 +22,6 @@ use crate::types::{
 /// Shared mutable state for the sandbox execution.
 ///
 /// Accessed by the console capture, tool call tracking, and limit enforcement.
-#[allow(dead_code)] // tool_call_count and max_tool_calls used in Phase 4+
 pub(crate) struct SandboxState {
     pub logs: Vec<LogEntry>,
     pub diagnostics: Vec<Diagnostic>,
@@ -77,6 +77,7 @@ pub struct Sandbox {
     state: Arc<Mutex<SandboxState>>,
     timeout_ms: Option<u64>,
     snapshot: Arc<ToolSnapshot>,
+    servers: Arc<HashMap<String, Arc<dyn McpServer>>>,
 }
 
 impl Sandbox {
@@ -100,9 +101,18 @@ impl Sandbox {
             Arc::new(ToolSnapshot::build(servers).await?)
         };
 
+        // Build server map keyed by normalized_id
+        let server_map: HashMap<String, Arc<dyn McpServer>> = snapshot
+            .servers
+            .iter()
+            .zip(servers.iter())
+            .map(|(toolset, server)| (toolset.normalized_id.clone(), Arc::clone(server)))
+            .collect();
+        let server_map = Arc::new(server_map);
+
         // Register module resolver/loader for @codemode/* imports
         let resolver = CodemodeResolver::new(&snapshot);
-        let loader = CodemodeLoader;
+        let loader = CodemodeLoader::new(&snapshot);
         runtime.set_loader(resolver, loader).await;
 
         let context = AsyncContext::full(&runtime)
@@ -118,6 +128,7 @@ impl Sandbox {
             state,
             timeout_ms,
             snapshot,
+            servers: server_map,
         })
     }
 
@@ -139,13 +150,14 @@ impl Sandbox {
 
         let state = Arc::clone(&self.state);
         let snapshot = Arc::clone(&self.snapshot);
+        let servers = Arc::clone(&self.servers);
         let code = code.to_string();
 
         // Use async_with! which drives the QuickJS job queue (including microtask-based
         // setTimeout callbacks) while the inner future is Pending.
         async_with!(self.context => |ctx| {
             // Set up globals (console, __codemode_result__, polyfills, host bridge, strip banned globals)
-            if let Err(e) = globals::setup_globals(&ctx, &state, &snapshot) {
+            if let Err(e) = globals::setup_globals(&ctx, &state, &snapshot, &servers) {
                 let msg = format!("Failed to set up sandbox globals: {e}");
                 let code = if is_sandbox_limit_message(&msg) {
                     DiagnosticCode::SandboxLimit

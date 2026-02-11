@@ -73,3 +73,44 @@ Maps test cases to spec sections in `specs/codemode.md`.
 | §7.1 | SandboxLimitError hierarchy & properties | spec_7_errors.rs | sandbox_limit_error_hierarchy |
 | §7.1 | All 6 subclasses extend CodemodeError | spec_7_errors.rs | all_error_classes_extend_codemode_error |
 | §7.3 | Error hint is null when omitted | spec_7_errors.rs | error_hint_is_null_when_omitted |
+
+## Phase 4: Server Modules — Tool Bindings & Validation
+
+| Spec Section | Requirement | Test File | Test Name(s) |
+|---|---|---|---|
+| §5.1 | Import and call tool returns result | spec_5_server_modules.rs | import_and_call_tool_returns_result |
+| §5.1 | Call tool with no args / empty / undefined / null | spec_5_server_modules.rs | call_tool_with_no_args_sends_empty_object, call_tool_with_empty_object_succeeds, call_tool_with_undefined_sends_empty_object, call_tool_with_null_sends_empty_object |
+| §5.1 | Call tool with valid schema input | spec_5_server_modules.rs | call_tool_with_valid_schema_input |
+| §5.1 | No schema allows any input | spec_5_server_modules.rs | no_schema_allows_any_input |
+| §5.1 | Input JSON passed through to server | spec_5_server_modules.rs | input_json_passed_to_server |
+| §5.2 | __meta__ export shape (serverId, serverName, serverVersion, tools) | spec_5_server_modules.rs | meta_has_correct_shape |
+| §5.2 | __meta__ tool entries (toolName, exportName, description) | spec_5_server_modules.rs | meta_tools_have_correct_entries |
+| §5.2 | __meta__ is deeply frozen | spec_5_server_modules.rs | meta_is_frozen |
+| §5.2 | __meta__ serverVersion empty when absent | spec_5_server_modules.rs | meta_server_version_empty_when_absent |
+| §5.3.2 | structuredContent takes priority | spec_5_server_modules.rs | structured_content_takes_priority |
+| §5.3.2 | Single text → string | spec_5_server_modules.rs | single_text_unwraps_to_string |
+| §5.3.2 | Image content → content array | spec_5_server_modules.rs | image_content_returns_full_array |
+| §5.3.2 | Audio content → content array | spec_5_server_modules.rs | audio_content_returns_full_array |
+| §5.3.2 | Multiple text → content array | spec_5_server_modules.rs | multiple_text_returns_full_array |
+| §5.3.2 | Empty content → empty array | spec_5_server_modules.rs | empty_content_returns_empty_array |
+| §7.2 | Missing required → SchemaValidationError | spec_5_server_modules.rs | schema_validation_missing_required_field |
+| §7.2 | Wrong type with expected/received/path | spec_5_server_modules.rs | schema_validation_wrong_type |
+| §7.2 | Hint present on schema errors | spec_5_server_modules.rs | schema_validation_hint_present |
+| §7.2 | instanceof checks (SchemaValidationError, CodemodeError, Error) | spec_5_server_modules.rs | schema_validation_instanceof_checks |
+| §7.2 | Invalid schema gracefully skipped | spec_5_server_modules.rs | invalid_schema_gracefully_skipped |
+| §3.3.2 | Tool trace recorded on success | spec_5_server_modules.rs | tool_trace_recorded_on_success |
+| §3.3.2 | Tool trace has duration_ms | spec_5_server_modules.rs | tool_trace_has_duration |
+| §3.3.2 | Tool trace ok=false on error | spec_5_server_modules.rs | tool_trace_recorded_on_error |
+| §3.3.2 | Multiple tool traces recorded in order | spec_5_server_modules.rs | tool_trace_multiple_calls |
+| §3.3.2 | Tool trace absent when no calls | spec_5_server_modules.rs | tool_trace_absent_when_no_calls |
+| §3.2.4 | maxToolCalls enforced (N succeed, N+1 fails) | spec_5_server_modules.rs | max_tool_calls_enforced |
+| §3.2.4 | maxToolCalls exact boundary | spec_5_server_modules.rs | max_tool_calls_exact_boundary |
+| §5.3 | isError=true → ToolCallError | spec_5_server_modules.rs | is_error_true_throws_tool_call_error |
+| §5.3 | Rust error → ToolCallError | spec_5_server_modules.rs | rust_error_throws_tool_call_error |
+| §5.3 | Rust error records trace | spec_5_server_modules.rs | rust_error_records_trace |
+| §5.3 | Unknown tool → ToolNotFoundError envelope | spec_5_server_modules.rs | unknown_tool_via_bridge_throws_tool_not_found_error |
+| §5.3 | Unknown tool → ToolNotFoundError class | spec_5_server_modules.rs | unknown_tool_via_generated_handler_throws_tool_not_found |
+| §7.2 | Required-field path points to missing property | spec_5_server_modules.rs | schema_validation_missing_required_field |
+| §5.1 | Cross-server orchestration | spec_5_server_modules.rs | cross_server_orchestration |
+| §5.1 | Cross-server tool trace | spec_5_server_modules.rs | cross_server_tool_trace |
+| §5.1 | Discovery and server modules coexist | spec_5_server_modules.rs | discovery_and_server_modules_coexist |

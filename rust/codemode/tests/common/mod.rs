@@ -3,8 +3,32 @@
 use std::sync::Arc;
 
 use stencila_codemode::{
-    CodemodeError, McpContent, McpServer, McpToolInfo, McpToolResult, Sandbox,
+    CodemodeError, Limits, McpContent, McpServer, McpToolInfo, McpToolResult, Sandbox,
 };
+
+/// Type alias for custom call_tool handler closures.
+type CallToolHandler =
+    Arc<dyn Fn(&str, serde_json::Value) -> Result<McpToolResult, CodemodeError> + Send + Sync>;
+
+/// Controls how `MockServer::call_tool()` responds.
+pub enum MockCallResponse {
+    /// Echo the tool name as text (default behavior).
+    Echo,
+    /// Return structured content with the given JSON value.
+    StructuredContent(serde_json::Value),
+    /// Return an error result with the given message.
+    ErrorResult(String),
+    /// Return multiple content blocks.
+    MultiContent(Vec<McpContent>),
+    /// Return a custom response via a closure.
+    Custom(CallToolHandler),
+}
+
+impl Default for MockCallResponse {
+    fn default() -> Self {
+        Self::Echo
+    }
+}
 
 /// A mock MCP server for testing.
 ///
@@ -16,6 +40,7 @@ pub struct MockServer {
     pub version: Option<String>,
     pub capabilities: Option<Vec<String>>,
     pub tools: Vec<McpToolInfo>,
+    pub call_response: MockCallResponse,
 }
 
 impl MockServer {
@@ -28,6 +53,7 @@ impl MockServer {
             version: None,
             capabilities: None,
             tools,
+            call_response: MockCallResponse::Echo,
         }
     }
 
@@ -46,7 +72,14 @@ impl MockServer {
             version: Some(version.into()),
             capabilities: None,
             tools,
+            call_response: MockCallResponse::Echo,
         }
+    }
+
+    /// Set the call response behavior for this mock server.
+    pub fn with_call_response(mut self, response: MockCallResponse) -> Self {
+        self.call_response = response;
+        self
     }
 }
 
@@ -79,16 +112,33 @@ impl McpServer for MockServer {
     async fn call_tool(
         &self,
         tool_name: &str,
-        _input: serde_json::Value,
+        input: serde_json::Value,
     ) -> Result<McpToolResult, CodemodeError> {
-        // Simple echo: return the tool name as text content
-        Ok(McpToolResult {
-            content: vec![McpContent::Text {
-                text: format!("Called {tool_name}"),
-            }],
-            structured_content: None,
-            is_error: false,
-        })
+        match &self.call_response {
+            MockCallResponse::Echo => Ok(McpToolResult {
+                content: vec![McpContent::Text {
+                    text: format!("Called {tool_name}"),
+                }],
+                structured_content: None,
+                is_error: false,
+            }),
+            MockCallResponse::StructuredContent(value) => Ok(McpToolResult {
+                content: vec![],
+                structured_content: Some(value.clone()),
+                is_error: false,
+            }),
+            MockCallResponse::ErrorResult(msg) => Ok(McpToolResult {
+                content: vec![McpContent::Text { text: msg.clone() }],
+                structured_content: None,
+                is_error: true,
+            }),
+            MockCallResponse::MultiContent(content) => Ok(McpToolResult {
+                content: content.clone(),
+                structured_content: None,
+                is_error: false,
+            }),
+            MockCallResponse::Custom(f) => f(tool_name, input),
+        }
     }
 }
 
@@ -122,6 +172,21 @@ pub fn tool_with_schema(name: &str, description: &str) -> McpToolInfo {
     }
 }
 
+/// Create a tool info with a custom input schema.
+pub fn tool_with_custom_schema(
+    name: &str,
+    description: &str,
+    input_schema: serde_json::Value,
+) -> McpToolInfo {
+    McpToolInfo {
+        name: name.into(),
+        description: Some(description.into()),
+        input_schema: Some(input_schema),
+        output_schema: None,
+        annotations: None,
+    }
+}
+
 /// Create a sandbox with one mock server (convenience for tests needing a minimal server).
 pub async fn sandbox_with_server() -> Sandbox {
     let server: Arc<dyn McpServer> = Arc::new(MockServer::new(
@@ -137,6 +202,13 @@ pub async fn sandbox_with_server() -> Sandbox {
 /// Create a sandbox with the given mock servers.
 pub async fn sandbox_with_servers(servers: Vec<Arc<dyn McpServer>>) -> Sandbox {
     Sandbox::new(None, &servers)
+        .await
+        .expect("sandbox creation")
+}
+
+/// Create a sandbox with the given mock servers and limits.
+pub async fn sandbox_with_limits(servers: Vec<Arc<dyn McpServer>>, limits: Limits) -> Sandbox {
+    Sandbox::new(Some(&limits), &servers)
         .await
         .expect("sandbox creation")
 }

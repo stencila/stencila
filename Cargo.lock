@@ -9889,6 +9889,7 @@ name = "stencila-codemode"
 version = "2.13.0"
 dependencies = [
  "async-trait",
+ "jsonschema",
  "pretty_assertions",
  "rquickjs",
  "serde",

@@ -1,5 +1,6 @@
 pub(crate) mod discovery;
 pub(crate) mod errors;
+pub(crate) mod server;
 
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -20,9 +21,9 @@ pub(crate) struct ToolSnapshot {
 }
 
 /// All information about a single server and its tools.
-#[allow(dead_code)] // original_id used in Phase 4+
 pub(crate) struct ServerToolset {
     /// Original server ID (from `McpServer::server_id()`).
+    #[allow(dead_code)] // Preserved for debugging and future tracing
     pub original_id: String,
     /// Normalized ID for module paths (per §5.0.1).
     pub normalized_id: String,
@@ -280,8 +281,18 @@ impl loader::Resolver for CodemodeResolver {
 ///
 /// - `@codemode/discovery` → static JS calling host bridge functions
 /// - `@codemode/errors` → static JS defining error class hierarchy
-/// - `@codemode/servers/<id>` → generated JS per-server module (Phase 4)
-pub(crate) struct CodemodeLoader;
+/// - `@codemode/servers/<id>` → generated JS per-server module with tool bindings
+pub(crate) struct CodemodeLoader {
+    snapshot: Arc<ToolSnapshot>,
+}
+
+impl CodemodeLoader {
+    pub(crate) fn new(snapshot: &Arc<ToolSnapshot>) -> Self {
+        Self {
+            snapshot: Arc::clone(snapshot),
+        }
+    }
+}
 
 impl loader::Loader for CodemodeLoader {
     fn load<'js>(
@@ -293,11 +304,19 @@ impl loader::Loader for CodemodeLoader {
             "@codemode/discovery" => discovery::JS_SOURCE.to_string(),
             "@codemode/errors" => errors::JS_SOURCE.to_string(),
             _ if name.starts_with("@codemode/servers/") => {
-                // Phase 4: per-server module generation
-                return Err(rquickjs::Error::new_loading_message(
-                    name,
-                    "Server modules not yet implemented",
-                ));
+                let id = &name["@codemode/servers/".len()..];
+                let toolset = self
+                    .snapshot
+                    .servers
+                    .iter()
+                    .find(|s| s.normalized_id == id)
+                    .ok_or_else(|| {
+                        rquickjs::Error::new_loading_message(
+                            name,
+                            &format!("No server with ID '{id}'"),
+                        )
+                    })?;
+                server::generate_module(toolset)
             }
             _ => return Err(rquickjs::Error::new_loading(name)),
         };
