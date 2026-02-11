@@ -6,7 +6,7 @@ use stencila_codemode::{Limits, LogLevel, Sandbox};
 
 #[tokio::test]
 async fn console_log_basic() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute("console.log('hello world')").await;
 
     assert_eq!(response.logs.len(), 1);
@@ -16,7 +16,7 @@ async fn console_log_basic() {
 
 #[tokio::test]
 async fn console_all_four_levels() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -41,7 +41,7 @@ async fn console_all_four_levels() {
 
 #[tokio::test]
 async fn console_timestamps_increase() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -64,7 +64,7 @@ async fn console_timestamps_increase() {
 
 #[tokio::test]
 async fn console_primitive_serialization() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -87,7 +87,7 @@ async fn console_primitive_serialization() {
 
 #[tokio::test]
 async fn console_object_serialization() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute(r#"console.log({a: 1, b: "two"})"#).await;
 
     assert_eq!(response.logs.len(), 1);
@@ -100,7 +100,7 @@ async fn console_object_serialization() {
 
 #[tokio::test]
 async fn console_multiple_args_concatenated() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute("console.log('a', 'b', 'c')").await;
 
     assert_eq!(response.logs.len(), 1);
@@ -109,7 +109,7 @@ async fn console_multiple_args_concatenated() {
 
 #[tokio::test]
 async fn console_circular_object_fallback() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -136,7 +136,7 @@ async fn log_truncation_at_byte_limit() {
         max_log_bytes: Some(20),
         max_tool_calls: None,
     };
-    let sandbox = Sandbox::new(Some(&limits)).await.expect("sandbox");
+    let sandbox = Sandbox::new(Some(&limits), &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -162,7 +162,7 @@ async fn log_truncation_no_further_logs() {
         max_log_bytes: Some(5),
         max_tool_calls: None,
     };
-    let sandbox = Sandbox::new(Some(&limits)).await.expect("sandbox");
+    let sandbox = Sandbox::new(Some(&limits), &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"

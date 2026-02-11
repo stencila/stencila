@@ -40,6 +40,7 @@ Maps test cases to spec sections in `specs/codemode.md`.
 | §3.3.1 | Console circular object fallback | spec_9_logging.rs | console_circular_object_fallback |
 | §3.3.1 | Log truncation at max_log_bytes | spec_9_logging.rs | log_truncation_at_byte_limit, log_truncation_no_further_logs |
 | §3.3.4 | Syntax errors → diagnostic (not propagated) | spec_3_outer_tool.rs | syntax_error_produces_diagnostic |
+| §3.3.3 | Import failure → IMPORT_FAILURE diagnostic | spec_3_outer_tool.rs | import_failure_produces_diagnostic |
 | §3.3.4 | Uncaught exceptions → diagnostic | spec_3_outer_tool.rs | uncaught_exception_produces_diagnostic |
 | §3.3.4 | Prior logs preserved on fatal error | spec_3_outer_tool.rs | uncaught_exception_preserves_prior_logs |
 | §3.5 | eval is deleted | spec_3_outer_tool.rs | eval_is_not_available |
@@ -50,3 +51,25 @@ Maps test cases to spec sections in `specs/codemode.md`.
 | §3.2.4 | Timeout limit → SandboxLimit diagnostic | spec_3_outer_tool.rs | timeout_produces_sandbox_limit_diagnostic |
 | §3.2.4 | Memory limit enforcement | spec_3_outer_tool.rs | memory_limit_produces_diagnostic |
 | §1.4 | Fresh sandbox per execution (no state leakage) | spec_3_outer_tool.rs | fresh_sandbox_no_state_leakage |
+
+## Phase 3: Module System — Discovery & Errors
+
+| Spec Section | Requirement | Test File | Test Name(s) |
+|---|---|---|---|
+| §12.1 | specVersion is a semver string | spec_4_discovery.rs | spec_version_is_semver_string |
+| §4.1 | listServers() returns all servers | spec_4_discovery.rs | list_servers_returns_all_servers, list_servers_empty_when_no_servers |
+| §4.1 | describeServer() returns full info | spec_4_discovery.rs | describe_server_returns_full_info, describe_server_unknown_throws |
+| §4.1 | listTools() with detail levels | spec_4_discovery.rs | list_tools_description_detail, list_tools_name_detail, list_tools_full_detail, list_tools_unknown_server_throws |
+| §4.1 | getTool() returns full definition | spec_4_discovery.rs | get_tool_returns_full_definition, get_tool_unknown_throws, get_tool_unknown_server_throws_server_not_found |
+| §4.1 | searchTools() with substring matching | spec_4_discovery.rs | search_tools_substring_match, search_tools_no_match, search_tools_filtered_by_server |
+| §4.3 | Detail levels (name, description, full) filter fields | spec_4_discovery.rs | list_tools_name_detail, list_tools_description_detail, list_tools_full_detail, search_tools_with_name_detail, search_tools_with_full_detail |
+| §11 | Host bridge is frozen, non-writable, non-configurable | spec_4_discovery.rs | host_bridge_is_frozen, host_bridge_is_not_writable, host_bridge_is_not_configurable |
+| §7.1 | CodemodeError base class extends Error | spec_7_errors.rs | codemode_error_extends_error |
+| §7.1 | SchemaValidationError hierarchy & properties | spec_7_errors.rs | schema_validation_error_hierarchy |
+| §7.1 | ToolNotFoundError hierarchy & properties | spec_7_errors.rs | tool_not_found_error_hierarchy |
+| §7.1 | ServerNotFoundError hierarchy & properties | spec_7_errors.rs | server_not_found_error_hierarchy |
+| §7.1 | ToolCallError hierarchy & properties | spec_7_errors.rs | tool_call_error_hierarchy |
+| §7.1 | AuthenticationError hierarchy & properties | spec_7_errors.rs | authentication_error_hierarchy |
+| §7.1 | SandboxLimitError hierarchy & properties | spec_7_errors.rs | sandbox_limit_error_hierarchy |
+| §7.1 | All 6 subclasses extend CodemodeError | spec_7_errors.rs | all_error_classes_extend_codemode_error |
+| §7.3 | Error hint is null when omitted | spec_7_errors.rs | error_hint_is_null_when_omitted |

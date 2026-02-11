@@ -8,6 +8,7 @@ async-trait = { workspace = true }
 rquickjs = { version = "0.11.0", features = ["futures", "macro", "parallel", "loader"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
+strsim = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 url = { workspace = true }

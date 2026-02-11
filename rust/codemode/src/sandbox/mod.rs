@@ -7,10 +7,13 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use rquickjs::{
-    AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Promise, Value, async_with,
+    AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Promise, Value,
+    async_with,
 };
 
 use crate::error::CodemodeError;
+use crate::modules::{CodemodeLoader, CodemodeResolver, ToolSnapshot};
+use crate::traits::McpServer;
 use crate::types::{
     Diagnostic, DiagnosticCode, DiagnosticSeverity, Limits, LogEntry, RunResponse, ToolTraceEntry,
 };
@@ -18,7 +21,7 @@ use crate::types::{
 /// Shared mutable state for the sandbox execution.
 ///
 /// Accessed by the console capture, tool call tracking, and limit enforcement.
-#[allow(dead_code)] // tool_call_count and max_tool_calls used in later phases
+#[allow(dead_code)] // tool_call_count and max_tool_calls used in Phase 4+
 pub(crate) struct SandboxState {
     pub logs: Vec<LogEntry>,
     pub diagnostics: Vec<Diagnostic>,
@@ -73,15 +76,34 @@ pub struct Sandbox {
     context: AsyncContext,
     state: Arc<Mutex<SandboxState>>,
     timeout_ms: Option<u64>,
+    snapshot: Arc<ToolSnapshot>,
 }
 
 impl Sandbox {
-    /// Create a new sandbox with the given execution limits.
-    pub async fn new(limits: Option<&Limits>) -> Result<Self, CodemodeError> {
+    /// Create a new sandbox with the given execution limits and servers.
+    ///
+    /// Pre-fetches tool definitions from all servers to build a frozen
+    /// snapshot for module resolution and discovery.
+    pub async fn new(
+        limits: Option<&Limits>,
+        servers: &[Arc<dyn McpServer>],
+    ) -> Result<Self, CodemodeError> {
         let runtime = AsyncRuntime::new().map_err(|e| CodemodeError::QuickJs(e.to_string()))?;
 
         // Configure memory limit on the runtime (timeout is deferred to execute)
         limits::configure_memory_limit(&runtime, limits).await;
+
+        // Build tool snapshot from servers
+        let snapshot = if servers.is_empty() {
+            Arc::new(ToolSnapshot::empty())
+        } else {
+            Arc::new(ToolSnapshot::build(servers).await?)
+        };
+
+        // Register module resolver/loader for @codemode/* imports
+        let resolver = CodemodeResolver::new(&snapshot);
+        let loader = CodemodeLoader;
+        runtime.set_loader(resolver, loader).await;
 
         let context = AsyncContext::full(&runtime)
             .await
@@ -95,16 +117,15 @@ impl Sandbox {
             context,
             state,
             timeout_ms,
+            snapshot,
         })
     }
 
     /// Execute JavaScript code in the sandbox and return the structured response.
     ///
-    /// This always returns a `RunResponse` — script errors are captured as
+    /// Code is evaluated with ES module semantics (supporting `import`/`export`
+    /// and top-level `await`) per spec §3.2.1. Script errors are captured as
     /// diagnostics rather than propagated (per spec §3.3.4).
-    ///
-    /// Uses `async_with!` to drive the QuickJS job queue (including setTimeout
-    /// callbacks backed by `Promised` futures).
     pub async fn execute(&self, code: &str) -> RunResponse {
         // Install timeout handler at execution start (not construction) so the
         // deadline is measured from when code actually runs.
@@ -117,13 +138,14 @@ impl Sandbox {
         }
 
         let state = Arc::clone(&self.state);
+        let snapshot = Arc::clone(&self.snapshot);
         let code = code.to_string();
 
         // Use async_with! which drives the QuickJS job queue (including microtask-based
         // setTimeout callbacks) while the inner future is Pending.
         async_with!(self.context => |ctx| {
-            // Set up globals (console, __codemode_result__, polyfills, strip banned globals)
-            if let Err(e) = globals::setup_globals(&ctx, &state) {
+            // Set up globals (console, __codemode_result__, polyfills, host bridge, strip banned globals)
+            if let Err(e) = globals::setup_globals(&ctx, &state, &snapshot) {
                 let msg = format!("Failed to set up sandbox globals: {e}");
                 let code = if is_sandbox_limit_message(&msg) {
                     DiagnosticCode::SandboxLimit
@@ -135,9 +157,16 @@ impl Sandbox {
                 return;
             }
 
-            // Evaluate the code
-            match ctx.eval::<Value, _>(&*code).catch(&ctx) {
-                Ok(_) => {}
+            // Evaluate the code as an ES module (supports import/export and top-level await)
+            match Module::evaluate(ctx.clone(), "<main>", &*code).catch(&ctx) {
+                Ok(promise) => {
+                    // Await the module evaluation promise (drives top-level await)
+                    if let Err(err) = promise.into_future::<Value>().await.catch(&ctx) {
+                        let (diag_code, message) = classify_js_error(&err);
+                        let mut s = state.lock().expect("sandbox state lock");
+                        s.push_error(diag_code, message);
+                    }
+                }
                 Err(err) => {
                     let (diag_code, message) = classify_js_error(&err);
                     let mut s = state.lock().expect("sandbox state lock");
@@ -214,6 +243,7 @@ fn classify_js_error(err: &CaughtError<'_>) -> (DiagnosticCode, String) {
                 Some("SyntaxError") => DiagnosticCode::SyntaxError,
                 Some("InternalError") => DiagnosticCode::SandboxLimit,
                 _ if is_sandbox_limit_message(&message) => DiagnosticCode::SandboxLimit,
+                _ if is_import_failure_message(&message) => DiagnosticCode::ImportFailure,
                 _ => DiagnosticCode::UncaughtException,
             };
 
@@ -228,6 +258,8 @@ fn classify_js_error(err: &CaughtError<'_>) -> (DiagnosticCode, String) {
             let message = err.to_string();
             let code = if is_sandbox_limit_message(&message) {
                 DiagnosticCode::SandboxLimit
+            } else if is_import_failure_message(&message) {
+                DiagnosticCode::ImportFailure
             } else {
                 DiagnosticCode::UncaughtException
             };
@@ -238,6 +270,18 @@ fn classify_js_error(err: &CaughtError<'_>) -> (DiagnosticCode, String) {
             (DiagnosticCode::UncaughtException, message)
         }
     }
+}
+
+/// Check if an error message indicates a failed module import.
+///
+/// rquickjs module resolution/loading failures produce `CaughtError::Error`
+/// with messages like "Could not resolve module '...'" or "Could not load module '...'".
+fn is_import_failure_message(message: &str) -> bool {
+    let lower = message.to_lowercase();
+    lower.contains("could not resolve")
+        || lower.contains("could not load")
+        || lower.contains("resolving")
+        || lower.contains("loading")
 }
 
 /// Check if an error message indicates a sandbox resource limit was hit.
@@ -255,6 +299,9 @@ fn error_hint(code: DiagnosticCode) -> Option<String> {
         DiagnosticCode::SyntaxError => {
             Some("Check your JavaScript syntax and ensure valid ES module code.".into())
         }
+        DiagnosticCode::ImportFailure => Some(
+            "Check that the module specifier is correct. Available modules: @codemode/discovery, @codemode/errors, @codemode/servers/<id>.".into(),
+        ),
         DiagnosticCode::SandboxLimit => {
             Some("Reduce code complexity or increase the execution limits.".into())
         }

@@ -9887,6 +9887,17 @@ dependencies = [
 [[package]]
 name = "stencila-codemode"
 version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "pretty_assertions",
+ "rquickjs",
+ "serde",
+ "serde_json",
+ "strsim",
+ "thiserror 2.0.18",
+ "tokio",
+ "url",
+]
 
 [[package]]
 name = "stencila-config"

@@ -1,6 +1,8 @@
 pub mod error;
 pub mod identifiers;
+pub(crate) mod modules;
 pub mod sandbox;
+pub(crate) mod search;
 pub mod traits;
 pub mod types;
 

@@ -357,7 +357,7 @@ fn search_tools_options_defaults_omit_none() {
 
 #[tokio::test]
 async fn execute_set_result_integer() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute("globalThis.__codemode_result__ = 42").await;
 
     assert_eq!(response.result, serde_json::json!(42));
@@ -366,7 +366,7 @@ async fn execute_set_result_integer() {
 
 #[tokio::test]
 async fn execute_set_result_object() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(r#"globalThis.__codemode_result__ = { ok: true, count: 3 }"#)
         .await;
@@ -377,7 +377,7 @@ async fn execute_set_result_object() {
 
 #[tokio::test]
 async fn execute_no_result_returns_null() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute("1 + 1").await;
 
     assert_eq!(response.result, serde_json::Value::Null);
@@ -385,7 +385,7 @@ async fn execute_no_result_returns_null() {
 
 #[tokio::test]
 async fn execute_result_with_logs() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -406,7 +406,7 @@ async fn execute_result_with_logs() {
 
 #[tokio::test]
 async fn syntax_error_produces_diagnostic() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute("this is not valid javascript @@@").await;
 
     assert_eq!(response.result, serde_json::Value::Null);
@@ -417,7 +417,7 @@ async fn syntax_error_produces_diagnostic() {
 
 #[tokio::test]
 async fn uncaught_exception_produces_diagnostic() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox.execute("throw new Error('boom')").await;
 
     assert_eq!(response.result, serde_json::Value::Null);
@@ -431,7 +431,7 @@ async fn uncaught_exception_produces_diagnostic() {
 
 #[tokio::test]
 async fn uncaught_exception_preserves_prior_logs() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -447,12 +447,32 @@ async fn uncaught_exception_preserves_prior_logs() {
 }
 
 // ============================================================
+// §3.3.3 — Import failure produces IMPORT_FAILURE diagnostic
+// ============================================================
+
+#[tokio::test]
+async fn import_failure_produces_diagnostic() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox
+        .execute(r#"import { foo } from "nonexistent-module";"#)
+        .await;
+
+    assert_eq!(response.result, serde_json::Value::Null);
+    assert!(
+        !response.diagnostics.is_empty(),
+        "should have diagnostics for import failure"
+    );
+    assert_eq!(response.diagnostics[0].code, DiagnosticCode::ImportFailure);
+    assert!(response.diagnostics[0].hint.is_some());
+}
+
+// ============================================================
 // §3.5 — Banned globals
 // ============================================================
 
 #[tokio::test]
 async fn eval_is_not_available() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -475,7 +495,7 @@ async fn eval_is_not_available() {
 
 #[tokio::test]
 async fn function_constructor_is_blocked() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -502,7 +522,7 @@ async fn function_constructor_is_blocked() {
 
 #[tokio::test]
 async fn set_timeout_fires_callback() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -522,7 +542,7 @@ async fn set_timeout_fires_callback() {
 
 #[tokio::test]
 async fn url_hostname_parsing() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -537,7 +557,7 @@ async fn url_hostname_parsing() {
 
 #[tokio::test]
 async fn url_search_params_get() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -552,7 +572,7 @@ async fn url_search_params_get() {
 
 #[tokio::test]
 async fn text_encoder_basic() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -571,7 +591,7 @@ async fn text_encoder_basic() {
 
 #[tokio::test]
 async fn text_decoder_basic() {
-    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -596,7 +616,7 @@ async fn timeout_produces_sandbox_limit_diagnostic() {
         max_log_bytes: None,
         max_tool_calls: None,
     };
-    let sandbox = Sandbox::new(Some(&limits)).await.expect("sandbox");
+    let sandbox = Sandbox::new(Some(&limits), &[]).await.expect("sandbox");
     let response = sandbox.execute("while(true) {}").await;
 
     assert!(!response.diagnostics.is_empty());
@@ -615,7 +635,7 @@ async fn memory_limit_produces_diagnostic() {
         max_log_bytes: None,
         max_tool_calls: None,
     };
-    let sandbox = Sandbox::new(Some(&limits)).await.expect("sandbox");
+    let sandbox = Sandbox::new(Some(&limits), &[]).await.expect("sandbox");
     let response = sandbox
         .execute(
             r#"
@@ -639,14 +659,14 @@ async fn memory_limit_produces_diagnostic() {
 #[tokio::test]
 async fn fresh_sandbox_no_state_leakage() {
     // First sandbox sets a value
-    let sandbox1 = Sandbox::new(None).await.expect("sandbox");
+    let sandbox1 = Sandbox::new(None, &[]).await.expect("sandbox");
     let r1 = sandbox1
         .execute("globalThis.leaked = 'secret'; globalThis.__codemode_result__ = 'set'")
         .await;
     assert_eq!(r1.result, serde_json::json!("set"));
 
     // Second sandbox should not see it
-    let sandbox2 = Sandbox::new(None).await.expect("sandbox");
+    let sandbox2 = Sandbox::new(None, &[]).await.expect("sandbox");
     let r2 = sandbox2
         .execute("globalThis.__codemode_result__ = typeof globalThis.leaked")
         .await;
