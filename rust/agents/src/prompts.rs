@@ -235,14 +235,18 @@ pub fn format_git_summary(git_context: &GitContext) -> String {
 // Full prompt assembly (spec 6.1)
 // ---------------------------------------------------------------------------
 
-/// Build the system prompt for a session by gathering environment context
-/// and project docs.
+/// Build the system prompt for a session by gathering environment context,
+/// project docs, and optionally workspace skills.
 ///
 /// Convenience async function that combines profile, environment context,
-/// and project doc discovery into a complete system prompt string.
+/// project doc discovery, and skill metadata into a complete system prompt
+/// string. When `enable_skills` is true and the `skills` feature is active,
+/// discovered skills are included as metadata and the `use_skill` tool is
+/// registered in the profile.
 pub async fn build_system_prompt(
-    profile: &dyn ProviderProfile,
+    profile: &mut dyn ProviderProfile,
     env: &dyn ExecutionEnvironment,
+    enable_skills: bool,
 ) -> AgentResult<String> {
     let env_context = build_environment_context_from_env(env, profile.model(), None).await;
 
@@ -253,5 +257,24 @@ pub async fn build_system_prompt(
     let project_docs =
         crate::project_docs::discover_project_docs(env, profile.id(), root, working_dir).await?;
 
-    Ok(profile.build_system_prompt(&env_context, &project_docs))
+    #[allow(unused_mut)]
+    let mut prompt = profile.build_system_prompt(&env_context, &project_docs);
+
+    // Skills layer (between project docs and user instructions).
+    // Gated at both compile time (feature) and runtime (config flag).
+    #[cfg(feature = "skills")]
+    if enable_skills {
+        let skills_metadata =
+            crate::skills::discover_and_register_skills(profile, working_dir).await;
+        if !skills_metadata.is_empty() {
+            prompt.push_str("\n\n");
+            prompt.push_str(&skills_metadata);
+        }
+    }
+
+    // Suppress unused variable warning when feature is off.
+    #[cfg(not(feature = "skills"))]
+    let _ = enable_skills;
+
+    Ok(prompt)
 }

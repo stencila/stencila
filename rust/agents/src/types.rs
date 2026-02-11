@@ -96,6 +96,14 @@ pub struct SessionConfig {
     #[serde(default)]
     pub tool_line_limits: std::collections::HashMap<String, usize>,
 
+    /// Whether to discover and enable workspace skills.
+    ///
+    /// When enabled and the `skills` feature is active, the system prompt
+    /// includes compact skill metadata and a `use_skill` tool is registered
+    /// for on-demand full-content loading.
+    #[serde(default = "default_true")]
+    pub enable_skills: bool,
+
     /// Whether loop detection is enabled.
     #[serde(default = "default_true")]
     pub enable_loop_detection: bool,
@@ -137,6 +145,39 @@ fn default_max_subagent_depth() -> u32 {
     1
 }
 
+impl SessionConfig {
+    /// Derive a child configuration for a subagent session.
+    ///
+    /// Inherits the parent's behavioral settings (timeouts, limits, loop
+    /// detection, skills) while allowing per-child overrides for `max_turns`
+    /// and `max_subagent_depth`. Fields that are session-specific
+    /// (`user_instructions`, `reasoning_effort`) are not inherited.
+    ///
+    /// Using this method instead of `SessionConfig { ..Default::default() }`
+    /// ensures newly added fields are inherited correctly without manual
+    /// updates in every call site.
+    #[must_use]
+    pub fn for_child(&self, max_turns: u32, max_subagent_depth: u32) -> Self {
+        Self {
+            max_turns,
+            max_subagent_depth,
+            // Inherit parent's behavioral settings
+            max_tool_rounds_per_input: self.max_tool_rounds_per_input,
+            default_command_timeout_ms: self.default_command_timeout_ms,
+            max_command_timeout_ms: self.max_command_timeout_ms,
+            tool_output_limits: self.tool_output_limits.clone(),
+            tool_line_limits: self.tool_line_limits.clone(),
+            enable_loop_detection: self.enable_loop_detection,
+            loop_detection_window: self.loop_detection_window,
+            auto_detect_awaiting_input: self.auto_detect_awaiting_input,
+            enable_skills: self.enable_skills,
+            // Session-specific: not inherited
+            reasoning_effort: None,
+            user_instructions: None,
+        }
+    }
+}
+
 impl Default for SessionConfig {
     fn default() -> Self {
         Self {
@@ -152,6 +193,7 @@ impl Default for SessionConfig {
             max_subagent_depth: default_max_subagent_depth(),
             user_instructions: None,
             auto_detect_awaiting_input: true,
+            enable_skills: true,
         }
     }
 }

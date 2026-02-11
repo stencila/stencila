@@ -310,7 +310,7 @@ impl Session {
             Arc::clone(&execution_env),
             Arc::clone(&client),
             current_depth,
-            max_depth,
+            config.clone(),
         );
 
         let session = Self {

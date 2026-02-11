@@ -51,6 +51,10 @@ pub mod project_docs;
 /// Core tool implementations: executors and schema definitions (spec 3.3, 3.6).
 pub mod tools;
 
+/// Skill discovery and tool integration.
+#[cfg(feature = "skills")]
+pub mod skills;
+
 /// Core domain types: configuration, session state, turns, events.
 pub mod types;
 

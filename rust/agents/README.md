@@ -22,12 +22,12 @@ use stencila_agents::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let profile = Box::new(AnthropicProfile::new("claude-sonnet-4-5-20250929", 600_000)?);
+    let mut profile = Box::new(AnthropicProfile::new("claude-sonnet-4-5-20250929", 600_000)?);
     let env = Arc::new(LocalExecutionEnvironment::new("."));
     let client = Arc::new(Models3Client::new(
         stencila_models3::client::Client::from_env()?,
     ));
-    let system_prompt = prompts::build_system_prompt(&*profile, &*env).await?;
+    let system_prompt = prompts::build_system_prompt(&mut *profile, &*env, true).await?;
     let config = SessionConfig::default();
 
     let (mut session, mut receiver) =

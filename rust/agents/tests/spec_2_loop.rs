@@ -1856,12 +1856,13 @@ async fn context_usage_no_warning_below_threshold() -> AgentResult<()> {
 async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResult<()> {
     // Use build_system_prompt with a real profile to verify layers are
     // assembled in the correct order (spec 6.1).
-    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let mut profile = Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?);
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
 
     let prompt = stencila_agents::session::build_system_prompt(
-        &*Box::new(profile) as &dyn ProviderProfile,
+        &mut *profile as &mut dyn ProviderProfile,
         &*env,
+        false,
     )
     .await?;
 
@@ -1903,12 +1904,13 @@ async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResul
 #[tokio::test]
 async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResult<()> {
     // Verify the prompt passed to Session::new() is the one sent in the LLM request.
-    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let mut profile = Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?);
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
 
     let prompt = stencila_agents::session::build_system_prompt(
-        &*Box::new(profile) as &dyn ProviderProfile,
+        &mut *profile as &mut dyn ProviderProfile,
         &*env,
+        false,
     )
     .await?;
 
@@ -2025,10 +2027,11 @@ async fn end_to_end_prompt_includes_project_docs_layer() -> AgentResult<()> {
     let env: Arc<dyn ExecutionEnvironment> =
         Arc::new(MockExecEnvWithDocs::new(project_instructions));
 
-    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    let mut profile = Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?);
     let prompt = stencila_agents::session::build_system_prompt(
-        &*Box::new(profile) as &dyn ProviderProfile,
+        &mut *profile as &mut dyn ProviderProfile,
         &*env,
+        false,
     )
     .await?;
 

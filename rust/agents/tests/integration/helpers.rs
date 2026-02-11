@@ -93,7 +93,7 @@ pub async fn live_session(
     let model = test_model(provider);
 
     // Build profile
-    let profile: Box<dyn stencila_agents::profile::ProviderProfile> = match provider {
+    let mut profile: Box<dyn stencila_agents::profile::ProviderProfile> = match provider {
         "openai" => Box::new(OpenAiProfile::new(model, 600_000)?),
         "anthropic" => Box::new(AnthropicProfile::new(model, 600_000)?),
         "gemini" => Box::new(GeminiProfile::new(model, 600_000)?),
@@ -112,7 +112,7 @@ pub async fn live_session(
     let llm_client = Arc::new(Models3Client::new(client));
 
     // Build system prompt
-    let system_prompt = prompts::build_system_prompt(&*profile, &*exec_env).await?;
+    let system_prompt = prompts::build_system_prompt(&mut *profile, &*exec_env, true).await?;
 
     // Create session (depth 0 = top-level)
     let (session, receiver) = Session::new(profile, exec_env, llm_client, config, system_prompt, 0);

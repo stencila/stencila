@@ -249,8 +249,10 @@ pub struct SubAgentManager {
     client: Arc<dyn LlmClient>,
     /// Current nesting depth (0 = top-level session).
     current_depth: u32,
-    /// Maximum allowed depth from config.
-    max_depth: u32,
+    /// Parent session configuration, used to derive child configs via
+    /// [`SessionConfig::for_child()`] so behavioral settings propagate
+    /// correctly.
+    parent_config: SessionConfig,
     /// Counter for generating unique agent IDs.
     next_id: u32,
 }
@@ -260,25 +262,29 @@ impl std::fmt::Debug for SubAgentManager {
         f.debug_struct("SubAgentManager")
             .field("agent_count", &self.agents.len())
             .field("current_depth", &self.current_depth)
-            .field("max_depth", &self.max_depth)
+            .field("max_depth", &self.parent_config.max_subagent_depth)
             .finish_non_exhaustive()
     }
 }
 
 impl SubAgentManager {
     /// Create a new subagent manager.
+    ///
+    /// The `parent_config` is stored and used to derive child session
+    /// configs via [`SessionConfig::for_child()`], ensuring behavioral
+    /// settings like `enable_skills` propagate correctly.
     pub fn new(
         execution_env: Arc<dyn ExecutionEnvironment>,
         client: Arc<dyn LlmClient>,
         current_depth: u32,
-        max_depth: u32,
+        parent_config: SessionConfig,
     ) -> Self {
         Self {
             agents: HashMap::new(),
             execution_env,
             client,
             current_depth,
-            max_depth,
+            parent_config,
             next_id: 0,
         }
     }
@@ -325,11 +331,11 @@ impl SubAgentManager {
         parent_profile: &dyn ProviderProfile,
     ) -> AgentResult<String> {
         // Check depth limit
-        if self.current_depth >= self.max_depth {
+        let max_depth = self.parent_config.max_subagent_depth;
+        if self.current_depth >= max_depth {
             return Err(AgentError::ValidationError {
                 reason: format!(
-                    "maximum subagent depth ({}) exceeded — cannot spawn sub-sub-agents",
-                    self.max_depth
+                    "maximum subagent depth ({max_depth}) exceeded — cannot spawn sub-sub-agents",
                 ),
             });
         }
@@ -340,17 +346,13 @@ impl SubAgentManager {
         let max_turns =
             optional_u64(&args, "max_turns").map_or(50, |v| u32::try_from(v).unwrap_or(u32::MAX));
 
-        // Build child config
-        let child_config = SessionConfig {
-            max_turns,
-            max_subagent_depth: self.max_depth,
-            ..SessionConfig::default()
-        };
+        // Build child config from parent, inheriting behavioral settings
+        let child_config = self.parent_config.for_child(max_turns, max_depth);
 
         // Use parent's profile type to create child profile, with optional model override.
         // Subagent tools are registered by Session::new() based on depth.
         let child_model = model_override.as_deref();
-        let child_profile = create_child_profile(
+        let mut child_profile = create_child_profile(
             parent_profile,
             child_model,
             child_config.max_command_timeout_ms,
@@ -368,8 +370,12 @@ impl SubAgentManager {
         };
 
         // Build system prompt for child, including working_dir scope if specified
-        let mut system_prompt =
-            crate::prompts::build_system_prompt(&*child_profile, &*child_env).await?;
+        let mut system_prompt = crate::prompts::build_system_prompt(
+            &mut *child_profile,
+            &*child_env,
+            child_config.enable_skills,
+        )
+        .await?;
         if let Some(ref dir) = working_dir {
             system_prompt.push_str(&format!(
                 "\n\nYou are scoped to the subdirectory: {dir}\n\
