@@ -4,39 +4,121 @@ An implementation of the concepts in [Code Mode](https://blog.cloudflare.com/cod
 
 ## Usage
 
-TODO
+### Implement `McpServer`
 
-## Deviations
+Provide one or more MCP servers by implementing the `McpServer` trait:
 
-### Deviations from spec §3.5
+```rust
+use stencila_codemode::{McpServer, McpToolInfo, McpToolResult, McpContent, CodemodeError};
 
-- `setTimeout` delay parameter is accepted but ignored — callbacks fire on the next microtask tick. QuickJS's async runtime cannot easily support real delays within `async_with!`; real delay support deferred to a later phase if needed.
-- `setInterval` is explicitly removed (not provided) per spec §3.5.
+struct MyServer;
 
-### Polyfill fidelity (§3.5)
+#[async_trait::async_trait]
+impl McpServer for MyServer {
+    fn server_id(&self) -> &str { "my-server" }
+    fn server_name(&self) -> &str { "My Server" }
 
-- `URL`: Rust-backed via the `url` crate. Supports `protocol`, `hostname`, `port`, `pathname`, `search`, `hash`, `username`, `password`, `href`, `origin`, `toString()`. Does not support `searchParams` property (use `URLSearchParams` separately).
-- `URLSearchParams`: Pure JS implementation. Supports `get`, `set`, `has`, `delete`, `append`, `toString`, `entries`, `keys`, `values`, `forEach`. Does not implement full `Iterator` protocol.
-- `TextEncoder`/`TextDecoder`: Rust-backed UTF-8 only. `TextDecoder` does not support non-UTF-8 encodings or streaming decode options.
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError> {
+        Ok(vec![McpToolInfo {
+            name: "greet".into(),
+            description: Some("Say hello".into()),
+            input_schema: Some(serde_json::json!({
+                "type": "object",
+                "properties": { "name": { "type": "string" } },
+                "required": ["name"]
+            })),
+            output_schema: None,
+            annotations: None,
+        }])
+    }
 
-### API design (not spec-prescribed)
+    async fn call_tool(
+        &self,
+        tool_name: &str,
+        input: serde_json::Value,
+    ) -> Result<McpToolResult, CodemodeError> {
+        match tool_name {
+            "greet" => {
+                let name = input["name"].as_str().unwrap_or("world");
+                Ok(McpToolResult {
+                    content: vec![McpContent::Text {
+                        text: format!("Hello, {name}!"),
+                    }],
+                    structured_content: None,
+                    is_error: false,
+                })
+            }
+            _ => Err(CodemodeError::ToolNotFound {
+                tool_name: tool_name.into(),
+                server_id: "my-server".into(),
+            }),
+        }
+    }
+}
+```
 
-- Dirty server tracking uses `DirtyServerTracker` + `Sandbox::with_dirty_servers()`. The host calls `tracker.mark_changed(server_id)` when receiving `tools/listChanged`, then passes `tracker.dirty()` (or `tracker.take_dirty()`) to `Sandbox::with_dirty_servers()` before the next invocation.
-- `Sandbox::new()` (without dirty set) continues to work unchanged — equivalent to passing an empty dirty set.
+### Run code with `codemode_run`
 
-### API design (not spec-prescribed)
+The top-level entry point always returns a `RunResponse` — errors are captured as diagnostics, never propagated:
 
-- `codemode_run()` takes `&RunRequest` (borrowed) instead of `RunRequest` (owned) — avoids unnecessary cloning at the call site.
-- `dirty_servers` is a separate `&HashSet<String>` parameter (not embedded in `RunRequest`) — separates host-level state tracking from the request schema.
+```rust
+use std::collections::HashSet;
+use std::sync::Arc;
+use stencila_codemode::{codemode_run, RunRequest, Limits};
+
+let servers = vec![Arc::new(MyServer) as Arc<dyn McpServer>];
+
+let request = RunRequest {
+    code: r#"
+        import { greet } from "@codemode/servers/my-server";
+        export default await greet({ name: "Alice" });
+    "#.into(),
+    limits: Some(Limits {
+        timeout_ms: Some(5000),
+        max_tool_calls: Some(10),
+        ..Limits::default()
+    }),
+    requested_capabilities: None,
+};
+
+let response = codemode_run(&request, &servers, &HashSet::new()).await;
+// response.result  == "Hello, Alice!"
+// response.logs    — captured console output
+// response.diagnostics — any errors/warnings
+// response.tool_trace  — redacted tool call log
+```
+
+### Generate TypeScript declarations
+
+Generate `.d.ts` content for injection into the agent's system prompt:
+
+```rust
+use stencila_codemode::generate_declarations;
+
+let declarations = generate_declarations(&servers).await?;
+// Contains typed declarations for @codemode/discovery,
+// @codemode/errors, and @codemode/servers/my-server
+```
+
+## Specification
+
+At the time of writing, no "Code Mode spec" is available. This implementation was developed against our own [spec](specs/codemode.md).
 
 ## Limitations
 
-- **`setTimeout` delay is ignored** — callbacks fire on the next microtask tick regardless of the specified delay (see Phase 2 deviations).
-- **`setInterval` not provided** — spec §3.5 does not require it.
-- **`URL.searchParams` property not supported** — use `new URLSearchParams(url.search)` separately.
-- **`URLSearchParams` iterator protocol incomplete** — `for...of` is not supported; use `forEach`, `keys`, `values`, or `entries`.
-- **`TextDecoder` UTF-8 only** — non-UTF-8 encodings and streaming decode options are not supported.
-- **No host-level parallelism for cross-server tool calls** — `Promise.all` works within the sandbox (JS-level concurrency) but tool calls execute sequentially on the Rust side. True parallel dispatch across servers would require `tokio::spawn` per call.
+The following are known limitations of this implementation.
+
+- **`setTimeout` delay ignored (§3.5)** — delay parameter is accepted but ignored; callbacks fire on the next microtask tick. QuickJS's async runtime cannot easily support real delays within `async_with!`.
+
+- **`URL.searchParams` not supported (§3.5)** — use `new URLSearchParams(url.search)` separately.
+
+- **`URLSearchParams` iterator protocol incomplete (§3.5)** — `for...of` not supported; use `forEach`, `keys`, `values`, or `entries`.
+
+- **`TextDecoder` UTF-8 only (§3.5)** — non-UTF-8 encodings and streaming decode options are not supported.
+
+- **No cancellation support (§7.4)** — sandbox execution runs to completion or until a limit is exceeded; no external cancellation of in-flight executions or MCP tool calls.
+
+- **No host-level parallelism for cross-server tool calls (§10.1)** — `Promise.all` works within the sandbox (JS-level concurrency) but tool calls execute sequentially on the Rust side.
 
 ### Testing
 
