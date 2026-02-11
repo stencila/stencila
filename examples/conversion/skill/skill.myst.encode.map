@@ -1,0 +1,8 @@
+start     end        offsets   node_type+property                   authorship
+     0    219       (0, 219)   Skill.frontmatter
+   219    285      (219, 66)   Text.value
+   219    285         (0, 0)   Text
+   219    285         (0, 0)   Paragraph.content
+   219    286         (0, 1)   Paragraph
+   219    287         (0, 1)   Skill.content
+     0    287      (-219, 0)   Skill

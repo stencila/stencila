@@ -1,0 +1,10 @@
+¿dtypeeSkillkdescriptionx1Analyze datasets and generate summary statistics.dnamemdata-analysiskfrontmatterxÑname: data-analysis
+description: Analyze datasets and generate summary statistics.
+compatibility: Requires Python 3.10+
+allowed-tools:
+- Bash(python:*)
+- Read
+metadata:
+  authors:
+  - Jane Doe
+  version: '1.0'gcontent¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringxBUse pandas for data manipulation and matplotlib for visualization.mcompatibilityuRequires Python 3.10+lallowedTools‚nBash(python:*)dReadgauthors¿dtypefPersonkfamilyNamescDoejgivenNamesdJaneÿgversionc1.0ÿ

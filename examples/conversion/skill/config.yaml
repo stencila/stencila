@@ -1,0 +1,3 @@
+pandoc:
+  encode:
+    skip: true

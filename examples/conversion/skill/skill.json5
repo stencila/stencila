@@ -1,0 +1,30 @@
+{
+  type: "Skill",
+  description: "Analyze datasets and generate summary statistics.",
+  name: "data-analysis",
+  frontmatter: "name: data-analysis\ndescription: Analyze datasets and generate summary statistics.\ncompatibility: Requires Python 3.10+\nallowed-tools:\n- Bash(python:*)\n- Read\nmetadata:\n  authors:\n  - Jane Doe\n  version: '1.0'",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "Use pandas for data manipulation and matplotlib for visualization." }
+        }
+      ]
+    }
+  ],
+  compatibility: "Requires Python 3.10+",
+  allowedTools: [
+    "Bash(python:*)",
+    "Read"
+  ],
+  authors: [
+    {
+      type: "Person",
+      familyNames: [ "Doe" ],
+      givenNames: [ "Jane" ]
+    }
+  ],
+  version: "1.0"
+}
