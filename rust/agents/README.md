@@ -88,9 +88,9 @@ These are intentional deviations from the spec.
 
 The spec text implies follow-ups run after natural completion (text-only model response). This implementation processes follow-ups after loop exit on both natural-completion and turn-limit paths.
 
-### Delta event emission (`§2.9`)
+### Tool descriptions prompt layer (`§6.1`)
 
-`ASSISTANT_TEXT_DELTA` is emitted incrementally during streaming. `TOOL_CALL_OUTPUT_DELTA` is defined but not yet emitted by the tool execution pipeline.
+The spec's layered prompt includes a dedicated tool-descriptions layer. This implementation passes tool schemas via the API `tools` parameter instead of serializing them into the system prompt.
 
 ### `SESSION_END` emission timing (`§2.9`)
 
@@ -104,13 +104,17 @@ The spec pseudocode uses a `WARNING` event, but the spec event enum does not def
 
 Spec wording says `send_input` targets a running subagent. This implementation accepts any non-failed agent (including completed ones) so that follow-up messages can be sent after the initial task finishes.
 
+### Gemini grounding configuration (`§3.6`)
+
+The spec says Gemini provider options should configure safety settings and grounding. Safety settings are configured (`BLOCK_ONLY_HIGH` for all categories), but grounding (`google_search_retrieval`) is intentionally not configured.
+
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
 
-### Tool descriptions prompt layer (`§6.1`)
+### `TOOL_CALL_OUTPUT_DELTA` emission (`§2.9`)
 
-Tool schemas are passed through the API `tools` parameter rather than serialized into a dedicated system-prompt layer.
+`TOOL_CALL_OUTPUT_DELTA` is defined and the emitter supports it, but the tool execution pipeline does not yet stream tool output incrementally.
 
 ### Image tool output support (`§3.3`)
 
@@ -126,17 +130,6 @@ Tool schemas are passed through the API `tools` parameter rather than serialized
 
 - **Recursive operations:** `list_directory`, `grep`, and `glob_files` post-filter results to remove entries whose real path falls outside scope, but the inner walkers still traverse symlinked directories during collection.
 
-### Streaming session loop (`§2.9`)
-
-The session loop streams LLM responses via `Client::stream()`, emitting `ASSISTANT_TEXT_DELTA` events incrementally. When the profile does not support streaming or the stream setup returns a configuration/not-found error, it falls back to `Client::complete()` with a single synthesized delta. Mid-stream errors (network, provider) propagate as SDK errors. On abort or error, `TEXT_END` carries any partial text accumulated from prior deltas. `TOOL_CALL_OUTPUT_DELTA` events are not yet emitted.
-
-### Gemini grounding configuration (`§3.6`)
-
-The spec says provider options should configure "safety settings and grounding." Safety settings are wired (`BLOCK_ONLY_HIGH` for all categories), but grounding (`google_search_retrieval`) is not configured. A coding agent already has file search, code search, and shell tools, so web grounding adds marginal value while introducing potential noise and latency.
-
-### Test mock consolidation (internal)
-
-`MockExecutionEnvironment` duplication across test modules is still present and not yet consolidated into shared test helpers.
 
 ## Development
 
