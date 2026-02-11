@@ -87,24 +87,39 @@ A host MUST document any additional restrictions (e.g., disabled syntax features
 
 #### 3.2.2 Result value
 
-The sandbox MUST define a global helper:
+The recommended way to return a result is `export default`:
+
+```js
+export default await greet({ name: "Alice" });
+```
+
+The host MUST also define a mutable global for use in deferred contexts (callbacks, timers) where `export default` cannot be used, since `export default` captures the value at module evaluation time:
 
 ```js
 globalThis.__codemode_result__
 ```
 
-At the end of execution, the host MUST set the `result` field in the response to:
+At the end of execution, the host MUST set the `result` field in the response using the following precedence:
 
-* The final value assigned to `globalThis.__codemode_result__`, if any, otherwise
-* `null`.
+1. The `export default` value, if present and not `undefined`.
+2. The final value assigned to `globalThis.__codemode_result__`, if any.
+3. `null`.
 
-Agent-authored code SHOULD set this explicitly when a structured return value is desired:
+Agent-authored code SHOULD prefer `export default` for returning structured results:
 
 ```js
-globalThis.__codemode_result__ = { ok: true, count };
+import { readFile } from "@codemode/servers/fs";
+const data = await readFile({ path: "config.json" });
+export default JSON.parse(data);
 ```
 
-This mechanism is required to avoid ambiguity around module completion values.
+For deferred contexts where `export default` cannot be used, use `globalThis.__codemode_result__`:
+
+```js
+setTimeout(() => {
+    globalThis.__codemode_result__ = "done";
+}, 100);
+```
 
 #### 3.2.3 `requestedCapabilities`
 

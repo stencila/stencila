@@ -779,3 +779,96 @@ async fn codemode_run_absorbs_import_failure() {
     assert!(!resp.diagnostics.is_empty());
     assert_eq!(resp.diagnostics[0].code, DiagnosticCode::ImportFailure);
 }
+
+// ============================================================
+// §3.2.2 — export default result mechanism
+// ============================================================
+
+#[tokio::test]
+async fn export_default_integer() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox.execute("export default 42").await;
+
+    assert_eq!(response.result, serde_json::json!(42));
+    assert!(response.diagnostics.is_empty());
+}
+
+#[tokio::test]
+async fn export_default_object() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox
+        .execute("export default { ok: true, count: 3 }")
+        .await;
+
+    assert_eq!(response.result["ok"], true);
+    assert_eq!(response.result["count"], 3);
+}
+
+#[tokio::test]
+async fn export_default_string() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox.execute(r#"export default "hello""#).await;
+
+    assert_eq!(response.result, serde_json::json!("hello"));
+}
+
+#[tokio::test]
+async fn export_default_null() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox.execute("export default null").await;
+
+    assert_eq!(response.result, serde_json::Value::Null);
+}
+
+#[tokio::test]
+async fn export_default_await_expression() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox
+        .execute("export default await Promise.resolve({ answer: 42 })")
+        .await;
+
+    assert_eq!(response.result["answer"], 42);
+}
+
+/// `export default` takes precedence over `globalThis.__codemode_result__`.
+#[tokio::test]
+async fn export_default_takes_precedence_over_global() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        globalThis.__codemode_result__ = "from global";
+        export default "from export";
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("from export"));
+}
+
+/// When there is no default export, `globalThis.__codemode_result__` is used.
+#[tokio::test]
+async fn fallback_to_global_when_no_default_export() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox
+        .execute(r#"globalThis.__codemode_result__ = "fallback""#)
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("fallback"));
+}
+
+/// `export default undefined` falls through to `globalThis.__codemode_result__`.
+#[tokio::test]
+async fn export_default_undefined_falls_back_to_global() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        globalThis.__codemode_result__ = "from global";
+        export default undefined;
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("from global"));
+}

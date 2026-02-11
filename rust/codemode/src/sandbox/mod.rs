@@ -9,7 +9,7 @@ use std::time::Instant;
 
 use rquickjs::{
     AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Promise, Value,
-    async_with,
+    async_with, module::Evaluated,
 };
 
 use crate::error::CodemodeError;
@@ -174,6 +174,8 @@ impl Sandbox {
     /// and top-level `await`) per spec §3.2.1. Script errors are captured as
     /// diagnostics rather than propagated (per spec §3.3.4).
     ///
+    /// The result is determined by precedence: `export default` > `globalThis.__codemode_result__` > `null`.
+    ///
     /// # Panics
     ///
     /// Panics if the internal sandbox state mutex is poisoned.
@@ -193,6 +195,12 @@ impl Sandbox {
         let servers = Arc::clone(&self.servers);
         let code = code.to_string();
 
+        // Shared slot to pass the result out of the async_with! block.
+        // The Module is lifetime-bound to Ctx, so extraction must happen inside.
+        let result_slot: Arc<Mutex<serde_json::Value>> =
+            Arc::new(Mutex::new(serde_json::Value::Null));
+        let result_slot_inner = Arc::clone(&result_slot);
+
         // Use async_with! which drives the QuickJS job queue (including microtask-based
         // setTimeout callbacks) while the inner future is Pending.
         async_with!(self.context => |ctx| {
@@ -209,18 +217,37 @@ impl Sandbox {
                 return;
             }
 
-            // Evaluate the code as an ES module (supports import/export and top-level await)
-            match Module::evaluate(ctx.clone(), "<main>", &*code).catch(&ctx) {
-                Ok(promise) => {
-                    // Await the module evaluation promise (drives top-level await)
-                    if let Err(err) = promise.into_future::<Value>().await.catch(&ctx) {
-                        let has_mem_limit = {
-                            let s = state.lock().expect("sandbox state lock");
-                            s.has_memory_limit
-                        };
-                        let (diag_code, message) = classify_js_error(&err, has_mem_limit);
-                        let mut s = state.lock().expect("sandbox state lock");
-                        s.push_error(diag_code, message);
+            // Declare and evaluate as an ES module (supports import/export and top-level await).
+            // Using declare + eval instead of Module::evaluate so we retain the Module
+            // and can inspect `export default`.
+            let mut evaluated_module = None;
+
+            match Module::declare(ctx.clone(), "<main>", &*code).catch(&ctx) {
+                Ok(declared) => {
+                    match declared.eval().catch(&ctx) {
+                        Ok((module, promise)) => {
+                            // Await the module evaluation promise (drives top-level await)
+                            if let Err(err) = promise.into_future::<Value>().await.catch(&ctx) {
+                                let has_mem_limit = {
+                                    let s = state.lock().expect("sandbox state lock");
+                                    s.has_memory_limit
+                                };
+                                let (diag_code, message) = classify_js_error(&err, has_mem_limit);
+                                let mut s = state.lock().expect("sandbox state lock");
+                                s.push_error(diag_code, message);
+                            } else {
+                                evaluated_module = Some(module);
+                            }
+                        }
+                        Err(err) => {
+                            let has_mem_limit = {
+                                let s = state.lock().expect("sandbox state lock");
+                                s.has_memory_limit
+                            };
+                            let (diag_code, message) = classify_js_error(&err, has_mem_limit);
+                            let mut s = state.lock().expect("sandbox state lock");
+                            s.push_error(diag_code, message);
+                        }
                     }
                 }
                 Err(err) => {
@@ -240,11 +267,19 @@ impl Sandbox {
             if let Ok(drain) = ctx.eval::<Promise, _>("Promise.resolve().then(() => {})") {
                 drain.into_future::<Value>().await.ok();
             }
+
+            // Extract result inside async_with! because Module is lifetime-bound to Ctx.
+            // Precedence: export default > globalThis.__codemode_result__ > null
+            let result = extract_result(&ctx, evaluated_module.as_ref());
+            let mut slot = result_slot_inner.lock().expect("result slot lock");
+            *slot = result;
         })
         .await;
 
-        // Extract __codemode_result__ (after pending jobs have completed)
-        let result = self.context.with(|ctx| extract_result(&ctx)).await;
+        let result = {
+            let slot = result_slot.lock().expect("result slot lock");
+            slot.clone()
+        };
 
         // Build response from collected state
         let s = self.state.lock().expect("sandbox state lock");
@@ -261,20 +296,12 @@ impl Sandbox {
     }
 }
 
-/// Extract `globalThis.__codemode_result__` and convert to a JSON value.
-fn extract_result(ctx: &Ctx<'_>) -> serde_json::Value {
-    let globals = ctx.globals();
-    let val: Value = match globals.get("__codemode_result__") {
-        Ok(v) => v,
-        Err(_) => return serde_json::Value::Null,
-    };
-
+/// Convert a JS `Value` to a `serde_json::Value` via `JSON.stringify`.
+fn value_to_json<'js>(ctx: &Ctx<'js>, val: Value<'js>) -> serde_json::Value {
     if val.is_null() || val.is_undefined() {
         return serde_json::Value::Null;
     }
 
-    // Use JSON.stringify to convert the JS value to a JSON string,
-    // then parse it into serde_json::Value
     match ctx.json_stringify(val) {
         Ok(Some(js_str)) => {
             let s = js_str.to_string();
@@ -285,6 +312,31 @@ fn extract_result(ctx: &Ctx<'_>) -> serde_json::Value {
         }
         _ => serde_json::Value::Null,
     }
+}
+
+/// Extract the result from execution.
+///
+/// Precedence: `export default` > `globalThis.__codemode_result__` > `null`.
+fn extract_result<'js>(
+    ctx: &Ctx<'js>,
+    module: Option<&Module<'js, Evaluated>>,
+) -> serde_json::Value {
+    // 1. Check for `export default` (skip if undefined — means not set)
+    if let Some(module) = module
+        && let Ok(val) = module.get::<_, Value>("default")
+        && !val.is_undefined()
+    {
+        return value_to_json(ctx, val);
+    }
+
+    // 2. Fall back to globalThis.__codemode_result__
+    let globals = ctx.globals();
+    let val: Value = match globals.get("__codemode_result__") {
+        Ok(v) => v,
+        Err(_) => return serde_json::Value::Null,
+    };
+
+    value_to_json(ctx, val)
 }
 
 /// Classify a JS error into a diagnostic code and message.
