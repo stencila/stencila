@@ -65,12 +65,12 @@ impl ToolSnapshot {
             .collect();
 
         for server in servers {
-            let normalized_id = id_map
-                .get(server.server_id())
-                .ok_or_else(|| CodemodeError::InvalidServerId {
+            let normalized_id = (*id_map.get(server.server_id()).ok_or_else(|| {
+                CodemodeError::InvalidServerId {
                     server_id: server.server_id().to_string(),
-                })?
-                .to_string();
+                }
+            })?)
+            .to_string();
             let mcp_tools = server.tools().await?;
             let tools = resolve_tool_exports(&mcp_tools);
 
@@ -217,10 +217,8 @@ fn resolve_tool_exports(tools: &[McpToolInfo]) -> Vec<SnapshotTool> {
     tools
         .iter()
         .map(|t| {
-            let export_name = export_map
-                .get(t.name.as_str())
-                .unwrap_or(&t.name.as_str())
-                .to_string();
+            let export_name =
+                (*export_map.get(t.name.as_str()).unwrap_or(&t.name.as_str())).to_string();
             SnapshotTool {
                 name: t.name.clone(),
                 export_name,
@@ -256,12 +254,7 @@ impl CodemodeResolver {
 }
 
 impl loader::Resolver for CodemodeResolver {
-    fn resolve<'js>(
-        &mut self,
-        _ctx: &Ctx<'js>,
-        _base: &str,
-        name: &str,
-    ) -> rquickjs::Result<String> {
+    fn resolve(&mut self, _ctx: &Ctx<'_>, base: &str, name: &str) -> rquickjs::Result<String> {
         match name {
             "@codemode/discovery" | "@codemode/errors" => Ok(name.to_string()),
             _ if name.starts_with("@codemode/servers/") => {
@@ -269,10 +262,10 @@ impl loader::Resolver for CodemodeResolver {
                 if self.known_servers.contains(id) {
                     Ok(name.to_string())
                 } else {
-                    Err(rquickjs::Error::new_resolving(_base, name))
+                    Err(rquickjs::Error::new_resolving(base, name))
                 }
             }
-            _ => Err(rquickjs::Error::new_resolving(_base, name)),
+            _ => Err(rquickjs::Error::new_resolving(base, name)),
         }
     }
 }

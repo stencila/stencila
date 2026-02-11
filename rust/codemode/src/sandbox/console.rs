@@ -11,7 +11,7 @@ use super::SandboxState;
 /// The JS console serializes each argument (using `String(value)` for
 /// primitives, `JSON.stringify` for objects, with `[Unserializable Object]`
 /// fallback) and calls the injected `__codemode_record_log` Rust function.
-const CONSOLE_JS: &str = r#"
+const CONSOLE_JS: &str = r"
 (function() {
     const _record = globalThis.__codemode_record_log;
     delete globalThis.__codemode_record_log;
@@ -39,7 +39,7 @@ const CONSOLE_JS: &str = r#"
         error: makeLogger('error'),
     });
 })();
-"#;
+";
 
 /// Inject the console capture system into the sandbox.
 ///

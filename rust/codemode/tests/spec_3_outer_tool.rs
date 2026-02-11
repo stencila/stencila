@@ -1,7 +1,12 @@
+mod common;
+
+use std::collections::HashSet;
+
 use stencila_codemode::{
     DetailLevel, Diagnostic, DiagnosticCode, DiagnosticSeverity, Limits, ListToolsOptions,
     LogEntry, LogLevel, RunRequest, RunResponse, Sandbox, SearchResultEntry, SearchResults,
     SearchToolsOptions, ServerDescription, ServerInfo, ToolDefinition, ToolSummary, ToolTraceEntry,
+    codemode_run,
 };
 
 // ============================================================
@@ -159,6 +164,10 @@ fn diagnostic_code_serialization() {
     assert_eq!(
         serde_json::to_value(DiagnosticCode::SandboxLimit).expect("serialize"),
         "SANDBOX_LIMIT"
+    );
+    assert_eq!(
+        serde_json::to_value(DiagnosticCode::CapabilityUnavailable).expect("serialize"),
+        "CAPABILITY_UNAVAILABLE"
     );
 }
 
@@ -446,6 +455,32 @@ async fn uncaught_exception_preserves_prior_logs() {
     assert!(!response.diagnostics.is_empty());
 }
 
+/// `throw null` without memory limit → UNCAUGHT_EXCEPTION (not SANDBOX_LIMIT).
+#[tokio::test]
+async fn throw_null_without_memory_limit_is_uncaught_exception() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox.execute("throw null").await;
+
+    assert!(!response.diagnostics.is_empty());
+    assert_eq!(
+        response.diagnostics[0].code,
+        DiagnosticCode::UncaughtException
+    );
+}
+
+/// `throw undefined` without memory limit → UNCAUGHT_EXCEPTION.
+#[tokio::test]
+async fn throw_undefined_without_memory_limit_is_uncaught_exception() {
+    let sandbox = Sandbox::new(None, &[]).await.expect("sandbox");
+    let response = sandbox.execute("throw undefined").await;
+
+    assert!(!response.diagnostics.is_empty());
+    assert_eq!(
+        response.diagnostics[0].code,
+        DiagnosticCode::UncaughtException
+    );
+}
+
 // ============================================================
 // §3.3.3 — Import failure produces IMPORT_FAILURE diagnostic
 // ============================================================
@@ -671,4 +706,76 @@ async fn fresh_sandbox_no_state_leakage() {
         .execute("globalThis.__codemode_result__ = typeof globalThis.leaked")
         .await;
     assert_eq!(r2.result, serde_json::json!("undefined"));
+}
+
+// ============================================================
+// §3.3.4 — codemode_run always returns RunResponse (never errors)
+// ============================================================
+
+use common::run_request;
+
+/// §3.3.4: codemode_run with valid code returns result.
+#[tokio::test]
+async fn codemode_run_returns_result() {
+    let resp = codemode_run(
+        &run_request("globalThis.__codemode_result__ = 42"),
+        &[],
+        &HashSet::new(),
+    )
+    .await;
+
+    assert_eq!(resp.result, serde_json::json!(42));
+    assert!(resp.diagnostics.is_empty());
+}
+
+/// §3.3.4: codemode_run absorbs syntax errors as diagnostics.
+#[tokio::test]
+async fn codemode_run_absorbs_syntax_error() {
+    let resp = codemode_run(
+        &run_request("this is not valid @@@ javascript"),
+        &[],
+        &HashSet::new(),
+    )
+    .await;
+
+    assert_eq!(resp.result, serde_json::Value::Null);
+    assert!(!resp.diagnostics.is_empty());
+    assert_eq!(resp.diagnostics[0].code, DiagnosticCode::SyntaxError);
+}
+
+/// §3.3.4: codemode_run absorbs runtime exceptions, preserving logs.
+#[tokio::test]
+async fn codemode_run_absorbs_exception_with_logs() {
+    let resp = codemode_run(
+        &run_request(
+            r#"
+            console.log("before");
+            throw new Error("runtime boom");
+        "#,
+        ),
+        &[],
+        &HashSet::new(),
+    )
+    .await;
+
+    assert_eq!(resp.result, serde_json::Value::Null);
+    assert_eq!(resp.logs.len(), 1);
+    assert_eq!(resp.logs[0].message, "before");
+    assert!(!resp.diagnostics.is_empty());
+    assert!(resp.diagnostics[0].message.contains("boom"));
+}
+
+/// §3.3.4: codemode_run absorbs import failures.
+#[tokio::test]
+async fn codemode_run_absorbs_import_failure() {
+    let resp = codemode_run(
+        &run_request(r#"import { x } from "nonexistent";"#),
+        &[],
+        &HashSet::new(),
+    )
+    .await;
+
+    assert_eq!(resp.result, serde_json::Value::Null);
+    assert!(!resp.diagnostics.is_empty());
+    assert_eq!(resp.diagnostics[0].code, DiagnosticCode::ImportFailure);
 }

@@ -17,7 +17,7 @@ use super::polyfills::inject_polyfills;
 /// JavaScript source that strips banned globals per spec §3.5.
 ///
 /// Removes `eval` and neuters the `Function` constructor (string form).
-/// QuickJS doesn't have fetch/XMLHttpRequest/WebSocket/require/process
+/// `QuickJS` doesn't have fetch/XMLHttpRequest/WebSocket/require/process
 /// natively, so we just confirm their absence by deleting them if present.
 const STRIP_GLOBALS_JS: &str = r#"
 (function() {
@@ -54,7 +54,7 @@ const STRIP_GLOBALS_JS: &str = r#"
 /// Uses the microtask queue (`Promise.resolve().then()`) to defer callbacks.
 /// Actual time delays are not supported in Phase 2 — the delay parameter
 /// is accepted but ignored. This will be upgraded in later phases.
-const SET_TIMEOUT_JS: &str = r#"
+const SET_TIMEOUT_JS: &str = r"
 (function() {
     let nextId = 1;
     const active = new Map();
@@ -75,13 +75,13 @@ const SET_TIMEOUT_JS: &str = r#"
         active.delete(id);
     };
 })();
-"#;
+";
 
 /// JavaScript source that freezes the host bridge as a non-configurable,
 /// non-writable property on `globalThis` per spec §11 bullet 4.
 ///
 /// This prevents agent-authored code from tampering with the bridge.
-const FREEZE_HOST_BRIDGE_JS: &str = r#"
+const FREEZE_HOST_BRIDGE_JS: &str = r"
 (function() {
     const bridge = {
         listServers: globalThis.__codemode_list_servers,
@@ -108,14 +108,14 @@ const FREEZE_HOST_BRIDGE_JS: &str = r#"
         enumerable: false
     });
 })();
-"#;
+";
 
 /// Set up all sandbox globals.
 ///
 /// This configures the sandbox environment in the correct order:
 /// 1. Inject `__codemode_result__` (initially null)
 /// 2. Inject console capture
-/// 3. Inject polyfills (URL, URLSearchParams, TextEncoder, TextDecoder)
+/// 3. Inject polyfills (URL, `URLSearchParams`, `TextEncoder`, `TextDecoder`)
 /// 4. Inject host bridge functions (discovery + callTool)
 /// 5. Inject setTimeout/clearTimeout
 /// 6. Strip banned globals (eval, Function constructor)
@@ -276,9 +276,9 @@ fn inject_call_tool_bridge(
 /// 1. Look up tool in snapshot to find its input schema
 /// 2. Parse input JSON
 /// 3. Validate input against schema (if present)
-/// 4. Check tool_call_count vs max_tool_calls
-/// 5. Call server.call_tool()
-/// 6. Record ToolTraceEntry
+/// 4. Check `tool_call_count` vs `max_tool_calls`
+/// 5. Call `server.call_tool()`
+/// 6. Record `ToolTraceEntry`
 /// 7. Unwrap result per §5.3.2 or return error envelope
 async fn call_tool_bridge(
     state: &Arc<Mutex<SandboxState>>,
@@ -341,16 +341,13 @@ async fn call_tool_bridge(
 
     // Check tool call limit (scoped lock — must not hold across .await)
     {
-        let mut s = match state.lock() {
-            Ok(s) => s,
-            Err(_) => {
-                return error_envelope(
-                    "tool_call",
-                    "Internal error: state lock poisoned",
-                    server_id,
-                    tool_name,
-                );
-            }
+        let Ok(mut s) = state.lock() else {
+            return error_envelope(
+                "tool_call",
+                "Internal error: state lock poisoned",
+                server_id,
+                tool_name,
+            );
         };
 
         if let Some(max) = s.max_tool_calls
@@ -365,6 +362,7 @@ async fn call_tool_bridge(
     // Call the tool (async)
     let start = Instant::now();
     let result = server.call_tool(tool_name, input).await;
+    #[allow(clippy::cast_possible_truncation)] // duration in ms will not exceed u64
     let duration_ms = start.elapsed().as_millis() as u64;
 
     // Record trace and build envelope
@@ -425,9 +423,8 @@ fn validate_input(
     input: &serde_json::Value,
     schema: &serde_json::Value,
 ) -> Result<(), ValidationFailure> {
-    let validator = match jsonschema::validator_for(schema) {
-        Ok(v) => v,
-        Err(_) => return Ok(()), // Gracefully skip if schema is invalid
+    let Ok(validator) = jsonschema::validator_for(schema) else {
+        return Ok(()); // Gracefully skip if schema is invalid
     };
 
     let mut errors = validator.iter_errors(input);
@@ -460,7 +457,7 @@ fn validate_input(
 ///
 /// The jsonschema crate produces messages like `"query" is a required property`
 /// for missing required fields. When this occurs at the root level (empty
-/// instance_path), we extract the property name and return `"/query"`.
+/// `instance_path`), we extract the property name and return `"/query"`.
 fn extract_required_property_path(message: &str) -> Option<String> {
     if message.contains("is a required property") {
         // Extract property name from: "propName" is a required property
@@ -637,7 +634,7 @@ fn schema_validation_envelope(
     })
 }
 
-/// Build a generic error envelope (tool_call errors).
+/// Build a generic error envelope (`tool_call` errors).
 fn error_envelope(error_type: &str, message: &str, server_id: &str, tool_name: &str) -> String {
     serde_json::to_string(&serde_json::json!({
         "ok": false,

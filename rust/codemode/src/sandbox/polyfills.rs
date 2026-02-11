@@ -1,7 +1,7 @@
 use rquickjs::{Ctx, function::Func};
 
 /// JavaScript source that wires up Rust-backed polyfill functions into
-/// proper classes (URL, URLSearchParams, TextEncoder, TextDecoder).
+/// proper classes (URL, `URLSearchParams`, `TextEncoder`, `TextDecoder`).
 ///
 /// The Rust functions are injected as `__codemode_polyfill_*` globals,
 /// then this JS wraps them in ergonomic class APIs and removes the raw helpers.

@@ -65,6 +65,7 @@ fn is_js_identifier_char(c: char) -> bool {
 /// 3. If result is a JS reserved word, append `_`
 ///
 /// This does NOT handle collisions — use [`resolve_export_collisions`] for that.
+#[must_use]
 pub fn tool_name_to_export(name: &str) -> String {
     // Step 1: Replace illegal identifier characters with `_`.
     let replaced: String = name
@@ -102,10 +103,11 @@ pub fn tool_name_to_export(name: &str) -> String {
 /// Tools are sorted alphabetically by canonical name before assigning identifiers.
 /// First occurrence keeps the clean name; subsequent collisions get `__N` suffix
 /// (N starts at 2).
+#[must_use]
 pub fn resolve_export_collisions(names: &[&str]) -> Vec<(String, String)> {
     // Sort alphabetically by canonical name for deterministic ordering
     let mut sorted: Vec<&str> = names.to_vec();
-    sorted.sort();
+    sorted.sort_unstable();
 
     let mapped: Vec<(String, String)> = sorted
         .iter()
@@ -123,7 +125,10 @@ pub fn resolve_export_collisions(names: &[&str]) -> Vec<(String, String)> {
 /// 3. Collapse consecutive `-` to a single `-`
 /// 4. Strip leading and trailing `-`
 ///
-/// Returns an error if the result is empty (all characters were invalid).
+/// # Errors
+///
+/// Returns `CodemodeError::InvalidServerId` if the result is empty
+/// (all characters were invalid).
 pub fn normalize_server_id(id: &str) -> Result<String, CodemodeError> {
     // Step 1: Lowercase
     let lowered = id.to_lowercase();
@@ -176,11 +181,14 @@ pub fn normalize_server_id(id: &str) -> Result<String, CodemodeError> {
 /// (alphabetically by original ID) keeps the clean path; subsequent
 /// collisions get `--N` suffix (N starts at 2).
 ///
-/// Returns an error if any server ID normalizes to an empty string.
+/// # Errors
+///
+/// Returns `CodemodeError::InvalidServerId` if any server ID normalizes
+/// to an empty string.
 pub fn resolve_server_collisions(ids: &[&str]) -> Result<Vec<(String, String)>, CodemodeError> {
     // Sort alphabetically by original ID for deterministic ordering
     let mut sorted: Vec<&str> = ids.to_vec();
-    sorted.sort();
+    sorted.sort_unstable();
 
     let mut mapped = Vec::with_capacity(sorted.len());
     for &id in &sorted {

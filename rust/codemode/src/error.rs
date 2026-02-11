@@ -77,7 +77,7 @@ pub enum CodemodeError {
     #[error("sandbox limit exceeded: {kind}")]
     SandboxLimit { kind: LimitKind },
 
-    /// An error from the QuickJS runtime.
+    /// An error from the `QuickJS` runtime.
     #[error("quickjs error: {0}")]
     QuickJs(String),
 }

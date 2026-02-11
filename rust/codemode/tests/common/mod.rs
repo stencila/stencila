@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use stencila_codemode::{
-    CodemodeError, Limits, McpContent, McpServer, McpToolInfo, McpToolResult, Sandbox,
+    CodemodeError, Limits, McpContent, McpServer, McpToolInfo, McpToolResult, RunRequest, Sandbox,
 };
 
 /// Type alias for custom call_tool handler closures.
@@ -211,4 +211,13 @@ pub async fn sandbox_with_limits(servers: Vec<Arc<dyn McpServer>>, limits: Limit
     Sandbox::new(Some(&limits), &servers)
         .await
         .expect("sandbox creation")
+}
+
+/// Create a minimal `RunRequest` with no limits or capabilities.
+pub fn run_request(code: &str) -> RunRequest {
+    RunRequest {
+        code: code.into(),
+        limits: None,
+        requested_capabilities: None,
+    }
 }

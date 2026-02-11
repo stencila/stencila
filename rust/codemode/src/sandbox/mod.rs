@@ -3,7 +3,7 @@ mod globals;
 mod limits;
 mod polyfills;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
@@ -32,6 +32,8 @@ pub(crate) struct SandboxState {
     pub max_log_bytes: Option<u64>,
     pub max_tool_calls: Option<u32>,
     pub log_truncated: bool,
+    /// Whether a memory limit was configured (used for error classification).
+    pub has_memory_limit: bool,
 }
 
 impl SandboxState {
@@ -46,9 +48,11 @@ impl SandboxState {
             max_log_bytes: limits.and_then(|l| l.max_log_bytes),
             max_tool_calls: limits.and_then(|l| l.max_tool_calls),
             log_truncated: false,
+            has_memory_limit: limits.and_then(|l| l.max_memory_bytes).is_some(),
         }
     }
 
+    #[allow(clippy::cast_possible_truncation)] // duration in ms will not exceed u64
     pub(crate) fn elapsed_ms(&self) -> u64 {
         self.start_time.elapsed().as_millis() as u64
     }
@@ -85,16 +89,48 @@ impl Sandbox {
     ///
     /// Pre-fetches tool definitions from all servers to build a frozen
     /// snapshot for module resolution and discovery.
+    ///
+    /// # Errors
+    ///
+    /// Returns `CodemodeError` if the `QuickJS` runtime/context cannot be created
+    /// or if the tool snapshot build fails.
     pub async fn new(
         limits: Option<&Limits>,
         servers: &[Arc<dyn McpServer>],
+    ) -> Result<Self, CodemodeError> {
+        Self::with_dirty_servers(limits, servers, &HashSet::new()).await
+    }
+
+    /// Create a new sandbox, refreshing dirty servers before building the snapshot.
+    ///
+    /// Servers whose IDs appear in `dirty_servers` **and** that support
+    /// `tools/listChanged` will have `refresh_tools()` called before the tool
+    /// snapshot is built (§8.1). The snapshot is then frozen for the lifetime
+    /// of this sandbox (§8.2).
+    ///
+    /// # Errors
+    ///
+    /// Returns `CodemodeError` if refresh, runtime creation, or snapshot build fails.
+    pub async fn with_dirty_servers(
+        limits: Option<&Limits>,
+        servers: &[Arc<dyn McpServer>],
+        dirty_servers: &HashSet<String>,
     ) -> Result<Self, CodemodeError> {
         let runtime = AsyncRuntime::new().map_err(|e| CodemodeError::QuickJs(e.to_string()))?;
 
         // Configure memory limit on the runtime (timeout is deferred to execute)
         limits::configure_memory_limit(&runtime, limits).await;
 
-        // Build tool snapshot from servers
+        // §8.1: Refresh dirty servers before building the snapshot.
+        // Only servers that both (a) support listChanged and (b) are in the
+        // dirty set are refreshed.
+        for server in servers {
+            if server.supports_list_changed() && dirty_servers.contains(server.server_id()) {
+                server.refresh_tools().await?;
+            }
+        }
+
+        // Build tool snapshot from servers (§8.2: frozen for this invocation)
         let snapshot = if servers.is_empty() {
             Arc::new(ToolSnapshot::empty())
         } else {
@@ -137,6 +173,10 @@ impl Sandbox {
     /// Code is evaluated with ES module semantics (supporting `import`/`export`
     /// and top-level `await`) per spec §3.2.1. Script errors are captured as
     /// diagnostics rather than propagated (per spec §3.3.4).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal sandbox state mutex is poisoned.
     pub async fn execute(&self, code: &str) -> RunResponse {
         // Install timeout handler at execution start (not construction) so the
         // deadline is measured from when code actually runs.
@@ -174,13 +214,21 @@ impl Sandbox {
                 Ok(promise) => {
                     // Await the module evaluation promise (drives top-level await)
                     if let Err(err) = promise.into_future::<Value>().await.catch(&ctx) {
-                        let (diag_code, message) = classify_js_error(&err);
+                        let has_mem_limit = {
+                            let s = state.lock().expect("sandbox state lock");
+                            s.has_memory_limit
+                        };
+                        let (diag_code, message) = classify_js_error(&err, has_mem_limit);
                         let mut s = state.lock().expect("sandbox state lock");
                         s.push_error(diag_code, message);
                     }
                 }
                 Err(err) => {
-                    let (diag_code, message) = classify_js_error(&err);
+                    let has_mem_limit = {
+                        let s = state.lock().expect("sandbox state lock");
+                        s.has_memory_limit
+                    };
+                    let (diag_code, message) = classify_js_error(&err, has_mem_limit);
                     let mut s = state.lock().expect("sandbox state lock");
                     s.push_error(diag_code, message);
                 }
@@ -240,7 +288,12 @@ fn extract_result(ctx: &Ctx<'_>) -> serde_json::Value {
 }
 
 /// Classify a JS error into a diagnostic code and message.
-fn classify_js_error(err: &CaughtError<'_>) -> (DiagnosticCode, String) {
+///
+/// `has_memory_limit` indicates whether a memory limit was configured on
+/// the runtime. When `true`, bare `throw null`/`throw undefined` values
+/// are attributed to OOM (`QuickJS` throws `null` when it cannot allocate
+/// an Error object). When `false`, they are treated as user-thrown values.
+fn classify_js_error(err: &CaughtError<'_>, has_memory_limit: bool) -> (DiagnosticCode, String) {
     match err {
         CaughtError::Exception(exc) => {
             // Check the JS error's `name` property (e.g. "SyntaxError", "TypeError")
@@ -278,6 +331,18 @@ fn classify_js_error(err: &CaughtError<'_>) -> (DiagnosticCode, String) {
             (code, message)
         }
         CaughtError::Value(val) => {
+            if val.is_null() || val.is_undefined() {
+                // QuickJS throws null when it cannot allocate an Error object
+                // (OOM). But user code can also `throw null` / `throw undefined`.
+                // Only attribute to OOM when a memory limit is configured.
+                if has_memory_limit {
+                    return (DiagnosticCode::SandboxLimit, "out of memory".to_string());
+                }
+                return (
+                    DiagnosticCode::UncaughtException,
+                    "Thrown value: null".to_string(),
+                );
+            }
             let message = format!("Thrown value: {val:?}");
             (DiagnosticCode::UncaughtException, message)
         }
@@ -317,6 +382,6 @@ fn error_hint(code: DiagnosticCode) -> Option<String> {
         DiagnosticCode::SandboxLimit => {
             Some("Reduce code complexity or increase the execution limits.".into())
         }
-        _ => None,
+        DiagnosticCode::UncaughtException | DiagnosticCode::CapabilityUnavailable => None,
     }
 }

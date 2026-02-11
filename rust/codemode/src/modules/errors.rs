@@ -10,7 +10,7 @@
 /// - `SandboxLimitError` — sandbox limit exceeded
 ///
 /// Each error includes a `hint` property per §7.3.
-pub(crate) const JS_SOURCE: &str = r#"
+pub(crate) const JS_SOURCE: &str = r"
 export class CodemodeError extends Error {
     constructor(message, hint) {
         super(message);
@@ -72,4 +72,4 @@ export class SandboxLimitError extends CodemodeError {
         this.kind = kind || null;
     }
 }
-"#;
+";

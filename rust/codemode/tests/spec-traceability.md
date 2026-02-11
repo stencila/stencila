@@ -42,6 +42,7 @@ Maps test cases to spec sections in `specs/codemode.md`.
 | §3.3.4 | Syntax errors → diagnostic (not propagated) | spec_3_outer_tool.rs | syntax_error_produces_diagnostic |
 | §3.3.3 | Import failure → IMPORT_FAILURE diagnostic | spec_3_outer_tool.rs | import_failure_produces_diagnostic |
 | §3.3.4 | Uncaught exceptions → diagnostic | spec_3_outer_tool.rs | uncaught_exception_produces_diagnostic |
+| §3.3.4 | throw null/undefined → UNCAUGHT_EXCEPTION (not SANDBOX_LIMIT) | spec_3_outer_tool.rs | throw_null_without_memory_limit_is_uncaught_exception, throw_undefined_without_memory_limit_is_uncaught_exception |
 | §3.3.4 | Prior logs preserved on fatal error | spec_3_outer_tool.rs | uncaught_exception_preserves_prior_logs |
 | §3.5 | eval is deleted | spec_3_outer_tool.rs | eval_is_not_available |
 | §3.5 | Function constructor is neutered | spec_3_outer_tool.rs | function_constructor_is_blocked |
@@ -114,3 +115,68 @@ Maps test cases to spec sections in `specs/codemode.md`.
 | §5.1 | Cross-server orchestration | spec_5_server_modules.rs | cross_server_orchestration |
 | §5.1 | Cross-server tool trace | spec_5_server_modules.rs | cross_server_tool_trace |
 | §5.1 | Discovery and server modules coexist | spec_5_server_modules.rs | discovery_and_server_modules_coexist |
+
+## Phase 5: TypeScript Declaration Generation
+
+| Spec Section | Requirement | Test File | Test Name(s) |
+|---|---|---|---|
+| §4.4 | Inject TypeScript declarations for connected servers | spec_6_codegen.rs | declarations_include_discovery_module, declarations_include_errors_module, declarations_for_server_with_no_schema_tools, declarations_multiple_servers |
+| §6.2 | Basic type mapping (string, number, boolean, null) | codegen::ts_declarations (unit) | string_type, number_type, integer_type, boolean_type, null_type |
+| §6.2 | enum → union of literals | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_enum_mapped_to_union, string_enum, mixed_enum |
+| §6.2 | const → literal type | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_const_mapped_to_literal, const_string, const_number |
+| §6.2 | oneOf / anyOf → union | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_oneof_mapped_to_union, one_of, any_of |
+| §6.2 | nullable → Type \| null | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_nullable_appends_null, nullable_string, type_array_with_null |
+| §6.2 | $ref within same schema document | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_ref_resolved_inline, ref_to_defs, ref_to_definitions |
+| §6.2 | Recursive schemas → named interface / type alias | spec_6_codegen.rs, codegen::ts_declarations (unit), codegen::mod (unit) | declarations_recursive_schema_generates_named_interface, declarations_recursive_output_schema_generates_named_interface, declarations_recursive_array_schema_uses_type_alias, recursive_array_schema_uses_type_alias, recursive_self_ref, recursive_defs_ref |
+| §6.2 | additionalProperties → Record<string, T> | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_additional_properties_as_record, additional_properties_typed, additional_properties_true |
+| §6.2 | patternProperties → Record<string, T> | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_pattern_properties_as_record, pattern_properties |
+| §6.2 | properties + additionalProperties → intersection | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_properties_with_additional_uses_intersection, properties_with_additional_uses_intersection |
+| §6.2 | properties + patternProperties → intersection | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_properties_with_pattern_uses_intersection, properties_with_pattern_uses_intersection |
+| §6.2 | Tuple schemas (items as array) | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_tuple_schema, tuple |
+| §6.2 | Unsupported → unknown fallback | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_unsupported_falls_back_to_unknown, unsupported_type_falls_back, empty_schema_is_unknown |
+| §6.2 | __meta__ type declaration | spec_6_codegen.rs | declarations_meta_export_shape |
+| §6.2 | Input schema → typed parameter | spec_6_codegen.rs | declarations_for_tool_with_typed_input |
+| §6.2 | Output schema → typed return | spec_6_codegen.rs | declarations_for_tool_with_typed_output |
+| §6.3 | Tool annotations in doc comments | spec_6_codegen.rs | declarations_tool_annotations_in_doc_comments |
+| §6.2 | Error propagation (tools() failure) | spec_6_codegen.rs | declarations_propagates_tools_error |
+| §6.2 | Error propagation (invalid server ID) | spec_6_codegen.rs | declarations_propagates_invalid_server_id |
+| §6.2 | String literal escaping in enum/const | spec_6_codegen.rs, codegen::ts_declarations (unit) | declarations_enum_with_special_chars_escaped, string_literal_with_quotes, string_literal_with_backslash, string_literal_with_newline |
+| §6.2 | PascalCase leading digit → valid identifier | codegen::ts_declarations (unit) | pascal_case_leading_digit_gets_prefix |
+| §7.1 | Error field nullability matches runtime | spec_6_codegen.rs | declarations_error_fields_nullable |
+| §5.2 | __meta__.serverVersion non-optional | spec_6_codegen.rs | declarations_meta_server_version_not_optional |
+
+## Phase 6: Tool List Changes
+
+| Spec Section | Requirement | Test File | Test Name(s) |
+|---|---|---|---|
+| §8.1 | Dirty server refreshed before snapshot build | spec_8_tool_changes.rs | dirty_server_tools_refreshed_before_import |
+| §8.1 | Clean server not refreshed | spec_8_tool_changes.rs | clean_server_not_refreshed |
+| §8.1 | Server without listChanged support not refreshed even if dirty | spec_8_tool_changes.rs | server_without_list_changed_not_refreshed |
+| §8.1 | Refreshed tool is callable in new sandbox | spec_8_tool_changes.rs | refreshed_tool_is_callable |
+| §8.2 | In-flight execution sees frozen snapshot | spec_8_tool_changes.rs | inflight_execution_sees_frozen_snapshot |
+| §8.2 | Updated tools visible on next invocation | spec_8_tool_changes.rs | updated_tools_visible_on_next_invocation |
+| §8 | DirtyServerTracker mark and take | spec_8_tool_changes.rs | dirty_tracker_mark_and_take |
+| §8 | DirtyServerTracker duplicate marks idempotent | spec_8_tool_changes.rs | dirty_tracker_duplicate_marks_idempotent |
+| §8 | DirtyServerTracker borrow and clear | spec_8_tool_changes.rs | dirty_tracker_borrow_and_clear |
+| §8 | DirtyServerTracker integrates with Sandbox | spec_8_tool_changes.rs | dirty_tracker_integration |
+
+## Phase 7: End-to-End run.rs
+
+| Spec Section | Requirement | Test File | Test Name(s) |
+|---|---|---|---|
+| §3.3.4 | codemode_run always returns RunResponse (never errors) | spec_3_outer_tool.rs | codemode_run_returns_result, codemode_run_absorbs_syntax_error, codemode_run_absorbs_exception_with_logs, codemode_run_absorbs_import_failure |
+| §3.3.4 | codemode_run syntax error → diagnostic | spec_10_multi_server.rs | codemode_run_syntax_error_returns_response |
+| §3.3.4 | codemode_run exception preserves logs | spec_10_multi_server.rs | codemode_run_exception_preserves_logs |
+| §3.3.4 | codemode_run end-to-end with tool call | spec_10_multi_server.rs | codemode_run_end_to_end_with_tool_call |
+| §3.2.3 | Matched capabilities produce no warnings | spec_10_multi_server.rs | requested_capabilities_matched_no_warning |
+| §3.2.3 | Unmatched capability emits warning diagnostic | spec_10_multi_server.rs | requested_capabilities_unmatched_emits_warning |
+| §3.2.3 | Multiple unmatched capabilities → multiple warnings | spec_10_multi_server.rs | requested_capabilities_multiple_unmatched |
+| §3.2.3 | Capability matched by any server satisfies check | spec_10_multi_server.rs | requested_capability_matched_by_any_server |
+| §3.2.3 | Empty requestedCapabilities → no diagnostics | spec_10_multi_server.rs | empty_requested_capabilities_no_diagnostics |
+| §3.2.3 | Capability warnings precede execution diagnostics | spec_10_multi_server.rs | capability_warnings_precede_execution_diagnostics |
+| §10 | Multi-server import and compose tool calls | spec_10_multi_server.rs | multi_server_import_and_compose |
+| §10.1 | Promise.all concurrent tool calls across servers | spec_10_multi_server.rs | promise_all_concurrent_tool_calls |
+| §10.1 | Promise.all with same server concurrent | spec_10_multi_server.rs | promise_all_same_server_concurrent |
+| §10 | Multi-server tool trace records order | spec_10_multi_server.rs | multi_server_tool_trace |
+| §10 | Server error does not abort script | spec_10_multi_server.rs | server_error_does_not_abort_script |
+| §8.1 | codemode_run passes dirty servers to sandbox | spec_10_multi_server.rs | codemode_run_refreshes_dirty_server |

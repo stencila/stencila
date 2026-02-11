@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use serde::{Deserialize, Serialize};
 
 /// Request to execute JavaScript code in the codemode sandbox.
@@ -143,6 +145,10 @@ pub enum DiagnosticCode {
     /// A sandbox limit was exceeded.
     #[serde(rename = "SANDBOX_LIMIT")]
     SandboxLimit,
+
+    /// A requested capability is not provided by any connected server.
+    #[serde(rename = "CAPABILITY_UNAVAILABLE")]
+    CapabilityUnavailable,
 }
 
 /// A redacted tool-call trace entry (no inputs or outputs per spec).
@@ -333,4 +339,72 @@ pub struct SearchToolsOptions {
     /// Maximum number of results to return.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<usize>,
+}
+
+/// Tracks which MCP servers have announced tool list changes.
+///
+/// The host is responsible for calling [`mark_changed`](Self::mark_changed)
+/// when a server sends a `tools/listChanged` notification. Before each
+/// `codemode.run` invocation, pass [`dirty`](Self::dirty) or
+/// [`take_dirty`](Self::take_dirty) to
+/// [`Sandbox::with_dirty_servers`](crate::Sandbox::with_dirty_servers) so that
+/// changed servers are refreshed (§8.1).
+///
+/// # Refresh failure
+///
+/// Prefer [`dirty`](Self::dirty) (borrow) over [`take_dirty`](Self::take_dirty)
+/// (consume) when the host wants to retry on failure. With `dirty()`, marks
+/// are preserved if `Sandbox::with_dirty_servers` returns an error; with
+/// `take_dirty()`, the caller must re-insert failed IDs manually.
+#[derive(Debug, Default, Clone)]
+pub struct DirtyServerTracker {
+    dirty: HashSet<String>,
+}
+
+impl DirtyServerTracker {
+    /// Create a new, empty tracker.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Mark a server as having changed tools.
+    ///
+    /// Call this when the host receives a `tools/listChanged` notification
+    /// from the server with the given ID.
+    pub fn mark_changed(&mut self, server_id: &str) {
+        self.dirty.insert(server_id.to_string());
+    }
+
+    /// Borrow the current set of dirty server IDs.
+    ///
+    /// Pass the result to [`Sandbox::with_dirty_servers`](crate::Sandbox::with_dirty_servers).
+    /// Marks are **not** cleared — call [`clear`](Self::clear) after a
+    /// successful sandbox creation if you want to reset.
+    #[must_use]
+    pub fn dirty(&self) -> &HashSet<String> {
+        &self.dirty
+    }
+
+    /// Take the current set of dirty server IDs, clearing the tracker.
+    ///
+    /// Pass the returned set to [`Sandbox::with_dirty_servers`](crate::Sandbox::with_dirty_servers).
+    ///
+    /// **Note:** If `with_dirty_servers` subsequently fails (e.g. during
+    /// `refresh_tools()`), the marks are already consumed. Use [`dirty`](Self::dirty)
+    /// instead if you need automatic retry safety.
+    pub fn take_dirty(&mut self) -> HashSet<String> {
+        std::mem::take(&mut self.dirty)
+    }
+
+    /// Clear all dirty marks (e.g. after a successful sandbox creation).
+    pub fn clear(&mut self) {
+        self.dirty.clear();
+    }
+
+    /// Check whether any servers are currently marked dirty.
+    #[must_use]
+    pub fn has_dirty(&self) -> bool {
+        !self.dirty.is_empty()
+    }
 }
