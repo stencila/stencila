@@ -6,7 +6,7 @@ use eyre::Result;
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
-    tabulated::{Attribute, Cell, Tabulated},
+    tabulated::{Attribute, Cell, Color, Tabulated},
 };
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
@@ -64,13 +64,18 @@ impl Cli {
 
 /// List available skills
 ///
-/// Shows all skills found in the current workspace's `.stencila/skills/` directory.
+/// Shows skills from all source directories (`.stencila/skills/`, `.claude/skills/`,
+/// `.codex/skills/`, `.gemini/skills/`). Use `--source` to filter by source.
 #[derive(Default, Debug, Args)]
 #[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
     /// Output the list as JSON or YAML
     #[arg(long, short)]
     r#as: Option<AsFormat>,
+
+    /// Filter by source (may be repeated)
+    #[arg(long, short, value_enum)]
+    source: Vec<super::SkillSource>,
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
@@ -80,12 +85,22 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Output skills as JSON</dim>
   <b>stencila skills list</> <c>--as</> <g>json</>
+
+  <dim># List only skills from .claude/skills/</dim>
+  <b>stencila skills list</> <c>--source</> <g>claude</>
 "
 );
 
 impl List {
     async fn run(self) -> Result<()> {
-        let list = super::list_current().await;
+        let cwd = std::env::current_dir()?;
+        let sources = if self.source.is_empty() {
+            super::SkillSource::all()
+        } else {
+            self.source
+        };
+
+        let list = super::discover(&cwd, &sources).await;
 
         if let Some(format) = self.r#as {
             Code::new_from(format.into(), &list)?.to_stdout();
@@ -93,7 +108,7 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header(["Name", "Description", "License"]);
+        table.set_header(["Name", "Source", "Description", "License"]);
 
         for skill in list {
             let license = skill
@@ -108,8 +123,17 @@ impl List {
                 })
                 .unwrap_or_default();
 
+            let source_cell = match skill.source() {
+                Some(super::SkillSource::Stencila) => Cell::new("stencila").fg(Color::Blue),
+                Some(super::SkillSource::Claude) => Cell::new("claude").fg(Color::Green),
+                Some(super::SkillSource::Codex) => Cell::new("codex").fg(Color::Yellow),
+                Some(super::SkillSource::Gemini) => Cell::new("gemini").fg(Color::Cyan),
+                None => Cell::new("-").fg(Color::DarkGrey),
+            };
+
             table.add_row([
                 Cell::new(&skill.name).add_attribute(Attribute::Bold),
+                source_cell,
                 Cell::new(&skill.description),
                 Cell::new(license),
             ]);
@@ -210,8 +234,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let skills_dir = super::closest_skills_dir(&cwd, false).await?;
-        let skill = super::get(&skills_dir, &self.name).await?;
+        let skill = super::get_from(&cwd, &self.name, &super::SkillSource::all()).await?;
 
         let content = stencila_codecs::to_string(
             &Node::Skill(skill.inner),
@@ -282,10 +305,9 @@ impl Validate {
             eyre::bail!("No SKILL.md found in directory `{}`", path.display());
         }
 
-        // Otherwise, treat as a skill name — look up in closest skills dir
+        // Otherwise, treat as a skill name — look up across all sources
         let cwd = std::env::current_dir()?;
-        let skills_dir = super::closest_skills_dir(&cwd, false).await?;
-        let skill = super::get(&skills_dir, &self.target).await?;
+        let skill = super::get_from(&cwd, &self.target, &super::SkillSource::all()).await?;
         let skill_path = skill.path().to_path_buf();
         let dir_name = skill_path
             .parent()

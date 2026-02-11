@@ -107,6 +107,27 @@ pub async fn stencila_db_file(stencila_dir: &Path, ensure: bool) -> Result<PathB
     Ok(db_file)
 }
 
+/// Find the closest ancestor directory containing a subdirectory named `dir_name`.
+///
+/// Walks from `path` upward. Returns `None` if not found.
+/// Read-only — never creates directories.
+pub fn closest_dot_dir(path: &Path, dir_name: &str) -> Option<PathBuf> {
+    let starting_path = path.canonicalize().ok()?;
+    let starting_dir = if starting_path.is_file() {
+        starting_path.parent()?.to_path_buf()
+    } else {
+        starting_path
+    };
+    let mut current = starting_dir;
+    loop {
+        let candidate = current.join(dir_name);
+        if candidate.is_dir() {
+            return Some(candidate);
+        }
+        current = current.parent()?.to_path_buf();
+    }
+}
+
 /// Get the closest `.stencila` directory to a path
 ///
 /// If the `path` is a file then starts with the parent directory of that file.
@@ -242,4 +263,45 @@ pub fn workspace_relative_path(
     };
 
     Ok(relative_path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn closest_dot_dir_finds_in_direct_parent() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let dot_claude = tmp.path().join(".claude");
+        std::fs::create_dir_all(&dot_claude).expect("create .claude");
+
+        let result = closest_dot_dir(tmp.path(), ".claude");
+        assert_eq!(
+            result.as_deref(),
+            Some(dot_claude.canonicalize().expect("canon").as_path())
+        );
+    }
+
+    #[test]
+    fn closest_dot_dir_walks_up_to_ancestor() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let dot_codex = tmp.path().join(".codex");
+        std::fs::create_dir_all(&dot_codex).expect("create .codex");
+
+        let child = tmp.path().join("a").join("b").join("c");
+        std::fs::create_dir_all(&child).expect("create child");
+
+        let result = closest_dot_dir(&child, ".codex");
+        assert_eq!(
+            result.as_deref(),
+            Some(dot_codex.canonicalize().expect("canon").as_path())
+        );
+    }
+
+    #[test]
+    fn closest_dot_dir_returns_none_when_not_found() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let result = closest_dot_dir(tmp.path(), ".nonexistent-dir-xyz");
+        assert!(result.is_none());
+    }
 }

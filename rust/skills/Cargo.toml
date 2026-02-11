@@ -25,5 +25,9 @@ stencila-schema = { path = "../schema" }
 clap = { workspace = true, optional = true }
 stencila-cli-utils = { path = "../cli-utils", optional = true }
 
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
 [lints]
 workspace = true
