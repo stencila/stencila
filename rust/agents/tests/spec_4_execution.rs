@@ -9,7 +9,8 @@ use std::collections::HashMap;
 
 use stencila_agents::error::AgentError;
 use stencila_agents::execution::{
-    EnvVarPolicy, ExecutionEnvironment, FileContent, LocalExecutionEnvironment, filter_env_vars,
+    EnvVarPolicy, ExecutionEnvironment, FileContent, LocalExecutionEnvironment,
+    ScopedExecutionEnvironment, filter_env_vars,
 };
 use stencila_agents::types::GrepOptions;
 
@@ -691,4 +692,346 @@ fn os_version_returns_nonempty() {
     let env = LocalExecutionEnvironment::new("/tmp");
     let version = env.os_version();
     assert!(!version.is_empty());
+}
+
+// =========================================================================
+// ScopedExecutionEnvironment
+// =========================================================================
+
+use std::sync::Arc;
+
+/// Helper: create a `ScopedExecutionEnvironment` wrapping a local env.
+fn scoped_env(
+    inner: Arc<dyn ExecutionEnvironment>,
+    scope_dir: &str,
+) -> Result<ScopedExecutionEnvironment, AgentError> {
+    ScopedExecutionEnvironment::new(inner, scope_dir)
+}
+
+#[tokio::test]
+async fn scoped_relative_path_within_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+    write_tmp(&scope.join("file.txt"), "hello scoped")?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Relative path within scope should work
+    let content = env.read_file("file.txt", None, None).await?;
+    match content {
+        FileContent::Text(text) => {
+            assert!(text.contains("hello scoped"), "got: {text}");
+        }
+        FileContent::Image { .. } => panic!("expected text, got image"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_absolute_path_within_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+    write_tmp(&scope.join("file.txt"), "absolute ok")?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Absolute path within scope should work
+    let abs_path = scope.join("file.txt");
+    let content = env
+        .read_file(abs_path.to_str().unwrap_or("."), None, None)
+        .await?;
+    match content {
+        FileContent::Text(text) => {
+            assert!(text.contains("absolute ok"), "got: {text}");
+        }
+        FileContent::Image { .. } => panic!("expected text, got image"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_absolute_path_outside_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Absolute path outside scope should be rejected
+    let result = env.read_file("/etc/passwd", None, None).await;
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "/etc/passwd");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_dotdot_traversal_rejected() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Traversal via `..` should be rejected
+    let result = env.read_file("../../etc/passwd", None, None).await;
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "../../etc/passwd");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_dotdot_within_scope_accepted() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    let sub = scope.join("sub");
+    mkdir_tmp(&sub)?;
+    write_tmp(&scope.join("file.txt"), "normalized ok")?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // `sub/../file.txt` normalizes to `file.txt` within scope
+    let content = env.read_file("sub/../file.txt", None, None).await?;
+    match content {
+        FileContent::Text(text) => {
+            assert!(text.contains("normalized ok"), "got: {text}");
+        }
+        FileContent::Image { .. } => panic!("expected text, got image"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_working_directory_returns_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    let canonical_scope = scope
+        .canonicalize()
+        .map_err(|e| AgentError::from_io(e, &scope))?;
+    assert_eq!(
+        env.working_directory(),
+        canonical_scope.to_str().unwrap_or(".")
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_file_exists_outside_returns_false() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+    // Create a file outside the scope
+    write_tmp(&tmp.path().join("outside.txt"), "outside")?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Out-of-scope path should return false (not error)
+    assert!(!env.file_exists("/etc/passwd").await);
+    assert!(!env.file_exists("../outside.txt").await);
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_exec_command_default_cwd() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    let result = env.exec_command("pwd", 10_000, None, None).await?;
+    let canonical_scope = scope
+        .canonicalize()
+        .map_err(|e| AgentError::from_io(e, &scope))?;
+    assert_eq!(
+        result.stdout.trim(),
+        canonical_scope.to_str().unwrap_or("."),
+        "default cwd should be scope dir"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_exec_command_escape_rejected() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Working dir override pointing outside scope should be rejected
+    let result = env.exec_command("pwd", 10_000, Some("/tmp"), None).await;
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "/tmp");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_write_file_within_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    env.write_file("new_file.txt", "scoped write").await?;
+
+    let written = read_tmp(&scope.join("new_file.txt"))?;
+    assert_eq!(written, "scoped write");
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_list_directory_outside_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    let result = env.list_directory("/etc", 1).await;
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "/etc");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_grep_outside_scope() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    mkdir_tmp(&scope)?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    let result = env.grep("pattern", "/etc", &GrepOptions::default()).await;
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "/etc");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn scoped_new_rejects_scope_outside_parent_working_dir() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+
+    // Absolute path outside parent working dir should be rejected
+    let result = ScopedExecutionEnvironment::new(Arc::clone(&inner), "/etc");
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "/etc");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+
+    // Relative path that escapes via `..` should be rejected
+    let result = ScopedExecutionEnvironment::new(Arc::clone(&inner), "../../etc");
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "../../etc");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn scoped_symlink_write_outside_scope_rejected() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    let outside = tmp.path().join("outside");
+    mkdir_tmp(&scope)?;
+    mkdir_tmp(&outside)?;
+
+    // Create a symlink inside scope pointing outside
+    let link = scope.join("escape_link");
+    std::os::unix::fs::symlink(&outside, &link).map_err(|e| AgentError::from_io(e, &link))?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    // Writing through the symlink should be rejected — the symlink dir
+    // canonicalizes to `outside/` which is outside scope.
+    let result = env.write_file("escape_link/evil.txt", "pwned").await;
+    match result {
+        Err(AgentError::PermissionDenied { path }) => {
+            assert_eq!(path, "escape_link/evil.txt");
+        }
+        other => panic!("expected PermissionDenied, got: {other:?}"),
+    }
+
+    // Verify the file was NOT created outside scope
+    assert!(!outside.join("evil.txt").exists());
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn scoped_list_directory_filters_symlinked_entries() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let scope = tmp.path().join("project");
+    let outside = tmp.path().join("outside");
+    mkdir_tmp(&scope)?;
+    mkdir_tmp(&outside)?;
+    write_tmp(&scope.join("in_scope.txt"), "ok")?;
+
+    // Create a symlink inside scope pointing outside
+    let link = scope.join("escape_link");
+    std::os::unix::fs::symlink(&outside, &link).map_err(|e| AgentError::from_io(e, &link))?;
+
+    let inner: Arc<dyn ExecutionEnvironment> = Arc::new(local_env(tmp.path()));
+    let env = scoped_env(inner, scope.to_str().unwrap_or("."))?;
+
+    let entries = env.list_directory(".", 1).await?;
+    let names: Vec<&str> = entries.iter().map(|e| e.name.as_str()).collect();
+
+    // in_scope.txt should be listed
+    assert!(
+        names.contains(&"in_scope.txt"),
+        "should list in_scope.txt, got: {names:?}"
+    );
+    // escape_link should be filtered out (resolves outside scope)
+    assert!(
+        !names.contains(&"escape_link"),
+        "symlink to outside should be filtered, got: {names:?}"
+    );
+    Ok(())
 }

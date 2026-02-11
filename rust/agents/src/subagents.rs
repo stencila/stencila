@@ -27,7 +27,7 @@ use stencila_models3::types::tool::ToolDefinition;
 use tokio::sync::{mpsc, oneshot};
 
 use crate::error::{AgentError, AgentResult};
-use crate::execution::ExecutionEnvironment;
+use crate::execution::{ExecutionEnvironment, ScopedExecutionEnvironment};
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
 use crate::session::{AbortController, AbortSignal, LlmClient, Session};
@@ -356,13 +356,26 @@ impl SubAgentManager {
             child_config.max_command_timeout_ms,
         )?;
 
+        // Wrap execution environment in ScopedExecutionEnvironment when
+        // working_dir is specified, enforcing filesystem restrictions.
+        let child_env: Arc<dyn ExecutionEnvironment> = if let Some(ref dir) = working_dir {
+            Arc::new(ScopedExecutionEnvironment::new(
+                Arc::clone(&self.execution_env),
+                dir,
+            )?)
+        } else {
+            Arc::clone(&self.execution_env)
+        };
+
         // Build system prompt for child, including working_dir scope if specified
         let mut system_prompt =
-            crate::prompts::build_system_prompt(&*child_profile, &*self.execution_env).await?;
+            crate::prompts::build_system_prompt(&*child_profile, &*child_env).await?;
         if let Some(ref dir) = working_dir {
             system_prompt.push_str(&format!(
                 "\n\nYou are scoped to the subdirectory: {dir}\n\
-                 Focus your work within this directory."
+                 Focus your work within this directory. File read/write \
+                 operations outside this directory will be rejected. Shell \
+                 commands run with this directory as the working directory."
             ));
         }
 
@@ -371,7 +384,7 @@ impl SubAgentManager {
         // avoiding unbounded memory growth from unconsumed child events.
         let (mut session, _receiver) = Session::new(
             child_profile,
-            Arc::clone(&self.execution_env),
+            child_env,
             Arc::clone(&self.client),
             child_config,
             system_prompt,

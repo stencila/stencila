@@ -78,6 +78,21 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 4.1 | grep search | spec_4_execution.rs | grep_basic_match, grep_case_insensitive, grep_max_results, grep_single_file, grep_path_not_found | Pass |
 | 4.1 | glob search | spec_4_execution.rs | glob_basic, glob_path_not_found, glob_sorted_by_mtime_newest_first | Pass |
 | 4.1 | Metadata | spec_4_execution.rs | working_directory_returns_configured_path, platform_returns_spec_value, os_version_returns_nonempty | Pass |
+| 7.2 | ScopedExecutionEnvironment: relative path within scope | spec_4_execution.rs | scoped_relative_path_within_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: absolute path within scope | spec_4_execution.rs | scoped_absolute_path_within_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: absolute path outside scope rejected | spec_4_execution.rs | scoped_absolute_path_outside_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: `..` traversal rejected | spec_4_execution.rs | scoped_dotdot_traversal_rejected | Pass |
+| 7.2 | ScopedExecutionEnvironment: `..` within scope accepted | spec_4_execution.rs | scoped_dotdot_within_scope_accepted | Pass |
+| 7.2 | ScopedExecutionEnvironment: working_directory returns scope | spec_4_execution.rs | scoped_working_directory_returns_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: file_exists outside returns false | spec_4_execution.rs | scoped_file_exists_outside_returns_false | Pass |
+| 7.2 | ScopedExecutionEnvironment: exec_command defaults to scope cwd | spec_4_execution.rs | scoped_exec_command_default_cwd | Pass |
+| 7.2 | ScopedExecutionEnvironment: exec_command cwd escape rejected | spec_4_execution.rs | scoped_exec_command_escape_rejected | Pass |
+| 7.2 | ScopedExecutionEnvironment: write_file within scope | spec_4_execution.rs | scoped_write_file_within_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: list_directory outside rejected | spec_4_execution.rs | scoped_list_directory_outside_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: grep outside rejected | spec_4_execution.rs | scoped_grep_outside_scope | Pass |
+| 7.2 | ScopedExecutionEnvironment: scope outside parent rejected | spec_4_execution.rs | scoped_new_rejects_scope_outside_parent_working_dir | Pass |
+| 7.2 | ScopedExecutionEnvironment: symlink write escape rejected | spec_4_execution.rs | scoped_symlink_write_outside_scope_rejected | Pass |
+| 7.2 | ScopedExecutionEnvironment: list_directory filters symlinks | spec_4_execution.rs | scoped_list_directory_filters_symlinked_entries | Pass |
 | App B | Io error variant | spec_1_types.rs | error_is_tool_error_for_all_tool_variants, error_code_values | Pass |
 
 ## Phase 4: Event System
@@ -398,7 +413,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 9.1 Core Loop | spec_2_loop.rs | Mock Client | 8 |
 | 9.2 Provider Profiles | spec_3_profiles.rs | Deterministic | 7a |
 | 9.3 Tool Execution | spec_3_registry.rs + spec_3_tools.rs | Mock ExecEnv | 5 + 6 |
-| 9.4 Execution Environment | spec_4_execution.rs | Local filesystem (tempdir) | 3 |
+| 9.4 Execution Environment | spec_4_execution.rs | Local filesystem (tempdir) + scoped working_dir | 3 |
 | 9.5 Tool Output Truncation | spec_5_truncation.rs | Pure functions | 2 |
 | 9.6 Steering | spec_2_loop.rs | Mock Client | 8 |
 | 9.7 Reasoning Effort | spec_2_loop.rs | Mock Client | 8 |

@@ -104,10 +104,6 @@ The spec pseudocode uses a `WARNING` event, but the spec event enum does not def
 
 Spec wording says `send_input` targets a running subagent. This implementation accepts any non-failed agent (including completed ones) so that follow-up messages can be sent after the initial task finishes.
 
-### Subagent `working_dir` scope (`§7.2`)
-
-`spawn_agent.working_dir` is currently advisory only: it is appended to the child prompt but not enforced by the execution environment.
-
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
@@ -122,7 +118,13 @@ Tool schemas are passed through the API `tools` parameter rather than serialized
 
 ### Scoped subagent `working_dir` enforcement (`§7.2`)
 
-Enforcement of `working_dir` requires a scoped/sandboxed execution environment wrapper and is not yet implemented.
+`ScopedExecutionEnvironment` enforces `working_dir` at the `ExecutionEnvironment` layer with the following caveats:
+
+- **Shell commands:** `exec_command` sets the working directory to the scope but cannot prevent commands like `cat /etc/passwd` from accessing arbitrary paths via arguments. Full shell sandboxing requires OS-level mechanisms (namespaces, seccomp).
+
+- **Symlinks:** Existing paths are fully canonicalized (symlinks resolved). For non-existent paths (e.g. `write_file` targets), the deepest existing ancestor is canonicalized, catching symlinked intermediate directories. A symlink created after validation but before the inner operation completes is not caught (TOCTOU).
+
+- **Recursive operations:** `list_directory`, `grep`, and `glob_files` post-filter results to remove entries whose real path falls outside scope, but the inner walkers still traverse symlinked directories during collection.
 
 ### Streaming session loop (`§2.9`)
 
@@ -185,20 +187,20 @@ cargo test -p stencila-agents --all-features
 
 Test files map to spec sections. See `tests/README.md` for details and `tests/spec-traceability.md` for the full mapping.
 
-| File | Spec Sections | Description |
-|---|---|---|
-| `spec_1_types.rs` | 2.1-2.4, 2.9, 4.1, App B | Core types, error hierarchy, serde |
-| `spec_5_truncation.rs` | 5.1-5.3 | Tool output truncation |
-| `spec_4_execution.rs` | 4.1-4.2, 5.4 | Execution environment, file/cmd ops |
-| `spec_2_events.rs` | 2.9 | Event system |
-| `spec_3_registry.rs` | 3.8 | Tool registry |
-| `spec_3_tools.rs` | 3.3, 3.6 | Core tool implementations, schema parity |
-| `spec_3_patch.rs` | App A | apply_patch tool: v4a parser (success + parse failures), applicator, executor |
-| `spec_3_profiles.rs` | 3.1-3.7 | Provider profiles: tool sets, capability flags, timeout defaults, schema parity |
-| `spec_6_prompts.rs` | 6.1-6.5 | System prompts: environment context, git context, project docs, prompt assembly |
-| `spec_2_loop.rs` | 2.1, 2.5-2.8, 2.10, App B | Session and agentic loop: tool execution, steering, follow-up, loop detection, error handling, parity |
-| `spec_7_subagents.rs` | 7.1-7.4 | Subagent lifecycle: spawn, send_input, wait, close_agent, depth limiting, auto-registration |
-| `spec_9_acceptance.rs` | 9.12-9.13 | Live integration tests: parity matrix + smoke tests (env-gated) |
+| File                   | Spec Sections             | Description                                                                                           |
+| ---------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `spec_1_types.rs`      | 2.1-2.4, 2.9, 4.1, App B  | Core types, error hierarchy, serde                                                                    |
+| `spec_2_events.rs`     | 2.9                       | Event system                                                                                          |
+| `spec_2_loop.rs`       | 2.1, 2.5-2.8, 2.10, App B | Session and agentic loop: tool execution, steering, follow-up, loop detection, error handling, parity |
+| `spec_3_patch.rs`      | App A                     | apply_patch tool: v4a parser (success + parse failures), applicator, executor                         |
+| `spec_3_profiles.rs`   | 3.1-3.7                   | Provider profiles: tool sets, capability flags, timeout defaults, schema parity                       |
+| `spec_3_registry.rs`   | 3.8                       | Tool registry                                                                                         |
+| `spec_3_tools.rs`      | 3.3, 3.6                  | Core tool implementations, schema parity                                                              |
+| `spec_4_execution.rs`  | 4.1-4.2, 5.4, 7.2         | Execution environment, file/cmd ops, scoped working_dir                                               |
+| `spec_5_truncation.rs` | 5.1-5.3                   | Tool output truncation                                                                                |
+| `spec_6_prompts.rs`    | 6.1-6.5                   | System prompts: environment context, git context, project docs, prompt assembly                       |
+| `spec_7_subagents.rs`  | 7.1-7.4                   | Subagent lifecycle: spawn, send_input, wait, close_agent, depth limiting, auto-registration           |
+| `spec_9_acceptance.rs` | 9.12-9.13                 | Live integration tests: parity matrix + smoke tests (env-gated)                                       |
 
 Use the crate workflow below:
 

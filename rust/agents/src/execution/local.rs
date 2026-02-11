@@ -1,180 +1,16 @@
-//! Execution environment abstraction and local implementation (spec 4.1-4.2).
+//! Local execution environment (spec 4.2).
 //!
-//! All tool operations pass through [`ExecutionEnvironment`], decoupling tool
-//! logic from where commands run. The default [`LocalExecutionEnvironment`]
-//! runs on the local filesystem; swap in a different implementation for
-//! Docker, Kubernetes, SSH, or WASM.
+//! Runs tool operations on the local filesystem with the local shell.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
 
 use async_trait::async_trait;
 use tokio::io::AsyncReadExt;
 
+use super::{EnvVarPolicy, ExecutionEnvironment, FileContent, filter_env_vars};
 use crate::error::{AgentError, AgentResult};
 use crate::types::{DirEntry, ExecResult, GrepOptions};
-
-// ---------------------------------------------------------------------------
-// FileContent (spec 3.3 line 500 — multimodal support)
-// ---------------------------------------------------------------------------
-
-/// Content returned by [`ExecutionEnvironment::read_file`].
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum FileContent {
-    /// Line-numbered text in `NNN | content` format.
-    Text(String),
-    /// Raw image bytes with a detected MIME type.
-    Image { data: Vec<u8>, media_type: String },
-}
-
-// ---------------------------------------------------------------------------
-// EnvVarPolicy (spec 4.2)
-// ---------------------------------------------------------------------------
-
-/// How child processes inherit environment variables.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum EnvVarPolicy {
-    /// Inherit all vars except those matching the denylist.
-    /// Allowlist takes precedence over denylist.
-    #[default]
-    InheritFiltered,
-    /// Start clean — only allowlist vars are inherited.
-    InheritNone,
-    /// Inherit everything without any filtering.
-    InheritAll,
-}
-
-// ---------------------------------------------------------------------------
-// Env var filtering constants (spec 4.2)
-// ---------------------------------------------------------------------------
-
-/// Suffixes that cause a variable to be denied (case-insensitive).
-const DENY_SUFFIXES: &[&str] = &["_API_KEY", "_SECRET", "_TOKEN", "_PASSWORD", "_CREDENTIAL"];
-
-/// Variables that are always inherited regardless of denylist.
-static ALLOWLIST: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
-    HashSet::from([
-        "PATH",
-        "HOME",
-        "USER",
-        "SHELL",
-        "LANG",
-        "TERM",
-        "TMPDIR",
-        "GOPATH",
-        "CARGO_HOME",
-        "NVM_DIR",
-    ])
-});
-
-/// Filter environment variables according to the given policy.
-///
-/// Takes an iterator of `(key, value)` pairs (instead of reading
-/// `std::env::vars()` directly) so callers can pass controlled data in tests.
-#[must_use]
-pub fn filter_env_vars(
-    vars: impl Iterator<Item = (String, String)>,
-    policy: &EnvVarPolicy,
-) -> HashMap<String, String> {
-    match policy {
-        EnvVarPolicy::InheritAll => vars.collect(),
-        EnvVarPolicy::InheritNone => vars
-            .filter(|(k, _)| ALLOWLIST.contains(k.as_str()))
-            .collect(),
-        EnvVarPolicy::InheritFiltered => vars
-            .filter(|(k, _)| {
-                if ALLOWLIST.contains(k.as_str()) {
-                    return true;
-                }
-                let upper = k.to_uppercase();
-                !DENY_SUFFIXES.iter().any(|suffix| upper.ends_with(suffix))
-            })
-            .collect(),
-    }
-}
-
-// ---------------------------------------------------------------------------
-// ExecutionEnvironment trait (spec 4.1)
-// ---------------------------------------------------------------------------
-
-/// Abstraction for where tool operations run.
-///
-/// The local implementation ([`LocalExecutionEnvironment`]) accesses the
-/// filesystem directly. Other implementations can target Docker containers,
-/// Kubernetes pods, SSH hosts, or WASM runtimes.
-#[async_trait]
-pub trait ExecutionEnvironment: Send + Sync {
-    // -- File operations --
-
-    /// Read a file, returning line-numbered text or raw image data.
-    ///
-    /// * `offset` — 1-based starting line (default: 1).
-    /// * `limit`  — max lines to return (default: 2000).
-    async fn read_file(
-        &self,
-        path: &str,
-        offset: Option<usize>,
-        limit: Option<usize>,
-    ) -> AgentResult<FileContent>;
-
-    /// Write `content` to `path`, creating parent directories as needed.
-    async fn write_file(&self, path: &str, content: &str) -> AgentResult<()>;
-
-    /// Check whether `path` exists.
-    async fn file_exists(&self, path: &str) -> bool;
-
-    /// Delete a file at `path`.
-    async fn delete_file(&self, path: &str) -> AgentResult<()>;
-
-    /// List directory entries up to the given `depth` (1 = immediate children).
-    async fn list_directory(&self, path: &str, depth: usize) -> AgentResult<Vec<DirEntry>>;
-
-    // -- Command execution --
-
-    /// Execute a shell command with a timeout.
-    ///
-    /// On timeout: SIGTERM → 2 s wait → SIGKILL (Unix). Partial output is
-    /// returned with `timed_out: true`.
-    async fn exec_command(
-        &self,
-        command: &str,
-        timeout_ms: u64,
-        working_dir: Option<&str>,
-        env_vars: Option<&HashMap<String, String>>,
-    ) -> AgentResult<ExecResult>;
-
-    // -- Search operations --
-
-    /// Regex search across files, returning formatted matches.
-    async fn grep(&self, pattern: &str, path: &str, options: &GrepOptions) -> AgentResult<String>;
-
-    /// Glob pattern matching, returning matched file paths.
-    async fn glob_files(&self, pattern: &str, path: &str) -> AgentResult<Vec<String>>;
-
-    // -- Metadata --
-
-    /// The working directory for this environment.
-    fn working_directory(&self) -> &str;
-
-    /// Platform identifier (`linux`, `darwin`, `windows`, `wasm`).
-    fn platform(&self) -> &str;
-
-    /// OS version string.
-    fn os_version(&self) -> String;
-
-    // -- Lifecycle (default no-ops) --
-
-    /// Initialize the environment (e.g., start a container).
-    async fn initialize(&self) -> AgentResult<()> {
-        Ok(())
-    }
-
-    /// Clean up the environment (e.g., stop a container).
-    async fn cleanup(&self) -> AgentResult<()> {
-        Ok(())
-    }
-}
 
 // ---------------------------------------------------------------------------
 // LocalExecutionEnvironment (spec 4.2)
@@ -250,7 +86,7 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
             .await
             .map_err(|e| AgentError::from_io(e, &resolved))?;
 
-        let start = offset.unwrap_or(1).saturating_sub(1); // 1-based → 0-based
+        let start = offset.unwrap_or(1).saturating_sub(1); // 1-based -> 0-based
         let max_lines = limit.unwrap_or(2000);
 
         let numbered = raw
@@ -392,7 +228,7 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
             Err(_elapsed) => true,
         };
 
-        // Timeout path: SIGTERM → 2 s wait → SIGKILL (spec 4.2 / 5.4)
+        // Timeout path: SIGTERM -> 2 s wait -> SIGKILL (spec 4.2 / 5.4)
         // Both signals target the entire process group so grandchildren are killed.
         if timed_out {
             #[cfg(unix)]
@@ -531,7 +367,7 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Private helpers
 // ---------------------------------------------------------------------------
 
 /// Return the MIME type for image file extensions, or None for non-images.
