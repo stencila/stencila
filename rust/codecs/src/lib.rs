@@ -22,8 +22,8 @@ use stencila_codec::stencila_schema::{
 pub use stencila_codec::{
     CitationStyle, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
-    PageSelector, PoshMap, Position8, Position16, Positions, PushDryRunFile, PushDryRunOptions,
-    PushResult, Range8, Range16, StructuringOperation, StructuringOptions,
+    NodeType, PageSelector, PoshMap, Position8, Position16, Positions, PushDryRunFile,
+    PushDryRunOptions, PushResult, Range8, Range16, StructuringOperation, StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
 };
@@ -413,6 +413,21 @@ pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Nod
     }
 }
 
+/// Infer a [`NodeType`] from a file's stem (name without extension)
+///
+/// Allows files like `SKILL.md`, `skill.myst`, `PROMPT.md`, `CHAT.smd`
+/// to be decoded as the corresponding node type without requiring
+/// an explicit `type` field in frontmatter.
+pub fn node_type_from_path(path: &Path) -> Option<NodeType> {
+    let stem = path.file_stem()?.to_str()?;
+    match stem.to_ascii_lowercase().as_str() {
+        "skill" => Some(NodeType::Skill),
+        "prompt" => Some(NodeType::Prompt),
+        "chat" => Some(NodeType::Chat),
+        _ => None,
+    }
+}
+
 /// Decode a Stencila Schema node from a file system path with decoding losses
 #[tracing::instrument]
 pub async fn from_path_with_info(
@@ -430,6 +445,12 @@ pub async fn from_path_with_info(
         None => Format::from_path(path),
     };
 
+    // Infer node_type from the filename stem if not already specified
+    let node_type = options
+        .as_ref()
+        .and_then(|options| options.node_type)
+        .or_else(|| node_type_from_path(path));
+
     let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
     let (mut node, other, info) = codec
@@ -437,6 +458,7 @@ pub async fn from_path_with_info(
             path,
             Some(DecodeOptions {
                 format: Some(format.clone()),
+                node_type,
                 ..options.clone().unwrap_or_default()
             }),
         )
