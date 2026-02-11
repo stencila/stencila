@@ -355,6 +355,10 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 9.9 | OpenAI profile includes subagent tools | spec_7_subagents.rs | openai_profile_includes_subagent_tools_after_registration | Pass |
 | 9.9 | Anthropic profile includes subagent tools | spec_7_subagents.rs | anthropic_profile_includes_subagent_tools_after_registration | Pass |
 | 9.9 | Gemini profile includes subagent tools | spec_7_subagents.rs | gemini_profile_includes_subagent_tools_after_registration | Pass |
+| 7.4 | Spawn returns running status (non-blocking) | spec_7_subagents.rs | spawn_returns_running_status | Pass |
+| 7.4 | Parallel spawn three agents | spec_7_subagents.rs | parallel_spawn_three_agents | Pass |
+| 7.2 | Close running agent | spec_7_subagents.rs | close_running_agent | Pass |
+| 7.2 | Wait twice returns cached result | spec_7_subagents.rs | wait_twice_returns_cached_result | Pass |
 
 ## Phase 10: Live Integration Tests
 

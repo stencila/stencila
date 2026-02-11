@@ -102,15 +102,11 @@ The spec pseudocode uses a `WARNING` event, but the spec event enum does not def
 
 ### `send_input` target status (`§7.2`)
 
-Spec wording says `send_input` targets a running subagent. In this implementation, subagents currently run synchronously and are usually already completed, so `send_input` accepts non-failed agents.
+Spec wording says `send_input` targets a running subagent. This implementation accepts any non-failed agent (including completed ones) so that follow-up messages can be sent after the initial task finishes.
 
 ### Subagent `working_dir` scope (`§7.2`)
 
 `spawn_agent.working_dir` is currently advisory only: it is appended to the child prompt but not enforced by the execution environment.
-
-### Subagent parallelism (`§7.4`)
-
-The spec emphasizes parallel subagent exploration. This implementation currently runs `spawn_agent` synchronously and blocks until completion, so `wait` is effectively immediate/no-op in most cases.
 
 ### `apply_patch` Unicode punctuation fuzziness (Appendix A)
 

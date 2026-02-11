@@ -3,6 +3,15 @@
 //! Uses mock Client and execution environment for deterministic testing.
 //! Validates spawn, send_input, wait, close_agent tools, depth limiting,
 //! independent history, shared execution environment, and profile tool lists.
+//!
+//! # Async spawn model
+//!
+//! `spawn_agent` returns immediately with `{"status": "running"}` while the
+//! child runs in a `tokio::spawn` task. To get deterministic mock response
+//! ordering, most tests batch `spawn_agent` + `wait` in the same tool call
+//! response. The sequential `execute_tools_with_subagents` runs spawn (returns
+//! immediately, child starts running), then wait (blocks until child finishes),
+//! so the child consumes its mock responses while the parent is blocked.
 
 #![allow(clippy::result_large_err)]
 
@@ -355,8 +364,9 @@ fn close_call(agent_id: &str) -> ToolCall {
 /// Create a test session with subagent tools.
 ///
 /// The mock client responses are shared between parent and child sessions.
-/// Responses are consumed in order: parent's first LLM call, then child's
-/// calls (during spawn_agent execution), then parent's remaining calls.
+/// With async spawn, the child runs in a `tokio::spawn` task. To get
+/// deterministic ordering, batch `spawn_agent` + `wait` in the same tool
+/// call so the parent blocks on `wait` while the child consumes its responses.
 fn test_session(
     responses: Vec<Result<Response, SdkError>>,
 ) -> AgentResult<(
@@ -389,6 +399,21 @@ fn test_session_with_config(
         0,
     );
     Ok((session, receiver, client, env))
+}
+
+/// Collect all tool result turns from session history.
+fn collect_tool_results(session: &Session) -> Vec<&Vec<stencila_models3::types::tool::ToolResult>> {
+    session
+        .history()
+        .iter()
+        .filter_map(|t| {
+            if let stencila_agents::types::Turn::ToolResults { results, .. } = t {
+                Some(results)
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 /// Drain all available events from the receiver (non-blocking).
@@ -543,12 +568,15 @@ fn gemini_profile_includes_subagent_tools_after_registration() -> AgentResult<()
 
 #[tokio::test]
 async fn spawn_creates_independent_session() -> AgentResult<()> {
-    // Parent session: LLM returns spawn_agent call, then text.
+    // Parent session: LLM returns spawn_agent+wait batch, then text.
     // Child session: LLM returns text response for the child's task.
-    // Mock client serves responses in order: parent call 1, child call 1, parent call 2.
+    // Mock client serves responses in order:
+    //   1. Parent call 1: spawn+wait batch
+    //   2. Child call 1: text response (consumed while parent blocks on wait)
+    //   3. Parent call 2: natural completion
     let (mut session, mut rx, client, _env) = test_session(vec![
-        // Parent's first LLM call: spawn a subagent
-        tool_call_response("", vec![spawn_call("Write a test")]),
+        // Parent's first LLM call: spawn + wait in one batch
+        tool_call_response("", vec![spawn_call("Write a test"), wait_call("agent-1")]),
         // Child's LLM call: subagent completes its task
         text_response("Test written successfully"),
         // Parent's second LLM call: natural completion
@@ -561,30 +589,31 @@ async fn spawn_creates_independent_session() -> AgentResult<()> {
     // Parent should have history entries
     assert!(session.history().len() >= 2, "Parent should have history");
 
-    // Check spawn_agent tool result was recorded
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
+    // Check tool results were recorded (spawn + wait)
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+
+    // First tool result turn should have spawn + wait results
+    let first_results = &tool_results[0];
+    assert_eq!(first_results.len(), 2, "Should have spawn and wait results");
+
+    // Spawn result should have "running" status
+    let spawn_content = first_results[0].content.as_str().unwrap_or("");
     assert!(
-        tool_results.is_some(),
-        "Should have tool results from spawn_agent"
+        spawn_content.contains("agent-1"),
+        "Spawn should contain agent_id: {spawn_content}"
+    );
+    assert!(
+        spawn_content.contains("running"),
+        "Spawn should return running status: {spawn_content}"
     );
 
-    // The tool result should contain agent_id and status
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert_eq!(results.len(), 1);
-        assert!(!results[0].is_error, "spawn_agent should not return error");
-        let content = results[0].content.as_str().unwrap_or("");
-        assert!(
-            content.contains("agent-1"),
-            "Result should contain agent_id: {content}"
-        );
-        assert!(
-            content.contains("completed"),
-            "Result should contain status: {content}"
-        );
-    }
+    // Wait result should have completed status with output
+    let wait_content = first_results[1].content.as_str().unwrap_or("");
+    assert!(
+        wait_content.contains("completed"),
+        "Wait should contain completed: {wait_content}"
+    );
 
     // Check events include tool call start/end for spawn_agent
     let events = drain_events(&mut rx).await;
@@ -614,11 +643,15 @@ async fn spawn_creates_independent_session() -> AgentResult<()> {
 #[tokio::test]
 async fn spawn_shares_execution_environment() -> AgentResult<()> {
     // The child session should share the parent's execution environment.
-    // We verify this by checking the child's requests reference the same
-    // working directory.
     let (mut session, _rx, client, _env) = test_session(vec![
-        tool_call_response("", vec![spawn_call("Check the environment")]),
+        // Parent: spawn + wait batch
+        tool_call_response(
+            "",
+            vec![spawn_call("Check the environment"), wait_call("agent-1")],
+        ),
+        // Child completes
         text_response("Environment checked"),
+        // Parent completes
         text_response("All good"),
     ])?;
 
@@ -640,9 +673,12 @@ async fn spawn_shares_execution_environment() -> AgentResult<()> {
 #[tokio::test]
 async fn spawn_with_custom_max_turns() -> AgentResult<()> {
     // Subagent with max_turns=1 should be limited.
-    // The child gets exactly 1 LLM call (text response), so turns_used=1.
     let (mut session, _rx, _client, _env) = test_session(vec![
-        tool_call_response("", vec![spawn_call_with_limit("Quick task", 1)]),
+        // Parent: spawn + wait batch
+        tool_call_response(
+            "",
+            vec![spawn_call_with_limit("Quick task", 1), wait_call("agent-1")],
+        ),
         // Child's first (and only) LLM call
         text_response("Done quickly"),
         // Parent's second call
@@ -652,29 +688,28 @@ async fn spawn_with_custom_max_turns() -> AgentResult<()> {
     session.submit("Quick spawn").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
-    // Verify the spawn result includes turns_used
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert!(!results[0].is_error, "spawn should succeed");
-        let content = results[0].content.as_str().unwrap_or("");
-        let parsed: serde_json::Value =
-            serde_json::from_str(content).map_err(|e| AgentError::Io {
-                message: e.to_string(),
-            })?;
-        assert_eq!(
-            parsed.get("turns_used").and_then(|v| v.as_u64()),
-            Some(1),
-            "Child should have used exactly 1 turn"
-        );
-        assert_eq!(
-            parsed.get("success").and_then(|v| v.as_bool()),
-            Some(true),
-            "Child should have succeeded"
-        );
-    }
+    // Find the tool result turn with spawn+wait
+    let tool_results = collect_tool_results(&session);
+
+    // Wait result is the second in the batch
+    assert!(!tool_results.is_empty());
+    assert!(tool_results[0].len() >= 2, "Should have spawn + wait");
+    let wait_result = &tool_results[0][1];
+    assert!(!wait_result.is_error, "wait should succeed");
+    let content = wait_result.content.as_str().unwrap_or("");
+    let parsed: serde_json::Value = serde_json::from_str(content).map_err(|e| AgentError::Io {
+        message: e.to_string(),
+    })?;
+    assert_eq!(
+        parsed.get("turns_used").and_then(|v| v.as_u64()),
+        Some(1),
+        "Child should have used exactly 1 turn"
+    );
+    assert_eq!(
+        parsed.get("success").and_then(|v| v.as_bool()),
+        Some(true),
+        "Child should have succeeded"
+    );
     Ok(())
 }
 
@@ -687,12 +722,6 @@ async fn depth_limiting_blocks_sub_sub_agents() -> AgentResult<()> {
     // Create a session at depth 0 with max_subagent_depth=1.
     // The parent spawns a child (depth 1). The child tries to spawn a
     // grandchild — this should fail because depth 1 >= max_depth 1.
-    //
-    // Mock responses:
-    // 1. Parent LLM: spawn_agent("Level 1 task")
-    // 2. Child LLM: spawn_agent("Level 2 task") — this should fail
-    // 3. Child LLM: natural completion after depth error
-    // 4. Parent LLM: natural completion
     let config = SessionConfig {
         max_subagent_depth: 1,
         ..SessionConfig::default()
@@ -700,9 +729,9 @@ async fn depth_limiting_blocks_sub_sub_agents() -> AgentResult<()> {
 
     let (mut session, _rx, _client, _env) = test_session_with_config(
         vec![
-            // Parent: spawn a child
-            tool_call_response("", vec![spawn_call("Level 1 task")]),
-            // Child: tries to spawn a grandchild
+            // Parent: spawn + wait batch
+            tool_call_response("", vec![spawn_call("Level 1 task"), wait_call("agent-1")]),
+            // Child: tries to spawn a grandchild (will fail at depth check)
             tool_call_response("", vec![spawn_call("Level 2 task")]),
             // Child: gets error result, produces text
             text_response("Could not spawn sub-agent, completing directly"),
@@ -740,21 +769,17 @@ async fn depth_zero_allows_no_subagents() -> AgentResult<()> {
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
     // Check the tool result has is_error=true
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert!(
-            results[0].is_error,
-            "spawn_agent with depth=0 should return error"
-        );
-        let content = results[0].content.as_str().unwrap_or("");
-        assert!(
-            content.contains("depth") || content.contains("exceeded"),
-            "Error should mention depth: {content}"
-        );
-    }
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert!(
+        tool_results[0][0].is_error,
+        "spawn_agent with depth=0 should return error"
+    );
+    let content = tool_results[0][0].content.as_str().unwrap_or("");
+    assert!(
+        content.contains("depth") || content.contains("exceeded"),
+        "Error should mention depth: {content}"
+    );
 
     Ok(())
 }
@@ -775,21 +800,17 @@ async fn unknown_agent_id_returns_error() -> AgentResult<()> {
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
     // Tool result should be an error
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert!(
-            results[0].is_error,
-            "send_input with unknown agent_id should error"
-        );
-        let content = results[0].content.as_str().unwrap_or("");
-        assert!(
-            content.contains("unknown") || content.contains("nonexistent"),
-            "Error should mention unknown agent: {content}"
-        );
-    }
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert!(
+        tool_results[0][0].is_error,
+        "send_input with unknown agent_id should error"
+    );
+    let content = tool_results[0][0].content.as_str().unwrap_or("");
+    assert!(
+        content.contains("unknown") || content.contains("nonexistent"),
+        "Error should mention unknown agent: {content}"
+    );
 
     Ok(())
 }
@@ -804,16 +825,12 @@ async fn wait_unknown_agent_returns_error() -> AgentResult<()> {
     session.submit("Wait for unknown").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert!(
-            results[0].is_error,
-            "wait with unknown agent_id should error"
-        );
-    }
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert!(
+        tool_results[0][0].is_error,
+        "wait with unknown agent_id should error"
+    );
 
     Ok(())
 }
@@ -827,16 +844,12 @@ async fn close_unknown_agent_returns_error() -> AgentResult<()> {
 
     session.submit("Close unknown").await?;
 
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert!(
-            results[0].is_error,
-            "close_agent with unknown agent_id should error"
-        );
-    }
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert!(
+        tool_results[0][0].is_error,
+        "close_agent with unknown agent_id should error"
+    );
 
     Ok(())
 }
@@ -847,16 +860,10 @@ async fn close_unknown_agent_returns_error() -> AgentResult<()> {
 
 #[tokio::test]
 async fn send_input_success_after_spawn() -> AgentResult<()> {
-    // Spawn an agent, then send additional input to it.
-    // Mock responses (consumed in order):
-    // 1. Parent: spawn_agent call
-    // 2. Child (spawn): completes task
-    // 3. Parent: send_input call
-    // 4. Child (send_input): processes follow-up
-    // 5. Parent: natural completion
+    // Spawn an agent (with wait to complete), then send additional input.
     let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent's first LLM call: spawn
-        tool_call_response("", vec![spawn_call("Initial task")]),
+        // Parent's first LLM call: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Initial task"), wait_call("agent-1")]),
         // Child completes spawn
         text_response("Initial task done"),
         // Parent's second LLM call: send_input to agent-1
@@ -871,22 +878,19 @@ async fn send_input_success_after_spawn() -> AgentResult<()> {
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
     // Find all tool results
-    let tool_results: Vec<_> = session
-        .history()
-        .iter()
-        .filter_map(|t| {
-            if let stencila_agents::types::Turn::ToolResults { results, .. } = t {
-                Some(results)
-            } else {
-                None
-            }
-        })
-        .collect();
+    let tool_results = collect_tool_results(&session);
 
-    // Should have 2 tool result turns: spawn_agent and send_input
+    // Should have 2 tool result turns: spawn+wait batch and send_input
     assert_eq!(tool_results.len(), 2, "Should have 2 tool result turns");
 
-    // First: spawn_agent result
+    // First turn: spawn + wait results (2 results in batch)
+    assert_eq!(
+        tool_results[0].len(),
+        2,
+        "First turn should have spawn + wait"
+    );
+
+    // Spawn result
     assert!(!tool_results[0][0].is_error, "spawn should succeed");
     let spawn_content = tool_results[0][0].content.as_str().unwrap_or("");
     assert!(
@@ -894,7 +898,7 @@ async fn send_input_success_after_spawn() -> AgentResult<()> {
         "Spawn should return agent-1: {spawn_content}"
     );
 
-    // Second: send_input result
+    // Second turn: send_input result
     assert!(
         !tool_results[1][0].is_error,
         "send_input should succeed: {:?}",
@@ -911,14 +915,12 @@ async fn send_input_success_after_spawn() -> AgentResult<()> {
 
 #[tokio::test]
 async fn wait_success_after_spawn() -> AgentResult<()> {
-    // Spawn an agent, then wait for its result.
+    // Spawn an agent, then wait for its result (batched).
     let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent: spawn
-        tool_call_response("", vec![spawn_call("Do something")]),
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Do something"), wait_call("agent-1")]),
         // Child completes
         text_response("Task completed successfully"),
-        // Parent: wait
-        tool_call_response("", vec![wait_call("agent-1")]),
         // Parent: natural completion
         text_response("Got the result"),
     ])?;
@@ -926,23 +928,15 @@ async fn wait_success_after_spawn() -> AgentResult<()> {
     session.submit("Spawn and wait").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
-    let tool_results: Vec<_> = session
-        .history()
-        .iter()
-        .filter_map(|t| {
-            if let stencila_agents::types::Turn::ToolResults { results, .. } = t {
-                Some(results)
-            } else {
-                None
-            }
-        })
-        .collect();
+    let tool_results = collect_tool_results(&session);
 
-    assert_eq!(tool_results.len(), 2, "Should have 2 tool result turns");
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert!(tool_results[0].len() >= 2, "Should have spawn + wait");
 
-    // Wait result should contain the subagent output
-    assert!(!tool_results[1][0].is_error, "wait should succeed");
-    let wait_content = tool_results[1][0].content.as_str().unwrap_or("");
+    // Wait result is the second in the batch
+    let wait_result = &tool_results[0][1];
+    assert!(!wait_result.is_error, "wait should succeed");
+    let wait_content = wait_result.content.as_str().unwrap_or("");
     let parsed: serde_json::Value =
         serde_json::from_str(wait_content).map_err(|e| AgentError::Io {
             message: e.to_string(),
@@ -971,10 +965,10 @@ async fn wait_success_after_spawn() -> AgentResult<()> {
 
 #[tokio::test]
 async fn close_agent_success_after_spawn() -> AgentResult<()> {
-    // Spawn an agent, then close it.
+    // Spawn an agent (with wait), then close it.
     let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent: spawn
-        tool_call_response("", vec![spawn_call("Temporary task")]),
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Temporary task"), wait_call("agent-1")]),
         // Child completes
         text_response("Done"),
         // Parent: close
@@ -986,21 +980,11 @@ async fn close_agent_success_after_spawn() -> AgentResult<()> {
     session.submit("Spawn and close").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
-    let tool_results: Vec<_> = session
-        .history()
-        .iter()
-        .filter_map(|t| {
-            if let stencila_agents::types::Turn::ToolResults { results, .. } = t {
-                Some(results)
-            } else {
-                None
-            }
-        })
-        .collect();
+    let tool_results = collect_tool_results(&session);
 
     assert_eq!(tool_results.len(), 2, "Should have 2 tool result turns");
 
-    // Close result
+    // Close result (second turn)
     assert!(!tool_results[1][0].is_error, "close should succeed");
     let close_content = tool_results[1][0].content.as_str().unwrap_or("");
     let parsed: serde_json::Value =
@@ -1020,8 +1004,8 @@ async fn close_agent_success_after_spawn() -> AgentResult<()> {
 async fn close_then_wait_returns_error() -> AgentResult<()> {
     // After close_agent, wait should return an error (agent removed from map).
     let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent: spawn
-        tool_call_response("", vec![spawn_call("Task")]),
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Task"), wait_call("agent-1")]),
         // Child completes
         text_response("Done"),
         // Parent: close then wait in sequence
@@ -1033,18 +1017,8 @@ async fn close_then_wait_returns_error() -> AgentResult<()> {
     session.submit("Close then wait").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
-    // Find the tool results for the close+wait turn
-    let tool_results: Vec<_> = session
-        .history()
-        .iter()
-        .filter_map(|t| {
-            if let stencila_agents::types::Turn::ToolResults { results, .. } = t {
-                Some(results)
-            } else {
-                None
-            }
-        })
-        .collect();
+    // Find the tool results
+    let tool_results = collect_tool_results(&session);
 
     // Second turn has close + wait results
     assert!(tool_results.len() >= 2);
@@ -1066,11 +1040,10 @@ async fn close_then_wait_returns_error() -> AgentResult<()> {
 #[tokio::test]
 async fn send_input_to_failed_agent_returns_error() -> AgentResult<()> {
     // Spawn an agent that fails, then try to send input to it.
-    // We make the child fail by having its LLM call return an error.
     use stencila_models3::error::ProviderDetails;
     let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent: spawn
-        tool_call_response("", vec![spawn_call("Doomed task")]),
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Doomed task"), wait_call("agent-1")]),
         // Child's LLM call fails
         Err(SdkError::Server {
             message: "internal server error".into(),
@@ -1092,17 +1065,7 @@ async fn send_input_to_failed_agent_returns_error() -> AgentResult<()> {
     session.submit("Spawn and fail").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
 
-    let tool_results: Vec<_> = session
-        .history()
-        .iter()
-        .filter_map(|t| {
-            if let stencila_agents::types::Turn::ToolResults { results, .. } = t {
-                Some(results)
-            } else {
-                None
-            }
-        })
-        .collect();
+    let tool_results = collect_tool_results(&session);
 
     assert!(tool_results.len() >= 2);
     // send_input to failed agent should have is_error=true
@@ -1124,8 +1087,6 @@ async fn send_input_to_failed_agent_returns_error() -> AgentResult<()> {
 
 #[tokio::test]
 async fn spawn_with_working_dir_scopes_system_prompt() -> AgentResult<()> {
-    // When working_dir is specified, the child's system prompt should include
-    // a scoping directive for that directory.
     let spawn_with_dir = ToolCall {
         id: format!("call-{}", uuid::Uuid::new_v4()),
         name: "spawn_agent".into(),
@@ -1135,7 +1096,8 @@ async fn spawn_with_working_dir_scopes_system_prompt() -> AgentResult<()> {
     };
 
     let (mut session, _rx, client, _env) = test_session(vec![
-        tool_call_response("", vec![spawn_with_dir]),
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_with_dir, wait_call("agent-1")]),
         // Child completes
         text_response("Worked in components"),
         // Parent completes
@@ -1162,7 +1124,6 @@ async fn spawn_with_working_dir_scopes_system_prompt() -> AgentResult<()> {
 
 #[tokio::test]
 async fn spawn_with_model_override_uses_custom_model() -> AgentResult<()> {
-    // When model is specified, the child's request should use that model.
     let spawn_with_model = ToolCall {
         id: format!("call-{}", uuid::Uuid::new_v4()),
         name: "spawn_agent".into(),
@@ -1172,7 +1133,8 @@ async fn spawn_with_model_override_uses_custom_model() -> AgentResult<()> {
     };
 
     let (mut session, _rx, client, _env) = test_session(vec![
-        tool_call_response("", vec![spawn_with_model]),
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_with_model, wait_call("agent-1")]),
         // Child completes
         text_response("Used custom model"),
         // Parent completes
@@ -1198,9 +1160,6 @@ async fn spawn_with_model_override_uses_custom_model() -> AgentResult<()> {
 
 #[tokio::test]
 async fn session_auto_registers_subagent_tools_when_depth_allows() -> AgentResult<()> {
-    // When max_subagent_depth > 0 and current_depth < max_depth,
-    // Session::new should auto-register subagent tools.
-    // We verify by submitting and checking the LLM request includes them.
     let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
     assert!(
         !profile.tool_registry().names().contains(&"spawn_agent"),
@@ -1254,9 +1213,6 @@ async fn session_auto_registers_subagent_tools_when_depth_allows() -> AgentResul
 
 #[tokio::test]
 async fn session_does_not_register_subagent_tools_at_max_depth() -> AgentResult<()> {
-    // When current_depth >= max_depth, subagent tools should NOT be registered.
-    // We verify this by spawning at depth=1 with max_depth=1: the child
-    // should not get subagent tools (depth 1 >= max 1).
     let config = SessionConfig {
         max_subagent_depth: 1,
         ..SessionConfig::default()
@@ -1264,8 +1220,11 @@ async fn session_does_not_register_subagent_tools_at_max_depth() -> AgentResult<
 
     let (mut session, _rx, client, _env) = test_session_with_config(
         vec![
-            // Parent: spawn child
-            tool_call_response("", vec![spawn_call("Check child tools")]),
+            // Parent: spawn + wait batch
+            tool_call_response(
+                "",
+                vec![spawn_call("Check child tools"), wait_call("agent-1")],
+            ),
             // Child: natural completion (no subagent tools available)
             text_response("No subagent tools here"),
             // Parent: natural completion
@@ -1363,7 +1322,6 @@ fn subagent_status_serde_roundtrip() -> AgentResult<()> {
 
 #[tokio::test]
 async fn spawn_without_task_returns_error() -> AgentResult<()> {
-    // spawn_agent without the required "task" parameter
     let bad_spawn = ToolCall {
         id: format!("call-{}", uuid::Uuid::new_v4()),
         name: "spawn_agent".into(),
@@ -1379,18 +1337,221 @@ async fn spawn_without_task_returns_error() -> AgentResult<()> {
 
     session.submit("Bad spawn").await?;
 
-    let tool_results = session
-        .history()
-        .iter()
-        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
-    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results {
-        assert!(results[0].is_error, "Missing task should produce error");
-        let content = results[0].content.as_str().unwrap_or("");
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert!(
+        tool_results[0][0].is_error,
+        "Missing task should produce error"
+    );
+    let content = tool_results[0][0].content.as_str().unwrap_or("");
+    assert!(
+        content.contains("task"),
+        "Error should mention 'task': {content}"
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// New async parallelism tests
+// ===========================================================================
+
+#[tokio::test]
+async fn spawn_returns_running_status() -> AgentResult<()> {
+    // Verify that spawn_agent alone returns {"status": "running"} immediately.
+    // We use spawn_agent alone (no wait), then a text response to complete.
+    let (mut session, _rx, _client, _env) = test_session(vec![
+        // Parent: just spawn (no wait)
+        tool_call_response("", vec![spawn_call("Background task")]),
+        // Child's LLM call (consumed by spawned task)
+        text_response("Background done"),
+        // Parent: natural completion
+        text_response("Spawned agent"),
+    ])?;
+
+    session.submit("Spawn only").await?;
+    assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
+
+    // Check the spawn result
+    let tool_results = collect_tool_results(&session);
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert_eq!(tool_results[0].len(), 1);
+    assert!(!tool_results[0][0].is_error, "spawn should succeed");
+    let content = tool_results[0][0].content.as_str().unwrap_or("");
+    let parsed: serde_json::Value = serde_json::from_str(content).map_err(|e| AgentError::Io {
+        message: e.to_string(),
+    })?;
+    assert_eq!(
+        parsed.get("status").and_then(|v| v.as_str()),
+        Some("running"),
+        "spawn should return running status: {content}"
+    );
+    assert_eq!(
+        parsed.get("agent_id").and_then(|v| v.as_str()),
+        Some("agent-1"),
+        "spawn should return agent_id"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_spawn_three_agents() -> AgentResult<()> {
+    // Spawn 3 agents and wait for all 3 in the same batch.
+    // All 3 spawns return immediately ("running"), then the 3 waits block
+    // until the children finish, ensuring deterministic mock response ordering.
+    let (mut session, _rx, _client, _env) = test_session(vec![
+        // Parent: spawn 3 agents + wait for all 3 in one batch
+        tool_call_response(
+            "",
+            vec![
+                spawn_call("Task A"),
+                spawn_call("Task B"),
+                spawn_call("Task C"),
+                wait_call("agent-1"),
+                wait_call("agent-2"),
+                wait_call("agent-3"),
+            ],
+        ),
+        // Children's LLM calls (consumed by spawned tasks while parent blocks on waits)
+        text_response("Result A"),
+        text_response("Result B"),
+        text_response("Result C"),
+        // Parent: natural completion
+        text_response("All agents done"),
+    ])?;
+
+    session.submit("Parallel spawn").await?;
+    assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
+
+    let tool_results = collect_tool_results(&session);
+
+    // Single turn with 6 results: 3 spawns + 3 waits
+    assert!(!tool_results.is_empty(), "Should have tool results");
+    assert_eq!(
+        tool_results[0].len(),
+        6,
+        "Should have 3 spawn + 3 wait results"
+    );
+
+    // First 3: spawn results (running)
+    for i in 0..3 {
+        assert!(!tool_results[0][i].is_error, "spawn {i} should succeed");
+        let content = tool_results[0][i].content.as_str().unwrap_or("");
         assert!(
-            content.contains("task"),
-            "Error should mention 'task': {content}"
+            content.contains("running"),
+            "spawn {i} should return running: {content}"
         );
     }
+
+    // Last 3: wait results (completed)
+    for i in 3..6 {
+        assert!(
+            !tool_results[0][i].is_error,
+            "wait {} should succeed",
+            i - 3
+        );
+        let content = tool_results[0][i].content.as_str().unwrap_or("");
+        assert!(
+            content.contains("completed"),
+            "wait {} should return completed: {content}",
+            i - 3
+        );
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn close_running_agent() -> AgentResult<()> {
+    // Spawn an agent and close it in the same batch. The close aborts the
+    // child (which may still be running). Batching avoids the race condition
+    // where the child consumes mock responses meant for the parent.
+    let (mut session, _rx, _client, _env) = test_session(vec![
+        // Parent: spawn + close in one batch
+        tool_call_response("", vec![spawn_call("Long task"), close_call("agent-1")]),
+        // Child's LLM call (may or may not be consumed before close aborts it)
+        text_response("Long task done"),
+        // Parent: natural completion
+        text_response("Closed running agent"),
+    ])?;
+
+    session.submit("Spawn and close immediately").await?;
+    assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
+
+    let tool_results = collect_tool_results(&session);
+
+    // Single turn with spawn + close results
+    assert!(!tool_results.is_empty());
+    assert_eq!(
+        tool_results[0].len(),
+        2,
+        "Should have spawn + close results"
+    );
+
+    // Spawn result
+    assert!(!tool_results[0][0].is_error, "spawn should succeed");
+    let spawn_content = tool_results[0][0].content.as_str().unwrap_or("");
+    assert!(
+        spawn_content.contains("running"),
+        "spawn should return running: {spawn_content}"
+    );
+
+    // Close result
+    assert!(!tool_results[0][1].is_error, "close should succeed");
+    let close_content = tool_results[0][1].content.as_str().unwrap_or("");
+    let parsed: serde_json::Value =
+        serde_json::from_str(close_content).map_err(|e| AgentError::Io {
+            message: e.to_string(),
+        })?;
+    assert_eq!(
+        parsed.get("closed").and_then(|v| v.as_bool()),
+        Some(true),
+        "Close should report closed=true"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_twice_returns_cached_result() -> AgentResult<()> {
+    // Spawn + wait, then wait again — the second wait should return
+    // the cached result without error.
+    let (mut session, _rx, _client, _env) = test_session(vec![
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Cacheable task"), wait_call("agent-1")]),
+        // Child completes
+        text_response("Cached result"),
+        // Parent: wait again
+        tool_call_response("", vec![wait_call("agent-1")]),
+        // Parent: natural completion
+        text_response("Got cached"),
+    ])?;
+
+    session.submit("Wait twice").await?;
+    assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
+
+    let tool_results = collect_tool_results(&session);
+
+    assert_eq!(tool_results.len(), 2, "Should have 2 tool result turns");
+
+    // First wait (in spawn+wait batch)
+    let wait1 = &tool_results[0][1];
+    assert!(!wait1.is_error, "first wait should succeed");
+    let content1 = wait1.content.as_str().unwrap_or("");
+    assert!(
+        content1.contains("completed"),
+        "first wait should be completed: {content1}"
+    );
+
+    // Second wait (standalone)
+    let wait2 = &tool_results[1][0];
+    assert!(!wait2.is_error, "second wait should succeed (cached)");
+    let content2 = wait2.content.as_str().unwrap_or("");
+    assert!(
+        content2.contains("completed"),
+        "second wait should be completed (cached): {content2}"
+    );
 
     Ok(())
 }

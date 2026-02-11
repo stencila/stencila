@@ -10,14 +10,13 @@
 //! Tool calls are intercepted by the session layer and routed to the
 //! [`SubAgentManager`] rather than through the regular tool executor path.
 //!
-//! # Known limitation: synchronous execution
+//! # Async execution
 //!
-//! The current implementation runs subagent sessions synchronously —
-//! `spawn_agent` blocks until the child session completes before returning
-//! a result. This means `wait` is effectively a no-op (the agent is always
-//! already finished) and true parallel exploration (spec 7.4) is not yet
-//! supported. A future iteration will use `tokio::spawn` to run child
-//! sessions in background tasks, enabling concurrent subagent execution.
+//! `spawn_agent` returns immediately while the child session runs in a
+//! `tokio::spawn` task. The parent communicates with the child via channels:
+//! a oneshot for the initial result, and an mpsc for subsequent commands
+//! (`send_input`, `close`). This enables true parallel subagent execution
+//! (spec 7.4).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -25,12 +24,13 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
+use tokio::sync::{mpsc, oneshot};
 
 use crate::error::{AgentError, AgentResult};
 use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
-use crate::session::{LlmClient, Session};
+use crate::session::{AbortController, AbortSignal, LlmClient, Session};
 use crate::types::SessionConfig;
 
 // ---------------------------------------------------------------------------
@@ -104,14 +104,64 @@ pub struct SubAgentResult {
     pub turns_used: u32,
 }
 
+// ---------------------------------------------------------------------------
+// Channel types for parent ↔ spawned-task communication
+// ---------------------------------------------------------------------------
+
+/// Command sent from the parent to a running subagent task.
+enum AgentCommand {
+    /// Send a follow-up message to the subagent.
+    SendInput {
+        message: String,
+        reply_tx: oneshot::Sender<AgentStepResult>,
+    },
+    /// Request graceful shutdown.
+    Close,
+}
+
+/// Outcome of a single agent step (initial task or send_input).
+#[derive(Debug, Clone)]
+enum AgentStepResult {
+    Completed(SubAgentResult),
+    Failed(SubAgentResult),
+}
+
+// ---------------------------------------------------------------------------
+// SubAgentHandle
+// ---------------------------------------------------------------------------
+
 /// A handle to a running subagent (spec 7.3).
 pub struct SubAgentHandle {
     /// Unique identifier for this subagent.
     pub id: String,
-    /// The subagent's independent session.
-    session: Session,
     /// Current status.
     status: SubAgentStatus,
+    /// Channel for sending commands to the spawned task.
+    command_tx: mpsc::Sender<AgentCommand>,
+    /// Oneshot receiver for the initial task result. `None` after consumed.
+    initial_result_rx: Option<oneshot::Receiver<AgentStepResult>>,
+    /// Cached result from the most recent completed step.
+    cached_result: Option<SubAgentResult>,
+    /// Controller to signal abort to the child session.
+    abort_controller: AbortController,
+    /// Join handle for the spawned task. `None` after consumed by close.
+    join_handle: Option<tokio::task::JoinHandle<()>>,
+}
+
+impl SubAgentHandle {
+    /// Apply a step result to this handle, updating status and cached result.
+    fn apply_step_result(&mut self, step_result: &AgentStepResult) {
+        match step_result {
+            AgentStepResult::Completed(result) => {
+                self.status = SubAgentStatus::Completed;
+                self.cached_result = Some(result.clone());
+            }
+            AgentStepResult::Failed(result) => {
+                self.status = SubAgentStatus::Failed;
+                self.cached_result = Some(result.clone());
+            }
+        }
+    }
 }
 
 impl std::fmt::Debug for SubAgentHandle {
@@ -120,6 +170,67 @@ impl std::fmt::Debug for SubAgentHandle {
             .field("id", &self.id)
             .field("status", &self.status)
             .finish_non_exhaustive()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Spawned task function
+// ---------------------------------------------------------------------------
+
+/// Async function that owns the child Session and runs inside `tokio::spawn`.
+///
+/// 1. Runs the initial task via `session.submit(task)`.
+/// 2. Sends the result on `initial_result_tx`.
+/// 3. Enters a command loop, processing `SendInput` and `Close` commands.
+/// 4. Exits when the command channel closes, a `Close` is received, or
+///    the abort signal fires.
+async fn run_agent_task(
+    mut session: Session,
+    task: String,
+    abort_signal: AbortSignal,
+    initial_result_tx: oneshot::Sender<AgentStepResult>,
+    mut command_rx: mpsc::Receiver<AgentCommand>,
+) {
+    // Run initial task. submit() returns Ok(()) both on natural completion
+    // and on abort (after calling session.close()), so we check session state
+    // to distinguish: Closed means abort/error → Failed.
+    let initial_step = session.submit(&task).await;
+    let step_result = match initial_step {
+        Ok(()) if session.state() != crate::types::SessionState::Closed => {
+            AgentStepResult::Completed(extract_result_from_session(&session))
+        }
+        _ => AgentStepResult::Failed(extract_result_from_session(&session)),
+    };
+
+    // Send initial result (ignore error if parent dropped receiver)
+    let _ = initial_result_tx.send(step_result);
+
+    // Command loop
+    loop {
+        tokio::select! {
+            cmd = command_rx.recv() => {
+                match cmd {
+                    Some(AgentCommand::SendInput { message, reply_tx }) => {
+                        let result = session.submit(&message).await;
+                        let step = match result {
+                            Ok(()) if session.state() != crate::types::SessionState::Closed => {
+                                AgentStepResult::Completed(extract_result_from_session(&session))
+                            }
+                            _ => AgentStepResult::Failed(extract_result_from_session(&session)),
+                        };
+                        let _ = reply_tx.send(step);
+                    }
+                    Some(AgentCommand::Close) | None => {
+                        session.close();
+                        return;
+                    }
+                }
+            }
+            () = abort_signal.cancelled() => {
+                session.close();
+                return;
+            }
+        }
     }
 }
 
@@ -205,9 +316,9 @@ impl SubAgentManager {
 
     /// Spawn a new subagent (spec 7.2).
     ///
-    /// Currently runs the child session to completion synchronously (see
-    /// module-level known limitation docs). Returns the full result
-    /// including output text and turns used.
+    /// Creates a child session and launches it in a `tokio::spawn` task.
+    /// Returns immediately with `{"status": "running"}` while the child
+    /// runs asynchronously. Use `wait` to retrieve the result.
     async fn spawn_agent(
         &mut self,
         args: Value,
@@ -223,7 +334,7 @@ impl SubAgentManager {
             });
         }
 
-        let task = require_str(&args, "task")?;
+        let task = require_str(&args, "task")?.to_string();
         let working_dir = optional_str(&args, "working_dir").map(str::to_string);
         let model_override = optional_str(&args, "model").map(str::to_string);
         let max_turns =
@@ -258,7 +369,7 @@ impl SubAgentManager {
         // Create the child session. The receiver is dropped immediately —
         // the emitter silently discards events when no receiver exists,
         // avoiding unbounded memory growth from unconsumed child events.
-        let (session, _receiver) = Session::new(
+        let (mut session, _receiver) = Session::new(
             child_profile,
             Arc::clone(&self.execution_env),
             Arc::clone(&self.client),
@@ -267,133 +378,261 @@ impl SubAgentManager {
             self.current_depth + 1,
         );
 
+        // Set up abort controller for the child
+        let abort_controller = AbortController::new();
+        session.set_abort_signal(abort_controller.signal());
+
+        // Create channels
+        let (command_tx, command_rx) = mpsc::channel(16);
+        let (initial_result_tx, initial_result_rx) = oneshot::channel();
+
+        // Spawn the task
+        let abort_signal = abort_controller.signal();
+        let join_handle = tokio::spawn(run_agent_task(
+            session,
+            task,
+            abort_signal,
+            initial_result_tx,
+            command_rx,
+        ));
+
         // Generate agent ID
         self.next_id += 1;
         let agent_id = format!("agent-{}", self.next_id);
 
         let handle = SubAgentHandle {
             id: agent_id.clone(),
-            session,
             status: SubAgentStatus::Running,
+            command_tx,
+            initial_result_rx: Some(initial_result_rx),
+            cached_result: None,
+            abort_controller,
+            join_handle: Some(join_handle),
         };
 
         self.agents.insert(agent_id.clone(), handle);
 
-        // Submit the task to the child session
+        // Return immediately — child is running in background
+        Ok(serde_json::to_string(&json!({
+            "agent_id": agent_id,
+            "status": "running",
+        }))
+        .unwrap_or_default())
+    }
+
+    /// Wait for a subagent to complete and return its result (spec 7.2).
+    ///
+    /// If the agent has already completed and the result is cached, returns
+    /// immediately. Otherwise, awaits the initial result from the spawned task.
+    async fn wait_agent(&mut self, args: Value) -> AgentResult<String> {
+        let agent_id = require_str(&args, "agent_id")?.to_string();
+
         let agent = self
             .agents
             .get_mut(&agent_id)
-            .ok_or(AgentError::SessionClosed)?;
-        let submit_result = agent.session.submit(task).await;
-
-        match submit_result {
-            Ok(()) => {
-                agent.status = SubAgentStatus::Completed;
-                Ok(build_result_json(&agent_id, agent, None))
-            }
-            Err(e) => {
-                agent.status = SubAgentStatus::Failed;
-                Ok(build_result_json(&agent_id, agent, Some(&e)))
-            }
-        }
-    }
-
-    /// Send a message to a running subagent (spec 7.2).
-    ///
-    /// # Synchronous-model deviation
-    ///
-    /// The spec says "running subagent" but in the current synchronous model
-    /// agents are always `Completed` after spawn (never truly "running").
-    /// We therefore accept any non-`Failed` agent so that the LLM can send
-    /// follow-up messages to a completed agent. Once async spawn is
-    /// implemented, this should be tightened to `Running` only.
-    async fn send_input(&mut self, args: Value) -> AgentResult<String> {
-        let agent_id = require_str(&args, "agent_id")?;
-        let message = require_str(&args, "message")?;
-
-        let agent = self
-            .agents
-            .get_mut(agent_id)
             .ok_or_else(|| AgentError::ValidationError {
                 reason: format!("unknown agent_id: {agent_id}"),
             })?;
 
+        // Return cached result if available
+        if let Some(ref result) = agent.cached_result {
+            return Ok(format_wait_result(&agent_id, agent.status, result));
+        }
+
+        // Await the initial result
+        let rx = agent
+            .initial_result_rx
+            .take()
+            .ok_or_else(|| AgentError::ValidationError {
+                reason: format!(
+                    "agent {agent_id} initial result already consumed and no cached result"
+                ),
+            })?;
+
+        let step_result = rx.await.map_err(|_| AgentError::Io {
+            message: format!("agent {agent_id} task ended without sending result"),
+        })?;
+
+        agent.apply_step_result(&step_result);
+
+        let result = agent
+            .cached_result
+            .as_ref()
+            .expect("just set cached_result above");
+        Ok(format_wait_result(&agent_id, agent.status, result))
+    }
+
+    /// Send a message to a subagent (spec 7.2).
+    ///
+    /// If the initial task has not yet completed, waits for it first.
+    /// Then sends a follow-up message via the command channel.
+    async fn send_input(&mut self, args: Value) -> AgentResult<String> {
+        let agent_id = require_str(&args, "agent_id")?.to_string();
+        let message = require_str(&args, "message")?.to_string();
+
+        let agent = self
+            .agents
+            .get_mut(&agent_id)
+            .ok_or_else(|| AgentError::ValidationError {
+                reason: format!("unknown agent_id: {agent_id}"),
+            })?;
+
+        // Consume initial result if still pending
+        if let Some(rx) = agent.initial_result_rx.take() {
+            let step_result = rx.await.map_err(|_| AgentError::Io {
+                message: format!("agent {agent_id} task ended without sending result"),
+            })?;
+            agent.apply_step_result(&step_result);
+        }
+
+        // Check agent didn't fail
         if agent.status == SubAgentStatus::Failed {
             return Err(AgentError::ValidationError {
                 reason: format!("agent {agent_id} has failed and cannot accept input"),
             });
         }
 
-        // Re-submit to the child session (it should be in Idle state)
-        agent.status = SubAgentStatus::Running;
-        let submit_result = agent.session.submit(message).await;
-
-        match submit_result {
-            Ok(()) => {
-                agent.status = SubAgentStatus::Completed;
-                Ok(build_result_json(agent_id, agent, None))
-            }
-            Err(e) => {
-                agent.status = SubAgentStatus::Failed;
-                Ok(build_result_json(agent_id, agent, Some(&e)))
-            }
-        }
-    }
-
-    /// Wait for a subagent to complete and return its result (spec 7.2).
-    ///
-    /// Since `spawn_agent` and `send_input` already run the session to
-    /// completion synchronously, `wait` simply returns the current result.
-    async fn wait_agent(&mut self, args: Value) -> AgentResult<String> {
-        let agent_id = require_str(&args, "agent_id")?;
-
-        let agent = self
-            .agents
-            .get(agent_id)
-            .ok_or_else(|| AgentError::ValidationError {
-                reason: format!("unknown agent_id: {agent_id}"),
+        // Send the command and wait for reply
+        let (reply_tx, reply_rx) = oneshot::channel();
+        agent
+            .command_tx
+            .send(AgentCommand::SendInput { message, reply_tx })
+            .await
+            .map_err(|_| AgentError::Io {
+                message: format!("agent {agent_id} task is no longer running"),
             })?;
 
-        let result = extract_result(agent);
-        Ok(serde_json::to_string(&json!({
-            "agent_id": agent_id,
-            "status": format!("{:?}", agent.status).to_lowercase(),
-            "output": result.output,
-            "success": result.success,
-            "turns_used": result.turns_used,
-        }))
-        .unwrap_or_default())
+        let step_result = reply_rx.await.map_err(|_| AgentError::Io {
+            message: format!("agent {agent_id} task ended without sending reply"),
+        })?;
+
+        agent.apply_step_result(&step_result);
+
+        let error_msg = match step_result {
+            AgentStepResult::Completed(_) => None,
+            AgentStepResult::Failed(_) => Some("agent failed during send_input"),
+        };
+        let result = agent
+            .cached_result
+            .as_ref()
+            .expect("just set cached_result above");
+        Ok(format_result_json(&agent_id, result, error_msg))
     }
 
     /// Close all active subagents (spec graceful shutdown, line 1431).
     ///
-    /// Called by [`Session::close()`] to ensure child sessions are terminated
-    /// before the parent session transitions to CLOSED.
+    /// Called by [`Session::close()`] which is synchronous, so this method
+    /// cannot await child task completion. It signals abort on each agent
+    /// (children will terminate on their next poll point) and, if a Tokio
+    /// runtime is available, spawns a background cleanup task to await the
+    /// join handles with a timeout. Without a runtime the handles are simply
+    /// dropped — the abort signal alone is sufficient for termination.
+    ///
+    /// Because this returns before children have fully exited, child tasks
+    /// may briefly outlive the parent's CLOSED transition.
     pub fn close_all(&mut self) {
-        for handle in self.agents.values_mut() {
-            handle.session.close();
+        let mut join_handles = Vec::new();
+        for mut handle in self.agents.drain().map(|(_, h)| h) {
+            handle.abort_controller.abort();
+            // Best-effort close command (task may already be shutting down)
+            let _ = handle.command_tx.try_send(AgentCommand::Close);
+            if let Some(jh) = handle.join_handle.take() {
+                join_handles.push(jh);
+            }
         }
-        self.agents.clear();
+
+        // Spawn a cleanup task that awaits all join handles with a timeout.
+        // Use try_current() to avoid panicking when called outside a runtime
+        // (e.g. from Drop or synchronous test teardown).
+        if !join_handles.is_empty()
+            && let Ok(handle) = tokio::runtime::Handle::try_current()
+        {
+            handle.spawn(async move {
+                let _ = tokio::time::timeout(
+                    std::time::Duration::from_secs(5),
+                    futures::future::join_all(join_handles),
+                )
+                .await;
+            });
+        }
+        // Without a runtime: handles are dropped, abort signal ensures
+        // children terminate on their next poll.
     }
 
     /// Terminate a subagent and remove it from the managed set (spec 7.2).
+    ///
+    /// The handle is removed from the map immediately to prevent a second
+    /// `close_agent` call from racing on the same agent. The child task is
+    /// then signalled via abort + close command, and we join with a 5-second
+    /// timeout. If the join times out the task is orphaned (the abort signal
+    /// will still cause it to exit on its next poll point) and the response
+    /// reports `"closed": false` so the caller knows termination was not
+    /// confirmed. Task panics are also detected and reported as failures.
     async fn close_agent(&mut self, args: Value) -> AgentResult<String> {
         let agent_id = require_str(&args, "agent_id")?.to_string();
 
-        let mut handle =
-            self.agents
-                .remove(&agent_id)
-                .ok_or_else(|| AgentError::ValidationError {
-                    reason: format!("unknown agent_id: {agent_id}"),
-                })?;
+        let handle = self
+            .agents
+            .remove(&agent_id)
+            .ok_or_else(|| AgentError::ValidationError {
+                reason: format!("unknown agent_id: {agent_id}"),
+            })?;
 
-        handle.session.close();
-        let final_status = handle.status;
+        // Destructure to avoid partial-move issues with drop(command_tx)
+        let SubAgentHandle {
+            abort_controller,
+            command_tx,
+            mut initial_result_rx,
+            mut status,
+            join_handle,
+            ..
+        } = handle;
+
+        // Signal abort
+        abort_controller.abort();
+        // Best-effort close command
+        let _ = command_tx.try_send(AgentCommand::Close);
+        // Drop the command sender so the task's recv() returns None
+        drop(command_tx);
+
+        // Wait for the task to finish with a timeout.
+        // Three outcomes: confirmed exit, panic, or timeout.
+        let task_confirmed_exited = if let Some(jh) = join_handle {
+            match tokio::time::timeout(std::time::Duration::from_secs(5), jh).await {
+                Ok(Ok(())) => true,  // task exited normally
+                Ok(Err(_)) => {
+                    // Task panicked — mark failed, but it *has* exited
+                    status = SubAgentStatus::Failed;
+                    true
+                }
+                Err(_) => false, // timeout — task may still be alive
+            }
+        } else {
+            true // no join handle means task already finished
+        };
+
+        // Resolve actual status AFTER the task has exited. At this point the
+        // oneshot sender has either sent a value or been dropped, so try_recv
+        // is deterministic — no race with in-flight completion.
+        if let Some(mut rx) = initial_result_rx.take()
+            && let Ok(step_result) = rx.try_recv()
+        {
+            match &step_result {
+                AgentStepResult::Completed(_) => status = SubAgentStatus::Completed,
+                AgentStepResult::Failed(_) => status = SubAgentStatus::Failed,
+            }
+        } else if status == SubAgentStatus::Running {
+            // No result received and status never updated — mark as failed.
+            // This covers: join timeout, task panic, or sender dropped.
+            status = SubAgentStatus::Failed;
+        }
+
+        let final_status = status;
 
         Ok(serde_json::to_string(&json!({
             "agent_id": agent_id,
             "status": format!("{final_status:?}").to_lowercase(),
-            "closed": true,
+            "closed": task_confirmed_exited,
         }))
         .unwrap_or_default())
     }
@@ -540,25 +779,31 @@ fn noop_executor() -> crate::registry::ToolExecutorFn {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/// Build the JSON response string for a spawn/send_input result.
+/// Format a wait result as JSON.
+fn format_wait_result(agent_id: &str, status: SubAgentStatus, result: &SubAgentResult) -> String {
+    serde_json::to_string(&json!({
+        "agent_id": agent_id,
+        "status": format!("{status:?}").to_lowercase(),
+        "output": result.output,
+        "success": result.success,
+        "turns_used": result.turns_used,
+    }))
+    .unwrap_or_default()
+}
+
+/// Format a result JSON for send_input responses.
 ///
 /// On success, includes the agent output, success flag and turns used.
-/// On failure, includes the error message. Both cases include agent_id
-/// and status.
-fn build_result_json(
-    agent_id: &str,
-    handle: &SubAgentHandle,
-    error: Option<&AgentError>,
-) -> String {
+/// On failure, includes the error message.
+fn format_result_json(agent_id: &str, result: &SubAgentResult, error: Option<&str>) -> String {
     if let Some(e) = error {
         serde_json::to_string(&json!({
             "agent_id": agent_id,
             "status": "failed",
-            "error": e.to_string(),
+            "error": e,
         }))
         .unwrap_or_default()
     } else {
-        let result = extract_result(handle);
         serde_json::to_string(&json!({
             "agent_id": agent_id,
             "status": "completed",
@@ -570,10 +815,9 @@ fn build_result_json(
     }
 }
 
-/// Extract the result from a subagent handle.
-fn extract_result(handle: &SubAgentHandle) -> SubAgentResult {
-    let output = handle
-        .session
+/// Extract the result from a session (called inside the spawned task).
+fn extract_result_from_session(session: &Session) -> SubAgentResult {
+    let output = session
         .history()
         .iter()
         .rev()
@@ -587,8 +831,8 @@ fn extract_result(handle: &SubAgentHandle) -> SubAgentResult {
 
     SubAgentResult {
         output,
-        success: handle.status == SubAgentStatus::Completed,
-        turns_used: handle.session.total_turns(),
+        success: session.state() != crate::types::SessionState::Closed,
+        turns_used: session.total_turns(),
     }
 }
 
