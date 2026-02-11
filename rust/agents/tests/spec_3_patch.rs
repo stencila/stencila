@@ -1049,6 +1049,368 @@ fn beta() {
 }
 
 // =========================================================================
+// Unicode Punctuation Normalization (spec App A line 1370)
+// =========================================================================
+
+#[tokio::test]
+async fn fuzzy_match_smart_quotes() -> AgentResult<()> {
+    // File uses straight quotes, but the patch has smart (curly) quotes.
+    let env = MockExecutionEnvironment::new()
+        .with_file("src/main.rs", "fn greet() {\n    println!(\"hello\");\n}");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/main.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: "greet".into(),
+                lines: vec![
+                    HunkLine::Context("fn greet() {".into()),
+                    // U+201C / U+201D smart double quotes
+                    HunkLine::Delete("    println!(\u{201C}hello\u{201D});".into()),
+                    HunkLine::Add("    println!(\"world\");".into()),
+                    HunkLine::Context("}".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/main.rs").unwrap_or_default();
+    assert!(
+        content.contains("println!(\"world\")"),
+        "smart quotes should fuzzy-match straight quotes: {content}"
+    );
+    assert!(
+        !content.contains("hello"),
+        "old line should be deleted: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn fuzzy_match_single_smart_quotes() -> AgentResult<()> {
+    // File uses straight single quotes (apostrophes), patch uses curly.
+    let env =
+        MockExecutionEnvironment::new().with_file("src/main.rs", "let s = 'x';\nlet t = 'y';");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/main.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    // U+2018 / U+2019 smart single quotes
+                    HunkLine::Delete("let s = \u{2018}x\u{2019};".into()),
+                    HunkLine::Add("let s = 'z';".into()),
+                    HunkLine::Context("let t = 'y';".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/main.rs").unwrap_or_default();
+    assert!(
+        content.contains("let s = 'z';"),
+        "smart single quotes should fuzzy-match: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn fuzzy_match_em_dash() -> AgentResult<()> {
+    // File uses a hyphen-minus, patch uses an em-dash.
+    let env = MockExecutionEnvironment::new().with_file("README.md", "title - subtitle\nbody text");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "README.md".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    // U+2014 em-dash
+                    HunkLine::Delete("title \u{2014} subtitle".into()),
+                    HunkLine::Add("title - new subtitle".into()),
+                    HunkLine::Context("body text".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("README.md").unwrap_or_default();
+    assert!(
+        content.contains("title - new subtitle"),
+        "em-dash should fuzzy-match hyphen: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn fuzzy_match_en_dash_and_minus_sign() -> AgentResult<()> {
+    // File uses hyphen-minus; patch uses en-dash and minus sign.
+    let env = MockExecutionEnvironment::new().with_file("math.txt", "x = a - b\ny = c - d");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "math.txt".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    // U+2013 en-dash
+                    HunkLine::Delete("x = a \u{2013} b".into()),
+                    HunkLine::Add("x = a + b".into()),
+                    // U+2212 minus sign
+                    HunkLine::Context("y = c \u{2212} d".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("math.txt").unwrap_or_default();
+    assert!(
+        content.contains("x = a + b"),
+        "en-dash/minus should fuzzy-match hyphen: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn fuzzy_match_ellipsis() -> AgentResult<()> {
+    // File uses three dots, patch uses horizontal ellipsis (U+2026).
+    let env = MockExecutionEnvironment::new().with_file(
+        "src/main.rs",
+        "fn todo() {\n    unimplemented!(\"...\");\n}",
+    );
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/main.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: "todo".into(),
+                lines: vec![
+                    HunkLine::Context("fn todo() {".into()),
+                    // U+2026 horizontal ellipsis
+                    HunkLine::Delete("    unimplemented!(\"\u{2026}\");".into()),
+                    HunkLine::Add("    todo!();".into()),
+                    HunkLine::Context("}".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/main.rs").unwrap_or_default();
+    assert!(
+        content.contains("todo!()"),
+        "ellipsis should fuzzy-match three dots: {content}"
+    );
+    assert!(
+        !content.contains("unimplemented"),
+        "old line should be deleted: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn fuzzy_match_combined_unicode_and_whitespace() -> AgentResult<()> {
+    // Both whitespace differences AND Unicode punctuation in the same hunk.
+    let env =
+        MockExecutionEnvironment::new().with_file("doc.txt", "He said  \"yes\" - then left...");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "doc.txt".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    // smart quotes + em-dash + ellipsis + different spacing
+                    HunkLine::Delete(
+                        "He said \u{201C}yes\u{201D} \u{2014} then left\u{2026}".into(),
+                    ),
+                    HunkLine::Add("He said \"no\" - then stayed.".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("doc.txt").unwrap_or_default();
+    assert!(
+        content.contains("He said \"no\" - then stayed."),
+        "combined normalization should work: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_hint_with_unicode_punctuation() -> AgentResult<()> {
+    // The context_hint contains Unicode punctuation (smart quotes); hint
+    // matching should find the correct line via normalized comparison (tier 3).
+    // File has straight quotes — the hint must go through normalization to match.
+    let env = MockExecutionEnvironment::new().with_file(
+        "src/lib.rs",
+        "fn alpha() {\n    let tag = \"alpha\";\n    do_work();\n}\n\nfn beta() {\n    let tag = \"beta\";\n    do_work();\n}\n",
+    );
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/lib.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                // Smart double quotes in hint: U+201C / U+201D.
+                // File has: let tag = "beta";  (straight quotes)
+                // Normalized hint becomes: let tag = "beta";
+                // This can only match via tier 3 (normalized substring).
+                context_hint: "let tag = \u{201C}beta\u{201D};".into(),
+                lines: vec![
+                    HunkLine::Context("    do_work();".into()),
+                    HunkLine::Add("    extra();".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/lib.rs").unwrap_or_default();
+    // alpha block should be untouched — the hint should NOT match "alpha"
+    assert!(
+        content.contains("fn alpha() {\n    let tag = \"alpha\";\n    do_work();\n}"),
+        "alpha should be unchanged: {content}"
+    );
+    // beta block should have the addition
+    assert!(
+        content.contains("fn beta() {\n    let tag = \"beta\";\n    do_work();\n    extra();\n}"),
+        "beta should have addition: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn exact_match_preferred_over_unicode_fuzzy() -> AgentResult<()> {
+    // When exact match succeeds, Unicode normalization should NOT be needed.
+    // This test verifies the exact-match-first priority is preserved.
+    let env = MockExecutionEnvironment::new()
+        .with_file("src/main.rs", "let x = \"hello\";\nlet y = \"world\";");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/main.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    // Exact match — straight quotes in both file and patch
+                    HunkLine::Delete("let x = \"hello\";".into()),
+                    HunkLine::Add("let x = \"greetings\";".into()),
+                    HunkLine::Context("let y = \"world\";".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await?;
+    assert!(summaries[0].contains("Updated"));
+
+    let content = env.file_content("src/main.rs").unwrap_or_default();
+    assert!(
+        content.contains("let x = \"greetings\";"),
+        "exact match should work: {content}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn non_equivalent_unicode_still_fails() {
+    // Unicode characters NOT in the normalization table must not match ASCII.
+    // Greek mu (U+03BC) should not fuzzy-match ASCII 'u', so the hunk should
+    // fail with EditConflict.
+    let env =
+        MockExecutionEnvironment::new().with_file("src/main.rs", "let unit = 42;\nlet other = 0;");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/main.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    // Greek mu (μ) replacing ASCII 'u' — not equivalent
+                    HunkLine::Delete("let \u{03BC}nit = 42;".into()),
+                    HunkLine::Add("let unit = 99;".into()),
+                    HunkLine::Context("let other = 0;".into()),
+                ],
+            }],
+        }],
+    };
+
+    let result = tools::apply_patch::apply_patch_ops(&patch, &env).await;
+    assert!(
+        matches!(&result, Err(AgentError::EditConflict { reason }) if reason.contains("could not locate hunk")),
+        "non-equivalent Unicode should not fuzzy-match: {result:?}"
+    );
+}
+
+#[tokio::test]
+async fn normalization_does_not_over_match_different_quote_styles() {
+    // File has two lines that differ only in quote style. The patch targets
+    // the backtick version. Since backticks are NOT normalized to straight
+    // quotes, the exact match should select the correct line without fuzzy
+    // matching conflating the two.
+    let env = MockExecutionEnvironment::new()
+        .with_file("src/main.rs", "let a = `hello`;\nlet b = \"hello\";");
+
+    let patch = Patch {
+        operations: vec![PatchOperation::UpdateFile {
+            path: "src/main.rs".into(),
+            move_to: None,
+            hunks: vec![Hunk {
+                context_hint: String::new(),
+                lines: vec![
+                    HunkLine::Context("let a = `hello`;".into()),
+                    HunkLine::Delete("let b = \"hello\";".into()),
+                    HunkLine::Add("let b = \"world\";".into()),
+                ],
+            }],
+        }],
+    };
+
+    let summaries = tools::apply_patch::apply_patch_ops(&patch, &env).await;
+    assert!(summaries.is_ok(), "should match exactly: {summaries:?}");
+
+    let content = env.file_content("src/main.rs").unwrap_or_default();
+    assert!(
+        content.contains("let a = `hello`;"),
+        "backtick line should be unchanged: {content}"
+    );
+    assert!(
+        content.contains("let b = \"world\";"),
+        "double-quote line should be updated: {content}"
+    );
+}
+
+// =========================================================================
 // Registration Test
 // =========================================================================
 

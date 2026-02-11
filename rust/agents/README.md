@@ -108,10 +108,6 @@ Spec wording says `send_input` targets a running subagent. This implementation a
 
 `spawn_agent.working_dir` is currently advisory only: it is appended to the child prompt but not enforced by the execution environment.
 
-### `apply_patch` Unicode punctuation fuzziness (Appendix A)
-
-Fuzzy matching currently includes whitespace normalization only; Unicode punctuation equivalence is not implemented.
-
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
@@ -135,10 +131,6 @@ The session loop streams LLM responses via `Client::stream()`, emitting `ASSISTA
 ### Gemini grounding configuration (`§3.6`)
 
 The spec says provider options should configure "safety settings and grounding." Safety settings are wired (`BLOCK_ONLY_HIGH` for all categories), but grounding (`google_search_retrieval`) is not configured. A coding agent already has file search, code search, and shell tools, so web grounding adds marginal value while introducing potential noise and latency.
-
-### `apply_patch` Unicode punctuation normalization (Appendix A)
-
-Unicode punctuation equivalence in fuzzy matching is not implemented.
 
 ### Test mock consolidation (internal)
 

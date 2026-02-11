@@ -450,8 +450,8 @@ fn apply_hunk(file_lines: &[String], hunk: &Hunk) -> AgentResult<Vec<String>> {
         return Ok(result);
     }
 
-    // Try exact match first, then fuzzy (whitespace normalization).
-    // TODO: Add Unicode punctuation equivalence (spec App A line 1370).
+    // Try exact match first, then fuzzy (whitespace + Unicode punctuation
+    // normalization; spec App A line 1370).
     let candidates = find_all_sequence_exact(file_lines, &expected);
     let candidates = if candidates.is_empty() {
         find_all_sequence_fuzzy(file_lines, &expected)
@@ -524,17 +524,23 @@ fn find_all_sequence_exact(file_lines: &[String], expected: &[&str]) -> Vec<usiz
         .collect()
 }
 
-/// Find all fuzzy matches using whitespace normalization. Returns start indices.
+/// Find all fuzzy matches using whitespace and Unicode punctuation
+/// normalization. Returns start indices.
+///
+/// Pre-normalizes both the file lines and expected lines once, then
+/// performs O(n·m) string comparisons on the cached normalized forms.
 fn find_all_sequence_fuzzy(file_lines: &[String], expected: &[&str]) -> Vec<usize> {
     if expected.is_empty() || expected.len() > file_lines.len() {
         return if expected.is_empty() { vec![0] } else { vec![] };
     }
+    let norm_file: Vec<String> = file_lines.iter().map(|l| normalize(l)).collect();
+    let norm_expected: Vec<String> = expected.iter().map(|e| normalize(e)).collect();
     (0..=file_lines.len() - expected.len())
         .filter(|&start| {
-            file_lines[start..start + expected.len()]
+            norm_file[start..start + norm_expected.len()]
                 .iter()
-                .zip(expected.iter())
-                .all(|(fl, ex)| normalize_whitespace(fl) == normalize_whitespace(ex))
+                .zip(norm_expected.iter())
+                .all(|(fl, ex)| fl == ex)
         })
         .collect()
 }
@@ -607,19 +613,52 @@ fn find_all_hint_lines(file_lines: &[String], hint: &str) -> Vec<usize> {
         return substr;
     }
 
-    // 3. Whitespace-normalized substring match
-    let norm_hint = normalize_whitespace(trimmed_hint);
+    // 3. Whitespace- and punctuation-normalized substring match
+    let norm_hint = normalize(trimmed_hint);
     file_lines
         .iter()
         .enumerate()
-        .filter(|(_, l)| normalize_whitespace(l).contains(&norm_hint))
+        .filter(|(_, l)| normalize(l).contains(&norm_hint))
         .map(|(i, _)| i)
         .collect()
 }
 
-/// Collapse whitespace runs to a single space and trim.
-fn normalize_whitespace(s: &str) -> String {
-    s.split_whitespace().collect::<Vec<_>>().join(" ")
+/// Normalize whitespace and Unicode punctuation for fuzzy comparison.
+///
+/// Collapses whitespace runs to a single space, trims, and maps common
+/// Unicode punctuation to their ASCII equivalents (smart quotes → straight
+/// quotes, em/en-dash → hyphen, ellipsis → three dots, etc.).
+fn normalize(s: &str) -> String {
+    let ws_normalized: String = s.split_whitespace().collect::<Vec<_>>().join(" ");
+    normalize_punctuation(&ws_normalized)
+}
+
+/// Replace common Unicode punctuation with ASCII equivalents.
+///
+/// Covers the characters most likely to appear when models or copy-paste
+/// introduce typographic ("smart") variants of ASCII punctuation:
+///
+/// - Left/right single quotes (U+2018, U+2019) → `'`
+/// - Left/right double quotes (U+201C, U+201D) → `"`
+/// - Em-dash (U+2014) → `-`
+/// - En-dash (U+2013) → `-`
+/// - Figure dash (U+2012) → `-`
+/// - Minus sign (U+2212) → `-`
+/// - Horizontal ellipsis (U+2026) → `...`
+/// - Non-breaking space (U+00A0) → ` `
+fn normalize_punctuation(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        match ch {
+            '\u{2018}' | '\u{2019}' => out.push('\''),
+            '\u{201C}' | '\u{201D}' => out.push('"'),
+            '\u{2014}' | '\u{2013}' | '\u{2012}' | '\u{2212}' => out.push('-'),
+            '\u{2026}' => out.push_str("..."),
+            '\u{00A0}' => out.push(' '),
+            _ => out.push(ch),
+        }
+    }
+    out
 }
 
 // ---------------------------------------------------------------------------

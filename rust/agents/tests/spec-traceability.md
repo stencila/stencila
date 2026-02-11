@@ -186,6 +186,16 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | App A | Fuzzy + context_hint disambiguation combined | spec_3_patch.rs | context_hint_fuzzy_whitespace_with_disambiguation | Pass |
 | App A | context_hint prefers exact line over earlier substring | spec_3_patch.rs | context_hint_ignores_earlier_comment_substring | Pass |
 | App A | OpenAI registration | spec_3_patch.rs | register_openai_tools_adds_one | Pass |
+| App A | Fuzzy match: smart double quotes | spec_3_patch.rs | fuzzy_match_smart_quotes | Pass |
+| App A | Fuzzy match: smart single quotes | spec_3_patch.rs | fuzzy_match_single_smart_quotes | Pass |
+| App A | Fuzzy match: em-dash | spec_3_patch.rs | fuzzy_match_em_dash | Pass |
+| App A | Fuzzy match: en-dash and minus sign | spec_3_patch.rs | fuzzy_match_en_dash_and_minus_sign | Pass |
+| App A | Fuzzy match: horizontal ellipsis | spec_3_patch.rs | fuzzy_match_ellipsis | Pass |
+| App A | Fuzzy match: combined Unicode + whitespace | spec_3_patch.rs | fuzzy_match_combined_unicode_and_whitespace | Pass |
+| App A | context_hint with Unicode punctuation (tier 3) | spec_3_patch.rs | context_hint_with_unicode_punctuation | Pass |
+| App A | Exact match preferred over Unicode fuzzy | spec_3_patch.rs | exact_match_preferred_over_unicode_fuzzy | Pass |
+| App A | Non-equivalent Unicode yields EditConflict | spec_3_patch.rs | non_equivalent_unicode_still_fails | Pass |
+| App A | Normalization does not over-match backticks vs quotes | spec_3_patch.rs | normalization_does_not_over_match_different_quote_styles | Pass |
 | Ext | delete_file removes file (impl extension for App A) | spec_4_execution.rs | delete_file_removes_file | Pass |
 | Ext | delete_file not found (impl extension for App A) | spec_4_execution.rs | delete_file_not_found | Pass |
 

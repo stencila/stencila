@@ -599,7 +599,7 @@ impl SubAgentManager {
         // Three outcomes: confirmed exit, panic, or timeout.
         let task_confirmed_exited = if let Some(jh) = join_handle {
             match tokio::time::timeout(std::time::Duration::from_secs(5), jh).await {
-                Ok(Ok(())) => true,  // task exited normally
+                Ok(Ok(())) => true, // task exited normally
                 Ok(Err(_)) => {
                     // Task panicked — mark failed, but it *has* exited
                     status = SubAgentStatus::Failed;
