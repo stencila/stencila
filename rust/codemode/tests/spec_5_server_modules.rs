@@ -101,13 +101,31 @@ async fn call_tool_with_undefined_sends_empty_object() {
 }
 
 #[tokio::test]
-async fn call_tool_with_null_sends_empty_object() {
-    let sandbox = sandbox_with_servers(vec![files_server()]).await;
+async fn call_tool_with_null_sends_null() {
+    // Use a custom handler that echoes back the input as JSON
+    let echo_input_server: Arc<dyn McpServer> = Arc::new(
+        MockServer::new(
+            "echo",
+            "Echo Server",
+            vec![simple_tool("echoInput", "Echoes back the input")],
+        )
+        .with_call_response(MockCallResponse::Custom(Arc::new(|_tool_name, input| {
+            Ok(McpToolResult {
+                content: vec![McpContent::Text {
+                    text: serde_json::to_string(&input).unwrap_or_default(),
+                }],
+                structured_content: None,
+                is_error: false,
+            })
+        }))),
+    );
+
+    let sandbox = sandbox_with_servers(vec![echo_input_server]).await;
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        const result = await readFile(null);
+        import { echoInput } from "@codemode/servers/echo";
+        const result = await echoInput(null);
         globalThis.__codemode_result__ = result;
     "#,
         )
@@ -118,7 +136,8 @@ async fn call_tool_with_null_sends_empty_object() {
         "diagnostics: {:?}",
         response.diagnostics
     );
-    assert_eq!(response.result, "Called readFile");
+    // null input should pass through as JSON null, not be converted to {}
+    assert_eq!(response.result, "null");
 }
 
 #[tokio::test]

@@ -10,7 +10,7 @@ pub(crate) fn generate_module(server: &ServerToolset) -> String {
 
     // Imports
     parts.push(
-        "import { SchemaValidationError, ToolCallError, SandboxLimitError, ToolNotFoundError } from \"@codemode/errors\";\n\
+        "import { SchemaValidationError, ToolCallError, SandboxLimitError, ToolNotFoundError, AuthenticationError } from \"@codemode/errors\";\n\
          const __internal__ = globalThis.__codemode_internal__;\n"
             .to_string(),
     );
@@ -44,6 +44,8 @@ fn generate_handle_result() -> String {
             throw new SandboxLimitError(r.message, { kind: r.kind, hint: r.hint });
         case "tool_not_found":
             throw new ToolNotFoundError(r.message, { serverId: r.serverId, toolName: r.toolName, hint: r.hint });
+        case "authentication":
+            throw new AuthenticationError(r.message, { serverId: r.serverId, hint: r.hint });
         default:
             throw new ToolCallError(r.message || "Unknown error", { hint: "An unexpected error occurred." });
     }
@@ -59,7 +61,7 @@ fn generate_tool_function(server: &ServerToolset, tool: &SnapshotTool) -> String
 
     format!(
         r#"export async function {export_name}(input) {{
-    const payload = (input !== undefined && input !== null) ? JSON.stringify(input) : "{{}}";
+    const payload = (input !== undefined) ? JSON.stringify(input) : "{{}}";
     return __handleResult__(await __internal__.callTool("{server_id}", "{tool_name}", payload));
 }}"#
     )

@@ -409,8 +409,8 @@ fn is_import_failure_message(message: &str) -> bool {
     let lower = message.to_lowercase();
     lower.contains("could not resolve")
         || lower.contains("could not load")
-        || lower.contains("resolving")
-        || lower.contains("loading")
+        || lower.contains("error resolving module")
+        || lower.contains("error loading module")
 }
 
 /// Check if an error message indicates a sandbox resource limit was hit.

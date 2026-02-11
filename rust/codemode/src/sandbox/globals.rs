@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use rquickjs::{Ctx, function::Func};
 
-use crate::error::LimitKind;
+use crate::error::{CodemodeError, LimitKind};
 use crate::modules::ToolSnapshot;
 use crate::search::search_tools;
 use crate::traits::{McpContent, McpServer};
@@ -377,6 +377,13 @@ async fn call_tool_bridge(
             let value = unwrap_result(&tool_result);
             success_envelope(&value)
         }
+        Err(CodemodeError::Authentication {
+            server_id: sid,
+            message: msg,
+        }) => {
+            record_trace(state, server_id, tool_name, duration_ms, Some(&msg));
+            authentication_envelope(&sid, &msg)
+        }
         Err(e) => {
             let msg = e.to_string();
             record_trace(state, server_id, tool_name, duration_ms, Some(&msg));
@@ -631,6 +638,20 @@ fn schema_validation_envelope(
     }))
     .unwrap_or_else(|_| {
         r#"{"ok":false,"error":"schema_validation","message":"Schema validation failed"}"#.into()
+    })
+}
+
+/// Build an authentication error envelope.
+fn authentication_envelope(server_id: &str, message: &str) -> String {
+    serde_json::to_string(&serde_json::json!({
+        "ok": false,
+        "error": "authentication",
+        "message": message,
+        "serverId": server_id,
+        "hint": "Check the server's credentials or API key.",
+    }))
+    .unwrap_or_else(|_| {
+        r#"{"ok":false,"error":"authentication","message":"Authentication failed"}"#.into()
     })
 }
 

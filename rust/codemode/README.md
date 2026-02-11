@@ -118,6 +118,8 @@ The following are known limitations of this implementation.
 
 - **No cancellation support (§7.4)** — sandbox execution runs to completion or until a limit is exceeded; no external cancellation of in-flight executions or MCP tool calls.
 
+- **Multi-block tool results returned as bare array (§5.3.2)** — when a tool returns multiple content blocks or non-text content, the result is a bare JSON content array, not a full MCP result object. `isError` is handled separately; `structured_content` takes priority when present.
+
 - **No host-level parallelism for cross-server tool calls (§10.1)** — `Promise.all` works within the sandbox (JS-level concurrency) but tool calls execute sequentially on the Rust side.
 
 ### Testing
