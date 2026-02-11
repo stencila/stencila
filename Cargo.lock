@@ -8870,6 +8870,7 @@ dependencies = [
  "stencila-secrets",
  "stencila-server",
  "stencila-site",
+ "stencila-skills",
  "stencila-snap",
  "stencila-spread",
  "stencila-themes",
@@ -9870,6 +9871,7 @@ dependencies = [
  "stencila-codec-xlsx",
  "stencila-codec-yaml",
  "stencila-codec-zenodo",
+ "stencila-node-stabilize",
  "stencila-node-strip",
  "stencila-node-structuring",
  "stencila-remotes",
@@ -11312,6 +11314,26 @@ dependencies = [
  "unicode-normalization",
  "url",
  "walkdir",
+]
+
+[[package]]
+name = "stencila-skills"
+version = "2.13.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "glob",
+ "regex",
+ "serde",
+ "serde_json",
+ "stencila-cli-utils",
+ "stencila-codec-markdown",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-schema",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

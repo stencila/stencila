@@ -52,6 +52,7 @@ stencila-node-execute = { path = "../node-execute" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-node-supplements = { path = "../node-supplements" }
 stencila-prompts = { path = "../prompts" }
+stencila-skills = { path = "../skills", features = ["cli"] }
 stencila-publish = { path = "../publish" }
 stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
