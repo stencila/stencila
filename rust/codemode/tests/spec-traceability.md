@@ -28,3 +28,25 @@ Maps test cases to spec sections in `specs/codemode.md`.
 | §6.1 | Reserved word handling | spec_6_codegen.rs | reserved_words_get_trailing_underscore, non_reserved_not_suffixed |
 | §6.1 | Export collision disambiguation (__N) | spec_6_codegen.rs | two_way_collision, three_way_collision, collision_ordering_is_deterministic |
 | §7.1 | Error types (CodemodeError variants) | (type definitions, runtime tested in later phases) | — |
+
+## Phase 2: Sandbox Core — Runtime, Globals, Console, Polyfills
+
+| Spec Section | Requirement | Test File | Test Name(s) |
+|---|---|---|---|
+| §3.3 | Execute JS and return result via __codemode_result__ | spec_3_outer_tool.rs | execute_set_result_integer, execute_set_result_object, execute_no_result_returns_null, execute_result_with_logs |
+| §3.3.1 | Console capture (log, debug, warn, error) | spec_9_logging.rs | console_log_basic, console_all_four_levels |
+| §3.3.1 | Console timestamps (monotonic timeMs) | spec_9_logging.rs | console_timestamps_increase |
+| §3.3.1 | Console serialization (primitives, objects, multiple args) | spec_9_logging.rs | console_primitive_serialization, console_object_serialization, console_multiple_args_concatenated |
+| §3.3.1 | Console circular object fallback | spec_9_logging.rs | console_circular_object_fallback |
+| §3.3.1 | Log truncation at max_log_bytes | spec_9_logging.rs | log_truncation_at_byte_limit, log_truncation_no_further_logs |
+| §3.3.4 | Syntax errors → diagnostic (not propagated) | spec_3_outer_tool.rs | syntax_error_produces_diagnostic |
+| §3.3.4 | Uncaught exceptions → diagnostic | spec_3_outer_tool.rs | uncaught_exception_produces_diagnostic |
+| §3.3.4 | Prior logs preserved on fatal error | spec_3_outer_tool.rs | uncaught_exception_preserves_prior_logs |
+| §3.5 | eval is deleted | spec_3_outer_tool.rs | eval_is_not_available |
+| §3.5 | Function constructor is neutered | spec_3_outer_tool.rs | function_constructor_is_blocked |
+| §3.5 | setTimeout/clearTimeout provided | spec_3_outer_tool.rs | set_timeout_fires_callback |
+| §3.5 | Polyfills: URL, URLSearchParams | spec_3_outer_tool.rs | url_hostname_parsing, url_search_params_get |
+| §3.5 | Polyfills: TextEncoder, TextDecoder | spec_3_outer_tool.rs | text_encoder_basic, text_decoder_basic |
+| §3.2.4 | Timeout limit → SandboxLimit diagnostic | spec_3_outer_tool.rs | timeout_produces_sandbox_limit_diagnostic |
+| §3.2.4 | Memory limit enforcement | spec_3_outer_tool.rs | memory_limit_produces_diagnostic |
+| §1.4 | Fresh sandbox per execution (no state leakage) | spec_3_outer_tool.rs | fresh_sandbox_no_state_leakage |

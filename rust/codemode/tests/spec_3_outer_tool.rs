@@ -1,6 +1,6 @@
 use stencila_codemode::{
     DetailLevel, Diagnostic, DiagnosticCode, DiagnosticSeverity, Limits, ListToolsOptions,
-    LogEntry, LogLevel, RunRequest, RunResponse, SearchResultEntry, SearchResults,
+    LogEntry, LogLevel, RunRequest, RunResponse, Sandbox, SearchResultEntry, SearchResults,
     SearchToolsOptions, ServerDescription, ServerInfo, ToolDefinition, ToolSummary, ToolTraceEntry,
 };
 
@@ -349,4 +349,306 @@ fn search_tools_options_defaults_omit_none() {
     assert!(json.get("detail").is_none());
     assert!(json.get("serverId").is_none());
     assert!(json.get("limit").is_none());
+}
+
+// ============================================================
+// §3 — Sandbox execution tests (Phase 2)
+// ============================================================
+
+#[tokio::test]
+async fn execute_set_result_integer() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox.execute("globalThis.__codemode_result__ = 42").await;
+
+    assert_eq!(response.result, serde_json::json!(42));
+    assert!(response.diagnostics.is_empty());
+}
+
+#[tokio::test]
+async fn execute_set_result_object() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(r#"globalThis.__codemode_result__ = { ok: true, count: 3 }"#)
+        .await;
+
+    assert_eq!(response.result["ok"], true);
+    assert_eq!(response.result["count"], 3);
+}
+
+#[tokio::test]
+async fn execute_no_result_returns_null() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox.execute("1 + 1").await;
+
+    assert_eq!(response.result, serde_json::Value::Null);
+}
+
+#[tokio::test]
+async fn execute_result_with_logs() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        console.log('computing...');
+        globalThis.__codemode_result__ = 'done';
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("done"));
+    assert_eq!(response.logs.len(), 1);
+    assert_eq!(response.logs[0].message, "computing...");
+}
+
+// ============================================================
+// §3.3.4 — Fatal script errors produce diagnostics (never panic)
+// ============================================================
+
+#[tokio::test]
+async fn syntax_error_produces_diagnostic() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox.execute("this is not valid javascript @@@").await;
+
+    assert_eq!(response.result, serde_json::Value::Null);
+    assert!(!response.diagnostics.is_empty());
+    assert_eq!(response.diagnostics[0].severity, DiagnosticSeverity::Error);
+    assert_eq!(response.diagnostics[0].code, DiagnosticCode::SyntaxError);
+}
+
+#[tokio::test]
+async fn uncaught_exception_produces_diagnostic() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox.execute("throw new Error('boom')").await;
+
+    assert_eq!(response.result, serde_json::Value::Null);
+    assert!(!response.diagnostics.is_empty());
+    assert_eq!(
+        response.diagnostics[0].code,
+        DiagnosticCode::UncaughtException
+    );
+    assert!(response.diagnostics[0].message.contains("boom"));
+}
+
+#[tokio::test]
+async fn uncaught_exception_preserves_prior_logs() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        console.log('before error');
+        throw new Error('crash');
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.logs.len(), 1);
+    assert_eq!(response.logs[0].message, "before error");
+    assert!(!response.diagnostics.is_empty());
+}
+
+// ============================================================
+// §3.5 — Banned globals
+// ============================================================
+
+#[tokio::test]
+async fn eval_is_not_available() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        try {
+            eval('1 + 1');
+            globalThis.__codemode_result__ = 'eval worked';
+        } catch (e) {
+            globalThis.__codemode_result__ = 'eval blocked: ' + e.message;
+        }
+    "#,
+        )
+        .await;
+
+    let result = response.result.as_str().unwrap_or("");
+    assert!(
+        result.contains("blocked") || result.contains("not") || result.contains("defined"),
+        "eval should be blocked, got: {result}"
+    );
+}
+
+#[tokio::test]
+async fn function_constructor_is_blocked() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        try {
+            new Function('return 1')();
+            globalThis.__codemode_result__ = 'Function worked';
+        } catch (e) {
+            globalThis.__codemode_result__ = 'Function blocked: ' + e.message;
+        }
+    "#,
+        )
+        .await;
+
+    let result = response.result.as_str().unwrap_or("");
+    assert!(
+        result.contains("blocked") || result.contains("not allowed"),
+        "Function constructor should be blocked, got: {result}"
+    );
+}
+
+// ============================================================
+// §3.5 — setTimeout basic functionality
+// ============================================================
+
+#[tokio::test]
+async fn set_timeout_fires_callback() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        setTimeout(() => {
+            globalThis.__codemode_result__ = 'timer fired';
+        }, 10);
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("timer fired"));
+}
+
+// ============================================================
+// §3.5 — Polyfills
+// ============================================================
+
+#[tokio::test]
+async fn url_hostname_parsing() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        const u = new URL("https://example.com/path?q=1#frag");
+        globalThis.__codemode_result__ = u.hostname;
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("example.com"));
+}
+
+#[tokio::test]
+async fn url_search_params_get() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        const params = new URLSearchParams("a=1&b=2");
+        globalThis.__codemode_result__ = params.get("a");
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("1"));
+}
+
+#[tokio::test]
+async fn text_encoder_basic() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        const encoded = new TextEncoder().encode("hello");
+        globalThis.__codemode_result__ = Array.from(encoded);
+    "#,
+        )
+        .await;
+
+    // "hello" in UTF-8 is [104, 101, 108, 108, 111]
+    assert_eq!(
+        response.result,
+        serde_json::json!([104, 101, 108, 108, 111])
+    );
+}
+
+#[tokio::test]
+async fn text_decoder_basic() {
+    let sandbox = Sandbox::new(None).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        const bytes = new Uint8Array([104, 101, 108, 108, 111]);
+        globalThis.__codemode_result__ = new TextDecoder().decode(bytes);
+    "#,
+        )
+        .await;
+
+    assert_eq!(response.result, serde_json::json!("hello"));
+}
+
+// ============================================================
+// §3.2.4 / Limits — Timeout
+// ============================================================
+
+#[tokio::test]
+async fn timeout_produces_sandbox_limit_diagnostic() {
+    let limits = Limits {
+        timeout_ms: Some(50),
+        max_memory_bytes: None,
+        max_log_bytes: None,
+        max_tool_calls: None,
+    };
+    let sandbox = Sandbox::new(Some(&limits)).await.expect("sandbox");
+    let response = sandbox.execute("while(true) {}").await;
+
+    assert!(!response.diagnostics.is_empty());
+    assert_eq!(response.diagnostics[0].code, DiagnosticCode::SandboxLimit);
+}
+
+// ============================================================
+// §3.2.4 / Limits — Memory
+// ============================================================
+
+#[tokio::test]
+async fn memory_limit_produces_diagnostic() {
+    let limits = Limits {
+        timeout_ms: Some(5000),
+        max_memory_bytes: Some(1024 * 512), // 512KB — enough for setup, tight for user code
+        max_log_bytes: None,
+        max_tool_calls: None,
+    };
+    let sandbox = Sandbox::new(Some(&limits)).await.expect("sandbox");
+    let response = sandbox
+        .execute(
+            r#"
+        let arr = [];
+        for (let i = 0; i < 1000000; i++) {
+            arr.push(new Array(1000).fill('x'));
+        }
+    "#,
+        )
+        .await;
+
+    // Should have a diagnostic classified as a sandbox limit
+    assert!(!response.diagnostics.is_empty());
+    assert_eq!(response.diagnostics[0].code, DiagnosticCode::SandboxLimit);
+}
+
+// ============================================================
+// §1.4 — Fresh sandbox per invocation
+// ============================================================
+
+#[tokio::test]
+async fn fresh_sandbox_no_state_leakage() {
+    // First sandbox sets a value
+    let sandbox1 = Sandbox::new(None).await.expect("sandbox");
+    let r1 = sandbox1
+        .execute("globalThis.leaked = 'secret'; globalThis.__codemode_result__ = 'set'")
+        .await;
+    assert_eq!(r1.result, serde_json::json!("set"));
+
+    // Second sandbox should not see it
+    let sandbox2 = Sandbox::new(None).await.expect("sandbox");
+    let r2 = sandbox2
+        .execute("globalThis.__codemode_result__ = typeof globalThis.leaked")
+        .await;
+    assert_eq!(r2.result, serde_json::json!("undefined"));
 }
