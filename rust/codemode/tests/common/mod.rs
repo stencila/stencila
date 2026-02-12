@@ -3,12 +3,13 @@
 use std::sync::Arc;
 
 use stencila_codemode::{
-    CodemodeError, Limits, McpContent, McpServer, McpToolInfo, McpToolResult, RunRequest, Sandbox,
+    Limits, McpContent, McpServer, McpToolInfo, McpToolResult, RunRequest, Sandbox,
 };
+use stencila_mcp::McpError;
 
 /// Type alias for custom call_tool handler closures.
 type CallToolHandler =
-    Arc<dyn Fn(&str, serde_json::Value) -> Result<McpToolResult, CodemodeError> + Send + Sync>;
+    Arc<dyn Fn(&str, serde_json::Value) -> Result<McpToolResult, McpError> + Send + Sync>;
 
 /// Controls how `MockServer::call_tool()` responds.
 pub enum MockCallResponse {
@@ -105,7 +106,7 @@ impl McpServer for MockServer {
         self.capabilities.clone()
     }
 
-    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError> {
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, McpError> {
         Ok(self.tools.clone())
     }
 
@@ -113,7 +114,7 @@ impl McpServer for MockServer {
         &self,
         tool_name: &str,
         input: serde_json::Value,
-    ) -> Result<McpToolResult, CodemodeError> {
+    ) -> Result<McpToolResult, McpError> {
         match &self.call_response {
             MockCallResponse::Echo => Ok(McpToolResult {
                 content: vec![McpContent::Text {

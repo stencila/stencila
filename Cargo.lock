@@ -9894,6 +9894,7 @@ dependencies = [
  "rquickjs",
  "serde",
  "serde_json",
+ "stencila-mcp",
  "strsim",
  "thiserror 2.0.18",
  "tokio",
@@ -10484,6 +10485,22 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+]
+
+[[package]]
+name = "stencila-mcp"
+version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "directories",
+ "serde",
+ "serde_json",
+ "stencila-config",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "toml 0.9.11+spec-1.1.0",
+ "tracing",
 ]
 
 [[package]]

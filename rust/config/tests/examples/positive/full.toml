@@ -56,3 +56,14 @@ exclude = ["**/*.draft.md", "_drafts/**", "node_modules/**"]
 
 # Output with ref filtering
 "release/report.pdf" = { source = "report.md", refs = ["main", "release/*"] }
+
+# MCP servers
+[mcp.servers.filesystem]
+transport.type = "stdio"
+transport.command = "npx"
+transport.args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+
+[mcp.servers.remote-api]
+name = "Remote API"
+transport.type = "http"
+transport.url = "https://api.example.com/mcp"

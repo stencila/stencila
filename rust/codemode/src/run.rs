@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use crate::sandbox::Sandbox;
-use crate::traits::McpServer;
+use stencila_mcp::McpServer;
 use crate::types::{Diagnostic, DiagnosticCode, DiagnosticSeverity, RunRequest, RunResponse};
 
 /// Execute JavaScript code in a fresh codemode sandbox.

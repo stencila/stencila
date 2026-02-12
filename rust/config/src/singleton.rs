@@ -117,6 +117,11 @@ pub fn load_and_validate(workspace_dir: &Path) -> Result<Config> {
         }
     }
 
+    // Validate MCP configuration
+    if let Some(mcp) = &config.mcp {
+        mcp.validate()?;
+    }
+
     Ok(config)
 }
 

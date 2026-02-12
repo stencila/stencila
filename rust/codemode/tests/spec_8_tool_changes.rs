@@ -10,8 +10,9 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
 use stencila_codemode::{
-    CodemodeError, DirtyServerTracker, McpContent, McpServer, McpToolInfo, McpToolResult, Sandbox,
+    DirtyServerTracker, McpContent, McpServer, McpToolInfo, McpToolResult, Sandbox,
 };
+use stencila_mcp::McpError;
 
 // ---------------------------------------------------------------------------
 // DynamicMockServer — tools change on refresh, tracks refresh calls
@@ -65,7 +66,7 @@ impl McpServer for DynamicMockServer {
         &self.name
     }
 
-    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError> {
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, McpError> {
         let tools = self.tools.lock().expect("tools lock");
         Ok(tools.clone())
     }
@@ -74,7 +75,7 @@ impl McpServer for DynamicMockServer {
         &self,
         tool_name: &str,
         _input: serde_json::Value,
-    ) -> Result<McpToolResult, CodemodeError> {
+    ) -> Result<McpToolResult, McpError> {
         Ok(McpToolResult {
             content: vec![McpContent::Text {
                 text: format!("Called {tool_name}"),
@@ -88,7 +89,7 @@ impl McpServer for DynamicMockServer {
         self.list_changed
     }
 
-    async fn refresh_tools(&self) -> Result<(), CodemodeError> {
+    async fn refresh_tools(&self) -> Result<(), McpError> {
         self.refresh_count.fetch_add(1, Ordering::SeqCst);
         let mut pending = self.pending_tools.lock().expect("pending_tools lock");
         if let Some(new_tools) = pending.take() {

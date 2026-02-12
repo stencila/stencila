@@ -11,9 +11,10 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
 use stencila_codemode::{
-    CodemodeError, DiagnosticCode, DiagnosticSeverity, McpContent, McpServer, McpToolInfo,
-    McpToolResult, RunRequest, codemode_run,
+    DiagnosticCode, DiagnosticSeverity, McpContent, McpServer, McpToolInfo, McpToolResult,
+    RunRequest, codemode_run,
 };
+use stencila_mcp::McpError;
 
 use common::{MockServer, run_request, simple_tool, tool_with_schema};
 
@@ -428,7 +429,7 @@ impl McpServer for RefreshableMockServer {
         &self.id
     }
 
-    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError> {
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, McpError> {
         Ok(self.tools.lock().expect("lock").clone())
     }
 
@@ -436,7 +437,7 @@ impl McpServer for RefreshableMockServer {
         &self,
         tool_name: &str,
         _input: serde_json::Value,
-    ) -> Result<McpToolResult, CodemodeError> {
+    ) -> Result<McpToolResult, McpError> {
         Ok(McpToolResult {
             content: vec![McpContent::Text {
                 text: format!("Called {tool_name}"),
@@ -450,7 +451,7 @@ impl McpServer for RefreshableMockServer {
         true
     }
 
-    async fn refresh_tools(&self) -> Result<(), CodemodeError> {
+    async fn refresh_tools(&self) -> Result<(), McpError> {
         self.refresh_count.fetch_add(1, Ordering::SeqCst);
         if let Some(new_tools) = self.pending_tools.lock().expect("lock").take() {
             *self.tools.lock().expect("lock") = new_tools;

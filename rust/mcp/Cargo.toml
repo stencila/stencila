@@ -1,24 +1,21 @@
 [package]
-name = "stencila-codemode"
+name = "stencila-mcp"
 edition = "2024"
 version.workspace = true
 
 [dependencies]
 async-trait = { workspace = true }
-jsonschema = { workspace = true }
-rquickjs = { version = "0.11.0", features = ["futures", "macro", "parallel", "loader"] }
+directories = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-strsim = { workspace = true }
+stencila-config = { path = "../config" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
-url = { workspace = true }
-
-stencila-mcp = { path = "../mcp" }
+toml = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
-pretty_assertions = { workspace = true }
-serde_json = { workspace = true }
+tempfile = { workspace = true }
 tokio = { workspace = true, features = ["full", "test-util"] }
 
 [lints]

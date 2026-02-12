@@ -14,7 +14,7 @@ use rquickjs::{
 
 use crate::error::CodemodeError;
 use crate::modules::{CodemodeLoader, CodemodeResolver, ToolSnapshot};
-use crate::traits::McpServer;
+use stencila_mcp::McpServer;
 use crate::types::{
     Diagnostic, DiagnosticCode, DiagnosticSeverity, Limits, LogEntry, RunResponse, ToolTraceEntry,
 };

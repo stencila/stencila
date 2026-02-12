@@ -955,9 +955,10 @@ async fn rust_error_throws_tool_call_error() {
     let server: Arc<dyn McpServer> = Arc::new(
         MockServer::new("test", "Test", vec![simple_tool("crashTool", "Crash")])
             .with_call_response(MockCallResponse::Custom(Arc::new(|_tool_name, _input| {
-                Err(stencila_codemode::CodemodeError::Runtime(
-                    "Connection lost".into(),
-                ))
+                Err(stencila_mcp::McpError::Protocol {
+                    server_id: "test".into(),
+                    message: "Connection lost".into(),
+                })
             }))),
     );
     let sandbox = sandbox_with_servers(vec![server]).await;
@@ -994,9 +995,10 @@ async fn rust_error_records_trace() {
     let server: Arc<dyn McpServer> = Arc::new(
         MockServer::new("test", "Test", vec![simple_tool("crashTool", "Crash")])
             .with_call_response(MockCallResponse::Custom(Arc::new(|_tool_name, _input| {
-                Err(stencila_codemode::CodemodeError::Runtime(
-                    "Connection lost".into(),
-                ))
+                Err(stencila_mcp::McpError::Protocol {
+                    server_id: "test".into(),
+                    message: "Connection lost".into(),
+                })
             }))),
     );
     let sandbox = sandbox_with_servers(vec![server]).await;

@@ -1,4 +1,4 @@
-use crate::error::CodemodeError;
+use crate::error::McpError;
 
 /// Information about an MCP tool, abstracting over the underlying MCP protocol types.
 #[derive(Debug, Clone)]
@@ -25,7 +25,7 @@ pub struct McpToolResult {
     /// Content blocks returned by the tool.
     pub content: Vec<McpContent>,
 
-    /// Structured content (takes priority over `content` per §5.3.2 unwrapping).
+    /// Structured content (takes priority over `content` per codemode §5.3.2 unwrapping).
     pub structured_content: Option<serde_json::Value>,
 
     /// Whether the tool returned an error result.
@@ -73,14 +73,14 @@ pub trait McpServer: Send + Sync {
     }
 
     /// List all tools available on this server.
-    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError>;
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, McpError>;
 
     /// Call a tool on this server with the given JSON input.
     async fn call_tool(
         &self,
         tool_name: &str,
         input: serde_json::Value,
-    ) -> Result<McpToolResult, CodemodeError>;
+    ) -> Result<McpToolResult, McpError>;
 
     /// Whether this server supports `tools/listChanged` notifications.
     fn supports_list_changed(&self) -> bool {
@@ -90,7 +90,7 @@ pub trait McpServer: Send + Sync {
     /// Refresh the server's tool definitions (called when tools have changed).
     ///
     /// The default implementation is a no-op.
-    async fn refresh_tools(&self) -> Result<(), CodemodeError> {
+    async fn refresh_tools(&self) -> Result<(), McpError> {
         Ok(())
     }
 }

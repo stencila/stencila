@@ -35,6 +35,7 @@ static DOMAIN_REGEX: LazyLock<Regex> =
 pub mod cli;
 mod init;
 mod layout;
+mod mcp;
 mod outputs;
 mod remotes;
 mod singleton;
@@ -51,6 +52,7 @@ mod workspace;
 use crate::workspace::WorkspaceConfig;
 
 pub use {
+    mcp::{McpConfig, McpServerEntry, McpTransportConfig},
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
@@ -183,6 +185,18 @@ pub struct Config {
 
     /// Site configuration.
     pub site: Option<SiteConfig>,
+
+    /// MCP server configuration.
+    ///
+    /// Defines MCP servers that agents can connect to.
+    ///
+    /// ```toml
+    /// [mcp.servers.filesystem]
+    /// transport.type = "stdio"
+    /// transport.command = "npx"
+    /// transport.args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    /// ```
+    pub mcp: Option<mcp::McpConfig>
 }
 
 impl Config {

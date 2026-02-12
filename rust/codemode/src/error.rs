@@ -80,4 +80,8 @@ pub enum CodemodeError {
     /// An error from the `QuickJS` runtime.
     #[error("quickjs error: {0}")]
     QuickJs(String),
+
+    /// An error propagated from the MCP crate.
+    #[error("mcp error: {0}")]
+    Mcp(#[from] stencila_mcp::McpError),
 }

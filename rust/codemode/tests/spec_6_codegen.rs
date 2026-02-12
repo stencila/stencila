@@ -6,6 +6,7 @@ use stencila_codemode::{
     CodemodeError, McpServer, McpToolInfo, generate_declarations, normalize_server_id,
     resolve_export_collisions, resolve_server_collisions, tool_name_to_export,
 };
+use stencila_mcp::McpError;
 
 use common::MockServer;
 
@@ -850,15 +851,21 @@ impl McpServer for FailingToolsServer {
     fn server_name(&self) -> &str {
         "Failing Server"
     }
-    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError> {
-        Err(CodemodeError::Runtime("tools() failed".into()))
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, McpError> {
+        Err(McpError::Protocol {
+            server_id: self.server_id().to_string(),
+            message: "tools() failed".into(),
+        })
     }
     async fn call_tool(
         &self,
         _tool_name: &str,
         _input: serde_json::Value,
-    ) -> Result<stencila_codemode::McpToolResult, CodemodeError> {
-        Err(CodemodeError::Runtime("not implemented".into()))
+    ) -> Result<stencila_codemode::McpToolResult, McpError> {
+        Err(McpError::Protocol {
+            server_id: self.server_id().to_string(),
+            message: "not implemented".into(),
+        })
     }
 }
 
@@ -887,15 +894,18 @@ impl McpServer for InvalidIdServer {
     fn server_name(&self) -> &str {
         "Invalid"
     }
-    async fn tools(&self) -> Result<Vec<McpToolInfo>, CodemodeError> {
+    async fn tools(&self) -> Result<Vec<McpToolInfo>, McpError> {
         Ok(vec![])
     }
     async fn call_tool(
         &self,
         _tool_name: &str,
         _input: serde_json::Value,
-    ) -> Result<stencila_codemode::McpToolResult, CodemodeError> {
-        Err(CodemodeError::Runtime("not implemented".into()))
+    ) -> Result<stencila_codemode::McpToolResult, McpError> {
+        Err(McpError::Protocol {
+            server_id: self.server_id().to_string(),
+            message: "not implemented".into(),
+        })
     }
 }
 

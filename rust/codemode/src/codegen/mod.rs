@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use crate::error::CodemodeError;
 use crate::modules::{ServerToolset, ToolSnapshot};
-use crate::traits::McpServer;
+use stencila_mcp::McpServer;
 
 use ts_declarations::{convert_schema, generate_doc_comment, to_pascal_case};
 

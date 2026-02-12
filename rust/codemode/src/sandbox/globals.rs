@@ -4,10 +4,10 @@ use std::time::Instant;
 
 use rquickjs::{Ctx, function::Func};
 
-use crate::error::{CodemodeError, LimitKind};
+use crate::error::LimitKind;
 use crate::modules::ToolSnapshot;
 use crate::search::search_tools;
-use crate::traits::{McpContent, McpServer};
+use stencila_mcp::{McpContent, McpServer, McpToolResult};
 use crate::types::{DetailLevel, SearchToolsOptions, ToolTraceEntry};
 
 use super::SandboxState;
@@ -377,7 +377,7 @@ async fn call_tool_bridge(
             let value = unwrap_result(&tool_result);
             success_envelope(&value)
         }
-        Err(CodemodeError::Authentication {
+        Err(stencila_mcp::McpError::Authentication {
             server_id: sid,
             message: msg,
         }) => {
@@ -536,7 +536,7 @@ fn json_type_name(value: &serde_json::Value) -> &'static str {
 /// 1. `structured_content` (if present, return as-is)
 /// 2. Single text content → return the string directly
 /// 3. Single non-text or multiple content blocks → serialize full result
-fn unwrap_result(result: &crate::traits::McpToolResult) -> serde_json::Value {
+fn unwrap_result(result: &McpToolResult) -> serde_json::Value {
     // 1. Structured content takes priority
     if let Some(structured) = &result.structured_content {
         return structured.clone();
