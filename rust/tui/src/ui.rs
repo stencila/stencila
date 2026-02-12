@@ -48,7 +48,10 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_hints(frame, app, hints_area);
 
     // --- Render autocomplete popup (floats above input) ---
-    if app.commands_state.is_visible() {
+    // History popup has highest priority, then commands, then files.
+    if app.history_state.is_visible() {
+        render_history_autocomplete(frame, app, input_area);
+    } else if app.commands_state.is_visible() {
         render_autocomplete(frame, app, input_area);
     } else if app.files_state.is_visible() {
         render_files_autocomplete(frame, app, input_area);
@@ -232,37 +235,64 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     }
 }
 
-/// Render the autocomplete popup floating above the input area.
-fn render_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
-    let candidates = app.commands_state.candidates();
-    if candidates.is_empty() {
-        return;
-    }
-
-    // Use full input width for the popup so descriptions aren't truncated
+/// Compute the popup area above the input area for the given number of items.
+///
+/// Returns `None` if there isn't enough space to render a meaningful popup.
+fn popup_area(input_area: Rect, item_count: usize) -> Option<Rect> {
     let popup_width = input_area.width;
     #[allow(clippy::cast_possible_truncation)]
-    let popup_height = (candidates.len() as u16 + 2).min(input_area.y); // +2 for borders
+    let popup_height = (item_count as u16 + 2).min(input_area.y); // +2 for borders
 
     if popup_height < 3 || popup_width < 10 {
-        return; // Not enough space
+        return None;
     }
 
-    let max_name_width = candidates.iter().map(|c| c.name().len()).max().unwrap_or(0);
-
-    // Position: above the input area, aligned to left
-    let popup_area = Rect {
+    Some(Rect {
         x: input_area.x,
         y: input_area.y.saturating_sub(popup_height),
         width: popup_width,
         height: popup_height,
+    })
+}
+
+/// Style for unselected row primary text.
+const fn unselected_style() -> Style {
+    Style::new().fg(Color::White)
+}
+
+/// Style for the selected row's primary text in autocomplete popups.
+const fn selected_style() -> Style {
+    Style::new().fg(Color::Cyan).add_modifier(Modifier::BOLD)
+}
+
+/// Style for the selected row's secondary text (e.g. descriptions, paths).
+const fn selected_secondary_style() -> Style {
+    Style::new().fg(Color::White)
+}
+
+/// Render an autocomplete popup with the given lines and optional title.
+fn render_popup(frame: &mut Frame, area: Rect, lines: Vec<Line>, title: Option<&str>) {
+    frame.render_widget(Clear, area);
+
+    let mut block = Block::default().borders(Borders::ALL).border_style(dim());
+    if let Some(t) = title {
+        block = block.title(t);
+    }
+
+    let popup = Paragraph::new(Text::from(lines)).block(block);
+    frame.render_widget(popup, area);
+}
+
+/// Render the autocomplete popup floating above the input area.
+fn render_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.commands_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
     };
 
-    // Clear the area behind the popup
-    frame.render_widget(Clear, popup_area);
-
-    // Build popup lines with dim descriptions
+    let max_name_width = candidates.iter().map(|c| c.name().len()).max().unwrap_or(0);
     let selected = app.commands_state.selected();
+
     let lines: Vec<Line> = candidates
         .iter()
         .enumerate()
@@ -273,56 +303,51 @@ fn render_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
 
             if i == selected {
                 Line::from(vec![
-                    Span::styled(
-                        padded_name,
-                        Style::default()
-                            .fg(Color::Black)
-                            .bg(Color::Cyan)
-                            .add_modifier(Modifier::BOLD),
-                    ),
-                    Span::styled(
-                        desc.to_string(),
-                        Style::default().fg(Color::DarkGray).bg(Color::Cyan),
-                    ),
+                    Span::styled(padded_name, selected_style()),
+                    Span::styled(desc.to_string(), selected_secondary_style()),
                 ])
             } else {
                 Line::from(vec![
-                    Span::styled(padded_name, Style::default().fg(Color::White)),
+                    Span::styled(padded_name, unselected_style()),
                     Span::styled(desc.to_string(), dim()),
                 ])
             }
         })
         .collect();
 
-    let popup = Paragraph::new(Text::from(lines))
-        .block(Block::default().borders(Borders::ALL).border_style(dim()));
+    render_popup(frame, area, lines, None);
+}
 
-    frame.render_widget(popup, popup_area);
+/// Render the history autocomplete popup floating above the input area.
+fn render_history_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.history_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let selected = app.history_state.selected();
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let display = format!(" {}", candidate.preview);
+            if i == selected {
+                Line::from(Span::styled(display, selected_style()))
+            } else {
+                Line::from(Span::styled(display, unselected_style()))
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" History "));
 }
 
 /// Render the file autocomplete popup floating above the input area.
 fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
     let candidates = app.files_state.candidates();
-    if candidates.is_empty() {
+    let Some(area) = popup_area(input_area, candidates.len()) else {
         return;
-    }
-
-    let popup_width = input_area.width;
-    #[allow(clippy::cast_possible_truncation)]
-    let popup_height = (candidates.len() as u16 + 2).min(input_area.y);
-
-    if popup_height < 3 || popup_width < 10 {
-        return;
-    }
-
-    let popup_area = Rect {
-        x: input_area.x,
-        y: input_area.y.saturating_sub(popup_height),
-        width: popup_width,
-        height: popup_height,
     };
-
-    frame.render_widget(Clear, popup_area);
 
     let selected = app.files_state.selected();
     let is_at = app.files_state.is_at_search();
@@ -362,22 +387,13 @@ fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
             };
 
             if i == selected {
-                let mut spans = vec![Span::styled(
-                    name_part,
-                    Style::default()
-                        .fg(Color::Black)
-                        .bg(Color::Cyan)
-                        .add_modifier(Modifier::BOLD),
-                )];
+                let mut spans = vec![Span::styled(name_part, selected_style())];
                 if !path_part.is_empty() {
-                    spans.push(Span::styled(
-                        path_part,
-                        Style::default().fg(Color::DarkGray).bg(Color::Cyan),
-                    ));
+                    spans.push(Span::styled(path_part, selected_secondary_style()));
                 }
                 Line::from(spans)
             } else {
-                let mut spans = vec![Span::styled(name_part, Style::default().fg(Color::White))];
+                let mut spans = vec![Span::styled(name_part, unselected_style())];
                 if !path_part.is_empty() {
                     spans.push(Span::styled(path_part, dim()));
                 }
@@ -392,14 +408,7 @@ fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
         " Select file "
     };
 
-    let popup = Paragraph::new(Text::from(lines)).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(dim())
-            .title(title),
-    );
-
-    frame.render_widget(popup, popup_area);
+    render_popup(frame, area, lines, Some(title));
 }
 
 /// Count the number of visual lines the text occupies, accounting for wrapping.

@@ -1,7 +1,7 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
 
 use crate::{
-    autocomplete::{CommandsState, FilesState},
+    autocomplete::{CommandsState, FilesState, HistoryState},
     commands::SlashCommand,
     history::InputHistory,
     input::InputState,
@@ -56,6 +56,8 @@ pub struct App {
     pub commands_state: CommandsState,
     /// Files autocomplete popup state.
     pub files_state: FilesState,
+    /// History autocomplete popup state.
+    pub history_state: HistoryState,
 
     /// A shell command currently running in the background.
     pub running_command: Option<RunningCommand>,
@@ -82,6 +84,7 @@ impl App {
             input_history: InputHistory::new(),
             commands_state: CommandsState::new(),
             files_state: FilesState::new(),
+            history_state: HistoryState::new(),
             running_command: None,
             scroll_offset: 0,
             total_message_lines: 0,
@@ -117,22 +120,52 @@ impl App {
             return;
         }
 
-        // Priority 1: commands autocomplete intercepts navigation keys
+        // Priority 1: history autocomplete intercepts navigation keys
+        if self.history_state.is_visible() && self.handle_history_autocomplete(key) {
+            return;
+        }
+
+        // Priority 2: commands autocomplete intercepts navigation keys
         if self.commands_state.is_visible() && self.handle_commands_autocomplete(key) {
             return;
         }
 
-        // Priority 2: files autocomplete intercepts navigation keys
+        // Priority 3: files autocomplete intercepts navigation keys
         if self.files_state.is_visible() && self.handle_files_autocomplete(key) {
             return;
         }
 
         self.handle_normal_key(key);
 
-        // Update autocomplete after every keystroke that modifies input.
-        self.commands_state.update(self.input.text());
-        self.files_state
-            .update(self.input.text(), self.input.cursor());
+        self.refresh_autocomplete();
+    }
+
+    /// Handle a key event when the history autocomplete popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_history_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(full_text) = self.history_state.accept() {
+                    self.input.set_text(&full_text);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.history_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.history_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.history_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+                self.history_state.update(self.input.text());
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+                self.history_state.update(self.input.text());
+            }
+            _ => return false,
+        }
+        true
     }
 
     /// Handle a key event when the commands autocomplete popup is visible.
@@ -270,11 +303,7 @@ impl App {
     fn handle_paste(&mut self, text: &str) {
         self.input.insert_str(text);
         self.scroll_offset = 0;
-        if self.mode == AppMode::Chat {
-            self.commands_state.update(self.input.text());
-        }
-        self.files_state
-            .update(self.input.text(), self.input.cursor());
+        self.refresh_autocomplete();
     }
 
     /// Submit the current input as a user message or slash command.
@@ -284,8 +313,7 @@ impl App {
             return;
         }
 
-        self.commands_state.dismiss();
-        self.files_state.dismiss();
+        self.dismiss_all_autocomplete();
 
         // Slash commands work in both modes
         if let Some((cmd, args)) = SlashCommand::parse(&text) {
@@ -321,7 +349,7 @@ impl App {
     /// Enter shell mode with a system message.
     pub fn enter_shell_mode(&mut self) {
         self.mode = AppMode::Shell;
-        self.commands_state.dismiss();
+        self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {
             content: "Entering shell mode. Commands are sent to your shell. Use /exit or Ctrl+D to return.".to_string(),
         });
@@ -330,6 +358,7 @@ impl App {
     /// Exit shell mode and return to chat mode with a system message.
     pub fn exit_shell_mode(&mut self) {
         self.mode = AppMode::Chat;
+        self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {
             content: "Exiting shell mode.".to_string(),
         });
@@ -370,6 +399,21 @@ impl App {
                 exit_code: result.exit_code,
             });
         }
+    }
+
+    /// Dismiss all autocomplete popups.
+    fn dismiss_all_autocomplete(&mut self) {
+        self.commands_state.dismiss();
+        self.files_state.dismiss();
+        self.history_state.dismiss();
+    }
+
+    /// Re-filter all autocomplete states based on current input.
+    fn refresh_autocomplete(&mut self) {
+        self.history_state.update(self.input.text());
+        self.commands_state.update(self.input.text());
+        self.files_state
+            .update(self.input.text(), self.input.cursor());
     }
 
     /// Navigate to the previous (older) history entry, filtered by current mode.

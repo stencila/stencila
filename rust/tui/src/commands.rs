@@ -118,7 +118,7 @@ fn execute_clear(app: &mut App) {
 }
 
 fn execute_history(app: &mut App) {
-    let entries = app.input_history.entries();
+    let entries = app.input_history.entries_for_mode(app.mode, 20);
     if entries.is_empty() {
         app.messages.push(AppMessage::System {
             content: "No history entries.".to_string(),
@@ -126,16 +126,7 @@ fn execute_history(app: &mut App) {
         return;
     }
 
-    // Show the last 20 entries
-    let start = entries.len().saturating_sub(20);
-    let mut text = String::from("Recent history:\n");
-    for (i, entry) in entries[start..].iter().enumerate() {
-        // Show single-line preview for multiline entries
-        let preview = entry.lines().next().unwrap_or("");
-        let suffix = if entry.contains('\n') { " ..." } else { "" };
-        let _ = writeln!(text, "  {:3}. {preview}{suffix}", start + i + 1);
-    }
-    app.messages.push(AppMessage::System { content: text });
+    app.history_state.open(entries);
 }
 
 #[cfg(test)]
@@ -290,19 +281,19 @@ mod tests {
             &app.messages[initial],
             AppMessage::System { content } if content.contains("No history")
         ));
+        assert!(!app.history_state.is_visible());
     }
 
     #[test]
-    fn execute_history_with_entries() {
+    fn execute_history_opens_popup() {
         let mut app = App::new();
         app.input_history.push("first".to_string());
         app.input_history.push("second".to_string());
         let initial = app.messages.len();
         SlashCommand::History.execute(&mut app, "");
-        assert_eq!(app.messages.len(), initial + 1);
-        assert!(matches!(
-            &app.messages[initial],
-            AppMessage::System { content } if content.contains("first") && content.contains("second")
-        ));
+        // No new message — popup opened instead
+        assert_eq!(app.messages.len(), initial);
+        assert!(app.history_state.is_visible());
+        assert_eq!(app.history_state.candidates().len(), 2);
     }
 }

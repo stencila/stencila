@@ -236,6 +236,28 @@ impl InputHistory {
     pub fn entries(&self) -> Vec<&str> {
         self.entries.iter().map(|e| e.text.as_str()).collect()
     }
+
+    /// Get entries filtered by mode, newest first, as `(preview, full_text)` tuples.
+    ///
+    /// The preview is the first line of the entry, truncated with " ..." if multiline.
+    /// Returns at most `limit` entries.
+    pub fn entries_for_mode(&self, mode: AppMode, limit: usize) -> Vec<(String, String)> {
+        self.entries
+            .iter()
+            .rev()
+            .filter(|e| e.mode == mode)
+            .take(limit)
+            .map(|e| {
+                let first_line = e.text.lines().next().unwrap_or("");
+                let preview = if e.text.contains('\n') {
+                    format!("{first_line} ...")
+                } else {
+                    first_line.to_string()
+                };
+                (preview, e.text.clone())
+            })
+            .collect()
+    }
 }
 
 /// Get the path for a per-directory history file.
@@ -483,5 +505,46 @@ mod tests {
 
         // No shell entries
         assert_eq!(history.navigate_up_filtered("", AppMode::Shell), None);
+    }
+
+    #[test]
+    fn entries_for_mode_filters_and_limits() {
+        let mut history = InputHistory::new();
+        history.push_tagged("chat1".to_string(), AppMode::Chat);
+        history.push_tagged("shell1".to_string(), AppMode::Shell);
+        history.push_tagged("chat2".to_string(), AppMode::Chat);
+        history.push_tagged("shell2".to_string(), AppMode::Shell);
+
+        let chat_entries = history.entries_for_mode(AppMode::Chat, 10);
+        assert_eq!(chat_entries.len(), 2);
+        // Newest first
+        assert_eq!(chat_entries[0].1, "chat2");
+        assert_eq!(chat_entries[1].1, "chat1");
+
+        let shell_entries = history.entries_for_mode(AppMode::Shell, 1);
+        assert_eq!(shell_entries.len(), 1);
+        assert_eq!(shell_entries[0].1, "shell2");
+    }
+
+    #[test]
+    fn entries_for_mode_multiline_preview() {
+        let mut history = InputHistory::new();
+        history.push_tagged("single line".to_string(), AppMode::Chat);
+        history.push_tagged("first line\nsecond line".to_string(), AppMode::Chat);
+
+        let entries = history.entries_for_mode(AppMode::Chat, 10);
+        // Newest first: multiline entry first
+        assert_eq!(entries[0].0, "first line ...");
+        assert_eq!(entries[0].1, "first line\nsecond line");
+        // Single line: preview equals full text
+        assert_eq!(entries[1].0, "single line");
+        assert_eq!(entries[1].1, "single line");
+    }
+
+    #[test]
+    fn entries_for_mode_empty() {
+        let history = InputHistory::new();
+        let entries = history.entries_for_mode(AppMode::Chat, 10);
+        assert!(entries.is_empty());
     }
 }
