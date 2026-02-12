@@ -1,0 +1,16 @@
+[package]
+name = "stencila-tui"
+edition = "2024"
+version.workspace = true
+
+[dependencies]
+clap = { workspace = true }
+crossterm = { version = "0.29", features = ["event-stream"] }
+eyre = { workspace = true }
+futures = { workspace = true }
+ratatui = { version = "0.30.0", default-features = false, features = ["crossterm", "layout-cache"] }
+stencila-version = { path = "../version" }
+tokio = { workspace = true }
+
+[lints]
+workspace = true
