@@ -130,10 +130,7 @@ impl App {
         self.handle_normal_key(key);
 
         // Update autocomplete after every keystroke that modifies input.
-        // Suppress command autocomplete in shell mode to avoid popup on path typing.
-        if self.mode == AppMode::Chat {
-            self.commands_state.update(self.input.text());
-        }
+        self.commands_state.update(self.input.text());
         self.files_state
             .update(self.input.text(), self.input.cursor());
     }
@@ -844,12 +841,12 @@ mod tests {
     }
 
     #[test]
-    fn autocomplete_suppressed_in_shell_mode() {
+    fn autocomplete_works_in_shell_mode() {
         let mut app = App::new();
         app.enter_shell_mode();
 
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
-        assert!(!app.commands_state.is_visible());
+        assert!(app.commands_state.is_visible());
     }
 
     #[test]
