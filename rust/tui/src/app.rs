@@ -204,12 +204,12 @@ impl App {
         }
 
         self.commands_state.dismiss();
-        self.input_history.push(text.clone());
 
         // Check for slash command
         if let Some((cmd, args)) = SlashCommand::parse(&text) {
             cmd.execute(self, args);
         } else {
+            self.input_history.push(text.clone());
             self.messages.push(ChatMessage::User { content: text });
         }
 
