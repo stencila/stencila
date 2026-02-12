@@ -87,7 +87,7 @@ impl CommandsState {
     ///
     /// Returns the full command name to insert into the input, or `None` if
     /// there's nothing to accept.
-    pub fn accept(&mut self) -> Option<&'static str> {
+    pub fn accept(&mut self) -> Option<String> {
         if !self.visible || self.candidates.is_empty() {
             return None;
         }

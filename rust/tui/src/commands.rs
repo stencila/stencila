@@ -1,42 +1,51 @@
 use std::fmt::Write;
 
-use strum::IntoEnumIterator;
+use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
 use crate::app::{App, ChatMessage};
 
 /// Slash commands available in the TUI.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, strum::EnumIter)]
+///
+/// Note that for each variant, the comment is the description.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter, EnumMessage)]
+#[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
-    Help,
+    // Clear messages
     Clear,
-    Quit,
+
+    // Show help information
+    Help,
+
+    // Show recent history
     History,
+
+    // Exit the application
+    Exit,
 }
 
 impl SlashCommand {
     /// The slash-prefixed name of this command (e.g. `/help`).
-    pub fn name(self) -> &'static str {
+    pub fn name(self) -> String {
+        ["/", &self.to_string()].concat()
+    }
+
+    /// Slash-prefixed alias of this command (e.g. `/quit`).
+    pub fn aliases(self) -> Vec<&'static str> {
         match self {
-            Self::Help => "/help",
-            Self::Clear => "/clear",
-            Self::Quit => "/quit",
-            Self::History => "/history",
+            Self::Exit => vec!["/quit"],
+            _ => Vec::new(),
         }
     }
 
     /// A short description for the autocomplete popup.
     pub fn description(self) -> &'static str {
-        match self {
-            Self::Help => "Show help information",
-            Self::Clear => "Clear message history",
-            Self::Quit => "Exit the TUI",
-            Self::History => "Show recent history entries",
-        }
+        self.get_message().unwrap_or("")
     }
 
     /// Whether this command's name starts with the given prefix.
     pub fn matches_prefix(self, prefix: &str) -> bool {
         self.name().starts_with(prefix)
+            || self.aliases().iter().any(|alias| alias.starts_with(alias))
     }
 
     /// Return all commands whose name starts with `prefix`.
@@ -69,9 +78,9 @@ impl SlashCommand {
     /// Execute this command, mutating the app state.
     pub fn execute(self, app: &mut App, _args: &str) {
         match self {
-            Self::Help => execute_help(app),
             Self::Clear => execute_clear(app),
-            Self::Quit => app.should_quit = true,
+            Self::Exit => app.should_quit = true,
+            Self::Help => execute_help(app),
             Self::History => execute_history(app),
         }
     }
@@ -159,7 +168,7 @@ mod tests {
         assert_eq!(h_cmds.len(), 2); // /help, /history
 
         let q_cmds = SlashCommand::matching("/q");
-        assert_eq!(q_cmds, vec![SlashCommand::Quit]);
+        assert_eq!(q_cmds, vec![SlashCommand::Exit]);
 
         let none = SlashCommand::matching("/z");
         assert!(none.is_empty());
@@ -178,7 +187,7 @@ mod tests {
     fn parse_with_leading_trailing_whitespace() {
         assert_eq!(
             SlashCommand::parse("  /quit  "),
-            Some((SlashCommand::Quit, ""))
+            Some((SlashCommand::Exit, ""))
         );
         assert_eq!(
             SlashCommand::parse("  /history  "),
@@ -221,7 +230,7 @@ mod tests {
     fn execute_quit_sets_flag() {
         let mut app = App::new();
         assert!(!app.should_quit);
-        SlashCommand::Quit.execute(&mut app, "");
+        SlashCommand::Exit.execute(&mut app, "");
         assert!(app.should_quit);
     }
 
