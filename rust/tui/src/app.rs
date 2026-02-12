@@ -99,12 +99,20 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Home) => self.input.move_home(),
             (KeyModifiers::NONE, KeyCode::End) => self.input.move_end(),
 
-            // History navigation (only when input is single-line)
-            (KeyModifiers::NONE, KeyCode::Up) if self.input.is_single_line() => {
-                self.navigate_history_up();
+            // Up/Down: history at boundary lines, cursor movement otherwise
+            (KeyModifiers::NONE, KeyCode::Up) => {
+                if self.input.is_on_first_line() {
+                    self.navigate_history_up();
+                } else {
+                    self.input.move_up();
+                }
             }
-            (KeyModifiers::NONE, KeyCode::Down) if self.input.is_single_line() => {
-                self.navigate_history_down();
+            (KeyModifiers::NONE, KeyCode::Down) => {
+                if self.input.is_on_last_line() {
+                    self.navigate_history_down();
+                } else {
+                    self.input.move_down();
+                }
             }
 
             // Word-level deletion
@@ -258,6 +266,23 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Char('b'), KeyModifiers::NONE));
         assert_eq!(app.input.text(), "a\nb");
+    }
+
+    #[test]
+    fn up_down_moves_cursor_in_multiline() {
+        let mut app = App::new();
+        // Paste multiline text: "abc\ndef"
+        app.handle_event(&Event::Paste("abc\ndef".to_string()));
+        // Cursor at end (pos 7, line 1, col 3)
+        assert_eq!(app.input.cursor(), 7);
+
+        // Up moves to same column on previous line
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        assert_eq!(app.input.cursor(), 3); // end of "abc"
+
+        // Down moves back
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        assert_eq!(app.input.cursor(), 7); // end of "def"
     }
 
     #[test]

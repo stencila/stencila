@@ -111,6 +111,73 @@ impl InputState {
         !self.buffer.contains('\n')
     }
 
+    /// Whether the cursor is on the first line.
+    pub fn is_on_first_line(&self) -> bool {
+        !self.buffer[..self.cursor].contains('\n')
+    }
+
+    /// Whether the cursor is on the last line.
+    pub fn is_on_last_line(&self) -> bool {
+        !self.buffer[self.cursor..].contains('\n')
+    }
+
+    /// Move the cursor up one line, preserving the column position.
+    ///
+    /// If the cursor is on the first line, moves to the start of the buffer.
+    pub fn move_up(&mut self) {
+        let (line_start, col) = self.current_line_start_and_col();
+
+        if line_start == 0 {
+            // Already on the first line — move to start
+            self.cursor = 0;
+            return;
+        }
+
+        // Find the start of the previous line (byte before current line's \n)
+        let prev_line_end = line_start - 1; // the \n
+        let prev_line_start = self.buffer[..prev_line_end]
+            .rfind('\n')
+            .map_or(0, |pos| pos + 1);
+
+        let prev_line_len = prev_line_end - prev_line_start;
+        self.cursor = prev_line_start + col.min(prev_line_len);
+    }
+
+    /// Move the cursor down one line, preserving the column position.
+    ///
+    /// If the cursor is on the last line, moves to the end of the buffer.
+    pub fn move_down(&mut self) {
+        let (_, col) = self.current_line_start_and_col();
+
+        // Find the end of the current line
+        let line_end = self.buffer[self.cursor..]
+            .find('\n')
+            .map(|pos| self.cursor + pos);
+
+        let Some(newline_pos) = line_end else {
+            // Already on the last line — move to end
+            self.cursor = self.buffer.len();
+            return;
+        };
+
+        let next_line_start = newline_pos + 1;
+        let next_line_end = self.buffer[next_line_start..]
+            .find('\n')
+            .map_or(self.buffer.len(), |pos| next_line_start + pos);
+
+        let next_line_len = next_line_end - next_line_start;
+        self.cursor = next_line_start + col.min(next_line_len);
+    }
+
+    /// Returns (`line_start_byte_offset`, `column_in_chars`) for the current cursor position.
+    fn current_line_start_and_col(&self) -> (usize, usize) {
+        let line_start = self.buffer[..self.cursor]
+            .rfind('\n')
+            .map_or(0, |pos| pos + 1);
+        let col = self.buffer[line_start..self.cursor].chars().count();
+        (line_start, col)
+    }
+
     /// Move the cursor one word to the left.
     ///
     /// Skips whitespace, then moves to the start of the previous word.
@@ -345,6 +412,73 @@ mod tests {
         input.delete_char_before();
         assert_eq!(input.text(), "ñ");
         assert_eq!(input.cursor(), 0);
+    }
+
+    #[test]
+    fn move_up_basic() {
+        let mut input = InputState::default();
+        input.set_text("abc\ndef\nghi");
+        // cursor at end (pos 11, line 2, col 3)
+        input.move_up();
+        // Should be on line 1, col 3 → "def" pos 7
+        assert_eq!(input.cursor(), 7);
+        input.move_up();
+        // Should be on line 0, col 3 → "abc" pos 3
+        assert_eq!(input.cursor(), 3);
+        // Already on first line → move to start
+        input.move_up();
+        assert_eq!(input.cursor(), 0);
+    }
+
+    #[test]
+    fn move_down_basic() {
+        let mut input = InputState::default();
+        input.set_text("abc\ndef\nghi");
+        input.move_home(); // pos 0
+        input.move_down();
+        // Should be on line 1, col 0 → pos 4
+        assert_eq!(input.cursor(), 4);
+        input.move_down();
+        // Should be on line 2, col 0 → pos 8
+        assert_eq!(input.cursor(), 8);
+        // Already on last line → move to end
+        input.move_down();
+        assert_eq!(input.cursor(), 11);
+    }
+
+    #[test]
+    fn move_up_clamps_column() {
+        let mut input = InputState::default();
+        input.set_text("abcdef\nhi");
+        // cursor at end: line 1, col 2
+        input.move_up();
+        // line 0 has 6 chars, col 2 fits → pos 2
+        assert_eq!(input.cursor(), 2);
+
+        // Now test the other direction: short line above
+        let mut input2 = InputState::default();
+        input2.set_text("ab\ncdefgh");
+        // cursor at end: line 1, col 6
+        input2.move_up();
+        // line 0 has 2 chars, col clamped to 2 → pos 2
+        assert_eq!(input2.cursor(), 2);
+    }
+
+    #[test]
+    fn move_down_clamps_column() {
+        let mut input = InputState::default();
+        // Type "abcdef", then newline, then "hi"
+        // Position cursor at end of first line (col 6) by navigating
+        input.set_text("abcdef\nhi");
+        input.move_home(); // pos 0
+        // Move right 6 times to reach end of "abcdef"
+        for _ in 0..6 {
+            input.move_right();
+        }
+        assert_eq!(input.cursor(), 6);
+        input.move_down();
+        // line 1 "hi" has 2 chars, col 6 clamped to 2 → pos 9
+        assert_eq!(input.cursor(), 9);
     }
 
     #[test]
