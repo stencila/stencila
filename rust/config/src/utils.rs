@@ -257,15 +257,21 @@ pub(crate) fn set_nested_value_toml(
         return Err(eyre!("Empty key path"));
     }
 
-    // Navigate to the parent table, creating nested tables as needed
+    // Navigate to the parent table, creating nested tables as needed.
+    // Newly-created intermediate tables are marked implicit so they don't
+    // each get their own `[header]` line in the output.
     let mut current = doc.as_table_mut();
 
     for part in &parts[..parts.len() - 1] {
+        let is_new = !current.contains_key(part);
         current = current
             .entry(part)
             .or_insert(Item::Table(Table::new()))
             .as_table_mut()
             .ok_or_else(|| eyre!("Expected table at key '{}'", part))?;
+        if is_new {
+            current.set_implicit(true);
+        }
     }
 
     // Set the final value with type inference
