@@ -27,11 +27,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Arc::new(Models3Client::new(
         stencila_models3::client::Client::from_env()?,
     ));
-    let system_prompt = prompts::build_system_prompt(&mut *profile, &*env, true).await?;
     let config = SessionConfig::default();
+    let (system_prompt, mcp_context) =
+        prompts::build_system_prompt(&mut *profile, &*env, &config).await?;
 
     let (mut session, mut receiver) =
-        Session::new(profile, env, client, config, system_prompt, 0);
+        Session::new(profile, env, client, config, system_prompt, 0, mcp_context);
 
     session.submit("Create hello.py that prints 'Hello World'").await?;
     session.close();
@@ -75,6 +76,27 @@ The following extensions to the spec are implemented.
 ### AwaitingInput auto-detection (`§2.3`)
 
 The spec defines a `PROCESSING → AWAITING_INPUT` transition but does not specify a detection mechanism. This implementation adds heuristic detection: when the model produces a text-only response (no tool calls) whose last line ends with `?` or begins with a solicitation phrase ("Would you like...", "Shall I...", "Let me know..."), the session transitions to `AwaitingInput` instead of `Idle`. Detection only runs on natural completions, not limit-triggered exits. The host can disable this via `SessionConfig::auto_detect_awaiting_input = false` and use the manual `set_awaiting_input()` API instead.
+
+### MCP direct tool registration (`feature = "mcp"`)
+
+The spec mentions MCP as a natural extension for registering tools from external servers. This implementation discovers MCP server configurations from multiple sources (Stencila, Claude, Codex, Gemini config files), connects to them via a `ConnectionPool`, and registers each tool directly in the agent's `ToolRegistry` with namespaced names (`mcp__<server_id>__<tool_name>`). The LLM sees and calls each MCP tool individually, the same way it calls built-in tools like `read_file` or `shell`. This mode is straightforward but can overwhelm the LLM's tool selection when many servers expose many tools. Controlled by `SessionConfig::enable_mcp` (default `false`).
+
+### Codemode: sandboxed MCP orchestration (`feature = "codemode"`)
+
+Instead of exposing every MCP tool individually, codemode registers a single `codemode` tool. The LLM writes JavaScript (ES module syntax) that imports typed functions from `@codemode/servers/<server_id>` modules and orchestrates multiple MCP calls in a sandboxed QuickJS environment. TypeScript declarations describing every available server and tool are included in the system prompt (budget-capped at 4000 characters, falling back to a summary with runtime discovery via `@codemode/discovery`).
+
+Advantages over direct MCP registration:
+
+- **Scales to many tools.** The LLM sees one tool regardless of how many MCP servers and tools are available, avoiding tool-selection confusion.
+- **Composable.** A single `codemode` call can chain multiple MCP calls, filter results, transform data, and return a structured answer --- work that would otherwise require many sequential tool-call rounds.
+- **Sandboxed.** Code runs in QuickJS with configurable timeouts, memory limits, and tool-call caps. No filesystem or network access beyond the MCP servers.
+- **Observable.** The response includes structured diagnostics, console logs, and a redacted tool-call trace for debugging.
+
+Controlled by `SessionConfig::enable_codemode` (default `true`). Both modes can be enabled simultaneously --- direct MCP tools for simple one-shot calls, codemode for complex orchestration.
+
+### Workspace skills (`feature = "skills"`)
+
+The spec identifies skills as a natural extension point for reusable prompts. This implementation discovers skill files (markdown with YAML frontmatter) from `.stencila/skills/` and provider-specific directories (e.g. `.claude/skills/` for Anthropic). Compact metadata for all discovered skills is included in the system prompt, and a `use_skill` tool is registered so the LLM can load a skill's full instructions on demand. This progressive-disclosure approach keeps the system prompt small while making the complete skill library accessible. Controlled by `SessionConfig::enable_skills` (default `true`).
 
 ## Deviations
 

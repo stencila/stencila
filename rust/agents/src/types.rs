@@ -104,6 +104,26 @@ pub struct SessionConfig {
     #[serde(default = "default_true")]
     pub enable_skills: bool,
 
+    /// Whether to register MCP tools directly in the agent's tool registry.
+    ///
+    /// When enabled and the `mcp` feature is active, each MCP tool is
+    /// registered as an individual tool that the LLM can call directly.
+    /// Simple for LLMs but can overwhelm with many tools.
+    #[serde(default)]
+    pub enable_mcp: bool,
+
+    /// Whether to register a single `codemode` tool for MCP orchestration.
+    ///
+    /// When enabled and the `codemode` feature is active, a single `codemode`
+    /// tool is registered that lets the LLM write JavaScript to orchestrate
+    /// MCP calls in a sandboxed environment. TypeScript declarations are
+    /// included in the system prompt.
+    ///
+    /// Defaults to `false` — callers must explicitly opt in to MCP
+    /// discovery and server connections.
+    #[serde(default)]
+    pub enable_codemode: bool,
+
     /// Whether loop detection is enabled.
     #[serde(default = "default_true")]
     pub enable_loop_detection: bool,
@@ -171,6 +191,8 @@ impl SessionConfig {
             loop_detection_window: self.loop_detection_window,
             auto_detect_awaiting_input: self.auto_detect_awaiting_input,
             enable_skills: self.enable_skills,
+            enable_mcp: self.enable_mcp,
+            enable_codemode: self.enable_codemode,
             // Session-specific: not inherited
             reasoning_effort: None,
             user_instructions: None,
@@ -194,6 +216,8 @@ impl Default for SessionConfig {
             user_instructions: None,
             auto_detect_awaiting_input: true,
             enable_skills: true,
+            enable_mcp: false,
+            enable_codemode: false,
         }
     }
 }

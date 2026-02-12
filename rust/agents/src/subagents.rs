@@ -255,6 +255,12 @@ pub struct SubAgentManager {
     parent_config: SessionConfig,
     /// Counter for generating unique agent IDs.
     next_id: u32,
+    /// MCP connection pool shared with child sessions.
+    #[cfg(any(feature = "mcp", feature = "codemode"))]
+    mcp_pool: Option<Arc<stencila_mcp::ConnectionPool>>,
+    /// Dirty server tracker for codemode, shared with child sessions.
+    #[cfg(feature = "codemode")]
+    dirty_tracker: Option<Arc<std::sync::Mutex<stencila_codemode::DirtyServerTracker>>>,
 }
 
 impl std::fmt::Debug for SubAgentManager {
@@ -286,7 +292,26 @@ impl SubAgentManager {
             current_depth,
             parent_config,
             next_id: 0,
+            #[cfg(any(feature = "mcp", feature = "codemode"))]
+            mcp_pool: None,
+            #[cfg(feature = "codemode")]
+            dirty_tracker: None,
         }
+    }
+
+    /// Set the MCP pool for sharing with child sessions.
+    #[cfg(any(feature = "mcp", feature = "codemode"))]
+    pub fn set_mcp_pool(&mut self, pool: Arc<stencila_mcp::ConnectionPool>) {
+        self.mcp_pool = Some(pool);
+    }
+
+    /// Set the dirty tracker for sharing with child sessions.
+    #[cfg(feature = "codemode")]
+    pub fn set_dirty_tracker(
+        &mut self,
+        tracker: Arc<std::sync::Mutex<stencila_codemode::DirtyServerTracker>>,
+    ) {
+        self.dirty_tracker = Some(tracker);
     }
 
     /// Whether a tool name is a subagent tool that should be intercepted.
@@ -369,13 +394,56 @@ impl SubAgentManager {
             Arc::clone(&self.execution_env)
         };
 
-        // Build system prompt for child, including working_dir scope if specified
-        let mut system_prompt = crate::prompts::build_system_prompt(
+        // Build system prompt for child. Pass a config with MCP/codemode
+        // disabled so the child doesn't discover its own MCP pool — it
+        // inherits the parent's pool below instead.
+        let child_prompt_config = {
+            let mut c = child_config.clone();
+            c.enable_mcp = false;
+            c.enable_codemode = false;
+            c
+        };
+        let (mut system_prompt, _) = crate::prompts::build_system_prompt(
             &mut *child_profile,
             &*child_env,
-            child_config.enable_skills,
+            &child_prompt_config,
         )
         .await?;
+
+        // Register MCP/codemode tools on child profile using parent's pool
+        #[cfg(any(feature = "mcp", feature = "codemode"))]
+        if let Some(ref pool) = self.mcp_pool {
+            #[cfg(feature = "mcp")]
+            if child_config.enable_mcp {
+                let mcp_metadata = crate::mcp::register_mcp_tools(&mut *child_profile, pool).await;
+                if !mcp_metadata.is_empty() {
+                    system_prompt.push_str("\n\n");
+                    system_prompt.push_str(&mcp_metadata);
+                }
+            }
+
+            #[cfg(feature = "codemode")]
+            if child_config.enable_codemode {
+                let tracker = self.dirty_tracker.clone().unwrap_or_else(|| {
+                    std::sync::Arc::new(std::sync::Mutex::new(
+                        stencila_codemode::DirtyServerTracker::new(),
+                    ))
+                });
+
+                if let Err(e) =
+                    crate::codemode::register_codemode_tool(&mut *child_profile, pool, &tracker)
+                {
+                    tracing::warn!("failed to register codemode tool on subagent: {e}");
+                }
+
+                let codemode_prompt = crate::codemode::build_codemode_prompt(pool).await;
+                if !codemode_prompt.is_empty() {
+                    system_prompt.push_str("\n\n");
+                    system_prompt.push_str(&codemode_prompt);
+                }
+            }
+        }
+
         if let Some(ref dir) = working_dir {
             system_prompt.push_str(&format!(
                 "\n\nYou are scoped to the subdirectory: {dir}\n\
@@ -384,6 +452,19 @@ impl SubAgentManager {
                  commands run with this directory as the working directory."
             ));
         }
+
+        // Build MCP context for the child session (shares parent's pool).
+        #[cfg(any(feature = "mcp", feature = "codemode"))]
+        let child_mcp_context = self
+            .mcp_pool
+            .as_ref()
+            .map(|pool| crate::prompts::McpContext {
+                pool: Arc::clone(pool),
+                #[cfg(feature = "codemode")]
+                dirty_tracker: self.dirty_tracker.clone(),
+            });
+        #[cfg(not(any(feature = "mcp", feature = "codemode")))]
+        let child_mcp_context: Option<crate::prompts::McpContext> = None;
 
         // Create the child session. The receiver is dropped immediately —
         // the emitter silently discards events when no receiver exists,
@@ -395,6 +476,7 @@ impl SubAgentManager {
             child_config,
             system_prompt,
             self.current_depth + 1,
+            child_mcp_context,
         );
 
         // Set up abort controller for the child

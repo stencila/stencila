@@ -4,8 +4,10 @@ edition = "2024"
 version.workspace = true
 
 [features]
-default = ["skills"]
+default = ["skills", "mcp", "codemode"]
 skills = ["dep:stencila-skills"]
+mcp = ["dep:stencila-mcp"]
+codemode = ["dep:stencila-mcp", "dep:stencila-codemode"]
 
 [dependencies]
 async-trait = { workspace = true }
@@ -18,6 +20,8 @@ regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-models3 = { path = "../models3" }
+stencila-codemode = { path = "../codemode", optional = true }
+stencila-mcp = { path = "../mcp", optional = true }
 stencila-skills = { path = "../skills", optional = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }

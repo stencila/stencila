@@ -112,10 +112,19 @@ pub async fn live_session(
     let llm_client = Arc::new(Models3Client::new(client));
 
     // Build system prompt
-    let system_prompt = prompts::build_system_prompt(&mut *profile, &*exec_env, true).await?;
+    let (system_prompt, mcp_context) =
+        prompts::build_system_prompt(&mut *profile, &*exec_env, &config).await?;
 
     // Create session (depth 0 = top-level)
-    let (session, receiver) = Session::new(profile, exec_env, llm_client, config, system_prompt, 0);
+    let (session, receiver) = Session::new(
+        profile,
+        exec_env,
+        llm_client,
+        config,
+        system_prompt,
+        0,
+        mcp_context,
+    );
 
     Ok((session, receiver))
 }

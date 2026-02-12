@@ -515,6 +515,7 @@ fn test_session_with_profile(
         config,
         "test system prompt".into(),
         0,
+        None,
     );
     Ok((session, receiver, client))
 }
@@ -1526,6 +1527,7 @@ async fn run_parity_session(
             SessionConfig::default(),
             "parity test".into(),
             0,
+            None,
         );
         (s, r, client.clone())
     };
@@ -1704,6 +1706,7 @@ async fn abort_cancels_in_flight_tool_execution() -> AgentResult<()> {
             SessionConfig::default(),
             "test system prompt".into(),
             0,
+            None,
         );
         (s, r, client.clone())
     };
@@ -1796,6 +1799,7 @@ async fn context_usage_warning_emitted_at_80_percent() -> AgentResult<()> {
             SessionConfig::default(),
             huge_prompt,
             0,
+            None,
         );
         (s, r, client.clone())
     };
@@ -1859,10 +1863,14 @@ async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResul
     let mut profile = Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?);
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
 
-    let prompt = stencila_agents::session::build_system_prompt(
+    let no_skills_config = SessionConfig {
+        enable_skills: false,
+        ..SessionConfig::default()
+    };
+    let (prompt, _) = stencila_agents::session::build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
-        false,
+        &no_skills_config,
     )
     .await?;
 
@@ -1907,10 +1915,14 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
     let mut profile = Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?);
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
 
-    let prompt = stencila_agents::session::build_system_prompt(
+    let no_skills_config = SessionConfig {
+        enable_skills: false,
+        ..SessionConfig::default()
+    };
+    let (prompt, _) = stencila_agents::session::build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
-        false,
+        &no_skills_config,
     )
     .await?;
 
@@ -1924,6 +1936,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
             SessionConfig::default(),
             prompt.clone(),
             0,
+            None,
         );
         (s, r, client.clone())
     };
@@ -2028,10 +2041,14 @@ async fn end_to_end_prompt_includes_project_docs_layer() -> AgentResult<()> {
         Arc::new(MockExecEnvWithDocs::new(project_instructions));
 
     let mut profile = Box::new(OpenAiProfile::new("gpt-5.2-codex", 600_000)?);
-    let prompt = stencila_agents::session::build_system_prompt(
+    let no_skills_config = SessionConfig {
+        enable_skills: false,
+        ..SessionConfig::default()
+    };
+    let (prompt, _) = stencila_agents::session::build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
-        false,
+        &no_skills_config,
     )
     .await?;
 
@@ -2129,6 +2146,7 @@ async fn abort_during_llm_call() -> AgentResult<()> {
         SessionConfig::default(),
         "test prompt".into(),
         0,
+        None,
     );
 
     let controller = AbortController::new();
@@ -2235,6 +2253,7 @@ async fn shell_timeout_clamped_to_max() -> AgentResult<()> {
             SessionConfig::default(),
             "test".into(),
             0,
+            None,
         );
         (s, r, client.clone())
     };
@@ -2497,6 +2516,7 @@ async fn streaming_real_incremental_deltas() -> AgentResult<()> {
         SessionConfig::default(),
         "test prompt".into(),
         0,
+        None,
     );
 
     session.submit("Stream me").await?;
@@ -2657,6 +2677,7 @@ async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> 
         SessionConfig::default(),
         "test prompt".into(),
         0,
+        None,
     );
     session.set_abort_signal(controller.signal());
 
@@ -2773,6 +2794,7 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
         SessionConfig::default(),
         "test prompt".into(),
         0,
+        None,
     );
 
     let result = session.submit("Stream error").await;
@@ -2835,6 +2857,7 @@ async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<
         SessionConfig::default(),
         "image test".into(),
         0,
+        None,
     );
 
     session.submit("describe photo.png").await?;
@@ -2882,6 +2905,7 @@ async fn openai_image_tool_result_excludes_image_from_message() -> AgentResult<(
         SessionConfig::default(),
         "image test".into(),
         0,
+        None,
     );
 
     session.submit("describe photo.png").await?;

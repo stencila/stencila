@@ -48,6 +48,10 @@ pub enum AgentError {
     #[error("i/o error: {message}")]
     Io { message: String },
 
+    /// An MCP server error during tool execution.
+    #[error("mcp error: {message}")]
+    Mcp { message: String },
+
     // --- Session-level errors (Appendix B) ---
     /// The session has been closed and cannot accept further input.
     #[error("session closed")]
@@ -87,7 +91,8 @@ impl AgentError {
             | Self::PermissionDenied { .. }
             | Self::ValidationError { .. }
             | Self::UnknownTool { .. }
-            | Self::Io { .. } => true,
+            | Self::Io { .. }
+            | Self::Mcp { .. } => true,
 
             Self::SessionClosed
             | Self::InvalidState { .. }
@@ -133,7 +138,8 @@ impl AgentError {
             | Self::PermissionDenied { .. }
             | Self::ValidationError { .. }
             | Self::UnknownTool { .. }
-            | Self::Io { .. } => false,
+            | Self::Io { .. }
+            | Self::Mcp { .. } => false,
         }
     }
 
@@ -152,6 +158,7 @@ impl AgentError {
             Self::ValidationError { .. } => "VALIDATION_ERROR",
             Self::UnknownTool { .. } => "UNKNOWN_TOOL",
             Self::Io { .. } => "IO_ERROR",
+            Self::Mcp { .. } => "MCP_ERROR",
             Self::SessionClosed => "SESSION_CLOSED",
             Self::InvalidState { .. } => "INVALID_STATE",
             Self::TurnLimitExceeded { .. } => "TURN_LIMIT_EXCEEDED",
@@ -182,6 +189,15 @@ impl AgentError {
 impl From<SdkError> for AgentError {
     fn from(err: SdkError) -> Self {
         Self::Sdk(err)
+    }
+}
+
+#[cfg(any(feature = "mcp", feature = "codemode"))]
+impl From<stencila_mcp::McpError> for AgentError {
+    fn from(err: stencila_mcp::McpError) -> Self {
+        Self::Mcp {
+            message: err.to_string(),
+        }
     }
 }
 

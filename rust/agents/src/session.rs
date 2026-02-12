@@ -250,6 +250,16 @@ pub struct Session {
     /// Provider-generated tool_call_ids are UUIDs, so collisions are
     /// not a practical concern.
     image_attachments: HashMap<String, ImageAttachment>,
+
+    /// MCP connection pool for server lifecycle and subagent sharing.
+    #[cfg(any(feature = "mcp", feature = "codemode"))]
+    mcp_pool: Option<Arc<stencila_mcp::ConnectionPool>>,
+
+    /// Whether this session owns the MCP pool and should shut it down on close.
+    /// Only the top-level session that created the pool owns it; child sessions
+    /// share the pool via `Arc` but must not call `start_shutdown()`.
+    #[cfg(any(feature = "mcp", feature = "codemode"))]
+    owns_mcp_pool: bool,
 }
 
 impl std::fmt::Debug for Session {
@@ -267,10 +277,14 @@ impl Session {
     ///
     /// Returns the session and an [`EventReceiver`] for consuming events.
     /// The caller is responsible for building the system prompt (see
-    /// [`build_system_prompt()`] helper).
+    /// [`build_system_prompt()`] helper) and passing the resulting
+    /// [`McpContext`] so the session can manage pool lifecycle and
+    /// propagate MCP/codemode capabilities to subagents.
     ///
     /// The `current_depth` parameter controls subagent nesting: 0 for a
-    /// top-level session, incremented by 1 for each child.
+    /// top-level session, incremented by 1 for each child. Top-level
+    /// sessions (depth 0) own the MCP pool and shut it down on close;
+    /// child sessions share the pool without owning it.
     ///
     /// Emits a `SESSION_START` event immediately.
     pub fn new(
@@ -280,6 +294,7 @@ impl Session {
         config: SessionConfig,
         system_prompt: String,
         current_depth: u32,
+        mcp_context: Option<crate::prompts::McpContext>,
     ) -> (Self, EventReceiver) {
         let (emitter, receiver) = events::channel();
         emitter.emit_session_start();
@@ -306,12 +321,34 @@ impl Session {
             tracing::warn!("failed to register subagent tools: {e}");
         }
 
-        let subagent_manager = SubAgentManager::new(
+        #[allow(unused_mut)]
+        let mut subagent_manager = SubAgentManager::new(
             Arc::clone(&execution_env),
             Arc::clone(&client),
             current_depth,
             config.clone(),
         );
+
+        // Apply MCP context: store pool for lifecycle management and
+        // propagate to subagent manager for child session sharing.
+        #[cfg(any(feature = "mcp", feature = "codemode"))]
+        let (mcp_pool, owns_mcp_pool) = if let Some(ctx) = mcp_context {
+            subagent_manager.set_mcp_pool(std::sync::Arc::clone(&ctx.pool));
+
+            #[cfg(feature = "codemode")]
+            if let Some(ref tracker) = ctx.dirty_tracker {
+                subagent_manager.set_dirty_tracker(std::sync::Arc::clone(tracker));
+            }
+
+            let owns = current_depth == 0;
+            (Some(ctx.pool), owns)
+        } else {
+            (None, false)
+        };
+
+        // Suppress unused-variable when no MCP features are active.
+        #[cfg(not(any(feature = "mcp", feature = "codemode")))]
+        let _ = mcp_context;
 
         let session = Self {
             config,
@@ -330,6 +367,10 @@ impl Session {
             tool_call_signatures: VecDeque::new(),
             subagent_manager,
             image_attachments: HashMap::new(),
+            #[cfg(any(feature = "mcp", feature = "codemode"))]
+            mcp_pool,
+            #[cfg(any(feature = "mcp", feature = "codemode"))]
+            owns_mcp_pool,
         };
 
         (session, receiver)
@@ -405,6 +446,15 @@ impl Session {
         if self.state != SessionState::Closed {
             // Clean up active subagents before closing (spec graceful shutdown, line 1431)
             self.subagent_manager.close_all();
+
+            // Shut down MCP connection pool (only if this session owns it)
+            #[cfg(any(feature = "mcp", feature = "codemode"))]
+            if self.owns_mcp_pool
+                && let Some(ref pool) = self.mcp_pool
+            {
+                pool.start_shutdown();
+            }
+
             self.state = SessionState::Closed;
             self.events.emit_session_end(self.state);
         }
@@ -450,6 +500,13 @@ impl Session {
     #[must_use]
     pub fn total_turns(&self) -> u32 {
         self.total_turns
+    }
+
+    /// The MCP connection pool, if MCP/codemode is active.
+    #[cfg(any(feature = "mcp", feature = "codemode"))]
+    #[must_use]
+    pub fn mcp_pool(&self) -> Option<&Arc<stencila_mcp::ConnectionPool>> {
+        self.mcp_pool.as_ref()
     }
 
     // -- Core loop (spec 2.5) --

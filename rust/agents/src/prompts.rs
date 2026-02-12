@@ -7,6 +7,7 @@
 use crate::error::AgentResult;
 use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
+use crate::types::SessionConfig;
 
 // ---------------------------------------------------------------------------
 // GitContext (spec 6.4)
@@ -235,19 +236,50 @@ pub fn format_git_summary(git_context: &GitContext) -> String {
 // Full prompt assembly (spec 6.1)
 // ---------------------------------------------------------------------------
 
-/// Build the system prompt for a session by gathering environment context,
-/// project docs, and optionally workspace skills.
+// ---------------------------------------------------------------------------
+// MCP context
+// ---------------------------------------------------------------------------
+
+/// Context produced during MCP setup, stored by the session for lifecycle
+/// management and pool sharing with subagents.
+#[cfg(any(feature = "mcp", feature = "codemode"))]
+pub struct McpContext {
+    /// The connection pool for MCP servers.
+    pub pool: std::sync::Arc<stencila_mcp::ConnectionPool>,
+
+    /// Dirty server tracker for codemode (tracks which servers need tool refresh).
+    #[cfg(feature = "codemode")]
+    pub dirty_tracker:
+        Option<std::sync::Arc<std::sync::Mutex<stencila_codemode::DirtyServerTracker>>>,
+}
+
+/// Placeholder when no MCP features are compiled in.
+#[cfg(not(any(feature = "mcp", feature = "codemode")))]
+pub struct McpContext {
+    _private: (),
+}
+
+// ---------------------------------------------------------------------------
+// Full prompt assembly (spec 6.1)
+// ---------------------------------------------------------------------------
+
+/// Build the system prompt for a session.
 ///
-/// Convenience async function that combines profile, environment context,
-/// project doc discovery, and skill metadata into a complete system prompt
-/// string. When `enable_skills` is true and the `skills` feature is active,
-/// discovered skills are included as metadata and the `use_skill` tool is
-/// registered in the profile.
+/// Gathers environment context, project docs, workspace skills, and
+/// MCP/codemode tools (when the respective features and config flags are
+/// active). Returns the assembled prompt string and an optional
+/// [`McpContext`] for session lifecycle management.
+///
+/// This is the single entry point for prompt assembly — callers do not
+/// need to handle MCP setup separately.
 pub async fn build_system_prompt(
     profile: &mut dyn ProviderProfile,
     env: &dyn ExecutionEnvironment,
-    enable_skills: bool,
-) -> AgentResult<String> {
+    config: &SessionConfig,
+) -> AgentResult<(String, Option<McpContext>)> {
+    // Suppress unused-variable when no feature flags are active.
+    let _ = config;
+
     let env_context = build_environment_context_from_env(env, profile.model(), None).await;
 
     let git_root = find_git_root(env).await;
@@ -263,7 +295,7 @@ pub async fn build_system_prompt(
     // Skills layer (between project docs and user instructions).
     // Gated at both compile time (feature) and runtime (config flag).
     #[cfg(feature = "skills")]
-    if enable_skills {
+    if config.enable_skills {
         let skills_metadata =
             crate::skills::discover_and_register_skills(profile, working_dir).await;
         if !skills_metadata.is_empty() {
@@ -272,9 +304,78 @@ pub async fn build_system_prompt(
         }
     }
 
-    // Suppress unused variable warning when feature is off.
-    #[cfg(not(feature = "skills"))]
-    let _ = enable_skills;
+    // MCP / codemode layers.
+    #[cfg(any(feature = "mcp", feature = "codemode"))]
+    let mcp_context = { setup_mcp_layers(profile, env, config, &mut prompt).await };
 
-    Ok(prompt)
+    // When neither MCP feature is compiled in, no context to return.
+    #[cfg(not(any(feature = "mcp", feature = "codemode")))]
+    let mcp_context: Option<McpContext> = None;
+
+    Ok((prompt, mcp_context))
+}
+
+/// Internal: discover MCP servers and register tools / codemode.
+///
+/// Separated from `build_system_prompt` to keep the `#[cfg]` surface
+/// manageable — this entire function is only compiled when at least one
+/// MCP feature is active.
+#[cfg(any(feature = "mcp", feature = "codemode"))]
+async fn setup_mcp_layers(
+    profile: &mut dyn ProviderProfile,
+    env: &dyn ExecutionEnvironment,
+    config: &SessionConfig,
+    prompt: &mut String,
+) -> Option<McpContext> {
+    if !config.enable_mcp && !config.enable_codemode {
+        return None;
+    }
+
+    let workspace_dir = std::path::Path::new(env.working_directory());
+    let (pool, connection_errors) = crate::mcp::setup_mcp_pool(workspace_dir).await;
+
+    for (server_id, err) in &connection_errors {
+        tracing::warn!(server_id, "MCP server connection failed: {err}");
+    }
+
+    if pool.connected_count().await == 0 {
+        tracing::info!("no MCP servers connected — skipping MCP/codemode setup");
+        return None;
+    }
+
+    #[cfg(feature = "mcp")]
+    if config.enable_mcp {
+        let mcp_metadata = crate::mcp::register_mcp_tools(profile, &pool).await;
+        if !mcp_metadata.is_empty() {
+            prompt.push_str("\n\n");
+            prompt.push_str(&mcp_metadata);
+        }
+    }
+
+    #[cfg(feature = "codemode")]
+    let dirty_tracker = if config.enable_codemode {
+        let tracker = std::sync::Arc::new(std::sync::Mutex::new(
+            stencila_codemode::DirtyServerTracker::new(),
+        ));
+
+        if let Err(e) = crate::codemode::register_codemode_tool(profile, &pool, &tracker) {
+            tracing::warn!("failed to register codemode tool: {e}");
+        }
+
+        let codemode_prompt = crate::codemode::build_codemode_prompt(&pool).await;
+        if !codemode_prompt.is_empty() {
+            prompt.push_str("\n\n");
+            prompt.push_str(&codemode_prompt);
+        }
+
+        Some(tracker)
+    } else {
+        None
+    };
+
+    Some(McpContext {
+        pool,
+        #[cfg(feature = "codemode")]
+        dirty_tracker,
+    })
 }

@@ -55,6 +55,14 @@ pub mod tools;
 #[cfg(feature = "skills")]
 pub mod skills;
 
+/// MCP pool setup and direct tool injection.
+#[cfg(any(feature = "mcp", feature = "codemode"))]
+pub mod mcp;
+
+/// Codemode tool registration and MCP orchestration via JavaScript.
+#[cfg(feature = "codemode")]
+pub mod codemode;
+
 /// Core domain types: configuration, session state, turns, events.
 pub mod types;
 
