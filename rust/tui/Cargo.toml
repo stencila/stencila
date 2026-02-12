@@ -9,8 +9,13 @@ crossterm = { version = "0.29", features = ["event-stream"] }
 eyre = { workspace = true }
 futures = { workspace = true }
 ratatui = { version = "0.30.0", default-features = false, features = ["crossterm", "layout-cache"] }
+serde_json = { workspace = true }
+stencila-dirs = { path = "../dirs" }
 stencila-version = { path = "../version" }
 tokio = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
 
 [lints]
 workspace = true

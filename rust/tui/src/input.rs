@@ -111,6 +111,76 @@ impl InputState {
         !self.buffer.contains('\n')
     }
 
+    /// Move the cursor one word to the left.
+    ///
+    /// Skips whitespace, then moves to the start of the previous word.
+    pub fn move_word_left(&mut self) {
+        let bytes = self.buffer.as_bytes();
+        let mut pos = self.cursor;
+        // Skip whitespace/punctuation backwards
+        while pos > 0 && !bytes[pos - 1].is_ascii_alphanumeric() {
+            pos -= 1;
+            while pos > 0 && !self.buffer.is_char_boundary(pos) {
+                pos -= 1;
+            }
+        }
+        // Skip word characters backwards
+        while pos > 0 && bytes[pos - 1].is_ascii_alphanumeric() {
+            pos -= 1;
+        }
+        self.cursor = pos;
+    }
+
+    /// Move the cursor one word to the right.
+    ///
+    /// Skips the current word, then skips whitespace after it.
+    pub fn move_word_right(&mut self) {
+        let len = self.buffer.len();
+        let bytes = self.buffer.as_bytes();
+        let mut pos = self.cursor;
+        // Skip word characters forward
+        while pos < len && bytes[pos].is_ascii_alphanumeric() {
+            pos += 1;
+        }
+        // Skip whitespace/punctuation forward
+        while pos < len && !bytes[pos].is_ascii_alphanumeric() {
+            pos += 1;
+        }
+        self.cursor = pos;
+    }
+
+    /// Delete the word before the cursor (Ctrl+Backspace).
+    pub fn delete_word_back(&mut self) {
+        let end = self.cursor;
+        self.move_word_left();
+        self.buffer.drain(self.cursor..end);
+    }
+
+    /// Delete the word after the cursor (Ctrl+Delete).
+    pub fn delete_word_forward(&mut self) {
+        let start = self.cursor;
+        self.move_word_right();
+        self.buffer.drain(start..self.cursor);
+        self.cursor = start;
+    }
+
+    /// Delete from cursor to the start of the line (Ctrl+U).
+    pub fn delete_to_line_start(&mut self) {
+        let line_start = self.buffer[..self.cursor]
+            .rfind('\n')
+            .map_or(0, |pos| pos + 1);
+        self.buffer.drain(line_start..self.cursor);
+        self.cursor = line_start;
+    }
+
+    /// Delete from cursor to the end of the line (Ctrl+K).
+    pub fn delete_to_line_end(&mut self) {
+        let line_end = self.buffer[self.cursor..]
+            .find('\n')
+            .map_or(self.buffer.len(), |pos| self.cursor + pos);
+        self.buffer.drain(self.cursor..line_end);
+    }
+
     /// Find the byte offset of the previous character boundary.
     fn prev_char_boundary(&self) -> usize {
         let mut pos = self.cursor.saturating_sub(1);
@@ -274,6 +344,96 @@ mod tests {
 
         input.delete_char_before();
         assert_eq!(input.text(), "ñ");
+        assert_eq!(input.cursor(), 0);
+    }
+
+    #[test]
+    fn move_word_left_basic() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.move_word_left();
+        assert_eq!(input.cursor(), 6); // before "world"
+        input.move_word_left();
+        assert_eq!(input.cursor(), 0); // before "hello"
+        // At start, stays
+        input.move_word_left();
+        assert_eq!(input.cursor(), 0);
+    }
+
+    #[test]
+    fn move_word_right_basic() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.move_home();
+        input.move_word_right();
+        assert_eq!(input.cursor(), 6); // after "hello "
+        input.move_word_right();
+        assert_eq!(input.cursor(), 11); // after "world"
+        // At end, stays
+        input.move_word_right();
+        assert_eq!(input.cursor(), 11);
+    }
+
+    #[test]
+    fn move_word_with_punctuation() {
+        let mut input = InputState::default();
+        input.set_text("foo.bar baz");
+        input.move_home();
+        input.move_word_right();
+        // Skips "foo", then skips "."
+        assert_eq!(input.cursor(), 4); // at "bar"
+    }
+
+    #[test]
+    fn delete_word_back() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.delete_word_back();
+        assert_eq!(input.text(), "hello ");
+        assert_eq!(input.cursor(), 6);
+        input.delete_word_back();
+        assert_eq!(input.text(), "");
+        assert_eq!(input.cursor(), 0);
+    }
+
+    #[test]
+    fn delete_word_forward() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.move_home();
+        input.delete_word_forward();
+        assert_eq!(input.text(), "world");
+        assert_eq!(input.cursor(), 0);
+    }
+
+    #[test]
+    fn delete_to_line_start() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.delete_to_line_start();
+        assert_eq!(input.text(), "");
+
+        // With multiline: only delete to start of current line
+        input.set_text("line1\nline2");
+        // cursor at end (11)
+        input.delete_to_line_start();
+        assert_eq!(input.text(), "line1\n");
+        assert_eq!(input.cursor(), 6);
+    }
+
+    #[test]
+    fn delete_to_line_end() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.move_home();
+        input.delete_to_line_end();
+        assert_eq!(input.text(), "");
+
+        // With multiline
+        input.set_text("line1\nline2");
+        input.move_home();
+        input.delete_to_line_end();
+        assert_eq!(input.text(), "\nline2");
         assert_eq!(input.cursor(), 0);
     }
 

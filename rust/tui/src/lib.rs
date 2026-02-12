@@ -2,6 +2,7 @@
 
 mod app;
 mod event;
+mod history;
 mod input;
 mod terminal;
 mod ui;
@@ -26,6 +27,12 @@ impl Tui {
         let mut events = EventReader::new();
         let mut app = App::new();
 
+        // Load history from disk (best-effort)
+        let history_path = history::history_file_path();
+        if let Some(path) = &history_path {
+            app.history.load_from_file(path);
+        }
+
         loop {
             guard.terminal.draw(|frame| ui::render(frame, &mut app))?;
             match events.next().await {
@@ -37,6 +44,11 @@ impl Tui {
                 Some(event::AppEvent::Tick) => {}
                 None => break,
             }
+        }
+
+        // Save history to disk (best-effort)
+        if let Some(path) = &history_path {
+            app.history.save_to_file(path);
         }
 
         // Guard's Drop restores the terminal automatically, but dropping
