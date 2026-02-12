@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
-use eyre::{Result, bail};
+use eyre::Result;
 use stencila_ask::{Answer, ask_with_default};
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
@@ -393,7 +393,7 @@ impl Add {
 /// or from the user-level config with `--user`. Only Stencila-managed
 /// servers can be removed (not those from Claude, Codex, or Gemini configs).
 #[derive(Debug, Args)]
-#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
+#[command(alias = "rm", after_long_help = REMOVE_AFTER_LONG_HELP)]
 struct Remove {
     /// The server ID to remove
     id: String,
