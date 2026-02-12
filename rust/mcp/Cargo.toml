@@ -9,6 +9,7 @@ cli = ["clap", "eyre", "stencila-ask", "stencila-cli-utils"]
 [dependencies]
 async-trait = { workspace = true }
 directories = { workspace = true }
+reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-config = { path = "../config" }
@@ -24,6 +25,7 @@ stencila-ask = { path = "../ask", optional = true }
 stencila-cli-utils = { path = "../cli-utils", optional = true }
 
 [dev-dependencies]
+bytes = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["full", "test-util"] }
 

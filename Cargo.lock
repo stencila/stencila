@@ -10627,9 +10627,11 @@ name = "stencila-mcp"
 version = "2.13.0"
 dependencies = [
  "async-trait",
+ "bytes",
  "clap",
  "directories",
  "eyre",
+ "reqwest 0.13.1",
  "serde",
  "serde_json",
  "stencila-ask",

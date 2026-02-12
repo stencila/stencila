@@ -16,6 +16,7 @@ pub use pool::ConnectionPool;
 pub use server::LiveMcpServer;
 pub use traits::{McpContent, McpServer, McpToolInfo, McpToolResult};
 pub use transport::Transport;
+pub use transport::http::HttpTransport;
 pub use transport::stdio::StdioTransport;
 pub use types::{
     InitializeResult, JsonRpcError, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse,

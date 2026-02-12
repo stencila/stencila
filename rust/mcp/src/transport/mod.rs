@@ -4,6 +4,7 @@
 //! between the client and an MCP server. Implementations handle framing,
 //! request/response matching, and server-initiated notification delivery.
 
+pub mod http;
 pub mod stdio;
 
 use std::time::Duration;
@@ -54,6 +55,13 @@ pub trait Transport: Send + Sync {
 
     /// Whether the transport is currently connected to the server.
     fn is_connected(&self) -> bool;
+
+    /// Optional post-connect hook for transports that need to start
+    /// background tasks after the MCP initialize handshake completes.
+    ///
+    /// Called by [`LiveMcpServer`](crate::LiveMcpServer) after the
+    /// initialize/initialized exchange. The default implementation is a no-op.
+    async fn post_connect(&self) {}
 
     /// Gracefully shut down the transport.
     ///

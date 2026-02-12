@@ -20,6 +20,7 @@ use crate::{
     config::{McpServerConfig, TransportConfig},
     traits::{McpContent, McpServer, McpToolInfo, McpToolResult},
     transport::Transport,
+    transport::http::HttpTransport,
     transport::stdio::StdioTransport,
     types::{McpContentBlock, ServerCapabilities, ServerInfo, ToolCallResult, ToolsListResult},
 };
@@ -89,10 +90,8 @@ impl LiveMcpServer {
                 args,
                 &config.env,
             )?),
-            TransportConfig::Http { .. } => {
-                return Err(McpError::Config(
-                    "HTTP transport not yet implemented".into(),
-                ));
+            TransportConfig::Http { url, headers } => {
+                Box::new(HttpTransport::new(&config.id, url, headers)?)
             }
         };
 
@@ -132,6 +131,10 @@ impl LiveMcpServer {
 
         // Send initialized notification
         transport.notify("notifications/initialized", None).await?;
+
+        // Allow transport to start background tasks now that the handshake
+        // is complete and session ID is established.
+        transport.post_connect().await;
 
         let server_info = init_result.server_info;
         let server_capabilities = init_result.capabilities;
@@ -659,12 +662,14 @@ for line in sys.stdin:
     }
 
     #[tokio::test]
-    async fn http_transport_not_implemented() {
+    async fn http_transport_connect_failure() {
+        // Connecting to a non-existent HTTP endpoint should fail during
+        // the initialize handshake, not during transport creation.
         let config = McpServerConfig {
             id: "http-server".into(),
             name: None,
             transport: TransportConfig::Http {
-                url: "https://example.com/mcp".into(),
+                url: "http://127.0.0.1:1/mcp".into(),
                 headers: HashMap::new(),
             },
             env: HashMap::new(),
@@ -672,12 +677,10 @@ for line in sys.stdin:
             source: None,
         };
 
-        let Err(err) = LiveMcpServer::connect(config).await else {
-            panic!("expected Config error");
-        };
+        let result = LiveMcpServer::connect(config).await;
         assert!(
-            matches!(err, McpError::Config(_)),
-            "expected Config error, got {err:?}"
+            result.is_err(),
+            "expected connection to fail for unreachable endpoint"
         );
     }
 }
