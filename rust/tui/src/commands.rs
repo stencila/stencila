@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
-use crate::app::{App, AppMode, ChatMessage};
+use crate::app::{App, AppMode, AppMessage};
 
 /// Slash commands available in the TUI.
 ///
@@ -109,7 +109,7 @@ fn execute_help(app: &mut App) {
     help.push_str("  Ctrl+L         Clear messages\n");
     help.push_str("  PageUp/Down    Scroll messages\n");
     help.push_str("  !command       Run a shell command from chat mode");
-    app.messages.push(ChatMessage::System { content: help });
+    app.messages.push(AppMessage::System { content: help });
 }
 
 fn execute_clear(app: &mut App) {
@@ -120,7 +120,7 @@ fn execute_clear(app: &mut App) {
 fn execute_history(app: &mut App) {
     let entries = app.input_history.entries();
     if entries.is_empty() {
-        app.messages.push(ChatMessage::System {
+        app.messages.push(AppMessage::System {
             content: "No history entries.".to_string(),
         });
         return;
@@ -135,7 +135,7 @@ fn execute_history(app: &mut App) {
         let suffix = if entry.contains('\n') { " ..." } else { "" };
         let _ = writeln!(text, "  {:3}. {preview}{suffix}", start + i + 1);
     }
-    app.messages.push(ChatMessage::System { content: text });
+    app.messages.push(AppMessage::System { content: text });
 }
 
 #[cfg(test)]
@@ -228,7 +228,7 @@ mod tests {
         assert_eq!(app.messages.len(), initial_count + 1);
         assert!(matches!(
             &app.messages[initial_count],
-            ChatMessage::System { content } if content.contains("/help")
+            AppMessage::System { content } if content.contains("/help")
         ));
     }
 
@@ -288,7 +288,7 @@ mod tests {
         assert_eq!(app.messages.len(), initial + 1);
         assert!(matches!(
             &app.messages[initial],
-            ChatMessage::System { content } if content.contains("No history")
+            AppMessage::System { content } if content.contains("No history")
         ));
     }
 
@@ -302,7 +302,7 @@ mod tests {
         assert_eq!(app.messages.len(), initial + 1);
         assert!(matches!(
             &app.messages[initial],
-            ChatMessage::System { content } if content.contains("first") && content.contains("second")
+            AppMessage::System { content } if content.contains("first") && content.contains("second")
         ));
     }
 }

@@ -18,9 +18,9 @@ pub enum AppMode {
     Shell,
 }
 
-/// A message displayed in the chat area.
+/// A message displayed in the messages area.
 #[derive(Debug, Clone)]
-pub enum ChatMessage {
+pub enum AppMessage {
     /// A message from the user.
     User { content: String },
     /// A system/informational message.
@@ -45,7 +45,7 @@ pub struct App {
     pub mode: AppMode,
 
     /// Chat messages displayed in the message area.
-    pub messages: Vec<ChatMessage>,
+    pub messages: Vec<AppMessage>,
 
     /// Current input buffer.
     pub input: InputState,
@@ -77,7 +77,7 @@ impl App {
         Self {
             should_quit: false,
             mode: AppMode::default(),
-            messages: vec![ChatMessage::System { content: welcome }],
+            messages: vec![AppMessage::System { content: welcome }],
             input: InputState::default(),
             input_history: InputHistory::new(),
             commands_state: CommandsState::new(),
@@ -302,7 +302,7 @@ impl App {
                         self.spawn_shell_command(cmd);
                     } else {
                         self.input_history.push_tagged(text.clone(), AppMode::Chat);
-                        self.messages.push(ChatMessage::User { content: text });
+                        self.messages.push(AppMessage::User { content: text });
                     }
                 }
                 AppMode::Shell => {
@@ -320,7 +320,7 @@ impl App {
     pub fn enter_shell_mode(&mut self) {
         self.mode = AppMode::Shell;
         self.commands_state.dismiss();
-        self.messages.push(ChatMessage::System {
+        self.messages.push(AppMessage::System {
             content: "Entering shell mode. Commands are sent to your shell. Use /exit or Ctrl+D to return.".to_string(),
         });
     }
@@ -328,7 +328,7 @@ impl App {
     /// Exit shell mode and return to chat mode with a system message.
     pub fn exit_shell_mode(&mut self) {
         self.mode = AppMode::Chat;
-        self.messages.push(ChatMessage::System {
+        self.messages.push(AppMessage::System {
             content: "Exiting shell mode.".to_string(),
         });
     }
@@ -342,7 +342,7 @@ impl App {
     fn cancel_running_command(&mut self) {
         if let Some(running) = self.running_command.take() {
             let command = running.cancel();
-            self.messages.push(ChatMessage::Shell {
+            self.messages.push(AppMessage::Shell {
                 command,
                 output: "[cancelled]".to_string(),
                 exit_code: -1,
@@ -362,7 +362,7 @@ impl App {
                 .take()
                 .map(|r| r.command().to_string())
                 .unwrap_or_default();
-            self.messages.push(ChatMessage::Shell {
+            self.messages.push(AppMessage::Shell {
                 command,
                 output: result.output,
                 exit_code: result.exit_code,
@@ -419,7 +419,7 @@ mod tests {
         let app = App::new();
         assert_eq!(app.messages.len(), 1);
         assert!(
-            matches!(&app.messages[0], ChatMessage::System { content } if content.contains("Stencila"))
+            matches!(&app.messages[0], AppMessage::System { content } if content.contains("Stencila"))
         );
     }
 
@@ -492,7 +492,7 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         assert!(app.input.is_empty());
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], ChatMessage::User { content } if content == "hello"));
+        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "hello"));
     }
 
     #[test]
@@ -662,7 +662,7 @@ mod tests {
         // Welcome + help output
         assert_eq!(app.messages.len(), 2);
         assert!(
-            matches!(&app.messages[1], ChatMessage::System { content } if content.contains("/help"))
+            matches!(&app.messages[1], AppMessage::System { content } if content.contains("/help"))
         );
     }
 
@@ -695,7 +695,7 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // Not a command, so it's a user message
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], ChatMessage::User { content } if content == "/unknown"));
+        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "/unknown"));
     }
 
     #[test]
@@ -705,7 +705,7 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // "!" should be treated as a normal chat message, not silently discarded
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], ChatMessage::User { content } if content == "!"));
+        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "!"));
     }
 
     // --- Autocomplete integration tests ---
@@ -808,7 +808,7 @@ mod tests {
         // System message about entering shell mode
         assert!(app.messages.iter().any(|m| matches!(
             m,
-            ChatMessage::System { content } if content.contains("shell mode")
+            AppMessage::System { content } if content.contains("shell mode")
         )));
     }
 
@@ -856,14 +856,14 @@ mod tests {
         assert_eq!(app.messages.len(), initial_count + 1);
         assert!(matches!(
             &app.messages[initial_count],
-            ChatMessage::System { content } if content.contains("Entering shell mode")
+            AppMessage::System { content } if content.contains("Entering shell mode")
         ));
 
         app.exit_shell_mode();
         assert_eq!(app.messages.len(), initial_count + 2);
         assert!(matches!(
             &app.messages[initial_count + 1],
-            ChatMessage::System { content } if content.contains("Exiting shell mode")
+            AppMessage::System { content } if content.contains("Exiting shell mode")
         ));
     }
 }

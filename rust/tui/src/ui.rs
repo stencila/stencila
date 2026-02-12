@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
 
-use crate::app::{App, AppMode, ChatMessage};
+use crate::app::{App, AppMode, AppMessage};
 
 /// Dim style used for hint descriptions.
 const fn dim() -> Style {
@@ -66,7 +66,7 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
         }
 
         match message {
-            ChatMessage::User { content } => {
+            AppMessage::User { content } => {
                 lines.push(Line::from(vec![Span::styled(
                     "You: ",
                     Style::default()
@@ -77,12 +77,12 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                     lines.push(Line::raw(format!("  {text_line}")));
                 }
             }
-            ChatMessage::System { content } => {
+            AppMessage::System { content } => {
                 for text_line in content.lines() {
                     lines.push(Line::styled(text_line.to_string(), dim()));
                 }
             }
-            ChatMessage::Shell {
+            AppMessage::Shell {
                 command,
                 output,
                 exit_code,
