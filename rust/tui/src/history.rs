@@ -1,11 +1,20 @@
 use std::{
     collections::hash_map::DefaultHasher,
+    fmt::Write,
     hash::{Hash, Hasher},
     path::PathBuf,
 };
 
+use crate::app::AppMode;
+
 /// Maximum number of history entries to keep.
 const MAX_ENTRIES: usize = 1000;
+
+/// A single history entry tagged with the mode it was entered in.
+struct HistoryEntry {
+    text: String,
+    mode: AppMode,
+}
 
 /// Input history with navigation and disk persistence.
 ///
@@ -15,7 +24,7 @@ const MAX_ENTRIES: usize = 1000;
 /// the user first navigates away from it.
 pub struct InputHistory {
     /// History entries, oldest first.
-    entries: Vec<String>,
+    entries: Vec<HistoryEntry>,
     /// Current navigation position. `entries.len()` means "draft" (no history selected).
     position: usize,
     /// Saved draft of what the user was typing before navigating history.
@@ -33,17 +42,26 @@ impl InputHistory {
         }
     }
 
-    /// Push a new entry. Deduplicates against the most recent entry.
+    /// Push a new entry (untagged, defaults to Chat mode).
     pub fn push(&mut self, entry: String) {
+        self.push_tagged(entry, AppMode::Chat);
+    }
+
+    /// Push a new entry tagged with its mode. Deduplicates against the most recent entry.
+    pub fn push_tagged(&mut self, entry: String, mode: AppMode) {
         if entry.trim().is_empty() {
             return;
         }
-        // Deduplicate against last entry
-        if self.entries.last().is_some_and(|last| last == &entry) {
+        // Deduplicate against last entry (same text AND same mode)
+        if self
+            .entries
+            .last()
+            .is_some_and(|last| last.text == entry && last.mode == mode)
+        {
             self.reset_position();
             return;
         }
-        self.entries.push(entry);
+        self.entries.push(HistoryEntry { text: entry, mode });
         // Enforce cap
         if self.entries.len() > MAX_ENTRIES {
             self.entries.drain(..self.entries.len() - MAX_ENTRIES);
@@ -65,7 +83,7 @@ impl InputHistory {
         }
         if self.position > 0 {
             self.position -= 1;
-            Some(&self.entries[self.position])
+            Some(&self.entries[self.position].text)
         } else {
             None
         }
@@ -82,8 +100,50 @@ impl InputHistory {
         if self.position == self.entries.len() {
             Some(&self.draft)
         } else {
-            Some(&self.entries[self.position])
+            Some(&self.entries[self.position].text)
         }
+    }
+
+    /// Navigate to the previous (older) entry matching the given mode.
+    ///
+    /// Skips entries that don't match the current mode.
+    pub fn navigate_up_filtered(&mut self, current_input: &str, mode: AppMode) -> Option<&str> {
+        if self.entries.is_empty() {
+            return None;
+        }
+        // Save draft when navigating away from the input area
+        if self.position == self.entries.len() {
+            self.draft = current_input.to_string();
+        }
+        // Search backwards for an entry matching the mode
+        let mut pos = self.position;
+        while pos > 0 {
+            pos -= 1;
+            if self.entries[pos].mode == mode {
+                self.position = pos;
+                return Some(&self.entries[pos].text);
+            }
+        }
+        None
+    }
+
+    /// Navigate to the next (newer) entry matching the given mode, or back to draft.
+    pub fn navigate_down_filtered(&mut self, mode: AppMode) -> Option<&str> {
+        if self.position >= self.entries.len() {
+            return None;
+        }
+        // Search forwards for an entry matching the mode
+        let mut pos = self.position + 1;
+        while pos < self.entries.len() {
+            if self.entries[pos].mode == mode {
+                self.position = pos;
+                return Some(&self.entries[pos].text);
+            }
+            pos += 1;
+        }
+        // No more matching entries — return to draft
+        self.position = self.entries.len();
+        Some(&self.draft)
     }
 
     /// Reset position to "draft" (past the end of entries).
@@ -94,17 +154,41 @@ impl InputHistory {
 
     /// Load history from a JSONL file.
     ///
-    /// Each line is a JSON-encoded string, allowing multiline entries.
+    /// Supports two formats per line for backwards compatibility:
+    /// - New: `{"text":"...","mode":"shell"}` — JSON object with mode tag
+    /// - Legacy: `"..."` — bare JSON string, loaded as Chat mode
+    ///
     /// Silently ignores I/O or parse errors (history is best-effort).
     pub fn load_from_file(&mut self, path: &PathBuf) {
         let Ok(contents) = std::fs::read_to_string(path) else {
             return;
         };
         for line in contents.lines() {
-            if let Ok(entry) = serde_json::from_str::<String>(line)
-                && !entry.trim().is_empty()
-            {
-                self.entries.push(entry);
+            // Try new format first: {"text":"...","mode":"shell"}
+            if let Ok(record) = serde_json::from_str::<serde_json::Value>(line) {
+                if let Some(obj) = record.as_object()
+                    && let Some(text) = obj.get("text").and_then(|v| v.as_str())
+                    && !text.trim().is_empty()
+                {
+                    let mode = match obj.get("mode").and_then(|v| v.as_str()) {
+                        Some("shell") => AppMode::Shell,
+                        _ => AppMode::Chat,
+                    };
+                    self.entries.push(HistoryEntry {
+                        text: text.to_string(),
+                        mode,
+                    });
+                    continue;
+                }
+                // Legacy format: bare JSON string
+                if let Some(text) = record.as_str()
+                    && !text.trim().is_empty()
+                {
+                    self.entries.push(HistoryEntry {
+                        text: text.to_string(),
+                        mode: AppMode::Chat,
+                    });
+                }
             }
         }
         // Enforce cap after loading
@@ -116,14 +200,20 @@ impl InputHistory {
 
     /// Save history to a JSONL file.
     ///
-    /// Each entry is written as a JSON-encoded string on its own line.
+    /// Each entry is written as a JSON object with text and mode fields.
     /// Silently ignores I/O errors (history is best-effort).
     pub fn save_to_file(&self, path: &PathBuf) {
         let mut output = String::new();
         for entry in &self.entries {
-            if let Ok(json) = serde_json::to_string(entry) {
-                output.push_str(&json);
-                output.push('\n');
+            let mode_str = match entry.mode {
+                AppMode::Chat => "chat",
+                AppMode::Shell => "shell",
+            };
+            if let (Ok(text_json), Ok(mode_json)) = (
+                serde_json::to_string(&entry.text),
+                serde_json::to_string(mode_str),
+            ) {
+                let _ = writeln!(output, "{{\"text\":{text_json},\"mode\":{mode_json}}}");
             }
         }
         if let Some(parent) = path.parent() {
@@ -142,9 +232,9 @@ impl InputHistory {
         self.entries.is_empty()
     }
 
-    /// Iterate over entries (oldest first).
-    pub fn entries(&self) -> &[String] {
-        &self.entries
+    /// Get the text of all entries (oldest first).
+    pub fn entries(&self) -> Vec<&str> {
+        self.entries.iter().map(|e| e.text.as_str()).collect()
     }
 }
 
@@ -231,6 +321,19 @@ mod tests {
     }
 
     #[test]
+    fn dedup_respects_mode() {
+        let mut history = InputHistory::new();
+        history.push_tagged("ls".to_string(), AppMode::Chat);
+        // Same text but different mode — should NOT be deduplicated
+        history.push_tagged("ls".to_string(), AppMode::Shell);
+        assert_eq!(history.len(), 2);
+
+        // Same text and same mode — should be deduplicated
+        history.push_tagged("ls".to_string(), AppMode::Shell);
+        assert_eq!(history.len(), 2);
+    }
+
+    #[test]
     fn ignores_blank() {
         let mut history = InputHistory::new();
         history.push(String::new());
@@ -278,5 +381,107 @@ mod tests {
         assert_eq!(loaded.entries()[0], "single line");
         assert_eq!(loaded.entries()[1], "multi\nline\nentry");
         assert_eq!(loaded.entries()[2], "with \"quotes\"");
+    }
+
+    #[test]
+    fn persistence_preserves_mode() {
+        let dir = tempfile::tempdir().expect("create temp dir");
+        let path = dir.path().join("test_mode_history.jsonl");
+
+        let mut history = InputHistory::new();
+        history.push_tagged("chat msg".to_string(), AppMode::Chat);
+        history.push_tagged("ls -la".to_string(), AppMode::Shell);
+        history.push_tagged("echo hi".to_string(), AppMode::Shell);
+        history.save_to_file(&path);
+
+        let mut loaded = InputHistory::new();
+        loaded.load_from_file(&path);
+        assert_eq!(loaded.len(), 3);
+
+        // Shell-filtered navigation should find only shell entries
+        assert_eq!(
+            loaded.navigate_up_filtered("", AppMode::Shell),
+            Some("echo hi")
+        );
+        assert_eq!(
+            loaded.navigate_up_filtered("", AppMode::Shell),
+            Some("ls -la")
+        );
+        assert_eq!(loaded.navigate_up_filtered("", AppMode::Shell), None);
+    }
+
+    #[test]
+    fn persistence_loads_legacy_format() {
+        let dir = tempfile::tempdir().expect("create temp dir");
+        let path = dir.path().join("test_legacy.jsonl");
+
+        // Write legacy format: bare JSON strings
+        std::fs::write(&path, "\"old entry\"\n\"another one\"\n").expect("write legacy file");
+
+        let mut loaded = InputHistory::new();
+        loaded.load_from_file(&path);
+        assert_eq!(loaded.len(), 2);
+        assert_eq!(loaded.entries()[0], "old entry");
+        assert_eq!(loaded.entries()[1], "another one");
+
+        // Legacy entries should be Chat mode
+        assert_eq!(
+            loaded.navigate_up_filtered("", AppMode::Chat),
+            Some("another one")
+        );
+        assert_eq!(loaded.navigate_up_filtered("", AppMode::Shell), None);
+    }
+
+    #[test]
+    fn mode_filtered_navigation() {
+        let mut history = InputHistory::new();
+        history.push_tagged("chat1".to_string(), AppMode::Chat);
+        history.push_tagged("shell1".to_string(), AppMode::Shell);
+        history.push_tagged("chat2".to_string(), AppMode::Chat);
+        history.push_tagged("shell2".to_string(), AppMode::Shell);
+
+        // Navigate up in shell mode — should skip chat entries
+        assert_eq!(
+            history.navigate_up_filtered("", AppMode::Shell),
+            Some("shell2")
+        );
+        assert_eq!(
+            history.navigate_up_filtered("", AppMode::Shell),
+            Some("shell1")
+        );
+        // No more shell entries
+        assert_eq!(history.navigate_up_filtered("", AppMode::Shell), None);
+
+        // Navigate down in shell mode
+        assert_eq!(
+            history.navigate_down_filtered(AppMode::Shell),
+            Some("shell2")
+        );
+        // No more shell entries after shell2 — returns draft
+        assert_eq!(history.navigate_down_filtered(AppMode::Shell), Some(""));
+    }
+
+    #[test]
+    fn mode_filtered_preserves_draft() {
+        let mut history = InputHistory::new();
+        history.push_tagged("shell1".to_string(), AppMode::Shell);
+
+        assert_eq!(
+            history.navigate_up_filtered("my draft", AppMode::Shell),
+            Some("shell1")
+        );
+        assert_eq!(
+            history.navigate_down_filtered(AppMode::Shell),
+            Some("my draft")
+        );
+    }
+
+    #[test]
+    fn mode_filtered_empty_for_mode() {
+        let mut history = InputHistory::new();
+        history.push_tagged("chat1".to_string(), AppMode::Chat);
+
+        // No shell entries
+        assert_eq!(history.navigate_up_filtered("", AppMode::Shell), None);
     }
 }

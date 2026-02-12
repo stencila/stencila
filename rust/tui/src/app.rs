@@ -5,7 +5,18 @@ use crate::{
     commands::SlashCommand,
     history::InputHistory,
     input::InputState,
+    shell::RunningCommand,
 };
+
+/// The current input mode of the TUI.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AppMode {
+    /// Chat mode — input is sent as chat messages (default).
+    #[default]
+    Chat,
+    /// Shell mode — input is sent to the system shell.
+    Shell,
+}
 
 /// A message displayed in the chat area.
 #[derive(Debug, Clone)]
@@ -14,6 +25,12 @@ pub enum ChatMessage {
     User { content: String },
     /// A system/informational message.
     System { content: String },
+    /// Output from a shell command.
+    Shell {
+        command: String,
+        output: String,
+        exit_code: i32,
+    },
 }
 
 /// Top-level application state.
@@ -23,6 +40,9 @@ pub enum ChatMessage {
 pub struct App {
     /// Whether the app should exit.
     pub should_quit: bool,
+
+    /// Current input mode (chat or shell).
+    pub mode: AppMode,
 
     /// Chat messages displayed in the message area.
     pub messages: Vec<ChatMessage>,
@@ -36,6 +56,9 @@ pub struct App {
     pub commands_state: CommandsState,
     /// Files autocomplete popup state.
     pub files_state: FilesState,
+
+    /// A shell command currently running in the background.
+    pub running_command: Option<RunningCommand>,
 
     /// Scroll offset for the message area (lines from the bottom).
     pub scroll_offset: u16,
@@ -53,11 +76,13 @@ impl App {
 
         Self {
             should_quit: false,
+            mode: AppMode::default(),
             messages: vec![ChatMessage::System { content: welcome }],
             input: InputState::default(),
             input_history: InputHistory::new(),
             commands_state: CommandsState::new(),
             files_state: FilesState::new(),
+            running_command: None,
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
@@ -76,6 +101,17 @@ impl App {
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
+        // While a shell command is running, only Ctrl+C is accepted
+        if self.running_command.is_some() {
+            if matches!(
+                (key.modifiers, key.code),
+                (KeyModifiers::CONTROL, KeyCode::Char('c'))
+            ) {
+                self.cancel_running_command();
+            }
+            return;
+        }
+
         // Priority 1: commands autocomplete intercepts navigation keys
         if self.commands_state.is_visible() && self.handle_commands_autocomplete(key) {
             return;
@@ -88,8 +124,11 @@ impl App {
 
         self.handle_normal_key(key);
 
-        // Update autocomplete after every keystroke that modifies input
-        self.commands_state.update(self.input.text());
+        // Update autocomplete after every keystroke that modifies input.
+        // Suppress command autocomplete in shell mode to avoid popup on path typing.
+        if self.mode == AppMode::Chat {
+            self.commands_state.update(self.input.text());
+        }
         self.files_state
             .update(self.input.text(), self.input.cursor());
     }
@@ -152,8 +191,19 @@ impl App {
     /// Handle normal key input (no autocomplete popup intercept).
     fn handle_normal_key(&mut self, key: &KeyEvent) {
         match (key.modifiers, key.code) {
-            (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
-                self.should_quit = true;
+            (KeyModifiers::CONTROL, KeyCode::Char('c')) => match self.mode {
+                AppMode::Chat => {
+                    self.should_quit = true;
+                }
+                AppMode::Shell => {
+                    // In shell mode: clear input line (standard shell behavior), no-op if empty
+                    self.input.clear();
+                }
+            },
+            (KeyModifiers::CONTROL, KeyCode::Char('d')) => {
+                if self.mode == AppMode::Shell {
+                    self.exit_shell_mode();
+                }
             }
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
                 self.messages.clear();
@@ -218,7 +268,9 @@ impl App {
     fn handle_paste(&mut self, text: &str) {
         self.input.insert_str(text);
         self.scroll_offset = 0;
-        self.commands_state.update(self.input.text());
+        if self.mode == AppMode::Chat {
+            self.commands_state.update(self.input.text());
+        }
         self.files_state
             .update(self.input.text(), self.input.cursor());
     }
@@ -233,29 +285,102 @@ impl App {
         self.commands_state.dismiss();
         self.files_state.dismiss();
 
-        // Check for slash command
+        // Slash commands work in both modes
         if let Some((cmd, args)) = SlashCommand::parse(&text) {
             cmd.execute(self, args);
         } else {
-            self.input_history.push(text.clone());
-            self.messages.push(ChatMessage::User { content: text });
+            match self.mode {
+                AppMode::Chat => {
+                    // Check for one-off shell command with ! prefix.
+                    // Bare "!" or "!   " falls through to normal chat message.
+                    if let Some(cmd) = text.strip_prefix('!')
+                        && !cmd.trim().is_empty()
+                    {
+                        let cmd = cmd.to_string();
+                        self.input_history
+                            .push_tagged(format!("!{cmd}"), AppMode::Chat);
+                        self.spawn_shell_command(cmd);
+                    } else {
+                        self.input_history.push_tagged(text.clone(), AppMode::Chat);
+                        self.messages.push(ChatMessage::User { content: text });
+                    }
+                }
+                AppMode::Shell => {
+                    self.input_history.push_tagged(text.clone(), AppMode::Shell);
+                    self.spawn_shell_command(text);
+                }
+            }
         }
 
         // Reset scroll to bottom
         self.scroll_offset = 0;
     }
 
-    /// Navigate to the previous (older) history entry.
+    /// Enter shell mode with a system message.
+    pub fn enter_shell_mode(&mut self) {
+        self.mode = AppMode::Shell;
+        self.commands_state.dismiss();
+        self.messages.push(ChatMessage::System {
+            content: "Entering shell mode. Commands are sent to your shell. Use /exit or Ctrl+D to return.".to_string(),
+        });
+    }
+
+    /// Exit shell mode and return to chat mode with a system message.
+    pub fn exit_shell_mode(&mut self) {
+        self.mode = AppMode::Chat;
+        self.messages.push(ChatMessage::System {
+            content: "Exiting shell mode.".to_string(),
+        });
+    }
+
+    /// Spawn a shell command as a background task.
+    fn spawn_shell_command(&mut self, command: String) {
+        self.running_command = Some(crate::shell::spawn_command(command));
+    }
+
+    /// Cancel the currently running shell command.
+    fn cancel_running_command(&mut self) {
+        if let Some(running) = self.running_command.take() {
+            let command = running.cancel();
+            self.messages.push(ChatMessage::Shell {
+                command,
+                output: "[cancelled]".to_string(),
+                exit_code: -1,
+            });
+        }
+    }
+
+    /// Poll the running command for completion. Called on tick events.
+    pub fn poll_running_command(&mut self) {
+        let Some(running) = &mut self.running_command else {
+            return;
+        };
+
+        if let Some(result) = running.try_take_result() {
+            let command = self
+                .running_command
+                .take()
+                .map(|r| r.command().to_string())
+                .unwrap_or_default();
+            self.messages.push(ChatMessage::Shell {
+                command,
+                output: result.output,
+                exit_code: result.exit_code,
+            });
+        }
+    }
+
+    /// Navigate to the previous (older) history entry, filtered by current mode.
     fn navigate_history_up(&mut self) {
         let current = self.input.text().to_string();
-        if let Some(entry) = self.input_history.navigate_up(&current) {
+        if let Some(entry) = self.input_history.navigate_up_filtered(&current, self.mode) {
             self.input.set_text(entry);
         }
     }
 
-    /// Navigate to the next (newer) history entry, or back to draft.
+    /// Navigate to the next (newer) history entry, or back to draft, filtered by current mode.
     fn navigate_history_down(&mut self) {
-        if let Some(entry) = self.input_history.navigate_down() {
+        if let Some(entry) = self.input_history.navigate_down_filtered(self.mode) {
             self.input.set_text(entry);
         }
     }
@@ -299,11 +424,58 @@ mod tests {
     }
 
     #[test]
-    fn ctrl_c_quits() {
+    fn ctrl_c_quits_in_chat_mode() {
         let mut app = App::new();
         let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
         assert!(quit);
         assert!(app.should_quit);
+    }
+
+    #[test]
+    fn ctrl_c_clears_input_in_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+
+        // Type some text
+        for c in "hello".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert_eq!(app.input.text(), "hello");
+
+        // Ctrl+C should clear input, not quit
+        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        assert!(!quit);
+        assert!(app.input.is_empty());
+    }
+
+    #[test]
+    fn ctrl_c_noop_on_empty_input_in_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+
+        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        assert!(!quit);
+        assert!(!app.should_quit);
+    }
+
+    #[test]
+    fn ctrl_d_exits_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+        assert_eq!(app.mode, AppMode::Shell);
+
+        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
+        assert_eq!(app.mode, AppMode::Chat);
+    }
+
+    #[test]
+    fn ctrl_d_noop_in_chat_mode() {
+        let mut app = App::new();
+        assert_eq!(app.mode, AppMode::Chat);
+
+        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
+        assert_eq!(app.mode, AppMode::Chat);
+        assert!(!app.should_quit);
     }
 
     #[test]
@@ -526,6 +698,16 @@ mod tests {
         assert!(matches!(&app.messages[1], ChatMessage::User { content } if content == "/unknown"));
     }
 
+    #[test]
+    fn bare_bang_treated_as_user_message() {
+        let mut app = App::new();
+        app.handle_event(&key_event(KeyCode::Char('!'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        // "!" should be treated as a normal chat message, not silently discarded
+        assert_eq!(app.messages.len(), 2);
+        assert!(matches!(&app.messages[1], ChatMessage::User { content } if content == "!"));
+    }
+
     // --- Autocomplete integration tests ---
 
     #[test]
@@ -611,5 +793,77 @@ mod tests {
         }
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         assert!(!app.commands_state.is_visible());
+    }
+
+    // --- Shell mode tests ---
+
+    #[test]
+    fn slash_shell_enters_shell_mode() {
+        let mut app = App::new();
+        for c in "/shell".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert_eq!(app.mode, AppMode::Shell);
+        // System message about entering shell mode
+        assert!(app.messages.iter().any(|m| matches!(
+            m,
+            ChatMessage::System { content } if content.contains("shell mode")
+        )));
+    }
+
+    #[test]
+    fn slash_exit_in_shell_mode_returns_to_chat() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+        assert_eq!(app.mode, AppMode::Shell);
+
+        for c in "/exit".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert_eq!(app.mode, AppMode::Chat);
+        assert!(!app.should_quit);
+    }
+
+    #[test]
+    fn slash_quit_quits_from_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+
+        for c in "/quit".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        let quit = app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(quit);
+    }
+
+    #[test]
+    fn autocomplete_suppressed_in_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        assert!(!app.commands_state.is_visible());
+    }
+
+    #[test]
+    fn enter_and_exit_shell_mode_messages() {
+        let mut app = App::new();
+        let initial_count = app.messages.len();
+
+        app.enter_shell_mode();
+        assert_eq!(app.messages.len(), initial_count + 1);
+        assert!(matches!(
+            &app.messages[initial_count],
+            ChatMessage::System { content } if content.contains("Entering shell mode")
+        ));
+
+        app.exit_shell_mode();
+        assert_eq!(app.messages.len(), initial_count + 2);
+        assert!(matches!(
+            &app.messages[initial_count + 1],
+            ChatMessage::System { content } if content.contains("Exiting shell mode")
+        ));
     }
 }

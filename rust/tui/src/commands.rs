@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
-use crate::app::{App, ChatMessage};
+use crate::app::{App, AppMode, ChatMessage};
 
 /// Slash commands available in the TUI.
 ///
@@ -19,8 +19,14 @@ pub enum SlashCommand {
     #[strum(message = "Show recent history")]
     History,
 
-    #[strum(message = "Exit the application")]
+    #[strum(message = "Enter shell mode")]
+    Shell,
+
+    #[strum(message = "Exit shell mode or quit")]
     Exit,
+
+    #[strum(message = "Quit the application")]
+    Quit,
 }
 
 impl SlashCommand {
@@ -29,12 +35,10 @@ impl SlashCommand {
         ["/", &self.to_string()].concat()
     }
 
-    /// Slash-prefixed alias of this command (e.g. `/quit`).
+    /// Slash-prefixed alias of this command.
+    #[allow(clippy::unused_self)]
     pub fn aliases(self) -> Vec<&'static str> {
-        match self {
-            Self::Exit => vec!["/quit"],
-            _ => Vec::new(),
-        }
+        Vec::new()
     }
 
     /// A short description for the autocomplete popup.
@@ -79,9 +83,14 @@ impl SlashCommand {
     pub fn execute(self, app: &mut App, _args: &str) {
         match self {
             Self::Clear => execute_clear(app),
-            Self::Exit => app.should_quit = true,
+            Self::Exit => match app.mode {
+                AppMode::Shell => app.exit_shell_mode(),
+                AppMode::Chat => app.should_quit = true,
+            },
             Self::Help => execute_help(app),
             Self::History => execute_history(app),
+            Self::Quit => app.should_quit = true,
+            Self::Shell => app.enter_shell_mode(),
         }
     }
 }
@@ -92,12 +101,14 @@ fn execute_help(app: &mut App) {
         let _ = writeln!(help, "  {:12} {}", cmd.name(), cmd.description());
     }
     help.push_str("\nKey bindings:\n");
-    help.push_str("  Enter          Send message\n");
+    help.push_str("  Enter          Send message / run command\n");
     help.push_str("  Alt+Enter      Insert newline\n");
     help.push_str("  Up/Down        History / cursor movement\n");
-    help.push_str("  Ctrl+C         Quit\n");
+    help.push_str("  Ctrl+C         Quit (chat) / clear or cancel (shell)\n");
+    help.push_str("  Ctrl+D         Exit shell mode\n");
     help.push_str("  Ctrl+L         Clear messages\n");
-    help.push_str("  PageUp/Down    Scroll messages");
+    help.push_str("  PageUp/Down    Scroll messages\n");
+    help.push_str("  !command       Run a shell command from chat mode");
     app.messages.push(ChatMessage::System { content: help });
 }
 
@@ -167,8 +178,11 @@ mod tests {
         let h_cmds = SlashCommand::matching("/h");
         assert_eq!(h_cmds.len(), 2); // /help, /history
 
+        let s_cmds = SlashCommand::matching("/s");
+        assert_eq!(s_cmds, vec![SlashCommand::Shell]);
+
         let q_cmds = SlashCommand::matching("/q");
-        assert_eq!(q_cmds, vec![SlashCommand::Exit]);
+        assert_eq!(q_cmds, vec![SlashCommand::Quit]);
 
         let none = SlashCommand::matching("/z");
         assert!(none.is_empty());
@@ -187,7 +201,7 @@ mod tests {
     fn parse_with_leading_trailing_whitespace() {
         assert_eq!(
             SlashCommand::parse("  /quit  "),
-            Some((SlashCommand::Exit, ""))
+            Some((SlashCommand::Quit, ""))
         );
         assert_eq!(
             SlashCommand::parse("  /history  "),
@@ -227,11 +241,43 @@ mod tests {
     }
 
     #[test]
-    fn execute_quit_sets_flag() {
+    fn execute_exit_quits_in_chat_mode() {
         let mut app = App::new();
         assert!(!app.should_quit);
         SlashCommand::Exit.execute(&mut app, "");
         assert!(app.should_quit);
+    }
+
+    #[test]
+    fn execute_exit_returns_to_chat_in_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+        assert_eq!(app.mode, AppMode::Shell);
+        SlashCommand::Exit.execute(&mut app, "");
+        assert_eq!(app.mode, AppMode::Chat);
+        assert!(!app.should_quit);
+    }
+
+    #[test]
+    fn execute_quit_always_quits() {
+        // From chat mode
+        let mut app = App::new();
+        SlashCommand::Quit.execute(&mut app, "");
+        assert!(app.should_quit);
+
+        // From shell mode
+        let mut app = App::new();
+        app.enter_shell_mode();
+        SlashCommand::Quit.execute(&mut app, "");
+        assert!(app.should_quit);
+    }
+
+    #[test]
+    fn execute_shell_enters_shell_mode() {
+        let mut app = App::new();
+        assert_eq!(app.mode, AppMode::Chat);
+        SlashCommand::Shell.execute(&mut app, "");
+        assert_eq!(app.mode, AppMode::Shell);
     }
 
     #[test]

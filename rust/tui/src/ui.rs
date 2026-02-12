@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
 
-use crate::app::{App, ChatMessage};
+use crate::app::{App, AppMode, ChatMessage};
 
 /// Dim style used for hint descriptions.
 const fn dim() -> Style {
@@ -45,7 +45,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_input(frame, app, input_area);
 
     // --- Render hints below input ---
-    render_hints(frame, hints_area);
+    render_hints(frame, app, hints_area);
 
     // --- Render autocomplete popup (floats above input) ---
     if app.commands_state.is_visible() {
@@ -80,6 +80,27 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
             ChatMessage::System { content } => {
                 for text_line in content.lines() {
                     lines.push(Line::styled(text_line.to_string(), dim()));
+                }
+            }
+            ChatMessage::Shell {
+                command,
+                output,
+                exit_code,
+            } => {
+                lines.push(Line::from(vec![Span::styled(
+                    format!("$ {command}"),
+                    Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::BOLD),
+                )]));
+                for text_line in output.lines() {
+                    lines.push(Line::raw(format!("  {text_line}")));
+                }
+                if *exit_code != 0 {
+                    lines.push(Line::styled(
+                        format!("  [exit code: {exit_code}]"),
+                        Style::default().fg(Color::Red).add_modifier(Modifier::DIM),
+                    ));
                 }
             }
         }
@@ -122,13 +143,25 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
 }
 
 /// Render the hint line below the input area.
-fn render_hints(frame: &mut Frame, area: Rect) {
-    let hints = Line::from(vec![
-        Span::raw("alt+\u{21b5} "),
-        Span::styled("newline", dim()),
-        Span::raw("  ctrl+c "),
-        Span::styled("quit", dim()),
-    ]);
+#[rustfmt::skip]
+fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
+    let is_running = app.running_command.is_some();
+
+    let hints = if is_running {
+        Line::from(vec![Span::raw("ctrl+c "), Span::styled("cancel", dim())])
+    } else {
+        match app.mode {
+            AppMode::Chat => Line::from(vec![
+                Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
+                Span::raw("  ctrl+c "), Span::styled("quit", dim()),
+            ]),
+            AppMode::Shell => Line::from(vec![
+                Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
+                Span::raw("  ctrl+c "), Span::styled("clear", dim()),
+                Span::raw("  ctrl+d "), Span::styled("chat", dim()),
+            ]),
+        }
+    };
 
     let paragraph = Paragraph::new(hints).alignment(Alignment::Right);
     frame.render_widget(paragraph, area);
@@ -137,33 +170,47 @@ fn render_hints(frame: &mut Frame, area: Rect) {
 /// Render the input area with cursor.
 fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let input_text = app.input.text();
+    let is_running = app.running_command.is_some();
+
+    let (border_color, title) = match (&app.mode, is_running) {
+        (AppMode::Shell, true) => (Color::Yellow, " $ running... "),
+        (AppMode::Shell, false) => (Color::Yellow, " $ shell "),
+        (AppMode::Chat, _) => (Color::Blue, " > "),
+    };
 
     let paragraph = Paragraph::new(input_text)
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Blue))
-                .title(" > "),
+                .border_style(Style::default().fg(border_color))
+                .title(title),
         )
         .wrap(Wrap { trim: false });
 
     frame.render_widget(paragraph, area);
 
-    // Show "↵ send" hint on the right — hide when input text gets close (~8 chars)
-    let inner_width = area.width.saturating_sub(2);
-    let hint_display_width: u16 = 6; // "↵ send" = 6 display columns
-    let input_char_len = app.input.text().chars().count();
-    if inner_width > hint_display_width + 8
-        && input_char_len < (inner_width - hint_display_width - 2) as usize
-    {
-        let hint_area = Rect {
-            x: area.x + area.width - hint_display_width - 2,
-            y: area.y + 1,
-            width: hint_display_width,
-            height: 1,
+    // Show inline send/run hint — hide when running or when input text gets close
+    if !is_running {
+        let hint_text = match app.mode {
+            AppMode::Chat => " send",
+            AppMode::Shell => " run",
         };
-        let hint = Line::from(vec![Span::raw("\u{21b5}"), Span::styled(" send", dim())]);
-        frame.render_widget(Paragraph::new(hint), hint_area);
+        let inner_width = area.width.saturating_sub(2);
+        #[allow(clippy::cast_possible_truncation)]
+        let hint_display_width = (1 + hint_text.len()) as u16; // "↵" + hint_text
+        let input_char_len = app.input.text().chars().count();
+        if inner_width > hint_display_width + 8
+            && input_char_len < (inner_width - hint_display_width - 2) as usize
+        {
+            let hint_area = Rect {
+                x: area.x + area.width - hint_display_width - 2,
+                y: area.y + 1,
+                width: hint_display_width,
+                height: 1,
+            };
+            let hint = Line::from(vec![Span::raw("\u{21b5}"), Span::styled(hint_text, dim())]);
+            frame.render_widget(Paragraph::new(hint), hint_area);
+        }
     }
 
     // Inner width available for text (excluding left and right borders)
@@ -282,7 +329,11 @@ fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
 
     // For @ mode, compute max display name width for column alignment
     let max_name_width = if is_at {
-        candidates.iter().map(|c| c.display().len()).max().unwrap_or(0)
+        candidates
+            .iter()
+            .map(|c| c.display().len())
+            .max()
+            .unwrap_or(0)
     } else {
         0
     };
@@ -326,8 +377,7 @@ fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
                 }
                 Line::from(spans)
             } else {
-                let mut spans =
-                    vec![Span::styled(name_part, Style::default().fg(Color::White))];
+                let mut spans = vec![Span::styled(name_part, Style::default().fg(Color::White))];
                 if !path_part.is_empty() {
                     spans.push(Span::styled(path_part, dim()));
                 }
@@ -336,7 +386,11 @@ fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
         })
         .collect();
 
-    let title = if is_at { " Search files " } else { " Select file " };
+    let title = if is_at {
+        " Search files "
+    } else {
+        " Select file "
+    };
 
     let popup = Paragraph::new(Text::from(lines)).block(
         Block::default()

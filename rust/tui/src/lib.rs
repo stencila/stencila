@@ -6,6 +6,7 @@ mod commands;
 mod event;
 mod history;
 mod input;
+mod shell;
 mod terminal;
 mod ui;
 
@@ -43,7 +44,9 @@ impl Tui {
                         break;
                     }
                 }
-                Some(event::AppEvent::Tick) => {}
+                Some(event::AppEvent::Tick) => {
+                    app.poll_running_command();
+                }
                 None => break,
             }
         }
