@@ -10,16 +10,16 @@ use crate::app::{App, ChatMessage};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter, EnumMessage)]
 #[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
-    // Clear messages
+    #[strum(message = "Clear messages")]
     Clear,
 
-    // Show help information
+    #[strum(message = "Show help information")]
     Help,
 
-    // Show recent history
+    #[strum(message = "Show recent history")]
     History,
 
-    // Exit the application
+    #[strum(message = "Exit the application")]
     Exit,
 }
 
@@ -45,7 +45,7 @@ impl SlashCommand {
     /// Whether this command's name starts with the given prefix.
     pub fn matches_prefix(self, prefix: &str) -> bool {
         self.name().starts_with(prefix)
-            || self.aliases().iter().any(|alias| alias.starts_with(alias))
+            || self.aliases().iter().any(|alias| alias.starts_with(prefix))
     }
 
     /// Return all commands whose name starts with `prefix`.
@@ -71,7 +71,7 @@ impl SlashCommand {
             .map_or((trimmed, ""), |(c, a)| (c, a.trim()));
 
         Self::iter()
-            .find(|cmd| cmd.name() == cmd_word)
+            .find(|cmd| cmd.name() == cmd_word || cmd.aliases().contains(&cmd_word))
             .map(|cmd| (cmd, args))
     }
 

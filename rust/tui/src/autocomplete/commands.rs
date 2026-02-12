@@ -49,7 +49,10 @@ impl CommandsState {
                 self.dismiss();
             } else {
                 // If the input exactly matches one command and it's the only candidate, hide
-                if candidates.len() == 1 && candidates[0].name() == trimmed {
+                if candidates.len() == 1
+                    && (candidates[0].name() == trimmed
+                        || candidates[0].aliases().contains(&trimmed))
+                {
                     self.dismiss();
                 } else {
                     self.candidates = candidates;

@@ -1,7 +1,10 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
 use crate::{
-    autocomplete::CommandsState, commands::SlashCommand, history::InputHistory, input::InputState,
+    autocomplete::{CommandsState, FilesState},
+    commands::SlashCommand,
+    history::InputHistory,
+    input::InputState,
 };
 
 /// A message displayed in the chat area.
@@ -31,6 +34,8 @@ pub struct App {
 
     /// Commands autocomplete popup state.
     pub commands_state: CommandsState,
+    /// Files autocomplete popup state.
+    pub files_state: FilesState,
 
     /// Scroll offset for the message area (lines from the bottom).
     pub scroll_offset: u16,
@@ -52,6 +57,7 @@ impl App {
             input: InputState::default(),
             input_history: InputHistory::new(),
             commands_state: CommandsState::new(),
+            files_state: FilesState::new(),
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
@@ -70,81 +76,108 @@ impl App {
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
-        // When autocomplete is visible, intercept navigation keys
-        if self.commands_state.is_visible() {
-            match (key.modifiers, key.code) {
-                // Accept completion with Tab
-                (KeyModifiers::NONE, KeyCode::Tab) => {
-                    if let Some(name) = self.commands_state.accept() {
-                        self.input.set_text(name);
-                    }
-                    return;
-                }
-                // Dismiss with Escape
-                (KeyModifiers::NONE, KeyCode::Esc) => {
-                    self.commands_state.dismiss();
-                    return;
-                }
-                // Navigate candidates with Up/Down
-                (KeyModifiers::NONE, KeyCode::Up) => {
-                    self.commands_state.select_prev();
-                    return;
-                }
-                (KeyModifiers::NONE, KeyCode::Down) => {
-                    self.commands_state.select_next();
-                    return;
-                }
-                // Enter accepts and submits
-                (KeyModifiers::NONE, KeyCode::Enter) => {
-                    if let Some(name) = self.commands_state.accept() {
-                        self.input.set_text(name);
-                    }
-                    self.submit_input();
-                    return;
-                }
-                _ => {}
-            }
+        // Priority 1: commands autocomplete intercepts navigation keys
+        if self.commands_state.is_visible() && self.handle_commands_autocomplete(key) {
+            return;
         }
 
+        // Priority 2: files autocomplete intercepts navigation keys
+        if self.files_state.is_visible() && self.handle_files_autocomplete(key) {
+            return;
+        }
+
+        self.handle_normal_key(key);
+
+        // Update autocomplete after every keystroke that modifies input
+        self.commands_state.update(self.input.text());
+        self.files_state
+            .update(self.input.text(), self.input.cursor());
+    }
+
+    /// Handle a key event when the commands autocomplete popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_commands_autocomplete(&mut self, key: &KeyEvent) -> bool {
         match (key.modifiers, key.code) {
-            // Quit
+            (KeyModifiers::NONE, KeyCode::Tab) => {
+                if let Some(name) = self.commands_state.accept() {
+                    self.input.set_text(&name);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.commands_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.commands_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.commands_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Enter) => {
+                if let Some(name) = self.commands_state.accept() {
+                    self.input.set_text(&name);
+                }
+                self.submit_input();
+            }
+            _ => return false,
+        }
+        true
+    }
+
+    /// Handle a key event when the files autocomplete popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_files_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            // Tab: accept file, or drill into directory
+            (KeyModifiers::NONE, KeyCode::Tab) => {
+                if let Some(result) = self.files_state.accept_tab() {
+                    self.input.replace_range(result.range, &result.text);
+                    if result.refresh {
+                        // Directory drill-down — re-trigger update to show new contents
+                        let input = self.input.text().to_string();
+                        let cursor = self.input.cursor();
+                        self.files_state.update(&input, cursor);
+                    }
+                }
+            }
+            // Enter: always accept and dismiss
+            (KeyModifiers::NONE, KeyCode::Enter) => {
+                if let Some(result) = self.files_state.accept_enter() {
+                    self.input.replace_range(result.range, &result.text);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.files_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.files_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.files_state.select_next(),
+            _ => return false,
+        }
+        true
+    }
+
+    /// Handle normal key input (no autocomplete popup intercept).
+    fn handle_normal_key(&mut self, key: &KeyEvent) {
+        match (key.modifiers, key.code) {
             (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
                 self.should_quit = true;
             }
-
-            // Clear messages
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
                 self.messages.clear();
                 self.scroll_offset = 0;
             }
-
-            // Delete to line start / end
             (KeyModifiers::CONTROL, KeyCode::Char('u')) => self.input.delete_to_line_start(),
             (KeyModifiers::CONTROL, KeyCode::Char('k')) => self.input.delete_to_line_end(),
 
-            // Insert newline: Shift+Enter or Alt+Enter
             (m, KeyCode::Enter)
                 if m.contains(KeyModifiers::SHIFT) || m.contains(KeyModifiers::ALT) =>
             {
                 self.input.insert_newline();
             }
-
-            // Submit input
             (KeyModifiers::NONE, KeyCode::Enter) => {
                 self.submit_input();
             }
 
-            // Word-level cursor movement
             (KeyModifiers::CONTROL, KeyCode::Left) => self.input.move_word_left(),
             (KeyModifiers::CONTROL, KeyCode::Right) => self.input.move_word_right(),
-
-            // Cursor movement
             (KeyModifiers::NONE, KeyCode::Left) => self.input.move_left(),
             (KeyModifiers::NONE, KeyCode::Right) => self.input.move_right(),
             (KeyModifiers::NONE, KeyCode::Home) => self.input.move_home(),
             (KeyModifiers::NONE, KeyCode::End) => self.input.move_end(),
 
-            // Up/Down: history at boundary lines, cursor movement otherwise
             (KeyModifiers::NONE, KeyCode::Up) => {
                 if self.input.is_on_first_line() {
                     self.navigate_history_up();
@@ -160,21 +193,16 @@ impl App {
                 }
             }
 
-            // Word-level deletion
             (KeyModifiers::CONTROL, KeyCode::Backspace) => self.input.delete_word_back(),
             (KeyModifiers::CONTROL, KeyCode::Delete) => self.input.delete_word_forward(),
-
-            // Deletion
             (KeyModifiers::NONE, KeyCode::Backspace) => {
                 self.input.delete_char_before();
             }
             (KeyModifiers::NONE, KeyCode::Delete) => self.input.delete_char_at(),
 
-            // Scroll
             (KeyModifiers::NONE, KeyCode::PageUp) => self.scroll_up(10),
             (KeyModifiers::NONE, KeyCode::PageDown) => self.scroll_down(10),
 
-            // Character input
             (modifier, KeyCode::Char(c))
                 if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
             {
@@ -184,9 +212,6 @@ impl App {
 
             _ => {}
         }
-
-        // Update autocomplete after every keystroke that modifies input
-        self.commands_state.update(self.input.text());
     }
 
     /// Handle pasted text — insert as-is without triggering submit.
@@ -194,6 +219,8 @@ impl App {
         self.input.insert_str(text);
         self.scroll_offset = 0;
         self.commands_state.update(self.input.text());
+        self.files_state
+            .update(self.input.text(), self.input.cursor());
     }
 
     /// Submit the current input as a user message or slash command.
@@ -204,6 +231,7 @@ impl App {
         }
 
         self.commands_state.dismiss();
+        self.files_state.dismiss();
 
         // Check for slash command
         if let Some((cmd, args)) = SlashCommand::parse(&text) {

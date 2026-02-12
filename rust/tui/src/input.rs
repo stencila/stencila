@@ -95,6 +95,12 @@ impl InputState {
         self.cursor = 0;
     }
 
+    /// Replace a byte range in the buffer and position the cursor at the end of the replacement.
+    pub fn replace_range(&mut self, range: std::ops::Range<usize>, replacement: &str) {
+        self.buffer.replace_range(range.clone(), replacement);
+        self.cursor = range.start + replacement.len();
+    }
+
     /// Replace the buffer contents, placing the cursor at the end.
     pub fn set_text(&mut self, text: &str) {
         self.buffer = text.to_string();
@@ -582,5 +588,42 @@ mod tests {
         let mut input = InputState::default();
         input.set_text("a\n");
         assert_eq!(input.line_count(), 2);
+    }
+
+    #[test]
+    fn replace_range_middle() {
+        let mut input = InputState::default();
+        input.set_text("hello world");
+        input.replace_range(5..11, " rust");
+        assert_eq!(input.text(), "hello rust");
+        assert_eq!(input.cursor(), 10);
+    }
+
+    #[test]
+    fn replace_range_start() {
+        let mut input = InputState::default();
+        input.set_text("@foo bar");
+        // Replace "@foo" with "@path/to/file.rs " — note the space after "bar" is preserved
+        input.replace_range(0..4, "@path/to/file.rs");
+        assert_eq!(input.text(), "@path/to/file.rs bar");
+        assert_eq!(input.cursor(), 16);
+    }
+
+    #[test]
+    fn replace_range_end() {
+        let mut input = InputState::default();
+        input.set_text("prefix ./sr");
+        input.replace_range(7..11, "./src/");
+        assert_eq!(input.text(), "prefix ./src/");
+        assert_eq!(input.cursor(), 13);
+    }
+
+    #[test]
+    fn replace_range_empty_replacement() {
+        let mut input = InputState::default();
+        input.set_text("abc");
+        input.replace_range(1..2, "");
+        assert_eq!(input.text(), "ac");
+        assert_eq!(input.cursor(), 1);
     }
 }

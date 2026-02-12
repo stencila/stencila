@@ -50,6 +50,8 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     // --- Render autocomplete popup (floats above input) ---
     if app.commands_state.is_visible() {
         render_autocomplete(frame, app, input_area);
+    } else if app.files_state.is_visible() {
+        render_files_autocomplete(frame, app, input_area);
     }
 }
 
@@ -247,6 +249,101 @@ fn render_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
 
     let popup = Paragraph::new(Text::from(lines))
         .block(Block::default().borders(Borders::ALL).border_style(dim()));
+
+    frame.render_widget(popup, popup_area);
+}
+
+/// Render the file autocomplete popup floating above the input area.
+fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.files_state.candidates();
+    if candidates.is_empty() {
+        return;
+    }
+
+    let popup_width = input_area.width;
+    #[allow(clippy::cast_possible_truncation)]
+    let popup_height = (candidates.len() as u16 + 2).min(input_area.y);
+
+    if popup_height < 3 || popup_width < 10 {
+        return;
+    }
+
+    let popup_area = Rect {
+        x: input_area.x,
+        y: input_area.y.saturating_sub(popup_height),
+        width: popup_width,
+        height: popup_height,
+    };
+
+    frame.render_widget(Clear, popup_area);
+
+    let selected = app.files_state.selected();
+    let is_at = app.files_state.is_at_search();
+
+    // For @ mode, compute max display name width for column alignment
+    let max_name_width = if is_at {
+        candidates.iter().map(|c| c.display().len()).max().unwrap_or(0)
+    } else {
+        0
+    };
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let display = candidate.display();
+            let path = candidate.path();
+
+            let (name_part, path_part) = if is_at {
+                // @ mode: padded name column + aligned path column
+                let name = format!(" {display:<max_name_width$}  ");
+                let show_path =
+                    path != display && !path.is_empty() && path != format!("{display}/");
+                let path_str = if show_path {
+                    path.to_string()
+                } else {
+                    String::new()
+                };
+                (name, path_str)
+            } else {
+                // Path mode: just the display name
+                (format!(" {display}"), String::new())
+            };
+
+            if i == selected {
+                let mut spans = vec![Span::styled(
+                    name_part,
+                    Style::default()
+                        .fg(Color::Black)
+                        .bg(Color::Cyan)
+                        .add_modifier(Modifier::BOLD),
+                )];
+                if !path_part.is_empty() {
+                    spans.push(Span::styled(
+                        path_part,
+                        Style::default().fg(Color::DarkGray).bg(Color::Cyan),
+                    ));
+                }
+                Line::from(spans)
+            } else {
+                let mut spans =
+                    vec![Span::styled(name_part, Style::default().fg(Color::White))];
+                if !path_part.is_empty() {
+                    spans.push(Span::styled(path_part, dim()));
+                }
+                Line::from(spans)
+            }
+        })
+        .collect();
+
+    let title = if is_at { " Search files " } else { " Select file " };
+
+    let popup = Paragraph::new(Text::from(lines)).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_style(dim())
+            .title(title),
+    );
 
     frame.render_widget(popup, popup_area);
 }
