@@ -27,7 +27,7 @@ use crate::{
 )]
 pub struct Cli {
     #[command(subcommand)]
-    pub command: Command,
+    pub command: Option<Command>,
 
     /// Print help: `-h` for brief help, `--help` for more details.
     #[arg(
@@ -267,9 +267,12 @@ pub enum Command {
     Linters(stencila_linters::cli::Cli),
     Formats(stencila_codecs::cli::Cli),
     Themes(stencila_themes::cli::Cli),
+
+    Mcp(stencila_mcp::cli::Cli),
+    Tools(stencila_tools::cli::Cli),
+
     Secrets(stencila_secrets::cli::Cli),
     Auth(stencila_auth::cli::Cli),
-    Tools(stencila_tools::cli::Cli),
 
     Serve(ServeOptions),
     Snap(stencila_snap::cli::Cli),
@@ -284,6 +287,8 @@ pub enum Command {
 
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
+
+    Tui(stencila_tui::Tui),
 }
 
 impl Cli {
@@ -296,7 +301,12 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         tracing::trace!("Running CLI command");
 
-        match self.command {
+        // Default to launching the TUI when no subcommand is provided
+        let command = self
+            .command
+            .unwrap_or(Command::Tui(stencila_tui::Tui::default()));
+
+        match command {
             Command::New(new) => new.run().await,
 
             Command::Init(init) => init.run().await,
@@ -343,9 +353,12 @@ impl Cli {
             Command::Linters(linters) => linters.run().await,
             Command::Formats(codecs) => codecs.run().await,
             Command::Themes(themes) => themes.run().await,
+
+            Command::Mcp(mcp) => mcp.run().await,
+            Command::Tools(tools) => tools.run().await,
+
             Command::Secrets(secrets) => secrets.run().await,
             Command::Auth(oauth) => oauth.run().await,
-            Command::Tools(tools) => tools.run().await,
 
             Command::Serve(options) => stencila_server::serve(options).await,
             Command::Snap(snap) => snap.run().await,
@@ -358,6 +371,8 @@ impl Cli {
 
             Command::Upgrade(upgrade) => upgrade.run().await,
             Command::Uninstall(uninstall) => uninstall.run().await,
+
+            Command::Tui(tui) => tui.run().await,
 
             // Handled before this function
             Command::Lsp => bail!("The LSP command should already been run"),

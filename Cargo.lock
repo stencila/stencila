@@ -11600,7 +11600,11 @@ dependencies = [
  "eyre",
  "futures",
  "ratatui",
+ "serde_json",
+ "stencila-dirs",
  "stencila-version",
+ "strum",
+ "tempfile",
  "tokio",
 ]
 

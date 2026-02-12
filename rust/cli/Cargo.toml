@@ -45,6 +45,7 @@ stencila-format = { path = "../format" }
 stencila-kernels = { path = "../kernels" }
 stencila-linters = { path = "../linters" }
 stencila-lsp = { path = "../lsp" }
+stencila-mcp = { path = "../mcp", features = ["cli"] }
 stencila-models3 = { path = "../models3", features = ["cli"] }
 stencila-node-db = { path = "../node-db" }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
@@ -63,6 +64,7 @@ stencila-snap = { path = "../snap" }
 stencila-spread = { path = "../spread" }
 stencila-themes = { path = "../themes" }
 stencila-tools = { path = "../tools" }
+stencila-tui = { path = "../tui" }
 stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
 strum = { workspace = true }

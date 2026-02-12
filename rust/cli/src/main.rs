@@ -45,14 +45,14 @@ async fn main() -> Result<()> {
         (cli.log_level, cli.log_format, cli.error_details.clone())
     };
 
-    if matches!(cli.command, Command::Lsp) {
+    if matches!(cli.command, Some(Command::Lsp)) {
         stencila_lsp::run(log_level.into(), &cli.log_filter).await?
     } else {
         errors::setup(&error_details, cli.error_link)?;
         logging::setup(log_level, &cli.log_filter, log_format)?;
         stencila_ask::setup_cli(cli.assume_answer()).await?;
 
-        let skip_upgrade = matches!(cli.command, Command::Upgrade(..));
+        let skip_upgrade = matches!(cli.command, Some(Command::Upgrade(..)));
         if !skip_upgrade {
             upgrade::check(false);
         }
