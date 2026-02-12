@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 use crate::error::McpError;
 
 /// Information about an MCP tool, abstracting over the underlying MCP protocol types.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct McpToolInfo {
     /// The canonical MCP tool name.
     pub name: String,

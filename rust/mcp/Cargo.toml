@@ -3,6 +3,9 @@ name = "stencila-mcp"
 edition = "2024"
 version.workspace = true
 
+[features]
+cli = ["clap", "eyre", "stencila-ask", "stencila-cli-utils"]
+
 [dependencies]
 async-trait = { workspace = true }
 directories = { workspace = true }
@@ -13,6 +16,12 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 toml = { workspace = true }
 tracing = { workspace = true }
+
+# Optional CLI dependencies
+clap = { workspace = true, optional = true }
+eyre = { workspace = true, optional = true }
+stencila-ask = { path = "../ask", optional = true }
+stencila-cli-utils = { path = "../cli-utils", optional = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

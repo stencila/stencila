@@ -26,7 +26,7 @@ use crate::error::McpResult;
 pub enum ConfigSource {
     /// `stencila.toml` (user + workspace merged via figment) → `[mcp.servers]`
     Stencila,
-    /// `~/.claude.json` → `mcpServers`
+    /// `~/.claude.json` → `projects[workspace].mcpServers`
     ClaudeUser,
     /// `.mcp.json` (project root) → `mcpServers`
     ClaudeWorkspace,
@@ -130,7 +130,7 @@ pub fn discover(workspace_dir: &Path) -> Vec<McpServerConfig> {
     load_stencila(workspace_dir, &mut by_id);
 
     // External user-level sources
-    load_claude_user(&mut by_id);
+    load_claude_user(workspace_dir, &mut by_id);
     load_codex_user(&mut by_id);
     load_gemini_user(&mut by_id);
 
@@ -202,10 +202,35 @@ fn load_stencila(workspace_dir: &Path, by_id: &mut HashMap<String, McpServerConf
     }
 }
 
-fn load_claude_user(by_id: &mut HashMap<String, McpServerConfig>) {
-    if let Some(home) = BaseDirs::new().map(|d| d.home_dir().to_path_buf()) {
-        let path = home.join(".claude.json");
-        load_file(&path, ConfigSource::ClaudeUser, by_id);
+/// Load Claude user-level MCP servers from `~/.claude.json`.
+///
+/// Claude Code stores project-scoped servers under
+/// `projects["<absolute-workspace-path>"].mcpServers` and lists disabled
+/// server IDs in `projects["<path>"].disabledMcpServers`.
+fn load_claude_user(workspace_dir: &Path, by_id: &mut HashMap<String, McpServerConfig>) {
+    let Some(home) = BaseDirs::new().map(|d| d.home_dir().to_path_buf()) else {
+        return;
+    };
+    let path = home.join(".claude.json");
+    if !path.exists() {
+        return;
+    }
+    let content = match std::fs::read_to_string(&path) {
+        Ok(c) => c,
+        Err(e) => {
+            tracing::warn!("failed to read {}: {e}", path.display());
+            return;
+        }
+    };
+    match parse_claude_user_json(&content, workspace_dir) {
+        Ok(servers) => {
+            for server in servers {
+                by_id.insert(server.id.clone(), server);
+            }
+        }
+        Err(e) => {
+            tracing::warn!("failed to parse {}: {e}", path.display());
+        }
     }
 }
 
@@ -281,7 +306,83 @@ fn parse_source(content: &str, source: ConfigSource) -> McpResult<Vec<McpServerC
     }
 }
 
-/// Parse Claude JSON format (`~/.claude.json` or `.mcp.json`):
+/// Parse Claude user config (`~/.claude.json`) for project-scoped MCP servers.
+///
+/// The file has the structure:
+/// ```json
+/// {
+///   "projects": {
+///     "/absolute/path/to/project": {
+///       "mcpServers": { "id": { "command": "...", "args": [...] } },
+///       "disabledMcpServers": ["id"]
+///     }
+///   }
+/// }
+/// ```
+fn parse_claude_user_json(content: &str, workspace_dir: &Path) -> McpResult<Vec<McpServerConfig>> {
+    #[derive(Deserialize)]
+    struct ClaudeServerEntry {
+        command: Option<String>,
+        #[serde(default)]
+        args: Vec<String>,
+        #[serde(default)]
+        env: HashMap<String, String>,
+        url: Option<String>,
+        #[serde(default)]
+        headers: HashMap<String, String>,
+        #[serde(rename = "type")]
+        transport_type: Option<String>,
+    }
+
+    let root: serde_json::Value = serde_json::from_str(content)?;
+
+    let workspace_key = workspace_dir.to_string_lossy();
+    let project = root
+        .get("projects")
+        .and_then(|p| p.get(workspace_key.as_ref()));
+
+    let Some(project) = project else {
+        return Ok(Vec::new());
+    };
+
+    let Some(servers_value) = project.get("mcpServers") else {
+        return Ok(Vec::new());
+    };
+
+    let entries: HashMap<String, ClaudeServerEntry> =
+        serde_json::from_value(servers_value.clone())?;
+
+    // Parse disabledMcpServers
+    let disabled: Vec<String> = project
+        .get("disabledMcpServers")
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default();
+
+    Ok(entries
+        .into_iter()
+        .filter_map(|(id, entry)| {
+            let transport = resolve_claude_transport(
+                &id,
+                entry.command,
+                entry.url,
+                entry.args,
+                entry.headers,
+                entry.transport_type.as_deref(),
+            )?;
+            let enabled = !disabled.contains(&id);
+            Some(McpServerConfig {
+                id,
+                name: None,
+                transport,
+                env: entry.env,
+                enabled,
+                source: Some(ConfigSource::ClaudeUser),
+            })
+        })
+        .collect())
+}
+
+/// Parse Claude JSON format (`.mcp.json`):
 /// ```json
 /// { "mcpServers": { "name": { "command": "...", "args": [...] } } }
 /// ```
@@ -654,6 +755,100 @@ GITHUB_TOKEN = "abc123"
         let servers = parse_claude_json(json, ConfigSource::ClaudeWorkspace)?;
         assert_eq!(servers.len(), 1);
         assert_eq!(servers[0].id, "good");
+        Ok(())
+    }
+
+    // -- Claude user config (project-scoped) parser --
+
+    #[test]
+    fn parse_claude_user_project_scoped_servers() -> McpResult<()> {
+        let json = r#"{
+            "numStartups": 42,
+            "projects": {
+                "/home/user/my-project": {
+                    "mcpServers": {
+                        "playwright": {
+                            "command": "npx",
+                            "args": ["@playwright/mcp@latest"]
+                        },
+                        "remote": {
+                            "url": "https://mcp.example.com"
+                        }
+                    }
+                }
+            }
+        }"#;
+        let workspace = Path::new("/home/user/my-project");
+        let mut servers = parse_claude_user_json(json, workspace)?;
+        servers.sort_by(|a, b| a.id.cmp(&b.id));
+        assert_eq!(servers.len(), 2);
+
+        assert_eq!(servers[0].id, "playwright");
+        assert!(
+            matches!(&servers[0].transport, TransportConfig::Stdio { command, args }
+            if command == "npx" && args == &["@playwright/mcp@latest"])
+        );
+        assert!(servers[0].enabled);
+        assert_eq!(servers[0].source, Some(ConfigSource::ClaudeUser));
+
+        assert_eq!(servers[1].id, "remote");
+        assert!(matches!(
+            &servers[1].transport,
+            TransportConfig::Http { .. }
+        ));
+        assert!(servers[1].enabled);
+        Ok(())
+    }
+
+    #[test]
+    fn parse_claude_user_disabled_servers() -> McpResult<()> {
+        let json = r#"{
+            "projects": {
+                "/workspace": {
+                    "mcpServers": {
+                        "enabled-server": { "command": "echo" },
+                        "disabled-server": { "command": "echo" }
+                    },
+                    "disabledMcpServers": ["disabled-server"]
+                }
+            }
+        }"#;
+        let workspace = Path::new("/workspace");
+        let mut servers = parse_claude_user_json(json, workspace)?;
+        servers.sort_by(|a, b| a.id.cmp(&b.id));
+        assert_eq!(servers.len(), 2);
+
+        assert_eq!(servers[0].id, "disabled-server");
+        assert!(!servers[0].enabled);
+
+        assert_eq!(servers[1].id, "enabled-server");
+        assert!(servers[1].enabled);
+        Ok(())
+    }
+
+    #[test]
+    fn parse_claude_user_non_matching_workspace() -> McpResult<()> {
+        let json = r#"{
+            "projects": {
+                "/other/project": {
+                    "mcpServers": {
+                        "server": { "command": "echo" }
+                    }
+                }
+            }
+        }"#;
+        let workspace = Path::new("/my/project");
+        let servers = parse_claude_user_json(json, workspace)?;
+        assert!(servers.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn parse_claude_user_no_projects_key() -> McpResult<()> {
+        let json = r#"{ "numStartups": 42, "autoUpdates": true }"#;
+        let workspace = Path::new("/workspace");
+        let servers = parse_claude_user_json(json, workspace)?;
+        assert!(servers.is_empty());
         Ok(())
     }
 
