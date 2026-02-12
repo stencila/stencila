@@ -1,6 +1,8 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-use crate::{history::CommandHistory, input::InputState};
+use crate::{
+    autocomplete::CommandsState, commands::SlashCommand, history::InputHistory, input::InputState,
+};
 
 /// A message displayed in the chat area.
 #[derive(Debug, Clone)]
@@ -18,12 +20,18 @@ pub enum ChatMessage {
 pub struct App {
     /// Whether the app should exit.
     pub should_quit: bool,
+
     /// Chat messages displayed in the message area.
     pub messages: Vec<ChatMessage>,
+
     /// Current input buffer.
     pub input: InputState,
     /// Command history with navigation.
-    pub history: CommandHistory,
+    pub input_history: InputHistory,
+
+    /// Commands autocomplete popup state.
+    pub commands_state: CommandsState,
+
     /// Scroll offset for the message area (lines from the bottom).
     pub scroll_offset: u16,
     /// Total lines rendered in the last frame's message area (set by `ui::render`).
@@ -36,13 +44,14 @@ impl App {
     /// Create a new App with a welcome banner.
     pub fn new() -> Self {
         let version = stencila_version::STENCILA_VERSION;
-        let welcome = format!("Stencila {version} — Ctrl+C to quit");
+        let welcome = format!("Stencila {version} — Ctrl+C to quit, /help for commands");
 
         Self {
             should_quit: false,
             messages: vec![ChatMessage::System { content: welcome }],
             input: InputState::default(),
-            history: CommandHistory::new(),
+            input_history: InputHistory::new(),
+            commands_state: CommandsState::new(),
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
@@ -61,6 +70,42 @@ impl App {
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
+        // When autocomplete is visible, intercept navigation keys
+        if self.commands_state.is_visible() {
+            match (key.modifiers, key.code) {
+                // Accept completion with Tab
+                (KeyModifiers::NONE, KeyCode::Tab) => {
+                    if let Some(name) = self.commands_state.accept() {
+                        self.input.set_text(name);
+                    }
+                    return;
+                }
+                // Dismiss with Escape
+                (KeyModifiers::NONE, KeyCode::Esc) => {
+                    self.commands_state.dismiss();
+                    return;
+                }
+                // Navigate candidates with Up/Down
+                (KeyModifiers::NONE, KeyCode::Up) => {
+                    self.commands_state.select_prev();
+                    return;
+                }
+                (KeyModifiers::NONE, KeyCode::Down) => {
+                    self.commands_state.select_next();
+                    return;
+                }
+                // Enter accepts and submits
+                (KeyModifiers::NONE, KeyCode::Enter) => {
+                    if let Some(name) = self.commands_state.accept() {
+                        self.input.set_text(name);
+                    }
+                    self.submit_input();
+                    return;
+                }
+                _ => {}
+            }
+        }
+
         match (key.modifiers, key.code) {
             // Quit
             (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
@@ -120,7 +165,9 @@ impl App {
             (KeyModifiers::CONTROL, KeyCode::Delete) => self.input.delete_word_forward(),
 
             // Deletion
-            (KeyModifiers::NONE, KeyCode::Backspace) => self.input.delete_char_before(),
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+            }
             (KeyModifiers::NONE, KeyCode::Delete) => self.input.delete_char_at(),
 
             // Scroll
@@ -137,23 +184,34 @@ impl App {
 
             _ => {}
         }
+
+        // Update autocomplete after every keystroke that modifies input
+        self.commands_state.update(self.input.text());
     }
 
     /// Handle pasted text — insert as-is without triggering submit.
     fn handle_paste(&mut self, text: &str) {
         self.input.insert_str(text);
         self.scroll_offset = 0;
+        self.commands_state.update(self.input.text());
     }
 
-    /// Submit the current input as a user message.
+    /// Submit the current input as a user message or slash command.
     fn submit_input(&mut self) {
         let text = self.input.take();
         if text.trim().is_empty() {
             return;
         }
 
-        self.history.push(text.clone());
-        self.messages.push(ChatMessage::User { content: text });
+        self.commands_state.dismiss();
+        self.input_history.push(text.clone());
+
+        // Check for slash command
+        if let Some((cmd, args)) = SlashCommand::parse(&text) {
+            cmd.execute(self, args);
+        } else {
+            self.messages.push(ChatMessage::User { content: text });
+        }
 
         // Reset scroll to bottom
         self.scroll_offset = 0;
@@ -162,14 +220,14 @@ impl App {
     /// Navigate to the previous (older) history entry.
     fn navigate_history_up(&mut self) {
         let current = self.input.text().to_string();
-        if let Some(entry) = self.history.navigate_up(&current) {
+        if let Some(entry) = self.input_history.navigate_up(&current) {
             self.input.set_text(entry);
         }
     }
 
     /// Navigate to the next (newer) history entry, or back to draft.
     fn navigate_history_down(&mut self) {
-        if let Some(entry) = self.history.navigate_down() {
+        if let Some(entry) = self.input_history.navigate_down() {
             self.input.set_text(entry);
         }
     }
@@ -389,5 +447,141 @@ mod tests {
 
         app.scroll_down(100);
         assert_eq!(app.scroll_offset, 0);
+    }
+
+    // --- Slash command integration tests ---
+
+    #[test]
+    fn slash_help_shows_system_message() {
+        let mut app = App::new();
+        for c in "/help".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(app.input.is_empty());
+        // Welcome + help output
+        assert_eq!(app.messages.len(), 2);
+        assert!(
+            matches!(&app.messages[1], ChatMessage::System { content } if content.contains("/help"))
+        );
+    }
+
+    #[test]
+    fn slash_clear_clears_messages() {
+        let mut app = App::new();
+        for c in "/clear".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(app.messages.is_empty());
+    }
+
+    #[test]
+    fn slash_quit_exits() {
+        let mut app = App::new();
+        for c in "/quit".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        let quit = app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(quit);
+    }
+
+    #[test]
+    fn unknown_slash_treated_as_user_message() {
+        let mut app = App::new();
+        for c in "/unknown".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        // Not a command, so it's a user message
+        assert_eq!(app.messages.len(), 2);
+        assert!(matches!(&app.messages[1], ChatMessage::User { content } if content == "/unknown"));
+    }
+
+    // --- Autocomplete integration tests ---
+
+    #[test]
+    fn autocomplete_shows_on_slash() {
+        let mut app = App::new();
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        assert!(app.commands_state.is_visible());
+    }
+
+    #[test]
+    fn autocomplete_narrows_on_typing() {
+        let mut app = App::new();
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        let all_count = app.commands_state.candidates().len();
+
+        app.handle_event(&key_event(KeyCode::Char('h'), KeyModifiers::NONE));
+        assert!(app.commands_state.candidates().len() < all_count);
+    }
+
+    #[test]
+    fn autocomplete_hides_on_esc() {
+        let mut app = App::new();
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        assert!(app.commands_state.is_visible());
+
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        assert!(!app.commands_state.is_visible());
+    }
+
+    #[test]
+    fn autocomplete_tab_accepts() {
+        let mut app = App::new();
+        // Type "/he" — matches /help and /history
+        for c in "/he".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert!(app.commands_state.is_visible());
+
+        // Tab accepts the first candidate
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        assert!(!app.commands_state.is_visible());
+        // Input should be one of the matching commands
+        let text = app.input.text().to_string();
+        assert!(text == "/help" || text == "/history");
+    }
+
+    #[test]
+    fn autocomplete_up_down_navigates() {
+        let mut app = App::new();
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        assert!(app.commands_state.is_visible());
+        assert_eq!(app.commands_state.selected(), 0);
+
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        assert_eq!(app.commands_state.selected(), 1);
+
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        assert_eq!(app.commands_state.selected(), 0);
+    }
+
+    #[test]
+    fn autocomplete_enter_accepts_and_submits() {
+        let mut app = App::new();
+        // Type "/hel" — matches /help only
+        for c in "/hel".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert!(app.commands_state.is_visible());
+
+        // Enter should accept and submit
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(!app.commands_state.is_visible());
+        assert!(app.input.is_empty());
+        // Should have executed /help
+        assert!(app.messages.len() >= 2);
+    }
+
+    #[test]
+    fn autocomplete_dismissed_on_submit() {
+        let mut app = App::new();
+        for c in "/help".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(!app.commands_state.is_visible());
     }
 }

@@ -1,12 +1,17 @@
 use ratatui::{
     Frame,
-    layout::{Constraint, Layout, Position},
+    layout::{Alignment, Constraint, Layout, Position, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Paragraph, Wrap},
+    widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
 
 use crate::app::{App, ChatMessage};
+
+/// Dim style used for hint descriptions.
+const fn dim() -> Style {
+    Style::new().fg(Color::DarkGray)
+}
 
 /// Render the entire UI for one frame.
 pub fn render(frame: &mut Frame, app: &mut App) {
@@ -21,30 +26,35 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     // +2 for the border
     let input_height = (visual_lines + 2).clamp(3, max_input_height);
 
-    // Layout: messages | status bar | input
+    // Layout: messages | input | hints
     let layout = Layout::vertical([
         Constraint::Min(1),               // message area
-        Constraint::Length(1),            // status bar
         Constraint::Length(input_height), // input area
+        Constraint::Length(1),            // hint line below input
     ])
     .split(area);
 
     let messages_area = layout[0];
-    let status_area = layout[1];
-    let input_area = layout[2];
+    let input_area = layout[1];
+    let hints_area = layout[2];
 
     // --- Render messages ---
     render_messages(frame, app, messages_area);
 
-    // --- Render status bar ---
-    render_status_bar(frame, status_area);
-
     // --- Render input ---
     render_input(frame, app, input_area);
+
+    // --- Render hints below input ---
+    render_hints(frame, hints_area);
+
+    // --- Render autocomplete popup (floats above input) ---
+    if app.commands_state.is_visible() {
+        render_autocomplete(frame, app, input_area);
+    }
 }
 
 /// Render the scrollable message area.
-fn render_messages(frame: &mut Frame, app: &mut App, area: ratatui::layout::Rect) {
+fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
     let mut lines: Vec<Line> = Vec::new();
 
     for message in &app.messages {
@@ -67,10 +77,7 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: ratatui::layout::Rect
             }
             ChatMessage::System { content } => {
                 for text_line in content.lines() {
-                    lines.push(Line::styled(
-                        text_line.to_string(),
-                        Style::default().fg(Color::DarkGray),
-                    ));
+                    lines.push(Line::styled(text_line.to_string(), dim()));
                 }
             }
         }
@@ -112,27 +119,21 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: ratatui::layout::Rect
     frame.render_widget(paragraph, area);
 }
 
-/// Render the status bar.
-fn render_status_bar(frame: &mut Frame, area: ratatui::layout::Rect) {
-    let bar = Paragraph::new(Line::from(vec![
-        Span::styled(
-            " Stencila TUI ",
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::Blue)
-                .add_modifier(Modifier::BOLD),
-        ),
-        Span::styled(
-            " Enter: send | Alt+Enter: newline | Ctrl+C: quit ",
-            Style::default().fg(Color::DarkGray),
-        ),
-    ]));
+/// Render the hint line below the input area.
+fn render_hints(frame: &mut Frame, area: Rect) {
+    let hints = Line::from(vec![
+        Span::raw("alt+\u{21b5} "),
+        Span::styled("newline", dim()),
+        Span::raw("  ctrl+c "),
+        Span::styled("quit", dim()),
+    ]);
 
-    frame.render_widget(bar, area);
+    let paragraph = Paragraph::new(hints).alignment(Alignment::Right);
+    frame.render_widget(paragraph, area);
 }
 
 /// Render the input area with cursor.
-fn render_input(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
+fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let input_text = app.input.text();
 
     let paragraph = Paragraph::new(input_text)
@@ -145,6 +146,23 @@ fn render_input(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
         .wrap(Wrap { trim: false });
 
     frame.render_widget(paragraph, area);
+
+    // Show "↵ send" hint on the right — hide when input text gets close (~8 chars)
+    let inner_width = area.width.saturating_sub(2);
+    let hint_display_width: u16 = 6; // "↵ send" = 6 display columns
+    let input_char_len = app.input.text().chars().count();
+    if inner_width > hint_display_width + 8
+        && input_char_len < (inner_width - hint_display_width - 2) as usize
+    {
+        let hint_area = Rect {
+            x: area.x + area.width - hint_display_width - 2,
+            y: area.y + 1,
+            width: hint_display_width,
+            height: 1,
+        };
+        let hint = Line::from(vec![Span::raw("\u{21b5}"), Span::styled(" send", dim())]);
+        frame.render_widget(Paragraph::new(hint), hint_area);
+    }
 
     // Inner width available for text (excluding left and right borders)
     let inner_width = area.width.saturating_sub(2).max(1) as usize;
@@ -163,6 +181,74 @@ fn render_input(frame: &mut Frame, app: &App, area: ratatui::layout::Rect) {
     if x < area.x + area.width - 1 && y < area.y + area.height - 1 {
         frame.set_cursor_position(Position::new(x, y));
     }
+}
+
+/// Render the autocomplete popup floating above the input area.
+fn render_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.commands_state.candidates();
+    if candidates.is_empty() {
+        return;
+    }
+
+    // Use full input width for the popup so descriptions aren't truncated
+    let popup_width = input_area.width;
+    #[allow(clippy::cast_possible_truncation)]
+    let popup_height = (candidates.len() as u16 + 2).min(input_area.y); // +2 for borders
+
+    if popup_height < 3 || popup_width < 10 {
+        return; // Not enough space
+    }
+
+    let max_name_width = candidates.iter().map(|c| c.name().len()).max().unwrap_or(0);
+
+    // Position: above the input area, aligned to left
+    let popup_area = Rect {
+        x: input_area.x,
+        y: input_area.y.saturating_sub(popup_height),
+        width: popup_width,
+        height: popup_height,
+    };
+
+    // Clear the area behind the popup
+    frame.render_widget(Clear, popup_area);
+
+    // Build popup lines with dim descriptions
+    let selected = app.commands_state.selected();
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, cmd)| {
+            let name = cmd.name();
+            let desc = cmd.description();
+            let padded_name = format!(" {name:<max_name_width$}  ");
+
+            if i == selected {
+                Line::from(vec![
+                    Span::styled(
+                        padded_name,
+                        Style::default()
+                            .fg(Color::Black)
+                            .bg(Color::Cyan)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                    Span::styled(
+                        desc.to_string(),
+                        Style::default().fg(Color::DarkGray).bg(Color::Cyan),
+                    ),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled(padded_name, Style::default().fg(Color::White)),
+                    Span::styled(desc.to_string(), dim()),
+                ])
+            }
+        })
+        .collect();
+
+    let popup = Paragraph::new(Text::from(lines))
+        .block(Block::default().borders(Borders::ALL).border_style(dim()));
+
+    frame.render_widget(popup, popup_area);
 }
 
 /// Count the number of visual lines the text occupies, accounting for wrapping.

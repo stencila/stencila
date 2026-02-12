@@ -1,6 +1,8 @@
 #![warn(clippy::pedantic)]
 
 mod app;
+mod autocomplete;
+mod commands;
 mod event;
 mod history;
 mod input;
@@ -30,7 +32,7 @@ impl Tui {
         // Load history from disk (best-effort)
         let history_path = history::history_file_path();
         if let Some(path) = &history_path {
-            app.history.load_from_file(path);
+            app.input_history.load_from_file(path);
         }
 
         loop {
@@ -48,7 +50,7 @@ impl Tui {
 
         // Save history to disk (best-effort)
         if let Some(path) = &history_path {
-            app.history.save_to_file(path);
+            app.input_history.save_to_file(path);
         }
 
         // Guard's Drop restores the terminal automatically, but dropping

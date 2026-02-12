@@ -7,13 +7,13 @@ use std::{
 /// Maximum number of history entries to keep.
 const MAX_ENTRIES: usize = 1000;
 
-/// Command history with navigation and disk persistence.
+/// Input history with navigation and disk persistence.
 ///
 /// Entries are stored newest-last. The position cursor starts past the end
 /// (meaning "no history selected"). Navigating up moves toward older entries,
 /// down moves toward newer ones. The current input is saved as a draft when
 /// the user first navigates away from it.
-pub struct CommandHistory {
+pub struct InputHistory {
     /// History entries, oldest first.
     entries: Vec<String>,
     /// Current navigation position. `entries.len()` means "draft" (no history selected).
@@ -23,7 +23,7 @@ pub struct CommandHistory {
 }
 
 #[allow(dead_code)]
-impl CommandHistory {
+impl InputHistory {
     /// Create an empty history.
     pub fn new() -> Self {
         Self {
@@ -177,7 +177,7 @@ mod tests {
 
     #[test]
     fn push_and_navigate() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         history.push("first".to_string());
         history.push("second".to_string());
         history.push("third".to_string());
@@ -202,7 +202,7 @@ mod tests {
 
     #[test]
     fn draft_preserved() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         history.push("old".to_string());
 
         // Navigate up saves the draft
@@ -213,14 +213,14 @@ mod tests {
 
     #[test]
     fn empty_history_navigation() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         assert_eq!(history.navigate_up("anything"), None);
         assert_eq!(history.navigate_down(), None);
     }
 
     #[test]
     fn deduplicates_last() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         history.push("hello".to_string());
         history.push("hello".to_string());
         assert_eq!(history.len(), 1);
@@ -232,7 +232,7 @@ mod tests {
 
     #[test]
     fn ignores_blank() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         history.push(String::new());
         history.push("   ".to_string());
         history.push("\n".to_string());
@@ -241,7 +241,7 @@ mod tests {
 
     #[test]
     fn caps_at_max() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         for i in 0..1100 {
             history.push(format!("entry {i}"));
         }
@@ -252,7 +252,7 @@ mod tests {
 
     #[test]
     fn reset_position_after_push() {
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         history.push("first".to_string());
         let _ = history.navigate_up("");
         // Push resets position
@@ -266,13 +266,13 @@ mod tests {
         let dir = tempfile::tempdir().expect("create temp dir");
         let path = dir.path().join("test_history.jsonl");
 
-        let mut history = CommandHistory::new();
+        let mut history = InputHistory::new();
         history.push("single line".to_string());
         history.push("multi\nline\nentry".to_string());
         history.push("with \"quotes\"".to_string());
         history.save_to_file(&path);
 
-        let mut loaded = CommandHistory::new();
+        let mut loaded = InputHistory::new();
         loaded.load_from_file(&path);
         assert_eq!(loaded.len(), 3);
         assert_eq!(loaded.entries()[0], "single line");

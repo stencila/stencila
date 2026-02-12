@@ -11,6 +11,7 @@ futures = { workspace = true }
 ratatui = { version = "0.30.0", default-features = false, features = ["crossterm", "layout-cache"] }
 serde_json = { workspace = true }
 stencila-dirs = { path = "../dirs" }
+strum = { workspace = true }
 stencila-version = { path = "../version" }
 tokio = { workspace = true }
 
