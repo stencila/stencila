@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
-use crate::app::{App, AppMode, AppMessage};
+use crate::app::{App, AppMessage, AppMode};
 
 /// Slash commands available in the TUI.
 ///

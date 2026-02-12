@@ -1,7 +1,7 @@
 use std::io::{self, stdout};
 
 use crossterm::{
-    event::{DisableBracketedPaste, EnableBracketedPaste},
+    event::{DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture},
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
@@ -18,7 +18,7 @@ pub struct TerminalGuard {
 
 impl Drop for TerminalGuard {
     fn drop(&mut self) {
-        let _ = execute!(stdout(), DisableBracketedPaste);
+        let _ = execute!(stdout(), DisableMouseCapture, DisableBracketedPaste);
         let _ = disable_raw_mode();
         let _ = execute!(stdout(), LeaveAlternateScreen);
     }
@@ -37,8 +37,20 @@ pub fn init() -> Result<TerminalGuard> {
 
     enable_raw_mode()?;
 
-    // If alternate screen or bracketed paste fail, restore raw mode before propagating.
-    if let Err(e) = execute!(stdout(), EnterAlternateScreen, EnableBracketedPaste) {
+    // execute! runs commands sequentially — if one fails, earlier ones may have
+    // partially succeeded. Defensively undo everything before propagating.
+    if let Err(e) = execute!(
+        stdout(),
+        EnterAlternateScreen,
+        EnableBracketedPaste,
+        EnableMouseCapture
+    ) {
+        let _ = execute!(
+            stdout(),
+            DisableMouseCapture,
+            DisableBracketedPaste,
+            LeaveAlternateScreen
+        );
         let _ = disable_raw_mode();
         return Err(e.into());
     }
@@ -52,7 +64,7 @@ pub fn init() -> Result<TerminalGuard> {
 fn install_panic_hook() {
     let original_hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic_info| {
-        let _ = execute!(stdout(), DisableBracketedPaste);
+        let _ = execute!(stdout(), DisableMouseCapture, DisableBracketedPaste);
         let _ = disable_raw_mode();
         let _ = execute!(stdout(), LeaveAlternateScreen);
         original_hook(panic_info);

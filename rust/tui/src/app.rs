@@ -1,4 +1,4 @@
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
 
 use crate::{
     autocomplete::{CommandsState, FilesState},
@@ -94,6 +94,11 @@ impl App {
         match event {
             Event::Key(key) => self.handle_key(key),
             Event::Paste(text) => self.handle_paste(text),
+            Event::Mouse(mouse) => match mouse.kind {
+                MouseEventKind::ScrollUp => self.scroll_up(3),
+                MouseEventKind::ScrollDown => self.scroll_down(3),
+                _ => {}
+            },
             _ => {}
         }
         self.should_quit

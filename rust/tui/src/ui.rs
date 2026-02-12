@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
 
-use crate::app::{App, AppMode, AppMessage};
+use crate::app::{App, AppMessage, AppMode};
 
 /// Dim style used for hint descriptions.
 const fn dim() -> Style {
