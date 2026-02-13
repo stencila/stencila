@@ -4,10 +4,11 @@ use std::time::Instant;
 
 use rquickjs::{Ctx, function::Func};
 
+use stencila_mcp::{McpContent, McpServer, McpToolResult};
+
 use crate::error::LimitKind;
 use crate::modules::ToolSnapshot;
 use crate::search::search_tools;
-use stencila_mcp::{McpContent, McpServer, McpToolResult};
 use crate::types::{DetailLevel, SearchToolsOptions, ToolTraceEntry};
 
 use super::SandboxState;

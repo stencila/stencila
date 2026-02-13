@@ -12,9 +12,10 @@ use rquickjs::{
     async_with, module::Evaluated,
 };
 
+use stencila_mcp::McpServer;
+
 use crate::error::CodemodeError;
 use crate::modules::{CodemodeLoader, CodemodeResolver, ToolSnapshot};
-use stencila_mcp::McpServer;
 use crate::types::{
     Diagnostic, DiagnosticCode, DiagnosticSeverity, Limits, LogEntry, RunResponse, ToolTraceEntry,
 };

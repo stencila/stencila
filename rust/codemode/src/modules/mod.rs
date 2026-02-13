@@ -7,9 +7,10 @@ use std::sync::Arc;
 
 use rquickjs::{Ctx, Module, loader};
 
+use stencila_mcp::{McpServer, McpToolInfo};
+
 use crate::error::CodemodeError;
 use crate::identifiers::resolve_export_collisions;
-use stencila_mcp::{McpServer, McpToolInfo};
 use crate::types::{DetailLevel, ServerDescription, ServerInfo, ToolDefinition};
 
 /// A pre-fetched snapshot of all server and tool information.
