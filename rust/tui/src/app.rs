@@ -4,7 +4,7 @@ use ratatui::style::Color;
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
-    agent::{AgentHandle, RunningAgentExchange},
+    agent::{AgentHandle, ResponseSegment, RunningAgentExchange},
     autocomplete::cancel::CancelCandidate,
     autocomplete::models::ModelCandidate,
     autocomplete::{
@@ -79,6 +79,10 @@ pub enum AppMessage {
         status: ExchangeStatus,
         request: String,
         response: Option<String>,
+        /// Structured response segments for rendering (agent exchanges only).
+        /// When present, the renderer uses these for styled tool-call and
+        /// warning annotations. When `None`, `response` is rendered as plain text.
+        response_segments: Option<Vec<ResponseSegment>>,
         /// Shell exit code (only meaningful for Shell kind).
         exit_code: Option<i32>,
     },
@@ -604,6 +608,7 @@ impl App {
             } = message
             {
                 exchange_num += 1;
+                // Use plain text for preview (response field is always clean)
                 let preview = truncate_preview(resp, 50);
                 candidates.push((exchange_num, preview));
             } else if matches!(message, AppMessage::Exchange { .. }) {
@@ -764,6 +769,7 @@ impl App {
             status: ExchangeStatus::Running,
             request: command.clone(),
             response: None,
+            response_segments: None,
             exit_code: None,
         });
         let msg_index = self.messages.len() - 1;
@@ -853,6 +859,9 @@ impl App {
     }
 
     /// Update the exchange at `msg_index` in-place.
+    ///
+    /// Clears `response_segments` since this is used for cancellation and
+    /// shell command completion which produce only plain text.
     fn update_exchange_at(
         messages: &mut [AppMessage],
         msg_index: usize,
@@ -863,12 +872,14 @@ impl App {
         if let Some(AppMessage::Exchange {
             status,
             response: resp,
+            response_segments,
             exit_code: ec,
             ..
         }) = messages.get_mut(msg_index)
         {
             *status = new_status;
             *resp = response;
+            *response_segments = None;
             *ec = exit_code;
         }
     }
@@ -885,6 +896,7 @@ impl App {
             status: ExchangeStatus::Running,
             request: text.clone(),
             response: None,
+            response_segments: None,
             exit_code: None,
         });
         let msg_index = self.messages.len() - 1;
@@ -958,10 +970,11 @@ impl App {
             if let Some(result) = exchange.try_take_result() {
                 completed.push((i, *msg_index, result));
             } else {
-                // Streaming update: refresh the response text
-                let text = exchange.current_text();
-                if !text.is_empty() {
-                    Self::update_exchange_response(&mut self.messages, *msg_index, text);
+                // Streaming update: refresh both plain text and segments
+                let segments = exchange.current_segments();
+                if !segments.is_empty() {
+                    let text = crate::agent::plain_text_from_segments(&segments);
+                    Self::update_exchange_streaming(&mut self.messages, *msg_index, text, segments);
                 }
             }
         }
@@ -974,18 +987,27 @@ impl App {
             } else {
                 ExchangeStatus::Succeeded
             };
-            let response = if let Some(err) = result.error {
+            let (response, segments) = if let Some(err) = result.error {
                 if result.text.is_empty() {
-                    Some(err)
+                    (Some(err), None)
                 } else {
-                    Some(format!("{}\n\nError: {err}", result.text))
+                    (
+                        Some(format!("{}\n\nError: {err}", result.text)),
+                        Some(result.segments),
+                    )
                 }
             } else if result.text.is_empty() {
-                None
+                (None, None)
             } else {
-                Some(result.text)
+                (Some(result.text), Some(result.segments))
             };
-            Self::update_exchange_at(&mut self.messages, msg_index, status, response, None);
+            Self::update_exchange_complete(
+                &mut self.messages,
+                msg_index,
+                status,
+                response,
+                segments,
+            );
         }
     }
 
@@ -1025,12 +1047,44 @@ impl App {
         }
     }
 
-    /// Update only the response field of an exchange without changing status.
-    ///
-    /// Used for streaming updates while the exchange is still running.
-    fn update_exchange_response(messages: &mut [AppMessage], msg_index: usize, text: String) {
-        if let Some(AppMessage::Exchange { response, .. }) = messages.get_mut(msg_index) {
+    /// Update response text and segments during streaming without changing status.
+    fn update_exchange_streaming(
+        messages: &mut [AppMessage],
+        msg_index: usize,
+        text: String,
+        segments: Vec<ResponseSegment>,
+    ) {
+        if let Some(AppMessage::Exchange {
+            response,
+            response_segments,
+            ..
+        }) = messages.get_mut(msg_index)
+        {
             *response = Some(text);
+            *response_segments = Some(segments);
+        }
+    }
+
+    /// Update an exchange on completion, setting status, response, segments, and exit code.
+    fn update_exchange_complete(
+        messages: &mut [AppMessage],
+        msg_index: usize,
+        new_status: ExchangeStatus,
+        response: Option<String>,
+        segments: Option<Vec<ResponseSegment>>,
+    ) {
+        if let Some(AppMessage::Exchange {
+            status,
+            response: resp,
+            response_segments,
+            exit_code,
+            ..
+        }) = messages.get_mut(msg_index)
+        {
+            *status = new_status;
+            *resp = response;
+            *response_segments = segments;
+            *exit_code = None;
         }
     }
 
@@ -1908,6 +1962,7 @@ mod tests {
             status: ExchangeStatus::Succeeded,
             request: "echo hello".to_string(),
             response: Some("hello".to_string()),
+            response_segments: None,
             exit_code: Some(0),
         });
         // Exchange 2: no response yet
@@ -1916,6 +1971,7 @@ mod tests {
             status: ExchangeStatus::Running,
             request: "what is rust".to_string(),
             response: None,
+            response_segments: None,
             exit_code: None,
         });
         // Exchange 3: has response
@@ -1924,6 +1980,7 @@ mod tests {
             status: ExchangeStatus::Succeeded,
             request: "ls -la".to_string(),
             response: Some("total 42\ndrwxr-xr-x 2 user user 4096".to_string()),
+            response_segments: None,
             exit_code: Some(0),
         });
         app

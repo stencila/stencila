@@ -8,6 +8,7 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
 
+use crate::agent::{ResponseSegment, ToolCallStatus};
 use crate::app::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
 
 /// Dim style used for hint descriptions.
@@ -17,6 +18,15 @@ const fn dim() -> Style {
 
 /// Background color for the input area.
 const INPUT_BG: Color = Color::Rgb(40, 40, 40);
+
+// ─── Annotation presentation ────────────────────────────────────────
+//
+// Maps `ResponseSegment` variants to visual presentation (symbol + style).
+// To change annotation *content*, see `format_tool_start()` etc. in agent.rs.
+// To change annotation *appearance*, edit here.
+
+/// Rotating half-circle spinner frames for in-progress tool calls.
+const SPINNER_FRAMES: [char; 4] = ['\u{25d0}', '\u{25d3}', '\u{25d1}', '\u{25d2}'];
 
 /// Render the entire UI for one frame.
 pub fn render(frame: &mut Frame, app: &mut App) {
@@ -139,6 +149,158 @@ fn render_welcome_lines(lines: &mut Vec<Line>, upgrade_available: Option<&str>) 
     }
 }
 
+/// Render a prefixed annotation line: `"● label"` with symbol styling and dim content.
+fn push_annotation_lines(
+    lines: &mut Vec<Line>,
+    sidebar_style: Style,
+    symbol: char,
+    symbol_style: Style,
+    content: &str,
+    content_style: Style,
+    content_width: usize,
+) {
+    let num_padding = "   ";
+    let avail = content_width.saturating_sub(2); // "● " prefix
+    let chunks = wrap_content(content, avail);
+    for (i, chunk) in chunks.iter().enumerate() {
+        let prefix = if i == 0 {
+            Span::styled(format!("{symbol} "), symbol_style)
+        } else {
+            Span::raw("  ")
+        };
+        lines.push(Line::from(vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, sidebar_style),
+            Span::raw(" "),
+            prefix,
+            Span::styled(chunk.clone(), content_style),
+        ]));
+    }
+}
+
+/// Render structured response segments with interleaved tool annotations.
+fn render_response_segments(
+    lines: &mut Vec<Line>,
+    segments: &[ResponseSegment],
+    base_color: Color,
+    annotation_tick: Option<u32>,
+    content_width: usize,
+) {
+    let num_padding = "   ";
+    let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+    let blank_line = || {
+        Line::from(vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+        ])
+    };
+    let mut prev_was_annotation = false;
+
+    for segment in segments {
+        match segment {
+            ResponseSegment::Text(text) => {
+                if prev_was_annotation {
+                    lines.push(blank_line());
+                }
+                for text_line in text.lines() {
+                    for chunk in wrap_content(text_line, content_width) {
+                        lines.push(Line::from(vec![
+                            Span::raw(num_padding),
+                            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                            Span::raw(" "),
+                            Span::raw(chunk),
+                        ]));
+                    }
+                }
+                prev_was_annotation = false;
+            }
+            ResponseSegment::ToolCall { label, status, .. } => {
+                if !prev_was_annotation {
+                    lines.push(blank_line());
+                }
+                let (symbol, symbol_style) = tool_call_symbol(status, annotation_tick);
+                push_annotation_lines(
+                    lines,
+                    dim_sidebar_style,
+                    symbol,
+                    symbol_style,
+                    label,
+                    dim(),
+                    content_width,
+                );
+                if let ToolCallStatus::Error { detail } = status {
+                    for detail_line in detail.lines() {
+                        push_annotation_lines(
+                            lines,
+                            dim_sidebar_style,
+                            '\u{21b3}',
+                            Style::new().fg(Color::Red),
+                            detail_line,
+                            Style::new().fg(Color::Red),
+                            content_width,
+                        );
+                    }
+                }
+                prev_was_annotation = true;
+            }
+            ResponseSegment::Warning(message) => {
+                if !prev_was_annotation {
+                    lines.push(blank_line());
+                }
+                push_annotation_lines(
+                    lines,
+                    dim_sidebar_style,
+                    '\u{25cf}',
+                    Style::new().fg(Color::Yellow),
+                    message,
+                    dim(),
+                    content_width,
+                );
+                prev_was_annotation = true;
+            }
+        }
+    }
+}
+
+/// Map a tool call status to its display symbol and style.
+fn tool_call_symbol(status: &ToolCallStatus, tick: Option<u32>) -> (char, Style) {
+    match status {
+        ToolCallStatus::Running => {
+            let sym = match tick {
+                Some(t) => SPINNER_FRAMES[(t as usize / 2) % SPINNER_FRAMES.len()],
+                None => '\u{25cf}',
+            };
+            (sym, Style::new().fg(Color::DarkGray))
+        }
+        ToolCallStatus::Done => (
+            '\u{25cf}',
+            Style::new().fg(Color::Green).add_modifier(Modifier::DIM),
+        ),
+        ToolCallStatus::Error { .. } => ('\u{25cf}', Style::new().fg(Color::Red)),
+    }
+}
+
+/// Render plain text response lines (for shell commands and fallback).
+fn render_response_text(
+    lines: &mut Vec<Line>,
+    resp: &str,
+    base_color: Color,
+    content_width: usize,
+) {
+    let num_padding = "   ";
+    let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+    for text_line in resp.lines() {
+        for chunk in wrap_content(text_line, content_width) {
+            lines.push(Line::from(vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                Span::raw(" "),
+                Span::raw(chunk),
+            ]));
+        }
+    }
+}
+
 /// Append lines for an exchange (request/response with sidebar).
 #[allow(clippy::too_many_arguments)]
 fn render_exchange_lines(
@@ -148,8 +310,9 @@ fn render_exchange_lines(
     status: ExchangeStatus,
     request: &str,
     response: Option<&str>,
+    response_segments: Option<&[ResponseSegment]>,
     exit_code: Option<i32>,
-    pulsate_bright: bool,
+    tick_count: u32,
     content_width: usize,
 ) {
     let base_color = match status {
@@ -158,6 +321,7 @@ fn render_exchange_lines(
     };
 
     // Running exchanges pulsate between normal and dim of the same color
+    let pulsate_bright = tick_count / 2 % 2 == 0;
     let sidebar_style = match status {
         ExchangeStatus::Running => {
             if pulsate_bright {
@@ -205,18 +369,14 @@ fn render_exchange_lines(
     }
 
     // Response lines with dim sidebar
-    if let Some(resp) = response {
-        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
-        for text_line in resp.lines() {
-            for chunk in wrap_content(text_line, content_width) {
-                lines.push(Line::from(vec![
-                    Span::raw(num_padding),
-                    Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
-                    Span::raw(" "),
-                    Span::raw(chunk),
-                ]));
-            }
-        }
+    if let Some(segments) = response_segments {
+        let annotation_tick = match status {
+            ExchangeStatus::Running => Some(tick_count),
+            _ => None,
+        };
+        render_response_segments(lines, segments, base_color, annotation_tick, content_width);
+    } else if let Some(resp) = response {
+        render_response_text(lines, resp, base_color, content_width);
     }
 
     // Exit code (non-zero) for shell commands
@@ -243,7 +403,7 @@ fn render_exchange_lines(
 fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
     let content_width = area.width.saturating_sub(NUM_GUTTER + 2).max(1) as usize;
     let mut lines: Vec<Line> = Vec::new();
-    let pulsate_bright = app.tick_count / 2 % 2 == 0;
+    let tick_count = app.tick_count;
     let mut exchange_num = 0usize;
 
     for message in &app.messages {
@@ -261,6 +421,7 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                 status,
                 request,
                 response,
+                response_segments,
                 exit_code,
             } => {
                 exchange_num += 1;
@@ -271,8 +432,9 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                     *status,
                     request,
                     response.as_deref(),
+                    response_segments.as_deref(),
                     *exit_code,
-                    pulsate_bright,
+                    tick_count,
                     content_width,
                 );
             }
