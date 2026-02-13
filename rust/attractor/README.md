@@ -34,6 +34,18 @@ The following extensions to the spec are implemented.
 
 - **Empty attribute blocks**: The parser accepts `[]` (empty attribute blocks), even though the BNF grammar in §2.2 implies at least one attribute. This is harmless and consistent with standard DOT tooling.
 
+- **Qualified keys in top-level graph attr declarations**: In addition to `Identifier = Value`, top-level declarations accept dotted keys (e.g., `tool_hooks.pre="..."`), matching attribute tables that use qualified graph keys.
+
+- **Start/exit ID fallbacks**: Start and exit detection accepts canonical ID aliases (`start`/`Start` and `exit`/`Exit`/`end`/`End`) in addition to shape-based detection.
+
+- **Stylesheet token flexibility**: Unquoted stylesheet values accept `/` (e.g., provider/model IDs) in addition to identifier-like characters.
+
+- **Nested subgraph class inheritance**: For nested subgraphs, if an inner subgraph has no label-derived class, nodes inherit the nearest parent subgraph class. This inheritance behavior for unlabeled nested subgraphs is implemented explicitly.
+
+- **Graph-level default thread key**: The fidelity/thread resolver supports a graph attribute `default_thread_id` as the graph-level default thread key used in `full` fidelity thread resolution.
+
+- **Outcome status-file compatibility alias**: Outcome deserialization accepts both `preferred_next_label` (spec field name) and `preferred_label` as input keys for compatibility with legacy/external status producers.
+
 ## Deviations
 
 These are intentional deviations from the spec.
@@ -52,11 +64,25 @@ These are intentional deviations from the spec.
 
 - **Wait-for-human unmatched answer**: The §4.6 pseudocode falls back to `choices[0]` when an answer does not match any choice. This implementation returns FAIL instead, to prevent silent misrouting when a human provides an unexpected input. The `find_matching_choice` function documents this deviation.
 
+- **Wait-for-human matching behavior**: In addition to option-key matching, `wait.human` accepts case-insensitive text matches against full option labels and maps `Yes` answers to the first option for convenience.
+
+- **Run directory node layout**: §5.6 describes node files at `{run_root}/{node_id}/...`. This implementation stores them under `{run_root}/nodes/{node_id}/...` to keep root-level files (`manifest.json`, `checkpoint.json`) separate from node directories.
+
+- **Condition trailing `&&` tolerance**: The condition parser ignores empty clauses, so trailing separators (e.g., `outcome=success &&`) are accepted instead of rejected.
+
+- **Question type naming ambiguity (§6.2 vs §11.8)**: The interviewer model uses the §6.2 enum names (`YES_NO`, `MULTIPLE_CHOICE`, `FREEFORM`, `CONFIRMATION`) rather than the alternate naming shown in §11.8 (`SINGLE_SELECT`, `MULTI_SELECT`, `FREE_TEXT`, `CONFIRM`).
+
+- **Exit-node execution in engine loop**: The engine executes the exit handler after goal-gate checks, while §3.2 pseudocode breaks on terminal detection before handler execution.
+
+- **Retry default source-of-truth ambiguity (§2.5/Appendix A vs §3.5)**: The implementation follows §3.5 behavior and defaults to `0` retries when neither `max_retries` nor `default_max_retry` is set, instead of the `default_max_retry=50` default shown in §2.5 and Appendix A.
+
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
 
 - **AttrValue serde roundtrip**: `Duration` attribute values serialize as strings (e.g., `"15m"`) and deserialize back as `String` variants through JSON, since `serde_json` cannot distinguish Duration from String in the `#[serde(untagged)]` enum. Duration values are fully preserved within a running pipeline; only JSON serialization/deserialization loses the type distinction.
+
+- **Graph attribute mirroring loses non-string types in context (§5.1)**: During run initialization, `graph.*` keys are mirrored into context as strings via `to_string_value`, so numeric/boolean graph attrs are not preserved as typed JSON values in context.
 
 - **Auto-status synthesis (§2.6, Appendix C)**: The `auto_status` node attribute is parsed but not acted upon. When a handler completes without writing `status.json`, the engine does not auto-generate a SUCCESS outcome. In practice, all handlers return an `Outcome` directly, so this is only relevant for future external-process backends that communicate via status files.
 
@@ -85,6 +111,44 @@ The following are known limitations of this implementation of the spec.
 - **Parity matrix (§11.12)**: The 21 cross-feature integration test cases from the parity matrix are deferred.
 
 - **Integration smoke test (§11.13)**: The end-to-end smoke test with a real LLM callback handler is deferred, pending integration with a real LLM backend.
+
+- **`type_known` custom handler false positives (§7.2, §7.4)**: The built-in `type_known` lint rule checks a static list and cannot see runtime-registered custom handlers, so valid custom handler types can still be warned as unknown.
+
+- **Event payload parity with §9.6**: Event categories are implemented, but event payload fields differ from the spec pseudocode (for example, duration/id-rich payload variants are not modeled as-is).
+
+- **Default registry wiring for dependency-backed handlers (§4.2, §4.6, §4.8)**: `EngineConfig::new()` does not auto-register `wait.human` and `parallel` because they require runtime dependencies (`Interviewer`, shared registry/emitter). Pipelines using those node types must register handlers explicitly before running.
+
+- **Node `timeout` enforcement is not centralized (§2.6, §4.*)**: There is no engine-level timeout wrapper applied uniformly to all handlers. `tool` applies `timeout`; other handlers generally do not enforce node-level timeouts.
+
+- **Question metadata field (§6.2)**: `Question.metadata` from the spec model is not represented in the current interviewer types.
+
+## Bugs
+
+The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
+
+- **Current-node context updates are not visible to routing decisions (§3.2–§3.3)**: The engine selects the next edge (including failure routing conditions) before applying `outcome.context_updates` to context, so conditions that depend on updates from the just-finished node can route incorrectly. (P0)
+
+- **Negative retry counts overflow to huge attempt limits (§2.6, §3.5)**: `max_retries` / `default_max_retry` are parsed as signed integers but cast directly to `u32` in retry policy construction; negative values wrap to very large numbers, causing effectively unbounded retries. (P0)
+
+- **Goal-gate failure target selection is nondeterministic when multiple gates fail (§3.4)**: Goal-gate checks iterate a `HashMap` of node outcomes, so the "first" unsatisfied gate (and therefore selected retry target) can vary across runs. (P0)
+
+- **Handler registry resolution does not follow §4.2 fallback order for unknown explicit types**: If a node has `type="..."` set to an unregistered value, resolution stops at that type (or default handler if configured) and does not fall back to shape-based resolution as specified. (P1)
+
+- **Multiple exit nodes are not rejected by validation (§11.2)**: `terminal_node` only enforces "at least one" exit node, so graphs with multiple exit nodes pass validation even though Definition-of-Done requires exactly one. (P1)
+
+- **Retry counters are not reset on success (§3.5)**: `internal.retry_count.<node_id>` is incremented on retries but never cleared/reset after a successful completion, contrary to the retry pseudocode’s reset behavior. (P1)
+
+- **`preferred_label` context key can become stale across stages (§5.1)**: The engine writes `preferred_label` only when the current outcome has a non-empty label, so an earlier value may persist even when a later stage sets no preferred label. (P1)
+
+- **`max_parallel` integer values are ignored in `parallel` handler**: `max_parallel` is read via `get_str_attr` and parsed as `usize`, so numeric DOT values like `max_parallel=1` (parsed as integer) are silently ignored and fall back to default concurrency. (P1)
+
+- **Quoted `timeout` durations are ignored by timeout-enforcing handlers (§2.6, §4.10)**: `timeout="5s"` parses as a string value, but handlers such as `tool` only read `AttrValue::Duration`, so quoted duration values silently disable timeout enforcement. (P1)
+
+- **`wait.human` reads non-spec `timeout_seconds` instead of node `timeout` (§2.6, §4.6, §6.5)**: The handler does not consume the standard node `timeout` duration attribute for interview timeouts; only a non-spec string attribute `timeout_seconds` is read. (P2)
+
+- **Graph-level fidelity lint checks the wrong attribute key**: `fidelity_valid` validates graph attr `fidelity`, but §2.5/§5.4 define `default_fidelity` as the graph-level key. Invalid `default_fidelity` values are therefore not flagged, while non-spec `fidelity` is. (P2)
+
+- **Thread resolution can use explicit `class` before enclosing subgraph class (§5.4)**: Step 4 of thread resolution is specified as the derived enclosing-subgraph class, but the implementation takes the first class token from node `class`, which may be an explicit class instead. (P2)
 
 
 ## Development
