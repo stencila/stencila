@@ -317,6 +317,8 @@ impl Client {
     /// Returns `SdkError::Configuration` if no provider can be resolved.
     /// Provider errors are propagated as-is.
     pub async fn complete(&self, request: Request) -> SdkResult<Response> {
+        let mut request = request;
+        self.resolve_model(&mut request)?;
         let provider = self.resolve_provider(&request)?;
 
         if self.middleware.is_empty() {
@@ -339,8 +341,9 @@ impl Client {
     /// errors appear as `Err` items in the stream.
     pub async fn stream(
         &self,
-        request: Request,
+        mut request: Request,
     ) -> SdkResult<BoxStream<'_, SdkResult<StreamEvent>>> {
+        self.resolve_model(&mut request)?;
         let provider = self.resolve_provider(&request)?;
 
         if self.middleware.is_empty() {
@@ -413,6 +416,18 @@ impl Client {
     /// available models.
     pub fn providers(&self) -> impl Iterator<Item = &dyn ProviderAdapter> {
         self.providers.values().map(AsRef::as_ref)
+    }
+
+    /// If `request.model` is a catalog alias, replace it with the
+    /// canonical model ID so provider adapters send the correct value
+    /// to the upstream API.
+    fn resolve_model(&self, request: &mut Request) -> SdkResult<()> {
+        if let Some(info) = crate::catalog::get_model_info(&request.model)?
+            && info.id != request.model
+        {
+            request.model = info.id;
+        }
+        Ok(())
     }
 
     /// Resolve the provider adapter for a request.
