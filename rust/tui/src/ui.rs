@@ -28,6 +28,9 @@ const INPUT_BG: Color = Color::Rgb(40, 40, 40);
 /// Rotating half-circle spinner frames for in-progress tool calls.
 const SPINNER_FRAMES: [char; 4] = ['\u{25d0}', '\u{25d3}', '\u{25d1}', '\u{25d2}'];
 
+/// Pulsating frames for in-progress thinking: · ∗ ✱ (small → medium → large).
+const THINKING_FRAMES: [char; 3] = ['\u{00b7}', '\u{2217}', '\u{2731}'];
+
 /// Render the entire UI for one frame.
 pub fn render(frame: &mut Frame, app: &mut App) {
     let area = frame.area();
@@ -243,6 +246,20 @@ fn render_response_segments(
                 }
                 prev_was_annotation = true;
             }
+            ResponseSegment::Thinking { text, complete } => {
+                if !prev_was_annotation {
+                    lines.push(blank_line());
+                }
+                render_thinking_segment(
+                    lines,
+                    dim_sidebar_style,
+                    text,
+                    *complete,
+                    annotation_tick,
+                    content_width,
+                );
+                prev_was_annotation = true;
+            }
             ResponseSegment::Warning(message) => {
                 if !prev_was_annotation {
                     lines.push(blank_line());
@@ -278,6 +295,90 @@ fn tool_call_symbol(status: &ToolCallStatus, tick: Option<u32>) -> (char, Style)
         ),
         ToolCallStatus::Error { .. } => ('\u{25cf}', Style::new().fg(Color::Red)),
     }
+}
+
+/// Map in-progress thinking to its pulsating display symbol and style.
+/// Render a thinking/reasoning segment: header + indented content with
+/// visual-line-based truncation.
+#[allow(clippy::too_many_arguments)]
+fn render_thinking_segment(
+    lines: &mut Vec<Line>,
+    dim_sidebar_style: Style,
+    text: &str,
+    complete: bool,
+    annotation_tick: Option<u32>,
+    content_width: usize,
+) {
+    // Header: pulsating symbol + "Thinking"
+    let (symbol, symbol_style) = if complete {
+        ('\u{2217}', Style::new().fg(Color::DarkGray))
+    } else {
+        thinking_symbol(annotation_tick)
+    };
+    push_annotation_lines(
+        lines,
+        dim_sidebar_style,
+        symbol,
+        symbol_style,
+        "Thinking",
+        dim(),
+        content_width,
+    );
+
+    // Content: ↳ on first line, space indent on rest.
+    // Truncate by visual (wrapped) lines, not source newlines.
+    if !text.is_empty() {
+        let max_visual = if complete { 5 } else { usize::MAX };
+        let avail = content_width.saturating_sub(2); // prefix width
+        let mut visual_count = 0usize;
+        let mut first_source_line = true;
+        let mut remaining_visual = 0usize;
+        let mut truncated = false;
+
+        for source_line in text.lines() {
+            let wrapped_count = wrap_content(source_line, avail).len();
+            if truncated {
+                remaining_visual += wrapped_count;
+                continue;
+            }
+            if visual_count + wrapped_count > max_visual && visual_count > 0 {
+                truncated = true;
+                remaining_visual += wrapped_count;
+                continue;
+            }
+            let prefix = if first_source_line { '\u{21b3}' } else { ' ' };
+            push_annotation_lines(
+                lines,
+                dim_sidebar_style,
+                prefix,
+                Style::new().fg(Color::DarkGray),
+                source_line,
+                dim(),
+                content_width,
+            );
+            visual_count += wrapped_count;
+            first_source_line = false;
+        }
+        if complete && remaining_visual > 0 {
+            push_annotation_lines(
+                lines,
+                dim_sidebar_style,
+                ' ',
+                dim(),
+                &format!("[+{remaining_visual} more lines]"),
+                dim(),
+                content_width,
+            );
+        }
+    }
+}
+
+fn thinking_symbol(tick: Option<u32>) -> (char, Style) {
+    let sym = match tick {
+        Some(t) => THINKING_FRAMES[(t as usize / 2) % THINKING_FRAMES.len()],
+        None => THINKING_FRAMES[0],
+    };
+    (sym, Style::new().fg(Color::DarkGray))
 }
 
 /// Render plain text response lines (for shell commands and fallback).

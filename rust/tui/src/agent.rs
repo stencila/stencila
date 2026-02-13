@@ -32,6 +32,8 @@ pub enum ToolCallStatus {
 pub enum ResponseSegment {
     /// Plain text from the assistant.
     Text(String),
+    /// Model thinking/reasoning content (e.g. extended thinking, chain-of-thought).
+    Thinking { text: String, complete: bool },
     /// A tool call annotation.
     ToolCall {
         call_id: String,
@@ -64,6 +66,49 @@ fn append_text(segments: &mut Vec<ResponseSegment>, delta: &str) {
     }
 }
 
+/// Insert a completed `Thinking` segment before the trailing run of `Text` segments.
+///
+/// In multi-turn streaming, accumulated text deltas for the current turn sit
+/// at the tail of the segment list. This inserts the thinking block just
+/// before that trailing text so it renders above the response.
+fn insert_thinking_before_text_tail(segments: &mut Vec<ResponseSegment>, reasoning: &str) {
+    let insert_pos = segments
+        .iter()
+        .rposition(|s| !matches!(s, ResponseSegment::Text(_)))
+        .map_or(0, |i| i + 1);
+    segments.insert(
+        insert_pos,
+        ResponseSegment::Thinking {
+            text: reasoning.to_string(),
+            complete: true,
+        },
+    );
+}
+
+/// Append a reasoning delta to the last `Thinking` segment.
+///
+/// Extends the last `Thinking` segment if present, otherwise pushes a new one.
+fn append_thinking(segments: &mut Vec<ResponseSegment>, delta: &str) {
+    if let Some(ResponseSegment::Thinking { text, .. }) = segments.last_mut() {
+        text.push_str(delta);
+    } else {
+        segments.push(ResponseSegment::Thinking {
+            text: delta.to_string(),
+            complete: false,
+        });
+    }
+}
+
+/// Mark the last `Thinking` segment as complete.
+fn complete_thinking(segments: &mut [ResponseSegment]) {
+    for seg in segments.iter_mut().rev() {
+        if let ResponseSegment::Thinking { complete, .. } = seg {
+            *complete = true;
+            return;
+        }
+    }
+}
+
 /// Find a tool call segment by `call_id` and update its status.
 fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Option<&str>) {
     for seg in segments.iter_mut() {
@@ -88,11 +133,14 @@ fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Op
 /// Shared progress state for a running agent exchange, updated by the
 /// background event-draining task.
 #[derive(Debug, Default)]
+#[allow(clippy::struct_excessive_bools)]
 struct AgentProgress {
     /// Structured response segments (text interleaved with annotations).
     segments: Vec<ResponseSegment>,
     /// Whether any deltas were received for the current text segment.
     received_deltas: bool,
+    /// Whether reasoning deltas were received for this turn.
+    received_reasoning_deltas: bool,
     /// Whether any tool calls have been seen (multi-turn mode).
     has_tool_calls: bool,
     /// Map of `call_id` -> `tool_name` for associating `ToolCallEnd` errors.
@@ -371,6 +419,89 @@ fn truncate_for_display(s: &str, max_chars: usize) -> String {
     format!("{}\u{2026}", &s[..byte_offset])
 }
 
+/// Handle an `AssistantTextEnd` event, reconciling streamed deltas with the
+/// final text and inserting any reasoning/thinking content.
+fn handle_assistant_text_end(
+    event: &stencila_agents::types::SessionEvent,
+    progress: &Arc<Mutex<AgentProgress>>,
+) {
+    if let Some(Value::String(text)) = event.data.get("text")
+        && let Ok(mut g) = progress.lock()
+    {
+        // Only insert reasoning from the event if it wasn't already streamed
+        // via ReasoningStart/Delta/End events.
+        let reasoning = if g.received_reasoning_deltas {
+            None
+        } else {
+            event
+                .data
+                .get("reasoning")
+                .and_then(Value::as_str)
+                .filter(|r| !r.is_empty())
+        };
+
+        if !g.received_deltas {
+            // Non-streaming provider: insert thinking, then text
+            if let Some(r) = reasoning {
+                g.segments.push(ResponseSegment::Thinking {
+                    text: r.to_string(),
+                    complete: true,
+                });
+            }
+            append_text(&mut g.segments, text);
+        } else if !g.has_tool_calls {
+            // Streaming, single-turn: reconcile text (keep Thinking segments)
+            let thinking: Vec<ResponseSegment> = g
+                .segments
+                .drain(..)
+                .filter(|s| matches!(s, ResponseSegment::Thinking { .. }))
+                .collect();
+            g.segments = thinking;
+            if let Some(r) = reasoning {
+                g.segments.push(ResponseSegment::Thinking {
+                    text: r.to_string(),
+                    complete: true,
+                });
+            }
+            g.segments.push(ResponseSegment::Text(text.clone()));
+        } else {
+            // Streaming + multi-turn: insert thinking before trailing text
+            if let Some(r) = reasoning {
+                insert_thinking_before_text_tail(&mut g.segments, r);
+            }
+        }
+        g.received_deltas = false;
+        g.received_reasoning_deltas = false;
+    }
+}
+
+/// Handle a `ToolCallStart` event.
+fn handle_tool_call_start(
+    event: &stencila_agents::types::SessionEvent,
+    progress: &Arc<Mutex<AgentProgress>>,
+) {
+    if let Some(Value::String(tool_name)) = event.data.get("tool_name")
+        && let Ok(mut g) = progress.lock()
+    {
+        let call_id = event
+            .data
+            .get("call_id")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        g.pending_tools
+            .insert(call_id.to_string(), tool_name.clone());
+        let arguments = event.data.get("arguments").cloned().unwrap_or(Value::Null);
+        let label = format_tool_start(tool_name, &arguments);
+        g.segments.push(ResponseSegment::ToolCall {
+            call_id: call_id.to_string(),
+            label,
+            status: ToolCallStatus::Running,
+        });
+        g.has_tool_calls = true;
+        g.received_deltas = false;
+    }
+}
+
 /// Process a single session event, updating the shared progress.
 fn process_event(
     event: &stencila_agents::types::SessionEvent,
@@ -385,44 +516,30 @@ fn process_event(
                 g.received_deltas = true;
             }
         }
-        EventKind::AssistantTextEnd => {
-            if let Some(Value::String(text)) = event.data.get("text")
-                && let Ok(mut g) = progress.lock()
-            {
-                if !g.received_deltas {
-                    // Non-streaming provider: append this turn's text
-                    append_text(&mut g.segments, text);
-                } else if !g.has_tool_calls {
-                    // Streaming, single-turn: reconcile (all segments are Text)
-                    g.segments.clear();
-                    g.segments.push(ResponseSegment::Text(text.clone()));
-                }
-                // Streaming + multi-turn: trust accumulated deltas, skip
-                g.received_deltas = false;
-            }
-        }
-        EventKind::ToolCallStart => {
-            if let Some(Value::String(tool_name)) = event.data.get("tool_name")
-                && let Ok(mut g) = progress.lock()
-            {
-                let call_id = event
-                    .data
-                    .get("call_id")
-                    .and_then(Value::as_str)
-                    .unwrap_or("");
-                g.pending_tools
-                    .insert(call_id.to_string(), tool_name.clone());
-                let arguments = event.data.get("arguments").cloned().unwrap_or(Value::Null);
-                let label = format_tool_start(tool_name, &arguments);
-                g.segments.push(ResponseSegment::ToolCall {
-                    call_id: call_id.to_string(),
-                    label,
-                    status: ToolCallStatus::Running,
+        EventKind::AssistantTextEnd => handle_assistant_text_end(event, progress),
+        EventKind::AssistantReasoningStart => {
+            if let Ok(mut g) = progress.lock() {
+                g.segments.push(ResponseSegment::Thinking {
+                    text: String::new(),
+                    complete: false,
                 });
-                g.has_tool_calls = true;
-                g.received_deltas = false;
+                g.received_reasoning_deltas = true;
             }
         }
+        EventKind::AssistantReasoningDelta => {
+            if let Some(Value::String(delta)) = event.data.get("delta")
+                && let Ok(mut g) = progress.lock()
+            {
+                append_thinking(&mut g.segments, delta);
+                g.received_reasoning_deltas = true;
+            }
+        }
+        EventKind::AssistantReasoningEnd => {
+            if let Ok(mut g) = progress.lock() {
+                complete_thinking(&mut g.segments);
+            }
+        }
+        EventKind::ToolCallStart => handle_tool_call_start(event, progress),
         EventKind::ToolCallEnd => {
             if let Ok(mut g) = progress.lock() {
                 let call_id = event
@@ -453,14 +570,15 @@ fn process_event(
             }
         }
         EventKind::Error => {
-            let message = event
-                .data
-                .get("message")
-                .and_then(Value::as_str)
-                .unwrap_or("unknown error")
-                .to_string();
             if let Ok(mut g) = progress.lock() {
-                g.error = Some(message);
+                g.error = Some(
+                    event
+                        .data
+                        .get("message")
+                        .and_then(Value::as_str)
+                        .unwrap_or("unknown error")
+                        .to_string(),
+                );
             }
         }
         // SessionStart/End, UserInput, SteeringInjected, ToolCallOutputDelta,
@@ -668,6 +786,10 @@ mod tests {
                 label: "Read file foo.rs".to_string(),
                 status: ToolCallStatus::Done,
             },
+            ResponseSegment::Thinking {
+                text: "some reasoning".to_string(),
+                complete: true,
+            },
             ResponseSegment::Warning("Turn limit".to_string()),
             ResponseSegment::Text("World".to_string()),
         ];
@@ -677,6 +799,66 @@ mod tests {
     #[test]
     fn plain_text_empty_segments() {
         assert_eq!(plain_text_from_segments(&[]), "");
+    }
+
+    // ─── insert_thinking_before_text_tail ─────────────────────────────
+
+    #[test]
+    fn insert_thinking_empty_segments() {
+        let mut segments: Vec<ResponseSegment> = Vec::new();
+        insert_thinking_before_text_tail(&mut segments, "thought");
+        assert_eq!(
+            segments,
+            vec![ResponseSegment::Thinking {
+                text: "thought".to_string(),
+                complete: true
+            }]
+        );
+    }
+
+    #[test]
+    fn insert_thinking_all_text_segments() {
+        let mut segments = vec![
+            ResponseSegment::Text("hello ".to_string()),
+            ResponseSegment::Text("world".to_string()),
+        ];
+        insert_thinking_before_text_tail(&mut segments, "reason");
+        assert_eq!(segments.len(), 3);
+        assert_eq!(
+            segments[0],
+            ResponseSegment::Thinking {
+                text: "reason".to_string(),
+                complete: true
+            }
+        );
+        assert_eq!(segments[1], ResponseSegment::Text("hello ".to_string()));
+        assert_eq!(segments[2], ResponseSegment::Text("world".to_string()));
+    }
+
+    #[test]
+    fn insert_thinking_after_toolcall() {
+        let mut segments = vec![
+            ResponseSegment::Text("before".to_string()),
+            ResponseSegment::ToolCall {
+                call_id: "c1".to_string(),
+                label: "Read file".to_string(),
+                status: ToolCallStatus::Done,
+            },
+            ResponseSegment::Text("after".to_string()),
+        ];
+        insert_thinking_before_text_tail(&mut segments, "thought");
+        assert_eq!(segments.len(), 4);
+        // Thinking inserted after the ToolCall, before trailing Text
+        assert_eq!(segments[0], ResponseSegment::Text("before".to_string()));
+        assert!(matches!(segments[1], ResponseSegment::ToolCall { .. }));
+        assert_eq!(
+            segments[2],
+            ResponseSegment::Thinking {
+                text: "thought".to_string(),
+                complete: true
+            }
+        );
+        assert_eq!(segments[3], ResponseSegment::Text("after".to_string()));
     }
 
     // ─── try_take_result ────────────────────────────────────────────
@@ -706,5 +888,275 @@ mod tests {
         assert_eq!(result.text, "Hello\nWorld");
         // Segments preserve annotations
         assert_eq!(result.segments, segments);
+    }
+
+    // ─── process_event with reasoning ────────────────────────────────
+
+    fn make_event(
+        kind: EventKind,
+        data: serde_json::Map<String, Value>,
+    ) -> stencila_agents::types::SessionEvent {
+        stencila_agents::types::SessionEvent {
+            kind,
+            timestamp: String::new(),
+            session_id: String::new(),
+            data,
+        }
+    }
+
+    #[test]
+    fn process_event_assistant_text_end_with_reasoning_non_streaming() {
+        let progress = Arc::new(Mutex::new(AgentProgress::default()));
+        // Non-streaming: received_deltas is false
+        let mut data = serde_json::Map::new();
+        data.insert("text".into(), Value::String("response".into()));
+        data.insert(
+            "reasoning".into(),
+            Value::String("I think therefore".into()),
+        );
+        let event = make_event(EventKind::AssistantTextEnd, data);
+        process_event(&event, &progress);
+
+        let g = progress.lock().expect("lock");
+        assert_eq!(g.segments.len(), 2);
+        assert_eq!(
+            g.segments[0],
+            ResponseSegment::Thinking {
+                text: "I think therefore".to_string(),
+                complete: true
+            }
+        );
+        assert_eq!(g.segments[1], ResponseSegment::Text("response".to_string()));
+    }
+
+    #[test]
+    fn process_event_assistant_text_end_without_reasoning() {
+        let progress = Arc::new(Mutex::new(AgentProgress::default()));
+        let mut data = serde_json::Map::new();
+        data.insert("text".into(), Value::String("response".into()));
+        let event = make_event(EventKind::AssistantTextEnd, data);
+        process_event(&event, &progress);
+
+        let g = progress.lock().expect("lock");
+        assert_eq!(g.segments.len(), 1);
+        assert_eq!(g.segments[0], ResponseSegment::Text("response".to_string()));
+    }
+
+    #[test]
+    fn process_event_assistant_text_end_with_reasoning_streaming_single_turn() {
+        let progress = Arc::new(Mutex::new(AgentProgress {
+            segments: vec![ResponseSegment::Text("streamed text".to_string())],
+            received_deltas: true,
+            ..AgentProgress::default()
+        }));
+        let mut data = serde_json::Map::new();
+        data.insert("text".into(), Value::String("full text".into()));
+        data.insert("reasoning".into(), Value::String("my reasoning".into()));
+        let event = make_event(EventKind::AssistantTextEnd, data);
+        process_event(&event, &progress);
+
+        let g = progress.lock().expect("lock");
+        assert_eq!(g.segments.len(), 2);
+        assert_eq!(
+            g.segments[0],
+            ResponseSegment::Thinking {
+                text: "my reasoning".to_string(),
+                complete: true
+            }
+        );
+        assert_eq!(
+            g.segments[1],
+            ResponseSegment::Text("full text".to_string())
+        );
+    }
+
+    #[test]
+    fn process_event_assistant_text_end_with_reasoning_streaming_multi_turn() {
+        let progress = Arc::new(Mutex::new(AgentProgress {
+            segments: vec![
+                ResponseSegment::Text("turn 1".to_string()),
+                ResponseSegment::ToolCall {
+                    call_id: "c1".to_string(),
+                    label: "Read file".to_string(),
+                    status: ToolCallStatus::Done,
+                },
+                ResponseSegment::Text("turn 2".to_string()),
+            ],
+            received_deltas: true,
+            has_tool_calls: true,
+            ..AgentProgress::default()
+        }));
+        let mut data = serde_json::Map::new();
+        data.insert("text".into(), Value::String("turn 2".into()));
+        data.insert("reasoning".into(), Value::String("deep thought".into()));
+        let event = make_event(EventKind::AssistantTextEnd, data);
+        process_event(&event, &progress);
+
+        let g = progress.lock().expect("lock");
+        assert_eq!(g.segments.len(), 4);
+        assert_eq!(g.segments[0], ResponseSegment::Text("turn 1".to_string()));
+        assert!(matches!(g.segments[1], ResponseSegment::ToolCall { .. }));
+        assert_eq!(
+            g.segments[2],
+            ResponseSegment::Thinking {
+                text: "deep thought".to_string(),
+                complete: true
+            }
+        );
+        assert_eq!(g.segments[3], ResponseSegment::Text("turn 2".to_string()));
+    }
+
+    #[test]
+    fn process_event_empty_reasoning_is_ignored() {
+        let progress = Arc::new(Mutex::new(AgentProgress::default()));
+        let mut data = serde_json::Map::new();
+        data.insert("text".into(), Value::String("response".into()));
+        data.insert("reasoning".into(), Value::String(String::new()));
+        let event = make_event(EventKind::AssistantTextEnd, data);
+        process_event(&event, &progress);
+
+        let g = progress.lock().expect("lock");
+        assert_eq!(g.segments.len(), 1);
+        assert_eq!(g.segments[0], ResponseSegment::Text("response".to_string()));
+    }
+
+    // ─── Streaming reasoning events ──────────────────────────────────
+
+    #[test]
+    fn streaming_reasoning_start_delta_end() {
+        let progress = Arc::new(Mutex::new(AgentProgress::default()));
+
+        // ReasoningStart
+        process_event(
+            &make_event(EventKind::AssistantReasoningStart, serde_json::Map::new()),
+            &progress,
+        );
+        {
+            let g = progress.lock().expect("lock");
+            assert_eq!(g.segments.len(), 1);
+            assert!(matches!(
+                g.segments[0],
+                ResponseSegment::Thinking {
+                    complete: false,
+                    ..
+                }
+            ));
+        }
+
+        // ReasoningDelta
+        let mut data = serde_json::Map::new();
+        data.insert("delta".into(), Value::String("let me think".into()));
+        process_event(
+            &make_event(EventKind::AssistantReasoningDelta, data),
+            &progress,
+        );
+        {
+            let g = progress.lock().expect("lock");
+            assert_eq!(
+                g.segments[0],
+                ResponseSegment::Thinking {
+                    text: "let me think".to_string(),
+                    complete: false,
+                }
+            );
+        }
+
+        // ReasoningEnd
+        process_event(
+            &make_event(EventKind::AssistantReasoningEnd, serde_json::Map::new()),
+            &progress,
+        );
+        {
+            let g = progress.lock().expect("lock");
+            assert_eq!(
+                g.segments[0],
+                ResponseSegment::Thinking {
+                    text: "let me think".to_string(),
+                    complete: true,
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn streamed_reasoning_not_duplicated_by_text_end() {
+        let progress = Arc::new(Mutex::new(AgentProgress {
+            received_deltas: true,
+            received_reasoning_deltas: true,
+            segments: vec![
+                ResponseSegment::Thinking {
+                    text: "streamed thought".to_string(),
+                    complete: true,
+                },
+                ResponseSegment::Text("hello".to_string()),
+            ],
+            ..AgentProgress::default()
+        }));
+
+        // AssistantTextEnd with reasoning — should NOT duplicate thinking
+        let mut data = serde_json::Map::new();
+        data.insert("text".into(), Value::String("full text".into()));
+        data.insert("reasoning".into(), Value::String("streamed thought".into()));
+        process_event(&make_event(EventKind::AssistantTextEnd, data), &progress);
+
+        let g = progress.lock().expect("lock");
+        // Should have Thinking + Text (no duplicate Thinking)
+        assert_eq!(g.segments.len(), 2);
+        assert!(matches!(g.segments[0], ResponseSegment::Thinking { .. }));
+        assert_eq!(
+            g.segments[1],
+            ResponseSegment::Text("full text".to_string())
+        );
+    }
+
+    #[test]
+    fn append_thinking_extends_last() {
+        let mut segments = vec![ResponseSegment::Thinking {
+            text: "hello".to_string(),
+            complete: false,
+        }];
+        append_thinking(&mut segments, " world");
+        assert_eq!(
+            segments[0],
+            ResponseSegment::Thinking {
+                text: "hello world".to_string(),
+                complete: false,
+            }
+        );
+    }
+
+    #[test]
+    fn append_thinking_creates_new_when_no_thinking() {
+        let mut segments = vec![ResponseSegment::Text("text".to_string())];
+        append_thinking(&mut segments, "thought");
+        assert_eq!(segments.len(), 2);
+        assert_eq!(
+            segments[1],
+            ResponseSegment::Thinking {
+                text: "thought".to_string(),
+                complete: false,
+            }
+        );
+    }
+
+    #[test]
+    fn complete_thinking_marks_last() {
+        let mut segments = vec![
+            ResponseSegment::Thinking {
+                text: "first".to_string(),
+                complete: true,
+            },
+            ResponseSegment::Text("middle".to_string()),
+            ResponseSegment::Thinking {
+                text: "second".to_string(),
+                complete: false,
+            },
+        ];
+        complete_thinking(&mut segments);
+        // Only the last Thinking should be marked complete
+        assert!(matches!(
+            segments[2],
+            ResponseSegment::Thinking { complete: true, .. }
+        ));
     }
 }
