@@ -110,7 +110,9 @@ transport.args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
         let config: McpConfig = toml::from_str(toml)?;
         let servers = config.servers.expect("should have servers");
         let server = &servers["filesystem"];
-        assert!(matches!(&server.transport, McpTransportConfig::Stdio { command, .. } if command == "npx"));
+        assert!(
+            matches!(&server.transport, McpTransportConfig::Stdio { command, .. } if command == "npx")
+        );
         assert!(server.enabled);
         assert!(server.name.is_none());
         Ok(())
@@ -129,7 +131,9 @@ transport.headers = { Authorization = "Bearer token" }
         let servers = config.servers.expect("should have servers");
         let server = &servers["remote"];
         assert_eq!(server.name.as_deref(), Some("Remote API"));
-        assert!(matches!(&server.transport, McpTransportConfig::Http { url, .. } if url == "https://api.example.com/mcp"));
+        assert!(
+            matches!(&server.transport, McpTransportConfig::Http { url, .. } if url == "https://api.example.com/mcp")
+        );
         Ok(())
     }
 

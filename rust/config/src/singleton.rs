@@ -117,6 +117,11 @@ pub fn load_and_validate(workspace_dir: &Path) -> Result<Config> {
         }
     }
 
+    // Validate models configuration
+    if let Some(models) = &config.models {
+        models.validate()?;
+    }
+
     // Validate MCP configuration
     if let Some(mcp) = &config.mcp {
         mcp.validate()?;

@@ -36,6 +36,7 @@ pub mod cli;
 mod init;
 mod layout;
 mod mcp;
+mod models;
 mod outputs;
 mod remotes;
 mod singleton;
@@ -52,13 +53,14 @@ mod workspace;
 use crate::workspace::WorkspaceConfig;
 
 pub use {
-    mcp::{McpConfig, McpServerEntry, McpTransportConfig},
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
         NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeIcons,
         PrevNextStyle, RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
     },
+    mcp::{McpConfig, McpServerEntry, McpTransportConfig},
+    models::{KNOWN_MODEL_PROVIDERS, ModelsConfig},
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,
@@ -196,7 +198,12 @@ pub struct Config {
     /// transport.command = "npx"
     /// transport.args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
     /// ```
-    pub mcp: Option<mcp::McpConfig>
+    pub mcp: Option<mcp::McpConfig>,
+
+    /// Model provider selection configuration.
+    ///
+    /// Controls provider ordering/selection for model-backed features.
+    pub models: Option<ModelsConfig>,
 }
 
 impl Config {

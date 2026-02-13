@@ -478,7 +478,7 @@ fn resolve_model_and_provider(
         None => {
             let provider = provider_flag
                 .as_deref()
-                .or(client.default_provider())
+                .or(client.select_provider())
                 .ok_or_else(|| {
                     eyre::eyre!(
                         "No --model specified and no model provider available. \

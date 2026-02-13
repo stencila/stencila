@@ -15,6 +15,19 @@ use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
 
+fn configured_providers() -> Option<Vec<String>> {
+    let cwd = std::env::current_dir().ok()?;
+    let config = stencila_config::load_and_validate(&cwd).ok()?;
+    config.models.and_then(|models| models.providers)
+}
+
+fn provider_enabled(configured: &Option<Vec<String>>, provider: &str) -> bool {
+    match configured {
+        Some(providers) => providers.iter().any(|name| name == provider),
+        None => true,
+    }
+}
+
 /// The main orchestration layer.
 ///
 /// Holds registered provider adapters, routes requests by provider
@@ -39,8 +52,10 @@ impl Client {
     /// Create a client from environment variables.
     ///
     /// Reads standard environment variables for each provider and registers
-    /// adapters for those whose keys are present. The first registered
-    /// provider becomes the default.
+    /// adapters for those whose keys are present.
+    ///
+    /// If `models.providers` is configured in `stencila.toml`, only those
+    /// providers are considered here.
     ///
     /// | Provider  | Required               | Optional                                           |
     /// |-----------|------------------------|----------------------------------------------------|
@@ -66,10 +81,13 @@ impl Client {
     /// Note: base URL format is not validated at construction; an invalid
     /// URL will surface as a request-time error.
     pub fn from_env() -> SdkResult<Self> {
+        let configured = configured_providers();
         let mut builder = ClientBuilder::new();
 
         // OpenAI (native Responses API)
-        if let Some(api_key) = get_secret("OPENAI_API_KEY") {
+        if provider_enabled(&configured, "openai")
+            && let Some(api_key) = get_secret("OPENAI_API_KEY")
+        {
             if codex_cli::load_credentials().is_some() {
                 tracing::info!("OPENAI_API_KEY is set; ignoring Codex CLI OAuth credentials");
             }
@@ -79,7 +97,9 @@ impl Client {
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
                 builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
-        } else if let Some(creds) = codex_cli::load_credentials() {
+        } else if provider_enabled(&configured, "openai")
+            && let Some(creds) = codex_cli::load_credentials()
+        {
             tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
             let (auth, account_id) = codex_cli::build_auth_credential(creds);
             let base_url = std::env::var("OPENAI_BASE_URL")
@@ -92,12 +112,14 @@ impl Client {
         }
 
         // Anthropic
-        if get_secret("ANTHROPIC_API_KEY").is_some() {
+        if provider_enabled(&configured, "anthropic") && get_secret("ANTHROPIC_API_KEY").is_some() {
             if claude_code::load_credentials().is_some() {
                 tracing::info!("ANTHROPIC_API_KEY is set; ignoring Claude Code OAuth credentials");
             }
             builder = builder.add_provider(AnthropicAdapter::from_env()?);
-        } else if let Some(creds) = claude_code::load_credentials() {
+        } else if provider_enabled(&configured, "anthropic")
+            && let Some(creds) = claude_code::load_credentials()
+        {
             tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
             let auth = claude_code::build_auth_credential(creds);
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
@@ -105,25 +127,29 @@ impl Client {
         }
 
         // Gemini (with GOOGLE_API_KEY fallback)
-        if get_secret("GEMINI_API_KEY").is_some() {
+        if provider_enabled(&configured, "gemini") && get_secret("GEMINI_API_KEY").is_some() {
             builder = builder.add_provider(GeminiAdapter::from_env()?);
-        } else if let Some(api_key) = get_secret("GOOGLE_API_KEY") {
+        } else if provider_enabled(&configured, "gemini")
+            && let Some(api_key) = get_secret("GOOGLE_API_KEY")
+        {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
             builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
         }
 
         // Mistral
-        if get_secret("MISTRAL_API_KEY").is_some() {
+        if provider_enabled(&configured, "mistral") && get_secret("MISTRAL_API_KEY").is_some() {
             builder = builder.add_provider(MistralAdapter::from_env()?);
         }
 
         // DeepSeek
-        if get_secret("DEEPSEEK_API_KEY").is_some() {
+        if provider_enabled(&configured, "deepseek") && get_secret("DEEPSEEK_API_KEY").is_some() {
             builder = builder.add_provider(DeepSeekAdapter::from_env()?);
         }
 
         // Ollama (no API key required — register when explicitly configured)
-        if std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok() {
+        if provider_enabled(&configured, "ollama")
+            && (std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok())
+        {
             builder = builder.add_provider(OllamaAdapter::from_env()?);
         }
 
@@ -146,32 +172,26 @@ impl Client {
     /// any known provider name (to prevent silent typos like `"opanai"`).
     pub fn from_env_with_auth(options: &AuthOptions) -> SdkResult<Self> {
         // Validate override keys against known provider names.
-        const KNOWN_PROVIDERS: &[&str] = &[
-            "openai",
-            "anthropic",
-            "gemini",
-            "mistral",
-            "deepseek",
-            "ollama",
-        ];
-
         let overrides = &options.overrides;
         for key in overrides.keys() {
-            if !KNOWN_PROVIDERS.contains(&key.as_str()) {
+            if !stencila_config::KNOWN_MODEL_PROVIDERS.contains(&key.as_str()) {
                 return Err(SdkError::Configuration {
                     message: format!(
                         "unknown provider in auth overrides: '{key}'. \
                          Known providers: {}",
-                        KNOWN_PROVIDERS.join(", ")
+                        stencila_config::KNOWN_MODEL_PROVIDERS.join(", ")
                     ),
                 });
             }
         }
 
+        let configured = configured_providers();
         let mut builder = ClientBuilder::new();
 
         // OpenAI (native Responses API)
-        if let Some(auth) = overrides.get("openai") {
+        if provider_enabled(&configured, "openai")
+            && let Some(auth) = overrides.get("openai")
+        {
             let base_url = std::env::var("OPENAI_BASE_URL")
                 .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
             let org = std::env::var("OPENAI_ORG_ID").ok();
@@ -183,14 +203,18 @@ impl Client {
                 project,
                 options.openai_account_id.clone(),
             )?);
-        } else if let Some(api_key) = get_secret("OPENAI_API_KEY") {
+        } else if provider_enabled(&configured, "openai")
+            && let Some(api_key) = get_secret("OPENAI_API_KEY")
+        {
             let base_url = std::env::var("OPENAI_BASE_URL")
                 .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
                 builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
-        } else if let Some(creds) = codex_cli::load_credentials() {
+        } else if provider_enabled(&configured, "openai")
+            && let Some(creds) = codex_cli::load_credentials()
+        {
             tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
             let (auth, detected_account_id) = codex_cli::build_auth_credential(creds);
             let account_id = detected_account_id.or_else(|| options.openai_account_id.clone());
@@ -204,12 +228,18 @@ impl Client {
         }
 
         // Anthropic
-        if let Some(auth) = overrides.get("anthropic") {
+        if provider_enabled(&configured, "anthropic")
+            && let Some(auth) = overrides.get("anthropic")
+        {
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
             builder = builder.add_provider(AnthropicAdapter::with_auth(auth.clone(), base_url)?);
-        } else if get_secret("ANTHROPIC_API_KEY").is_some() {
+        } else if provider_enabled(&configured, "anthropic")
+            && get_secret("ANTHROPIC_API_KEY").is_some()
+        {
             builder = builder.add_provider(AnthropicAdapter::from_env()?);
-        } else if let Some(creds) = claude_code::load_credentials() {
+        } else if provider_enabled(&configured, "anthropic")
+            && let Some(creds) = claude_code::load_credentials()
+        {
             tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
             let auth = claude_code::build_auth_credential(creds);
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
@@ -217,37 +247,54 @@ impl Client {
         }
 
         // Gemini (with GOOGLE_API_KEY fallback)
-        if let Some(auth) = overrides.get("gemini") {
+        if provider_enabled(&configured, "gemini")
+            && let Some(auth) = overrides.get("gemini")
+        {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
             builder = builder.add_provider(GeminiAdapter::with_auth(auth.clone(), base_url)?);
-        } else if get_secret("GEMINI_API_KEY").is_some() {
+        } else if provider_enabled(&configured, "gemini") && get_secret("GEMINI_API_KEY").is_some()
+        {
             builder = builder.add_provider(GeminiAdapter::from_env()?);
-        } else if let Some(api_key) = get_secret("GOOGLE_API_KEY") {
+        } else if provider_enabled(&configured, "gemini")
+            && let Some(api_key) = get_secret("GOOGLE_API_KEY")
+        {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
             builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
         }
 
         // Mistral
-        if let Some(auth) = overrides.get("mistral") {
+        if provider_enabled(&configured, "mistral")
+            && let Some(auth) = overrides.get("mistral")
+        {
             let base_url = std::env::var("MISTRAL_BASE_URL").ok();
             builder = builder.add_provider(MistralAdapter::with_auth(auth.clone(), base_url)?);
-        } else if get_secret("MISTRAL_API_KEY").is_some() {
+        } else if provider_enabled(&configured, "mistral")
+            && get_secret("MISTRAL_API_KEY").is_some()
+        {
             builder = builder.add_provider(MistralAdapter::from_env()?);
         }
 
         // DeepSeek
-        if let Some(auth) = overrides.get("deepseek") {
+        if provider_enabled(&configured, "deepseek")
+            && let Some(auth) = overrides.get("deepseek")
+        {
             let base_url = std::env::var("DEEPSEEK_BASE_URL").ok();
             builder = builder.add_provider(DeepSeekAdapter::with_auth(auth.clone(), base_url)?);
-        } else if get_secret("DEEPSEEK_API_KEY").is_some() {
+        } else if provider_enabled(&configured, "deepseek")
+            && get_secret("DEEPSEEK_API_KEY").is_some()
+        {
             builder = builder.add_provider(DeepSeekAdapter::from_env()?);
         }
 
         // Ollama
-        if let Some(auth) = overrides.get("ollama") {
+        if provider_enabled(&configured, "ollama")
+            && let Some(auth) = overrides.get("ollama")
+        {
             let base_url = OllamaAdapter::base_url_from_env_or_default();
             builder = builder.add_provider(OllamaAdapter::with_auth(base_url, Some(auth.clone()))?);
-        } else if std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok() {
+        } else if provider_enabled(&configured, "ollama")
+            && (std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok())
+        {
             builder = builder.add_provider(OllamaAdapter::from_env()?);
         }
 
@@ -262,8 +309,8 @@ impl Client {
 
     /// Send a request and return a complete response.
     ///
-    /// Routes to the adapter identified by `request.provider` or the
-    /// default provider. Applies middleware in registration order.
+    /// Routes to the adapter identified by `request.provider`, model inference,
+    /// or selected provider order. Applies middleware in registration order.
     ///
     /// # Errors
     ///
@@ -282,8 +329,8 @@ impl Client {
 
     /// Send a request and return a stream of events.
     ///
-    /// Routes to the adapter identified by `request.provider` or the
-    /// default provider. Applies middleware in registration order.
+    /// Routes to the adapter identified by `request.provider`, model inference,
+    /// or selected provider order. Applies middleware in registration order.
     ///
     /// # Errors
     ///
@@ -334,6 +381,23 @@ impl Client {
     /// The default provider name, if set.
     #[must_use]
     pub fn default_provider(&self) -> Option<&str> {
+        self.select_provider()
+    }
+
+    /// Select a provider when no explicit provider is specified.
+    ///
+    /// Uses `models.providers` order when configured, otherwise falls back
+    /// to the first registered provider.
+    #[must_use]
+    pub fn select_provider(&self) -> Option<&str> {
+        if let Some(configured) = configured_providers() {
+            for provider in configured {
+                if self.providers.contains_key(&provider) {
+                    return Some(self.providers.get_key_value(&provider)?.0.as_str());
+                }
+            }
+        }
+
         self.default_provider.as_deref()
     }
 
@@ -364,10 +428,9 @@ impl Client {
         } else if let Some(ref inferred) = inferred_provider {
             inferred.as_str()
         } else {
-            self.default_provider
-                .as_deref()
+            self.select_provider()
                 .ok_or_else(|| SdkError::Configuration {
-                    message: "no provider specified and no default provider set".into(),
+                    message: "no provider specified and no available model provider found".into(),
                 })?
         };
 

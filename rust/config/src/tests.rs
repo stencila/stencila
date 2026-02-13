@@ -98,6 +98,11 @@ fn config_isolated(path: &Path) -> Result<Config> {
         }
     }
 
+    // Validate models configuration
+    if let Some(models) = &config.models {
+        models.validate()?;
+    }
+
     Ok(config)
 }
 
@@ -258,6 +263,43 @@ this is = { not valid toml [
         cfg.site.is_none(),
         "Config should be empty when all config files are malformed"
     );
+    Ok(())
+}
+
+#[test]
+fn test_models_providers_config_valid() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let config_content = r#"
+[models]
+providers = ["anthropic", "openai"]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+    let providers = cfg
+        .models
+        .and_then(|models| models.providers)
+        .ok_or_else(|| eyre!("missing providers"))?;
+    assert_eq!(providers, vec!["anthropic", "openai"]);
+
+    Ok(())
+}
+
+#[test]
+fn test_models_providers_config_invalid_provider() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let config_content = r#"
+[models]
+providers = ["anthropic", "invalid"]
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let result = config_isolated(temp_dir.path());
+    assert!(result.is_err());
+    let msg = format!("{}", result.expect_err("expected validation error"));
+    assert!(msg.contains("Unknown model provider"));
+    assert!(msg.contains("invalid"));
+
     Ok(())
 }
 

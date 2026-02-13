@@ -14,7 +14,7 @@ pub struct Request {
     pub model: String,
     /// The conversation messages.
     pub messages: Vec<Message>,
-    /// Which provider to route to (uses default if omitted).
+    /// Which provider to route to (selected provider order is used if omitted).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider: Option<String>,
     /// Tool definitions available to the model.
