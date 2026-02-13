@@ -88,7 +88,17 @@ fn render_welcome_lines(lines: &mut Vec<Line>, upgrade_available: Option<&str>) 
     let blue = Color::Rgb(37, 104, 239);
     let cwd = std::env::current_dir()
         .ok()
-        .map(|p| p.display().to_string())
+        .map(|p| {
+            let path = p.display().to_string();
+            // Replace home directory prefix with ~ for a shorter, familiar display
+            if let Some(base) = directories::BaseDirs::new() {
+                let home = base.home_dir().display().to_string();
+                if let Some(rest) = path.strip_prefix(&home) {
+                    return format!("~{rest}");
+                }
+            }
+            path
+        })
         .unwrap_or_default();
 
     let pad = "   ";
