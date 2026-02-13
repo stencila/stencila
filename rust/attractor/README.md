@@ -58,6 +58,8 @@ The following are known limitations of this implementation of the spec.
 
 - **AttrValue serde roundtrip**: `Duration` attribute values serialize as strings (e.g., `"15m"`) and deserialize back as `String` variants through JSON, since `serde_json` cannot distinguish Duration from String in the `#[serde(untagged)]` enum. Duration values are fully preserved within a running pipeline; only JSON serialization/deserialization loses the type distinction.
 
+- **Auto-status synthesis (§2.6, Appendix C)**: The `auto_status` node attribute is parsed but not acted upon. When a handler completes without writing `status.json`, the engine does not auto-generate a SUCCESS outcome. In practice, all handlers return an `Outcome` directly, so this is only relevant for future external-process backends that communicate via status files.
+
 - **Manager Loop Handler (§4.11)**: `stack.manager_loop` is recognized as a handler type (shape mapping and validation) but no `stack.manager_loop` handler implementation is registered or executed yet.
 
 - **HTTP Server Mode (§9.5)**: No HTTP API/SSE server endpoints are implemented for pipeline control, event streaming, question answering, or state inspection.
@@ -70,13 +72,13 @@ The following are known limitations of this implementation of the spec.
 
 - **Fan-in LLM evaluation path (§4.9)**: Fan-in currently uses heuristic candidate ranking only; the prompt-driven LLM evaluation path is not implemented.
 
-- **Fidelity runtime enforcement (§5.3–5.4)**: The fidelity resolution chain (edge → node → graph → default) and resume degradation marker are implemented, but not consumed by the codergen handler. Runtime fidelity behavior requires a real LLM backend; the current simulation backend has no sessions to degrade.
+- **Fidelity runtime enforcement (§5.3–5.4)**: The fidelity resolution chain (edge → node → graph → default) and resume degradation marker are implemented, but not consumed by the codergen handler. The current simulation backend has no LLM sessions to degrade.
 
 - **Preamble Transform (§9.2)**: No preamble transform is implemented for carrying runtime context into prompts for non-`full` fidelity modes.
 
 - **Event stream adapter (§9.6)**: The events module provides callback, collecting, observer, and broadcast emitters. An async stream adapter for consuming events as a `Stream<Item = PipelineEvent>` is not yet implemented.
 
-- **Incremental JSON for streaming**: Incremental JSON/JSONL output for streaming responses is not implemented.
+- **Incremental JSON for streaming**: Incremental JSON/JSONL output for streaming LLM responses is not implemented (not explicitly required by the spec, but a natural extension for real backends).
 
 - **Tool Call Hooks (§9.7)**: `tool_hooks.pre` and `tool_hooks.post` are parsed as attributes but no hook execution is implemented around tool calls.
 
