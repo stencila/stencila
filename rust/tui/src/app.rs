@@ -65,6 +65,9 @@ pub struct App {
     /// Whether the ghost suggestion was truncated from a multiline history entry.
     /// When true, the UI appends a dim "…" indicator after the ghost text.
     pub ghost_is_truncated: bool,
+    /// Offset for cycling ghost suggestions via Up/Down arrows.
+    /// 0 = most recent prefix match (default), incremented by Up, decremented by Down.
+    ghost_nav_offset: usize,
 
     /// A shell command currently running in the background.
     pub running_command: Option<RunningCommand>,
@@ -94,6 +97,7 @@ impl App {
             history_state: HistoryState::new(),
             ghost_suggestion: None,
             ghost_is_truncated: false,
+            ghost_nav_offset: 0,
             running_command: None,
             scroll_offset: 0,
             total_message_lines: 0,
@@ -229,6 +233,12 @@ impl App {
 
     /// Handle normal key input (no autocomplete popup intercept).
     fn handle_normal_key(&mut self, key: &KeyEvent) {
+        // Reset ghost navigation offset for any key except Up/Down
+        // (those keys cycle through prefix-matched ghost suggestions).
+        if !matches!(key.code, KeyCode::Up | KeyCode::Down) {
+            self.ghost_nav_offset = 0;
+        }
+
         match (key.modifiers, key.code) {
             (KeyModifiers::CONTROL, KeyCode::Char('c')) => match self.mode {
                 AppMode::Chat => {
@@ -442,17 +452,45 @@ impl App {
     }
 
     /// Navigate to the previous (older) history entry, filtered by current mode.
+    ///
+    /// When input is non-empty and not already in full-replacement navigation,
+    /// cycles through prefix-matched entries as ghost suggestions (input stays
+    /// unchanged). When input is empty, does full replacement (standard shell behavior).
     fn navigate_history_up(&mut self) {
         let current = self.input.text().to_string();
-        if let Some(entry) = self.input_history.navigate_up_filtered(&current, self.mode) {
-            self.input.set_text(entry);
+        if !current.is_empty() && self.input_history.is_at_draft() {
+            // Ghost cycling: try the next older prefix match
+            let next = self.ghost_nav_offset + 1;
+            if self
+                .input_history
+                .prefix_match_nth(&current, self.mode, next)
+                .is_some()
+            {
+                self.ghost_nav_offset = next;
+            }
+            // Ghost will be updated by refresh_ghost_suggestion via ghost_nav_offset
+        } else {
+            // Full replacement (empty input or already navigating)
+            if let Some(entry) = self.input_history.navigate_up_filtered(&current, self.mode) {
+                self.input.set_text(entry);
+            }
         }
     }
 
     /// Navigate to the next (newer) history entry, or back to draft, filtered by current mode.
+    ///
+    /// When ghost cycling is active (offset > 0), decrements to show a newer match.
+    /// Otherwise, does full replacement navigation.
     fn navigate_history_down(&mut self) {
-        if let Some(entry) = self.input_history.navigate_down_filtered(self.mode) {
-            self.input.set_text(entry);
+        if self.ghost_nav_offset > 0 {
+            // Ghost cycling: show a newer prefix match
+            self.ghost_nav_offset -= 1;
+            // Ghost will be updated by refresh_ghost_suggestion via ghost_nav_offset
+        } else if !self.input_history.is_at_draft() {
+            // Full replacement navigation
+            if let Some(entry) = self.input_history.navigate_down_filtered(self.mode) {
+                self.input.set_text(entry);
+            }
         }
     }
 
@@ -479,7 +517,7 @@ impl App {
 
         let result = self
             .input_history
-            .prefix_match(text, self.mode)
+            .prefix_match_nth(text, self.mode, self.ghost_nav_offset)
             .and_then(|matched| {
                 let suffix = &matched[text.len()..];
                 match suffix.find('\n') {
@@ -738,22 +776,31 @@ mod tests {
     fn history_preserves_draft() {
         let mut app = App::new();
 
-        // Submit something to have history
+        // Submit two entries with the same prefix
+        for text in ["old first", "old second"] {
+            for c in text.chars() {
+                app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            }
+            app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        }
+
+        // Type a prefix
         for c in "old".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
 
-        // Type a draft
-        for c in "draft".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
-        }
+        // Default ghost shows " second" (most recent prefix match)
+        assert_eq!(app.ghost_suggestion.as_deref(), Some(" second"));
 
-        // Navigate up, then back down to draft
+        // Up cycles ghost to the next older match — input stays "old"
         app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
         assert_eq!(app.input.text(), "old");
+        assert_eq!(app.ghost_suggestion.as_deref(), Some(" first"));
+
+        // Down cycles ghost back to the most recent match
         app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
-        assert_eq!(app.input.text(), "draft");
+        assert_eq!(app.input.text(), "old");
+        assert_eq!(app.ghost_suggestion.as_deref(), Some(" second"));
     }
 
     #[test]

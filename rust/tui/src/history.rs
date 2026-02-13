@@ -119,7 +119,7 @@ impl InputHistory {
         let mut pos = self.position;
         while pos > 0 {
             pos -= 1;
-            if self.entries[pos].mode == mode {
+            if self.entries[pos].mode == mode && self.entries[pos].text.starts_with(&self.draft) {
                 self.position = pos;
                 return Some(&self.entries[pos].text);
             }
@@ -135,7 +135,7 @@ impl InputHistory {
         // Search forwards for an entry matching the mode
         let mut pos = self.position + 1;
         while pos < self.entries.len() {
-            if self.entries[pos].mode == mode {
+            if self.entries[pos].mode == mode && self.entries[pos].text.starts_with(&self.draft) {
                 self.position = pos;
                 return Some(&self.entries[pos].text);
             }
@@ -237,20 +237,33 @@ impl InputHistory {
         self.entries.iter().map(|e| e.text.as_str()).collect()
     }
 
+    /// Whether the navigation position is at the draft (no history entry selected).
+    pub fn is_at_draft(&self) -> bool {
+        self.position >= self.entries.len()
+    }
+
     /// Find the most recent history entry matching the given prefix and mode.
     ///
     /// Scans entries in reverse (newest first), filtered by mode. Returns the
     /// full text of the first entry that starts with `prefix` but isn't an exact
     /// match. Returns `None` for an empty prefix or when nothing matches.
     pub fn prefix_match(&self, prefix: &str, mode: AppMode) -> Option<&str> {
+        self.prefix_match_nth(prefix, mode, 0)
+    }
+
+    /// Find the Nth prefix-matching history entry (0 = most recent).
+    ///
+    /// Like `prefix_match` but skips the first `n` matches to allow cycling
+    /// through older entries with the same prefix.
+    pub fn prefix_match_nth(&self, prefix: &str, mode: AppMode, n: usize) -> Option<&str> {
         if prefix.is_empty() {
             return None;
         }
         self.entries
             .iter()
             .rev()
-            .filter(|e| e.mode == mode)
-            .find(|e| e.text.starts_with(prefix) && e.text != prefix)
+            .filter(|e| e.mode == mode && e.text.starts_with(prefix) && e.text != prefix)
+            .nth(n)
             .map(|e| e.text.as_str())
     }
 
@@ -505,14 +518,12 @@ mod tests {
         let mut history = InputHistory::new();
         history.push_tagged("shell1".to_string(), AppMode::Shell);
 
+        // Empty draft matches everything, so shell1 is found
         assert_eq!(
-            history.navigate_up_filtered("my draft", AppMode::Shell),
+            history.navigate_up_filtered("", AppMode::Shell),
             Some("shell1")
         );
-        assert_eq!(
-            history.navigate_down_filtered(AppMode::Shell),
-            Some("my draft")
-        );
+        assert_eq!(history.navigate_down_filtered(AppMode::Shell), Some(""));
     }
 
     #[test]
@@ -617,5 +628,123 @@ mod tests {
         let mut history = InputHistory::new();
         history.push_tagged("hello".to_string(), AppMode::Chat);
         assert_eq!(history.prefix_match("xyz", AppMode::Chat), None);
+    }
+
+    #[test]
+    fn prefix_match_nth_cycles_through_matches() {
+        let mut history = InputHistory::new();
+        history.push_tagged("cargo build".to_string(), AppMode::Shell);
+        history.push_tagged("rustc main.rs".to_string(), AppMode::Shell);
+        history.push_tagged("cargo test".to_string(), AppMode::Shell);
+        history.push_tagged("cargo bench".to_string(), AppMode::Shell);
+
+        // n=0: most recent match
+        assert_eq!(
+            history.prefix_match_nth("cargo", AppMode::Shell, 0),
+            Some("cargo bench")
+        );
+        // n=1: second most recent
+        assert_eq!(
+            history.prefix_match_nth("cargo", AppMode::Shell, 1),
+            Some("cargo test")
+        );
+        // n=2: third most recent
+        assert_eq!(
+            history.prefix_match_nth("cargo", AppMode::Shell, 2),
+            Some("cargo build")
+        );
+        // n=3: no more matches
+        assert_eq!(history.prefix_match_nth("cargo", AppMode::Shell, 3), None);
+    }
+
+    #[test]
+    fn is_at_draft_reflects_navigation_state() {
+        let mut history = InputHistory::new();
+        history.push_tagged("entry".to_string(), AppMode::Chat);
+
+        assert!(history.is_at_draft());
+        let _ = history.navigate_up_filtered("", AppMode::Chat);
+        assert!(!history.is_at_draft());
+        let _ = history.navigate_down_filtered(AppMode::Chat);
+        assert!(history.is_at_draft());
+    }
+
+    #[test]
+    fn prefix_filtered_navigation() {
+        let mut history = InputHistory::new();
+        history.push_tagged("rustc main.rs".to_string(), AppMode::Shell);
+        history.push_tagged("cargo build".to_string(), AppMode::Shell);
+        history.push_tagged("rustc --version".to_string(), AppMode::Shell);
+        history.push_tagged("cargo test".to_string(), AppMode::Shell);
+
+        // Type "cargo" then navigate up — should only see cargo entries
+        assert_eq!(
+            history.navigate_up_filtered("cargo", AppMode::Shell),
+            Some("cargo test")
+        );
+        assert_eq!(
+            history.navigate_up_filtered("cargo", AppMode::Shell),
+            Some("cargo build")
+        );
+        // No more cargo entries
+        assert_eq!(history.navigate_up_filtered("cargo", AppMode::Shell), None);
+
+        // Navigate back down through cargo entries
+        assert_eq!(
+            history.navigate_down_filtered(AppMode::Shell),
+            Some("cargo test")
+        );
+        // Past last cargo entry — back to draft
+        assert_eq!(
+            history.navigate_down_filtered(AppMode::Shell),
+            Some("cargo")
+        );
+    }
+
+    #[test]
+    fn empty_prefix_shows_all() {
+        let mut history = InputHistory::new();
+        history.push_tagged("alpha".to_string(), AppMode::Shell);
+        history.push_tagged("beta".to_string(), AppMode::Shell);
+        history.push_tagged("gamma".to_string(), AppMode::Shell);
+
+        // Empty input — all entries match (preserves current behavior)
+        assert_eq!(
+            history.navigate_up_filtered("", AppMode::Shell),
+            Some("gamma")
+        );
+        assert_eq!(
+            history.navigate_up_filtered("", AppMode::Shell),
+            Some("beta")
+        );
+        assert_eq!(
+            history.navigate_up_filtered("", AppMode::Shell),
+            Some("alpha")
+        );
+        assert_eq!(history.navigate_up_filtered("", AppMode::Shell), None);
+    }
+
+    #[test]
+    fn prefix_filtered_draft_preserved() {
+        let mut history = InputHistory::new();
+        history.push_tagged("cargo build".to_string(), AppMode::Shell);
+        history.push_tagged("cargo test".to_string(), AppMode::Shell);
+
+        // Navigate up with prefix "cargo t" — saves it as draft
+        assert_eq!(
+            history.navigate_up_filtered("cargo t", AppMode::Shell),
+            Some("cargo test")
+        );
+        // "cargo build" doesn't start with "cargo t", so skip to draft
+        assert_eq!(
+            history.navigate_up_filtered("cargo t", AppMode::Shell),
+            None
+        );
+
+        // Navigate down returns to draft
+        assert_eq!(
+            history.navigate_down_filtered(AppMode::Shell),
+            Some("cargo t")
+        );
     }
 }
