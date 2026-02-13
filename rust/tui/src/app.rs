@@ -2,7 +2,7 @@ use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
 use ratatui::style::Color;
 
 use crate::{
-    autocomplete::{CommandsState, FilesState, HistoryState},
+    autocomplete::{CommandsState, FilesState, HistoryState, ResponsesState},
     commands::SlashCommand,
     history::InputHistory,
     input::InputState,
@@ -104,6 +104,8 @@ pub struct App {
     pub files_state: FilesState,
     /// History autocomplete popup state.
     pub history_state: HistoryState,
+    /// Responses autocomplete popup state.
+    pub responses_state: ResponsesState,
 
     /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
     /// Shown as dim inline text for fish-shell-style history completion.
@@ -142,6 +144,7 @@ impl App {
             commands_state: CommandsState::new(),
             files_state: FilesState::new(),
             history_state: HistoryState::new(),
+            responses_state: ResponsesState::new(),
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
@@ -177,7 +180,8 @@ impl App {
     fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
-            || (self.files_state.is_visible() && self.handle_files_autocomplete(key));
+            || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
+            || (self.responses_state.is_visible() && self.handle_responses_autocomplete(key));
 
         if !consumed {
             self.handle_normal_key(key);
@@ -268,6 +272,40 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Esc) => self.files_state.dismiss(),
             (KeyModifiers::NONE, KeyCode::Up) => self.files_state.select_prev(),
             (KeyModifiers::NONE, KeyCode::Down) => self.files_state.select_next(),
+            _ => return false,
+        }
+        true
+    }
+
+    /// Handle a key event when the responses autocomplete popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_responses_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(result) = self.responses_state.accept() {
+                    self.input.replace_range(result.range, &result.text);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.responses_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.responses_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.responses_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+                let input = self.input.text().to_string();
+                let cursor = self.input.cursor();
+                let exchanges = self.response_candidates();
+                self.responses_state.update(&input, cursor, &exchanges);
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+                let input = self.input.text().to_string();
+                let cursor = self.input.cursor();
+                let exchanges = self.response_candidates();
+                self.responses_state.update(&input, cursor, &exchanges);
+            }
             _ => return false,
         }
         true
@@ -396,6 +434,10 @@ impl App {
 
         self.dismiss_all_autocomplete();
 
+        // Expand response references for the actual request text.
+        // History stores the original (unexpanded) text so refs remain visible.
+        let expanded = self.expand_response_refs(&text);
+
         // Slash commands work in both modes
         if let Some((cmd, args)) = SlashCommand::parse(&text) {
             cmd.execute(self, args);
@@ -404,7 +446,7 @@ impl App {
                 AppMode::Chat => {
                     // Check for one-off shell command with $ prefix.
                     // Bare "$" or "$   " falls through to normal chat message.
-                    if let Some(cmd) = text.strip_prefix('$')
+                    if let Some(cmd) = expanded.strip_prefix('$')
                         && !cmd.trim().is_empty()
                     {
                         let cmd = cmd.to_string();
@@ -412,25 +454,106 @@ impl App {
                             .push_tagged(format!("${cmd}"), AppMode::Chat);
                         self.spawn_shell_command(cmd);
                     } else {
-                        self.input_history.push_tagged(text.clone(), AppMode::Chat);
+                        self.input_history.push_tagged(text, AppMode::Chat);
                         self.messages.push(AppMessage::Exchange {
                             kind: ExchangeKind::Chat,
                             status: ExchangeStatus::Succeeded,
-                            request: text,
+                            request: expanded,
                             response: None,
                             exit_code: None,
                         });
                     }
                 }
                 AppMode::Shell => {
-                    self.input_history.push_tagged(text.clone(), AppMode::Shell);
-                    self.spawn_shell_command(text);
+                    self.input_history.push_tagged(text, AppMode::Shell);
+                    self.spawn_shell_command(expanded);
                 }
             }
         }
 
         // Reset scroll to bottom
         self.scroll_offset = 0;
+    }
+
+    /// Build response candidates from existing exchanges.
+    ///
+    /// Returns `(exchange_number, truncated_preview)` tuples for exchanges that
+    /// have a response, ordered newest first.
+    pub fn response_candidates(&self) -> Vec<(usize, String)> {
+        let mut exchange_num = 0usize;
+        let mut candidates = Vec::new();
+
+        for message in &self.messages {
+            if let AppMessage::Exchange {
+                response: Some(resp),
+                ..
+            } = message
+            {
+                exchange_num += 1;
+                let preview = truncate_preview(resp, 50);
+                candidates.push((exchange_num, preview));
+            } else if matches!(message, AppMessage::Exchange { .. }) {
+                exchange_num += 1;
+            }
+        }
+
+        candidates.reverse();
+        candidates
+    }
+
+    /// Expand `[Response #N: ...]` references in text with full response content.
+    ///
+    /// Unknown references are left as-is.
+    pub fn expand_response_refs(&self, text: &str) -> String {
+        // Build a map of exchange_number → response text
+        let mut exchange_num = 0usize;
+        let mut response_map = Vec::new();
+        for message in &self.messages {
+            if let AppMessage::Exchange { response, .. } = message {
+                exchange_num += 1;
+                if let Some(resp) = response {
+                    response_map.push((exchange_num, resp.as_str()));
+                }
+            }
+        }
+
+        let mut result = String::with_capacity(text.len());
+        let mut remaining = text;
+
+        while let Some(start) = remaining.find("[Response #") {
+            // Copy everything before the match
+            result.push_str(&remaining[..start]);
+
+            let after_prefix = &remaining[start + "[Response #".len()..];
+
+            // Parse the number (digits until ':' or ']')
+            let num_end = after_prefix
+                .find(|c: char| !c.is_ascii_digit())
+                .unwrap_or(after_prefix.len());
+            let num_str = &after_prefix[..num_end];
+
+            // Find the closing ']'
+            if let Some(close) = after_prefix.find(']') {
+                if let Ok(num) = num_str.parse::<usize>() {
+                    // Look up the response
+                    if let Some((_, resp)) = response_map.iter().find(|(n, _)| *n == num) {
+                        result.push_str(resp);
+                        remaining = &after_prefix[close + 1..];
+                        continue;
+                    }
+                }
+                // Unknown ref or parse failure — keep original text
+                result.push_str(&remaining[start..=(start + "[Response #".len() + close)]);
+                remaining = &after_prefix[close + 1..];
+            } else {
+                // No closing bracket — keep the rest as-is
+                result.push_str(&remaining[start..]);
+                remaining = "";
+            }
+        }
+
+        result.push_str(remaining);
+        result
     }
 
     /// Clear all messages and cancel any running commands.
@@ -445,7 +568,7 @@ impl App {
         self.mode = AppMode::Shell;
         self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {
-            content: "Entering shell mode. Commands are sent to your shell. Use /exit or Ctrl+D to return to chat.".to_string(),
+            content: "Entering shell mode.".to_string(),
         });
     }
 
@@ -554,6 +677,7 @@ impl App {
         self.commands_state.dismiss();
         self.files_state.dismiss();
         self.history_state.dismiss();
+        self.responses_state.dismiss();
         self.ghost_suggestion = None;
         self.ghost_is_truncated = false;
     }
@@ -564,6 +688,10 @@ impl App {
         self.commands_state.update(self.input.text());
         self.files_state
             .update(self.input.text(), self.input.cursor());
+        let exchanges = self.response_candidates();
+        let input = self.input.text().to_string();
+        let cursor = self.input.cursor();
+        self.responses_state.update(&input, cursor, &exchanges);
     }
 
     /// Navigate to the previous (older) history entry, filtered by current mode.
@@ -614,6 +742,7 @@ impl App {
         self.history_state.is_visible()
             || self.commands_state.is_visible()
             || self.files_state.is_visible()
+            || self.responses_state.is_visible()
     }
 
     /// Recompute the ghost suggestion based on current input state.
@@ -697,6 +826,20 @@ impl App {
     /// Scroll down by the given number of lines.
     fn scroll_down(&mut self, lines: u16) {
         self.scroll_offset = self.scroll_offset.saturating_sub(lines);
+    }
+}
+
+/// Truncate a response to a short preview: first line, max `max_chars` characters.
+///
+/// Appends `...` if the text was truncated.
+fn truncate_preview(text: &str, max_chars: usize) -> String {
+    let first_line = text.lines().next().unwrap_or("");
+    if first_line.len() <= max_chars && text.lines().count() <= 1 {
+        format!("{first_line}...")
+    } else if first_line.len() > max_chars {
+        format!("{}...", &first_line[..max_chars])
+    } else {
+        format!("{first_line}...")
     }
 }
 
@@ -1376,5 +1519,134 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
         assert_eq!(app.input.text(), "hello world");
         assert!(!app.ghost_is_truncated);
+    }
+
+    // --- Response autocomplete tests ---
+
+    /// Helper: create an app with some exchanges that have responses.
+    fn app_with_exchanges() -> App {
+        let mut app = App::new();
+        // Exchange 1: has response
+        app.messages.push(AppMessage::Exchange {
+            kind: ExchangeKind::Shell,
+            status: ExchangeStatus::Succeeded,
+            request: "echo hello".to_string(),
+            response: Some("hello".to_string()),
+            exit_code: Some(0),
+        });
+        // Exchange 2: no response yet
+        app.messages.push(AppMessage::Exchange {
+            kind: ExchangeKind::Chat,
+            status: ExchangeStatus::Running,
+            request: "what is rust".to_string(),
+            response: None,
+            exit_code: None,
+        });
+        // Exchange 3: has response
+        app.messages.push(AppMessage::Exchange {
+            kind: ExchangeKind::Shell,
+            status: ExchangeStatus::Succeeded,
+            request: "ls -la".to_string(),
+            response: Some("total 42\ndrwxr-xr-x 2 user user 4096".to_string()),
+            exit_code: Some(0),
+        });
+        app
+    }
+
+    #[test]
+    fn response_candidates_returns_correct_list() {
+        let app = app_with_exchanges();
+        let candidates = app.response_candidates();
+        // Exchange 1 and 3 have responses; newest first
+        assert_eq!(candidates.len(), 2);
+        assert_eq!(candidates[0].0, 3); // newest first
+        assert_eq!(candidates[1].0, 1);
+    }
+
+    #[test]
+    fn hash_triggers_response_autocomplete() {
+        let mut app = app_with_exchanges();
+        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        assert!(app.responses_state.is_visible());
+        assert_eq!(app.responses_state.candidates().len(), 2);
+    }
+
+    #[test]
+    fn hash_with_digit_filters_responses() {
+        let mut app = app_with_exchanges();
+        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        app.handle_event(&key_event(KeyCode::Char('1'), KeyModifiers::NONE));
+        assert!(app.responses_state.is_visible());
+        assert_eq!(app.responses_state.candidates().len(), 1);
+        assert_eq!(app.responses_state.candidates()[0].number, 1);
+    }
+
+    #[test]
+    fn response_esc_dismisses() {
+        let mut app = app_with_exchanges();
+        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        assert!(app.responses_state.is_visible());
+
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        assert!(!app.responses_state.is_visible());
+    }
+
+    #[test]
+    fn response_tab_accepts() {
+        let mut app = app_with_exchanges();
+        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        assert!(app.responses_state.is_visible());
+
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        assert!(!app.responses_state.is_visible());
+        // Input should contain [Response #N: ...]
+        assert!(app.input.text().contains("[Response #"));
+    }
+
+    #[test]
+    fn expand_response_refs_replaces_known() {
+        let app = app_with_exchanges();
+        let expanded = app.expand_response_refs("see [Response #1: hello...]");
+        assert_eq!(expanded, "see hello");
+    }
+
+    #[test]
+    fn expand_response_refs_leaves_unknown() {
+        let app = app_with_exchanges();
+        let expanded = app.expand_response_refs("see [Response #99: unknown...]");
+        assert_eq!(expanded, "see [Response #99: unknown...]");
+    }
+
+    #[test]
+    fn expand_response_refs_no_refs() {
+        let app = app_with_exchanges();
+        let expanded = app.expand_response_refs("plain text");
+        assert_eq!(expanded, "plain text");
+    }
+
+    #[test]
+    fn expand_response_refs_multiple() {
+        let app = app_with_exchanges();
+        let expanded =
+            app.expand_response_refs("[Response #1: hello...] and [Response #3: total 42...]");
+        assert_eq!(expanded, "hello and total 42\ndrwxr-xr-x 2 user user 4096");
+    }
+
+    #[test]
+    fn truncate_preview_short() {
+        assert_eq!(truncate_preview("hello", 50), "hello...");
+    }
+
+    #[test]
+    fn truncate_preview_long() {
+        let long = "a".repeat(100);
+        let preview = truncate_preview(&long, 50);
+        assert_eq!(preview.len(), 53); // 50 chars + "..."
+        assert!(preview.ends_with("..."));
+    }
+
+    #[test]
+    fn truncate_preview_multiline() {
+        assert_eq!(truncate_preview("line one\nline two", 50), "line one...");
     }
 }

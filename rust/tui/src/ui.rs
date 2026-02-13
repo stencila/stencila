@@ -24,8 +24,8 @@ pub fn render(frame: &mut Frame, app: &mut App) {
 
     // Calculate input area height based on visual lines (accounting for wrapping).
     // Include ghost text suffix when computing height so it doesn't clip.
-    // Inner width: sidebar (1) + space (1) + content area, no borders
-    let inner_width = area.width.saturating_sub(2).max(1) as usize;
+    // Inner width: gutter (2) + sidebar (1) + space (1) + content area, no borders
+    let inner_width = area.width.saturating_sub(NUM_GUTTER + 2).max(1) as usize;
     let text_for_height: Cow<str> = match &app.ghost_suggestion {
         Some(ghost) => Cow::Owned(format!("{}{ghost}", app.input.text())),
         None => Cow::Borrowed(app.input.text()),
@@ -58,18 +58,23 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_hints(frame, app, hints_area);
 
     // --- Render autocomplete popup (floats above input) ---
-    // History popup has highest priority, then commands, then files.
+    // History popup has highest priority, then commands, then files, then responses.
     if app.history_state.is_visible() {
         render_history_autocomplete(frame, app, input_area);
     } else if app.commands_state.is_visible() {
         render_autocomplete(frame, app, input_area);
     } else if app.files_state.is_visible() {
         render_files_autocomplete(frame, app, input_area);
+    } else if app.responses_state.is_visible() {
+        render_responses_autocomplete(frame, app, input_area);
     }
 }
 
 /// The sidebar character (U+258C, left half block).
 const SIDEBAR_CHAR: &str = "\u{258c}";
+
+/// Width of the exchange number gutter (2-digit number + space).
+const NUM_GUTTER: u16 = 3;
 
 /// Append lines for a welcome message.
 fn render_welcome_lines(lines: &mut Vec<Line>) {
@@ -82,20 +87,24 @@ fn render_welcome_lines(lines: &mut Vec<Line>) {
         .map(|p| p.display().to_string())
         .unwrap_or_default();
 
+    let pad = "   ";
     lines.push(Line::raw(""));
     lines.push(Line::from(vec![
+        Span::raw(pad),
         Span::styled("███████", Style::new().fg(green)),
         Span::raw("  "),
         Span::styled("Stencila ", Style::new().add_modifier(Modifier::BOLD)),
         Span::styled(format!("v{version}"), dim()),
     ]));
     lines.push(Line::from(vec![
+        Span::raw(pad),
         Span::styled("██", Style::new().fg(green)),
         Span::raw("  "),
         Span::styled("█", Style::new().fg(teal)),
         Span::styled("██", Style::new().fg(blue)),
     ]));
     lines.push(Line::from(vec![
+        Span::raw(pad),
         Span::styled("███████", Style::new().fg(green)),
         Span::raw("  "),
         Span::styled(cwd, dim()),
@@ -103,8 +112,10 @@ fn render_welcome_lines(lines: &mut Vec<Line>) {
 }
 
 /// Append lines for an exchange (request/response with sidebar).
+#[allow(clippy::too_many_arguments)]
 fn render_exchange_lines(
     lines: &mut Vec<Line>,
+    exchange_num: usize,
     kind: ExchangeKind,
     status: ExchangeStatus,
     request: &str,
@@ -136,9 +147,23 @@ fn render_exchange_lines(
         ""
     };
 
-    // Request lines with sidebar
-    for text_line in request.lines() {
+    let num_style = if status == ExchangeStatus::Running {
+        Style::new().fg(base_color).add_modifier(Modifier::DIM)
+    } else {
+        Style::new().fg(base_color)
+    };
+    let num_padding = "   ";
+
+    // Request lines with sidebar and exchange number (wraps at 99)
+    let display_num = ((exchange_num - 1) % 99) + 1;
+    for (i, text_line) in request.lines().enumerate() {
+        let num_col = if i == 0 {
+            Span::styled(format!("{display_num:>2} "), num_style)
+        } else {
+            Span::raw(num_padding)
+        };
         lines.push(Line::from(vec![
+            num_col,
             Span::styled(SIDEBAR_CHAR, sidebar_style),
             Span::raw(" "),
             Span::raw(format!("{prefix}{text_line}")),
@@ -150,6 +175,7 @@ fn render_exchange_lines(
         let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
         for text_line in resp.lines() {
             lines.push(Line::from(vec![
+                Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
                 Span::raw(" "),
                 Span::raw(text_line.to_string()),
@@ -163,6 +189,7 @@ fn render_exchange_lines(
         && code != 0
     {
         lines.push(Line::from(vec![
+            Span::raw(num_padding),
             Span::styled(
                 SIDEBAR_CHAR,
                 Style::new().fg(Color::Red).add_modifier(Modifier::DIM),
@@ -180,6 +207,7 @@ fn render_exchange_lines(
 fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
     let mut lines: Vec<Line> = Vec::new();
     let pulsate_bright = app.tick_count / 2 % 2 == 0;
+    let mut exchange_num = 0usize;
 
     for message in &app.messages {
         // Add a blank line separator between messages (except before the first)
@@ -195,18 +223,23 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                 request,
                 response,
                 exit_code,
-            } => render_exchange_lines(
-                &mut lines,
-                *kind,
-                *status,
-                request,
-                response.as_deref(),
-                *exit_code,
-                pulsate_bright,
-            ),
+            } => {
+                exchange_num += 1;
+                render_exchange_lines(
+                    &mut lines,
+                    exchange_num,
+                    *kind,
+                    *status,
+                    request,
+                    response.as_deref(),
+                    *exit_code,
+                    pulsate_bright,
+                );
+            }
             AppMessage::System { content } => {
                 for text_line in content.lines() {
                     lines.push(Line::from(vec![
+                        Span::raw("   "),
                         Span::styled(SIDEBAR_CHAR, dim()),
                         Span::raw(" "),
                         Span::styled(text_line.to_string(), dim()),
@@ -258,14 +291,15 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
     let is_running = app.has_running_commands();
     let has_ghost = app.ghost_suggestion.is_some();
 
-    // Mode label on the left
+    // Mode label on the left, indented to align with sidebar bars
     let kind = ExchangeKind::from(app.mode);
-    let label = Line::from(Span::styled(
-        kind.label(),
-        Style::new().fg(kind.color()).add_modifier(Modifier::DIM),
-    ));
+    let label_text = format!("   {}", kind.label());
     #[allow(clippy::cast_possible_truncation)]
-    let label_width = kind.label().len() as u16 + 1; // +1 for padding
+    let label_width = label_text.len() as u16 + 1; // +1 for padding
+    let label = Line::from(Span::styled(
+        label_text,
+        Style::new().fg(kind.color()),
+    ));
 
     // Keyboard hints on the right
     let hints = if is_running {
@@ -301,23 +335,47 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
 }
 
 /// Render the input area with cursor: dark grey background, colored sidebar, no border.
+#[allow(clippy::too_many_lines)]
 fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let input_text = app.input.text();
     let kind = ExchangeKind::from(app.mode);
     let is_running = app.has_running_commands();
 
-    // Dark grey background block (no border)
-    let bg_block = Block::default().style(Style::new().bg(INPUT_BG));
-    frame.render_widget(bg_block, area);
+    // Mode indicator in the gutter (no dark bg)
+    let gutter = NUM_GUTTER;
+    if area.height > 0 {
+        let indicator = match app.mode {
+            AppMode::Chat => " > ",
+            AppMode::Shell => " $ ",
+        };
+        let indicator_line = Line::from(Span::styled(indicator, Style::new().fg(kind.color())));
+        let gutter_area = Rect {
+            x: area.x,
+            y: area.y,
+            width: gutter,
+            height: 1,
+        };
+        frame.render_widget(Paragraph::new(indicator_line), gutter_area);
+    }
 
-    // Sidebar in first column — one glyph per row for full-height coverage
+    // Dark grey background after gutter
+    let bg_area = Rect {
+        x: area.x + gutter,
+        y: area.y,
+        width: area.width.saturating_sub(gutter),
+        height: area.height,
+    };
+    let bg_block = Block::default().style(Style::new().bg(INPUT_BG));
+    frame.render_widget(bg_block, bg_area);
+
+    // Sidebar after gutter — one glyph per row for full-height coverage
     if area.height > 0 {
         let sidebar_lines: Vec<Line> = (0..area.height)
             .map(|_| Line::from(Span::styled(SIDEBAR_CHAR, Style::new().fg(kind.color()))))
             .collect();
         let sidebar = Paragraph::new(Text::from(sidebar_lines)).style(Style::new().bg(INPUT_BG));
         let sidebar_area = Rect {
-            x: area.x,
+            x: area.x + gutter,
             y: area.y,
             width: 1,
             height: area.height,
@@ -325,11 +383,12 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
         frame.render_widget(sidebar, sidebar_area);
     }
 
-    // Content area starts at column 2 (sidebar + space)
+    // Content area starts after gutter (3) + sidebar (1) + space (1)
+    let content_offset = gutter + 2;
     let content_area = Rect {
-        x: area.x + 2,
+        x: area.x + content_offset,
         y: area.y,
-        width: area.width.saturating_sub(2),
+        width: area.width.saturating_sub(content_offset),
         height: area.height,
     };
 
@@ -387,9 +446,9 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let (cursor_col, cursor_row) =
         cursor_position_wrapped(app.input.text(), app.input.cursor(), inner_width);
 
-    // +2 for sidebar + space
+    // +gutter + sidebar + space
     #[allow(clippy::cast_possible_truncation)]
-    let x = area.x + 2 + cursor_col as u16;
+    let x = area.x + content_offset + cursor_col as u16;
     #[allow(clippy::cast_possible_truncation)]
     let y = area.y + cursor_row as u16;
 
@@ -573,6 +632,30 @@ fn render_files_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
     };
 
     render_popup(frame, area, lines, Some(title));
+}
+
+/// Render the responses autocomplete popup floating above the input area.
+fn render_responses_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.responses_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let selected = app.responses_state.selected();
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let display = format!(" #{}  {}", candidate.number, candidate.preview);
+            if i == selected {
+                Line::from(Span::styled(display, selected_style()))
+            } else {
+                Line::from(Span::styled(display, unselected_style()))
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Responses "));
 }
 
 /// Count the number of visual lines the text occupies, accounting for wrapping.
