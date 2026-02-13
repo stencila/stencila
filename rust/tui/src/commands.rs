@@ -34,6 +34,9 @@ pub enum SlashCommand {
 
     #[strum(message = "Quit the application")]
     Quit,
+
+    #[strum(message = "Upgrade to the latest version")]
+    Upgrade,
 }
 
 impl SlashCommand {
@@ -100,6 +103,7 @@ impl SlashCommand {
             Self::Model => execute_model(app),
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
+            Self::Upgrade => execute_upgrade(app),
         }
     }
 }
@@ -188,6 +192,12 @@ fn execute_history(app: &mut App) {
     }
 
     app.history_state.open(entries);
+}
+
+fn execute_upgrade(app: &mut App) {
+    let exe = std::env::current_exe()
+        .map_or_else(|_| "stencila".to_string(), |p| p.display().to_string());
+    app.spawn_upgrade_command(format!("{exe} upgrade"));
 }
 
 #[cfg(test)]

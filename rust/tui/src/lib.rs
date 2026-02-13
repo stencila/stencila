@@ -14,6 +14,7 @@ mod ui;
 
 use clap::Parser;
 use eyre::Result;
+use tokio::task::JoinHandle;
 use tracing_subscriber::filter::LevelFilter;
 
 use crate::{app::App, event::EventReader};
@@ -28,12 +29,17 @@ impl Tui {
     /// # Errors
     ///
     /// Returns an error if the terminal cannot be initialized or an I/O error occurs.
-    pub async fn run(self, log_level: LevelFilter, log_filter: &str) -> Result<()> {
+    pub async fn run(
+        self,
+        log_level: LevelFilter,
+        log_filter: &str,
+        upgrade_handle: Option<JoinHandle<Option<String>>>,
+    ) -> Result<()> {
         let log_receiver = logging::setup(log_level, log_filter);
 
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();
-        let mut app = App::new(log_receiver);
+        let mut app = App::new(log_receiver, upgrade_handle);
 
         // Load history from disk (best-effort)
         let history_path = history::history_file_path();
@@ -53,6 +59,7 @@ impl Tui {
                     app.poll_running_commands();
                     app.poll_running_agent_exchanges();
                     app.poll_log_events();
+                    app.poll_upgrade_check();
                 }
                 None => break,
             }

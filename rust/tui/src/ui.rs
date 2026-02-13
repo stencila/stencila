@@ -81,7 +81,7 @@ const SIDEBAR_CHAR: &str = "\u{258c}";
 const NUM_GUTTER: u16 = 3;
 
 /// Append lines for a welcome message.
-fn render_welcome_lines(lines: &mut Vec<Line>) {
+fn render_welcome_lines(lines: &mut Vec<Line>, upgrade_available: Option<&str>) {
     let version = stencila_version::STENCILA_VERSION;
     let green = Color::Rgb(102, 255, 102);
     let teal = Color::Rgb(15, 104, 96);
@@ -113,6 +113,20 @@ fn render_welcome_lines(lines: &mut Vec<Line>) {
         Span::raw("  "),
         Span::styled(cwd, dim()),
     ]));
+
+    if let Some(version) = upgrade_available {
+        let gold = Color::Rgb(255, 191, 0);
+        lines.push(Line::raw(""));
+        lines.push(Line::from(vec![
+            Span::raw(pad),
+            Span::styled(
+                format!("Update available (v{version}). Use "),
+                Style::new().fg(gold),
+            ),
+            Span::styled("/upgrade", Style::new().fg(blue)),
+            Span::styled(" to install.", Style::new().fg(gold)),
+        ]));
+    }
 }
 
 /// Append lines for an exchange (request/response with sidebar).
@@ -229,7 +243,9 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
         }
 
         match message {
-            AppMessage::Welcome => render_welcome_lines(&mut lines),
+            AppMessage::Welcome => {
+                render_welcome_lines(&mut lines, app.upgrade_available.as_deref());
+            }
             AppMessage::Exchange {
                 kind,
                 status,

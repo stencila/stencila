@@ -1,6 +1,7 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
+use futures::FutureExt;
 use ratatui::style::Color;
-use tokio::sync::mpsc;
+use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
     agent::{AgentHandle, RunningAgentExchange},
@@ -155,11 +156,22 @@ pub struct App {
     pub total_message_lines: u16,
     /// Visible height of the message area in the last frame (set by `ui::render`).
     pub visible_message_height: u16,
+
+    /// Background upgrade check handle, consumed once resolved.
+    upgrade_handle: Option<JoinHandle<Option<String>>>,
+    /// Set when a newer version is available (from the background upgrade check).
+    pub upgrade_available: Option<String>,
+    /// Message index of a running `/upgrade` shell command, if any.
+    /// Used to clear `upgrade_available` when the upgrade succeeds.
+    upgrade_msg_index: Option<usize>,
 }
 
 impl App {
     /// Create a new App with a welcome banner.
-    pub fn new(log_receiver: mpsc::UnboundedReceiver<String>) -> Self {
+    pub fn new(
+        log_receiver: mpsc::UnboundedReceiver<String>,
+        upgrade_handle: Option<JoinHandle<Option<String>>>,
+    ) -> Self {
         Self {
             should_quit: false,
             mode: AppMode::default(),
@@ -184,6 +196,9 @@ impl App {
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
+            upgrade_handle,
+            upgrade_available: None,
+            upgrade_msg_index: None,
         }
     }
 
@@ -274,9 +289,21 @@ impl App {
     }
 
     /// Switch to a new model, resetting the agent session.
+    ///
+    /// Only cancels running agent exchanges — shell commands are independent
+    /// of the model and should not be affected by a model switch.
     fn set_model(&mut self, candidate: &ModelCandidate) {
         self.selected_model = Some((candidate.provider.clone(), candidate.model_id.clone()));
-        self.cancel_all_running();
+        for (idx, exchange) in self.running_agent_exchanges.drain(..) {
+            exchange.cancel();
+            Self::update_exchange_at(
+                &mut self.messages,
+                idx,
+                ExchangeStatus::Failed,
+                Some("[cancelled: model changed]".to_string()),
+                None,
+            );
+        }
         self.agent = None;
         self.input.clear();
         self.messages.push(AppMessage::System {
@@ -744,6 +771,13 @@ impl App {
         self.running_shell_commands.push((msg_index, running));
     }
 
+    /// Spawn an upgrade shell command, tracking it to clear the upgrade
+    /// notification on success.
+    pub fn spawn_upgrade_command(&mut self, command: String) {
+        self.spawn_shell_command(command);
+        self.upgrade_msg_index = Some(self.messages.len() - 1);
+    }
+
     /// Cancel the most recent running command or agent exchange.
     ///
     /// Compares the highest message index across both `running_commands`
@@ -804,7 +838,10 @@ impl App {
     }
 
     /// Cancel a single running command and mark its exchange as failed.
-    fn cancel_entry(messages: &mut [AppMessage], (msg_index, running): (usize, RunningShellCommand)) {
+    fn cancel_entry(
+        messages: &mut [AppMessage],
+        (msg_index, running): (usize, RunningShellCommand),
+    ) {
         let _command = running.cancel();
         Self::update_exchange_at(
             messages,
@@ -891,6 +928,12 @@ impl App {
             } else {
                 ExchangeStatus::Failed
             };
+            let was_upgrade =
+                self.upgrade_msg_index == Some(msg_index) && status == ExchangeStatus::Succeeded;
+            if self.upgrade_msg_index == Some(msg_index) {
+                self.upgrade_msg_index = None;
+            }
+
             Self::update_exchange_at(
                 &mut self.messages,
                 msg_index,
@@ -898,6 +941,13 @@ impl App {
                 Some(result.output),
                 Some(result.exit_code),
             );
+
+            if was_upgrade {
+                self.upgrade_available = None;
+                self.messages.push(AppMessage::System {
+                    content: "Restart to use the new version.".to_string(),
+                });
+            }
         }
     }
 
@@ -949,6 +999,29 @@ impl App {
         }
         if received {
             self.scroll_offset = 0;
+        }
+    }
+
+    /// Poll the background upgrade check. Called on tick events.
+    ///
+    /// If the check has completed with a newer version, stores it in
+    /// `upgrade_available` for display in the welcome banner.
+    pub fn poll_upgrade_check(&mut self) {
+        let Some(mut handle) = self.upgrade_handle.take() else {
+            return;
+        };
+
+        match (&mut handle).now_or_never() {
+            Some(Ok(Some(version))) => {
+                self.upgrade_available = Some(version);
+            }
+            Some(Ok(None) | Err(_)) => {
+                // Check completed with no upgrade or the task panicked — discard handle
+            }
+            None => {
+                // Not ready yet — put the handle back for next tick
+                self.upgrade_handle = Some(handle);
+            }
         }
     }
 
@@ -1141,7 +1214,7 @@ impl App {
     /// Create an `App` with a dummy log receiver for testing.
     pub(crate) fn new_for_test() -> Self {
         let (_tx, rx) = mpsc::unbounded_channel();
-        Self::new(rx)
+        Self::new(rx, None)
     }
 }
 

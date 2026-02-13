@@ -45,22 +45,20 @@ async fn main() -> Result<()> {
         (cli.log_level, cli.log_format, cli.error_details.clone())
     };
 
-    if matches!(cli.command, None | Some(Command::Tui(_))) {
+    errors::setup(&error_details, cli.error_link)?;
+
+    if matches!(cli.command, Some(Command::Lsp)) {
+        stencila_lsp::run(log_level.into(), &cli.log_filter).await?
+    } else if matches!(cli.command, None | Some(Command::Tui(_))) {
         // TUI installs its own tracing subscriber that captures log events
         // as in-app system messages instead of writing to stderr.
-        errors::setup(&error_details, cli.error_link)?;
         stencila_ask::setup_cli(cli.assume_answer()).await?;
-        upgrade::check(false);
+        let upgrade_handle = upgrade::check(false);
 
         stencila_tui::Tui::default()
-            .run(log_level.into(), &cli.log_filter)
+            .run(log_level.into(), &cli.log_filter, Some(upgrade_handle))
             .await?;
-
-        upgrade::notify();
-    } else if matches!(cli.command, Some(Command::Lsp)) {
-        stencila_lsp::run(log_level.into(), &cli.log_filter).await?
     } else {
-        errors::setup(&error_details, cli.error_link)?;
         logging::setup(log_level, &cli.log_filter, log_format)?;
         stencila_ask::setup_cli(cli.assume_answer()).await?;
 
