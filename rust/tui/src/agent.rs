@@ -246,6 +246,16 @@ fn process_event(
                 g.text.push_str(delta);
             }
         }
+        EventKind::AssistantTextEnd => {
+            // Use the final text as the canonical output. This handles both
+            // non-streaming providers (where no deltas are received) and acts
+            // as a reconciliation in case any streamed deltas were incomplete.
+            if let Some(serde_json::Value::String(text)) = event.data.get("text")
+                && let Ok(mut g) = progress.lock()
+            {
+                text.clone_into(&mut g.text);
+            }
+        }
         EventKind::Error => {
             let message = event
                 .data
