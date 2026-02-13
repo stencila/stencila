@@ -10,9 +10,16 @@
 pub mod checkpoint;
 pub mod condition;
 pub mod context;
+pub mod edge_selection;
+pub mod engine;
 pub mod error;
+pub mod events;
 pub mod graph;
+pub mod handler;
+pub mod handlers;
 pub mod parser;
+pub mod retry;
+pub mod run_directory;
 pub mod types;
 
 pub use error::{AttractorError, AttractorResult};
