@@ -45,7 +45,7 @@ impl Tui {
                     }
                 }
                 Some(event::AppEvent::Tick) => {
-                    app.poll_running_command();
+                    app.poll_running_commands();
                 }
                 None => break,
             }

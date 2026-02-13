@@ -8,12 +8,15 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
 
-use crate::app::{App, AppMessage, AppMode};
+use crate::app::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
 
 /// Dim style used for hint descriptions.
 const fn dim() -> Style {
     Style::new().fg(Color::DarkGray)
 }
+
+/// Background color for the input area.
+const INPUT_BG: Color = Color::Rgb(40, 40, 40);
 
 /// Render the entire UI for one frame.
 pub fn render(frame: &mut Frame, app: &mut App) {
@@ -21,6 +24,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
 
     // Calculate input area height based on visual lines (accounting for wrapping).
     // Include ghost text suffix when computing height so it doesn't clip.
+    // Inner width: sidebar (1) + space (1) + content area, no borders
     let inner_width = area.width.saturating_sub(2).max(1) as usize;
     let text_for_height: Cow<str> = match &app.ghost_suggestion {
         Some(ghost) => Cow::Owned(format!("{}{ghost}", app.input.text())),
@@ -29,20 +33,20 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     #[allow(clippy::cast_possible_truncation)]
     let visual_lines = visual_line_count(&text_for_height, inner_width) as u16;
     let max_input_height = (area.height / 3).max(3);
-    // +2 for the border
-    let input_height = (visual_lines + 2).clamp(3, max_input_height);
+    let input_height = visual_lines.clamp(1, max_input_height);
 
-    // Layout: messages | input | hints
+    // Layout: messages | spacer | input | hints
     let layout = Layout::vertical([
         Constraint::Min(1),               // message area
+        Constraint::Length(1),            // blank line above input
         Constraint::Length(input_height), // input area
         Constraint::Length(1),            // hint line below input
     ])
     .split(area);
 
     let messages_area = layout[0];
-    let input_area = layout[1];
-    let hints_area = layout[2];
+    let input_area = layout[2];
+    let hints_area = layout[3];
 
     // --- Render messages ---
     render_messages(frame, app, messages_area);
@@ -64,9 +68,118 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     }
 }
 
+/// The sidebar character (U+258C, left half block).
+const SIDEBAR_CHAR: &str = "\u{258c}";
+
+/// Append lines for a welcome message.
+fn render_welcome_lines(lines: &mut Vec<Line>) {
+    let version = stencila_version::STENCILA_VERSION;
+    let green = Color::Rgb(102, 255, 102);
+    let teal = Color::Rgb(15, 104, 96);
+    let blue = Color::Rgb(37, 104, 239);
+    let cwd = std::env::current_dir()
+        .ok()
+        .map(|p| p.display().to_string())
+        .unwrap_or_default();
+
+    lines.push(Line::raw(""));
+    lines.push(Line::from(vec![
+        Span::styled("███████", Style::new().fg(green)),
+        Span::raw("  "),
+        Span::styled("Stencila ", Style::new().add_modifier(Modifier::BOLD)),
+        Span::styled(format!("v{version}"), dim()),
+    ]));
+    lines.push(Line::from(vec![
+        Span::styled("██", Style::new().fg(green)),
+        Span::raw("  "),
+        Span::styled("█", Style::new().fg(teal)),
+        Span::styled("██", Style::new().fg(blue)),
+    ]));
+    lines.push(Line::from(vec![
+        Span::styled("███████", Style::new().fg(green)),
+        Span::raw("  "),
+        Span::styled(cwd, dim()),
+    ]));
+}
+
+/// Append lines for an exchange (request/response with sidebar).
+fn render_exchange_lines(
+    lines: &mut Vec<Line>,
+    kind: ExchangeKind,
+    status: ExchangeStatus,
+    request: &str,
+    response: Option<&str>,
+    exit_code: Option<i32>,
+    pulsate_bright: bool,
+) {
+    let base_color = match status {
+        ExchangeStatus::Running | ExchangeStatus::Succeeded => kind.color(),
+        ExchangeStatus::Failed => Color::Red,
+    };
+
+    // Running exchanges pulsate between normal and dim of the same color
+    let sidebar_style = match status {
+        ExchangeStatus::Running => {
+            if pulsate_bright {
+                Style::new().fg(base_color)
+            } else {
+                Style::new().fg(base_color).add_modifier(Modifier::DIM)
+            }
+        }
+        _ => Style::new().fg(base_color),
+    };
+
+    // Shell commands are prefixed with "$ "
+    let prefix = if kind == ExchangeKind::Shell {
+        "$ "
+    } else {
+        ""
+    };
+
+    // Request lines with sidebar
+    for text_line in request.lines() {
+        lines.push(Line::from(vec![
+            Span::styled(SIDEBAR_CHAR, sidebar_style),
+            Span::raw(" "),
+            Span::raw(format!("{prefix}{text_line}")),
+        ]));
+    }
+
+    // Response lines with dim sidebar
+    if let Some(resp) = response {
+        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+        for text_line in resp.lines() {
+            lines.push(Line::from(vec![
+                Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                Span::raw(" "),
+                Span::raw(text_line.to_string()),
+            ]));
+        }
+    }
+
+    // Exit code (non-zero) for shell commands
+    if kind == ExchangeKind::Shell
+        && let Some(code) = exit_code
+        && code != 0
+    {
+        lines.push(Line::from(vec![
+            Span::styled(
+                SIDEBAR_CHAR,
+                Style::new().fg(Color::Red).add_modifier(Modifier::DIM),
+            ),
+            Span::raw(" "),
+            Span::styled(
+                format!("exit code: {code}"),
+                Style::new().fg(Color::Red).add_modifier(Modifier::DIM),
+            ),
+        ]));
+    }
+}
+
 /// Render the scrollable message area.
 fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
     let mut lines: Vec<Line> = Vec::new();
+    let pulsate_bright = app.tick_count / 2 % 2 == 0;
 
     for message in &app.messages {
         // Add a blank line separator between messages (except before the first)
@@ -75,73 +188,29 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
         }
 
         match message {
-            AppMessage::Welcome => {
-                let version = stencila_version::STENCILA_VERSION;
-                let green = Color::Rgb(102, 255, 102);
-                let teal = Color::Rgb(15, 104, 96);
-                let blue = Color::Rgb(37, 104, 239);
-                let cwd = std::env::current_dir()
-                    .ok()
-                    .map(|p| p.display().to_string())
-                    .unwrap_or_default();
-
-                lines.push(Line::raw(""));
-                // Line 1: ███████  Stencila v{version}
-                lines.push(Line::from(vec![
-                    Span::styled("███████", Style::new().fg(green)),
-                    Span::raw("  "),
-                    Span::styled("Stencila ", Style::new().add_modifier(Modifier::BOLD)),
-                    Span::styled(format!("v{version}"), dim()),
-                ]));
-                // Line 2: ██  ███
-                lines.push(Line::from(vec![
-                    Span::styled("██", Style::new().fg(green)),
-                    Span::raw("  "),
-                    Span::styled("█", Style::new().fg(teal)),
-                    Span::styled("██", Style::new().fg(blue)),
-                ]));
-                // Line 3: ███████  <cwd>
-                lines.push(Line::from(vec![
-                    Span::styled("███████", Style::new().fg(green)),
-                    Span::raw("  "),
-                    Span::styled(cwd, dim()),
-                ]));
-            }
-            AppMessage::User { content } => {
-                lines.push(Line::from(vec![Span::styled(
-                    "You: ",
-                    Style::default()
-                        .fg(Color::Green)
-                        .add_modifier(Modifier::BOLD),
-                )]));
-                for text_line in content.lines() {
-                    lines.push(Line::raw(format!("  {text_line}")));
-                }
-            }
+            AppMessage::Welcome => render_welcome_lines(&mut lines),
+            AppMessage::Exchange {
+                kind,
+                status,
+                request,
+                response,
+                exit_code,
+            } => render_exchange_lines(
+                &mut lines,
+                *kind,
+                *status,
+                request,
+                response.as_deref(),
+                *exit_code,
+                pulsate_bright,
+            ),
             AppMessage::System { content } => {
                 for text_line in content.lines() {
-                    lines.push(Line::styled(text_line.to_string(), dim()));
-                }
-            }
-            AppMessage::Shell {
-                command,
-                output,
-                exit_code,
-            } => {
-                lines.push(Line::from(vec![Span::styled(
-                    format!("$ {command}"),
-                    Style::default()
-                        .fg(Color::Yellow)
-                        .add_modifier(Modifier::BOLD),
-                )]));
-                for text_line in output.lines() {
-                    lines.push(Line::raw(format!("  {text_line}")));
-                }
-                if *exit_code != 0 {
-                    lines.push(Line::styled(
-                        format!("  [exit code: {exit_code}]"),
-                        Style::default().fg(Color::Red).add_modifier(Modifier::DIM),
-                    ));
+                    lines.push(Line::from(vec![
+                        Span::styled(SIDEBAR_CHAR, dim()),
+                        Span::raw(" "),
+                        Span::styled(text_line.to_string(), dim()),
+                    ]));
                 }
             }
         }
@@ -183,12 +252,22 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
     frame.render_widget(paragraph, area);
 }
 
-/// Render the hint line below the input area.
+/// Render the hint line below the input area: mode label on left, keyboard hints on right.
 #[rustfmt::skip]
 fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
-    let is_running = app.running_command.is_some();
+    let is_running = app.has_running_commands();
     let has_ghost = app.ghost_suggestion.is_some();
 
+    // Mode label on the left
+    let kind = ExchangeKind::from(app.mode);
+    let label = Line::from(Span::styled(
+        kind.label(),
+        Style::new().fg(kind.color()).add_modifier(Modifier::DIM),
+    ));
+    #[allow(clippy::cast_possible_truncation)]
+    let label_width = kind.label().len() as u16 + 1; // +1 for padding
+
+    // Keyboard hints on the right
     let hints = if is_running {
         Line::from(vec![Span::raw("ctrl+c "), Span::styled("cancel", dim())])
     } else if has_ghost {
@@ -212,19 +291,46 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
         }
     };
 
-    let paragraph = Paragraph::new(hints).alignment(Alignment::Right);
-    frame.render_widget(paragraph, area);
+    let layout = Layout::horizontal([
+        Constraint::Length(label_width),
+        Constraint::Min(1),
+    ]).split(area);
+
+    frame.render_widget(Paragraph::new(label), layout[0]);
+    frame.render_widget(Paragraph::new(hints).alignment(Alignment::Right), layout[1]);
 }
 
-/// Render the input area with cursor.
+/// Render the input area with cursor: dark grey background, colored sidebar, no border.
 fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let input_text = app.input.text();
-    let is_running = app.running_command.is_some();
+    let kind = ExchangeKind::from(app.mode);
+    let is_running = app.has_running_commands();
 
-    let (border_color, title) = match (&app.mode, is_running) {
-        (AppMode::Shell, true) => (Color::Yellow, " $ running... "),
-        (AppMode::Shell, false) => (Color::Yellow, " $ shell "),
-        (AppMode::Chat, _) => (Color::Blue, " > "),
+    // Dark grey background block (no border)
+    let bg_block = Block::default().style(Style::new().bg(INPUT_BG));
+    frame.render_widget(bg_block, area);
+
+    // Sidebar in first column — one glyph per row for full-height coverage
+    if area.height > 0 {
+        let sidebar_lines: Vec<Line> = (0..area.height)
+            .map(|_| Line::from(Span::styled(SIDEBAR_CHAR, Style::new().fg(kind.color()))))
+            .collect();
+        let sidebar = Paragraph::new(Text::from(sidebar_lines)).style(Style::new().bg(INPUT_BG));
+        let sidebar_area = Rect {
+            x: area.x,
+            y: area.y,
+            width: 1,
+            height: area.height,
+        };
+        frame.render_widget(sidebar, sidebar_area);
+    }
+
+    // Content area starts at column 2 (sidebar + space)
+    let content_area = Rect {
+        x: area.x + 2,
+        y: area.y,
+        width: area.width.saturating_sub(2),
+        height: area.height,
     };
 
     let dim_style = Style::default().add_modifier(Modifier::DIM);
@@ -242,15 +348,9 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     };
 
     let paragraph = Paragraph::new(content)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .border_style(Style::default().fg(border_color))
-                .title(title),
-        )
+        .style(Style::new().bg(INPUT_BG))
         .wrap(Wrap { trim: false });
-
-    frame.render_widget(paragraph, area);
+    frame.render_widget(paragraph, content_area);
 
     // Show inline send/run hint — hide when running or when input text gets close
     // to the edge. The hint renders as an overlay on top of any ghost text.
@@ -259,39 +359,42 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
             AppMode::Chat => " send",
             AppMode::Shell => " run",
         };
-        let inner_width = area.width.saturating_sub(2);
+        let inner_width = content_area.width;
         #[allow(clippy::cast_possible_truncation)]
-        let hint_display_width = (1 + hint_text.len()) as u16; // "↵" + hint_text
+        let hint_display_width = (1 + hint_text.len()) as u16;
         let input_char_len = app.input.text().chars().count();
         if inner_width > hint_display_width + 8
             && input_char_len < (inner_width - hint_display_width - 2) as usize
         {
             let hint_area = Rect {
-                x: area.x + area.width - hint_display_width - 2,
-                y: area.y + 1,
+                x: content_area.x + content_area.width - hint_display_width,
+                y: content_area.y,
                 width: hint_display_width,
                 height: 1,
             };
             let hint = Line::from(vec![Span::raw("\u{21b5}"), Span::styled(hint_text, dim())]);
-            frame.render_widget(Paragraph::new(hint), hint_area);
+            frame.render_widget(
+                Paragraph::new(hint).style(Style::new().bg(INPUT_BG)),
+                hint_area,
+            );
         }
     }
 
-    // Inner width available for text (excluding left and right borders)
-    let inner_width = area.width.saturating_sub(2).max(1) as usize;
+    // Inner width available for text (content area width)
+    let inner_width = content_area.width.max(1) as usize;
 
     // Position the cursor within the input area, accounting for wrapping
     let (cursor_col, cursor_row) =
         cursor_position_wrapped(app.input.text(), app.input.cursor(), inner_width);
 
-    // +1 for the border
+    // +2 for sidebar + space
     #[allow(clippy::cast_possible_truncation)]
-    let x = area.x + 1 + cursor_col as u16;
+    let x = area.x + 2 + cursor_col as u16;
     #[allow(clippy::cast_possible_truncation)]
-    let y = area.y + 1 + cursor_row as u16;
+    let y = area.y + cursor_row as u16;
 
     // Only show cursor if it fits within the input area
-    if x < area.x + area.width - 1 && y < area.y + area.height - 1 {
+    if x < area.x + area.width && y < area.y + area.height {
         frame.set_cursor_position(Position::new(x, y));
     }
 }

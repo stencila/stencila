@@ -1,4 +1,5 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
+use ratatui::style::Color;
 
 use crate::{
     autocomplete::{CommandsState, FilesState, HistoryState},
@@ -18,21 +19,64 @@ pub enum AppMode {
     Shell,
 }
 
+/// The kind of exchange, determining sidebar color.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ExchangeKind {
+    Chat,
+    Shell,
+}
+
+impl ExchangeKind {
+    /// Display name for this kind (shown below input area).
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Chat => "chat",
+            Self::Shell => "shell",
+        }
+    }
+
+    /// Sidebar color for this kind.
+    pub fn color(self) -> Color {
+        match self {
+            Self::Chat => Color::Blue,
+            Self::Shell => Color::Yellow,
+        }
+    }
+}
+
+impl From<AppMode> for ExchangeKind {
+    fn from(mode: AppMode) -> Self {
+        match mode {
+            AppMode::Chat => Self::Chat,
+            AppMode::Shell => Self::Shell,
+        }
+    }
+}
+
+/// The status of an exchange.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ExchangeStatus {
+    Running,
+    Succeeded,
+    Failed,
+}
+
 /// A message displayed in the messages area.
 #[derive(Debug, Clone)]
 pub enum AppMessage {
     /// The initial welcome message.
     Welcome,
-    /// A message from the user.
-    User { content: String },
-    /// A system/informational message.
-    System { content: String },
-    /// Output from a shell command.
-    Shell {
-        command: String,
-        output: String,
-        exit_code: i32,
+    /// A request/response exchange.
+    Exchange {
+        kind: ExchangeKind,
+        status: ExchangeStatus,
+        request: String,
+        response: Option<String>,
+        /// Shell exit code (only meaningful for Shell kind).
+        exit_code: Option<i32>,
     },
+    /// A system/informational message (mode transitions, slash command output, etc.).
+    System { content: String },
 }
 
 /// Top-level application state.
@@ -71,8 +115,12 @@ pub struct App {
     /// 0 = most recent prefix match (default), incremented by Up, decremented by Down.
     ghost_nav_offset: usize,
 
-    /// A shell command currently running in the background.
-    pub running_command: Option<RunningCommand>,
+    /// Shell commands currently running in the background.
+    /// Each entry is `(message_index, running_command)` linking to the exchange in `messages`.
+    pub running_commands: Vec<(usize, RunningCommand)>,
+
+    /// Tick counter for pulsating sidebar animation on running exchanges.
+    pub tick_count: u32,
 
     /// Scroll offset for the message area (lines from the bottom).
     pub scroll_offset: u16,
@@ -97,7 +145,8 @@ impl App {
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
-            running_command: None,
+            running_commands: Vec::new(),
+            tick_count: 0,
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
@@ -119,19 +168,13 @@ impl App {
         self.should_quit
     }
 
+    /// Whether any shell commands are currently running in the background.
+    pub fn has_running_commands(&self) -> bool {
+        !self.running_commands.is_empty()
+    }
+
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
-        // While a shell command is running, only Ctrl+C is accepted
-        if self.running_command.is_some() {
-            if matches!(
-                (key.modifiers, key.code),
-                (KeyModifiers::CONTROL, KeyCode::Char('c'))
-            ) {
-                self.cancel_running_command();
-            }
-            return;
-        }
-
         let consumed = (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key));
@@ -239,15 +282,22 @@ impl App {
         }
 
         match (key.modifiers, key.code) {
-            (KeyModifiers::CONTROL, KeyCode::Char('c')) => match self.mode {
-                AppMode::Chat => {
-                    self.should_quit = true;
+            (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
+                if self.has_running_commands() {
+                    self.cancel_running_command();
+                } else {
+                    match self.mode {
+                        AppMode::Chat => {
+                            self.should_quit = true;
+                        }
+                        AppMode::Shell => {
+                            // In shell mode: clear input line (standard shell behavior)
+                            self.input.clear();
+                        }
+                    }
                 }
-                AppMode::Shell => {
-                    // In shell mode: clear input line (standard shell behavior), no-op if empty
-                    self.input.clear();
-                }
-            },
+            }
+
             (KeyModifiers::CONTROL, KeyCode::Char('s')) => {
                 if self.mode == AppMode::Chat {
                     self.enter_shell_mode();
@@ -259,8 +309,7 @@ impl App {
                 }
             }
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
-                self.messages.clear();
-                self.scroll_offset = 0;
+                self.clear_messages();
             }
             (KeyModifiers::CONTROL, KeyCode::Char('u')) => self.input.delete_to_line_start(),
             (KeyModifiers::CONTROL, KeyCode::Char('k')) => self.input.delete_to_line_end(),
@@ -364,7 +413,13 @@ impl App {
                         self.spawn_shell_command(cmd);
                     } else {
                         self.input_history.push_tagged(text.clone(), AppMode::Chat);
-                        self.messages.push(AppMessage::User { content: text });
+                        self.messages.push(AppMessage::Exchange {
+                            kind: ExchangeKind::Chat,
+                            status: ExchangeStatus::Succeeded,
+                            request: text,
+                            response: None,
+                            exit_code: None,
+                        });
                     }
                 }
                 AppMode::Shell => {
@@ -375,6 +430,13 @@ impl App {
         }
 
         // Reset scroll to bottom
+        self.scroll_offset = 0;
+    }
+
+    /// Clear all messages and cancel any running commands.
+    pub fn clear_messages(&mut self) {
+        self.cancel_all_running_commands();
+        self.messages.clear();
         self.scroll_offset = 0;
     }
 
@@ -398,38 +460,92 @@ impl App {
 
     /// Spawn a shell command as a background task.
     fn spawn_shell_command(&mut self, command: String) {
-        self.running_command = Some(crate::shell::spawn_command(command));
+        self.messages.push(AppMessage::Exchange {
+            kind: ExchangeKind::Shell,
+            status: ExchangeStatus::Running,
+            request: command.clone(),
+            response: None,
+            exit_code: None,
+        });
+        let msg_index = self.messages.len() - 1;
+        let running = crate::shell::spawn_command(command);
+        self.running_commands.push((msg_index, running));
     }
 
-    /// Cancel the currently running shell command.
+    /// Cancel the most recent running shell command.
     fn cancel_running_command(&mut self) {
-        if let Some(running) = self.running_command.take() {
-            let command = running.cancel();
-            self.messages.push(AppMessage::Shell {
-                command,
-                output: "[cancelled]".to_string(),
-                exit_code: -1,
-            });
+        if let Some(entry) = self.running_commands.pop() {
+            Self::cancel_entry(&mut self.messages, entry);
         }
     }
 
-    /// Poll the running command for completion. Called on tick events.
-    pub fn poll_running_command(&mut self) {
-        let Some(running) = &mut self.running_command else {
-            return;
-        };
+    /// Cancel all running shell commands.
+    pub fn cancel_all_running_commands(&mut self) {
+        for entry in self.running_commands.drain(..) {
+            Self::cancel_entry(&mut self.messages, entry);
+        }
+    }
 
-        if let Some(result) = running.try_take_result() {
-            let command = self
-                .running_command
-                .take()
-                .map(|r| r.command().to_string())
-                .unwrap_or_default();
-            self.messages.push(AppMessage::Shell {
-                command,
-                output: result.output,
-                exit_code: result.exit_code,
-            });
+    /// Cancel a single running command and mark its exchange as failed.
+    fn cancel_entry(messages: &mut [AppMessage], (msg_index, running): (usize, RunningCommand)) {
+        let _command = running.cancel();
+        Self::update_exchange_at(
+            messages,
+            msg_index,
+            ExchangeStatus::Failed,
+            Some("[cancelled]".to_string()),
+            Some(-1),
+        );
+    }
+
+    /// Update the exchange at `msg_index` in-place.
+    fn update_exchange_at(
+        messages: &mut [AppMessage],
+        msg_index: usize,
+        new_status: ExchangeStatus,
+        response: Option<String>,
+        exit_code: Option<i32>,
+    ) {
+        if let Some(AppMessage::Exchange {
+            status,
+            response: resp,
+            exit_code: ec,
+            ..
+        }) = messages.get_mut(msg_index)
+        {
+            *status = new_status;
+            *resp = response;
+            *ec = exit_code;
+        }
+    }
+
+    /// Poll all running commands for completion. Called on tick events.
+    pub fn poll_running_commands(&mut self) {
+        self.tick_count = self.tick_count.wrapping_add(1);
+
+        // Collect completed indices (iterate in reverse so removal doesn't shift later indices)
+        let mut completed = Vec::new();
+        for (i, (_msg_index, running)) in self.running_commands.iter_mut().enumerate() {
+            if let Some(result) = running.try_take_result() {
+                completed.push((i, result));
+            }
+        }
+
+        // Process completions in reverse order to safely remove by index
+        for (i, result) in completed.into_iter().rev() {
+            let (msg_index, _running) = self.running_commands.remove(i);
+            let status = if result.exit_code == 0 {
+                ExchangeStatus::Succeeded
+            } else {
+                ExchangeStatus::Failed
+            };
+            Self::update_exchange_at(
+                &mut self.messages,
+                msg_index,
+                status,
+                Some(result.output),
+                Some(result.exit_code),
+            );
         }
     }
 
@@ -675,7 +791,10 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         assert!(app.input.is_empty());
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "hello"));
+        assert!(matches!(
+            &app.messages[1],
+            AppMessage::Exchange { kind: ExchangeKind::Chat, status: ExchangeStatus::Succeeded, request, .. } if request == "hello"
+        ));
     }
 
     #[test]
@@ -887,7 +1006,10 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // Not a command, so it's a user message
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "/unknown"));
+        assert!(matches!(
+            &app.messages[1],
+            AppMessage::Exchange { kind: ExchangeKind::Chat, status: ExchangeStatus::Succeeded, request, .. } if request == "/unknown"
+        ));
     }
 
     #[test]
@@ -897,7 +1019,10 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // "$" should be treated as a normal chat message, not silently discarded
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "$"));
+        assert!(matches!(
+            &app.messages[1],
+            AppMessage::Exchange { kind: ExchangeKind::Chat, status: ExchangeStatus::Succeeded, request, .. } if request == "$"
+        ));
     }
 
     #[test]

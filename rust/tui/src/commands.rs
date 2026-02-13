@@ -113,8 +113,7 @@ fn execute_help(app: &mut App) {
 }
 
 fn execute_clear(app: &mut App) {
-    app.messages.clear();
-    app.scroll_offset = 0;
+    app.clear_messages();
 }
 
 fn execute_history(app: &mut App) {

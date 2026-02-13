@@ -26,6 +26,7 @@ pub struct RunningCommand {
 
 impl RunningCommand {
     /// The command string that was submitted.
+    #[cfg(test)]
     pub fn command(&self) -> &str {
         &self.command
     }
