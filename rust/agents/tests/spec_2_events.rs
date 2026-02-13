@@ -159,7 +159,7 @@ async fn emit_assistant_text_lifecycle() -> Result<(), AgentError> {
 async fn emit_tool_call_lifecycle() -> Result<(), AgentError> {
     let (emitter, mut rx) = channel_with_id("s1".into());
 
-    emitter.emit_tool_call_start("read_file", "call-1");
+    emitter.emit_tool_call_start("read_file", "call-1", &serde_json::Value::Null);
     emitter.emit_tool_call_output_delta("call-1", "line 1\n");
     emitter.emit_tool_call_end("call-1", "line 1\nline 2\n");
 
@@ -292,7 +292,7 @@ async fn events_received_in_emission_order() -> Result<(), AgentError> {
     emitter.emit_assistant_text_start();
     emitter.emit_assistant_text_delta("tok");
     emitter.emit_assistant_text_end("tok", None);
-    emitter.emit_tool_call_start("shell", "c1");
+    emitter.emit_tool_call_start("shell", "c1", &serde_json::Value::Null);
     emitter.emit_tool_call_output_delta("c1", "out");
     emitter.emit_tool_call_end("c1", "out");
     emitter.emit_error("E1", "oops");
@@ -330,7 +330,7 @@ async fn all_events_carry_session_id_and_timestamp() -> Result<(), AgentError> {
     emitter.emit_assistant_text_start();
     emitter.emit_assistant_text_delta("d");
     emitter.emit_assistant_text_end("d", None);
-    emitter.emit_tool_call_start("t", "c");
+    emitter.emit_tool_call_start("t", "c", &serde_json::Value::Null);
     emitter.emit_tool_call_output_delta("c", "o");
     emitter.emit_tool_call_end("c", "o");
     emitter.emit_steering_injected("s");

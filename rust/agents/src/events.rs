@@ -129,11 +129,17 @@ impl EventEmitter {
         self.emit(EventKind::AssistantTextEnd, data);
     }
 
-    /// Emit a `TOOL_CALL_START` event.
-    pub fn emit_tool_call_start(&self, tool_name: impl Into<String>, call_id: impl Into<String>) {
+    /// Emit a `TOOL_CALL_START` event with tool arguments for observability.
+    pub fn emit_tool_call_start(
+        &self,
+        tool_name: impl Into<String>,
+        call_id: impl Into<String>,
+        arguments: &serde_json::Value,
+    ) {
         let mut data = serde_json::Map::new();
         data.insert("tool_name".into(), Value::String(tool_name.into()));
         data.insert("call_id".into(), Value::String(call_id.into()));
+        data.insert("arguments".into(), arguments.clone());
         self.emit(EventKind::ToolCallStart, data);
     }
 

@@ -975,7 +975,7 @@ impl Session {
     /// Execute a subagent tool call via the SubAgentManager.
     async fn execute_subagent_tool(&mut self, tool_call: &ToolCall) -> ToolResult {
         self.events
-            .emit_tool_call_start(&tool_call.name, &tool_call.id);
+            .emit_tool_call_start(&tool_call.name, &tool_call.id, &tool_call.arguments);
 
         let result = self
             .subagent_manager
@@ -1207,7 +1207,7 @@ async fn execute_tool(
     events: &EventEmitter,
     trunc_config: &TruncationConfig,
 ) -> (ToolResult, Option<(String, ImageAttachment)>) {
-    events.emit_tool_call_start(&tool_call.name, &tool_call.id);
+    events.emit_tool_call_start(&tool_call.name, &tool_call.id, &tool_call.arguments);
 
     // VALIDATE (spec 3.8 step 2) — before execute
     if let Err(e) = registry.validate_arguments(&tool_call.name, &tool_call.arguments) {
