@@ -605,6 +605,9 @@ impl App {
             } = message
             {
                 exchange_num += 1;
+                if resp.is_empty() {
+                    continue;
+                }
                 // Use plain text for preview (response field is always clean)
                 let preview = truncate_preview(resp, 50);
                 candidates.push((exchange_num, preview));
