@@ -353,13 +353,23 @@ impl Client {
 
     /// Resolve the provider adapter for a request.
     fn resolve_provider(&self, request: &Request) -> SdkResult<&dyn ProviderAdapter> {
-        let name = request
-            .provider
-            .as_deref()
-            .or(self.default_provider.as_deref())
-            .ok_or_else(|| SdkError::Configuration {
-                message: "no provider specified and no default provider set".into(),
-            })?;
+        let inferred_provider = if request.provider.is_none() {
+            self.infer_provider_from_model(&request.model)?
+        } else {
+            None
+        };
+
+        let name = if let Some(explicit) = request.provider.as_deref() {
+            explicit
+        } else if let Some(ref inferred) = inferred_provider {
+            inferred.as_str()
+        } else {
+            self.default_provider
+                .as_deref()
+                .ok_or_else(|| SdkError::Configuration {
+                    message: "no provider specified and no default provider set".into(),
+                })?
+        };
 
         self.providers
             .get(name)
@@ -367,6 +377,50 @@ impl Client {
             .ok_or_else(|| SdkError::Configuration {
                 message: format!("unknown provider: {name}"),
             })
+    }
+
+    /// Infer a provider from a model ID/alias using the catalog.
+    ///
+    /// Returns:
+    /// - `Ok(Some(provider))` when inference is possible
+    /// - `Ok(None)` when the model is not in the catalog
+    /// - `Err(Configuration)` when the model maps to multiple providers
+    fn infer_provider_from_model(&self, model: &str) -> SdkResult<Option<String>> {
+        let catalog = crate::catalog::read_catalog()?;
+        let mut matches: Vec<String> = Vec::new();
+        for info in &*catalog {
+            if info.id == model || info.aliases.iter().any(|alias| alias == model) {
+                if !matches.contains(&info.provider) {
+                    matches.push(info.provider.clone());
+                }
+            }
+        }
+        drop(catalog);
+
+        if matches.is_empty() {
+            return Ok(None);
+        }
+
+        // If only one provider matches, use it directly.
+        if matches.len() == 1 {
+            return Ok(matches.first().cloned());
+        }
+
+        // If multiple providers match, but only one is configured in this
+        // client, use that provider.
+        let configured: Vec<String> = matches
+            .into_iter()
+            .filter(|name| self.providers.contains_key(name))
+            .collect();
+        if configured.len() == 1 {
+            return Ok(configured.first().cloned());
+        }
+
+        Err(SdkError::Configuration {
+            message: format!(
+                "model '{model}' is ambiguous across providers; specify request.provider"
+            ),
+        })
     }
 
     /// Build the middleware chain for `complete()`.

@@ -633,6 +633,36 @@ async fn client_routes_by_provider_field() -> Result<(), Box<dyn std::error::Err
 }
 
 #[tokio::test]
+async fn client_routes_by_model_alias_when_provider_missing()
+-> Result<(), Box<dyn std::error::Error>> {
+    // Default provider is openai, but model alias "sonnet" should infer anthropic.
+    let client = Client::builder()
+        .add_provider(MockAdapter::with_text("openai", "from_openai"))
+        .add_provider(MockAdapter::with_text("anthropic", "from_anthropic"))
+        .build()?;
+
+    let response = client.complete(make_request("sonnet")).await?;
+    assert_eq!(response.text(), "from_anthropic");
+    assert_eq!(response.provider, "anthropic");
+    Ok(())
+}
+
+#[tokio::test]
+async fn client_unknown_model_still_routes_to_default_provider()
+-> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::builder()
+        .add_provider(MockAdapter::with_text("alpha", "from_alpha"))
+        .add_provider(MockAdapter::with_text("beta", "from_beta"))
+        .build()?;
+
+    // Unknown model cannot be inferred from catalog, so default provider is used.
+    let response = client.complete(make_request("not-in-catalog")).await?;
+    assert_eq!(response.text(), "from_alpha");
+    assert_eq!(response.provider, "alpha");
+    Ok(())
+}
+
+#[tokio::test]
 async fn client_errors_on_unknown_provider() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::builder()
         .add_provider(MockAdapter::with_text("alpha", "hi"))

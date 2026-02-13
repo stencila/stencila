@@ -365,25 +365,9 @@ impl Run {
         }
         .map_err(|e| eyre::eyre!("{e}"))?;
 
-        let model_id = match &self.model {
-            Some(id) => id.clone(),
-            None => {
-                let provider = self
-                    .provider
-                    .as_deref()
-                    .or(client.default_provider())
-                    .ok_or_else(|| {
-                        eyre::eyre!(
-                            "No --model specified and no model provider available. \
-                            Use `stencila signin` or `stencila secrets set` to enable."
-                        )
-                    })?;
-                let info = catalog::get_latest_model(provider, None)
-                    .map_err(|e| eyre::eyre!("{e}"))?
-                    .ok_or_else(|| eyre::eyre!("No models found for provider '{provider}'"))?;
-                info.id
-            }
-        };
+        let (model_id, resolved_provider) =
+            resolve_model_and_provider(&self.model, &self.provider, &client)?;
+        let provider_label = resolved_provider.as_deref().unwrap_or("<default>");
 
         // Dry run: show the prompt and selected model, then exit
         if self.dry_run {
@@ -401,6 +385,11 @@ impl Run {
                         .to_stdout();
                 }
             }
+            Code::new(
+                Format::Markdown,
+                &format!("\n# Provider\n{provider_label}\n"),
+            )
+            .to_stdout();
 
             if let Some(ref system) = self.system {
                 Code::new(Format::Markdown, "\n# System prompt\n").to_stdout();
@@ -415,7 +404,7 @@ impl Run {
             .prompt(&prompt)
             .client(&client);
 
-        if let Some(ref provider) = self.provider {
+        if let Some(ref provider) = resolved_provider {
             opts = opts.provider(provider);
         }
         if let Some(ref system) = self.system {
@@ -430,7 +419,9 @@ impl Run {
 
         let mut stream = crate::api::stream::stream_generate(opts)
             .await
-            .map_err(|e| eyre::eyre!("{e}"))?;
+            .map_err(|e| {
+                eyre::eyre!("model run failed (model: {model_id}, provider: {provider_label}): {e}")
+            })?;
 
         // Consume the stream event by event so we can both print deltas
         // incrementally and capture usage at the end.
@@ -438,7 +429,9 @@ impl Run {
         let writing_to_file = self.output.is_some();
 
         while let Some(event_result) = stream.next_event().await {
-            let event = event_result.map_err(|e| eyre::eyre!("{e}"))?;
+            let event = event_result.map_err(|e| {
+                eyre::eyre!("model run failed (model: {model_id}, provider: {provider_label}): {e}")
+            })?;
             if event.event_type == crate::types::stream_event::StreamEventType::TextDelta {
                 if let Some(ref delta) = event.delta {
                     if writing_to_file {
@@ -468,6 +461,90 @@ impl Run {
         print_usage_summary(&usage, &model_id);
 
         Ok(())
+    }
+}
+
+/// Resolve a model id and provider from CLI flags and client defaults.
+///
+/// - If `--model` is omitted, chooses latest model for selected/default provider.
+/// - If `--model` is provided, resolves exact id/alias first, then unambiguous prefix.
+/// - If provider remains unspecified, it is inferred from the resolved catalog model.
+fn resolve_model_and_provider(
+    model_flag: &Option<String>,
+    provider_flag: &Option<String>,
+    client: &crate::client::Client,
+) -> Result<(String, Option<String>)> {
+    match model_flag {
+        None => {
+            let provider = provider_flag
+                .as_deref()
+                .or(client.default_provider())
+                .ok_or_else(|| {
+                    eyre::eyre!(
+                        "No --model specified and no model provider available. \
+                        Use `stencila signin` or `stencila secrets set` to enable."
+                    )
+                })?;
+            let info = catalog::get_latest_model(provider, None)
+                .map_err(|e| eyre::eyre!("{e}"))?
+                .ok_or_else(|| eyre::eyre!("No models found for provider '{provider}'"))?;
+            Ok((info.id, Some(provider.to_string())))
+        }
+        Some(raw_model) => {
+            // 1) Exact ID/alias lookup
+            if let Some(info) =
+                catalog::get_model_info(raw_model).map_err(|e| eyre::eyre!("{e}"))?
+            {
+                if let Some(provider) = provider_flag
+                    && provider != &info.provider
+                {
+                    return Err(eyre::eyre!(
+                        "Model '{raw_model}' resolves to provider '{}', but --provider is '{provider}'",
+                        info.provider
+                    ));
+                }
+                return Ok((info.id, Some(info.provider)));
+            }
+
+            // 2) Prefix lookup (e.g. --model claude -> latest matching claude-* model)
+            let candidates =
+                catalog::list_models(provider_flag.as_deref()).map_err(|e| eyre::eyre!("{e}"))?;
+            let matches: Vec<_> = candidates
+                .into_iter()
+                .filter(|m| {
+                    m.id.starts_with(raw_model)
+                        || m.aliases.iter().any(|alias| alias.starts_with(raw_model))
+                })
+                .collect();
+
+            match matches.len() {
+                0 => Ok((raw_model.clone(), provider_flag.clone())),
+                1 => {
+                    let info = &matches[0];
+                    Ok((info.id.clone(), Some(info.provider.clone())))
+                }
+                _ => {
+                    // Catalog order is newest/best first within provider groups.
+                    // If all prefix matches belong to one provider, pick the first.
+                    let first_provider = &matches[0].provider;
+                    if matches.iter().all(|m| &m.provider == first_provider) {
+                        let info = &matches[0];
+                        Ok((info.id.clone(), Some(info.provider.clone())))
+                    } else {
+                        let preview = matches
+                            .iter()
+                            .take(5)
+                            .map(|m| m.id.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ");
+                        Err(eyre::eyre!(
+                            "Model '{raw_model}' is ambiguous across providers. Matches: {preview}. \
+                            Specify a more precise --model or add --provider."
+                        ))
+                    }
+                }
+            }
+        }
     }
 }
 
