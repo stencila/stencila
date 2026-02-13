@@ -4,25 +4,49 @@ An implementation of the [Attractor Specification](https://github.com/strongdm/a
 
 ## Usage
 
-TODO
+```rust
+use stencila_attractor::parse_dot;
+
+let dot = r#"
+    digraph Pipeline {
+        graph [goal="Run tests and report"]
+        start [shape=Mdiamond]
+        run_tests [label="Run Tests", prompt="Execute the test suite"]
+        report [label="Report", prompt="Summarize results"]
+        exit [shape=Msquare]
+
+        start -> run_tests -> report -> exit
+    }
+"#;
+
+let graph = parse_dot(dot).expect("valid DOT");
+
+assert_eq!(graph.name, "Pipeline");
+assert_eq!(graph.nodes.len(), 4);
+assert_eq!(graph.edges.len(), 3);
+```
 
 ## Extensions
 
 The following extensions to the spec are implemented.
 
-TODO
+- **Bare identifier attribute values**: In addition to the spec's quoted strings, the parser accepts bare identifiers (e.g., `shape=Mdiamond`) as string-typed attribute values. This matches standard DOT tooling conventions and reduces quoting noise for simple values.
+
+- **Empty attribute blocks**: The parser accepts `[]` (empty attribute blocks), even though the BNF grammar in §2.2 implies at least one attribute. This is harmless and consistent with standard DOT tooling.
 
 ## Deviations
 
 These are intentional deviations from the spec.
 
-TODO
+- **Nested block comments**: The parser supports nested `/* ... /* ... */ ... */` block comments. The spec does not explicitly define nesting behavior.
+
+- **Reserved keywords as node IDs**: The spec's `Identifier` regex (`[A-Za-z_][A-Za-z0-9_]*`) does not exclude reserved words, but DOT keywords (`graph`, `node`, `edge`, `subgraph`, `digraph`, `strict`) cannot be used as bare node IDs because they create parsing ambiguity (e.g., `node [shape=box]` — defaults statement or node declaration?). This matches standard Graphviz behavior.
 
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
 
-TODO
+- **AttrValue serde roundtrip**: `Duration` attribute values serialize as strings (e.g., `"15m"`) and deserialize back as `String` variants through JSON, since `serde_json` cannot distinguish Duration from String in the `#[serde(untagged)]` enum. Duration values are fully preserved within a running pipeline; only JSON serialization/deserialization loses the type distinction.
 
 
 ## Development

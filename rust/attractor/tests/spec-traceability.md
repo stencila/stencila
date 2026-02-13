@@ -12,19 +12,19 @@ Maps each spec section to the test file(s) and specific test functions that vali
 
 | Spec Section | Description | Test File | Status |
 |---|---|---|---|
-| §2.1 Supported Subset | DOT subset constraints | `spec_2_parser.rs` | Pending |
-| §2.2 BNF Grammar | Parser grammar coverage | `spec_2_parser.rs` | Pending |
-| §2.3 Key Constraints | One digraph, bare IDs, commas, directed only | `spec_2_parser.rs` | Pending |
-| §2.4 Value Types | String, Integer, Float, Boolean, Duration | `spec_1_types.rs`, `spec_2_parser.rs` | Pending |
-| §2.5 Graph Attributes | goal, label, model_stylesheet, defaults | `spec_2_parser.rs` | Pending |
-| §2.6 Node Attributes | All node attribute types and defaults | `spec_2_parser.rs`, `spec_3_engine.rs` | Pending |
-| §2.7 Edge Attributes | label, condition, weight, fidelity, loop_restart | `spec_2_parser.rs`, `spec_3_engine.rs` | Pending |
-| §2.8 Shape-to-Handler Mapping | Shape resolution to handler types | `spec_3_engine.rs` | Pending |
-| §2.9 Chained Edges | A -> B -> C expansion | `spec_2_parser.rs` | Pending |
-| §2.10 Subgraphs | Scoping defaults, class derivation | `spec_2_parser.rs` | Pending |
-| §2.11 Default Blocks | node [...], edge [...] defaults | `spec_2_parser.rs` | Pending |
-| §2.12 Class Attribute | Comma-separated classes | `spec_2_parser.rs` | Pending |
-| §2.13 Minimal Examples | 3 example pipelines | `spec_2_parser.rs` | Pending |
+| §2.1 Supported Subset | DOT subset constraints | `spec_2_parser.rs` | Complete |
+| §2.2 BNF Grammar | Parser grammar coverage | `spec_2_parser.rs` | Complete |
+| §2.3 Key Constraints | One digraph, bare IDs, commas, directed only | `spec_2_parser.rs` | Partial |
+| §2.4 Value Types | String, Integer, Float, Boolean, Duration | `spec_1_types.rs`, `spec_2_parser.rs` | Complete |
+| §2.5 Graph Attributes | goal, label, model_stylesheet, defaults | `spec_2_parser.rs` | Complete |
+| §2.6 Node Attributes | All node attribute types and defaults | `spec_2_parser.rs`, `spec_3_engine.rs` | Partial |
+| §2.7 Edge Attributes | label, condition, weight, fidelity, loop_restart | `spec_2_parser.rs`, `spec_3_engine.rs` | Partial |
+| §2.8 Shape-to-Handler Mapping | Shape resolution to handler types | `spec_2_parser.rs` | Complete |
+| §2.9 Chained Edges | A -> B -> C expansion | `spec_2_parser.rs` | Complete |
+| §2.10 Subgraphs | Scoping defaults, class derivation | `spec_2_parser.rs` | Partial |
+| §2.11 Default Blocks | node [...], edge [...] defaults | `spec_2_parser.rs` | Complete |
+| §2.12 Class Attribute | Comma-separated classes | `spec_2_parser.rs` | Partial |
+| §2.13 Minimal Examples | 3 example pipelines | `spec_2_parser.rs` | Complete |
 | §3.1 Run Lifecycle | 5-phase lifecycle | `spec_3_engine.rs` | Pending |
 | §3.2 Core Execution Loop | Traversal algorithm | `spec_3_engine.rs` | Pending |
 | §3.3 Edge Selection | 5-step priority algorithm | `spec_3_engine.rs` | Pending |
@@ -44,9 +44,9 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §4.9 Fan-In Handler | Heuristic selection | `spec_4_parallel.rs` | Pending |
 | §4.10 Tool Handler | Shell command execution | `spec_4_handlers.rs` | Pending |
 | §4.12 Custom Handlers | Handler contract, panic catching | `spec_3_engine.rs` | Pending |
-| §5.1 Context | Key-value store, built-in keys | `spec_1_types.rs` | Pending |
-| §5.2 Outcome | Status, preferred_label, context_updates | `spec_1_types.rs` | Pending |
-| §5.3 Checkpoint | Save/load, resume behavior | `spec_1_types.rs`, `spec_5_resume.rs` | Pending |
+| §5.1 Context | Key-value store, built-in keys | `spec_1_types.rs` | Partial |
+| §5.2 Outcome | Status, preferred_label, context_updates | `spec_1_types.rs` | Complete |
+| §5.3 Checkpoint | Save/load, resume behavior | `spec_1_types.rs`, `spec_5_resume.rs` | Partial |
 | §5.4 Context Fidelity | Fidelity modes, resolution, thread_id | `spec_5_state.rs` | Pending |
 | §5.5 Artifact Store | File-backed/in-memory storage | `spec_5_state.rs` | Pending |
 | §5.6 Run Directory | Directory structure, manifest.json | `spec_3_engine.rs` | Pending |

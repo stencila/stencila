@@ -10,7 +10,11 @@
 pub mod checkpoint;
 pub mod context;
 pub mod error;
+pub mod graph;
+pub mod parser;
 pub mod types;
 
 pub use error::{AttractorError, AttractorResult};
+pub use graph::{AttrValue, Edge, Graph, Node};
+pub use parser::parse_dot;
 pub use types::*;
