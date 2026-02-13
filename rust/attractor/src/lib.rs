@@ -20,9 +20,12 @@ pub mod handlers;
 pub mod parser;
 pub mod retry;
 pub mod run_directory;
+pub mod transform;
+pub mod transforms;
 pub mod types;
 
 pub use error::{AttractorError, AttractorResult};
 pub use graph::{AttrValue, Edge, Graph, Node};
 pub use parser::parse_dot;
+pub use transform::{Transform, TransformRegistry};
 pub use types::*;

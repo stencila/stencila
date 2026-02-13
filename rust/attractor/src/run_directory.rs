@@ -3,6 +3,14 @@
 //! Each pipeline execution gets its own run directory containing a
 //! manifest, checkpoint, and per-node status files. This module provides
 //! creation and I/O helpers for that directory structure.
+//!
+//! # Deviation from spec
+//!
+//! The spec (§5.6) describes per-node artifacts at `{run_root}/{node_id}/...`.
+//! This implementation uses `{run_root}/nodes/{node_id}/...` instead, placing
+//! all node directories under a `nodes/` subdirectory. This avoids mixing
+//! per-node directories with root-level files (`manifest.json`,
+//! `checkpoint.json`) and makes directory listing cleaner.
 
 use std::path::{Path, PathBuf};
 
@@ -51,6 +59,15 @@ impl RunDirectory {
         let root = root.into();
         std::fs::create_dir_all(root.join("nodes"))?;
         Ok(Self { root })
+    }
+
+    /// Wrap an existing run directory path without creating directories.
+    ///
+    /// Use this when the directory was already created (e.g., by the engine)
+    /// and you only need path helpers and I/O methods.
+    #[must_use]
+    pub fn open(root: impl Into<PathBuf>) -> Self {
+        Self { root: root.into() }
     }
 
     /// Path to the manifest file.

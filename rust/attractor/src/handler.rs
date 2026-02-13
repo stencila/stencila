@@ -76,13 +76,15 @@ impl HandlerRegistry {
     }
 
     /// Create a registry pre-loaded with the built-in handlers:
-    /// `start`, `exit`, and `conditional`.
+    /// `start`, `exit`, `conditional`, `codergen` (simulation), and `tool`.
     #[must_use]
     pub fn with_defaults() -> Self {
         let mut registry = Self::new();
         registry.register("start", handlers::StartHandler);
         registry.register("exit", handlers::ExitHandler);
         registry.register("conditional", handlers::ConditionalHandler);
+        registry.register("codergen", handlers::CodergenHandler::simulation());
+        registry.register("tool", handlers::ToolHandler);
         registry
     }
 

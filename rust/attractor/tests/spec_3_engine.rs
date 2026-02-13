@@ -2,6 +2,8 @@
 //! failure routing (§3.7), retry (§3.5-3.6), handler registry (§4.1-4.2),
 //! and run directory (§5.6).
 
+mod common;
+
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -1037,9 +1039,7 @@ fn registry_resolve_none_when_no_match() {
 
 #[test]
 fn run_directory_create_and_manifest() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
     let run_dir = RunDirectory::create(tmp.path().join("run1"))?;
 
     let manifest = Manifest {
@@ -1059,9 +1059,7 @@ fn run_directory_create_and_manifest() -> AttractorResult<()> {
 
 #[test]
 fn run_directory_status_roundtrip() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
     let run_dir = RunDirectory::create(tmp.path().join("run1"))?;
 
     let outcome = Outcome::success();
@@ -1074,9 +1072,7 @@ fn run_directory_status_roundtrip() -> AttractorResult<()> {
 
 #[test]
 fn run_directory_path_helpers() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
     let run_dir = RunDirectory::create(tmp.path().join("run1"))?;
 
     assert!(run_dir.manifest_path().ends_with("manifest.json"));
@@ -1096,9 +1092,7 @@ fn run_directory_path_helpers() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_linear_start_exit() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
     let g = linear_graph();
     let config = EngineConfig::new(tmp.path());
 
@@ -1109,9 +1103,7 @@ async fn engine_linear_start_exit() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_three_node_linear() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
     let g = three_node_graph();
     let mut config = EngineConfig::new(tmp.path());
     // middle node has shape "box" → handler type "codergen", need to register
@@ -1126,9 +1118,7 @@ async fn engine_three_node_linear() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_conditional_success_path() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("cond_test");
     let mut start = Node::new("start");
@@ -1172,9 +1162,7 @@ async fn engine_conditional_success_path() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
     // §3.2 step 6: no outgoing edges + SUCCESS → BREAK (normal completion)
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("dead_end");
     let mut start = Node::new("start");
@@ -1208,9 +1196,7 @@ async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
     // §3.2 step 6: FAIL + no outgoing fail edge → pipeline fails.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("dead_end_fail");
     let mut start = Node::new("start");
@@ -1242,9 +1228,7 @@ async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_missing_exit_node_is_error() -> AttractorResult<()> {
     // run() should error when graph has no exit node.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("no_exit");
     let mut start = Node::new("start");
@@ -1263,9 +1247,7 @@ async fn engine_missing_exit_node_is_error() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_context_propagation() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("ctx_test");
     let mut start = Node::new("start");
@@ -1303,9 +1285,7 @@ async fn engine_context_propagation() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_checkpoint_per_node() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let g = three_node_graph();
     let mut config = EngineConfig::new(tmp.path());
@@ -1343,9 +1323,7 @@ async fn engine_checkpoint_per_node() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
     // §5.3: checkpoint node_retries should reflect actual retry attempts.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("retry_checkpoint");
     let mut start = Node::new("start");
@@ -1395,9 +1373,7 @@ async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_run_dir_and_manifest() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let g = linear_graph();
     let config = EngineConfig::new(tmp.path());
@@ -1426,9 +1402,7 @@ async fn engine_run_dir_and_manifest() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_status_json_per_node() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let g = three_node_graph();
     let mut config = EngineConfig::new(tmp.path());
@@ -1458,9 +1432,7 @@ async fn engine_status_json_per_node() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_panic_handler_fails() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("panic_test");
     let mut start = Node::new("start");
@@ -1491,9 +1463,7 @@ async fn engine_panic_handler_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_graph_attr_mirroring() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = linear_graph();
     g.graph_attrs
@@ -1508,9 +1478,7 @@ async fn engine_graph_attr_mirroring() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_loop_restart() -> AttractorResult<()> {
     // §2.7/§3.2: loop_restart creates a fresh run directory and context.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("loop_test");
     let mut start = Node::new("start");
@@ -1582,9 +1550,7 @@ async fn engine_loop_restart() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_event_emission() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let g = linear_graph();
     let emitter = Arc::new(RecordingEmitter::default());
@@ -1605,9 +1571,7 @@ async fn engine_event_emission() -> AttractorResult<()> {
 async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
     // §3.4: only visited nodes are checked, so an unvisited goal-gate
     // node should not prevent pipeline exit.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("gate_test");
     let mut start = Node::new("start");
@@ -1639,9 +1603,7 @@ async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
     // §3.4: a visited goal-gate node with non-success outcome blocks exit.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("gate_test");
     let mut start = Node::new("start");
@@ -1679,9 +1641,7 @@ async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
 async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
     // §3.4: a visited goal-gate node with fail outcome triggers retry_target
     // when the pipeline reaches exit.
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("gate_retry_test");
     let mut start = Node::new("start");
@@ -1730,9 +1690,7 @@ async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_failure_routing_via_fail_edge() -> AttractorResult<()> {
-    let tmp = tempfile::tempdir().map_err(|e| AttractorError::Io {
-        message: e.to_string(),
-    })?;
+    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("fail_edge_test");
     let mut start = Node::new("start");

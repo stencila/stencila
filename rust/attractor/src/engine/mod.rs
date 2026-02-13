@@ -14,6 +14,7 @@ use std::sync::Arc;
 use crate::events::{EventEmitter, NoOpEmitter};
 use crate::graph::Graph;
 use crate::handler::HandlerRegistry;
+use crate::transform::TransformRegistry;
 use crate::types::Outcome;
 
 pub use routing::{GoalGateResult, check_goal_gates, get_retry_target};
@@ -24,6 +25,8 @@ pub struct EngineConfig {
     pub logs_root: PathBuf,
     /// Handler registry for resolving node types to handlers.
     pub registry: HandlerRegistry,
+    /// Transform registry for graph preprocessing before execution.
+    pub transforms: TransformRegistry,
     /// Event emitter for pipeline lifecycle events.
     pub emitter: Arc<dyn EventEmitter>,
 }
@@ -33,18 +36,20 @@ impl std::fmt::Debug for EngineConfig {
         f.debug_struct("EngineConfig")
             .field("logs_root", &self.logs_root)
             .field("registry", &self.registry)
+            .field("transforms", &"TransformRegistry { .. }")
             .finish_non_exhaustive()
     }
 }
 
 impl EngineConfig {
     /// Create a new engine configuration with the given logs root,
-    /// default handler registry, and no-op event emitter.
+    /// default handler registry, default transforms, and no-op event emitter.
     #[must_use]
     pub fn new(logs_root: impl Into<PathBuf>) -> Self {
         Self {
             logs_root: logs_root.into(),
             registry: HandlerRegistry::with_defaults(),
+            transforms: TransformRegistry::with_defaults(),
             emitter: Arc::new(NoOpEmitter),
         }
     }
@@ -64,5 +69,9 @@ impl EngineConfig {
 /// - A handler cannot be resolved for a node
 /// - An I/O error occurs writing run artifacts
 pub async fn run(graph: &Graph, config: EngineConfig) -> crate::error::AttractorResult<Outcome> {
-    loop_core::run_loop(graph, config).await
+    // Apply transforms (variable expansion, etc.) before execution.
+    let mut graph = graph.clone();
+    config.transforms.apply_all(&mut graph)?;
+
+    loop_core::run_loop(&graph, config).await
 }

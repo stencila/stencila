@@ -37,12 +37,12 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §4.2 Handler Registry | Type-based resolution | `spec_3_engine.rs` | Complete |
 | §4.3 Start Handler | No-op SUCCESS | `spec_3_engine.rs` | Complete |
 | §4.4 Exit Handler | No-op SUCCESS | `spec_3_engine.rs` | Complete |
-| §4.5 Codergen Handler | LLM task, backend, simulation | `spec_4_handlers.rs` | Pending |
+| §4.5 Codergen Handler | LLM task, backend, simulation | `spec_4_handlers.rs` | Partial |
 | §4.6 Wait For Human | Edge-derived choices, accelerators | `spec_6_human.rs` | Pending |
 | §4.7 Conditional Handler | No-op, routing via engine | `spec_3_engine.rs` | Complete |
 | §4.8 Parallel Handler | Fan-out, join/error policies | `spec_4_parallel.rs` | Pending |
 | §4.9 Fan-In Handler | Heuristic selection | `spec_4_parallel.rs` | Pending |
-| §4.10 Tool Handler | Shell command execution | `spec_4_handlers.rs` | Pending |
+| §4.10 Tool Handler | Shell command execution | `spec_4_handlers.rs` | Partial |
 | §4.12 Custom Handlers | Handler contract, panic catching | `spec_3_engine.rs` | Complete |
 | §5.1 Context | Key-value store, built-in keys | `spec_1_types.rs` | Partial |
 | §5.2 Outcome | Status, preferred_label, context_updates | `spec_1_types.rs` | Complete |
@@ -65,9 +65,9 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §8.4 Recognized Properties | llm_model, llm_provider, reasoning_effort | `spec_8_stylesheet.rs` | Pending |
 | §8.5 Application Order | Resolution precedence | `spec_8_stylesheet.rs` | Pending |
 | §8.6 Example | Full stylesheet example | `spec_8_stylesheet.rs` | Pending |
-| §9.1 AST Transforms | Transform trait and pipeline | `spec_9_transforms.rs` | Pending |
-| §9.2 Built-In Transforms | Variable expansion, stylesheet | `spec_9_transforms.rs` | Pending |
-| §9.3 Custom Transforms | Registration and ordering | `spec_9_transforms.rs` | Pending |
+| §9.1 AST Transforms | Transform trait and pipeline | `spec_9_transforms.rs` | Complete |
+| §9.2 Built-In Transforms | Variable expansion, stylesheet | `spec_9_transforms.rs` | Partial |
+| §9.3 Custom Transforms | Registration and ordering | `spec_9_transforms.rs` | Complete |
 | §9.6 Events | Pipeline/Stage/Parallel/Interview/Checkpoint events | `spec_3_engine.rs` | Partial |
 | §10.1–10.5 Conditions | Grammar, semantics, evaluation | `spec_10_conditions.rs` | Complete |
 | §10.6 Condition Examples | 5 verbatim examples | `spec_10_conditions.rs` | Complete |
