@@ -2,7 +2,8 @@ use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
 use ratatui::style::Color;
 
 use crate::{
-    autocomplete::{CommandsState, FilesState, HistoryState, ResponsesState},
+    autocomplete::cancel::CancelCandidate,
+    autocomplete::{CancelState, CommandsState, FilesState, HistoryState, ResponsesState},
     commands::SlashCommand,
     history::InputHistory,
     input::InputState,
@@ -106,6 +107,8 @@ pub struct App {
     pub history_state: HistoryState,
     /// Responses autocomplete popup state.
     pub responses_state: ResponsesState,
+    /// Cancel picker popup state.
+    pub cancel_state: CancelState,
 
     /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
     /// Shown as dim inline text for fish-shell-style history completion.
@@ -145,6 +148,7 @@ impl App {
             files_state: FilesState::new(),
             history_state: HistoryState::new(),
             responses_state: ResponsesState::new(),
+            cancel_state: CancelState::new(),
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
@@ -178,7 +182,8 @@ impl App {
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
-        let consumed = (self.history_state.is_visible() && self.handle_history_autocomplete(key))
+        let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
+            || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
             || (self.responses_state.is_visible() && self.handle_responses_autocomplete(key));
@@ -192,6 +197,24 @@ impl App {
 
         // Ghost suggestion always refreshes (input/cursor may have changed in either path).
         self.refresh_ghost_suggestion();
+    }
+
+    /// Handle a key event when the cancel picker popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_cancel_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(result) = self.cancel_state.accept() {
+                    self.cancel_by_msg_index(result.msg_index);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.cancel_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.cancel_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.cancel_state.select_next(),
+            _ => return false,
+        }
+        true
     }
 
     /// Handle a key event when the history autocomplete popup is visible.
@@ -501,6 +524,51 @@ impl App {
         candidates
     }
 
+    /// Build cancel candidates from running exchanges.
+    ///
+    /// Returns a list of `CancelCandidate` for exchanges with `Running` status,
+    /// ordered by their position in `messages`.
+    pub fn running_exchange_candidates(&self) -> Vec<CancelCandidate> {
+        let mut exchange_num = 0usize;
+        let mut candidates = Vec::new();
+
+        for (msg_index, message) in self.messages.iter().enumerate() {
+            if let AppMessage::Exchange {
+                status: ExchangeStatus::Running,
+                request,
+                ..
+            } = message
+            {
+                exchange_num += 1;
+                let preview = truncate_preview(request, 40);
+                candidates.push(CancelCandidate {
+                    exchange_num,
+                    msg_index,
+                    request_preview: preview,
+                });
+            } else if matches!(message, AppMessage::Exchange { .. }) {
+                exchange_num += 1;
+            }
+        }
+
+        candidates
+    }
+
+    /// Cancel a running command by its message index.
+    ///
+    /// Finds the entry in `running_commands` with the matching `msg_index`,
+    /// removes it, and marks the exchange as cancelled.
+    pub fn cancel_by_msg_index(&mut self, msg_index: usize) {
+        if let Some(pos) = self
+            .running_commands
+            .iter()
+            .position(|(idx, _)| *idx == msg_index)
+        {
+            let entry = self.running_commands.remove(pos);
+            Self::cancel_entry(&mut self.messages, entry);
+        }
+    }
+
     /// Expand `[Response #N: ...]` references in text with full response content.
     ///
     /// Unknown references are left as-is.
@@ -674,6 +742,7 @@ impl App {
 
     /// Dismiss all autocomplete popups and ghost suggestion.
     fn dismiss_all_autocomplete(&mut self) {
+        self.cancel_state.dismiss();
         self.commands_state.dismiss();
         self.files_state.dismiss();
         self.history_state.dismiss();
@@ -739,7 +808,8 @@ impl App {
 
     /// Whether any autocomplete popup is currently visible.
     fn any_popup_visible(&self) -> bool {
-        self.history_state.is_visible()
+        self.cancel_state.is_visible()
+            || self.history_state.is_visible()
             || self.commands_state.is_visible()
             || self.files_state.is_visible()
             || self.responses_state.is_visible()

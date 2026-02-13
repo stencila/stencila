@@ -58,8 +58,10 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_hints(frame, app, hints_area);
 
     // --- Render autocomplete popup (floats above input) ---
-    // History popup has highest priority, then commands, then files, then responses.
-    if app.history_state.is_visible() {
+    // Cancel popup has highest priority, then history, commands, files, responses.
+    if app.cancel_state.is_visible() {
+        render_cancel_autocomplete(frame, app, input_area);
+    } else if app.history_state.is_visible() {
         render_history_autocomplete(frame, app, input_area);
     } else if app.commands_state.is_visible() {
         render_autocomplete(frame, app, input_area);
@@ -656,6 +658,33 @@ fn render_responses_autocomplete(frame: &mut Frame, app: &App, input_area: Rect)
         .collect();
 
     render_popup(frame, area, lines, Some(" Responses "));
+}
+
+/// Render the cancel picker popup floating above the input area.
+fn render_cancel_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.cancel_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let selected = app.cancel_state.selected();
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let display = format!(
+                " #{:<3} {}",
+                candidate.exchange_num, candidate.request_preview
+            );
+            if i == selected {
+                Line::from(Span::styled(display, selected_style()))
+            } else {
+                Line::from(Span::styled(display, unselected_style()))
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Cancel "));
 }
 
 /// Count the number of visual lines the text occupies, accounting for wrapping.

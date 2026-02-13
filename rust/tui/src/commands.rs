@@ -10,6 +10,9 @@ use crate::app::{App, AppMessage, AppMode};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter, EnumMessage)]
 #[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
+    #[strum(message = "Cancel a running command")]
+    Cancel,
+
     #[strum(message = "Clear messages")]
     Clear,
 
@@ -82,6 +85,7 @@ impl SlashCommand {
     /// Execute this command, mutating the app state.
     pub fn execute(self, app: &mut App, _args: &str) {
         match self {
+            Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
             Self::Exit => match app.mode {
                 AppMode::Shell => app.exit_shell_mode(),
@@ -91,6 +95,26 @@ impl SlashCommand {
             Self::History => execute_history(app),
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
+        }
+    }
+}
+
+fn execute_cancel(app: &mut App) {
+    let candidates = app.running_exchange_candidates();
+    match candidates.len() {
+        0 => {
+            app.messages.push(AppMessage::System {
+                content: "No running commands.".to_string(),
+            });
+        }
+        1 => {
+            // Single running command — cancel immediately without popup
+            let msg_index = candidates[0].msg_index;
+            app.cancel_by_msg_index(msg_index);
+        }
+        _ => {
+            // Multiple running commands — open picker popup
+            app.cancel_state.open(candidates);
         }
     }
 }
