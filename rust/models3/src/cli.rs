@@ -1,8 +1,8 @@
-use std::{env, path::PathBuf};
+use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
-use stencila_auth::{AuthOptions, AuthOverrides};
+use stencila_auth::AuthOptions;
 use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
@@ -10,9 +10,6 @@ use stencila_cli_utils::{
     stencila_format::Format,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-
-use crate::secret::get_secret;
-use stencila_auth::{claude_code, codex_cli};
 
 use crate::catalog::{self, ModelInfo};
 
@@ -138,7 +135,7 @@ impl List {
         ]);
 
         for model in &models {
-            let available = is_provider_available(&model.provider, &auth.overrides);
+            let available = catalog::is_provider_available(&model.provider, &auth.overrides);
             let id_cell = if available {
                 Cell::new(&model.id).add_attribute(Attribute::Bold)
             } else {
@@ -160,7 +157,7 @@ impl List {
         // Summary and legend
         let enabled = models
             .iter()
-            .filter(|m| is_provider_available(&m.provider, &auth.overrides))
+            .filter(|m| catalog::is_provider_available(&m.provider, &auth.overrides))
             .count();
         let total = models.len();
         if enabled < total {
@@ -179,28 +176,6 @@ impl List {
         }
 
         Ok(())
-    }
-}
-
-/// Check whether a provider's API key, OAuth credential, or equivalent is available.
-fn is_provider_available(provider: &str, overrides: &AuthOverrides) -> bool {
-    if overrides.contains_key(provider) {
-        return true;
-    }
-    match provider {
-        "openai" => {
-            get_secret("OPENAI_API_KEY").is_some() || codex_cli::load_credentials().is_some()
-        }
-        "anthropic" => {
-            get_secret("ANTHROPIC_API_KEY").is_some() || claude_code::load_credentials().is_some()
-        }
-        "gemini" => {
-            get_secret("GEMINI_API_KEY").is_some() || get_secret("GOOGLE_API_KEY").is_some()
-        }
-        "mistral" => get_secret("MISTRAL_API_KEY").is_some(),
-        "deepseek" => get_secret("DEEPSEEK_API_KEY").is_some(),
-        "ollama" => env::var("OLLAMA_BASE_URL").is_ok() || env::var("OLLAMA_HOST").is_ok(),
-        _ => false,
     }
 }
 

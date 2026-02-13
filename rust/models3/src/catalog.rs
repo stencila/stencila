@@ -2,9 +2,11 @@ use std::collections::HashSet;
 use std::sync::{LazyLock, RwLock};
 
 use serde::{Deserialize, Serialize};
+use stencila_auth::{AuthOverrides, claude_code, codex_cli};
 
 use crate::client::Client;
 use crate::error::{SdkError, SdkResult};
+use crate::secret::get_secret;
 
 /// Static model catalog loaded from embedded JSON, wrapped in `RwLock`
 /// to support runtime updates via [`merge_models`] and [`refresh`].
@@ -100,6 +102,35 @@ pub fn list_models(provider: Option<&str>) -> SdkResult<Vec<ModelInfo>> {
         Some(p) => models.iter().filter(|m| m.provider == p).cloned().collect(),
         None => models.clone(),
     })
+}
+
+/// Check whether a provider's API key, OAuth credential, or equivalent is available.
+///
+/// If the provider has an entry in `overrides`, it is considered available
+/// regardless of environment variables. Pass an empty map when there are no
+/// overrides.
+#[must_use]
+pub fn is_provider_available(provider: &str, overrides: &AuthOverrides) -> bool {
+    if overrides.contains_key(provider) {
+        return true;
+    }
+    match provider {
+        "openai" => {
+            get_secret("OPENAI_API_KEY").is_some() || codex_cli::load_credentials().is_some()
+        }
+        "anthropic" => {
+            get_secret("ANTHROPIC_API_KEY").is_some() || claude_code::load_credentials().is_some()
+        }
+        "gemini" => {
+            get_secret("GEMINI_API_KEY").is_some() || get_secret("GOOGLE_API_KEY").is_some()
+        }
+        "mistral" => get_secret("MISTRAL_API_KEY").is_some(),
+        "deepseek" => get_secret("DEEPSEEK_API_KEY").is_some(),
+        "ollama" => {
+            std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok()
+        }
+        _ => false,
+    }
 }
 
 /// Return the first (newest/best) model for a provider, optionally

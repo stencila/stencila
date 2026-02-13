@@ -452,10 +452,10 @@ impl Client {
         let catalog = crate::catalog::read_catalog()?;
         let mut matches: Vec<String> = Vec::new();
         for info in &*catalog {
-            if info.id == model || info.aliases.iter().any(|alias| alias == model) {
-                if !matches.contains(&info.provider) {
-                    matches.push(info.provider.clone());
-                }
+            if (info.id == model || info.aliases.iter().any(|alias| alias == model))
+                && !matches.contains(&info.provider)
+            {
+                matches.push(info.provider.clone());
             }
         }
         drop(catalog);

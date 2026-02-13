@@ -11,6 +11,7 @@
     "input_cost_per_million": 5.0,
     "output_cost_per_million": 25.0,
     "aliases": [
+      "claude",
       "opus",
       "claude-opus",
       "opus-4.6",
