@@ -66,6 +66,7 @@ pub enum ExchangeStatus {
     Running,
     Succeeded,
     Failed,
+    Cancelled,
 }
 
 /// A message displayed in the messages area.
@@ -300,13 +301,7 @@ impl App {
         self.selected_model = Some((candidate.provider.clone(), candidate.model_id.clone()));
         for (idx, exchange) in self.running_agent_exchanges.drain(..) {
             exchange.cancel();
-            Self::update_exchange_at(
-                &mut self.messages,
-                idx,
-                ExchangeStatus::Failed,
-                Some("[cancelled: model changed]".to_string()),
-                None,
-            );
+            Self::mark_exchange_cancelled(&mut self.messages, idx);
         }
         self.agent = None;
         self.input.clear();
@@ -674,13 +669,7 @@ impl App {
         {
             let (idx, exchange) = self.running_agent_exchanges.remove(pos);
             exchange.cancel();
-            Self::update_exchange_at(
-                &mut self.messages,
-                idx,
-                ExchangeStatus::Failed,
-                Some("[cancelled]".to_string()),
-                None,
-            );
+            Self::mark_exchange_cancelled(&mut self.messages, idx);
         }
     }
 
@@ -798,13 +787,7 @@ impl App {
             (Some(c), Some(a)) if a > c => {
                 if let Some((idx, exchange)) = self.running_agent_exchanges.pop() {
                     exchange.cancel();
-                    Self::update_exchange_at(
-                        &mut self.messages,
-                        idx,
-                        ExchangeStatus::Failed,
-                        Some("[cancelled]".to_string()),
-                        None,
-                    );
+                    Self::mark_exchange_cancelled(&mut self.messages, idx);
                 }
             }
             (Some(_), _) => {
@@ -815,13 +798,7 @@ impl App {
             (None, Some(_)) => {
                 if let Some((idx, exchange)) = self.running_agent_exchanges.pop() {
                     exchange.cancel();
-                    Self::update_exchange_at(
-                        &mut self.messages,
-                        idx,
-                        ExchangeStatus::Failed,
-                        Some("[cancelled]".to_string()),
-                        None,
-                    );
+                    Self::mark_exchange_cancelled(&mut self.messages, idx);
                 }
             }
             (None, None) => {}
@@ -835,17 +812,11 @@ impl App {
         }
         for (idx, exchange) in self.running_agent_exchanges.drain(..) {
             exchange.cancel();
-            Self::update_exchange_at(
-                &mut self.messages,
-                idx,
-                ExchangeStatus::Failed,
-                Some("[cancelled]".to_string()),
-                None,
-            );
+            Self::mark_exchange_cancelled(&mut self.messages, idx);
         }
     }
 
-    /// Cancel a single running command and mark its exchange as failed.
+    /// Cancel a single running command and mark its exchange as cancelled.
     fn cancel_entry(
         messages: &mut [AppMessage],
         (msg_index, running): (usize, RunningShellCommand),
@@ -854,7 +825,7 @@ impl App {
         Self::update_exchange_at(
             messages,
             msg_index,
-            ExchangeStatus::Failed,
+            ExchangeStatus::Cancelled,
             Some("[cancelled]".to_string()),
             Some(-1),
         );
@@ -883,6 +854,13 @@ impl App {
             *resp = response;
             *response_segments = None;
             *ec = exit_code;
+        }
+    }
+
+    /// Mark the exchange at `msg_index` as cancelled without replacing its response.
+    fn mark_exchange_cancelled(messages: &mut [AppMessage], msg_index: usize) {
+        if let Some(AppMessage::Exchange { status, .. }) = messages.get_mut(msg_index) {
+            *status = ExchangeStatus::Cancelled;
         }
     }
 

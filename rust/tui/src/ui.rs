@@ -318,6 +318,7 @@ fn render_exchange_lines(
     let base_color = match status {
         ExchangeStatus::Running | ExchangeStatus::Succeeded => kind.color(),
         ExchangeStatus::Failed => Color::Red,
+        ExchangeStatus::Cancelled => Color::DarkGray,
     };
 
     // Running exchanges pulsate between normal and dim of the same color
@@ -377,6 +378,21 @@ fn render_exchange_lines(
         render_response_segments(lines, segments, base_color, annotation_tick, content_width);
     } else if let Some(resp) = response {
         render_response_text(lines, resp, base_color, content_width);
+    }
+
+    // Cancelled indicator appended after any existing response
+    if status == ExchangeStatus::Cancelled {
+        let dim_style = Style::new().fg(Color::DarkGray).add_modifier(Modifier::DIM);
+        lines.push(Line::from(vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, dim_style),
+        ]));
+        lines.push(Line::from(vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, dim_style),
+            Span::raw(" "),
+            Span::styled("\u{2298} Cancelled", dim_style),
+        ]));
     }
 
     // Exit code (non-zero) for shell commands

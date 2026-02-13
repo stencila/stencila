@@ -307,16 +307,8 @@ async fn agent_task(
                     g.error = Some(e.to_string());
                 }
 
-                // If cancelled, mark as cancelled
-                if cancelled.load(Ordering::Acquire) {
-                    if let Ok(mut g) = progress.lock() {
-                        if g.segments.is_empty() {
-                            g.segments
-                                .push(ResponseSegment::Text("[cancelled]".to_string()));
-                        }
-                        g.is_complete = true;
-                    }
-                } else if let Ok(mut g) = progress.lock() {
+                // Mark as complete (cancelled or not)
+                if let Ok(mut g) = progress.lock() {
                     g.is_complete = true;
                 }
 
