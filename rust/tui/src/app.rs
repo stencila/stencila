@@ -21,6 +21,8 @@ pub enum AppMode {
 /// A message displayed in the messages area.
 #[derive(Debug, Clone)]
 pub enum AppMessage {
+    /// The initial welcome message.
+    Welcome,
     /// A message from the user.
     User { content: String },
     /// A system/informational message.
@@ -83,13 +85,10 @@ pub struct App {
 impl App {
     /// Create a new App with a welcome banner.
     pub fn new() -> Self {
-        let version = stencila_version::STENCILA_VERSION;
-        let welcome = format!("Stencila {version} — Ctrl+C to quit, /help for commands");
-
         Self {
             should_quit: false,
             mode: AppMode::default(),
-            messages: vec![AppMessage::System { content: welcome }],
+            messages: vec![AppMessage::Welcome],
             input: InputState::default(),
             input_history: InputHistory::new(),
             commands_state: CommandsState::new(),
@@ -604,9 +603,7 @@ mod tests {
     fn welcome_message() {
         let app = App::new();
         assert_eq!(app.messages.len(), 1);
-        assert!(
-            matches!(&app.messages[0], AppMessage::System { content } if content.contains("Stencila"))
-        );
+        assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[test]

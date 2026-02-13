@@ -75,6 +75,38 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
         }
 
         match message {
+            AppMessage::Welcome => {
+                let version = stencila_version::STENCILA_VERSION;
+                let green = Color::Rgb(102, 255, 102);
+                let teal = Color::Rgb(15, 104, 96);
+                let blue = Color::Rgb(37, 104, 239);
+                let cwd = std::env::current_dir()
+                    .ok()
+                    .map(|p| p.display().to_string())
+                    .unwrap_or_default();
+
+                lines.push(Line::raw(""));
+                // Line 1: ███████  Stencila v{version}
+                lines.push(Line::from(vec![
+                    Span::styled("███████", Style::new().fg(green)),
+                    Span::raw("  "),
+                    Span::styled("Stencila ", Style::new().add_modifier(Modifier::BOLD)),
+                    Span::styled(format!("v{version}"), dim()),
+                ]));
+                // Line 2: ██  ███
+                lines.push(Line::from(vec![
+                    Span::styled("██", Style::new().fg(green)),
+                    Span::raw("  "),
+                    Span::styled("█", Style::new().fg(teal)),
+                    Span::styled("██", Style::new().fg(blue)),
+                ]));
+                // Line 3: ███████  <cwd>
+                lines.push(Line::from(vec![
+                    Span::styled("███████", Style::new().fg(green)),
+                    Span::raw("  "),
+                    Span::styled(cwd, dim()),
+                ]));
+            }
             AppMessage::User { content } => {
                 lines.push(Line::from(vec![Span::styled(
                     "You: ",
