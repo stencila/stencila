@@ -6,34 +6,18 @@ An implementation of the [Coding Agent Loop Specification](https://github.com/st
 
 ### Run a session and consume events
 
-Create a profile, execution environment, and models3 client, then submit user
-input and drain the resulting events:
+Create a session with `create_session`, submit user input, and drain the
+resulting events:
 
 ```rust,no_run
-use std::sync::Arc;
-
-use stencila_agents::{
-    execution::LocalExecutionEnvironment,
-    profiles::AnthropicProfile,
-    prompts,
-    session::{Models3Client, Session},
-    types::SessionConfig,
-};
+use stencila_agents::convenience::create_session;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut profile = Box::new(AnthropicProfile::new("claude-sonnet-4-5-20250929", 600_000)?);
-    let env = Arc::new(LocalExecutionEnvironment::new("."));
-    let client = Arc::new(Models3Client::new(
-        stencila_models3::client::Client::from_env()?,
-    ));
-    let config = SessionConfig::default();
-    let (system_prompt, mcp_context) =
-        prompts::build_system_prompt(&mut *profile, &*env, &config).await?;
+    // Create an agent session
+    let (mut session, mut receiver) = create_session(None, None).await?;
 
-    let (mut session, mut receiver) =
-        Session::new(profile, env, client, config, system_prompt, 0, mcp_context);
-
+    // Submit a request
     session.submit("Create hello.py that prints 'Hello World'").await?;
     session.close();
 
@@ -41,6 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(event) = receiver.recv().await {
         println!("{:?}: {:?}", event.kind, event.data);
     }
+
     Ok(())
 }
 ```
@@ -133,6 +118,14 @@ The spec says Gemini provider options should configure safety settings and groun
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
+
+### Abort permanently closes the session
+
+`AbortController::abort()` transitions the session to `Closed` state, making
+future `submit()` calls return `SessionClosed`. A "soft abort" that stops the
+current exchange but returns to `Idle` state would enable proper per-exchange
+cancellation in multi-turn sessions (e.g. TUI chat). TODO: add a soft-abort
+mechanism that cancels the current processing without closing the session.
 
 ### `TOOL_CALL_OUTPUT_DELTA` emission (`§2.9`)
 

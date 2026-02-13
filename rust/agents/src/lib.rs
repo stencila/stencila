@@ -74,3 +74,6 @@ pub mod subagents;
 
 /// Agent session and core agentic loop (spec 2.1, 2.5-2.8, 2.10, Appendix B).
 pub mod session;
+
+/// High-level session factory for convenient setup.
+pub mod convenience;

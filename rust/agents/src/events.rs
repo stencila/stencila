@@ -224,4 +224,13 @@ impl EventReceiver {
     pub async fn recv(&mut self) -> Option<SessionEvent> {
         self.rx.recv().await
     }
+
+    /// Try to receive a buffered event without blocking.
+    ///
+    /// Returns `Ok(event)` if one is available, `Err(TryRecvError::Empty)`
+    /// if the channel is empty, or `Err(TryRecvError::Disconnected)` if
+    /// the emitter has been dropped and no events remain.
+    pub fn try_recv(&mut self) -> Result<SessionEvent, tokio::sync::mpsc::error::TryRecvError> {
+        self.rx.try_recv()
+    }
 }
