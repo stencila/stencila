@@ -237,6 +237,23 @@ impl InputHistory {
         self.entries.iter().map(|e| e.text.as_str()).collect()
     }
 
+    /// Find the most recent history entry matching the given prefix and mode.
+    ///
+    /// Scans entries in reverse (newest first), filtered by mode. Returns the
+    /// full text of the first entry that starts with `prefix` but isn't an exact
+    /// match. Returns `None` for an empty prefix or when nothing matches.
+    pub fn prefix_match(&self, prefix: &str, mode: AppMode) -> Option<&str> {
+        if prefix.is_empty() {
+            return None;
+        }
+        self.entries
+            .iter()
+            .rev()
+            .filter(|e| e.mode == mode)
+            .find(|e| e.text.starts_with(prefix) && e.text != prefix)
+            .map(|e| e.text.as_str())
+    }
+
     /// Get entries filtered by mode, newest first, as `(preview, full_text)` tuples.
     ///
     /// The preview is the first line of the entry, truncated with " ..." if multiline.
@@ -546,5 +563,59 @@ mod tests {
         let history = InputHistory::new();
         let entries = history.entries_for_mode(AppMode::Chat, 10);
         assert!(entries.is_empty());
+    }
+
+    #[test]
+    fn prefix_match_returns_newest() {
+        let mut history = InputHistory::new();
+        history.push_tagged("cargo build".to_string(), AppMode::Shell);
+        history.push_tagged("cargo test".to_string(), AppMode::Shell);
+        history.push_tagged("cargo test --release".to_string(), AppMode::Shell);
+
+        // Should match newest entry starting with "cargo t"
+        assert_eq!(
+            history.prefix_match("cargo t", AppMode::Shell),
+            Some("cargo test --release")
+        );
+    }
+
+    #[test]
+    fn prefix_match_filters_by_mode() {
+        let mut history = InputHistory::new();
+        history.push_tagged("cargo build".to_string(), AppMode::Shell);
+        history.push_tagged("cargo build is great".to_string(), AppMode::Chat);
+
+        // Shell mode should find the shell entry
+        assert_eq!(
+            history.prefix_match("cargo", AppMode::Shell),
+            Some("cargo build")
+        );
+        // Chat mode should find the chat entry
+        assert_eq!(
+            history.prefix_match("cargo", AppMode::Chat),
+            Some("cargo build is great")
+        );
+    }
+
+    #[test]
+    fn prefix_match_none_for_empty_prefix() {
+        let mut history = InputHistory::new();
+        history.push_tagged("hello".to_string(), AppMode::Chat);
+        assert_eq!(history.prefix_match("", AppMode::Chat), None);
+    }
+
+    #[test]
+    fn prefix_match_none_for_exact_match_only() {
+        let mut history = InputHistory::new();
+        history.push_tagged("hello".to_string(), AppMode::Chat);
+        // Exact match is not returned
+        assert_eq!(history.prefix_match("hello", AppMode::Chat), None);
+    }
+
+    #[test]
+    fn prefix_match_none_when_nothing_matches() {
+        let mut history = InputHistory::new();
+        history.push_tagged("hello".to_string(), AppMode::Chat);
+        assert_eq!(history.prefix_match("xyz", AppMode::Chat), None);
     }
 }

@@ -59,6 +59,13 @@ pub struct App {
     /// History autocomplete popup state.
     pub history_state: HistoryState,
 
+    /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
+    /// Shown as dim inline text for fish-shell-style history completion.
+    pub ghost_suggestion: Option<String>,
+    /// Whether the ghost suggestion was truncated from a multiline history entry.
+    /// When true, the UI appends a dim "…" indicator after the ghost text.
+    pub ghost_is_truncated: bool,
+
     /// A shell command currently running in the background.
     pub running_command: Option<RunningCommand>,
 
@@ -85,6 +92,8 @@ impl App {
             commands_state: CommandsState::new(),
             files_state: FilesState::new(),
             history_state: HistoryState::new(),
+            ghost_suggestion: None,
+            ghost_is_truncated: false,
             running_command: None,
             scroll_offset: 0,
             total_message_lines: 0,
@@ -120,24 +129,19 @@ impl App {
             return;
         }
 
-        // Priority 1: history autocomplete intercepts navigation keys
-        if self.history_state.is_visible() && self.handle_history_autocomplete(key) {
-            return;
+        let consumed = (self.history_state.is_visible() && self.handle_history_autocomplete(key))
+            || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
+            || (self.files_state.is_visible() && self.handle_files_autocomplete(key));
+
+        if !consumed {
+            self.handle_normal_key(key);
+            // Only refresh autocomplete after normal key handling — autocomplete
+            // handlers manage their own state (e.g. Esc dismisses without re-trigger).
+            self.refresh_autocomplete();
         }
 
-        // Priority 2: commands autocomplete intercepts navigation keys
-        if self.commands_state.is_visible() && self.handle_commands_autocomplete(key) {
-            return;
-        }
-
-        // Priority 3: files autocomplete intercepts navigation keys
-        if self.files_state.is_visible() && self.handle_files_autocomplete(key) {
-            return;
-        }
-
-        self.handle_normal_key(key);
-
-        self.refresh_autocomplete();
+        // Ghost suggestion always refreshes (input/cursor may have changed in either path).
+        self.refresh_ghost_suggestion();
     }
 
     /// Handle a key event when the history autocomplete popup is visible.
@@ -256,10 +260,23 @@ impl App {
                 self.submit_input();
             }
 
+            (KeyModifiers::NONE, KeyCode::Tab) => {
+                if self.ghost_suggestion.is_some() {
+                    self.accept_ghost_word();
+                }
+            }
+
             (KeyModifiers::CONTROL, KeyCode::Left) => self.input.move_word_left(),
             (KeyModifiers::CONTROL, KeyCode::Right) => self.input.move_word_right(),
             (KeyModifiers::NONE, KeyCode::Left) => self.input.move_left(),
-            (KeyModifiers::NONE, KeyCode::Right) => self.input.move_right(),
+            (KeyModifiers::NONE, KeyCode::Right) => {
+                if self.input.cursor() == self.input.text().len() && self.ghost_suggestion.is_some()
+                {
+                    self.accept_ghost_all();
+                } else {
+                    self.input.move_right();
+                }
+            }
             (KeyModifiers::NONE, KeyCode::Home) => self.input.move_home(),
             (KeyModifiers::NONE, KeyCode::End) => self.input.move_end(),
 
@@ -304,6 +321,7 @@ impl App {
         self.input.insert_str(text);
         self.scroll_offset = 0;
         self.refresh_autocomplete();
+        self.refresh_ghost_suggestion();
     }
 
     /// Submit the current input as a user message or slash command.
@@ -401,11 +419,13 @@ impl App {
         }
     }
 
-    /// Dismiss all autocomplete popups.
+    /// Dismiss all autocomplete popups and ghost suggestion.
     fn dismiss_all_autocomplete(&mut self) {
         self.commands_state.dismiss();
         self.files_state.dismiss();
         self.history_state.dismiss();
+        self.ghost_suggestion = None;
+        self.ghost_is_truncated = false;
     }
 
     /// Re-filter all autocomplete states based on current input.
@@ -429,6 +449,83 @@ impl App {
         if let Some(entry) = self.input_history.navigate_down_filtered(self.mode) {
             self.input.set_text(entry);
         }
+    }
+
+    /// Whether any autocomplete popup is currently visible.
+    fn any_popup_visible(&self) -> bool {
+        self.history_state.is_visible()
+            || self.commands_state.is_visible()
+            || self.files_state.is_visible()
+    }
+
+    /// Recompute the ghost suggestion based on current input state.
+    ///
+    /// Shows ghost text when: input is non-empty, cursor is at end,
+    /// input is single-line, and no autocomplete popup is visible.
+    fn refresh_ghost_suggestion(&mut self) {
+        let text = self.input.text();
+        let at_end = self.input.cursor() == text.len();
+
+        if text.is_empty() || !at_end || !self.input.is_single_line() || self.any_popup_visible() {
+            self.ghost_suggestion = None;
+            self.ghost_is_truncated = false;
+            return;
+        }
+
+        let result = self
+            .input_history
+            .prefix_match(text, self.mode)
+            .and_then(|matched| {
+                let suffix = &matched[text.len()..];
+                match suffix.find('\n') {
+                    // Suffix starts with newline — first line is exact match,
+                    // nothing useful to show as ghost text.
+                    Some(0) => None,
+                    // Truncate at first newline, flag as truncated for UI "…" indicator.
+                    Some(pos) => Some((suffix[..pos].to_string(), true)),
+                    // Single-line match — use full suffix.
+                    None => Some((suffix.to_string(), false)),
+                }
+            });
+
+        if let Some((suffix, truncated)) = result {
+            self.ghost_suggestion = Some(suffix);
+            self.ghost_is_truncated = truncated;
+        } else {
+            self.ghost_suggestion = None;
+            self.ghost_is_truncated = false;
+        }
+    }
+
+    /// Accept the next whitespace-delimited word from the ghost suggestion.
+    fn accept_ghost_word(&mut self) {
+        let Some(ghost) = self.ghost_suggestion.take() else {
+            return;
+        };
+
+        // Find the end of the next word in the ghost suffix.
+        // Skip leading whitespace, then find the next whitespace boundary.
+        let trimmed_start = ghost.len() - ghost.trim_start().len();
+        let word_end = if trimmed_start >= ghost.len() {
+            ghost.len()
+        } else {
+            ghost[trimmed_start..]
+                .find(char::is_whitespace)
+                .map_or(ghost.len(), |pos| trimmed_start + pos)
+        };
+
+        let word = &ghost[..word_end];
+        self.input.insert_str(word);
+        // refresh_ghost_suggestion will be called by handle_key after this
+    }
+
+    /// Accept the entire ghost suggestion.
+    fn accept_ghost_all(&mut self) {
+        let Some(ghost) = self.ghost_suggestion.take() else {
+            return;
+        };
+        self.ghost_is_truncated = false;
+        self.input.insert_str(&ghost);
     }
 
     /// Scroll up by the given number of lines.
@@ -911,5 +1008,179 @@ mod tests {
             &app.messages[initial_count + 1],
             AppMessage::System { content } if content.contains("Exiting shell mode")
         ));
+    }
+
+    // --- Ghost suggestion tests ---
+
+    /// Helper: set up an app with history entries and type a prefix.
+    fn app_with_history_and_prefix(entries: &[&str], prefix: &str) -> App {
+        let mut app = App::new();
+        for &entry in entries {
+            app.input_history
+                .push_tagged(entry.to_string(), AppMode::Chat);
+        }
+        for c in prefix.chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app
+    }
+
+    #[test]
+    fn ghost_appears_on_prefix_match() {
+        let app = app_with_history_and_prefix(&["hello world"], "hel");
+        assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
+    }
+
+    #[test]
+    fn ghost_clears_when_input_diverges() {
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        assert!(app.ghost_suggestion.is_some());
+
+        // Type 'x' — "helx" no longer matches "hello world"
+        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn ghost_clears_when_cursor_not_at_end() {
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        assert!(app.ghost_suggestion.is_some());
+
+        // Move cursor left — no longer at end
+        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE));
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn ghost_clears_when_multiline() {
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        assert!(app.ghost_suggestion.is_some());
+
+        // Insert newline — input becomes multiline
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT));
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn ghost_clears_when_popup_visible() {
+        let mut app = App::new();
+        app.input_history
+            .push_tagged("/help me".to_string(), AppMode::Chat);
+
+        // Type "/" — triggers command autocomplete popup
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        assert!(app.commands_state.is_visible());
+        // Ghost should be None because popup is visible
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn ghost_not_shown_for_empty_input() {
+        let mut app = App::new();
+        app.input_history
+            .push_tagged("hello".to_string(), AppMode::Chat);
+        // No typing — ghost should not appear
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn ghost_not_shown_for_exact_match() {
+        let app = app_with_history_and_prefix(&["hello"], "hello");
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn tab_accepts_ghost_word() {
+        let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo");
+        assert_eq!(app.ghost_suggestion.as_deref(), Some(" test --release"));
+
+        // Tab accepts " test"
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        assert_eq!(app.input.text(), "cargo test");
+        // Ghost should refresh to " --release"
+        assert_eq!(app.ghost_suggestion.as_deref(), Some(" --release"));
+    }
+
+    #[test]
+    fn multiple_tabs_accept_word_by_word() {
+        let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo");
+
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        assert_eq!(app.input.text(), "cargo test");
+
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        assert_eq!(app.input.text(), "cargo test --release");
+
+        // No more ghost text
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn right_at_end_accepts_all_ghost() {
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        assert!(app.ghost_suggestion.is_some());
+
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
+        assert_eq!(app.input.text(), "hello world");
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn right_in_middle_moves_cursor() {
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        // Move cursor left first
+        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE));
+        assert!(app.ghost_suggestion.is_none());
+
+        // Right should move cursor, not accept ghost (there is none)
+        let cursor_before = app.input.cursor();
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
+        assert_eq!(app.input.cursor(), cursor_before + 1);
+        assert_eq!(app.input.text(), "hel");
+    }
+
+    #[test]
+    fn ghost_multiline_history_shows_first_line_suffix() {
+        let mut app = App::new();
+        app.input_history
+            .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
+
+        for c in "hel".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        // Ghost contains only insertable text; ellipsis is a UI-only indicator
+        assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
+        assert!(app.ghost_is_truncated);
+    }
+
+    #[test]
+    fn ghost_multiline_exact_first_line_shows_nothing() {
+        let mut app = App::new();
+        // History entry where the first line is an exact match for the typed input
+        app.input_history
+            .push_tagged("foo\nbar".to_string(), AppMode::Chat);
+
+        for c in "foo".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        // No useful ghost to show — suffix starts with newline
+        assert!(app.ghost_suggestion.is_none());
+    }
+
+    #[test]
+    fn accept_all_ghost_multiline() {
+        let mut app = App::new();
+        app.input_history
+            .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
+
+        for c in "hel".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
+
+        // Right accepts all — inserts exactly the ghost text, no ellipsis
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
+        assert_eq!(app.input.text(), "hello world");
+        assert!(!app.ghost_is_truncated);
     }
 }

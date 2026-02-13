@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use ratatui::{
     Frame,
     layout::{Alignment, Constraint, Layout, Position, Rect},
@@ -18,10 +20,14 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     let area = frame.area();
 
     // Calculate input area height based on visual lines (accounting for wrapping).
-    // Use a conservative estimate of inner width (total - 2 for borders).
+    // Include ghost text suffix when computing height so it doesn't clip.
     let inner_width = area.width.saturating_sub(2).max(1) as usize;
+    let text_for_height: Cow<str> = match &app.ghost_suggestion {
+        Some(ghost) => Cow::Owned(format!("{}{ghost}", app.input.text())),
+        None => Cow::Borrowed(app.input.text()),
+    };
     #[allow(clippy::cast_possible_truncation)]
-    let visual_lines = visual_line_count(app.input.text(), inner_width) as u16;
+    let visual_lines = visual_line_count(&text_for_height, inner_width) as u16;
     let max_input_height = (area.height / 3).max(3);
     // +2 for the border
     let input_height = (visual_lines + 2).clamp(3, max_input_height);
@@ -149,9 +155,16 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
 #[rustfmt::skip]
 fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
     let is_running = app.running_command.is_some();
+    let has_ghost = app.ghost_suggestion.is_some();
 
     let hints = if is_running {
         Line::from(vec![Span::raw("ctrl+c "), Span::styled("cancel", dim())])
+    } else if has_ghost {
+        Line::from(vec![
+            Span::raw("tab "), Span::styled("word", dim()),
+            Span::raw("  \u{2192} "), Span::styled("accept", dim()),
+            Span::raw("  alt+\u{21b5} "), Span::styled("newline", dim()),
+        ])
     } else {
         match app.mode {
             AppMode::Chat => Line::from(vec![
@@ -181,7 +194,21 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
         (AppMode::Chat, _) => (Color::Blue, " > "),
     };
 
-    let paragraph = Paragraph::new(input_text)
+    let dim_style = Style::default().add_modifier(Modifier::DIM);
+    let content = if let Some(ghost) = &app.ghost_suggestion {
+        let mut spans = vec![
+            Span::raw(input_text.to_string()),
+            Span::styled(ghost.as_str(), dim_style),
+        ];
+        if app.ghost_is_truncated {
+            spans.push(Span::styled("\u{2026}", dim_style));
+        }
+        Line::from(spans)
+    } else {
+        Line::from(input_text.to_string())
+    };
+
+    let paragraph = Paragraph::new(content)
         .block(
             Block::default()
                 .borders(Borders::ALL)
@@ -193,6 +220,7 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     frame.render_widget(paragraph, area);
 
     // Show inline send/run hint — hide when running or when input text gets close
+    // to the edge. The hint renders as an overlay on top of any ghost text.
     if !is_running {
         let hint_text = match app.mode {
             AppMode::Chat => " send",
