@@ -573,15 +573,27 @@ impl Session {
             let stream_result: Option<Result<Response, SdkError>> = {
                 let events_ref = &self.events;
                 let partial_ref = &partial_text;
-                let on_event = |event: StreamEvent| {
-                    if event.event_type == StreamEventType::TextDelta
-                        && let Some(ref delta) = event.delta
-                    {
-                        if let Ok(mut buf) = partial_ref.lock() {
-                            buf.push_str(delta);
+                let on_event = |event: StreamEvent| match event.event_type {
+                    StreamEventType::TextDelta => {
+                        if let Some(ref delta) = event.delta {
+                            if let Ok(mut buf) = partial_ref.lock() {
+                                buf.push_str(delta);
+                            }
+                            events_ref.emit_assistant_text_delta(delta);
                         }
-                        events_ref.emit_assistant_text_delta(delta);
                     }
+                    StreamEventType::ReasoningStart => {
+                        events_ref.emit_assistant_reasoning_start();
+                    }
+                    StreamEventType::ReasoningDelta => {
+                        if let Some(ref delta) = event.reasoning_delta {
+                            events_ref.emit_assistant_reasoning_delta(delta);
+                        }
+                    }
+                    StreamEventType::ReasoningEnd => {
+                        events_ref.emit_assistant_reasoning_end();
+                    }
+                    _ => {}
                 };
 
                 let client = Arc::clone(&self.client);

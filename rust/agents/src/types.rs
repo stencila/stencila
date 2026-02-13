@@ -434,6 +434,12 @@ pub enum EventKind {
     AssistantTextDelta,
     /// Model finished text (includes full text).
     AssistantTextEnd,
+    /// Model began reasoning/thinking.
+    AssistantReasoningStart,
+    /// Incremental reasoning/thinking token.
+    AssistantReasoningDelta,
+    /// Model finished reasoning/thinking.
+    AssistantReasoningEnd,
     /// Tool execution began.
     ToolCallStart,
     /// Incremental tool output (for streaming tools).

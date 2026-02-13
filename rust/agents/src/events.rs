@@ -129,6 +129,23 @@ impl EventEmitter {
         self.emit(EventKind::AssistantTextEnd, data);
     }
 
+    /// Emit an `ASSISTANT_REASONING_START` event.
+    pub fn emit_assistant_reasoning_start(&self) {
+        self.emit(EventKind::AssistantReasoningStart, serde_json::Map::new());
+    }
+
+    /// Emit an `ASSISTANT_REASONING_DELTA` event with incremental thinking text.
+    pub fn emit_assistant_reasoning_delta(&self, delta: impl Into<String>) {
+        let mut data = serde_json::Map::new();
+        data.insert("delta".into(), Value::String(delta.into()));
+        self.emit(EventKind::AssistantReasoningDelta, data);
+    }
+
+    /// Emit an `ASSISTANT_REASONING_END` event.
+    pub fn emit_assistant_reasoning_end(&self) {
+        self.emit(EventKind::AssistantReasoningEnd, serde_json::Map::new());
+    }
+
     /// Emit a `TOOL_CALL_START` event with tool arguments for observability.
     pub fn emit_tool_call_start(
         &self,
