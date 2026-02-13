@@ -105,6 +105,22 @@ pub fn translate_request(
         apply_provider_options(options, &mut body, &mut headers, &mut auto_cache)?;
     }
 
+    // Anthropic requires max_tokens > thinking.budget_tokens when extended
+    // thinking is enabled. Auto-adjust if the current value is too low.
+    if let Some(budget) = body
+        .get("thinking")
+        .and_then(|t| t.get("budget_tokens"))
+        .and_then(Value::as_u64)
+    {
+        let current_max = body
+            .get("max_tokens")
+            .and_then(Value::as_u64)
+            .unwrap_or(0);
+        if current_max <= budget {
+            body.insert("max_tokens".to_string(), json!(budget + max_tokens));
+        }
+    }
+
     // Cache control injection (when auto_cache is enabled)
     if auto_cache {
         inject_cache_control(&mut body);

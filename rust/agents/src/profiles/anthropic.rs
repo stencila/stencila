@@ -150,10 +150,18 @@ impl ProviderProfile for AnthropicProfile {
         Some(HashMap::from([(
             "anthropic".into(),
             serde_json::json!({
-                // Enable extended thinking (needed for reasoning models) and
-                // prompt caching (reduces cost for long system prompts / tools).
+                // Enable extended thinking so reasoning models return their
+                // chain-of-thought. The budget_tokens cap limits how many
+                // tokens the model may spend on thinking per turn.
+                "thinking": {
+                    "type": "enabled",
+                    "budget_tokens": 10240
+                },
+                // Prompt caching reduces cost for long system prompts / tools.
+                // Interleaved thinking is needed for thinking + tool-use turns.
                 "beta_headers": [
-                    "prompt-caching-2024-07-31"
+                    "prompt-caching-2024-07-31",
+                    "interleaved-thinking-2025-05-14"
                 ],
                 // Auto-inject cache_control markers on system prompts, tool
                 // definitions, and conversation prefix for prompt caching.
