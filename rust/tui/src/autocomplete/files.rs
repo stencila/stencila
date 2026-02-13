@@ -269,21 +269,22 @@ impl FilesState {
     /// For directories: inserts the directory path and sets `refresh = true`
     /// so the caller can re-trigger `update()` for drill-down.
     /// For files: inserts the file path with a trailing space.
-    pub fn accept_tab(&mut self) -> Option<FileAcceptResult> {
+    pub fn accept_tab(&mut self, use_at_prefix: bool) -> Option<FileAcceptResult> {
         if !self.visible || self.candidates.is_empty() {
             return None;
         }
 
         let candidate = &self.candidates[self.selected];
         let is_dir = candidate.is_dir;
+        let at = if use_at_prefix { "@" } else { "" };
 
         let text = match self.mode {
             FileMode::AtSearch => {
                 if is_dir {
                     // Drill-down: @dir_path/ (no trailing space)
-                    format!("@{}", candidate.path)
+                    format!("{at}{}", candidate.path)
                 } else {
-                    format!("@{} ", candidate.path)
+                    format!("{at}{} ", candidate.path)
                 }
             }
             FileMode::PathCompletion => {
@@ -291,9 +292,12 @@ impl FilesState {
                 if is_dir {
                     // Drill-down: keep raw path so path-completion continues
                     full
-                } else {
-                    // Final: add @ prefix so all file refs use the same marker
+                } else if use_at_prefix {
+                    // Chat: add @ prefix so all file refs use the same marker
                     format!("@{full} ")
+                } else {
+                    // Shell: keep the raw path
+                    format!("{full} ")
                 }
             }
         };
@@ -311,18 +315,18 @@ impl FilesState {
     /// Accept the selected candidate via Enter.
     ///
     /// Always inserts the path with a trailing space and dismisses.
-    pub fn accept_enter(&mut self) -> Option<FileAcceptResult> {
+    pub fn accept_enter(&mut self, use_at_prefix: bool) -> Option<FileAcceptResult> {
         if !self.visible || self.candidates.is_empty() {
             return None;
         }
 
         let candidate = &self.candidates[self.selected];
+        let at = if use_at_prefix { "@" } else { "" };
 
         let text = match self.mode {
-            FileMode::AtSearch => format!("@{} ", candidate.path),
+            FileMode::AtSearch => format!("{at}{} ", candidate.path),
             FileMode::PathCompletion => {
-                // Final: add @ prefix so all file refs use the same marker
-                format!("@{}{} ", self.path_dir_prefix, candidate.path)
+                format!("{at}{}{} ", self.path_dir_prefix, candidate.path)
             }
         };
 
@@ -842,7 +846,7 @@ mod tests {
             is_dir: false,
         }];
 
-        let result = state.accept_tab().expect("should accept");
+        let result = state.accept_tab(true).expect("should accept");
         assert_eq!(result.text, "@src/main.rs ");
         assert_eq!(result.range, 0..4);
         assert!(!result.refresh);
@@ -861,7 +865,7 @@ mod tests {
             is_dir: true,
         }];
 
-        let result = state.accept_tab().expect("should accept");
+        let result = state.accept_tab(true).expect("should accept");
         assert_eq!(result.text, "@src/");
         assert!(result.refresh);
     }
@@ -879,7 +883,7 @@ mod tests {
             is_dir: false,
         }];
 
-        let result = state.accept_tab().expect("should accept");
+        let result = state.accept_tab(true).expect("should accept");
         assert_eq!(result.text, "@./src/main.rs ");
         assert!(!result.refresh);
     }
@@ -897,9 +901,44 @@ mod tests {
             is_dir: true,
         }];
 
-        let result = state.accept_tab().expect("should accept");
+        let result = state.accept_tab(true).expect("should accept");
         assert_eq!(result.text, "./src/");
         assert!(result.refresh);
+    }
+
+    // --- accept_tab shell mode (no @ prefix) ---
+
+    #[test]
+    fn tab_accept_file_at_mode_shell() {
+        let mut state = FilesState::new();
+        state.visible = true;
+        state.mode = FileMode::AtSearch;
+        state.token_range = 0..4;
+        state.candidates = vec![FileCandidate {
+            display: "main.rs".to_string(),
+            path: "src/main.rs".to_string(),
+            is_dir: false,
+        }];
+
+        let result = state.accept_tab(false).expect("should accept");
+        assert_eq!(result.text, "src/main.rs ");
+    }
+
+    #[test]
+    fn tab_accept_file_path_mode_shell() {
+        let mut state = FilesState::new();
+        state.visible = true;
+        state.mode = FileMode::PathCompletion;
+        state.token_range = 0..6;
+        state.path_dir_prefix = "./src/".to_string();
+        state.candidates = vec![FileCandidate {
+            display: "main.rs".to_string(),
+            path: "main.rs".to_string(),
+            is_dir: false,
+        }];
+
+        let result = state.accept_tab(false).expect("should accept");
+        assert_eq!(result.text, "./src/main.rs ");
     }
 
     // --- accept_enter ---
@@ -916,7 +955,7 @@ mod tests {
             is_dir: false,
         }];
 
-        let result = state.accept_enter().expect("should accept");
+        let result = state.accept_enter(true).expect("should accept");
         assert_eq!(result.text, "@src/main.rs ");
         assert!(!result.refresh);
     }
@@ -933,7 +972,7 @@ mod tests {
             is_dir: true,
         }];
 
-        let result = state.accept_enter().expect("should accept");
+        let result = state.accept_enter(true).expect("should accept");
         assert_eq!(result.text, "@src/ ");
         assert!(!result.refresh);
     }
@@ -951,16 +990,51 @@ mod tests {
             is_dir: false,
         }];
 
-        let result = state.accept_enter().expect("should accept");
+        let result = state.accept_enter(true).expect("should accept");
         assert_eq!(result.text, "@./src/main.rs ");
         assert!(!result.refresh);
+    }
+
+    // --- accept_enter shell mode (no @ prefix) ---
+
+    #[test]
+    fn enter_accept_file_at_mode_shell() {
+        let mut state = FilesState::new();
+        state.visible = true;
+        state.mode = FileMode::AtSearch;
+        state.token_range = 0..4;
+        state.candidates = vec![FileCandidate {
+            display: "main.rs".to_string(),
+            path: "src/main.rs".to_string(),
+            is_dir: false,
+        }];
+
+        let result = state.accept_enter(false).expect("should accept");
+        assert_eq!(result.text, "src/main.rs ");
+    }
+
+    #[test]
+    fn enter_accept_file_path_mode_shell() {
+        let mut state = FilesState::new();
+        state.visible = true;
+        state.mode = FileMode::PathCompletion;
+        state.token_range = 0..6;
+        state.path_dir_prefix = "./src/".to_string();
+        state.candidates = vec![FileCandidate {
+            display: "main.rs".to_string(),
+            path: "main.rs".to_string(),
+            is_dir: false,
+        }];
+
+        let result = state.accept_enter(false).expect("should accept");
+        assert_eq!(result.text, "./src/main.rs ");
     }
 
     #[test]
     fn accept_when_hidden_returns_none() {
         let mut state = FilesState::new();
-        assert!(state.accept_tab().is_none());
-        assert!(state.accept_enter().is_none());
+        assert!(state.accept_tab(true).is_none());
+        assert!(state.accept_enter(true).is_none());
     }
 
     // --- Navigation ---

@@ -377,7 +377,8 @@ impl App {
         match (key.modifiers, key.code) {
             // Tab: accept file, or drill into directory
             (KeyModifiers::NONE, KeyCode::Tab) => {
-                if let Some(result) = self.files_state.accept_tab() {
+                let use_at_prefix = self.mode == AppMode::Chat;
+                if let Some(result) = self.files_state.accept_tab(use_at_prefix) {
                     self.input.replace_range(result.range, &result.text);
                     if result.refresh {
                         // Directory drill-down — re-trigger update to show new contents
@@ -389,7 +390,8 @@ impl App {
             }
             // Enter: always accept and dismiss
             (KeyModifiers::NONE, KeyCode::Enter) => {
-                if let Some(result) = self.files_state.accept_enter() {
+                let use_at_prefix = self.mode == AppMode::Chat;
+                if let Some(result) = self.files_state.accept_enter(use_at_prefix) {
                     self.input.replace_range(result.range, &result.text);
                 }
             }
