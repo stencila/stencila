@@ -29,6 +29,12 @@ pub struct EngineConfig {
     pub transforms: TransformRegistry,
     /// Event emitter for pipeline lifecycle events.
     pub emitter: Arc<dyn EventEmitter>,
+    /// Skip validation before execution (default: `false`).
+    ///
+    /// When `false`, the engine runs [`validate_or_raise`](crate::validation::validate_or_raise)
+    /// after transforms and refuses to execute pipelines with ERROR-level diagnostics (§7.1).
+    /// Set to `true` only for testing or when validation has already been performed.
+    pub skip_validation: bool,
 }
 
 impl std::fmt::Debug for EngineConfig {
@@ -37,6 +43,7 @@ impl std::fmt::Debug for EngineConfig {
             .field("logs_root", &self.logs_root)
             .field("registry", &self.registry)
             .field("transforms", &"TransformRegistry { .. }")
+            .field("skip_validation", &self.skip_validation)
             .finish_non_exhaustive()
     }
 }
@@ -51,27 +58,35 @@ impl EngineConfig {
             registry: HandlerRegistry::with_defaults(),
             transforms: TransformRegistry::with_defaults(),
             emitter: Arc::new(NoOpEmitter),
+            skip_validation: false,
         }
     }
 }
 
 /// Run a pipeline graph to completion.
 ///
-/// Validates that both start and exit nodes exist, creates a run
-/// directory, executes nodes in traversal order, and returns the
-/// final outcome.
+/// Applies transforms, validates the graph (refusing execution if any
+/// ERROR-level diagnostics are found per §7.1), then executes nodes
+/// in traversal order.
 ///
 /// # Errors
 ///
 /// Returns an error if:
+/// - A transform fails
+/// - Validation finds ERROR-level diagnostics
 /// - The graph has no start node (shape `Mdiamond` or id `start`)
 /// - The graph has no exit node (shape `Msquare` or id `exit`)
 /// - A handler cannot be resolved for a node
 /// - An I/O error occurs writing run artifacts
 pub async fn run(graph: &Graph, config: EngineConfig) -> crate::error::AttractorResult<Outcome> {
-    // Apply transforms (variable expansion, etc.) before execution.
+    // Apply transforms (variable expansion, stylesheet, etc.) before execution.
     let mut graph = graph.clone();
     config.transforms.apply_all(&mut graph)?;
+
+    // Validate the graph — refuse execution if any ERROR-level diagnostics (§7.1).
+    if !config.skip_validation {
+        crate::validation::validate_or_raise(&graph, &[])?;
+    }
 
     loop_core::run_loop(&graph, config).await
 }

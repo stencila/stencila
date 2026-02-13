@@ -46,6 +46,10 @@ These are intentional deviations from the spec.
 
 - **Unquoted condition literals**: Condition literals are compared as plain text without requiring DOT-style `"..."` quoting. Surrounding double quotes on a literal are stripped so that `preferred_label="Fix"` and `preferred_label=Fix` are equivalent. All §10.6 examples use unquoted literals.
 
+- **Reachability severity**: §7.2 lists the `reachability` lint rule at ERROR severity, but the §11.12 parity matrix describes "orphan node → warning". This implementation uses ERROR per §7.2 (the normative validation section).
+
+- **Stylesheet specificity levels**: §11.10 mentions "universal < shape < class < ID" specificity (4 levels), but the §8.2–8.3 grammar defines only 3 selector types (`*`, `.class`, `#id`) with no shape selector. This implementation uses 3-level specificity per the grammar.
+
 ## Limitations
 
 The following are known limitations of this implementation of the spec.

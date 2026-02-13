@@ -1183,6 +1183,7 @@ async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
     // dead has no outgoing edges
 
     let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true; // exit is intentionally unreachable
     config
         .registry
         .register("codergen", MockHandler::new(Outcome::success()));
@@ -1216,6 +1217,7 @@ async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
     g.add_edge(Edge::new("start", "dead"));
 
     let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true; // exit is intentionally unreachable
     config
         .registry
         .register("codergen", MockHandler::new(Outcome::fail("task failed")));
@@ -1527,6 +1529,7 @@ async fn engine_loop_restart() -> AttractorResult<()> {
     ]);
 
     let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true; // loop_restart edge creates start incoming
     config.registry.register("codergen", seq_handler);
 
     let outcome = engine::run(&g, config).await?;
@@ -1593,7 +1596,8 @@ async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
 
     g.add_edge(Edge::new("start", "exit"));
 
-    let config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true; // important_task intentionally unreachable
     let outcome = engine::run(&g, config).await?;
     // Unvisited goal gate does not block exit
     assert_eq!(outcome.status, StageStatus::Success);

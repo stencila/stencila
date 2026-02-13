@@ -105,7 +105,9 @@ async fn run_command(
     };
 
     if let Some(duration) = timeout {
-        if let Ok(result) = tokio::time::timeout(duration, collect_future).await { result } else {
+        if let Ok(result) = tokio::time::timeout(duration, collect_future).await {
+            result
+        } else {
             // Kill the child process to avoid leaking long-running subprocesses.
             // Ignore kill errors — the process may have already exited.
             let _ = child.kill().await;

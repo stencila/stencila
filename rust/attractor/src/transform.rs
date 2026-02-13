@@ -49,12 +49,14 @@ impl TransformRegistry {
 
     /// Create a registry pre-loaded with the default built-in transforms.
     ///
-    /// Currently includes:
-    /// - [`VariableExpansionTransform`](crate::transforms::VariableExpansionTransform)
+    /// Currently includes (in order):
+    /// 1. [`VariableExpansionTransform`](crate::transforms::VariableExpansionTransform)
+    /// 2. [`StylesheetTransform`](crate::transforms::StylesheetTransform)
     #[must_use]
     pub fn with_defaults() -> Self {
         let mut registry = Self::new();
         registry.register_builtin(crate::transforms::VariableExpansionTransform);
+        registry.register_builtin(crate::transforms::StylesheetTransform);
         registry
     }
 

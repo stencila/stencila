@@ -85,6 +85,18 @@ impl AttrValue {
             _ => None,
         }
     }
+
+    /// Return a human-readable type name for this value.
+    #[must_use]
+    pub fn type_name(&self) -> &'static str {
+        match self {
+            Self::String(_) => "string",
+            Self::Integer(_) => "integer",
+            Self::Float(_) => "float",
+            Self::Boolean(_) => "boolean",
+            Self::Duration(_) => "duration",
+        }
+    }
 }
 
 impl fmt::Display for AttrValue {
@@ -167,6 +179,17 @@ impl Node {
     #[must_use]
     pub fn get_str_attr(&self, key: &str) -> Option<&str> {
         self.attrs.get(key).and_then(AttrValue::as_str)
+    }
+
+    /// Get a boolean attribute value by key, defaulting to `false`.
+    ///
+    /// Returns `true` only if the attribute exists and is `AttrValue::Boolean(true)`.
+    #[must_use]
+    pub fn get_bool_attr(&self, key: &str) -> bool {
+        self.attrs
+            .get(key)
+            .and_then(AttrValue::as_bool)
+            .unwrap_or(false)
     }
 
     /// Return the node's shape, defaulting to `"box"`.
@@ -333,6 +356,30 @@ impl Graph {
         self.edges.iter().filter(|e| e.to == node_id).collect()
     }
 
+    /// Shape identifying a start node.
+    pub const START_SHAPE: &'static str = "Mdiamond";
+
+    /// Fallback IDs identifying a start node.
+    pub const START_IDS: &'static [&'static str] = &["start", "Start"];
+
+    /// Shape identifying an exit node.
+    pub const EXIT_SHAPE: &'static str = "Msquare";
+
+    /// Fallback IDs identifying an exit node.
+    pub const EXIT_IDS: &'static [&'static str] = &["exit", "Exit", "end", "End"];
+
+    /// Check whether a node is a start node (by shape or ID).
+    #[must_use]
+    pub fn is_start_node(node: &Node) -> bool {
+        node.shape() == Self::START_SHAPE || Self::START_IDS.contains(&node.id.as_str())
+    }
+
+    /// Check whether a node is an exit node (by shape or ID).
+    #[must_use]
+    pub fn is_exit_node(node: &Node) -> bool {
+        node.shape() == Self::EXIT_SHAPE || Self::EXIT_IDS.contains(&node.id.as_str())
+    }
+
     /// Find the start node of the pipeline.
     ///
     /// Looks for a node with shape `Mdiamond` first, then falls back to
@@ -342,20 +389,20 @@ impl Graph {
     ///
     /// Returns [`AttractorError::NoStartNode`] if no start node is found.
     pub fn find_start_node(&self) -> AttractorResult<&Node> {
-        self.find_node_by_shape_or_ids("Mdiamond", &["start", "Start"])
+        self.find_node_by_shape_or_ids(Self::START_SHAPE, Self::START_IDS)
             .ok_or(AttractorError::NoStartNode)
     }
 
     /// Find the exit node of the pipeline.
     ///
     /// Looks for a node with shape `Msquare` first, then falls back to
-    /// a node with ID `exit` or `Exit`.
+    /// a node with ID `exit`, `Exit`, `end`, or `End`.
     ///
     /// # Errors
     ///
     /// Returns [`AttractorError::NoExitNode`] if no exit node is found.
     pub fn find_exit_node(&self) -> AttractorResult<&Node> {
-        self.find_node_by_shape_or_ids("Msquare", &["exit", "Exit"])
+        self.find_node_by_shape_or_ids(Self::EXIT_SHAPE, Self::EXIT_IDS)
             .ok_or(AttractorError::NoExitNode)
     }
 

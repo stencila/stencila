@@ -55,18 +55,18 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §6.3 Answer Model | AnswerValue variants | `spec_6_human.rs` | Pending |
 | §6.4 Built-In Interviewers | AutoApprove, Queue, Callback, Recording | `spec_6_human.rs` | Pending |
 | §6.5 Timeout Handling | Default answer, TIMEOUT | `spec_6_human.rs` | Pending |
-| §7.1 Diagnostic Model | Diagnostic, Severity | `spec_7_validation.rs` | Pending |
-| §7.2 Built-In Lint Rules | 13 rules | `spec_7_validation.rs` | Pending |
-| §7.3 Validation API | validate(), validate_or_raise() | `spec_7_validation.rs` | Pending |
-| §7.4 Custom Lint Rules | LintRule trait, registration | `spec_7_validation.rs` | Pending |
-| §8.1 Stylesheet Overview | CSS-like model configuration | `spec_8_stylesheet.rs` | Pending |
-| §8.2 Stylesheet Grammar | Selector/declaration parsing | `spec_8_stylesheet.rs` | Pending |
-| §8.3 Selectors and Specificity | *, .class, #id precedence | `spec_8_stylesheet.rs` | Pending |
-| §8.4 Recognized Properties | llm_model, llm_provider, reasoning_effort | `spec_8_stylesheet.rs` | Pending |
-| §8.5 Application Order | Resolution precedence | `spec_8_stylesheet.rs` | Pending |
-| §8.6 Example | Full stylesheet example | `spec_8_stylesheet.rs` | Pending |
+| §7.1 Diagnostic Model | Diagnostic, Severity | `spec_7_validation.rs` | Complete |
+| §7.2 Built-In Lint Rules | 13 rules | `spec_7_validation.rs` | Complete |
+| §7.3 Validation API | validate(), validate_or_raise() | `spec_7_validation.rs` | Complete |
+| §7.4 Custom Lint Rules | LintRule trait, registration | `spec_7_validation.rs` | Complete |
+| §8.1 Stylesheet Overview | CSS-like model configuration | `spec_8_stylesheet.rs` | Complete |
+| §8.2 Stylesheet Grammar | Selector/declaration parsing | `spec_8_stylesheet.rs` | Complete |
+| §8.3 Selectors and Specificity | *, .class, #id precedence | `spec_8_stylesheet.rs` | Complete |
+| §8.4 Recognized Properties | llm_model, llm_provider, reasoning_effort | `spec_8_stylesheet.rs` | Complete |
+| §8.5 Application Order | Resolution precedence | `spec_8_stylesheet.rs` | Complete |
+| §8.6 Example | Full stylesheet example | `spec_8_stylesheet.rs` | Complete |
 | §9.1 AST Transforms | Transform trait and pipeline | `spec_9_transforms.rs` | Complete |
-| §9.2 Built-In Transforms | Variable expansion, stylesheet | `spec_9_transforms.rs` | Partial |
+| §9.2 Built-In Transforms | Variable expansion, stylesheet | `spec_9_transforms.rs`, `spec_8_stylesheet.rs` | Complete |
 | §9.3 Custom Transforms | Registration and ordering | `spec_9_transforms.rs` | Complete |
 | §9.6 Events | Pipeline/Stage/Parallel/Interview/Checkpoint events | `spec_3_engine.rs` | Partial |
 | §10.1–10.5 Conditions | Grammar, semantics, evaluation | `spec_10_conditions.rs` | Complete |
