@@ -58,9 +58,11 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     render_hints(frame, app, hints_area);
 
     // --- Render autocomplete popup (floats above input) ---
-    // Cancel popup has highest priority, then history, commands, files, responses.
+    // Cancel popup has highest priority, then model, history, commands, files, responses.
     if app.cancel_state.is_visible() {
         render_cancel_autocomplete(frame, app, input_area);
+    } else if app.models_state.is_visible() {
+        render_models_autocomplete(frame, app, input_area);
     } else if app.history_state.is_visible() {
         render_history_autocomplete(frame, app, input_area);
     } else if app.commands_state.is_visible() {
@@ -124,6 +126,7 @@ fn render_exchange_lines(
     response: Option<&str>,
     exit_code: Option<i32>,
     pulsate_bright: bool,
+    content_width: usize,
 ) {
     let base_color = match status {
         ExchangeStatus::Running | ExchangeStatus::Succeeded => kind.color(),
@@ -158,30 +161,37 @@ fn render_exchange_lines(
 
     // Request lines with sidebar and exchange number (wraps at 99)
     let display_num = ((exchange_num - 1) % 99) + 1;
-    for (i, text_line) in request.lines().enumerate() {
-        let num_col = if i == 0 {
-            Span::styled(format!("{display_num:>2} "), num_style)
-        } else {
-            Span::raw(num_padding)
-        };
-        lines.push(Line::from(vec![
-            num_col,
-            Span::styled(SIDEBAR_CHAR, sidebar_style),
-            Span::raw(" "),
-            Span::raw(format!("{prefix}{text_line}")),
-        ]));
+    let mut first_line = true;
+    for text_line in request.lines() {
+        let prefixed = format!("{prefix}{text_line}");
+        for chunk in wrap_content(&prefixed, content_width) {
+            let num_col = if first_line {
+                first_line = false;
+                Span::styled(format!("{display_num:>2} "), num_style)
+            } else {
+                Span::raw(num_padding)
+            };
+            lines.push(Line::from(vec![
+                num_col,
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+                Span::raw(chunk),
+            ]));
+        }
     }
 
     // Response lines with dim sidebar
     if let Some(resp) = response {
         let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
         for text_line in resp.lines() {
-            lines.push(Line::from(vec![
-                Span::raw(num_padding),
-                Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
-                Span::raw(" "),
-                Span::raw(text_line.to_string()),
-            ]));
+            for chunk in wrap_content(text_line, content_width) {
+                lines.push(Line::from(vec![
+                    Span::raw(num_padding),
+                    Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                    Span::raw(" "),
+                    Span::raw(chunk),
+                ]));
+            }
         }
     }
 
@@ -207,6 +217,7 @@ fn render_exchange_lines(
 
 /// Render the scrollable message area.
 fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
+    let content_width = area.width.saturating_sub(NUM_GUTTER + 2).max(1) as usize;
     let mut lines: Vec<Line> = Vec::new();
     let pulsate_bright = app.tick_count / 2 % 2 == 0;
     let mut exchange_num = 0usize;
@@ -236,16 +247,19 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                     response.as_deref(),
                     *exit_code,
                     pulsate_bright,
+                    content_width,
                 );
             }
             AppMessage::System { content } => {
                 for text_line in content.lines() {
-                    lines.push(Line::from(vec![
-                        Span::raw("   "),
-                        Span::styled(SIDEBAR_CHAR, dim()),
-                        Span::raw(" "),
-                        Span::styled(text_line.to_string(), dim()),
-                    ]));
+                    for chunk in wrap_content(text_line, content_width) {
+                        lines.push(Line::from(vec![
+                            Span::raw("   "),
+                            Span::styled(SIDEBAR_CHAR, dim()),
+                            Span::raw(" "),
+                            Span::styled(chunk, dim()),
+                        ]));
+                    }
                 }
             }
         }
@@ -290,7 +304,7 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
 /// Render the hint line below the input area: mode label on left, keyboard hints on right.
 #[rustfmt::skip]
 fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
-    let is_running = app.has_running_commands();
+    let is_running = app.has_running();
     let has_ghost = app.ghost_suggestion.is_some();
 
     // Mode label on the left, indented to align with sidebar bars
@@ -341,7 +355,7 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
 fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let input_text = app.input.text();
     let kind = ExchangeKind::from(app.mode);
-    let is_running = app.has_running_commands();
+    let is_running = app.has_running();
 
     // Mode indicator in the gutter (no dark bg)
     let gutter = NUM_GUTTER;
@@ -685,6 +699,68 @@ fn render_cancel_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
         .collect();
 
     render_popup(frame, area, lines, Some(" Cancel "));
+}
+
+/// Render the model picker popup floating above the input area.
+fn render_models_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.models_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let max_id_width = candidates
+        .iter()
+        .map(|c| c.model_id.len())
+        .max()
+        .unwrap_or(0);
+    let selected = app.models_state.selected();
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let id_col = format!(" {:<max_id_width$}  ", candidate.model_id);
+            let provider_col = candidate.provider.clone();
+
+            if i == selected {
+                Line::from(vec![
+                    Span::styled(id_col, selected_style()),
+                    Span::styled(provider_col, selected_secondary_style()),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled(id_col, unselected_style()),
+                    Span::styled(provider_col, dim()),
+                ])
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Model "));
+}
+
+/// Split text into chunks that fit within `width` characters, for manual
+/// line wrapping that preserves the gutter/sidebar prefix on each visual line.
+fn wrap_content(text: &str, width: usize) -> Vec<String> {
+    if width == 0 || text.is_empty() {
+        return vec![text.to_string()];
+    }
+
+    let chars: Vec<char> = text.chars().collect();
+    let mut result = Vec::new();
+    let mut start = 0;
+
+    while start < chars.len() {
+        let end = (start + width).min(chars.len());
+        result.push(chars[start..end].iter().collect());
+        start = end;
+    }
+
+    if result.is_empty() {
+        result.push(String::new());
+    }
+
+    result
 }
 
 /// Count the number of visual lines the text occupies, accounting for wrapping.

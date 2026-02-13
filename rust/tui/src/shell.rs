@@ -15,7 +15,7 @@ pub struct CommandResult {
 /// The command is spawned via `tokio::process::Command` and its output is
 /// collected in a shared buffer. The main loop polls for completion via
 /// `try_take_result()` on each tick event.
-pub struct RunningCommand {
+pub struct RunningShellCommand {
     /// The original command string.
     command: String,
     /// Shared slot for the result. The spawned task writes `Some(result)` when done.
@@ -24,7 +24,7 @@ pub struct RunningCommand {
     cancel_tx: Option<oneshot::Sender<()>>,
 }
 
-impl RunningCommand {
+impl RunningShellCommand {
     /// The command string that was submitted.
     #[cfg(test)]
     pub fn command(&self) -> &str {
@@ -74,7 +74,7 @@ fn build_shell_command(command: &str) -> Command {
 /// The command is run via the platform shell (`sh -c` on Unix, `cmd /C` on
 /// Windows) so that shell features like pipes and redirects work. stdout and
 /// stderr are captured separately and merged in the result.
-pub fn spawn_command(command: String) -> RunningCommand {
+pub fn spawn_command(command: String) -> RunningShellCommand {
     let result: Arc<Mutex<Option<CommandResult>>> = Arc::new(Mutex::new(None));
     let (cancel_tx, cancel_rx) = oneshot::channel::<()>();
 
@@ -148,7 +148,7 @@ pub fn spawn_command(command: String) -> RunningCommand {
         }
     });
 
-    RunningCommand {
+    RunningShellCommand {
         command,
         result,
         cancel_tx: Some(cancel_tx),

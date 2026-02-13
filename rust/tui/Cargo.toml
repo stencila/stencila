@@ -11,10 +11,15 @@ futures = { workspace = true }
 ignore = { workspace = true }
 ratatui = { version = "0.30.0", default-features = false, features = ["crossterm", "layout-cache"] }
 serde_json = { workspace = true }
+stencila-agents = { path = "../agents" }
+stencila-auth = { path = "../auth", default-features = false }
+stencila-models3 = { path = "../models3" }
 stencila-dirs = { path = "../dirs" }
 strum = { workspace = true }
 stencila-version = { path = "../version" }
 tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

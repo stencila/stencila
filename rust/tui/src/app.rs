@@ -1,13 +1,18 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
 use ratatui::style::Color;
+use tokio::sync::mpsc;
 
 use crate::{
+    agent::{AgentHandle, RunningAgentExchange},
     autocomplete::cancel::CancelCandidate,
-    autocomplete::{CancelState, CommandsState, FilesState, HistoryState, ResponsesState},
+    autocomplete::models::ModelCandidate,
+    autocomplete::{
+        CancelState, CommandsState, FilesState, HistoryState, ModelsState, ResponsesState,
+    },
     commands::SlashCommand,
     history::InputHistory,
     input::InputState,
-    shell::RunningCommand,
+    shell::RunningShellCommand,
 };
 
 /// The current input mode of the TUI.
@@ -109,6 +114,8 @@ pub struct App {
     pub responses_state: ResponsesState,
     /// Cancel picker popup state.
     pub cancel_state: CancelState,
+    /// Model picker popup state.
+    pub models_state: ModelsState,
 
     /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
     /// Shown as dim inline text for fish-shell-style history completion.
@@ -120,12 +127,27 @@ pub struct App {
     /// 0 = most recent prefix match (default), incremented by Up, decremented by Down.
     ghost_nav_offset: usize,
 
+    /// Agent handle for submitting chat messages to the LLM.
+    /// Created lazily on first chat submit.
+    agent: Option<AgentHandle>,
+
+    /// The selected model override (provider, `model_id`).
+    /// `None` means use the default.
+    selected_model: Option<(String, String)>,
+
+    /// Agent exchanges currently running in the background.
+    /// Each entry is `(message_index, running_exchange)` linking to the exchange in `messages`.
+    pub running_agent_exchanges: Vec<(usize, RunningAgentExchange)>,
+
     /// Shell commands currently running in the background.
     /// Each entry is `(message_index, running_command)` linking to the exchange in `messages`.
-    pub running_commands: Vec<(usize, RunningCommand)>,
+    pub running_shell_commands: Vec<(usize, RunningShellCommand)>,
 
     /// Tick counter for pulsating sidebar animation on running exchanges.
     pub tick_count: u32,
+
+    /// Receiver for tracing log messages captured by the TUI logging layer.
+    log_receiver: mpsc::UnboundedReceiver<String>,
 
     /// Scroll offset for the message area (lines from the bottom).
     pub scroll_offset: u16,
@@ -137,7 +159,7 @@ pub struct App {
 
 impl App {
     /// Create a new App with a welcome banner.
-    pub fn new() -> Self {
+    pub fn new(log_receiver: mpsc::UnboundedReceiver<String>) -> Self {
         Self {
             should_quit: false,
             mode: AppMode::default(),
@@ -149,11 +171,16 @@ impl App {
             history_state: HistoryState::new(),
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
+            models_state: ModelsState::new(),
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
-            running_commands: Vec::new(),
+            running_shell_commands: Vec::new(),
+            agent: None,
+            selected_model: None,
+            running_agent_exchanges: Vec::new(),
             tick_count: 0,
+            log_receiver,
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
@@ -175,14 +202,15 @@ impl App {
         self.should_quit
     }
 
-    /// Whether any shell commands are currently running in the background.
-    pub fn has_running_commands(&self) -> bool {
-        !self.running_commands.is_empty()
+    /// Whether any commands or agent exchanges are currently running.
+    pub fn has_running(&self) -> bool {
+        !self.running_shell_commands.is_empty() || !self.running_agent_exchanges.is_empty()
     }
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
+            || (self.models_state.is_visible() && self.handle_models_autocomplete(key))
             || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
@@ -215,6 +243,48 @@ impl App {
             _ => return false,
         }
         true
+    }
+
+    /// Handle a key event when the model picker popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_models_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(candidate) = self.models_state.accept() {
+                    self.set_model(&candidate);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.models_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.models_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.models_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+                self.models_state.update(self.input.text());
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+                self.models_state.update(self.input.text());
+            }
+            _ => return false,
+        }
+        true
+    }
+
+    /// Switch to a new model, resetting the agent session.
+    fn set_model(&mut self, candidate: &ModelCandidate) {
+        self.selected_model = Some((candidate.provider.clone(), candidate.model_id.clone()));
+        self.cancel_all_running();
+        self.agent = None;
+        self.input.clear();
+        self.messages.push(AppMessage::System {
+            content: format!(
+                "Switched to {} ({}). New session started.",
+                candidate.display_name, candidate.provider
+            ),
+        });
     }
 
     /// Handle a key event when the history autocomplete popup is visible.
@@ -344,8 +414,8 @@ impl App {
 
         match (key.modifiers, key.code) {
             (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
-                if self.has_running_commands() {
-                    self.cancel_running_command();
+                if self.has_running() {
+                    self.cancel_most_recent_running();
                 } else {
                     match self.mode {
                         AppMode::Chat => {
@@ -478,13 +548,7 @@ impl App {
                         self.spawn_shell_command(cmd);
                     } else {
                         self.input_history.push_tagged(text, AppMode::Chat);
-                        self.messages.push(AppMessage::Exchange {
-                            kind: ExchangeKind::Chat,
-                            status: ExchangeStatus::Succeeded,
-                            request: expanded,
-                            response: None,
-                            exit_code: None,
-                        });
+                        self.submit_agent_message(expanded);
                     }
                 }
                 AppMode::Shell => {
@@ -554,18 +618,35 @@ impl App {
         candidates
     }
 
-    /// Cancel a running command by its message index.
+    /// Cancel a running command or agent exchange by its message index.
     ///
-    /// Finds the entry in `running_commands` with the matching `msg_index`,
-    /// removes it, and marks the exchange as cancelled.
+    /// Searches both `running_commands` and `running_agent_exchanges` for
+    /// the matching `msg_index`, removes it, and marks the exchange as cancelled.
     pub fn cancel_by_msg_index(&mut self, msg_index: usize) {
         if let Some(pos) = self
-            .running_commands
+            .running_shell_commands
             .iter()
             .position(|(idx, _)| *idx == msg_index)
         {
-            let entry = self.running_commands.remove(pos);
+            let entry = self.running_shell_commands.remove(pos);
             Self::cancel_entry(&mut self.messages, entry);
+            return;
+        }
+
+        if let Some(pos) = self
+            .running_agent_exchanges
+            .iter()
+            .position(|(idx, _)| *idx == msg_index)
+        {
+            let (idx, exchange) = self.running_agent_exchanges.remove(pos);
+            exchange.cancel();
+            Self::update_exchange_at(
+                &mut self.messages,
+                idx,
+                ExchangeStatus::Failed,
+                Some("[cancelled]".to_string()),
+                None,
+            );
         }
     }
 
@@ -624,9 +705,9 @@ impl App {
         result
     }
 
-    /// Clear all messages and cancel any running commands.
+    /// Clear all messages and cancel anything running.
     pub fn clear_messages(&mut self) {
-        self.cancel_all_running_commands();
+        self.cancel_all_running();
         self.messages.clear();
         self.scroll_offset = 0;
     }
@@ -660,25 +741,70 @@ impl App {
         });
         let msg_index = self.messages.len() - 1;
         let running = crate::shell::spawn_command(command);
-        self.running_commands.push((msg_index, running));
+        self.running_shell_commands.push((msg_index, running));
     }
 
-    /// Cancel the most recent running shell command.
-    fn cancel_running_command(&mut self) {
-        if let Some(entry) = self.running_commands.pop() {
-            Self::cancel_entry(&mut self.messages, entry);
+    /// Cancel the most recent running command or agent exchange.
+    ///
+    /// Compares the highest message index across both `running_commands`
+    /// and `running_agent_exchanges` to cancel whichever started most recently.
+    fn cancel_most_recent_running(&mut self) {
+        let cmd_max = self.running_shell_commands.last().map(|(idx, _)| *idx);
+        let agent_max = self.running_agent_exchanges.last().map(|(idx, _)| *idx);
+
+        match (cmd_max, agent_max) {
+            (Some(c), Some(a)) if a > c => {
+                if let Some((idx, exchange)) = self.running_agent_exchanges.pop() {
+                    exchange.cancel();
+                    Self::update_exchange_at(
+                        &mut self.messages,
+                        idx,
+                        ExchangeStatus::Failed,
+                        Some("[cancelled]".to_string()),
+                        None,
+                    );
+                }
+            }
+            (Some(_), _) => {
+                if let Some(entry) = self.running_shell_commands.pop() {
+                    Self::cancel_entry(&mut self.messages, entry);
+                }
+            }
+            (None, Some(_)) => {
+                if let Some((idx, exchange)) = self.running_agent_exchanges.pop() {
+                    exchange.cancel();
+                    Self::update_exchange_at(
+                        &mut self.messages,
+                        idx,
+                        ExchangeStatus::Failed,
+                        Some("[cancelled]".to_string()),
+                        None,
+                    );
+                }
+            }
+            (None, None) => {}
         }
     }
 
-    /// Cancel all running shell commands.
-    pub fn cancel_all_running_commands(&mut self) {
-        for entry in self.running_commands.drain(..) {
+    /// Cancel all running shell commands and agent exchanges.
+    pub fn cancel_all_running(&mut self) {
+        for entry in self.running_shell_commands.drain(..) {
             Self::cancel_entry(&mut self.messages, entry);
+        }
+        for (idx, exchange) in self.running_agent_exchanges.drain(..) {
+            exchange.cancel();
+            Self::update_exchange_at(
+                &mut self.messages,
+                idx,
+                ExchangeStatus::Failed,
+                Some("[cancelled]".to_string()),
+                None,
+            );
         }
     }
 
     /// Cancel a single running command and mark its exchange as failed.
-    fn cancel_entry(messages: &mut [AppMessage], (msg_index, running): (usize, RunningCommand)) {
+    fn cancel_entry(messages: &mut [AppMessage], (msg_index, running): (usize, RunningShellCommand)) {
         let _command = running.cancel();
         Self::update_exchange_at(
             messages,
@@ -710,13 +836,48 @@ impl App {
         }
     }
 
+    /// Submit a chat message to the agent session.
+    fn submit_agent_message(&mut self, text: String) {
+        // Lazily create the agent handle on first use
+        if self.agent.is_none() {
+            self.agent = AgentHandle::spawn(self.selected_model.clone());
+        }
+
+        self.messages.push(AppMessage::Exchange {
+            kind: ExchangeKind::Chat,
+            status: ExchangeStatus::Running,
+            request: text.clone(),
+            response: None,
+            exit_code: None,
+        });
+        let msg_index = self.messages.len() - 1;
+
+        let exchange = self.agent.as_ref().and_then(|agent| agent.submit(text));
+
+        match exchange {
+            Some(running) => {
+                self.running_agent_exchanges.push((msg_index, running));
+            }
+            None => {
+                // No runtime or agent task shut down
+                Self::update_exchange_at(
+                    &mut self.messages,
+                    msg_index,
+                    ExchangeStatus::Failed,
+                    Some("Agent session unavailable".to_string()),
+                    None,
+                );
+            }
+        }
+    }
+
     /// Poll all running commands for completion. Called on tick events.
     pub fn poll_running_commands(&mut self) {
         self.tick_count = self.tick_count.wrapping_add(1);
 
         // Collect completed indices (iterate in reverse so removal doesn't shift later indices)
         let mut completed = Vec::new();
-        for (i, (_msg_index, running)) in self.running_commands.iter_mut().enumerate() {
+        for (i, (_msg_index, running)) in self.running_shell_commands.iter_mut().enumerate() {
             if let Some(result) = running.try_take_result() {
                 completed.push((i, result));
             }
@@ -724,7 +885,7 @@ impl App {
 
         // Process completions in reverse order to safely remove by index
         for (i, result) in completed.into_iter().rev() {
-            let (msg_index, _running) = self.running_commands.remove(i);
+            let (msg_index, _running) = self.running_shell_commands.remove(i);
             let status = if result.exit_code == 0 {
                 ExchangeStatus::Succeeded
             } else {
@@ -740,9 +901,70 @@ impl App {
         }
     }
 
+    /// Poll all running agent exchanges for progress. Called on tick events.
+    pub fn poll_running_agent_exchanges(&mut self) {
+        let mut completed = Vec::new();
+        for (i, (msg_index, exchange)) in self.running_agent_exchanges.iter().enumerate() {
+            if let Some(result) = exchange.try_take_result() {
+                completed.push((i, *msg_index, result));
+            } else {
+                // Streaming update: refresh the response text
+                let text = exchange.current_text();
+                if !text.is_empty() {
+                    Self::update_exchange_response(&mut self.messages, *msg_index, text);
+                }
+            }
+        }
+
+        // Process completions in reverse order to safely remove by index
+        for (i, msg_index, result) in completed.into_iter().rev() {
+            self.running_agent_exchanges.remove(i);
+            let status = if result.error.is_some() {
+                ExchangeStatus::Failed
+            } else {
+                ExchangeStatus::Succeeded
+            };
+            let response = if let Some(err) = result.error {
+                if result.text.is_empty() {
+                    Some(err)
+                } else {
+                    Some(format!("{}\n\nError: {err}", result.text))
+                }
+            } else if result.text.is_empty() {
+                None
+            } else {
+                Some(result.text)
+            };
+            Self::update_exchange_at(&mut self.messages, msg_index, status, response, None);
+        }
+    }
+
+    /// Drain pending log messages from the tracing channel and display them
+    /// as system messages. Called on tick events.
+    pub fn poll_log_events(&mut self) {
+        let mut received = false;
+        while let Ok(msg) = self.log_receiver.try_recv() {
+            self.messages.push(AppMessage::System { content: msg });
+            received = true;
+        }
+        if received {
+            self.scroll_offset = 0;
+        }
+    }
+
+    /// Update only the response field of an exchange without changing status.
+    ///
+    /// Used for streaming updates while the exchange is still running.
+    fn update_exchange_response(messages: &mut [AppMessage], msg_index: usize, text: String) {
+        if let Some(AppMessage::Exchange { response, .. }) = messages.get_mut(msg_index) {
+            *response = Some(text);
+        }
+    }
+
     /// Dismiss all autocomplete popups and ghost suggestion.
     fn dismiss_all_autocomplete(&mut self) {
         self.cancel_state.dismiss();
+        self.models_state.dismiss();
         self.commands_state.dismiss();
         self.files_state.dismiss();
         self.history_state.dismiss();
@@ -809,6 +1031,7 @@ impl App {
     /// Whether any autocomplete popup is currently visible.
     fn any_popup_visible(&self) -> bool {
         self.cancel_state.is_visible()
+            || self.models_state.is_visible()
             || self.history_state.is_visible()
             || self.commands_state.is_visible()
             || self.files_state.is_visible()
@@ -914,6 +1137,15 @@ fn truncate_preview(text: &str, max_chars: usize) -> String {
 }
 
 #[cfg(test)]
+impl App {
+    /// Create an `App` with a dummy log receiver for testing.
+    pub(crate) fn new_for_test() -> Self {
+        let (_tx, rx) = mpsc::unbounded_channel();
+        Self::new(rx)
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use crossterm::event::{KeyEventKind, KeyEventState};
 
@@ -930,14 +1162,14 @@ mod tests {
 
     #[test]
     fn welcome_message() {
-        let app = App::new();
+        let app = App::new_for_test();
         assert_eq!(app.messages.len(), 1);
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[test]
     fn ctrl_c_quits_in_chat_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
         assert!(quit);
         assert!(app.should_quit);
@@ -945,7 +1177,7 @@ mod tests {
 
     #[test]
     fn ctrl_c_clears_input_in_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
 
         // Type some text
@@ -962,7 +1194,7 @@ mod tests {
 
     #[test]
     fn ctrl_c_noop_on_empty_input_in_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
 
         let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
@@ -972,7 +1204,7 @@ mod tests {
 
     #[test]
     fn ctrl_d_exits_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
 
@@ -982,7 +1214,7 @@ mod tests {
 
     #[test]
     fn ctrl_d_noop_in_chat_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         assert_eq!(app.mode, AppMode::Chat);
 
         app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
@@ -992,7 +1224,7 @@ mod tests {
 
     #[test]
     fn typing_and_submit() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
 
         // Type "hello"
         for c in "hello".chars() {
@@ -1000,19 +1232,20 @@ mod tests {
         }
         assert_eq!(app.input.text(), "hello");
 
-        // Submit
+        // Submit — without a tokio runtime the agent is unavailable,
+        // so the exchange is created as Failed.
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         assert!(app.input.is_empty());
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
             &app.messages[1],
-            AppMessage::Exchange { kind: ExchangeKind::Chat, status: ExchangeStatus::Succeeded, request, .. } if request == "hello"
+            AppMessage::Exchange { kind: ExchangeKind::Chat, request, .. } if request == "hello"
         ));
     }
 
     #[test]
     fn empty_submit_ignored() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // Only the welcome message
         assert_eq!(app.messages.len(), 1);
@@ -1020,7 +1253,7 @@ mod tests {
 
     #[test]
     fn ctrl_l_clears() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
 
         // Type and submit a message
         app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
@@ -1034,7 +1267,7 @@ mod tests {
 
     #[test]
     fn shift_enter_inserts_newline() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::NONE));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Char('b'), KeyModifiers::NONE));
@@ -1043,7 +1276,7 @@ mod tests {
 
     #[test]
     fn up_down_moves_cursor_in_multiline() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         // Paste multiline text: "abc\ndef"
         app.handle_event(&Event::Paste("abc\ndef".to_string()));
         // Cursor at end (pos 7, line 1, col 3)
@@ -1060,7 +1293,7 @@ mod tests {
 
     #[test]
     fn alt_enter_inserts_newline() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT));
         app.handle_event(&key_event(KeyCode::Char('y'), KeyModifiers::NONE));
@@ -1069,7 +1302,7 @@ mod tests {
 
     #[test]
     fn paste_inserts_without_submit() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&Event::Paste("hello\nworld".to_string()));
         assert_eq!(app.input.text(), "hello\nworld");
         // Should not have submitted — only the welcome message
@@ -1078,7 +1311,7 @@ mod tests {
 
     #[test]
     fn history_up_down() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
 
         // Submit a few messages
         for msg in ["first", "second", "third"] {
@@ -1103,7 +1336,7 @@ mod tests {
 
     #[test]
     fn history_preserves_draft() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
 
         // Submit two entries with the same prefix
         for text in ["old first", "old second"] {
@@ -1134,7 +1367,7 @@ mod tests {
 
     #[test]
     fn ctrl_u_deletes_to_line_start() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "hello".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1144,7 +1377,7 @@ mod tests {
 
     #[test]
     fn ctrl_k_deletes_to_line_end() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "hello".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1155,7 +1388,7 @@ mod tests {
 
     #[test]
     fn scroll_bounds() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         // Simulate a frame that rendered 20 total lines with 10 visible
         app.total_message_lines = 20;
         app.visible_message_height = 10;
@@ -1177,7 +1410,7 @@ mod tests {
 
     #[test]
     fn slash_help_shows_system_message() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "/help".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1192,7 +1425,7 @@ mod tests {
 
     #[test]
     fn slash_clear_clears_messages() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "/clear".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1202,7 +1435,7 @@ mod tests {
 
     #[test]
     fn slash_quit_exits() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "/quit".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1212,35 +1445,35 @@ mod tests {
 
     #[test]
     fn unknown_slash_treated_as_user_message() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "/unknown".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-        // Not a command, so it's a user message
+        // Not a command, so it's a user message (sent to agent)
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
             &app.messages[1],
-            AppMessage::Exchange { kind: ExchangeKind::Chat, status: ExchangeStatus::Succeeded, request, .. } if request == "/unknown"
+            AppMessage::Exchange { kind: ExchangeKind::Chat, request, .. } if request == "/unknown"
         ));
     }
 
     #[test]
     fn bare_dollar_treated_as_user_message() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // "$" should be treated as a normal chat message, not silently discarded
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
             &app.messages[1],
-            AppMessage::Exchange { kind: ExchangeKind::Chat, status: ExchangeStatus::Succeeded, request, .. } if request == "$"
+            AppMessage::Exchange { kind: ExchangeKind::Chat, request, .. } if request == "$"
         ));
     }
 
     #[test]
     fn ctrl_s_enters_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         assert_eq!(app.mode, AppMode::Chat);
 
         app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL));
@@ -1249,7 +1482,7 @@ mod tests {
 
     #[test]
     fn ctrl_s_noop_in_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
 
@@ -1262,14 +1495,14 @@ mod tests {
 
     #[test]
     fn autocomplete_shows_on_slash() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
     }
 
     #[test]
     fn autocomplete_narrows_on_typing() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         let all_count = app.commands_state.candidates().len();
 
@@ -1279,7 +1512,7 @@ mod tests {
 
     #[test]
     fn autocomplete_hides_on_esc() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
 
@@ -1289,7 +1522,7 @@ mod tests {
 
     #[test]
     fn autocomplete_tab_accepts() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         // Type "/he" — matches /help and /history
         for c in "/he".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -1306,7 +1539,7 @@ mod tests {
 
     #[test]
     fn autocomplete_up_down_navigates() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
         assert_eq!(app.commands_state.selected(), 0);
@@ -1320,7 +1553,7 @@ mod tests {
 
     #[test]
     fn autocomplete_enter_accepts_and_submits() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         // Type "/hel" — matches /help only
         for c in "/hel".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -1337,7 +1570,7 @@ mod tests {
 
     #[test]
     fn autocomplete_dismissed_on_submit() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "/help".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1349,7 +1582,7 @@ mod tests {
 
     #[test]
     fn slash_shell_enters_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for c in "/shell".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
@@ -1364,7 +1597,7 @@ mod tests {
 
     #[test]
     fn slash_exit_in_shell_mode_returns_to_chat() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
 
@@ -1378,7 +1611,7 @@ mod tests {
 
     #[test]
     fn slash_quit_quits_from_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
 
         for c in "/quit".chars() {
@@ -1390,7 +1623,7 @@ mod tests {
 
     #[test]
     fn autocomplete_works_in_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
 
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
@@ -1399,7 +1632,7 @@ mod tests {
 
     #[test]
     fn enter_and_exit_shell_mode_messages() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         let initial_count = app.messages.len();
 
         app.enter_shell_mode();
@@ -1421,7 +1654,7 @@ mod tests {
 
     /// Helper: set up an app with history entries and type a prefix.
     fn app_with_history_and_prefix(entries: &[&str], prefix: &str) -> App {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         for &entry in entries {
             app.input_history
                 .push_tagged(entry.to_string(), AppMode::Chat);
@@ -1470,7 +1703,7 @@ mod tests {
 
     #[test]
     fn ghost_clears_when_popup_visible() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.input_history
             .push_tagged("/help me".to_string(), AppMode::Chat);
 
@@ -1483,7 +1716,7 @@ mod tests {
 
     #[test]
     fn ghost_not_shown_for_empty_input() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello".to_string(), AppMode::Chat);
         // No typing — ghost should not appear
@@ -1548,7 +1781,7 @@ mod tests {
 
     #[test]
     fn ghost_multiline_history_shows_first_line_suffix() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
 
@@ -1562,7 +1795,7 @@ mod tests {
 
     #[test]
     fn ghost_multiline_exact_first_line_shows_nothing() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         // History entry where the first line is an exact match for the typed input
         app.input_history
             .push_tagged("foo\nbar".to_string(), AppMode::Chat);
@@ -1576,7 +1809,7 @@ mod tests {
 
     #[test]
     fn accept_all_ghost_multiline() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
 
@@ -1595,7 +1828,7 @@ mod tests {
 
     /// Helper: create an app with some exchanges that have responses.
     fn app_with_exchanges() -> App {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         // Exchange 1: has response
         app.messages.push(AppMessage::Exchange {
             kind: ExchangeKind::Shell,

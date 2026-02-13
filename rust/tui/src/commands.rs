@@ -3,6 +3,7 @@ use std::fmt::Write;
 use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
 use crate::app::{App, AppMessage, AppMode};
+use crate::autocomplete::models::ModelCandidate;
 
 /// Slash commands available in the TUI.
 ///
@@ -21,6 +22,9 @@ pub enum SlashCommand {
 
     #[strum(message = "Show recent history")]
     History,
+
+    #[strum(message = "Select the AI model")]
+    Model,
 
     #[strum(message = "Enter shell mode")]
     Shell,
@@ -93,6 +97,7 @@ impl SlashCommand {
             },
             Self::Help => execute_help(app),
             Self::History => execute_history(app),
+            Self::Model => execute_model(app),
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
         }
@@ -104,7 +109,7 @@ fn execute_cancel(app: &mut App) {
     match candidates.len() {
         0 => {
             app.messages.push(AppMessage::System {
-                content: "No running commands.".to_string(),
+                content: "Nothing running.".to_string(),
             });
         }
         1 => {
@@ -128,7 +133,7 @@ fn execute_help(app: &mut App) {
     help.push_str("  Enter          Send message / run command\n");
     help.push_str("  Alt+Enter      Insert newline\n");
     help.push_str("  Up/Down        History / cursor movement\n");
-    help.push_str("  Ctrl+C         Quit (chat) / clear or cancel (shell)\n");
+    help.push_str("  Ctrl+C         Cancel running / quit (chat) / clear (shell)\n");
     help.push_str("  Ctrl+D         Exit shell mode\n");
     help.push_str("  Ctrl+L         Clear messages\n");
     help.push_str("  PageUp/Down    Scroll messages\n");
@@ -138,6 +143,39 @@ fn execute_help(app: &mut App) {
 
 fn execute_clear(app: &mut App) {
     app.clear_messages();
+}
+
+fn execute_model(app: &mut App) {
+    let overrides = stencila_auth::AuthOverrides::new();
+    match stencila_models3::catalog::list_models(None) {
+        Ok(models) => {
+            let candidates: Vec<ModelCandidate> = models
+                .into_iter()
+                .filter(|m| {
+                    stencila_models3::catalog::is_provider_available(&m.provider, &overrides)
+                })
+                .map(|m| ModelCandidate {
+                    provider: m.provider,
+                    model_id: m.id,
+                    display_name: m.display_name,
+                })
+                .collect();
+
+            if candidates.is_empty() {
+                app.messages.push(AppMessage::System {
+                    content: "No models available. Set an API key for at least one provider."
+                        .to_string(),
+                });
+            } else {
+                app.models_state.open(candidates);
+            }
+        }
+        Err(e) => {
+            app.messages.push(AppMessage::System {
+                content: format!("Failed to list models: {e}"),
+            });
+        }
+    }
 }
 
 fn execute_history(app: &mut App) {
@@ -236,7 +274,7 @@ mod tests {
 
     #[test]
     fn execute_help_adds_message() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         let initial_count = app.messages.len();
         SlashCommand::Help.execute(&mut app, "");
         assert_eq!(app.messages.len(), initial_count + 1);
@@ -248,7 +286,7 @@ mod tests {
 
     #[test]
     fn execute_clear_empties_messages() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         assert!(!app.messages.is_empty());
         SlashCommand::Clear.execute(&mut app, "");
         assert!(app.messages.is_empty());
@@ -256,7 +294,7 @@ mod tests {
 
     #[test]
     fn execute_exit_quits_in_chat_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         assert!(!app.should_quit);
         SlashCommand::Exit.execute(&mut app, "");
         assert!(app.should_quit);
@@ -264,7 +302,7 @@ mod tests {
 
     #[test]
     fn execute_exit_returns_to_chat_in_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
         SlashCommand::Exit.execute(&mut app, "");
@@ -275,12 +313,12 @@ mod tests {
     #[test]
     fn execute_quit_always_quits() {
         // From chat mode
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         SlashCommand::Quit.execute(&mut app, "");
         assert!(app.should_quit);
 
         // From shell mode
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.enter_shell_mode();
         SlashCommand::Quit.execute(&mut app, "");
         assert!(app.should_quit);
@@ -288,7 +326,7 @@ mod tests {
 
     #[test]
     fn execute_shell_enters_shell_mode() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         assert_eq!(app.mode, AppMode::Chat);
         SlashCommand::Shell.execute(&mut app, "");
         assert_eq!(app.mode, AppMode::Shell);
@@ -296,7 +334,7 @@ mod tests {
 
     #[test]
     fn execute_history_empty() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         let initial = app.messages.len();
         SlashCommand::History.execute(&mut app, "");
         assert_eq!(app.messages.len(), initial + 1);
@@ -309,7 +347,7 @@ mod tests {
 
     #[test]
     fn execute_history_opens_popup() {
-        let mut app = App::new();
+        let mut app = App::new_for_test();
         app.input_history.push("first".to_string());
         app.input_history.push("second".to_string());
         let initial = app.messages.len();

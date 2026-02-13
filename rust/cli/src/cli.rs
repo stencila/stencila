@@ -372,10 +372,10 @@ impl Cli {
             Command::Upgrade(upgrade) => upgrade.run().await,
             Command::Uninstall(uninstall) => uninstall.run().await,
 
-            Command::Tui(tui) => tui.run().await,
-
             // Handled before this function
-            Command::Lsp => bail!("The LSP command should already been run"),
+            Command::Tui(_) | Command::Lsp => {
+                bail!("The TUI and LSP commands should already have been run")
+            }
         }
     }
 }
