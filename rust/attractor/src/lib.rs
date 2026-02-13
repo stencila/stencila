@@ -8,6 +8,7 @@
 #![allow(clippy::result_large_err)]
 
 pub mod checkpoint;
+pub mod condition;
 pub mod context;
 pub mod error;
 pub mod graph;

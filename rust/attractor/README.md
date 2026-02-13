@@ -42,6 +42,10 @@ These are intentional deviations from the spec.
 
 - **Reserved keywords as node IDs**: The spec's `Identifier` regex (`[A-Za-z_][A-Za-z0-9_]*`) does not exclude reserved words, but DOT keywords (`graph`, `node`, `edge`, `subgraph`, `digraph`, `strict`) cannot be used as bare node IDs because they create parsing ambiguity (e.g., `node [shape=box]` — defaults statement or node declaration?). This matches standard Graphviz behavior.
 
+- **Bare-key condition clauses**: The §10.2 grammar defines `Clause ::= Key Op Literal` (requiring `=` or `!=`), but the §10.5 evaluation pseudocode has an explicit bare-key branch for truthy checks. This implementation supports bare keys (e.g., `context.flag`) as truthy checks in both evaluation and validation for consistency with the pseudocode.
+
+- **Unquoted condition literals**: Condition literals are compared as plain text without requiring DOT-style `"..."` quoting. Surrounding double quotes on a literal are stripped so that `preferred_label="Fix"` and `preferred_label=Fix` are equivalent. All §10.6 examples use unquoted literals.
+
 ## Limitations
 
 The following are known limitations of this implementation of the spec.

@@ -28,6 +28,18 @@ impl StageStatus {
     pub fn is_success(self) -> bool {
         matches!(self, Self::Success | Self::PartialSuccess)
     }
+
+    /// Return the `snake_case` string representation matching serde serialization.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Success => "success",
+            Self::Fail => "fail",
+            Self::PartialSuccess => "partial_success",
+            Self::Retry => "retry",
+            Self::Skipped => "skipped",
+        }
+    }
 }
 
 /// The result of executing a pipeline stage.

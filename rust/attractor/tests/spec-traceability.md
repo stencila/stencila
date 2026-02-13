@@ -69,7 +69,7 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §9.2 Built-In Transforms | Variable expansion, stylesheet | `spec_9_transforms.rs` | Pending |
 | §9.3 Custom Transforms | Registration and ordering | `spec_9_transforms.rs` | Pending |
 | §9.6 Events | Pipeline/Stage/Parallel/Interview/Checkpoint events | `spec_9_events.rs` | Pending |
-| §10.1–10.5 Conditions | Grammar, semantics, evaluation | `spec_10_conditions.rs` | Pending |
-| §10.6 Condition Examples | 5 verbatim examples | `spec_10_conditions.rs` | Pending |
+| §10.1–10.5 Conditions | Grammar, semantics, evaluation | `spec_10_conditions.rs` | Complete |
+| §10.6 Condition Examples | 5 verbatim examples | `spec_10_conditions.rs` | Complete |
 | §11.12 Parity Matrix | 21 cross-feature test cases | `spec_11_acceptance.rs` | Pending |
 | §11.13 Integration Smoke | End-to-end with LLM callback | `spec_11_acceptance.rs` | Pending |
