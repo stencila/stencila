@@ -239,6 +239,11 @@ impl App {
                     self.input.clear();
                 }
             },
+            (KeyModifiers::CONTROL, KeyCode::Char('s')) => {
+                if self.mode == AppMode::Chat {
+                    self.enter_shell_mode();
+                }
+            }
             (KeyModifiers::CONTROL, KeyCode::Char('d')) => {
                 if self.mode == AppMode::Shell {
                     self.exit_shell_mode();
@@ -339,14 +344,14 @@ impl App {
         } else {
             match self.mode {
                 AppMode::Chat => {
-                    // Check for one-off shell command with ! prefix.
-                    // Bare "!" or "!   " falls through to normal chat message.
-                    if let Some(cmd) = text.strip_prefix('!')
+                    // Check for one-off shell command with $ prefix.
+                    // Bare "$" or "$   " falls through to normal chat message.
+                    if let Some(cmd) = text.strip_prefix('$')
                         && !cmd.trim().is_empty()
                     {
                         let cmd = cmd.to_string();
                         self.input_history
-                            .push_tagged(format!("!{cmd}"), AppMode::Chat);
+                            .push_tagged(format!("${cmd}"), AppMode::Chat);
                         self.spawn_shell_command(cmd);
                     } else {
                         self.input_history.push_tagged(text.clone(), AppMode::Chat);
@@ -369,7 +374,7 @@ impl App {
         self.mode = AppMode::Shell;
         self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {
-            content: "Entering shell mode. Commands are sent to your shell. Use /exit or Ctrl+D to return.".to_string(),
+            content: "Entering shell mode. Commands are sent to your shell. Use /exit or Ctrl+D to return to chat.".to_string(),
         });
     }
 
@@ -842,13 +847,33 @@ mod tests {
     }
 
     #[test]
-    fn bare_bang_treated_as_user_message() {
+    fn bare_dollar_treated_as_user_message() {
         let mut app = App::new();
-        app.handle_event(&key_event(KeyCode::Char('!'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-        // "!" should be treated as a normal chat message, not silently discarded
+        // "$" should be treated as a normal chat message, not silently discarded
         assert_eq!(app.messages.len(), 2);
-        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "!"));
+        assert!(matches!(&app.messages[1], AppMessage::User { content } if content == "$"));
+    }
+
+    #[test]
+    fn ctrl_s_enters_shell_mode() {
+        let mut app = App::new();
+        assert_eq!(app.mode, AppMode::Chat);
+
+        app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL));
+        assert_eq!(app.mode, AppMode::Shell);
+    }
+
+    #[test]
+    fn ctrl_s_noop_in_shell_mode() {
+        let mut app = App::new();
+        app.enter_shell_mode();
+        assert_eq!(app.mode, AppMode::Shell);
+
+        // Ctrl+S in shell mode should not do anything special
+        app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL));
+        assert_eq!(app.mode, AppMode::Shell);
     }
 
     // --- Autocomplete integration tests ---

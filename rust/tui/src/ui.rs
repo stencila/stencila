@@ -169,12 +169,13 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
         match app.mode {
             AppMode::Chat => Line::from(vec![
                 Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
+                Span::raw("  ctrl+s "), Span::styled("shell", dim()),
                 Span::raw("  ctrl+c "), Span::styled("quit", dim()),
             ]),
             AppMode::Shell => Line::from(vec![
                 Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
-                Span::raw("  ctrl+c "), Span::styled("clear", dim()),
                 Span::raw("  ctrl+d "), Span::styled("chat", dim()),
+                Span::raw("  ctrl+c "), Span::styled("clear", dim()),
             ]),
         }
     };
