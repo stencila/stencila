@@ -67,9 +67,10 @@ fn nest_metadata(yaml: &str) -> String {
     // Move non-spec fields into metadata (existing metadata entries take precedence)
     for key in non_spec_keys {
         if let Some(val) = mapping.remove(&key)
-            && !meta.contains_key(&key) {
-                meta.insert(key, val);
-            }
+            && !meta.contains_key(&key)
+        {
+            meta.insert(key, val);
+        }
     }
 
     if !meta.is_empty() {

@@ -121,11 +121,12 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
     // map to CreativeWork fields (per Agent Skills Spec §metadata)
     if node_type == NodeType::Skill
         && let Some(object) = value.as_object_mut()
-            && let Some(serde_json::Value::Object(meta)) = object.remove("metadata") {
-                for (key, val) in meta {
-                    object.entry(&key).or_insert(val);
-                }
-            }
+        && let Some(serde_json::Value::Object(meta)) = object.remove("metadata")
+    {
+        for (key, val) in meta {
+            object.entry(&key).or_insert(val);
+        }
+    }
 
     // Deserialize value to the node type
     let mut node = match node_type {
