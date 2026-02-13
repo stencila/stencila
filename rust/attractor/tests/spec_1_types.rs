@@ -523,7 +523,13 @@ fn checkpoint_from_context() -> Result<(), Box<dyn std::error::Error>> {
     let mut retries = IndexMap::new();
     retries.insert("node_a".to_string(), 2u32);
 
-    let cp = Checkpoint::from_context(&ctx, "node_b", vec!["node_a".to_string()], retries.clone());
+    let cp = Checkpoint::from_context(
+        &ctx,
+        "node_b",
+        vec!["node_a".to_string()],
+        IndexMap::new(),
+        retries.clone(),
+    );
 
     assert_eq!(cp.current_node, "node_b");
     assert_eq!(cp.completed_nodes, vec!["node_a"]);
@@ -539,7 +545,13 @@ fn checkpoint_save_load_roundtrip() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = Context::new();
     ctx.set("data", json!(42));
 
-    let cp = Checkpoint::from_context(&ctx, "stage_2", vec!["stage_1".into()], IndexMap::new());
+    let cp = Checkpoint::from_context(
+        &ctx,
+        "stage_2",
+        vec!["stage_1".into()],
+        IndexMap::new(),
+        IndexMap::new(),
+    );
 
     let dir = tempfile::tempdir()?;
     let path = dir.path().join("checkpoint.json");
@@ -555,7 +567,7 @@ fn checkpoint_json_key_context() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = Context::new();
     ctx.set("x", json!(1));
 
-    let cp = Checkpoint::from_context(&ctx, "n", vec![], IndexMap::new());
+    let cp = Checkpoint::from_context(&ctx, "n", vec![], IndexMap::new(), IndexMap::new());
     let v: serde_json::Value = serde_json::to_value(&cp)?;
 
     // JSON key should be "context", not "context_values"

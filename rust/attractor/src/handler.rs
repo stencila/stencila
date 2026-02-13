@@ -76,7 +76,14 @@ impl HandlerRegistry {
     }
 
     /// Create a registry pre-loaded with the built-in handlers:
-    /// `start`, `exit`, `conditional`, `codergen` (simulation), and `tool`.
+    /// `start`, `exit`, `conditional`, `codergen` (simulation), `tool`,
+    /// and `parallel.fan_in`.
+    ///
+    /// Handlers that require runtime dependencies are not included:
+    /// - `parallel` — requires `Arc<HandlerRegistry>` + `Arc<dyn EventEmitter>`
+    /// - `wait.human` — requires `Arc<dyn Interviewer>`
+    ///
+    /// Register these explicitly after construction.
     #[must_use]
     pub fn with_defaults() -> Self {
         let mut registry = Self::new();
@@ -85,6 +92,7 @@ impl HandlerRegistry {
         registry.register("conditional", handlers::ConditionalHandler);
         registry.register("codergen", handlers::CodergenHandler::simulation());
         registry.register("tool", handlers::ToolHandler);
+        registry.register("parallel.fan_in", handlers::FanInHandler);
         registry
     }
 

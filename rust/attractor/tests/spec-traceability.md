@@ -38,23 +38,23 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §4.3 Start Handler | No-op SUCCESS | `spec_3_engine.rs` | Complete |
 | §4.4 Exit Handler | No-op SUCCESS | `spec_3_engine.rs` | Complete |
 | §4.5 Codergen Handler | LLM task, backend, simulation | `spec_4_handlers.rs` | Partial |
-| §4.6 Wait For Human | Edge-derived choices, accelerators | `spec_6_human.rs` | Pending |
+| §4.6 Wait For Human | Edge-derived choices, accelerators, timeout/skip | `spec_6_human.rs` | Complete |
 | §4.7 Conditional Handler | No-op, routing via engine | `spec_3_engine.rs` | Complete |
-| §4.8 Parallel Handler | Fan-out, join/error policies | `spec_4_parallel.rs` | Pending |
-| §4.9 Fan-In Handler | Heuristic selection | `spec_4_parallel.rs` | Pending |
+| §4.8 Parallel Handler | Fan-out, join/error policies, max_parallel, context isolation | `spec_4_parallel.rs` | Complete |
+| §4.9 Fan-In Handler | Heuristic selection, score/id tie-breaks, best candidate | `spec_4_parallel.rs` | Complete |
 | §4.10 Tool Handler | Shell command execution | `spec_4_handlers.rs` | Partial |
 | §4.12 Custom Handlers | Handler contract, panic catching | `spec_3_engine.rs` | Complete |
 | §5.1 Context | Key-value store, built-in keys | `spec_1_types.rs` | Partial |
 | §5.2 Outcome | Status, preferred_label, context_updates | `spec_1_types.rs` | Complete |
-| §5.3 Checkpoint | Save/load, resume behavior | `spec_1_types.rs`, `spec_5_resume.rs` | Partial |
-| §5.4 Context Fidelity | Fidelity modes, resolution, thread_id | `spec_5_state.rs` | Pending |
-| §5.5 Artifact Store | File-backed/in-memory storage | `spec_5_state.rs` | Pending |
+| §5.3 Checkpoint | Save/load, resume, fidelity degradation | `spec_1_types.rs`, `spec_5_state.rs` | Partial — resolution logic and resume marker complete; runtime fidelity application deferred to real LLM backend |
+| §5.4 Context Fidelity | Fidelity modes, 4-level resolution, thread_id 5-step chain | `spec_5_state.rs` | Partial — precedence chain and thread_id resolution tested; runtime enforcement deferred to real LLM backend |
+| §5.5 Artifact Store | File-backed/in-memory storage, CRUD | `spec_5_state.rs` | Complete |
 | §5.6 Run Directory | Directory structure, manifest.json | `spec_3_engine.rs` | Complete |
-| §6.1 Interviewer Interface | ask, ask_multiple, inform | `spec_6_human.rs` | Pending |
-| §6.2 Question Model | QuestionType variants | `spec_6_human.rs` | Pending |
-| §6.3 Answer Model | AnswerValue variants | `spec_6_human.rs` | Pending |
-| §6.4 Built-In Interviewers | AutoApprove, Queue, Callback, Recording | `spec_6_human.rs` | Pending |
-| §6.5 Timeout Handling | Default answer, TIMEOUT | `spec_6_human.rs` | Pending |
+| §6.1 Interviewer Interface | ask, ask_multiple, inform | `spec_6_human.rs` | Complete |
+| §6.2 Question Model | QuestionType variants, builders | `spec_6_human.rs` | Complete |
+| §6.3 Answer Model | AnswerValue variants, predicates | `spec_6_human.rs` | Complete |
+| §6.4 Built-In Interviewers | AutoApprove, Queue, Callback, Recording | `spec_6_human.rs` | Complete |
+| §6.5 Timeout Handling | Default answer, TIMEOUT, SKIP | `spec_6_human.rs` | Complete |
 | §7.1 Diagnostic Model | Diagnostic, Severity | `spec_7_validation.rs` | Complete |
 | §7.2 Built-In Lint Rules | 13 rules | `spec_7_validation.rs` | Complete |
 | §7.3 Validation API | validate(), validate_or_raise() | `spec_7_validation.rs` | Complete |
@@ -68,8 +68,8 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §9.1 AST Transforms | Transform trait and pipeline | `spec_9_transforms.rs` | Complete |
 | §9.2 Built-In Transforms | Variable expansion, stylesheet | `spec_9_transforms.rs`, `spec_8_stylesheet.rs` | Complete |
 | §9.3 Custom Transforms | Registration and ordering | `spec_9_transforms.rs` | Complete |
-| §9.6 Events | Pipeline/Stage/Parallel/Interview/Checkpoint events | `spec_3_engine.rs` | Partial |
+| §9.6 Events | Pipeline/Stage/Parallel/Interview/Checkpoint events, emitters | `spec_9_events.rs` | Partial — callback/collect/broadcast emitters complete; async stream adapter deferred |
 | §10.1–10.5 Conditions | Grammar, semantics, evaluation | `spec_10_conditions.rs` | Complete |
 | §10.6 Condition Examples | 5 verbatim examples | `spec_10_conditions.rs` | Complete |
-| §11.12 Parity Matrix | 21 cross-feature test cases | `spec_11_acceptance.rs` | Pending |
-| §11.13 Integration Smoke | End-to-end with LLM callback | `spec_11_acceptance.rs` | Pending |
+| §11.12 Parity Matrix | 21 cross-feature test cases | — | Deferred |
+| §11.13 Integration Smoke | End-to-end with LLM callback | — | Deferred |

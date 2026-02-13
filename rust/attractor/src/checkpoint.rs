@@ -18,8 +18,17 @@ pub struct Checkpoint {
     /// from the node *after* this one in the traversal.
     pub current_node: String,
 
-    /// Nodes that have already completed successfully.
+    /// Nodes that have already completed (regardless of status).
     pub completed_nodes: Vec<String>,
+
+    /// Outcome status for each completed node (e.g., `"success"`, `"fail"`).
+    ///
+    /// Used on resume to reconstruct accurate `node_outcomes` so that
+    /// goal-gate checks don't vacuously pass for previously failed nodes.
+    /// Absent in legacy checkpoints — defaults to empty, which triggers
+    /// the "assume success" fallback in resume logic.
+    #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
+    pub node_statuses: IndexMap<String, String>,
 
     /// Per-node retry counts.
     pub node_retries: IndexMap<String, u32>,
@@ -30,25 +39,48 @@ pub struct Checkpoint {
 
     /// Log entries accumulated so far.
     pub logs: Vec<String>,
+
+    /// The next node to execute on resume. When present, this takes
+    /// precedence over heuristic edge selection from `current_node`.
+    /// Stored by the engine which knows which edge was selected.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next_node_id: Option<String>,
 }
 
 impl Checkpoint {
     /// Create a checkpoint from the current execution state.
+    ///
+    /// `node_statuses` records the outcome status string for each completed
+    /// node, enabling accurate goal-gate restoration on resume.
+    ///
+    /// `next_node_id` should be set when the engine knows which edge was
+    /// selected after this node completed (e.g., via the edge-selection
+    /// algorithm). When absent, resume will use heuristic fallback.
     #[must_use]
     pub fn from_context(
         context: &Context,
         current_node: impl Into<String>,
         completed_nodes: Vec<String>,
+        node_statuses: IndexMap<String, String>,
         node_retries: IndexMap<String, u32>,
     ) -> Self {
         Self {
             timestamp: chrono::Utc::now().to_rfc3339(),
             current_node: current_node.into(),
             completed_nodes,
+            node_statuses,
             node_retries,
             context_values: context.snapshot(),
             logs: context.logs(),
+            next_node_id: None,
         }
+    }
+
+    /// Set the next node to resume from.
+    #[must_use]
+    pub fn with_next_node(mut self, next_node_id: impl Into<String>) -> Self {
+        self.next_node_id = Some(next_node_id.into());
+        self
     }
 
     /// Save this checkpoint to a file as pretty-printed JSON.

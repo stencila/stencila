@@ -8934,12 +8934,17 @@ dependencies = [
 name = "stencila-attractor"
 version = "2.13.0"
 dependencies = [
+ "async-trait",
  "chrono",
+ "futures",
  "indexmap 2.13.0",
+ "rand 0.9.2",
  "serde",
  "serde_json",
  "tempfile",
  "thiserror 2.0.18",
+ "tokio",
+ "tracing",
  "winnow",
 ]
 
@@ -10797,6 +10802,7 @@ dependencies = [
  "serde_yaml",
  "stencila-auth",
  "stencila-cli-utils",
+ "stencila-config",
  "stencila-secrets",
  "thiserror 2.0.18",
  "tokio",
@@ -11610,18 +11616,25 @@ dependencies = [
 name = "stencila-tui"
 version = "2.13.0"
 dependencies = [
+ "Inflector",
  "clap",
  "crossterm",
+ "directories",
  "eyre",
  "futures",
  "ignore",
  "ratatui",
  "serde_json",
+ "stencila-agents",
+ "stencila-auth",
  "stencila-dirs",
+ "stencila-models3",
  "stencila-version",
  "strum",
  "tempfile",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

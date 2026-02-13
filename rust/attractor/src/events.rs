@@ -12,8 +12,8 @@ use crate::types::Outcome;
 /// Events are grouped into five categories per §9.6:
 /// - **Pipeline**: lifecycle of the overall pipeline run
 /// - **Stage**: lifecycle of individual node executions
-/// - **Parallel**: parallel fan-out/join events (placeholder for Phase 8)
-/// - **Interview**: human-in-the-loop events (placeholder for Phase 9)
+/// - **Parallel**: parallel fan-out/join events
+/// - **Interview**: human-in-the-loop events
 /// - **Checkpoint**: state persistence events
 #[derive(Debug, Clone)]
 pub enum PipelineEvent {
@@ -76,7 +76,7 @@ pub enum PipelineEvent {
         max_attempts: u32,
     },
 
-    // -- Parallel (placeholder) --
+    // -- Parallel --
     /// A parallel fan-out has started.
     ParallelStarted {
         /// Node ID of the parallel node.
@@ -111,7 +111,7 @@ pub enum PipelineEvent {
         node_id: String,
     },
 
-    // -- Interview (placeholder) --
+    // -- Interview --
     /// A question has been asked to a human.
     InterviewQuestionAsked {
         /// Node ID of the interview node.
@@ -140,8 +140,6 @@ pub enum PipelineEvent {
 ///
 /// Emission is synchronous and should be non-blocking. Implementations
 /// that need to do async work should buffer events for later processing.
-///
-/// Full observer/stream machinery is deferred to Phase 10.
 pub trait EventEmitter: Send + Sync {
     /// Emit a pipeline event.
     fn emit(&self, event: PipelineEvent);
@@ -154,5 +152,130 @@ pub struct NoOpEmitter;
 impl EventEmitter for NoOpEmitter {
     fn emit(&self, _event: PipelineEvent) {
         // Discard
+    }
+}
+
+/// An event emitter that collects all events in-memory.
+///
+/// Useful for testing and post-run analysis.
+pub struct CollectingEmitter {
+    events: std::sync::Mutex<Vec<PipelineEvent>>,
+}
+
+impl CollectingEmitter {
+    /// Create a new collecting emitter.
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            events: std::sync::Mutex::new(Vec::new()),
+        }
+    }
+
+    /// Return a clone of all collected events.
+    #[must_use]
+    pub fn events(&self) -> Vec<PipelineEvent> {
+        self.events
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
+    }
+
+    /// Return the number of collected events.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.events
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .len()
+    }
+
+    /// Check if no events have been collected.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+}
+
+impl Default for CollectingEmitter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl std::fmt::Debug for CollectingEmitter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CollectingEmitter")
+            .field("count", &self.len())
+            .finish()
+    }
+}
+
+impl EventEmitter for CollectingEmitter {
+    fn emit(&self, event: PipelineEvent) {
+        let mut events = self
+            .events
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        events.push(event);
+    }
+}
+
+/// An event emitter that delegates to a callback function.
+///
+/// The callback receives each event synchronously and should be
+/// non-blocking.
+pub struct ObserverEmitter {
+    callback: Box<dyn Fn(&PipelineEvent) + Send + Sync>,
+}
+
+impl ObserverEmitter {
+    /// Create a new observer emitter with the given callback.
+    pub fn new(callback: impl Fn(&PipelineEvent) + Send + Sync + 'static) -> Self {
+        Self {
+            callback: Box::new(callback),
+        }
+    }
+}
+
+impl std::fmt::Debug for ObserverEmitter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ObserverEmitter").finish_non_exhaustive()
+    }
+}
+
+impl EventEmitter for ObserverEmitter {
+    fn emit(&self, event: PipelineEvent) {
+        (self.callback)(&event);
+    }
+}
+
+/// An event emitter that broadcasts to multiple inner emitters.
+///
+/// Useful for combining collecting + observer + other emitters.
+pub struct BroadcastEmitter {
+    emitters: Vec<Box<dyn EventEmitter>>,
+}
+
+impl BroadcastEmitter {
+    /// Create a new broadcast emitter from a list of emitters.
+    #[must_use]
+    pub fn new(emitters: Vec<Box<dyn EventEmitter>>) -> Self {
+        Self { emitters }
+    }
+}
+
+impl std::fmt::Debug for BroadcastEmitter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BroadcastEmitter")
+            .field("count", &self.emitters.len())
+            .finish()
+    }
+}
+
+impl EventEmitter for BroadcastEmitter {
+    fn emit(&self, event: PipelineEvent) {
+        for emitter in &self.emitters {
+            emitter.emit(event.clone());
+        }
     }
 }

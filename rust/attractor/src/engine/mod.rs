@@ -51,6 +51,14 @@ impl std::fmt::Debug for EngineConfig {
 impl EngineConfig {
     /// Create a new engine configuration with the given logs root,
     /// default handler registry, default transforms, and no-op event emitter.
+    ///
+    /// The default registry includes handlers for `start`, `exit`,
+    /// `conditional`, `codergen` (simulation mode), `tool`, and
+    /// `parallel.fan_in`. Handlers that require runtime dependencies
+    /// are **not** included: `parallel` (needs `Arc<HandlerRegistry>` +
+    /// `Arc<dyn EventEmitter>`) and `wait.human` (needs `Arc<dyn
+    /// Interviewer>`). Register them explicitly via
+    /// `config.registry.register(...)` before calling [`run`].
     #[must_use]
     pub fn new(logs_root: impl Into<PathBuf>) -> Self {
         Self {
@@ -89,4 +97,31 @@ pub async fn run(graph: &Graph, config: EngineConfig) -> crate::error::Attractor
     }
 
     loop_core::run_loop(&graph, config).await
+}
+
+/// Resume a pipeline from a checkpoint file (§5.3).
+///
+/// Loads execution state from the checkpoint, restores context and
+/// completed nodes, then continues the traversal loop from the saved
+/// next-node position. A fresh run directory is created for the resumed run.
+///
+/// # Errors
+///
+/// Returns an error if the checkpoint cannot be loaded, the graph
+/// structure doesn't match, or any handler/I/O error occurs during
+/// resumed execution.
+pub async fn resume(
+    graph: &Graph,
+    config: EngineConfig,
+    checkpoint_path: &std::path::Path,
+) -> crate::error::AttractorResult<Outcome> {
+    let mut graph = graph.clone();
+    config.transforms.apply_all(&mut graph)?;
+
+    if !config.skip_validation {
+        crate::validation::validate_or_raise(&graph, &[])?;
+    }
+
+    let resume_state = crate::resume::resume_from_checkpoint(checkpoint_path, &graph)?;
+    loop_core::resume_loop(&graph, config, resume_state).await
 }

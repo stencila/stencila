@@ -102,6 +102,12 @@ impl Handler for CodergenHandler {
         _graph: &Graph,
         logs_root: &Path,
     ) -> AttractorResult<Outcome> {
+        // TODO(§5.4): When a real LLM backend is wired in, resolve fidelity
+        // mode here (via `resolve_fidelity(node, incoming_edge, graph)`) and
+        // check `context.get("internal.resume_degrade_fidelity")` to apply
+        // §5.3 degradation on the first resumed hop. Currently only the
+        // simulation backend is used, which has no LLM sessions to degrade.
+
         // Build prompt: prefer explicit "prompt" attr, fall back to node label
         let prompt = node.get_str_attr("prompt").unwrap_or_else(|| node.label());
 

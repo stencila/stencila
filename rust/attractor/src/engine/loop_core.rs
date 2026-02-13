@@ -26,33 +26,187 @@ struct LoopState {
     current_node_id: String,
     completed_nodes: Vec<String>,
     node_outcomes: HashMap<String, Outcome>,
+    /// Outcome status strings per node, stored in the checkpoint so
+    /// resume can reconstruct accurate outcomes for goal-gate checks.
+    node_statuses: IndexMap<String, String>,
     node_retries: IndexMap<String, u32>,
     stage_index: usize,
     last_outcome: Outcome,
 }
 
 /// Run the core traversal loop for a pipeline graph.
-#[allow(clippy::too_many_lines)]
 pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorResult<Outcome> {
     // Validate both start and exit nodes exist before running (§3.2).
     let start_node = graph.find_start_node()?;
     graph.find_exit_node()?;
 
-    let (mut run_dir, mut context) = init_run(graph, &config)?;
+    let (run_dir, context) = init_run(graph, &config)?;
 
     config.emitter.emit(PipelineEvent::PipelineStarted {
         pipeline_name: graph.name.clone(),
     });
 
-    let mut state = LoopState {
+    let state = LoopState {
         current_node_id: start_node.id.clone(),
         completed_nodes: Vec::new(),
         node_outcomes: HashMap::new(),
+        node_statuses: IndexMap::new(),
         node_retries: IndexMap::new(),
         stage_index: 0,
         last_outcome: Outcome::success(),
     };
 
+    execute_loop(graph, config, run_dir, context, state).await
+}
+
+/// Resume the core traversal loop from a previously saved checkpoint.
+///
+/// Similar to [`run_loop`] but starts from the checkpoint's `next_node_id`
+/// with the restored context and completed-node set. A fresh run directory
+/// is created for the resumed run.
+pub(crate) async fn resume_loop(
+    graph: &Graph,
+    config: EngineConfig,
+    resume_state: crate::resume::ResumeState,
+) -> AttractorResult<Outcome> {
+    graph.find_exit_node()?;
+
+    let run_dir = create_run_dir(graph, &config)?;
+    let context = resume_state.context;
+
+    config.emitter.emit(PipelineEvent::PipelineStarted {
+        pipeline_name: graph.name.clone(),
+    });
+
+    // Restore retry counts from checkpoint.
+    let mut node_retries = IndexMap::new();
+    for node_id in &resume_state.completed_nodes_ordered {
+        if let Some(count) = context.get_i64(&format!("internal.retry_count.{node_id}")) {
+            #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+            node_retries.insert(node_id.clone(), count as u32);
+        }
+    }
+
+    // Restore accurate outcomes for pre-checkpoint nodes so goal-gate
+    // checks correctly enforce §3.4. Use the checkpoint's node_statuses
+    // when available; fall back to Outcome::success() for legacy
+    // checkpoints that lack this field.
+    let mut node_outcomes = HashMap::new();
+    let mut node_statuses = IndexMap::new();
+    for node_id in &resume_state.completed_nodes_ordered {
+        let status_str = resume_state
+            .node_statuses
+            .get(node_id)
+            .map_or("success", String::as_str);
+        let outcome = match status_str {
+            "success" => Outcome::success(),
+            "fail" => Outcome::fail("restored from checkpoint"),
+            "partial_success" => {
+                let mut o = Outcome::success();
+                o.status = StageStatus::PartialSuccess;
+                o
+            }
+            "retry" => {
+                let mut o = Outcome::success();
+                o.status = StageStatus::Retry;
+                o
+            }
+            "skipped" => {
+                let mut o = Outcome::success();
+                o.status = StageStatus::Skipped;
+                o
+            }
+            // Unknown/corrupted status — conservatively treat as fail
+            // to prevent incorrectly satisfying goal gates.
+            _ => Outcome::fail("unknown status in checkpoint"),
+        };
+        node_outcomes.insert(node_id.clone(), outcome);
+        node_statuses.insert(node_id.clone(), status_str.to_string());
+    }
+
+    // Apply fidelity degradation marker (§5.3): when the checkpoint's
+    // previous node used full fidelity, the first resumed hop must
+    // degrade because in-memory LLM sessions can't be serialized.
+    if resume_state.degrade_fidelity {
+        context.set("internal.resume_degrade_fidelity", Value::Bool(true));
+    }
+
+    let stage_index = resume_state.completed_nodes_ordered.len();
+
+    let state = LoopState {
+        current_node_id: resume_state.next_node_id,
+        completed_nodes: resume_state.completed_nodes_ordered,
+        node_outcomes,
+        node_statuses,
+        node_retries,
+        stage_index,
+        last_outcome: Outcome::success(),
+    };
+
+    execute_loop(graph, config, run_dir, context, state).await
+}
+
+/// Create a run directory with manifest for a pipeline run.
+///
+/// Used by both fresh runs (via [`init_run`]) and resumed runs which
+/// supply their own restored context.
+fn create_run_dir(graph: &Graph, config: &EngineConfig) -> AttractorResult<RunDirectory> {
+    let run_id = chrono::Utc::now().format("%Y%m%dT%H%M%S%.6f").to_string();
+    let run_dir = RunDirectory::create(config.logs_root.join(&run_id))?;
+
+    let goal = graph
+        .get_graph_attr("goal")
+        .map(super::super::graph::AttrValue::to_string_value)
+        .unwrap_or_default();
+
+    run_dir.write_manifest(&Manifest {
+        name: graph.name.clone(),
+        goal,
+        start_time: chrono::Utc::now().to_rfc3339(),
+    })?;
+
+    Ok(run_dir)
+}
+
+/// Initialize the run directory and context from graph attributes.
+///
+/// Creates a fresh run directory and a new context populated with the
+/// graph's `goal` and other graph-level attributes. Used for fresh
+/// runs and loop restarts (§2.7/§3.2).
+fn init_run(graph: &Graph, config: &EngineConfig) -> AttractorResult<(RunDirectory, Context)> {
+    let run_dir = create_run_dir(graph, config)?;
+
+    let goal = graph
+        .get_graph_attr("goal")
+        .map(super::super::graph::AttrValue::to_string_value)
+        .unwrap_or_default();
+
+    let context = Context::new();
+    if !goal.is_empty() {
+        context.set("goal", Value::String(goal));
+    }
+    for (key, value) in &graph.graph_attrs {
+        context.set(
+            format!("graph.{key}"),
+            Value::String(value.to_string_value()),
+        );
+    }
+
+    Ok((run_dir, context))
+}
+
+/// The shared traversal loop used by both fresh runs and resumed runs.
+///
+/// Executes nodes in traversal order, selecting edges via the 5-step
+/// algorithm, managing retries, checkpoints, and events.
+#[allow(clippy::too_many_lines)]
+async fn execute_loop(
+    graph: &Graph,
+    config: EngineConfig,
+    mut run_dir: RunDirectory,
+    mut context: Context,
+    mut state: LoopState,
+) -> AttractorResult<Outcome> {
     loop {
         let node =
             graph
@@ -82,7 +236,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
 
             let outcome =
                 execute_node(node, graph, &config, &run_dir, &context, state.stage_index).await?;
-            record_and_checkpoint(node, &outcome, &run_dir, &context, &mut state, false)?;
+            record_and_checkpoint(node, &outcome, &run_dir, &context, &mut state, false, None)?;
             config.emitter.emit(PipelineEvent::CheckpointSaved {
                 node_id: node.id.clone(),
             });
@@ -101,7 +255,43 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
 
         let outcome =
             execute_node(node, graph, &config, &run_dir, &context, state.stage_index).await?;
-        record_and_checkpoint(node, &outcome, &run_dir, &context, &mut state, true)?;
+
+        // Clear one-shot fidelity degradation marker after the first
+        // resumed hop (§5.3). For fresh runs the key is absent, so
+        // the get returns None and no write occurs.
+        if context
+            .get("internal.resume_degrade_fidelity")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+        {
+            context.set("internal.resume_degrade_fidelity", Value::Bool(false));
+        }
+
+        // Determine next node *before* saving the checkpoint so the
+        // checkpoint contains the resolved next_node_id in a single
+        // write (§5.3). This covers both success and failure paths.
+        let (next_node_id, advance_result) = if outcome.status == StageStatus::Fail {
+            let fail_next = route_failure(node, graph, &outcome, &context);
+            (fail_next, None)
+        } else {
+            let ar = advance(node, &outcome, &context, graph, &mut state);
+            let next = match &ar {
+                AdvanceResult::Continue => Some(state.current_node_id.clone()),
+                AdvanceResult::LoopRestart(target) => Some(target.clone()),
+                AdvanceResult::End => None,
+            };
+            (next, Some(ar))
+        };
+
+        record_and_checkpoint(
+            node,
+            &outcome,
+            &run_dir,
+            &context,
+            &mut state,
+            true,
+            next_node_id.as_deref(),
+        )?;
         config.emitter.emit(PipelineEvent::CheckpointSaved {
             node_id: node.id.clone(),
         });
@@ -112,7 +302,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
                 stage_index: state.stage_index,
                 reason: outcome.failure_reason.clone(),
             });
-            if let Some(next) = route_failure(node, graph, &outcome, &context) {
+            if let Some(next) = next_node_id {
                 state.current_node_id = next;
                 state.stage_index += 1;
                 continue;
@@ -131,20 +321,23 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
         });
         state.last_outcome.clone_from(&outcome);
 
-        match advance(node, &outcome, &context, graph, &mut state) {
-            AdvanceResult::Continue => state.stage_index += 1,
-            AdvanceResult::LoopRestart(target) => {
+        match advance_result {
+            Some(AdvanceResult::Continue) => {
+                state.stage_index += 1;
+            }
+            Some(AdvanceResult::LoopRestart(target)) => {
                 // §2.7/§3.2: create fresh run directory and context
                 let (new_run_dir, new_context) = init_run(graph, &config)?;
                 run_dir = new_run_dir;
                 context = new_context;
                 state.completed_nodes.clear();
                 state.node_outcomes.clear();
+                state.node_statuses.clear();
                 state.node_retries.clear();
                 state.stage_index = 0;
                 state.current_node_id = target;
             }
-            AdvanceResult::End => {
+            Some(AdvanceResult::End) | None => {
                 config.emitter.emit(PipelineEvent::PipelineCompleted {
                     pipeline_name: graph.name.clone(),
                     outcome: state.last_outcome.clone(),
@@ -153,36 +346,6 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
             }
         }
     }
-}
-
-/// Initialize the run directory and context from graph attributes.
-fn init_run(graph: &Graph, config: &EngineConfig) -> AttractorResult<(RunDirectory, Context)> {
-    let run_id = chrono::Utc::now().format("%Y%m%dT%H%M%S%.6f").to_string();
-    let run_dir = RunDirectory::create(config.logs_root.join(&run_id))?;
-
-    let goal = graph
-        .get_graph_attr("goal")
-        .map(super::super::graph::AttrValue::to_string_value)
-        .unwrap_or_default();
-
-    run_dir.write_manifest(&Manifest {
-        name: graph.name.clone(),
-        goal: goal.clone(),
-        start_time: chrono::Utc::now().to_rfc3339(),
-    })?;
-
-    let context = Context::new();
-    if !goal.is_empty() {
-        context.set("goal", Value::String(goal));
-    }
-    for (key, value) in &graph.graph_attrs {
-        context.set(
-            format!("graph.{key}"),
-            Value::String(value.to_string_value()),
-        );
-    }
-
-    Ok((run_dir, context))
 }
 
 /// Execute a node through its handler with retry.
@@ -223,6 +386,9 @@ async fn execute_node(
 /// are applied and `outcome`/`preferred_label` keys are set. This is
 /// used for regular nodes. Exit nodes pass `false` to skip context
 /// updates since the pipeline is about to finish.
+///
+/// The optional `next_node_id` is written into the checkpoint so that
+/// resume routing is unambiguous even in branching graphs (§5.3).
 fn record_and_checkpoint(
     node: &crate::graph::Node,
     outcome: &Outcome,
@@ -230,10 +396,14 @@ fn record_and_checkpoint(
     context: &Context,
     state: &mut LoopState,
     apply_context_updates: bool,
+    next_node_id: Option<&str>,
 ) -> AttractorResult<()> {
     run_dir.write_status(&node.id, outcome)?;
     state.completed_nodes.push(node.id.clone());
     state.node_outcomes.insert(node.id.clone(), outcome.clone());
+    state
+        .node_statuses
+        .insert(node.id.clone(), outcome.status.as_str().to_string());
 
     // Sync retry count from context into LoopState so checkpoints
     // contain accurate retry metadata (§5.3).
@@ -262,8 +432,13 @@ fn record_and_checkpoint(
         context,
         &node.id,
         state.completed_nodes.clone(),
+        state.node_statuses.clone(),
         state.node_retries.clone(),
     );
+    let checkpoint = match next_node_id {
+        Some(next) => checkpoint.with_next_node(next),
+        None => checkpoint,
+    };
     checkpoint.save(&run_dir.checkpoint_path())
 }
 

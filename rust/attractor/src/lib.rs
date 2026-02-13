@@ -7,6 +7,7 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::result_large_err)]
 
+pub mod artifact;
 pub mod checkpoint;
 pub mod condition;
 pub mod context;
@@ -14,10 +15,14 @@ pub mod edge_selection;
 pub mod engine;
 pub mod error;
 pub mod events;
+pub mod fidelity;
 pub mod graph;
 pub mod handler;
 pub mod handlers;
+pub mod interviewer;
+pub mod interviewers;
 pub mod parser;
+pub mod resume;
 pub mod retry;
 pub mod run_directory;
 pub mod stylesheet;
