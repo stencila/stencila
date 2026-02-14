@@ -30,6 +30,7 @@ self-replace = "1.3.7"
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-agents = { path = "../agents", features = ["cli"] }
 stencila-ask = { path = "../ask" }
 stencila-auth = { path = "../auth", features = ["cli"] }
 stencila-cli-utils = { path = "../cli-utils" }

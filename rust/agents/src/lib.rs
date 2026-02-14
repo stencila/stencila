@@ -21,6 +21,16 @@
 // trade-off matching models3 — errors are not on the hot path.
 #![allow(clippy::result_large_err)]
 
+/// Agent definition loading and discovery.
+pub mod agent_def;
+
+/// Agent validation.
+pub mod agent_validate;
+
+/// CLI for managing agent definitions.
+#[cfg(feature = "cli")]
+pub mod cli;
+
 /// Agent-level error hierarchy.
 pub mod error;
 

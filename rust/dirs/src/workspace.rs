@@ -12,6 +12,7 @@ pub const DOCS_FILE: &str = "docs.json";
 pub const CACHE_DIR: &str = "cache";
 pub const ARTIFACTS_DIR: &str = "artifacts";
 pub const SKILLS_DIR: &str = "skills";
+pub const AGENTS_DIR: &str = "agents";
 pub const DB_FILE: &str = "db.kuzu";
 
 #[derive(SmartDefault)]
@@ -91,6 +92,17 @@ pub async fn stencila_skills_dir(stencila_dir: &Path, ensure: bool) -> Result<Pa
     }
 
     Ok(skills_dir)
+}
+
+/// Get the path of the `.stencila/agents` directory and optionally ensure it exists
+pub async fn stencila_agents_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let agents_dir = stencila_dir.join(AGENTS_DIR);
+
+    if ensure && !agents_dir.exists() {
+        create_dir_all(&agents_dir).await?;
+    }
+
+    Ok(agents_dir)
 }
 
 /// Get the path of the `.stencila/db.kuzu` file and optionally ensure its parent exists

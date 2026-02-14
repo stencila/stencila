@@ -260,13 +260,16 @@ pub enum Command {
 
     Db(db::Cli),
 
-    Prompts(stencila_prompts::cli::Cli),
+    Agents(stencila_agents::cli::Cli),
     Skills(stencila_skills::cli::Cli),
     Models(stencila_models3::cli::Cli),
     Kernels(stencila_kernels::cli::Cli),
     Linters(stencila_linters::cli::Cli),
     Formats(stencila_codecs::cli::Cli),
     Themes(stencila_themes::cli::Cli),
+
+    // TODO: deprecate
+    Prompts(stencila_prompts::cli::Cli),
 
     Mcp(stencila_mcp::cli::Cli),
     Tools(stencila_tools::cli::Cli),
@@ -341,6 +344,7 @@ impl Cli {
             Command::Db(db) => db.run().await,
 
             Command::Prompts(prompts) => prompts.run().await,
+            Command::Agents(agents) => agents.run().await,
             Command::Skills(skills) => skills.run().await,
             Command::Models(models) => {
                 // models3 depends on oauth (types only, no login feature),

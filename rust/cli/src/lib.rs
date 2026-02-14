@@ -118,6 +118,12 @@ mod tests {
             ("prompts::infer", stencila_prompts::cli::INFER_AFTER_LONG_HELP),
             ("prompts::update", stencila_prompts::cli::UPDATE_AFTER_LONG_HELP),
             ("prompts::reset", stencila_prompts::cli::RESET_AFTER_LONG_HELP),
+            // Agents module help strings
+            ("agents::cli", stencila_agents::cli::CLI_AFTER_LONG_HELP),
+            ("agents::list", stencila_agents::cli::LIST_AFTER_LONG_HELP),
+            ("agents::show", stencila_agents::cli::SHOW_AFTER_LONG_HELP),
+            ("agents::validate", stencila_agents::cli::VALIDATE_AFTER_LONG_HELP),
+            ("agents::create", stencila_agents::cli::CREATE_AFTER_LONG_HELP),
             // Models module help strings
             ("models::cli", stencila_models3::cli::CLI_AFTER_LONG_HELP),
             ("models::list", stencila_models3::cli::LIST_AFTER_LONG_HELP),

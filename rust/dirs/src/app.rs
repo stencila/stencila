@@ -40,6 +40,9 @@ pub enum DirType {
 
     /// Runtime subdirectory for server info files
     Servers,
+
+    /// Config subdirectory for user-level agent definitions
+    Agents,
 }
 
 /// Get an application directory
@@ -72,6 +75,8 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
                 .runtime_dir()
                 .unwrap_or_else(|| dirs.cache_dir())
                 .join("servers"),
+
+            DirType::Agents => dirs.config_dir().join("agents"),
         }
     };
 
