@@ -77,11 +77,49 @@ Advantages over direct MCP registration:
 - **Sandboxed.** Code runs in QuickJS with configurable timeouts, memory limits, and tool-call caps. No filesystem or network access beyond the MCP servers.
 - **Observable.** The response includes structured diagnostics, console logs, and a redacted tool-call trace for debugging.
 
-Controlled by `SessionConfig::enable_codemode` (default `true`). Both modes can be enabled simultaneously --- direct MCP tools for simple one-shot calls, codemode for complex orchestration.
+Controlled by `SessionConfig::enable_codemode` (default `false`). Both modes can be enabled simultaneously --- direct MCP tools for simple one-shot calls, codemode for complex orchestration.
+
+When MCP and/or codemode are enabled in a parent session, spawned subagents inherit the parent's shared MCP connection pool (and codemode dirty-server tracker when enabled) instead of rediscovering/reconnecting servers. This keeps tool availability consistent across parent/child sessions and avoids duplicated server startup overhead.
 
 ### Workspace skills (`feature = "skills"`)
 
 The spec identifies skills as a natural extension point for reusable prompts. This implementation discovers skill files (markdown with YAML frontmatter) from `.stencila/skills/` and provider-specific directories (e.g. `.claude/skills/` for Anthropic). Compact metadata for all discovered skills is included in the system prompt, and a `use_skill` tool is registered so the LLM can load a skill's full instructions on demand. This progressive-disclosure approach keeps the system prompt small while making the complete skill library accessible. Controlled by `SessionConfig::enable_skills` (default `true`).
+
+### Reasoning stream events (`§2.9`)
+
+In addition to the spec's assistant text lifecycle events, this implementation emits `ASSISTANT_REASONING_START`, `ASSISTANT_REASONING_DELTA`, and `ASSISTANT_REASONING_END` when provider streams include reasoning tokens.
+
+### Streaming-first request path with fallback (`§2.9`)
+
+The core loop prefers `Client::stream()` for incremental `ASSISTANT_TEXT_DELTA` delivery and falls back to `Client::complete()` when streaming is unsupported by the active provider/model. In fallback mode, a synthesized single text-delta event is emitted so downstream consumers can keep one event-processing path.
+
+### Forward-compatible reasoning effort values (`§2.2`, `§2.7`)
+
+The spec enumerates `"low" | "medium" | "high" | null`. This implementation additionally accepts arbitrary strings via `ReasoningEffort::Custom(String)` for provider-specific or future effort levels.
+
+### Explicit line-limit overrides in `SessionConfig` (`§5.3`)
+
+The truncation pipeline in `§5.3` references `config.tool_line_limits`, but the `SessionConfig` record in `§2.2` does not define it. This implementation adds `SessionConfig::tool_line_limits: HashMap<String, usize>` so hosts can override per-tool line caps (`shell`, `grep`, `glob`) without modifying character limits.
+
+### Session-level user instruction override field (`§6.1` layer 5)
+
+The spec defines a fifth prompt layer ("User instructions override") but does not define where that value comes from in `SessionConfig`. This implementation adds `SessionConfig::user_instructions: Option<String>`, appended last in `Session::new()` so hosts can provide explicit per-session override text.
+
+### `delete_file` on `ExecutionEnvironment` (App A support)
+
+To support `apply_patch` delete operations cleanly, this implementation extends `ExecutionEnvironment` with `delete_file(path)`. This operation is used by the local environment and patch applicator but is not part of the core interface list in `§4.1`.
+
+### Deterministic and non-blocking event receiver APIs (`§2.9`)
+
+The spec requires async event delivery but does not define testing/consumption helpers. This implementation additionally exposes `events::channel_with_id(...)` for deterministic session IDs in tests and `EventReceiver::try_recv()` for non-blocking polling.
+
+### Scoped subagent prompt guidance (`§7.2`)
+
+When `spawn_agent` includes `working_dir`, the child system prompt is augmented with explicit scope instructions ("You are scoped to the subdirectory..."). This extra guidance is not required by the spec but improves model behavior by reinforcing directory boundaries in addition to runtime `ScopedExecutionEnvironment` checks.
+
+### `create_session` accepts `google` as a Gemini alias
+
+The convenience constructor accepts both `"gemini"` and `"google"` provider names and maps them to the Gemini profile. The core provider profile ID remains `"gemini"`.
 
 ## Deviations
 
@@ -91,9 +129,17 @@ These are intentional deviations from the spec.
 
 `SessionConfig.default_command_timeout_ms` exists but profile-specific shell defaults remain the effective source of default timeout behavior (OpenAI/Gemini 10s, Anthropic 120s).
 
+### Surfaced SDK errors always close the session (`§2.8`, App B)
+
+The implementation treats any SDK error that reaches `Session` as unrecoverable and transitions to `Closed`, including retryable classes (e.g. rate limit / network) after SDK-level retries are exhausted.
+
 ### `follow_up()` processing scope (`§2.8`)
 
 The spec text implies follow-ups run after natural completion (text-only model response). This implementation processes follow-ups after loop exit on both natural-completion and turn-limit paths.
+
+### `max_turns` counting semantics (`§2.5`)
+
+The pseudocode uses `count_turns(session)` without defining whether this means history entries or LLM cycles. This implementation counts LLM request/response cycles (`total_turns`) rather than raw history entries, so assistant/tool-heavy exchanges do not consume the turn budget as quickly.
 
 ### Tool descriptions prompt layer (`§6.1`)
 
@@ -115,6 +161,34 @@ Spec wording says `send_input` targets a running subagent. This implementation a
 
 The spec says Gemini provider options should configure safety settings and grounding. Safety settings are configured (`BLOCK_ONLY_HIGH` for all categories), but grounding (`google_search_retrieval`) is intentionally not configured.
 
+### Provider parity strictness (`§3.1`)
+
+The spec says the initial provider prompts and tool definitions should be exact byte-for-byte copies of the reference agents. This implementation is provider-aligned but not byte-identical to codex-rs / Claude Code / gemini-cli prompts and harnesses.
+
+### Git commit summary format (`§6.4`)
+
+The spec describes recent commit *subject lines*. This implementation gathers commits with `git log --oneline -10`, which includes abbreviated hashes plus subjects.
+
+### Subagent profile inheritance (`§7.3`)
+
+The spec text says subagents use the parent's `ProviderProfile` (or overridden model). Child sessions currently recreate the provider's base profile and do not inherit parent-registered custom tools.
+
+### Mixed subagent + regular tool calls are forced sequential (`§2.5`, `§7.2`)
+
+When an assistant message contains any subagent tool call (`spawn_agent`, `send_input`, `wait`, `close_agent`), this implementation executes all tool calls in that message sequentially, even if the profile supports parallel tool calls. This preserves subagent-manager borrowing safety but deviates from unconditional parallelization for multi-tool rounds.
+
+### Relative path acceptance for file tools (`§3.3`)
+
+`read_file` and `write_file` schemas describe absolute paths, but the local implementation resolves both absolute and relative paths against `working_directory()`. This is intentionally more permissive than the strict wording in the tool definitions.
+
+### `TURN_LIMIT` event payload shape (`§2.5`, `§2.9`)
+
+The pseudocode examples emit `TURN_LIMIT` with fields like `round` or `total_turns`. This implementation emits a normalized payload `{ "limit_type": "...", "count": N }` for both round and turn limits.
+
+### System prompt layers are snapshot-at-start, not rebuilt per loop (`§2.5`, `§6.1`)
+
+The spec pseudocode builds the system prompt inside each loop iteration. This implementation builds it once at session creation and reuses that snapshot for all subsequent requests in the session.
+
 ## Limitations
 
 The following are known limitations of this implementation of the spec.
@@ -135,6 +209,10 @@ mechanism that cancels the current processing without closing the session.
 
 `read_file` returns image data for multimodal providers via the `ToolOutput::ImageWithText` variant. Image content is currently included in tool result messages for Anthropic only; OpenAI and Gemini receive the text placeholder because their adapters do not support non-text content parts in tool-role messages. Images larger than 5 MB fall back to the text placeholder.
 
+### Non-image binary files return generic I/O errors (`§3.3`)
+
+`read_file` detects images by extension, but other binary files are read via `read_to_string` and fail as generic I/O decoding errors rather than a distinct "binary file" tool error classification.
+
 ### Scoped subagent `working_dir` enforcement (`§7.2`)
 
 `ScopedExecutionEnvironment` enforces `working_dir` at the `ExecutionEnvironment` layer with the following caveats:
@@ -144,6 +222,103 @@ mechanism that cancels the current processing without closing the session.
 - **Symlinks:** Existing paths are fully canonicalized (symlinks resolved). For non-existent paths (e.g. `write_file` targets), the deepest existing ancestor is canonicalized, catching symlinked intermediate directories. A symlink created after validation but before the inner operation completes is not caught (TOCTOU).
 
 - **Recursive operations:** `list_directory`, `grep`, and `glob_files` post-filter results to remove entries whose real path falls outside scope, but the inner walkers still traverse symlinked directories during collection.
+
+### Knowledge cutoff in environment context (`§6.3`)
+
+The environment block supports a `Knowledge cutoff` line, but session startup currently passes `None`, so this field is omitted.
+
+### Subagent shutdown confirmation (`§7.3`, App B graceful shutdown)
+
+`close_all()` is best-effort and non-blocking because `Session::close()` is synchronous. Child tasks are signaled to abort and may briefly outlive parent closure.
+
+### Subagent events are not surfaced to the parent host (`§7.1`-`§7.4`)
+
+Spawned child sessions have their event receivers dropped immediately, so subagent-internal `SESSION_*`, `ASSISTANT_*`, and `TOOL_CALL_*` events are not available through the parent session's event stream.
+
+### MCP tool-name collisions after sanitization/truncation (`§8` MCP extension)
+
+Direct MCP tool registration sanitizes names to `[a-zA-Z0-9_]` and truncates to 64 characters. Distinct MCP tools that collapse to the same final name are skipped (with a warning), so some connected server tools may be unavailable to the model.
+
+### `grep` backend does not use ripgrep (`§4.2`)
+
+The spec recommends using `ripgrep` when available, with language-native regex as fallback. This implementation currently always uses an internal recursive walker with Rust regex matching, so it may be significantly slower on large repositories and differs from ripgrep semantics.
+
+### Execution environment lifecycle hooks are not orchestrated by sessions (`§4.1`)
+
+`ExecutionEnvironment` defines `initialize()` and `cleanup()`, but session startup/shutdown paths do not call them. Custom environments that require explicit lifecycle management must currently handle setup/teardown outside `Session`.
+
+### Explicit `close()` is required for deterministic teardown (`§2.9`, App B graceful shutdown)
+
+`Session` has no `Drop`-based shutdown path. If a host drops a live session without calling `close()`, cleanup that normally runs in `close()` (subagent shutdown, top-level MCP pool shutdown, `SESSION_END` emission) is skipped.
+
+### `send_input` does not interrupt an in-flight initial subagent task (`§7.2`)
+
+Subagent command processing starts only after the initial `spawn_agent` task finishes, so `send_input` cannot steer a still-running first task mid-flight. It waits for initial completion, then sends follow-up input.
+
+### Event buffering is unbounded (`§2.9`)
+
+The event channel uses `tokio::sync::mpsc::unbounded_channel`. If a host keeps the receiver alive but consumes slowly, buffered events can grow without backpressure and increase memory usage.
+
+### Project doc discovery reads full files before budget truncation (`§6.5`)
+
+Project instruction discovery enforces a 32KB final prompt budget, but each discovered file is read in full first (`read_file(..., limit = usize::MAX)`) and only then truncated/filtered into the aggregate budget. Very large instruction files can therefore increase startup I/O and memory before truncation.
+
+### Context-usage warnings are not throttled (`§5.5`)
+
+`check_context_usage()` runs on every loop iteration and emits another warning whenever usage remains above 80% of context window. Long runs near the limit can therefore produce repeated warning events rather than a single threshold-crossing notification.
+
+### `grep` `glob_filter` matches basename only (`§3.3`)
+
+`glob_filter` is applied to each file's basename, not its relative path. Patterns that rely on directory segments (for example `src/**/*.rs`) are therefore not honored.
+
+## Bugs
+
+The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
+
+### Unbounded recursive grep through symlink cycles (`§4.2`) (P0)
+
+`LocalExecutionEnvironment::grep` recurses directories with `path.is_dir()` and no visited-set / symlink-cycle detection, so cyclic symlinks can cause non-terminating traversal or extreme runtime in `grep_walk` (`src/execution/local.rs`).
+
+### Unbounded recursive directory listing through symlink cycles (`§4.2`) (P0)
+
+`list_dir_recursive` follows directory metadata recursively without tracking visited canonical paths, so cyclic symlinks can cause non-terminating traversal or extreme runtime in `list_directory` (`src/execution/local.rs`).
+
+### SDK error path bypasses `Session::close()` cleanup (`§2.8`, App B graceful shutdown) (P0)
+
+`handle_sdk_error` sets state to `Closed` and emits `SESSION_END` directly, but does not call `Session::close()`. On unrecoverable SDK errors this skips subagent `close_all()` and top-level MCP pool shutdown, leaving background children/pools alive longer than intended (`src/session.rs`).
+
+### Dropping a live session can orphan cleanup-sensitive resources (`§2.9`, App B graceful shutdown) (P1)
+
+`Session` teardown logic is centralized in `Session::close()`, but there is no `Drop` implementation that calls it. If callers drop a session without explicit `close()`, active subagents are not synchronously signaled via `close_all()`, top-level MCP pools are not told to shut down, and no `SESSION_END` event is emitted (`src/session.rs`, `src/subagents.rs`).
+
+### Relative `working_directory` can skip root/ancestor project docs (`§6.5`) (P1)
+
+`discover_project_docs` expects `root` and `working_dir` to share a comparable path form when computing the directory chain. In the convenience path, `root` is typically absolute (`git rev-parse --show-toplevel`) while `working_dir` may be relative (`"."`), causing `directories_from_root_to_working_dir` to treat working_dir as outside root and skip ancestor docs (`src/prompts.rs`, `src/project_docs.rs`, `src/convenience.rs`).
+
+### Steering messages can be consumed without LLM delivery on limit exits (`§2.5`, `§2.6`) (P1)
+
+`process_input` drains `steering_queue` before checking round/turn limits at the top of each loop iteration. If a limit is already reached, steering is appended to history and `STEERING_INJECTED` is emitted, but no subsequent LLM call occurs in that cycle, so the message is never delivered to the model (`src/session.rs`).
+
+### Invalid `glob_filter` in grep is silently ignored (P2)
+
+`grep_walk` recompiles `glob::Pattern::new(filter)` per file and ignores parse failures, effectively disabling filtering instead of surfacing a validation error for malformed glob patterns (`src/execution/local.rs`).
+
+### Unknown parent provider IDs silently fall back to Anthropic for subagents (`§7.3`) (P2)
+
+Subagent profile creation matches only `"openai"`, `"anthropic"`, and `"gemini"`. Any other parent `ProviderProfile::id()` silently falls back to an Anthropic child profile instead of preserving parent behavior or returning an error (`src/subagents.rs`).
+
+### Project docs truncation can exceed the 32KB budget (`§6.5`) (P3)
+
+When truncation is triggered, `discover_project_docs` enforces remaining content bytes but appends `\n` + truncation marker afterward without including marker bytes in the budget check, so final output can exceed 32KB (`src/project_docs.rs`).
+
+### Head/tail truncation under-reports removed characters for odd limits (`§5.1`) (P3)
+
+`truncate_output` computes `removed = char_count - max_chars` but keeps only `2 * (max_chars / 2)` characters in head/tail mode. For odd `max_chars`, this drops one extra character while reporting a smaller removed count in the warning marker (`src/truncation.rs`).
+
+### Scoped grep path parsing breaks on `:<digits>:` in file names (`§7.2`) (P3)
+
+`extract_grep_path` treats the first `:<digits>:` sequence as the line-number delimiter. For valid Linux file names containing this pattern before the real line number, scoped grep post-filtering can parse the path incorrectly and drop in-scope matches (`src/execution/scoped.rs`).
+
 
 
 ## Development
