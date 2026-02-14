@@ -112,10 +112,7 @@ pub fn translate_request(
         .and_then(|t| t.get("budget_tokens"))
         .and_then(Value::as_u64)
     {
-        let current_max = body
-            .get("max_tokens")
-            .and_then(Value::as_u64)
-            .unwrap_or(0);
+        let current_max = body.get("max_tokens").and_then(Value::as_u64).unwrap_or(0);
         if current_max <= budget {
             body.insert("max_tokens".to_string(), json!(budget + max_tokens));
         }
