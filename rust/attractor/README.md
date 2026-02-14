@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **Current-node context updates are not visible to routing decisions (§3.2–§3.3)**: The engine selects the next edge (including failure routing conditions) before applying `outcome.context_updates` to context, so conditions that depend on updates from the just-finished node can route incorrectly. (P0)
-
 - **Negative retry counts overflow to huge attempt limits (§2.6, §3.5)**: `max_retries` / `default_max_retry` are parsed as signed integers but cast directly to `u32` in retry policy construction; negative values wrap to very large numbers, causing effectively unbounded retries. (P0)
 
 - **Goal-gate failure target selection is nondeterministic when multiple gates fail (§3.4)**: Goal-gate checks iterate a `HashMap` of node outcomes, so the "first" unsatisfied gate (and therefore selected retry target) can vary across runs. (P0)

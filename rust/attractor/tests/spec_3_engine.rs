@@ -1738,3 +1738,225 @@ async fn engine_failure_routing_via_fail_edge() -> AttractorResult<()> {
     assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// Context updates visible to routing (§3.2 Step 4 before Step 6)
+// ---------------------------------------------------------------------------
+
+/// A handler that returns a node-specific outcome for a designated target
+/// node and a plain success for all others. Records every node ID it
+/// executes via a shared list.
+struct NodeSpecificHandler {
+    target_node_id: String,
+    target_outcome: Outcome,
+    visited: Arc<Mutex<Vec<String>>>,
+}
+
+impl NodeSpecificHandler {
+    fn new(
+        target_node_id: impl Into<String>,
+        target_outcome: Outcome,
+        visited: Arc<Mutex<Vec<String>>>,
+    ) -> Self {
+        Self {
+            target_node_id: target_node_id.into(),
+            target_outcome,
+            visited,
+        }
+    }
+}
+
+#[async_trait]
+impl Handler for NodeSpecificHandler {
+    async fn execute(
+        &self,
+        node: &Node,
+        _context: &Context,
+        _graph: &Graph,
+        _logs_root: &Path,
+    ) -> AttractorResult<Outcome> {
+        if let Ok(mut visited) = self.visited.lock() {
+            visited.push(node.id.clone());
+        }
+        if node.id == self.target_node_id {
+            Ok(self.target_outcome.clone())
+        } else {
+            Ok(Outcome::success())
+        }
+    }
+}
+
+/// Regression test: a handler's `context_updates` must be applied to the
+/// pipeline context *before* success-path edge selection so that outgoing
+/// conditions can reference the newly-set keys (§3.2 Step 4 before Step 6).
+///
+/// Graph:
+///   start → task → (condition: context.route=retry → retry_path)
+///                    (unconditional default  → default_path)
+///   retry_path → exit
+///   default_path → exit
+///
+/// Only `task` returns `context_updates = { "route": "retry" }` (the
+/// handler branches on node ID). If context updates are applied before
+/// routing, the condition edge to `retry_path` matches. If not, the
+/// unconditional default is taken.
+#[tokio::test]
+async fn engine_context_updates_visible_to_success_routing() -> AttractorResult<()> {
+    let tmp = common::make_tempdir()?;
+
+    let mut g = Graph::new("ctx_route_test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let task = Node::new("task");
+    g.add_node(task);
+
+    let retry_path = Node::new("retry_path");
+    g.add_node(retry_path);
+
+    let default_path = Node::new("default_path");
+    g.add_node(default_path);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "task"));
+
+    // Conditional edge: should match when context.route == "retry"
+    let mut cond_edge = Edge::new("task", "retry_path");
+    cond_edge
+        .attrs
+        .insert("condition".into(), AttrValue::from("context.route=retry"));
+    g.add_edge(cond_edge);
+
+    // Unconditional fallback edge (lower priority per §3.3 Step 4-5)
+    g.add_edge(Edge::new("task", "default_path"));
+
+    g.add_edge(Edge::new("retry_path", "exit"));
+    g.add_edge(Edge::new("default_path", "exit"));
+
+    // Only task sets context_updates; other nodes return plain success.
+    let mut task_outcome = Outcome::success();
+    task_outcome
+        .context_updates
+        .insert("route".to_string(), Value::String("retry".into()));
+
+    let visited: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.registry.register(
+        "codergen",
+        NodeSpecificHandler::new("task", task_outcome, visited.clone()),
+    );
+
+    let result = engine::run(&g, config).await?;
+    assert_eq!(result.status, StageStatus::Success);
+
+    let visited = visited.lock().map_err(|_| AttractorError::HandlerFailed {
+        node_id: "test".into(),
+        reason: "lock poisoned".into(),
+    })?;
+    assert!(
+        visited.contains(&"retry_path".to_string()),
+        "expected retry_path to be visited but handler saw: {visited:?}"
+    );
+    assert!(
+        !visited.contains(&"default_path".to_string()),
+        "default_path should NOT be visited when condition matches"
+    );
+    Ok(())
+}
+
+/// Regression test: context updates must also be visible to *failure*
+/// routing (§3.7 `find_fail_edge`), not just success-path edge selection.
+///
+/// Graph:
+///   start → task → (condition: context.error_type=recoverable → recovery)
+///                    (unconditional → dead_end)
+///   recovery → exit
+///   dead_end → exit
+///
+/// Only `task` returns FAIL + `context_updates = { "error_type": "recoverable" }`.
+/// If context updates are applied before fail-edge routing, the conditional
+/// fail edge to `recovery` matches. If not, the engine would fall through
+/// to retry-target resolution or pipeline failure.
+#[tokio::test]
+async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()> {
+    let tmp = common::make_tempdir()?;
+
+    let mut g = Graph::new("ctx_fail_route_test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let task = Node::new("task");
+    g.add_node(task);
+
+    let recovery = Node::new("recovery");
+    g.add_node(recovery);
+
+    let dead_end = Node::new("dead_end");
+    g.add_node(dead_end);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "task"));
+
+    // Fail edge: condition checks a context key set by the failing handler.
+    let mut fail_edge = Edge::new("task", "recovery");
+    fail_edge.attrs.insert(
+        "condition".into(),
+        AttrValue::from("outcome=fail && context.error_type=recoverable"),
+    );
+    g.add_edge(fail_edge);
+
+    // Unconditional edge (used on success; not taken on this test path)
+    g.add_edge(Edge::new("task", "dead_end"));
+
+    g.add_edge(Edge::new("recovery", "exit"));
+    g.add_edge(Edge::new("dead_end", "exit"));
+
+    // Only task returns FAIL with context_updates; others return success.
+    let mut task_outcome = Outcome::fail("recoverable error");
+    task_outcome.context_updates.insert(
+        "error_type".to_string(),
+        Value::String("recoverable".into()),
+    );
+
+    let visited: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.registry.register(
+        "codergen",
+        NodeSpecificHandler::new("task", task_outcome, visited.clone()),
+    );
+
+    let result = engine::run(&g, config).await?;
+    assert_eq!(result.status, StageStatus::Success);
+
+    let visited = visited.lock().map_err(|_| AttractorError::HandlerFailed {
+        node_id: "test".into(),
+        reason: "lock poisoned".into(),
+    })?;
+    assert!(
+        visited.contains(&"recovery".to_string()),
+        "expected recovery to be visited via fail edge but handler saw: {visited:?}"
+    );
+    assert!(
+        !visited.contains(&"dead_end".to_string()),
+        "dead_end should NOT be visited when fail condition matches"
+    );
+    Ok(())
+}

@@ -236,7 +236,7 @@ async fn execute_loop(
 
             let outcome =
                 execute_node(node, graph, &config, &run_dir, &context, state.stage_index).await?;
-            record_and_checkpoint(node, &outcome, &run_dir, &context, &mut state, false, None)?;
+            record_and_checkpoint(node, &outcome, &run_dir, &context, &mut state, None)?;
             config.emitter.emit(PipelineEvent::CheckpointSaved {
                 node_id: node.id.clone(),
             });
@@ -267,6 +267,22 @@ async fn execute_loop(
             context.set("internal.resume_degrade_fidelity", Value::Bool(false));
         }
 
+        // §3.2 Step 4: Apply context updates from outcome before edge
+        // selection so that routing conditions see the updated context.
+        if !outcome.context_updates.is_empty() {
+            context.apply_updates(&outcome.context_updates);
+        }
+        context.set(
+            "outcome",
+            Value::String(outcome.status.as_str().to_string()),
+        );
+        if !outcome.preferred_label.is_empty() {
+            context.set(
+                "preferred_label",
+                Value::String(outcome.preferred_label.clone()),
+            );
+        }
+
         // Determine next node *before* saving the checkpoint so the
         // checkpoint contains the resolved next_node_id in a single
         // write (§5.3). This covers both success and failure paths.
@@ -289,7 +305,6 @@ async fn execute_loop(
             &run_dir,
             &context,
             &mut state,
-            true,
             next_node_id.as_deref(),
         )?;
         config.emitter.emit(PipelineEvent::CheckpointSaved {
@@ -379,13 +394,11 @@ async fn execute_node(
     .await)
 }
 
-/// Record outcome, optionally apply context updates, sync retry counts,
-/// and save a checkpoint.
+/// Record outcome, sync retry counts, and save a checkpoint.
 ///
-/// When `apply_context_updates` is true, the outcome's context updates
-/// are applied and `outcome`/`preferred_label` keys are set. This is
-/// used for regular nodes. Exit nodes pass `false` to skip context
-/// updates since the pipeline is about to finish.
+/// Context updates are applied earlier in the loop (before edge
+/// selection per §3.2 Step 4), so this function only records the
+/// outcome and persists checkpoint state.
 ///
 /// The optional `next_node_id` is written into the checkpoint so that
 /// resume routing is unambiguous even in branching graphs (§5.3).
@@ -395,7 +408,6 @@ fn record_and_checkpoint(
     run_dir: &RunDirectory,
     context: &Context,
     state: &mut LoopState,
-    apply_context_updates: bool,
     next_node_id: Option<&str>,
 ) -> AttractorResult<()> {
     run_dir.write_status(&node.id, outcome)?;
@@ -410,22 +422,6 @@ fn record_and_checkpoint(
     if let Some(count) = context.get_i64(&format!("internal.retry_count.{}", node.id)) {
         #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
         state.node_retries.insert(node.id.clone(), count as u32);
-    }
-
-    if apply_context_updates {
-        if !outcome.context_updates.is_empty() {
-            context.apply_updates(&outcome.context_updates);
-        }
-        context.set(
-            "outcome",
-            Value::String(outcome.status.as_str().to_string()),
-        );
-        if !outcome.preferred_label.is_empty() {
-            context.set(
-                "preferred_label",
-                Value::String(outcome.preferred_label.clone()),
-            );
-        }
     }
 
     let checkpoint = Checkpoint::from_context(
