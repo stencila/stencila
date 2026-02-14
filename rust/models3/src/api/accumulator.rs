@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::types::content::ContentPart;
 use crate::types::finish_reason::{FinishReason, Reason};
 use crate::types::message::Message;
@@ -32,8 +34,10 @@ pub struct StreamAccumulator {
     text: String,
     reasoning: String,
     tool_calls: Vec<ToolCall>,
-    // In-progress tool call being built from deltas
-    current_tool_call: Option<InProgressToolCall>,
+    /// In-progress tool calls being built from deltas, keyed by tool call ID.
+    /// Multiple calls can be in-flight simultaneously when providers emit
+    /// interleaved deltas (e.g. OpenAI Chat Completions).
+    pending_tool_calls: HashMap<String, InProgressToolCall>,
     finish_reason: Option<FinishReason>,
     usage: Option<Usage>,
     warnings: Vec<Warning>,
@@ -77,25 +81,46 @@ impl StreamAccumulator {
             }
             StreamEventType::ToolCallStart => {
                 if let Some(ref tc) = event.tool_call {
-                    self.current_tool_call = Some(InProgressToolCall {
-                        id: tc.id.clone(),
-                        name: tc.name.clone(),
-                        arguments_buf: String::new(),
-                    });
+                    self.pending_tool_calls.insert(
+                        tc.id.clone(),
+                        InProgressToolCall {
+                            id: tc.id.clone(),
+                            name: tc.name.clone(),
+                            arguments_buf: String::new(),
+                        },
+                    );
                 }
             }
             StreamEventType::ToolCallDelta => {
-                if let Some(ref tc) = event.tool_call
-                    && let Some(ref mut current) = self.current_tool_call
-                {
-                    // Accumulate argument deltas (raw_arguments carries the delta text)
-                    if let Some(ref raw) = tc.raw_arguments {
+                if let Some(ref tc) = event.tool_call {
+                    // Look up by ID so interleaved deltas go to the right call
+                    if let Some(current) = self.pending_tool_calls.get_mut(&tc.id)
+                        && let Some(ref raw) = tc.raw_arguments
+                    {
                         current.arguments_buf.push_str(raw);
                     }
                 }
             }
             StreamEventType::ToolCallEnd => {
-                if let Some(current) = self.current_tool_call.take() {
+                // Remove the matching pending call by ID. If the end event has an
+                // empty/missing ID, fall back to the sole pending call (preserving
+                // pre-interleaving-fix behavior for providers that omit the ID).
+                let call_id = event
+                    .tool_call
+                    .as_ref()
+                    .map(|tc| tc.id.clone())
+                    .filter(|id| !id.is_empty());
+                let current = call_id
+                    .and_then(|id| self.pending_tool_calls.remove(&id))
+                    .or_else(|| {
+                        if self.pending_tool_calls.len() == 1 {
+                            let key = self.pending_tool_calls.keys().next()?.clone();
+                            self.pending_tool_calls.remove(&key)
+                        } else {
+                            None
+                        }
+                    });
+                if let Some(current) = current {
                     if current.arguments_buf.is_empty() {
                         // No deltas received (Gemini pattern: Start + End with full args).
                         // Fall back to the arguments carried on the end event itself.

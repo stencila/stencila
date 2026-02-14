@@ -217,10 +217,6 @@ When tool-call argument parsing/schema validation fails, the current behavior is
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### Interleaved streamed tool-call deltas can be misassembled (P0)
-
-`StreamAccumulator` tracks only one in-progress tool call (`current_tool_call`). If a provider emits interleaved `tool_call_delta` events for multiple calls before corresponding `tool_call_end` events, argument assembly can be attributed to the wrong call.
-
 ### `text_stream()` drops stream errors (P0)
 
 `StreamResult::text_stream()` converts `Some(Err(_))` from `next_event()` into stream termination (`None`) instead of surfacing the error, so consumers using text-only streaming can miss mid-stream failures.

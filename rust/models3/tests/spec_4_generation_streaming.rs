@@ -372,6 +372,246 @@ fn accumulator_gemini_tool_calls_no_delta() {
     assert!(calls[0].parse_error.is_none());
 }
 
+/// Interleaved tool-call deltas from multiple concurrent calls must be
+/// correctly attributed to their respective calls by ID.
+/// This pattern occurs with OpenAI Chat Completions when multiple tool calls
+/// arrive in the same SSE chunk.
+#[test]
+fn accumulator_interleaved_tool_call_deltas() {
+    use stencila_models3::types::tool::ToolCall;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+
+    // Start call A
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-a".into(),
+            name: "get_weather".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Start call B (before A ends)
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-b".into(),
+            name: "get_time".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Delta for A
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-a".into(),
+            name: String::new(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#"{"city":"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Delta for B (interleaved)
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-b".into(),
+            name: String::new(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#"{"tz":"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Another delta for A
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-a".into(),
+            name: String::new(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#""NYC"}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Another delta for B
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-b".into(),
+            name: String::new(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#""UTC"}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // End A
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallEnd,
+        ToolCall {
+            id: "call-a".into(),
+            name: "get_weather".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // End B
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallEnd,
+        ToolCall {
+            id: "call-b".into(),
+            name: "get_time".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    acc.process(&StreamEvent::finish(
+        FinishReason::new(Reason::ToolCalls, None),
+        Usage::default(),
+    ));
+
+    let calls = acc.tool_calls();
+    assert_eq!(calls.len(), 2);
+
+    assert_eq!(calls[0].id, "call-a");
+    assert_eq!(calls[0].name, "get_weather");
+    assert_eq!(calls[0].arguments, serde_json::json!({"city": "NYC"}));
+    assert!(calls[0].parse_error.is_none());
+
+    assert_eq!(calls[1].id, "call-b");
+    assert_eq!(calls[1].name, "get_time");
+    assert_eq!(calls[1].arguments, serde_json::json!({"tz": "UTC"}));
+    assert!(calls[1].parse_error.is_none());
+}
+
+/// ToolCallEnd with an empty ID should fall back to the sole pending call.
+#[test]
+fn accumulator_tool_call_end_empty_id_fallback() {
+    use stencila_models3::types::tool::ToolCall;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+
+    // Start with a real ID
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-x".into(),
+            name: "lookup".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Delta
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-x".into(),
+            name: String::new(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#"{"q":"hi"}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // End with empty ID — should still resolve the sole pending call
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallEnd,
+        ToolCall {
+            id: String::new(),
+            name: String::new(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    acc.process(&StreamEvent::finish(
+        FinishReason::new(Reason::ToolCalls, None),
+        Usage::default(),
+    ));
+
+    let calls = acc.tool_calls();
+    assert_eq!(calls.len(), 1);
+    assert_eq!(calls[0].id, "call-x");
+    assert_eq!(calls[0].name, "lookup");
+    assert_eq!(calls[0].arguments, serde_json::json!({"q": "hi"}));
+}
+
+/// Gemini-style ToolCallEnd (no deltas, full args on end event) with empty ID
+/// should still work via the sole-pending-call fallback.
+#[test]
+fn accumulator_gemini_end_empty_id_fallback() {
+    use stencila_models3::types::tool::ToolCall;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-g2".into(),
+            name: "search".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // End event has empty ID but carries full arguments
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallEnd,
+        ToolCall {
+            id: String::new(),
+            name: "search".into(),
+            arguments: serde_json::json!({"query": "test"}),
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    acc.process(&StreamEvent::finish(
+        FinishReason::new(Reason::ToolCalls, None),
+        Usage::default(),
+    ));
+
+    let calls = acc.tool_calls();
+    assert_eq!(calls.len(), 1);
+    // ID comes from the start event via the pending state
+    assert_eq!(calls[0].id, "call-g2");
+    assert_eq!(calls[0].name, "search");
+    assert_eq!(calls[0].arguments, serde_json::json!({"query": "test"}));
+}
+
 // ── stream_generate() ────────────────────────────────────────────
 
 #[tokio::test]
