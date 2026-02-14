@@ -267,10 +267,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### SDK error path bypasses `Session::close()` cleanup (`§2.8`, App B graceful shutdown) (P0)
-
-`handle_sdk_error` sets state to `Closed` and emits `SESSION_END` directly, but does not call `Session::close()`. On unrecoverable SDK errors this skips subagent `close_all()` and top-level MCP pool shutdown, leaving background children/pools alive longer than intended (`src/session.rs`).
-
 ### Dropping a live session can orphan cleanup-sensitive resources (`§2.9`, App B graceful shutdown) (P1)
 
 `Session` teardown logic is centralized in `Session::close()`, but there is no `Drop` implementation that calls it. If callers drop a session without explicit `close()`, active subagents are not synchronously signaled via `close_all()`, top-level MCP pools are not told to shut down, and no `SESSION_END` event is emitted (`src/session.rs`, `src/subagents.rs`).

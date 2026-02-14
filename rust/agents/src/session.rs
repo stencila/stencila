@@ -1177,8 +1177,7 @@ impl Session {
                 .emit_error(agent_error.code(), agent_error.to_string());
         }
 
-        self.state = SessionState::Closed;
-        self.events.emit_session_end(self.state);
+        self.close();
         Err(agent_error)
     }
 
