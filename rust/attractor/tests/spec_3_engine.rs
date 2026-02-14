@@ -2183,3 +2183,74 @@ async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()>
     );
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// preferred_label staleness (§5.1)
+// ---------------------------------------------------------------------------
+
+/// Regression: `preferred_label` must be cleared when a later stage
+/// produces no preferred label, not left stale from an earlier stage.
+///
+/// Graph: start → node_a → node_b → exit
+///   node_a handler returns preferred_label = "Fix"
+///   node_b handler returns preferred_label = "" (empty)
+///
+/// After the pipeline, the checkpoint context should have
+/// preferred_label = "" (not "Fix").
+#[tokio::test]
+async fn engine_preferred_label_cleared_between_stages() -> AttractorResult<()> {
+    let tmp = common::make_tempdir()?;
+
+    let mut g = Graph::new("pref_label_test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    g.add_node(Node::new("node_a"));
+    g.add_node(Node::new("node_b"));
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "node_a"));
+    g.add_edge(Edge::new("node_a", "node_b"));
+    g.add_edge(Edge::new("node_b", "exit"));
+
+    // node_a sets preferred_label, node_b does not.
+    let mut outcome_a = Outcome::success();
+    outcome_a.preferred_label = "Fix".to_string();
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.registry.register(
+        "codergen",
+        SequenceHandler::new(vec![outcome_a, Outcome::success()]),
+    );
+
+    engine::run(&g, config).await?;
+
+    // Load the final checkpoint and check the context.
+    let entries: Vec<_> = std::fs::read_dir(tmp.path())
+        .map_err(|e| AttractorError::Io {
+            message: e.to_string(),
+        })?
+        .filter_map(|e| e.ok())
+        .collect();
+    let run_dir = &entries[0].path();
+    let checkpoint = Checkpoint::load(&run_dir.join("checkpoint.json"))?;
+
+    let label = checkpoint
+        .context_values
+        .get("preferred_label")
+        .and_then(|v| v.as_str())
+        .unwrap_or("MISSING");
+    assert_eq!(
+        label, "",
+        "preferred_label should be cleared after a stage with no label, got: {label:?}"
+    );
+    Ok(())
+}

@@ -274,12 +274,11 @@ async fn execute_loop(
             "outcome",
             Value::String(outcome.status.as_str().to_string()),
         );
-        if !outcome.preferred_label.is_empty() {
-            context.set(
-                "preferred_label",
-                Value::String(outcome.preferred_label.clone()),
-            );
-        }
+        // Always overwrite to clear stale values from earlier stages (§5.1).
+        context.set(
+            "preferred_label",
+            Value::String(outcome.preferred_label.clone()),
+        );
 
         // Determine next node *before* saving the checkpoint so the
         // checkpoint contains the resolved next_node_id in a single
