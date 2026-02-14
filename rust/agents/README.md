@@ -267,14 +267,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### Project docs truncation can exceed the 32KB budget (`§6.5`) (P3)
-
-When truncation is triggered, `discover_project_docs` enforces remaining content bytes but appends `\n` + truncation marker afterward without including marker bytes in the budget check, so final output can exceed 32KB (`src/project_docs.rs`).
-
-### Head/tail truncation under-reports removed characters for odd limits (`§5.1`) (P3)
-
-`truncate_output` computes `removed = char_count - max_chars` but keeps only `2 * (max_chars / 2)` characters in head/tail mode. For odd `max_chars`, this drops one extra character while reporting a smaller removed count in the warning marker (`src/truncation.rs`).
-
 ### Scoped grep path parsing breaks on `:<digits>:` in file names (`§7.2`) (P3)
 
 `extract_grep_path` treats the first `:<digits>:` sequence as the line-number delimiter. For valid Linux file names containing this pattern before the real line number, scoped grep post-filtering can parse the path incorrectly and drop in-scope matches (`src/execution/scoped.rs`).

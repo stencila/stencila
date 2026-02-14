@@ -77,8 +77,10 @@ pub async fn discover_project_docs(
             let content_bytes = content.len() + separator_len;
 
             if total_bytes + content_bytes > MAX_PROJECT_DOCS_BYTES {
-                // Append what fits, then truncation marker
-                let remaining = MAX_PROJECT_DOCS_BYTES.saturating_sub(total_bytes + separator_len);
+                // Reserve space for "\n" + marker so total stays within budget
+                let marker_bytes = 1 + TRUNCATION_MARKER.len();
+                let remaining = MAX_PROJECT_DOCS_BYTES
+                    .saturating_sub(total_bytes + separator_len + marker_bytes);
                 if remaining > 0 {
                     if !result.is_empty() {
                         result.push_str("\n\n");

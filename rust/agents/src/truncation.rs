@@ -160,9 +160,10 @@ pub fn truncate_output(output: &str, max_chars: usize, mode: TruncationMode) -> 
 
     match mode {
         TruncationMode::HeadTail => {
-            let half = max_chars / 2;
-            let head: String = output.chars().take(half).collect();
-            let tail: String = output.chars().skip(char_count - half).collect();
+            let tail_half = max_chars / 2;
+            let head_half = max_chars - tail_half;
+            let head: String = output.chars().take(head_half).collect();
+            let tail: String = output.chars().skip(char_count - tail_half).collect();
             format!(
                 "{head}\n\n\
                  [WARNING: Tool output was truncated. \
