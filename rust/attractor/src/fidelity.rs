@@ -74,15 +74,15 @@ pub fn resolve_thread_id(
         return tid.to_string();
     }
 
-    // 4. Node class
-    if let Some(class) = node.get_str_attr("class") {
-        // Use first class as thread key
-        if let Some(first_class) = class.split(',').next().map(str::trim)
-            && !first_class.is_empty()
+    // 4. Enclosing subgraph class (§5.4)
+    //    The subgraph-derived class is appended last by the parser, so
+    //    use the last token from the comma-separated class list.
+    if let Some(class) = node.get_str_attr("class")
+        && let Some(last_class) = class.rsplit(',').next().map(str::trim)
+            && !last_class.is_empty()
         {
-            return first_class.to_string();
+            return last_class.to_string();
         }
-    }
 
     // 5. Previous node ID
     previous_node_id.to_string()

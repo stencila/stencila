@@ -122,13 +122,6 @@ The following are known limitations of this implementation of the spec.
 
 - **Question metadata field (§6.2)**: `Question.metadata` from the spec model is not represented in the current interviewer types.
 
-## Bugs
-
-The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
-
-- **Thread resolution can use explicit `class` before enclosing subgraph class (§5.4)**: Step 4 of thread resolution is specified as the derived enclosing-subgraph class, but the implementation takes the first class token from node `class`, which may be an explicit class instead. (P2)
-
-
 ## Development
 
 ### Updating the spec

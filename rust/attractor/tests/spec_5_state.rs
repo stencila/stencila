@@ -334,7 +334,7 @@ fn thread_id_from_class_attr() {
         .insert("class".into(), AttrValue::from("review, test"));
     let g = Graph::new("test");
     let tid = resolve_thread_id(&node, None, &g, "prev");
-    assert_eq!(tid, "review"); // first class
+    assert_eq!(tid, "test"); // last class (subgraph-derived class is appended)
 }
 
 #[test]
