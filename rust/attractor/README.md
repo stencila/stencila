@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **`max_parallel` integer values are ignored in `parallel` handler**: `max_parallel` is read via `get_str_attr` and parsed as `usize`, so numeric DOT values like `max_parallel=1` (parsed as integer) are silently ignored and fall back to default concurrency. (P1)
-
 - **Quoted `timeout` durations are ignored by timeout-enforcing handlers (§2.6, §4.10)**: `timeout="5s"` parses as a string value, but handlers such as `tool` only read `AttrValue::Duration`, so quoted duration values silently disable timeout enforcement. (P1)
 
 - **`wait.human` reads non-spec `timeout_seconds` instead of node `timeout` (§2.6, §4.6, §6.5)**: The handler does not consume the standard node `timeout` duration attribute for interview timeouts; only a non-spec string attribute `timeout_seconds` is read. (P2)

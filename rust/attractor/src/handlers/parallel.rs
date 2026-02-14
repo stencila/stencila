@@ -127,8 +127,12 @@ impl Handler for ParallelHandler {
             join: JoinPolicy::from_str_or_default(node.get_str_attr("join_policy")),
             error: ErrorPolicy::from_str_or_default(node.get_str_attr("error_policy")),
             max_parallel: node
-                .get_str_attr("max_parallel")
-                .and_then(|s| s.parse::<usize>().ok())
+                .get_attr("max_parallel")
+                .and_then(|v| match v {
+                    crate::graph::AttrValue::Integer(n) => usize::try_from(*n).ok(),
+                    crate::graph::AttrValue::String(s) => s.parse::<usize>().ok(),
+                    _ => None,
+                })
                 .unwrap_or(DEFAULT_MAX_PARALLEL)
                 .max(1),
         };
