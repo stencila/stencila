@@ -131,6 +131,22 @@ When compiled with the `secrets` feature, `get_secret` reads API keys from envir
 When compiled with the `cli` feature, this crate exposes CLI access to model listing/model info parts of the spec, plus generation workflows (primarily for testing and validation).
 For full command and option details, run `stencila models --help`.
 
+### Additional providers beyond the base spec
+
+In addition to OpenAI / Anthropic / Gemini, this crate also ships adapters for Mistral, DeepSeek, and Ollama (all through their native or OpenAI-compatible APIs).
+
+### Provider allowlist and priority from `stencila.toml`
+
+`Client::from_env()` and `Client::from_env_with_auth()` support `models.providers` configuration in `stencila.toml` to constrain which providers are registered and to control provider selection priority.
+
+### Anthropic prompt-caching auto-marking and beta aliasing
+
+The Anthropic adapter automatically injects `cache_control: { "type": "ephemeral" }` markers on cacheable request blocks and enables the `prompt-caching-2024-07-31` beta header by default (`auto_cache: true`). It also accepts `provider_options.anthropic.beta_features` as an alias of `beta_headers`.
+
+### Tool-loop step boundary stream event
+
+During multi-step tool execution in `stream_generate()`, this crate emits an additional `step_finish` stream event between model rounds. This event includes the completed step's `finish_reason` and `usage` and is intended to make tool-loop boundaries explicit to stream consumers.
+
 ## Deviations
 
 These are intentional deviations from the spec.
@@ -153,29 +169,81 @@ These are intentional deviations from the spec.
 - Rust naming: `stream_generate()`
 - Rationale: avoids collision with low-level `Client::stream()`.
 
+### High-level streaming result API shape
+
+- Spec shape: returned value is directly an async iterator over stream events; `partial_response: Response | None`; `response() -> Response` after stream end
+- Rust shape: returns `StreamResult` with `next_event()` / `collect()` / `text_stream()` helpers, `partial_response() -> Response`, and `response() -> Option<Response>`
+- Rationale: keeps accumulation state and convenience accessors on one owned handle, avoids optional handling in hot loops for partial snapshots, and makes completion state explicit for final responses.
+
+### Provider resolution when `provider` is omitted
+
+- Spec behavior (`§2.2`): when `request.provider` is omitted, use `default_provider` and do not guess.
+- Rust behavior: attempts provider inference from model ID/alias in the catalog before falling back to default provider.
+- Rationale: makes provider-agnostic calls work when model names or aliases are unambiguous.
+
 ## Limitations
 
 These are known limitations of this implementation of the spec.
 
-### Incremental partial-object streaming (`§4.6`)
+### Structured output gaps (`§4.5-§4.6`)
 
-`stream_object()` currently collects the full stream and parses once at the end; incremental partial-object parsing is not yet implemented.
-
-### Anthropic structured output fallback (`§4.5`)
-
-Anthropic does not natively support `json_schema` response format in the same way as other providers; fallback strategies (system-prompt shaping or tool-based extraction) are not yet implemented.
-
-### Streaming total timeout (`§4.7`)
-
-`stream_generate()` does not enforce `total` timeout internally because streams are lazy; callers should wrap stream consumption in `tokio::time::timeout`.
-
-### Streaming per-step timeout scope (`§4.7`)
-
-`per_step` timeout currently applies to provider stream connection setup, not per-event reads after connection is established.
+`stream_object()` currently collects the full stream and parses once at the end; incremental partial-object parsing is not yet implemented. Anthropic does not natively support `json_schema` response format in the same way as other providers, and fallback strategies (system-prompt shaping or tool-based extraction) are not yet implemented.
 
 ### StreamAccumulator multi-segment support (`§4.4`)
 
-Accumulator behavior currently assumes a single text segment per step; concurrent/interleaved multi-segment assembly is not yet supported.
+Accumulator behavior currently assumes a single in-flight segment per kind and does not fully support concurrent/interleaved multi-segment assembly.
+
+### Timeout coverage gaps (`§4.7`)
+
+`stream_generate()` does not enforce `total` timeout internally because streams are lazy; callers should wrap stream consumption in `tokio::time::timeout`. `per_step` timeout currently applies to provider stream connection setup, not per-event reads after connection is established. `Timeout.connect` and `Timeout.stream_idle` exist on the public `Timeout` type but are not currently enforced as request-level overrides in provider execution paths.
+
+### No implicit latest-model selection (`§2.9`)
+
+The public `Request` / high-level option builders require an explicit model string; they do not currently auto-select a provider's latest model when no model is provided.
+
+### No sync wrapper API (`§2.6`)
+
+The crate currently exposes async APIs only (`Client`, `generate`, `stream_generate`, `generate_object`, `stream_object`) and does not provide blocking/sync wrappers.
+
+### Tool execute context injection not implemented (`§5.2`)
+
+Tool execute handlers currently receive only parsed argument JSON; injected context parameters like `messages`, `abort_signal`, and `tool_call_id` are not supported.
+
+### Tool-call repair hook not implemented (`§5.8`)
+
+When tool-call argument parsing/schema validation fails, the current behavior is to return an error `ToolResult`; a configurable `repair_tool_call` flow is not implemented.
+
+## Bugs
+
+The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
+
+### Interleaved streamed tool-call deltas can be misassembled (P0)
+
+`StreamAccumulator` tracks only one in-progress tool call (`current_tool_call`). If a provider emits interleaved `tool_call_delta` events for multiple calls before corresponding `tool_call_end` events, argument assembly can be attributed to the wrong call.
+
+### `text_stream()` drops stream errors (P0)
+
+`StreamResult::text_stream()` converts `Some(Err(_))` from `next_event()` into stream termination (`None`) instead of surfacing the error, so consumers using text-only streaming can miss mid-stream failures.
+
+### OpenAI request translation can reorder assistant text and tool-call content (P1)
+
+When replaying assistant messages that contain both `Text` and `ToolCall` parts, `translate_request()` buffers text into a `message` item but emits `function_call` items immediately, so mixed-content ordering is not preserved.
+
+### Request-level `connect` and `stream_idle` timeout overrides are ignored (P1)
+
+`Timeout.connect` and `Timeout.stream_idle` can be set on requests but are not consumed by `HttpClient::post_json` / `HttpClient::post_stream`; only `Timeout.request` is currently applied.
+
+### Replacing the module-level default client leaks the previous instance (P2)
+
+`set_default_client()` stores a leaked `'static` client each time it is called, but does not reclaim or close the previously stored client, so repeated replacement accumulates leaked clients/resources in long-lived processes.
+
+### `StreamResult::response()` remains `None` after error-terminated streams (P2)
+
+When streaming terminates via an emitted `error` event (from an in-stream provider failure), `StreamResult` marks the stream done but never sets `final_response`, so `response()` still returns `None` even after stream exhaustion.
+
+### `step_finish` drops provider-specific finish reason details (P3)
+
+`stream_generate()` emits `step_finish` with `FinishReason { reason: "tool_calls", raw: None }` instead of forwarding the completed step's original `finish_reason.raw` value (e.g. Anthropic `tool_use`).
 
 ## Development
 
