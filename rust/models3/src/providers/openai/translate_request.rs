@@ -126,17 +126,36 @@ fn translate_message(
             }
         }
         Role::User | Role::Assistant => {
-            let mut message_content = Vec::new();
+            let role_str = if message.role == Role::User {
+                "user"
+            } else {
+                "assistant"
+            };
+            let text_type = if message.role == Role::User {
+                "input_text"
+            } else {
+                "output_text"
+            };
+
+            let mut message_content: Vec<Value> = Vec::new();
+
+            // Flush accumulated text/image content as a message item.
+            // Called before each ToolCall/ToolResult and at end-of-parts
+            // so that ordering relative to function_call items is preserved.
+            let flush = |content: &mut Vec<Value>, out: &mut Vec<Value>| {
+                if !content.is_empty() {
+                    out.push(json!({
+                        "type": "message",
+                        "role": role_str,
+                        "content": std::mem::take(content)
+                    }));
+                }
+            };
 
             for part in &message.content {
                 match part {
                     ContentPart::Text { text } => {
-                        let content_type = if message.role == Role::User {
-                            "input_text"
-                        } else {
-                            "output_text"
-                        };
-                        message_content.push(json!({"type": content_type, "text": text}));
+                        message_content.push(json!({"type": text_type, "text": text}));
                     }
                     ContentPart::Image { image } => {
                         if message.role != Role::User {
@@ -159,6 +178,7 @@ fn translate_message(
                         message_content.push(image_part);
                     }
                     ContentPart::ToolCall { tool_call } => {
+                        flush(&mut message_content, input);
                         input.push(json!({
                             "type": "function_call",
                             "call_id": tool_call.id,
@@ -167,6 +187,7 @@ fn translate_message(
                         }));
                     }
                     ContentPart::ToolResult { tool_result } => {
+                        flush(&mut message_content, input);
                         input.push(json!({
                             "type": "function_call_output",
                             "call_id": tool_result.tool_call_id,
@@ -174,14 +195,9 @@ fn translate_message(
                         }));
                     }
                     ContentPart::Thinking { thinking } => {
-                        let content_type = if message.role == Role::User {
-                            "input_text"
-                        } else {
-                            "output_text"
-                        };
                         // Cross-provider portability: when replaying Anthropic thinking
                         // blocks into OpenAI, keep text but strip signatures.
-                        message_content.push(json!({"type": content_type, "text": thinking.text}));
+                        message_content.push(json!({"type": text_type, "text": thinking.text}));
                     }
                     ContentPart::RedactedThinking { .. } => {
                         // Opaque redacted thinking cannot be meaningfully translated.
@@ -203,18 +219,7 @@ fn translate_message(
                 }
             }
 
-            if !message_content.is_empty() {
-                let role = if message.role == Role::User {
-                    "user"
-                } else {
-                    "assistant"
-                };
-                input.push(json!({
-                    "type": "message",
-                    "role": role,
-                    "content": message_content
-                }));
-            }
+            flush(&mut message_content, input);
         }
         Role::Tool => {
             for part in &message.content {

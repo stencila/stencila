@@ -217,10 +217,6 @@ When tool-call argument parsing/schema validation fails, the current behavior is
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### OpenAI request translation can reorder assistant text and tool-call content (P1)
-
-When replaying assistant messages that contain both `Text` and `ToolCall` parts, `translate_request()` buffers text into a `message` item but emits `function_call` items immediately, so mixed-content ordering is not preserved.
-
 ### Request-level `connect` and `stream_idle` timeout overrides are ignored (P1)
 
 `Timeout.connect` and `Timeout.stream_idle` can be set on requests but are not consumed by `HttpClient::post_json` / `HttpClient::post_stream`; only `Timeout.request` is currently applied.

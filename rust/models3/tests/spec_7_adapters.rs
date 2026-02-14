@@ -20,7 +20,7 @@ use stencila_models3::providers::{
     openai_chat_completions::{self as chat},
 };
 use stencila_models3::types::{
-    content::{ContentPart, ThinkingData, ToolCallData},
+    content::{ContentPart, ThinkingData, ToolCallData, ToolResultData},
     finish_reason::Reason,
     message::Message,
     request::Request,
@@ -359,6 +359,140 @@ fn openai_request_translation_serializes_tool_result_output()
         .and_then(serde_json::Value::as_str)
         .ok_or("output should be string")?;
     assert_eq!(output, r#"{"temperature":"72F"}"#);
+
+    Ok(())
+}
+
+/// Assistant messages with both text and tool-call parts must preserve
+/// content ordering: the text `message` item appears before the `function_call`.
+#[test]
+fn openai_request_translation_preserves_text_tool_call_order()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::new(
+            Role::Assistant,
+            vec![
+                ContentPart::text("I'll check the weather for you."),
+                ContentPart::tool_call(
+                    "call_1",
+                    "get_weather",
+                    serde_json::json!({"city": "Paris"}),
+                ),
+            ],
+        )],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("input should be array")?;
+
+    assert_eq!(
+        input.len(),
+        2,
+        "expected message + function_call, got {input:?}"
+    );
+
+    // First item: the text message
+    assert_eq!(
+        input[0].get("type").and_then(serde_json::Value::as_str),
+        Some("message"),
+        "first item should be a message"
+    );
+
+    // Second item: the function_call
+    assert_eq!(
+        input[1].get("type").and_then(serde_json::Value::as_str),
+        Some("function_call"),
+        "second item should be a function_call"
+    );
+
+    Ok(())
+}
+
+/// Text → tool_call → more text must produce three items in order:
+/// message, function_call, message.
+#[test]
+fn openai_request_translation_preserves_text_tool_call_text_order()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::new(
+            Role::Assistant,
+            vec![
+                ContentPart::text("Let me look that up."),
+                ContentPart::tool_call("call_1", "search", serde_json::json!({"q": "rust"})),
+                ContentPart::text("Here are the results."),
+            ],
+        )],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("input should be array")?;
+
+    assert_eq!(
+        input.len(),
+        3,
+        "expected message + function_call + message, got {input:?}"
+    );
+
+    let types: Vec<_> = input
+        .iter()
+        .filter_map(|item| item.get("type").and_then(serde_json::Value::as_str))
+        .collect();
+    assert_eq!(types, vec!["message", "function_call", "message"]);
+
+    Ok(())
+}
+
+/// Text → tool_result must produce message before function_call_output.
+#[test]
+fn openai_request_translation_preserves_text_tool_result_order()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.2",
+        vec![Message::new(
+            Role::User,
+            vec![
+                ContentPart::text("Here is the tool output."),
+                ContentPart::ToolResult {
+                    tool_result: ToolResultData {
+                        tool_call_id: "call_1".into(),
+                        content: serde_json::json!({"temp": "72F"}),
+                        is_error: false,
+                        image_data: None,
+                        image_media_type: None,
+                    },
+                },
+            ],
+        )],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("input should be array")?;
+
+    assert_eq!(
+        input.len(),
+        2,
+        "expected message + function_call_output, got {input:?}"
+    );
+
+    let types: Vec<_> = input
+        .iter()
+        .filter_map(|item| item.get("type").and_then(serde_json::Value::as_str))
+        .collect();
+    assert_eq!(types, vec!["message", "function_call_output"]);
 
     Ok(())
 }
