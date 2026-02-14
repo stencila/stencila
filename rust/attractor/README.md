@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **Goal-gate failure target selection is nondeterministic when multiple gates fail (§3.4)**: Goal-gate checks iterate a `HashMap` of node outcomes, so the "first" unsatisfied gate (and therefore selected retry target) can vary across runs. (P0)
-
 - **Handler registry resolution does not follow §4.2 fallback order for unknown explicit types**: If a node has `type="..."` set to an unregistered value, resolution stops at that type (or default handler if configured) and does not fall back to shape-based resolution as specified. (P1)
 
 - **Multiple exit nodes are not rejected by validation (§11.2)**: `terminal_node` only enforces "at least one" exit node, so graphs with multiple exit nodes pass validation even though Definition-of-Done requires exactly one. (P1)

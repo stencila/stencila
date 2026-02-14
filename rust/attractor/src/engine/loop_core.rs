@@ -3,8 +3,6 @@
 //! Implements the main execution loop: find start → execute node →
 //! select edge → advance → repeat until exit or failure.
 
-use std::collections::HashMap;
-
 use indexmap::IndexMap;
 use serde_json::Value;
 
@@ -25,7 +23,7 @@ use super::routing::{check_goal_gates, find_fail_edge, get_retry_target};
 struct LoopState {
     current_node_id: String,
     completed_nodes: Vec<String>,
-    node_outcomes: HashMap<String, Outcome>,
+    node_outcomes: IndexMap<String, Outcome>,
     /// Outcome status strings per node, stored in the checkpoint so
     /// resume can reconstruct accurate outcomes for goal-gate checks.
     node_statuses: IndexMap<String, String>,
@@ -49,7 +47,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
     let state = LoopState {
         current_node_id: start_node.id.clone(),
         completed_nodes: Vec::new(),
-        node_outcomes: HashMap::new(),
+        node_outcomes: IndexMap::new(),
         node_statuses: IndexMap::new(),
         node_retries: IndexMap::new(),
         stage_index: 0,
@@ -91,7 +89,7 @@ pub(crate) async fn resume_loop(
     // checks correctly enforce §3.4. Use the checkpoint's node_statuses
     // when available; fall back to Outcome::success() for legacy
     // checkpoints that lack this field.
-    let mut node_outcomes = HashMap::new();
+    let mut node_outcomes = IndexMap::new();
     let mut node_statuses = IndexMap::new();
     for node_id in &resume_state.completed_nodes_ordered {
         let status_str = resume_state

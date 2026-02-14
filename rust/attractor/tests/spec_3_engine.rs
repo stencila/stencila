@@ -4,11 +4,11 @@
 
 mod common;
 
-use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
+use indexmap::IndexMap;
 use serde_json::Value;
 
 use stencila_attractor::checkpoint::Checkpoint;
@@ -447,7 +447,7 @@ fn goal_gate_all_satisfied() {
     n.attrs.insert("goal_gate".into(), AttrValue::Boolean(true));
     g.add_node(n);
 
-    let mut outcomes = HashMap::new();
+    let mut outcomes = IndexMap::new();
     outcomes.insert("task1".to_string(), Outcome::success());
 
     let result = check_goal_gates(&g, &outcomes);
@@ -462,7 +462,7 @@ fn goal_gate_unsatisfied_when_visited_with_fail() {
     n.attrs.insert("goal_gate".into(), AttrValue::Boolean(true));
     g.add_node(n);
 
-    let mut outcomes = HashMap::new();
+    let mut outcomes = IndexMap::new();
     outcomes.insert("task1".to_string(), Outcome::fail("bad"));
     let result = check_goal_gates(&g, &outcomes);
     assert!(!result.satisfied);
@@ -478,7 +478,7 @@ fn goal_gate_unvisited_does_not_block() {
     n.attrs.insert("goal_gate".into(), AttrValue::Boolean(true));
     g.add_node(n);
 
-    let outcomes = HashMap::new(); // No outcomes recorded
+    let outcomes = IndexMap::new(); // No outcomes recorded
     let result = check_goal_gates(&g, &outcomes);
     assert!(result.satisfied);
 }
@@ -490,7 +490,7 @@ fn goal_gate_partial_success_counts() {
     n.attrs.insert("goal_gate".into(), AttrValue::Boolean(true));
     g.add_node(n);
 
-    let mut outcomes = HashMap::new();
+    let mut outcomes = IndexMap::new();
     outcomes.insert(
         "task1".to_string(),
         Outcome {
@@ -507,7 +507,7 @@ fn goal_gate_partial_success_counts() {
 fn goal_gate_no_gates_is_satisfied() {
     let mut g = Graph::new("test");
     g.add_node(Node::new("task1")); // No goal_gate attr
-    let outcomes = HashMap::new();
+    let outcomes = IndexMap::new();
     let result = check_goal_gates(&g, &outcomes);
     assert!(result.satisfied);
 }
@@ -520,7 +520,7 @@ fn goal_gate_skipped_outcome_not_satisfied() {
     n.attrs.insert("goal_gate".into(), AttrValue::Boolean(true));
     g.add_node(n);
 
-    let mut outcomes = HashMap::new();
+    let mut outcomes = IndexMap::new();
     outcomes.insert(
         "task1".to_string(),
         Outcome {
@@ -530,6 +530,37 @@ fn goal_gate_skipped_outcome_not_satisfied() {
     );
     let result = check_goal_gates(&g, &outcomes);
     assert!(!result.satisfied);
+}
+
+/// Regression: when multiple goal gates fail, `check_goal_gates` must
+/// deterministically report the earliest-executed one (insertion order),
+/// not an arbitrary one from `HashMap` iteration.
+#[test]
+fn goal_gate_multiple_failures_reports_earliest() {
+    let mut g = Graph::new("test");
+    for id in ["task_a", "task_b", "task_c"] {
+        let mut n = Node::new(id);
+        n.attrs.insert("goal_gate".into(), AttrValue::Boolean(true));
+        g.add_node(n);
+    }
+
+    // Insert in execution order: a succeeds, b fails, c fails.
+    let mut outcomes = IndexMap::new();
+    outcomes.insert("task_a".to_string(), Outcome::success());
+    outcomes.insert("task_b".to_string(), Outcome::fail("b failed"));
+    outcomes.insert("task_c".to_string(), Outcome::fail("c failed"));
+
+    // Must always report task_b (the first failure in execution order).
+    for _ in 0..10 {
+        let result = check_goal_gates(&g, &outcomes);
+        assert!(!result.satisfied);
+        assert_eq!(
+            result.failed_node_id.as_deref(),
+            Some("task_b"),
+            "expected earliest failed gate (task_b), got {:?}",
+            result.failed_node_id
+        );
+    }
 }
 
 // ===========================================================================

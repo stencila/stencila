@@ -1,6 +1,6 @@
 //! Goal gate enforcement and failure routing (§3.4, §3.7).
 
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::graph::Graph;
 use crate::types::{Outcome, StageStatus};
@@ -22,10 +22,12 @@ pub struct GoalGateResult {
 /// (i.e., `Success` or `PartialSuccess`).
 ///
 /// Returns a [`GoalGateResult`] indicating whether all gates passed
-/// and, if not, which node failed first.
+/// and, if not, which node failed first (by execution order).
 #[must_use]
-#[allow(clippy::implicit_hasher)]
-pub fn check_goal_gates(graph: &Graph, node_outcomes: &HashMap<String, Outcome>) -> GoalGateResult {
+pub fn check_goal_gates(
+    graph: &Graph,
+    node_outcomes: &IndexMap<String, Outcome>,
+) -> GoalGateResult {
     for (node_id, outcome) in node_outcomes {
         let Some(node) = graph.get_node(node_id) else {
             continue;
