@@ -267,10 +267,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### Steering messages can be consumed without LLM delivery on limit exits (`§2.5`, `§2.6`) (P1)
-
-`process_input` drains `steering_queue` before checking round/turn limits at the top of each loop iteration. If a limit is already reached, steering is appended to history and `STEERING_INJECTED` is emitted, but no subsequent LLM call occurs in that cycle, so the message is never delivered to the model (`src/session.rs`).
-
 ### Unknown parent provider IDs silently fall back to Anthropic for subagents (`§7.3`) (P2)
 
 Subagent profile creation matches only `"openai"`, `"anthropic"`, and `"gemini"`. Any other parent `ProviderProfile::id()` silently falls back to an Anthropic child profile instead of preserving parent behavior or returning an error (`src/subagents.rs`).

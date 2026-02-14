@@ -530,26 +530,27 @@ impl Session {
         // The loop runs until natural completion, a limit, or abort.
         // SDK errors propagate immediately (session → CLOSED).
         loop {
-            // 2. Drain steering queue
-            self.drain_steering();
-
-            // 3. Check abort
+            // 2. Check abort
             if self.is_aborted() {
                 self.close();
                 return Ok(());
             }
 
-            // 3b. Check round limit
+            // 2b. Check round limit
             if round_count >= self.config.max_tool_rounds_per_input {
                 self.emit_turn_limit("max_tool_rounds_per_input", round_count);
                 break;
             }
 
-            // 3c. Check session turn limit
+            // 2c. Check session turn limit
             if self.config.max_turns > 0 && self.total_turns >= self.config.max_turns {
                 self.emit_turn_limit("max_turns", self.total_turns);
                 break;
             }
+
+            // 3. Drain steering queue (after limit checks so messages are not
+            //    consumed without a subsequent LLM call to deliver them)
+            self.drain_steering();
 
             // 4. Context-usage warning (spec 5.5)
             self.check_context_usage();
