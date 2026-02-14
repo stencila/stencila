@@ -267,10 +267,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### Unknown parent provider IDs silently fall back to Anthropic for subagents (`§7.3`) (P2)
-
-Subagent profile creation matches only `"openai"`, `"anthropic"`, and `"gemini"`. Any other parent `ProviderProfile::id()` silently falls back to an Anthropic child profile instead of preserving parent behavior or returning an error (`src/subagents.rs`).
-
 ### Project docs truncation can exceed the 32KB budget (`§6.5`) (P3)
 
 When truncation is triggered, `discover_project_docs` enforces remaining content bytes but appends `\n` + truncation marker afterward without including marker bytes in the budget check, so final output can exceed 32KB (`src/project_docs.rs`).

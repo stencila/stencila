@@ -969,14 +969,11 @@ fn create_child_profile(
             max_command_timeout_ms,
         )?),
         _ => {
-            tracing::warn!(
-                provider_id,
-                "unknown provider for subagent — falling back to Anthropic profile"
-            );
-            Box::new(crate::profiles::AnthropicProfile::new(
-                model,
-                max_command_timeout_ms,
-            )?)
+            return Err(AgentError::Sdk(
+                stencila_models3::error::SdkError::Configuration {
+                    message: format!("unsupported provider '{provider_id}' for subagent profile"),
+                },
+            ));
         }
     };
 
