@@ -1197,6 +1197,12 @@ impl Session {
     }
 }
 
+impl Drop for Session {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Free function for tool execution (enables parallel use without &mut self)
 // ---------------------------------------------------------------------------

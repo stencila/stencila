@@ -267,10 +267,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### Dropping a live session can orphan cleanup-sensitive resources (`§2.9`, App B graceful shutdown) (P1)
-
-`Session` teardown logic is centralized in `Session::close()`, but there is no `Drop` implementation that calls it. If callers drop a session without explicit `close()`, active subagents are not synchronously signaled via `close_all()`, top-level MCP pools are not told to shut down, and no `SESSION_END` event is emitted (`src/session.rs`, `src/subagents.rs`).
-
 ### Relative `working_directory` can skip root/ancestor project docs (`§6.5`) (P1)
 
 `discover_project_docs` expects `root` and `working_dir` to share a comparable path form when computing the directory chain. In the convenience path, `root` is typically absolute (`git rev-parse --show-toplevel`) while `working_dir` may be relative (`"."`), causing `directories_from_root_to_working_dir` to treat working_dir as outside root and skip ancestor docs (`src/prompts.rs`, `src/project_docs.rs`, `src/convenience.rs`).
