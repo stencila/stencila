@@ -794,6 +794,61 @@ fn build_retry_policy_defaults_to_zero() {
     assert_eq!(policy.max_attempts, 1);
 }
 
+/// Regression: negative `max_retries` values must clamp to 0 (1 attempt),
+/// not wrap to a huge u32 causing effectively unbounded retries (§2.6).
+#[test]
+fn build_retry_policy_negative_clamps_to_zero() -> AttractorResult<()> {
+    let mut g = Graph::new("test");
+    let mut n = Node::new("task1");
+    n.attrs.insert("max_retries".into(), AttrValue::Integer(-1));
+    g.add_node(n);
+
+    let node = g.get_node("task1").ok_or(AttractorError::NodeNotFound {
+        node_id: "task1".into(),
+    })?;
+    let policy = build_retry_policy(node, &g);
+    assert_eq!(policy.max_attempts, 1); // clamped to 0 retries + 1 initial
+    Ok(())
+}
+
+/// Regression: negative `default_max_retry` at graph level also clamps.
+#[test]
+fn build_retry_policy_negative_graph_default_clamps() -> AttractorResult<()> {
+    let mut g = Graph::new("test");
+    g.graph_attrs
+        .insert("default_max_retry".into(), AttrValue::Integer(-5));
+    let n = Node::new("task1");
+    g.add_node(n);
+
+    let node = g.get_node("task1").ok_or(AttractorError::NodeNotFound {
+        node_id: "task1".into(),
+    })?;
+    let policy = build_retry_policy(node, &g);
+    assert_eq!(policy.max_attempts, 1);
+    Ok(())
+}
+
+/// Regression: values above u32::MAX must clamp instead of truncating,
+/// which would silently reduce the retry count (e.g. 2^32 → 0).
+#[test]
+fn build_retry_policy_large_positive_clamps_to_u32_max() -> AttractorResult<()> {
+    let mut g = Graph::new("test");
+    let mut n = Node::new("task1");
+    n.attrs.insert(
+        "max_retries".into(),
+        AttrValue::Integer(i64::from(u32::MAX) + 1),
+    );
+    g.add_node(n);
+
+    let node = g.get_node("task1").ok_or(AttractorError::NodeNotFound {
+        node_id: "task1".into(),
+    })?;
+    let policy = build_retry_policy(node, &g);
+    // u32::MAX retries + 1 initial = u32::MAX (saturating)
+    assert_eq!(policy.max_attempts, u32::MAX);
+    Ok(())
+}
+
 #[tokio::test]
 async fn retry_success_on_second_attempt() {
     let handler: Arc<dyn Handler> = Arc::new(SequenceHandler::new(vec![

@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **Negative retry counts overflow to huge attempt limits (§2.6, §3.5)**: `max_retries` / `default_max_retry` are parsed as signed integers but cast directly to `u32` in retry policy construction; negative values wrap to very large numbers, causing effectively unbounded retries. (P0)
-
 - **Goal-gate failure target selection is nondeterministic when multiple gates fail (§3.4)**: Goal-gate checks iterate a `HashMap` of node outcomes, so the "first" unsatisfied gate (and therefore selected retry target) can vary across runs. (P0)
 
 - **Handler registry resolution does not follow §4.2 fallback order for unknown explicit types**: If a node has `type="..."` set to an unregistered value, resolution stops at that type (or default handler if configured) and does not fall back to shape-based resolution as specified. (P1)

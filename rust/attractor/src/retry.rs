@@ -170,6 +170,9 @@ pub fn build_retry_policy(node: &Node, graph: &Graph) -> RetryPolicy {
         })
         .unwrap_or(0);
 
+    // Clamp to [0, u32::MAX] to prevent both negative wrap and
+    // large-positive truncation (§2.6).
+    let max_retries = max_retries.clamp(0, i64::from(u32::MAX));
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     let max_attempts = (max_retries as u32).saturating_add(1);
 
