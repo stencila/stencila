@@ -456,7 +456,7 @@ fn rule_fidelity_valid_ok() {
 fn rule_fidelity_valid_graph_level() {
     let mut g = valid_pipeline();
     g.graph_attrs
-        .insert("fidelity".into(), AttrValue::from("bogus"));
+        .insert("default_fidelity".into(), AttrValue::from("bogus"));
 
     let diagnostics = validation::validate(&g, &[]);
     let hits = find_by_rule(&diagnostics, "fidelity_valid");

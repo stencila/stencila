@@ -455,15 +455,17 @@ impl LintRule for FidelityValidRule {
             }
         }
 
-        // Check graph-level fidelity default
-        if let Some(fidelity_str) = graph.get_graph_attr("fidelity").and_then(|v| v.as_str())
+        // Check graph-level default_fidelity (§2.5, §5.4)
+        if let Some(fidelity_str) = graph
+            .get_graph_attr("default_fidelity")
+            .and_then(|v| v.as_str())
             && fidelity_str.parse::<crate::types::FidelityMode>().is_err()
         {
             diagnostics.push(Diagnostic {
                     rule: self.name().to_string(),
                     severity: Severity::Warning,
                     message: format!(
-                        "graph-level fidelity mode `{fidelity_str}` is invalid"
+                        "graph-level default_fidelity mode `{fidelity_str}` is invalid"
                     ),
                     node_id: None,
                     edge: None,
