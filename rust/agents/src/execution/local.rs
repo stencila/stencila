@@ -8,7 +8,9 @@ use std::path::{Path, PathBuf};
 use async_trait::async_trait;
 use tokio::io::AsyncReadExt;
 
-use super::{EnvVarPolicy, ExecutionEnvironment, FileContent, filter_env_vars};
+use super::{
+    EnvVarPolicy, ExecutionEnvironment, FileContent, filter_env_vars, resolve_and_canonicalize,
+};
 use crate::error::{AgentError, AgentResult};
 use crate::types::{DirEntry, ExecResult, GrepOptions};
 
@@ -33,9 +35,17 @@ impl std::fmt::Debug for LocalExecutionEnvironment {
 
 impl LocalExecutionEnvironment {
     /// Create a new local execution environment rooted at `working_dir`.
+    ///
+    /// Relative paths are resolved against the process working directory
+    /// via [`resolve_and_canonicalize`], so `working_directory()` returns
+    /// an absolute path suitable for comparison with the git root in
+    /// project doc discovery.
     pub fn new(working_dir: impl Into<PathBuf>) -> Self {
+        let raw: PathBuf = working_dir.into();
+        let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("/"));
+        let canonical = resolve_and_canonicalize(&raw, &cwd);
         Self {
-            working_dir: working_dir.into(),
+            working_dir: canonical,
             env_policy: EnvVarPolicy::default(),
         }
     }

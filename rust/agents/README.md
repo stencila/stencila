@@ -267,10 +267,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### Relative `working_directory` can skip root/ancestor project docs (`§6.5`) (P1)
-
-`discover_project_docs` expects `root` and `working_dir` to share a comparable path form when computing the directory chain. In the convenience path, `root` is typically absolute (`git rev-parse --show-toplevel`) while `working_dir` may be relative (`"."`), causing `directories_from_root_to_working_dir` to treat working_dir as outside root and skip ancestor docs (`src/prompts.rs`, `src/project_docs.rs`, `src/convenience.rs`).
-
 ### Steering messages can be consumed without LLM delivery on limit exits (`§2.5`, `§2.6`) (P1)
 
 `process_input` drains `steering_queue` before checking round/turn limits at the top of each loop iteration. If a limit is already reached, steering is appended to history and `STEERING_INJECTED` is emitted, but no subsequent LLM call occurs in that cycle, so the message is never delivered to the model (`src/session.rs`).

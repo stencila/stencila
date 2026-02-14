@@ -676,6 +676,19 @@ fn working_directory_returns_configured_path() {
     assert_eq!(env.working_directory(), "/tmp/test");
 }
 
+/// Regression: relative working_dir (e.g. ".") must be resolved to an
+/// absolute path so that project doc discovery can compare it with the
+/// git root (which is always absolute).
+#[test]
+fn working_directory_relative_dot_resolves_to_absolute() {
+    let env = LocalExecutionEnvironment::new(".");
+    let wd = env.working_directory();
+    assert!(
+        std::path::Path::new(wd).is_absolute(),
+        "expected absolute path, got: {wd}"
+    );
+}
+
 #[test]
 fn platform_returns_spec_value() {
     let env = LocalExecutionEnvironment::new("/tmp");
