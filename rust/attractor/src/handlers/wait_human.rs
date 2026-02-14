@@ -148,11 +148,16 @@ impl Handler for WaitForHumanHandler {
         let text = node.get_str_attr("label").unwrap_or("Select an option:");
         let mut question = Question::multiple_choice(text, options, &node.id);
 
-        // Set timeout from node attribute
-        if let Some(timeout_str) = node.get_str_attr("timeout_seconds")
-            && let Ok(timeout) = timeout_str.parse::<f64>()
-        {
-            question.timeout_seconds = Some(timeout);
+        // Set timeout from node attribute (§2.6)
+        if let Some(v) = node.get_attr("timeout") {
+            let secs = match v {
+                crate::graph::AttrValue::Duration(d) => Some(d.inner().as_secs_f64()),
+                crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
+                    .ok()
+                    .map(|d| d.inner().as_secs_f64()),
+                _ => None,
+            };
+            question.timeout_seconds = secs;
         }
 
         // 3. Present to interviewer and wait

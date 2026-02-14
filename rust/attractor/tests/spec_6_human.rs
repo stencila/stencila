@@ -479,6 +479,76 @@ async fn wait_human_timeout_no_default_retries() -> AttractorResult<()> {
 }
 
 #[tokio::test]
+async fn wait_human_timeout_attr_propagated_to_question() -> AttractorResult<()> {
+    use std::sync::Mutex;
+    use stencila_attractor::types::Duration;
+
+    let tmp = make_tempdir()?;
+    let captured: Arc<Mutex<Option<f64>>> = Arc::new(Mutex::new(None));
+    let captured_clone = Arc::clone(&captured);
+    let interviewer = Arc::new(CallbackInterviewer::new(move |q: &Question| {
+        *captured_clone
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = q.timeout_seconds;
+        Answer::new(AnswerValue::Yes)
+    }));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    // Duration variant
+    let mut g = human_gate_graph(&[("deploy", "[D] Deploy")]);
+    g.get_node_mut("gate")
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        })?
+        .attrs
+        .insert(
+            "timeout".into(),
+            AttrValue::Duration(Duration::from_spec_str("30s")?),
+        );
+    let node = g.get_node("gate").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        }
+    })?;
+    handler
+        .execute(node, &Context::new(), &g, tmp.path())
+        .await?;
+    let secs = captured
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "timeout not set".into(),
+        })?;
+    assert!((secs - 30.0).abs() < f64::EPSILON);
+
+    // String variant (quoted in DOT)
+    let mut g = human_gate_graph(&[("deploy", "[D] Deploy")]);
+    g.get_node_mut("gate")
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        })?
+        .attrs
+        .insert("timeout".into(), AttrValue::from("5m"));
+    let node = g.get_node("gate").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        }
+    })?;
+    handler
+        .execute(node, &Context::new(), &g, tmp.path())
+        .await?;
+    let secs = captured
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "timeout not set".into(),
+        })?;
+    assert!((secs - 300.0).abs() < f64::EPSILON);
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn wait_human_skipped_fails() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(

@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **`wait.human` reads non-spec `timeout_seconds` instead of node `timeout` (§2.6, §4.6, §6.5)**: The handler does not consume the standard node `timeout` duration attribute for interview timeouts; only a non-spec string attribute `timeout_seconds` is read. (P2)
-
 - **Graph-level fidelity lint checks the wrong attribute key**: `fidelity_valid` validates graph attr `fidelity`, but §2.5/§5.4 define `default_fidelity` as the graph-level key. Invalid `default_fidelity` values are therefore not flagged, while non-spec `fidelity` is. (P2)
 
 - **Thread resolution can use explicit `class` before enclosing subgraph class (§5.4)**: Step 4 of thread resolution is specified as the derived enclosing-subgraph class, but the implementation takes the first class token from node `class`, which may be an explicit class instead. (P2)
