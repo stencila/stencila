@@ -737,12 +737,55 @@ async fn stream_generate_text_stream() -> SdkResult<()> {
     let mut text_stream = stream.text_stream();
 
     let mut texts = Vec::new();
-    while let Some(text) = text_stream.next().await {
-        texts.push(text);
+    while let Some(result) = text_stream.next().await {
+        texts.push(result?);
     }
 
     assert_eq!(texts.len(), 1);
     assert_eq!(texts[0], "text-only");
+    Ok(())
+}
+
+/// Verify `text_stream()` surfaces mid-stream errors instead of silently ending.
+///
+/// Uses a `HangingStreamAdapter` that yields one text delta then pends forever.
+/// The abort signal fires after the first delta, and `text_stream()` must
+/// surface the resulting `Err(Abort)` rather than returning `None`.
+#[tokio::test]
+async fn stream_generate_text_stream_surfaces_abort_error() -> SdkResult<()> {
+    use common::HangingStreamAdapter;
+    use stencila_models3::api::cancel::AbortController;
+
+    let adapter = HangingStreamAdapter::new("mock");
+    let client = Client::builder().add_provider(adapter).build()?;
+
+    let controller = AbortController::new();
+    let signal = controller.signal();
+
+    let opts = StreamOptions::new("test-model")
+        .prompt("hi")
+        .abort_signal(signal)
+        .client(&client);
+
+    let stream = stream_generate(opts).await?;
+    let mut text_stream = stream.text_stream();
+
+    // First item should be the text delta
+    let first = text_stream.next().await;
+    assert!(
+        matches!(&first, Some(Ok(text)) if text == "hello"),
+        "expected first text delta, got {first:?}"
+    );
+
+    // Abort while the stream is hanging
+    controller.abort();
+
+    // Next item must be an error, not silent termination
+    let second = text_stream.next().await;
+    assert!(
+        matches!(&second, Some(Err(SdkError::Abort { .. }))),
+        "expected Abort error from text_stream, got {second:?}"
+    );
     Ok(())
 }
 

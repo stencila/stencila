@@ -217,10 +217,6 @@ When tool-call argument parsing/schema validation fails, the current behavior is
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
 
-### `text_stream()` drops stream errors (P0)
-
-`StreamResult::text_stream()` converts `Some(Err(_))` from `next_event()` into stream termination (`None`) instead of surfacing the error, so consumers using text-only streaming can miss mid-stream failures.
-
 ### OpenAI request translation can reorder assistant text and tool-call content (P1)
 
 When replaying assistant messages that contain both `Text` and `ToolCall` parts, `translate_request()` buffers text into a `message` item but emits `function_call` items immediately, so mixed-content ordering is not preserved.

@@ -245,8 +245,12 @@ impl<'a> StreamResult<'a> {
     }
 
     /// Return a stream that yields only text deltas.
+    ///
+    /// Errors from the underlying stream (e.g. abort, timeout, connection
+    /// failures) are surfaced as `Err` items rather than silently ending
+    /// the stream.
     #[must_use]
-    pub fn text_stream(self) -> Pin<Box<dyn Stream<Item = String> + Send + 'a>> {
+    pub fn text_stream(self) -> Pin<Box<dyn Stream<Item = SdkResult<String>> + Send + 'a>> {
         Box::pin(futures::stream::unfold(self, |mut s| async move {
             loop {
                 match s.next_event().await {
@@ -254,11 +258,12 @@ impl<'a> StreamResult<'a> {
                         if event.event_type == StreamEventType::TextDelta
                             && let Some(delta) = event.delta
                         {
-                            return Some((delta, s));
+                            return Some((Ok(delta), s));
                         }
                         // Non-text event — keep consuming
                     }
-                    Some(Err(_)) | None => return None,
+                    Some(Err(e)) => return Some((Err(e), s)),
+                    None => return None,
                 }
             }
         }))

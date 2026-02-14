@@ -399,6 +399,51 @@ impl ProviderAdapter for SlowAdapter {
     }
 }
 
+/// A mock adapter whose stream yields one text delta then pends forever.
+///
+/// Used to test mid-stream abort propagation through `text_stream()`.
+pub struct HangingStreamAdapter {
+    provider_name: &'static str,
+}
+
+impl HangingStreamAdapter {
+    pub fn new(provider_name: &'static str) -> Self {
+        Self { provider_name }
+    }
+}
+
+impl ProviderAdapter for HangingStreamAdapter {
+    #[allow(clippy::unnecessary_literal_bound)]
+    fn name(&self) -> &str {
+        self.provider_name
+    }
+
+    fn complete(&self, _request: Request) -> BoxFuture<'_, SdkResult<Response>> {
+        Box::pin(async {
+            Err(SdkError::Configuration {
+                message: "not implemented".into(),
+            })
+        })
+    }
+
+    fn stream(
+        &self,
+        _request: Request,
+    ) -> BoxFuture<'_, SdkResult<BoxStream<'_, SdkResult<StreamEvent>>>> {
+        Box::pin(async {
+            let stream = futures::stream::unfold(false, |yielded| async move {
+                if !yielded {
+                    Some((Ok(StreamEvent::text_delta("hello")), true))
+                } else {
+                    // Pend forever — the abort signal will interrupt this
+                    std::future::pending::<Option<(SdkResult<StreamEvent>, bool)>>().await
+                }
+            });
+            Ok(Box::pin(stream) as BoxStream<'_, SdkResult<StreamEvent>>)
+        })
+    }
+}
+
 /// Create a simple test request.
 pub fn make_request(model: &str) -> Request {
     Request::new(model, vec![Message::user("hello")])
