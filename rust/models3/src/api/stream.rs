@@ -487,7 +487,13 @@ async fn unfold_step(
         Some(Err(e)) => {
             // Provider stream error after partial delivery — per spec §6.6,
             // no retry. Emit an error event and end the stream cleanly.
+            // Snapshot whatever was accumulated so `response()` returns
+            // the partial result instead of `None`.
             let error_event = StreamEvent::error(e);
+            let mut shared = lock_shared(&state.shared);
+            shared.finished = true;
+            shared.final_response = Some(state.step_accumulator.response());
+            drop(shared);
             state.phase = Phase::Done;
             Ok(Some((error_event, state)))
         }

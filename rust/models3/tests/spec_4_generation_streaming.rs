@@ -854,6 +854,49 @@ async fn stream_generate_mid_stream_error_becomes_error_event() -> SdkResult<()>
     Ok(())
 }
 
+/// After a mid-stream error, `response()` should return the partial
+/// accumulated response rather than `None`.
+#[tokio::test]
+async fn stream_generate_response_available_after_error() -> SdkResult<()> {
+    let adapter = MidStreamErrorAdapter::new(
+        "mock",
+        SdkError::Server {
+            message: "boom".into(),
+            details: stencila_models3::error::ProviderDetails {
+                provider: Some("mock".into()),
+                status_code: Some(500),
+                retryable: false,
+                ..Default::default()
+            },
+        },
+    );
+    let client = Client::builder().add_provider(adapter).build()?;
+    let opts = StreamOptions::new("test-model")
+        .prompt("hello")
+        .max_retries(0)
+        .client(&client);
+
+    let mut stream = stream_generate(opts).await?;
+
+    // Consume all events
+    while let Some(result) = stream.next_event().await {
+        result?;
+    }
+
+    // response() should return the partial result, not None
+    let response = stream.response();
+    assert!(
+        response.is_some(),
+        "response() should be Some after error-terminated stream"
+    );
+
+    // The MidStreamErrorAdapter emits "partial " before the error
+    let resp = response.expect("just asserted Some");
+    assert_eq!(resp.text(), "partial ");
+
+    Ok(())
+}
+
 // ── generate_object() ────────────────────────────────────────────
 
 #[tokio::test]

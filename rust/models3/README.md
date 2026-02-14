@@ -213,21 +213,13 @@ Tool execute handlers currently receive only parsed argument JSON; injected cont
 
 When tool-call argument parsing/schema validation fails, the current behavior is to return an error `ToolResult`; a configurable `repair_tool_call` flow is not implemented.
 
+### `set_default_client()` leaks replaced clients (`§2.5`)
+
+`set_default_client()` uses `Box::leak` to produce `&'static Client` references. When called more than once, the previously leaked client cannot be safely reclaimed because callers may still hold `&'static` references to it. In practice the leak is bounded (typically 0-2 calls per process lifetime). Switching to `Arc<Client>` would eliminate the leak but is a breaking API change.
+
 ## Bugs
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
-
-### Request-level `connect` and `stream_idle` timeout overrides are ignored (P1)
-
-`Timeout.connect` and `Timeout.stream_idle` can be set on requests but are not consumed by `HttpClient::post_json` / `HttpClient::post_stream`; only `Timeout.request` is currently applied.
-
-### Replacing the module-level default client leaks the previous instance (P2)
-
-`set_default_client()` stores a leaked `'static` client each time it is called, but does not reclaim or close the previously stored client, so repeated replacement accumulates leaked clients/resources in long-lived processes.
-
-### `StreamResult::response()` remains `None` after error-terminated streams (P2)
-
-When streaming terminates via an emitted `error` event (from an in-stream provider failure), `StreamResult` marks the stream done but never sets `final_response`, so `response()` still returns `None` even after stream exhaustion.
 
 ### `step_finish` drops provider-specific finish reason details (P3)
 
