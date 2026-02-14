@@ -152,6 +152,7 @@ impl VisitorMut for Stabilizer {
 
         variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             ArrayHint,

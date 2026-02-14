@@ -7,7 +7,10 @@ $comment: |
   This list includes all the types derived from `CreativeWork` within this schema,
   as well as types listed at https://schema.org/CreativeWork and, items from
   DataCite's list of resource type (https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/resourcetype/).
+default: Article
 anyOf:
+  - const: Agent
+    "@id": stencila:AgentCreativeWorkType
   - const: Article
     "@id": stencila:ArticleCreativeWorkType
   - const: AudioObject

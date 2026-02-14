@@ -21,6 +21,18 @@ core:
   - compatibility
   - allowedTools
 properties:
+  name:
+    '@id': schema:name
+    description: The name of the skill.
+    $comment: |
+      Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric
+      and hyphens, no leading/trailing/consecutive hyphens. By convention, names
+      follow a `thing-activity` pattern describing the skill's domain and action,
+      e.g. `code-review`, `data-analysis`, `site-design`.
+    type: string
+    pattern: '^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$'
+    patch:
+      formats: [md, myst, qmd, smd]
   frontmatter:
     "@id": stencila:frontmatter
     description: Frontmatter containing skill metadata.

@@ -687,6 +687,7 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
         | CreativeWorkType::Dataset
         | CreativeWorkType::Datatable
         | CreativeWorkType::Figure
+        | CreativeWorkType::Agent
         | CreativeWorkType::File
         | CreativeWorkType::MediaObject
         | CreativeWorkType::Prompt

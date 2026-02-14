@@ -156,6 +156,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
             no_skip_props: vec!["CreativeWork.workType", "Reference.workType"],
             skip_types: vec![
                 // Object types for which tables are not created
+                "Agent",
                 "AppendixBreak",
                 "Bibliography",
                 "Brand",

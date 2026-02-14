@@ -3,6 +3,7 @@
  * The kind of a creative work.
  */
 export type CreativeWorkType =
+  'Agent' |
   'Article' |
   'AudioObject' |
   'Blog' |

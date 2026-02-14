@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::admonition::Admonition;
+use super::agent::Agent;
 use super::annotation::Annotation;
 use super::appendix_break::AppendixBreak;
 use super::array::Array;
@@ -164,6 +165,8 @@ pub enum Node {
     Array(Array),
 
     Admonition(Admonition),
+
+    Agent(Agent),
 
     Annotation(Annotation),
 

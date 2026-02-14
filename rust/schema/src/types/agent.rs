@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::bibliography::Bibliography;
 use super::block::Block;
+use super::boolean::Boolean;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
@@ -13,6 +14,7 @@ use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
 use super::inline::Inline;
+use super::integer::Integer;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -23,17 +25,17 @@ use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
 
-/// An agent skill providing instructions for AI agents.
+/// An agent definition specifying model, tools, and behavioral configuration.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
-#[display("Skill")]
+#[display("Agent")]
 #[patch(authors_on = "options")]
-pub struct Skill {
+pub struct Agent {
     /// The type of this item.
-    pub r#type: MustBe!("Skill"),
+    pub r#type: MustBe!("Agent"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -46,7 +48,7 @@ pub struct Skill {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub description: String,
 
-    /// The name of the skill.
+    /// The name of the agent.
     #[patch(format = "md", format = "myst", format = "qmd", format = "smd")]
     pub name: String,
 
@@ -57,31 +59,43 @@ pub struct Skill {
     /// The work's Digital Object Identifier (https://doi.org/).
     pub doi: Option<String>,
 
-    /// Frontmatter containing skill metadata.
+    /// Frontmatter containing agent metadata.
     #[strip(metadata)]
     #[patch(format = "md", format = "myst", format = "qmd", format = "smd")]
     pub frontmatter: Option<String>,
 
-    /// The content of the skill (the Markdown body).
-    #[serde(deserialize_with = "one_or_many")]
+    /// The content of the agent (the Markdown body providing system instructions).
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
     #[patch(format = "all")]
     #[dom(elem = "section")]
-    pub content: Vec<Block>,
+    pub content: Option<Vec<Block>>,
 
-    /// Environment requirements for the skill.
-    pub compatibility: Option<String>,
+    /// Model identifier for the agent.
+    pub model: Option<String>,
 
-    /// Pre-approved tools for the skill.
+    /// Provider identifier for the agent.
+    pub provider: Option<String>,
+
+    /// Skill names this agent can use.
+    #[serde(alias = "allowed-skills", alias = "allowed_skills", alias = "allowedSkill", alias = "allowed-skill", alias = "allowed_skill")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub allowed_skills: Option<Vec<String>>,
+
+    /// Tool names available to the agent.
     #[serde(alias = "allowed-tools", alias = "allowed_tools", alias = "allowedTool", alias = "allowed-tool", alias = "allowed_tool")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub allowed_tools: Option<Vec<String>>,
+
+    /// Reasoning effort level for the agent.
+    #[serde(alias = "reasoning-effort", alias = "reasoning_effort")]
+    pub reasoning_effort: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    pub options: Box<SkillOptions>,
+    pub options: Box<AgentOptions>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]
@@ -92,7 +106,7 @@ pub struct Skill {
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
-pub struct SkillOptions {
+pub struct AgentOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
@@ -293,24 +307,50 @@ pub struct SkillOptions {
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
+
+    /// Maximum conversation turns (0 = unlimited).
+    #[serde(alias = "max-turns", alias = "max_turns")]
+    pub max_turns: Option<Integer>,
+
+    /// Default timeout for tool execution in seconds.
+    #[serde(alias = "tool-timeout", alias = "tool_timeout")]
+    pub tool_timeout: Option<Integer>,
+
+    /// Maximum tool-call rounds per user input.
+    #[serde(alias = "max-tool-rounds", alias = "max_tool_rounds")]
+    pub max_tool_rounds: Option<Integer>,
+
+    /// Maximum subagent nesting depth.
+    #[serde(alias = "max-subagent-depth", alias = "max_subagent_depth")]
+    pub max_subagent_depth: Option<Integer>,
+
+    /// Environment requirements for the agent.
+    pub compatibility: Option<String>,
+
+    /// Whether to enable MCP tools.
+    #[serde(alias = "enable-mcp", alias = "enable_mcp")]
+    pub enable_mcp: Option<Boolean>,
+
+    /// Whether to enable codemode orchestration.
+    #[serde(alias = "enable-codemode", alias = "enable_codemode")]
+    pub enable_codemode: Option<Boolean>,
 }
 
-impl Skill {
-    const NICK: [u8; 3] = *b"skl";
+impl Agent {
+    const NICK: [u8; 3] = *b"agt";
     
     pub fn node_type(&self) -> NodeType {
-        NodeType::Skill
+        NodeType::Agent
     }
 
     pub fn node_id(&self) -> NodeId {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(description: String, name: String, content: Vec<Block>) -> Self {
+    pub fn new(description: String, name: String) -> Self {
         Self {
             description,
             name,
-            content,
             ..Default::default()
         }
     }

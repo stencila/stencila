@@ -13,7 +13,8 @@ use stencila_codec::{
     eyre::{Result, eyre},
     stencila_format::Format,
     stencila_schema::{
-        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, Skill, VisitorMut,
+        Agent, Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, Skill,
+        VisitorMut,
         WalkControl,
     },
 };
@@ -84,6 +85,16 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
                 frontmatter: Some(yaml),
                 ..rest
             }),
+            Node::Agent(rest) => {
+                let mut agent = Agent {
+                    frontmatter: Some(yaml),
+                    ..rest
+                };
+                if !content.is_empty() {
+                    agent.content = Some(content);
+                }
+                Node::Agent(agent)
+            }
             Node::Skill(rest) => Node::Skill(Skill {
                 content,
                 frontmatter: Some(yaml),

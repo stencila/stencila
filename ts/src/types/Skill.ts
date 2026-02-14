@@ -16,9 +16,9 @@ export class Skill extends CreativeWork {
   description: string;
 
   /**
-   * The name of the item.
+   * The name of the skill.
    */
-  name: string;
+  declare name: string;
 
   /**
    * Frontmatter containing skill metadata.

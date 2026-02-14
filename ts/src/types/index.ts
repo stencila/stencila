@@ -2,6 +2,7 @@
 
 export * from "./Admonition.js";
 export * from "./AdmonitionType.js";
+export * from "./Agent.js";
 export * from "./Annotation.js";
 export * from "./AppendixBreak.js";
 export * from "./Array.js";

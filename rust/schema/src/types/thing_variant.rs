@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::agent::Agent;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::brand::Brand;
@@ -42,6 +43,8 @@ use super::video_object::VideoObject;
 #[serde(untagged)]
 pub enum ThingVariant {
     #[default]
+    Agent(Agent),
+
     Article(Article),
 
     AudioObject(AudioObject),

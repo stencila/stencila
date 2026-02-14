@@ -84,10 +84,13 @@
       "@id": "schema:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",
-      "rdfs:comment": "The name of the item.",
+      "rdfs:comment": "The name of the skill.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Agent"
         },
         {
           "@id": "stencila:Button"
@@ -112,6 +115,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Skill"
         },
         {
           "@id": "stencila:TableCell"
@@ -702,6 +708,9 @@
           "@id": "schema:Article"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Prompt"
         },
         {
@@ -732,6 +741,9 @@
         },
         {
           "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Agent"
         },
         {
           "@id": "stencila:Chat"
@@ -848,9 +860,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "compatibility",
       "rdfs:comment": "Environment requirements for the skill.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Skill"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Skill"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -860,9 +877,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "allowedTools",
       "rdfs:comment": "Pre-approved tools for the skill.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Skill"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Skill"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

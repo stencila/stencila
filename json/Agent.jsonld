@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/MediaObject",
-  "name": "MediaObject",
+  "@id": "https://stencila.org/Agent",
+  "name": "Agent",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "schema:MediaObject",
+      "@id": "stencila:Agent",
       "@type": "rdfs:Class",
-      "rdfs:label": "MediaObject",
-      "rdfs:comment": "A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.",
+      "rdfs:label": "Agent",
+      "rdfs:comment": "An agent definition specifying model, tools, and behavioral configuration.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }
@@ -84,7 +84,7 @@
       "@id": "schema:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",
-      "rdfs:comment": "The name of the item.",
+      "rdfs:comment": "The name of the agent.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Thing"
@@ -699,74 +699,314 @@
       ]
     },
     {
-      "@id": "schema:bitrate",
+      "@id": "stencila:frontmatter",
       "@type": "rdfs:Property",
-      "rdfs:label": "bitrate",
-      "rdfs:comment": "Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).",
-      "schema:domainIncludes": {
-        "@id": "schema:MediaObject"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Number"
-      }
-    },
-    {
-      "@id": "schema:contentSize",
-      "@type": "rdfs:Property",
-      "rdfs:label": "contentSize",
-      "rdfs:comment": "File size in megabits (Mbit, Mb).",
-      "schema:domainIncludes": {
-        "@id": "schema:MediaObject"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Number"
-      }
-    },
-    {
-      "@id": "schema:contentUrl",
-      "@type": "rdfs:Property",
-      "rdfs:label": "contentUrl",
-      "rdfs:comment": "URL for the actual bytes of the media object, for example the image file or video file.",
-      "schema:domainIncludes": {
-        "@id": "schema:MediaObject"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:embedUrl",
-      "@type": "rdfs:Property",
-      "rdfs:label": "embedUrl",
-      "rdfs:comment": "URL that can be used to embed the media on a web page via a specific media player.",
-      "schema:domainIncludes": {
-        "@id": "schema:MediaObject"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:encodingFormat",
-      "@type": "rdfs:Property",
-      "rdfs:label": "mediaType",
-      "rdfs:comment": "IANA media type (MIME type).",
+      "rdfs:label": "frontmatter",
+      "rdfs:comment": "Frontmatter containing agent metadata.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:MediaObject"
+          "@id": "schema:Article"
         },
         {
-          "@id": "stencila:Bibliography"
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:Skill"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content of the agent (the Markdown body providing system instructions).",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CitationGroup"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:File"
         },
         {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
           "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InlinesBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Sentence"
+        },
+        {
+          "@id": "stencila:Skill"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:model",
+      "@type": "rdfs:Property",
+      "rdfs:label": "model",
+      "rdfs:comment": "Model identifier for the agent.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:provider",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provider",
+      "rdfs:comment": "Provider identifier for the agent.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:allowedSkills",
+      "@type": "rdfs:Property",
+      "rdfs:label": "allowedSkills",
+      "rdfs:comment": "Skill names this agent can use.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:allowedTools",
+      "@type": "rdfs:Property",
+      "rdfs:label": "allowedTools",
+      "rdfs:comment": "Tool names available to the agent.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Skill"
         }
       ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:reasoningEffort",
+      "@type": "rdfs:Property",
+      "rdfs:label": "reasoningEffort",
+      "rdfs:comment": "Reasoning effort level for the agent.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:maxTurns",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maxTurns",
+      "rdfs:comment": "Maximum conversation turns (0 = unlimited).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:toolTimeout",
+      "@type": "rdfs:Property",
+      "rdfs:label": "toolTimeout",
+      "rdfs:comment": "Default timeout for tool execution in seconds.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:maxToolRounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maxToolRounds",
+      "rdfs:comment": "Maximum tool-call rounds per user input.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:maxSubagentDepth",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maxSubagentDepth",
+      "rdfs:comment": "Maximum subagent nesting depth.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:compatibility",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compatibility",
+      "rdfs:comment": "Environment requirements for the agent.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Skill"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:enableMcp",
+      "@type": "rdfs:Property",
+      "rdfs:label": "enableMcp",
+      "rdfs:comment": "Whether to enable MCP tools.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:enableCodemode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "enableCodemode",
+      "rdfs:comment": "Whether to enable codemode orchestration.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
       }
     }
   ]

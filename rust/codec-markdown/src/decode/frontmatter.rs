@@ -6,7 +6,7 @@ use stencila_codec::{
     NodeType,
     stencila_format::Format,
     stencila_schema::{
-        Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, Skill,
+        Agent, Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, Skill,
         shortcuts::t,
     },
 };
@@ -40,6 +40,9 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
                 {
                     value.insert("type".into(), json!(node_type.to_string()));
                     value.insert("content".to_string(), json!([]));
+                } else if node_type == NodeType::Agent {
+                    // Agent has optional content — only inject `type`, not `content`
+                    value.insert("type".into(), json!(node_type.to_string()));
                 }
                 node_type
             } else {
@@ -77,6 +80,8 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
 
             let node_type = if let Some(node_type) = node_type {
                 node_type
+            } else if yaml.contains("type: Agent") {
+                NodeType::Agent
             } else if yaml.contains("type: Prompt") {
                 NodeType::Prompt
             } else if yaml.contains("type: Skill") {
@@ -117,9 +122,9 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
         value["title"] = json!([]);
     }
 
-    // For Skills, hoist `metadata` entries to top level so they
+    // For Skills and Agents, hoist `metadata` entries to top level so they
     // map to CreativeWork fields (per Agent Skills Spec §metadata)
-    if node_type == NodeType::Skill
+    if matches!(node_type, NodeType::Skill | NodeType::Agent)
         && let Some(object) = value.as_object_mut()
         && let Some(serde_json::Value::Object(meta)) = object.remove("metadata")
     {
@@ -130,6 +135,16 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
 
     // Deserialize value to the node type
     let mut node = match node_type {
+        NodeType::Agent => serde_json::from_value::<Agent>(value).map_or_else(
+            |error| {
+                messages.push(CompilationMessage::new(
+                    MessageLevel::Error,
+                    format!("{error} in YAML frontmatter"),
+                ));
+                Node::Agent(Agent::default())
+            },
+            Node::Agent,
+        ),
         NodeType::Prompt => serde_json::from_value::<Prompt>(value).map_or_else(
             |error| {
                 messages.push(CompilationMessage::new(
@@ -181,6 +196,10 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
         Node::Prompt(prompt) => {
             prompt.title = title.unwrap_or_else(|| vec![t("Untitled")]);
             prompt.options.r#abstract = abs;
+        }
+        Node::Agent(agent) => {
+            agent.options.title = title;
+            agent.options.r#abstract = abs;
         }
         Node::Skill(skill) => {
             skill.options.title = title;

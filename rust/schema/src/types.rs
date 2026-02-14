@@ -1,6 +1,7 @@
 // Generated file; do not edit. See `schema-gen` crate.
 mod admonition;
 mod admonition_type;
+mod agent;
 mod annotation;
 mod appendix_break;
 mod array;
@@ -193,6 +194,7 @@ mod walkthrough_step;
 
 pub use admonition::*;
 pub use admonition_type::*;
+pub use agent::*;
 pub use annotation::*;
 pub use appendix_break::*;
 pub use array::*;

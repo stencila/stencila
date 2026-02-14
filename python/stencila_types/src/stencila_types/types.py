@@ -214,6 +214,7 @@ class CreativeWorkType(StrEnum):
     The kind of a creative work.
     """
 
+    Agent = "Agent"
     Article = "Article"
     AudioObject = "AudioObject"
     Blog = "Blog"
@@ -1108,6 +1109,60 @@ class Admonition(Entity):
 
     provenance: list[ProvenanceCount] | None = None
     """A summary of the provenance of the content within the admonition."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Agent(CreativeWork):
+    """
+    An agent definition specifying model, tools, and behavioral configuration.
+    """
+
+    type: Literal["Agent"] = "Agent"
+
+    name: str
+    """The name of the agent."""
+
+    frontmatter: str | None = None
+    """Frontmatter containing agent metadata."""
+
+    content: list[Block] | None = None
+    """The content of the agent (the Markdown body providing system instructions)."""
+
+    model: str | None = None
+    """Model identifier for the agent."""
+
+    provider: str | None = None
+    """Provider identifier for the agent."""
+
+    allowed_skills: list[str] | None = None
+    """Skill names this agent can use."""
+
+    allowed_tools: list[str] | None = None
+    """Tool names available to the agent."""
+
+    reasoning_effort: str | None = None
+    """Reasoning effort level for the agent."""
+
+    max_turns: int | None = None
+    """Maximum conversation turns (0 = unlimited)."""
+
+    tool_timeout: int | None = None
+    """Default timeout for tool execution in seconds."""
+
+    max_tool_rounds: int | None = None
+    """Maximum tool-call rounds per user input."""
+
+    max_subagent_depth: int | None = None
+    """Maximum subagent nesting depth."""
+
+    compatibility: str | None = None
+    """Environment requirements for the agent."""
+
+    enable_mcp: bool | None = None
+    """Whether to enable MCP tools."""
+
+    enable_codemode: bool | None = None
+    """Whether to enable codemode orchestration."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2942,6 +2997,9 @@ class Skill(CreativeWork):
 
     type: Literal["Skill"] = "Skill"
 
+    name: str
+    """The name of the skill."""
+
     frontmatter: str | None = None
     """Frontmatter containing skill metadata."""
 
@@ -3460,6 +3518,7 @@ Union type in block content node types.
 
 
 CreativeWorkVariant = Union[
+    Agent,
     Article,
     AudioObject,
     Chat,
@@ -3567,6 +3626,7 @@ Node = Union[
     str,
     Array,
     Admonition,
+    Agent,
     Annotation,
     AppendixBreak,
     ArrayHint,
@@ -3707,6 +3767,7 @@ Union type for all types in this schema, including primitives and entities
 
 
 ThingVariant = Union[
+    Agent,
     Article,
     AudioObject,
     Brand,
@@ -3788,6 +3849,7 @@ TYPES = [
     StyledBlock,
     Suggestion,
     Admonition,
+    Agent,
     Annotation,
     AppendixBreak,
     ArrayHint,

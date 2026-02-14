@@ -37,6 +37,8 @@ export function hydrate(value: types.Node): types.Node {
     // TYPE-CASES:START
     case "Admonition":
       return Object.setPrototypeOf(value, types.Admonition.prototype);
+    case "Agent":
+      return Object.setPrototypeOf(value, types.Agent.prototype);
     case "Annotation":
       return Object.setPrototypeOf(value, types.Annotation.prototype);
     case "AppendixBreak":

@@ -123,6 +123,9 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Chat"
         },
         {

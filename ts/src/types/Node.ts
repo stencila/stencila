@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
+import { type Agent } from "./Agent.js";
 import { type Annotation } from "./Annotation.js";
 import { type AppendixBreak } from "./AppendixBreak.js";
 import { type Array } from "./Array.js";
@@ -152,6 +153,7 @@ export type Node =
   string |
   Array |
   Admonition |
+  Agent |
   Annotation |
   AppendixBreak |
   ArrayHint |
@@ -295,6 +297,7 @@ export function node(other: Node): Node {
   }
   switch(other.type) {
     case "Admonition":
+    case "Agent":
     case "Annotation":
     case "AppendixBreak":
     case "ArrayHint":

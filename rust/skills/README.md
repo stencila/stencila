@@ -53,15 +53,13 @@ The following extensions to the spec are implemented for better interoperability
 
 - **`metadata` translation**: Stencila stores `CreativeWork` properties like `authors`, `version`, and `licenses` as flat, top-level fields on the `Skill` struct. The spec nests these under a `metadata:` object in frontmatter. Translation happens in both directions: on decode, entries under `metadata:` are hoisted to the top level so they populate CreativeWork fields; on encode, non-spec top-level fields are nested back under `metadata:` so the output conforms to the spec.
 
-- **`node_type` hint in `DecodeOptions`**: The Stencila Markdown decoder accepts a `node_type` hint to parse `SKILL.md` files as `Skill` nodes without requiring `type: Skill` in the frontmatter.
-
 ## Deviations
 
 These are intentional deviations from the spec:
 
 - **Workspace-scoped**: Skills live in `.stencila/skills/` within a workspace rather than a global directory. This keeps skills project-local.
 
-- **ASCII-only names**: The spec says "unicode lowercase alphanumeric characters" but the parenthetical character class `(a-z and -)` and all examples use ASCII only. We enforce ASCII `[a-z0-9-]` and measure length in bytes (equivalent to character count for ASCII). This may be relaxed if the upstream spec clarifies Unicode intent.
+- **Naming**: Names must be lowercase kebab-case (`[a-z0-9-]`, 1-64 characters, no leading/trailing/consecutive hyphens). By convention, names follow a `thing-activity` pattern describing the skill's domain and action (e.g. `code-review`, `data-analysis`, `site-design`). The spec says "unicode lowercase alphanumeric characters" but the parenthetical character class `(a-z and -)` and all examples use ASCII only. We enforce ASCII and measure length in bytes (equivalent to character count for ASCII). This may be relaxed if the upstream spec clarifies Unicode intent.
 
 ## Limitations
 

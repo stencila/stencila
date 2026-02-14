@@ -1,31 +1,34 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/Skill.schema.json",
-  "@id": "stencila:Skill",
-  "title": "Skill",
-  "nick": "skl",
+  "$id": "https://stencila.org/Agent.schema.json",
+  "@id": "stencila:Agent",
+  "title": "Agent",
+  "nick": "agt",
   "extends": [
     "CreativeWork"
   ],
   "category": "works",
-  "description": "An agent skill providing instructions for AI agents.",
-  "$comment": "An implementation of the [Agent Skills Specification](https://agentskills.io/specification).\nA skill is a directory containing a `SKILL.md` file with YAML frontmatter and a Markdown body\nthat provides instructions for AI agents. Skills support progressive disclosure: metadata\n(~100 tokens) is loaded at startup, full instructions on activation, and referenced files\non demand.\n",
+  "description": "An agent definition specifying model, tools, and behavioral configuration.",
+  "$comment": "An agent is a directory containing an `AGENT.md` file with YAML frontmatter and an optional\nMarkdown body providing system instructions. Agents are discovered from two locations:\nworkspace `.stencila/agents/` and user config `~/.config/stencila/agents/`.\n",
   "markdown": {
     "derive": false
   },
   "required": [
     "type",
     "name",
-    "description",
-    "content"
+    "description"
   ],
   "core": [
     "id",
     "workType",
     "doi",
     "frontmatter",
-    "compatibility",
-    "allowedTools"
+    "model",
+    "provider",
+    "allowedSkills",
+    "allowedTools",
+    "reasoningEffort",
+    "content"
   ],
   "properties": {
     "type": {
@@ -125,8 +128,8 @@
     },
     "name": {
       "@id": "schema:name",
-      "description": "The name of the skill.",
-      "$comment": "Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric\nand hyphens, no leading/trailing/consecutive hyphens. By convention, names\nfollow a `thing-activity` pattern describing the skill's domain and action,\ne.g. `code-review`, `data-analysis`, `site-design`.\n",
+      "description": "The name of the agent.",
+      "$comment": "Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric\nand hyphens, no leading/trailing/consecutive hyphens. By convention, names\nfollow a `thing-role` pattern describing the agent's domain and function,\ne.g. `code-engineer`, `code-reviewer`, `data-analyst`, `site-designer`.\n",
       "patch": {
         "formats": [
           "md",
@@ -681,7 +684,7 @@
     },
     "frontmatter": {
       "@id": "stencila:frontmatter",
-      "description": "Frontmatter containing skill metadata.",
+      "description": "Frontmatter containing agent metadata.",
       "$comment": "Currently assumed to be YAML.",
       "strip": [
         "metadata"
@@ -698,8 +701,8 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "The content of the skill (the Markdown body).",
-      "$comment": "The Markdown body after the frontmatter contains the skill instructions. There are no\nformat restrictions per the spec. Recommended sections include step-by-step instructions,\nexamples of inputs and outputs, and common edge cases.\n",
+      "description": "The content of the agent (the Markdown body providing system instructions).",
+      "$comment": "The Markdown body after the frontmatter contains the agent's system instructions.\nThis is optional — an agent may be configuration-only with no instructions.\n",
       "dom": {
         "elem": "section"
       },
@@ -708,15 +711,37 @@
         "$ref": "Block.schema.json"
       }
     },
-    "compatibility": {
-      "@id": "stencila:compatibility",
-      "description": "Environment requirements for the skill.",
-      "$comment": "Max 500 characters per the spec. Indicates intended product, required system packages,\nnetwork access needs, etc. Most skills do not need this field.\n",
+    "model": {
+      "@id": "stencila:model",
+      "description": "Model identifier for the agent.",
+      "$comment": "The model to use, e.g. \"claude-sonnet-4-5\", \"gpt-5.2-codex\". When not specified,\nthe default model for the provider is used.\n",
       "type": "string"
+    },
+    "provider": {
+      "@id": "stencila:provider",
+      "description": "Provider identifier for the agent.",
+      "$comment": "The provider to use, e.g. \"anthropic\", \"openai\", \"gemini\". When not specified,\nthe first available provider is used.\n",
+      "type": "string"
+    },
+    "allowedSkills": {
+      "@id": "stencila:allowedSkills",
+      "description": "Skill names this agent can use.",
+      "$comment": "When unset, all discovered skills are available to the agent.\nWhen set, only the listed skills are available.\n",
+      "aliases": [
+        "allowed-skills",
+        "allowed_skills",
+        "allowedSkill",
+        "allowed-skill",
+        "allowed_skill"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "allowedTools": {
       "@id": "stencila:allowedTools",
-      "description": "Pre-approved tools for the skill.",
+      "description": "Tool names available to the agent.",
       "$comment": "Experimental per the spec. In the spec this is a space-delimited string named\n`allowed-tools`; we parse it into an array of strings for easier programmatic use.\n",
       "aliases": [
         "allowed-tools",
@@ -729,6 +754,76 @@
       "items": {
         "type": "string"
       }
+    },
+    "reasoningEffort": {
+      "@id": "stencila:reasoningEffort",
+      "description": "Reasoning effort level for the agent.",
+      "$comment": "Valid values are \"low\", \"medium\", \"high\", or a custom provider-specific value.\nWhen not specified, the provider's default is used.\n",
+      "aliases": [
+        "reasoning-effort",
+        "reasoning_effort"
+      ],
+      "type": "string"
+    },
+    "maxTurns": {
+      "@id": "stencila:maxTurns",
+      "description": "Maximum conversation turns (0 = unlimited).",
+      "aliases": [
+        "max-turns",
+        "max_turns"
+      ],
+      "type": "integer"
+    },
+    "toolTimeout": {
+      "@id": "stencila:toolTimeout",
+      "description": "Default timeout for tool execution in seconds.",
+      "aliases": [
+        "tool-timeout",
+        "tool_timeout"
+      ],
+      "type": "integer"
+    },
+    "maxToolRounds": {
+      "@id": "stencila:maxToolRounds",
+      "description": "Maximum tool-call rounds per user input.",
+      "aliases": [
+        "max-tool-rounds",
+        "max_tool_rounds"
+      ],
+      "type": "integer"
+    },
+    "maxSubagentDepth": {
+      "@id": "stencila:maxSubagentDepth",
+      "description": "Maximum subagent nesting depth.",
+      "aliases": [
+        "max-subagent-depth",
+        "max_subagent_depth"
+      ],
+      "type": "integer"
+    },
+    "compatibility": {
+      "@id": "stencila:compatibility",
+      "description": "Environment requirements for the agent.",
+      "$comment": "Max 500 characters. Indicates intended product, required system packages,\nnetwork access needs, etc. Most agents do not need this field.\n",
+      "type": "string"
+    },
+    "enableMcp": {
+      "@id": "stencila:enableMcp",
+      "description": "Whether to enable MCP tools.",
+      "aliases": [
+        "enable-mcp",
+        "enable_mcp"
+      ],
+      "type": "boolean"
+    },
+    "enableCodemode": {
+      "@id": "stencila:enableCodemode",
+      "description": "Whether to enable codemode orchestration.",
+      "aliases": [
+        "enable-codemode",
+        "enable_codemode"
+      ],
+      "type": "boolean"
     }
   }
 }

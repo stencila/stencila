@@ -14,6 +14,7 @@ impl Node {
 
         variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             Array,
@@ -178,6 +179,7 @@ impl Node {
 
         variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             ArrayHint,
@@ -376,6 +378,7 @@ impl ReadNode for Node {
 
         load_map_variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             ArrayHint,
@@ -648,6 +651,7 @@ impl From<CreativeWorkVariant> for Node {
         }
 
         variants!(
+            Agent,
             Article,
             AudioObject,
             Chat,

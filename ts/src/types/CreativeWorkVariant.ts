@@ -2,6 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
+import { type Agent } from "./Agent.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Chat } from "./Chat.js";
@@ -28,6 +29,7 @@ import { type VideoObject } from "./VideoObject.js";
  * Union type for all types that are descended from `CreativeWork`
  */
 export type CreativeWorkVariant =
+  Agent |
   Article |
   AudioObject |
   Chat |
@@ -55,6 +57,7 @@ export type CreativeWorkVariant =
  */
 export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVariant {
   switch(other.type) {
+    case "Agent":
     case "Article":
     case "AudioObject":
     case "Chat":

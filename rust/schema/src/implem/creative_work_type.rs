@@ -4,6 +4,7 @@ impl CreativeWorkVariant {
     // Get the type of the creative work
     pub fn work_type(&self) -> CreativeWorkType {
         match self {
+            CreativeWorkVariant::Agent(..) => CreativeWorkType::Agent,
             CreativeWorkVariant::Article(..) => CreativeWorkType::Article,
             CreativeWorkVariant::AudioObject(..) => CreativeWorkType::AudioObject,
             CreativeWorkVariant::Chat(..) => CreativeWorkType::Chat,
@@ -38,6 +39,7 @@ impl CreativeWorkVariant {
             };
         }
         works!(
+            Agent,
             Article,
             AudioObject,
             Chat,
@@ -82,6 +84,7 @@ impl CreativeWorkVariant {
             };
         }
         works!(
+            Agent,
             Claim,
             Collection,
             Comment,
@@ -114,6 +117,7 @@ impl TryFrom<Node> for CreativeWorkVariant {
             };
         }
         works!(
+            Agent,
             Article,
             AudioObject,
             Chat,

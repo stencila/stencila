@@ -90,6 +90,9 @@
           "@id": "schema:Thing"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Button"
         },
         {
@@ -112,6 +115,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Skill"
         },
         {
           "@id": "stencila:TableCell"
@@ -1010,6 +1016,9 @@
           "@id": "schema:Article"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Prompt"
         },
         {
@@ -1052,6 +1061,9 @@
         },
         {
           "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Agent"
         },
         {
           "@id": "stencila:Chat"

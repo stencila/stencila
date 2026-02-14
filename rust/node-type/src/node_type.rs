@@ -16,6 +16,7 @@ pub enum NodeType {
     String,
     Array,
     Admonition,
+    Agent,
     Annotation,
     AppendixBreak,
     ArrayHint,
@@ -158,7 +159,7 @@ impl NodeType {
     /// Is the node type a creative work type?
     pub fn is_creative_work(&self) -> bool {
         use NodeType::*;
-        matches!(self, Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
+        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
     }
 
     /// Is the node type a block content type?
@@ -188,6 +189,7 @@ impl TryFrom<&NodeId> for NodeType {
         use NodeType::*;
         Ok(match value.nick() {
             "adm" => Admonition,
+            "agt" => Agent,
             "ann" => Annotation,
             "apb" => AppendixBreak,
             "arr" => Array,

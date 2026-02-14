@@ -1,4 +1,5 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
+import { type Agent } from "./Agent.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Brand } from "./Brand.js";
@@ -38,6 +39,7 @@ import { type VideoObject } from "./VideoObject.js";
  * Union type for all types that are descended from `Thing`
  */
 export type ThingVariant =
+  Agent |
   Article |
   AudioObject |
   Brand |

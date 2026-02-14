@@ -1,0 +1,125 @@
+title: Agent
+"@id": stencila:Agent
+nick: agt
+extends: CreativeWork
+category: works
+description: An agent definition specifying model, tools, and behavioral configuration.
+$comment: |
+  An agent is a directory containing an `AGENT.md` file with YAML frontmatter and an optional
+  Markdown body providing system instructions. Agents are discovered from two locations:
+  workspace `.stencila/agents/` and user config `~/.config/stencila/agents/`.
+markdown:
+  derive: false
+required:
+  - name
+  - description
+core:
+  - frontmatter
+  - model
+  - provider
+  - allowedSkills
+  - allowedTools
+  - reasoningEffort
+  - content
+properties:
+  name:
+    '@id': schema:name
+    description: The name of the agent.
+    $comment: |
+      Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric
+      and hyphens, no leading/trailing/consecutive hyphens. By convention, names
+      follow a `thing-role` pattern describing the agent's domain and function,
+      e.g. `code-engineer`, `code-reviewer`, `data-analyst`, `site-designer`.
+    type: string
+    pattern: '^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$'
+    patch:
+      formats: [md, myst, qmd, smd]
+  frontmatter:
+    "@id": stencila:frontmatter
+    description: Frontmatter containing agent metadata.
+    $comment: Currently assumed to be YAML.
+    type: string
+    strip: [metadata]
+    patch:
+      formats: [md, myst, qmd, smd]
+  content:
+    "@id": stencila:content
+    description: The content of the agent (the Markdown body providing system instructions).
+    $comment: |
+      The Markdown body after the frontmatter contains the agent's system instructions.
+      This is optional — an agent may be configuration-only with no instructions.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: section
+  model:
+    "@id": stencila:model
+    description: Model identifier for the agent.
+    $comment: |
+      The model to use, e.g. "claude-sonnet-4-5", "gpt-5.2-codex". When not specified,
+      the default model for the provider is used.
+    type: string
+  provider:
+    "@id": stencila:provider
+    description: Provider identifier for the agent.
+    $comment: |
+      The provider to use, e.g. "anthropic", "openai", "gemini". When not specified,
+      the first available provider is used.
+    type: string
+  allowedSkills:
+    "@id": stencila:allowedSkills
+    description: Skill names this agent can use.
+    $comment: |
+      When unset, all discovered skills are available to the agent.
+      When set, only the listed skills are available.
+    type: array
+    items:
+      type: string
+  allowedTools:
+    "@id": stencila:allowedTools
+    description: Tool names available to the agent.
+    $comment: |
+      Experimental per the spec. In the spec this is a space-delimited string named
+      `allowed-tools`; we parse it into an array of strings for easier programmatic use.
+    type: array
+    items:
+      type: string
+  reasoningEffort:
+    "@id": stencila:reasoningEffort
+    description: Reasoning effort level for the agent.
+    $comment: |
+      Valid values are "low", "medium", "high", or a custom provider-specific value.
+      When not specified, the provider's default is used.
+    type: string
+  maxTurns:
+    "@id": stencila:maxTurns
+    description: Maximum conversation turns (0 = unlimited).
+    type: integer
+  toolTimeout:
+    "@id": stencila:toolTimeout
+    description: Default timeout for tool execution in seconds.
+    type: integer
+  maxToolRounds:
+    "@id": stencila:maxToolRounds
+    description: Maximum tool-call rounds per user input.
+    type: integer
+  maxSubagentDepth:
+    "@id": stencila:maxSubagentDepth
+    description: Maximum subagent nesting depth.
+    type: integer
+  compatibility:
+    "@id": stencila:compatibility
+    description: Environment requirements for the agent.
+    $comment: |
+      Max 500 characters. Indicates intended product, required system packages,
+      network access needs, etc. Most agents do not need this field.
+    type: string
+  enableMcp:
+    "@id": stencila:enableMcp
+    description: Whether to enable MCP tools.
+    type: boolean
+  enableCodemode:
+    "@id": stencila:enableCodemode
+    description: Whether to enable codemode orchestration.
+    type: boolean

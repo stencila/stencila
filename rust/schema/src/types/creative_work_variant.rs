@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::agent::Agent;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::chat::Chat;
@@ -29,6 +30,8 @@ use super::video_object::VideoObject;
 #[serde(untagged)]
 pub enum CreativeWorkVariant {
     #[default]
+    Agent(Agent),
+
     Article(Article),
 
     AudioObject(AudioObject),

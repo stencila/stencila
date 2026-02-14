@@ -43,13 +43,17 @@ pub enum ValidationError {
     CompatibilityTooLong(usize),
 }
 
-/// Validate a skill name per the Agent Skills Specification
+/// Validate a skill name per the Agent Skills Specification.
 ///
-/// Rules:
-/// - Must be 1-64 characters
+/// Names must be lowercase kebab-case:
+/// - 1-64 characters
 /// - Only lowercase alphanumeric characters and hyphens
 /// - Must not start or end with a hyphen
 /// - Must not contain consecutive hyphens
+///
+/// By convention, names follow a `thing-activity` pattern describing
+/// the skill's domain and action (e.g. `code-review`, `data-analysis`,
+/// `site-design`).
 pub fn validate_name(name: &str) -> Vec<ValidationError> {
     // Use `std::sync::LazyLock` when stabilized in our MSRV; for now just compile each time
     // (validation is not a hot path)
@@ -126,11 +130,14 @@ mod tests {
 
     #[test]
     fn valid_names() -> eyre::Result<()> {
-        assert!(validate_name("data-analysis").is_empty());
-        assert!(validate_name("data-analysis").is_empty());
+        // Conventional thing-activity names
         assert!(validate_name("code-review").is_empty());
+        assert!(validate_name("data-analysis").is_empty());
+        assert!(validate_name("site-design").is_empty());
+        // Other valid kebab-case
         assert!(validate_name("a").is_empty());
         assert!(validate_name("abc123").is_empty());
+        assert!(validate_name("my-skill").is_empty());
         Ok(())
     }
 
