@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 use inflector::Inflector;
 use serde_json::Value;
-use stencila_agents::convenience::create_session;
+use stencila_agents::convenience::create_session_with_instructions;
 use stencila_agents::types::EventKind;
 use tokio::sync::mpsc;
 
@@ -227,14 +227,19 @@ impl AgentHandle {
     /// Spawn the background agent task and return a handle.
     ///
     /// If `model` is `Some((provider, model_id))`, the agent session will
-    /// use that specific model instead of the default. The session is created
-    /// lazily on the first submit. Returns `None` if no Tokio runtime is
-    /// available (e.g. in synchronous tests).
-    pub fn spawn(model: Option<(String, String)>) -> Option<Self> {
+    /// use that specific model instead of the default. If `user_instructions`
+    /// is `Some`, it is injected into the session config as a per-session
+    /// system prompt override. The session is created lazily on the first
+    /// submit. Returns `None` if no Tokio runtime is available (e.g. in
+    /// synchronous tests).
+    pub fn spawn(
+        model: Option<(String, String)>,
+        user_instructions: Option<String>,
+    ) -> Option<Self> {
         // Check that a tokio runtime is available before spawning
         let _handle = tokio::runtime::Handle::try_current().ok()?;
         let (tx, rx) = mpsc::unbounded_channel();
-        tokio::spawn(agent_task(rx, model));
+        tokio::spawn(agent_task(rx, model, user_instructions));
         Some(Self { tx })
     }
 
@@ -269,6 +274,7 @@ impl AgentHandle {
 async fn agent_task(
     mut rx: mpsc::UnboundedReceiver<AgentCommand>,
     model: Option<(String, String)>,
+    user_instructions: Option<String>,
 ) {
     // Session and event receiver are created lazily on first submit.
     let mut session = None;
@@ -286,7 +292,9 @@ async fn agent_task(
                 Some((p, m)) => (Some(p.as_str()), Some(m.as_str())),
                 None => (None, None),
             };
-            match create_session(provider, model_id).await {
+            match create_session_with_instructions(provider, model_id, user_instructions.clone())
+                .await
+            {
                 Ok((s, er)) => {
                     session = Some(s);
                     event_rx = Some(er);

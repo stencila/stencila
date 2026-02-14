@@ -42,6 +42,25 @@ pub async fn create_session(
     provider: Option<&str>,
     model: Option<&str>,
 ) -> AgentResult<(Session, EventReceiver)> {
+    create_session_with_instructions(provider, model, None).await
+}
+
+/// Create an agent session with optional user instructions.
+///
+/// Same as [`create_session`] but accepts an optional `user_instructions`
+/// string that is injected into the session config as a per-session
+/// system prompt override.
+///
+/// # Errors
+///
+/// Returns an error if no API keys are found, the provider is not one of
+/// the three supported providers, or the provider has no default model
+/// and `model` is `None`.
+pub async fn create_session_with_instructions(
+    provider: Option<&str>,
+    model: Option<&str>,
+    user_instructions: Option<String>,
+) -> AgentResult<(Session, EventReceiver)> {
     let client = stencila_models3::client::Client::from_env().map_err(AgentError::Sdk)?;
 
     let provider_name = match provider {
@@ -77,7 +96,10 @@ pub async fn create_session(
         },
     };
 
-    let config = SessionConfig::default();
+    let config = SessionConfig {
+        user_instructions,
+        ..SessionConfig::default()
+    };
     let max_timeout = config.max_command_timeout_ms;
 
     let mut profile: Box<dyn crate::profile::ProviderProfile> = match provider_name.as_str() {

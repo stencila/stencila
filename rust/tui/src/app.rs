@@ -5,10 +5,13 @@ use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
     agent::{AgentHandle, ResponseSegment, RunningAgentExchange},
+    autocomplete::agents::AgentSelection,
     autocomplete::cancel::CancelCandidate,
     autocomplete::models::ModelCandidate,
+    autocomplete::responses::ResponseCandidate,
     autocomplete::{
-        CancelState, CommandsState, FilesState, HistoryState, ModelsState, ResponsesState,
+        AgentsState, CancelState, CommandsState, FilesState, HistoryState, ModelsState,
+        ResponsesState,
     },
     commands::SlashCommand,
     history::InputHistory,
@@ -69,6 +72,82 @@ pub enum ExchangeStatus {
     Cancelled,
 }
 
+/// Fixed palette of colors for agent sessions.
+const AGENT_COLORS: [Color; 6] = [
+    Color::Blue,
+    Color::Magenta,
+    Color::Cyan,
+    Color::Green,
+    Color::Yellow,
+    Color::Red,
+];
+
+/// An agent session with its own model, instructions, and running state.
+pub struct AgentSession {
+    /// Display name for this agent.
+    pub name: String,
+    /// Optional user instructions (system prompt override).
+    pub user_instructions: Option<String>,
+    /// Agent handle for submitting chat messages.
+    /// Created lazily on first chat submit.
+    agent: Option<AgentHandle>,
+    /// The selected model override (provider, `model_id`).
+    /// `None` means use the default.
+    pub selected_model: Option<(String, String)>,
+    /// Agent exchanges currently running in the background.
+    /// Each entry is `(message_index, running_exchange)`.
+    pub running_agent_exchanges: Vec<(usize, RunningAgentExchange)>,
+}
+
+impl AgentSession {
+    /// Create a new agent session with the given name.
+    pub(crate) fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            user_instructions: None,
+            agent: None,
+            selected_model: None,
+            running_agent_exchanges: Vec::new(),
+        }
+    }
+
+    /// Color for this agent session, based on its index.
+    pub fn color(index: usize) -> Color {
+        AGENT_COLORS[index % AGENT_COLORS.len()]
+    }
+}
+
+/// Steps in the new-agent wizard.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WizardStep {
+    /// Entering the agent name.
+    Name,
+    /// Entering the system prompt (multi-line).
+    SystemPrompt,
+    /// Picking a model (reuses model picker).
+    Model,
+}
+
+/// State for the new-agent creation wizard.
+pub struct WizardState {
+    /// Current wizard step.
+    pub step: WizardStep,
+    /// The name entered so far.
+    pub name: String,
+    /// The system prompt entered so far.
+    pub system_prompt: String,
+}
+
+impl WizardState {
+    pub(crate) fn new() -> Self {
+        Self {
+            step: WizardStep::Name,
+            name: String::new(),
+            system_prompt: String::new(),
+        }
+    }
+}
+
 /// A message displayed in the messages area.
 #[derive(Debug, Clone)]
 pub enum AppMessage {
@@ -86,6 +165,9 @@ pub enum AppMessage {
         response_segments: Option<Vec<ResponseSegment>>,
         /// Shell exit code (only meaningful for Shell kind).
         exit_code: Option<i32>,
+        /// Index of the agent session that owns this exchange.
+        /// `None` for shell exchanges.
+        agent_index: Option<usize>,
     },
     /// A system/informational message (mode transitions, slash command output, etc.).
     System { content: String },
@@ -122,6 +204,8 @@ pub struct App {
     pub cancel_state: CancelState,
     /// Model picker popup state.
     pub models_state: ModelsState,
+    /// Agent picker popup state.
+    pub agents_state: AgentsState,
 
     /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
     /// Shown as dim inline text for fish-shell-style history completion.
@@ -133,17 +217,12 @@ pub struct App {
     /// 0 = most recent prefix match (default), incremented by Up, decremented by Down.
     ghost_nav_offset: usize,
 
-    /// Agent handle for submitting chat messages to the LLM.
-    /// Created lazily on first chat submit.
-    agent: Option<AgentHandle>,
-
-    /// The selected model override (provider, `model_id`).
-    /// `None` means use the default.
-    selected_model: Option<(String, String)>,
-
-    /// Agent exchanges currently running in the background.
-    /// Each entry is `(message_index, running_exchange)` linking to the exchange in `messages`.
-    pub running_agent_exchanges: Vec<(usize, RunningAgentExchange)>,
+    /// Agent sessions. Index 0 is the default session.
+    pub sessions: Vec<AgentSession>,
+    /// Index of the currently active agent session.
+    pub active_session: usize,
+    /// Wizard state for creating new agents (`/new:agent`).
+    pub wizard: Option<WizardState>,
 
     /// Shell commands currently running in the background.
     /// Each entry is `(message_index, running_command)` linking to the exchange in `messages`.
@@ -173,10 +252,17 @@ pub struct App {
 
 impl App {
     /// Create a new App with a welcome banner.
+    ///
+    /// If `model` is `Some((provider, model_id))`, the default agent session
+    /// will use that specific model instead of auto-detection.
     pub fn new(
         log_receiver: mpsc::UnboundedReceiver<String>,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
+        model: Option<(String, String)>,
     ) -> Self {
+        let mut default_session = AgentSession::new("default");
+        default_session.selected_model = model;
+
         Self {
             should_quit: false,
             mode: AppMode::default(),
@@ -189,13 +275,14 @@ impl App {
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
             models_state: ModelsState::new(),
+            agents_state: AgentsState::new(),
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
             running_shell_commands: Vec::new(),
-            agent: None,
-            selected_model: None,
-            running_agent_exchanges: Vec::new(),
+            sessions: vec![default_session],
+            active_session: 0,
+            wizard: None,
             tick_count: 0,
             log_receiver,
             scroll_offset: 0,
@@ -205,6 +292,11 @@ impl App {
             upgrade_available: None,
             upgrade_msg_index: None,
         }
+    }
+
+    /// The currently active agent session.
+    pub fn active(&self) -> &AgentSession {
+        &self.sessions[self.active_session]
     }
 
     /// Handle a terminal event. Returns `true` if the app should exit.
@@ -224,12 +316,23 @@ impl App {
 
     /// Whether any commands or agent exchanges are currently running.
     pub fn has_running(&self) -> bool {
-        !self.running_shell_commands.is_empty() || !self.running_agent_exchanges.is_empty()
+        !self.running_shell_commands.is_empty()
+            || self
+                .sessions
+                .iter()
+                .any(|s| !s.running_agent_exchanges.is_empty())
     }
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
+        // Wizard intercepts all keys when active
+        if self.wizard.is_some() {
+            self.handle_wizard_key(key);
+            return;
+        }
+
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
+            || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
             || (self.models_state.is_visible() && self.handle_models_autocomplete(key))
             || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
@@ -293,17 +396,19 @@ impl App {
         true
     }
 
-    /// Switch to a new model, resetting the agent session.
+    /// Switch to a new model, resetting the active agent session.
     ///
-    /// Only cancels running agent exchanges — shell commands are independent
-    /// of the model and should not be affected by a model switch.
+    /// Only cancels running agent exchanges for the active session — shell
+    /// commands are independent of the model and should not be affected.
     fn set_model(&mut self, candidate: &ModelCandidate) {
-        self.selected_model = Some((candidate.provider.clone(), candidate.model_id.clone()));
-        for (idx, exchange) in self.running_agent_exchanges.drain(..) {
+        let idx = self.active_session;
+        let session = &mut self.sessions[idx];
+        session.selected_model = Some((candidate.provider.clone(), candidate.model_id.clone()));
+        for (msg_idx, exchange) in session.running_agent_exchanges.drain(..) {
             exchange.cancel();
-            Self::mark_exchange_cancelled(&mut self.messages, idx);
+            Self::mark_exchange_cancelled(&mut self.messages, msg_idx);
         }
-        self.agent = None;
+        self.sessions[idx].agent = None;
         self.input.clear();
         self.messages.push(AppMessage::System {
             content: format!(
@@ -470,6 +575,12 @@ impl App {
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
                 self.clear_messages();
             }
+            (KeyModifiers::CONTROL, KeyCode::Char('a')) => {
+                if self.sessions.len() > 1 {
+                    let next = (self.active_session + 1) % self.sessions.len();
+                    self.switch_to_session(next);
+                }
+            }
             (KeyModifiers::CONTROL, KeyCode::Char('u')) => self.input.delete_to_line_start(),
             (KeyModifiers::CONTROL, KeyCode::Char('k')) => self.input.delete_to_line_end(),
 
@@ -538,6 +649,216 @@ impl App {
         }
     }
 
+    /// Handle a key event when the agent picker popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_agents_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(selection) = self.agents_state.accept() {
+                    match selection {
+                        AgentSelection::Switch(index) => self.switch_to_session(index),
+                        AgentSelection::New => {
+                            self.wizard = Some(WizardState::new());
+                            self.input.clear();
+                            self.messages.push(AppMessage::System {
+                                content: "Creating new agent. Enter a name:".to_string(),
+                            });
+                        }
+                    }
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.agents_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.agents_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.agents_state.select_next(),
+            _ => return false,
+        }
+        true
+    }
+
+    /// Handle key events during the new-agent wizard.
+    fn handle_wizard_key(&mut self, key: &KeyEvent) {
+        let Some(wizard) = &self.wizard else { return };
+        let step = wizard.step;
+
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Esc) => {
+                // Cancel wizard at any step
+                self.wizard = None;
+                self.input.clear();
+                self.models_state.dismiss();
+                self.messages.push(AppMessage::System {
+                    content: "Agent creation cancelled.".to_string(),
+                });
+            }
+            _ => match step {
+                WizardStep::Name => self.handle_wizard_name_key(key),
+                WizardStep::SystemPrompt => self.handle_wizard_system_prompt_key(key),
+                WizardStep::Model => self.handle_wizard_model_key(key),
+            },
+        }
+    }
+
+    /// Handle keys during the Name step of the wizard.
+    fn handle_wizard_name_key(&mut self, key: &KeyEvent) {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Enter) => {
+                let name = self.input.take();
+                let name = name.trim().to_string();
+                if name.is_empty() {
+                    self.messages.push(AppMessage::System {
+                        content: "Name cannot be empty.".to_string(),
+                    });
+                    return;
+                }
+                // Check for duplicate names
+                if self.sessions.iter().any(|s| s.name == name) {
+                    self.messages.push(AppMessage::System {
+                        content: format!("Agent '{name}' already exists."),
+                    });
+                    return;
+                }
+                if let Some(wizard) = &mut self.wizard {
+                    wizard.name = name;
+                    wizard.step = WizardStep::SystemPrompt;
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+            }
+            _ => {}
+        }
+    }
+
+    /// Handle keys during the `SystemPrompt` step of the wizard.
+    fn handle_wizard_system_prompt_key(&mut self, key: &KeyEvent) {
+        match (key.modifiers, key.code) {
+            (m, KeyCode::Enter) if m.contains(KeyModifiers::ALT) => {
+                self.input.insert_newline();
+            }
+            (KeyModifiers::NONE, KeyCode::Enter) => {
+                let prompt = self.input.take();
+                let prompt = prompt.trim().to_string();
+                if let Some(wizard) = &mut self.wizard {
+                    wizard.system_prompt = prompt;
+                    wizard.step = WizardStep::Model;
+                }
+                // Open model picker
+                self.open_model_picker();
+            }
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+            }
+            _ => {}
+        }
+    }
+
+    /// Handle keys during the Model step of the wizard.
+    fn handle_wizard_model_key(&mut self, key: &KeyEvent) {
+        if self.models_state.is_visible() {
+            match (key.modifiers, key.code) {
+                (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                    let model = self.models_state.accept().map(|c| (c.provider, c.model_id));
+                    self.finish_wizard(model);
+                }
+                (KeyModifiers::NONE, KeyCode::Up) => self.models_state.select_prev(),
+                (KeyModifiers::NONE, KeyCode::Down) => self.models_state.select_next(),
+                (KeyModifiers::NONE, KeyCode::Backspace) => {
+                    self.input.delete_char_before();
+                    self.models_state.update(self.input.text());
+                }
+                (modifier, KeyCode::Char(c))
+                    if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+                {
+                    self.input.insert_char(c);
+                    self.models_state.update(self.input.text());
+                }
+                _ => {}
+            }
+        } else {
+            // Model picker not visible (no models available) —
+            // Enter skips model selection, uses default
+            if let (KeyModifiers::NONE, KeyCode::Enter) = (key.modifiers, key.code) {
+                self.finish_wizard(None);
+            }
+        }
+    }
+
+    /// Open the model picker popup (shared between /model command and wizard).
+    fn open_model_picker(&mut self) {
+        let overrides = stencila_auth::AuthOverrides::new();
+        match stencila_models3::catalog::list_models(None) {
+            Ok(models) => {
+                let candidates: Vec<ModelCandidate> = models
+                    .into_iter()
+                    .filter(|m| {
+                        stencila_models3::catalog::is_provider_available(&m.provider, &overrides)
+                    })
+                    .map(|m| ModelCandidate {
+                        provider: m.provider,
+                        model_id: m.id,
+                        display_name: m.display_name,
+                    })
+                    .collect();
+
+                if candidates.is_empty() {
+                    self.messages.push(AppMessage::System {
+                        content: "No models available. Using default.".to_string(),
+                    });
+                } else {
+                    self.models_state.open(candidates);
+                }
+            }
+            Err(e) => {
+                self.messages.push(AppMessage::System {
+                    content: format!("Failed to list models: {e}. Using default."),
+                });
+            }
+        }
+    }
+
+    /// Finish the wizard, creating the new agent session.
+    fn finish_wizard(&mut self, model: Option<(String, String)>) {
+        let Some(wizard) = self.wizard.take() else {
+            return;
+        };
+
+        let mut session = AgentSession::new(&wizard.name);
+        session.selected_model = model;
+        if !wizard.system_prompt.is_empty() {
+            session.user_instructions = Some(wizard.system_prompt);
+        }
+
+        self.sessions.push(session);
+        self.active_session = self.sessions.len() - 1;
+        self.input.clear();
+        self.models_state.dismiss();
+
+        self.messages.push(AppMessage::System {
+            content: format!("Agent '{}' created and activated.", wizard.name),
+        });
+    }
+
+    /// Switch to the agent session at the given index.
+    pub fn switch_to_session(&mut self, index: usize) {
+        if index < self.sessions.len() && index != self.active_session {
+            self.active_session = index;
+            self.messages.push(AppMessage::System {
+                content: format!("Switched to agent '{}'.", self.sessions[index].name),
+            });
+        }
+    }
+
     /// Handle pasted text — insert as-is without triggering submit.
     fn handle_paste(&mut self, text: &str) {
         self.input.insert_str(text);
@@ -594,13 +915,15 @@ impl App {
     ///
     /// Returns `(exchange_number, truncated_preview)` tuples for exchanges that
     /// have a response, ordered newest first.
-    pub fn response_candidates(&self) -> Vec<(usize, String)> {
+    pub fn response_candidates(&self) -> Vec<ResponseCandidate> {
         let mut exchange_num = 0usize;
         let mut candidates = Vec::new();
 
         for message in &self.messages {
             if let AppMessage::Exchange {
+                kind,
                 response: Some(resp),
+                agent_index,
                 ..
             } = message
             {
@@ -608,9 +931,26 @@ impl App {
                 if resp.is_empty() {
                     continue;
                 }
-                // Use plain text for preview (response field is always clean)
-                let preview = truncate_preview(resp, 50);
-                candidates.push((exchange_num, preview));
+                // Label + color: agent name/color or "shell"/yellow
+                let (label, color) = if *kind == ExchangeKind::Shell {
+                    ("shell".to_string(), ExchangeKind::Shell.color())
+                } else {
+                    let name = agent_index
+                        .and_then(|idx| self.sessions.get(idx))
+                        .map_or_else(|| "chat".to_string(), |s| s.name.clone());
+                    let c = agent_index
+                        .map(AgentSession::color)
+                        .unwrap_or(ExchangeKind::Chat.color());
+                    (name, c)
+                };
+                // First line of response as preview (no truncation — renderer handles it)
+                let preview = resp.lines().next().unwrap_or("").to_string();
+                candidates.push(ResponseCandidate {
+                    number: exchange_num,
+                    label,
+                    preview,
+                    color,
+                });
             } else if matches!(message, AppMessage::Exchange { .. }) {
                 exchange_num += 1;
             }
@@ -652,8 +992,9 @@ impl App {
 
     /// Cancel a running command or agent exchange by its message index.
     ///
-    /// Searches both `running_commands` and `running_agent_exchanges` for
-    /// the matching `msg_index`, removes it, and marks the exchange as cancelled.
+    /// Searches `running_shell_commands` and all sessions'
+    /// `running_agent_exchanges` for the matching `msg_index`, removes it,
+    /// and marks the exchange as cancelled.
     pub fn cancel_by_msg_index(&mut self, msg_index: usize) {
         if let Some(pos) = self
             .running_shell_commands
@@ -665,14 +1006,17 @@ impl App {
             return;
         }
 
-        if let Some(pos) = self
-            .running_agent_exchanges
-            .iter()
-            .position(|(idx, _)| *idx == msg_index)
-        {
-            let (idx, exchange) = self.running_agent_exchanges.remove(pos);
-            exchange.cancel();
-            Self::mark_exchange_cancelled(&mut self.messages, idx);
+        for session in &mut self.sessions {
+            if let Some(pos) = session
+                .running_agent_exchanges
+                .iter()
+                .position(|(idx, _)| *idx == msg_index)
+            {
+                let (idx, exchange) = session.running_agent_exchanges.remove(pos);
+                exchange.cancel();
+                Self::mark_exchange_cancelled(&mut self.messages, idx);
+                return;
+            }
         }
     }
 
@@ -765,6 +1109,7 @@ impl App {
             response: None,
             response_segments: None,
             exit_code: None,
+            agent_index: None,
         });
         let msg_index = self.messages.len() - 1;
         let running = crate::shell::spawn_command(command);
@@ -780,17 +1125,32 @@ impl App {
 
     /// Cancel the most recent running command or agent exchange.
     ///
-    /// Compares the highest message index across both `running_commands`
-    /// and `running_agent_exchanges` to cancel whichever started most recently.
+    /// Compares the highest message index across all sessions'
+    /// `running_agent_exchanges` and `running_shell_commands`.
     fn cancel_most_recent_running(&mut self) {
         let cmd_max = self.running_shell_commands.last().map(|(idx, _)| *idx);
-        let agent_max = self.running_agent_exchanges.last().map(|(idx, _)| *idx);
+        let agent_max = self
+            .sessions
+            .iter()
+            .filter_map(|s| s.running_agent_exchanges.last())
+            .map(|(idx, _)| *idx)
+            .max();
 
         match (cmd_max, agent_max) {
             (Some(c), Some(a)) if a > c => {
-                if let Some((idx, exchange)) = self.running_agent_exchanges.pop() {
-                    exchange.cancel();
-                    Self::mark_exchange_cancelled(&mut self.messages, idx);
+                // Find which session has that max agent exchange
+                for session in &mut self.sessions {
+                    if session
+                        .running_agent_exchanges
+                        .last()
+                        .is_some_and(|(idx, _)| *idx == a)
+                    {
+                        if let Some((idx, exchange)) = session.running_agent_exchanges.pop() {
+                            exchange.cancel();
+                            Self::mark_exchange_cancelled(&mut self.messages, idx);
+                        }
+                        break;
+                    }
                 }
             }
             (Some(_), _) => {
@@ -799,9 +1159,21 @@ impl App {
                 }
             }
             (None, Some(_)) => {
-                if let Some((idx, exchange)) = self.running_agent_exchanges.pop() {
-                    exchange.cancel();
-                    Self::mark_exchange_cancelled(&mut self.messages, idx);
+                // Find which session has the max agent exchange
+                if let Some(a) = agent_max {
+                    for session in &mut self.sessions {
+                        if session
+                            .running_agent_exchanges
+                            .last()
+                            .is_some_and(|(idx, _)| *idx == a)
+                        {
+                            if let Some((idx, exchange)) = session.running_agent_exchanges.pop() {
+                                exchange.cancel();
+                                Self::mark_exchange_cancelled(&mut self.messages, idx);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
             (None, None) => {}
@@ -813,9 +1185,11 @@ impl App {
         for entry in self.running_shell_commands.drain(..) {
             Self::cancel_entry(&mut self.messages, entry);
         }
-        for (idx, exchange) in self.running_agent_exchanges.drain(..) {
-            exchange.cancel();
-            Self::mark_exchange_cancelled(&mut self.messages, idx);
+        for session in &mut self.sessions {
+            for (idx, exchange) in session.running_agent_exchanges.drain(..) {
+                exchange.cancel();
+                Self::mark_exchange_cancelled(&mut self.messages, idx);
+            }
         }
     }
 
@@ -867,11 +1241,17 @@ impl App {
         }
     }
 
-    /// Submit a chat message to the agent session.
+    /// Submit a chat message to the active agent session.
     fn submit_agent_message(&mut self, text: String) {
+        let session_idx = self.active_session;
+        let session = &mut self.sessions[session_idx];
+
         // Lazily create the agent handle on first use
-        if self.agent.is_none() {
-            self.agent = AgentHandle::spawn(self.selected_model.clone());
+        if session.agent.is_none() {
+            session.agent = AgentHandle::spawn(
+                session.selected_model.clone(),
+                session.user_instructions.clone(),
+            );
         }
 
         self.messages.push(AppMessage::Exchange {
@@ -881,14 +1261,20 @@ impl App {
             response: None,
             response_segments: None,
             exit_code: None,
+            agent_index: Some(session_idx),
         });
         let msg_index = self.messages.len() - 1;
 
-        let exchange = self.agent.as_ref().and_then(|agent| agent.submit(text));
+        let exchange = self.sessions[session_idx]
+            .agent
+            .as_ref()
+            .and_then(|agent| agent.submit(text));
 
         match exchange {
             Some(running) => {
-                self.running_agent_exchanges.push((msg_index, running));
+                self.sessions[session_idx]
+                    .running_agent_exchanges
+                    .push((msg_index, running));
             }
             None => {
                 // No runtime or agent task shut down
@@ -947,50 +1333,60 @@ impl App {
     }
 
     /// Poll all running agent exchanges for progress. Called on tick events.
+    ///
+    /// Iterates ALL sessions (not just active) since background agents may
+    /// still be streaming.
     pub fn poll_running_agent_exchanges(&mut self) {
-        let mut completed = Vec::new();
-        for (i, (msg_index, exchange)) in self.running_agent_exchanges.iter().enumerate() {
-            if let Some(result) = exchange.try_take_result() {
-                completed.push((i, *msg_index, result));
-            } else {
-                // Streaming update: refresh both plain text and segments
-                let segments = exchange.current_segments();
-                if !segments.is_empty() {
-                    let text = crate::agent::plain_text_from_segments(&segments);
-                    Self::update_exchange_streaming(&mut self.messages, *msg_index, text, segments);
+        for session in &mut self.sessions {
+            let mut completed = Vec::new();
+            for (i, (msg_index, exchange)) in session.running_agent_exchanges.iter().enumerate() {
+                if let Some(result) = exchange.try_take_result() {
+                    completed.push((i, *msg_index, result));
+                } else {
+                    // Streaming update: refresh both plain text and segments
+                    let segments = exchange.current_segments();
+                    if !segments.is_empty() {
+                        let text = crate::agent::plain_text_from_segments(&segments);
+                        Self::update_exchange_streaming(
+                            &mut self.messages,
+                            *msg_index,
+                            text,
+                            segments,
+                        );
+                    }
                 }
             }
-        }
 
-        // Process completions in reverse order to safely remove by index
-        for (i, msg_index, result) in completed.into_iter().rev() {
-            self.running_agent_exchanges.remove(i);
-            let status = if result.error.is_some() {
-                ExchangeStatus::Failed
-            } else {
-                ExchangeStatus::Succeeded
-            };
-            let (response, segments) = if let Some(err) = result.error {
-                if result.text.is_empty() {
-                    (Some(err), None)
+            // Process completions in reverse order to safely remove by index
+            for (i, msg_index, result) in completed.into_iter().rev() {
+                session.running_agent_exchanges.remove(i);
+                let status = if result.error.is_some() {
+                    ExchangeStatus::Failed
                 } else {
-                    (
-                        Some(format!("{}\n\nError: {err}", result.text)),
-                        Some(result.segments),
-                    )
-                }
-            } else if result.text.is_empty() {
-                (None, None)
-            } else {
-                (Some(result.text), Some(result.segments))
-            };
-            Self::update_exchange_complete(
-                &mut self.messages,
-                msg_index,
-                status,
-                response,
-                segments,
-            );
+                    ExchangeStatus::Succeeded
+                };
+                let (response, segments) = if let Some(err) = result.error {
+                    if result.text.is_empty() {
+                        (Some(err), None)
+                    } else {
+                        (
+                            Some(format!("{}\n\nError: {err}", result.text)),
+                            Some(result.segments),
+                        )
+                    }
+                } else if result.text.is_empty() {
+                    (None, None)
+                } else {
+                    (Some(result.text), Some(result.segments))
+                };
+                Self::update_exchange_complete(
+                    &mut self.messages,
+                    msg_index,
+                    status,
+                    response,
+                    segments,
+                );
+            }
         }
     }
 
@@ -1074,6 +1470,7 @@ impl App {
     /// Dismiss all autocomplete popups and ghost suggestion.
     fn dismiss_all_autocomplete(&mut self) {
         self.cancel_state.dismiss();
+        self.agents_state.dismiss();
         self.models_state.dismiss();
         self.commands_state.dismiss();
         self.files_state.dismiss();
@@ -1141,6 +1538,7 @@ impl App {
     /// Whether any autocomplete popup is currently visible.
     fn any_popup_visible(&self) -> bool {
         self.cancel_state.is_visible()
+            || self.agents_state.is_visible()
             || self.models_state.is_visible()
             || self.history_state.is_visible()
             || self.commands_state.is_visible()
@@ -1251,7 +1649,7 @@ impl App {
     /// Create an `App` with a dummy log receiver for testing.
     pub(crate) fn new_for_test() -> Self {
         let (_tx, rx) = mpsc::unbounded_channel();
-        Self::new(rx, None)
+        Self::new(rx, None, None)
     }
 }
 
@@ -1947,6 +2345,7 @@ mod tests {
             response: Some("hello".to_string()),
             response_segments: None,
             exit_code: Some(0),
+            agent_index: None,
         });
         // Exchange 2: no response yet
         app.messages.push(AppMessage::Exchange {
@@ -1956,6 +2355,7 @@ mod tests {
             response: None,
             response_segments: None,
             exit_code: None,
+            agent_index: Some(0),
         });
         // Exchange 3: has response
         app.messages.push(AppMessage::Exchange {
@@ -1965,6 +2365,7 @@ mod tests {
             response: Some("total 42\ndrwxr-xr-x 2 user user 4096".to_string()),
             response_segments: None,
             exit_code: Some(0),
+            agent_index: None,
         });
         app
     }
@@ -1975,8 +2376,8 @@ mod tests {
         let candidates = app.response_candidates();
         // Exchange 1 and 3 have responses; newest first
         assert_eq!(candidates.len(), 2);
-        assert_eq!(candidates[0].0, 3); // newest first
-        assert_eq!(candidates[1].0, 1);
+        assert_eq!(candidates[0].number, 3); // newest first
+        assert_eq!(candidates[1].number, 1);
     }
 
     #[test]
@@ -2064,5 +2465,158 @@ mod tests {
     #[test]
     fn truncate_preview_multiline() {
         assert_eq!(truncate_preview("line one\nline two", 50), "line one...");
+    }
+
+    // --- Multi-agent tests ---
+
+    #[test]
+    fn default_session_exists() {
+        let app = App::new_for_test();
+        assert_eq!(app.sessions.len(), 1);
+        assert_eq!(app.sessions[0].name, "default");
+        assert_eq!(app.active_session, 0);
+    }
+
+    #[test]
+    fn switch_to_session() {
+        let mut app = App::new_for_test();
+        app.sessions.push(AgentSession::new("test-agent"));
+        let initial = app.messages.len();
+
+        app.switch_to_session(1);
+        assert_eq!(app.active_session, 1);
+        assert_eq!(app.messages.len(), initial + 1);
+        assert!(matches!(
+            &app.messages[initial],
+            AppMessage::System { content } if content.contains("test-agent")
+        ));
+    }
+
+    #[test]
+    fn switch_to_same_session_noop() {
+        let mut app = App::new_for_test();
+        let initial = app.messages.len();
+        app.switch_to_session(0);
+        assert_eq!(app.messages.len(), initial); // no message added
+    }
+
+    #[test]
+    fn ctrl_a_cycles_agents() {
+        let mut app = App::new_for_test();
+        app.sessions.push(AgentSession::new("agent-a"));
+        app.sessions.push(AgentSession::new("agent-b"));
+
+        // Ctrl+A cycles forward
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        assert_eq!(app.active_session, 1);
+
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        assert_eq!(app.active_session, 2);
+
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        assert_eq!(app.active_session, 0); // wraps around
+    }
+
+    #[test]
+    fn ctrl_a_noop_single_session() {
+        let mut app = App::new_for_test();
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        assert_eq!(app.active_session, 0);
+    }
+
+    #[test]
+    fn wizard_name_step() {
+        let mut app = App::new_for_test();
+        app.wizard = Some(WizardState::new());
+
+        // Type a name
+        for c in "coder".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert_eq!(app.input.text(), "coder");
+
+        // Enter advances to SystemPrompt step
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(app.wizard.is_some());
+        let wizard = app.wizard.as_ref().expect("wizard should exist");
+        assert_eq!(wizard.name, "coder");
+        assert_eq!(wizard.step, WizardStep::SystemPrompt);
+    }
+
+    #[test]
+    fn wizard_empty_name_rejected() {
+        let mut app = App::new_for_test();
+        app.wizard = Some(WizardState::new());
+        let initial = app.messages.len();
+
+        // Enter with empty input
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        // Should show error message, stay on Name step
+        assert!(app.wizard.is_some());
+        let wizard = app.wizard.as_ref().expect("wizard should exist");
+        assert_eq!(wizard.step, WizardStep::Name);
+        assert!(app.messages.len() > initial);
+    }
+
+    #[test]
+    fn wizard_duplicate_name_rejected() {
+        let mut app = App::new_for_test();
+        app.wizard = Some(WizardState::new());
+        let initial = app.messages.len();
+
+        // Type the default agent's name
+        for c in "default".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should show error message, stay on Name step
+        assert!(app.wizard.is_some());
+        let wizard = app.wizard.as_ref().expect("wizard should exist");
+        assert_eq!(wizard.step, WizardStep::Name);
+        assert!(app.messages.len() > initial);
+    }
+
+    #[test]
+    fn wizard_esc_cancels() {
+        let mut app = App::new_for_test();
+        app.wizard = Some(WizardState::new());
+
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        assert!(app.wizard.is_none());
+    }
+
+    #[test]
+    fn model_flag_sets_default_session() {
+        let (_tx, rx) = mpsc::unbounded_channel();
+        let app = App::new(
+            rx,
+            None,
+            Some(("anthropic".to_string(), "claude-sonnet-4-5".to_string())),
+        );
+        assert_eq!(
+            app.sessions[0].selected_model,
+            Some(("anthropic".to_string(), "claude-sonnet-4-5".to_string()))
+        );
+    }
+
+    #[test]
+    fn exchange_has_agent_index() {
+        let mut app = App::new_for_test();
+        // Submit a chat message (agent will be unavailable in test, which is fine)
+        for c in "test".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // The last exchange should have agent_index = Some(0)
+        let exchange = app
+            .messages
+            .iter()
+            .find(|m| matches!(m, AppMessage::Exchange { .. }));
+        assert!(exchange.is_some());
+        if let Some(AppMessage::Exchange { agent_index, .. }) = exchange {
+            assert_eq!(*agent_index, Some(0));
+        }
     }
 }

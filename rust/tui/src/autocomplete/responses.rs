@@ -5,8 +5,12 @@ use std::ops::Range;
 pub struct ResponseCandidate {
     /// The exchange number (1-based, as displayed in the UI).
     pub number: usize,
-    /// Short preview of the response (first line, truncated).
+    /// Label describing the source (agent name or "shell").
+    pub label: String,
+    /// Preview of the response (first line of output).
     pub preview: String,
+    /// Color for the number and label (agent color or shell color).
+    pub color: ratatui::style::Color,
 }
 
 /// Result of accepting a response autocomplete candidate.
@@ -57,9 +61,8 @@ impl ResponsesState {
 
     /// Update the responses state based on current input and cursor position.
     ///
-    /// `exchanges` is a list of `(exchange_number, preview)` tuples for exchanges
-    /// that have responses, ordered newest first.
-    pub fn update(&mut self, input: &str, cursor: usize, exchanges: &[(usize, String)]) {
+    /// `exchanges` is a pre-built list of [`ResponseCandidate`]s, ordered newest first.
+    pub fn update(&mut self, input: &str, cursor: usize, exchanges: &[ResponseCandidate]) {
         if exchanges.is_empty() {
             self.visible = false;
             return;
@@ -75,17 +78,14 @@ impl ResponsesState {
         // Filter candidates by number prefix
         self.candidates = exchanges
             .iter()
-            .filter(|(num, _)| {
+            .filter(|c| {
                 if query.is_empty() {
                     true
                 } else {
-                    num.to_string().starts_with(query)
+                    c.number.to_string().starts_with(query)
                 }
             })
-            .map(|(num, preview)| ResponseCandidate {
-                number: *num,
-                preview: preview.clone(),
-            })
+            .cloned()
             .collect();
 
         self.visible = !self.candidates.is_empty();
@@ -124,7 +124,14 @@ impl ResponsesState {
         }
 
         let candidate = &self.candidates[self.selected];
-        let text = format!("[Response #{}: {}]", candidate.number, candidate.preview);
+        // Truncate preview for the inserted reference text
+        let short: String = candidate.preview.chars().take(40).collect();
+        let ellipsis = if candidate.preview.len() > short.len() {
+            "\u{2026}"
+        } else {
+            ""
+        };
+        let text = format!("[Response #{}: {short}{ellipsis}]", candidate.number);
         let range = self.token_range.clone();
 
         self.dismiss();
@@ -177,11 +184,28 @@ fn find_hash_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str)> {
 mod tests {
     use super::*;
 
-    fn sample_exchanges() -> Vec<(usize, String)> {
+    use ratatui::style::Color;
+
+    fn sample_exchanges() -> Vec<ResponseCandidate> {
         vec![
-            (3, "latest response...".to_string()),
-            (2, "middle response...".to_string()),
-            (1, "first response...".to_string()),
+            ResponseCandidate {
+                number: 3,
+                label: "default".to_string(),
+                preview: "latest response...".to_string(),
+                color: Color::Blue,
+            },
+            ResponseCandidate {
+                number: 2,
+                label: "default".to_string(),
+                preview: "middle response...".to_string(),
+                color: Color::Blue,
+            },
+            ResponseCandidate {
+                number: 1,
+                label: "shell".to_string(),
+                preview: "first response...".to_string(),
+                color: Color::Yellow,
+            },
         ]
     }
 
@@ -283,6 +307,14 @@ mod tests {
         assert_eq!(result.range, 0..2);
         assert_eq!(result.text, "[Response #2: middle response...]");
         assert!(!state.is_visible());
+    }
+
+    #[test]
+    fn candidate_has_label() {
+        let mut state = ResponsesState::new();
+        state.update("#", 1, &sample_exchanges());
+        assert_eq!(state.candidates()[0].label, "default");
+        assert_eq!(state.candidates()[2].label, "shell");
     }
 
     #[test]

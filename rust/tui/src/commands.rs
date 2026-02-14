@@ -3,7 +3,7 @@ use std::fmt::Write;
 use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
 use crate::app::{App, AppMessage, AppMode};
-use crate::autocomplete::models::ModelCandidate;
+use crate::autocomplete::agents::AgentCandidate;
 
 /// Slash commands available in the TUI.
 ///
@@ -11,6 +11,9 @@ use crate::autocomplete::models::ModelCandidate;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter, EnumMessage)]
 #[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
+    #[strum(serialize = "agents", message = "Switch agents or create new")]
+    Agents,
+
     #[strum(message = "Cancel a running command")]
     Cancel,
 
@@ -22,9 +25,6 @@ pub enum SlashCommand {
 
     #[strum(message = "Show recent history")]
     History,
-
-    #[strum(message = "Select the AI model")]
-    Model,
 
     #[strum(message = "Enter shell mode")]
     Shell,
@@ -92,6 +92,7 @@ impl SlashCommand {
     /// Execute this command, mutating the app state.
     pub fn execute(self, app: &mut App, _args: &str) {
         match self {
+            Self::Agents => execute_agents(app),
             Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
             Self::Exit => match app.mode {
@@ -100,12 +101,35 @@ impl SlashCommand {
             },
             Self::Help => execute_help(app),
             Self::History => execute_history(app),
-            Self::Model => execute_model(app),
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
             Self::Upgrade => execute_upgrade(app),
         }
     }
+}
+
+fn execute_agents(app: &mut App) {
+    let mut candidates: Vec<AgentCandidate> = app
+        .sessions
+        .iter()
+        .enumerate()
+        .map(|(i, s)| AgentCandidate {
+            index: i,
+            name: s.name.clone(),
+            is_active: i == app.active_session,
+            is_new: false,
+        })
+        .collect();
+
+    // Append a "new agent" entry at the end
+    candidates.push(AgentCandidate {
+        index: 0,
+        name: "+ new agent".to_string(),
+        is_active: false,
+        is_new: true,
+    });
+
+    app.agents_state.open(candidates);
 }
 
 fn execute_cancel(app: &mut App) {
@@ -140,6 +164,7 @@ fn execute_help(app: &mut App) {
     help.push_str("  Ctrl+C         Cancel running / quit (chat) / clear (shell)\n");
     help.push_str("  Ctrl+D         Exit shell mode\n");
     help.push_str("  Ctrl+L         Clear messages\n");
+    help.push_str("  Ctrl+A         Cycle agents\n");
     help.push_str("  PageUp/Down    Scroll messages\n");
     help.push_str("  !command       Run a shell command from chat mode");
     app.messages.push(AppMessage::System { content: help });
@@ -147,39 +172,6 @@ fn execute_help(app: &mut App) {
 
 fn execute_clear(app: &mut App) {
     app.clear_messages();
-}
-
-fn execute_model(app: &mut App) {
-    let overrides = stencila_auth::AuthOverrides::new();
-    match stencila_models3::catalog::list_models(None) {
-        Ok(models) => {
-            let candidates: Vec<ModelCandidate> = models
-                .into_iter()
-                .filter(|m| {
-                    stencila_models3::catalog::is_provider_available(&m.provider, &overrides)
-                })
-                .map(|m| ModelCandidate {
-                    provider: m.provider,
-                    model_id: m.id,
-                    display_name: m.display_name,
-                })
-                .collect();
-
-            if candidates.is_empty() {
-                app.messages.push(AppMessage::System {
-                    content: "No models available. Set an API key for at least one provider."
-                        .to_string(),
-                });
-            } else {
-                app.models_state.open(candidates);
-            }
-        }
-        Err(e) => {
-            app.messages.push(AppMessage::System {
-                content: format!("Failed to list models: {e}"),
-            });
-        }
-    }
 }
 
 fn execute_history(app: &mut App) {
@@ -203,6 +195,7 @@ fn execute_upgrade(app: &mut App) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::app::AgentSession;
 
     #[test]
     fn name_and_description() {
@@ -211,9 +204,15 @@ mod tests {
     }
 
     #[test]
+    fn agents_command_name() {
+        assert_eq!(SlashCommand::Agents.name(), "/agents");
+    }
+
+    #[test]
     fn matches_prefix_exact() {
         assert!(SlashCommand::Help.matches_prefix("/help"));
         assert!(SlashCommand::Clear.matches_prefix("/clear"));
+        assert!(SlashCommand::Agents.matches_prefix("/agents"));
     }
 
     #[test]
@@ -222,6 +221,7 @@ mod tests {
         assert!(SlashCommand::Help.matches_prefix("/he"));
         assert!(SlashCommand::History.matches_prefix("/h"));
         assert!(!SlashCommand::Help.matches_prefix("/c"));
+        assert!(SlashCommand::Agents.matches_prefix("/age"));
     }
 
     #[test]
@@ -248,6 +248,9 @@ mod tests {
 
         let none = SlashCommand::matching("/z");
         assert!(none.is_empty());
+
+        let none = SlashCommand::matching("/new");
+        assert!(none.is_empty());
     }
 
     #[test]
@@ -256,6 +259,10 @@ mod tests {
         assert_eq!(
             SlashCommand::parse("/clear"),
             Some((SlashCommand::Clear, ""))
+        );
+        assert_eq!(
+            SlashCommand::parse("/agents"),
+            Some((SlashCommand::Agents, ""))
         );
     }
 
@@ -274,6 +281,8 @@ mod tests {
     #[test]
     fn parse_unknown_command() {
         assert_eq!(SlashCommand::parse("/unknown"), None);
+        // /model should no longer be recognized
+        assert_eq!(SlashCommand::parse("/model"), None);
     }
 
     #[test]
@@ -366,5 +375,36 @@ mod tests {
         assert_eq!(app.messages.len(), initial);
         assert!(app.history_state.is_visible());
         assert_eq!(app.history_state.candidates().len(), 2);
+    }
+
+    #[test]
+    fn execute_agents_single_session_opens_popup() {
+        let mut app = App::new_for_test();
+        SlashCommand::Agents.execute(&mut app, "");
+        // Should open popup with 1 existing agent + 1 "new" entry
+        assert!(app.agents_state.is_visible());
+        assert_eq!(app.agents_state.candidates().len(), 2);
+        assert!(
+            app.agents_state
+                .candidates()
+                .last()
+                .is_some_and(|c| c.is_new)
+        );
+    }
+
+    #[test]
+    fn execute_agents_multiple_sessions() {
+        let mut app = App::new_for_test();
+        app.sessions.push(AgentSession::new("test"));
+        SlashCommand::Agents.execute(&mut app, "");
+        assert!(app.agents_state.is_visible());
+        // 2 existing agents + 1 "new" entry
+        assert_eq!(app.agents_state.candidates().len(), 3);
+        assert!(
+            app.agents_state
+                .candidates()
+                .last()
+                .is_some_and(|c| c.is_new)
+        );
     }
 }

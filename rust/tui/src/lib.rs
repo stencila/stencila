@@ -21,7 +21,11 @@ use crate::{app::App, event::EventReader};
 
 /// Run interactively
 #[derive(Debug, Default, Parser)]
-pub struct Tui {}
+pub struct Tui {
+    /// Model to use (e.g. "anthropic:claude-sonnet-4-5", "openai:gpt-4o")
+    #[arg(short, long)]
+    model: Option<String>,
+}
 
 impl Tui {
     /// Run the interactive TUI application.
@@ -37,9 +41,15 @@ impl Tui {
     ) -> Result<()> {
         let log_receiver = logging::setup(log_level, log_filter);
 
+        // Parse "provider:model_id" format from --model flag
+        let model = self.model.and_then(|m| {
+            let (provider, model_id) = m.split_once(':')?;
+            Some((provider.to_string(), model_id.to_string()))
+        });
+
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();
-        let mut app = App::new(log_receiver, upgrade_handle);
+        let mut app = App::new(log_receiver, upgrade_handle, model);
 
         // Load history from disk (best-effort)
         let history_path = history::history_file_path();

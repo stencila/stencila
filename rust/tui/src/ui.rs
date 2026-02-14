@@ -9,7 +9,9 @@ use ratatui::{
 };
 
 use crate::agent::{ResponseSegment, ToolCallStatus};
-use crate::app::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
+use crate::app::{
+    AgentSession, App, AppMessage, AppMode, ExchangeKind, ExchangeStatus, WizardStep,
+};
 
 /// Dim style used for hint descriptions.
 const fn dim() -> Style {
@@ -70,10 +72,18 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     // --- Render hints below input ---
     render_hints(frame, app, hints_area);
 
+    // --- Render wizard modal (overlays everything else) ---
+    if app.wizard.is_some() {
+        render_new_agent_modal(frame, app, area);
+        return;
+    }
+
     // --- Render autocomplete popup (floats above input) ---
-    // Cancel popup has highest priority, then model, history, commands, files, responses.
+    // Cancel popup has highest priority, then agents, model, history, commands, files, responses.
     if app.cancel_state.is_visible() {
         render_cancel_autocomplete(frame, app, input_area);
+    } else if app.agents_state.is_visible() {
+        render_agents_autocomplete(frame, app, input_area);
     } else if app.models_state.is_visible() {
         render_models_autocomplete(frame, app, input_area);
     } else if app.history_state.is_visible() {
@@ -403,7 +413,7 @@ fn render_response_text(
 }
 
 /// Append lines for an exchange (request/response with sidebar).
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
 fn render_exchange_lines(
     lines: &mut Vec<Line>,
     exchange_num: usize,
@@ -415,9 +425,11 @@ fn render_exchange_lines(
     exit_code: Option<i32>,
     tick_count: u32,
     content_width: usize,
+    agent_tag: Option<&(String, Color)>,
 ) {
+    let kind_color = agent_tag.map_or_else(|| kind.color(), |(_, color)| *color);
     let base_color = match status {
-        ExchangeStatus::Running | ExchangeStatus::Succeeded => kind.color(),
+        ExchangeStatus::Running | ExchangeStatus::Succeeded => kind_color,
         ExchangeStatus::Failed => Color::Red,
         ExchangeStatus::Cancelled => Color::DarkGray,
     };
@@ -461,13 +473,30 @@ fn render_exchange_lines(
             } else {
                 Span::raw(num_padding)
             };
-            lines.push(Line::from(vec![
-                num_col,
-                Span::styled(SIDEBAR_CHAR, sidebar_style),
-                Span::raw(" "),
-                Span::raw(chunk),
-            ]));
+            lines.push(
+                Line::from(vec![
+                    num_col,
+                    Span::styled(SIDEBAR_CHAR, sidebar_style),
+                    Span::raw(" "),
+                    Span::raw(chunk),
+                ])
+                .style(Style::new().bg(INPUT_BG)),
+            );
         }
+    }
+
+    // Agent name tag after the request in multi-agent mode
+    if let Some((name, color)) = agent_tag {
+        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+        lines.push(Line::from(vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+            Span::raw(" "),
+            Span::styled(
+                name.clone(),
+                Style::new().fg(*color).add_modifier(Modifier::DIM),
+            ),
+        ]));
     }
 
     // Response lines with dim sidebar
@@ -540,8 +569,19 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                 response,
                 response_segments,
                 exit_code,
+                agent_index,
             } => {
                 exchange_num += 1;
+                // Determine agent tag (name + color) for multi-agent display
+                let agent_tag = if app.sessions.len() > 1 {
+                    agent_index.and_then(|idx| {
+                        app.sessions
+                            .get(idx)
+                            .map(|s| (s.name.clone(), AgentSession::color(idx)))
+                    })
+                } else {
+                    None
+                };
                 render_exchange_lines(
                     &mut lines,
                     exchange_num,
@@ -553,6 +593,7 @@ fn render_messages(frame: &mut Frame, app: &mut App, area: Rect) {
                     *exit_code,
                     tick_count,
                     content_width,
+                    agent_tag.as_ref(),
                 );
             }
             AppMessage::System { content } => {
@@ -613,13 +654,21 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
     let has_ghost = app.ghost_suggestion.is_some();
 
     // Mode label on the left, indented to align with sidebar bars
-    let kind = ExchangeKind::from(app.mode);
-    let label_text = format!("   {}", kind.label());
+    let (label_text, label_color) = if app.mode == AppMode::Chat {
+        // Always show active agent name in agent's color
+        let name = &app.active().name;
+        let color = AgentSession::color(app.active_session);
+        (format!("   {name}"), color)
+    } else {
+        let kind = ExchangeKind::from(app.mode);
+        (format!("   {}", kind.label()), kind.color())
+    };
+
     #[allow(clippy::cast_possible_truncation)]
     let label_width = label_text.len() as u16 + 1; // +1 for padding
     let label = Line::from(Span::styled(
         label_text,
-        Style::new().fg(kind.color()),
+        Style::new().fg(label_color),
     ));
 
     // Keyboard hints on the right
@@ -633,11 +682,19 @@ fn render_hints(frame: &mut Frame, app: &App, area: Rect) {
         ])
     } else {
         match app.mode {
-            AppMode::Chat => Line::from(vec![
-                Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
-                Span::raw("  ctrl+s "), Span::styled("shell", dim()),
-                Span::raw("  ctrl+c "), Span::styled("quit", dim()),
-            ]),
+            AppMode::Chat => {
+                let mut spans = vec![
+                    Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
+                    Span::raw("  ctrl+s "), Span::styled("shell", dim()),
+                ];
+                if app.sessions.len() > 1 {
+                    spans.push(Span::raw("  ctrl+a "));
+                    spans.push(Span::styled("agent", dim()));
+                }
+                spans.push(Span::raw("  ctrl+c "));
+                spans.push(Span::styled("quit", dim()));
+                Line::from(spans)
+            }
             AppMode::Shell => Line::from(vec![
                 Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
                 Span::raw("  ctrl+d "), Span::styled("chat", dim()),
@@ -662,6 +719,13 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let kind = ExchangeKind::from(app.mode);
     let is_running = app.has_running();
 
+    // Use agent color when in multi-agent chat mode, otherwise kind color
+    let bar_color = if app.mode == AppMode::Chat && app.sessions.len() > 1 {
+        AgentSession::color(app.active_session)
+    } else {
+        kind.color()
+    };
+
     // Mode indicator in the gutter (no dark bg)
     let gutter = NUM_GUTTER;
     if area.height > 0 {
@@ -669,7 +733,7 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
             AppMode::Chat => " > ",
             AppMode::Shell => " $ ",
         };
-        let indicator_line = Line::from(Span::styled(indicator, Style::new().fg(kind.color())));
+        let indicator_line = Line::from(Span::styled(indicator, Style::new().fg(bar_color)));
         let gutter_area = Rect {
             x: area.x,
             y: area.y,
@@ -692,7 +756,7 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     // Sidebar after gutter — one glyph per row for full-height coverage
     if area.height > 0 {
         let sidebar_lines: Vec<Line> = (0..area.height)
-            .map(|_| Line::from(Span::styled(SIDEBAR_CHAR, Style::new().fg(kind.color()))))
+            .map(|_| Line::from(Span::styled(SIDEBAR_CHAR, Style::new().fg(bar_color))))
             .collect();
         let sidebar = Paragraph::new(Text::from(sidebar_lines)).style(Style::new().bg(INPUT_BG));
         let sidebar_area = Rect {
@@ -714,17 +778,37 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     };
 
     let dim_style = Style::default().add_modifier(Modifier::DIM);
-    let content = if let Some(ghost) = &app.ghost_suggestion {
-        let mut spans = vec![
-            Span::raw(input_text.to_string()),
-            Span::styled(ghost.as_str(), dim_style),
-        ];
-        if app.ghost_is_truncated {
-            spans.push(Span::styled("\u{2026}", dim_style));
-        }
-        Line::from(spans)
+
+    // Build a Text with explicit newlines so multiline input renders correctly.
+    // Ghost text is appended to the last line only.
+    let input_lines: Vec<&str> = if input_text.is_empty() {
+        vec![""]
     } else {
-        Line::from(input_text.to_string())
+        input_text.split('\n').collect()
+    };
+    let content = if let Some(ghost) = &app.ghost_suggestion {
+        let mut text_lines: Vec<Line> = Vec::with_capacity(input_lines.len());
+        let last_idx = input_lines.len() - 1;
+        for (i, line) in input_lines.iter().enumerate() {
+            if i == last_idx {
+                let mut spans = vec![Span::raw((*line).to_string())];
+                spans.push(Span::styled(ghost.as_str(), dim_style));
+                if app.ghost_is_truncated {
+                    spans.push(Span::styled("\u{2026}", dim_style));
+                }
+                text_lines.push(Line::from(spans));
+            } else {
+                text_lines.push(Line::from((*line).to_string()));
+            }
+        }
+        Text::from(text_lines)
+    } else {
+        Text::from(
+            input_lines
+                .iter()
+                .map(|l| Line::from((*l).to_string()))
+                .collect::<Vec<_>>(),
+        )
     };
 
     let paragraph = Paragraph::new(content)
@@ -962,17 +1046,46 @@ fn render_responses_autocomplete(frame: &mut Frame, app: &App, input_area: Rect)
         return;
     };
 
+    // Available width inside the popup (minus borders)
+    let inner_width = area.width.saturating_sub(2) as usize;
     let selected = app.responses_state.selected();
+
     let lines: Vec<Line> = candidates
         .iter()
         .enumerate()
         .map(|(i, candidate)| {
-            let display = format!(" #{}  {}", candidate.number, candidate.preview);
-            if i == selected {
-                Line::from(Span::styled(display, selected_style()))
+            let num_label = format!(" {}  {}  ", candidate.number, candidate.label);
+            let num_label_len = num_label.len();
+            // Truncate preview to fit remaining width
+            let avail = inner_width.saturating_sub(num_label_len);
+            let preview = if candidate.preview.len() > avail {
+                let truncated: String = candidate
+                    .preview
+                    .chars()
+                    .take(avail.saturating_sub(1))
+                    .collect();
+                format!("{truncated}\u{2026}")
             } else {
-                Line::from(Span::styled(display, unselected_style()))
-            }
+                candidate.preview.clone()
+            };
+
+            let color_style = if i == selected {
+                Style::new()
+                    .fg(candidate.color)
+                    .add_modifier(Modifier::BOLD)
+            } else {
+                Style::new().fg(candidate.color)
+            };
+            let preview_style = if i == selected {
+                selected_secondary_style()
+            } else {
+                dim()
+            };
+
+            Line::from(vec![
+                Span::styled(num_label, color_style),
+                Span::styled(preview, preview_style),
+            ])
         })
         .collect();
 
@@ -1012,6 +1125,287 @@ fn render_models_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
     let Some(area) = popup_area(input_area, candidates.len()) else {
         return;
     };
+
+    let max_id_width = candidates
+        .iter()
+        .map(|c| c.model_id.len())
+        .max()
+        .unwrap_or(0);
+    let selected = app.models_state.selected();
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let id_col = format!(" {:<max_id_width$}  ", candidate.model_id);
+            let provider_col = candidate.provider.clone();
+
+            if i == selected {
+                Line::from(vec![
+                    Span::styled(id_col, selected_style()),
+                    Span::styled(provider_col, selected_secondary_style()),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled(id_col, unselected_style()),
+                    Span::styled(provider_col, dim()),
+                ])
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Model "));
+}
+
+/// Render the agent picker popup floating above the input area.
+fn render_agents_autocomplete(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.agents_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let max_name_width = candidates.iter().map(|c| c.name.len()).max().unwrap_or(0);
+    let selected = app.agents_state.selected();
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            if candidate.is_new {
+                // "New agent" entry rendered in dim/grey style
+                let label = format!(" {:<max_name_width$}", candidate.name);
+                if i == selected {
+                    Line::from(Span::styled(
+                        label,
+                        Style::new()
+                            .fg(Color::DarkGray)
+                            .add_modifier(Modifier::BOLD),
+                    ))
+                } else {
+                    Line::from(Span::styled(label, dim()))
+                }
+            } else {
+                let bullet = if candidate.is_active {
+                    "\u{25cf} "
+                } else {
+                    "  "
+                };
+                let name_col = format!("{bullet}{:<max_name_width$}", candidate.name);
+                let color = AgentSession::color(candidate.index);
+
+                if i == selected {
+                    Line::from(Span::styled(
+                        format!(" {name_col}"),
+                        Style::new().fg(color).add_modifier(Modifier::BOLD),
+                    ))
+                } else {
+                    Line::from(Span::styled(format!(" {name_col}"), Style::new().fg(color)))
+                }
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Agents "));
+}
+
+/// Render the new-agent wizard as a centered modal dialog.
+#[allow(clippy::too_many_lines)]
+fn render_new_agent_modal(frame: &mut Frame, app: &App, area: Rect) {
+    let Some(wizard) = &app.wizard else { return };
+
+    // Modal size: roughly centered, 60 wide, 12 tall (or smaller if terminal is small)
+    let modal_width = area.width.clamp(20, 60);
+    let modal_height = area.height.clamp(6, 14);
+    let modal_area = Rect {
+        x: area.x + (area.width.saturating_sub(modal_width)) / 2,
+        y: area.y + (area.height.saturating_sub(modal_height)) / 2,
+        width: modal_width,
+        height: modal_height,
+    };
+    frame.render_widget(Clear, modal_area);
+
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::new().fg(Color::Magenta))
+        .title(" New Agent ");
+    let inner = block.inner(modal_area);
+    frame.render_widget(block, modal_area);
+
+    // Layout inside the modal: lines of content
+    let mut lines: Vec<Line> = Vec::new();
+    let inner_width = inner.width.saturating_sub(2) as usize; // padding
+
+    // Step indicators: Name > Prompt > Model
+    let step_line = {
+        let (name_style, prompt_style, model_style) = match wizard.step {
+            WizardStep::Name => (
+                Style::new().fg(Color::Magenta).add_modifier(Modifier::BOLD),
+                dim(),
+                dim(),
+            ),
+            WizardStep::SystemPrompt => (
+                Style::new().fg(Color::Green),
+                Style::new().fg(Color::Magenta).add_modifier(Modifier::BOLD),
+                dim(),
+            ),
+            WizardStep::Model => (
+                Style::new().fg(Color::Green),
+                Style::new().fg(Color::Green),
+                Style::new().fg(Color::Magenta).add_modifier(Modifier::BOLD),
+            ),
+        };
+        Line::from(vec![
+            Span::styled(" Name", name_style),
+            Span::styled(" \u{203a} ", dim()),
+            Span::styled("Prompt", prompt_style),
+            Span::styled(" \u{203a} ", dim()),
+            Span::styled("Model", model_style),
+        ])
+    };
+    lines.push(step_line);
+    lines.push(Line::raw(""));
+
+    // Current step label and input value
+    match wizard.step {
+        WizardStep::Name => {
+            lines.push(Line::from(vec![
+                Span::styled(" Name: ", Style::new().fg(Color::Magenta)),
+                Span::raw(app.input.text().to_string()),
+            ]));
+            lines.push(Line::raw(""));
+            lines.push(Line::styled(" A short name for this agent", dim()));
+        }
+        WizardStep::SystemPrompt => {
+            lines.push(Line::from(Span::styled(
+                " System prompt:",
+                Style::new().fg(Color::Magenta),
+            )));
+            // Show the input text (potentially multiline)
+            let input_text = app.input.text();
+            if input_text.is_empty() {
+                lines.push(Line::styled(" (optional, press Enter to skip)", dim()));
+            } else {
+                for text_line in input_text.split('\n') {
+                    let chunks = wrap_content(text_line, inner_width.saturating_sub(1));
+                    for chunk in chunks {
+                        lines.push(Line::from(Span::raw(format!(" {chunk}"))));
+                    }
+                }
+            }
+        }
+        WizardStep::Model => {
+            lines.push(Line::from(Span::styled(
+                " Model:",
+                Style::new().fg(Color::Magenta),
+            )));
+            if app.models_state.is_visible() {
+                lines.push(Line::from(vec![
+                    Span::styled(" Filter: ", dim()),
+                    Span::raw(app.input.text().to_string()),
+                ]));
+            } else {
+                lines.push(Line::styled(" Press Enter to use default model", dim()));
+            }
+        }
+    }
+
+    // Pad to fill modal, then add hint at the bottom
+    let content_lines = lines.len();
+    #[allow(clippy::cast_possible_truncation)]
+    let available = inner.height as usize;
+    let hint_lines = 1;
+    let padding = available.saturating_sub(content_lines + hint_lines);
+    for _ in 0..padding {
+        lines.push(Line::raw(""));
+    }
+
+    // Hint line at the bottom
+    let hint = match wizard.step {
+        WizardStep::Name => Line::from(vec![
+            Span::raw(" \u{21b5} "),
+            Span::styled("next", dim()),
+            Span::raw("  esc "),
+            Span::styled("cancel", dim()),
+        ]),
+        WizardStep::SystemPrompt => Line::from(vec![
+            Span::raw(" \u{21b5} "),
+            Span::styled("next", dim()),
+            Span::raw("  alt+\u{21b5} "),
+            Span::styled("newline", dim()),
+            Span::raw("  esc "),
+            Span::styled("cancel", dim()),
+        ]),
+        WizardStep::Model => Line::from(vec![
+            Span::raw(" \u{21b5} "),
+            Span::styled("select", dim()),
+            Span::raw("  esc "),
+            Span::styled("cancel", dim()),
+        ]),
+    };
+    lines.push(hint);
+
+    let paragraph = Paragraph::new(Text::from(lines));
+    frame.render_widget(paragraph, inner);
+
+    // Render model picker inside the modal if visible during Model step
+    if wizard.step == WizardStep::Model && app.models_state.is_visible() {
+        // Place the model picker popup within the modal area
+        let candidates = app.models_state.candidates();
+        #[allow(clippy::cast_possible_truncation)]
+        let picker_height = (candidates.len() as u16 + 2).min(inner.height.saturating_sub(4));
+        if picker_height >= 3 {
+            let picker_area = Rect {
+                x: inner.x,
+                y: inner.y + inner.height.saturating_sub(picker_height + 1),
+                width: inner.width,
+                height: picker_height,
+            };
+            render_models_autocomplete_in_area(frame, app, picker_area);
+        }
+    }
+
+    // Position the cursor inside the modal for Name / SystemPrompt / Model filter
+    if wizard.step != WizardStep::Model || app.models_state.is_visible() {
+        let cursor_offset = match wizard.step {
+            WizardStep::Name => " Name: ".len(),
+            WizardStep::SystemPrompt => 1, // " " prefix
+            WizardStep::Model => " Filter: ".len(),
+        };
+
+        // For SystemPrompt, cursor may be on a later line
+        if wizard.step == WizardStep::SystemPrompt {
+            let input_text = app.input.text();
+            let line_count = input_text.split('\n').count();
+            let last_line = input_text.split('\n').next_back().unwrap_or("");
+            #[allow(clippy::cast_possible_truncation)]
+            let cursor_x = inner.x + cursor_offset as u16 + last_line.len() as u16;
+            // +2 for step indicator line + blank line, then lines of prompt
+            #[allow(clippy::cast_possible_truncation)]
+            let cursor_y = inner.y + 2 + (line_count.saturating_sub(1)) as u16;
+            if cursor_x < modal_area.x + modal_area.width
+                && cursor_y < modal_area.y + modal_area.height
+            {
+                frame.set_cursor_position(Position::new(cursor_x, cursor_y));
+            }
+        } else {
+            #[allow(clippy::cast_possible_truncation)]
+            let cursor_x = inner.x + cursor_offset as u16 + app.input.text().len() as u16;
+            let cursor_y = inner.y + 2; // after step indicator + blank line
+            if cursor_x < modal_area.x + modal_area.width
+                && cursor_y < modal_area.y + modal_area.height
+            {
+                frame.set_cursor_position(Position::new(cursor_x, cursor_y));
+            }
+        }
+    }
+}
+
+/// Render the model picker popup within a given area (used inside wizard modal).
+fn render_models_autocomplete_in_area(frame: &mut Frame, app: &App, area: Rect) {
+    let candidates = app.models_state.candidates();
+    if candidates.is_empty() {
+        return;
+    }
 
     let max_id_width = candidates
         .iter()
