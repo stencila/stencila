@@ -37,10 +37,13 @@ impl Handler for ToolHandler {
             )));
         };
 
-        let timeout = node
-            .get_attr("timeout")
-            .and_then(|v| v.as_duration())
-            .map(|d| d.inner());
+        let timeout = node.get_attr("timeout").and_then(|v| match v {
+            crate::graph::AttrValue::Duration(d) => Some(d.inner()),
+            crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
+                .ok()
+                .map(crate::types::Duration::inner),
+            _ => None,
+        });
 
         let result = run_command(command, timeout).await;
 

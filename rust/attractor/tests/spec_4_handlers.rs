@@ -480,6 +480,9 @@ async fn tool_nonzero_exit() -> AttractorResult<()> {
 async fn tool_timeout_expires() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
     let handler = ToolHandler;
+    let g = Graph::new("test");
+
+    // Duration variant (unquoted in DOT: timeout=100ms)
     let mut node = Node::new("tool1");
     node.attrs
         .insert("tool_command".into(), AttrValue::from("sleep 10"));
@@ -487,12 +490,20 @@ async fn tool_timeout_expires() -> AttractorResult<()> {
         "timeout".into(),
         AttrValue::Duration(Duration::from_spec_str("100ms")?),
     );
-    let ctx = Context::new();
-    let g = Graph::new("test");
-
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &Context::new(), &g, tmp.path()).await?;
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("timed out"));
+
+    // String variant (quoted in DOT: timeout="100ms")
+    let mut node = Node::new("tool2");
+    node.attrs
+        .insert("tool_command".into(), AttrValue::from("sleep 10"));
+    node.attrs
+        .insert("timeout".into(), AttrValue::from("100ms"));
+    let outcome = handler.execute(&node, &Context::new(), &g, tmp.path()).await?;
+    assert_eq!(outcome.status, StageStatus::Fail);
+    assert!(outcome.failure_reason.contains("timed out"));
+
     Ok(())
 }
 
