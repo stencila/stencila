@@ -35,14 +35,23 @@ pub fn translate_request(request: &Request, stream: bool) -> SdkResult<Translate
         translate_message(message, &mut instructions, &mut input)?;
     }
 
-    if !instructions.is_empty() {
-        body.insert(
-            "instructions".to_string(),
-            Value::String(instructions.join("\n\n")),
-        );
-    }
+    // Always include `instructions` — the ChatGPT backend codex endpoint
+    // requires this field even when no system message is provided.
+    body.insert(
+        "instructions".to_string(),
+        Value::String(if instructions.is_empty() {
+            String::new()
+        } else {
+            instructions.join("\n\n")
+        }),
+    );
 
     body.insert("input".to_string(), Value::Array(input));
+
+    // The ChatGPT backend codex endpoint requires `store` to be false.
+    // The standard OpenAI API defaults to true; explicitly setting false
+    // is harmless there and required for the codex path.
+    body.insert("store".to_string(), Value::Bool(false));
 
     if let Some(temperature) = request.temperature {
         body.insert("temperature".to_string(), json!(temperature));

@@ -15,6 +15,31 @@ use crate::types::request::Request;
 use crate::types::response::Response;
 use crate::types::stream_event::StreamEvent;
 
+/// Default OpenAI base URL.
+///
+/// There are two endpoints for the OpenAI Responses API:
+///
+/// - **Standard API** (`api.openai.com/v1/responses`) — requires an
+///   `OPENAI_API_KEY` or an OAuth token with the `api.responses.write` scope.
+///
+/// - **`ChatGPT` backend** (`chatgpt.com/backend-api/codex/responses`) — accepts
+///   Codex CLI OAuth tokens that only carry basic scopes (`openid`, `profile`,
+///   `email`, `offline_access`). This is the same endpoint used by the Codex
+///   CLI itself and the pi-mono reference implementation:
+///   <https://github.com/badlogic/pi-mono/blob/main/packages/ai/src/providers/openai-codex-responses.ts>
+///
+/// When `is_oauth` is true (Codex CLI credentials without a static API key),
+/// we route to the `ChatGPT` backend. `OPENAI_BASE_URL` overrides either default.
+fn openai_base_url(is_oauth: bool) -> String {
+    std::env::var("OPENAI_BASE_URL").unwrap_or_else(|_| {
+        if is_oauth {
+            "https://chatgpt.com/backend-api/codex".to_string()
+        } else {
+            "https://api.openai.com/v1".to_string()
+        }
+    })
+}
+
 fn configured_providers() -> Option<Vec<String>> {
     let cwd = std::env::current_dir().ok()?;
     let config = stencila_config::load_and_validate(&cwd).ok()?;
@@ -91,8 +116,7 @@ impl Client {
             if codex_cli::load_credentials().is_some() {
                 tracing::info!("OPENAI_API_KEY is set; ignoring Codex CLI OAuth credentials");
             }
-            let base_url = std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let base_url = openai_base_url(false);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
@@ -101,9 +125,9 @@ impl Client {
             && let Some(creds) = codex_cli::load_credentials()
         {
             tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
+            let is_oauth = !creds.has_api_key();
             let (auth, account_id) = codex_cli::build_auth_credential(creds);
-            let base_url = std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let base_url = openai_base_url(is_oauth);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
@@ -192,8 +216,7 @@ impl Client {
         if provider_enabled(&configured, "openai")
             && let Some(auth) = overrides.get("openai")
         {
-            let base_url = std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let base_url = openai_base_url(options.openai_account_id.is_some());
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
@@ -206,8 +229,7 @@ impl Client {
         } else if provider_enabled(&configured, "openai")
             && let Some(api_key) = get_secret("OPENAI_API_KEY")
         {
-            let base_url = std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let base_url = openai_base_url(false);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder =
@@ -216,10 +238,10 @@ impl Client {
             && let Some(creds) = codex_cli::load_credentials()
         {
             tracing::debug!("Using Codex CLI OAuth credentials for OpenAI");
+            let is_oauth = !creds.has_api_key();
             let (auth, detected_account_id) = codex_cli::build_auth_credential(creds);
             let account_id = detected_account_id.or_else(|| options.openai_account_id.clone());
-            let base_url = std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
+            let base_url = openai_base_url(is_oauth);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
             builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(

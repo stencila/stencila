@@ -363,6 +363,10 @@ fn extract_error_message(json: Option<&serde_json::Value>, raw: &str) -> String 
         if let Some(msg) = json.get("message").and_then(serde_json::Value::as_str) {
             return msg.to_string();
         }
+        // ChatGPT backend: {"detail": "..."}
+        if let Some(msg) = json.get("detail").and_then(serde_json::Value::as_str) {
+            return msg.to_string();
+        }
     }
 
     if raw.is_empty() {

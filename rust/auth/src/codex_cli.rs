@@ -32,6 +32,16 @@ pub struct CodexCliCredentials {
     client_id: String,
 }
 
+impl CodexCliCredentials {
+    /// Whether these credentials include an exchanged `OPENAI_API_KEY`.
+    ///
+    /// When `false`, the credentials are OAuth-only and require the
+    /// `ChatGPT` backend endpoint (`chatgpt.com/backend-api/codex`).
+    #[must_use] pub fn has_api_key(&self) -> bool {
+        self.api_key.is_some()
+    }
+}
+
 #[derive(serde::Deserialize)]
 struct StoredAuth {
     #[serde(rename = "OPENAI_API_KEY", default)]
@@ -82,9 +92,13 @@ fn parse_credentials_json(data: &str) -> Option<CodexCliCredentials> {
         .unwrap_or_else(|| CLIENT_ID.to_string());
 
     // Codex stores OAuth tokens with evolving claim formats. Accept credentials
-    // when either an exchanged API key is present, API scopes are present, or
-    // the token audience is the OpenAI API.
-    if api_key.is_none() && !has_openai_api_access(&tokens.access_token) {
+    // when either an exchanged API key is present, API scopes are present, the
+    // token audience is the OpenAI API, or the token is a valid JWT (OAuth-only
+    // tokens without API scopes are routed to the ChatGPT backend).
+    if api_key.is_none()
+        && !has_openai_api_access(&tokens.access_token)
+        && decode_jwt_payload(&tokens.access_token).is_none()
+    {
         return None;
     }
 
@@ -507,6 +521,7 @@ mod tests {
 
         let creds = parse_or_panic(&json);
         assert_eq!(creds.api_key.as_deref(), Some("sk-from-codex"));
+        assert!(creds.has_api_key());
     }
 
     #[test]
@@ -535,7 +550,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_without_api_scope_and_without_api_key_returns_none() {
+    fn parse_without_api_scope_and_without_api_key_accepted_for_chatgpt_backend() {
         let access_token = jwt(&serde_json::json!({
             "exp": 1_700_000_000_u64,
             "scp": ["openid", "profile", "email", "offline_access"]
@@ -553,7 +568,10 @@ mod tests {
                 }}
             }}"#
         );
-        assert!(parse_credentials_json(&json).is_none());
+        // OAuth-only tokens without API scopes are accepted — they get
+        // routed to the ChatGPT backend (`chatgpt.com/backend-api/codex`).
+        let creds = parse_or_panic(&json);
+        assert!(!creds.has_api_key());
     }
 
     #[test]
