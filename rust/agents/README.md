@@ -42,7 +42,15 @@ session.submit("Refactor utils.py to use dataclasses").await?;
 
 ### Abort a session
 
-Use `AbortController` to cancel a running session from another task:
+Use `AbortController` to cancel a running session from another task.
+Two modes are available:
+
+- **Soft abort** (`soft_abort()`) — cancels the current exchange and returns
+  the session to `Idle`. The session remains usable for subsequent `submit()`
+  calls, making it ideal for multi-turn chat UIs where the user cancels a
+  single response.
+- **Hard abort** (`abort()`) — closes the session permanently (`Closed`
+  state). Future `submit()` calls return `SessionClosed`.
 
 ```rust,ignore
 use stencila_agents::session::AbortController;
@@ -50,7 +58,13 @@ use stencila_agents::session::AbortController;
 let controller = AbortController::new();
 session.set_abort_signal(controller.signal());
 
-// In another task:
+// Cancel the current response but keep the session alive:
+controller.soft_abort();
+
+// ... later, submit a new exchange:
+session.submit("Try a different approach").await?;
+
+// Or close the session permanently:
 controller.abort();
 ```
 
@@ -193,13 +207,12 @@ The spec pseudocode builds the system prompt inside each loop iteration. This im
 
 The following are known limitations of this implementation of the spec.
 
-### Abort permanently closes the session
+### Soft abort does not record partial streaming text
 
-`AbortController::abort()` transitions the session to `Closed` state, making
-future `submit()` calls return `SessionClosed`. A "soft abort" that stops the
-current exchange but returns to `Idle` state would enable proper per-exchange
-cancellation in multi-turn sessions (e.g. TUI chat). TODO: add a soft-abort
-mechanism that cancels the current processing without closing the session.
+When `soft_abort()` fires during LLM streaming, a `TEXT_END` event is emitted
+with the partial text received so far, but that partial text is not recorded
+in the conversation history. This means the LLM will not see the incomplete
+response on subsequent turns.
 
 ### `TOOL_CALL_OUTPUT_DELTA` emission (`§2.9`)
 

@@ -3230,3 +3230,504 @@ async fn awaiting_input_not_triggered_on_zero_rounds_with_prior_question() -> Ag
 
     Ok(())
 }
+
+// ===========================================================================
+// Soft abort tests
+// ===========================================================================
+
+#[tokio::test]
+async fn soft_abort_returns_idle() -> AgentResult<()> {
+    let controller = AbortController::new();
+    let signal = controller.signal();
+
+    // Pre-soft-abort before submit
+    controller.soft_abort();
+
+    let (mut session, _rx, _) = test_session(vec![text_response("won't reach")])?;
+    session.set_abort_signal(signal);
+
+    session.submit("Go").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Soft abort should return to Idle, not Closed"
+    );
+
+    // Only user turn recorded (no LLM call made)
+    assert_eq!(session.history().len(), 1);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn soft_abort_then_resubmit() -> AgentResult<()> {
+    let controller = AbortController::new();
+    let signal = controller.signal();
+
+    // Two responses: first won't be reached (soft abort), second will
+    let (mut session, _rx, _) = test_session(vec![
+        text_response("won't reach"),
+        text_response("Second response"),
+    ])?;
+    session.set_abort_signal(signal);
+
+    // Soft abort, then submit — signal auto-resets
+    controller.soft_abort();
+    session.submit("First").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    // Second submit should work normally — soft abort was reset
+    session.submit("Second").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+    // History: user1, user2, assistant2
+    assert_eq!(session.history().len(), 3);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn soft_abort_during_llm_streaming() -> AgentResult<()> {
+    use stencila_models3::types::stream_event::{StreamEvent as SE, StreamEventType as SET};
+
+    // Streaming client that emits two deltas, then triggers soft abort.
+    struct SoftAbortStreamClient {
+        controller: AbortController,
+    }
+
+    #[async_trait]
+    impl LlmClient for SoftAbortStreamClient {
+        async fn complete(&self, _request: Request) -> Result<Response, SdkError> {
+            Err(SdkError::Configuration {
+                message: "use stream_complete".into(),
+            })
+        }
+
+        async fn stream_complete(
+            &self,
+            _request: Request,
+            on_event: &(dyn Fn(SE) + Send + Sync),
+        ) -> Result<Response, SdkError> {
+            on_event(SE {
+                event_type: SET::StreamStart,
+                ..SE::stream_start()
+            });
+            on_event(SE::text_delta("Hello"));
+            on_event(SE::text_delta(", wor"));
+            // Trigger soft abort mid-stream
+            self.controller.soft_abort();
+            // Sleep long enough for tokio::select! to pick up the abort
+            tokio::time::sleep(Duration::from_secs(10)).await;
+            Err(SdkError::Configuration {
+                message: "unreachable: abort should fire first".into(),
+            })
+        }
+    }
+
+    let controller = AbortController::new();
+    let client: Arc<dyn LlmClient> = Arc::new(SoftAbortStreamClient {
+        controller: controller.clone(),
+    });
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, mut rx) = Session::new(
+        Box::new(profile),
+        env,
+        client,
+        SessionConfig::default(),
+        "test prompt".into(),
+        0,
+        None,
+    );
+    session.set_abort_signal(controller.signal());
+
+    session.submit("Stream and soft abort").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Soft abort during streaming should return to Idle"
+    );
+
+    let events = drain_events(&mut rx).await;
+    let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
+
+    // TEXT_END should be emitted with partial text
+    assert!(kinds.contains(&EventKind::AssistantTextStart));
+    assert!(kinds.contains(&EventKind::AssistantTextEnd));
+
+    // No SESSION_END — session is still alive
+    assert!(
+        !kinds.contains(&EventKind::SessionEnd),
+        "Soft abort should NOT emit SESSION_END"
+    );
+
+    // TEXT_END carries partial text
+    let text_end = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextEnd);
+    let end_text = text_end
+        .and_then(|e| e.data.get("text"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("MISSING");
+    assert_eq!(end_text, "Hello, wor", "TEXT_END should carry partial text");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn soft_abort_during_tool_execution() -> AgentResult<()> {
+    // Use a slow tool (500ms sleep) and soft-abort after 50ms.
+    let profile = TestProfile::new()?.with_tool(slow_tool(500))?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![slow_call()]),
+        text_response("should not reach"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let (mut session, _rx, _) = {
+        let (s, r) = Session::new(
+            Box::new(profile),
+            env,
+            client.clone(),
+            SessionConfig::default(),
+            "test system prompt".into(),
+            0,
+            None,
+        );
+        (s, r, client.clone())
+    };
+
+    let controller = AbortController::new();
+    session.set_abort_signal(controller.signal());
+
+    // Soft abort after a short delay — while the slow tool is running
+    let ctrl = controller.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        ctrl.soft_abort();
+    });
+
+    let start = std::time::Instant::now();
+    session.submit("Run slow tool").await?;
+    let elapsed = start.elapsed();
+
+    assert_eq!(
+        session.state(),
+        SessionState::Idle,
+        "Soft abort during tool execution should return to Idle"
+    );
+    // Should complete much faster than the 500ms tool sleep
+    assert!(
+        elapsed < Duration::from_millis(300),
+        "Soft abort should cancel in-flight tool: took {elapsed:?}"
+    );
+
+    // History should have: user, assistant (with tool_calls), tool_results ([Aborted])
+    assert_eq!(session.history().len(), 3);
+    let last = &session.history()[2];
+    if let stencila_agents::types::Turn::ToolResults { results, .. } = last {
+        assert!(
+            results[0].is_error,
+            "Aborted tool result should be an error"
+        );
+        assert_eq!(
+            results[0].content,
+            serde_json::Value::String("[Aborted]".into())
+        );
+    } else {
+        panic!("Expected ToolResults turn, got {last:?}");
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn soft_abort_skips_follow_ups() -> AgentResult<()> {
+    let controller = AbortController::new();
+    let signal = controller.signal();
+
+    let (mut session, _rx, _) = test_session(vec![
+        text_response("First answer"),
+        text_response("Follow-up answer — should NOT be reached"),
+    ])?;
+    session.set_abort_signal(signal);
+
+    // Queue a follow-up, then soft abort before submit
+    session.follow_up("Follow-up question");
+    controller.soft_abort();
+
+    session.submit("Start").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    // Only user turn recorded — follow-up was NOT processed
+    assert_eq!(
+        session.history().len(),
+        1,
+        "Soft abort should skip queued follow-ups"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn hard_abort_wins_over_soft() -> AgentResult<()> {
+    let controller = AbortController::new();
+    let signal = controller.signal();
+
+    // Soft first, then hard — hard should win
+    controller.soft_abort();
+    controller.abort();
+
+    let (mut session, _rx, _) = test_session(vec![text_response("won't reach")])?;
+    session.set_abort_signal(signal);
+
+    session.submit("Go").await?;
+    assert_eq!(
+        session.state(),
+        SessionState::Closed,
+        "Hard abort should override soft abort → Closed"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn hard_abort_sticky_across_submit() -> AgentResult<()> {
+    let controller = AbortController::new();
+    let signal = controller.signal();
+
+    let (mut session, _rx, _) = test_session(vec![
+        text_response("won't reach"),
+        text_response("also won't reach"),
+    ])?;
+    session.set_abort_signal(signal);
+
+    // Hard abort
+    controller.abort();
+    session.submit("First").await?;
+    assert_eq!(session.state(), SessionState::Closed);
+
+    // Second submit should fail with SessionClosed — hard abort is sticky
+    let result = session.submit("Second").await;
+    assert!(
+        matches!(result, Err(AgentError::SessionClosed)),
+        "Hard abort should be sticky — second submit should fail"
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// Multi-tool abort race tests (finding 1 & 2: 1:1 tool_calls ↔ tool_results)
+// ===========================================================================
+
+#[tokio::test]
+async fn sequential_multi_tool_abort_race_backfills_results() -> AgentResult<()> {
+    // 3 sequential tool calls: abort_trigger (completes + sets soft abort),
+    // echo, echo. The abort_trigger tool succeeds but sets the abort flag
+    // as a side effect. When the sequential loop checks is_aborted() before
+    // the second tool, it sees true and backfills the remaining 2 with
+    // [Aborted]. The work future wins tokio::select! because it completes
+    // before cancelled() polls again (10ms interval).
+    //
+    // This deterministically tests finding 1: partial results must be
+    // padded to match tool_calls.len().
+    let controller = AbortController::new();
+    let abort_ctrl = controller.clone();
+
+    // A tool that completes successfully but triggers soft abort as a side effect.
+    let abort_trigger_tool = RegisteredTool::new(
+        ToolDefinition {
+            name: "abort_trigger".into(),
+            description: "Triggers soft abort then returns".into(),
+            parameters: json!({"type": "object", "properties": {}}),
+            strict: false,
+        },
+        {
+            let ctrl = abort_ctrl.clone();
+            Box::new(move |_args, _env| {
+                let ctrl = ctrl.clone();
+                Box::pin(async move {
+                    ctrl.soft_abort();
+                    Ok(ToolOutput::Text("triggered".to_string()))
+                })
+            })
+        },
+    );
+
+    let profile = TestProfile::new()?.with_tool(abort_trigger_tool)?;
+
+    let trigger_call = ToolCall {
+        id: format!("call-{}", uuid::Uuid::new_v4()),
+        name: "abort_trigger".into(),
+        arguments: json!({}),
+        raw_arguments: None,
+        parse_error: None,
+    };
+
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response(
+            "",
+            vec![trigger_call, echo_call("second"), echo_call("third")],
+        ),
+        text_response("should not reach"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let (mut session, _rx, _) = {
+        let (s, r) = Session::new(
+            Box::new(profile),
+            env,
+            client.clone(),
+            SessionConfig::default(),
+            "test system prompt".into(),
+            0,
+            None,
+        );
+        (s, r, client.clone())
+    };
+
+    session.set_abort_signal(controller.signal());
+
+    session.submit("Run three tools").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    // History: user, assistant (3 tool_calls), tool_results
+    assert_eq!(session.history().len(), 3);
+    let tool_results_turn = &session.history()[2];
+    if let stencila_agents::types::Turn::ToolResults { results, .. } = tool_results_turn {
+        assert_eq!(
+            results.len(),
+            3,
+            "Must have exactly 3 tool results for 3 tool calls, got {}",
+            results.len()
+        );
+        // First tool (abort_trigger) should have completed successfully
+        assert!(
+            !results[0].is_error,
+            "abort_trigger should have completed successfully"
+        );
+        // Remaining should be [Aborted]
+        assert!(results[1].is_error, "Second tool should be aborted");
+        assert_eq!(
+            results[1].content,
+            serde_json::Value::String("[Aborted]".into())
+        );
+        assert!(results[2].is_error, "Third tool should be aborted");
+        assert_eq!(
+            results[2].content,
+            serde_json::Value::String("[Aborted]".into())
+        );
+    } else {
+        panic!("Expected ToolResults turn, got {tool_results_turn:?}");
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_multi_tool_abort_race_has_correct_result_count() -> AgentResult<()> {
+    // 3 parallel tool calls: echo (fast), slow (500ms), echo (fast).
+    // Abort after 50ms via tokio::select! — the work future is dropped.
+    // Result must have exactly 3 ToolResults (all [Aborted] since the
+    // join_all future was cancelled).
+    let profile = TestProfile::new()?
+        .with_parallel()
+        .with_tool(slow_tool(500))?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response(
+            "",
+            vec![echo_call("fast1"), slow_call(), echo_call("fast2")],
+        ),
+        text_response("should not reach"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let (mut session, _rx, _) = {
+        let (s, r) = Session::new(
+            Box::new(profile),
+            env,
+            client.clone(),
+            SessionConfig::default(),
+            "test system prompt".into(),
+            0,
+            None,
+        );
+        (s, r, client.clone())
+    };
+
+    let controller = AbortController::new();
+    session.set_abort_signal(controller.signal());
+
+    // Soft abort after 50ms
+    let ctrl = controller.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        ctrl.soft_abort();
+    });
+
+    session.submit("Run three tools in parallel").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    // History: user, assistant (3 tool_calls), tool_results
+    assert_eq!(session.history().len(), 3);
+    let tool_results_turn = &session.history()[2];
+    if let stencila_agents::types::Turn::ToolResults { results, .. } = tool_results_turn {
+        assert_eq!(
+            results.len(),
+            3,
+            "Must have exactly 3 tool results for 3 tool calls, got {}",
+            results.len()
+        );
+        // All should be marked as errors (aborted)
+        for (i, result) in results.iter().enumerate() {
+            assert!(
+                result.is_error,
+                "Tool result {i} should be an error (aborted)"
+            );
+        }
+    } else {
+        panic!("Expected ToolResults turn, got {tool_results_turn:?}");
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn hard_abort_sequential_multi_tool_has_no_orphan_tool_calls() -> AgentResult<()> {
+    // Verify finding 1 fix: hard abort during sequential multi-tool
+    // execution should close session (no partial ToolResults in history
+    // because hard abort returns immediately).
+    let profile = TestProfile::new()?.with_tool(slow_tool(500))?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response(
+            "",
+            vec![echo_call("fast1"), slow_call(), echo_call("fast2")],
+        ),
+        text_response("should not reach"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let (mut session, _rx, _) = {
+        let (s, r) = Session::new(
+            Box::new(profile),
+            env,
+            client.clone(),
+            SessionConfig::default(),
+            "test system prompt".into(),
+            0,
+            None,
+        );
+        (s, r, client.clone())
+    };
+
+    let controller = AbortController::new();
+    session.set_abort_signal(controller.signal());
+
+    // Hard abort after 50ms
+    let ctrl = controller.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        ctrl.abort();
+    });
+
+    session.submit("Run three tools").await?;
+    assert_eq!(session.state(), SessionState::Closed);
+
+    Ok(())
+}

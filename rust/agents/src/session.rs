@@ -17,7 +17,7 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicU8, Ordering};
 
 use async_trait::async_trait;
 use futures::StreamExt;
@@ -136,13 +136,44 @@ impl LlmClient for Models3Client {
 // Abort types
 // ---------------------------------------------------------------------------
 
+/// The kind of abort that has been signaled.
+///
+/// Stored as a `u8` in an [`AtomicU8`] so that a single atomic load
+/// suffices at each abort check point.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum AbortKind {
+    /// No abort — the session is actively processing.
+    Active = 0,
+    /// Soft abort — cancel the current exchange but keep the session alive.
+    Soft = 1,
+    /// Hard abort — close the session permanently.
+    Hard = 2,
+}
+
+impl AbortKind {
+    /// Convert a raw `u8` into an [`AbortKind`].
+    ///
+    /// Returns [`Active`](AbortKind::Active) for any value other than 1 or 2
+    /// (defensive: unknown values are treated as "not aborted").
+    fn from_u8(value: u8) -> Self {
+        match value {
+            1 => Self::Soft,
+            2 => Self::Hard,
+            _ => Self::Active,
+        }
+    }
+}
+
 /// Controller that creates abort signals and triggers cancellation.
 ///
 /// Create with [`AbortController::new()`], pass [`signal()`](Self::signal)
-/// to the session, and call [`abort()`](Self::abort) to cancel.
+/// to the session, and call [`soft_abort()`](Self::soft_abort) to cancel the
+/// current exchange (session stays alive) or [`abort()`](Self::abort) to
+/// close the session permanently.
 #[derive(Debug, Clone)]
 pub struct AbortController {
-    aborted: Arc<AtomicBool>,
+    state: Arc<AtomicU8>,
 }
 
 impl AbortController {
@@ -150,7 +181,7 @@ impl AbortController {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            aborted: Arc::new(AtomicBool::new(false)),
+            state: Arc::new(AtomicU8::new(AbortKind::Active as u8)),
         }
     }
 
@@ -158,14 +189,41 @@ impl AbortController {
     #[must_use]
     pub fn signal(&self) -> AbortSignal {
         AbortSignal {
-            aborted: Arc::clone(&self.aborted),
+            state: Arc::clone(&self.state),
         }
     }
 
-    /// Signal abort. All signals derived from this controller will
-    /// immediately report `is_aborted() == true`.
+    /// Signal a soft abort — cancel the current exchange but keep the
+    /// session alive for subsequent [`submit()`](Session::submit) calls.
+    ///
+    /// Has no effect if a hard abort is already active (hard abort cannot
+    /// be downgraded).
+    pub fn soft_abort(&self) {
+        // Only upgrade Active → Soft; never downgrade Hard → Soft.
+        let _ = self.state.compare_exchange(
+            AbortKind::Active as u8,
+            AbortKind::Soft as u8,
+            Ordering::Release,
+            Ordering::Relaxed,
+        );
+    }
+
+    /// Signal a hard abort — close the session permanently.
+    ///
+    /// All signals derived from this controller will immediately report
+    /// `is_aborted() == true`. This is sticky across submits: the session
+    /// transitions to `Closed` and future `submit()` calls return
+    /// `SessionClosed`.
     pub fn abort(&self) {
-        self.aborted.store(true, Ordering::Release);
+        self.state.store(AbortKind::Hard as u8, Ordering::Release);
+    }
+
+    /// Reset the controller to the [`Active`](AbortKind::Active) state.
+    ///
+    /// Useful when reusing a controller across sessions or after a hard
+    /// abort to start fresh.
+    pub fn reset(&self) {
+        self.state.store(AbortKind::Active as u8, Ordering::Release);
     }
 }
 
@@ -178,17 +236,23 @@ impl Default for AbortController {
 /// Polling signal for session cancellation.
 #[derive(Debug, Clone)]
 pub struct AbortSignal {
-    aborted: Arc<AtomicBool>,
+    state: Arc<AtomicU8>,
 }
 
 impl AbortSignal {
-    /// Whether abort has been signaled.
+    /// Read the current abort kind with a single atomic load.
     #[must_use]
-    pub fn is_aborted(&self) -> bool {
-        self.aborted.load(Ordering::Acquire)
+    pub fn kind(&self) -> AbortKind {
+        AbortKind::from_u8(self.state.load(Ordering::Acquire))
     }
 
-    /// Returns a future that resolves when abort is signaled.
+    /// Whether any abort (soft or hard) has been signaled.
+    #[must_use]
+    pub fn is_aborted(&self) -> bool {
+        self.kind() != AbortKind::Active
+    }
+
+    /// Returns a future that resolves when any abort is signaled.
     ///
     /// Polls the atomic flag every 10ms. Suitable for use with
     /// `tokio::select!` to cancel in-flight work.
@@ -199,6 +263,19 @@ impl AbortSignal {
             }
             tokio::time::sleep(std::time::Duration::from_millis(10)).await;
         }
+    }
+
+    /// Reset a soft abort back to active, leaving hard aborts sticky.
+    ///
+    /// Called automatically at the start of each [`submit()`](Session::submit)
+    /// so that a soft-aborted session is ready for the next exchange.
+    pub(crate) fn reset_soft(&self) {
+        let _ = self.state.compare_exchange(
+            AbortKind::Soft as u8,
+            AbortKind::Active as u8,
+            Ordering::Release,
+            Ordering::Relaxed,
+        );
     }
 }
 
@@ -531,9 +608,13 @@ impl Session {
         // SDK errors propagate immediately (session → CLOSED).
         loop {
             // 2. Check abort
-            if self.is_aborted() {
-                self.close();
-                return Ok(());
+            match self.abort_kind() {
+                AbortKind::Hard => {
+                    self.close();
+                    return Ok(());
+                }
+                AbortKind::Soft => break,
+                AbortKind::Active => {}
             }
 
             // 2b. Check round limit
@@ -625,11 +706,17 @@ impl Session {
 
             let response = match stream_result {
                 None => {
-                    // Abort: emit TEXT_END with any partial text received.
+                    // Abort during streaming: emit TEXT_END with partial text.
+                    // Partial text is NOT recorded in history.
                     let text = partial_text.into_inner().unwrap_or_default();
                     self.events.emit_assistant_text_end(&text, None);
-                    self.close();
-                    return Ok(());
+                    match self.abort_kind() {
+                        AbortKind::Hard => {
+                            self.close();
+                            return Ok(());
+                        }
+                        _ => break,
+                    }
                 }
                 Some(Ok(r)) => r,
                 Some(Err(e)) => {
@@ -670,9 +757,25 @@ impl Session {
             let results = match self.execute_tool_calls(&tool_calls).await {
                 Some(r) => r,
                 None => {
-                    // Abort fired during tool execution — exit immediately
-                    self.close();
-                    return Ok(());
+                    // Abort fired during tool execution (tokio::select!
+                    // cancelled the work future). Fabricate [Aborted]
+                    // results for all tool calls so history stays
+                    // well-formed — the assistant turn with tool_calls
+                    // was already recorded above.
+                    match self.abort_kind() {
+                        AbortKind::Hard => {
+                            self.close();
+                            return Ok(());
+                        }
+                        _ => {
+                            let aborted_results = tool_calls
+                                .iter()
+                                .map(|tc| aborted_tool_result(&tc.id))
+                                .collect();
+                            self.history.push(Turn::tool_results(aborted_results));
+                            break;
+                        }
+                    }
                 }
             };
             self.history.push(Turn::tool_results(results));
@@ -686,7 +789,9 @@ impl Session {
         }
 
         // -- Single post-loop exit path --
-        // Reached on natural completion AND turn/round limits.
+        // Reached on natural completion, turn/round limits, AND soft abort.
+
+        let soft_aborted = self.abort_kind() == AbortKind::Soft;
 
         // TODO(spec-ambiguity): The spec says follow-ups trigger "after the
         // current input is fully handled (model has produced a text-only
@@ -695,19 +800,28 @@ impl Session {
         // break, which is also reached on limits. We process follow-ups on
         // both paths because it is more useful — callers that queue follow-ups
         // expect them to run. (spec: 2.8)
+        //
+        // Soft abort skips follow-ups: the user cancelled this exchange,
+        // so queued follow-ups should wait for the next explicit submit.
 
         // Process follow-up queue.
         // Recursion depth is bounded by the number of queued follow-ups, which
         // is controlled by the caller (typically 0-2 items). Each level
         // consumes one entry from the queue, so the depth cannot grow.
-        if let Some(followup) = self.followup_queue.pop_front() {
+        if !soft_aborted && let Some(followup) = self.followup_queue.pop_front() {
             return Box::pin(self.process_input(&followup)).await;
         }
 
         // Auto-detect AwaitingInput (spec 2.3): only on natural completion
-        // (text-only response). Limit-triggered exits must not inspect stale
-        // assistant turns from earlier in the history.
-        self.state = if natural_completion
+        // (text-only response). Limit-triggered exits and soft aborts must
+        // not inspect stale assistant turns from earlier in the history.
+        self.state = if soft_aborted {
+            // Reset the signal so the next submit() starts clean.
+            if let Some(ref signal) = self.abort_signal {
+                signal.reset_soft();
+            }
+            SessionState::Idle
+        } else if natural_completion
             && self.config.auto_detect_awaiting_input
             && self.looks_like_question()
         {
@@ -934,6 +1048,11 @@ impl Session {
         let mut results = Vec::with_capacity(tool_calls.len());
         for tc in tool_calls {
             if self.is_aborted() {
+                // Backfill remaining tool calls with [Aborted] so the
+                // result count matches tool_calls.len() (1:1 mapping).
+                for remaining in &tool_calls[results.len()..] {
+                    results.push(aborted_tool_result(&remaining.id));
+                }
                 break;
             }
             let (result, attachment) = self.execute_single_tool(tc).await;
@@ -972,6 +1091,11 @@ impl Session {
         let mut results = Vec::with_capacity(tool_calls.len());
         for tc in tool_calls {
             if self.is_aborted() {
+                // Backfill remaining tool calls with [Aborted] so the
+                // result count matches tool_calls.len() (1:1 mapping).
+                for remaining in &tool_calls[results.len()..] {
+                    results.push(aborted_tool_result(&remaining.id));
+                }
                 break;
             }
             if SubAgentManager::is_subagent_tool(&tc.name) {
@@ -1184,9 +1308,18 @@ impl Session {
 
     // -- Helpers --
 
-    /// Check if the abort signal has been triggered.
+    /// Read the current abort kind with a single atomic load.
+    ///
+    /// Returns [`AbortKind::Active`] when no signal is attached.
+    fn abort_kind(&self) -> AbortKind {
+        self.abort_signal
+            .as_ref()
+            .map_or(AbortKind::Active, AbortSignal::kind)
+    }
+
+    /// Check if any abort (soft or hard) has been triggered.
     fn is_aborted(&self) -> bool {
-        self.abort_signal.as_ref().is_some_and(|s| s.is_aborted())
+        self.abort_kind() != AbortKind::Active
     }
 
     /// Emit a TURN_LIMIT event with limit details.
@@ -1201,6 +1334,16 @@ impl Session {
 impl Drop for Session {
     fn drop(&mut self) {
         self.close();
+    }
+}
+
+/// Create a synthetic `[Aborted]` tool result for a tool call that was
+/// cancelled before it could complete.
+fn aborted_tool_result(tool_call_id: &str) -> ToolResult {
+    ToolResult {
+        tool_call_id: tool_call_id.to_string(),
+        content: serde_json::Value::String("[Aborted]".into()),
+        is_error: true,
     }
 }
 
