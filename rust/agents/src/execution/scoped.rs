@@ -171,13 +171,13 @@ impl ExecutionEnvironment for ScopedExecutionEnvironment {
         let result = self.inner.grep(pattern, &validated, options).await?;
         // Post-filter grep results. Lines are formatted as
         // `{relative_path}:{line_number}:{content}`. The path may contain
-        // colons (valid on Linux), so we find the boundary by scanning for
-        // `:<digits>:` from the left to locate the line-number field.
+        // `:<digits>:` (valid on Linux filenames), so `extract_grep_path`
+        // uses the search directory to disambiguate via the filesystem.
         let validated_path = PathBuf::from(&validated);
         let filtered: Vec<&str> = result
             .lines()
             .filter(|line| {
-                let file_part = extract_grep_path(line);
+                let file_part = extract_grep_path(line, Some(&validated_path));
                 self.is_path_in_scope(&validated_path.join(file_part))
             })
             .collect();
@@ -212,41 +212,68 @@ impl ExecutionEnvironment for ScopedExecutionEnvironment {
 /// Extract the file path from a grep result line.
 ///
 /// Grep lines are formatted as `{relative_path}:{line_number}:{content}`.
-/// Since filenames can contain colons on Linux, we scan for the first
-/// `:<digits>:` sequence which marks the line-number field boundary.
-/// Falls back to the first colon if no numeric field is found.
-fn extract_grep_path(line: &str) -> &str {
+/// Since filenames can contain `:<digits>:` on Linux, the format is
+/// inherently ambiguous. We collect every `:<digits>:` position and, when
+/// a `search_dir` is provided, pick the first candidate whose path exists
+/// as a file — this resolves the ambiguity via the filesystem. Without a
+/// search directory (or when no candidate exists), falls back to the first
+/// `:<digits>:` (left-to-right), which is correct for the common case
+/// where filenames don't contain that pattern.
+///
+/// Falls back to the first colon if no `:<digits>:` pattern is found.
+fn extract_grep_path<'a>(line: &'a str, search_dir: Option<&Path>) -> &'a str {
     let bytes = line.as_bytes();
+    let mut candidates = Vec::new();
     let mut i = 0;
     while i < bytes.len() {
         if bytes[i] == b':' {
             // Check if the segment after this colon is all digits followed
-            // by another colon (i.e. the line-number field).
+            // by another colon (i.e. a line-number field candidate).
             let rest = &bytes[i + 1..];
             let digit_len = rest.iter().take_while(|b| b.is_ascii_digit()).count();
             if digit_len > 0 && i + 1 + digit_len < bytes.len() && rest[digit_len] == b':' {
-                return &line[..i];
+                candidates.push(i);
             }
         }
         i += 1;
     }
-    // Fallback: use everything before the first colon
-    line.split(':').next().unwrap_or(line)
+
+    // When a search directory is available, try each candidate left-to-right
+    // and pick the first whose extracted path exists as a file.
+    if let Some(base) = search_dir {
+        for &pos in &candidates {
+            let candidate = &line[..pos];
+            if base.join(candidate).is_file() {
+                return candidate;
+            }
+        }
+    }
+
+    // Fallback: first candidate (left-to-right) or first colon
+    match candidates.first() {
+        Some(&pos) => &line[..pos],
+        None => line.split(':').next().unwrap_or(line),
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    // --- Pure parsing tests (no filesystem, search_dir = None) ---
+
     #[test]
     fn extract_grep_path_simple() {
-        assert_eq!(extract_grep_path("src/main.rs:42:fn main()"), "src/main.rs");
+        assert_eq!(
+            extract_grep_path("src/main.rs:42:fn main()", None),
+            "src/main.rs"
+        );
     }
 
     #[test]
     fn extract_grep_path_colon_in_filename() {
         assert_eq!(
-            extract_grep_path("src/foo:bar.rs:10:let x = 1;"),
+            extract_grep_path("src/foo:bar.rs:10:let x = 1;", None),
             "src/foo:bar.rs"
         );
     }
@@ -255,13 +282,43 @@ mod tests {
     fn extract_grep_path_no_match_fallback() {
         // No :<digits>: pattern — falls back to first colon
         assert_eq!(
-            extract_grep_path("no-line-number:content"),
+            extract_grep_path("no-line-number:content", None),
             "no-line-number"
         );
     }
 
     #[test]
     fn extract_grep_path_colon_in_content() {
-        assert_eq!(extract_grep_path("file.rs:1:key: value"), "file.rs");
+        assert_eq!(extract_grep_path("file.rs:1:key: value", None), "file.rs");
+    }
+
+    // --- Filesystem-disambiguated tests ---
+
+    #[test]
+    fn extract_grep_path_digits_colon_in_filename() {
+        // Filename contains :<digits>: — filesystem check finds the real file
+        let dir = tempfile::tempdir().expect("tempdir");
+        let file_path = dir.path().join("data:42:results.txt");
+        std::fs::write(&file_path, "hello").expect("write");
+
+        assert_eq!(
+            extract_grep_path("data:42:results.txt:5:hello world", Some(dir.path())),
+            "data:42:results.txt"
+        );
+    }
+
+    #[test]
+    fn extract_grep_path_traversal_in_content_with_digits() {
+        // Content contains :<digits>: with path-traversal segments.
+        // Without filesystem disambiguation this would extract
+        // "file.rs:1:../../tmp" as the path, which could normalize
+        // outside the scope. With a search_dir, the real file is found.
+        let dir = tempfile::tempdir().expect("tempdir");
+        std::fs::write(dir.path().join("file.rs"), "x").expect("write");
+
+        assert_eq!(
+            extract_grep_path("file.rs:1:../../tmp:2:x", Some(dir.path())),
+            "file.rs"
+        );
     }
 }

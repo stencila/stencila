@@ -263,16 +263,6 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 `check_context_usage()` runs on every loop iteration and emits another warning whenever usage remains above 80% of context window. Long runs near the limit can therefore produce repeated warning events rather than a single threshold-crossing notification.
 
-## Bugs
-
-The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
-
-### Scoped grep path parsing breaks on `:<digits>:` in file names (`§7.2`) (P3)
-
-`extract_grep_path` treats the first `:<digits>:` sequence as the line-number delimiter. For valid Linux file names containing this pattern before the real line number, scoped grep post-filtering can parse the path incorrectly and drop in-scope matches (`src/execution/scoped.rs`).
-
-
-
 ## Development
 
 ### Updating the spec
