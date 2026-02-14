@@ -661,6 +661,55 @@ async fn stream_generate_with_tools() -> SdkResult<()> {
     Ok(())
 }
 
+/// `step_finish` must forward the provider's original finish_reason,
+/// including the `raw` field (e.g. Anthropic's "tool_use").
+#[tokio::test]
+async fn stream_generate_step_finish_preserves_raw_finish_reason() -> SdkResult<()> {
+    use stencila_models3::types::finish_reason::Reason;
+
+    // Build a tool-call response with a provider-specific raw finish reason
+    let mut tc_resp = make_tool_call_response(
+        "mock",
+        vec![(
+            "call-1",
+            "get_weather",
+            serde_json::json!({"location": "NYC"}),
+        )],
+    );
+    tc_resp.finish_reason = FinishReason::new(Reason::ToolCalls, Some("tool_use".into()));
+
+    let final_resp = make_response("mock", "Sunny.");
+    let adapter = ToolCallAdapter::new("mock", tc_resp, final_resp);
+    let client = Client::builder().add_provider(adapter).build()?;
+
+    let opts = StreamOptions::new("test-model")
+        .prompt("Weather?")
+        .tools(vec![weather_tool()])
+        .max_tool_rounds(1)
+        .client(&client);
+
+    let result = stream_generate(opts).await?.collect().await?;
+
+    let step_finish = result
+        .events
+        .iter()
+        .find(|e| e.event_type == StreamEventType::StepFinish)
+        .expect("expected a StepFinish event");
+
+    let fr = step_finish
+        .finish_reason
+        .as_ref()
+        .expect("StepFinish should carry finish_reason");
+    assert_eq!(fr.reason, Reason::ToolCalls);
+    assert_eq!(
+        fr.raw.as_deref(),
+        Some("tool_use"),
+        "step_finish must preserve provider-specific raw finish reason"
+    );
+
+    Ok(())
+}
+
 #[tokio::test]
 async fn stream_generate_rejects_both_prompt_and_messages() {
     let client = test_client("nope").expect("client");

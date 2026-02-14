@@ -217,14 +217,6 @@ When tool-call argument parsing/schema validation fails, the current behavior is
 
 `set_default_client()` uses `Box::leak` to produce `&'static Client` references. When called more than once, the previously leaked client cannot be safely reclaimed because callers may still hold `&'static` references to it. In practice the leak is bounded (typically 0-2 calls per process lifetime). Switching to `Arc<Client>` would eliminate the leak but is a breaking API change.
 
-## Bugs
-
-The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
-
-### `step_finish` drops provider-specific finish reason details (P3)
-
-`stream_generate()` emits `step_finish` with `FinishReason { reason: "tool_calls", raw: None }` instead of forwarding the completed step's original `finish_reason.raw` value (e.g. Anthropic `tool_use`).
-
 ## Development
 
 ### Updating the spec
@@ -300,4 +292,3 @@ Acceptance tests in `tests/spec_8_acceptance.rs` are env-gated and skip per-prov
 
 For test organization and TDD conventions, see `tests/README.md`.
 For spec coverage tracking, including deferred conformance gaps, see `tests/spec-traceability.md`.
-Current spec-focused coverage includes default-client override behavior (`§2.5`) plus provider translation edge cases such as local image-file paths and reasoning-token mapping (`§8.3`, `§8.5`).

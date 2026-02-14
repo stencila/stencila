@@ -6,7 +6,6 @@ use futures::{Stream, StreamExt};
 
 use crate::error::{SdkError, SdkResult};
 use crate::retry::{self, RetryPolicy};
-use crate::types::finish_reason::{FinishReason, Reason};
 use crate::types::message::Message;
 use crate::types::response::Response;
 use crate::types::response_format::ResponseFormat;
@@ -548,11 +547,10 @@ async fn handle_step_end(
         state.conversation.extend(result_msgs);
         state.round_num += 1;
 
-        // Emit a StepFinish event, then transition to NeedConnect
-        let step_finish = StreamEvent::step_finish(
-            FinishReason::new(Reason::ToolCalls, None),
-            response.usage.clone(),
-        );
+        // Emit a StepFinish event, then transition to NeedConnect.
+        // Forward the provider's original finish_reason (preserving `raw`).
+        let step_finish =
+            StreamEvent::step_finish(response.finish_reason.clone(), response.usage.clone());
         state.phase = Phase::NeedConnect;
         Ok(Some((step_finish, state)))
     } else {
