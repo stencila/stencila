@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **Handler registry resolution does not follow §4.2 fallback order for unknown explicit types**: If a node has `type="..."` set to an unregistered value, resolution stops at that type (or default handler if configured) and does not fall back to shape-based resolution as specified. (P1)
-
 - **Multiple exit nodes are not rejected by validation (§11.2)**: `terminal_node` only enforces "at least one" exit node, so graphs with multiple exit nodes pass validation even though Definition-of-Done requires exactly one. (P1)
 
 - **Retry counters are not reset on success (§3.5)**: `internal.retry_count.<node_id>` is incremented on retries but never cleared/reset after a successful completion, contrary to the retry pseudocode’s reset behavior. (P1)

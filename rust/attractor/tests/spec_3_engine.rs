@@ -1119,6 +1119,62 @@ fn registry_resolve_none_when_no_match() {
     assert!(registry.resolve(&node).is_none());
 }
 
+/// Regression: when a node has an explicit `type` that is NOT registered,
+/// resolution must fall back to shape-based lookup per §4.2, not skip
+/// directly to the default handler.
+#[test]
+fn registry_resolve_falls_back_to_shape_when_explicit_type_unregistered() {
+    let mut registry = HandlerRegistry::new();
+    // Register only "start" (shape-based handler for Mdiamond)
+    registry.register("start", MockHandler::new(Outcome::success()));
+
+    // Node has unregistered type="custom_thing" but shape=Mdiamond
+    let mut node = Node::new("s");
+    node.attrs
+        .insert("type".into(), AttrValue::from("custom_thing"));
+    node.attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+
+    // Should resolve to "start" handler via shape fallback, not None
+    assert!(
+        registry.resolve(&node).is_some(),
+        "unregistered explicit type should fall back to shape-based resolution"
+    );
+}
+
+/// Verify explicit type takes precedence over shape when both are registered.
+/// The two handlers return distinguishable outcomes so we can confirm which won.
+#[tokio::test]
+async fn registry_resolve_explicit_type_takes_precedence_over_shape() -> AttractorResult<()> {
+    let mut registry = HandlerRegistry::new();
+    registry.register("start", MockHandler::new(Outcome::success()));
+    registry.register("custom_thing", MockHandler::new(Outcome::fail("custom")));
+
+    // Node has registered type="custom_thing" AND shape=Mdiamond (→ "start")
+    let mut node = Node::new("s");
+    node.attrs
+        .insert("type".into(), AttrValue::from("custom_thing"));
+    node.attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+
+    // Should resolve to "custom_thing" handler (Fail), not "start" (Success)
+    let handler = registry
+        .resolve(&node)
+        .ok_or(AttractorError::NodeNotFound {
+            node_id: "s".into(),
+        })?;
+    let g = Graph::new("test");
+    let outcome = handler
+        .execute(&node, &Context::new(), &g, Path::new("/tmp"))
+        .await?;
+    assert_eq!(
+        outcome.status,
+        StageStatus::Fail,
+        "explicit type handler should win over shape-based handler"
+    );
+    Ok(())
+}
+
 // ===========================================================================
 // Run Directory (~3 tests)
 // ===========================================================================

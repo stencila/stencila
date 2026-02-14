@@ -109,17 +109,26 @@ impl HandlerRegistry {
         self.default = Some(Arc::new(handler));
     }
 
-    /// Resolve a handler for the given node.
+    /// Resolve a handler for the given node per §4.2:
     ///
-    /// Looks up the node's `handler_type()` in the registry first,
-    /// then falls back to the default handler.
+    /// 1. Explicit `type` attribute → look up in registry
+    /// 2. Shape-based resolution → look up in registry
+    /// 3. Default handler
     #[must_use]
     pub fn resolve(&self, node: &Node) -> Option<Arc<dyn Handler>> {
-        let handler_type = node.handler_type();
-        self.handlers
-            .get(handler_type)
-            .cloned()
-            .or_else(|| self.default.clone())
+        // Step 1: explicit type attribute
+        if let Some(handler) = node.get_str_attr("type").and_then(|t| self.handlers.get(t)) {
+            return Some(handler.clone());
+        }
+
+        // Step 2: shape-based resolution
+        let shape_type = crate::graph::shape_to_handler_type(node.shape());
+        if let Some(handler) = self.handlers.get(shape_type) {
+            return Some(handler.clone());
+        }
+
+        // Step 3: default
+        self.default.clone()
     }
 }
 

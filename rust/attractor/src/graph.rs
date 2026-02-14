@@ -218,7 +218,7 @@ impl Node {
 }
 
 /// Map a DOT shape name to the corresponding handler type per §2.8.
-fn shape_to_handler_type(shape: &str) -> &'static str {
+pub(crate) fn shape_to_handler_type(shape: &str) -> &'static str {
     match shape {
         "Mdiamond" => "start",
         "Msquare" => "exit",
