@@ -183,6 +183,43 @@ fn rule_terminal_node_by_id_end() {
     assert!(hits.is_empty(), "id=end should be recognized as exit node");
 }
 
+/// Regression: graphs with multiple exit nodes must be rejected (§11.2
+/// requires exactly one), not silently accepted.
+#[test]
+fn rule_terminal_node_rejects_multiple() {
+    let mut g = Graph::new("test");
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut exit1 = Node::new("exit1");
+    exit1
+        .attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit1);
+
+    let mut exit2 = Node::new("exit2");
+    exit2
+        .attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit2);
+
+    g.add_edge(Edge::new("start", "exit1"));
+    g.add_edge(Edge::new("start", "exit2"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "terminal_node");
+    assert_eq!(hits.len(), 1, "multiple exit nodes should produce an error");
+    assert_eq!(hits[0].severity, Severity::Error);
+    assert!(
+        hits[0].message.contains("2 exit nodes"),
+        "error message should mention the count: {}",
+        hits[0].message
+    );
+}
+
 // ===========================================================================
 // 3. reachability (ERROR)
 // ===========================================================================

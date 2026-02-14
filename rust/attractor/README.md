@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **Multiple exit nodes are not rejected by validation (§11.2)**: `terminal_node` only enforces "at least one" exit node, so graphs with multiple exit nodes pass validation even though Definition-of-Done requires exactly one. (P1)
-
 - **Retry counters are not reset on success (§3.5)**: `internal.retry_count.<node_id>` is incremented on retries but never cleared/reset after a successful completion, contrary to the retry pseudocode’s reset behavior. (P1)
 
 - **`preferred_label` context key can become stale across stages (§5.1)**: The engine writes `preferred_label` only when the current outcome has a non-empty label, so an earlier value may persist even when a later stage sets no preferred label. (P1)

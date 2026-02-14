@@ -90,7 +90,7 @@ impl LintRule for StartNodeRule {
 }
 
 // ---------------------------------------------------------------------------
-// 2. terminal_node (ERROR) — at least one exit node
+// 2. terminal_node (ERROR) — exactly one exit node
 // ---------------------------------------------------------------------------
 
 struct TerminalNodeRule;
@@ -102,17 +102,28 @@ impl LintRule for TerminalNodeRule {
 
     fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
         let exits = find_exit_nodes(graph);
-        if exits.is_empty() {
-            vec![Diagnostic {
+        match exits.len() {
+            0 => vec![Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Error,
                 message: "pipeline has no exit node (shape=Msquare or id=exit/end)".into(),
                 node_id: None,
                 edge: None,
                 fix: Some("add a node with shape=Msquare".into()),
-            }]
-        } else {
-            vec![]
+            }],
+            1 => vec![],
+            _ => vec![Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Error,
+                message: format!(
+                    "pipeline has {} exit nodes (expected exactly 1): {}",
+                    exits.len(),
+                    exits.join(", ")
+                ),
+                node_id: None,
+                edge: None,
+                fix: Some("ensure exactly one exit node".into()),
+            }],
         }
     }
 }
