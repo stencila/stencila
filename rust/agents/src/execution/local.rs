@@ -128,8 +128,16 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
     async fn list_directory(&self, path: &str, depth: usize) -> AgentResult<Vec<DirEntry>> {
         let resolved = self.resolve_path(path);
         let depth = depth.max(1);
-        let mut entries = Vec::new();
-        list_dir_recursive(&resolved, &resolved, depth, &mut entries).await?;
+        let base = resolved.clone();
+
+        // Run directory listing in a blocking task since ignore::Walk is sync
+        let entries = tokio::task::spawn_blocking(move || list_dir_walk(&base, depth))
+            .await
+            .map_err(|e| AgentError::Io {
+                message: format!("list_directory task failed: {e}"),
+            })?
+            .map_err(|e| AgentError::from_io(e, &resolved))?;
+
         Ok(entries)
     }
 
@@ -282,13 +290,23 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
                 reason: e.to_string(),
             })?;
 
+        // Validate glob filter upfront (fixes P2: invalid glob silently ignored)
+        let glob_filter = match &options.glob_filter {
+            Some(filter) => {
+                let pat = glob::Pattern::new(filter).map_err(|e| AgentError::ValidationError {
+                    reason: format!("invalid glob_filter: {e}"),
+                })?;
+                Some(pat)
+            }
+            None => None,
+        };
+
         let max = options.max_results as usize;
-        let glob_filter = options.glob_filter.clone();
         let base = resolved.clone();
 
         // Run the I/O-heavy grep in a blocking task
         let results = tokio::task::spawn_blocking(move || {
-            grep_recursive(&base, &re, glob_filter.as_deref(), max)
+            grep_recursive(&base, &re, glob_filter.as_ref(), max)
         })
         .await
         .map_err(|e| AgentError::Io {
@@ -383,62 +401,96 @@ fn image_media_type(path: &Path) -> Option<String> {
     }
 }
 
-/// Recursively list directory entries up to `remaining_depth`.
-async fn list_dir_recursive(
-    base: &Path,
-    dir: &Path,
-    remaining_depth: usize,
-    entries: &mut Vec<DirEntry>,
-) -> AgentResult<()> {
-    let mut read_dir = tokio::fs::read_dir(dir)
-        .await
-        .map_err(|e| AgentError::from_io(e, dir))?;
+/// List directory entries up to `depth` using `ignore::WalkBuilder`.
+///
+/// Uses `ignore::WalkBuilder` for traversal with built-in symlink cycle
+/// detection (fixes P0: unbounded recursive directory listing through
+/// symlink cycles).
+fn list_dir_walk(base: &Path, depth: usize) -> Result<Vec<DirEntry>, std::io::Error> {
+    if !base.exists() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("path not found: {}", base.display()),
+        ));
+    }
+    if !base.is_dir() {
+        return Err(std::io::Error::other(format!(
+            "not a directory: {}",
+            base.display()
+        )));
+    }
 
-    while let Some(entry) = read_dir
-        .next_entry()
-        .await
-        .map_err(|e| AgentError::from_io(e, dir))?
-    {
-        let metadata = entry
-            .metadata()
-            .await
-            .map_err(|e| AgentError::from_io(e, &entry.path()))?;
-        let is_dir = metadata.is_dir();
+    let walker = ignore::WalkBuilder::new(base)
+        .standard_filters(false)
+        .max_depth(Some(depth))
+        .build();
 
-        // Build a name relative to the base directory
+    let mut entries = Vec::new();
+    for entry in walker {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(err) => {
+                // Propagate errors for the root path (e.g. permission denied);
+                // skip errors in subdirectories.
+                if let Some(io_err) = walk_error_for_root(&err) {
+                    return Err(io_err);
+                }
+                continue;
+            }
+        };
+
+        // Skip the root directory itself
+        if entry.path() == base {
+            continue;
+        }
+
+        let is_dir = entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false);
+
         let name = entry
             .path()
             .strip_prefix(base)
-            .unwrap_or(&entry.path())
+            .unwrap_or(entry.path())
             .to_string_lossy()
             .to_string();
 
-        let size = if is_dir { None } else { Some(metadata.len()) };
+        let size = if is_dir {
+            None
+        } else {
+            entry.metadata().ok().map(|m| m.len())
+        };
 
         entries.push(DirEntry { name, is_dir, size });
-
-        if is_dir && remaining_depth > 1 {
-            Box::pin(list_dir_recursive(
-                base,
-                &entry.path(),
-                remaining_depth - 1,
-                entries,
-            ))
-            .await?;
-        }
     }
 
-    Ok(())
+    Ok(entries)
+}
+
+/// If `err` is a walker error at depth 0 (the root), return an `io::Error`.
+///
+/// Root-level errors (e.g. permission denied on the search root) are
+/// propagated to the caller. Errors in subdirectories return `None` and
+/// should be skipped.
+fn walk_error_for_root(err: &ignore::Error) -> Option<std::io::Error> {
+    if err.depth() == Some(0) {
+        let kind = err
+            .io_error()
+            .map(|e| e.kind())
+            .unwrap_or(std::io::ErrorKind::Other);
+        Some(std::io::Error::new(kind, err.to_string()))
+    } else {
+        None
+    }
 }
 
 /// Grep files under `base`, collecting up to `max` matches.
 ///
-/// If `base` is a file, grep only that file. If a directory, recurse.
+/// If `base` is a file, grep only that file. If a directory, walk using
+/// `ignore::WalkBuilder` which handles symlink cycle detection.
 /// Returns an error if the path does not exist (spec: "path not found").
 fn grep_recursive(
     base: &Path,
     re: &regex::Regex,
-    glob_filter: Option<&str>,
+    glob_filter: Option<&glob::Pattern>,
     max: usize,
 ) -> Result<Vec<String>, std::io::Error> {
     if !base.exists() {
@@ -454,7 +506,48 @@ fn grep_recursive(
         // Single-file grep: ignore glob_filter (file was explicitly requested)
         grep_file(base, base.parent().unwrap_or(base), re, max, &mut results);
     } else {
-        grep_walk(base, base, re, glob_filter, max, &mut results);
+        // Use ignore::WalkBuilder for directory traversal with symlink cycle
+        // detection (fixes P0: unbounded recursive grep through symlink cycles)
+        let walker = ignore::WalkBuilder::new(base)
+            .standard_filters(false)
+            .build();
+
+        for entry in walker {
+            if results.len() >= max {
+                break;
+            }
+
+            let entry = match entry {
+                Ok(e) => e,
+                Err(err) => {
+                    // Propagate errors for the root path; skip subdirectory errors.
+                    if let Some(io_err) = walk_error_for_root(&err) {
+                        return Err(io_err);
+                    }
+                    continue;
+                }
+            };
+
+            // Skip directories
+            let Some(file_type) = entry.file_type() else {
+                continue;
+            };
+            if file_type.is_dir() {
+                continue;
+            }
+
+            let path = entry.path();
+
+            // Apply glob filter against relative path (not just basename)
+            if let Some(pat) = glob_filter {
+                let relative = path.strip_prefix(base).unwrap_or(path).to_string_lossy();
+                if !pat.matches(&relative) {
+                    continue;
+                }
+            }
+
+            grep_file(path, base, re, max, &mut results);
+        }
     }
 
     Ok(results)
@@ -474,44 +567,6 @@ fn grep_file(path: &Path, root: &Path, re: &regex::Regex, max: usize, results: &
         if re.is_match(line) {
             results.push(format!("{relative}:{}:{line}", i + 1));
         }
-    }
-}
-
-fn grep_walk(
-    root: &Path,
-    dir: &Path,
-    re: &regex::Regex,
-    glob_filter: Option<&str>,
-    max: usize,
-    results: &mut Vec<String>,
-) {
-    let Ok(read_dir) = std::fs::read_dir(dir) else {
-        return;
-    };
-
-    for entry in read_dir.flatten() {
-        if results.len() >= max {
-            return;
-        }
-
-        let path = entry.path();
-        if path.is_dir() {
-            grep_walk(root, &path, re, glob_filter, max, results);
-            continue;
-        }
-
-        // Apply glob filter if provided
-        if let Some(filter) = glob_filter {
-            let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-            let pattern = glob::Pattern::new(filter);
-            if let Ok(ref pat) = pattern
-                && !pat.matches(name)
-            {
-                continue;
-            }
-        }
-
-        grep_file(&path, root, re, max, results);
     }
 }
 

@@ -239,10 +239,6 @@ Spawned child sessions have their event receivers dropped immediately, so subage
 
 Direct MCP tool registration sanitizes names to `[a-zA-Z0-9_]` and truncates to 64 characters. Distinct MCP tools that collapse to the same final name are skipped (with a warning), so some connected server tools may be unavailable to the model.
 
-### `grep` backend does not use ripgrep (`§4.2`)
-
-The spec recommends using `ripgrep` when available, with language-native regex as fallback. This implementation currently always uses an internal recursive walker with Rust regex matching, so it may be significantly slower on large repositories and differs from ripgrep semantics.
-
 ### Execution environment lifecycle hooks are not orchestrated by sessions (`§4.1`)
 
 `ExecutionEnvironment` defines `initialize()` and `cleanup()`, but session startup/shutdown paths do not call them. Custom environments that require explicit lifecycle management must currently handle setup/teardown outside `Session`.
@@ -267,21 +263,9 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 `check_context_usage()` runs on every loop iteration and emits another warning whenever usage remains above 80% of context window. Long runs near the limit can therefore produce repeated warning events rather than a single threshold-crossing notification.
 
-### `grep` `glob_filter` matches basename only (`§3.3`)
-
-`glob_filter` is applied to each file's basename, not its relative path. Patterns that rely on directory segments (for example `src/**/*.rs`) are therefore not honored.
-
 ## Bugs
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P3` (lowest).
-
-### Unbounded recursive grep through symlink cycles (`§4.2`) (P0)
-
-`LocalExecutionEnvironment::grep` recurses directories with `path.is_dir()` and no visited-set / symlink-cycle detection, so cyclic symlinks can cause non-terminating traversal or extreme runtime in `grep_walk` (`src/execution/local.rs`).
-
-### Unbounded recursive directory listing through symlink cycles (`§4.2`) (P0)
-
-`list_dir_recursive` follows directory metadata recursively without tracking visited canonical paths, so cyclic symlinks can cause non-terminating traversal or extreme runtime in `list_directory` (`src/execution/local.rs`).
 
 ### SDK error path bypasses `Session::close()` cleanup (`§2.8`, App B graceful shutdown) (P0)
 
@@ -298,10 +282,6 @@ The following are implementation bugs found in the current codebase. Priority ke
 ### Steering messages can be consumed without LLM delivery on limit exits (`§2.5`, `§2.6`) (P1)
 
 `process_input` drains `steering_queue` before checking round/turn limits at the top of each loop iteration. If a limit is already reached, steering is appended to history and `STEERING_INJECTED` is emitted, but no subsequent LLM call occurs in that cycle, so the message is never delivered to the model (`src/session.rs`).
-
-### Invalid `glob_filter` in grep is silently ignored (P2)
-
-`grep_walk` recompiles `glob::Pattern::new(filter)` per file and ignores parse failures, effectively disabling filtering instead of surfacing a validation error for malformed glob patterns (`src/execution/local.rs`).
 
 ### Unknown parent provider IDs silently fall back to Anthropic for subagents (`§7.3`) (P2)
 
