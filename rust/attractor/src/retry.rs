@@ -243,6 +243,7 @@ pub async fn execute_with_retry(
             }
             // Exhausted retries
             if allows_partial {
+                reset_retry_count(context, &node.id);
                 return Outcome {
                     status: StageStatus::PartialSuccess,
                     failure_reason: "retries exhausted, accepting partial".into(),
@@ -257,7 +258,11 @@ pub async fn execute_with_retry(
             );
         }
 
-        // Success, PartialSuccess, Skipped, or Fail — return immediately
+        // Reset retry counter on success/partial success (§3.5).
+        if outcome.status.is_success() {
+            reset_retry_count(context, &node.id);
+        }
+
         return outcome;
     }
 }
@@ -286,6 +291,12 @@ async fn emit_retry_and_sleep(
 fn set_retry_count(context: &Context, node_id: &str, count: u32) {
     let key = format!("internal.retry_count.{node_id}");
     context.set(key, serde_json::Value::Number(count.into()));
+}
+
+/// Reset the retry counter for a node after successful completion (§3.5).
+fn reset_retry_count(context: &Context, node_id: &str) {
+    let key = format!("internal.retry_count.{node_id}");
+    context.set(key, serde_json::Value::Number(0.into()));
 }
 
 // The Outcome::failure_reason is a String, not Option<String>.

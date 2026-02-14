@@ -914,6 +914,45 @@ async fn retry_success_on_second_attempt() {
     assert_eq!(outcome.status, StageStatus::Success);
 }
 
+/// Regression: `internal.retry_count.<node_id>` must be reset to 0 after
+/// a successful completion (§3.5), not left at the last retry attempt value.
+#[tokio::test]
+async fn retry_counter_reset_on_success() {
+    let handler: Arc<dyn Handler> = Arc::new(SequenceHandler::new(vec![
+        Outcome::retry("first attempt"),
+        Outcome::success(),
+    ]));
+    let node = Node::new("task1");
+    let ctx = Context::new();
+    let g = Graph::new("test");
+    let policy = RetryPolicy {
+        max_attempts: 3,
+        backoff: BackoffConfig {
+            initial_delay_ms: 1,
+            backoff_factor: 1.0,
+            max_delay_ms: 10,
+            jitter: false,
+        },
+    };
+
+    let outcome = execute_with_retry(
+        &handler,
+        &node,
+        &ctx,
+        &g,
+        Path::new("/tmp"),
+        &policy,
+        &NoOpEmitter,
+        0,
+    )
+    .await;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    // After success, the retry counter must be reset to 0.
+    let count = ctx.get_i64("internal.retry_count.task1").unwrap_or(-1);
+    assert_eq!(count, 0, "retry counter should be reset to 0 after success");
+}
+
 #[tokio::test]
 async fn retry_exhausted_returns_fail() {
     let handler: Arc<dyn Handler> = Arc::new(MockHandler::new(Outcome::retry("always retry")));
@@ -978,6 +1017,46 @@ async fn retry_exhausted_allow_partial() {
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
 }
 
+/// Regression: the allow_partial exhausted-retry path must also reset the
+/// retry counter, since the final status is PartialSuccess (§3.5).
+#[tokio::test]
+async fn retry_counter_reset_on_allow_partial() {
+    let handler: Arc<dyn Handler> = Arc::new(MockHandler::new(Outcome::retry("always retry")));
+    let mut node = Node::new("task1");
+    node.attrs
+        .insert("allow_partial".into(), AttrValue::Boolean(true));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+    let policy = RetryPolicy {
+        max_attempts: 2,
+        backoff: BackoffConfig {
+            initial_delay_ms: 1,
+            backoff_factor: 1.0,
+            max_delay_ms: 10,
+            jitter: false,
+        },
+    };
+
+    let outcome = execute_with_retry(
+        &handler,
+        &node,
+        &ctx,
+        &g,
+        Path::new("/tmp"),
+        &policy,
+        &NoOpEmitter,
+        0,
+    )
+    .await;
+    assert_eq!(outcome.status, StageStatus::PartialSuccess);
+
+    let count = ctx.get_i64("internal.retry_count.task1").unwrap_or(-1);
+    assert_eq!(
+        count, 0,
+        "retry counter should be reset on PartialSuccess via allow_partial"
+    );
+}
+
 #[tokio::test]
 async fn retry_sets_context_key() {
     let handler: Arc<dyn Handler> = Arc::new(SequenceHandler::new(vec![
@@ -1009,8 +1088,9 @@ async fn retry_sets_context_key() {
     )
     .await;
 
+    // After retry-then-success, counter is reset to 0 per §3.5.
     let retry_count = ctx.get_i64("internal.retry_count.mynode");
-    assert_eq!(retry_count, Some(1));
+    assert_eq!(retry_count, Some(0));
 }
 
 #[tokio::test]
@@ -1505,12 +1585,13 @@ async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
     let run_dir = &entries[0].path();
     let checkpoint = Checkpoint::load(&run_dir.join("checkpoint.json"))?;
 
-    // task had 1 retry (attempt count stored in context)
+    // task had 1 retry but the counter is reset to 0 on success (§3.5),
+    // so the checkpoint reflects the post-reset value.
     let retry_count = checkpoint.node_retries.get("task").copied();
     assert_eq!(
         retry_count,
-        Some(1),
-        "checkpoint should record retry count for task"
+        Some(0),
+        "checkpoint should record reset retry count after success"
     );
     Ok(())
 }

@@ -126,8 +126,6 @@ The following are known limitations of this implementation of the spec.
 
 The following are implementation bugs found in the current codebase. Priority key: `P0` (highest) → `P2` (lowest).
 
-- **Retry counters are not reset on success (§3.5)**: `internal.retry_count.<node_id>` is incremented on retries but never cleared/reset after a successful completion, contrary to the retry pseudocode’s reset behavior. (P1)
-
 - **`preferred_label` context key can become stale across stages (§5.1)**: The engine writes `preferred_label` only when the current outcome has a non-empty label, so an earlier value may persist even when a later stage sets no preferred label. (P1)
 
 - **`max_parallel` integer values are ignored in `parallel` handler**: `max_parallel` is read via `get_str_attr` and parsed as `usize`, so numeric DOT values like `max_parallel=1` (parsed as integer) are silently ignored and fall back to default concurrency. (P1)
