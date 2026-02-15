@@ -191,7 +191,8 @@ pub async fn build_environment_context_from_env(
 /// agent to set `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL` environment
 /// variables when making git commits.
 pub fn build_commit_instructions() -> String {
-    "When making git commits, always set the committer identity using environment variables:\n\n  \
+    "Do not make git commits unless explicitly asked to by the user.\n\n\
+     When making git commits, always set the committer identity using environment variables:\n\n  \
      GIT_COMMITTER_NAME=\"Stencila\" \
      GIT_COMMITTER_EMAIL=\"47797644+stencila[bot]@users.noreply.github.com\" \
      git commit ..."

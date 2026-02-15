@@ -621,3 +621,12 @@ fn commit_instructions_mentions_commit() {
         "instructions should mention git commits"
     );
 }
+
+#[test]
+fn commit_instructions_requires_explicit_ask() {
+    let instructions = stencila_agents::prompts::build_commit_instructions();
+    assert!(
+        instructions.contains("Do not make git commits unless explicitly asked"),
+        "instructions should tell agent not to commit unless asked"
+    );
+}
