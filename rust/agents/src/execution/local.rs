@@ -4,6 +4,8 @@
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use async_trait::async_trait;
 use tokio::io::AsyncReadExt;
@@ -321,15 +323,39 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
         let max = options.max_results as usize;
         let base = resolved.clone();
 
+        // Cancellation flag shared with the blocking task so it can
+        // stop walking when an abort is signaled or the timeout fires.
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let cancelled_inner = Arc::clone(&cancelled);
+
         // Run the I/O-heavy grep in a blocking task
-        let results = tokio::task::spawn_blocking(move || {
-            grep_recursive(&base, &re, glob_filter.as_ref(), max)
-        })
-        .await
-        .map_err(|e| AgentError::Io {
-            message: format!("grep task failed: {e}"),
-        })?
-        .map_err(|e| AgentError::from_io(e, &resolved))?;
+        let handle = tokio::task::spawn_blocking(move || {
+            grep_recursive(&base, &re, glob_filter.as_ref(), max, &cancelled_inner)
+        });
+
+        // Apply a generous timeout (30s) so grep never runs unbounded.
+        // If the timeout fires, signal the blocking task to stop.
+        const GREP_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+        let results = match tokio::time::timeout(GREP_TIMEOUT, handle).await {
+            Ok(join_result) => join_result
+                .map_err(|e| AgentError::Io {
+                    message: format!("grep task failed: {e}"),
+                })?
+                .map_err(|e| AgentError::from_io(e, &resolved))?,
+            Err(_elapsed) => {
+                // Signal the blocking task to stop walking
+                cancelled.store(true, Ordering::Release);
+                return Err(AgentError::Io {
+                    message: format!(
+                        "grep timed out after {}s searching '{}'. \
+                         Try narrowing the search with a glob_filter (e.g. \"*.rs\") \
+                         or specifying a more specific path.",
+                        GREP_TIMEOUT.as_secs(),
+                        resolved.display()
+                    ),
+                });
+            }
+        };
 
         Ok(results.join("\n"))
     }
@@ -502,13 +528,19 @@ fn walk_error_for_root(err: &ignore::Error) -> Option<std::io::Error> {
 /// Grep files under `base`, collecting up to `max` matches.
 ///
 /// If `base` is a file, grep only that file. If a directory, walk using
-/// `ignore::WalkBuilder` which handles symlink cycle detection.
-/// Returns an error if the path does not exist (spec: "path not found").
+/// `ignore::WalkBuilder` which handles symlink cycle detection and
+/// respects `.gitignore` / `.ignore` files so build artifacts (`target/`,
+/// `node_modules/`, etc.) are skipped automatically.
+///
+/// The `cancelled` flag is checked between files so that an abort signal
+/// or timeout can stop the walk promptly even though this runs inside
+/// `spawn_blocking`.
 fn grep_recursive(
     base: &Path,
     re: &regex::Regex,
     glob_filter: Option<&glob::Pattern>,
     max: usize,
+    cancelled: &AtomicBool,
 ) -> Result<Vec<String>, std::io::Error> {
     if !base.exists() {
         return Err(std::io::Error::new(
@@ -521,16 +553,27 @@ fn grep_recursive(
 
     if base.is_file() {
         // Single-file grep: ignore glob_filter (file was explicitly requested)
-        grep_file(base, base.parent().unwrap_or(base), re, max, &mut results);
+        grep_file(base, base.parent().unwrap_or(base), re, max, cancelled, &mut results);
     } else {
         // Use ignore::WalkBuilder for directory traversal with symlink cycle
-        // detection (fixes P0: unbounded recursive grep through symlink cycles)
+        // detection and .gitignore/.ignore filtering so that build artifacts
+        // (target/, node_modules/, etc.) are skipped automatically.
+        //
+        // Dotfiles are kept visible (.github/, .config/, .eslintrc, etc.)
+        // because agents frequently need to inspect CI definitions and
+        // project configuration. Only .git/ is excluded via filter_entry
+        // to avoid walking its large pack objects.
         let walker = ignore::WalkBuilder::new(base)
-            .standard_filters(false)
+            .hidden(false) // keep dotfiles visible (.github, .config, …)
+            .git_ignore(true) // respect .gitignore (skips target/, node_modules/)
+            .git_global(true) // respect global gitignore
+            .git_exclude(true) // respect .git/info/exclude
+            .ignore(true) // respect .ignore files
+            .filter_entry(|entry| entry.depth() == 0 || entry.file_name() != ".git")
             .build();
 
         for entry in walker {
-            if results.len() >= max {
+            if results.len() >= max || cancelled.load(Ordering::Relaxed) {
                 break;
             }
 
@@ -563,7 +606,7 @@ fn grep_recursive(
                 }
             }
 
-            grep_file(path, base, re, max, &mut results);
+            grep_file(path, base, re, max, cancelled, &mut results);
         }
     }
 
@@ -571,14 +614,21 @@ fn grep_recursive(
 }
 
 /// Grep a single file, appending matches to `results`.
-fn grep_file(path: &Path, root: &Path, re: &regex::Regex, max: usize, results: &mut Vec<String>) {
+fn grep_file(
+    path: &Path,
+    root: &Path,
+    re: &regex::Regex,
+    max: usize,
+    cancelled: &AtomicBool,
+    results: &mut Vec<String>,
+) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return; // skip binary/unreadable files
     };
     let relative = path.strip_prefix(root).unwrap_or(path).to_string_lossy();
 
     for (i, line) in content.lines().enumerate() {
-        if results.len() >= max {
+        if results.len() >= max || cancelled.load(Ordering::Relaxed) {
             return;
         }
         if re.is_match(line) {
