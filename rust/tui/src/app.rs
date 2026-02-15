@@ -175,6 +175,13 @@ pub struct App {
     /// Agent picker popup state.
     pub agents_state: AgentsState,
 
+    /// Stored paste contents keyed by paste number. Large pastes are inserted
+    /// as `[Paste #N: preview…]` tokens in the input buffer; the full text is
+    /// kept here and expanded at submit time (same pattern as response refs).
+    pub pastes: std::collections::HashMap<usize, String>,
+    /// Counter for generating paste numbers.
+    paste_counter: usize,
+
     /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
     /// Shown as dim inline text for fish-shell-style history completion.
     pub ghost_suggestion: Option<String>,
@@ -241,6 +248,8 @@ impl App {
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
             agents_state: AgentsState::new(),
+            pastes: std::collections::HashMap::new(),
+            paste_counter: 0,
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
@@ -622,9 +631,31 @@ impl App {
         }
     }
 
-    /// Handle pasted text — insert as-is without triggering submit.
+    /// Handle pasted text — insert as-is for short pastes, or as a
+    /// `[Paste #N: preview…]` token for large ones.
     fn handle_paste(&mut self, text: &str) {
-        self.input.insert_str(text);
+        const PASTE_THRESHOLD: usize = 80;
+        const PASTE_PREVIEW_CHARS: usize = 20;
+
+        let char_count = text.chars().count();
+
+        if char_count <= PASTE_THRESHOLD {
+            self.input.insert_str(text);
+        } else {
+            self.paste_counter += 1;
+            let n = self.paste_counter;
+            self.pastes.insert(n, text.to_string());
+
+            let prefix: String = text
+                .chars()
+                .take(PASTE_PREVIEW_CHARS)
+                .map(|c| if c == '\n' { ' ' } else { c })
+                .collect();
+            let remaining = char_count - PASTE_PREVIEW_CHARS;
+            let token = format!("[Paste #{n}: {prefix}\u{2026} +{remaining} chars]");
+            self.input.insert_str(&token);
+        }
+
         self.refresh_autocomplete();
         self.refresh_ghost_suggestion();
     }
@@ -638,9 +669,10 @@ impl App {
 
         self.dismiss_all_autocomplete();
 
-        // Expand response references for the actual request text.
+        // Expand paste and response references for the actual request text.
         // History stores the original (unexpanded) text so refs remain visible.
-        let expanded = self.expand_response_refs(&text);
+        let expanded = self.expand_paste_refs(&text);
+        let expanded = self.expand_response_refs(&expanded);
 
         // Slash commands work in both modes
         if let Some((cmd, args)) = SlashCommand::parse(&text) {
@@ -829,6 +861,43 @@ impl App {
                 remaining = &after_prefix[close + 1..];
             } else {
                 // No closing bracket — keep the rest as-is
+                result.push_str(&remaining[start..]);
+                remaining = "";
+            }
+        }
+
+        result.push_str(remaining);
+        result
+    }
+
+    /// Expand `[Paste #N: ...]` tokens in text with the stored paste contents.
+    ///
+    /// Unknown paste references are left as-is.
+    fn expand_paste_refs(&self, text: &str) -> String {
+        let mut result = String::with_capacity(text.len());
+        let mut remaining = text;
+
+        while let Some(start) = remaining.find("[Paste #") {
+            result.push_str(&remaining[..start]);
+
+            let after_prefix = &remaining[start + "[Paste #".len()..];
+
+            let num_end = after_prefix
+                .find(|c: char| !c.is_ascii_digit())
+                .unwrap_or(after_prefix.len());
+            let num_str = &after_prefix[..num_end];
+
+            if let Some(close) = after_prefix.find(']') {
+                if let Ok(num) = num_str.parse::<usize>() {
+                    if let Some(content) = self.pastes.get(&num) {
+                        result.push_str(content);
+                        remaining = &after_prefix[close + 1..];
+                        continue;
+                    }
+                }
+                result.push_str(&remaining[start..=(start + "[Paste #".len() + close)]);
+                remaining = &after_prefix[close + 1..];
+            } else {
                 result.push_str(&remaining[start..]);
                 remaining = "";
             }
@@ -1617,6 +1686,65 @@ mod tests {
         assert_eq!(app.input.text(), "hello\nworld");
         // Should not have submitted — only the welcome message
         assert_eq!(app.messages.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn paste_short_inserted_verbatim() {
+        let mut app = App::new_for_test();
+        app.handle_event(&Event::Paste("short text".to_string()));
+        assert_eq!(app.input.text(), "short text");
+        assert!(app.pastes.is_empty());
+    }
+
+    #[tokio::test]
+    async fn paste_large_inserts_token() {
+        let mut app = App::new_for_test();
+        let long_text = "a".repeat(200);
+        app.handle_event(&Event::Paste(long_text.clone()));
+        // Buffer contains the token, not the raw text
+        let input = app.input.text().to_string();
+        assert!(input.starts_with("[Paste #1: "));
+        assert!(input.contains("+180 chars]"));
+        // Full text is stored in the pastes map
+        assert_eq!(app.pastes.get(&1).unwrap(), &long_text);
+    }
+
+    #[tokio::test]
+    async fn paste_token_expanded_on_submit() {
+        let mut app = App::new_for_test();
+        let long_text = "x".repeat(200);
+        app.handle_event(&Event::Paste(long_text.clone()));
+        // Expand paste refs returns the full text
+        let input = app.input.text().to_string();
+        let expanded = app.expand_paste_refs(&input);
+        assert_eq!(expanded, long_text);
+    }
+
+    #[tokio::test]
+    async fn paste_multiple_tokens() {
+        let mut app = App::new_for_test();
+        let text1 = "a".repeat(100);
+        let text2 = "b".repeat(150);
+        app.handle_event(&Event::Paste(text1.clone()));
+        app.handle_event(&Event::Paste(text2.clone()));
+        let input = app.input.text().to_string();
+        assert!(input.contains("[Paste #1:"));
+        assert!(input.contains("[Paste #2:"));
+        assert_eq!(app.pastes.len(), 2);
+        // Both expand correctly
+        let expanded = app.expand_paste_refs(&input);
+        assert!(expanded.contains(&text1));
+        assert!(expanded.contains(&text2));
+    }
+
+    #[tokio::test]
+    async fn paste_token_newlines_in_preview_replaced() {
+        let mut app = App::new_for_test();
+        let long_text = format!("line1\nline2\n{}", "x".repeat(100));
+        app.handle_event(&Event::Paste(long_text));
+        let input = app.input.text().to_string();
+        // The token itself should not contain newlines
+        assert!(!input.contains('\n'));
     }
 
     #[tokio::test]
