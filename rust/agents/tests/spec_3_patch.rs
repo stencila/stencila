@@ -402,6 +402,31 @@ fn parse_eof_marker_between_operations() -> AgentResult<()> {
     Ok(())
 }
 
+#[test]
+fn parse_bare_at_at_hunk_header() -> AgentResult<()> {
+    let input = "\
+*** Begin Patch
+*** Update File: src/main.rs
+@@
+ fn main() {
+-    println!(\"old\");
++    println!(\"new\");
+ }
+*** End Patch";
+
+    let patch = parse_patch(input)?;
+    assert_eq!(patch.operations.len(), 1);
+    match &patch.operations[0] {
+        PatchOperation::UpdateFile { hunks, .. } => {
+            assert_eq!(hunks.len(), 1);
+            assert_eq!(hunks[0].context_hint, "");
+            assert_eq!(hunks[0].lines.len(), 4);
+        }
+        other => panic!("expected UpdateFile, got: {other:?}"),
+    }
+    Ok(())
+}
+
 // =========================================================================
 // Parse Error Tests
 // =========================================================================

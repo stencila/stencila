@@ -95,8 +95,11 @@ fn is_operation_boundary(line: &str) -> bool {
 
 /// Parse a hunk header and return the context hint.
 ///
-/// Supports both `@@ hint` and `@@ hint @@` styles.
+/// Supports `@@ hint`, `@@ hint @@`, and bare `@@` (empty hint) styles.
 fn parse_hunk_hint(line: &str) -> Option<&str> {
+    if line == "@@" || line == "@@ @@" {
+        return Some("");
+    }
     let hint = line.strip_prefix("@@ ")?;
     Some(hint.strip_suffix(" @@").unwrap_or(hint))
 }
@@ -461,10 +464,12 @@ fn apply_hunk(file_lines: &[String], hunk: &Hunk) -> AgentResult<Vec<String>> {
 
     let match_pos = match candidates.len() {
         0 => {
+            let preview: Vec<&str> = expected.iter().take(3).copied().collect();
+            let preview_str = preview.join("\\n");
             return Err(AgentError::EditConflict {
                 reason: format!(
-                    "could not locate hunk in file (context_hint: '{}')",
-                    hunk.context_hint
+                    "could not locate hunk in file (context_hint: '{}', expected lines: '{}')",
+                    hunk.context_hint, preview_str
                 ),
             });
         }

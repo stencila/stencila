@@ -398,6 +398,10 @@ fn extract_key_argument(arguments: &Value) -> String {
         Some(o) if !o.is_empty() => o,
         _ => return String::new(),
     };
+    // Special handling for apply_patch: extract file paths from patch content
+    if let Some(Value::String(patch)) = obj.get("patch") {
+        return extract_patch_summary(patch);
+    }
     // Priority order matching common tool argument names
     for key in &["file_path", "pattern", "path", "command", "query", "name"] {
         if let Some(Value::String(v)) = obj.get(*key) {
@@ -411,6 +415,23 @@ fn extract_key_argument(arguments: &Value) -> String {
         }
     }
     String::new()
+}
+
+/// Extract a compact summary from a v4a patch string.
+///
+/// Scans for `*** Add File:`, `*** Delete File:`, and `*** Update File:` lines
+/// and returns the file paths joined by `, `. Falls back to empty string.
+fn extract_patch_summary(patch: &str) -> String {
+    let paths: Vec<&str> = patch
+        .lines()
+        .filter_map(|line| {
+            line.strip_prefix("*** Add File: ")
+                .or_else(|| line.strip_prefix("*** Delete File: "))
+                .or_else(|| line.strip_prefix("*** Update File: "))
+        })
+        .collect();
+    let summary = paths.join(", ");
+    strip_cwd(&summary)
 }
 
 /// Truncate a string for display, keeping the head.
