@@ -199,12 +199,16 @@ impl ExecutionEnvironment for MockExecutionEnvironment {
                 let count = limit.unwrap_or(2000);
                 let selected: Vec<&str> = lines.iter().skip(start).take(count).copied().collect();
 
-                let numbered = selected
+                let mut numbered = selected
                     .iter()
                     .enumerate()
                     .map(|(i, line)| format!("{:>6} | {line}", start + i + 1))
                     .collect::<Vec<_>>()
                     .join("\n");
+
+                if text.ends_with('\n') {
+                    numbered.push('\n');
+                }
 
                 Ok(FileContent::Text(numbered))
             }

@@ -99,7 +99,7 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
         let start = offset.unwrap_or(1).saturating_sub(1); // 1-based -> 0-based
         let max_lines = limit.unwrap_or(2000);
 
-        let numbered = raw
+        let mut numbered = raw
             .lines()
             .enumerate()
             .skip(start)
@@ -107,6 +107,13 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
             .map(|(i, line)| format!("{:>6} | {line}", i + 1))
             .collect::<Vec<_>>()
             .join("\n");
+
+        // Preserve trailing newline so that round-tripping through
+        // strip_line_numbers → edit_file → write_file doesn't silently
+        // strip it from the file.
+        if raw.ends_with('\n') {
+            numbered.push('\n');
+        }
 
         Ok(FileContent::Text(numbered))
     }

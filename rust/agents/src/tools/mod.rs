@@ -127,3 +127,31 @@ pub fn required_str<'a>(args: &'a Value, name: &str) -> AgentResult<&'a str> {
             reason: format!("missing required string parameter: {name}"),
         })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn strip_line_numbers_preserves_trailing_newline() {
+        let input = "     1 | hello\n     2 | world\n";
+        assert_eq!(strip_line_numbers(input), "hello\nworld\n");
+    }
+
+    #[test]
+    fn strip_line_numbers_no_trailing_newline() {
+        let input = "     1 | hello\n     2 | world";
+        assert_eq!(strip_line_numbers(input), "hello\nworld");
+    }
+
+    #[test]
+    fn strip_line_numbers_single_line_with_newline() {
+        let input = "     1 | only line\n";
+        assert_eq!(strip_line_numbers(input), "only line\n");
+    }
+
+    #[test]
+    fn strip_line_numbers_empty_input() {
+        assert_eq!(strip_line_numbers(""), "");
+    }
+}
