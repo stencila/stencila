@@ -119,12 +119,12 @@ impl InputState {
 
     /// Whether the cursor is on the first line.
     pub fn is_on_first_line(&self) -> bool {
-        !self.buffer[..self.cursor].contains('\n')
+        self.line_start_before(self.cursor) == 0
     }
 
     /// Whether the cursor is on the last line.
     pub fn is_on_last_line(&self) -> bool {
-        !self.buffer[self.cursor..].contains('\n')
+        self.line_end_after(self.cursor) == self.buffer.len()
     }
 
     /// Move the cursor up one line, preserving the column position.
@@ -141,9 +141,7 @@ impl InputState {
 
         // Find the start of the previous line (byte before current line's \n)
         let prev_line_end = line_start - 1; // the \n
-        let prev_line_start = self.buffer[..prev_line_end]
-            .rfind('\n')
-            .map_or(0, |pos| pos + 1);
+        let prev_line_start = self.line_start_before(prev_line_end);
 
         let prev_line_len = prev_line_end - prev_line_start;
         self.cursor = prev_line_start + col.min(prev_line_len);
@@ -155,21 +153,16 @@ impl InputState {
     pub fn move_down(&mut self) {
         let (_, col) = self.current_line_start_and_col();
 
-        // Find the end of the current line
-        let line_end = self.buffer[self.cursor..]
-            .find('\n')
-            .map(|pos| self.cursor + pos);
-
-        let Some(newline_pos) = line_end else {
+        // Find the end of the current line.
+        let line_end = self.line_end_after(self.cursor);
+        if line_end == self.buffer.len() {
             // Already on the last line — move to end
             self.cursor = self.buffer.len();
             return;
-        };
+        }
 
-        let next_line_start = newline_pos + 1;
-        let next_line_end = self.buffer[next_line_start..]
-            .find('\n')
-            .map_or(self.buffer.len(), |pos| next_line_start + pos);
+        let next_line_start = line_end + 1;
+        let next_line_end = self.line_end_after(next_line_start);
 
         let next_line_len = next_line_end - next_line_start;
         self.cursor = next_line_start + col.min(next_line_len);
@@ -177,9 +170,7 @@ impl InputState {
 
     /// Returns (`line_start_byte_offset`, `column_in_chars`) for the current cursor position.
     fn current_line_start_and_col(&self) -> (usize, usize) {
-        let line_start = self.buffer[..self.cursor]
-            .rfind('\n')
-            .map_or(0, |pos| pos + 1);
+        let line_start = self.line_start_before(self.cursor);
         let col = self.buffer[line_start..self.cursor].chars().count();
         (line_start, col)
     }
@@ -188,38 +179,14 @@ impl InputState {
     ///
     /// Skips whitespace, then moves to the start of the previous word.
     pub fn move_word_left(&mut self) {
-        let bytes = self.buffer.as_bytes();
-        let mut pos = self.cursor;
-        // Skip whitespace/punctuation backwards
-        while pos > 0 && !bytes[pos - 1].is_ascii_alphanumeric() {
-            pos -= 1;
-            while pos > 0 && !self.buffer.is_char_boundary(pos) {
-                pos -= 1;
-            }
-        }
-        // Skip word characters backwards
-        while pos > 0 && bytes[pos - 1].is_ascii_alphanumeric() {
-            pos -= 1;
-        }
-        self.cursor = pos;
+        self.cursor = self.word_left_boundary(self.cursor);
     }
 
     /// Move the cursor one word to the right.
     ///
     /// Skips the current word, then skips whitespace after it.
     pub fn move_word_right(&mut self) {
-        let len = self.buffer.len();
-        let bytes = self.buffer.as_bytes();
-        let mut pos = self.cursor;
-        // Skip word characters forward
-        while pos < len && bytes[pos].is_ascii_alphanumeric() {
-            pos += 1;
-        }
-        // Skip whitespace/punctuation forward
-        while pos < len && !bytes[pos].is_ascii_alphanumeric() {
-            pos += 1;
-        }
-        self.cursor = pos;
+        self.cursor = self.word_right_boundary(self.cursor);
     }
 
     /// Delete the word before the cursor (Ctrl+Backspace).
@@ -239,19 +206,67 @@ impl InputState {
 
     /// Delete from cursor to the start of the line (Ctrl+U).
     pub fn delete_to_line_start(&mut self) {
-        let line_start = self.buffer[..self.cursor]
-            .rfind('\n')
-            .map_or(0, |pos| pos + 1);
+        let line_start = self.line_start_before(self.cursor);
         self.buffer.drain(line_start..self.cursor);
         self.cursor = line_start;
     }
 
     /// Delete from cursor to the end of the line (Ctrl+K).
     pub fn delete_to_line_end(&mut self) {
-        let line_end = self.buffer[self.cursor..]
-            .find('\n')
-            .map_or(self.buffer.len(), |pos| self.cursor + pos);
+        let line_end = self.line_end_after(self.cursor);
         self.buffer.drain(self.cursor..line_end);
+    }
+
+    /// Find the start byte of the line containing `pos`.
+    fn line_start_before(&self, pos: usize) -> usize {
+        self.buffer[..pos].rfind('\n').map_or(0, |index| index + 1)
+    }
+
+    /// Find the end byte of the line containing `pos` (newline or buffer end).
+    fn line_end_after(&self, pos: usize) -> usize {
+        self.buffer[pos..]
+            .find('\n')
+            .map_or(self.buffer.len(), |index| pos + index)
+    }
+
+    fn is_word_byte(byte: u8) -> bool {
+        byte.is_ascii_alphanumeric()
+    }
+
+    fn word_left_boundary(&self, mut pos: usize) -> usize {
+        let bytes = self.buffer.as_bytes();
+
+        // Skip whitespace/punctuation backwards.
+        while pos > 0 && !Self::is_word_byte(bytes[pos - 1]) {
+            pos -= 1;
+            while pos > 0 && !self.buffer.is_char_boundary(pos) {
+                pos -= 1;
+            }
+        }
+
+        // Skip word characters backwards.
+        while pos > 0 && Self::is_word_byte(bytes[pos - 1]) {
+            pos -= 1;
+        }
+
+        pos
+    }
+
+    fn word_right_boundary(&self, mut pos: usize) -> usize {
+        let len = self.buffer.len();
+        let bytes = self.buffer.as_bytes();
+
+        // Skip word characters forward.
+        while pos < len && Self::is_word_byte(bytes[pos]) {
+            pos += 1;
+        }
+
+        // Skip whitespace/punctuation forward.
+        while pos < len && !Self::is_word_byte(bytes[pos]) {
+            pos += 1;
+        }
+
+        pos
     }
 
     /// Find the byte offset of the previous character boundary.
