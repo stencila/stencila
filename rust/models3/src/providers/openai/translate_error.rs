@@ -23,14 +23,15 @@ pub fn translate_error(error: SdkError) -> SdkError {
 /// append guidance so the user knows to set `OPENAI_API_KEY`.
 fn add_codex_model_hint(error: SdkError) -> SdkError {
     if let SdkError::InvalidRequest { message, details } = &error
-        && message.contains("not supported when using Codex") {
-            return SdkError::InvalidRequest {
-                message: format!(
-                    "{message}. To use this model, set OPENAI_API_KEY \
+        && message.contains("not supported when using Codex")
+    {
+        return SdkError::InvalidRequest {
+            message: format!(
+                "{message}. To use this model, set OPENAI_API_KEY \
                      (the ChatGPT backend only supports newer models like gpt-5)"
-                ),
-                details: details.clone(),
-            };
-        }
+            ),
+            details: details.clone(),
+        };
+    }
     error
 }
