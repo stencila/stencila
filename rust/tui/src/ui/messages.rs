@@ -10,7 +10,8 @@ use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus};
 
 use super::common::{
-    NUM_GUTTER, SIDEBAR_CHAR, THINKING_FRAMES, TOOL_CALL_FRAMES, dim, wrap_content,
+    BRAILLE_SPINNER_FRAMES, NUM_GUTTER, SIDEBAR_CHAR, THINKING_FRAMES, TOOL_CALL_FRAMES, dim,
+    wrap_content,
 };
 
 /// Render the scrollable message area.
@@ -40,16 +41,11 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 agent_index,
             } => {
                 exchange_num += 1;
-                // Determine agent tag (name + color) for multi-agent display
-                let agent_tag = if app.sessions.len() > 1 {
-                    agent_index.and_then(|idx| {
-                        app.sessions
-                            .get(idx)
-                            .map(|s| (s.name.clone(), AgentSession::color(idx)))
-                    })
-                } else {
-                    None
-                };
+                let agent_tag = agent_index.and_then(|idx| {
+                    app.sessions
+                        .get(idx)
+                        .map(|s| (s.name.clone(), AgentSession::color(idx)))
+                });
                 exchange_lines(
                     &mut lines,
                     exchange_num,
@@ -197,18 +193,7 @@ fn exchange_lines(
         ExchangeStatus::Cancelled => Color::DarkGray,
     };
 
-    // Running exchanges pulsate between normal and dim of the same color
-    let pulsate_bright = tick_count / 2 % 2 == 0;
-    let sidebar_style = match status {
-        ExchangeStatus::Running => {
-            if pulsate_bright {
-                Style::new().fg(base_color)
-            } else {
-                Style::new().fg(base_color).add_modifier(Modifier::DIM)
-            }
-        }
-        _ => Style::new().fg(base_color),
-    };
+    let sidebar_style = Style::new().fg(base_color);
 
     // Shell commands are prefixed with "$ "
     let prefix = if kind == ExchangeKind::Shell {
@@ -217,11 +202,7 @@ fn exchange_lines(
         ""
     };
 
-    let num_style = if status == ExchangeStatus::Running {
-        Style::new().fg(base_color).add_modifier(Modifier::DIM)
-    } else {
-        Style::new().fg(base_color)
-    };
+    let num_style = Style::new().fg(base_color);
     let num_padding = "   ";
 
     // Request lines with sidebar and exchange number (wraps at 99)
@@ -248,17 +229,40 @@ fn exchange_lines(
         }
     }
 
-    // Agent name tag after the request in multi-agent mode
+    // Agent name tag after the request, with braille spinner in the gutter
+    // while the exchange is still running.
     if let Some((name, color)) = agent_tag {
         let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+        let gutter = if status == ExchangeStatus::Running {
+            let frame_idx =
+                (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+            Span::styled(
+                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
+                Style::new().fg(*color),
+            )
+        } else {
+            Span::raw(num_padding)
+        };
         lines.push(Line::from(vec![
-            Span::raw(num_padding),
+            gutter,
             Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
             Span::raw(" "),
             Span::styled(
                 name.clone(),
                 Style::new().fg(*color).add_modifier(Modifier::DIM),
             ),
+        ]));
+    } else if status == ExchangeStatus::Running {
+        // Single-agent mode: spinner in the gutter on a line below the request
+        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+        let frame_idx =
+            (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+        lines.push(Line::from(vec![
+            Span::styled(
+                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
+                Style::new().fg(base_color),
+            ),
+            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
         ]));
     }
 
