@@ -21,6 +21,10 @@ pub(super) const TOOL_CALL_FRAMES: [char; 4] = ['\u{25d0}', '\u{25d3}', '\u{25d1
 /// Pulsating frames for in-progress thinking: · ∗ ✱ (small → medium → large).
 pub(super) const THINKING_FRAMES: [char; 3] = ['\u{00b7}', '\u{2217}', '\u{2731}'];
 
+/// Braille spinner frames for the input prompt when the active agent is busy.
+pub(super) const BRAILLE_SPINNER_FRAMES: [char; 10] =
+    ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
 /// Dim style used for hint descriptions.
 pub(super) const fn dim() -> Style {
     Style::new().fg(Color::DarkGray)

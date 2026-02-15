@@ -319,6 +319,13 @@ impl App {
                 .any(|s| !s.running_agent_exchanges.is_empty())
     }
 
+    /// Whether the active session has any running agent exchanges.
+    pub fn active_session_is_running(&self) -> bool {
+        !self.sessions[self.active_session]
+            .running_agent_exchanges
+            .is_empty()
+    }
+
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
         // Wizard intercepts all keys when active

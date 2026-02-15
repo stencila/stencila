@@ -3,13 +3,14 @@ use ratatui::{
     layout::{Alignment, Constraint, Layout, Position, Rect},
     style::{Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Paragraph, Wrap},
+    widgets::{Block, Paragraph},
 };
 
 use crate::app::{AgentSession, App, AppMode, ExchangeKind};
 
 use super::common::{
-    INPUT_BG, NUM_GUTTER, SIDEBAR_CHAR, cursor_position_wrapped, dim, visual_line_count,
+    BRAILLE_SPINNER_FRAMES, INPUT_BG, NUM_GUTTER, SIDEBAR_CHAR, cursor_position_wrapped, dim,
+    visual_line_count, wrap_content,
 };
 
 /// Render the input area with cursor: dark grey background, colored sidebar, no border.
@@ -29,11 +30,16 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
     // Mode indicator in the gutter (no dark bg)
     let gutter = NUM_GUTTER;
     if area.height > 0 {
-        let indicator = match app.mode {
-            AppMode::Chat => " > ",
-            AppMode::Shell => " $ ",
+        let indicator = if app.mode == AppMode::Chat && app.active_session_is_running() {
+            let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+            format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
+        } else {
+            match app.mode {
+                AppMode::Chat => " > ".to_string(),
+                AppMode::Shell => " $ ".to_string(),
+            }
         };
-        let indicator_line = Line::from(Span::styled(indicator, Style::new().fg(bar_color)));
+        let indicator_line = Line::from(Span::styled(&indicator, Style::new().fg(bar_color)));
         let gutter_area = Rect {
             x: area.x,
             y: area.y,
@@ -79,41 +85,41 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
 
     let dim_style = Style::default().add_modifier(Modifier::DIM);
 
-    // Build a Text with explicit newlines so multiline input renders correctly.
-    // Ghost text is appended to the last line only.
-    let input_lines: Vec<&str> = if input_text.is_empty() {
+    // Pre-wrap text into visual lines using character-level wrapping so
+    // rendering matches cursor_position_wrapped / visual_line_count exactly.
+    let wrap_width = content_area.width.max(1) as usize;
+    let mut visual_lines: Vec<Line> = Vec::new();
+    let logical_lines: Vec<&str> = if input_text.is_empty() {
         vec![""]
     } else {
         input_text.split('\n').collect()
     };
-    let content = if let Some(ghost) = &app.ghost_suggestion {
-        let mut text_lines: Vec<Line> = Vec::with_capacity(input_lines.len());
-        let last_idx = input_lines.len() - 1;
-        for (i, line) in input_lines.iter().enumerate() {
-            if i == last_idx {
-                let mut spans = vec![Span::raw((*line).to_string())];
-                spans.push(Span::styled(ghost.as_str(), dim_style));
-                if app.ghost_is_truncated {
-                    spans.push(Span::styled("\u{2026}", dim_style));
-                }
-                text_lines.push(Line::from(spans));
-            } else {
-                text_lines.push(Line::from((*line).to_string()));
+    for logical_line in &logical_lines {
+        if logical_line.is_empty() {
+            visual_lines.push(Line::from(String::new()));
+        } else {
+            for chunk in wrap_content(logical_line, wrap_width) {
+                visual_lines.push(Line::from(chunk));
             }
         }
-        Text::from(text_lines)
-    } else {
-        Text::from(
-            input_lines
-                .iter()
-                .map(|l| Line::from((*l).to_string()))
-                .collect::<Vec<_>>(),
-        )
-    };
+    }
 
-    let paragraph = Paragraph::new(content)
-        .style(Style::new().bg(INPUT_BG))
-        .wrap(Wrap { trim: false });
+    // Append ghost text to the last visual line
+    if let Some(ghost) = &app.ghost_suggestion {
+        if let Some(last) = visual_lines.last_mut() {
+            let existing: String = last.spans.iter().map(|s| s.content.as_ref()).collect();
+            let mut spans = vec![Span::raw(existing)];
+            spans.push(Span::styled(ghost.as_str(), dim_style));
+            if app.ghost_is_truncated {
+                spans.push(Span::styled("\u{2026}", dim_style));
+            }
+            *last = Line::from(spans);
+        }
+    }
+
+    let content = Text::from(visual_lines);
+
+    let paragraph = Paragraph::new(content).style(Style::new().bg(INPUT_BG));
     frame.render_widget(paragraph, content_area);
 
     // Show inline send/run hint — hide when running or when input text gets close
@@ -240,6 +246,14 @@ pub(super) fn input_height(app: &App, area: Rect) -> u16 {
     };
     #[allow(clippy::cast_possible_truncation)]
     let visual_lines = visual_line_count(&text_for_height, inner_width) as u16;
+
+    // Ensure enough height for the cursor row (cursor may be on the line
+    // *after* the last visual content line when it sits at a wrap boundary).
+    let (_, cursor_row) =
+        cursor_position_wrapped(app.input.text(), app.input.cursor(), inner_width);
+    #[allow(clippy::cast_possible_truncation)]
+    let cursor_lines = cursor_row as u16 + 1;
+
     let max_input_height = (area.height / 3).max(3);
-    visual_lines.clamp(1, max_input_height)
+    visual_lines.max(cursor_lines).clamp(1, max_input_height)
 }
