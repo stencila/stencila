@@ -1180,26 +1180,36 @@ impl Session {
 
     // -- Context usage (spec 5.5) --
 
-    /// Emit a warning when conversation approaches the context window limit.
+    /// Emit context usage information and warn when approaching the limit.
     ///
-    /// Uses heuristic: 1 token ~ 4 characters. Warns at 80% of the profile's
+    /// Uses heuristic: 1 token ~ 4 characters. Always emits a
+    /// `ContextUsage` event with the current percentage. Additionally emits
+    /// a warning `Error` event at 80% of the profile's
     /// `context_window_size`. Informational only — no automatic compaction.
-    ///
-    // TODO(spec-ambiguity): The spec says `emit(WARNING, ...)` but the
-    // EventKind enum has no WARNING variant. We use ERROR with
-    // `"severity": "warning"` as a pragmatic alternative. (spec: 5.5)
     fn check_context_usage(&self) {
         let total_chars = self.estimate_history_chars();
         let approx_tokens = total_chars / 4;
         let context_size = self.profile.context_window_size();
-        let threshold = (context_size as f64 * 0.8) as u64;
+        let pct = if context_size > 0 {
+            (approx_tokens as f64 / context_size as f64 * 100.0) as u32
+        } else {
+            0
+        };
 
+        // Always emit context usage info
+        let mut usage_data = serde_json::Map::new();
+        usage_data.insert("percent".into(), Value::Number(pct.into()));
+        usage_data.insert("approx_tokens".into(), Value::Number(approx_tokens.into()));
+        usage_data.insert(
+            "context_window_size".into(),
+            Value::Number(context_size.into()),
+        );
+        self.events
+            .emit(crate::types::EventKind::ContextUsage, usage_data);
+
+        // Warn at 80%
+        let threshold = (context_size as f64 * 0.8) as u64;
         if approx_tokens > threshold {
-            let pct = if context_size > 0 {
-                (approx_tokens as f64 / context_size as f64 * 100.0) as u32
-            } else {
-                100
-            };
             let mut data = serde_json::Map::new();
             data.insert("severity".into(), Value::String("warning".into()));
             data.insert(

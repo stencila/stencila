@@ -407,8 +407,8 @@ impl Run {
             let event = event_result.map_err(|e| {
                 eyre::eyre!("model run failed (model: {model_id}, provider: {provider_label}): {e}")
             })?;
-            if event.event_type == crate::types::stream_event::StreamEventType::TextDelta {
-                if let Some(ref delta) = event.delta {
+            if event.event_type == crate::types::stream_event::StreamEventType::TextDelta
+                && let Some(ref delta) = event.delta {
                     if writing_to_file {
                         collected_text.push_str(delta);
                     } else {
@@ -416,7 +416,6 @@ impl Run {
                         collected_text.push_str(delta);
                     }
                 }
-            }
         }
 
         // Get usage from the accumulated response

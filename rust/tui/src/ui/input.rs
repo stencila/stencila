@@ -251,22 +251,24 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     let has_ghost = app.ghost_suggestion.is_some();
 
     // Mode label on the left, indented to align with sidebar bars
-    let (label_text, label_color) = if app.mode == AppMode::Chat {
+    let label_spans = if app.mode == AppMode::Chat {
         // Always show active agent name in agent's color
         let name = &app.active().name;
         let color = AgentSession::color(app.active_session);
-        (format!("   {name}"), color)
+        let pct = app.active().context_usage_percent;
+        let mut spans = vec![Span::styled(format!("   {name}"), Style::new().fg(color))];
+        if pct > 0 {
+            spans.push(Span::styled(format!(" {pct}%"), Style::new().fg(color).add_modifier(Modifier::DIM)));
+        }
+        spans
     } else {
         let kind = ExchangeKind::from(app.mode);
-        (format!("   {}", kind.label()), kind.color())
+        vec![Span::styled(format!("   {}", kind.label()), Style::new().fg(kind.color()))]
     };
 
     #[allow(clippy::cast_possible_truncation)]
-    let label_width = label_text.len() as u16 + 1; // +1 for padding
-    let label = Line::from(Span::styled(
-        label_text,
-        Style::new().fg(label_color),
-    ));
+    let label_width: u16 = label_spans.iter().map(|s| s.content.len() as u16).sum::<u16>() + 1; // +1 for padding
+    let label = Line::from(label_spans);
 
     // Keyboard hints on the right
     let hints = if is_running {

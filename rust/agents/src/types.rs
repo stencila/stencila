@@ -527,6 +527,8 @@ pub enum EventKind {
     TurnLimit,
     /// A loop pattern was detected.
     LoopDetection,
+    /// Context usage update (approximate percentage of context window used).
+    ContextUsage,
     /// An error occurred.
     Error,
 }

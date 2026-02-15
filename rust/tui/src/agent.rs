@@ -149,6 +149,8 @@ struct AgentProgress {
     is_complete: bool,
     /// An error message, if the exchange failed.
     error: Option<String>,
+    /// Approximate context usage percentage (0–100+).
+    context_usage_percent: u32,
 }
 
 /// A running agent exchange, analogous to [`crate::shell::RunningCommand`].
@@ -167,6 +169,14 @@ impl RunningAgentExchange {
             .lock()
             .map(|g| g.segments.clone())
             .unwrap_or_default()
+    }
+
+    /// Return the latest context usage percentage (0–100+).
+    pub fn context_usage_percent(&self) -> u32 {
+        self.progress
+            .lock()
+            .map(|g| g.context_usage_percent)
+            .unwrap_or(0)
     }
 
     /// If the exchange is complete, return the final result.
@@ -596,16 +606,43 @@ fn process_event(
                     .push(ResponseSegment::Warning(message.to_string()));
             }
         }
+        EventKind::ContextUsage => {
+            if let Some(pct) = event.data.get("percent").and_then(Value::as_u64)
+                && let Ok(mut g) = progress.lock()
+            {
+                #[allow(clippy::cast_possible_truncation)]
+                {
+                    g.context_usage_percent = pct as u32;
+                }
+            }
+        }
         EventKind::Error => {
+            // Context-usage warnings have severity "warning" — show inline
+            // but do not mark the exchange as failed.
+            let is_warning = event
+                .data
+                .get("severity")
+                .and_then(Value::as_str)
+                == Some("warning");
             if let Ok(mut g) = progress.lock() {
-                g.error = Some(
-                    event
+                if is_warning {
+                    let message = event
                         .data
                         .get("message")
                         .and_then(Value::as_str)
-                        .unwrap_or("unknown error")
-                        .to_string(),
-                );
+                        .unwrap_or("warning");
+                    g.segments
+                        .push(ResponseSegment::Warning(message.to_string()));
+                } else {
+                    g.error = Some(
+                        event
+                            .data
+                            .get("message")
+                            .and_then(Value::as_str)
+                            .unwrap_or("unknown error")
+                            .to_string(),
+                    );
+                }
             }
         }
         // SessionStart/End, UserInput, SteeringInjected, ToolCallOutputDelta,

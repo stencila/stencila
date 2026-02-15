@@ -99,6 +99,10 @@ When MCP and/or codemode are enabled in a parent session, spawned subagents inhe
 
 The spec identifies skills as a natural extension point for reusable prompts. This implementation discovers skill files (markdown with YAML frontmatter) from `.stencila/skills/` and provider-specific directories (e.g. `.claude/skills/` for Anthropic). Compact metadata for all discovered skills is included in the system prompt, and a `use_skill` tool is registered so the LLM can load a skill's full instructions on demand. This progressive-disclosure approach keeps the system prompt small while making the complete skill library accessible. Controlled by `SessionConfig::enable_skills` (default `true`).
 
+### `CONTEXT_USAGE` event for continuous context tracking (`§5.5`)
+
+The spec defines a single warning when context usage exceeds 80% of the context window. This implementation adds a `CONTEXT_USAGE` event emitted on every agentic-loop iteration with `{ "percent": N, "approx_tokens": N, "context_window_size": N }`. This allows UIs to display a live context-usage indicator (e.g. the TUI shows the percentage next to the agent name) without waiting for the 80% threshold. The existing >80% warning `ERROR` event is still emitted separately.
+
 ### Reasoning stream events (`§2.9`)
 
 In addition to the spec's assistant text lifecycle events, this implementation emits `ASSISTANT_REASONING_START`, `ASSISTANT_REASONING_DELTA`, and `ASSISTANT_REASONING_END` when provider streams include reasoning tokens.
@@ -274,7 +278,7 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 ### Context-usage warnings are not throttled (`§5.5`)
 
-`check_context_usage()` runs on every loop iteration and emits another warning whenever usage remains above 80% of context window. Long runs near the limit can therefore produce repeated warning events rather than a single threshold-crossing notification.
+`check_context_usage()` runs on every loop iteration and emits another `ERROR` warning whenever usage remains above 80% of context window. Long runs near the limit can therefore produce repeated warning events rather than a single threshold-crossing notification. (The separate `CONTEXT_USAGE` informational event is intentionally emitted on every iteration; see Extensions.)
 
 ## Development
 

@@ -95,6 +95,9 @@ pub struct AgentSession {
     /// Agent exchanges currently running in the background.
     /// Each entry is `(message_index, running_exchange)`.
     pub running_agent_exchanges: Vec<(usize, RunningAgentExchange)>,
+
+    /// Approximate context usage percentage (0–100+), updated from agent events.
+    pub context_usage_percent: u32,
 }
 
 impl AgentSession {
@@ -105,6 +108,7 @@ impl AgentSession {
             agent: None,
             definition: None,
             running_agent_exchanges: Vec::new(),
+            context_usage_percent: 0,
         }
     }
 
@@ -1097,6 +1101,12 @@ impl App {
         for session in &mut self.sessions {
             let mut completed = Vec::new();
             for (i, (msg_index, exchange)) in session.running_agent_exchanges.iter().enumerate() {
+                // Update context usage from the latest event data
+                let pct = exchange.context_usage_percent();
+                if pct > 0 {
+                    session.context_usage_percent = pct;
+                }
+
                 if let Some(result) = exchange.try_take_result() {
                     completed.push((i, *msg_index, result));
                 } else {
