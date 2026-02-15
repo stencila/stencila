@@ -256,7 +256,8 @@ impl App {
         log_receiver: mpsc::UnboundedReceiver<String>,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
     ) -> Self {
-        let default_session = AgentSession::new("default");
+        let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
+        let default_session = AgentSession::new(default_name);
 
         Self {
             should_quit: false,
@@ -1719,23 +1720,23 @@ mod tests {
         })
     }
 
-    #[test]
-    fn welcome_message() {
+    #[tokio::test]
+    async fn welcome_message() {
         let app = App::new_for_test();
         assert_eq!(app.messages.len(), 1);
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
-    #[test]
-    fn ctrl_c_quits_in_chat_mode() {
+    #[tokio::test]
+    async fn ctrl_c_quits_in_chat_mode() {
         let mut app = App::new_for_test();
         let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
         assert!(quit);
         assert!(app.should_quit);
     }
 
-    #[test]
-    fn ctrl_c_clears_input_in_shell_mode() {
+    #[tokio::test]
+    async fn ctrl_c_clears_input_in_shell_mode() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
 
@@ -1751,8 +1752,8 @@ mod tests {
         assert!(app.input.is_empty());
     }
 
-    #[test]
-    fn ctrl_c_noop_on_empty_input_in_shell_mode() {
+    #[tokio::test]
+    async fn ctrl_c_noop_on_empty_input_in_shell_mode() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
 
@@ -1761,8 +1762,8 @@ mod tests {
         assert!(!app.should_quit);
     }
 
-    #[test]
-    fn ctrl_d_exits_shell_mode() {
+    #[tokio::test]
+    async fn ctrl_d_exits_shell_mode() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
@@ -1771,8 +1772,8 @@ mod tests {
         assert_eq!(app.mode, AppMode::Chat);
     }
 
-    #[test]
-    fn ctrl_d_noop_in_chat_mode() {
+    #[tokio::test]
+    async fn ctrl_d_noop_in_chat_mode() {
         let mut app = App::new_for_test();
         assert_eq!(app.mode, AppMode::Chat);
 
@@ -1781,8 +1782,8 @@ mod tests {
         assert!(!app.should_quit);
     }
 
-    #[test]
-    fn typing_and_submit() {
+    #[tokio::test]
+    async fn typing_and_submit() {
         let mut app = App::new_for_test();
 
         // Type "hello"
@@ -1802,16 +1803,16 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn empty_submit_ignored() {
+    #[tokio::test]
+    async fn empty_submit_ignored() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         // Only the welcome message
         assert_eq!(app.messages.len(), 1);
     }
 
-    #[test]
-    fn ctrl_l_clears() {
+    #[tokio::test]
+    async fn ctrl_l_clears() {
         let mut app = App::new_for_test();
 
         // Type and submit a message
@@ -1824,8 +1825,8 @@ mod tests {
         assert!(app.messages.is_empty());
     }
 
-    #[test]
-    fn shift_enter_inserts_newline() {
+    #[tokio::test]
+    async fn shift_enter_inserts_newline() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::NONE));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::SHIFT));
@@ -1833,8 +1834,8 @@ mod tests {
         assert_eq!(app.input.text(), "a\nb");
     }
 
-    #[test]
-    fn up_down_moves_cursor_in_multiline() {
+    #[tokio::test]
+    async fn up_down_moves_cursor_in_multiline() {
         let mut app = App::new_for_test();
         // Paste multiline text: "abc\ndef"
         app.handle_event(&Event::Paste("abc\ndef".to_string()));
@@ -1850,8 +1851,8 @@ mod tests {
         assert_eq!(app.input.cursor(), 7); // end of "def"
     }
 
-    #[test]
-    fn alt_enter_inserts_newline() {
+    #[tokio::test]
+    async fn alt_enter_inserts_newline() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT));
@@ -1859,8 +1860,8 @@ mod tests {
         assert_eq!(app.input.text(), "x\ny");
     }
 
-    #[test]
-    fn paste_inserts_without_submit() {
+    #[tokio::test]
+    async fn paste_inserts_without_submit() {
         let mut app = App::new_for_test();
         app.handle_event(&Event::Paste("hello\nworld".to_string()));
         assert_eq!(app.input.text(), "hello\nworld");
@@ -1868,8 +1869,8 @@ mod tests {
         assert_eq!(app.messages.len(), 1);
     }
 
-    #[test]
-    fn history_up_down() {
+    #[tokio::test]
+    async fn history_up_down() {
         let mut app = App::new_for_test();
 
         // Submit a few messages
@@ -1893,8 +1894,8 @@ mod tests {
         assert_eq!(app.input.text(), "second");
     }
 
-    #[test]
-    fn history_preserves_draft() {
+    #[tokio::test]
+    async fn history_preserves_draft() {
         let mut app = App::new_for_test();
 
         // Submit two entries with the same prefix
@@ -1924,8 +1925,8 @@ mod tests {
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" second"));
     }
 
-    #[test]
-    fn ctrl_u_deletes_to_line_start() {
+    #[tokio::test]
+    async fn ctrl_u_deletes_to_line_start() {
         let mut app = App::new_for_test();
         for c in "hello".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -1934,8 +1935,8 @@ mod tests {
         assert_eq!(app.input.text(), "");
     }
 
-    #[test]
-    fn ctrl_k_deletes_to_line_end() {
+    #[tokio::test]
+    async fn ctrl_k_deletes_to_line_end() {
         let mut app = App::new_for_test();
         for c in "hello".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -1945,8 +1946,8 @@ mod tests {
         assert_eq!(app.input.text(), "");
     }
 
-    #[test]
-    fn scroll_bounds() {
+    #[tokio::test]
+    async fn scroll_bounds() {
         let mut app = App::new_for_test();
         // Simulate a frame that rendered 20 total lines with 10 visible
         app.total_message_lines = 20;
@@ -1967,8 +1968,8 @@ mod tests {
 
     // --- Slash command integration tests ---
 
-    #[test]
-    fn slash_help_shows_system_message() {
+    #[tokio::test]
+    async fn slash_help_shows_system_message() {
         let mut app = App::new_for_test();
         for c in "/help".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -1982,8 +1983,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn slash_clear_clears_messages() {
+    #[tokio::test]
+    async fn slash_clear_clears_messages() {
         let mut app = App::new_for_test();
         for c in "/clear".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -1992,8 +1993,8 @@ mod tests {
         assert!(app.messages.is_empty());
     }
 
-    #[test]
-    fn slash_quit_exits() {
+    #[tokio::test]
+    async fn slash_quit_exits() {
         let mut app = App::new_for_test();
         for c in "/quit".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -2002,8 +2003,8 @@ mod tests {
         assert!(quit);
     }
 
-    #[test]
-    fn unknown_slash_treated_as_user_message() {
+    #[tokio::test]
+    async fn unknown_slash_treated_as_user_message() {
         let mut app = App::new_for_test();
         for c in "/unknown".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -2017,8 +2018,8 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn bare_dollar_treated_as_user_message() {
+    #[tokio::test]
+    async fn bare_dollar_treated_as_user_message() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
@@ -2030,8 +2031,8 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn ctrl_s_enters_shell_mode() {
+    #[tokio::test]
+    async fn ctrl_s_enters_shell_mode() {
         let mut app = App::new_for_test();
         assert_eq!(app.mode, AppMode::Chat);
 
@@ -2039,8 +2040,8 @@ mod tests {
         assert_eq!(app.mode, AppMode::Shell);
     }
 
-    #[test]
-    fn ctrl_s_noop_in_shell_mode() {
+    #[tokio::test]
+    async fn ctrl_s_noop_in_shell_mode() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
@@ -2052,15 +2053,15 @@ mod tests {
 
     // --- Autocomplete integration tests ---
 
-    #[test]
-    fn autocomplete_shows_on_slash() {
+    #[tokio::test]
+    async fn autocomplete_shows_on_slash() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
     }
 
-    #[test]
-    fn autocomplete_narrows_on_typing() {
+    #[tokio::test]
+    async fn autocomplete_narrows_on_typing() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         let all_count = app.commands_state.candidates().len();
@@ -2069,8 +2070,8 @@ mod tests {
         assert!(app.commands_state.candidates().len() < all_count);
     }
 
-    #[test]
-    fn autocomplete_hides_on_esc() {
+    #[tokio::test]
+    async fn autocomplete_hides_on_esc() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
@@ -2079,8 +2080,8 @@ mod tests {
         assert!(!app.commands_state.is_visible());
     }
 
-    #[test]
-    fn autocomplete_tab_accepts() {
+    #[tokio::test]
+    async fn autocomplete_tab_accepts() {
         let mut app = App::new_for_test();
         // Type "/he" — matches /help and /history
         for c in "/he".chars() {
@@ -2096,8 +2097,8 @@ mod tests {
         assert!(text == "/help" || text == "/history");
     }
 
-    #[test]
-    fn autocomplete_up_down_navigates() {
+    #[tokio::test]
+    async fn autocomplete_up_down_navigates() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
@@ -2110,8 +2111,8 @@ mod tests {
         assert_eq!(app.commands_state.selected(), 0);
     }
 
-    #[test]
-    fn autocomplete_enter_accepts_and_submits() {
+    #[tokio::test]
+    async fn autocomplete_enter_accepts_and_submits() {
         let mut app = App::new_for_test();
         // Type "/hel" — matches /help only
         for c in "/hel".chars() {
@@ -2127,8 +2128,8 @@ mod tests {
         assert!(app.messages.len() >= 2);
     }
 
-    #[test]
-    fn autocomplete_dismissed_on_submit() {
+    #[tokio::test]
+    async fn autocomplete_dismissed_on_submit() {
         let mut app = App::new_for_test();
         for c in "/help".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -2139,8 +2140,8 @@ mod tests {
 
     // --- Shell mode tests ---
 
-    #[test]
-    fn slash_shell_enters_shell_mode() {
+    #[tokio::test]
+    async fn slash_shell_enters_shell_mode() {
         let mut app = App::new_for_test();
         for c in "/shell".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -2154,8 +2155,8 @@ mod tests {
         )));
     }
 
-    #[test]
-    fn slash_exit_in_shell_mode_returns_to_chat() {
+    #[tokio::test]
+    async fn slash_exit_in_shell_mode_returns_to_chat() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
@@ -2168,8 +2169,8 @@ mod tests {
         assert!(!app.should_quit);
     }
 
-    #[test]
-    fn slash_quit_quits_from_shell_mode() {
+    #[tokio::test]
+    async fn slash_quit_quits_from_shell_mode() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
 
@@ -2180,8 +2181,8 @@ mod tests {
         assert!(quit);
     }
 
-    #[test]
-    fn autocomplete_works_in_shell_mode() {
+    #[tokio::test]
+    async fn autocomplete_works_in_shell_mode() {
         let mut app = App::new_for_test();
         app.enter_shell_mode();
 
@@ -2189,8 +2190,8 @@ mod tests {
         assert!(app.commands_state.is_visible());
     }
 
-    #[test]
-    fn enter_and_exit_shell_mode_messages() {
+    #[tokio::test]
+    async fn enter_and_exit_shell_mode_messages() {
         let mut app = App::new_for_test();
         let initial_count = app.messages.len();
 
@@ -2224,14 +2225,14 @@ mod tests {
         app
     }
 
-    #[test]
-    fn ghost_appears_on_prefix_match() {
+    #[tokio::test]
+    async fn ghost_appears_on_prefix_match() {
         let app = app_with_history_and_prefix(&["hello world"], "hel");
         assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
     }
 
-    #[test]
-    fn ghost_clears_when_input_diverges() {
+    #[tokio::test]
+    async fn ghost_clears_when_input_diverges() {
         let mut app = app_with_history_and_prefix(&["hello world"], "hel");
         assert!(app.ghost_suggestion.is_some());
 
@@ -2240,8 +2241,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn ghost_clears_when_cursor_not_at_end() {
+    #[tokio::test]
+    async fn ghost_clears_when_cursor_not_at_end() {
         let mut app = app_with_history_and_prefix(&["hello world"], "hel");
         assert!(app.ghost_suggestion.is_some());
 
@@ -2250,8 +2251,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn ghost_clears_when_multiline() {
+    #[tokio::test]
+    async fn ghost_clears_when_multiline() {
         let mut app = app_with_history_and_prefix(&["hello world"], "hel");
         assert!(app.ghost_suggestion.is_some());
 
@@ -2260,8 +2261,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn ghost_clears_when_popup_visible() {
+    #[tokio::test]
+    async fn ghost_clears_when_popup_visible() {
         let mut app = App::new_for_test();
         app.input_history
             .push_tagged("/help me".to_string(), AppMode::Chat);
@@ -2273,8 +2274,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn ghost_not_shown_for_empty_input() {
+    #[tokio::test]
+    async fn ghost_not_shown_for_empty_input() {
         let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello".to_string(), AppMode::Chat);
@@ -2282,14 +2283,14 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn ghost_not_shown_for_exact_match() {
+    #[tokio::test]
+    async fn ghost_not_shown_for_exact_match() {
         let app = app_with_history_and_prefix(&["hello"], "hello");
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn tab_accepts_ghost_word() {
+    #[tokio::test]
+    async fn tab_accepts_ghost_word() {
         let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo");
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" test --release"));
 
@@ -2300,8 +2301,8 @@ mod tests {
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" --release"));
     }
 
-    #[test]
-    fn multiple_tabs_accept_word_by_word() {
+    #[tokio::test]
+    async fn multiple_tabs_accept_word_by_word() {
         let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo");
 
         app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
@@ -2314,8 +2315,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn right_at_end_accepts_all_ghost() {
+    #[tokio::test]
+    async fn right_at_end_accepts_all_ghost() {
         let mut app = app_with_history_and_prefix(&["hello world"], "hel");
         assert!(app.ghost_suggestion.is_some());
 
@@ -2324,8 +2325,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn right_in_middle_moves_cursor() {
+    #[tokio::test]
+    async fn right_in_middle_moves_cursor() {
         let mut app = app_with_history_and_prefix(&["hello world"], "hel");
         // Move cursor left first
         app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE));
@@ -2338,8 +2339,8 @@ mod tests {
         assert_eq!(app.input.text(), "hel");
     }
 
-    #[test]
-    fn ghost_multiline_history_shows_first_line_suffix() {
+    #[tokio::test]
+    async fn ghost_multiline_history_shows_first_line_suffix() {
         let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
@@ -2352,8 +2353,8 @@ mod tests {
         assert!(app.ghost_is_truncated);
     }
 
-    #[test]
-    fn ghost_multiline_exact_first_line_shows_nothing() {
+    #[tokio::test]
+    async fn ghost_multiline_exact_first_line_shows_nothing() {
         let mut app = App::new_for_test();
         // History entry where the first line is an exact match for the typed input
         app.input_history
@@ -2366,8 +2367,8 @@ mod tests {
         assert!(app.ghost_suggestion.is_none());
     }
 
-    #[test]
-    fn accept_all_ghost_multiline() {
+    #[tokio::test]
+    async fn accept_all_ghost_multiline() {
         let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
@@ -2421,8 +2422,8 @@ mod tests {
         app
     }
 
-    #[test]
-    fn response_candidates_returns_correct_list() {
+    #[tokio::test]
+    async fn response_candidates_returns_correct_list() {
         let app = app_with_exchanges();
         let candidates = app.response_candidates();
         // Exchange 1 and 3 have responses; newest first
@@ -2431,16 +2432,16 @@ mod tests {
         assert_eq!(candidates[1].number, 1);
     }
 
-    #[test]
-    fn hash_triggers_response_autocomplete() {
+    #[tokio::test]
+    async fn hash_triggers_response_autocomplete() {
         let mut app = app_with_exchanges();
         app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
         assert!(app.responses_state.is_visible());
         assert_eq!(app.responses_state.candidates().len(), 2);
     }
 
-    #[test]
-    fn hash_with_digit_filters_responses() {
+    #[tokio::test]
+    async fn hash_with_digit_filters_responses() {
         let mut app = app_with_exchanges();
         app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Char('1'), KeyModifiers::NONE));
@@ -2449,8 +2450,8 @@ mod tests {
         assert_eq!(app.responses_state.candidates()[0].number, 1);
     }
 
-    #[test]
-    fn response_esc_dismisses() {
+    #[tokio::test]
+    async fn response_esc_dismisses() {
         let mut app = app_with_exchanges();
         app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
         assert!(app.responses_state.is_visible());
@@ -2459,8 +2460,8 @@ mod tests {
         assert!(!app.responses_state.is_visible());
     }
 
-    #[test]
-    fn response_tab_accepts() {
+    #[tokio::test]
+    async fn response_tab_accepts() {
         let mut app = app_with_exchanges();
         app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
         assert!(app.responses_state.is_visible());
@@ -2471,65 +2472,66 @@ mod tests {
         assert!(app.input.text().contains("[Response #"));
     }
 
-    #[test]
-    fn expand_response_refs_replaces_known() {
+    #[tokio::test]
+    async fn expand_response_refs_replaces_known() {
         let app = app_with_exchanges();
         let expanded = app.expand_response_refs("see [Response #1: hello...]");
         assert_eq!(expanded, "see hello");
     }
 
-    #[test]
-    fn expand_response_refs_leaves_unknown() {
+    #[tokio::test]
+    async fn expand_response_refs_leaves_unknown() {
         let app = app_with_exchanges();
         let expanded = app.expand_response_refs("see [Response #99: unknown...]");
         assert_eq!(expanded, "see [Response #99: unknown...]");
     }
 
-    #[test]
-    fn expand_response_refs_no_refs() {
+    #[tokio::test]
+    async fn expand_response_refs_no_refs() {
         let app = app_with_exchanges();
         let expanded = app.expand_response_refs("plain text");
         assert_eq!(expanded, "plain text");
     }
 
-    #[test]
-    fn expand_response_refs_multiple() {
+    #[tokio::test]
+    async fn expand_response_refs_multiple() {
         let app = app_with_exchanges();
         let expanded =
             app.expand_response_refs("[Response #1: hello...] and [Response #3: total 42...]");
         assert_eq!(expanded, "hello and total 42\ndrwxr-xr-x 2 user user 4096");
     }
 
-    #[test]
-    fn truncate_preview_short() {
+    #[tokio::test]
+    async fn truncate_preview_short() {
         assert_eq!(truncate_preview("hello", 50), "hello...");
     }
 
-    #[test]
-    fn truncate_preview_long() {
+    #[tokio::test]
+    async fn truncate_preview_long() {
         let long = "a".repeat(100);
         let preview = truncate_preview(&long, 50);
         assert_eq!(preview.len(), 53); // 50 chars + "..."
         assert!(preview.ends_with("..."));
     }
 
-    #[test]
-    fn truncate_preview_multiline() {
+    #[tokio::test]
+    async fn truncate_preview_multiline() {
         assert_eq!(truncate_preview("line one\nline two", 50), "line one...");
     }
 
     // --- Multi-agent tests ---
 
-    #[test]
-    fn default_session_exists() {
+    #[tokio::test]
+    async fn default_session_exists() {
         let app = App::new_for_test();
         assert_eq!(app.sessions.len(), 1);
-        assert_eq!(app.sessions[0].name, "default");
+        let expected = stencila_agents::convenience::resolve_default_agent_name("default");
+        assert_eq!(app.sessions[0].name, expected);
         assert_eq!(app.active_session, 0);
     }
 
-    #[test]
-    fn switch_to_session() {
+    #[tokio::test]
+    async fn switch_to_session() {
         let mut app = App::new_for_test();
         app.sessions.push(AgentSession::new("test-agent"));
         let initial = app.messages.len();
@@ -2543,16 +2545,16 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn switch_to_same_session_noop() {
+    #[tokio::test]
+    async fn switch_to_same_session_noop() {
         let mut app = App::new_for_test();
         let initial = app.messages.len();
         app.switch_to_session(0);
         assert_eq!(app.messages.len(), initial); // no message added
     }
 
-    #[test]
-    fn ctrl_a_cycles_agents() {
+    #[tokio::test]
+    async fn ctrl_a_cycles_agents() {
         let mut app = App::new_for_test();
         app.sessions.push(AgentSession::new("agent-a"));
         app.sessions.push(AgentSession::new("agent-b"));
@@ -2568,15 +2570,15 @@ mod tests {
         assert_eq!(app.active_session, 0); // wraps around
     }
 
-    #[test]
-    fn ctrl_a_noop_single_session() {
+    #[tokio::test]
+    async fn ctrl_a_noop_single_session() {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
         assert_eq!(app.active_session, 0);
     }
 
-    #[test]
-    fn wizard_name_step() {
+    #[tokio::test]
+    async fn wizard_name_step() {
         let mut app = App::new_for_test();
         app.wizard = Some(WizardState::new());
 
@@ -2594,8 +2596,8 @@ mod tests {
         assert_eq!(wizard.step, WizardStep::SystemPrompt);
     }
 
-    #[test]
-    fn wizard_empty_name_rejected() {
+    #[tokio::test]
+    async fn wizard_empty_name_rejected() {
         let mut app = App::new_for_test();
         app.wizard = Some(WizardState::new());
         let initial = app.messages.len();
@@ -2609,8 +2611,8 @@ mod tests {
         assert!(app.messages.len() > initial);
     }
 
-    #[test]
-    fn wizard_duplicate_name_rejected() {
+    #[tokio::test]
+    async fn wizard_duplicate_name_rejected() {
         let mut app = App::new_for_test();
         app.wizard = Some(WizardState::new());
         let initial = app.messages.len();
@@ -2628,8 +2630,8 @@ mod tests {
         assert!(app.messages.len() > initial);
     }
 
-    #[test]
-    fn wizard_esc_cancels() {
+    #[tokio::test]
+    async fn wizard_esc_cancels() {
         let mut app = App::new_for_test();
         app.wizard = Some(WizardState::new());
 
@@ -2637,8 +2639,8 @@ mod tests {
         assert!(app.wizard.is_none());
     }
 
-    #[test]
-    fn exchange_has_agent_index() {
+    #[tokio::test]
+    async fn exchange_has_agent_index() {
         let mut app = App::new_for_test();
         // Submit a chat message (agent will be unavailable in test, which is fine)
         for c in "test".chars() {

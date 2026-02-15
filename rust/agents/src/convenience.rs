@@ -115,7 +115,7 @@ fn default_model(provider: &str) -> Option<&'static str> {
 /// If `name` is `"default"`, resolve it to the configured default agent name
 /// from `[agents].default` in `stencila.toml`. Returns the name unchanged
 /// if it is not `"default"` or if no config is set.
-fn resolve_default_agent_name(name: &str) -> String {
+pub fn resolve_default_agent_name(name: &str) -> String {
     if name != "default" {
         return name.to_string();
     }
