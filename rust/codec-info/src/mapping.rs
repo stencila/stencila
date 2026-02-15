@@ -220,10 +220,10 @@ impl Mapping {
     ///
     /// # Arguments
     /// * `shifter` - Optional shifter to translate indices from generated
-    ///  content to source. If the mapping entries contain indices
-    ///  from generated (encoded) content that differs from the
-    ///  source, the shifter translates them back to source
-    ///  positions.
+    ///   content to source. If the mapping entries contain indices
+    ///   from generated (encoded) content that differs from the
+    ///   source, the shifter translates them back to source
+    ///   positions.
     pub fn to_nodemap<'a>(&self, shifter: Option<&Shifter<'a, 'a>>) -> Vec<NodeMapEntry> {
         self.entries
             .iter()

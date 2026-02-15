@@ -62,6 +62,7 @@ impl StreamAccumulator {
     }
 
     /// Process a single stream event, updating internal state.
+    #[allow(clippy::too_many_lines)]
     pub fn process(&mut self, event: &StreamEvent) {
         match &event.event_type {
             StreamEventType::StreamStart => {

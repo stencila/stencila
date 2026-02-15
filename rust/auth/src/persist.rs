@@ -13,9 +13,12 @@ use std::sync::Arc;
 
 use eyre::{Result, eyre};
 
-use crate::credentials::{
-    AuthCredential, AuthError, AuthOptions, AuthOverrides, AuthResult, OAuthCredentials,
-    OAuthToken, OnRefreshFn, RefreshFn,
+use crate::{
+    AuthError, AuthResult,
+    credentials::{
+        AuthCredential, AuthOptions, AuthOverrides, OAuthCredentials, OAuthToken, OnRefreshFn,
+        RefreshFn,
+    },
 };
 
 /// Secret name prefix for OAuth credentials stored in the keyring.
@@ -125,7 +128,7 @@ pub fn build_oauth_token(
 /// function and adds it to the options map.
 ///
 /// Providers without stored credentials are silently skipped.
-#[allow(clippy::missing_panics_doc)]
+#[allow(unused_mut)]
 #[must_use]
 pub fn load_auth_overrides() -> AuthOptions {
     let mut overrides = AuthOverrides::new();
