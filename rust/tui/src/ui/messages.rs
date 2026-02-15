@@ -454,7 +454,7 @@ fn thinking_segment(
 ) {
     // Header: pulsating symbol + "Thinking"
     let (symbol, symbol_style) = if complete {
-        ('\u{2217}', Style::new().fg(Color::DarkGray))
+        ('\u{2731}', Style::new().fg(Color::DarkGray))
     } else {
         thinking_symbol(annotation_tick)
     };
