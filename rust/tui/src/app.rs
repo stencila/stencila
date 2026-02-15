@@ -7,11 +7,9 @@ use crate::{
     agent::{AgentHandle, ResponseSegment, RunningAgentExchange},
     autocomplete::agents::{AgentDefinitionInfo, AgentSelection},
     autocomplete::cancel::CancelCandidate,
-    autocomplete::models::ModelCandidate,
     autocomplete::responses::ResponseCandidate,
     autocomplete::{
-        AgentsState, CancelState, CommandsState, FilesState, HistoryState, ModelsState,
-        ResponsesState,
+        AgentsState, CancelState, CommandsState, FilesState, HistoryState, ResponsesState,
     },
     commands::SlashCommand,
     history::InputHistory,
@@ -116,37 +114,6 @@ impl AgentSession {
     }
 }
 
-/// Steps in the new-agent wizard.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum WizardStep {
-    /// Entering the agent name.
-    Name,
-    /// Entering the system prompt (multi-line).
-    SystemPrompt,
-    /// Picking a model (reuses model picker).
-    Model,
-}
-
-/// State for the new-agent creation wizard.
-pub struct WizardState {
-    /// Current wizard step.
-    pub step: WizardStep,
-    /// The name entered so far.
-    pub name: String,
-    /// The system prompt entered so far.
-    pub system_prompt: String,
-}
-
-impl WizardState {
-    pub(crate) fn new() -> Self {
-        Self {
-            step: WizardStep::Name,
-            name: String::new(),
-            system_prompt: String::new(),
-        }
-    }
-}
-
 /// A message displayed in the messages area.
 #[derive(Debug, Clone)]
 pub enum AppMessage {
@@ -201,8 +168,6 @@ pub struct App {
     pub responses_state: ResponsesState,
     /// Cancel picker popup state.
     pub cancel_state: CancelState,
-    /// Model picker popup state.
-    pub models_state: ModelsState,
     /// Agent picker popup state.
     pub agents_state: AgentsState,
 
@@ -220,9 +185,6 @@ pub struct App {
     pub sessions: Vec<AgentSession>,
     /// Index of the currently active agent session.
     pub active_session: usize,
-    /// Wizard state for creating new agents (`/new:agent`).
-    pub wizard: Option<WizardState>,
-
     /// Shell commands currently running in the background.
     /// Each entry is `(message_index, running_command)` linking to the exchange in `messages`.
     pub running_shell_commands: Vec<(usize, RunningShellCommand)>,
@@ -274,7 +236,6 @@ impl App {
             history_state: HistoryState::new(),
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
-            models_state: ModelsState::new(),
             agents_state: AgentsState::new(),
             ghost_suggestion: None,
             ghost_is_truncated: false,
@@ -282,7 +243,6 @@ impl App {
             running_shell_commands: Vec::new(),
             sessions: vec![default_session],
             active_session: 0,
-            wizard: None,
             tick_count: 0,
             log_receiver,
             scroll_pinned: true,
@@ -333,15 +293,8 @@ impl App {
 
     /// Dispatch a key event.
     fn handle_key(&mut self, key: &KeyEvent) {
-        // Wizard intercepts all keys when active
-        if self.wizard.is_some() {
-            self.handle_wizard_key(key);
-            return;
-        }
-
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
             || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
-            || (self.models_state.is_visible() && self.handle_models_autocomplete(key))
             || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
@@ -374,55 +327,6 @@ impl App {
             _ => return false,
         }
         true
-    }
-
-    /// Handle a key event when the model picker popup is visible.
-    ///
-    /// Returns `true` if the key was consumed.
-    fn handle_models_autocomplete(&mut self, key: &KeyEvent) -> bool {
-        match (key.modifiers, key.code) {
-            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
-                if let Some(candidate) = self.models_state.accept() {
-                    self.set_model(&candidate);
-                }
-            }
-            (KeyModifiers::NONE, KeyCode::Esc) => self.models_state.dismiss(),
-            (KeyModifiers::NONE, KeyCode::Up) => self.models_state.select_prev(),
-            (KeyModifiers::NONE, KeyCode::Down) => self.models_state.select_next(),
-            (KeyModifiers::NONE, KeyCode::Backspace) => {
-                self.input.delete_char_before();
-                self.models_state.update(self.input.text());
-            }
-            (modifier, KeyCode::Char(c))
-                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
-            {
-                self.input.insert_char(c);
-                self.models_state.update(self.input.text());
-            }
-            _ => return false,
-        }
-        true
-    }
-
-    /// Switch to a new model, resetting the active agent session.
-    ///
-    /// Only cancels running agent exchanges for the active session — shell
-    /// commands are independent of the model and should not be affected.
-    fn set_model(&mut self, candidate: &ModelCandidate) {
-        let idx = self.active_session;
-        let session = &mut self.sessions[idx];
-        for (msg_idx, exchange) in session.running_agent_exchanges.drain(..) {
-            exchange.cancel();
-            Self::mark_exchange_cancelled(&mut self.messages, msg_idx);
-        }
-        self.sessions[idx].agent = None;
-        self.input.clear();
-        self.messages.push(AppMessage::System {
-            content: format!(
-                "Switched to {} ({}). New session started.",
-                candidate.display_name, candidate.provider
-            ),
-        });
     }
 
     /// Handle a key event when the history autocomplete popup is visible.
@@ -676,13 +580,6 @@ impl App {
                         AgentSelection::FromDefinition(info) => {
                             self.create_session_from_definition(info);
                         }
-                        AgentSelection::New => {
-                            self.wizard = Some(WizardState::new());
-                            self.input.clear();
-                            self.messages.push(AppMessage::System {
-                                content: "Creating new agent. Enter a name:".to_string(),
-                            });
-                        }
                     }
                 }
             }
@@ -692,213 +589,6 @@ impl App {
             _ => return false,
         }
         true
-    }
-
-    /// Handle key events during the new-agent wizard.
-    fn handle_wizard_key(&mut self, key: &KeyEvent) {
-        let Some(wizard) = &self.wizard else { return };
-        let step = wizard.step;
-
-        match (key.modifiers, key.code) {
-            (KeyModifiers::NONE, KeyCode::Esc) => {
-                // Cancel wizard at any step
-                self.wizard = None;
-                self.input.clear();
-                self.models_state.dismiss();
-                self.messages.push(AppMessage::System {
-                    content: "Agent creation cancelled.".to_string(),
-                });
-            }
-            _ => match step {
-                WizardStep::Name => self.handle_wizard_name_key(key),
-                WizardStep::SystemPrompt => self.handle_wizard_system_prompt_key(key),
-                WizardStep::Model => self.handle_wizard_model_key(key),
-            },
-        }
-    }
-
-    /// Handle keys during the Name step of the wizard.
-    fn handle_wizard_name_key(&mut self, key: &KeyEvent) {
-        match (key.modifiers, key.code) {
-            (KeyModifiers::NONE, KeyCode::Enter) => {
-                let name = self.input.take();
-                let name = name.trim().to_string();
-                if name.is_empty() {
-                    self.messages.push(AppMessage::System {
-                        content: "Name cannot be empty.".to_string(),
-                    });
-                    return;
-                }
-                // Check for duplicate names
-                if self.sessions.iter().any(|s| s.name == name) {
-                    self.messages.push(AppMessage::System {
-                        content: format!("Agent '{name}' already exists."),
-                    });
-                    return;
-                }
-                if let Some(wizard) = &mut self.wizard {
-                    wizard.name = name;
-                    wizard.step = WizardStep::SystemPrompt;
-                }
-            }
-            (KeyModifiers::NONE, KeyCode::Backspace) => {
-                self.input.delete_char_before();
-            }
-            (modifier, KeyCode::Char(c))
-                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
-            {
-                self.input.insert_char(c);
-            }
-            _ => {}
-        }
-    }
-
-    /// Handle keys during the `SystemPrompt` step of the wizard.
-    fn handle_wizard_system_prompt_key(&mut self, key: &KeyEvent) {
-        match (key.modifiers, key.code) {
-            (m, KeyCode::Enter) if m.contains(KeyModifiers::ALT) => {
-                self.input.insert_newline();
-            }
-            (KeyModifiers::NONE, KeyCode::Enter) => {
-                let prompt = self.input.take();
-                let prompt = prompt.trim().to_string();
-                if let Some(wizard) = &mut self.wizard {
-                    wizard.system_prompt = prompt;
-                    wizard.step = WizardStep::Model;
-                }
-                // Open model picker
-                self.open_model_picker();
-            }
-            (KeyModifiers::NONE, KeyCode::Backspace) => {
-                self.input.delete_char_before();
-            }
-            (modifier, KeyCode::Char(c))
-                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
-            {
-                self.input.insert_char(c);
-            }
-            _ => {}
-        }
-    }
-
-    /// Handle keys during the Model step of the wizard.
-    fn handle_wizard_model_key(&mut self, key: &KeyEvent) {
-        if self.models_state.is_visible() {
-            match (key.modifiers, key.code) {
-                (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
-                    let model = self.models_state.accept().map(|c| (c.provider, c.model_id));
-                    self.finish_wizard(model.as_ref());
-                }
-                (KeyModifiers::NONE, KeyCode::Up) => self.models_state.select_prev(),
-                (KeyModifiers::NONE, KeyCode::Down) => self.models_state.select_next(),
-                (KeyModifiers::NONE, KeyCode::Backspace) => {
-                    self.input.delete_char_before();
-                    self.models_state.update(self.input.text());
-                }
-                (modifier, KeyCode::Char(c))
-                    if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
-                {
-                    self.input.insert_char(c);
-                    self.models_state.update(self.input.text());
-                }
-                _ => {}
-            }
-        } else {
-            // Model picker not visible (no models available) —
-            // Enter skips model selection, uses default
-            if let (KeyModifiers::NONE, KeyCode::Enter) = (key.modifiers, key.code) {
-                self.finish_wizard(None);
-            }
-        }
-    }
-
-    /// Open the model picker popup (shared between /model command and wizard).
-    fn open_model_picker(&mut self) {
-        let overrides = stencila_auth::AuthOverrides::new();
-        match stencila_models3::catalog::list_models(None) {
-            Ok(models) => {
-                let candidates: Vec<ModelCandidate> = models
-                    .into_iter()
-                    .filter(|m| {
-                        stencila_models3::catalog::is_provider_available(&m.provider, &overrides)
-                    })
-                    .map(|m| ModelCandidate {
-                        provider: m.provider,
-                        model_id: m.id,
-                        display_name: m.display_name,
-                    })
-                    .collect();
-
-                if candidates.is_empty() {
-                    self.messages.push(AppMessage::System {
-                        content: "No models available. Using default.".to_string(),
-                    });
-                } else {
-                    self.models_state.open(candidates);
-                }
-            }
-            Err(e) => {
-                self.messages.push(AppMessage::System {
-                    content: format!("Failed to list models: {e}. Using default."),
-                });
-            }
-        }
-    }
-
-    /// Finish the wizard: persist the agent to disk and create a session.
-    fn finish_wizard(&mut self, model: Option<&(String, String)>) {
-        let Some(wizard) = self.wizard.take() else {
-            return;
-        };
-
-        let name = wizard.name.clone();
-
-        // Persist agent definition to disk so `create_session` can discover it.
-        let options = stencila_agents::convenience::CreateAgentOptions {
-            model: model.map(|(_, m)| m.as_str()),
-            provider: model.map(|(p, _)| p.as_str()),
-            instructions: if wizard.system_prompt.is_empty() {
-                None
-            } else {
-                Some(wizard.system_prompt.as_str())
-            },
-            ..Default::default()
-        };
-
-        if let Ok(handle) = tokio::runtime::Handle::try_current() {
-            match tokio::task::block_in_place(|| {
-                handle.block_on(stencila_agents::convenience::create_agent(
-                    &name,
-                    "Custom agent",
-                    &options,
-                ))
-            }) {
-                Ok(agent) => {
-                    let session = AgentSession::new(&agent.name);
-                    self.sessions.push(session);
-                    self.active_session = self.sessions.len() - 1;
-                    self.messages.push(AppMessage::System {
-                        content: format!(
-                            "Agent '{}' created at `{}` and activated.",
-                            agent.name,
-                            agent.home().display()
-                        ),
-                    });
-                }
-                Err(e) => {
-                    self.messages.push(AppMessage::System {
-                        content: format!("Failed to create agent '{name}': {e}"),
-                    });
-                }
-            }
-        } else {
-            self.messages.push(AppMessage::System {
-                content: format!("Failed to create agent '{name}': no async runtime available"),
-            });
-        }
-
-        self.input.clear();
-        self.models_state.dismiss();
     }
 
     fn create_session_from_definition(&mut self, info: AgentDefinitionInfo) {
@@ -1533,7 +1223,6 @@ impl App {
     fn dismiss_all_autocomplete(&mut self) {
         self.cancel_state.dismiss();
         self.agents_state.dismiss();
-        self.models_state.dismiss();
         self.commands_state.dismiss();
         self.files_state.dismiss();
         self.history_state.dismiss();
@@ -1601,7 +1290,6 @@ impl App {
     fn any_popup_visible(&self) -> bool {
         self.cancel_state.is_visible()
             || self.agents_state.is_visible()
-            || self.models_state.is_visible()
             || self.history_state.is_visible()
             || self.commands_state.is_visible()
             || self.files_state.is_visible()
@@ -2639,68 +2327,6 @@ mod tests {
         let mut app = App::new_for_test();
         app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
         assert_eq!(app.active_session, 0);
-    }
-
-    #[tokio::test]
-    async fn wizard_name_step() {
-        let mut app = App::new_for_test();
-        app.wizard = Some(WizardState::new());
-
-        // Type a name
-        for c in "coder".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
-        }
-        assert_eq!(app.input.text(), "coder");
-
-        // Enter advances to SystemPrompt step
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-        assert!(app.wizard.is_some());
-        let wizard = app.wizard.as_ref().expect("wizard should exist");
-        assert_eq!(wizard.name, "coder");
-        assert_eq!(wizard.step, WizardStep::SystemPrompt);
-    }
-
-    #[tokio::test]
-    async fn wizard_empty_name_rejected() {
-        let mut app = App::new_for_test();
-        app.wizard = Some(WizardState::new());
-        let initial = app.messages.len();
-
-        // Enter with empty input
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-        // Should show error message, stay on Name step
-        assert!(app.wizard.is_some());
-        let wizard = app.wizard.as_ref().expect("wizard should exist");
-        assert_eq!(wizard.step, WizardStep::Name);
-        assert!(app.messages.len() > initial);
-    }
-
-    #[tokio::test]
-    async fn wizard_duplicate_name_rejected() {
-        let mut app = App::new_for_test();
-        app.wizard = Some(WizardState::new());
-        let initial = app.messages.len();
-
-        // Type the default agent's name
-        for c in "default".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
-        }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-
-        // Should show error message, stay on Name step
-        assert!(app.wizard.is_some());
-        let wizard = app.wizard.as_ref().expect("wizard should exist");
-        assert_eq!(wizard.step, WizardStep::Name);
-        assert!(app.messages.len() > initial);
-    }
-
-    #[tokio::test]
-    async fn wizard_esc_cancels() {
-        let mut app = App::new_for_test();
-        app.wizard = Some(WizardState::new());
-
-        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
-        assert!(app.wizard.is_none());
     }
 
     #[tokio::test]

@@ -1,7 +1,6 @@
 mod common;
 mod input;
 mod messages;
-mod modals;
 mod popups;
 
 use ratatui::{
@@ -69,20 +68,12 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     // --- Render hints below input ---
     input::hints(frame, app, hints_area);
 
-    // --- Render wizard modal (overlays everything else) ---
-    if app.wizard.is_some() {
-        modals::new_agent(frame, app, area);
-        return;
-    }
-
     // --- Render autocomplete popup (floats above input) ---
     // Cancel popup has highest priority, then agents, model, history, commands, files, responses.
     if app.cancel_state.is_visible() {
         popups::cancel(frame, app, input_area);
     } else if app.agents_state.is_visible() {
         popups::agents(frame, app, input_area);
-    } else if app.models_state.is_visible() {
-        popups::models(frame, app, input_area);
     } else if app.history_state.is_visible() {
         popups::history(frame, app, input_area);
     } else if app.commands_state.is_visible() {

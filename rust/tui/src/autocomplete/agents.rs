@@ -15,8 +15,6 @@ pub enum AgentSelection {
     Switch(usize),
     /// Create a new session from a discovered agent definition.
     FromDefinition(AgentDefinitionInfo),
-    /// Create a new agent (open wizard).
-    New,
 }
 
 /// The kind of agent candidate entry.
@@ -30,8 +28,6 @@ pub enum AgentCandidateKind {
     },
     /// A discovered agent definition (not yet a session).
     Definition(AgentDefinitionInfo),
-    /// The "create new agent" entry.
-    New,
 }
 
 /// A candidate in the agent picker popup.
@@ -105,8 +101,8 @@ impl AgentsState {
 
     /// Accept the currently selected candidate.
     ///
-    /// Returns an `AgentSelection` indicating whether to switch, create from
-    /// definition, or open the new-agent wizard.
+    /// Returns an `AgentSelection` indicating whether to switch or create from
+    /// definition.
     pub fn accept(&mut self) -> Option<AgentSelection> {
         if !self.visible || self.candidates.is_empty() {
             return None;
@@ -116,7 +112,6 @@ impl AgentsState {
         let selection = match &candidate.kind {
             AgentCandidateKind::Session { index, .. } => AgentSelection::Switch(*index),
             AgentCandidateKind::Definition(info) => AgentSelection::FromDefinition(info.clone()),
-            AgentCandidateKind::New => AgentSelection::New,
         };
         self.dismiss();
         Some(selection)
@@ -160,10 +155,6 @@ mod tests {
                     definition: None,
                 },
             },
-            AgentCandidate {
-                name: "+ new".to_string(),
-                kind: AgentCandidateKind::New,
-            },
         ]
     }
 
@@ -180,7 +171,7 @@ mod tests {
         let mut state = AgentsState::new();
         state.open(sample_candidates());
         assert!(state.is_visible());
-        assert_eq!(state.candidates().len(), 4);
+        assert_eq!(state.candidates().len(), 3);
         assert_eq!(state.selected(), 0);
     }
 
@@ -201,8 +192,6 @@ mod tests {
         state.select_next();
         assert_eq!(state.selected(), 2);
         state.select_next();
-        assert_eq!(state.selected(), 3);
-        state.select_next();
         assert_eq!(state.selected(), 0);
     }
 
@@ -212,7 +201,7 @@ mod tests {
         state.open(sample_candidates());
 
         state.select_prev();
-        assert_eq!(state.selected(), 3);
+        assert_eq!(state.selected(), 2);
     }
 
     #[test]
@@ -222,21 +211,7 @@ mod tests {
 
         state.select_next();
         let result = state.accept();
-        assert_eq!(result, Some(AgentSelection::Switch(1)));
-        assert!(!state.is_visible());
-    }
-
-    #[test]
-    fn accept_returns_new() {
-        let mut state = AgentsState::new();
-        state.open(sample_candidates());
-
-        // Select the last candidate (the "new" entry)
-        state.select_next();
-        state.select_next();
-        state.select_next();
-        let result = state.accept();
-        assert_eq!(result, Some(AgentSelection::New));
+        assert_eq!(result, Some(AgentSelection::Switch(2)));
         assert!(!state.is_visible());
     }
 
@@ -250,16 +225,10 @@ mod tests {
             source: "workspace".to_string(),
         };
         let mut state = AgentsState::new();
-        state.open(vec![
-            AgentCandidate {
-                name: "coder".to_string(),
-                kind: AgentCandidateKind::Definition(info.clone()),
-            },
-            AgentCandidate {
-                name: "+ new".to_string(),
-                kind: AgentCandidateKind::New,
-            },
-        ]);
+        state.open(vec![AgentCandidate {
+            name: "coder".to_string(),
+            kind: AgentCandidateKind::Definition(info.clone()),
+        }]);
 
         let result = state.accept();
         assert_eq!(result, Some(AgentSelection::FromDefinition(info)));

@@ -150,12 +150,6 @@ fn execute_agents(app: &mut App) {
         }
     }
 
-    // Append a "new" entry at the end
-    candidates.push(AgentCandidate {
-        name: String::new(),
-        kind: AgentCandidateKind::New,
-    });
-
     app.agents_state.open(candidates);
 }
 
@@ -411,16 +405,10 @@ mod tests {
     fn execute_agents_single_session_opens_popup() {
         let mut app = App::new_for_test();
         SlashCommand::Agents.execute(&mut app, "");
-        // Should open popup with 1 existing agent + "new" entry
+        // Should open popup with 1 existing agent
         // (plus any discovered definitions, but in test there are none)
         assert!(app.agents_state.is_visible());
-        assert!(app.agents_state.candidates().len() >= 2);
-        assert!(
-            app.agents_state
-                .candidates()
-                .last()
-                .is_some_and(|c| matches!(c.kind, AgentCandidateKind::New))
-        );
+        assert!(app.agents_state.candidates().len() >= 1);
     }
 
     #[test]
@@ -429,13 +417,7 @@ mod tests {
         app.sessions.push(AgentSession::new("test"));
         SlashCommand::Agents.execute(&mut app, "");
         assert!(app.agents_state.is_visible());
-        // 2 existing agents + "new" entry (plus any discovered definitions)
-        assert!(app.agents_state.candidates().len() >= 3);
-        assert!(
-            app.agents_state
-                .candidates()
-                .last()
-                .is_some_and(|c| matches!(c.kind, AgentCandidateKind::New))
-        );
+        // 2 existing agents (plus any discovered definitions)
+        assert!(app.agents_state.candidates().len() >= 2);
     }
 }

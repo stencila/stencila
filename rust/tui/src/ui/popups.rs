@@ -220,44 +220,6 @@ pub(super) fn cancel(frame: &mut Frame, app: &App, input_area: Rect) {
     render_popup(frame, area, lines, Some(" Cancel "));
 }
 
-/// Render the model picker popup floating above the input area.
-pub(super) fn models(frame: &mut Frame, app: &App, input_area: Rect) {
-    let candidates = app.models_state.candidates();
-    let Some(area) = popup_area(input_area, candidates.len()) else {
-        return;
-    };
-
-    let max_id_width = candidates
-        .iter()
-        .map(|c| c.model_id.len())
-        .max()
-        .unwrap_or(0);
-    let selected = app.models_state.selected();
-
-    let lines: Vec<Line> = candidates
-        .iter()
-        .enumerate()
-        .map(|(i, candidate)| {
-            let id_col = format!(" {:<max_id_width$}  ", candidate.model_id);
-            let provider_col = candidate.provider.clone();
-
-            if i == selected {
-                Line::from(vec![
-                    Span::styled(id_col, selected_style()),
-                    Span::styled(provider_col, selected_secondary_style()),
-                ])
-            } else {
-                Line::from(vec![
-                    Span::styled(id_col, unselected_style()),
-                    Span::styled(provider_col, dim()),
-                ])
-            }
-        })
-        .collect();
-
-    render_popup(frame, area, lines, Some(" Model "));
-}
-
 /// Render the agent picker popup floating above the input area.
 pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
     let candidates = app.agents_state.candidates();
@@ -272,18 +234,6 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
         .iter()
         .enumerate()
         .map(|(i, candidate)| match &candidate.kind {
-            AgentCandidateKind::New => {
-                let styles = if i == selected {
-                    (selected_style(), selected_secondary_style())
-                } else {
-                    (Style::new(), dim())
-                };
-
-                Line::from(vec![
-                    Span::styled(format!(" + {:<max_name_width$}  ", "new"), styles.0),
-                    Span::styled("Create a new agent", styles.1),
-                ])
-            }
             AgentCandidateKind::Session {
                 index,
                 is_active,
