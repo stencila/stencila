@@ -9,7 +9,9 @@ use ratatui::{
 use crate::agent::{ResponseSegment, ToolCallStatus};
 use crate::app::{AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus};
 
-use super::common::{NUM_GUTTER, SIDEBAR_CHAR, TOOL_CALL_FRAMES, THINKING_FRAMES, dim, wrap_content};
+use super::common::{
+    NUM_GUTTER, SIDEBAR_CHAR, THINKING_FRAMES, TOOL_CALL_FRAMES, dim, wrap_content,
+};
 
 /// Render the scrollable message area.
 pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {

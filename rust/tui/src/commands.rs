@@ -3,7 +3,7 @@ use std::fmt::Write;
 use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
 use crate::app::{App, AppMessage, AppMode};
-use crate::autocomplete::agents::AgentCandidate;
+use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
 
 /// Slash commands available in the TUI.
 ///
@@ -109,24 +109,51 @@ impl SlashCommand {
 }
 
 fn execute_agents(app: &mut App) {
+    // Existing TUI sessions
     let mut candidates: Vec<AgentCandidate> = app
         .sessions
         .iter()
         .enumerate()
         .map(|(i, s)| AgentCandidate {
-            index: i,
             name: s.name.clone(),
-            is_active: i == app.active_session,
-            is_new: false,
+            kind: AgentCandidateKind::Session {
+                index: i,
+                is_active: i == app.active_session,
+                definition: s.definition.clone(),
+            },
         })
         .collect();
 
-    // Append a "new agent" entry at the end
+    // Discovered agent definitions (from .stencila/agents/ and ~/.config/stencila/agents/)
+    let session_names: Vec<&str> = app.sessions.iter().map(|s| s.name.as_str()).collect();
+    if let Ok(handle) = tokio::runtime::Handle::try_current() {
+        let definitions = tokio::task::block_in_place(|| {
+            handle.block_on(stencila_agents::agent_def::discover(
+                &std::env::current_dir().unwrap_or_default(),
+            ))
+        });
+        for def in definitions {
+            // Skip definitions whose name matches an already-active session
+            if session_names.contains(&def.name.as_str()) {
+                continue;
+            }
+            candidates.push(AgentCandidate {
+                name: def.name.clone(),
+                kind: AgentCandidateKind::Definition(AgentDefinitionInfo {
+                    name: def.name.clone(),
+                    description: def.description.clone(),
+                    model: def.model.clone(),
+                    provider: def.provider.clone(),
+                    source: def.source().map(|s| s.to_string()).unwrap_or_default(),
+                }),
+            });
+        }
+    }
+
+    // Append a "new" entry at the end
     candidates.push(AgentCandidate {
-        index: 0,
-        name: "+ new agent".to_string(),
-        is_active: false,
-        is_new: true,
+        name: String::new(),
+        kind: AgentCandidateKind::New,
     });
 
     app.agents_state.open(candidates);
@@ -381,14 +408,15 @@ mod tests {
     fn execute_agents_single_session_opens_popup() {
         let mut app = App::new_for_test();
         SlashCommand::Agents.execute(&mut app, "");
-        // Should open popup with 1 existing agent + 1 "new" entry
+        // Should open popup with 1 existing agent + "new" entry
+        // (plus any discovered definitions, but in test there are none)
         assert!(app.agents_state.is_visible());
-        assert_eq!(app.agents_state.candidates().len(), 2);
+        assert!(app.agents_state.candidates().len() >= 2);
         assert!(
             app.agents_state
                 .candidates()
                 .last()
-                .is_some_and(|c| c.is_new)
+                .is_some_and(|c| matches!(c.kind, AgentCandidateKind::New))
         );
     }
 
@@ -398,13 +426,13 @@ mod tests {
         app.sessions.push(AgentSession::new("test"));
         SlashCommand::Agents.execute(&mut app, "");
         assert!(app.agents_state.is_visible());
-        // 2 existing agents + 1 "new" entry
-        assert_eq!(app.agents_state.candidates().len(), 3);
+        // 2 existing agents + "new" entry (plus any discovered definitions)
+        assert!(app.agents_state.candidates().len() >= 3);
         assert!(
             app.agents_state
                 .candidates()
                 .last()
-                .is_some_and(|c| c.is_new)
+                .is_some_and(|c| matches!(c.kind, AgentCandidateKind::New))
         );
     }
 }

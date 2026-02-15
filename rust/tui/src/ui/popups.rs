@@ -1,11 +1,12 @@
 use ratatui::{
     Frame,
     layout::Rect,
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     text::{Line, Span},
 };
 
 use crate::app::{AgentSession, App};
+use crate::autocomplete::agents::AgentCandidateKind;
 
 use super::common::{
     dim, popup_area, render_popup, selected_secondary_style, selected_style, unselected_style,
@@ -270,36 +271,76 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
     let lines: Vec<Line> = candidates
         .iter()
         .enumerate()
-        .map(|(i, candidate)| {
-            if candidate.is_new {
-                // "New agent" entry rendered in dim/grey style
-                let label = format!(" {:<max_name_width$}", candidate.name);
-                if i == selected {
-                    Line::from(Span::styled(
-                        label,
-                        Style::new()
-                            .fg(Color::DarkGray)
-                            .add_modifier(Modifier::BOLD),
-                    ))
+        .map(|(i, candidate)| match &candidate.kind {
+            AgentCandidateKind::New => {
+                let styles = if i == selected {
+                    (selected_style(), selected_secondary_style())
                 } else {
-                    Line::from(Span::styled(label, dim()))
-                }
-            } else {
-                let bullet = if candidate.is_active {
-                    "\u{25cf} "
-                } else {
-                    "  "
+                    (Style::new(), dim())
                 };
-                let name_col = format!("{bullet}{:<max_name_width$}", candidate.name);
-                let color = AgentSession::color(candidate.index);
+
+                Line::from(vec![
+                    Span::styled(format!(" + {:<max_name_width$}  ", "new"), styles.0),
+                    Span::styled("Create a new agent", styles.1),
+                ])
+            }
+            AgentCandidateKind::Session {
+                index,
+                is_active,
+                definition,
+            } => {
+                let bullet = if *is_active { "\u{25cf} " } else { "  " };
+                let name_col = format!(" {bullet}{:<max_name_width$}  ", candidate.name);
+                let color = AgentSession::color(*index);
+
+                let detail = definition.as_ref().and_then(|info| {
+                    if !info.description.is_empty() {
+                        Some(info.description.clone())
+                    } else if !info.source.is_empty() {
+                        Some(info.source.clone())
+                    } else {
+                        None
+                    }
+                });
+
+                let name_style = if i == selected {
+                    Style::new().fg(color).add_modifier(Modifier::BOLD)
+                } else {
+                    Style::new().fg(color)
+                };
+
+                if let Some(detail) = detail {
+                    let detail_style = if i == selected {
+                        selected_secondary_style()
+                    } else {
+                        dim()
+                    };
+                    Line::from(vec![
+                        Span::styled(name_col, name_style),
+                        Span::styled(detail, detail_style),
+                    ])
+                } else {
+                    Line::from(Span::styled(name_col, name_style))
+                }
+            }
+            AgentCandidateKind::Definition(info) => {
+                let name_col = format!("   {:<max_name_width$}  ", candidate.name);
+                let detail = if info.description.is_empty() {
+                    info.source.clone()
+                } else {
+                    info.description.clone()
+                };
 
                 if i == selected {
-                    Line::from(Span::styled(
-                        format!(" {name_col}"),
-                        Style::new().fg(color).add_modifier(Modifier::BOLD),
-                    ))
+                    Line::from(vec![
+                        Span::styled(name_col, selected_style()),
+                        Span::styled(detail, selected_secondary_style()),
+                    ])
                 } else {
-                    Line::from(Span::styled(format!(" {name_col}"), Style::new().fg(color)))
+                    Line::from(vec![
+                        Span::styled(name_col, unselected_style()),
+                        Span::styled(detail, dim()),
+                    ])
                 }
             }
         })

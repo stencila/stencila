@@ -1,23 +1,46 @@
+/// A discovered agent definition, ready to be launched as a new session.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AgentDefinitionInfo {
+    pub name: String,
+    pub description: String,
+    pub model: Option<String>,
+    pub provider: Option<String>,
+    pub source: String,
+}
+
 /// The result of accepting an agent candidate.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AgentSelection {
     /// Switch to an existing session at the given index.
     Switch(usize),
+    /// Create a new session from a discovered agent definition.
+    FromDefinition(AgentDefinitionInfo),
     /// Create a new agent (open wizard).
+    New,
+}
+
+/// The kind of agent candidate entry.
+#[derive(Debug, Clone)]
+pub enum AgentCandidateKind {
+    /// An existing TUI session.
+    Session {
+        index: usize,
+        is_active: bool,
+        definition: Option<AgentDefinitionInfo>,
+    },
+    /// A discovered agent definition (not yet a session).
+    Definition(AgentDefinitionInfo),
+    /// The "create new agent" entry.
     New,
 }
 
 /// A candidate in the agent picker popup.
 #[derive(Debug, Clone)]
 pub struct AgentCandidate {
-    /// Session index (unused for the "new" entry).
-    pub index: usize,
+    /// What kind of candidate this is.
+    pub kind: AgentCandidateKind,
     /// Display name of the agent.
     pub name: String,
-    /// Whether this is the currently active agent.
-    pub is_active: bool,
-    /// Whether this entry represents "create new agent".
-    pub is_new: bool,
 }
 
 /// State for the agent picker popup triggered by `/agents`.
@@ -82,17 +105,18 @@ impl AgentsState {
 
     /// Accept the currently selected candidate.
     ///
-    /// Returns an `AgentSelection` indicating whether to switch or create new.
+    /// Returns an `AgentSelection` indicating whether to switch, create from
+    /// definition, or open the new-agent wizard.
     pub fn accept(&mut self) -> Option<AgentSelection> {
         if !self.visible || self.candidates.is_empty() {
             return None;
         }
 
         let candidate = &self.candidates[self.selected];
-        let selection = if candidate.is_new {
-            AgentSelection::New
-        } else {
-            AgentSelection::Switch(candidate.index)
+        let selection = match &candidate.kind {
+            AgentCandidateKind::Session { index, .. } => AgentSelection::Switch(*index),
+            AgentCandidateKind::Definition(info) => AgentSelection::FromDefinition(info.clone()),
+            AgentCandidateKind::New => AgentSelection::New,
         };
         self.dismiss();
         Some(selection)
@@ -113,28 +137,32 @@ mod tests {
     fn sample_candidates() -> Vec<AgentCandidate> {
         vec![
             AgentCandidate {
-                index: 0,
-                name: "default".to_string(),
-                is_active: true,
-                is_new: false,
-            },
-            AgentCandidate {
-                index: 1,
                 name: "coder".to_string(),
-                is_active: false,
-                is_new: false,
+                kind: AgentCandidateKind::Session {
+                    index: 1,
+                    is_active: false,
+                    definition: None,
+                },
             },
             AgentCandidate {
-                index: 2,
                 name: "reviewer".to_string(),
-                is_active: false,
-                is_new: false,
+                kind: AgentCandidateKind::Session {
+                    index: 2,
+                    is_active: false,
+                    definition: None,
+                },
             },
             AgentCandidate {
-                index: 0,
-                name: "+ new agent".to_string(),
-                is_active: false,
-                is_new: true,
+                name: "default".to_string(),
+                kind: AgentCandidateKind::Session {
+                    index: 0,
+                    is_active: true,
+                    definition: None,
+                },
+            },
+            AgentCandidate {
+                name: "+ new".to_string(),
+                kind: AgentCandidateKind::New,
             },
         ]
     }
@@ -209,6 +237,32 @@ mod tests {
         state.select_next();
         let result = state.accept();
         assert_eq!(result, Some(AgentSelection::New));
+        assert!(!state.is_visible());
+    }
+
+    #[test]
+    fn accept_returns_from_definition() {
+        let info = AgentDefinitionInfo {
+            name: "coder".to_string(),
+            description: "A coding agent".to_string(),
+            model: Some("claude-sonnet-4-5".to_string()),
+            provider: Some("anthropic".to_string()),
+            source: "workspace".to_string(),
+        };
+        let mut state = AgentsState::new();
+        state.open(vec![
+            AgentCandidate {
+                name: "coder".to_string(),
+                kind: AgentCandidateKind::Definition(info.clone()),
+            },
+            AgentCandidate {
+                name: "+ new".to_string(),
+                kind: AgentCandidateKind::New,
+            },
+        ]);
+
+        let result = state.accept();
+        assert_eq!(result, Some(AgentSelection::FromDefinition(info)));
         assert!(!state.is_visible());
     }
 

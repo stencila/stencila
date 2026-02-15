@@ -5,7 +5,7 @@ use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
     agent::{AgentHandle, ResponseSegment, RunningAgentExchange},
-    autocomplete::agents::AgentSelection,
+    autocomplete::agents::{AgentDefinitionInfo, AgentSelection},
     autocomplete::cancel::CancelCandidate,
     autocomplete::models::ModelCandidate,
     autocomplete::responses::ResponseCandidate,
@@ -84,16 +84,16 @@ const AGENT_COLORS: [Color; 6] = [
 
 /// An agent session with its own model, instructions, and running state.
 pub struct AgentSession {
-    /// Display name for this agent.
+    /// Name of the agent.
     pub name: String,
-    /// Optional user instructions (system prompt override).
-    pub user_instructions: Option<String>,
+
+    /// The agent definition this session was created from, if any.
+    pub definition: Option<AgentDefinitionInfo>,
+
     /// Agent handle for submitting chat messages.
     /// Created lazily on first chat submit.
     agent: Option<AgentHandle>,
-    /// The selected model override (provider, `model_id`).
-    /// `None` means use the default.
-    pub selected_model: Option<(String, String)>,
+
     /// Agent exchanges currently running in the background.
     /// Each entry is `(message_index, running_exchange)`.
     pub running_agent_exchanges: Vec<(usize, RunningAgentExchange)>,
@@ -104,9 +104,8 @@ impl AgentSession {
     pub(crate) fn new(name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
-            user_instructions: None,
             agent: None,
-            selected_model: None,
+            definition: None,
             running_agent_exchanges: Vec::new(),
         }
     }
@@ -253,15 +252,11 @@ pub struct App {
 impl App {
     /// Create a new App with a welcome banner.
     ///
-    /// If `model` is `Some((provider, model_id))`, the default agent session
-    /// will use that specific model instead of auto-detection.
     pub fn new(
         log_receiver: mpsc::UnboundedReceiver<String>,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
-        model: Option<(String, String)>,
     ) -> Self {
-        let mut default_session = AgentSession::new("default");
-        default_session.selected_model = model;
+        let default_session = AgentSession::new("default");
 
         Self {
             should_quit: false,
@@ -403,7 +398,6 @@ impl App {
     fn set_model(&mut self, candidate: &ModelCandidate) {
         let idx = self.active_session;
         let session = &mut self.sessions[idx];
-        session.selected_model = Some((candidate.provider.clone(), candidate.model_id.clone()));
         for (msg_idx, exchange) in session.running_agent_exchanges.drain(..) {
             exchange.cancel();
             Self::mark_exchange_cancelled(&mut self.messages, msg_idx);
@@ -546,6 +540,12 @@ impl App {
         }
 
         match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Esc) => {
+                if self.has_running() {
+                    self.cancel_most_recent_running();
+                }
+            }
+
             (KeyModifiers::CONTROL, KeyCode::Char('c')) => {
                 if self.has_running() {
                     self.cancel_most_recent_running();
@@ -658,6 +658,9 @@ impl App {
                 if let Some(selection) = self.agents_state.accept() {
                     match selection {
                         AgentSelection::Switch(index) => self.switch_to_session(index),
+                        AgentSelection::FromDefinition(info) => {
+                            self.create_session_from_definition(info);
+                        }
                         AgentSelection::New => {
                             self.wizard = Some(WizardState::new());
                             self.input.clear();
@@ -769,7 +772,7 @@ impl App {
             match (key.modifiers, key.code) {
                 (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
                     let model = self.models_state.accept().map(|c| (c.provider, c.model_id));
-                    self.finish_wizard(model);
+                    self.finish_wizard(model.as_ref());
                 }
                 (KeyModifiers::NONE, KeyCode::Up) => self.models_state.select_prev(),
                 (KeyModifiers::NONE, KeyCode::Down) => self.models_state.select_next(),
@@ -827,25 +830,76 @@ impl App {
         }
     }
 
-    /// Finish the wizard, creating the new agent session.
-    fn finish_wizard(&mut self, model: Option<(String, String)>) {
+    /// Finish the wizard: persist the agent to disk and create a session.
+    fn finish_wizard(&mut self, model: Option<&(String, String)>) {
         let Some(wizard) = self.wizard.take() else {
             return;
         };
 
-        let mut session = AgentSession::new(&wizard.name);
-        session.selected_model = model;
-        if !wizard.system_prompt.is_empty() {
-            session.user_instructions = Some(wizard.system_prompt);
+        let name = wizard.name.clone();
+
+        // Persist agent definition to disk so `create_session` can discover it.
+        let options = stencila_agents::convenience::CreateAgentOptions {
+            model: model.map(|(_, m)| m.as_str()),
+            provider: model.map(|(p, _)| p.as_str()),
+            instructions: if wizard.system_prompt.is_empty() {
+                None
+            } else {
+                Some(wizard.system_prompt.as_str())
+            },
+            ..Default::default()
+        };
+
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            match tokio::task::block_in_place(|| {
+                handle.block_on(stencila_agents::convenience::create_agent(
+                    &name,
+                    "Custom agent",
+                    &options,
+                ))
+            }) {
+                Ok(agent) => {
+                    let session = AgentSession::new(&agent.name);
+                    self.sessions.push(session);
+                    self.active_session = self.sessions.len() - 1;
+                    self.messages.push(AppMessage::System {
+                        content: format!(
+                            "Agent '{}' created at `{}` and activated.",
+                            agent.name,
+                            agent.home().display()
+                        ),
+                    });
+                }
+                Err(e) => {
+                    self.messages.push(AppMessage::System {
+                        content: format!("Failed to create agent '{name}': {e}"),
+                    });
+                }
+            }
+        } else {
+            self.messages.push(AppMessage::System {
+                content: format!("Failed to create agent '{name}': no async runtime available"),
+            });
         }
+
+        self.input.clear();
+        self.models_state.dismiss();
+    }
+
+    fn create_session_from_definition(&mut self, info: AgentDefinitionInfo) {
+        let mut session = AgentSession::new(&info.name);
+        session.definition = Some(info.clone());
 
         self.sessions.push(session);
         self.active_session = self.sessions.len() - 1;
         self.input.clear();
-        self.models_state.dismiss();
 
+        let model_info = match (&info.provider, &info.model) {
+            (Some(p), Some(m)) => format!(" using {m} ({p})"),
+            _ => String::new(),
+        };
         self.messages.push(AppMessage::System {
-            content: format!("Agent '{}' created and activated.", wizard.name),
+            content: format!("Agent '{}' activated{model_info}.", info.name),
         });
     }
 
@@ -1248,10 +1302,7 @@ impl App {
 
         // Lazily create the agent handle on first use
         if session.agent.is_none() {
-            session.agent = AgentHandle::spawn(
-                session.selected_model.clone(),
-                session.user_instructions.clone(),
-            );
+            session.agent = AgentHandle::spawn(&session.name);
         }
 
         self.messages.push(AppMessage::Exchange {
@@ -1649,7 +1700,7 @@ impl App {
     /// Create an `App` with a dummy log receiver for testing.
     pub(crate) fn new_for_test() -> Self {
         let (_tx, rx) = mpsc::unbounded_channel();
-        Self::new(rx, None, None)
+        Self::new(rx, None)
     }
 }
 
@@ -2584,20 +2635,6 @@ mod tests {
 
         app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
         assert!(app.wizard.is_none());
-    }
-
-    #[test]
-    fn model_flag_sets_default_session() {
-        let (_tx, rx) = mpsc::unbounded_channel();
-        let app = App::new(
-            rx,
-            None,
-            Some(("anthropic".to_string(), "claude-sonnet-4-5".to_string())),
-        );
-        assert_eq!(
-            app.sessions[0].selected_model,
-            Some(("anthropic".to_string(), "claude-sonnet-4-5".to_string()))
-        );
     }
 
     #[test]
