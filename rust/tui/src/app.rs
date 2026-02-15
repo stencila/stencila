@@ -1236,12 +1236,15 @@ impl App {
                     .push((msg_index, running));
             }
             None => {
-                // No runtime or agent task shut down
+                // Agent task shut down — drop the dead handle so a fresh
+                // session is created automatically on the next submit.
+                self.sessions[session_idx].agent = None;
+
                 Self::update_exchange_at(
                     &mut self.messages,
                     msg_index,
                     ExchangeStatus::Failed,
-                    Some("Agent session unavailable".to_string()),
+                    Some("Agent unavailable, will retry with a new session".to_string()),
                     None,
                 );
             }

@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use inflector::Inflector;
 use serde_json::Value;
 use stencila_agents::convenience::create_session;
+use stencila_agents::error::AgentError;
 use stencila_agents::session::AbortController;
 use stencila_agents::types::EventKind;
 use tokio::sync::mpsc;
@@ -375,6 +376,17 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
 
                 break;
             }
+        }
+
+        // Drop the submit future (which borrows the session) before
+        // potentially resetting the session below.
+        drop(submit_fut);
+
+        // Session closed — drop it so a fresh one is created automatically
+        // on the next submit to this agent task.
+        if matches!(submit_result, Some(Err(AgentError::SessionClosed))) {
+            session = None;
+            event_rx = None;
         }
     }
 }
