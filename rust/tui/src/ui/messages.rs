@@ -367,11 +367,12 @@ fn response_segments_lines(
                     content_width,
                 );
                 if let ToolCallStatus::Error { detail } = status {
-                    for detail_line in detail.lines() {
+                    for (i, detail_line) in detail.lines().enumerate() {
+                        let sym = if i == 0 { '\u{21b3}' } else { ' ' };
                         push_annotation_lines(
                             lines,
                             dim_sidebar_style,
-                            '\u{21b3}',
+                            sym,
                             Style::new().fg(Color::Red),
                             detail_line,
                             Style::new().fg(Color::Red),
