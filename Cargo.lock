@@ -8910,6 +8910,7 @@ dependencies = [
  "stencila-cli-utils",
  "stencila-codecs",
  "stencila-codemode",
+ "stencila-config",
  "stencila-dirs",
  "stencila-mcp",
  "stencila-models3",

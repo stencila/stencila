@@ -1,0 +1,3145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stencila Config",
+  "description": "Configuration for Stencila workspaces",
+  "type": "object",
+  "properties": {
+    "workspace": {
+      "description": "Workspace configuration.\nhttps://stencila.io/docs/config/workspace",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/WorkspaceConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "remotes": {
+      "description": "Remote synchronization configuration.\nhttps://stencila.io/docs/config/remotes",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "$ref": "#/definitions/RemoteValue"
+      }
+    },
+    "outputs": {
+      "description": "Outputs configuration.\nhttps://stencila.io/docs/config/outputs",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "$ref": "#/definitions/OutputTarget"
+      }
+    },
+    "site": {
+      "description": "Site configuration.\nhttps://stencila.io/docs/config/site",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/SiteConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agents": {
+      "description": "Agent configuration.\nhttps://stencila.io/docs/config/agents",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/AgentsConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mcp": {
+      "description": "Model context protocol (MCP) server configuration.\nhttps://stencila.io/docs/config/mcp",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/McpConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "models": {
+      "description": "Model configuration.\nhttps://stencila.io/docs/config/models",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ModelsConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "WorkspaceConfig": {
+      "description": "Configuration for a Stencila Cloud workspace.\nhttps://stencila.io/docs/config/workspaceconfig",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The workspace public ID from Stencila Cloud.\n\nA 12-character string: \"ws\" prefix followed by 10 lowercase alphanumeric\ncharacters (e.g., \"ws3x9k2m7fab\").\n\nThis is automatically assigned when a workspace is created via\n`stencila site create` or when pushing to a site for the first time.\nThe workspace ID is derived from the GitHub repository URL.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^ws[a-z0-9]{10}$"
+        },
+        "watch": {
+          "description": "The workspace watch ID from Stencila Cloud.\n\nA 12-character string: \"wa\" prefix followed by 10 lowercase alphanumeric\ncharacters (e.g., \"wa7x2k9m3fab\").\n\nThis is set when `stencila watch` is run without a file path to enable\nworkspace-level watching. When enabled, `update.sh` is run on each git push.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^wa[a-z0-9]{10}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RemoteValue": {
+      "description": "Value for a remote configuration entry - can be single or multiple targets\nhttps://stencila.io/docs/config/remotevalue",
+      "anyOf": [
+        {
+          "description": "Multiple remote targets for the same path\n\nUse an array when you need to sync a single local file with multiple\nremote destinations (e.g., Google Docs and SharePoint), e.g.\n```toml\n[remotes]\n\"article.md\" = [\n  { url = \"https://docs.google.com/...\", watch = \"w456\" },\n  \"https://sharepoint.com/...\"\n]\n```",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RemoteTarget"
+          }
+        },
+        {
+          "description": "Single remote target\n\nThe most common form - maps one local path to one remote URL.\nCan be a simple URL string or an object with a watch ID, e.g.\n```toml\n[remotes]\n\"site\" = \"https://example.stencila.site/\"\n\"file.md\" = { url = \"https://...\", watch = \"w123\" }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteTarget"
+            }
+          ]
+        }
+      ]
+    },
+    "RemoteTarget": {
+      "description": "A remote synchronization target\nhttps://stencila.io/docs/config/remotetarget",
+      "anyOf": [
+        {
+          "description": "Simple URL string (no watch), e.g.\n```toml\n# Remote URL without watch\n\"https://example.stencila.site/\"\n```",
+          "type": "string",
+          "format": "uri"
+        },
+        {
+          "description": "URL with watch information, e.g.\n```toml\n# Remote URL with a watch ID\n{ url = \"https://...\", watch = \"w123\" }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteWatch"
+            }
+          ]
+        },
+        {
+          "description": "Spread configuration for multi-variant pushes, e.g.\n```toml\n# Spread a report across region variants\n{ service = \"gdoc\", title = \"Report {region}\", arguments = { region = [\"north\", \"south\"] } }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RemoteSpread"
+            }
+          ]
+        }
+      ]
+    },
+    "RemoteWatch": {
+      "description": "Remote synchronization information with watch ID\nhttps://stencila.io/docs/config/remotewatch",
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "Remote URL\n\nThe service type is inferred from the URL host:\n\n- Google Docs: https://docs.google.com/document/d/...\n- Microsoft 365: https://*.sharepoint.com/...\n- Stencila Sites: https://*.stencila.site/...",
+          "type": "string",
+          "format": "uri"
+        },
+        "watch": {
+          "description": "Watch ID from Stencila Cloud\n\nIf this remote is being watched for automatic synchronization, this\nfield contains the watch ID. Watch configuration (direction, PR mode,\ndebounce) is stored in Stencila Cloud and queried via the API.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^wa[a-z0-9]{10}$"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "url"
+      ]
+    },
+    "RemoteSpread": {
+      "description": "Spread configuration for multi-variant pushes\nhttps://stencila.io/docs/config/remotespread",
+      "type": "object",
+      "properties": {
+        "service": {
+          "description": "Target service\n\nOne of: \"gdoc\", \"m365\"",
+          "type": "string"
+        },
+        "title": {
+          "description": "Title template with placeholders\n\nPlaceholders like `{param}` are replaced with arguments.\nExample: \"Report - {region}\"",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "spread": {
+          "description": "Spread mode\n\n- `grid`: Cartesian product of all arguments (default)\n- `zip`: Positional pairing of values (all params must have same length)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpreadMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "Arguments for spread variants\n\nKeys are parameter names, values are arrays of possible values.\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "service",
+        "arguments"
+      ]
+    },
+    "SpreadMode": {
+      "description": "Spread mode for multi-variant execution\nhttps://stencila.io/docs/config/spreadmode",
+      "oneOf": [
+        {
+          "description": "Cartesian product of all arguments (default)",
+          "type": "string",
+          "const": "grid"
+        },
+        {
+          "description": "Positional pairing of values (all params must have same length)",
+          "type": "string",
+          "const": "zip"
+        }
+      ]
+    },
+    "OutputTarget": {
+      "description": "Target for an output - either a simple source path or a full configuration\nhttps://stencila.io/docs/config/outputtarget",
+      "anyOf": [
+        {
+          "description": "Simple source path (rendered if extension differs from key)\n\n```toml\n[outputs]\n\"report.pdf\" = \"report.md\"\n```",
+          "type": "string"
+        },
+        {
+          "description": "Full configuration object\n\n```toml\n[outputs]\n\"report.pdf\" = { source = \"report.md\", command = \"render\" }\n\"data.csv\" = {} # (static, source = output path)\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/OutputConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "OutputConfig": {
+      "description": "Full output configuration\nhttps://stencila.io/docs/config/outputconfig",
+      "type": "object",
+      "properties": {
+        "source": {
+          "description": "Source file path (for single-file outputs)\n\nPath relative to the workspace root. If not specified and `pattern` is not set,\nthe output key is used as the source path.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pattern": {
+          "description": "Glob pattern for matching multiple source files\n\nMutually exclusive with `source`. The output key must include `*.ext`\nto specify the output format (e.g., `\"reports/*.pdf\"`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "command": {
+          "description": "Processing command\n\n- `render`: Execute code, apply parameters, convert to output format (default if extensions differ)\n- `convert`: Format transformation only, no code execution\n- `none`: Copy file as-is (default if extensions are the same)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/OutputCommand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "spread": {
+          "description": "Spread mode for parameter variants\n\nOnly valid with `command = render`.\n- `grid`: Cartesian product of all arguments (default)\n- `zip`: Positional pairing of values",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpreadMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "Parameter values for spread variants\n\nOnly valid with `command = render`. Keys are parameter names,\nvalues are arrays of possible values.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "refs": {
+          "description": "Git ref patterns to filter when this output is processed and uploaded\n\nIf set, the output is only processed when the current git ref matches\none of these patterns. Supports glob matching.\n\nExamples: `[\"main\"]`, `[\"release/*\"]`, `[\"v*\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "description": "Glob patterns to exclude from pattern matches\n\nPaths are relative to the repository root.\nOnly applies when `pattern` is set.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "OutputCommand": {
+      "description": "Processing command for outputs\nhttps://stencila.io/docs/config/outputcommand",
+      "oneOf": [
+        {
+          "description": "Execute code and convert to output format (default for different extensions)",
+          "type": "string",
+          "const": "render"
+        },
+        {
+          "description": "Format transformation only, no code execution",
+          "type": "string",
+          "const": "convert"
+        },
+        {
+          "description": "Copy file as-is (default for same extensions)",
+          "type": "string",
+          "const": "none"
+        }
+      ]
+    },
+    "SiteConfig": {
+      "description": "Configuration for a site\nhttps://stencila.io/docs/config/siteconfig",
+      "type": "object",
+      "properties": {
+        "domain": {
+          "description": "Custom domain for the site\n\nThis is a cached value that is kept in sync with Stencila Cloud\nwhen site details are fetched or the domain is modified.\nThe canonical source is the Stencila Cloud API.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$"
+        },
+        "title": {
+          "description": "Site title\n\nUsed by the Title component and as fallback metadata.\nWhen not specified, the Title component will render empty, e.g.\n```toml\n# Set a site title\n[site]\ntitle = \"My Documentation\"\n```",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "author": {
+          "description": "Site author\n\nUsed as the default copyright holder and for site metadata.\nCan be a simple string or a full Author object for richer metadata, e.g.\n```toml\n# Simple author name\n[site]\nauthor = \"Acme Inc\"\n\n# Full author metadata\n[site.author]\ntype = \"Organization\"\nname = \"Acme Inc\"\nurl = \"https://acme.com\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AuthorSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "logo": {
+          "description": "Site logo configuration\n\nCan be a simple path string or a responsive configuration with\nbreakpoint and dark mode variants, e.g.\n```toml\n# Simple logo path\n[site]\nlogo = \"logo.svg\"\n\n# Responsive logo variants\n[site.logo]\ndefault = \"logo.svg\"\ndark = \"logo-dark.svg\"\nmobile = \"logo-mobile.svg\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LogoSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "icons": {
+          "description": "Icon assignments for nav items\n\nApplied during nav construction. Icons specified directly on NavItem take precedence.\n\n**Key formats** (lookup order, most to least specific):\n1. Full route: `\"/docs/config/\"` - exact match\n2. Without slashes: `\"docs/config\"` - flexible path matching\n3. Label: `\"Features\"` - matches nav item labels\n4. Bare segment: `config` - matches last path segment (e.g., both `/docs/config/` and `/api/config/`)\n\nFor unambiguous matching of nested routes, use full routes or paths without leading slash.\n\n**Icon format**: `\"banana\"` (default lucide set) or `\"lucide:banana\"` (explicit library), e.g.\n```toml\n# Map nav routes and labels to icons\n[site.icons]\n\"/\" = \"home\"\n\"docs/config\" = \"bolt\"  # Specific: only /docs/config/\ndocs = \"book\"           # Matches any route ending in /docs/\n\"Features\" = \"sparkles\" # Matches by label\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "descriptions": {
+          "description": "Descriptions for navigation items\n\nUsed by nav components (e.g., `nav-menu`) to display descriptions.\nDescriptions specified directly on NavItem take precedence.\n\n**Key formats** (lookup order, most to least specific):\n1. Full route: `\"/docs/config/\"` - exact match\n2. Without slashes: `\"docs/config\"` - flexible path matching\n3. Label: `\"Features\"` - matches nav item labels\n4. Bare segment: `config` - matches last path segment\n\nFor unambiguous matching of nested routes, use full routes or paths without leading slash, e.g.\n```toml\n# Add short descriptions for nav items\n[site.descriptions]\n\"docs/getting-started\" = \"Quick start guide\"  # Specific\ndocs = \"Documentation and guides\"             # Any /docs/ route\n\"Features\" = \"Explore all capabilities\"       # By label\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "socials": {
+          "description": "Social/external links for the site\n\nKeyed by platform name (github, discord, linkedin, etc.). Values can be\nshortcuts (expanded automatically) or full URLs. Used by the `social-links`\ncomponent. Icons are automatically determined from the platform key.\n\nSupported platforms and shortcuts:\n\n- `bluesky = \"handle.bsky.social\"` → bsky.app/profile/...\n- `discord = \"invite\"` → discord.gg/invite\n- `facebook = \"page\"` → facebook.com/page\n- `github = \"org\"` or `\"org/repo\"` → github.com/org or github.com/org/repo\n- `gitlab = \"org\"` or `\"org/repo\"` → gitlab.com/org or gitlab.com/org/repo\n- `instagram = \"handle\"` → instagram.com/handle\n- `linkedin = \"in/name\"` or `\"company/name\"` → linkedin.com/...\n- `mastodon` → requires full URL (federated)\n- `reddit = \"r/sub\"` or `\"u/user\"` → reddit.com/...\n- `twitch = \"channel\"` → twitch.tv/channel\n- `x = \"handle\"` or `twitter = \"handle\"` → x.com/handle\n- `youtube = \"@channel\"` → youtube.com/@channel\n\nNote: `twitter` and `x` are treated as aliases. Both are accepted,\nbut `x` takes precedence if both are specified.\n\nOrder is preserved - links appear in the order defined, e.g.\n```toml\n# Social links with shortcuts and full URLs\n[site.socials]\ngithub = \"org/repo\"\ndiscord = \"invite-code\"\nlinkedin = \"company/name\"\nx = \"handle\"\nmastodon = \"https://mastodon.social/@handle\"\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "featured": {
+          "description": "Featured/promotional content for nav-menu dropdowns\n\nDisplays promotional content in the dropdown panel of a nav group.\nKeyed by the **dropdown's parent group** (not leaf items).\n\n**Key formats** (lookup order, most to least specific):\n1. Full route: `\"/docs/config/\"` - exact match\n2. Without slashes: `\"docs/config\"` - flexible path matching\n3. Label: `\"Features\"` - matches nav group labels\n4. Bare segment: `config` - matches last path segment\n\nFor unambiguous matching, use full routes or paths without leading slash, e.g.\n```toml\n# Featured content keyed by docs dropdown\n[site.featured.docs]  # Matches /docs/ dropdown (bare segment)\ntitle = \"Quick Start\"\ndescription = \"Get up and running\"\ncta = { label = \"Start\", route = \"/docs/getting-started/\" }\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/FeaturedContent"
+          }
+        },
+        "nav": {
+          "description": "Site navigation structure\n\nDefines the hierarchical navigation used by nav-tree and prev-next components.\nIf not specified, navigation is auto-generated from document routes, e.g.\n```toml\n# Custom nav ordering with groups\n[site]\nnav = [\n  \"/\",\n  { label = \"Docs\", children = [\n    \"/docs/getting-started/\",\n    \"/docs/configuration/\",\n  ]},\n  \"/about/\",\n]\n```",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/NavItem"
+          }
+        },
+        "root": {
+          "description": "Root directory for site content\n\nPath relative to the workspace root.\nWhen set, only files within this directory will be published\nto the site, and routes will be calculated relative to this\ndirectory rather than the workspace root.\n\nExample: If set to \"docs\" in /myproject/stencila.toml,\nthen /myproject/docs/guide.md → /guide/ (not /docs/guide/)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "Glob patterns for files to exclude when publishing\n\nFiles matching these patterns will be excluded from publishing.\nExclude patterns take precedence over include patterns.\nPatterns are relative to `root` (if set) or the workspace root.\nDefault exclusions (`.git/`, `node_modules/`, etc.) are applied automatically.\n\nExample: `[\"**/*.draft.md\", \"temp/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "access": {
+          "description": "Route access restrictions\n\nRestricts access to specific routes based on user access level.\nUses path prefix matching with longest match wins.\n\nAccess levels (cumulative hierarchy):\n- `public`: Anyone can access (default)\n- `subscriber`: Subscribers to the site\n- `password`: Users with the site password\n- `team`: Team members only\n\n```toml\n# Configure route access restrictions\n[site.access]\ndefault = \"public\"\n\"/data\" = \"password\"\n\"/internal\" = \"team\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteAccessConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "routes": {
+          "description": "Custom routes for serving content\n\nRoutes map URL paths to files, redirects, or spread configurations.\nThe key is the URL path (or path template for spreads), and the value can be:\n- A simple string for the file path: `\"/about/\" = \"README.md\"`\n- An object for redirects: `\"/old/\" = { redirect = \"/new/\", status = 301 }`\n- An object for spreads: `\"/{region}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"] } }`, e.g.\n```toml\n# Routes for files, redirects, and spread variants\n[site.routes]\n\"/\" = \"index.md\"\n\"/about/\" = \"README.md\"\n\"/old-page/\" = { redirect = \"/new-page/\", status = 301 }\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"ABC\", \"DEF\"] } }\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/RouteTarget"
+          }
+        },
+        "layout": {
+          "description": "Site layout configuration\n\nControls the layout structure of site pages including header, sidebars,\nfooter, and navigation. When not specified, pages are rendered without\nthe layout wrapper, e.g.\n```toml\n# Enable sidebars in the site layout\n[site.layout]\nleft-sidebar = true\nright-sidebar = true\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LayoutConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "glide": {
+          "description": "Glide configuration for client-side navigation\n\nWhen enabled, internal link clicks are intercepted and content\nis swapped without full page reloads, using View Transitions API\nwhen available, e.g.\n```toml\n# Prefetch more pages for glide navigation\n[site.glide]\nprefetch = 25\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GlideConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "search": {
+          "description": "Search configuration for client-side full-text search\n\nWhen enabled, a search index is generated during site rendering.\nThe index is sharded for efficient incremental loading and supports\nUnicode text with diacritic folding.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable search with defaults\n[site]\nsearch = true\n\n# Customize search indexing\n[site.search]\nenabled = true\ninclude-types = [\"Heading\", \"Paragraph\"]\nexclude-routes = [\"/api/**\"]\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SearchSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "formats": {
+          "description": "Additional formats to generate alongside HTML\n\nControls which format files are generated during site rendering and\nwhich format-specific buttons are displayed. When a format is not\nin this list, its corresponding button (e.g., copy-markdown) is hidden.\n\nDefault: `[\"md\"]` (generates page.md files), e.g.\n```toml\n# Enable or disable additional formats\n[site]\nformats = [\"md\"]  # Generate page.md files, show copy-markdown button\nformats = []      # No additional formats, hide format buttons\n```",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/SiteFormat"
+          }
+        },
+        "reviews": {
+          "description": "Site reviews configuration\n\nEnables readers to submit comments and suggestions on site pages.\nRequires `workspace.id` to be configured for cloud enforcement of\npublic/anon settings. Position is controlled via `[site.actions]`.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable reviews with defaults\n[site]\nreviews = true\n\n# Detailed reviews configuration\n[site.reviews]\nenabled = true\npublic = true           # Non-team members can submit\nanon = false            # Require GitHub auth\ntypes = [\"comment\", \"suggestion\"]\nmin-selection = 10\nmax-selection = 5000\nshortcuts = false\ninclude = [\"docs/**\"]   # Only show on docs pages\nexclude = [\"api/**\"]    # Hide from API reference\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteReviewsSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uploads": {
+          "description": "Site uploads configuration\n\nEnables users to upload files (e.g., CSV data updates) to the repository\nvia GitHub PRs. Requires `workspace.id` to be configured for cloud\nenforcement of public/anon settings. Position is controlled via `[site.actions]`.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable uploads with defaults\n[site]\nuploads = true\n\n# Detailed uploads configuration\n[site.uploads]\nenabled = true\npath = \"data\"           # Widget on /data/**, files to data/\nallowed-types = [\"csv\", \"json\", \"xlsx\"]\nmax-size = 10485760     # 10MB\npublic = false          # Only show to authenticated users\nanon = false            # Require GitHub auth\nuser-path = true        # Allow custom paths\nallow-overwrite = true  # Can replace existing files\nrequire-message = true  # Must provide description\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteUploadsSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remotes": {
+          "description": "Site remotes configuration\n\nEnables users to add Google Docs or Microsoft 365 documents to the repository\nvia GitHub PRs, with optional bi-directional sync. Requires `workspace.id`\nto be configured for cloud enforcement of public/anon settings.\nPosition is controlled via `[site.actions]`.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable remotes with defaults\n[site]\nremotes = true\n\n# Detailed remotes configuration\n[site.remotes]\nenabled = true\npath = \"content\"               # Default target directory\ndefault-format = \"smd\"         # Stencila Markdown\nallowed-formats = [\"smd\", \"md\"]\ndefault-sync-direction = \"bi\"  # Bi-directional sync\npublic = false                 # Only show to authenticated users\nanon = false                   # Require GitHub auth\nuser-path = true               # Allow custom target paths\nrequire-message = false        # Optional PR description\ninclude = [\"docs/**\"]          # Only show on docs pages\nexclude = [\"api/**\"]           # Hide from API reference\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteRemotesSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actions": {
+          "description": "Site actions zone configuration\n\nControls the position, direction, and mode of floating action buttons (FABs)\nlike reviews and uploads. All actions share a unified position on the page.\n\n```toml\n# Configure the actions zone\n[site.actions]\nposition = \"bottom-right\"  # Corner position (default)\ndirection = \"vertical\"     # Stack direction (default)\nmode = \"collapsed\"         # Display mode (default)\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteActionsConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "auto_index": {
+          "description": "Auto-index configuration for directories without content files\n\nWhen enabled (default), directories that appear in navigation but lack\ncontent files (main.md, README.md, index.md, etc.) will have index pages\nauto-generated listing their child pages with links.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable auto-index (default)\n[site]\nauto-index = true\n\n# Disable auto-index\n[site]\nauto-index = false\n\n# Enable with exclusions\n[site.auto-index]\nenabled = true\nexclude = [\"/api/**\", \"/internal/**\"]\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AutoIndexSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "AuthorSpec": {
+      "description": "Author specification - simple string or full Author object\nhttps://stencila.io/docs/config/authorspec",
+      "anyOf": [
+        {
+          "description": "Simple name string (will be used as-is for copyright)",
+          "type": "string"
+        },
+        {
+          "description": "Full Author object (Person, Organization, etc.)\nUses Author::name() for copyright holder text",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Person",
+                "Organization"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "type",
+            "name"
+          ]
+        }
+      ]
+    },
+    "LogoSpec": {
+      "description": "Logo configuration - simple string or responsive object\nhttps://stencila.io/docs/config/logospec",
+      "anyOf": [
+        {
+          "description": "Simple path to logo image",
+          "type": "string"
+        },
+        {
+          "description": "Responsive logo configuration with variants",
+          "allOf": [
+            {
+              "$ref": "#/definitions/LogoConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "LogoConfig": {
+      "description": "Responsive logo configuration with breakpoint and dark mode variants\nhttps://stencila.io/docs/config/logoconfig",
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default logo image path (used for desktop light mode)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mobile": {
+          "description": "Logo for mobile breakpoint (< 640px)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tablet": {
+          "description": "Logo for tablet breakpoint (640px - 768px)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dark": {
+          "description": "Logo for dark mode (desktop)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dark-mobile": {
+          "description": "Logo for dark mode on mobile",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dark-tablet": {
+          "description": "Logo for dark mode on tablet",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "link": {
+          "description": "Link target when logo is clicked (default: \"/\")",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "alt": {
+          "description": "Alt text for accessibility (used as aria-label on the link)",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "FeaturedContent": {
+      "description": "Featured/promotional content for nav-menu dropdowns\nhttps://stencila.io/docs/config/featuredcontent",
+      "type": "object",
+      "properties": {
+        "badge": {
+          "description": "Badge text displayed above the title (e.g., \"Featured\", \"New\", \"Spotlight\")\n\nWhen set, displays a small uppercase label above the title to draw attention.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "icon": {
+          "description": "Icon name displayed above the title\n\nIcon format: \"rocket\" (default lucide set) or \"tabler:rocket\" (explicit library).\nDisplays in a rounded box with accent color background.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "image": {
+          "description": "Image path (relative to site root)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "description": "Promotional title",
+          "type": "string"
+        },
+        "description": {
+          "description": "Short description text",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cta": {
+          "description": "Call-to-action button",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/FeaturedCta"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "title"
+      ]
+    },
+    "FeaturedCta": {
+      "description": "Call-to-action button for featured content\nhttps://stencila.io/docs/config/featuredcta",
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Button label text",
+          "type": "string"
+        },
+        "route": {
+          "description": "Target route",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "route"
+      ]
+    },
+    "NavItem": {
+      "description": "Navigation item for site.nav configuration\nhttps://stencila.io/docs/config/navitem",
+      "anyOf": [
+        {
+          "description": "Route path shorthand - label derived from route\n\nExample: `\"/docs/guide/\"` → label \"Guide\", href \"/docs/guide/\"",
+          "type": "string"
+        },
+        {
+          "description": "Group with nested children\n\nGroups can optionally link to a page (making the header clickable).\nIf `route` is omitted, the header only toggles expand/collapse.\n\nNote: This variant must come before `Link` in the enum because serde's\nuntagged deserialization tries variants in order. Since `Group` has\na required `children` field, it's more specific than `Link`.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Stable identifier for filtering (optional)\n\nUse when label may change for UX copy reasons. Filter with `#id` syntax.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "label": {
+              "description": "Display text for the group header",
+              "type": "string"
+            },
+            "route": {
+              "description": "Optional route for the group header link\n\nWhen set, clicking the group header navigates to this page.\nWhen omitted, the header only toggles expand/collapse.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "children": {
+              "description": "Nested navigation items",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NavItem"
+              }
+            },
+            "icon": {
+              "description": "Optional icon name for nav rendering\n\nIcon format: \"banana\" (default set) or \"lucide:banana\" (explicit library)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "section-title": {
+              "description": "Optional section title for grouping within nav-menu dropdowns",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "children"
+          ]
+        },
+        {
+          "description": "Link with explicit label\n\nUse when you need a custom label different from the route-derived one.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Stable identifier for filtering (optional)\n\nUse when label may change for UX copy reasons. Filter with `#id` syntax.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "label": {
+              "description": "Display text for the navigation item",
+              "type": "string"
+            },
+            "route": {
+              "description": "Internal route path (must start with \"/\")",
+              "type": "string"
+            },
+            "icon": {
+              "description": "Optional icon name for nav rendering\n\nIcon format: \"banana\" (default set) or \"lucide:banana\" (explicit library)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "description": {
+              "description": "Optional short description for nav-menu dropdowns",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "route"
+          ]
+        }
+      ]
+    },
+    "SiteAccessConfig": {
+      "description": "Configuration for route access restrictions\nhttps://stencila.io/docs/config/siteaccessconfig",
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default access level for routes not explicitly configured\n\nDefault: \"public\"",
+          "default": "public",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AccessLevel"
+            }
+          ]
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/AccessLevel"
+      }
+    },
+    "AccessLevel": {
+      "description": "Access level for site routes\nhttps://stencila.io/docs/config/accesslevel",
+      "oneOf": [
+        {
+          "description": "Anyone can access (default)",
+          "type": "string",
+          "const": "public"
+        },
+        {
+          "description": "Subscribers to the site",
+          "type": "string",
+          "const": "subscriber"
+        },
+        {
+          "description": "Users with the site password",
+          "type": "string",
+          "const": "password"
+        },
+        {
+          "description": "Team members only",
+          "type": "string",
+          "const": "team"
+        }
+      ]
+    },
+    "RouteTarget": {
+      "description": "Target for a route - either a file path, a redirect, or a spread\nhttps://stencila.io/docs/config/routetarget",
+      "anyOf": [
+        {
+          "description": "Serve a file at this path\n\nPath relative to the workspace directory (or `site.root` if configured).\n\n```toml\n# Route a path to a file\n[site.routes]\n\"/about/\" = \"README.md\"\n```",
+          "type": "string"
+        },
+        {
+          "description": "Redirect to another URL\n\n```toml\n# Redirect a route to a new path\n[site.routes]\n\"/old/\" = { redirect = \"/new/\", status = 301 }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RouteRedirect"
+            }
+          ]
+        },
+        {
+          "description": "Spread configuration for multi-variant routes\n\n```toml\n# Generate route variants from parameters\n[site.routes]\n\"/{region}/{species}/\" = { file = \"report.smd\", arguments = { region = [\"north\", \"south\"], species = [\"A\", \"B\"] } }\n```",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RouteSpread"
+            }
+          ]
+        }
+      ]
+    },
+    "RouteRedirect": {
+      "description": "A redirect configuration\nhttps://stencila.io/docs/config/routeredirect",
+      "type": "object",
+      "properties": {
+        "redirect": {
+          "description": "The URL to redirect to\n\nCan be an absolute URL or a relative path.\n\nExamples:\n- /new-location/ - Redirect to another path on the same site\n- https://example.com - Redirect to an external URL",
+          "type": "string"
+        },
+        "status": {
+          "description": "HTTP status code for the redirect\n\nDetermines the type of redirect. Common values:\n- 301 - Moved Permanently (permanent redirect)\n- 302 - Found (temporary redirect, default)\n- 303 - See Other\n- 307 - Temporary Redirect\n- 308 - Permanent Redirect\n\nIf not specified, defaults to 302 (temporary redirect).",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RedirectStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "redirect"
+      ]
+    },
+    "RedirectStatus": {
+      "description": "HTTP status code for redirects\nhttps://stencila.io/docs/config/redirectstatus",
+      "type": "integer",
+      "enum": [
+        301,
+        302,
+        303,
+        307,
+        308
+      ]
+    },
+    "RouteSpread": {
+      "description": "A spread configuration for multi-variant routes\nhttps://stencila.io/docs/config/routespread",
+      "type": "object",
+      "properties": {
+        "file": {
+          "description": "The source file for this spread route\n\nPath relative to the workspace directory (or `site.root` if configured).",
+          "type": "string"
+        },
+        "spread": {
+          "description": "Spread mode\n\n- `grid`: Cartesian product of all parameter values (default)\n- `zip`: Positional pairing of values (all params must have same length)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpreadMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "description": "Parameter values for spread variants\n\nKeys are parameter names, values are arrays of possible values.\nExample: `{ region = [\"north\", \"south\"], species = [\"A\", \"B\"] }`",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "arguments"
+      ]
+    },
+    "LayoutConfig": {
+      "description": "Site layout configuration\nhttps://stencila.io/docs/config/layoutconfig",
+      "type": "object",
+      "properties": {
+        "preset": {
+          "description": "Named preset to use as base (docs, blog, landing, api)\n\nPresets provide sensible defaults that can be extended with explicit config.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LayoutPreset"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "header": {
+          "description": "Header region configuration\n\nHorizontal bar at the top of every page, spanning the full width.\nSub-regions flow left-to-right: start | middle | end.\n\nTypical components: logo, title, nav-menu, social-links, color-mode.\n\n```toml\n[site.layout.header]\nstart = \"logo\"\nmiddle = \"nav-menu\"\nend = [\"social-links\", \"color-mode\"]\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "left-sidebar": {
+          "description": "Left sidebar region configuration\n\nVertical sidebar on the left side of the page.\nSub-regions flow top-to-bottom: start | middle | end.\nAuto-enabled for multi-page sites when not specified.\n\nTypical components: nav-tree.\n\n```toml\n[site.layout.left-sidebar]\nstart = { type = \"nav-tree\", collapsible = true }\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "top": {
+          "description": "Top region configuration\n\nHorizontal bar above the main content area, below the header.\nSub-regions flow left-to-right: start | middle | end.\n\nTypical components: breadcrumbs.\n\n```toml\n[site.layout.top]\nstart = \"breadcrumbs\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bottom": {
+          "description": "Bottom region configuration\n\nHorizontal bar below the main content area, above the footer.\nSub-regions flow left-to-right: start | middle | end.\nSupports multiple rows for complex layouts.\n\nTypical components: prev-next, edit-source, copy-markdown.\n\n```toml\n[site.layout.bottom]\nmiddle = \"prev-next\"\n\n# Or with multiple rows:\nrows = [\n  { middle = \"prev-next\" },\n  { start = \"edit-source\", end = \"copy-markdown\" }\n]\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "right-sidebar": {
+          "description": "Right sidebar region configuration\n\nVertical sidebar on the right side of the page.\nSub-regions flow top-to-bottom: start | middle | end.\nAuto-enabled when document has headings.\n\nTypical components: toc-tree.\n\n```toml\n[site.layout.right-sidebar]\nstart = { type = \"toc-tree\", title = \"Contents\" }\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "footer": {
+          "description": "Footer region configuration\n\nHorizontal bar at the bottom of every page, spanning the full width.\nSub-regions flow left-to-right: start | middle | end.\n\nTypical components: copyright, nav-groups, social-links.\n\n```toml\n[site.layout.footer]\nstart = \"nav-groups\"\nmiddle = \"copyright\"\nend = \"social-links\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "responsive": {
+          "description": "Global responsive configuration for sidebar collapse\n\nThese settings apply to both sidebars unless overridden per-sidebar.\n\nExample:\n```toml\n[site.layout.responsive]\nbreakpoint = 1024\ntoggle-style = \"fixed-edge\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ResponsiveConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "components": {
+          "description": "Named component definitions for reuse\n\nDefine components once and reference them by name in regions.\nWhen the key matches a built-in component type (e.g., \"nav-tree\"),\nthe `type` field can be omitted.\n\nExample:\n```toml\n# Type inferred from key for built-in types:\n[site.layout.components.nav-tree]\ncollapsible = true\ndepth = 3\n\n# Custom names require explicit type:\n[site.layout.components.main-nav]\ntype = \"nav-tree\"\ncollapsible = true\n```",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComponentConfig"
+          }
+        },
+        "overrides": {
+          "description": "Route-specific layout overrides\n\nFirst matching override wins (order matters).\n\nExample:\n```toml\n[[site.layout.overrides]]\nroutes = [\"/blog/**\"]\nleft-sidebar = false\n```",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LayoutOverride"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LayoutPreset": {
+      "description": "Named layout presets for common documentation patterns\nhttps://stencila.io/docs/config/layoutpreset",
+      "oneOf": [
+        {
+          "description": "Documentation site: nav-tree left, toc-tree right, breadcrumbs, prev-next",
+          "type": "string",
+          "const": "docs"
+        },
+        {
+          "description": "Blog/article site: no left sidebar, toc-tree right, no prev-next",
+          "type": "string",
+          "const": "blog"
+        },
+        {
+          "description": "Landing page: no sidebars, centered content",
+          "type": "string",
+          "const": "landing"
+        },
+        {
+          "description": "API reference: nav-tree left (flat), no right sidebar",
+          "type": "string",
+          "const": "api"
+        }
+      ]
+    },
+    "RegionSpec": {
+      "description": "Region specification that can be enabled/disabled or fully configured\nhttps://stencila.io/docs/config/regionspec",
+      "anyOf": [
+        {
+          "description": "Boolean: false = disabled, true = use smart defaults",
+          "type": "boolean"
+        },
+        {
+          "description": "Full configuration with sub-regions",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RegionConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "RegionConfig": {
+      "description": "Region with sub-regions (start, middle, end)\nhttps://stencila.io/docs/config/regionconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Explicit enable/disable (for use in overrides that also set sub-regions)",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "start": {
+          "description": "Components in the start sub-region (left for horizontal, top for vertical)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ComponentSpec"
+          }
+        },
+        "middle": {
+          "description": "Components in the middle sub-region (center)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ComponentSpec"
+          }
+        },
+        "end": {
+          "description": "Components in the end sub-region (right for horizontal, bottom for vertical)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ComponentSpec"
+          }
+        },
+        "rows": {
+          "description": "Multiple rows, each with their own start/middle/end sub-regions\n\nWhen specified, `start`, `middle`, and `end` are ignored and each row\nis rendered separately. This enables multi-row layouts within a region.\n\nExample (applicable to any region):\n```toml\nrows = [\n  { middle = \"prev-next\" },\n  { start = \"edit-source\", end = \"copyright\" }\n]\n```",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/RowConfig"
+          }
+        },
+        "responsive": {
+          "description": "Responsive configuration (only applicable to sidebars)\n\nControls when the sidebar becomes collapsible and how the toggle appears.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ResponsiveConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ComponentSpec": {
+      "description": "Component specification: string name or full configuration\nhttps://stencila.io/docs/config/componentspec",
+      "anyOf": [
+        {
+          "description": "Simple type name: \"logo\" or named component: \"main-nav\"",
+          "type": "string"
+        },
+        {
+          "description": "Full component configuration",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ComponentConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "ComponentConfig": {
+      "description": "Component configuration (internally tagged by type)\nhttps://stencila.io/docs/config/componentconfig",
+      "oneOf": [
+        {
+          "description": "Site logo image with responsive and dark mode variants\n\nWhen used as a bare `\"logo\"` string, inherits configuration from\n`site.logo`. When used as an object, can override any fields.\n\n```toml\n# Header logo using site defaults and overrides\n[site.layout.header]\nstart = \"logo\"  # Uses site.logo config\n\n# Or with overrides:\nstart = { type = \"logo\", default = \"header-logo.svg\", dark = \"header-logo-dark.svg\" }\n```",
+          "type": "object",
+          "properties": {
+            "default": {
+              "description": "Default logo image path (used for desktop light mode)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mobile": {
+              "description": "Logo for mobile breakpoint (< 640px)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "tablet": {
+              "description": "Logo for tablet breakpoint (640px - 768px)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dark": {
+              "description": "Logo for dark mode (desktop)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dark-mobile": {
+              "description": "Logo for dark mode on mobile",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dark-tablet": {
+              "description": "Logo for dark mode on tablet",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "link": {
+              "description": "Link target when logo is clicked (default: \"/\")",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "alt": {
+              "description": "Alt text for accessibility (used as aria-label on the link)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "logo"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "Title",
+          "description": "Site title text\n\nDisplays the site title as text. When used as a bare `\"title\"` string,\nuses the value from `site.title`. When `text` is specified, it overrides\n`site.title` for this instance only.\n\n```toml\n[site.layout.header]\nstart = [\"logo\", \"title\"]  # Uses site.title\n\n# Override for this component only:\nstart = [{ type = \"title\", text = \"Docs\" }]\n```",
+          "type": "object",
+          "properties": {
+            "text": {
+              "description": "Title text (defaults to site.title)\n\nWhen not specified, inherits from `site.title`. If both are empty,\nthe component renders nothing.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "title"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "Breadcrumbs",
+          "description": "Breadcrumb navigation trail\n\nDisplays the hierarchical path from site root to the current page.\nEach path segment is converted to title case (e.g., \"getting-started\" →\n\"Getting Started\"). Intermediate segments are clickable links if the\nroute exists; the current page is shown as non-clickable text.\n\nThis component has no configurable options.\n\n```toml\n[site.layout.top]\nstart = \"breadcrumbs\"\n\n[site.layout.header]\nmiddle = \"breadcrumbs\"\n```",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "breadcrumbs"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "title": "NavTree",
+          "description": "Hierarchical navigation tree\n\nDisplays site navigation from `site.nav` configuration (or auto-generated\nfrom routes if not specified). Supports collapsible groups, active page\nhighlighting, and keyboard navigation, e.g.\n\n```toml\n# Sidebar nav tree with defaults and overrides\n[site.layout.left-sidebar]\nstart = \"nav-tree\"  # Uses defaults\n\n# Or with configuration:\nstart = { type = \"nav-tree\", title = \"Documentation\", expand-depth = 3, expand-current = true }\n```",
+          "type": "object",
+          "properties": {
+            "title": {
+              "description": "Optional title above the nav tree (e.g., \"Navigation\", \"Docs\")",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "depth": {
+              "description": "Maximum depth to display\n\nLimits how deep the navigation tree renders. Useful for large sites\nwhere you want to show only top-level sections.\n\nDefault: unlimited",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "collapsible": {
+              "description": "Whether groups are collapsible\n\nWhen true, group headers can be clicked to expand/collapse children.\nWhen false, all groups are always expanded.\n\nDefault: `true`",
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "expand-depth": {
+              "description": "How deep to expand groups by default\n\nControls the initial expansion depth for collapsible groups.\n- `0` = all groups collapsed\n- `1` = only top-level groups expanded\n- `2` = groups expanded up to level 2 (default)\n- `3` = groups expanded up to level 3\n\nDefault: `2`",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "expand-current": {
+              "description": "Whether to expand groups containing the current page\n\nWhen true, groups that are ancestors of the current page are\nexpanded regardless of `expand-depth`. This keeps navigation\nfocused on the user's current location.\n\nDefault: `true`",
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "scroll-to-active": {
+              "description": "Auto-scroll nav container to show active item on page load\n\nDefault: `true`",
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "include": {
+              "description": "Include only items matching these patterns\n\nSupports routes (\"/docs/*\"), IDs (\"#features\"), and labels (\"Features\").\nSee filtering documentation for pattern syntax.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "exclude": {
+              "description": "Exclude items matching these patterns\n\nSupports routes (\"/docs/*\"), IDs (\"#features\"), and labels (\"Features\").\nExclude takes precedence over include.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "icons": {
+              "description": "Whether to show icons from site.icons\n\nDefault: hide",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NavTreeIcons"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "nav-tree"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "NavMenu",
+          "description": "Top-level navigation menu bar\n\nDisplays horizontal navigation with mega-dropdown panels on desktop\nand accordion-style menu on mobile. Uses site.nav as data source, e.g.\n\n```toml\n# Header nav menu with defaults and overrides\n[site.layout.header]\nmiddle = \"nav-menu\"  # Uses defaults\n\n# Or with configuration:\nmiddle = { type = \"nav-menu\", groups = \"dropdowns\", trigger = \"click\" }\n```",
+          "type": "object",
+          "properties": {
+            "include": {
+              "description": "Include only items matching these patterns\n\nSupports routes (\"/docs/*\"), IDs (\"#features\"), and labels (\"Features\").",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "exclude": {
+              "description": "Exclude items matching these patterns\n\nSupports routes (\"/docs/*\"), IDs (\"#features\"), and labels (\"Features\").\nExclude takes precedence over include.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "depth": {
+              "description": "Maximum depth to display (1 = top-level only)\n\nLimits how deep the navigation menu renders. Horizontal dropdown menus\nwork best with shallow hierarchies.\n\nDefault: 2",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "groups": {
+              "description": "How to render groups\n\nDefault: `auto`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NavMenuGroups"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icons": {
+              "description": "Whether to show icons\n\nDefault: `show`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NavMenuIcons"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "descriptions": {
+              "description": "Whether to show descriptions in dropdowns\n\nDefault: `true`",
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "trigger": {
+              "description": "Dropdown trigger behavior\n\nDefault: `hover`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NavMenuTrigger"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "dropdown-style": {
+              "description": "Dropdown panel style\n\nDefault: `full-width`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NavMenuDropdownStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "nav-menu"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "NavGroups",
+          "description": "Footer-style grouped navigation\n\nDisplays flat navigation links organized under headings (e.g., \"Products\",\n\"Company\", \"Resources\" sections). Top-level nav items become group headings,\ntheir children become links. Uses CSS grid for responsive auto-columns, e.g.\n\n```toml\n# Footer nav groups with filtering\n[site.layout.footer]\nmiddle = \"nav-groups\"  # Uses defaults\n\n# With configuration:\nmiddle = { type = \"nav-groups\", depth = 2, icons = \"hide\" }\n\n# Filter specific groups:\nmiddle = { type = \"nav-groups\", include = [\"Products\", \"Company\"] }\n```",
+          "type": "object",
+          "properties": {
+            "include": {
+              "description": "Include only items matching these patterns\n\nSupports routes (\"/docs/*\"), IDs (\"#features\"), and labels (\"Features\").\nSee filtering documentation for pattern syntax.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "exclude": {
+              "description": "Exclude items matching these patterns\n\nSupports routes (\"/docs/*\"), IDs (\"#features\"), and labels (\"Features\").\nExclude takes precedence over include.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "depth": {
+              "description": "Maximum depth to display\n\nLevel 1 = group headings, Level 2 = links under headings.\nSet to 1 to show only group headings as links.\n\nDefault: 2",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "icons": {
+              "description": "Whether to show icons on links\n\nDefault: `hide`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/NavGroupsIcons"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "nav-groups"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "TocTree",
+          "description": "Table of contents tree from document headings\n\nGenerates a hierarchical list of links from the current page's headings.\nIncludes scroll-spy that highlights the currently visible section as\nthe user scrolls. Renders nothing if the page has no headings.\n\n```toml\n[site.layout.right-sidebar]\nstart = \"toc-tree\"  # Uses defaults\n\n# With custom title and deeper depth:\nstart = { type = \"toc-tree\", title = \"Contents\", depth = 4 }\n```",
+          "type": "object",
+          "properties": {
+            "title": {
+              "description": "Title above the TOC\n\nDefault: \"On this page\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "depth": {
+              "description": "Maximum heading depth to include\n\nControls which heading levels appear in the TOC. For example,\ndepth=3 includes h1, h2, and h3 headings.\n\nDefault: 3",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "type": {
+              "type": "string",
+              "const": "toc-tree"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "PrevNext",
+          "description": "Previous/next page navigation links\n\nDisplays links to previous and next pages in the navigation sequence.\nSupports keyboard shortcuts: `j` or `←` for previous, `k` or `→` for next.\nThe sequence follows `site.nav` order if configured.\n\n```toml\n[site.layout.bottom]\nmiddle = \"prev-next\"  # Standard style (default)\n\n# Compact style (icons + labels only):\nmiddle = { type = \"prev-next\", style = \"compact\" }\n\n# Custom labels for localization:\nmiddle = { type = \"prev-next\", prev-text = \"Précédent\", next-text = \"Suivant\" }\n```",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Display style\n\nDefault: standard",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/PrevNextStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "prev-text": {
+              "description": "Custom text for previous link\n\nUseful for localization.\n\nDefault: \"Previous\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "next-text": {
+              "description": "Custom text for next link\n\nUseful for localization.\n\nDefault: \"Next\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "separator": {
+              "description": "Separator between prev and next links\n\nCommon values: \"|\", \"·\", or any custom string.\nOnly shown when both prev and next links are present.\n\nDefault: none",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "prev-next"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "ColorMode",
+          "description": "Light/dark mode toggle\n\nToggles between light and dark color modes. The user's preference is\nsaved to localStorage and persists across sessions. On first visit,\nrespects the operating system's color scheme preference.\n\n```toml\n[site.layout.header]\nend = \"color-mode\"  # Icon-only (default)\n\n# With text label:\nend = { type = \"color-mode\", style = \"both\" }\n\n# Text only (no icon):\nend = { type = \"color-mode\", style = \"label\" }\n```",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Display style\n\nDefault: `icon`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ColorModeStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "color-mode"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "Copyright",
+          "description": "Copyright notice with auto-updating year\n\nDisplays a copyright notice with optional auto-updating year.\nWhen used as a bare `\"copyright\"` string, uses `site.author` as the holder\nand current year, e.g.\n\n```toml\n# Footer copyright variants\n[site.layout.footer]\nmiddle = \"copyright\"  # Uses site.author, current year\n\n# With year range:\nmiddle = { type = \"copyright\", start-year = 2020 }\n\n# With custom holder:\nmiddle = { type = \"copyright\", holder = \"Acme Inc\", link = \"https://acme.com\" }\n\n# Full custom text (no auto-year):\nmiddle = { type = \"copyright\", text = \"Custom copyright notice\" }\n```",
+          "type": "object",
+          "properties": {
+            "text": {
+              "description": "Full custom text (overrides all other fields)\n\nWhen provided, this text is used verbatim with no auto-year.\nExample: \"© 2024 Acme Inc. All rights reserved.\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "holder": {
+              "description": "Copyright holder name (defaults to site.author)\n\nExample: \"Acme Inc\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "start-year": {
+              "description": "Start year for copyright range (e.g., 2020 in \"2020-2024\")\n\nIf not set, only current year is shown.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint16",
+              "minimum": 0,
+              "maximum": 65535
+            },
+            "link": {
+              "description": "Link URL for the holder name\n\nWhen provided, the holder name becomes a clickable link.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "copyright"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "SocialLinks",
+          "description": "Social/external links (GitHub, Discord, LinkedIn, etc.)\n\nDisplays links to social media and external platforms with automatic icons.\nUses `site.socials` as the primary data source. Component config can filter\nthe site-level configuration or add custom links.\n\n**Ordering:** Links from `site.socials` appear in the order defined there.\nUse `include` to filter and reorder. Custom links are always appended, e.g.\n\n```toml\n# Social links plus footer component config\n[site.socials]\ngithub = \"org/repo\"\ndiscord = \"invite-code\"\nx = \"handle\"\n\n[site.layout.footer]\nend = \"social-links\"  # Uses all site.socials in order defined above\n\n# Filter and reorder with include (discord first, then github, x excluded):\nend = { type = \"social-links\", include = [\"discord\", \"github\"] }\n\n# Add custom links (appended after site.socials):\nend = { type = \"social-links\", custom = [{ name = \"Blog\", url = \"https://blog.example.com\", icon = \"lucide:rss\" }] }\n```",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Display style\n\nDefault: `icon`",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/SocialLinksStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "new-tab": {
+              "description": "Whether links open in new tab\n\nWhen true, links include target=\"_blank\" and rel=\"noopener noreferrer\".\n\nDefault: true",
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "include": {
+              "description": "Filter to specific platforms and optionally reorder\n\nOnly platforms listed here (and present in `site.socials`) will be shown,\nin the order specified. Default: all platforms from site.socials in their\ndefined order.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "exclude": {
+              "description": "Exclude these platforms (validated against known platforms + \"custom\")\n\nExclude takes precedence over include.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "custom": {
+              "description": "Custom links for platforms not in the known set\n\nUse this for blogs, documentation sites, or platforms without built-in\nicon support. Each entry needs a name and URL; icon is optional.\nCustom links are always appended after `site.socials` links.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/CustomSocialLink"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "social-links"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "EditSource",
+          "description": "Edit source link for GitHub/GitLab/Bitbucket\n\nDisplays a link to edit the current page on the source repository.\nAuto-detects the repository from git origin for github.com, gitlab.com,\nand bitbucket.org. For self-hosted instances or other platforms, use\nthe `base-url` option.\n\nThe icon shows the platform logo (GitHub, GitLab, or Bitbucket), the\ndefault text is \"Edit on <Platform>\", and hovering shows \"Edit source on <Platform>\", e.g.\n\n```toml\n# Edit-source links with defaults and overrides\n[site.layout.footer]\nend = \"edit-source\"  # Auto-detect from git origin\n\n# With custom text:\nend = { type = \"edit-source\", text = \"Suggest changes\" }\n\n# For self-hosted GitLab:\nend = { type = \"edit-source\", base-url = \"https://gitlab.mycompany.com/team/docs/-/edit/main/\" }\n```",
+          "type": "object",
+          "properties": {
+            "text": {
+              "description": "Custom link text\n\nDefault: \"Edit on <Platform>\" or \"Edit source\" for custom base-url",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": {
+              "description": "Display style\n\nDefault: both",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/EditSourceStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "base-url": {
+              "description": "Full edit URL prefix (e.g., \"https://github.com/org/repo/edit/main/\")\n\nWhen provided, the file path is simply appended. Required for\nself-hosted instances or unsupported platforms (Gitea, Forgejo, etc).",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "branch": {
+              "description": "Override branch name for auto-detected URLs\n\nIgnored when `base-url` is provided.\n\nDefault: auto-detect or \"main\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "path-prefix": {
+              "description": "Path prefix within repo (e.g., \"docs/\" if content is in a subdirectory)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "edit-source"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "EditOn",
+          "description": "Edit on cloud service (Google Docs or Microsoft 365)\n\nDisplays a link to edit the current page on Google Docs or Microsoft 365\nvia Stencila Cloud. Only renders if `workspace.id` is configured, e.g.\n\n```toml\n# Edit on cloud service\n[site.layout.footer]\nend = \"edit-on:gdocs\"  # Edit on Google Docs\n# or\nend = \"edit-on:m365\"   # Edit on Microsoft 365\n\n# With custom text:\nend = { type = \"edit-on\", service = \"gdocs\", text = \"Open in Google Docs\" }\n```",
+          "type": "object",
+          "properties": {
+            "service": {
+              "description": "Cloud service to edit on (gdocs or m365)",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/EditOnService"
+                }
+              ]
+            },
+            "text": {
+              "description": "Custom link text\n\nDefault: \"Edit on Google Docs\" or \"Edit on Microsoft 365\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": {
+              "description": "Display style\n\nDefault: both",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/EditSourceStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "edit-on"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "service"
+          ]
+        },
+        {
+          "title": "CopyMarkdown",
+          "description": "Copy page as Markdown button\n\nDisplays a button that copies the current page content as Markdown\nto the clipboard. Requires `formats = [\"md\"]` in site config (the default).\nThe markdown is fetched from `page.md` which is generated during site build.\n\n```toml\n[site.layout.footer]\nend = \"copy-markdown\"  # Default text: \"Copy as Markdown\"\n\n# Custom text:\nend = { type = \"copy-markdown\", text = \"Copy as MD\" }\n\n# Icon only:\nend = { type = \"copy-markdown\", style = \"icon\" }\n```",
+          "type": "object",
+          "properties": {
+            "text": {
+              "description": "Custom button text\n\nDefault: \"Copy as Markdown\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": {
+              "description": "Display style\n\nDefault: both",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/CopyMarkdownStyle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "copy-markdown"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "title": "Site sSearch",
+          "description": "Site search\n\nDisplays a search button that opens a search modal when clicked.\nRequires `site.search.enabled = true` in config to generate the search index.\n\n```toml\n# Enable search index generation\n[site.search]\nenabled = true\n\n# Add site-search to header\n[site.layout.header]\nend = \"site-search\"\n\n# Or with custom placeholder:\nend = { type = \"site-search\", placeholder = \"Search docs...\" }\n```",
+          "type": "object",
+          "properties": {
+            "placeholder": {
+              "description": "Placeholder text for the search input\n\nDefault: \"Search...\"",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "site-search"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "NavTreeIcons": {
+      "description": "Whether to show icons in nav-tree\nhttps://stencila.io/docs/config/navtreeicons",
+      "oneOf": [
+        {
+          "description": "Show icons from site.icons",
+          "type": "string",
+          "const": "show"
+        },
+        {
+          "description": "Hide icons (default for nav-tree)",
+          "type": "string",
+          "const": "hide"
+        }
+      ]
+    },
+    "NavMenuGroups": {
+      "description": "How to render groups in nav-menu\nhttps://stencila.io/docs/config/navmenugroups",
+      "oneOf": [
+        {
+          "description": "Groups with children become dropdowns, others are links (default)",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "All groups become dropdown menus",
+          "type": "string",
+          "const": "dropdowns"
+        },
+        {
+          "description": "All groups render as simple links (requires route)",
+          "type": "string",
+          "const": "links"
+        }
+      ]
+    },
+    "NavMenuIcons": {
+      "description": "Whether to show icons in nav-menu\nhttps://stencila.io/docs/config/navmenuicons",
+      "oneOf": [
+        {
+          "description": "Show icons on all items that have them (default)",
+          "type": "string",
+          "const": "show"
+        },
+        {
+          "description": "Never show icons",
+          "type": "string",
+          "const": "hide"
+        },
+        {
+          "description": "Only show icons inside dropdown panels",
+          "type": "string",
+          "const": "dropdowns"
+        }
+      ]
+    },
+    "NavMenuTrigger": {
+      "description": "Dropdown trigger behavior for nav-menu\nhttps://stencila.io/docs/config/navmenutrigger",
+      "oneOf": [
+        {
+          "description": "Open dropdowns on hover with delay (default)",
+          "type": "string",
+          "const": "hover"
+        },
+        {
+          "description": "Open dropdowns on click only",
+          "type": "string",
+          "const": "click"
+        }
+      ]
+    },
+    "NavMenuDropdownStyle": {
+      "description": "Dropdown panel style for nav-menu\nhttps://stencila.io/docs/config/navmenudropdownstyle",
+      "oneOf": [
+        {
+          "description": "Full-width dropdown panels (default)",
+          "type": "string",
+          "const": "full-width"
+        },
+        {
+          "description": "Dropdown aligned to trigger position",
+          "type": "string",
+          "const": "aligned"
+        }
+      ]
+    },
+    "NavGroupsIcons": {
+      "description": "Whether to show icons in nav-groups\nhttps://stencila.io/docs/config/navgroupsicons",
+      "oneOf": [
+        {
+          "description": "Show icons from site.icons",
+          "type": "string",
+          "const": "show"
+        },
+        {
+          "description": "Hide icons (default for nav-groups)",
+          "type": "string",
+          "const": "hide"
+        }
+      ]
+    },
+    "PrevNextStyle": {
+      "description": "Display style for prev/next navigation\nhttps://stencila.io/docs/config/prevnextstyle",
+      "oneOf": [
+        {
+          "description": "Minimal: just arrow icons\n\nOutput: ← | →",
+          "type": "string",
+          "const": "minimal"
+        },
+        {
+          "description": "Compact: icons + labels\n\nOutput: ← Previous | Next →",
+          "type": "string",
+          "const": "compact"
+        },
+        {
+          "description": "Standard: icons + labels + page titles (default)\n\nOutput: ← Previous: Getting Started | Next: Configuration →",
+          "type": "string",
+          "const": "standard"
+        },
+        {
+          "description": "Detailed: icons + labels + titles + position indicator\n\nOutput: ← Previous: Getting Started | Page 3 of 10 | Next: Configuration →",
+          "type": "string",
+          "const": "detailed"
+        }
+      ]
+    },
+    "ColorModeStyle": {
+      "description": "Display style for color mode switcher\nhttps://stencila.io/docs/config/colormodestyle",
+      "oneOf": [
+        {
+          "description": "Sun/moon icon only (default)",
+          "type": "string",
+          "const": "icon"
+        },
+        {
+          "description": "\"Light\"/\"Dark\" text label only",
+          "type": "string",
+          "const": "label"
+        },
+        {
+          "description": "Icon and label",
+          "type": "string",
+          "const": "both"
+        }
+      ]
+    },
+    "SocialLinksStyle": {
+      "description": "Display style for social links\nhttps://stencila.io/docs/config/sociallinksstyle",
+      "oneOf": [
+        {
+          "description": "Icons only (default)",
+          "type": "string",
+          "const": "icon"
+        },
+        {
+          "description": "Text labels only",
+          "type": "string",
+          "const": "text"
+        },
+        {
+          "description": "Icon and text",
+          "type": "string",
+          "const": "both"
+        }
+      ]
+    },
+    "CustomSocialLink": {
+      "description": "Custom social link for platforms not in the known set\nhttps://stencila.io/docs/config/customsociallink",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Display name for the link (required)\n\nExample: \"Blog\", \"Docs\", \"Podcast\"",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL for the link (required)",
+          "type": "string"
+        },
+        "icon": {
+          "description": "Icon identifier (optional)\n\nCan reference:\n1. Icon name from `site.icons` (if configured)\n2. Built-in icon library name (e.g., \"rss\", \"link\", \"globe\")\n\nIf not provided or not found, falls back to displaying the text label.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "url"
+      ]
+    },
+    "EditSourceStyle": {
+      "description": "Display style for edit source link\nhttps://stencila.io/docs/config/editsourcestyle",
+      "oneOf": [
+        {
+          "description": "Pencil/edit icon only",
+          "type": "string",
+          "const": "icon"
+        },
+        {
+          "description": "Text only",
+          "type": "string",
+          "const": "text"
+        },
+        {
+          "description": "Icon and text (default)",
+          "type": "string",
+          "const": "both"
+        }
+      ]
+    },
+    "EditOnService": {
+      "description": "Cloud service for edit-on component\nhttps://stencila.io/docs/config/editonservice",
+      "oneOf": [
+        {
+          "description": "Google Docs",
+          "type": "string",
+          "const": "gdocs"
+        },
+        {
+          "description": "Microsoft 365",
+          "type": "string",
+          "const": "m365"
+        }
+      ]
+    },
+    "CopyMarkdownStyle": {
+      "description": "Display style for copy markdown button\nhttps://stencila.io/docs/config/copymarkdownstyle",
+      "oneOf": [
+        {
+          "description": "Clipboard icon only",
+          "type": "string",
+          "const": "icon"
+        },
+        {
+          "description": "Text only",
+          "type": "string",
+          "const": "text"
+        },
+        {
+          "description": "Icon and text (default)",
+          "type": "string",
+          "const": "both"
+        }
+      ]
+    },
+    "RowConfig": {
+      "description": "A single row within a region, containing start/middle/end sub-regions\nhttps://stencila.io/docs/config/rowconfig",
+      "type": "object",
+      "properties": {
+        "start": {
+          "description": "Components in the start sub-region (left for horizontal, top for vertical)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ComponentSpec"
+          }
+        },
+        "middle": {
+          "description": "Components in the middle sub-region (center)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ComponentSpec"
+          }
+        },
+        "end": {
+          "description": "Components in the end sub-region (right for horizontal, bottom for vertical)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ComponentSpec"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResponsiveConfig": {
+      "description": "Responsive configuration for layout sidebars\nhttps://stencila.io/docs/config/responsiveconfig",
+      "type": "object",
+      "properties": {
+        "breakpoint": {
+          "description": "Breakpoint at which sidebars collapse (in pixels)\n\nDefault: 1024",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "collapsible": {
+          "description": "Whether the sidebar is collapsible\n\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "toggle-style": {
+          "description": "Toggle button style\n\nDefault: fixed-edge",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SidebarToggleStyle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SidebarToggleStyle": {
+      "description": "Toggle button style for collapsible sidebars\nhttps://stencila.io/docs/config/sidebartogglestyle",
+      "oneOf": [
+        {
+          "description": "Fixed edge buttons (buttons fixed to left/right viewport edges)",
+          "type": "string",
+          "const": "fixed-edge"
+        },
+        {
+          "description": "Header buttons (toggle buttons inside header region)",
+          "type": "string",
+          "const": "header"
+        },
+        {
+          "description": "Hamburger menu (single button for all sidebars)",
+          "type": "string",
+          "const": "hamburger"
+        }
+      ]
+    },
+    "LayoutOverride": {
+      "description": "Route-specific layout override\nhttps://stencila.io/docs/config/layoutoverride",
+      "type": "object",
+      "properties": {
+        "routes": {
+          "description": "Glob patterns for routes this override applies to (required, non-empty)\n\nExamples: `[\"/blog/**\"]`, `[\"/docs/api/**\", \"/api/**\"]`",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preset": {
+          "description": "Preset to use for matching routes\n\nWhen specified, the preset's defaults are used as the base for this override.\nGlobal explicit config is then merged on top, followed by any explicit\nregion overrides in this override.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LayoutPreset"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "header": {
+          "description": "Header region override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "left-sidebar": {
+          "description": "Left sidebar region override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "top": {
+          "description": "Top region override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bottom": {
+          "description": "Bottom region override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "right-sidebar": {
+          "description": "Right sidebar region override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "footer": {
+          "description": "Footer region override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RegionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "responsive": {
+          "description": "Global responsive configuration override",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ResponsiveConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "routes"
+      ]
+    },
+    "GlideConfig": {
+      "description": "Configuration for client-side navigation (glide)\nhttps://stencila.io/docs/config/glideconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable client-side navigation\n\nWhen true, internal links use AJAX navigation with View Transitions.\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "prefetch": {
+          "description": "Maximum prefetches per session\n\nPages are fetched on hover/focus before click, up to this limit.\nSet to 0 to disable prefetching. Only applies when glide is enabled.\nDefault: 20",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        },
+        "cache": {
+          "description": "Maximum number of pages to cache\n\nControls how many pages are kept in the LRU cache for instant\nback/forward navigation. Set to 0 to disable caching.\nDefault: 10",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "SearchSpec": {
+      "description": "Search specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/searchspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: search = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Detailed config: [site.search] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SearchConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "SearchConfig": {
+      "description": "Configuration for site search (detailed form)\nhttps://stencila.io/docs/config/searchconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable search index generation\n\nWhen true, a search index is generated during site rendering.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "include-types": {
+          "description": "Node types to include in the search index\n\nSpecifies which Stencila node types should be indexed.\nWhen not specified, defaults to common content types:\n`[\"Heading\", \"Paragraph\", \"Datatable\", \"CodeChunk\", \"Figure\", \"Table\"]`\n\nAvailable types include: Article, Heading, Paragraph, Datatable,\nCodeChunk, Figure, Table, and other Stencila node types.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude-routes": {
+          "description": "Route patterns to exclude from indexing\n\nGlob patterns for routes that should not be indexed.\nUseful for excluding API documentation, internal pages, etc.\n\nExample: `[\"/api/**\", \"/internal/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "max-text-length": {
+          "description": "Maximum text length per search entry\n\nText content longer than this will be truncated.\nDefault: 500 characters",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        },
+        "fuzzy": {
+          "description": "Enable fuzzy search support\n\nWhen true, pre-computed trigrams are included in the search index\nto enable fuzzy matching (finding results with typos).\nThis increases index size by approximately 1KB per entry.\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SiteFormat": {
+      "description": "Additional formats to generate alongside HTML during site rendering\nhttps://stencila.io/docs/config/siteformat",
+      "oneOf": [
+        {
+          "description": "Markdown format (generates page.md files)",
+          "type": "string",
+          "const": "md"
+        }
+      ]
+    },
+    "SiteReviewsSpec": {
+      "description": "Reviews specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/sitereviewsspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: reviews = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Detailed config: [site.reviews] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SiteReviewsConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "SiteReviewsConfig": {
+      "description": "Reviews configuration (detailed form), e.g.\nhttps://stencila.io/docs/config/sitereviewsconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Whether reviews are enabled\n\nWhen false, the review widget is not rendered.",
+          "type": "boolean",
+          "default": false
+        },
+        "public": {
+          "description": "Whether public (non-team members) can submit reviews\n\nThis is enforced server-side by Stencila Cloud. When false,\nthe review widget is hidden from non-authenticated users.\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "anon": {
+          "description": "Whether anonymous (no GitHub auth) submissions are allowed\n\nThis is enforced server-side by Stencila Cloud. When false,\nusers must connect their GitHub account to submit reviews.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "types": {
+          "description": "Allowed review item types\n\nDefault: both comment and suggestion",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/SiteReviewType"
+          }
+        },
+        "min-selection": {
+          "description": "Minimum characters required to trigger the widget\n\nPrevents accidental tiny selections from showing the review buttons.\nDefault: 1",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max-selection": {
+          "description": "Maximum characters allowed in a selection\n\nPrevents selecting excessively large amounts of text.\nDefault: 5000",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "shortcuts": {
+          "description": "Enable keyboard shortcuts for reviews\n\nWhen enabled:\n- Ctrl+Shift+C: Add comment on current selection\n- Ctrl+Shift+S: Add suggestion on current selection\n- Escape: Cancel current input / clear selection\n\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "include": {
+          "description": "Glob patterns for paths to show reviews on\n\nIf specified, reviews are only shown on pages matching these patterns.\nExample: `[\"docs/**\", \"guides/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "description": "Glob patterns for paths to hide reviews from\n\nReviews are hidden on pages matching these patterns.\nExample: `[\"api/**\", \"changelog/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "spread-routes": {
+          "description": "Show review widget on spread routes (virtual routes from templates)\n\nWhen true, reviews are shown on spread routes like `/{region}/`.\nWhen false (default), reviews are hidden on spread routes to avoid\nconfusion about which document is being reviewed.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SiteReviewType": {
+      "description": "Allowed review item types\nhttps://stencila.io/docs/config/sitereviewtype",
+      "oneOf": [
+        {
+          "description": "Comment on selected text",
+          "type": "string",
+          "const": "comment"
+        },
+        {
+          "description": "Suggestion to replace selected text",
+          "type": "string",
+          "const": "suggestion"
+        }
+      ]
+    },
+    "SiteUploadsSpec": {
+      "description": "Uploads specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/siteuploadsspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: uploads = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Detailed config: [site.uploads] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SiteUploadsConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "SiteUploadsConfig": {
+      "description": "Uploads configuration (detailed form), e.g.\nhttps://stencila.io/docs/config/siteuploadsconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Whether uploads are enabled\n\nWhen false, the upload widget is not rendered.",
+          "type": "boolean",
+          "default": false
+        },
+        "public": {
+          "description": "Whether public (non-team members) can upload files\n\nThis is enforced server-side by Stencila Cloud. When false,\nthe upload widget is hidden from non-authenticated users.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "anon": {
+          "description": "Whether anonymous (no GitHub auth) submissions are allowed\n\nThis is enforced server-side by Stencila Cloud. When false,\nusers must connect their GitHub account to upload files.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "path": {
+          "description": "Default target directory for uploaded files\n\nPath is relative to repo root.\nExample: \"data\" or \"uploads\"",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "include": {
+          "description": "Override: glob patterns for pages to show widget on\n\nIf specified, overrides the visibility derived from `path`.\nExample: `[\"admin/**\", \"dashboard/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "description": "Glob patterns for pages to hide widget from\n\nWidget is hidden on pages matching these patterns.\nExample: `[\"api/**\", \"internal/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "extensions": {
+          "description": "File extensions to include in the `_files` index\n\nWhen specified, only files with these extensions are indexed.\nWhen `None` (default), all files are indexed.\nExtensions are matched case-insensitively, without leading dot.\nExample: `[\"csv\", \"json\", \"xlsx\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "spread-routes": {
+          "description": "Show upload widget on spread routes (virtual routes from templates)\n\nWhen true, uploads are shown on spread routes like `/{region}/`.\nWhen false (default), uploads are hidden on spread routes to avoid\nconfusion about where files are uploaded (files go to the source\nfile's directory, not the virtual route path).",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SiteRemotesSpec": {
+      "description": "Remotes specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/siteremotesspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: remotes = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Detailed config: [site.remotes] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SiteRemotesConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "SiteRemotesConfig": {
+      "description": "Remotes action configuration (detailed form), e.g.\nhttps://stencila.io/docs/config/siteremotesconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Whether remote document adding is enabled\n\nWhen false, the remote widget is not rendered.",
+          "type": "boolean",
+          "default": false
+        },
+        "public": {
+          "description": "Whether public (non-team members) can add remote documents\n\nThis is enforced server-side by Stencila Cloud. When false,\nthe remote widget is hidden from non-authenticated users.\nDefault: false (more restrictive)",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "anon": {
+          "description": "Whether anonymous (no GitHub auth) submissions are allowed\n\nThis is enforced server-side by Stencila Cloud. When false,\nusers must connect their GitHub account to add remote documents.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "path": {
+          "description": "Default target directory for new remote documents\n\nPath is relative to repo root.\nExample: \"content\" or \"docs\"",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "default-format": {
+          "description": "Default output format for pulled documents\n\nDefault: smd (Stencila Markdown)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteRemoteFormat"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allowed-formats": {
+          "description": "Allowed output formats\n\nIf specified, users can only choose from these formats.\nDefault: all formats allowed",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/SiteRemoteFormat"
+          }
+        },
+        "default-sync-direction": {
+          "description": "Default sync direction\n\nDefault: bi (bi-directional)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteRemoteSyncDirection"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "include": {
+          "description": "Glob patterns for paths to show widget on\n\nIf specified, widget is only shown on pages matching these patterns.\nExample: `[\"docs/**\", \"content/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "description": "Glob patterns for paths to hide widget from\n\nWidget is hidden on pages matching these patterns.\nExample: `[\"api/**\", \"internal/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "spread-routes": {
+          "description": "Show remote widget on spread routes (virtual routes from templates)\n\nWhen true, remotes are shown on spread routes like `/{region}/`.\nWhen false (default), remotes are hidden on spread routes to avoid\nconfusion about where documents are added (documents go to a fixed\ndirectory, not the virtual route path).",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SiteRemoteFormat": {
+      "description": "Output format options for pulled documents\nhttps://stencila.io/docs/config/siteremoteformat",
+      "oneOf": [
+        {
+          "description": "Stencila Markdown (default)",
+          "type": "string",
+          "const": "smd"
+        },
+        {
+          "description": "Standard Markdown",
+          "type": "string",
+          "const": "md"
+        },
+        {
+          "description": "HTML",
+          "type": "string",
+          "const": "html"
+        }
+      ]
+    },
+    "SiteRemoteSyncDirection": {
+      "description": "Sync direction options for remote documents\nhttps://stencila.io/docs/config/siteremotesyncdirection",
+      "oneOf": [
+        {
+          "description": "Changes in remote doc create PRs to update repo",
+          "type": "string",
+          "const": "from-remote"
+        },
+        {
+          "description": "Changes sync both ways (default)",
+          "type": "string",
+          "const": "bi"
+        },
+        {
+          "description": "Changes in repo update remote doc",
+          "type": "string",
+          "const": "to-remote"
+        }
+      ]
+    },
+    "SiteActionsConfig": {
+      "description": "Actions zone configuration, e.g.\nhttps://stencila.io/docs/config/siteactionsconfig",
+      "type": "object",
+      "properties": {
+        "position": {
+          "description": "Position of the actions zone on the page\n\nDefault: bottom-right",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteActionsPosition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "direction": {
+          "description": "Direction for action buttons to expand\n\nDefault: vertical",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteActionsDirection"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mode": {
+          "description": "Display mode for the actions zone\n\nDefault: collapsed",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteActionsMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SiteActionsPosition": {
+      "description": "Position for the actions zone on the page\nhttps://stencila.io/docs/config/siteactionsposition",
+      "oneOf": [
+        {
+          "description": "Bottom-right corner (default)",
+          "type": "string",
+          "const": "bottom-right"
+        },
+        {
+          "description": "Bottom-left corner",
+          "type": "string",
+          "const": "bottom-left"
+        },
+        {
+          "description": "Top-right corner",
+          "type": "string",
+          "const": "top-right"
+        },
+        {
+          "description": "Top-left corner",
+          "type": "string",
+          "const": "top-left"
+        }
+      ]
+    },
+    "SiteActionsDirection": {
+      "description": "Expansion direction for action buttons\nhttps://stencila.io/docs/config/siteactionsdirection",
+      "oneOf": [
+        {
+          "description": "Vertical stack (default) - buttons expand upward/downward from corner",
+          "type": "string",
+          "const": "vertical"
+        },
+        {
+          "description": "Horizontal row - buttons expand left/right from corner",
+          "type": "string",
+          "const": "horizontal"
+        }
+      ]
+    },
+    "SiteActionsMode": {
+      "description": "Display mode for the actions zone\nhttps://stencila.io/docs/config/siteactionsmode",
+      "oneOf": [
+        {
+          "description": "Collapsed (default) - main FAB expands on click to reveal action buttons",
+          "type": "string",
+          "const": "collapsed"
+        },
+        {
+          "description": "Expanded - all action buttons always visible, no main FAB",
+          "type": "string",
+          "const": "expanded"
+        }
+      ]
+    },
+    "AutoIndexSpec": {
+      "description": "Auto-index specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/autoindexspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: auto-index = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Detailed config: [site.auto-index] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AutoIndexConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "AutoIndexConfig": {
+      "description": "Configuration for auto-generated index pages\nhttps://stencila.io/docs/config/autoindexconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable auto-index generation\n\nWhen true, directories without index files get auto-generated pages.\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "Glob patterns for routes to exclude from auto-indexing\n\nRoutes matching any of these patterns will not have auto-generated\nindex pages, even if they lack content files.\n\nExample: `[\"/api/**\", \"/internal/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentsConfig": {
+      "description": "Agents configuration.\nhttps://stencila.io/docs/config/agentsconfig",
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "The name of the default agent to use when no agent is specified.\n\nWhen set, the TUI and other callers that request the \"default\" agent\nwill use this agent instead.\n\n```toml\n[agents]\ndefault = \"code-engineer\"\n```",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpConfig": {
+      "description": "MCP (Model Context Protocol) server configuration.\nhttps://stencila.io/docs/config/mcpconfig",
+      "type": "object",
+      "properties": {
+        "servers": {
+          "description": "MCP server definitions, keyed by server identifier.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/McpServerEntry"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpServerEntry": {
+      "description": "Configuration for a single MCP server.\nhttps://stencila.io/docs/config/mcpserverentry",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Human-readable name for this server.\n\nDefaults to the server identifier (the TOML key) if not set.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "transport": {
+          "description": "How to connect to the server.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/McpTransportConfig"
+            }
+          ]
+        },
+        "env": {
+          "description": "Environment variables to set for stdio servers.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "enabled": {
+          "description": "Whether this server is enabled.\n\nSet to `false` to temporarily disable a server without removing\nits configuration.",
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "transport"
+      ]
+    },
+    "McpTransportConfig": {
+      "description": "Transport configuration for connecting to an MCP server.\nhttps://stencila.io/docs/config/mcptransportconfig",
+      "oneOf": [
+        {
+          "description": "Stdio transport: spawn a child process and communicate via stdin/stdout.",
+          "type": "object",
+          "properties": {
+            "command": {
+              "description": "The command to run (e.g. `\"npx\"`, `\"python3\"`).",
+              "type": "string"
+            },
+            "args": {
+              "description": "Command-line arguments.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "type": {
+              "type": "string",
+              "const": "stdio"
+            }
+          },
+          "required": [
+            "type",
+            "command"
+          ]
+        },
+        {
+          "description": "HTTP transport: connect to an HTTP/SSE endpoint.",
+          "type": "object",
+          "properties": {
+            "url": {
+              "description": "The server URL.",
+              "type": "string"
+            },
+            "headers": {
+              "description": "Additional HTTP headers.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "default": {}
+            },
+            "type": {
+              "type": "string",
+              "const": "http"
+            }
+          },
+          "required": [
+            "type",
+            "url"
+          ]
+        }
+      ]
+    },
+    "ModelsConfig": {
+      "description": "Models configuration.\nhttps://stencila.io/docs/config/modelsconfig",
+      "type": "object",
+      "properties": {
+        "providers": {
+          "description": "Ordered provider list used for model provider selection.\n\nWhen set, this list controls which providers are considered and in which order.\nExample:\n\n```toml\n[models]\nproviders = [\"anthropic\", \"openai\"]\n```",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$id": "https://stencila.org/stencila-config.schema.json"
+}

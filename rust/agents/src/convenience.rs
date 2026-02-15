@@ -112,11 +112,27 @@ fn default_model(provider: &str) -> Option<&'static str> {
     }
 }
 
+/// If `name` is `"default"`, resolve it to the configured default agent name
+/// from `[agents].default` in `stencila.toml`. Returns the name unchanged
+/// if it is not `"default"` or if no config is set.
+fn resolve_default_agent_name(name: &str) -> String {
+    if name != "default" {
+        return name.to_string();
+    }
+    stencila_config::get()
+        .ok()
+        .and_then(|config| config.agents.as_ref()?.default.clone())
+        .unwrap_or_else(|| name.to_string())
+}
+
 /// Create an agent session from a named agent definition.
 ///
 /// Discovers the agent by name (searching workspace then user config),
 /// reads its instructions from the AGENT.md body, builds a [`SessionConfig`]
 /// from its schema fields, and creates a session.
+///
+/// If `name` is `"default"`, it is resolved to the agent configured in
+/// `[agents].default` in `stencila.toml` (falling back to `"default"` if unset).
 ///
 /// Returns the discovered [`AgentInstance`] alongside the session and event
 /// receiver so callers can inspect agent metadata (name, description, etc.).
@@ -126,17 +142,21 @@ fn default_model(provider: &str) -> Option<&'static str> {
 /// Returns an error if the agent is not found, the AGENT.md cannot be read,
 /// or session creation fails (no API keys, unsupported provider, etc.).
 pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, EventReceiver)> {
+    let resolved_name = resolve_default_agent_name(name);
+
     let cwd = std::env::current_dir().map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
             message: format!("Failed to get current directory: {e}"),
         })
     })?;
 
-    let agent = agent_def::get_by_name(&cwd, name).await.map_err(|e| {
-        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-            message: format!("Agent not found: {e}"),
-        })
-    })?;
+    let agent = agent_def::get_by_name(&cwd, &resolved_name)
+        .await
+        .map_err(|e| {
+            AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                message: format!("Agent not found: {e}"),
+            })
+        })?;
 
     let config = SessionConfig::from_agent(&agent).await.map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {

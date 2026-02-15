@@ -32,6 +32,7 @@ static WATCH_ID_REGEX: LazyLock<Regex> =
 static DOMAIN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(DOMAIN_PATTERN).expect("Invalid regex"));
 
+mod agents;
 pub mod cli;
 mod init;
 mod layout;
@@ -53,6 +54,7 @@ mod workspace;
 use crate::workspace::WorkspaceConfig;
 
 pub use {
+    agents::AgentsConfig,
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
@@ -188,7 +190,12 @@ pub struct Config {
     /// Site configuration.
     pub site: Option<SiteConfig>,
 
-    /// MCP server configuration.
+    /// Agent configuration.
+    ///
+    /// Controls which agent is used by default.
+    pub agents: Option<AgentsConfig>,
+
+    /// Model context protocol (MCP) server configuration.
     ///
     /// Defines MCP servers that agents can connect to.
     ///
@@ -200,7 +207,7 @@ pub struct Config {
     /// ```
     pub mcp: Option<mcp::McpConfig>,
 
-    /// Model provider selection configuration.
+    /// Model configuration.
     ///
     /// Controls provider ordering/selection for model-backed features.
     pub models: Option<ModelsConfig>,

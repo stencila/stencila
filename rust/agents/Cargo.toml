@@ -24,6 +24,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 stencila-codecs = { path = "../codecs" }
+stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }
 stencila-models3 = { path = "../models3" }
 stencila-schema = { path = "../schema" }
