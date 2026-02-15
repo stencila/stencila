@@ -66,7 +66,10 @@ pub fn translate_request(request: &Request, stream: bool) -> SdkResult<Translate
         body.insert("stop".to_string(), json!(stop_sequences));
     }
     if let Some(reasoning_effort) = &request.reasoning_effort {
-        body.insert("reasoning".to_string(), json!({"effort": reasoning_effort}));
+        body.insert(
+            "reasoning".to_string(),
+            json!({"effort": reasoning_effort, "generate_summary": "auto"}),
+        );
     }
     if let Some(metadata) = &request.metadata {
         body.insert("metadata".to_string(), json!(metadata));

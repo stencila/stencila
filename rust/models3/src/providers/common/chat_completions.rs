@@ -583,6 +583,15 @@ pub(crate) fn parse_usage(usage: Option<&Value>) -> Usage {
         .and_then(Value::as_u64)
         .unwrap_or(input_tokens + output_tokens);
 
+    let reasoning_tokens = usage
+        .pointer("/completion_tokens_details/reasoning_tokens")
+        .and_then(Value::as_u64)
+        .or_else(|| {
+            usage
+                .pointer("/output_tokens_details/reasoning_tokens")
+                .and_then(Value::as_u64)
+        });
+
     let cache_read_tokens = usage
         .pointer("/prompt_tokens_details/cached_tokens")
         .and_then(Value::as_u64);
@@ -591,7 +600,7 @@ pub(crate) fn parse_usage(usage: Option<&Value>) -> Usage {
         input_tokens,
         output_tokens,
         total_tokens,
-        reasoning_tokens: None,
+        reasoning_tokens,
         cache_read_tokens,
         cache_write_tokens: None,
         raw: Some(usage.clone()),
@@ -625,12 +634,14 @@ struct ToolCallState {
 pub(crate) struct ChatCompletionsStreamState {
     emitted_stream_start: bool,
     emitted_text_start: bool,
+    emitted_reasoning_start: bool,
     tool_calls: BTreeMap<u64, ToolCallState>,
     pending_usage: Option<Usage>,
     finished: bool,
     seen_finish_text_ids: HashSet<String>,
     rate_limit: Option<RateLimitInfo>,
     accumulated_text: String,
+    accumulated_reasoning: String,
     response_id: Option<String>,
     response_model: Option<String>,
     provider_name: String,
@@ -749,6 +760,47 @@ pub(crate) fn translate_sse_event(
             });
         }
 
+        // Handle reasoning_content (DeepSeek) or reasoning (OpenAI o-series
+        // via Chat Completions).  The field carries chain-of-thought text.
+        let reasoning_text = delta
+            .get("reasoning_content")
+            .and_then(Value::as_str)
+            .or_else(|| delta.get("reasoning").and_then(Value::as_str));
+        if let Some(reasoning_delta) = reasoning_text
+            && !reasoning_delta.is_empty()
+        {
+            if !state.emitted_reasoning_start {
+                state.emitted_reasoning_start = true;
+                out.push(StreamEvent {
+                    event_type: StreamEventType::ReasoningStart,
+                    delta: None,
+                    text_id: Some("reasoning_0".to_string()),
+                    reasoning_delta: None,
+                    tool_call: None,
+                    finish_reason: None,
+                    usage: None,
+                    response: None,
+                    error: None,
+                    warnings: None,
+                    raw: Some(payload.clone()),
+                });
+            }
+            state.accumulated_reasoning.push_str(reasoning_delta);
+            out.push(StreamEvent {
+                event_type: StreamEventType::ReasoningDelta,
+                delta: None,
+                text_id: Some("reasoning_0".to_string()),
+                reasoning_delta: Some(reasoning_delta.to_string()),
+                tool_call: None,
+                finish_reason: None,
+                usage: None,
+                response: None,
+                error: None,
+                warnings: None,
+                raw: Some(payload.clone()),
+            });
+        }
+
         if let Some(tool_calls) = delta.get("tool_calls").and_then(Value::as_array) {
             for tool_call in tool_calls {
                 let index = tool_call.get("index").and_then(Value::as_u64).unwrap_or(0);
@@ -821,6 +873,23 @@ pub(crate) fn translate_sse_event(
         if let Some(finish_reason) = choice.get("finish_reason").and_then(Value::as_str) {
             let reason = map_finish_reason(Some(finish_reason));
 
+            if state.emitted_reasoning_start {
+                state.emitted_reasoning_start = false;
+                out.push(StreamEvent {
+                    event_type: StreamEventType::ReasoningEnd,
+                    delta: None,
+                    text_id: Some("reasoning_0".to_string()),
+                    reasoning_delta: None,
+                    tool_call: None,
+                    finish_reason: None,
+                    usage: None,
+                    response: None,
+                    error: None,
+                    warnings: None,
+                    raw: Some(payload.clone()),
+                });
+            }
+
             if state.emitted_text_start && !state.seen_finish_text_ids.contains("text_0") {
                 state.seen_finish_text_ids.insert("text_0".to_string());
                 out.push(StreamEvent {
@@ -872,6 +941,16 @@ pub(crate) fn translate_sse_event(
 
                 // Build accumulated content for the full response
                 let mut content = Vec::new();
+                let reasoning = std::mem::take(&mut state.accumulated_reasoning);
+                if !reasoning.is_empty() {
+                    content.push(ContentPart::Thinking {
+                        thinking: crate::types::content::ThinkingData {
+                            text: reasoning,
+                            signature: None,
+                            redacted: false,
+                        },
+                    });
+                }
                 let text = std::mem::take(&mut state.accumulated_text);
                 if !text.is_empty() {
                     content.push(ContentPart::Text { text });

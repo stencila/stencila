@@ -113,14 +113,10 @@ fn translate_output_item(item: &Value, content: &mut Vec<ContentPart>) {
             }
         }
         "reasoning" => {
-            let maybe_text = item
-                .get("text")
-                .and_then(Value::as_str)
-                .or_else(|| item.get("summary").and_then(Value::as_str));
-            if let Some(text) = maybe_text {
+            if let Some(text) = extract_reasoning_text(item) {
                 content.push(ContentPart::Thinking {
                     thinking: ThinkingData {
-                        text: text.to_string(),
+                        text,
                         signature: None,
                         redacted: false,
                     },
@@ -131,6 +127,37 @@ fn translate_output_item(item: &Value, content: &mut Vec<ContentPart>) {
             // Preserve forward compatibility by ignoring unknown output item types.
         }
     }
+}
+
+/// Extract reasoning text from a reasoning output item or content part.
+///
+/// The OpenAI Responses API can return reasoning summaries in several formats:
+/// - `"text": "..."` — plain text field
+/// - `"summary": [{"type": "summary_text", "text": "..."}]` — array of summary parts
+/// - `"summary": "..."` — plain string (legacy/forward-compat)
+fn extract_reasoning_text(value: &Value) -> Option<String> {
+    // Direct text field
+    if let Some(text) = value.get("text").and_then(Value::as_str) {
+        return Some(text.to_string());
+    }
+
+    // Summary as array of parts (the standard Responses API format)
+    if let Some(summary_arr) = value.get("summary").and_then(Value::as_array) {
+        let texts: Vec<&str> = summary_arr
+            .iter()
+            .filter_map(|part| part.get("text").and_then(Value::as_str))
+            .collect();
+        if !texts.is_empty() {
+            return Some(texts.join(""));
+        }
+    }
+
+    // Summary as plain string (fallback)
+    if let Some(text) = value.get("summary").and_then(Value::as_str) {
+        return Some(text.to_string());
+    }
+
+    None
 }
 
 fn translate_message_content_part(part: &Value, content: &mut Vec<ContentPart>) {
@@ -152,14 +179,10 @@ fn translate_message_content_part(part: &Value, content: &mut Vec<ContentPart>) 
             }
         }
         "reasoning" => {
-            if let Some(text) = part
-                .get("text")
-                .and_then(Value::as_str)
-                .or_else(|| part.get("summary").and_then(Value::as_str))
-            {
+            if let Some(text) = extract_reasoning_text(part) {
                 content.push(ContentPart::Thinking {
                     thinking: ThinkingData {
-                        text: text.to_string(),
+                        text,
                         signature: None,
                         redacted: false,
                     },

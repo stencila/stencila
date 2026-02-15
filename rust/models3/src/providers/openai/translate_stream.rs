@@ -23,6 +23,8 @@ pub struct OpenAIStreamState {
     started_text_ids: HashSet<String>,
     tool_calls: HashMap<String, ToolCallState>,
     rate_limit: Option<RateLimitInfo>,
+    /// Whether we have emitted a ReasoningStart event for the current reasoning block.
+    emitted_reasoning_start: bool,
 }
 
 impl OpenAIStreamState {
@@ -113,6 +115,90 @@ pub fn translate_sse_event(
                     },
                     payload,
                 ));
+            } else {
+                out.push(provider_event(payload));
+            }
+        }
+        // Reasoning summary part added — emit ReasoningStart.
+        // OpenAI Responses API sends this when a reasoning summary block begins.
+        "response.reasoning_summary_part.added" => {
+            if !state.emitted_reasoning_start {
+                state.emitted_reasoning_start = true;
+                out.push(StreamEvent {
+                    event_type: StreamEventType::ReasoningStart,
+                    delta: None,
+                    text_id: Some("reasoning_0".to_string()),
+                    reasoning_delta: None,
+                    tool_call: None,
+                    finish_reason: None,
+                    usage: None,
+                    response: None,
+                    error: None,
+                    warnings: None,
+                    raw: Some(payload),
+                });
+            } else {
+                out.push(provider_event(payload));
+            }
+        }
+        // Reasoning summary text delta — emit ReasoningDelta with the text.
+        "response.reasoning_summary_text.delta" => {
+            if !state.emitted_reasoning_start {
+                state.emitted_reasoning_start = true;
+                out.push(StreamEvent {
+                    event_type: StreamEventType::ReasoningStart,
+                    delta: None,
+                    text_id: Some("reasoning_0".to_string()),
+                    reasoning_delta: None,
+                    tool_call: None,
+                    finish_reason: None,
+                    usage: None,
+                    response: None,
+                    error: None,
+                    warnings: None,
+                    raw: Some(payload.clone()),
+                });
+            }
+
+            let delta = payload
+                .get("delta")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_string();
+
+            if !delta.is_empty() {
+                out.push(StreamEvent {
+                    event_type: StreamEventType::ReasoningDelta,
+                    delta: None,
+                    text_id: Some("reasoning_0".to_string()),
+                    reasoning_delta: Some(delta),
+                    tool_call: None,
+                    finish_reason: None,
+                    usage: None,
+                    response: None,
+                    error: None,
+                    warnings: None,
+                    raw: Some(payload),
+                });
+            }
+        }
+        // Reasoning summary text done — emit ReasoningEnd.
+        "response.reasoning_summary_text.done" | "response.reasoning_summary_part.done" => {
+            if state.emitted_reasoning_start {
+                state.emitted_reasoning_start = false;
+                out.push(StreamEvent {
+                    event_type: StreamEventType::ReasoningEnd,
+                    delta: None,
+                    text_id: Some("reasoning_0".to_string()),
+                    reasoning_delta: None,
+                    tool_call: None,
+                    finish_reason: None,
+                    usage: None,
+                    response: None,
+                    error: None,
+                    warnings: None,
+                    raw: Some(payload),
+                });
             } else {
                 out.push(provider_event(payload));
             }
