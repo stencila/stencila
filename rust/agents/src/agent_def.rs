@@ -159,7 +159,6 @@ impl AgentInstance {
 }
 
 /// Get the closest `.stencila/agents` directory, optionally creating it
-#[cfg(feature = "cli")]
 pub(crate) async fn closest_agents_dir(cwd: &Path, ensure: bool) -> Result<PathBuf> {
     let stencila_dir = stencila_dirs::closest_stencila_dir(cwd, ensure).await?;
     stencila_dirs::stencila_agents_dir(&stencila_dir, ensure).await

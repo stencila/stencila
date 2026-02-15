@@ -233,9 +233,12 @@ impl SessionConfig {
     ///
     /// Returns an error if the AGENT.md file cannot be read.
     pub async fn from_agent(agent: &crate::agent_def::AgentInstance) -> eyre::Result<Self> {
-        let mut config = Self::default();
+        let user_instructions = agent.instructions().await?;
 
-        config.user_instructions = agent.instructions().await?;
+        let mut config = SessionConfig {
+            user_instructions,
+            ..Default::default()
+        };
 
         if let Some(effort) = &agent.reasoning_effort {
             config.reasoning_effort = Some(match effort.as_str() {

@@ -8906,6 +8906,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "serde_yaml",
  "stencila-cli-utils",
  "stencila-codecs",
  "stencila-codemode",

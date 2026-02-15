@@ -1,7 +1,9 @@
-//! High-level session factory for callers that don't want to manage
+//! High-level convenience functions for callers that don't want to manage
 //! agent discovery etc manually.
 
 use std::sync::Arc;
+
+use eyre::Result;
 
 use crate::agent_def::{self, AgentInstance};
 use crate::error::{AgentError, AgentResult};
@@ -11,6 +13,92 @@ use crate::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts;
 use crate::session::{Models3Client, Session};
 use crate::types::SessionConfig;
+
+/// Options for [`create_agent`].
+#[derive(Default)]
+pub struct CreateAgentOptions<'a> {
+    /// Create in user config directory instead of workspace.
+    pub user: bool,
+
+    /// Model identifier (e.g. "claude-sonnet-4-5").
+    pub model: Option<&'a str>,
+
+    /// Provider name (e.g. "anthropic", "openai").
+    pub provider: Option<&'a str>,
+
+    /// Instructions (becomes the Markdown body of AGENT.md).
+    pub instructions: Option<&'a str>,
+}
+
+/// Create a new agent definition on disk.
+///
+/// Creates a new agent directory with an `AGENT.md` file containing the given
+/// name and description as YAML frontmatter. Optionally includes model,
+/// provider, and instructions (Markdown body).
+///
+/// By default creates in the workspace's `.stencila/agents/` directory; set
+/// [`CreateAgentOptions::user`] to `true` to create in the user config
+/// directory (`~/.config/stencila/agents/`) instead.
+///
+/// Returns the loaded [`AgentInstance`] for the newly created agent.
+///
+/// # Errors
+///
+/// Returns an error if the name fails validation, the agent already exists,
+/// or file I/O fails.
+pub async fn create_agent(
+    name: &str,
+    description: &str,
+    options: &CreateAgentOptions<'_>,
+) -> Result<AgentInstance> {
+    let name_errors = crate::agent_validate::validate_name(name);
+    if !name_errors.is_empty() {
+        let msgs: Vec<String> = name_errors.iter().map(|e| e.to_string()).collect();
+        eyre::bail!("Invalid agent name `{name}`: {}", msgs.join("; "));
+    }
+
+    let cwd = std::env::current_dir()?;
+
+    let agents_dir = if options.user {
+        stencila_dirs::get_app_dir(stencila_dirs::DirType::Agents, true)?
+    } else {
+        agent_def::closest_agents_dir(&cwd, true).await?
+    };
+
+    let agent_dir = agents_dir.join(name);
+
+    if agent_dir.exists() {
+        eyre::bail!("Agent `{name}` already exists at `{}`", agent_dir.display());
+    }
+
+    tokio::fs::create_dir_all(&agent_dir).await?;
+
+    // Build YAML frontmatter using proper serialization to handle special characters
+    let mut frontmatter_map = serde_yaml::Mapping::new();
+    frontmatter_map.insert("name".into(), name.into());
+    frontmatter_map.insert("description".into(), description.into());
+    if let Some(model) = options.model {
+        frontmatter_map.insert("model".into(), model.into());
+    }
+    if let Some(provider) = options.provider {
+        frontmatter_map.insert("provider".into(), provider.into());
+    }
+    let frontmatter = serde_yaml::to_string(&frontmatter_map)?;
+    // serde_yaml adds a trailing newline; trim it since the template adds its own
+    let frontmatter = frontmatter.trim_end();
+
+    let body = options
+        .instructions
+        .filter(|s| !s.is_empty())
+        .unwrap_or("TODO: Add instructions for this agent.");
+
+    let content = format!("---\n{frontmatter}\n---\n\n{body}\n");
+
+    let agent_md = agent_dir.join("AGENT.md");
+    tokio::fs::write(&agent_md, content).await?;
+
+    agent_def::get_by_name(&cwd, name).await
+}
 
 /// Default model for each provider when none is specified.
 ///

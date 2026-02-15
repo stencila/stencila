@@ -19,7 +19,7 @@ use stencila_schema::{Node, NodeType};
 use crate::{
     agent_def::{self, AgentSource},
     agent_validate,
-    convenience::create_session,
+    convenience::{CreateAgentOptions, create_agent, create_session},
     types::{EventKind, SessionConfig},
 };
 
@@ -192,56 +192,17 @@ pub static CREATE_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Create {
-    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
-        // Validate the name first
-        let name_errors = agent_validate::validate_name(&self.name);
-        if !name_errors.is_empty() {
-            message!("⚠️  Invalid agent name `{}`:", self.name);
-            for error in &name_errors {
-                message!("  - {}", error);
-            }
-            exit(1)
-        }
-
-        let agents_dir = if self.user {
-            stencila_dirs::get_app_dir(stencila_dirs::DirType::Agents, true)?
-        } else {
-            let cwd = std::env::current_dir()?;
-            agent_def::closest_agents_dir(&cwd, true).await?
+        let options = CreateAgentOptions {
+            user: self.user,
+            ..Default::default()
         };
-
-        let agent_dir = agents_dir.join(&self.name);
-
-        if agent_dir.exists() {
-            eyre::bail!(
-                "Agent `{}` already exists at `{}`",
-                self.name,
-                agent_dir.display()
-            );
-        }
-
-        tokio::fs::create_dir_all(&agent_dir).await?;
-
-        let agent_md = agent_dir.join("AGENT.md");
-        let template = format!(
-            "\
----
-name: {name}
-description: {description}
----
-
-TODO: Add instructions for this agent.
-",
-            name = self.name,
-            description = self.description
-        );
-        tokio::fs::write(&agent_md, template).await?;
+        let agent = create_agent(&self.name, &self.description, &options).await?;
 
         message!(
             "✨ Created agent `{}` at `{}`",
-            self.name,
-            agent_dir.display()
+            agent.name,
+            agent.home().display()
         );
 
         Ok(())
