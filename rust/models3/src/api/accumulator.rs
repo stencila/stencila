@@ -38,12 +38,19 @@ pub struct StreamAccumulator {
     /// Multiple calls can be in-flight simultaneously when providers emit
     /// interleaved deltas (e.g. OpenAI Chat Completions).
     pending_tool_calls: HashMap<String, InProgressToolCall>,
-    finish_reason: Option<FinishReason>,
     usage: Option<Usage>,
     warnings: Vec<Warning>,
     response_id: Option<String>,
     model: Option<String>,
     provider: Option<String>,
+
+    finish_reason: Option<FinishReason>,
+
+    /// Full provider-built response captured from a `Finish` event.
+    /// When present, [`response()`](Self::response) returns this instead of
+    /// the manually accumulated response, preserving provider-specific
+    /// content (e.g. Anthropic thinking signatures, OpenAI reasoning summaries).
+    finish_response: Option<Response>,
 }
 
 /// A tool call being assembled from start/delta/end events.
@@ -183,11 +190,15 @@ impl StreamAccumulator {
                 if let Some(ref u) = event.usage {
                     self.usage = Some(u.clone());
                 }
-                // If the event carries a fully-built response, capture metadata
+                // If the event carries a fully-built response, capture it.
+                // This preserves provider-specific content such as Anthropic
+                // thinking signatures and OpenAI reasoning summaries that
+                // cannot be reconstructed from streaming deltas alone.
                 if let Some(ref resp) = event.response {
                     self.response_id = Some(resp.id.clone());
                     self.model = Some(resp.model.clone());
                     self.provider = Some(resp.provider.clone());
+                    self.finish_response = Some(*resp.clone());
                 }
             }
             // Other events are ignored by the accumulator
@@ -197,9 +208,19 @@ impl StreamAccumulator {
 
     /// Build the accumulated [`Response`].
     ///
+    /// When a `Finish` event carried a full provider-built response, that
+    /// response is returned — it preserves provider-specific content such
+    /// as Anthropic thinking signatures and OpenAI reasoning summaries.
+    /// Otherwise, a response is assembled from the deltas accumulated
+    /// during streaming.
+    ///
     /// Call after all events have been processed.
     #[must_use]
     pub fn response(&self) -> Response {
+        if let Some(ref resp) = self.finish_response {
+            return resp.clone();
+        }
+
         let mut content: Vec<ContentPart> = Vec::new();
 
         // Add reasoning if present

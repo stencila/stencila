@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::tool::ToolCall;
 use stencila_models3::types::tool::ToolResult;
 use stencila_models3::types::usage::Usage;
@@ -339,6 +340,8 @@ pub enum Turn {
         tool_calls: Vec<ToolCall>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         reasoning: Option<String>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        thinking_parts: Vec<ContentPart>,
         #[serde(default)]
         usage: Usage,
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -376,6 +379,7 @@ impl Turn {
             content: content.into(),
             tool_calls: Vec::new(),
             reasoning: None,
+            thinking_parts: Vec::new(),
             usage: Usage::default(),
             response_id: None,
             timestamp: now_timestamp(),

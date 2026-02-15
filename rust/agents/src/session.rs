@@ -738,6 +738,18 @@ impl Session {
             let text = response.text();
             let tool_calls = response.tool_calls();
             let reasoning = response.reasoning();
+            let thinking_parts: Vec<ContentPart> = response
+                .message
+                .content
+                .iter()
+                .filter(|p| {
+                    matches!(
+                        p,
+                        ContentPart::Thinking { .. } | ContentPart::RedactedThinking { .. }
+                    )
+                })
+                .cloned()
+                .collect();
             let usage = response.usage.clone();
             let response_id = response.id.clone();
 
@@ -748,6 +760,7 @@ impl Session {
                 content: text,
                 tool_calls: tool_calls.clone(),
                 reasoning,
+                thinking_parts,
                 usage,
                 response_id: Some(response_id),
                 timestamp: now_timestamp(),
@@ -944,12 +957,16 @@ impl Session {
                 Turn::Assistant {
                     content,
                     tool_calls,
+                    thinking_parts,
                     ..
                 } => {
-                    if tool_calls.is_empty() {
+                    if thinking_parts.is_empty() && tool_calls.is_empty() {
                         messages.push(Message::assistant(content.as_str()));
                     } else {
                         let mut parts = Vec::new();
+                        // Thinking blocks must precede text/tool_call content
+                        // (required by Anthropic for extended thinking).
+                        parts.extend(thinking_parts.iter().cloned());
                         if !content.is_empty() {
                             parts.push(ContentPart::text(content.as_str()));
                         }

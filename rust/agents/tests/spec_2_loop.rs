@@ -1130,6 +1130,89 @@ async fn reasoning_effort_mid_session_change() -> AgentResult<()> {
     Ok(())
 }
 
+/// When the response contains thinking/reasoning content, it should be
+/// preserved in the conversation history and included in subsequent
+/// API requests. This is required by providers like Anthropic that
+/// mandate thinking blocks be replayed in multi-turn conversations.
+#[tokio::test]
+async fn thinking_parts_preserved_in_history() -> AgentResult<()> {
+    use stencila_models3::types::content::ThinkingData;
+
+    // Response 1: tool call with thinking
+    let thinking_response = {
+        let mut parts = vec![
+            ContentPart::Thinking {
+                thinking: ThinkingData {
+                    text: "Let me think about this...".into(),
+                    signature: Some("sig_abc".into()),
+                    redacted: false,
+                },
+            },
+            ContentPart::text("I'll read the file."),
+        ];
+        parts.push(ContentPart::tool_call(
+            "call-1",
+            "read_file",
+            json!({"file_path": "test.rs"}),
+        ));
+        Ok(Response {
+            id: "resp-1".into(),
+            model: "test-model".into(),
+            provider: "test".into(),
+            message: Message::new(Role::Assistant, parts),
+            finish_reason: FinishReason::new(Reason::ToolCalls, None),
+            usage: Usage::default(),
+            raw: None,
+            warnings: None,
+            rate_limit: None,
+        })
+    };
+
+    // Response 2: final text
+    let final_response = text_response("Here are the contents.")?;
+
+    let (mut session, _rx, client) =
+        test_session(vec![thinking_response, Ok(final_response)])?;
+    session.submit("Read test.rs").await?;
+
+    let requests = client.take_requests()?;
+    // Should have 2 requests: initial + after tool result
+    assert_eq!(requests.len(), 2);
+
+    // The second request should contain the assistant message with thinking
+    let second_req = &requests[1];
+    let assistant_msgs: Vec<_> = second_req
+        .messages
+        .iter()
+        .filter(|m| m.role == Role::Assistant)
+        .collect();
+    assert!(!assistant_msgs.is_empty(), "should have assistant messages");
+
+    // Find thinking parts in the assistant messages
+    let has_thinking = assistant_msgs.iter().any(|m| {
+        m.content
+            .iter()
+            .any(|p| matches!(p, ContentPart::Thinking { .. }))
+    });
+    assert!(
+        has_thinking,
+        "assistant message should include thinking content parts"
+    );
+
+    // Verify the signature is preserved
+    let has_signature = assistant_msgs.iter().any(|m| {
+        m.content.iter().any(|p| {
+            matches!(p, ContentPart::Thinking { thinking } if thinking.signature.as_deref() == Some("sig_abc"))
+        })
+    });
+    assert!(
+        has_signature,
+        "thinking content should preserve signature"
+    );
+
+    Ok(())
+}
+
 // ===========================================================================
 // Error handling tests (spec Appendix B, 9.11)
 // ===========================================================================

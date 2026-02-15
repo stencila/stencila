@@ -655,6 +655,7 @@ fn turn_serde_roundtrip_assistant_with_tool_calls() -> AgentResult<()> {
             parse_error: None,
         }],
         reasoning: Some("thinking...".into()),
+        thinking_parts: Vec::new(),
         usage: Usage {
             input_tokens: 100,
             output_tokens: 50,

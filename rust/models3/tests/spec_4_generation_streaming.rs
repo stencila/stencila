@@ -319,6 +319,79 @@ fn accumulator_empty_produces_default_response() {
     assert_eq!(response.finish_reason.reason, Reason::Other);
 }
 
+/// When a Finish event carries a full provider-built Response, the accumulator
+/// should prefer that over the manually assembled one. This preserves
+/// provider-specific content such as Anthropic thinking signatures and
+/// OpenAI reasoning summaries.
+#[test]
+fn accumulator_prefers_finish_response() {
+    use stencila_models3::types::content::{ContentPart, ThinkingData};
+    use stencila_models3::types::response::Response;
+    use stencila_models3::types::role::Role;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+    acc.process(&StreamEvent::text_delta("streamed text"));
+
+    // Build a Finish event with a full Response that includes thinking + signature
+    let finish_response = Response {
+        id: "resp_1".into(),
+        model: "test-model".into(),
+        provider: "test".into(),
+        message: stencila_models3::types::message::Message::new(
+            Role::Assistant,
+            vec![
+                ContentPart::Thinking {
+                    thinking: ThinkingData {
+                        text: "deep thought".into(),
+                        signature: Some("sig123".into()),
+                        redacted: false,
+                    },
+                },
+                ContentPart::text("final text"),
+            ],
+        ),
+        finish_reason: FinishReason::new(Reason::Stop, None),
+        usage: Usage {
+            input_tokens: 10,
+            output_tokens: 5,
+            total_tokens: 15,
+            ..Usage::default()
+        },
+        raw: None,
+        warnings: None,
+        rate_limit: None,
+    };
+
+    let mut finish_event = StreamEvent::finish(
+        FinishReason::new(Reason::Stop, None),
+        Usage::default(),
+    );
+    finish_event.response = Some(Box::new(finish_response));
+    acc.process(&finish_event);
+
+    let response = acc.response();
+    // Should use the finish response, not the accumulated text
+    assert_eq!(response.text(), "final text");
+    assert_eq!(response.id, "resp_1");
+    // Should preserve thinking with signature
+    let reasoning = response.reasoning().expect("should have reasoning");
+    assert_eq!(reasoning, "deep thought");
+    // Check that the thinking signature is preserved
+    let thinking_parts: Vec<_> = response
+        .message
+        .content
+        .iter()
+        .filter(|p| matches!(p, ContentPart::Thinking { .. }))
+        .collect();
+    assert_eq!(thinking_parts.len(), 1);
+    if let ContentPart::Thinking { thinking } = thinking_parts[0] {
+        assert_eq!(thinking.signature.as_deref(), Some("sig123"));
+    } else {
+        panic!("expected Thinking content part");
+    }
+}
+
 /// Gemini emits ToolCallStart (empty args) + ToolCallEnd (full args), no deltas.
 /// The accumulator must take arguments from the end event.
 #[test]
