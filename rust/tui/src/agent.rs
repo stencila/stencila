@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use inflector::Inflector;
 use serde_json::Value;
 use stencila_agents::convenience::create_session;
+use stencila_agents::session::AbortController;
 use stencila_agents::types::EventKind;
 use tokio::sync::mpsc;
 
@@ -160,6 +161,7 @@ struct AgentProgress {
 pub struct RunningAgentExchange {
     progress: Arc<Mutex<AgentProgress>>,
     cancelled: Arc<AtomicBool>,
+    abort_controller: AbortController,
 }
 
 impl RunningAgentExchange {
@@ -198,11 +200,12 @@ impl RunningAgentExchange {
         }
     }
 
-    /// Soft-cancel: stop updating the UI with further events, but let the
-    /// agent session finish in the background so it remains usable for
-    /// future messages.
+    /// Cancel the current exchange: signal the agent session to abort the
+    /// in-flight LLM call / tool execution (soft abort) so the session
+    /// returns to Idle and can accept the next `submit()`.
     pub fn cancel(&self) {
         self.cancelled.store(true, Ordering::Release);
+        self.abort_controller.soft_abort();
     }
 }
 
@@ -222,6 +225,7 @@ enum AgentCommand {
         text: String,
         progress: Arc<Mutex<AgentProgress>>,
         cancelled: Arc<AtomicBool>,
+        abort_controller: AbortController,
     },
 }
 
@@ -252,10 +256,12 @@ impl AgentHandle {
     pub fn submit(&self, text: String) -> Option<RunningAgentExchange> {
         let progress = Arc::new(Mutex::new(AgentProgress::default()));
         let cancelled = Arc::new(AtomicBool::new(false));
+        let abort_controller = AbortController::new();
 
         let exchange = RunningAgentExchange {
             progress: Arc::clone(&progress),
             cancelled: Arc::clone(&cancelled),
+            abort_controller: abort_controller.clone(),
         };
 
         self.tx
@@ -263,6 +269,7 @@ impl AgentHandle {
                 text,
                 progress,
                 cancelled,
+                abort_controller,
             })
             .ok()?;
 
@@ -284,6 +291,7 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
         text,
         progress,
         cancelled,
+        abort_controller,
     }) = rx.recv().await
     {
         // Lazy session init
@@ -305,6 +313,9 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
 
         let sess = session.as_mut().expect("session initialized above");
         let ev_rx = event_rx.as_mut().expect("event_rx initialized above");
+
+        // Attach the abort signal so the session can be soft-aborted.
+        sess.set_abort_signal(abort_controller.signal());
 
         // Pin the submit future so we can poll it in tokio::select!
         let mut submit_fut = Box::pin(sess.submit(&text));
@@ -999,6 +1010,7 @@ mod tests {
         let exchange = RunningAgentExchange {
             progress,
             cancelled: Arc::new(AtomicBool::new(false)),
+            abort_controller: AbortController::new(),
         };
         let result = exchange.try_take_result().expect("should be complete");
         // Plain text has no annotations
