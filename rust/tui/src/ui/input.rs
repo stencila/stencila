@@ -22,16 +22,14 @@ fn last_visual_line_len(text: &str, wrap_width: usize) -> usize {
         text.split('\n').collect()
     };
 
-    logical_lines
-        .last()
-        .map_or(0, |last| wrap_content(last, wrap_width).last().map_or(0, |s| s.chars().count()))
+    logical_lines.last().map_or(0, |last| {
+        wrap_content(last, wrap_width)
+            .last()
+            .map_or(0, |s| s.chars().count())
+    })
 }
 
-fn ghost_chunks(
-    ghost: &str,
-    remaining_on_last: usize,
-    wrap_width: usize,
-) -> (Vec<String>, bool) {
+fn ghost_chunks(ghost: &str, remaining_on_last: usize, wrap_width: usize) -> (Vec<String>, bool) {
     let ghost_chars: Vec<char> = ghost.chars().collect();
     let mut chunks: Vec<String> = Vec::new();
     let mut start = 0;
@@ -162,7 +160,10 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
     if let Some(ghost) = &app.ghost_suggestion {
         // How many chars remain on the last visual line before wrapping
         let last_line_len = visual_lines.last().map_or(0, |l| {
-            l.spans.iter().map(|s| s.content.chars().count()).sum::<usize>()
+            l.spans
+                .iter()
+                .map(|s| s.content.chars().count())
+                .sum::<usize>()
         });
         let remaining_on_last = wrap_width.saturating_sub(last_line_len);
 

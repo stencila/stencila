@@ -26,12 +26,12 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     // When scrolled up, add a blank line + dedicated line for the scroll indicator
     let scroll_rows = u16::from(scrolled_up);
     let layout = Layout::vertical([
-        Constraint::Min(1),              // message area
-        Constraint::Length(scroll_rows), // blank line above scroll indicator
-        Constraint::Length(scroll_rows), // scroll indicator
-        Constraint::Length(1),           // blank line above input
+        Constraint::Min(1),               // message area
+        Constraint::Length(scroll_rows),  // blank line above scroll indicator
+        Constraint::Length(scroll_rows),  // scroll indicator
+        Constraint::Length(1),            // blank line above input
         Constraint::Length(input_height), // input area
-        Constraint::Length(1),           // hint line below input
+        Constraint::Length(1),            // hint line below input
     ])
     .split(area);
 
@@ -49,15 +49,18 @@ pub fn render(frame: &mut Frame, app: &mut App) {
             .total_message_lines
             .saturating_sub(app.visible_message_height)
             .saturating_sub(app.scroll_offset);
-        let indicator = Line::from(vec![
-            Span::styled(format!("   + {lines_below} lines "), dim())
-        ]);
-        frame.render_widget(
-            Paragraph::new(indicator)
-                .alignment(Alignment::Left)
-                .style(dim()),
-            scroll_indicator_area,
-        );
+        if lines_below > 0 {
+            let indicator = Line::from(vec![Span::styled(
+                format!("   + {lines_below} lines "),
+                dim(),
+            )]);
+            frame.render_widget(
+                Paragraph::new(indicator)
+                    .alignment(Alignment::Left)
+                    .style(dim()),
+                scroll_indicator_area,
+            );
+        }
     }
 
     // --- Render input ---
