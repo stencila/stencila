@@ -387,14 +387,102 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
 
 /// Format a tool-start event into a human-readable display label.
 ///
-/// Examples: `"Read file src/main.rs"`, `"Grep TODO"`, `"Shell cargo build"`
+/// Dispatches to per-tool summary functions for known tools, producing
+/// compact labels like `"Read src/main.rs"` or `"Shell cargo build"`.
+/// Unknown tools (e.g. MCP tools) fall back to a generic summary.
 fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
-    let label = tool_name.to_sentence_case();
-    let key_arg = summarize_arguments(arguments);
-    if key_arg.is_empty() {
-        label
-    } else {
-        format!("{label} {key_arg}")
+    let obj = arguments.as_object();
+    let str_arg = |key: &str| -> Option<String> {
+        obj.and_then(|o| o.get(key))
+            .and_then(Value::as_str)
+            .map(|s| strip_cwd(s))
+    };
+    let int_arg = |key: &str| -> Option<i64> {
+        obj.and_then(|o| o.get(key)).and_then(Value::as_i64)
+    };
+
+    match tool_name {
+        "read_file" => {
+            let path = str_arg("file_path").unwrap_or_default();
+            let mut label = format!("Read {path}");
+            if let Some(offset) = int_arg("offset") {
+                label.push_str(&format!(":{offset}"));
+            }
+            label
+        }
+        "write_file" => {
+            let path = str_arg("file_path").unwrap_or_default();
+            format!("Write {path}")
+        }
+        "edit_file" => {
+            let path = str_arg("file_path").unwrap_or_default();
+            format!("Edit {path}")
+        }
+        "apply_patch" => {
+            let summary = obj
+                .and_then(|o| o.get("patch"))
+                .and_then(Value::as_str)
+                .map(extract_patch_summary)
+                .unwrap_or_default();
+            if summary.is_empty() {
+                "Apply patch".to_string()
+            } else {
+                format!("Patch {summary}")
+            }
+        }
+        "shell" => {
+            if let Some(desc) = str_arg("description") {
+                format!("Shell: {desc}")
+            } else {
+                let cmd = str_arg("command").unwrap_or_default();
+                format!("Shell {cmd}")
+            }
+        }
+        "grep" => {
+            let pattern = str_arg("pattern").unwrap_or_default();
+            let mut label = format!("Grep \"{pattern}\"");
+            if let Some(path) = str_arg("path") {
+                label.push_str(&format!(" in {path}"));
+            }
+            if let Some(glob) = str_arg("glob_filter") {
+                label.push_str(&format!(" ({glob})"));
+            }
+            label
+        }
+        "glob" => {
+            let pattern = str_arg("pattern").unwrap_or_default();
+            let mut label = format!("Glob {pattern}");
+            if let Some(path) = str_arg("path") {
+                label.push_str(&format!(" in {path}"));
+            }
+            label
+        }
+        "spawn_agent" => {
+            let task = str_arg("task").unwrap_or_default();
+            let short = truncate_for_display(&task, 60);
+            format!("Spawn agent: {short}")
+        }
+        "send_input" => {
+            let id = str_arg("agent_id").unwrap_or_default();
+            format!("Send input to {id}")
+        }
+        "wait" => {
+            let id = str_arg("agent_id").unwrap_or_default();
+            format!("Wait for {id}")
+        }
+        "close_agent" => {
+            let id = str_arg("agent_id").unwrap_or_default();
+            format!("Close agent {id}")
+        }
+        _ => {
+            let label = tool_name.to_sentence_case();
+            let summary = generic_summary(arguments);
+            if summary.is_empty() {
+                label
+            } else {
+                format!("{label} {summary}")
+            }
+        }
     }
 }
 
@@ -412,17 +500,13 @@ fn strip_cwd(s: &str) -> String {
     result.replace(&cwd_str, ".")
 }
 
-/// Summarize tool call arguments into a compact display string.
-/// Joins all scalar argument values with spaces, stripping CWD prefixes for brevity.
-fn summarize_arguments(arguments: &Value) -> String {
+/// Generic fallback summary for unknown tools (e.g. MCP tools).
+/// Joins all scalar argument values with spaces, stripping CWD prefixes.
+fn generic_summary(arguments: &Value) -> String {
     let obj = match arguments.as_object() {
         Some(o) if !o.is_empty() => o,
         _ => return String::new(),
     };
-    // Special handling for apply_patch: extract file paths from patch content
-    if let Some(Value::String(patch)) = obj.get("patch") {
-        return extract_patch_summary(patch);
-    }
     let parts: Vec<String> = obj
         .iter()
         .filter_map(|(_k, v)| {
@@ -666,62 +750,110 @@ fn process_event(
 mod tests {
     use super::*;
 
-    // ─── Formatting tests (unchanged) ───────────────────────────────
+    // ─── format_tool_start per-tool summaries ──────────────────────
 
     #[test]
-    fn format_tool_start_with_file_path() {
+    fn format_read_file() {
         let args = serde_json::json!({"file_path": "src/main.rs"});
+        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs");
+    }
+
+    #[test]
+    fn format_read_file_with_offset() {
+        let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42});
         assert_eq!(
             format_tool_start("read_file", &args),
-            "Read file src/main.rs"
+            "Read src/main.rs:42"
         );
     }
 
     #[test]
-    fn format_tool_start_with_command() {
+    fn format_write_file() {
+        let args = serde_json::json!({"file_path": "out.txt", "content": "hello"});
+        assert_eq!(format_tool_start("write_file", &args), "Write out.txt");
+    }
+
+    #[test]
+    fn format_edit_file() {
+        let args =
+            serde_json::json!({"file_path": "foo.rs", "old_string": "a", "new_string": "b"});
+        assert_eq!(format_tool_start("edit_file", &args), "Edit foo.rs");
+    }
+
+    #[test]
+    fn format_shell_with_description() {
+        let args =
+            serde_json::json!({"command": "cargo build --release", "description": "Build project"});
+        assert_eq!(
+            format_tool_start("shell", &args),
+            "Shell: Build project"
+        );
+    }
+
+    #[test]
+    fn format_shell_without_description() {
         let args = serde_json::json!({"command": "cargo build"});
         assert_eq!(format_tool_start("shell", &args), "Shell cargo build");
     }
 
     #[test]
-    fn format_tool_start_no_args() {
+    fn format_grep_with_path_and_glob() {
+        let args =
+            serde_json::json!({"pattern": "TODO", "path": "src/", "glob_filter": "*.rs"});
+        assert_eq!(
+            format_tool_start("grep", &args),
+            "Grep \"TODO\" in src/ (*.rs)"
+        );
+    }
+
+    #[test]
+    fn format_grep_pattern_only() {
+        let args = serde_json::json!({"pattern": "TODO"});
+        assert_eq!(format_tool_start("grep", &args), "Grep \"TODO\"");
+    }
+
+    #[test]
+    fn format_glob_with_path() {
+        let args = serde_json::json!({"pattern": "**/*.rs", "path": "src/"});
+        assert_eq!(
+            format_tool_start("glob", &args),
+            "Glob **/*.rs in src/"
+        );
+    }
+
+    #[test]
+    fn format_spawn_agent() {
+        let args = serde_json::json!({"task": "Fix the broken tests"});
+        assert_eq!(
+            format_tool_start("spawn_agent", &args),
+            "Spawn agent: Fix the broken tests"
+        );
+    }
+
+    #[test]
+    fn format_wait() {
+        let args = serde_json::json!({"agent_id": "agent-1"});
+        assert_eq!(format_tool_start("wait", &args), "Wait for agent-1");
+    }
+
+    #[test]
+    fn format_unknown_tool_fallback() {
+        let args = serde_json::json!({"custom_key": "some_value"});
+        assert_eq!(
+            format_tool_start("my_tool", &args),
+            "My tool some_value"
+        );
+    }
+
+    #[test]
+    fn format_unknown_tool_no_args() {
         assert_eq!(format_tool_start("list_tools", &Value::Null), "List tools");
     }
 
     #[test]
-    fn format_tool_start_empty_object() {
+    fn format_unknown_tool_empty_object() {
         let args = serde_json::json!({});
         assert_eq!(format_tool_start("tool", &args), "Tool");
-    }
-
-    #[test]
-    fn format_tool_start_fallback_to_first_string() {
-        let args = serde_json::json!({"custom_key": "some_value"});
-        assert_eq!(format_tool_start("my_tool", &args), "My tool some_value");
-    }
-
-    #[test]
-    fn summarize_arguments_shows_all_args() {
-        let args = serde_json::json!({"command": "ls", "file_path": "foo.rs"});
-        assert_eq!(summarize_arguments(&args), "ls foo.rs");
-    }
-
-    #[test]
-    fn summarize_arguments_pattern_and_path() {
-        let args = serde_json::json!({"pattern": "TODO", "path": "src/"});
-        assert_eq!(summarize_arguments(&args), "TODO src/");
-    }
-
-    #[test]
-    fn summarize_arguments_single_arg() {
-        let args = serde_json::json!({"pattern": "TODO"});
-        assert_eq!(summarize_arguments(&args), "TODO");
-    }
-
-    #[test]
-    fn summarize_arguments_includes_bools_and_numbers() {
-        let args = serde_json::json!({"file_path": "foo.rs", "offset": 10, "case_insensitive": true});
-        assert_eq!(summarize_arguments(&args), "foo.rs 10 true");
     }
 
     #[test]
@@ -775,11 +907,11 @@ mod tests {
     }
 
     #[test]
-    fn strip_cwd_in_summarize_arguments() {
+    fn strip_cwd_in_format_tool_start() {
         let cwd = std::env::current_dir().expect("cwd");
         let cwd_str = cwd.display().to_string();
         let args = serde_json::json!({"file_path": format!("{cwd_str}/src/main.rs")});
-        assert_eq!(summarize_arguments(&args), "src/main.rs");
+        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs");
     }
 
     // ─── Segment building tests ─────────────────────────────────────
