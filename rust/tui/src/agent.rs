@@ -379,7 +379,7 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
 /// Examples: `"Read file src/main.rs"`, `"Grep TODO"`, `"Shell cargo build"`
 fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
     let label = tool_name.to_sentence_case();
-    let key_arg = extract_key_argument(arguments);
+    let key_arg = summarize_arguments(arguments);
     if key_arg.is_empty() {
         label
     } else {
@@ -401,9 +401,9 @@ fn strip_cwd(s: &str) -> String {
     result.replace(&cwd_str, ".")
 }
 
-/// Extract a compact display string from tool call arguments.
-/// Tries well-known keys in priority order, then falls back to first string value.
-fn extract_key_argument(arguments: &Value) -> String {
+/// Summarize tool call arguments into a compact display string.
+/// Joins all scalar argument values with spaces, stripping CWD prefixes for brevity.
+fn summarize_arguments(arguments: &Value) -> String {
     let obj = match arguments.as_object() {
         Some(o) if !o.is_empty() => o,
         _ => return String::new(),
@@ -412,19 +412,19 @@ fn extract_key_argument(arguments: &Value) -> String {
     if let Some(Value::String(patch)) = obj.get("patch") {
         return extract_patch_summary(patch);
     }
-    // Priority order matching common tool argument names
-    for key in &["file_path", "pattern", "path", "command", "query", "name"] {
-        if let Some(Value::String(v)) = obj.get(*key) {
-            return strip_cwd(v);
-        }
-    }
-    // Fallback: first string value
-    for v in obj.values() {
-        if let Some(s) = v.as_str() {
-            return strip_cwd(s);
-        }
-    }
-    String::new()
+    let parts: Vec<String> = obj
+        .iter()
+        .filter_map(|(_k, v)| {
+            let s = match v {
+                Value::String(s) => strip_cwd(s),
+                Value::Bool(b) => b.to_string(),
+                Value::Number(n) => n.to_string(),
+                _ => return None,
+            };
+            Some(s)
+        })
+        .collect();
+    parts.join(" ")
 }
 
 /// Extract a compact summary from a v4a patch string.
@@ -690,17 +690,27 @@ mod tests {
     }
 
     #[test]
-    fn extract_key_argument_priority_order() {
-        // file_path takes priority over command
+    fn summarize_arguments_shows_all_args() {
         let args = serde_json::json!({"command": "ls", "file_path": "foo.rs"});
-        assert_eq!(extract_key_argument(&args), "foo.rs");
+        assert_eq!(summarize_arguments(&args), "ls foo.rs");
     }
 
     #[test]
-    fn extract_key_argument_pattern_before_path() {
-        // pattern takes priority over path (e.g. for Grep)
+    fn summarize_arguments_pattern_and_path() {
         let args = serde_json::json!({"pattern": "TODO", "path": "src/"});
-        assert_eq!(extract_key_argument(&args), "TODO");
+        assert_eq!(summarize_arguments(&args), "TODO src/");
+    }
+
+    #[test]
+    fn summarize_arguments_single_arg() {
+        let args = serde_json::json!({"pattern": "TODO"});
+        assert_eq!(summarize_arguments(&args), "TODO");
+    }
+
+    #[test]
+    fn summarize_arguments_includes_bools_and_numbers() {
+        let args = serde_json::json!({"file_path": "foo.rs", "offset": 10, "case_insensitive": true});
+        assert_eq!(summarize_arguments(&args), "foo.rs 10 true");
     }
 
     #[test]
@@ -754,11 +764,11 @@ mod tests {
     }
 
     #[test]
-    fn strip_cwd_in_extract_key_argument() {
+    fn strip_cwd_in_summarize_arguments() {
         let cwd = std::env::current_dir().expect("cwd");
         let cwd_str = cwd.display().to_string();
         let args = serde_json::json!({"file_path": format!("{cwd_str}/src/main.rs")});
-        assert_eq!(extract_key_argument(&args), "src/main.rs");
+        assert_eq!(summarize_arguments(&args), "src/main.rs");
     }
 
     // ─── Segment building tests ─────────────────────────────────────
