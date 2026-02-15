@@ -496,7 +496,7 @@ impl App {
                 }
             }
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
-                self.clear_messages();
+                self.reset_active_session();
             }
             (KeyModifiers::CONTROL, KeyCode::Char('a')) => {
                 if self.sessions.len() > 1 {
@@ -838,10 +838,34 @@ impl App {
         result
     }
 
-    /// Clear all messages and cancel anything running.
-    pub fn clear_messages(&mut self) {
+    /// Reset the active agent session: cancel its running exchanges, drop the
+    /// agent handle (so a fresh session is created on the next submit), and
+    /// clear all messages.
+    pub fn reset_active_session(&mut self) {
+        let session = &mut self.sessions[self.active_session];
+        for (idx, exchange) in session.running_agent_exchanges.drain(..) {
+            exchange.cancel();
+            Self::mark_exchange_cancelled(&mut self.messages, idx);
+        }
+        session.agent = None;
+        session.context_usage_percent = 0;
+
+        self.messages.push(AppMessage::System {
+            content: format!("Context cleared for agent `{}`", session.name),
+        });
+    }
+
+    /// Reset everything: cancel all running work, drop all sessions, create a
+    /// fresh default session, and clear all messages. Equivalent to restarting.
+    pub fn reset_all(&mut self) {
         self.cancel_all_running();
+        // Drop all sessions (and their agent handles)
+        self.sessions.clear();
+        let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
+        self.sessions.push(AgentSession::new(default_name));
+        self.active_session = 0;
         self.messages.clear();
+        self.messages.push(AppMessage::Welcome);
         self.scroll_pinned = true;
         self.scroll_offset = 0;
     }
@@ -1537,7 +1561,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn ctrl_l_clears() {
+    async fn ctrl_l_resets_active_session() {
         let mut app = App::new_for_test();
 
         // Type and submit a message
@@ -1545,9 +1569,10 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
         assert_eq!(app.messages.len(), 2);
 
-        // Clear
+        // Ctrl+L resets to welcome
         app.handle_event(&key_event(KeyCode::Char('l'), KeyModifiers::CONTROL));
-        assert!(app.messages.is_empty());
+        assert_eq!(app.messages.len(), 1);
+        assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[tokio::test]
@@ -1741,13 +1766,14 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn slash_clear_clears_messages() {
+    async fn slash_clear_resets_active_session() {
         let mut app = App::new_for_test();
         for c in "/clear".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-        assert!(app.messages.is_empty());
+        assert_eq!(app.messages.len(), 1);
+        assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[tokio::test]

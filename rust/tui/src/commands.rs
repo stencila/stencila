@@ -17,11 +17,14 @@ pub enum SlashCommand {
     #[strum(message = "Cancel a running command")]
     Cancel,
 
-    #[strum(message = "Clear messages")]
+    #[strum(message = "New session for current agent")]
     Clear,
 
     #[strum(message = "Show help information")]
     Help,
+
+    #[strum(message = "Reset all agents and messages")]
+    New,
 
     #[strum(message = "Show recent history")]
     History,
@@ -95,6 +98,7 @@ impl SlashCommand {
             Self::Agents => execute_agents(app),
             Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
+            Self::New => execute_new(app),
             Self::Exit => match app.mode {
                 AppMode::Shell => app.exit_shell_mode(),
                 AppMode::Chat => app.should_quit = true,
@@ -184,7 +188,7 @@ fn execute_help(app: &mut App) {
     help.push_str("  Up/Down        History / cursor movement\n");
     help.push_str("  Ctrl+C         Cancel running / quit (chat) / clear (shell)\n");
     help.push_str("  Ctrl+D         Exit shell mode\n");
-    help.push_str("  Ctrl+L         Clear messages\n");
+    help.push_str("  Ctrl+L         New session for current agent\n");
     help.push_str("  Ctrl+A         Cycle agents\n");
     help.push_str("  PageUp/Down    Scroll messages\n");
     help.push_str("  Esc            Scroll to bottom (when scrolled up)\n");
@@ -195,7 +199,11 @@ fn execute_help(app: &mut App) {
 }
 
 fn execute_clear(app: &mut App) {
-    app.clear_messages();
+    app.reset_active_session();
+}
+
+fn execute_new(app: &mut App) {
+    app.reset_all();
 }
 
 fn execute_history(app: &mut App) {
@@ -273,8 +281,8 @@ mod tests {
         let none = SlashCommand::matching("/z");
         assert!(none.is_empty());
 
-        let none = SlashCommand::matching("/new");
-        assert!(none.is_empty());
+        let new_cmds = SlashCommand::matching("/new");
+        assert_eq!(new_cmds, vec![SlashCommand::New]);
     }
 
     #[test]
@@ -328,11 +336,27 @@ mod tests {
     }
 
     #[test]
-    fn execute_clear_empties_messages() {
+    fn execute_clear_resets_active_session() {
         let mut app = App::new_for_test();
         assert!(!app.messages.is_empty());
         SlashCommand::Clear.execute(&mut app, "");
-        assert!(app.messages.is_empty());
+        // Messages reset to just the welcome message
+        assert_eq!(app.messages.len(), 1);
+        assert!(matches!(&app.messages[0], AppMessage::Welcome));
+    }
+
+    #[test]
+    fn execute_new_resets_all() {
+        let mut app = App::new_for_test();
+        app.sessions.push(AgentSession::new("extra"));
+        app.active_session = 1;
+        SlashCommand::New.execute(&mut app, "");
+        // Back to a single default session
+        assert_eq!(app.sessions.len(), 1);
+        assert_eq!(app.active_session, 0);
+        // Messages reset to just the welcome message
+        assert_eq!(app.messages.len(), 1);
+        assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[test]
