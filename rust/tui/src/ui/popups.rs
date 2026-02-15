@@ -298,3 +298,56 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
 
     render_popup(frame, area, lines, Some(" Agents "));
 }
+
+/// Render the agent mention autocomplete popup floating above the input area.
+pub(super) fn mentions(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.mentions_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let max_name_width = candidates.iter().map(|c| c.name.len()).max().unwrap_or(0);
+    let selected = app.mentions_state.selected();
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let name_col = format!(" {:<max_name_width$}  ", candidate.name);
+
+            let detail = candidate.definition.as_ref().and_then(|info| {
+                if !info.description.is_empty() {
+                    Some(info.description.clone())
+                } else if !info.source.is_empty() {
+                    Some(info.source.clone())
+                } else {
+                    None
+                }
+            });
+
+            let name_style = if i == selected {
+                Style::new()
+                    .fg(candidate.color)
+                    .add_modifier(Modifier::BOLD)
+            } else {
+                Style::new().fg(candidate.color)
+            };
+
+            if let Some(detail) = detail {
+                let detail_style = if i == selected {
+                    selected_secondary_style()
+                } else {
+                    dim()
+                };
+                Line::from(vec![
+                    Span::styled(name_col, name_style),
+                    Span::styled(detail, detail_style),
+                ])
+            } else {
+                Line::from(Span::styled(name_col, name_style))
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Prompt agent "));
+}

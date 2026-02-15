@@ -21,7 +21,7 @@ pub struct ResponseAcceptResult {
     pub text: String,
 }
 
-/// State for the response autocomplete popup triggered by `#`.
+/// State for the response autocomplete popup triggered by `$`.
 pub struct ResponsesState {
     /// Whether the popup is currently visible.
     visible: bool,
@@ -68,7 +68,7 @@ impl ResponsesState {
             return;
         }
 
-        let Some((range, query)) = find_hash_token(input, cursor) else {
+        let Some((range, query)) = find_dollar_token(input, cursor) else {
             self.visible = false;
             return;
         };
@@ -148,26 +148,26 @@ impl ResponsesState {
     }
 }
 
-/// Find a `#` token at or before the cursor in the input.
+/// Find a `$` token at or before the cursor in the input.
 ///
-/// Returns the byte range of the token (from `#` through any trailing digits)
-/// and the digit query string after `#`. Returns `None` if no valid `#` token
+/// Returns the byte range of the token (from `$` through any trailing digits)
+/// and the digit query string after `$`. Returns `None` if no valid `$` token
 /// is found at the cursor position.
 ///
-/// A valid token is `#` optionally followed by digits only (no other characters).
+/// A valid token is `$` optionally followed by digits only (no other characters).
 /// The cursor must be within or immediately after the token.
-fn find_hash_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str)> {
-    // Search backwards from cursor for `#`
+fn find_dollar_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str)> {
+    // Search backwards from cursor for `$`
     let before = &input[..cursor];
-    let hash_pos = before.rfind('#')?;
+    let dollar_pos = before.rfind('$')?;
 
-    // Everything between `#` and cursor must be digits (or empty)
-    let after_hash = &input[hash_pos + 1..cursor];
-    if !after_hash.chars().all(|c| c.is_ascii_digit()) {
+    // Everything between `$` and cursor must be digits (or empty)
+    let after_dollar = &input[dollar_pos + 1..cursor];
+    if !after_dollar.chars().all(|c| c.is_ascii_digit()) {
         return None;
     }
 
-    // Token extends from `#` through any contiguous digits after cursor too
+    // Token extends from `$` through any contiguous digits after cursor too
     let mut end = cursor;
     for c in input[cursor..].chars() {
         if c.is_ascii_digit() {
@@ -177,7 +177,7 @@ fn find_hash_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str)> {
         }
     }
 
-    Some((hash_pos..end, after_hash))
+    Some((dollar_pos..end, after_dollar))
 }
 
 #[cfg(test)]
@@ -218,63 +218,63 @@ mod tests {
     }
 
     #[test]
-    fn hash_triggers_all_candidates() {
+    fn dollar_triggers_all_candidates() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &sample_exchanges());
+        state.update("$", 1, &sample_exchanges());
         assert!(state.is_visible());
         assert_eq!(state.candidates().len(), 3);
     }
 
     #[test]
-    fn hash_with_digit_filters() {
+    fn dollar_with_digit_filters() {
         let mut state = ResponsesState::new();
-        state.update("#1", 2, &sample_exchanges());
+        state.update("$1", 2, &sample_exchanges());
         assert!(state.is_visible());
         assert_eq!(state.candidates().len(), 1);
         assert_eq!(state.candidates()[0].number, 1);
     }
 
     #[test]
-    fn hash_no_match_hides() {
+    fn dollar_no_match_hides() {
         let mut state = ResponsesState::new();
-        state.update("#9", 2, &sample_exchanges());
+        state.update("$9", 2, &sample_exchanges());
         assert!(!state.is_visible());
     }
 
     #[test]
-    fn hash_mid_input() {
+    fn dollar_mid_input() {
         let mut state = ResponsesState::new();
-        state.update("look at #2", 10, &sample_exchanges());
+        state.update("look at $2", 10, &sample_exchanges());
         assert!(state.is_visible());
         assert_eq!(state.candidates().len(), 1);
         assert_eq!(state.candidates()[0].number, 2);
     }
 
     #[test]
-    fn no_hash_stays_hidden() {
+    fn no_dollar_stays_hidden() {
         let mut state = ResponsesState::new();
         state.update("hello", 5, &sample_exchanges());
         assert!(!state.is_visible());
     }
 
     #[test]
-    fn hash_with_non_digit_stays_hidden() {
+    fn dollar_with_non_digit_stays_hidden() {
         let mut state = ResponsesState::new();
-        state.update("#abc", 4, &sample_exchanges());
+        state.update("$abc", 4, &sample_exchanges());
         assert!(!state.is_visible());
     }
 
     #[test]
     fn empty_exchanges_stays_hidden() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &[]);
+        state.update("$", 1, &[]);
         assert!(!state.is_visible());
     }
 
     #[test]
     fn select_next_wraps() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &sample_exchanges());
+        state.update("$", 1, &sample_exchanges());
         assert_eq!(state.selected(), 0);
 
         state.select_next();
@@ -288,7 +288,7 @@ mod tests {
     #[test]
     fn select_prev_wraps() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &sample_exchanges());
+        state.update("$", 1, &sample_exchanges());
         assert_eq!(state.selected(), 0);
 
         state.select_prev();
@@ -298,7 +298,7 @@ mod tests {
     #[test]
     fn accept_returns_result() {
         let mut state = ResponsesState::new();
-        state.update("#2", 2, &sample_exchanges());
+        state.update("$2", 2, &sample_exchanges());
         assert!(state.is_visible());
 
         let result = state.accept();
@@ -312,7 +312,7 @@ mod tests {
     #[test]
     fn candidate_has_label() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &sample_exchanges());
+        state.update("$", 1, &sample_exchanges());
         assert_eq!(state.candidates()[0].label, "default");
         assert_eq!(state.candidates()[2].label, "shell");
     }
@@ -326,7 +326,7 @@ mod tests {
     #[test]
     fn dismiss_resets() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &sample_exchanges());
+        state.update("$", 1, &sample_exchanges());
         assert!(state.is_visible());
 
         state.dismiss();
@@ -338,66 +338,66 @@ mod tests {
     #[test]
     fn selection_clamped_on_filter() {
         let mut state = ResponsesState::new();
-        state.update("#", 1, &sample_exchanges());
+        state.update("$", 1, &sample_exchanges());
         state.select_next();
         state.select_next();
         assert_eq!(state.selected(), 2);
 
         // Re-filter to fewer candidates
-        state.update("#1", 2, &sample_exchanges());
+        state.update("$1", 2, &sample_exchanges());
         assert_eq!(state.candidates().len(), 1);
         assert_eq!(state.selected(), 0);
     }
 
-    // --- find_hash_token tests ---
+    // --- find_dollar_token tests ---
 
     #[test]
-    fn find_hash_bare() {
-        let result = find_hash_token("#", 1);
+    fn find_dollar_bare() {
+        let result = find_dollar_token("$", 1);
         assert_eq!(result, Some((0..1, "")));
     }
 
     #[test]
-    fn find_hash_with_digits() {
-        let result = find_hash_token("#12", 3);
+    fn find_dollar_with_digits() {
+        let result = find_dollar_token("$12", 3);
         assert_eq!(result, Some((0..3, "12")));
     }
 
     #[test]
-    fn find_hash_mid_input() {
-        // Cursor right after `#` (position 5)
-        let result = find_hash_token("see #3 here", 5);
+    fn find_dollar_mid_input() {
+        // Cursor right after `$` (position 5)
+        let result = find_dollar_token("see $3 here", 5);
         assert_eq!(result, Some((4..6, "")));
     }
 
     #[test]
-    fn find_hash_mid_input_with_digit() {
-        let result = find_hash_token("see #3 here", 6);
+    fn find_dollar_mid_input_with_digit() {
+        let result = find_dollar_token("see $3 here", 6);
         assert_eq!(result, Some((4..6, "3")));
     }
 
     #[test]
-    fn find_hash_none_without_hash() {
-        let result = find_hash_token("hello", 5);
+    fn find_dollar_none_without_dollar() {
+        let result = find_dollar_token("hello", 5);
         assert!(result.is_none());
     }
 
     #[test]
-    fn find_hash_none_with_non_digits() {
-        let result = find_hash_token("#abc", 4);
+    fn find_dollar_none_with_non_digits() {
+        let result = find_dollar_token("$abc", 4);
         assert!(result.is_none());
     }
 
     #[test]
-    fn find_hash_cursor_right_after_hash() {
-        let result = find_hash_token("text #", 6);
+    fn find_dollar_cursor_right_after_dollar() {
+        let result = find_dollar_token("text $", 6);
         assert_eq!(result, Some((5..6, "")));
     }
 
     #[test]
-    fn find_hash_cursor_between_digits() {
-        // Input: "#12", cursor at position 2 (between 1 and 2)
-        let result = find_hash_token("#12", 2);
+    fn find_dollar_cursor_between_digits() {
+        // Input: "$12", cursor at position 2 (between 1 and 2)
+        let result = find_dollar_token("$12", 2);
         // Token should extend through all digits
         assert_eq!(result, Some((0..3, "1")));
     }

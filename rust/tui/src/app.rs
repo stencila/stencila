@@ -7,9 +7,11 @@ use crate::{
     agent::{AgentHandle, ResponseSegment, RunningAgentExchange},
     autocomplete::agents::{AgentDefinitionInfo, AgentSelection},
     autocomplete::cancel::CancelCandidate,
+    autocomplete::mentions::MentionCandidate,
     autocomplete::responses::ResponseCandidate,
     autocomplete::{
-        AgentsState, CancelState, CommandsState, FilesState, HistoryState, ResponsesState,
+        AgentsState, CancelState, CommandsState, FilesState, HistoryState, MentionsState,
+        ResponsesState,
     },
     commands::SlashCommand,
     history::InputHistory,
@@ -143,6 +145,32 @@ pub enum AppMessage {
     System { content: String },
 }
 
+/// Discover agent definitions, returning an empty vec if no runtime is available.
+fn discover_agents() -> Vec<stencila_agents::agent_def::AgentInstance> {
+    let Ok(handle) = tokio::runtime::Handle::try_current() else {
+        return Vec::new();
+    };
+    // block_in_place panics on current_thread runtime; catch that gracefully.
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        tokio::task::block_in_place(|| {
+            handle.block_on(stencila_agents::agent_def::discover(
+                &std::env::current_dir().unwrap_or_default(),
+            ))
+        })
+    }))
+    .unwrap_or_default()
+}
+
+/// Parsed result of an `#agent-name prompt` mention in the input.
+struct AgentMention {
+    /// Name of the agent to target.
+    agent_name: String,
+    /// Optional prompt to send (trimmed, `&` suffix removed).
+    prompt: Option<String>,
+    /// Whether to switch back to the original session after sending.
+    switch_back: bool,
+}
+
 /// Top-level application state.
 ///
 /// All mutable state lives here. The render function takes `&App` (immutable)
@@ -174,6 +202,8 @@ pub struct App {
     pub cancel_state: CancelState,
     /// Agent picker popup state.
     pub agents_state: AgentsState,
+    /// Agent mention autocomplete popup state (triggered by `#`).
+    pub mentions_state: MentionsState,
 
     /// Stored paste contents keyed by paste number. Large pastes are inserted
     /// as `[Paste #N: preview…]` tokens in the input buffer; the full text is
@@ -248,6 +278,7 @@ impl App {
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
             agents_state: AgentsState::new(),
+            mentions_state: MentionsState::new(),
             pastes: std::collections::HashMap::new(),
             paste_counter: 0,
             ghost_suggestion: None,
@@ -308,6 +339,7 @@ impl App {
     fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
             || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
+            || (self.mentions_state.is_visible() && self.handle_mentions_autocomplete(key))
             || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
@@ -604,6 +636,40 @@ impl App {
         true
     }
 
+    /// Handle a key event when the mentions autocomplete popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_mentions_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(result) = self.mentions_state.accept() {
+                    self.input.replace_range(result.range, &result.text);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.mentions_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.mentions_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.mentions_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+                let input = self.input.text().to_string();
+                let cursor = self.input.cursor();
+                let agents = self.mention_candidates();
+                self.mentions_state.update(&input, cursor, &agents);
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+                let input = self.input.text().to_string();
+                let cursor = self.input.cursor();
+                let agents = self.mention_candidates();
+                self.mentions_state.update(&input, cursor, &agents);
+            }
+            _ => return false,
+        }
+        true
+    }
+
     fn create_session_from_definition(&mut self, info: AgentDefinitionInfo) {
         let mut session = AgentSession::new(&info.name);
         session.definition = Some(info.clone());
@@ -680,14 +746,16 @@ impl App {
         } else {
             match self.mode {
                 AppMode::Chat => {
-                    // Check for one-off shell command with $ prefix.
-                    // Bare "$" or "$   " falls through to normal chat message.
-                    if let Some(cmd) = expanded.strip_prefix('$')
+                    if let Some(mention) = self.parse_agent_mention(&expanded) {
+                        self.input_history
+                            .push_tagged(text, AppMode::Chat);
+                        self.execute_agent_mention(mention);
+                    } else if let Some(cmd) = expanded.strip_prefix('!')
                         && !cmd.trim().is_empty()
                     {
                         let cmd = cmd.to_string();
                         self.input_history
-                            .push_tagged(format!("${cmd}"), AppMode::Chat);
+                            .push_tagged(format!("!{cmd}"), AppMode::Chat);
                         self.spawn_shell_command(cmd);
                     } else {
                         self.input_history.push_tagged(text, AppMode::Chat);
@@ -752,6 +820,43 @@ impl App {
         }
 
         candidates.reverse();
+        candidates
+    }
+
+    /// Build mention candidates from existing sessions and discovered agents.
+    pub fn mention_candidates(&self) -> Vec<MentionCandidate> {
+        let mut candidates: Vec<MentionCandidate> = self
+            .sessions
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != self.active_session)
+            .map(|(i, s)| MentionCandidate {
+                name: s.name.clone(),
+                color: AgentSession::color(i),
+                definition: s.definition.clone(),
+            })
+            .collect();
+
+        // Discovered agent definitions not yet in sessions
+        let session_names: Vec<&str> = self.sessions.iter().map(|s| s.name.as_str()).collect();
+        let definitions = discover_agents();
+        for def in definitions {
+            if session_names.contains(&def.name.as_str()) {
+                continue;
+            }
+            candidates.push(MentionCandidate {
+                name: def.name.clone(),
+                color: Color::DarkGray,
+                definition: Some(AgentDefinitionInfo {
+                    name: def.name.clone(),
+                    description: def.description.clone(),
+                    model: def.model.clone(),
+                    provider: def.provider.clone(),
+                    source: def.source().map(|s| s.to_string()).unwrap_or_default(),
+                }),
+            });
+        }
+
         candidates
     }
 
@@ -1143,6 +1248,125 @@ impl App {
         }
     }
 
+    /// Parse a `#agent-name [prompt]` pattern from the input text.
+    ///
+    /// Returns `None` if the text doesn't start with `#name` or the name doesn't
+    /// match any known session or discovered agent.
+    fn parse_agent_mention(&self, text: &str) -> Option<AgentMention> {
+        let trimmed = text.trim_start();
+        if !trimmed.starts_with('#') {
+            return None;
+        }
+
+        // Extract the name: everything after `#` up to first whitespace
+        let after_hash = &trimmed[1..];
+        let (name, rest) = after_hash
+            .split_once(char::is_whitespace)
+            .unwrap_or((after_hash, ""));
+
+        if name.is_empty() {
+            return None;
+        }
+
+        // Validate the name matches a session or discovered agent
+        let name_lower = name.to_ascii_lowercase();
+        let is_session = self
+            .sessions
+            .iter()
+            .any(|s| s.name.to_ascii_lowercase() == name_lower);
+
+        let is_definition = if !is_session {
+            discover_agents()
+                .iter()
+                .any(|d| d.name.to_ascii_lowercase() == name_lower)
+        } else {
+            false
+        };
+
+        if !is_session && !is_definition {
+            return None;
+        }
+
+        let prompt = rest.trim();
+        if prompt.is_empty() {
+            // Just `#agent-name` — switch without sending
+            Some(AgentMention {
+                agent_name: name.to_string(),
+                prompt: None,
+                switch_back: false,
+            })
+        } else if prompt.ends_with('&') {
+            // Prompt ends with `&` — send but don't switch back
+            let prompt = prompt.trim_end_matches('&').trim_end().to_string();
+            Some(AgentMention {
+                agent_name: name.to_string(),
+                prompt: if prompt.is_empty() {
+                    None
+                } else {
+                    Some(prompt)
+                },
+                switch_back: false,
+            })
+        } else {
+            // Normal prompt — send and switch back
+            Some(AgentMention {
+                agent_name: name.to_string(),
+                prompt: Some(prompt.to_string()),
+                switch_back: true,
+            })
+        }
+    }
+
+    /// Execute a parsed agent mention: switch, optionally send, optionally switch back.
+    fn execute_agent_mention(&mut self, mention: AgentMention) {
+        let original_session = self.active_session;
+
+        // Find or create the target session
+        let name_lower = mention.agent_name.to_ascii_lowercase();
+        let target_idx = self
+            .sessions
+            .iter()
+            .position(|s| s.name.to_ascii_lowercase() == name_lower);
+
+        let target_idx = match target_idx {
+            Some(idx) => {
+                if idx != self.active_session {
+                    self.switch_to_session(idx);
+                }
+                idx
+            }
+            None => {
+                // Create from definition
+                if let Some(def) = discover_agents()
+                    .into_iter()
+                    .find(|d| d.name.to_ascii_lowercase() == name_lower)
+                {
+                    let info = AgentDefinitionInfo {
+                        name: def.name.clone(),
+                        description: def.description.clone(),
+                        model: def.model.clone(),
+                        provider: def.provider.clone(),
+                        source: def.source().map(|s| s.to_string()).unwrap_or_default(),
+                    };
+                    self.create_session_from_definition(info);
+                    self.active_session
+                } else {
+                    return;
+                }
+            }
+        };
+
+        // Send the prompt if present
+        if let Some(prompt) = mention.prompt {
+            self.submit_agent_message(prompt);
+        }
+
+        // Switch back if needed
+        if mention.switch_back && target_idx != original_session {
+            self.active_session = original_session;
+        }
+    }
+
     /// Poll all running commands for completion. Called on tick events.
     pub fn poll_running_commands(&mut self) {
         self.tick_count = self.tick_count.wrapping_add(1);
@@ -1326,6 +1550,7 @@ impl App {
     fn dismiss_all_autocomplete(&mut self) {
         self.cancel_state.dismiss();
         self.agents_state.dismiss();
+        self.mentions_state.dismiss();
         self.commands_state.dismiss();
         self.files_state.dismiss();
         self.history_state.dismiss();
@@ -1340,10 +1565,12 @@ impl App {
         self.commands_state.update(self.input.text());
         self.files_state
             .update(self.input.text(), self.input.cursor());
-        let exchanges = self.response_candidates();
         let input = self.input.text().to_string();
         let cursor = self.input.cursor();
+        let exchanges = self.response_candidates();
         self.responses_state.update(&input, cursor, &exchanges);
+        let agents = self.mention_candidates();
+        self.mentions_state.update(&input, cursor, &agents);
     }
 
     /// Navigate to the previous (older) history entry, filtered by current mode.
@@ -1393,6 +1620,7 @@ impl App {
     fn any_popup_visible(&self) -> bool {
         self.cancel_state.is_visible()
             || self.agents_state.is_visible()
+            || self.mentions_state.is_visible()
             || self.history_state.is_visible()
             || self.commands_state.is_visible()
             || self.files_state.is_visible()
@@ -2349,17 +2577,17 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn hash_triggers_response_autocomplete() {
+    async fn dollar_triggers_response_autocomplete() {
         let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         assert!(app.responses_state.is_visible());
         assert_eq!(app.responses_state.candidates().len(), 2);
     }
 
     #[tokio::test]
-    async fn hash_with_digit_filters_responses() {
+    async fn dollar_with_digit_filters_responses() {
         let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         app.handle_event(&key_event(KeyCode::Char('1'), KeyModifiers::NONE));
         assert!(app.responses_state.is_visible());
         assert_eq!(app.responses_state.candidates().len(), 1);
@@ -2369,7 +2597,7 @@ mod tests {
     #[tokio::test]
     async fn response_esc_dismisses() {
         let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         assert!(app.responses_state.is_visible());
 
         app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
@@ -2379,7 +2607,7 @@ mod tests {
     #[tokio::test]
     async fn response_tab_accepts() {
         let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('#'), KeyModifiers::SHIFT));
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
         assert!(app.responses_state.is_visible());
 
         app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));

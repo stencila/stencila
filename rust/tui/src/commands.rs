@@ -194,7 +194,10 @@ fn execute_help(app: &mut App) {
     help.push_str("  Esc            Scroll to bottom (when scrolled up)\n");
     help.push_str("  Scroll wheel   Scroll messages\n");
     help.push_str("  Shift+drag     Select text (terminal native copy)\n");
-    help.push_str("  !command       Run a shell command from chat mode");
+    help.push_str("  !command       Run a shell command from chat mode\n");
+    help.push_str("  #agent prompt  Send prompt to agent (switches back after)\n");
+    help.push_str("  #agent prompt& Send prompt to agent (stays on agent)\n");
+    help.push_str("  #agent         Switch to agent session");
     app.messages.push(AppMessage::System { content: help });
 }
 
