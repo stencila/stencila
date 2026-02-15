@@ -1,1 +1,1 @@
-doc-valid-idents = ["OpenAI", "DeepSeek", ".."]
+doc-valid-idents = ["OpenAI", "DeepSeek", "ReasoningStart", ".."]

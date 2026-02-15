@@ -631,6 +631,7 @@ struct ToolCallState {
 
 /// Stateful translator for Chat Completions SSE events.
 #[derive(Debug, Clone, Default)]
+#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct ChatCompletionsStreamState {
     emitted_stream_start: bool,
     emitted_text_start: bool,

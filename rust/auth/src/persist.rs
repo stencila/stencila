@@ -180,11 +180,13 @@ pub fn load_auth_overrides() -> AuthOptions {
 }
 
 /// Convert an `eyre::Report` to an `AuthError::Authentication`.
+#[allow(unused)]
 pub(crate) fn to_auth_error(e: &eyre::Report) -> AuthError {
     AuthError::Authentication(e.to_string())
 }
 
 /// Convert an `eyre::Result` to an `AuthResult`.
+#[allow(unused)]
 pub(crate) fn to_auth_result<T>(result: Result<T>) -> AuthResult<T> {
     result.map_err(|e| to_auth_error(&e))
 }

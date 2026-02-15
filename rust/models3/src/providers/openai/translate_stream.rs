@@ -122,7 +122,9 @@ pub fn translate_sse_event(
         // Reasoning summary part added — emit ReasoningStart.
         // OpenAI Responses API sends this when a reasoning summary block begins.
         "response.reasoning_summary_part.added" => {
-            if !state.emitted_reasoning_start {
+            if state.emitted_reasoning_start {
+                out.push(provider_event(payload));
+            } else {
                 state.emitted_reasoning_start = true;
                 out.push(StreamEvent {
                     event_type: StreamEventType::ReasoningStart,
@@ -137,8 +139,6 @@ pub fn translate_sse_event(
                     warnings: None,
                     raw: Some(payload),
                 });
-            } else {
-                out.push(provider_event(payload));
             }
         }
         // Reasoning summary text delta — emit ReasoningDelta with the text.
