@@ -394,6 +394,30 @@ fn session_config_custom_tool_limits() -> AgentResult<()> {
 }
 
 #[test]
+fn session_config_commit_instructions_default_is_none() {
+    let config = SessionConfig::default();
+    assert_eq!(config.commit_instructions, None);
+}
+
+#[test]
+fn session_config_for_child_inherits_commit_instructions() {
+    let config = SessionConfig {
+        commit_instructions: Some("GIT_COMMITTER_NAME=\"Stencila\" git commit".into()),
+        ..Default::default()
+    };
+
+    let child = config.for_child(10, 0);
+    assert_eq!(child.commit_instructions, config.commit_instructions);
+}
+
+#[test]
+fn session_config_for_child_none_commit_instructions_stays_none() {
+    let config = SessionConfig::default();
+    let child = config.for_child(10, 0);
+    assert_eq!(child.commit_instructions, None);
+}
+
+#[test]
 fn session_config_with_reasoning_effort() -> AgentResult<()> {
     let json = r#"{"reasoning_effort": "high"}"#;
     let config: SessionConfig =

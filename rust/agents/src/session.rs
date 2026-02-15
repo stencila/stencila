@@ -381,6 +381,13 @@ impl Session {
             tool_line_limits: config.tool_line_limits.clone(),
         };
 
+        // Commit instructions layer (between skills/MCP and user instructions)
+        let system_prompt = if let Some(ref ci) = config.commit_instructions {
+            format!("{system_prompt}\n\n{ci}")
+        } else {
+            system_prompt
+        };
+
         // Layer 5: append user instruction override if present (spec 6.1)
         let system_prompt = if let Some(ref user_instr) = config.user_instructions {
             format!("{system_prompt}\n\n{user_instr}")

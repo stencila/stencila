@@ -136,6 +136,14 @@ pub struct SessionConfig {
     #[serde(default = "default_max_subagent_depth")]
     pub max_subagent_depth: u32,
 
+    /// Commit instructions appended to the system prompt.
+    ///
+    /// Populated by [`crate::convenience::create_session()`] with instructions
+    /// to set the git committer identity. Inherited by subagents via
+    /// [`for_child()`](Self::for_child).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub commit_instructions: Option<String>,
+
     /// User instruction override text (spec layer 5, appended last to system prompt).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user_instructions: Option<String>,
@@ -193,6 +201,8 @@ impl SessionConfig {
             enable_skills: self.enable_skills,
             enable_mcp: self.enable_mcp,
             enable_codemode: self.enable_codemode,
+            // Inherited: subagents use the same commit trailer
+            commit_instructions: self.commit_instructions.clone(),
             // Session-specific: not inherited
             reasoning_effort: None,
             user_instructions: None,
@@ -213,6 +223,7 @@ impl Default for SessionConfig {
             enable_loop_detection: true,
             loop_detection_window: default_loop_detection_window(),
             max_subagent_depth: default_max_subagent_depth(),
+            commit_instructions: None,
             user_instructions: None,
             auto_detect_awaiting_input: true,
             enable_skills: true,

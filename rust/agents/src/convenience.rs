@@ -158,7 +158,7 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
             })
         })?;
 
-    let config = SessionConfig::from_agent(&agent).await.map_err(|e| {
+    let mut config = SessionConfig::from_agent(&agent).await.map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
             message: format!("Failed to build session config from agent: {e}"),
         })
@@ -198,6 +198,8 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
             }
         },
     };
+
+    config.commit_instructions = Some(prompts::build_commit_instructions());
 
     let max_timeout = config.max_command_timeout_ms;
 

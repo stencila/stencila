@@ -185,6 +185,19 @@ pub async fn build_environment_context_from_env(
     )
 }
 
+/// Build commit instructions telling the agent how to set the git committer.
+///
+/// Returns a static instruction block for the system prompt that tells the
+/// agent to set `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL` environment
+/// variables when making git commits.
+pub fn build_commit_instructions() -> String {
+    "When making git commits, always set the committer identity using environment variables:\n\n  \
+     GIT_COMMITTER_NAME=\"Stencila\" \
+     GIT_COMMITTER_EMAIL=\"47797644+stencila[bot]@users.noreply.github.com\" \
+     git commit ..."
+        .to_string()
+}
+
 /// Format git context as a summary block for inclusion in the system prompt.
 ///
 /// Returns an empty string if not in a git repo.

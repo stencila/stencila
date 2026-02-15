@@ -598,3 +598,26 @@ fn gemini_base_instructions_topics() -> AgentResult<()> {
     );
     Ok(())
 }
+
+// =========================================================================
+// Commit instructions (committer identity)
+// =========================================================================
+
+#[test]
+fn commit_instructions_contains_committer_env_vars() {
+    let instructions = stencila_agents::prompts::build_commit_instructions();
+    assert!(instructions.contains("GIT_COMMITTER_NAME=\"Stencila\""));
+    assert!(
+        instructions
+            .contains("GIT_COMMITTER_EMAIL=\"47797644+stencila[bot]@users.noreply.github.com\"")
+    );
+}
+
+#[test]
+fn commit_instructions_mentions_commit() {
+    let instructions = stencila_agents::prompts::build_commit_instructions();
+    assert!(
+        instructions.contains("commit"),
+        "instructions should mention git commits"
+    );
+}
