@@ -393,6 +393,20 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
     }
 }
 
+/// Strip occurrences of the current working directory from a display string.
+/// Replaces `<cwd>/` with empty (making paths relative) and standalone `<cwd>` with `.`.
+fn strip_cwd(s: &str) -> String {
+    let Some(cwd) = std::env::current_dir().ok() else {
+        return s.to_owned();
+    };
+    let cwd_str = cwd.display().to_string();
+    let with_slash = format!("{cwd_str}/");
+    // First replace "<cwd>/" → "" (turns absolute into relative)
+    let result = s.replace(&with_slash, "");
+    // Then replace any remaining standalone "<cwd>" → "."
+    result.replace(&cwd_str, ".")
+}
+
 /// Extract a compact display string from tool call arguments.
 /// Tries well-known keys in priority order, then falls back to first string value.
 fn extract_key_argument(arguments: &Value) -> String {
@@ -403,13 +417,13 @@ fn extract_key_argument(arguments: &Value) -> String {
     // Priority order matching common tool argument names
     for key in &["file_path", "path", "command", "pattern", "query", "name"] {
         if let Some(Value::String(v)) = obj.get(*key) {
-            return truncate_for_display(v, 40);
+            return truncate_for_display(&strip_cwd(v), 40);
         }
     }
     // Fallback: first string value
     for v in obj.values() {
         if let Some(s) = v.as_str() {
-            return truncate_for_display(s, 40);
+            return truncate_for_display(&strip_cwd(s), 40);
         }
     }
     String::new()
@@ -660,6 +674,42 @@ mod tests {
         let result = truncate_for_display(&s, 10);
         assert_eq!(result.chars().count(), 10);
         assert!(result.ends_with('\u{2026}'));
+    }
+
+    // ─── strip_cwd tests ────────────────────────────────────────────
+
+    #[test]
+    fn strip_cwd_removes_prefix_from_path() {
+        let cwd = std::env::current_dir().expect("cwd");
+        let cwd_str = cwd.display().to_string();
+        let input = format!("{cwd_str}/rust/tui/src/app.rs");
+        assert_eq!(strip_cwd(&input), "rust/tui/src/app.rs");
+    }
+
+    #[test]
+    fn strip_cwd_replaces_standalone_with_dot() {
+        let cwd = std::env::current_dir().expect("cwd");
+        let cwd_str = cwd.display().to_string();
+        let input = format!("cd {cwd_str} && cargo build");
+        assert_eq!(strip_cwd(&input), "cd . && cargo build");
+    }
+
+    #[test]
+    fn strip_cwd_leaves_other_paths_unchanged() {
+        assert_eq!(strip_cwd("/tmp/foo/bar.rs"), "/tmp/foo/bar.rs");
+    }
+
+    #[test]
+    fn strip_cwd_handles_relative_paths() {
+        assert_eq!(strip_cwd("src/main.rs"), "src/main.rs");
+    }
+
+    #[test]
+    fn strip_cwd_in_extract_key_argument() {
+        let cwd = std::env::current_dir().expect("cwd");
+        let cwd_str = cwd.display().to_string();
+        let args = serde_json::json!({"file_path": format!("{cwd_str}/src/main.rs")});
+        assert_eq!(extract_key_argument(&args), "src/main.rs");
     }
 
     // ─── Segment building tests ─────────────────────────────────────
