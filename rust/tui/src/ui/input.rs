@@ -105,8 +105,8 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
     }
 
     // Append ghost text to the last visual line
-    if let Some(ghost) = &app.ghost_suggestion {
-        if let Some(last) = visual_lines.last_mut() {
+    if let Some(ghost) = &app.ghost_suggestion
+        && let Some(last) = visual_lines.last_mut() {
             let existing: String = last.spans.iter().map(|s| s.content.as_ref()).collect();
             let mut spans = vec![Span::raw(existing)];
             spans.push(Span::styled(ghost.as_str(), dim_style));
@@ -115,7 +115,6 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
             }
             *last = Line::from(spans);
         }
-    }
 
     let content = Text::from(visual_lines);
 
@@ -195,7 +194,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
 
     // Keyboard hints on the right
     let hints = if is_running {
-        Line::from(vec![Span::raw("ctrl+c "), Span::styled("cancel", dim())])
+        Line::from(vec![Span::raw("esc "), Span::styled("cancel", dim())])
     } else if has_ghost {
         Line::from(vec![
             Span::raw("tab "), Span::styled("word", dim()),

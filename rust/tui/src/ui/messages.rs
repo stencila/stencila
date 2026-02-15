@@ -99,13 +99,14 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     app.total_message_lines = total_lines;
     app.visible_message_height = visible_height;
 
-    // Calculate scroll: lines from bottom
-    let scroll = if total_lines > visible_height {
-        total_lines
-            .saturating_sub(visible_height)
-            .saturating_sub(app.scroll_offset)
+    // Calculate scroll (top-line position).
+    // When pinned, always show the bottom. When unpinned, use the stored
+    // absolute top-line position (clamped to valid range).
+    let max_top = total_lines.saturating_sub(visible_height);
+    let scroll = if app.scroll_pinned {
+        max_top
     } else {
-        0
+        app.scroll_offset.min(max_top)
     };
 
     let paragraph = Paragraph::new(Text::from(lines))

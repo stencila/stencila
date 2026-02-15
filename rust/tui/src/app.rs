@@ -233,7 +233,11 @@ pub struct App {
     /// Receiver for tracing log messages captured by the TUI logging layer.
     log_receiver: mpsc::UnboundedReceiver<String>,
 
-    /// Scroll offset for the message area (lines from the bottom).
+    /// Whether the message view is pinned to the bottom (auto-follows new content).
+    /// When `true`, the view always shows the latest messages.
+    /// When `false`, `scroll_offset` holds the absolute top-line position.
+    pub scroll_pinned: bool,
+    /// Scroll offset for the message area (absolute top-line position when unpinned).
     pub scroll_offset: u16,
     /// Total lines rendered in the last frame's message area (set by `ui::render`).
     pub total_message_lines: u16,
@@ -281,6 +285,7 @@ impl App {
             wizard: None,
             tick_count: 0,
             log_receiver,
+            scroll_pinned: true,
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
@@ -549,7 +554,9 @@ impl App {
 
         match (key.modifiers, key.code) {
             (KeyModifiers::NONE, KeyCode::Esc) => {
-                if self.has_running() {
+                if !self.scroll_pinned {
+                    self.scroll_to_bottom();
+                } else if self.has_running() {
                     self.cancel_most_recent_running();
                 }
             }
@@ -645,12 +652,12 @@ impl App {
 
             (KeyModifiers::NONE, KeyCode::PageUp) => self.scroll_up(10),
             (KeyModifiers::NONE, KeyCode::PageDown) => self.scroll_down(10),
+            (KeyModifiers::CONTROL, KeyCode::End) => self.scroll_to_bottom(),
 
             (modifier, KeyCode::Char(c))
                 if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
             {
                 self.input.insert_char(c);
-                self.scroll_offset = 0;
             }
 
             _ => {}
@@ -924,7 +931,6 @@ impl App {
     /// Handle pasted text — insert as-is without triggering submit.
     fn handle_paste(&mut self, text: &str) {
         self.input.insert_str(text);
-        self.scroll_offset = 0;
         self.refresh_autocomplete();
         self.refresh_ghost_suggestion();
     }
@@ -969,7 +975,8 @@ impl App {
             }
         }
 
-        // Reset scroll to bottom
+        // Pin scroll to bottom so the user sees their new message
+        self.scroll_pinned = true;
         self.scroll_offset = 0;
     }
 
@@ -1141,6 +1148,7 @@ impl App {
     pub fn clear_messages(&mut self) {
         self.cancel_all_running();
         self.messages.clear();
+        self.scroll_pinned = true;
         self.scroll_offset = 0;
     }
 
@@ -1452,13 +1460,8 @@ impl App {
     /// Drain pending log messages from the tracing channel and display them
     /// as system messages. Called on tick events.
     pub fn poll_log_events(&mut self) {
-        let mut received = false;
         while let Ok(msg) = self.log_receiver.try_recv() {
             self.messages.push(AppMessage::System { content: msg });
-            received = true;
-        }
-        if received {
-            self.scroll_offset = 0;
         }
     }
 
@@ -1677,15 +1680,35 @@ impl App {
 
     /// Scroll up by the given number of lines.
     fn scroll_up(&mut self, lines: u16) {
-        let max_scroll = self
+        let max_top = self
             .total_message_lines
             .saturating_sub(self.visible_message_height);
-        self.scroll_offset = self.scroll_offset.saturating_add(lines).min(max_scroll);
+        if self.scroll_pinned {
+            // Unpin and set offset to current bottom position, then scroll up
+            self.scroll_pinned = false;
+            self.scroll_offset = max_top.saturating_sub(lines);
+        } else {
+            self.scroll_offset = self.scroll_offset.saturating_sub(lines);
+        }
     }
 
     /// Scroll down by the given number of lines.
     fn scroll_down(&mut self, lines: u16) {
-        self.scroll_offset = self.scroll_offset.saturating_sub(lines);
+        let max_top = self
+            .total_message_lines
+            .saturating_sub(self.visible_message_height);
+        self.scroll_offset = self.scroll_offset.saturating_add(lines);
+        // Re-pin when we've scrolled back to (or past) the bottom
+        if self.scroll_offset >= max_top {
+            self.scroll_pinned = true;
+            self.scroll_offset = 0;
+        }
+    }
+
+    /// Snap scroll back to the bottom and re-pin.
+    fn scroll_to_bottom(&mut self) {
+        self.scroll_pinned = true;
+        self.scroll_offset = 0;
     }
 }
 
@@ -1959,17 +1982,49 @@ mod tests {
         // Simulate a frame that rendered 20 total lines with 10 visible
         app.total_message_lines = 20;
         app.visible_message_height = 10;
+        // max_top = 20 - 10 = 10
 
+        assert!(app.scroll_pinned);
+
+        // Scroll up 5: unpins, offset = max_top(10) - 5 = 5
         app.scroll_up(5);
+        assert!(!app.scroll_pinned);
         assert_eq!(app.scroll_offset, 5);
 
+        // Scroll up 10 more: 5 - 10 saturates to 0 (top of content)
         app.scroll_up(10);
-        assert_eq!(app.scroll_offset, 10); // clamped to max (20 - 10)
+        assert!(!app.scroll_pinned);
+        assert_eq!(app.scroll_offset, 0);
 
+        // Scroll down 3: 0 + 3 = 3, still not at bottom (10)
         app.scroll_down(3);
-        assert_eq!(app.scroll_offset, 7);
+        assert!(!app.scroll_pinned);
+        assert_eq!(app.scroll_offset, 3);
 
+        // Scroll down past bottom: re-pins
         app.scroll_down(100);
+        assert!(app.scroll_pinned);
+        assert_eq!(app.scroll_offset, 0);
+    }
+
+    #[tokio::test]
+    async fn scroll_stays_stable_during_streaming() {
+        let mut app = App::new_for_test();
+        app.total_message_lines = 30;
+        app.visible_message_height = 10;
+
+        // Scroll up to unpin
+        app.scroll_up(5);
+        assert!(!app.scroll_pinned);
+        assert_eq!(app.scroll_offset, 15); // max_top(20) - 5
+
+        // Simulate streaming: total lines grow but offset stays the same
+        app.total_message_lines = 50;
+        assert_eq!(app.scroll_offset, 15); // unchanged — view stays put
+
+        // Esc snaps back to bottom
+        app.scroll_to_bottom();
+        assert!(app.scroll_pinned);
         assert_eq!(app.scroll_offset, 0);
     }
 

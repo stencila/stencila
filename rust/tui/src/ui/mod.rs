@@ -6,32 +6,59 @@ mod popups;
 
 use ratatui::{
     Frame,
-    layout::{Constraint, Layout},
+    layout::{Alignment, Constraint, Layout},
+    text::{Line, Span},
+    widgets::Paragraph,
 };
 
 use crate::app::App;
+
+use self::common::dim;
 
 /// Render the entire UI for one frame.
 pub fn render(frame: &mut Frame, app: &mut App) {
     let area = frame.area();
 
     let input_height = input::input_height(app, area);
+    let scrolled_up = !app.scroll_pinned;
 
-    // Layout: messages | spacer | input | hints
+    // Layout: messages | [blank] | [scroll indicator] | spacer | input | hints
+    // When scrolled up, add a blank line + dedicated line for the scroll indicator
+    let scroll_rows = u16::from(scrolled_up);
     let layout = Layout::vertical([
-        Constraint::Min(1),               // message area
-        Constraint::Length(1),            // blank line above input
+        Constraint::Min(1),              // message area
+        Constraint::Length(scroll_rows), // blank line above scroll indicator
+        Constraint::Length(scroll_rows), // scroll indicator
+        Constraint::Length(1),           // blank line above input
         Constraint::Length(input_height), // input area
-        Constraint::Length(1),            // hint line below input
+        Constraint::Length(1),           // hint line below input
     ])
     .split(area);
 
     let messages_area = layout[0];
-    let input_area = layout[2];
-    let hints_area = layout[3];
+    let scroll_indicator_area = layout[2];
+    let input_area = layout[4];
+    let hints_area = layout[5];
 
     // --- Render messages ---
     messages::render(frame, app, messages_area);
+
+    // --- Render scroll indicator on its own line when scrolled up ---
+    if scrolled_up {
+        let lines_below = app
+            .total_message_lines
+            .saturating_sub(app.visible_message_height)
+            .saturating_sub(app.scroll_offset);
+        let indicator = Line::from(vec![
+            Span::styled(format!("   + {lines_below} lines "), dim())
+        ]);
+        frame.render_widget(
+            Paragraph::new(indicator)
+                .alignment(Alignment::Left)
+                .style(dim()),
+            scroll_indicator_area,
+        );
+    }
 
     // --- Render input ---
     input::render(frame, app, input_area);
