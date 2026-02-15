@@ -222,6 +222,67 @@ impl Default for SessionConfig {
     }
 }
 
+impl SessionConfig {
+    /// Build a [`SessionConfig`] from an agent definition.
+    ///
+    /// Maps the agent's schema fields (reasoning effort, max turns, tool
+    /// timeout, etc.) onto session config values and reads the AGENT.md
+    /// body as `user_instructions`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the AGENT.md file cannot be read.
+    pub async fn from_agent(agent: &crate::agent_def::AgentInstance) -> eyre::Result<Self> {
+        let mut config = Self::default();
+
+        config.user_instructions = agent.instructions().await?;
+
+        if let Some(effort) = &agent.reasoning_effort {
+            config.reasoning_effort = Some(match effort.as_str() {
+                "low" => ReasoningEffort::Low,
+                "medium" => ReasoningEffort::Medium,
+                "high" => ReasoningEffort::High,
+                other => ReasoningEffort::Custom(other.to_string()),
+            });
+        }
+
+        if let Some(val) = agent.options.max_turns
+            && val >= 0
+        {
+            config.max_turns = val as u32;
+        }
+
+        if let Some(val) = agent.options.max_tool_rounds
+            && val >= 0
+        {
+            config.max_tool_rounds_per_input = val as u32;
+        }
+
+        if let Some(val) = agent.options.tool_timeout
+            && val > 0
+        {
+            // Agent specifies timeout in seconds, config uses milliseconds
+            config.default_command_timeout_ms = (val as u64).saturating_mul(1000);
+        }
+
+        if let Some(val) = agent.options.max_subagent_depth
+            && val >= 0
+        {
+            config.max_subagent_depth = val as u32;
+        }
+
+        if let Some(val) = agent.options.enable_mcp {
+            config.enable_mcp = val;
+        }
+
+        if let Some(val) = agent.options.enable_codemode {
+            config.enable_codemode = val;
+        }
+
+        Ok(config)
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Session State (spec 2.3)
 // ---------------------------------------------------------------------------

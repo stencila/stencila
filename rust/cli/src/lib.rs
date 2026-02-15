@@ -124,6 +124,7 @@ mod tests {
             ("agents::show", stencila_agents::cli::SHOW_AFTER_LONG_HELP),
             ("agents::validate", stencila_agents::cli::VALIDATE_AFTER_LONG_HELP),
             ("agents::create", stencila_agents::cli::CREATE_AFTER_LONG_HELP),
+            ("agents::run", stencila_agents::cli::RUN_AFTER_LONG_HELP),
             // Models module help strings
             ("models::cli", stencila_models3::cli::CLI_AFTER_LONG_HELP),
             ("models::list", stencila_models3::cli::LIST_AFTER_LONG_HELP),

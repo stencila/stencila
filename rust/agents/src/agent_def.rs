@@ -126,6 +126,36 @@ impl AgentInstance {
     pub fn source(&self) -> Option<AgentSource> {
         self.source
     }
+
+    /// Read the AGENT.md file and extract the Markdown body (instructions),
+    /// stripping the YAML frontmatter.
+    ///
+    /// Returns `None` if the file has no body after the frontmatter.
+    pub async fn instructions(&self) -> Result<Option<String>> {
+        let raw = read_to_string(&self.path).await?;
+
+        let trimmed = raw.trim();
+        if trimmed.is_empty() {
+            return Ok(None);
+        }
+
+        // If starts with YAML frontmatter delimiter, strip it
+        if let Some(rest) = trimmed.strip_prefix("---") {
+            // Find the closing delimiter
+            if let Some(end_idx) = rest.find("\n---") {
+                let body = rest[end_idx + 4..].trim();
+                if body.is_empty() {
+                    return Ok(None);
+                }
+                return Ok(Some(body.to_string()));
+            }
+            // No closing delimiter — treat entire content as frontmatter only
+            return Ok(None);
+        }
+
+        // No frontmatter — entire file is body
+        Ok(Some(trimmed.to_string()))
+    }
 }
 
 /// Get the closest `.stencila/agents` directory, optionally creating it

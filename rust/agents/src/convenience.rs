@@ -1,12 +1,9 @@
 //! High-level session factory for callers that don't want to manage
-//! model selection manually.
-//!
-//! [`create_session`] auto-detects available API keys via
-//! `Client::from_env()`, selects a matching provider profile, builds the
-//! system prompt, and returns a ready-to-use `(Session, EventReceiver)`.
+//! agent discovery etc manually.
 
 use std::sync::Arc;
 
+use crate::agent_def::{self, AgentInstance};
 use crate::error::{AgentError, AgentResult};
 use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
@@ -27,43 +24,41 @@ fn default_model(provider: &str) -> Option<&'static str> {
     }
 }
 
-/// Create an agent session, optionally overriding the provider and model.
+/// Create an agent session from a named agent definition.
 ///
-/// When `provider` is `None`, selects the first available provider based on
-/// `models.providers` config order when set (otherwise registration order).
-/// When `model` is `None`, uses the default model for the provider.
+/// Discovers the agent by name (searching workspace then user config),
+/// reads its instructions from the AGENT.md body, builds a [`SessionConfig`]
+/// from its schema fields, and creates a session.
+///
+/// Returns the discovered [`AgentInstance`] alongside the session and event
+/// receiver so callers can inspect agent metadata (name, description, etc.).
 ///
 /// # Errors
 ///
-/// Returns an error if no API keys are found, the provider is not one of
-/// the three supported providers, or the provider has no default model
-/// and `model` is `None`.
-pub async fn create_session(
-    provider: Option<&str>,
-    model: Option<&str>,
-) -> AgentResult<(Session, EventReceiver)> {
-    create_session_with_instructions(provider, model, None).await
-}
+/// Returns an error if the agent is not found, the AGENT.md cannot be read,
+/// or session creation fails (no API keys, unsupported provider, etc.).
+pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, EventReceiver)> {
+    let cwd = std::env::current_dir().map_err(|e| {
+        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+            message: format!("Failed to get current directory: {e}"),
+        })
+    })?;
 
-/// Create an agent session with optional user instructions.
-///
-/// Same as [`create_session`] but accepts an optional `user_instructions`
-/// string that is injected into the session config as a per-session
-/// system prompt override.
-///
-/// # Errors
-///
-/// Returns an error if no API keys are found, the provider is not one of
-/// the three supported providers, or the provider has no default model
-/// and `model` is `None`.
-pub async fn create_session_with_instructions(
-    provider: Option<&str>,
-    model: Option<&str>,
-    user_instructions: Option<String>,
-) -> AgentResult<(Session, EventReceiver)> {
+    let agent = agent_def::get_by_name(&cwd, name).await.map_err(|e| {
+        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+            message: format!("Agent not found: {e}"),
+        })
+    })?;
+
+    let config = SessionConfig::from_agent(&agent).await.map_err(|e| {
+        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+            message: format!("Failed to build session config from agent: {e}"),
+        })
+    })?;
+
     let client = stencila_models3::client::Client::from_env().map_err(AgentError::Sdk)?;
 
-    let provider_name = match provider {
+    let provider_name = match &agent.provider {
         Some(p) => p.to_string(),
         None => match client.select_provider() {
             Some(p) => p.to_string(),
@@ -79,7 +74,7 @@ pub async fn create_session_with_instructions(
         },
     };
 
-    let model_name = match model {
+    let model_name = match &agent.model {
         Some(m) => m.to_string(),
         None => match default_model(&provider_name) {
             Some(m) => m.to_string(),
@@ -96,10 +91,6 @@ pub async fn create_session_with_instructions(
         },
     };
 
-    let config = SessionConfig {
-        user_instructions,
-        ..SessionConfig::default()
-    };
     let max_timeout = config.max_command_timeout_ms;
 
     let mut profile: Box<dyn crate::profile::ProviderProfile> = match provider_name.as_str() {
@@ -124,7 +115,7 @@ pub async fn create_session_with_instructions(
     let (system_prompt, mcp_context) =
         prompts::build_system_prompt(&mut *profile, &*env, &config).await?;
 
-    Ok(Session::new(
+    let (session, event_receiver) = Session::new(
         profile,
         env,
         llm_client,
@@ -132,5 +123,7 @@ pub async fn create_session_with_instructions(
         system_prompt,
         0,
         mcp_context,
-    ))
+    );
+
+    Ok((agent, session, event_receiver))
 }

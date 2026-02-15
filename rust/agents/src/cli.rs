@@ -16,7 +16,12 @@ use stencila_cli_utils::{
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
-use crate::{agent_def::{self, AgentSource}, agent_validate};
+use crate::{
+    agent_def::{self, AgentSource},
+    agent_validate,
+    convenience::create_session,
+    types::{EventKind, SessionConfig},
+};
 
 /// Manage agent definitions
 #[derive(Debug, Parser)]
@@ -38,10 +43,16 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila agents validate</> <g>code-review</>
 
   <dim># Create a new agent in the workspace</dim>
-  <b>stencila agents create</> <g>my-agent</>
+  <b>stencila agents create</> <g>my-agent</> <y>\"A helpful assistant\"</>
 
   <dim># Create a new agent in user config</dim>
-  <b>stencila agents create</> <g>my-agent</> <c>--user</>
+  <b>stencila agents create</> <g>my-agent</> <y>\"A helpful assistant\"</> <c>--user</>
+
+  <dim># Run an agent with a prompt</dim>
+  <b>stencila agents run</> <g>code-engineer</> <y>\"What files are in this directory?\"</>
+
+  <dim># Run with a specific model override</dim>
+  <b>stencila agents run</> <g>code-engineer</> <y>\"Hello\"</> <c>--model</> <g>gpt-4o</>
 "
 );
 
@@ -51,6 +62,7 @@ enum Command {
     Show(Show),
     Validate(Validate),
     Create(Create),
+    Run(Run),
 }
 
 impl Cli {
@@ -65,6 +77,7 @@ impl Cli {
             Command::Show(show) => show.run().await?,
             Command::Validate(validate) => validate.run().await?,
             Command::Create(create) => create.run().await?,
+            Command::Run(run) => run.run().await?,
         }
 
         Ok(())
@@ -171,10 +184,10 @@ struct Create {
 pub static CREATE_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Create a new agent in the workspace</dim>
-  <b>stencila agents create</> <g>my-agent</>
+  <b>stencila agents create</> <g>my-agent</> <y>\"A helpful assistant\"</>
 
   <dim># Create a new agent in user config</dim>
-  <b>stencila agents create</> <g>my-agent</> <c>--user</>
+  <b>stencila agents create</> <g>my-agent</> <y>\"A helpful assistant\"</> <c>--user</>
 "
 );
 
@@ -379,5 +392,223 @@ impl Validate {
             }
             exit(1)
         }
+    }
+}
+
+/// Run an agent with a prompt
+///
+/// Discovers a named agent definition, creates an agent session using the
+/// agent's configuration (model, provider, instructions, tool settings), and
+/// streams the response. Arguments that correspond to existing file paths are
+/// read and included as file content. Mainly for testing.
+#[derive(Debug, Args)]
+#[command(after_long_help = RUN_AFTER_LONG_HELP)]
+struct Run {
+    /// The name of the agent to run
+    name: String,
+
+    /// Text prompts and/or file paths (automatically detected)
+    args: Vec<String>,
+
+    /// Write output to the specified file instead of stdout
+    #[arg(long, short)]
+    output: Option<PathBuf>,
+
+    /// Show agent config and prompt without executing
+    #[arg(long)]
+    dry_run: bool,
+}
+
+pub static RUN_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Run an agent with a prompt</dim>
+  <b>stencila agents run</> <g>code-engineer</> <y>\"What files are in this directory?\"</>
+
+  <dim># Mix text and file paths</dim>
+  <b>stencila agents run</> <g>code-review</> <y>\"Review this file:\"</> <g>src/main.rs</>
+
+  <dim># Write output to a file</dim>
+  <b>stencila agents run</> <g>code-engineer</> <y>\"Generate a README\"</> <c>--output</> <g>README.md</>
+
+  <dim># Dry run to see agent config and prompt</dim>
+  <b>stencila agents run</> <g>code-engineer</> <y>\"Hello\"</> <c>--dry-run</>
+"
+);
+
+impl Run {
+    #[allow(clippy::print_stdout, clippy::print_stderr)]
+    async fn run(self) -> Result<()> {
+        // Build prompt from args: detect file paths and read their content
+        let prompt = build_prompt_from_args(&self.args)?;
+
+        if prompt.is_empty() {
+            return Err(eyre::eyre!(
+                "No prompt provided. Pass text and/or file paths as arguments."
+            ));
+        }
+
+        // Dry run: resolve the agent and show config without creating a session
+        if self.dry_run {
+            let cwd = std::env::current_dir()?;
+            let agent = agent_def::get_by_name(&cwd, &self.name).await?;
+            let config = SessionConfig::from_agent(&agent).await?;
+
+            Code::new(Format::Markdown, "# Agent\n").to_stdout();
+            Code::new(
+                Format::Yaml,
+                &format!("name: {}\ndescription: {}\n", agent.name, agent.description),
+            )
+            .to_stdout();
+
+            Code::new(Format::Markdown, "\n# Prompt\n").to_stdout();
+            Code::new(Format::Markdown, &prompt).to_stdout();
+
+            if let Some(ref instr) = config.user_instructions {
+                Code::new(Format::Markdown, "\n# Instructions\n").to_stdout();
+                Code::new(Format::Markdown, instr).to_stdout();
+            }
+
+            Code::new(Format::Markdown, "\n# Session Config\n").to_stdout();
+            Code::new_from(Format::Yaml, &config)?.to_stdout();
+
+            return Ok(());
+        }
+
+        // Create session from agent definition and submit
+        let (_agent, mut session, mut event_rx) = create_session(&self.name).await?;
+
+        let mut submit_fut = Box::pin(session.submit(&prompt));
+        let mut submit_done = false;
+        let mut submit_result: Option<Result<(), crate::error::AgentError>> = None;
+        let mut collected_text = String::new();
+        let writing_to_file = self.output.is_some();
+
+        loop {
+            tokio::select! {
+                biased;
+
+                event = event_rx.recv() => {
+                    let Some(event) = event else {
+                        break;
+                    };
+
+                    match event.kind {
+                        EventKind::AssistantTextDelta => {
+                            if let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
+                                if !writing_to_file {
+                                    print!("{delta}");
+                                }
+                                collected_text.push_str(delta);
+                            }
+                        }
+                        EventKind::ToolCallStart => {
+                            if let Some(serde_json::Value::String(tool_name)) = event.data.get("tool_name") {
+                                let args = event.data.get("arguments").cloned().unwrap_or(serde_json::Value::Null);
+                                eprintln!("[tool] {tool_name} {}", format_tool_args(&args));
+                            }
+                        }
+                        EventKind::ToolCallEnd => {
+                            if let Some(error) = event.data.get("error").and_then(serde_json::Value::as_str) {
+                                let call_id = event.data.get("call_id").and_then(serde_json::Value::as_str).unwrap_or("?");
+                                eprintln!("[tool error] {call_id}: {error}");
+                            }
+                        }
+                        EventKind::TurnLimit => {
+                            eprintln!("[warning] Turn limit reached");
+                        }
+                        EventKind::LoopDetection => {
+                            let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("Loop detected");
+                            eprintln!("[warning] {msg}");
+                        }
+                        EventKind::Error => {
+                            let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("unknown error");
+                            eprintln!("[error] {msg}");
+                        }
+                        _ => {}
+                    }
+                }
+
+                result = &mut submit_fut, if !submit_done => {
+                    submit_done = true;
+                    submit_result = Some(result);
+                }
+            }
+
+            if submit_done {
+                // Drain remaining buffered events
+                while let Ok(event) = event_rx.try_recv() {
+                    if let EventKind::AssistantTextDelta = event.kind {
+                        if let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
+                            if !writing_to_file {
+                                print!("{delta}");
+                            }
+                            collected_text.push_str(delta);
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+
+        // Check for submit error
+        if let Some(Err(e)) = submit_result {
+            return Err(eyre::eyre!("Agent run failed: {e}"));
+        }
+
+        if let Some(ref path) = self.output {
+            std::fs::write(path, &collected_text)
+                .map_err(|e| eyre::eyre!("Failed to write {}: {e}", path.display()))?;
+            message!("Wrote {} bytes to {}", collected_text.len(), path.display());
+        } else if !collected_text.ends_with('\n') {
+            println!();
+        }
+
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Helper functions
+// ---------------------------------------------------------------------------
+
+/// Build a prompt string from CLI arguments, reading file content for paths
+/// that exist on disk.
+fn build_prompt_from_args(args: &[String]) -> Result<String> {
+    let mut parts = Vec::new();
+    for arg in args {
+        let path = PathBuf::from(arg);
+        if path.exists() && path.is_file() {
+            let content = std::fs::read_to_string(&path)
+                .map_err(|e| eyre::eyre!("Failed to read {}: {e}", path.display()))?;
+            parts.push(format!("--- {} ---\n{content}", path.display()));
+        } else {
+            parts.push(arg.clone());
+        }
+    }
+    Ok(parts.join("\n\n"))
+}
+
+/// Format tool call arguments as a compact string for stderr display.
+fn format_tool_args(arguments: &serde_json::Value) -> String {
+    match arguments.as_object() {
+        Some(obj) if !obj.is_empty() => {
+            // Show first string-valued argument compactly
+            for key in &["file_path", "path", "command", "pattern", "query", "name"] {
+                if let Some(serde_json::Value::String(v)) = obj.get(*key) {
+                    let display = if v.len() > 60 { &v[..60] } else { v };
+                    return display.to_string();
+                }
+            }
+            // Fallback: first string value
+            for v in obj.values() {
+                if let Some(s) = v.as_str() {
+                    let display = if s.len() > 60 { &s[..60] } else { s };
+                    return display.to_string();
+                }
+            }
+            String::new()
+        }
+        _ => String::new(),
     }
 }
