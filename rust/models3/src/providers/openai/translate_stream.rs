@@ -75,6 +75,48 @@ pub fn translate_sse_event(
         .unwrap_or(event.event_type.as_str());
 
     match event_type {
+        // Pre-populate tool call state when the output item is first announced.
+        // The function name is only available here; subsequent argument-delta
+        // events do NOT carry it.
+        "response.output_item.added" => {
+            let item = payload.get("item").unwrap_or(&payload);
+            let item_type = item.get("type").and_then(Value::as_str).unwrap_or_default();
+            if item_type == "function_call" {
+                let call_id = item
+                    .get("call_id")
+                    .and_then(Value::as_str)
+                    .or_else(|| item.get("id").and_then(Value::as_str))
+                    .unwrap_or("call_0")
+                    .to_string();
+                let name = item
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .unwrap_or("unknown_tool")
+                    .to_string();
+
+                state.tool_calls.insert(
+                    call_id.clone(),
+                    ToolCallState {
+                        name: name.clone(),
+                        arguments: String::new(),
+                    },
+                );
+
+                out.push(tool_call_event(
+                    StreamEventType::ToolCallStart,
+                    ToolCall {
+                        id: call_id,
+                        name,
+                        arguments: Value::String(String::new()),
+                        raw_arguments: Some(String::new()),
+                        parse_error: None,
+                    },
+                    payload,
+                ));
+            } else {
+                out.push(provider_event(payload));
+            }
+        }
         "response.output_text.delta" => {
             let delta = payload
                 .get("delta")
@@ -121,14 +163,16 @@ pub fn translate_sse_event(
                 .get("name")
                 .and_then(Value::as_str)
                 .or_else(|| payload.pointer("/item/name").and_then(Value::as_str))
-                .unwrap_or("unknown_tool")
-                .to_string();
+                .map(ToString::to_string)
+                .or_else(|| state.tool_calls.get(&call_id).map(|tc| tc.name.clone()))
+                .unwrap_or_else(|| "unknown_tool".to_string());
             let delta = payload
                 .get("delta")
                 .and_then(Value::as_str)
                 .unwrap_or_default()
                 .to_string();
 
+            let already_started = state.tool_calls.contains_key(&call_id);
             let call_state =
                 state
                     .tool_calls
@@ -138,7 +182,9 @@ pub fn translate_sse_event(
                         arguments: String::new(),
                     });
 
-            if call_state.arguments.is_empty() {
+            // Only emit ToolCallStart if not already started by
+            // response.output_item.added (or a prior delta).
+            if !already_started {
                 out.push(tool_call_event(
                     StreamEventType::ToolCallStart,
                     ToolCall {
@@ -152,7 +198,12 @@ pub fn translate_sse_event(
                 ));
             }
 
-            call_state.name = name;
+            // Only update the stored name when the payload carries a real one;
+            // avoid overwriting a good name from output_item.added with a
+            // fallback "unknown_tool".
+            if name != "unknown_tool" {
+                call_state.name.clone_from(&name);
+            }
             call_state.arguments.push_str(&delta);
 
             out.push(tool_call_event(
@@ -190,10 +241,12 @@ pub fn translate_sse_event(
                     }
                 }
                 "function_call" => {
+                    // Prefer call_id to stay consistent with output_item.added
+                    // and extract_call_id (used by argument-delta events).
                     let call_id = item
-                        .get("id")
+                        .get("call_id")
                         .and_then(Value::as_str)
-                        .or_else(|| item.get("call_id").and_then(Value::as_str))
+                        .or_else(|| item.get("id").and_then(Value::as_str))
                         .unwrap_or("call_0")
                         .to_string();
 

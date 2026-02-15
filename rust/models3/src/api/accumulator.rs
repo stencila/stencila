@@ -152,13 +152,23 @@ impl StreamAccumulator {
                             });
                         }
                     } else {
-                        // Normal delta pattern: parse accumulated argument buffer
+                        // Normal delta pattern: parse accumulated argument buffer.
+                        // Prefer the name from the end event when available (the
+                        // start event may have used a placeholder like "unknown_tool"
+                        // if the provider didn't include the name in early deltas).
+                        let name = event
+                            .tool_call
+                            .as_ref()
+                            .map(|tc| &tc.name)
+                            .filter(|n| !n.is_empty())
+                            .cloned()
+                            .unwrap_or(current.name);
                         let (arguments, parse_error) =
                             ToolCall::parse_arguments(&current.arguments_buf);
                         let raw_arguments = Some(current.arguments_buf);
                         self.tool_calls.push(ToolCall {
                             id: current.id,
-                            name: current.name,
+                            name,
                             arguments,
                             raw_arguments,
                             parse_error,
