@@ -1627,20 +1627,17 @@ impl App {
             .prefix_match_nth(text, self.mode, self.ghost_nav_offset)
             .and_then(|matched| {
                 let suffix = &matched[text.len()..];
-                match suffix.find('\n') {
-                    // Suffix starts with newline — first line is exact match,
-                    // nothing useful to show as ghost text.
-                    Some(0) => None,
-                    // Truncate at first newline, flag as truncated for UI "…" indicator.
-                    Some(pos) => Some((suffix[..pos].to_string(), true)),
-                    // Single-line match — use full suffix.
-                    None => Some((suffix.to_string(), false)),
+                if suffix.is_empty() || suffix.starts_with('\n') {
+                    None
+                } else {
+                    Some(suffix.to_string())
                 }
             });
 
-        if let Some((suffix, truncated)) = result {
+        if let Some(suffix) = result {
             self.ghost_suggestion = Some(suffix);
-            self.ghost_is_truncated = truncated;
+            // ghost_is_truncated is computed at render time based on visual line count
+            self.ghost_is_truncated = false;
         } else {
             self.ghost_suggestion = None;
             self.ghost_is_truncated = false;
@@ -2402,7 +2399,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn ghost_multiline_history_shows_first_line_suffix() {
+    async fn ghost_multiline_history_shows_full_suffix() {
         let mut app = App::new_for_test();
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
@@ -2410,9 +2407,12 @@ mod tests {
         for c in "hel".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
-        // Ghost contains only insertable text; ellipsis is a UI-only indicator
-        assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
-        assert!(app.ghost_is_truncated);
+        // Ghost contains the full suffix including newlines; visual truncation
+        // is handled at render time.
+        assert_eq!(
+            app.ghost_suggestion.as_deref(),
+            Some("lo world\nsecond line")
+        );
     }
 
     #[tokio::test]
@@ -2438,12 +2438,14 @@ mod tests {
         for c in "hel".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
-        assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
+        assert_eq!(
+            app.ghost_suggestion.as_deref(),
+            Some("lo world\nsecond line")
+        );
 
-        // Right accepts all — inserts exactly the ghost text, no ellipsis
+        // Right accepts all — inserts the full ghost text including newlines
         app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
-        assert_eq!(app.input.text(), "hello world");
-        assert!(!app.ghost_is_truncated);
+        assert_eq!(app.input.text(), "hello world\nsecond line");
     }
 
     // --- Response autocomplete tests ---

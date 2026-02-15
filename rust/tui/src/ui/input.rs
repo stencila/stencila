@@ -13,6 +13,60 @@ use super::common::{
     visual_line_count, wrap_content,
 };
 
+const MAX_GHOST_LINES: usize = 3;
+
+fn last_visual_line_len(text: &str, wrap_width: usize) -> usize {
+    let logical_lines: Vec<&str> = if text.is_empty() {
+        vec![""]
+    } else {
+        text.split('\n').collect()
+    };
+
+    logical_lines
+        .last()
+        .map_or(0, |last| wrap_content(last, wrap_width).last().map_or(0, |s| s.chars().count()))
+}
+
+fn ghost_chunks(
+    ghost: &str,
+    remaining_on_last: usize,
+    wrap_width: usize,
+) -> (Vec<String>, bool) {
+    let ghost_chars: Vec<char> = ghost.chars().collect();
+    let mut chunks: Vec<String> = Vec::new();
+    let mut start = 0;
+
+    if remaining_on_last > 0 && !ghost_chars.is_empty() {
+        let end = remaining_on_last.min(ghost_chars.len());
+        let chunk_end = ghost_chars[start..end]
+            .iter()
+            .position(|&c| c == '\n')
+            .map_or(end, |p| start + p);
+        chunks.push(ghost_chars[start..chunk_end].iter().collect());
+        start = chunk_end;
+        if start < ghost_chars.len() && ghost_chars[start] == '\n' {
+            start += 1;
+        }
+    }
+
+    let mut ghost_line_count: usize = 0;
+    while start < ghost_chars.len() && ghost_line_count < MAX_GHOST_LINES {
+        let end = (start + wrap_width).min(ghost_chars.len());
+        let chunk_end = ghost_chars[start..end]
+            .iter()
+            .position(|&c| c == '\n')
+            .map_or(end, |p| start + p);
+        chunks.push(ghost_chars[start..chunk_end].iter().collect());
+        start = chunk_end;
+        if start < ghost_chars.len() && ghost_chars[start] == '\n' {
+            start += 1;
+        }
+        ghost_line_count += 1;
+    }
+
+    (chunks, start < ghost_chars.len())
+}
+
 /// Render the input area with cursor: dark grey background, colored sidebar, no border.
 #[allow(clippy::too_many_lines)]
 pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
@@ -104,17 +158,38 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
         }
     }
 
-    // Append ghost text to the last visual line
-    if let Some(ghost) = &app.ghost_suggestion
-        && let Some(last) = visual_lines.last_mut() {
+    // Append ghost text, wrapping it across visual lines and capping at 3 ghost lines.
+    if let Some(ghost) = &app.ghost_suggestion {
+        // How many chars remain on the last visual line before wrapping
+        let last_line_len = visual_lines.last().map_or(0, |l| {
+            l.spans.iter().map(|s| s.content.chars().count()).sum::<usize>()
+        });
+        let remaining_on_last = wrap_width.saturating_sub(last_line_len);
+
+        let (ghost_chunks, ghost_is_truncated) = ghost_chunks(ghost, remaining_on_last, wrap_width);
+
+        // Append the first ghost chunk to the last visual line
+        let mut chunks_iter = ghost_chunks.into_iter();
+        if let Some(first_chunk) = chunks_iter.next()
+            && let Some(last) = visual_lines.last_mut()
+        {
             let existing: String = last.spans.iter().map(|s| s.content.as_ref()).collect();
-            let mut spans = vec![Span::raw(existing)];
-            spans.push(Span::styled(ghost.as_str(), dim_style));
-            if app.ghost_is_truncated {
-                spans.push(Span::styled("\u{2026}", dim_style));
-            }
-            *last = Line::from(spans);
+            *last = Line::from(vec![
+                Span::raw(existing),
+                Span::styled(first_chunk, dim_style),
+            ]);
         }
+
+        // Add remaining ghost chunks as new visual lines
+        for chunk in chunks_iter {
+            visual_lines.push(Line::from(Span::styled(chunk, dim_style)));
+        }
+
+        // Append ellipsis indicator on the last ghost line if truncated
+        if ghost_is_truncated && let Some(last) = visual_lines.last_mut() {
+            last.spans.push(Span::styled(" \u{2026}", dim_style));
+        }
+    }
 
     let content = Text::from(visual_lines);
 
@@ -235,16 +310,27 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
 
 /// Compute input area height based on visual lines (accounting for wrapping).
 pub(super) fn input_height(app: &App, area: Rect) -> u16 {
-    use std::borrow::Cow;
-
     // Inner width: gutter (2) + sidebar (1) + space (1) + content area, no borders
     let inner_width = area.width.saturating_sub(NUM_GUTTER + 2).max(1) as usize;
-    let text_for_height: Cow<str> = match &app.ghost_suggestion {
-        Some(ghost) => Cow::Owned(format!("{}{ghost}", app.input.text())),
-        None => Cow::Borrowed(app.input.text()),
-    };
+
+    // Base height from input text alone
     #[allow(clippy::cast_possible_truncation)]
-    let visual_lines = visual_line_count(&text_for_height, inner_width) as u16;
+    let input_lines = visual_line_count(app.input.text(), inner_width) as u16;
+
+    // Add ghost text contribution, capped at MAX_GHOST_LINES extra visual lines
+    let visual_lines = if let Some(ghost) = &app.ghost_suggestion {
+        // How many chars remain on the last input visual line
+        let last_input_line_len = last_visual_line_len(app.input.text(), inner_width);
+        let remaining = inner_width.saturating_sub(last_input_line_len);
+        let (ghost_chunks, _) = ghost_chunks(ghost, remaining, inner_width);
+        let extra_lines = ghost_chunks.len().saturating_sub(1);
+
+        #[allow(clippy::cast_possible_truncation)]
+        let total = input_lines + extra_lines as u16;
+        total
+    } else {
+        input_lines
+    };
 
     // Ensure enough height for the cursor row (cursor may be on the line
     // *after* the last visual content line when it sits at a wrap boundary).
@@ -255,4 +341,23 @@ pub(super) fn input_height(app: &App, area: Rect) -> u16 {
 
     let max_input_height = (area.height / 3).max(3);
     visual_lines.max(cursor_lines).clamp(1, max_input_height)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ghost_chunks_caps_continuation_lines() {
+        let (chunks, truncated) = ghost_chunks("abcdefghi", 2, 2);
+        assert_eq!(chunks, vec!["ab", "cd", "ef", "gh"]);
+        assert!(truncated);
+    }
+
+    #[test]
+    fn ghost_chunks_respects_newline() {
+        let (chunks, truncated) = ghost_chunks("ab\ncd", 4, 4);
+        assert_eq!(chunks, vec!["ab", "cd"]);
+        assert!(!truncated);
+    }
 }
