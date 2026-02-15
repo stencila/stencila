@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Paragraph, Wrap},
 };
 
-use crate::agent::{ResponseSegment, ToolCallStatus};
+use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus};
 
 use super::common::{
@@ -328,6 +328,11 @@ fn response_segments_lines(
     for segment in segments {
         match segment {
             ResponseSegment::Text(text) => {
+                // Skip empty text segments so they don't introduce extra
+                // blank lines between consecutive annotations.
+                if text.trim().is_empty() {
+                    continue;
+                }
                 if prev_was_annotation {
                     lines.push(blank_line());
                 }
@@ -348,12 +353,15 @@ fn response_segments_lines(
                     lines.push(blank_line());
                 }
                 let (symbol, symbol_style) = tool_call_symbol(status, annotation_tick);
+                // Truncate label to fit on a single line (avail = content_width - "● " prefix)
+                let avail = content_width.saturating_sub(2);
+                let display_label = truncate_for_display(label, avail);
                 push_annotation_lines(
                     lines,
                     dim_sidebar_style,
                     symbol,
                     symbol_style,
-                    label,
+                    &display_label,
                     dim(),
                     content_width,
                 );

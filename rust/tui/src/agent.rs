@@ -399,15 +399,15 @@ fn extract_key_argument(arguments: &Value) -> String {
         _ => return String::new(),
     };
     // Priority order matching common tool argument names
-    for key in &["file_path", "path", "command", "pattern", "query", "name"] {
+    for key in &["file_path", "pattern", "path", "command", "query", "name"] {
         if let Some(Value::String(v)) = obj.get(*key) {
-            return truncate_for_display(&strip_cwd(v), 40);
+            return strip_cwd(v);
         }
     }
     // Fallback: first string value
     for v in obj.values() {
         if let Some(s) = v.as_str() {
-            return truncate_for_display(&strip_cwd(s), 40);
+            return strip_cwd(s);
         }
     }
     String::new()
@@ -415,7 +415,7 @@ fn extract_key_argument(arguments: &Value) -> String {
 
 /// Truncate a string for display, keeping the head.
 /// Uses char boundaries to avoid panics on multi-byte UTF-8.
-fn truncate_for_display(s: &str, max_chars: usize) -> String {
+pub(crate) fn truncate_for_display(s: &str, max_chars: usize) -> String {
     let char_count = s.chars().count();
     if char_count <= max_chars {
         return s.to_string();
@@ -636,6 +636,13 @@ mod tests {
         // file_path takes priority over command
         let args = serde_json::json!({"command": "ls", "file_path": "foo.rs"});
         assert_eq!(extract_key_argument(&args), "foo.rs");
+    }
+
+    #[test]
+    fn extract_key_argument_pattern_before_path() {
+        // pattern takes priority over path (e.g. for Grep)
+        let args = serde_json::json!({"pattern": "TODO", "path": "src/"});
+        assert_eq!(extract_key_argument(&args), "TODO");
     }
 
     #[test]
