@@ -541,5 +541,5 @@ fn is_empty_text_block(block: &Map<String, Value>) -> bool {
         && block
             .get("text")
             .and_then(Value::as_str)
-            .map_or(true, |t| t.is_empty())
+            .is_none_or(str::is_empty)
 }

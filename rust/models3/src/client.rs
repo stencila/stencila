@@ -501,6 +501,11 @@ impl Client {
     /// - `Ok(Some(provider))` when inference is possible
     /// - `Ok(None)` when no heuristic matches
     /// - `Err(Configuration)` when the model maps to multiple providers
+    ///
+    /// # Errors
+    ///
+    /// Returns [`SdkError::Configuration`] when the model name matches
+    /// multiple configured providers and the choice is ambiguous.
     pub fn infer_provider_from_model(&self, model: &str) -> SdkResult<Option<String>> {
         let catalog = crate::catalog::read_catalog()?;
         let mut matches: Vec<String> = Vec::new();
@@ -546,6 +551,7 @@ impl Client {
     /// This handles models not yet in the catalog (e.g. newly released models,
     /// dated snapshots, or fine-tuned variants). This is a static method that
     /// does not require a `Client` instance or catalog access.
+    #[must_use]
     pub fn infer_provider_from_name(model: &str) -> Option<String> {
         let m = model.to_ascii_lowercase();
 
