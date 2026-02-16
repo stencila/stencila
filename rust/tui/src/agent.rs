@@ -409,9 +409,8 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             .and_then(Value::as_str)
             .map(|s| strip_cwd(s))
     };
-    let int_arg = |key: &str| -> Option<i64> {
-        obj.and_then(|o| o.get(key)).and_then(Value::as_i64)
-    };
+    let int_arg =
+        |key: &str| -> Option<i64> { obj.and_then(|o| o.get(key)).and_then(Value::as_i64) };
 
     match tool_name {
         "read_file" => {
@@ -443,12 +442,17 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             }
         }
         "shell" => {
+            let mut s = "Shell".to_string();
             if let Some(desc) = str_arg("description") {
-                format!("Shell: {desc}")
-            } else {
-                let cmd = str_arg("command").unwrap_or_default();
-                format!("Shell {cmd}")
+                s.push_str(" (");
+                s.push_str(&desc);
+                s.push(')');
             }
+            if let Some(cmd) = str_arg("command") {
+                s.push_str(": ");
+                s.push_str(&cmd);
+            }
+            s
         }
         "grep" => {
             let pattern = str_arg("pattern").unwrap_or_default();
@@ -726,11 +730,7 @@ fn process_event(
         EventKind::Error => {
             // Context-usage warnings have severity "warning" — show inline
             // but do not mark the exchange as failed.
-            let is_warning = event
-                .data
-                .get("severity")
-                .and_then(Value::as_str)
-                == Some("warning");
+            let is_warning = event.data.get("severity").and_then(Value::as_str) == Some("warning");
             if let Ok(mut g) = progress.lock() {
                 if is_warning {
                     let message = event
@@ -773,10 +773,7 @@ mod tests {
     #[test]
     fn format_read_file_with_offset() {
         let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42});
-        assert_eq!(
-            format_tool_start("read_file", &args),
-            "Read src/main.rs:42"
-        );
+        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs:42");
     }
 
     #[test]
@@ -787,8 +784,7 @@ mod tests {
 
     #[test]
     fn format_edit_file() {
-        let args =
-            serde_json::json!({"file_path": "foo.rs", "old_string": "a", "new_string": "b"});
+        let args = serde_json::json!({"file_path": "foo.rs", "old_string": "a", "new_string": "b"});
         assert_eq!(format_tool_start("edit_file", &args), "Edit foo.rs");
     }
 
@@ -796,10 +792,7 @@ mod tests {
     fn format_shell_with_description() {
         let args =
             serde_json::json!({"command": "cargo build --release", "description": "Build project"});
-        assert_eq!(
-            format_tool_start("shell", &args),
-            "Shell: Build project"
-        );
+        assert_eq!(format_tool_start("shell", &args), "Shell: Build project");
     }
 
     #[test]
@@ -810,8 +803,7 @@ mod tests {
 
     #[test]
     fn format_grep_with_path_and_glob() {
-        let args =
-            serde_json::json!({"pattern": "TODO", "path": "src/", "glob_filter": "*.rs"});
+        let args = serde_json::json!({"pattern": "TODO", "path": "src/", "glob_filter": "*.rs"});
         assert_eq!(
             format_tool_start("grep", &args),
             "Grep \"TODO\" in src/ (*.rs)"
@@ -827,10 +819,7 @@ mod tests {
     #[test]
     fn format_glob_with_path() {
         let args = serde_json::json!({"pattern": "**/*.rs", "path": "src/"});
-        assert_eq!(
-            format_tool_start("glob", &args),
-            "Glob **/*.rs in src/"
-        );
+        assert_eq!(format_tool_start("glob", &args), "Glob **/*.rs in src/");
     }
 
     #[test]
@@ -851,10 +840,7 @@ mod tests {
     #[test]
     fn format_unknown_tool_fallback() {
         let args = serde_json::json!({"custom_key": "some_value"});
-        assert_eq!(
-            format_tool_start("my_tool", &args),
-            "My tool some_value"
-        );
+        assert_eq!(format_tool_start("my_tool", &args), "My tool some_value");
     }
 
     #[test]
