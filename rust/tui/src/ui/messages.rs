@@ -444,11 +444,11 @@ fn tool_call_symbol(status: &ToolCallStatus, tick: Option<u32>) -> (char, Style)
                 Some(t) => TOOL_CALL_FRAMES[(t as usize / 2) % TOOL_CALL_FRAMES.len()],
                 None => '\u{25cf}',
             };
-            (sym, Style::new().fg(Color::DarkGray))
+            (sym, Style::new().fg(Color::Gray))
         }
         ToolCallStatus::Done => (
             '\u{25cf}',
-            Style::new().fg(Color::Green).add_modifier(Modifier::DIM),
+            Style::new().fg(Color::LightGreen),
         ),
         ToolCallStatus::Error { .. } => ('\u{25cf}', Style::new().fg(Color::Red)),
     }

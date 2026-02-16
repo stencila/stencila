@@ -22,12 +22,11 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     let input_height = input::input_height(app, area);
     let scrolled_up = !app.scroll_pinned;
 
-    // Layout: messages | [blank] | [scroll indicator] | spacer | input | hints
-    // When scrolled up, add a blank line + dedicated line for the scroll indicator
+    // Layout: messages | [scroll indicator] | spacer | input | hints
+    // When scrolled up, add a dedicated line for the scroll indicator
     let scroll_rows = u16::from(scrolled_up);
     let layout = Layout::vertical([
         Constraint::Min(1),               // message area
-        Constraint::Length(scroll_rows),  // blank line above scroll indicator
         Constraint::Length(scroll_rows),  // scroll indicator
         Constraint::Length(1),            // blank line above input
         Constraint::Length(input_height), // input area
@@ -36,9 +35,9 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     .split(area);
 
     let messages_area = layout[0];
-    let scroll_indicator_area = layout[2];
-    let input_area = layout[4];
-    let hints_area = layout[5];
+    let scroll_indicator_area = layout[1];
+    let input_area = layout[3];
+    let hints_area = layout[4];
 
     // --- Render messages ---
     messages::render(frame, app, messages_area);
@@ -50,14 +49,13 @@ pub fn render(frame: &mut Frame, app: &mut App) {
             .saturating_sub(app.visible_message_height)
             .saturating_sub(app.scroll_offset);
         if lines_below > 0 {
-            let indicator = Line::from(vec![Span::styled(
-                format!("   + {lines_below} lines "),
-                dim(),
-            )]);
+            let indicator = Line::from(vec![
+                Span::styled(format!("   +{lines_below} lines   "), dim()),
+                Span::raw("esc"),
+                Span::styled(" end", dim()),
+            ]);
             frame.render_widget(
-                Paragraph::new(indicator)
-                    .alignment(Alignment::Left)
-                    .style(dim()),
+                Paragraph::new(indicator).alignment(Alignment::Left),
                 scroll_indicator_area,
             );
         }
