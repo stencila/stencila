@@ -474,48 +474,109 @@ fn thinking_segment(
 
     // Content: ↳ on first line, space indent on rest.
     // Truncate by visual (wrapped) lines, not source newlines.
+    // When complete: show first N lines (head) with "[+N more lines]".
+    // When streaming: show last N lines (tail) so user sees latest thinking.
     if !text.is_empty() {
-        let max_visual = if complete { 5 } else { usize::MAX };
+        let max_visual = 5;
         let avail = content_width.saturating_sub(2); // prefix width
-        let mut visual_count = 0usize;
-        let mut first_source_line = true;
-        let mut remaining_visual = 0usize;
-        let mut truncated = false;
 
-        for source_line in text.lines() {
-            let wrapped_count = wrap_content(source_line, avail).len();
-            if truncated {
-                remaining_visual += wrapped_count;
-                continue;
+        // Pre-compute visual line counts per source line for tail mode
+        let source_lines: Vec<&str> = text.lines().collect();
+        let wrapped_counts: Vec<usize> = source_lines
+            .iter()
+            .map(|l| wrap_content(l, avail).len())
+            .collect();
+        let total_visual: usize = wrapped_counts.iter().sum();
+
+        if complete {
+            // Head mode: show first max_visual lines
+            let mut visual_count = 0usize;
+            let mut first_source_line = true;
+            let mut remaining_visual = 0usize;
+            let mut truncated = false;
+
+            for (source_line, &wc) in source_lines.iter().zip(&wrapped_counts) {
+                if truncated {
+                    remaining_visual += wc;
+                    continue;
+                }
+                if visual_count + wc > max_visual && visual_count > 0 {
+                    truncated = true;
+                    remaining_visual += wc;
+                    continue;
+                }
+                let prefix = if first_source_line { '\u{21b3}' } else { ' ' };
+                push_annotation_lines(
+                    lines,
+                    dim_sidebar_style,
+                    prefix,
+                    Style::new().fg(Color::DarkGray),
+                    source_line,
+                    dim(),
+                    content_width,
+                );
+                visual_count += wc;
+                first_source_line = false;
             }
-            if visual_count + wrapped_count > max_visual && visual_count > 0 {
-                truncated = true;
-                remaining_visual += wrapped_count;
-                continue;
+            if remaining_visual > 0 {
+                push_annotation_lines(
+                    lines,
+                    dim_sidebar_style,
+                    ' ',
+                    dim(),
+                    &format!("[+{remaining_visual} more lines]"),
+                    dim(),
+                    content_width,
+                );
             }
-            let prefix = if first_source_line { '\u{21b3}' } else { ' ' };
-            push_annotation_lines(
-                lines,
-                dim_sidebar_style,
-                prefix,
-                Style::new().fg(Color::DarkGray),
-                source_line,
-                dim(),
-                content_width,
-            );
-            visual_count += wrapped_count;
-            first_source_line = false;
-        }
-        if complete && remaining_visual > 0 {
-            push_annotation_lines(
-                lines,
-                dim_sidebar_style,
-                ' ',
-                dim(),
-                &format!("[+{remaining_visual} more lines]"),
-                dim(),
-                content_width,
-            );
+        } else {
+            // Tail mode: show last max_visual lines so user sees latest thinking
+            let skipped_visual = total_visual.saturating_sub(max_visual);
+
+            // Find first source line to include by skipping visual lines
+            let mut skip_remaining = skipped_visual;
+            let mut start_idx = 0;
+            for (i, &wc) in wrapped_counts.iter().enumerate() {
+                if skip_remaining == 0 {
+                    start_idx = i;
+                    break;
+                }
+                if wc <= skip_remaining {
+                    skip_remaining -= wc;
+                } else {
+                    start_idx = i;
+                    break;
+                }
+            }
+
+            if skipped_visual > 0 {
+                push_annotation_lines(
+                    lines,
+                    dim_sidebar_style,
+                    '\u{21b3}',
+                    Style::new().fg(Color::DarkGray),
+                    &format!("[{skipped_visual} lines…]"),
+                    dim(),
+                    content_width,
+                );
+            }
+
+            for (i, source_line) in source_lines[start_idx..].iter().enumerate() {
+                let prefix = if skipped_visual == 0 && i == 0 {
+                    '\u{21b3}'
+                } else {
+                    ' '
+                };
+                push_annotation_lines(
+                    lines,
+                    dim_sidebar_style,
+                    prefix,
+                    Style::new().fg(Color::DarkGray),
+                    source_line,
+                    dim(),
+                    content_width,
+                );
+            }
         }
     }
 }

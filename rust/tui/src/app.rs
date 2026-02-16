@@ -1461,14 +1461,18 @@ impl App {
                     ExchangeStatus::Succeeded
                 };
                 let (response, segments) = if let Some(err) = result.error {
-                    if result.text.is_empty() {
-                        (Some(err), None)
+                    // Preserve any streamed segments (tool calls, thinking,
+                    // partial text) and append the error as a warning so the
+                    // user sees what happened *without* losing context.
+                    let mut segs = result.segments;
+                    segs.push(ResponseSegment::Warning(format!("Error: {err}")));
+                    let text = crate::agent::plain_text_from_segments(&segs);
+                    let resp = if text.is_empty() {
+                        err
                     } else {
-                        (
-                            Some(format!("{}\n\nError: {err}", result.text)),
-                            Some(result.segments),
-                        )
-                    }
+                        format!("{text}\n\nError: {err}")
+                    };
+                    (Some(resp), Some(segs))
                 } else if result.text.is_empty() {
                     (None, None)
                 } else {
