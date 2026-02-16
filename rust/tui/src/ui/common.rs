@@ -46,83 +46,109 @@ pub(super) const fn selected_secondary_style() -> Style {
     Style::new().fg(Color::White)
 }
 
-/// Split text into chunks that fit within `width` characters, for manual
-/// line wrapping that preserves the gutter/sidebar prefix on each visual line.
+/// Compute char-offset break points for word-wrapping a single logical line
+/// (no embedded newlines). Each returned offset is where a new visual line
+/// begins. Falls back to hard breaks for words longer than `width`.
+fn line_wrap_breaks(line: &str, width: usize) -> Vec<usize> {
+    if width == 0 {
+        return vec![];
+    }
+
+    let chars: Vec<char> = line.chars().collect();
+    let mut breaks = Vec::new();
+    let mut line_start = 0;
+
+    while line_start < chars.len() {
+        if line_start + width >= chars.len() {
+            break;
+        }
+
+        let line_end = line_start + width;
+        let break_at = chars[line_start..line_end]
+            .iter()
+            .rposition(|&c| c.is_whitespace() && c != '\n')
+            .map(|p| line_start + p + 1)
+            .filter(|&p| p > line_start)
+            .unwrap_or(line_end);
+
+        breaks.push(break_at);
+        line_start = break_at;
+    }
+
+    breaks
+}
+
+/// Split text into chunks that fit within `width` characters using word
+/// wrapping. Falls back to character-level breaking for words longer than
+/// `width`.
 pub(super) fn wrap_content(text: &str, width: usize) -> Vec<String> {
     if width == 0 || text.is_empty() {
         return vec![text.to_string()];
     }
 
     let chars: Vec<char> = text.chars().collect();
+    let breaks = line_wrap_breaks(text, width);
+
     let mut result = Vec::new();
     let mut start = 0;
-
-    while start < chars.len() {
-        let end = (start + width).min(chars.len());
-        result.push(chars[start..end].iter().collect());
-        start = end;
+    for brk in breaks {
+        result.push(chars[start..brk].iter().collect());
+        start = brk;
     }
-
-    if result.is_empty() {
-        result.push(String::new());
-    }
+    result.push(chars[start..].iter().collect());
 
     result
 }
 
-/// Count the number of visual lines the text occupies, accounting for wrapping.
+/// Count the number of visual lines the text occupies, accounting for word
+/// wrapping.
 pub(super) fn visual_line_count(text: &str, wrap_width: usize) -> usize {
     if text.is_empty() {
         return 1;
     }
 
-    let mut lines = 1;
-    let mut col = 0;
-
-    for c in text.chars() {
-        if c == '\n' {
-            lines += 1;
-            col = 0;
-        } else {
-            if col >= wrap_width {
-                lines += 1;
-                col = 0;
-            }
-            col += 1;
-        }
-    }
-
-    lines
+    text.split('\n')
+        .map(|line| 1 + line_wrap_breaks(line, wrap_width).len())
+        .sum()
 }
 
-/// Calculate the visual (column, row) of the cursor, accounting for line wrapping.
+/// Calculate the visual (column, row) of the cursor, accounting for word
+/// wrapping.
 ///
-/// `wrap_width` is the number of character columns available (inner widget width).
+/// `wrap_width` is the number of character columns available (inner widget
+/// width).
 pub(super) fn cursor_position_wrapped(
     text: &str,
     byte_offset: usize,
     wrap_width: usize,
 ) -> (usize, usize) {
-    let before_cursor = &text[..byte_offset];
     let mut visual_row = 0;
-    let mut visual_col = 0;
+    let mut line_byte_start = 0;
 
-    for c in before_cursor.chars() {
-        if c == '\n' {
-            // Explicit newline: move to start of next row
-            visual_row += 1;
-            visual_col = 0;
-        } else {
-            visual_col += 1;
-            if visual_col >= wrap_width {
-                // Reached end of visual line — next char goes to next row
+    for line in text.split('\n') {
+        let line_byte_end = line_byte_start + line.len();
+
+        if byte_offset <= line_byte_end {
+            let cursor_char = text[line_byte_start..byte_offset].chars().count();
+            let breaks = line_wrap_breaks(line, wrap_width);
+
+            let mut segment_start = 0;
+            for &brk in &breaks {
+                if cursor_char < brk {
+                    break;
+                }
                 visual_row += 1;
-                visual_col = 0;
+                segment_start = brk;
             }
+
+            return (cursor_char - segment_start, visual_row);
         }
+
+        visual_row += 1 + line_wrap_breaks(line, wrap_width).len();
+        line_byte_start = line_byte_end + 1;
     }
 
-    (visual_col, visual_row)
+    (0, visual_row)
 }
 
 /// Compute the popup area above the input area for the given number of items.
@@ -230,5 +256,64 @@ mod tests {
     fn visual_lines_wrap_and_newlines() {
         // Width 4: "abcdef\ngh" -> "abcd" / "ef" / "gh" = 3 lines
         assert_eq!(visual_line_count("abcdef\ngh", 4), 3);
+    }
+
+    #[test]
+    fn word_wrap_breaks_at_space() {
+        // "hello world" width 8 -> "hello " / "world"
+        assert_eq!(wrap_content("hello world", 8), vec!["hello ", "world"]);
+    }
+
+    #[test]
+    fn word_wrap_long_word_hard_breaks() {
+        // No spaces: falls back to character-level breaking
+        assert_eq!(wrap_content("abcdefgh", 5), vec!["abcde", "fgh"]);
+    }
+
+    #[test]
+    fn word_wrap_multiple_words() {
+        // "aa bb cc dd" width 6 -> "aa bb " / "cc dd"
+        assert_eq!(
+            wrap_content("aa bb cc dd", 6),
+            vec!["aa bb ", "cc dd"]
+        );
+    }
+
+    #[test]
+    fn word_wrap_fits_exactly() {
+        assert_eq!(wrap_content("hello", 5), vec!["hello"]);
+        assert_eq!(wrap_content("hello", 10), vec!["hello"]);
+    }
+
+    #[test]
+    fn cursor_word_wrap() {
+        // "hello world" width 8 -> "hello " / "world"
+        let text = "hello world";
+        // cursor at 'w' (byte 6) -> col 0, row 1
+        assert_eq!(cursor_position_wrapped(text, 6, 8), (0, 1));
+        // cursor at 'r' (byte 8) -> col 2, row 1
+        assert_eq!(cursor_position_wrapped(text, 8, 8), (2, 1));
+        // cursor at end of "hello " (byte 5) -> col 5, row 0
+        assert_eq!(cursor_position_wrapped(text, 5, 8), (5, 0));
+    }
+
+    #[test]
+    fn visual_lines_word_wrap() {
+        // "hello world" width 8 -> 2 lines
+        assert_eq!(visual_line_count("hello world", 8), 2);
+        // "aa bb cc" width 4 -> "aa " / "bb " / "cc" = 3 lines
+        assert_eq!(visual_line_count("aa bb cc", 4), 3);
+    }
+
+    #[test]
+    fn cursor_word_wrap_with_newlines() {
+        // "hi there\nfoo bar" width 6 -> "hi " / "there" / "foo " / "bar"
+        let text = "hi there\nfoo bar";
+        // cursor at 't' (byte 3) -> col 0, row 1 (word wrapped)
+        assert_eq!(cursor_position_wrapped(text, 3, 6), (0, 1));
+        // cursor at 'f' (byte 9) -> col 0, row 2 (after newline)
+        assert_eq!(cursor_position_wrapped(text, 9, 6), (0, 2));
+        // cursor at 'b' (byte 13) -> col 0, row 3 (word wrapped)
+        assert_eq!(cursor_position_wrapped(text, 13, 6), (0, 3));
     }
 }
