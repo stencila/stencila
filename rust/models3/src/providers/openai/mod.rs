@@ -5,9 +5,11 @@ pub mod translate_stream;
 
 use std::sync::Arc;
 
+use futures::StreamExt;
 use reqwest::header::HeaderMap;
 use stencila_auth::{AuthCredential, StaticKey, bearer_header};
 
+use crate::api::accumulator::StreamAccumulator;
 use crate::catalog::ModelInfo;
 use crate::error::SdkResult;
 use crate::http::client::HttpClient;
@@ -114,6 +116,39 @@ impl OpenAIAdapter {
         let token = self.auth.get_token().await?;
         Ok(bearer_header(&token)?)
     }
+
+    /// Open a streaming connection to the Responses API.
+    ///
+    /// Shared by both `complete()` (which accumulates the stream) and
+    /// `stream()` (which returns it directly).
+    async fn open_stream(
+        &self,
+        request: Request,
+    ) -> SdkResult<BoxStream<'_, SdkResult<StreamEvent>>> {
+        let timeout = request.timeout;
+        let translated = translate_request::translate_request(&request, true)?;
+
+        let mut headers = self.auth_headers().await?;
+        for (k, v) in &translated.headers {
+            headers.insert(k, v.clone());
+        }
+
+        let (byte_stream, resp_headers) = self
+            .http
+            .post_stream(
+                "/responses",
+                &translated.body,
+                Some(&headers),
+                timeout.as_ref(),
+            )
+            .await
+            .map_err(translate_error::translate_error)?;
+
+        let rate_limit = parse_rate_limit_headers(&resp_headers);
+        let sse_stream = parse_sse(byte_stream);
+        let unified_stream = translate_stream::translate_sse_stream(sse_stream, rate_limit);
+        Ok(unified_stream)
+    }
 }
 
 impl ProviderAdapter for OpenAIAdapter {
@@ -122,27 +157,17 @@ impl ProviderAdapter for OpenAIAdapter {
     }
 
     fn complete(&self, request: Request) -> BoxFuture<'_, SdkResult<Response>> {
+        // The OpenAI Responses API (and in particular the ChatGPT backend
+        // codex endpoint) requires `stream: true`.  Rather than sending a
+        // non-streaming POST and parsing a single JSON response, we open a
+        // streaming request and accumulate the events into a Response.
         Box::pin(async move {
-            let timeout = request.timeout;
-            let translated = translate_request::translate_request(&request, false)?;
-
-            let mut headers = self.auth_headers().await?;
-            for (k, v) in &translated.headers {
-                headers.insert(k, v.clone());
+            let mut event_stream = self.open_stream(request).await?;
+            let mut accumulator = StreamAccumulator::new();
+            while let Some(result) = event_stream.next().await {
+                accumulator.process(&result?);
             }
-
-            let (raw_response, resp_headers) = self
-                .http
-                .post_json::<serde_json::Value, serde_json::Value>(
-                    "/responses",
-                    &translated.body,
-                    Some(&headers),
-                    timeout.as_ref(),
-                )
-                .await
-                .map_err(translate_error::translate_error)?;
-
-            translate_response::translate_response(raw_response, Some(&resp_headers))
+            Ok(accumulator.response())
         })
     }
 
@@ -150,31 +175,7 @@ impl ProviderAdapter for OpenAIAdapter {
         &self,
         request: Request,
     ) -> BoxFuture<'_, SdkResult<BoxStream<'_, SdkResult<StreamEvent>>>> {
-        Box::pin(async move {
-            let timeout = request.timeout;
-            let translated = translate_request::translate_request(&request, true)?;
-
-            let mut headers = self.auth_headers().await?;
-            for (k, v) in &translated.headers {
-                headers.insert(k, v.clone());
-            }
-
-            let (byte_stream, resp_headers) = self
-                .http
-                .post_stream(
-                    "/responses",
-                    &translated.body,
-                    Some(&headers),
-                    timeout.as_ref(),
-                )
-                .await
-                .map_err(translate_error::translate_error)?;
-
-            let rate_limit = parse_rate_limit_headers(&resp_headers);
-            let sse_stream = parse_sse(byte_stream);
-            let unified_stream = translate_stream::translate_sse_stream(sse_stream, rate_limit);
-            Ok(unified_stream)
-        })
+        Box::pin(self.open_stream(request))
     }
 
     fn supports_tool_choice(&self, _choice: &crate::types::tool::ToolChoice) -> bool {
