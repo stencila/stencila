@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Write as _;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -407,7 +408,7 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
     let str_arg = |key: &str| -> Option<String> {
         obj.and_then(|o| o.get(key))
             .and_then(Value::as_str)
-            .map(|s| strip_cwd(s))
+            .map(strip_cwd)
     };
     let int_arg =
         |key: &str| -> Option<i64> { obj.and_then(|o| o.get(key)).and_then(Value::as_i64) };
@@ -417,7 +418,7 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let path = str_arg("file_path").unwrap_or_default();
             let mut label = format!("Read {path}");
             if let Some(offset) = int_arg("offset") {
-                label.push_str(&format!(":{offset}"));
+                let _ = write!(label, ":{offset}");
             }
             label
         }
@@ -458,10 +459,10 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let pattern = str_arg("pattern").unwrap_or_default();
             let mut label = format!("Grep \"{pattern}\"");
             if let Some(path) = str_arg("path") {
-                label.push_str(&format!(" in {path}"));
+                let _ = write!(label, " in {path}");
             }
             if let Some(glob) = str_arg("glob_filter") {
-                label.push_str(&format!(" ({glob})"));
+                let _ = write!(label, " ({glob})");
             }
             label
         }
@@ -469,7 +470,7 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let pattern = str_arg("pattern").unwrap_or_default();
             let mut label = format!("Glob {pattern}");
             if let Some(path) = str_arg("path") {
-                label.push_str(&format!(" in {path}"));
+                let _ = write!(label, " in {path}");
             }
             label
         }
@@ -792,13 +793,16 @@ mod tests {
     fn format_shell_with_description() {
         let args =
             serde_json::json!({"command": "cargo build --release", "description": "Build project"});
-        assert_eq!(format_tool_start("shell", &args), "Shell: Build project");
+        assert_eq!(
+            format_tool_start("shell", &args),
+            "Shell (Build project): cargo build --release"
+        );
     }
 
     #[test]
     fn format_shell_without_description() {
         let args = serde_json::json!({"command": "cargo build"});
-        assert_eq!(format_tool_start("shell", &args), "Shell cargo build");
+        assert_eq!(format_tool_start("shell", &args), "Shell: cargo build");
     }
 
     #[test]

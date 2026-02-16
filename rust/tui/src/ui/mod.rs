@@ -1,5 +1,6 @@
 mod common;
 mod input;
+pub(crate) mod markdown;
 mod messages;
 mod popups;
 

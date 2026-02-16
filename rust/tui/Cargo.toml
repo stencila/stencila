@@ -11,7 +11,9 @@ directories = { workspace = true }
 eyre = { workspace = true }
 futures = { workspace = true }
 ignore = { workspace = true }
+markdown = "1.0.0"
 ratatui = { version = "0.30.0", default-features = false, features = ["crossterm", "layout-cache"] }
+syntect = "5.3.0"
 serde_json = { workspace = true }
 stencila-agents = { path = "../agents" }
 stencila-auth = { path = "../auth", default-features = false }

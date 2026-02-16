@@ -13,6 +13,7 @@ use super::common::{
     BRAILLE_SPINNER_FRAMES, NUM_GUTTER, SIDEBAR_CHAR, THINKING_FRAMES, TOOL_CALL_FRAMES, dim,
     wrap_content,
 };
+use super::markdown::MdRenderCache;
 
 /// Render the scrollable message area.
 pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
@@ -21,7 +22,8 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let tick_count = app.tick_count;
     let mut exchange_num = 0usize;
 
-    for message in &app.messages {
+    let md_cache = &mut app.md_render_cache;
+    for (msg_idx, message) in app.messages.iter().enumerate() {
         // Add a blank line separator between messages (except before the first)
         if !lines.is_empty() {
             lines.push(Line::raw(""));
@@ -58,6 +60,8 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                     tick_count,
                     content_width,
                     agent_tag.as_ref(),
+                    msg_idx,
+                    md_cache,
                 );
             }
             AppMessage::System { content } => {
@@ -185,6 +189,8 @@ fn exchange_lines(
     tick_count: u32,
     content_width: usize,
     agent_tag: Option<&(String, Color)>,
+    msg_idx: usize,
+    md_cache: &mut MdRenderCache,
 ) {
     let kind_color = agent_tag.map_or_else(|| kind.color(), |(_, color)| *color);
     let base_color = match status {
@@ -234,8 +240,7 @@ fn exchange_lines(
     if let Some((name, color)) = agent_tag {
         let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
         let gutter = if status == ExchangeStatus::Running {
-            let frame_idx =
-                (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+            let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
             Span::styled(
                 format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
                 Style::new().fg(*color),
@@ -255,8 +260,7 @@ fn exchange_lines(
     } else if status == ExchangeStatus::Running {
         // Single-agent mode: spinner in the gutter on a line below the request
         let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
-        let frame_idx =
-            (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+        let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
         lines.push(Line::from(vec![
             Span::styled(
                 format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
@@ -272,7 +276,15 @@ fn exchange_lines(
             ExchangeStatus::Running => Some(tick_count),
             _ => None,
         };
-        response_segments_lines(lines, segments, base_color, annotation_tick, content_width);
+        response_segments_lines(
+            lines,
+            segments,
+            base_color,
+            annotation_tick,
+            content_width,
+            msg_idx,
+            md_cache,
+        );
     } else if let Some(resp) = response {
         response_text(lines, resp, base_color, content_width);
     }
@@ -313,12 +325,15 @@ fn exchange_lines(
 }
 
 /// Render structured response segments with interleaved tool annotations.
+#[allow(clippy::too_many_arguments)]
 fn response_segments_lines(
     lines: &mut Vec<Line>,
     segments: &[ResponseSegment],
     base_color: Color,
     annotation_tick: Option<u32>,
     content_width: usize,
+    msg_idx: usize,
+    md_cache: &mut MdRenderCache,
 ) {
     let num_padding = "   ";
     let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
@@ -330,26 +345,28 @@ fn response_segments_lines(
     };
     let mut prev_was_annotation = false;
 
-    for segment in segments {
+    for (seg_idx, segment) in segments.iter().enumerate() {
         match segment {
             ResponseSegment::Text(text) => {
-                // Skip empty text segments so they don't introduce extra
-                // blank lines between consecutive annotations.
-                if text.trim().is_empty() {
+                // Skip truly empty text segments (only horizontal whitespace)
+                // so they don't introduce extra blank lines between consecutive
+                // annotations. Segments containing newlines are preserved since
+                // they may represent intentional paragraph breaks.
+                if text.chars().all(|c| c == ' ' || c == '\t') {
                     continue;
                 }
                 if prev_was_annotation {
                     lines.push(blank_line());
                 }
-                for text_line in text.lines() {
-                    for chunk in wrap_content(text_line, content_width) {
-                        lines.push(Line::from(vec![
-                            Span::raw(num_padding),
-                            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
-                            Span::raw(" "),
-                            Span::raw(chunk),
-                        ]));
-                    }
+                let content_spans = md_cache.get_or_render(msg_idx, seg_idx, text, content_width);
+                for span_line in content_spans {
+                    let mut line_spans = vec![
+                        Span::raw(num_padding),
+                        Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                        Span::raw(" "),
+                    ];
+                    line_spans.extend(span_line.iter().cloned());
+                    lines.push(Line::from(line_spans));
                 }
                 prev_was_annotation = false;
             }
@@ -447,7 +464,7 @@ fn thinking_symbol(tick: Option<u32>) -> (char, Style) {
 
 /// Render a thinking/reasoning segment: header + indented content with
 /// visual-line-based truncation.
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_lines)]
 fn thinking_segment(
     lines: &mut Vec<Line>,
     dim_sidebar_style: Style,

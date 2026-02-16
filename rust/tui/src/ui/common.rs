@@ -19,7 +19,8 @@ pub(super) const INPUT_BG: Color = Color::Rgb(40, 40, 40);
 pub(super) const TOOL_CALL_FRAMES: [char; 4] = ['\u{25d0}', '\u{25d3}', '\u{25d1}', '\u{25d2}'];
 
 /// Pulsating frames for in-progress thinking: · + ∗ ✱ ∗ + (grow then shrink).
-pub(super) const THINKING_FRAMES: [char; 6] = ['\u{00b7}', '+', '\u{2217}', '\u{2731}', '\u{2217}', '+'];
+pub(super) const THINKING_FRAMES: [char; 6] =
+    ['\u{00b7}', '+', '\u{2217}', '\u{2731}', '\u{2217}', '+'];
 
 /// Braille spinner frames for the input prompt when the active agent is busy.
 pub(super) const BRAILLE_SPINNER_FRAMES: [char; 10] =

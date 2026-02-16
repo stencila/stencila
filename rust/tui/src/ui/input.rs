@@ -213,9 +213,9 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Char count per visual line — needed for the send/run hint overlap check
     // after visual_lines is moved into the Paragraph.
     let last_visible_row = (scroll_y + visible_height).saturating_sub(1) as usize;
-    let last_visible_line_chars: usize = visual_lines
-        .get(last_visible_row)
-        .map_or(0, |l| l.spans.iter().map(|s| s.content.chars().count()).sum());
+    let last_visible_line_chars: usize = visual_lines.get(last_visible_row).map_or(0, |l| {
+        l.spans.iter().map(|s| s.content.chars().count()).sum()
+    });
 
     let content = Text::from(visual_lines);
     let paragraph = Paragraph::new(content)

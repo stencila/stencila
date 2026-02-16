@@ -338,8 +338,8 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn execute_clear_resets_active_session() {
+    #[tokio::test]
+    async fn execute_clear_resets_active_session() {
         let mut app = App::new_for_test();
         assert!(!app.messages.is_empty());
         SlashCommand::Clear.execute(&mut app, "");
@@ -348,8 +348,8 @@ mod tests {
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
-    #[test]
-    fn execute_new_resets_all() {
+    #[tokio::test]
+    async fn execute_new_resets_all() {
         let mut app = App::new_for_test();
         app.sessions.push(AgentSession::new("extra"));
         app.active_session = 1;
@@ -435,7 +435,7 @@ mod tests {
         // Should open popup with 1 existing agent
         // (plus any discovered definitions, but in test there are none)
         assert!(app.agents_state.is_visible());
-        assert!(app.agents_state.candidates().len() >= 1);
+        assert!(!app.agents_state.candidates().is_empty());
     }
 
     #[test]

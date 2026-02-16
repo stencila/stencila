@@ -258,6 +258,9 @@ pub struct App {
     /// Message index of a running `/upgrade` shell command, if any.
     /// Used to clear `upgrade_available` when the upgrade succeeds.
     upgrade_msg_index: Option<usize>,
+
+    /// Cache for markdown rendering of response text segments.
+    pub md_render_cache: crate::ui::markdown::MdRenderCache,
 }
 
 impl App {
@@ -301,6 +304,7 @@ impl App {
             upgrade_handle,
             upgrade_available: None,
             upgrade_msg_index: None,
+            md_render_cache: crate::ui::markdown::MdRenderCache::default(),
         }
     }
 
@@ -499,6 +503,7 @@ impl App {
     }
 
     /// Handle normal key input (no autocomplete popup intercept).
+    #[allow(clippy::too_many_lines)]
     fn handle_normal_key(&mut self, key: &KeyEvent) {
         // Reset ghost navigation offset for any key except Up/Down
         // (those keys cycle through prefix-matched ghost suggestions).
@@ -629,7 +634,7 @@ impl App {
                     match selection {
                         AgentSelection::Switch(index) => self.switch_to_session(index),
                         AgentSelection::FromDefinition(info) => {
-                            self.create_session_from_definition(info);
+                            self.create_session_from_definition(&info);
                         }
                     }
                 }
@@ -676,7 +681,7 @@ impl App {
         true
     }
 
-    fn create_session_from_definition(&mut self, info: AgentDefinitionInfo) {
+    fn create_session_from_definition(&mut self, info: &AgentDefinitionInfo) {
         let mut session = AgentSession::new(&info.name);
         session.definition = Some(info.clone());
 
@@ -755,8 +760,7 @@ impl App {
             match self.mode {
                 AppMode::Chat => {
                     if let Some(mention) = self.parse_agent_mention(&expanded) {
-                        self.input_history
-                            .push_tagged(text, AppMode::Chat);
+                        self.input_history.push_tagged(text, AppMode::Chat);
                         self.execute_agent_mention(mention);
                     } else if let Some(cmd) = expanded.strip_prefix('!')
                         && !cmd.trim().is_empty()
@@ -1001,12 +1005,12 @@ impl App {
             let num_str = &after_prefix[..num_end];
 
             if let Some(close) = after_prefix.find(']') {
-                if let Ok(num) = num_str.parse::<usize>() {
-                    if let Some(content) = self.pastes.get(&num) {
-                        result.push_str(content);
-                        remaining = &after_prefix[close + 1..];
-                        continue;
-                    }
+                if let Ok(num) = num_str.parse::<usize>()
+                    && let Some(content) = self.pastes.get(&num)
+                {
+                    result.push_str(content);
+                    remaining = &after_prefix[close + 1..];
+                    continue;
                 }
                 result.push_str(&remaining[start..=(start + "[Paste #".len() + close)]);
                 remaining = &after_prefix[close + 1..];
@@ -1020,21 +1024,25 @@ impl App {
         result
     }
 
-    /// Reset the active agent session: cancel its running exchanges, drop the
-    /// agent handle (so a fresh session is created on the next submit), and
-    /// clear all messages.
+    /// Reset the active agent session: cancel all running work (shell
+    /// commands and agent exchanges across all sessions), drop the active
+    /// session's agent handle, and clear all messages back to the welcome
+    /// screen.
+    ///
+    /// All running work must be cancelled before clearing messages to prevent
+    /// stale `msg_index` values from mutating unrelated future messages.
     pub fn reset_active_session(&mut self) {
+        self.cancel_all_running();
+
         let session = &mut self.sessions[self.active_session];
-        for (idx, exchange) in session.running_agent_exchanges.drain(..) {
-            exchange.cancel();
-            Self::mark_exchange_cancelled(&mut self.messages, idx);
-        }
         session.agent = None;
         session.context_usage_percent = 0;
 
-        self.messages.push(AppMessage::System {
-            content: format!("Context cleared for agent `{}`", session.name),
-        });
+        self.messages.clear();
+        self.messages.push(AppMessage::Welcome);
+        self.md_render_cache.clear();
+        self.scroll_pinned = true;
+        self.scroll_offset = 0;
     }
 
     /// Reset everything: cancel all running work, drop all sessions, create a
@@ -1050,6 +1058,7 @@ impl App {
         self.messages.push(AppMessage::Welcome);
         self.scroll_pinned = true;
         self.scroll_offset = 0;
+        self.md_render_cache.clear();
     }
 
     /// Enter shell mode with a system message.
@@ -1237,25 +1246,22 @@ impl App {
             .as_ref()
             .and_then(|agent| agent.submit(text));
 
-        match exchange {
-            Some(running) => {
-                self.sessions[session_idx]
-                    .running_agent_exchanges
-                    .push((msg_index, running));
-            }
-            None => {
-                // Agent task shut down — drop the dead handle so a fresh
-                // session is created automatically on the next submit.
-                self.sessions[session_idx].agent = None;
+        if let Some(running) = exchange {
+            self.sessions[session_idx]
+                .running_agent_exchanges
+                .push((msg_index, running));
+        } else {
+            // Agent task shut down — drop the dead handle so a fresh
+            // session is created automatically on the next submit.
+            self.sessions[session_idx].agent = None;
 
-                Self::update_exchange_at(
-                    &mut self.messages,
-                    msg_index,
-                    ExchangeStatus::Failed,
-                    Some("Agent unavailable, will retry with a new session".to_string()),
-                    None,
-                );
-            }
+            Self::update_exchange_at(
+                &mut self.messages,
+                msg_index,
+                ExchangeStatus::Failed,
+                Some("Agent unavailable, will retry with a new session".to_string()),
+                None,
+            );
         }
     }
 
@@ -1286,12 +1292,12 @@ impl App {
             .iter()
             .any(|s| s.name.to_ascii_lowercase() == name_lower);
 
-        let is_definition = if !is_session {
+        let is_definition = if is_session {
+            false
+        } else {
             discover_agents()
                 .iter()
                 .any(|d| d.name.to_ascii_lowercase() == name_lower)
-        } else {
-            false
         };
 
         if !is_session && !is_definition {
@@ -1359,7 +1365,7 @@ impl App {
                         provider: def.provider.clone(),
                         source: def.source().map(|s| s.to_string()).unwrap_or_default(),
                     };
-                    self.create_session_from_definition(info);
+                    self.create_session_from_definition(&info);
                     self.active_session
                 } else {
                     return;
@@ -1949,7 +1955,10 @@ mod tests {
         assert!(input.starts_with("[Paste #1: "));
         assert!(input.contains("+180 chars]"));
         // Full text is stored in the pastes map
-        assert_eq!(app.pastes.get(&1).unwrap(), &long_text);
+        assert_eq!(
+            app.pastes.get(&1).expect("paste #1 should exist"),
+            &long_text
+        );
     }
 
     #[tokio::test]
