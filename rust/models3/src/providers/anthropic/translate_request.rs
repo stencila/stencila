@@ -498,6 +498,7 @@ fn inject_cache_control(body: &mut Map<String, Value>) {
     if let Some(system) = body.get_mut("system").and_then(Value::as_array_mut)
         && let Some(last) = system.last_mut()
         && let Some(obj) = last.as_object_mut()
+        && !is_empty_text_block(obj)
     {
         obj.insert("cache_control".to_string(), json!({"type": "ephemeral"}));
     }
@@ -525,9 +526,20 @@ fn inject_cache_control(body: &mut Map<String, Value>) {
             if let Some(content) = msg_obj.get_mut("content").and_then(Value::as_array_mut)
                 && let Some(last_block) = content.last_mut()
                 && let Some(block_obj) = last_block.as_object_mut()
+                && !is_empty_text_block(block_obj)
             {
                 block_obj.insert("cache_control".to_string(), json!({"type": "ephemeral"}));
             }
         }
     }
+}
+
+/// Returns `true` when the block is a text block whose `text` field is empty.
+/// Anthropic rejects `cache_control` on empty text blocks.
+fn is_empty_text_block(block: &Map<String, Value>) -> bool {
+    block.get("type").and_then(Value::as_str) == Some("text")
+        && block
+            .get("text")
+            .and_then(Value::as_str)
+            .map_or(true, |t| t.is_empty())
 }
