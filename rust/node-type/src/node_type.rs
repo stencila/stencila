@@ -148,6 +148,7 @@ pub enum NodeType {
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Workflow,
     Cord,
     Object,
 
@@ -159,7 +160,7 @@ impl NodeType {
     /// Is the node type a creative work type?
     pub fn is_creative_work(&self) -> bool {
         use NodeType::*;
-        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
+        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject|Workflow)
     }
 
     /// Is the node type a block content type?
@@ -330,6 +331,7 @@ impl TryFrom<&NodeId> for NodeType {
             "vid" => VideoObject,
             "wkt" => Walkthrough,
             "wks" => WalkthroughStep,
+            "wfl" => Workflow,
             nick => bail!("Unknown node nick `{nick}`")
         })
     }

@@ -208,6 +208,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Unknown",
                 "Walkthrough",
                 "WalkthroughStep",
+                "Workflow",
                 // Types for which tables are not currently created
                 "Collection",
                 "Comment",

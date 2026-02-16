@@ -26,6 +26,7 @@ impl CreativeWorkVariant {
             CreativeWorkVariant::Table(..) => CreativeWorkType::Table,
             CreativeWorkVariant::Skill(..) => CreativeWorkType::Skill,
             CreativeWorkVariant::VideoObject(..) => CreativeWorkType::VideoObject,
+            CreativeWorkVariant::Workflow(..) => CreativeWorkType::Workflow,
         }
     }
 
@@ -60,7 +61,8 @@ impl CreativeWorkVariant {
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
-            VideoObject
+            VideoObject,
+            Workflow
         )
     }
 
@@ -99,7 +101,8 @@ impl CreativeWorkVariant {
             Skill,
             SoftwareApplication,
             SoftwareSourceCode,
-            Table
+            Table,
+            Workflow
         )
     }
 }
@@ -137,7 +140,8 @@ impl TryFrom<Node> for CreativeWorkVariant {
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
-            VideoObject
+            VideoObject,
+            Workflow
         )
     }
 }

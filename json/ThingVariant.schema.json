@@ -106,6 +106,9 @@
     },
     {
       "$ref": "VideoObject.schema.json"
+    },
+    {
+      "$ref": "Workflow.schema.json"
     }
   ]
 }

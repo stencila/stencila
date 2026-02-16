@@ -141,6 +141,7 @@ export type NodeType =
   | "VideoObject"
   | "Walkthrough"
   | "WalkthroughStep"
+  | "Workflow"
   | "Cord"
   | "Object";
 
@@ -285,6 +286,7 @@ export const NodeTypeList = [
   "VideoObject",
   "Walkthrough",
   "WalkthroughStep",
+  "Workflow",
   "Cord",
   "Object",
 ];

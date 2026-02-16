@@ -423,6 +423,9 @@
       "$ref": "WalkthroughStep.schema.json"
     },
     {
+      "$ref": "Workflow.schema.json"
+    },
+    {
       "$ref": "Cord.schema.json"
     },
     {

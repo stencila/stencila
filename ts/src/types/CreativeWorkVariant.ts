@@ -24,6 +24,7 @@ import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Table } from "./Table.js";
 import { type VideoObject } from "./VideoObject.js";
+import { type Workflow } from "./Workflow.js";
 
 /**
  * Union type for all types that are descended from `CreativeWork`
@@ -50,7 +51,8 @@ export type CreativeWorkVariant =
   SoftwareApplication |
   SoftwareSourceCode |
   Table |
-  VideoObject;
+  VideoObject |
+  Workflow;
 
 /**
  * Create a `CreativeWorkVariant` from an object
@@ -79,6 +81,7 @@ export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVar
     case "SoftwareSourceCode":
     case "Table":
     case "VideoObject":
+    case "Workflow":
       return hydrate(other) as CreativeWorkVariant
     default:
       // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript

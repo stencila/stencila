@@ -24,6 +24,7 @@ use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::table::Table;
 use super::video_object::VideoObject;
+use super::workflow::Workflow;
 
 /// Union type for all types that are descended from `CreativeWork`
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
@@ -73,4 +74,6 @@ pub enum CreativeWorkVariant {
     Table(Table),
 
     VideoObject(VideoObject),
+
+    Workflow(Workflow),
 }

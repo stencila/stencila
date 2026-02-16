@@ -198,3 +198,4 @@ export * from "./VerticalAlignment.js";
 export * from "./VideoObject.js";
 export * from "./Walkthrough.js";
 export * from "./WalkthroughStep.js";
+export * from "./Workflow.js";

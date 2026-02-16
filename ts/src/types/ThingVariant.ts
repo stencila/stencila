@@ -34,6 +34,7 @@ import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Table } from "./Table.js";
 import { type VideoObject } from "./VideoObject.js";
+import { type Workflow } from "./Workflow.js";
 
 /**
  * Union type for all types that are descended from `Thing`
@@ -73,6 +74,7 @@ export type ThingVariant =
   SoftwareApplication |
   SoftwareSourceCode |
   Table |
-  VideoObject;
+  VideoObject |
+  Workflow;
 
 

@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/CreativeWork",
-  "name": "CreativeWork",
+  "@id": "https://stencila.org/Workflow",
+  "name": "Workflow",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,12 +9,12 @@
   },
   "@graph": [
     {
-      "@id": "schema:CreativeWork",
+      "@id": "stencila:Workflow",
       "@type": "rdfs:Class",
-      "rdfs:label": "CreativeWork",
-      "rdfs:comment": "A creative work, including books, movies, photographs, software programs, etc.",
+      "rdfs:label": "Workflow",
+      "rdfs:comment": "A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.",
       "rdfs:subClassOf": {
-        "@id": "schema:Thing"
+        "@id": "schema:CreativeWork"
       }
     },
     {
@@ -84,7 +84,7 @@
       "@id": "schema:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",
-      "rdfs:comment": "The name of the item.",
+      "rdfs:comment": "The name of the workflow.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Thing"
@@ -700,6 +700,253 @@
           "@id": "schema:Number"
         }
       ]
+    },
+    {
+      "@id": "stencila:frontmatter",
+      "@type": "rdfs:Property",
+      "rdfs:label": "frontmatter",
+      "rdfs:comment": "Frontmatter containing workflow metadata.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:Skill"
+        },
+        {
+          "@id": "stencila:Workflow"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content of the workflow (Markdown body containing the DOT pipeline and documentation).",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CitationGroup"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InlinesBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Sentence"
+        },
+        {
+          "@id": "stencila:Skill"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        },
+        {
+          "@id": "stencila:Workflow"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:pipeline",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pipeline",
+      "rdfs:comment": "The raw DOT source defining the pipeline digraph.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:goal",
+      "@type": "rdfs:Property",
+      "rdfs:label": "goal",
+      "rdfs:comment": "The high-level goal for the pipeline.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:modelStylesheet",
+      "@type": "rdfs:Property",
+      "rdfs:label": "modelStylesheet",
+      "rdfs:comment": "CSS-like stylesheet for supplementary per-node LLM model and provider overrides.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:defaultMaxRetry",
+      "@type": "rdfs:Property",
+      "rdfs:label": "defaultMaxRetry",
+      "rdfs:comment": "Global retry ceiling for nodes that omit max_retries.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:retryTarget",
+      "@type": "rdfs:Property",
+      "rdfs:label": "retryTarget",
+      "rdfs:comment": "Node ID to jump to if exit is reached with unsatisfied goal gates.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:fallbackRetryTarget",
+      "@type": "rdfs:Property",
+      "rdfs:label": "fallbackRetryTarget",
+      "rdfs:comment": "Secondary jump target if retryTarget is missing or invalid.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:defaultFidelity",
+      "@type": "rdfs:Property",
+      "rdfs:label": "defaultFidelity",
+      "rdfs:comment": "Default context fidelity mode for LLM sessions.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     }
   ]
 }

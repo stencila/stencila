@@ -140,6 +140,7 @@ import { type Variable } from "./Variable.js";
 import { type VideoObject } from "./VideoObject.js";
 import { type Walkthrough } from "./Walkthrough.js";
 import { type WalkthroughStep } from "./WalkthroughStep.js";
+import { type Workflow } from "./Workflow.js";
 
 /**
  * Union type for all types in this schema, including primitives and entities
@@ -285,6 +286,7 @@ export type Node =
   VideoObject |
   Walkthrough |
   WalkthroughStep |
+  Workflow |
   Cord |
   Object;
 
@@ -429,6 +431,7 @@ export function node(other: Node): Node {
     case "VideoObject":
     case "Walkthrough":
     case "WalkthroughStep":
+    case "Workflow":
       return hydrate(other) as Node
     default:
       throw new Error(`Unexpected type for Node: ${other.type}`);

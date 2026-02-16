@@ -144,6 +144,7 @@ use super::variable::Variable;
 use super::video_object::VideoObject;
 use super::walkthrough::Walkthrough;
 use super::walkthrough_step::WalkthroughStep;
+use super::workflow::Workflow;
 
 /// Union type for all types in this schema, including primitives and entities
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
@@ -429,6 +430,8 @@ pub enum Node {
     Walkthrough(Walkthrough),
 
     WalkthroughStep(WalkthroughStep),
+
+    Workflow(Workflow),
 
     Cord(Cord),
 

@@ -124,6 +124,9 @@
         },
         {
           "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {
@@ -715,6 +718,9 @@
         },
         {
           "@id": "stencila:Skill"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {
@@ -849,6 +855,9 @@
         },
         {
           "@id": "stencila:WalkthroughStep"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {

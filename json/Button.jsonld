@@ -474,6 +474,9 @@
         },
         {
           "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {

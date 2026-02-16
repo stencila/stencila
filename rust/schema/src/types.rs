@@ -191,6 +191,7 @@ mod vertical_alignment;
 mod video_object;
 mod walkthrough;
 mod walkthrough_step;
+mod workflow;
 
 pub use admonition::*;
 pub use admonition_type::*;
@@ -384,3 +385,4 @@ pub use vertical_alignment::*;
 pub use video_object::*;
 pub use walkthrough::*;
 pub use walkthrough_step::*;
+pub use workflow::*;

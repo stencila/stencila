@@ -154,7 +154,8 @@ impl Node {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         )
     }
 
@@ -310,7 +311,8 @@ impl Node {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         )
     }
 }
@@ -510,7 +512,8 @@ impl ReadNode for Node {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         )
     }
 }
@@ -672,7 +675,8 @@ impl From<CreativeWorkVariant> for Node {
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
-            VideoObject
+            VideoObject,
+            Workflow
         )
     }
 }

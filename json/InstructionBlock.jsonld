@@ -448,6 +448,9 @@
         },
         {
           "@id": "stencila:WalkthroughStep"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {

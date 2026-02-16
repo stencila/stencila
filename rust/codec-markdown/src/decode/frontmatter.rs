@@ -7,7 +7,7 @@ use stencila_codec::{
     stencila_format::Format,
     stencila_schema::{
         Agent, Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, Skill,
-        shortcuts::t,
+        Workflow, shortcuts::t,
     },
 };
 
@@ -40,8 +40,8 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
                 {
                     value.insert("type".into(), json!(node_type.to_string()));
                     value.insert("content".to_string(), json!([]));
-                } else if node_type == NodeType::Agent {
-                    // Agent has optional content — only inject `type`, not `content`
+                } else if matches!(node_type, NodeType::Agent | NodeType::Workflow) {
+                    // Agent and Workflow have optional content — only inject `type`, not `content`
                     value.insert("type".into(), json!(node_type.to_string()));
                 }
                 node_type
@@ -82,6 +82,8 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
                 node_type
             } else if yaml.contains("type: Agent") {
                 NodeType::Agent
+            } else if yaml.contains("type: Workflow") {
+                NodeType::Workflow
             } else if yaml.contains("type: Prompt") {
                 NodeType::Prompt
             } else if yaml.contains("type: Skill") {
@@ -145,6 +147,16 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
             },
             Node::Agent,
         ),
+        NodeType::Workflow => serde_json::from_value::<Workflow>(value).map_or_else(
+            |error| {
+                messages.push(CompilationMessage::new(
+                    MessageLevel::Error,
+                    format!("{error} in YAML frontmatter"),
+                ));
+                Node::Workflow(Workflow::default())
+            },
+            Node::Workflow,
+        ),
         NodeType::Prompt => serde_json::from_value::<Prompt>(value).map_or_else(
             |error| {
                 messages.push(CompilationMessage::new(
@@ -204,6 +216,10 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
         Node::Skill(skill) => {
             skill.options.title = title;
             skill.options.r#abstract = abs;
+        }
+        Node::Workflow(workflow) => {
+            workflow.options.title = title;
+            workflow.options.r#abstract = abs;
         }
         Node::Chat(chat) => {
             chat.title = title;

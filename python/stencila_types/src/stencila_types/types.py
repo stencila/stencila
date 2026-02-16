@@ -3450,6 +3450,45 @@ class WalkthroughStep(Entity):
     content: list[Block]
     """The content of the step."""
 
+
+@dataclass(kw_only=True, repr=False)
+class Workflow(CreativeWork):
+    """
+    A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+    """
+
+    type: Literal["Workflow"] = "Workflow"
+
+    name: str
+    """The name of the workflow."""
+
+    frontmatter: str | None = None
+    """Frontmatter containing workflow metadata."""
+
+    content: list[Block] | None = None
+    """The content of the workflow (Markdown body containing the DOT pipeline and documentation)."""
+
+    pipeline: str | None = None
+    """The raw DOT source defining the pipeline digraph."""
+
+    goal: str | None = None
+    """The high-level goal for the pipeline."""
+
+    model_stylesheet: str | None = None
+    """CSS-like stylesheet for supplementary per-node LLM model and provider overrides."""
+
+    default_max_retry: int | None = None
+    """Global retry ceiling for nodes that omit max_retries."""
+
+    retry_target: str | None = None
+    """Node ID to jump to if exit is reached with unsatisfied goal gates."""
+
+    fallback_retry_target: str | None = None
+    """Secondary jump target if retryTarget is missing or invalid."""
+
+    default_fidelity: str | None = None
+    """Default context fidelity mode for LLM sessions."""
+
 Author = Union[
     Person,
     Organization,
@@ -3540,6 +3579,7 @@ CreativeWorkVariant = Union[
     SoftwareSourceCode,
     Table,
     VideoObject,
+    Workflow,
 ]
 """
 Union type for all types that are descended from `CreativeWork`
@@ -3758,6 +3798,7 @@ Node = Union[
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Workflow,
     Cord,
     Object,
 ]
@@ -3802,6 +3843,7 @@ ThingVariant = Union[
     SoftwareSourceCode,
     Table,
     VideoObject,
+    Workflow,
 ]
 """
 Union type for all types that are descended from `Thing`
@@ -3972,6 +4014,7 @@ TYPES = [
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Workflow,
 ]
 
 

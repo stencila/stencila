@@ -321,6 +321,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Walkthrough.prototype);
     case "WalkthroughStep":
       return Object.setPrototypeOf(value, types.WalkthroughStep.prototype);
+    case "Workflow":
+      return Object.setPrototypeOf(value, types.Workflow.prototype);
     // TYPE-CASES:STOP
     default:
       return value;

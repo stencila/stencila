@@ -283,7 +283,8 @@ impl VisitorMut for Stabilizer {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         );
 
         WalkControl::Continue

@@ -13,9 +13,8 @@ use stencila_codec::{
     eyre::{Result, eyre},
     stencila_format::Format,
     stencila_schema::{
-        Agent, Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, Skill,
-        VisitorMut,
-        WalkControl,
+        Agent, Article, Block, Chat, CodeBlock, Inline, Node, NodeId, NodeType, Null, Prompt,
+        Skill, VisitorMut, WalkControl, Workflow,
     },
 };
 
@@ -95,6 +94,20 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
                 }
                 Node::Agent(agent)
             }
+            Node::Workflow(rest) => {
+                let pipeline = extract_dot_pipeline(&content);
+                let mut workflow = Workflow {
+                    frontmatter: Some(yaml),
+                    ..rest
+                };
+                if !content.is_empty() {
+                    workflow.content = Some(content);
+                }
+                if workflow.pipeline.is_none() {
+                    workflow.pipeline = pipeline;
+                }
+                Node::Workflow(workflow)
+            }
             Node::Skill(rest) => Node::Skill(Skill {
                 content,
                 frontmatter: Some(yaml),
@@ -166,6 +179,26 @@ fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
         }
         _ => vec![],
     }
+}
+
+/// Extract the raw DOT source from the first ```dot code block in the content blocks.
+fn extract_dot_pipeline(blocks: &[Block]) -> Option<String> {
+    for block in blocks {
+        if let Block::CodeBlock(CodeBlock {
+            programming_language: Some(lang),
+            code,
+            ..
+        }) = block
+        {
+            if lang == "dot" {
+                let source = code.to_string();
+                if !source.is_empty() {
+                    return Some(source);
+                }
+            }
+        }
+    }
+    None
 }
 
 /// Preprocess Markdown
