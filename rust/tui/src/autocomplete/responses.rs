@@ -125,8 +125,14 @@ impl ResponsesState {
 
         let candidate = &self.candidates[self.selected];
         // Truncate preview for the inserted reference text
-        let short: String = candidate.preview.chars().take(40).collect();
-        let ellipsis = if candidate.preview.len() > short.len() {
+        let short: String = candidate
+            .preview
+            .trim_start()
+            .chars()
+            .map(|c| if c == '\n' { ' ' } else { c })
+            .take(40)
+            .collect();
+        let ellipsis = if candidate.preview.trim_start().chars().count() > 40 {
             "\u{2026}"
         } else {
             ""

@@ -703,9 +703,6 @@ impl App {
     pub fn switch_to_session(&mut self, index: usize) {
         if index < self.sessions.len() && index != self.active_session {
             self.active_session = index;
-            self.messages.push(AppMessage::System {
-                content: format!("Switched to agent '{}'.", self.sessions[index].name),
-            });
         }
     }
 
@@ -714,6 +711,11 @@ impl App {
     fn handle_paste(&mut self, text: &str) {
         const PASTE_THRESHOLD: usize = 80;
         const PASTE_PREVIEW_CHARS: usize = 20;
+
+        // Normalize line endings: many terminals send \r or \r\n in paste
+        // events when in raw mode, but the input buffer uses \n exclusively.
+        let text = text.replace("\r\n", "\n").replace('\r', "\n");
+        let text = text.as_str();
 
         let char_count = text.chars().count();
 
@@ -725,6 +727,7 @@ impl App {
             self.pastes.insert(n, text.to_string());
 
             let prefix: String = text
+                .trim_start()
                 .chars()
                 .take(PASTE_PREVIEW_CHARS)
                 .map(|c| if c == '\n' { ' ' } else { c })
@@ -2000,6 +2003,20 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn paste_normalizes_crlf_to_lf() {
+        let mut app = App::new_for_test();
+        app.handle_event(&Event::Paste("hello\r\nworld".to_string()));
+        assert_eq!(app.input.text(), "hello\nworld");
+    }
+
+    #[tokio::test]
+    async fn paste_normalizes_cr_to_lf() {
+        let mut app = App::new_for_test();
+        app.handle_event(&Event::Paste("hello\rworld".to_string()));
+        assert_eq!(app.input.text(), "hello\nworld");
+    }
+
+    #[tokio::test]
     async fn history_up_down() {
         let mut app = App::new_for_test();
 
@@ -2706,11 +2723,7 @@ mod tests {
 
         app.switch_to_session(1);
         assert_eq!(app.active_session, 1);
-        assert_eq!(app.messages.len(), initial + 1);
-        assert!(matches!(
-            &app.messages[initial],
-            AppMessage::System { content } if content.contains("test-agent")
-        ));
+        assert_eq!(app.messages.len(), initial);
     }
 
     #[tokio::test]
