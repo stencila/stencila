@@ -1,7 +1,10 @@
 use std::io::{self, stdout};
 
 use crossterm::{
-    event::{DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture},
+    event::{
+        DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture,
+        KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
+    },
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
@@ -18,7 +21,12 @@ pub struct TerminalGuard {
 
 impl Drop for TerminalGuard {
     fn drop(&mut self) {
-        let _ = execute!(stdout(), DisableMouseCapture, DisableBracketedPaste);
+        let _ = execute!(
+            stdout(),
+            PopKeyboardEnhancementFlags,
+            DisableMouseCapture,
+            DisableBracketedPaste
+        );
         let _ = disable_raw_mode();
         let _ = execute!(stdout(), LeaveAlternateScreen);
     }
@@ -39,14 +47,21 @@ pub fn init() -> Result<TerminalGuard> {
 
     // execute! runs commands sequentially — if one fails, earlier ones may have
     // partially succeeded. Defensively undo everything before propagating.
+    //
+    // PushKeyboardEnhancementFlags enables the Kitty keyboard protocol so
+    // terminals that support it can distinguish Shift+Enter from bare Enter
+    // (among other modifier combos). Terminals that don't support it silently
+    // ignore the escape sequence.
     if let Err(e) = execute!(
         stdout(),
         EnterAlternateScreen,
         EnableBracketedPaste,
-        EnableMouseCapture
+        EnableMouseCapture,
+        PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES)
     ) {
         let _ = execute!(
             stdout(),
+            PopKeyboardEnhancementFlags,
             DisableMouseCapture,
             DisableBracketedPaste,
             LeaveAlternateScreen
@@ -56,7 +71,20 @@ pub fn init() -> Result<TerminalGuard> {
     }
 
     let backend = CrosstermBackend::new(stdout());
-    let terminal = Terminal::new(backend)?;
+    let terminal = match Terminal::new(backend) {
+        Ok(t) => t,
+        Err(e) => {
+            let _ = execute!(
+                stdout(),
+                PopKeyboardEnhancementFlags,
+                DisableMouseCapture,
+                DisableBracketedPaste,
+                LeaveAlternateScreen
+            );
+            let _ = disable_raw_mode();
+            return Err(e.into());
+        }
+    };
     Ok(TerminalGuard { terminal })
 }
 
@@ -64,7 +92,12 @@ pub fn init() -> Result<TerminalGuard> {
 fn install_panic_hook() {
     let original_hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic_info| {
-        let _ = execute!(stdout(), DisableMouseCapture, DisableBracketedPaste);
+        let _ = execute!(
+            stdout(),
+            PopKeyboardEnhancementFlags,
+            DisableMouseCapture,
+            DisableBracketedPaste
+        );
         let _ = disable_raw_mode();
         let _ = execute!(stdout(), LeaveAlternateScreen);
         original_hook(panic_info);

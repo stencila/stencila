@@ -184,7 +184,7 @@ fn execute_help(app: &mut App) {
     }
     help.push_str("\nKey bindings:\n");
     help.push_str("  Enter          Send message / run command\n");
-    help.push_str("  Alt+Enter      Insert newline\n");
+    help.push_str("  Alt+Enter      Insert newline (Shift+Enter on supported terminals)\n");
     help.push_str("  Up/Down        History / cursor movement\n");
     help.push_str("  Ctrl+C         Cancel running / quit (chat) / clear (shell)\n");
     help.push_str("  Ctrl+D         Exit shell mode\n");
