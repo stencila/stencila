@@ -112,6 +112,17 @@ fn default_model(provider: &str) -> Option<&'static str> {
     }
 }
 
+fn api_key_env_hint(provider: &str) -> &'static str {
+    match provider {
+        "anthropic" => "ANTHROPIC_API_KEY",
+        "openai" => "OPENAI_API_KEY",
+        "gemini" | "google" => "GEMINI_API_KEY",
+        "mistral" => "MISTRAL_API_KEY",
+        "deepseek" => "DEEPSEEK_API_KEY",
+        _ => "<PROVIDER>_API_KEY",
+    }
+}
+
 /// If `name` is `"default"`, resolve it to the configured default agent name
 /// from `[agents].default` in `stencila.toml`. Returns the name unchanged
 /// if it is not `"default"` or if no config is set.
@@ -166,37 +177,72 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
 
     let client = stencila_models3::client::Client::from_env().map_err(AgentError::Sdk)?;
 
-    let provider_name = match &agent.provider {
-        Some(p) => p.to_string(),
-        None => match client.select_provider() {
-            Some(p) => p.to_string(),
-            None => {
-                return Err(AgentError::Sdk(
-                    stencila_models3::error::SdkError::Configuration {
-                        message: "No API keys found. \
-                                  Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GEMINI_API_KEY."
-                            .to_string(),
-                    },
-                ));
-            }
-        },
-    };
-
-    let model_name = match &agent.model {
-        Some(m) => m.to_string(),
-        None => match default_model(&provider_name) {
-            Some(m) => m.to_string(),
-            None => {
+    // Resolve provider and model together: when the agent specifies a model
+    // but no provider, infer the provider from the model name (catalog lookup
+    // then name-based heuristics) instead of blindly using the default.
+    let (provider_name, model_name) = match (&agent.provider, &agent.model) {
+        (Some(p), Some(m)) => (p.to_string(), m.to_string()),
+        (Some(p), None) => {
+            let m = default_model(p)
+                .ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: format!(
+                            "No default model for provider '{p}'. \
+                             Please specify a model explicitly."
+                        ),
+                    })
+                })?
+                .to_string();
+            (p.to_string(), m)
+        }
+        (None, Some(m)) => {
+            let p = client
+                .infer_provider_from_model(m)
+                .map_err(AgentError::Sdk)?
+                .ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: format!(
+                            "Cannot infer provider for model '{m}'. \
+                             Please specify the provider explicitly."
+                        ),
+                    })
+                })?;
+            if !client.has_provider(&p) {
                 return Err(AgentError::Sdk(
                     stencila_models3::error::SdkError::Configuration {
                         message: format!(
-                            "No default model for provider '{provider_name}'. \
-                             Please specify a model explicitly."
+                            "Inferred provider '{p}' for model '{m}' is not configured. \
+                             Set the appropriate API key (e.g. {}) or specify a different provider.",
+                            api_key_env_hint(&p)
                         ),
                     },
                 ));
             }
-        },
+            (p, m.to_string())
+        }
+        (None, None) => {
+            let p = client
+                .select_provider()
+                .ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: "No API keys found. \
+                                  Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GEMINI_API_KEY."
+                            .to_string(),
+                    })
+                })?
+                .to_string();
+            let m = default_model(&p)
+                .ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: format!(
+                            "No default model for provider '{p}'. \
+                             Please specify a model explicitly."
+                        ),
+                    })
+                })?
+                .to_string();
+            (p, m)
+        }
     };
 
     config.commit_instructions = Some(prompts::build_commit_instructions());
@@ -211,8 +257,8 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
             return Err(AgentError::Sdk(
                 stencila_models3::error::SdkError::Configuration {
                     message: format!(
-                        "Provider '{name}' is not supported. \
-                         Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GEMINI_API_KEY."
+                        "Provider '{name}' is not yet supported by the agents layer. \
+                         Supported providers: anthropic, openai, gemini."
                     ),
                 },
             ));

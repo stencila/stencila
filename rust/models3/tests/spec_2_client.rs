@@ -663,6 +663,39 @@ async fn client_unknown_model_still_routes_to_default_provider()
 }
 
 #[tokio::test]
+async fn client_infers_provider_from_model_name_heuristics()
+-> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::builder()
+        .add_provider(MockAdapter::with_text("openai", "from_openai"))
+        .add_provider(MockAdapter::with_text("anthropic", "from_anthropic"))
+        .add_provider(MockAdapter::with_text("gemini", "from_gemini"))
+        .add_provider(MockAdapter::with_text("mistral", "from_mistral"))
+        .add_provider(MockAdapter::with_text("deepseek", "from_deepseek"))
+        .build()?;
+
+    // Models not in the catalog should still route by name prefix.
+    let cases = vec![
+        ("claude-future-99", "from_anthropic"),
+        ("gpt-99-turbo", "from_openai"),
+        ("o4-mini-future", "from_openai"),
+        ("gemini-9.0-ultra", "from_gemini"),
+        ("mistral-future-large", "from_mistral"),
+        ("codestral-future", "from_mistral"),
+        ("deepseek-future-v3", "from_deepseek"),
+    ];
+
+    for (model, expected_text) in cases {
+        let response = client.complete(make_request(model)).await?;
+        assert_eq!(
+            response.text(),
+            expected_text,
+            "model '{model}' should route to the correct provider"
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test]
 async fn client_errors_on_unknown_provider() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::builder()
         .add_provider(MockAdapter::with_text("alpha", "hi"))

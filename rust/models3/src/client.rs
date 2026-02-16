@@ -435,6 +435,12 @@ impl Client {
         self.default_provider.as_deref()
     }
 
+    /// Whether a provider with the given name is registered.
+    #[must_use]
+    pub fn has_provider(&self, name: &str) -> bool {
+        self.providers.contains_key(name)
+    }
+
     /// The number of registered middleware.
     #[must_use]
     pub fn middleware_count(&self) -> usize {
@@ -488,13 +494,14 @@ impl Client {
             })
     }
 
-    /// Infer a provider from a model ID/alias using the catalog.
+    /// Infer a provider from a model ID/alias using the catalog, falling
+    /// back to name-based heuristics for models not yet in the catalog.
     ///
     /// Returns:
     /// - `Ok(Some(provider))` when inference is possible
-    /// - `Ok(None)` when the model is not in the catalog
+    /// - `Ok(None)` when no heuristic matches
     /// - `Err(Configuration)` when the model maps to multiple providers
-    fn infer_provider_from_model(&self, model: &str) -> SdkResult<Option<String>> {
+    pub fn infer_provider_from_model(&self, model: &str) -> SdkResult<Option<String>> {
         let catalog = crate::catalog::read_catalog()?;
         let mut matches: Vec<String> = Vec::new();
         for info in &*catalog {
@@ -507,7 +514,9 @@ impl Client {
         drop(catalog);
 
         if matches.is_empty() {
-            return Ok(None);
+            // Catalog miss — fall back to name-based heuristics so that
+            // new or unlisted models still route to the right provider.
+            return Ok(Self::infer_provider_from_name(model));
         }
 
         // If only one provider matches, use it directly.
@@ -530,6 +539,52 @@ impl Client {
                 "model '{model}' is ambiguous across providers; specify request.provider"
             ),
         })
+    }
+
+    /// Infer a provider from a model name using prefix/substring heuristics.
+    ///
+    /// This handles models not yet in the catalog (e.g. newly released models,
+    /// dated snapshots, or fine-tuned variants). This is a static method that
+    /// does not require a `Client` instance or catalog access.
+    pub fn infer_provider_from_name(model: &str) -> Option<String> {
+        let m = model.to_ascii_lowercase();
+
+        // Anthropic: claude-*, models always start with "claude"
+        if m.starts_with("claude") {
+            return Some("anthropic".into());
+        }
+
+        // OpenAI: gpt-*, o1-*, o3-*, o4-*, chatgpt-*, ft:gpt-*
+        if m.starts_with("gpt")
+            || m.starts_with("o1")
+            || m.starts_with("o3")
+            || m.starts_with("o4")
+            || m.starts_with("chatgpt")
+            || m.starts_with("ft:gpt")
+        {
+            return Some("openai".into());
+        }
+
+        // Google: gemini-*
+        if m.starts_with("gemini") {
+            return Some("gemini".into());
+        }
+
+        // Mistral: mistral-*, codestral-*, pixtral-*, ministral-*
+        if m.starts_with("mistral")
+            || m.starts_with("codestral")
+            || m.starts_with("pixtral")
+            || m.starts_with("ministral")
+        {
+            return Some("mistral".into());
+        }
+
+        // DeepSeek: deepseek-*
+        if m.starts_with("deepseek") {
+            return Some("deepseek".into());
+        }
+
+        None
     }
 
     /// Build the middleware chain for `complete()`.

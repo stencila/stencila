@@ -35,6 +35,3 @@ preset = "docs"
 
 [agents]
 default = "code-engineer"
-
-[models]
-providers = ["anthropic", "openai"]
