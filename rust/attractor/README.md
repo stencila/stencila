@@ -51,6 +51,10 @@ The fidelity/thread resolver supports a graph attribute `default_thread_id` as t
 
 Start and exit detection accepts canonical ID aliases (`start`/`Start` and `exit`/`Exit`/`end`/`End`) in addition to shape-based detection.
 
+### Human shape alias
+
+`shape=human` is accepted as an alias for `shape=hexagon`, mapping to the `wait.human` handler type. This provides a more intuitive way to declare human-in-the-loop nodes (e.g., `Review [shape=human]`).
+
 ### Outcome status-file compatibility alias
 
 Outcome deserialization accepts both `preferred_next_label` (spec field name) and `preferred_label` as input keys for compatibility with legacy/external status producers.

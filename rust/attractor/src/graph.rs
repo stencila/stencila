@@ -222,7 +222,7 @@ pub(crate) fn shape_to_handler_type(shape: &str) -> &'static str {
     match shape {
         "Mdiamond" => "start",
         "Msquare" => "exit",
-        "hexagon" => "wait.human",
+        "hexagon" | "human" => "wait.human",
         "diamond" => "conditional",
         "component" => "parallel",
         "tripleoctagon" => "parallel.fan_in",
