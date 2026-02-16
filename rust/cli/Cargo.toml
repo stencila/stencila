@@ -68,6 +68,7 @@ stencila-tools = { path = "../tools" }
 stencila-tui = { path = "../tui" }
 stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
+stencila-workflows = { path = "../workflows", features = ["cli"] }
 strum = { workspace = true }
 tar = { workspace = true }
 tempfile = { workspace = true }

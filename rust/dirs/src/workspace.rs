@@ -13,6 +13,7 @@ pub const CACHE_DIR: &str = "cache";
 pub const ARTIFACTS_DIR: &str = "artifacts";
 pub const SKILLS_DIR: &str = "skills";
 pub const AGENTS_DIR: &str = "agents";
+pub const WORKFLOWS_DIR: &str = "workflows";
 pub const DB_FILE: &str = "db.kuzu";
 
 #[derive(SmartDefault)]
@@ -103,6 +104,17 @@ pub async fn stencila_agents_dir(stencila_dir: &Path, ensure: bool) -> Result<Pa
     }
 
     Ok(agents_dir)
+}
+
+/// Get the path of the `.stencila/workflows` directory and optionally ensure it exists
+pub async fn stencila_workflows_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let workflows_dir = stencila_dir.join(WORKFLOWS_DIR);
+
+    if ensure && !workflows_dir.exists() {
+        create_dir_all(&workflows_dir).await?;
+    }
+
+    Ok(workflows_dir)
 }
 
 /// Get the path of the `.stencila/db.kuzu` file and optionally ensure its parent exists
@@ -316,4 +328,5 @@ mod tests {
         let result = closest_dot_dir(tmp.path(), ".nonexistent-dir-xyz");
         assert!(result.is_none());
     }
+
 }

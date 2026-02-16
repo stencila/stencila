@@ -260,6 +260,7 @@ pub enum Command {
 
     Db(db::Cli),
 
+    Workflows(stencila_workflows::cli::Cli),
     Agents(stencila_agents::cli::Cli),
     Skills(stencila_skills::cli::Cli),
     Models(stencila_models3::cli::Cli),
@@ -344,6 +345,7 @@ impl Cli {
             Command::Db(db) => db.run().await,
 
             Command::Prompts(prompts) => prompts.run().await,
+            Command::Workflows(workflows) => workflows.run().await,
             Command::Agents(agents) => agents.run().await,
             Command::Skills(skills) => skills.run().await,
             Command::Models(models) => {

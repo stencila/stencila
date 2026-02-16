@@ -9041,6 +9041,7 @@ dependencies = [
  "stencila-tui",
  "stencila-version",
  "stencila-web-dist",
+ "stencila-workflows",
  "strum",
  "tar",
  "tempfile",
@@ -11662,6 +11663,31 @@ version = "0.0.0"
 dependencies = [
  "rust-embed",
  "stencila-version",
+]
+
+[[package]]
+name = "stencila-workflows"
+version = "2.13.0"
+dependencies = [
+ "Inflector",
+ "async-trait",
+ "clap",
+ "eyre",
+ "glob",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-agents",
+ "stencila-attractor",
+ "stencila-cli-utils",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-schema",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
