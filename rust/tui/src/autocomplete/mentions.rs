@@ -143,7 +143,7 @@ impl MentionsState {
 ///
 /// The characters after `#` must be alphanumeric, hyphens, or underscores.
 fn find_mention_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str)> {
-    if !input.starts_with('#') {
+    if !input.starts_with('#') || cursor < 1 {
         return None;
     }
 
@@ -411,6 +411,12 @@ mod tests {
     #[test]
     fn find_mention_invalid_chars() {
         let result = find_mention_token("#foo.bar", 8);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn find_mention_cursor_at_zero() {
+        let result = find_mention_token("#code-reviewer review the changes", 0);
         assert!(result.is_none());
     }
 }
