@@ -9,7 +9,7 @@ $comment: |
   body. The pipeline is defined as a Graphviz DOT digraph in the first ```dot code block in the
   body. Additional Markdown content provides human-readable documentation for the workflow.
 
-  Workflows are discovered from `.stencila/labs/<lab-name>/workflows/<workflow-name>/WORKFLOW.md`.
+  Workflows are discovered from `.stencila/workflows/<name>/WORKFLOW.md`.
   Each node in the DOT graph can reference an agent by name via the `agent` attribute; agents are
   resolved from workspace `.stencila/agents/` and user-level `~/.config/stencila/agents/`.
   Because workflows are typically shared (committed to a repository as part of a lab), while
