@@ -118,6 +118,20 @@ fn refresh_fn() -> RefreshFn {
             if !response.status().is_success() {
                 let status = response.status();
                 let text = response.text().await.unwrap_or_default();
+
+                // When the refresh token is invalid or revoked, the user
+                // needs to re-authenticate in Claude Code so that fresh
+                // credentials are available for Stencila to pick up.
+                if text.contains("invalid_grant") {
+                    return Err(AuthError::Authentication(
+                        "Claude Code OAuth refresh token is invalid or expired. \
+                         Please re-login in Claude Code by running \
+                         `claude` and completing the authentication flow, \
+                         then retry."
+                            .into(),
+                    ));
+                }
+
                 return Err(AuthError::Authentication(format!(
                     "Claude Code token refresh failed ({status}): {text}"
                 )));
