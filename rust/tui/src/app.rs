@@ -212,6 +212,10 @@ pub struct App {
     /// Counter for generating paste numbers.
     paste_counter: usize,
 
+    /// Vertical scroll offset for the input area. Persisted across frames so
+    /// the viewport only scrolls when the cursor moves beyond the visible edges.
+    pub input_scroll: u16,
+
     /// Ghost suggestion suffix (the part beyond what's typed, insertable text only).
     /// Shown as dim inline text for fish-shell-style history completion.
     pub ghost_suggestion: Option<String>,
@@ -281,6 +285,7 @@ impl App {
             mentions_state: MentionsState::new(),
             pastes: std::collections::HashMap::new(),
             paste_counter: 0,
+            input_scroll: 0,
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
@@ -521,6 +526,7 @@ impl App {
                         AppMode::Shell => {
                             // In shell mode: clear input line (standard shell behavior)
                             self.input.clear();
+                            self.input_scroll = 0;
                         }
                     }
                 }
@@ -677,6 +683,7 @@ impl App {
         self.sessions.push(session);
         self.active_session = self.sessions.len() - 1;
         self.input.clear();
+        self.input_scroll = 0;
 
         let model_info = match (&info.provider, &info.model) {
             (Some(p), Some(m)) => format!(" using {m} ({p})"),
@@ -729,6 +736,7 @@ impl App {
     /// Submit the current input as a user message or slash command.
     fn submit_input(&mut self) {
         let text = self.input.take();
+        self.input_scroll = 0;
         if text.trim().is_empty() {
             return;
         }

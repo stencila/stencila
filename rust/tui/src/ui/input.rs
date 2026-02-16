@@ -67,7 +67,7 @@ fn ghost_chunks(ghost: &str, remaining_on_last: usize, wrap_width: usize) -> (Ve
 
 /// Render the input area with cursor: dark grey background, colored sidebar, no border.
 #[allow(clippy::too_many_lines)]
-pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
+pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let input_text = app.input.text();
     let kind = ExchangeKind::from(app.mode);
     let is_running = app.has_running();
@@ -192,28 +192,56 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
         }
     }
 
-    let content = Text::from(visual_lines);
+    // Inner width available for text (content area width)
+    let inner_width = content_area.width.max(1) as usize;
 
-    let paragraph = Paragraph::new(content).style(Style::new().bg(INPUT_BG));
+    // Position the cursor within the input area, accounting for wrapping
+    let (cursor_col, cursor_row) =
+        cursor_position_wrapped(app.input.text(), app.input.cursor(), inner_width);
+
+    // Adjust persistent scroll offset only when cursor leaves the visible window
+    #[allow(clippy::cast_possible_truncation)]
+    let cursor_row_u16 = cursor_row as u16;
+    let visible_height = content_area.height;
+    if cursor_row_u16 < app.input_scroll {
+        app.input_scroll = cursor_row_u16;
+    } else if cursor_row_u16 >= app.input_scroll + visible_height {
+        app.input_scroll = cursor_row_u16 - visible_height + 1;
+    }
+    let scroll_y = app.input_scroll;
+
+    // Char count per visual line — needed for the send/run hint overlap check
+    // after visual_lines is moved into the Paragraph.
+    let last_visible_row = (scroll_y + visible_height).saturating_sub(1) as usize;
+    let last_visible_line_chars: usize = visual_lines
+        .get(last_visible_row)
+        .map_or(0, |l| l.spans.iter().map(|s| s.content.chars().count()).sum());
+
+    let content = Text::from(visual_lines);
+    let paragraph = Paragraph::new(content)
+        .style(Style::new().bg(INPUT_BG))
+        .scroll((scroll_y, 0));
     frame.render_widget(paragraph, content_area);
 
-    // Show inline send/run hint — hide when running or when input text gets close
-    // to the edge. The hint renders as an overlay on top of any ghost text.
+    // Show inline send/run hint anchored to the bottom-right of the input area.
+    // Hide when running or when the last visible line's text would overlap.
     if !is_running {
         let hint_text = match app.mode {
             AppMode::Chat => " send",
             AppMode::Shell => " run",
         };
-        let inner_width = content_area.width;
+        let hint_inner_width = content_area.width;
         #[allow(clippy::cast_possible_truncation)]
         let hint_display_width = (1 + hint_text.len()) as u16;
-        let input_char_len = app.input.text().chars().count();
-        if inner_width > hint_display_width + 8
-            && input_char_len < (inner_width - hint_display_width - 2) as usize
-        {
+
+        #[allow(clippy::cast_possible_truncation)]
+        let has_room = hint_inner_width > hint_display_width + 8
+            && last_visible_line_chars < (hint_inner_width - hint_display_width - 2) as usize;
+
+        if has_room {
             let hint_area = Rect {
                 x: content_area.x + content_area.width - hint_display_width,
-                y: content_area.y,
+                y: content_area.y + content_area.height.saturating_sub(1),
                 width: hint_display_width,
                 height: 1,
             };
@@ -225,20 +253,12 @@ pub(super) fn render(frame: &mut Frame, app: &App, area: Rect) {
         }
     }
 
-    // Inner width available for text (content area width)
-    let inner_width = content_area.width.max(1) as usize;
-
-    // Position the cursor within the input area, accounting for wrapping
-    let (cursor_col, cursor_row) =
-        cursor_position_wrapped(app.input.text(), app.input.cursor(), inner_width);
-
     // +gutter + sidebar + space
     #[allow(clippy::cast_possible_truncation)]
     let x = area.x + content_offset + cursor_col as u16;
     #[allow(clippy::cast_possible_truncation)]
-    let y = area.y + cursor_row as u16;
+    let y = area.y + cursor_row_u16.saturating_sub(scroll_y);
 
-    // Only show cursor if it fits within the input area
     if x < area.x + area.width && y < area.y + area.height {
         frame.set_cursor_position(Position::new(x, y));
     }
