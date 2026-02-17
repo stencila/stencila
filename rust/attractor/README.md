@@ -51,6 +51,10 @@ The fidelity/thread resolver supports a graph attribute `default_thread_id` as t
 
 Start and exit detection accepts canonical ID aliases (`start`/`Start` and `exit`/`Exit`/`end`/`End`) in addition to shape-based detection.
 
+### Agent node attribute
+
+The `agent` node attribute specifies which Stencila agent should execute the node (e.g., `agent="code-engineer"`). This is not part of the attractor spec; the spec uses the `codergen` handler with a pluggable `CodergenBackend`. The `agent` attribute is a Stencila-specific extension that maps nodes to named agents in the Stencila agent registry.
+
 ### Human shape alias
 
 `shape=human` is accepted as an alias for `shape=hexagon`, mapping to the `wait.human` handler type. This provides a more intuitive way to declare human-in-the-loop nodes (e.g., `Review [shape=human]`).
