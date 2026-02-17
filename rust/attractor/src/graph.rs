@@ -206,12 +206,20 @@ impl Node {
 
     /// Return the handler type for this node.
     ///
-    /// Checks `attrs["type"]` first; if absent, maps the node shape to a
-    /// handler type per §2.8 of the specification.
+    /// Resolution order:
+    /// 1. Explicit `type` attribute
+    /// 2. Start/exit node matched by well-known ID (e.g. `Start`, `End`)
+    /// 3. Shape-based mapping per §2.8
     #[must_use]
     pub fn handler_type(&self) -> &str {
         if let Some(explicit) = self.get_str_attr("type") {
             return explicit;
+        }
+        if Graph::START_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
+            return "start";
+        }
+        if Graph::EXIT_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
+            return "exit";
         }
         shape_to_handler_type(self.shape())
     }
@@ -412,5 +420,54 @@ impl Graph {
             .values()
             .find(|n| n.shape() == shape)
             .or_else(|| ids.iter().find_map(|id| self.nodes.get(*id)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn handler_type_explicit_type_attr() {
+        let mut node = Node::new("n1");
+        node.attrs
+            .insert("type".into(), AttrValue::String("tool".into()));
+        assert_eq!(node.handler_type(), "tool");
+    }
+
+    #[test]
+    fn handler_type_by_shape() {
+        let mut node = Node::new("n1");
+        node.attrs
+            .insert("shape".into(), AttrValue::String("diamond".into()));
+        assert_eq!(node.handler_type(), "conditional");
+    }
+
+    #[test]
+    fn handler_type_start_by_id() {
+        let node = Node::new("Start");
+        assert_eq!(node.handler_type(), "start");
+    }
+
+    #[test]
+    fn handler_type_exit_by_id() {
+        for id in ["exit", "Exit", "end", "End"] {
+            let node = Node::new(id);
+            assert_eq!(node.handler_type(), "exit", "failed for id={id}");
+        }
+    }
+
+    #[test]
+    fn handler_type_id_match_does_not_override_explicit_shape() {
+        let mut node = Node::new("Start");
+        node.attrs
+            .insert("shape".into(), AttrValue::String("diamond".into()));
+        assert_eq!(node.handler_type(), "conditional");
+    }
+
+    #[test]
+    fn handler_type_box_defaults_to_codergen() {
+        let node = Node::new("MyNode");
+        assert_eq!(node.handler_type(), "codergen");
     }
 }

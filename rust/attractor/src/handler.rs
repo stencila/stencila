@@ -112,8 +112,9 @@ impl HandlerRegistry {
     /// Resolve a handler for the given node per §4.2:
     ///
     /// 1. Explicit `type` attribute → look up in registry
-    /// 2. Shape-based resolution → look up in registry
-    /// 3. Default handler
+    /// 2. Well-known start/exit ID (for unadorned box nodes) → look up
+    /// 3. Shape-based resolution → look up in registry
+    /// 4. Default handler
     #[must_use]
     pub fn resolve(&self, node: &Node) -> Option<Arc<dyn Handler>> {
         // Step 1: explicit type attribute
@@ -121,13 +122,27 @@ impl HandlerRegistry {
             return Some(handler.clone());
         }
 
-        // Step 2: shape-based resolution
+        // Step 2: well-known start/exit IDs (only for default "box" shape)
+        if node.shape() == "box" {
+            if crate::Graph::START_IDS.contains(&node.id.as_str()) {
+                if let Some(handler) = self.handlers.get("start") {
+                    return Some(handler.clone());
+                }
+            }
+            if crate::Graph::EXIT_IDS.contains(&node.id.as_str()) {
+                if let Some(handler) = self.handlers.get("exit") {
+                    return Some(handler.clone());
+                }
+            }
+        }
+
+        // Step 3: shape-based resolution
         let shape_type = crate::graph::shape_to_handler_type(node.shape());
         if let Some(handler) = self.handlers.get(shape_type) {
             return Some(handler.clone());
         }
 
-        // Step 3: default
+        // Step 4: default
         self.default.clone()
     }
 }
