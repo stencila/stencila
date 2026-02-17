@@ -44,7 +44,7 @@ impl InputHistory {
 
     /// Push a new entry (untagged, defaults to Chat mode).
     pub fn push(&mut self, entry: String) {
-        self.push_tagged(entry, AppMode::Chat);
+        self.push_tagged(entry, AppMode::Agent);
     }
 
     /// Push a new entry tagged with its mode. Deduplicates against the most recent entry.
@@ -172,7 +172,8 @@ impl InputHistory {
                 {
                     let mode = match obj.get("mode").and_then(|v| v.as_str()) {
                         Some("shell") => AppMode::Shell,
-                        _ => AppMode::Chat,
+                        Some("workflow") => AppMode::Workflow,
+                        _ => AppMode::Agent,
                     };
                     self.entries.push(HistoryEntry {
                         text: text.to_string(),
@@ -186,7 +187,7 @@ impl InputHistory {
                 {
                     self.entries.push(HistoryEntry {
                         text: text.to_string(),
-                        mode: AppMode::Chat,
+                        mode: AppMode::Agent,
                     });
                 }
             }
@@ -206,8 +207,9 @@ impl InputHistory {
         let mut output = String::new();
         for entry in &self.entries {
             let mode_str = match entry.mode {
-                AppMode::Chat => "chat",
+                AppMode::Agent => "agent",
                 AppMode::Shell => "shell",
+                AppMode::Workflow => "workflow",
             };
             if let (Ok(text_json), Ok(mode_json)) = (
                 serde_json::to_string(&entry.text),
@@ -375,7 +377,7 @@ mod tests {
     #[test]
     fn dedup_respects_mode() {
         let mut history = InputHistory::new();
-        history.push_tagged("ls".to_string(), AppMode::Chat);
+        history.push_tagged("ls".to_string(), AppMode::Agent);
         // Same text but different mode — should NOT be deduplicated
         history.push_tagged("ls".to_string(), AppMode::Shell);
         assert_eq!(history.len(), 2);
@@ -441,7 +443,7 @@ mod tests {
         let path = dir.path().join("test_mode_history.jsonl");
 
         let mut history = InputHistory::new();
-        history.push_tagged("chat msg".to_string(), AppMode::Chat);
+        history.push_tagged("chat msg".to_string(), AppMode::Agent);
         history.push_tagged("ls -la".to_string(), AppMode::Shell);
         history.push_tagged("echo hi".to_string(), AppMode::Shell);
         history.save_to_file(&path);
@@ -478,7 +480,7 @@ mod tests {
 
         // Legacy entries should be Chat mode
         assert_eq!(
-            loaded.navigate_up_filtered("", AppMode::Chat),
+            loaded.navigate_up_filtered("", AppMode::Agent),
             Some("another one")
         );
         assert_eq!(loaded.navigate_up_filtered("", AppMode::Shell), None);
@@ -487,9 +489,9 @@ mod tests {
     #[test]
     fn mode_filtered_navigation() {
         let mut history = InputHistory::new();
-        history.push_tagged("chat1".to_string(), AppMode::Chat);
+        history.push_tagged("chat1".to_string(), AppMode::Agent);
         history.push_tagged("shell1".to_string(), AppMode::Shell);
-        history.push_tagged("chat2".to_string(), AppMode::Chat);
+        history.push_tagged("chat2".to_string(), AppMode::Agent);
         history.push_tagged("shell2".to_string(), AppMode::Shell);
 
         // Navigate up in shell mode — should skip chat entries
@@ -529,7 +531,7 @@ mod tests {
     #[test]
     fn mode_filtered_empty_for_mode() {
         let mut history = InputHistory::new();
-        history.push_tagged("chat1".to_string(), AppMode::Chat);
+        history.push_tagged("chat1".to_string(), AppMode::Agent);
 
         // No shell entries
         assert_eq!(history.navigate_up_filtered("", AppMode::Shell), None);
@@ -538,12 +540,12 @@ mod tests {
     #[test]
     fn entries_for_mode_filters_and_limits() {
         let mut history = InputHistory::new();
-        history.push_tagged("chat1".to_string(), AppMode::Chat);
+        history.push_tagged("chat1".to_string(), AppMode::Agent);
         history.push_tagged("shell1".to_string(), AppMode::Shell);
-        history.push_tagged("chat2".to_string(), AppMode::Chat);
+        history.push_tagged("chat2".to_string(), AppMode::Agent);
         history.push_tagged("shell2".to_string(), AppMode::Shell);
 
-        let chat_entries = history.entries_for_mode(AppMode::Chat, 10);
+        let chat_entries = history.entries_for_mode(AppMode::Agent, 10);
         assert_eq!(chat_entries.len(), 2);
         // Newest first
         assert_eq!(chat_entries[0].1, "chat2");
@@ -557,10 +559,10 @@ mod tests {
     #[test]
     fn entries_for_mode_multiline_preview() {
         let mut history = InputHistory::new();
-        history.push_tagged("single line".to_string(), AppMode::Chat);
-        history.push_tagged("first line\nsecond line".to_string(), AppMode::Chat);
+        history.push_tagged("single line".to_string(), AppMode::Agent);
+        history.push_tagged("first line\nsecond line".to_string(), AppMode::Agent);
 
-        let entries = history.entries_for_mode(AppMode::Chat, 10);
+        let entries = history.entries_for_mode(AppMode::Agent, 10);
         // Newest first: multiline entry first
         assert_eq!(entries[0].0, "first line ...");
         assert_eq!(entries[0].1, "first line\nsecond line");
@@ -572,7 +574,7 @@ mod tests {
     #[test]
     fn entries_for_mode_empty() {
         let history = InputHistory::new();
-        let entries = history.entries_for_mode(AppMode::Chat, 10);
+        let entries = history.entries_for_mode(AppMode::Agent, 10);
         assert!(entries.is_empty());
     }
 
@@ -594,7 +596,7 @@ mod tests {
     fn prefix_match_filters_by_mode() {
         let mut history = InputHistory::new();
         history.push_tagged("cargo build".to_string(), AppMode::Shell);
-        history.push_tagged("cargo build is great".to_string(), AppMode::Chat);
+        history.push_tagged("cargo build is great".to_string(), AppMode::Agent);
 
         // Shell mode should find the shell entry
         assert_eq!(
@@ -603,7 +605,7 @@ mod tests {
         );
         // Chat mode should find the chat entry
         assert_eq!(
-            history.prefix_match("cargo", AppMode::Chat),
+            history.prefix_match("cargo", AppMode::Agent),
             Some("cargo build is great")
         );
     }
@@ -611,23 +613,23 @@ mod tests {
     #[test]
     fn prefix_match_none_for_empty_prefix() {
         let mut history = InputHistory::new();
-        history.push_tagged("hello".to_string(), AppMode::Chat);
-        assert_eq!(history.prefix_match("", AppMode::Chat), None);
+        history.push_tagged("hello".to_string(), AppMode::Agent);
+        assert_eq!(history.prefix_match("", AppMode::Agent), None);
     }
 
     #[test]
     fn prefix_match_none_for_exact_match_only() {
         let mut history = InputHistory::new();
-        history.push_tagged("hello".to_string(), AppMode::Chat);
+        history.push_tagged("hello".to_string(), AppMode::Agent);
         // Exact match is not returned
-        assert_eq!(history.prefix_match("hello", AppMode::Chat), None);
+        assert_eq!(history.prefix_match("hello", AppMode::Agent), None);
     }
 
     #[test]
     fn prefix_match_none_when_nothing_matches() {
         let mut history = InputHistory::new();
-        history.push_tagged("hello".to_string(), AppMode::Chat);
-        assert_eq!(history.prefix_match("xyz", AppMode::Chat), None);
+        history.push_tagged("hello".to_string(), AppMode::Agent);
+        assert_eq!(history.prefix_match("xyz", AppMode::Agent), None);
     }
 
     #[test]
@@ -660,12 +662,12 @@ mod tests {
     #[test]
     fn is_at_draft_reflects_navigation_state() {
         let mut history = InputHistory::new();
-        history.push_tagged("entry".to_string(), AppMode::Chat);
+        history.push_tagged("entry".to_string(), AppMode::Agent);
 
         assert!(history.is_at_draft());
-        let _ = history.navigate_up_filtered("", AppMode::Chat);
+        let _ = history.navigate_up_filtered("", AppMode::Agent);
         assert!(!history.is_at_draft());
-        let _ = history.navigate_down_filtered(AppMode::Chat);
+        let _ = history.navigate_down_filtered(AppMode::Agent);
         assert!(history.is_at_draft());
     }
 

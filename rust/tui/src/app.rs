@@ -3,6 +3,7 @@ use futures::FutureExt;
 use inflector::Inflector;
 use ratatui::style::Color;
 use stencila_attractor::events::PipelineEvent;
+use strum::Display;
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use std::sync::{Arc, Mutex};
@@ -27,37 +28,29 @@ use crate::{
 };
 
 /// The current input mode of the TUI.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Default)]
+#[strum(serialize_all = "lowercase")]
 pub enum AppMode {
-    /// Chat mode — input is sent as chat messages (default).
     #[default]
-    Chat,
-    /// Shell mode — input is sent to the system shell.
+    Agent,
     Shell,
+    Workflow,
 }
 
 /// The kind of exchange, determining sidebar color.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
+#[strum(serialize_all = "lowercase")]
 pub enum ExchangeKind {
-    Chat,
+    Agent,
     Shell,
     Workflow,
 }
 
 impl ExchangeKind {
-    /// Display name for this kind (shown below input area).
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Chat => "chat",
-            Self::Shell => "shell",
-            Self::Workflow => "workflow",
-        }
-    }
-
     /// Sidebar color for this kind.
     pub fn color(self) -> Color {
         match self {
-            Self::Chat => Color::Blue,
+            Self::Agent => Color::Blue,
             Self::Shell => Color::Yellow,
             Self::Workflow => Color::Magenta,
         }
@@ -67,8 +60,9 @@ impl ExchangeKind {
 impl From<AppMode> for ExchangeKind {
     fn from(mode: AppMode) -> Self {
         match mode {
-            AppMode::Chat => Self::Chat,
+            AppMode::Agent => Self::Agent,
             AppMode::Shell => Self::Shell,
+            AppMode::Workflow => Self::Workflow,
         }
     }
 }
@@ -135,6 +129,9 @@ pub struct ActiveWorkflow {
     /// The workflow definition info from the picker.
     pub info: WorkflowDefinitionInfo,
 
+    /// Current state of the workflow.
+    pub state: ActiveWorkflowState,
+
     /// Running workflow task handle, set once the goal is submitted.
     pub run_handle: Option<WorkflowRunHandle>,
 
@@ -152,6 +149,16 @@ pub struct ActiveWorkflow {
 
     /// Message index of the current stage-level status message (Simple mode).
     pub stage_status_msg_index: Option<usize>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum ActiveWorkflowState {
+    Pending,
+    Running,
+    Succeeded,
+    Failed,
+    Cancelled,
 }
 
 /// A message displayed in the messages area.
@@ -554,7 +561,7 @@ impl App {
         match (key.modifiers, key.code) {
             // Tab: accept file, or drill into directory
             (KeyModifiers::NONE, KeyCode::Tab) => {
-                let use_at_prefix = self.mode == AppMode::Chat;
+                let use_at_prefix = self.mode == AppMode::Agent;
                 if let Some(result) = self.files_state.accept_tab(use_at_prefix) {
                     self.input.replace_range(result.range, &result.text);
                     if result.refresh {
@@ -567,7 +574,7 @@ impl App {
             }
             // Enter: always accept and dismiss
             (KeyModifiers::NONE, KeyCode::Enter) => {
-                let use_at_prefix = self.mode == AppMode::Chat;
+                let use_at_prefix = self.mode == AppMode::Agent;
                 if let Some(result) = self.files_state.accept_enter(use_at_prefix) {
                     self.input.replace_range(result.range, &result.text);
                 }
@@ -637,11 +644,15 @@ impl App {
                     self.cancel_most_recent_running();
                 } else {
                     match self.mode {
-                        AppMode::Chat => {
+                        AppMode::Agent => {
                             self.should_quit = true;
                         }
                         AppMode::Shell => {
                             // In shell mode: clear input line (standard shell behavior)
+                            self.input.clear();
+                            self.input_scroll = 0;
+                        }
+                        AppMode::Workflow => {
                             self.input.clear();
                             self.input_scroll = 0;
                         }
@@ -650,13 +661,15 @@ impl App {
             }
 
             (KeyModifiers::CONTROL, KeyCode::Char('s')) => {
-                if self.mode == AppMode::Chat {
+                if self.mode == AppMode::Agent {
                     self.enter_shell_mode();
                 }
             }
             (KeyModifiers::CONTROL, KeyCode::Char('d')) => {
                 if self.mode == AppMode::Shell {
                     self.exit_shell_mode();
+                } else if self.mode == AppMode::Workflow {
+                    self.exit_workflow_mode();
                 }
             }
             (KeyModifiers::CONTROL, KeyCode::Char('l')) => {
@@ -779,8 +792,10 @@ impl App {
 
     /// Enter workflow mode for the given workflow definition.
     fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
+        self.mode = AppMode::Workflow;
         self.active_workflow = Some(ActiveWorkflow {
             info,
+            state: ActiveWorkflowState::Pending,
             run_handle: None,
             pending_interview: None,
             current_exchange_msg_index: None,
@@ -940,30 +955,34 @@ impl App {
         let expanded = self.expand_paste_refs(&text);
         let expanded = self.expand_response_refs(&expanded);
 
-        // Slash commands work in both modes
         if let Some((cmd, args)) = SlashCommand::parse(&text) {
+            // Slash commands work all modes
             cmd.execute(self, args);
         } else {
+            // Other handling is dependent on app mode
             match self.mode {
-                AppMode::Chat => {
+                AppMode::Agent => {
                     if let Some(mention) = self.parse_agent_mention(&expanded) {
-                        self.input_history.push_tagged(text, AppMode::Chat);
+                        self.input_history.push_tagged(text, AppMode::Agent);
                         self.execute_agent_mention(mention);
                     } else if let Some(cmd) = expanded.strip_prefix('!')
                         && !cmd.trim().is_empty()
                     {
                         let cmd = cmd.to_string();
                         self.input_history
-                            .push_tagged(format!("!{cmd}"), AppMode::Chat);
+                            .push_tagged(format!("!{cmd}"), AppMode::Agent);
                         self.spawn_shell_command(cmd);
                     } else {
-                        self.input_history.push_tagged(text, AppMode::Chat);
+                        self.input_history.push_tagged(text, AppMode::Agent);
                         self.submit_agent_message(expanded);
                     }
                 }
                 AppMode::Shell => {
                     self.input_history.push_tagged(text, AppMode::Shell);
                     self.spawn_shell_command(expanded);
+                }
+                AppMode::Workflow => {
+                    // No-op: workflow is running, input is ignored
                 }
             }
         }
@@ -983,6 +1002,9 @@ impl App {
 
         if let Some(workflow) = &mut self.active_workflow {
             workflow.run_handle = Some(handle);
+            workflow.state = ActiveWorkflowState::Running;
+            workflow.workflow_status_msg_index = None;
+            workflow.stage_status_msg_index = None;
         }
 
         self.scroll_pinned = true;
@@ -1018,7 +1040,7 @@ impl App {
                         .map_or_else(|| "chat".to_string(), |s| s.name.clone());
                     let c = agent_index
                         .map(AgentSession::color)
-                        .unwrap_or(ExchangeKind::Chat.color());
+                        .unwrap_or(ExchangeKind::Agent.color());
                     (name, c)
                 };
                 // First line of response as preview (no truncation — renderer handles it)
@@ -1242,6 +1264,9 @@ impl App {
         session.context_usage_percent = 0;
 
         self.active_workflow = None;
+        if self.mode == AppMode::Workflow {
+            self.mode = AppMode::Agent;
+        }
         self.messages.clear();
         self.messages.push(AppMessage::Welcome);
         self.md_render_cache.clear();
@@ -1254,6 +1279,9 @@ impl App {
     pub fn reset_all(&mut self) {
         self.cancel_all_running();
         self.active_workflow = None;
+        if self.mode == AppMode::Workflow {
+            self.mode = AppMode::Agent;
+        }
         // Drop all sessions (and their agent handles)
         self.sessions.clear();
         let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
@@ -1277,10 +1305,20 @@ impl App {
 
     /// Exit shell mode and return to chat mode with a system message.
     pub fn exit_shell_mode(&mut self) {
-        self.mode = AppMode::Chat;
+        self.mode = AppMode::Agent;
         self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {
             content: "Exiting shell mode.".to_string(),
+        });
+    }
+
+    /// Exit workflow mode and return to agent mode.
+    pub fn exit_workflow_mode(&mut self) {
+        self.active_workflow = None;
+        self.mode = AppMode::Agent;
+        self.dismiss_all_autocomplete();
+        self.messages.push(AppMessage::System {
+            content: "Exiting workflow mode.".to_string(),
         });
     }
 
@@ -1423,7 +1461,9 @@ impl App {
                 content: format!("Workflow '{name}' cancelled"),
             });
         }
-        self.active_workflow = None;
+        if let Some(workflow) = &mut self.active_workflow {
+            workflow.state = ActiveWorkflowState::Cancelled;
+        }
     }
 
     /// Cancel a single running command and mark its exchange as cancelled.
@@ -1485,7 +1525,7 @@ impl App {
         }
 
         self.messages.push(AppMessage::Exchange {
-            kind: ExchangeKind::Chat,
+            kind: ExchangeKind::Agent,
             status: ExchangeStatus::Running,
             request: text.clone(),
             response: None,
@@ -1786,10 +1826,14 @@ impl App {
                         });
                     }
                 }
-                WorkflowEvent::Completed(_result) => {
+                WorkflowEvent::Completed(result) => {
                     if let Some(workflow) = &mut self.active_workflow {
-                        // Keep the workflow active but drop run handle to allow
-                        // a new goal and re-run
+                        workflow.state = match &result {
+                            Ok(outcome) if outcome.status.is_success() => {
+                                ActiveWorkflowState::Succeeded
+                            }
+                            _ => ActiveWorkflowState::Failed,
+                        };
                         workflow.run_handle = None;
                     }
                 }
@@ -2465,16 +2509,16 @@ mod tests {
         assert_eq!(app.mode, AppMode::Shell);
 
         app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
     }
 
     #[tokio::test]
     async fn ctrl_d_noop_in_chat_mode() {
         let mut app = App::new_for_test();
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
 
         app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
         assert!(!app.should_quit);
     }
 
@@ -2495,7 +2539,7 @@ mod tests {
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
             &app.messages[1],
-            AppMessage::Exchange { kind: ExchangeKind::Chat, request, .. } if request == "hello"
+            AppMessage::Exchange { kind: ExchangeKind::Agent, request, .. } if request == "hello"
         ));
     }
 
@@ -2820,7 +2864,7 @@ mod tests {
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
             &app.messages[1],
-            AppMessage::Exchange { kind: ExchangeKind::Chat, request, .. } if request == "/unknown"
+            AppMessage::Exchange { kind: ExchangeKind::Agent, request, .. } if request == "/unknown"
         ));
     }
 
@@ -2833,14 +2877,14 @@ mod tests {
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
             &app.messages[1],
-            AppMessage::Exchange { kind: ExchangeKind::Chat, request, .. } if request == "$"
+            AppMessage::Exchange { kind: ExchangeKind::Agent, request, .. } if request == "$"
         ));
     }
 
     #[tokio::test]
     async fn ctrl_s_enters_shell_mode() {
         let mut app = App::new_for_test();
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
 
         app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL));
         assert_eq!(app.mode, AppMode::Shell);
@@ -2971,7 +3015,7 @@ mod tests {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
         }
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
         assert!(!app.should_quit);
     }
 
@@ -3023,7 +3067,7 @@ mod tests {
         let mut app = App::new_for_test();
         for &entry in entries {
             app.input_history
-                .push_tagged(entry.to_string(), AppMode::Chat);
+                .push_tagged(entry.to_string(), AppMode::Agent);
         }
         for c in prefix.chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -3071,7 +3115,7 @@ mod tests {
     async fn ghost_clears_when_popup_visible() {
         let mut app = App::new_for_test();
         app.input_history
-            .push_tagged("/help me".to_string(), AppMode::Chat);
+            .push_tagged("/help me".to_string(), AppMode::Agent);
 
         // Type "/" — triggers command autocomplete popup
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
@@ -3084,7 +3128,7 @@ mod tests {
     async fn ghost_not_shown_for_empty_input() {
         let mut app = App::new_for_test();
         app.input_history
-            .push_tagged("hello".to_string(), AppMode::Chat);
+            .push_tagged("hello".to_string(), AppMode::Agent);
         // No typing — ghost should not appear
         assert!(app.ghost_suggestion.is_none());
     }
@@ -3149,7 +3193,7 @@ mod tests {
     async fn ghost_multiline_history_shows_full_suffix() {
         let mut app = App::new_for_test();
         app.input_history
-            .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
+            .push_tagged("hello world\nsecond line".to_string(), AppMode::Agent);
 
         for c in "hel".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -3167,7 +3211,7 @@ mod tests {
         let mut app = App::new_for_test();
         // History entry where the first line is an exact match for the typed input
         app.input_history
-            .push_tagged("foo\nbar".to_string(), AppMode::Chat);
+            .push_tagged("foo\nbar".to_string(), AppMode::Agent);
 
         for c in "foo".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -3180,7 +3224,7 @@ mod tests {
     async fn accept_all_ghost_multiline() {
         let mut app = App::new_for_test();
         app.input_history
-            .push_tagged("hello world\nsecond line".to_string(), AppMode::Chat);
+            .push_tagged("hello world\nsecond line".to_string(), AppMode::Agent);
 
         for c in "hel".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
@@ -3213,7 +3257,7 @@ mod tests {
         });
         // Exchange 2: no response yet
         app.messages.push(AppMessage::Exchange {
-            kind: ExchangeKind::Chat,
+            kind: ExchangeKind::Agent,
             status: ExchangeStatus::Running,
             request: "what is rust".to_string(),
             response: None,
@@ -3405,5 +3449,62 @@ mod tests {
         if let Some(AppMessage::Exchange { agent_index, .. }) = exchange {
             assert_eq!(*agent_index, Some(0));
         }
+    }
+
+    #[tokio::test]
+    async fn ctrl_d_exits_workflow_mode() {
+        let mut app = App::new_for_test();
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+        });
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(app.active_workflow.is_some());
+
+        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
+        assert_eq!(app.mode, AppMode::Agent);
+        assert!(app.active_workflow.is_none());
+    }
+
+    #[tokio::test]
+    async fn workflow_ctrl_c_clears_input() {
+        let mut app = App::new_for_test();
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+        });
+
+        for c in "some text".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert_eq!(app.input.text(), "some text");
+
+        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        assert!(!quit);
+        assert!(app.input.is_empty());
+    }
+
+    #[tokio::test]
+    async fn cancel_workflow_keeps_active_workflow() {
+        let mut app = App::new_for_test();
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+        });
+        // Manually set state to Running to simulate an active workflow
+        if let Some(wf) = &mut app.active_workflow {
+            wf.state = ActiveWorkflowState::Running;
+        }
+
+        app.cancel_active_workflow();
+
+        assert!(app.active_workflow.is_some());
+        assert_eq!(
+            app.active_workflow.as_ref().unwrap().state,
+            ActiveWorkflowState::Cancelled
+        );
     }
 }

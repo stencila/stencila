@@ -105,7 +105,8 @@ impl SlashCommand {
             Self::New => execute_new(app),
             Self::Exit => match app.mode {
                 AppMode::Shell => app.exit_shell_mode(),
-                AppMode::Chat => app.should_quit = true,
+                AppMode::Workflow => app.exit_workflow_mode(),
+                AppMode::Agent => app.should_quit = true,
             },
             Self::Help => execute_help(app),
             Self::History => execute_history(app),
@@ -418,7 +419,7 @@ mod tests {
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
         SlashCommand::Exit.execute(&mut app, "");
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
         assert!(!app.should_quit);
     }
 
@@ -439,7 +440,7 @@ mod tests {
     #[test]
     fn execute_shell_enters_shell_mode() {
         let mut app = App::new_for_test();
-        assert_eq!(app.mode, AppMode::Chat);
+        assert_eq!(app.mode, AppMode::Agent);
         SlashCommand::Shell.execute(&mut app, "");
         assert_eq!(app.mode, AppMode::Shell);
     }

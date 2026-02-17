@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Paragraph},
 };
 
-use crate::app::{ActiveWorkflow, AgentSession, App, AppMode, ExchangeKind};
+use crate::app::{ActiveWorkflow, ActiveWorkflowState, AgentSession, App, AppMode, ExchangeKind};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, INPUT_BG, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
@@ -76,7 +76,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Use workflow color when in workflow mode, agent color in multi-agent chat, otherwise kind color
     let bar_color = if app.active_workflow.is_some() {
         Color::Magenta
-    } else if app.mode == AppMode::Chat && app.sessions.len() > 1 {
+    } else if app.mode == AppMode::Agent && app.sessions.len() > 1 {
         AgentSession::color(app.active_session)
     } else {
         kind.color()
@@ -102,13 +102,14 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } else {
                 " \u{2699} ".to_string()
             }
-        } else if app.mode == AppMode::Chat && app.active_session_is_running() {
+        } else if app.mode == AppMode::Agent && app.active_session_is_running() {
             let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
             format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
         } else {
             match app.mode {
-                AppMode::Chat => " > ".to_string(),
+                AppMode::Agent => " > ".to_string(),
                 AppMode::Shell => " $ ".to_string(),
+                AppMode::Workflow => " \u{2699} ".to_string(),
             }
         };
         let indicator_line = Line::from(Span::styled(&indicator, Style::new().fg(bar_color)));
@@ -199,7 +200,16 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             visual_lines.clear();
             visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
         } else if workflow.run_handle.is_none() {
-            let placeholder = format!("What's your goal for the {} workflow?", workflow.info.name);
+            let placeholder = if matches!(
+                workflow.state,
+                ActiveWorkflowState::Succeeded
+                    | ActiveWorkflowState::Failed
+                    | ActiveWorkflowState::Cancelled
+            ) {
+                "Enter a new goal to re-run, or Ctrl+D to exit".to_string()
+            } else {
+                format!("What's your goal for the {} workflow?", workflow.info.name)
+            };
             visual_lines.clear();
             visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
         }
@@ -279,8 +289,9 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             " start"
         } else {
             match app.mode {
-                AppMode::Chat => " send",
+                AppMode::Agent => " send",
                 AppMode::Shell => " run",
+                AppMode::Workflow => " start",
             }
         };
         let hint_inner_width = content_area.width;
@@ -320,12 +331,10 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
 /// Build label spans for an active workflow in the hints line.
 fn workflow_label_spans(workflow: &ActiveWorkflow) -> Vec<Span<'static>> {
     let name = &workflow.info.name;
-    let status = if workflow.run_handle.is_none() {
-        "pending".to_string()
-    } else if workflow.pending_interview.is_some() {
+    let status = if workflow.pending_interview.is_some() {
         "awaiting input".to_string()
     } else {
-        "running".to_string()
+        workflow.state.to_string()
     };
     vec![
         Span::styled(format!("   {name} "), Style::new().fg(WORKFLOW_COLOR)),
@@ -345,7 +354,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     // Mode label on the left, indented to align with sidebar bars
     let label_spans = if let Some(workflow) = &app.active_workflow {
         workflow_label_spans(workflow)
-    } else if app.mode == AppMode::Chat {
+    } else if app.mode == AppMode::Agent {
         // Always show active agent name in agent's color
         let name = &app.active().name;
         let color = AgentSession::color(app.active_session);
@@ -357,7 +366,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
         spans
     } else {
         let kind = ExchangeKind::from(app.mode);
-        vec![Span::styled(format!("   {}", kind.label()), Style::new().fg(kind.color()))]
+        vec![Span::styled(format!("   {kind}"), Style::new().fg(kind.color()))]
     };
 
     #[allow(clippy::cast_possible_truncation)]
@@ -375,7 +384,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
         ])
     } else {
         match app.mode {
-            AppMode::Chat => {
+            AppMode::Agent => {
                 let mut spans = vec![
                     Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
                     Span::raw("  ctrl+s "), Span::styled("shell", dim()),
@@ -390,8 +399,12 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
             }
             AppMode::Shell => Line::from(vec![
                 Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
-                Span::raw("  ctrl+d "), Span::styled("chat", dim()),
+                Span::raw("  ctrl+d "), Span::styled("agent", dim()),
                 Span::raw("  ctrl+c "), Span::styled("clear", dim()),
+            ]),
+            AppMode::Workflow => Line::from(vec![
+                Span::raw("alt+\u{21b5} "), Span::styled("newline", dim()),
+                Span::raw("  ctrl+d "), Span::styled("agent", dim()),
             ]),
         }
     };
