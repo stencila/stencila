@@ -9,9 +9,10 @@ use crate::{
     autocomplete::cancel::CancelCandidate,
     autocomplete::mentions::MentionCandidate,
     autocomplete::responses::ResponseCandidate,
+    autocomplete::workflows::WorkflowDefinitionInfo,
     autocomplete::{
         AgentsState, CancelState, CommandsState, FilesState, HistoryState, MentionsState,
-        ResponsesState,
+        ResponsesState, WorkflowsState,
     },
     commands::SlashCommand,
     history::InputHistory,
@@ -120,6 +121,24 @@ impl AgentSession {
     }
 }
 
+/// State for an active workflow (workflow mode).
+pub struct ActiveWorkflow {
+    /// The workflow definition info from the picker.
+    pub info: WorkflowDefinitionInfo,
+    // Fields below are placeholders for Phase 3+; they will be populated
+    // once the workflow execution runtime is implemented.
+    // pub run_handle: Option<WorkflowRunHandle>,
+    // pub events: Vec<WorkflowEvent>,
+    // pub pending_interview: Option<PendingInterview>,
+    // pub outcome: Option<WorkflowOutcome>,
+    /// Whether the workflow has been started (goal submitted).
+    pub started: bool,
+    /// Total number of nodes in the pipeline graph (for progress display).
+    pub total_stages: usize,
+    /// Current stage index (updated from events, for hints line display).
+    pub current_stage: usize,
+}
+
 /// A message displayed in the messages area.
 #[derive(Debug, Clone)]
 pub enum AppMessage {
@@ -202,6 +221,8 @@ pub struct App {
     pub cancel_state: CancelState,
     /// Agent picker popup state.
     pub agents_state: AgentsState,
+    /// Workflow picker popup state.
+    pub workflows_state: WorkflowsState,
     /// Agent mention autocomplete popup state (triggered by `#`).
     pub mentions_state: MentionsState,
 
@@ -233,6 +254,9 @@ pub struct App {
     /// Shell commands currently running in the background.
     /// Each entry is `(message_index, running_command)` linking to the exchange in `messages`.
     pub running_shell_commands: Vec<(usize, RunningShellCommand)>,
+
+    /// The currently active workflow (if in workflow mode).
+    pub active_workflow: Option<ActiveWorkflow>,
 
     /// Tick counter for pulsating sidebar animation on running exchanges.
     pub tick_count: u32,
@@ -285,6 +309,7 @@ impl App {
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
             agents_state: AgentsState::new(),
+            workflows_state: WorkflowsState::new(),
             mentions_state: MentionsState::new(),
             pastes: std::collections::HashMap::new(),
             paste_counter: 0,
@@ -293,6 +318,7 @@ impl App {
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
             running_shell_commands: Vec::new(),
+            active_workflow: None,
             sessions: vec![default_session],
             active_session: 0,
             tick_count: 0,
@@ -348,6 +374,7 @@ impl App {
     fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
             || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
+            || (self.workflows_state.is_visible() && self.handle_workflows_autocomplete(key))
             || (self.mentions_state.is_visible() && self.handle_mentions_autocomplete(key))
             || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
             || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
@@ -647,6 +674,47 @@ impl App {
         true
     }
 
+    /// Handle a key event when the workflow picker popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_workflows_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(info) = self.workflows_state.accept() {
+                    self.activate_workflow(info);
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.workflows_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.workflows_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.workflows_state.select_next(),
+            _ => return false,
+        }
+        true
+    }
+
+    /// Enter workflow mode for the given workflow definition.
+    fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
+        let content = if let Some(goal) = &info.goal {
+            format!(
+                "Workflow '{}' selected. Default goal: '{}'. Press Enter to start, or type a new goal.",
+                info.name, goal
+            )
+        } else {
+            format!("Workflow '{}' selected. Enter your goal.", info.name)
+        };
+
+        self.active_workflow = Some(ActiveWorkflow {
+            info,
+            started: false,
+            total_stages: 0,
+            current_stage: 0,
+        });
+        self.input.clear();
+        self.input_scroll = 0;
+        self.messages.push(AppMessage::System { content });
+        self.scroll_pinned = true;
+    }
+
     /// Handle a key event when the mentions autocomplete popup is visible.
     ///
     /// Returns `true` if the key was consumed.
@@ -745,6 +813,25 @@ impl App {
     fn submit_input(&mut self) {
         let text = self.input.take();
         self.input_scroll = 0;
+
+        // Workflow goal submission: when in workflow mode and not yet started,
+        // empty input uses the default goal (if available).
+        if let Some(workflow) = &self.active_workflow {
+            if !workflow.started {
+                let goal = if text.trim().is_empty() {
+                    workflow.info.goal.clone()
+                } else {
+                    Some(text.clone())
+                };
+
+                if let Some(goal) = goal {
+                    self.submit_workflow_goal(goal);
+                }
+                // If no goal provided and no default, do nothing (keep waiting)
+                return;
+            }
+        }
+
         if text.trim().is_empty() {
             return;
         }
@@ -785,6 +872,30 @@ impl App {
         }
 
         // Pin scroll to bottom so the user sees their new message
+        self.scroll_pinned = true;
+        self.scroll_offset = 0;
+    }
+
+    /// Submit a goal for the active workflow and mark it as started.
+    ///
+    /// Phase 3 will spawn the actual workflow run here.
+    fn submit_workflow_goal(&mut self, goal: String) {
+        let name = self
+            .active_workflow
+            .as_ref()
+            .map(|w| w.info.name.clone())
+            .unwrap_or_default();
+
+        self.messages.push(AppMessage::System {
+            content: format!("Starting workflow '{name}' with goal: {goal}"),
+        });
+
+        if let Some(workflow) = &mut self.active_workflow {
+            workflow.started = true;
+        }
+
+        // TODO(Phase 3): spawn the workflow run here using the goal.
+
         self.scroll_pinned = true;
         self.scroll_offset = 0;
     }
@@ -1041,6 +1152,7 @@ impl App {
         session.agent = None;
         session.context_usage_percent = 0;
 
+        self.active_workflow = None;
         self.messages.clear();
         self.messages.push(AppMessage::Welcome);
         self.md_render_cache.clear();
@@ -1052,6 +1164,7 @@ impl App {
     /// fresh default session, and clear all messages. Equivalent to restarting.
     pub fn reset_all(&mut self) {
         self.cancel_all_running();
+        self.active_workflow = None;
         // Drop all sessions (and their agent handles)
         self.sessions.clear();
         let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
@@ -1574,6 +1687,7 @@ impl App {
     fn dismiss_all_autocomplete(&mut self) {
         self.cancel_state.dismiss();
         self.agents_state.dismiss();
+        self.workflows_state.dismiss();
         self.mentions_state.dismiss();
         self.commands_state.dismiss();
         self.files_state.dismiss();
@@ -1644,6 +1758,7 @@ impl App {
     fn any_popup_visible(&self) -> bool {
         self.cancel_state.is_visible()
             || self.agents_state.is_visible()
+            || self.workflows_state.is_visible()
             || self.mentions_state.is_visible()
             || self.history_state.is_visible()
             || self.commands_state.is_visible()

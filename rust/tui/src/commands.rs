@@ -4,6 +4,7 @@ use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 
 use crate::app::{App, AppMessage, AppMode};
 use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
+use crate::autocomplete::workflows::{WorkflowCandidate, WorkflowDefinitionInfo};
 
 /// Slash commands available in the TUI.
 ///
@@ -11,7 +12,10 @@ use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefin
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter, EnumMessage)]
 #[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
-    #[strum(serialize = "agents", message = "Switch agents or create new")]
+    #[strum(message = "Run a workflow")]
+    Workflows,
+
+    #[strum(serialize = "agents", message = "Switch agents")]
     Agents,
 
     #[strum(message = "Cancel a running command")]
@@ -108,6 +112,7 @@ impl SlashCommand {
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
             Self::Upgrade => execute_upgrade(app),
+            Self::Workflows => execute_workflows(app),
         }
     }
 }
@@ -155,6 +160,43 @@ fn execute_agents(app: &mut App) {
     }
 
     app.agents_state.open(candidates);
+}
+
+fn execute_workflows(app: &mut App) {
+    let definitions: Vec<stencila_workflows::WorkflowInstance> =
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                tokio::task::block_in_place(|| {
+                    handle.block_on(stencila_workflows::discover(
+                        &std::env::current_dir().unwrap_or_default(),
+                    ))
+                })
+            }))
+            .unwrap_or_default()
+        } else {
+            Vec::new()
+        };
+
+    let candidates: Vec<WorkflowCandidate> = definitions
+        .into_iter()
+        .map(|def| WorkflowCandidate {
+            name: def.name.clone(),
+            info: WorkflowDefinitionInfo {
+                name: def.name.clone(),
+                description: def.description.clone(),
+                goal: def.goal.clone(),
+            },
+        })
+        .collect();
+
+    if candidates.is_empty() {
+        app.messages.push(AppMessage::System {
+            content: "No workflows found. Create one in .stencila/workflows/<name>/WORKFLOW.md"
+                .to_string(),
+        });
+    } else {
+        app.workflows_state.open(candidates);
+    }
 }
 
 fn execute_cancel(app: &mut App) {

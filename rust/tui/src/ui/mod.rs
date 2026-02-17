@@ -73,6 +73,8 @@ pub fn render(frame: &mut Frame, app: &mut App) {
         popups::cancel(frame, app, input_area);
     } else if app.agents_state.is_visible() {
         popups::agents(frame, app, input_area);
+    } else if app.workflows_state.is_visible() {
+        popups::workflows(frame, app, input_area);
     } else if app.mentions_state.is_visible() {
         popups::mentions(frame, app, input_area);
     } else if app.history_state.is_visible() {

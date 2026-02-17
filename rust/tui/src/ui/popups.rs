@@ -299,6 +299,49 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
     render_popup(frame, area, lines, Some(" Agents "));
 }
 
+/// Render the workflow picker popup floating above the input area.
+pub(super) fn workflows(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.workflows_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let max_name_width = candidates.iter().map(|c| c.name.len()).max().unwrap_or(0);
+    let selected = app.workflows_state.selected();
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let name_col = format!("   {:<max_name_width$}  ", candidate.name);
+            let detail = if candidate.info.description.is_empty() {
+                candidate
+                    .info
+                    .goal
+                    .as_deref()
+                    .unwrap_or("")
+                    .to_string()
+            } else {
+                candidate.info.description.clone()
+            };
+
+            if i == selected {
+                Line::from(vec![
+                    Span::styled(name_col, selected_style()),
+                    Span::styled(detail, selected_secondary_style()),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled(name_col, unselected_style()),
+                    Span::styled(detail, dim()),
+                ])
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Workflows "));
+}
+
 /// Render the agent mention autocomplete popup floating above the input area.
 pub(super) fn mentions(frame: &mut Frame, app: &App, input_area: Rect) {
     let candidates = app.mentions_state.candidates();

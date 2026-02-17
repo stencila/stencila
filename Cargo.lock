@@ -11642,6 +11642,7 @@ dependencies = [
  "stencila-dirs",
  "stencila-models3",
  "stencila-version",
+ "stencila-workflows",
  "strum",
  "syntect",
  "tempfile",

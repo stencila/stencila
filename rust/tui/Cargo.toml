@@ -16,6 +16,7 @@ ratatui = { version = "0.30.0", default-features = false, features = ["crossterm
 syntect = "5.3.0"
 serde_json = { workspace = true }
 stencila-agents = { path = "../agents" }
+stencila-workflows = { path = "../workflows" }
 stencila-auth = { path = "../auth", default-features = false }
 stencila-models3 = { path = "../models3" }
 stencila-dirs = { path = "../dirs" }

@@ -1,18 +1,19 @@
 use ratatui::{
     Frame,
     layout::{Alignment, Constraint, Layout, Position, Rect},
-    style::{Modifier, Style},
+    style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::{Block, Paragraph},
 };
 
-use crate::app::{AgentSession, App, AppMode, ExchangeKind};
+use crate::app::{ActiveWorkflow, AgentSession, App, AppMode, ExchangeKind};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, INPUT_BG, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
     cursor_position_wrapped, dim, style_inline_markdown, visual_line_count, wrap_content,
 };
 
+const WORKFLOW_COLOR: Color = Color::LightYellow;
 const MAX_GHOST_LINES: usize = 3;
 
 fn last_visual_line_len(text: &str, wrap_width: usize) -> usize {
@@ -72,8 +73,10 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let kind = ExchangeKind::from(app.mode);
     let is_running = app.has_running();
 
-    // Use agent color when in multi-agent chat mode, otherwise kind color
-    let bar_color = if app.mode == AppMode::Chat && app.sessions.len() > 1 {
+    // Use workflow color when in workflow mode, agent color in multi-agent chat, otherwise kind color
+    let bar_color = if app.active_workflow.is_some() {
+        Color::Yellow
+    } else if app.mode == AppMode::Chat && app.sessions.len() > 1 {
         AgentSession::color(app.active_session)
     } else {
         kind.color()
@@ -82,7 +85,14 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Mode indicator in the gutter (no dark bg)
     let gutter = NUM_GUTTER;
     if area.height > 0 {
-        let indicator = if app.mode == AppMode::Chat && app.active_session_is_running() {
+        let indicator = if app.active_workflow.is_some() {
+            if app.active_workflow.as_ref().is_some_and(|w| w.started) {
+                let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
+            } else {
+                " \u{2699} ".to_string()
+            }
+        } else if app.mode == AppMode::Chat && app.active_session_is_running() {
             let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
             format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
         } else {
@@ -151,8 +161,23 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             visual_lines.push(Line::from(String::new()));
         } else {
             for chunk in wrap_content(logical_line, wrap_width) {
-                visual_lines
-                    .push(Line::from(style_inline_markdown(&chunk, InlineStyleMode::Normal, DelimiterDisplay::Show)));
+                visual_lines.push(Line::from(style_inline_markdown(
+                    &chunk,
+                    InlineStyleMode::Normal,
+                    DelimiterDisplay::Show,
+                )));
+            }
+        }
+    }
+
+    // Show placeholder text when in workflow mode with empty input and not yet started
+    if input_text.is_empty() {
+        if let Some(workflow) = &app.active_workflow {
+            if !workflow.started {
+                let placeholder =
+                    format!("What's your goal for the {} workflow?", workflow.info.name);
+                visual_lines.clear();
+                visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
             }
         }
     }
@@ -223,9 +248,13 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Show inline send/run hint anchored to the bottom-right of the input area.
     // Hide when running or when the last visible line's text would overlap.
     if !is_running {
-        let hint_text = match app.mode {
-            AppMode::Chat => " send",
-            AppMode::Shell => " run",
+        let hint_text = if app.active_workflow.as_ref().is_some_and(|w| !w.started) {
+            " start"
+        } else {
+            match app.mode {
+                AppMode::Chat => " send",
+                AppMode::Shell => " run",
+            }
         };
         let hint_inner_width = content_area.width;
         #[allow(clippy::cast_possible_truncation)]
@@ -261,6 +290,28 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     }
 }
 
+/// Build label spans for an active workflow in the hints line.
+fn workflow_label_spans(workflow: &ActiveWorkflow) -> Vec<Span<'static>> {
+    let name = &workflow.info.name;
+    let status = if !workflow.started {
+        "pending".to_string()
+    } else if workflow.total_stages > 0 {
+        format!(
+            "running stage {}/{}",
+            workflow.current_stage, workflow.total_stages
+        )
+    } else {
+        "running".to_string()
+    };
+    vec![
+        Span::styled(format!("   {name} "), Style::new().fg(WORKFLOW_COLOR)),
+        Span::styled(
+            status,
+            Style::new().fg(WORKFLOW_COLOR).add_modifier(Modifier::DIM),
+        ),
+    ]
+}
+
 /// Render the hint line below the input area: mode label on left, keyboard hints on right.
 #[rustfmt::skip]
 pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
@@ -268,7 +319,9 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     let has_ghost = app.ghost_suggestion.is_some();
 
     // Mode label on the left, indented to align with sidebar bars
-    let label_spans = if app.mode == AppMode::Chat {
+    let label_spans = if let Some(workflow) = &app.active_workflow {
+        workflow_label_spans(workflow)
+    } else if app.mode == AppMode::Chat {
         // Always show active agent name in agent's color
         let name = &app.active().name;
         let color = AgentSession::color(app.active_session);
