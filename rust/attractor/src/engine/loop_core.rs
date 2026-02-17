@@ -246,6 +246,10 @@ async fn execute_loop(
         }
 
         context.set("current_node", Value::String(node.id.clone()));
+        context.set(
+            "internal.stage_index",
+            Value::Number(serde_json::Number::from(state.stage_index as u64)),
+        );
         config.emitter.emit(PipelineEvent::StageStarted {
             node_id: node.id.clone(),
             stage_index: state.stage_index,

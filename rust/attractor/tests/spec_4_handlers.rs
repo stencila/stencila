@@ -48,6 +48,8 @@ impl CodergenBackend for MockBackend {
         _node: &Node,
         _prompt: &str,
         _context: &Context,
+        _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
+        _stage_index: usize,
     ) -> AttractorResult<CodergenResponse> {
         // Clone the inner data manually since CodergenResponse doesn't impl Clone
         match &self.response {
@@ -77,6 +79,8 @@ impl CodergenBackend for ErrorBackend {
         _node: &Node,
         _prompt: &str,
         _context: &Context,
+        _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
+        _stage_index: usize,
     ) -> AttractorResult<CodergenResponse> {
         Err(AttractorError::HandlerFailed {
             node_id: "test".into(),

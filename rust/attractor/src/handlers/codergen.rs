@@ -12,6 +12,7 @@ use indexmap::IndexMap;
 
 use crate::context::Context;
 use crate::error::AttractorResult;
+use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
 use crate::run_directory::RunDirectory;
@@ -29,11 +30,16 @@ pub enum CodergenResponse {
 #[async_trait]
 pub trait CodergenBackend: Send + Sync {
     /// Run the LLM call for the given node and prompt.
+    ///
+    /// The backend receives an `EventEmitter` and `stage_index` so it can
+    /// emit `StageSessionEvent` events during streaming LLM calls.
     async fn run(
         &self,
         node: &Node,
         prompt: &str,
         context: &Context,
+        emitter: Arc<dyn EventEmitter>,
+        stage_index: usize,
     ) -> AttractorResult<CodergenResponse>;
 }
 
@@ -51,13 +57,17 @@ pub trait CodergenBackend: Send + Sync {
 /// to the graph first.
 pub struct CodergenHandler {
     backend: Option<Arc<dyn CodergenBackend>>,
+    emitter: Arc<dyn EventEmitter>,
 }
 
 impl CodergenHandler {
     /// Create a handler in simulation mode (no LLM backend).
     #[must_use]
     pub fn simulation() -> Self {
-        Self { backend: None }
+        Self {
+            backend: None,
+            emitter: Arc::new(NoOpEmitter),
+        }
     }
 
     /// Create a handler with the given LLM backend.
@@ -65,6 +75,19 @@ impl CodergenHandler {
     pub fn with_backend(backend: Arc<dyn CodergenBackend>) -> Self {
         Self {
             backend: Some(backend),
+            emitter: Arc::new(NoOpEmitter),
+        }
+    }
+
+    /// Create a handler with the given LLM backend and event emitter.
+    #[must_use]
+    pub fn with_backend_and_emitter(
+        backend: Arc<dyn CodergenBackend>,
+        emitter: Arc<dyn EventEmitter>,
+    ) -> Self {
+        Self {
+            backend: Some(backend),
+            emitter,
         }
     }
 }
@@ -111,6 +134,13 @@ impl Handler for CodergenHandler {
         // Build prompt: prefer explicit "prompt" attr, fall back to node label
         let prompt = node.get_str_attr("prompt").unwrap_or_else(|| node.label());
 
+        // Read agent name from node attributes.
+        let agent_name = node.get_str_attr("agent").unwrap_or("default");
+
+        // Read stage_index from context (set by the engine loop).
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let stage_index = context.get_i64("internal.stage_index").unwrap_or(0) as usize;
+
         // Use RunDirectory for consistent path layout and status writing.
         let run_dir = RunDirectory::open(logs_root);
         let stage_dir = run_dir.node_dir(&node.id);
@@ -119,13 +149,24 @@ impl Handler for CodergenHandler {
         // Write the prompt
         std::fs::write(stage_dir.join("prompt.md"), prompt)?;
 
+        // Emit the prompt event
+        self.emitter.emit(PipelineEvent::StagePrompt {
+            node_id: node.id.clone(),
+            stage_index,
+            prompt: prompt.to_string(),
+            agent_name: agent_name.to_string(),
+        });
+
         // Run the backend (or simulate)
         let response = match &self.backend {
             None => {
                 // Simulation mode
                 CodergenResponse::Text(format!("[Simulated] Response for stage: {}", node.id))
             }
-            Some(backend) => match backend.run(node, prompt, context).await {
+            Some(backend) => match backend
+                .run(node, prompt, context, self.emitter.clone(), stage_index)
+                .await
+            {
                 Ok(resp) => resp,
                 Err(e) => {
                     let outcome = Outcome::fail(format!("Backend error: {e}"));
@@ -138,10 +179,20 @@ impl Handler for CodergenHandler {
         // Handle the response
         match response {
             CodergenResponse::FullOutcome(outcome) => {
+                self.emitter.emit(PipelineEvent::StageResponse {
+                    node_id: node.id.clone(),
+                    stage_index,
+                    response: outcome.notes.clone(),
+                });
                 run_dir.write_status(&node.id, &outcome)?;
                 Ok(outcome)
             }
             CodergenResponse::Text(text) => {
+                self.emitter.emit(PipelineEvent::StageResponse {
+                    node_id: node.id.clone(),
+                    stage_index,
+                    response: text.clone(),
+                });
                 std::fs::write(stage_dir.join("response.md"), &text)?;
                 let outcome = build_text_outcome(&node.id, &text);
                 run_dir.write_status(&node.id, &outcome)?;

@@ -288,6 +288,8 @@ impl CodergenBackend for CapturingBackend {
         _node: &Node,
         prompt: &str,
         _context: &Context,
+        _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
+        _stage_index: usize,
     ) -> AttractorResult<CodergenResponse> {
         if let Ok(mut captured) = self.captured.lock() {
             captured.push(prompt.to_string());
