@@ -1,23 +1,29 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
 use futures::FutureExt;
+use inflector::Inflector;
 use ratatui::style::Color;
+use stencila_attractor::events::PipelineEvent;
 use tokio::{sync::mpsc, task::JoinHandle};
 
+use std::sync::{Arc, Mutex};
+
 use crate::{
-    agent::{AgentHandle, ResponseSegment, RunningAgentExchange},
-    autocomplete::agents::{AgentDefinitionInfo, AgentSelection},
-    autocomplete::cancel::CancelCandidate,
-    autocomplete::mentions::MentionCandidate,
-    autocomplete::responses::ResponseCandidate,
-    autocomplete::workflows::WorkflowDefinitionInfo,
+    agent::{AgentHandle, AgentProgress, ResponseSegment, RunningAgentExchange},
     autocomplete::{
         AgentsState, CancelState, CommandsState, FilesState, HistoryState, MentionsState,
         ResponsesState, WorkflowsState,
+        agents::{AgentDefinitionInfo, AgentSelection},
+        cancel::CancelCandidate,
+        mentions::MentionCandidate,
+        responses::ResponseCandidate,
+        workflows::WorkflowDefinitionInfo,
     },
     commands::SlashCommand,
+    config::{AppConfig, WorkflowVerbosity},
     history::InputHistory,
     input::InputState,
     shell::RunningShellCommand,
+    workflow::{PendingInterview, WorkflowEvent, WorkflowRunHandle},
 };
 
 /// The current input mode of the TUI.
@@ -35,6 +41,7 @@ pub enum AppMode {
 pub enum ExchangeKind {
     Chat,
     Shell,
+    Workflow,
 }
 
 impl ExchangeKind {
@@ -43,6 +50,7 @@ impl ExchangeKind {
         match self {
             Self::Chat => "chat",
             Self::Shell => "shell",
+            Self::Workflow => "workflow",
         }
     }
 
@@ -51,6 +59,7 @@ impl ExchangeKind {
         match self {
             Self::Chat => Color::Blue,
             Self::Shell => Color::Yellow,
+            Self::Workflow => Color::Magenta,
         }
     }
 }
@@ -125,18 +134,24 @@ impl AgentSession {
 pub struct ActiveWorkflow {
     /// The workflow definition info from the picker.
     pub info: WorkflowDefinitionInfo,
-    // Fields below are placeholders for Phase 3+; they will be populated
-    // once the workflow execution runtime is implemented.
-    // pub run_handle: Option<WorkflowRunHandle>,
-    // pub events: Vec<WorkflowEvent>,
-    // pub pending_interview: Option<PendingInterview>,
-    // pub outcome: Option<WorkflowOutcome>,
-    /// Whether the workflow has been started (goal submitted).
-    pub started: bool,
-    /// Total number of nodes in the pipeline graph (for progress display).
-    pub total_stages: usize,
-    /// Current stage index (updated from events, for hints line display).
-    pub current_stage: usize,
+
+    /// Running workflow task handle, set once the goal is submitted.
+    pub run_handle: Option<WorkflowRunHandle>,
+
+    /// Interview question pending user response, if any.
+    pub pending_interview: Option<PendingInterview>,
+
+    /// Message index of the current stage exchange (for linking prompt → response).
+    pub current_exchange_msg_index: Option<usize>,
+
+    /// Shared progress state for the current stage's agent session events.
+    pub current_stage_progress: Option<Arc<Mutex<AgentProgress>>>,
+
+    /// Message index of the workflow-level status message (Minimal mode).
+    pub workflow_status_msg_index: Option<usize>,
+
+    /// Message index of the current stage-level status message (Simple mode).
+    pub stage_status_msg_index: Option<usize>,
 }
 
 /// A message displayed in the messages area.
@@ -144,24 +159,86 @@ pub struct ActiveWorkflow {
 pub enum AppMessage {
     /// The initial welcome message.
     Welcome,
+
+    /// A system/informational message (mode transitions, slash command output, etc.).
+    System { content: String },
+
     /// A request/response exchange.
     Exchange {
         kind: ExchangeKind,
         status: ExchangeStatus,
         request: String,
         response: Option<String>,
+
         /// Structured response segments for rendering (agent exchanges only).
         /// When present, the renderer uses these for styled tool-call and
         /// warning annotations. When `None`, `response` is rendered as plain text.
         response_segments: Option<Vec<ResponseSegment>>,
+
         /// Shell exit code (only meaningful for Shell kind).
         exit_code: Option<i32>,
+
         /// Index of the agent session that owns this exchange.
         /// `None` for shell exchanges.
         agent_index: Option<usize>,
+
+        /// Agent name for workflow exchanges (not backed by a session).
+        agent_name: Option<String>,
     },
-    /// A system/informational message (mode transitions, slash command output, etc.).
-    System { content: String },
+
+    /// Singleton message for a workflow's status used for [`WorkflowVerbosity::Minimal`].
+    WorkflowStatus {
+        /// Current state of workflow.
+        state: WorkflowStatusState,
+
+        /// Display label (e.g. "Workflow my-workflow").
+        label: String,
+
+        /// Detail text (e.g outcome or failure reason).
+        detail: Option<String>,
+    },
+
+    /// A workflow progress message used for [`WorkflowVerbosity::Simple`].
+    WorkflowProgress {
+        // The kind of progress
+        kind: WorkflowProgressKind,
+
+        /// Display label (e.g. "Workflow my-workflow").
+        label: String,
+
+        /// Detail text.
+        detail: Option<String>,
+    },
+}
+
+/// The state of a workflow
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WorkflowStatusState {
+    /// Workflow is running
+    Running,
+    /// Workflow has completed
+    Completed,
+    /// Workflow has failed
+    Failed,
+    /// Workflow was cancelled
+    Cancelled,
+}
+
+/// The kind of progress in a workflow
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WorkflowProgressKind {
+    /// Workflow started
+    Started,
+    /// Stage is running
+    Running,
+    /// Stage or workflow completed
+    Completed,
+    /// Stage or workflow failed
+    Failed,
+    /// Stage retrying.
+    Retrying,
+    /// Workflow was cancelled
+    Cancelled,
 }
 
 /// Discover agent definitions, returning an empty vec if no runtime is available.
@@ -195,6 +272,9 @@ struct AgentMention {
 /// All mutable state lives here. The render function takes `&App` (immutable)
 /// while event handlers take `&mut App`.
 pub struct App {
+    /// App config
+    config: AppConfig,
+
     /// Whether the app should exit.
     pub should_quit: bool,
 
@@ -298,6 +378,7 @@ impl App {
         let default_session = AgentSession::new(default_name);
 
         Self {
+            config: AppConfig::default(),
             should_quit: false,
             mode: AppMode::default(),
             messages: vec![AppMessage::Welcome],
@@ -361,6 +442,10 @@ impl App {
                 .sessions
                 .iter()
                 .any(|s| !s.running_agent_exchanges.is_empty())
+            || self
+                .active_workflow
+                .as_ref()
+                .is_some_and(|w| w.run_handle.is_some())
     }
 
     /// Whether the active session has any running agent exchanges.
@@ -694,24 +779,17 @@ impl App {
 
     /// Enter workflow mode for the given workflow definition.
     fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
-        let content = if let Some(goal) = &info.goal {
-            format!(
-                "Workflow '{}' selected. Default goal: '{}'. Press Enter to start, or type a new goal.",
-                info.name, goal
-            )
-        } else {
-            format!("Workflow '{}' selected. Enter your goal.", info.name)
-        };
-
         self.active_workflow = Some(ActiveWorkflow {
             info,
-            started: false,
-            total_stages: 0,
-            current_stage: 0,
+            run_handle: None,
+            pending_interview: None,
+            current_exchange_msg_index: None,
+            current_stage_progress: None,
+            workflow_status_msg_index: None,
+            stage_status_msg_index: None,
         });
         self.input.clear();
         self.input_scroll = 0;
-        self.messages.push(AppMessage::System { content });
         self.scroll_pinned = true;
     }
 
@@ -814,22 +892,41 @@ impl App {
         let text = self.input.take();
         self.input_scroll = 0;
 
-        // Workflow goal submission: when in workflow mode and not yet started,
+        // Workflow goal submission: when in workflow mode and not yet running,
         // empty input uses the default goal (if available).
-        if let Some(workflow) = &self.active_workflow {
-            if !workflow.started {
-                let goal = if text.trim().is_empty() {
-                    workflow.info.goal.clone()
-                } else {
-                    Some(text.clone())
-                };
+        if let Some(workflow) = &self.active_workflow
+            && workflow.run_handle.is_none()
+        {
+            let goal = if text.trim().is_empty() {
+                workflow.info.goal.clone()
+            } else {
+                Some(text.clone())
+            };
 
-                if let Some(goal) = goal {
-                    self.submit_workflow_goal(goal);
-                }
-                // If no goal provided and no default, do nothing (keep waiting)
+            if let Some(goal) = goal {
+                self.submit_workflow_goal(goal);
+            }
+            // If no goal provided and no default, do nothing (keep waiting)
+            return;
+        }
+
+        // Workflow interview answer submission: when a workflow is waiting
+        // for user input, send the answer through the oneshot channel.
+        if let Some(workflow) = &mut self.active_workflow
+            && let Some(pending) = workflow.pending_interview.take()
+        {
+            if text.trim().is_empty() {
+                // Put the pending interview back if input was empty
+                workflow.pending_interview = Some(pending);
                 return;
             }
+            self.messages.push(AppMessage::System {
+                content: format!("\u{1f4ac} {text}"),
+            });
+            let _ = pending.answer_tx.send(text);
+            self.scroll_pinned = true;
+            self.scroll_offset = 0;
+            return;
         }
 
         if text.trim().is_empty() {
@@ -876,25 +973,17 @@ impl App {
         self.scroll_offset = 0;
     }
 
-    /// Submit a goal for the active workflow and mark it as started.
-    ///
-    /// Phase 3 will spawn the actual workflow run here.
+    /// Submit a goal for the active workflow and spawn the workflow run.
     fn submit_workflow_goal(&mut self, goal: String) {
-        let name = self
-            .active_workflow
-            .as_ref()
-            .map(|w| w.info.name.clone())
-            .unwrap_or_default();
+        let Some(workflow) = &self.active_workflow else {
+            return;
+        };
 
-        self.messages.push(AppMessage::System {
-            content: format!("Starting workflow '{name}' with goal: {goal}"),
-        });
+        let (handle, ..) = crate::workflow::spawn_workflow(&workflow.info, goal);
 
         if let Some(workflow) = &mut self.active_workflow {
-            workflow.started = true;
+            workflow.run_handle = Some(handle);
         }
-
-        // TODO(Phase 3): spawn the workflow run here using the goal.
 
         self.scroll_pinned = true;
         self.scroll_offset = 0;
@@ -1205,6 +1294,7 @@ impl App {
             response_segments: None,
             exit_code: None,
             agent_index: None,
+            agent_name: None,
         });
         let msg_index = self.messages.len() - 1;
         let running = crate::shell::spawn_command(command);
@@ -1223,6 +1313,16 @@ impl App {
     /// Compares the highest message index across all sessions'
     /// `running_agent_exchanges` and `running_shell_commands`.
     fn cancel_most_recent_running(&mut self) {
+        // If a workflow is running, cancel it first (it's the most prominent running task).
+        if self
+            .active_workflow
+            .as_ref()
+            .is_some_and(|w| w.run_handle.is_some())
+        {
+            self.cancel_active_workflow();
+            return;
+        }
+
         let cmd_max = self.running_shell_commands.last().map(|(idx, _)| *idx);
         let agent_max = self
             .sessions
@@ -1275,7 +1375,7 @@ impl App {
         }
     }
 
-    /// Cancel all running shell commands and agent exchanges.
+    /// Cancel all running shell commands, agent exchanges, and workflows.
     pub fn cancel_all_running(&mut self) {
         for entry in self.running_shell_commands.drain(..) {
             Self::cancel_entry(&mut self.messages, entry);
@@ -1286,6 +1386,44 @@ impl App {
                 Self::mark_exchange_cancelled(&mut self.messages, idx);
             }
         }
+        self.cancel_active_workflow();
+    }
+
+    /// Cancel the active workflow if one is running.
+    fn cancel_active_workflow(&mut self) {
+        if let Some(workflow) = &mut self.active_workflow
+            && let Some(handle) = workflow.run_handle.take()
+        {
+            handle.abort();
+            let name = workflow.info.name.clone();
+            // Mark all workflow progress/status messages with spinners as cancelled
+            for msg in &mut self.messages {
+                match msg {
+                    AppMessage::WorkflowStatus { state: phase, .. }
+                        if *phase == WorkflowStatusState::Running =>
+                    {
+                        *phase = WorkflowStatusState::Cancelled;
+                    }
+                    AppMessage::WorkflowProgress { kind, .. }
+                        if *kind == WorkflowProgressKind::Running =>
+                    {
+                        *kind = WorkflowProgressKind::Cancelled;
+                    }
+                    AppMessage::Exchange {
+                        kind: ExchangeKind::Workflow,
+                        status,
+                        ..
+                    } if *status == ExchangeStatus::Running => {
+                        *status = ExchangeStatus::Cancelled;
+                    }
+                    _ => {}
+                }
+            }
+            self.messages.push(AppMessage::System {
+                content: format!("Workflow '{name}' cancelled"),
+            });
+        }
+        self.active_workflow = None;
     }
 
     /// Cancel a single running command and mark its exchange as cancelled.
@@ -1354,6 +1492,7 @@ impl App {
             response_segments: None,
             exit_code: None,
             agent_index: Some(session_idx),
+            agent_name: None,
         });
         let msg_index = self.messages.len() - 1;
 
@@ -1608,6 +1747,375 @@ impl App {
                     segments,
                 );
             }
+        }
+    }
+
+    /// Poll the running workflow for events. Called on tick events.
+    pub fn poll_workflow_events(&mut self) {
+        // Drain events into a local vec to avoid borrow conflicts
+        // (holding &mut self.active_workflow while also pushing to self.messages).
+        let events: Vec<WorkflowEvent> = {
+            let Some(workflow) = &mut self.active_workflow else {
+                return;
+            };
+            let Some(handle) = &mut workflow.run_handle else {
+                return;
+            };
+            let mut batch = Vec::new();
+            while let Ok(event) = handle.event_rx.try_recv() {
+                batch.push(event);
+            }
+            batch
+        };
+
+        if events.is_empty() {
+            return;
+        }
+
+        for event in events {
+            match event {
+                WorkflowEvent::Pipeline(pe) => self.handle_pipeline_event(&pe),
+                WorkflowEvent::InterviewQuestion {
+                    question,
+                    answer_tx,
+                } => {
+                    if let Some(workflow) = &mut self.active_workflow {
+                        workflow.pending_interview = Some(PendingInterview {
+                            question,
+                            answer_tx,
+                        });
+                    }
+                }
+                WorkflowEvent::Completed(_result) => {
+                    // Not currently handled, see handling of PipelineCompleted
+                    // and PipelineFailed events in handle_pipeline_event
+                }
+            }
+            self.scroll_pinned = true;
+        }
+    }
+
+    /// Handle a single pipeline event from the workflow runtime.
+    fn handle_pipeline_event(&mut self, event: &stencila_attractor::events::PipelineEvent) {
+        match self.config.workflow_verbosity {
+            WorkflowVerbosity::Minimal => self.handle_pipeline_event_minimal(event),
+            WorkflowVerbosity::Simple => self.handle_pipeline_event_simple(event),
+            WorkflowVerbosity::Detailed => self.handle_pipeline_event_detailed(event),
+        }
+    }
+
+    /// Minimal verbosity: a single in-place-updated status message for the entire pipeline.
+    fn handle_pipeline_event_minimal(&mut self, event: &stencila_attractor::events::PipelineEvent) {
+        match event {
+            PipelineEvent::PipelineStarted { pipeline_name } => {
+                let msg_index = self.messages.len();
+
+                self.messages.push(AppMessage::WorkflowStatus {
+                    state: WorkflowStatusState::Running,
+                    label: format!("Workflow {pipeline_name}"),
+                    detail: None,
+                });
+
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.workflow_status_msg_index = Some(msg_index);
+                }
+            }
+            PipelineEvent::StageStarted { stage_index, .. } if *stage_index > 0 => {
+                if let Some(idx) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.workflow_status_msg_index)
+                    && let Some(AppMessage::WorkflowStatus {
+                        state: phase,
+                        detail,
+                        ..
+                    }) = self.messages.get_mut(idx)
+                {
+                    *phase = WorkflowStatusState::Running;
+                    *detail = Some(format!("Stage: {stage_index}"));
+                }
+            }
+            PipelineEvent::PipelineCompleted { outcome, .. } => {
+                if let Some(idx) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.workflow_status_msg_index)
+                    && let Some(AppMessage::WorkflowStatus {
+                        state: phase,
+                        detail,
+                        ..
+                    }) = self.messages.get_mut(idx)
+                {
+                    *phase = WorkflowStatusState::Completed;
+                    *detail = Some(format!("Completed: {}", outcome.status.as_str()));
+                }
+            }
+            PipelineEvent::PipelineFailed { reason, .. } => {
+                if let Some(idx) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.workflow_status_msg_index)
+                    && let Some(AppMessage::WorkflowStatus {
+                        state: phase,
+                        detail,
+                        ..
+                    }) = self.messages.get_mut(idx)
+                {
+                    *phase = WorkflowStatusState::Failed;
+                    *detail = Some(format!("Failed: {reason}"));
+                }
+            }
+            // All other events are suppressed in minimal mode
+            _ => {}
+        }
+    }
+
+    /// Simple mode: progress messages including one in-place-updated status message per stage.
+    #[allow(clippy::too_many_lines)]
+    fn handle_pipeline_event_simple(&mut self, event: &stencila_attractor::events::PipelineEvent) {
+        match event {
+            PipelineEvent::PipelineStarted { pipeline_name } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Started,
+                    label: format!("Workflow {pipeline_name} started"),
+                    detail: None,
+                });
+            }
+            PipelineEvent::StageStarted {
+                node_id,
+                stage_index,
+            } if *stage_index > 0 => {
+                let msg_index = self.messages.len();
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Running,
+                    label: format!("Workflow stage {stage_index}: {node_id}"),
+                    detail: None,
+                });
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.stage_status_msg_index = Some(msg_index);
+                }
+            }
+            PipelineEvent::StagePrompt {
+                agent_name, prompt, ..
+            } => {
+                if let Some(idx) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.stage_status_msg_index)
+                    && let Some(AppMessage::WorkflowProgress { detail, .. }) =
+                        self.messages.get_mut(idx)
+                {
+                    *detail = Some(format!("{agent_name}: {prompt}"));
+                }
+            }
+            PipelineEvent::StageCompleted { outcome, .. } => {
+                if let Some(idx) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.stage_status_msg_index)
+                    && let Some(AppMessage::WorkflowProgress { kind, detail, .. }) =
+                        self.messages.get_mut(idx)
+                {
+                    if outcome.status.is_success() {
+                        *kind = WorkflowProgressKind::Completed;
+                    } else {
+                        *kind = WorkflowProgressKind::Failed;
+                    }
+                    *detail = Some(outcome.status.as_str().to_title_case());
+                }
+            }
+            PipelineEvent::StageFailed { reason, .. } => {
+                if let Some(idx) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.stage_status_msg_index)
+                    && let Some(AppMessage::WorkflowProgress { kind, detail, .. }) =
+                        self.messages.get_mut(idx)
+                {
+                    *kind = WorkflowProgressKind::Failed;
+                    *detail = Some(reason.clone());
+                }
+            }
+            PipelineEvent::StageRetrying {
+                node_id,
+                stage_index,
+                attempt,
+                max_attempts,
+            } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Retrying,
+                    label: format!(
+                        "Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})",
+                    ),
+                    detail: None,
+                });
+            }
+            PipelineEvent::PipelineCompleted {
+                pipeline_name,
+                outcome,
+                ..
+            } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Completed,
+                    label: format!("Workflow {pipeline_name} completed"),
+                    detail: Some(outcome.status.as_str().to_title_case()),
+                });
+            }
+            PipelineEvent::PipelineFailed {
+                pipeline_name,
+                reason,
+                ..
+            } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Failed,
+                    label: format!("Workflow {pipeline_name} failed"),
+                    detail: Some(reason.to_string()),
+                });
+            }
+            // Suppress parallel, interview, checkpoint, text delta, response end
+            _ => {}
+        }
+    }
+
+    /// Detailed mode: full exchange per stage with prompt + streaming response.
+    #[allow(clippy::too_many_lines)]
+    fn handle_pipeline_event_detailed(
+        &mut self,
+        event: &stencila_attractor::events::PipelineEvent,
+    ) {
+        match event {
+            PipelineEvent::PipelineStarted { pipeline_name } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Started,
+                    label: format!("Workflow {pipeline_name} started"),
+                    detail: None,
+                });
+            }
+            PipelineEvent::StageStarted {
+                node_id,
+                stage_index,
+            } if *stage_index > 0 => {
+                let msg_index = self.messages.len();
+                self.messages.push(AppMessage::Exchange {
+                    kind: ExchangeKind::Workflow,
+                    status: ExchangeStatus::Running,
+                    request: format!("**Stage {stage_index}: {node_id}**"),
+                    response: None,
+                    response_segments: None,
+                    exit_code: None,
+                    agent_index: None,
+                    agent_name: None,
+                });
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.current_exchange_msg_index = Some(msg_index);
+                    workflow.current_stage_progress =
+                        Some(Arc::new(Mutex::new(AgentProgress::default())));
+                }
+            }
+            PipelineEvent::StagePrompt {
+                agent_name, prompt, ..
+            } => {
+                if let Some(msg_index) = self
+                    .active_workflow
+                    .as_ref()
+                    .and_then(|w| w.current_exchange_msg_index)
+                    && let Some(AppMessage::Exchange {
+                        request,
+                        agent_name: workflow_agent_name,
+                        ..
+                    }) = self.messages.get_mut(msg_index)
+                {
+                    request.push_str("\n\n");
+                    request.push_str(prompt);
+                    *workflow_agent_name = Some(agent_name.clone());
+                }
+            }
+            PipelineEvent::StageSessionEvent { event: se, .. } => {
+                if let Some(workflow) = &self.active_workflow
+                    && let Some(ref progress) = workflow.current_stage_progress
+                {
+                    crate::agent::process_event(se, progress);
+                    if let Some(msg_index) = workflow.current_exchange_msg_index
+                        && let Ok(g) = progress.lock()
+                    {
+                        let text = crate::agent::plain_text_from_segments(&g.segments);
+                        Self::update_exchange_streaming(
+                            &mut self.messages,
+                            msg_index,
+                            text,
+                            g.segments.clone(),
+                        );
+                    }
+                }
+            }
+            // PipelineEvent::StageResponse: response already built incrementally from StageSessionEvent
+            PipelineEvent::StageCompleted { outcome, .. } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    if let Some(msg_index) = workflow.current_exchange_msg_index.take()
+                        && let Some(AppMessage::Exchange { status, .. }) =
+                            self.messages.get_mut(msg_index)
+                    {
+                        *status = if outcome.status.is_success() {
+                            ExchangeStatus::Succeeded
+                        } else {
+                            ExchangeStatus::Failed
+                        };
+                    }
+                    workflow.current_stage_progress = None;
+                }
+            }
+            PipelineEvent::StageFailed { reason, .. } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    if let Some(msg_index) = workflow.current_exchange_msg_index.take() {
+                        Self::update_exchange_at(
+                            &mut self.messages,
+                            msg_index,
+                            ExchangeStatus::Failed,
+                            Some(reason.clone()),
+                            None,
+                        );
+                    }
+                    workflow.current_stage_progress = None;
+                }
+            }
+            PipelineEvent::StageRetrying {
+                node_id,
+                stage_index,
+                attempt,
+                max_attempts,
+            } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Retrying,
+                    label: format!(
+                        "Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})",
+                    ),
+                    detail: None,
+                });
+            }
+            PipelineEvent::PipelineCompleted {
+                pipeline_name,
+                outcome,
+                ..
+            } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Completed,
+                    label: format!("Workflow {pipeline_name} completed"),
+                    detail: Some(outcome.status.as_str().to_title_case()),
+                });
+            }
+            PipelineEvent::PipelineFailed {
+                pipeline_name,
+                reason,
+                ..
+            } => {
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Failed,
+                    label: format!("Workflow {pipeline_name} failed"),
+                    detail: Some(reason.to_string()),
+                });
+            }
+            // Suppress parallel, interview, checkpoint, text delta, response end
+            _ => {}
         }
     }
 
@@ -2698,6 +3206,7 @@ mod tests {
             response_segments: None,
             exit_code: Some(0),
             agent_index: None,
+            agent_name: None,
         });
         // Exchange 2: no response yet
         app.messages.push(AppMessage::Exchange {
@@ -2708,6 +3217,7 @@ mod tests {
             response_segments: None,
             exit_code: None,
             agent_index: Some(0),
+            agent_name: None,
         });
         // Exchange 3: has response
         app.messages.push(AppMessage::Exchange {
@@ -2718,6 +3228,7 @@ mod tests {
             response_segments: None,
             exit_code: Some(0),
             agent_index: None,
+            agent_name: None,
         });
         app
     }

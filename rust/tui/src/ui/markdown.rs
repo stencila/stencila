@@ -11,7 +11,6 @@ use ratatui::{
 };
 use syntect::{easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet};
 
-
 /// Dim dark gray style, reused across many node renderers.
 const DIM_DARK_GRAY: Style = Style::new().fg(Color::DarkGray).add_modifier(Modifier::DIM);
 
@@ -386,10 +385,7 @@ fn render_list(list: &markdown::mdast::List, ctx: &RenderContext) -> Vec<Vec<Spa
                 for (j, mut spans) in child_lines.into_iter().enumerate() {
                     let mut line = indent.clone();
                     if first_block && j == 0 {
-                        line.push(Span::styled(
-                            bullet.clone(),
-                            Style::new().fg(Color::Blue),
-                        ));
+                        line.push(Span::styled(bullet.clone(), Style::new().fg(Color::Blue)));
                         first_block = false;
                     } else {
                         line.push(Span::raw(" ".repeat(bullet.len())));
@@ -633,7 +629,10 @@ fn render_math_block(math: &markdown::mdast::Math, ctx: &RenderContext) -> Vec<V
     for text_line in math.value.lines() {
         let mut line = indent.clone();
         line.push(bar.clone());
-        line.push(Span::styled(text_line.to_string(), Style::new().fg(Color::Cyan)));
+        line.push(Span::styled(
+            text_line.to_string(),
+            Style::new().fg(Color::Cyan),
+        ));
         result.push(line);
     }
 

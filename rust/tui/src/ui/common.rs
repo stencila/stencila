@@ -187,6 +187,7 @@ pub(super) enum DelimiterDisplay {
 /// - `**bold**`    — strong
 /// - `*italic*`    — emphasis
 /// - `~~strike~~`  — strikethrough
+#[allow(clippy::too_many_lines)]
 pub(super) fn style_inline_markdown(
     text: &str,
     mode: InlineStyleMode,
@@ -202,9 +203,7 @@ pub(super) fn style_inline_markdown(
             Style::new().add_modifier(Modifier::CROSSED_OUT),
         ),
         InlineStyleMode::Muted => (
-            Style::new()
-                .fg(Color::DarkGray)
-                .add_modifier(Modifier::DIM),
+            Style::new().fg(Color::DarkGray).add_modifier(Modifier::DIM),
             Style::new().fg(Color::Rgb(140, 112, 175)),
             Style::new()
                 .fg(Color::DarkGray)
@@ -240,8 +239,21 @@ pub(super) fn style_inline_markdown(
             && let Some(close) = find_closing(&chars, i + 1, &['`'])
             && close > i + 1
         {
-            let m = InlineMatch { open: i, open_len: 1, close, close_len: 1, body_style: code_style };
-            emit_match(&chars, &mut spans, &mut plain_start, delim_style, delimiters, &m);
+            let m = InlineMatch {
+                open: i,
+                open_len: 1,
+                close,
+                close_len: 1,
+                body_style: code_style,
+            };
+            emit_match(
+                &chars,
+                &mut spans,
+                &mut plain_start,
+                delim_style,
+                delimiters,
+                &m,
+            );
             i = close + 1;
             continue;
         }
@@ -250,8 +262,21 @@ pub(super) fn style_inline_markdown(
             && let Some(close) = find_closing(&chars, i + 1, &['$'])
             && close > i + 1
         {
-            let m = InlineMatch { open: i, open_len: 1, close, close_len: 1, body_style: math_style };
-            emit_match(&chars, &mut spans, &mut plain_start, delim_style, delimiters, &m);
+            let m = InlineMatch {
+                open: i,
+                open_len: 1,
+                close,
+                close_len: 1,
+                body_style: math_style,
+            };
+            emit_match(
+                &chars,
+                &mut spans,
+                &mut plain_start,
+                delim_style,
+                delimiters,
+                &m,
+            );
             i = close + 1;
             continue;
         }
@@ -261,8 +286,21 @@ pub(super) fn style_inline_markdown(
             && let Some(close) = find_closing_double(&chars, i + 2, '~')
             && close > i + 2
         {
-            let m = InlineMatch { open: i, open_len: 2, close, close_len: 2, body_style: strike_mod };
-            emit_match(&chars, &mut spans, &mut plain_start, delim_style, delimiters, &m);
+            let m = InlineMatch {
+                open: i,
+                open_len: 2,
+                close,
+                close_len: 2,
+                body_style: strike_mod,
+            };
+            emit_match(
+                &chars,
+                &mut spans,
+                &mut plain_start,
+                delim_style,
+                delimiters,
+                &m,
+            );
             i = close + 2;
             continue;
         }
@@ -272,8 +310,21 @@ pub(super) fn style_inline_markdown(
             && let Some(close) = find_closing_double(&chars, i + 2, '*')
             && close > i + 2
         {
-            let m = InlineMatch { open: i, open_len: 2, close, close_len: 2, body_style: bold_mod };
-            emit_match(&chars, &mut spans, &mut plain_start, delim_style, delimiters, &m);
+            let m = InlineMatch {
+                open: i,
+                open_len: 2,
+                close,
+                close_len: 2,
+                body_style: bold_mod,
+            };
+            emit_match(
+                &chars,
+                &mut spans,
+                &mut plain_start,
+                delim_style,
+                delimiters,
+                &m,
+            );
             i = close + 2;
             continue;
         }
@@ -282,8 +333,21 @@ pub(super) fn style_inline_markdown(
             && let Some(close) = find_closing_single(&chars, i + 1, '*')
             && close > i + 1
         {
-            let m = InlineMatch { open: i, open_len: 1, close, close_len: 1, body_style: italic_mod };
-            emit_match(&chars, &mut spans, &mut plain_start, delim_style, delimiters, &m);
+            let m = InlineMatch {
+                open: i,
+                open_len: 1,
+                close,
+                close_len: 1,
+                body_style: italic_mod,
+            };
+            emit_match(
+                &chars,
+                &mut spans,
+                &mut plain_start,
+                delim_style,
+                delimiters,
+                &m,
+            );
             i = close + 1;
             continue;
         }
@@ -523,10 +587,7 @@ mod tests {
     #[test]
     fn word_wrap_multiple_words() {
         // "aa bb cc dd" width 6 -> "aa bb " / "cc dd"
-        assert_eq!(
-            wrap_content("aa bb cc dd", 6),
-            vec!["aa bb ", "cc dd"]
-        );
+        assert_eq!(wrap_content("aa bb cc dd", 6), vec!["aa bb ", "cc dd"]);
     }
 
     #[test]
@@ -588,14 +649,23 @@ mod tests {
             "empty `` backticks",
             "",
         ] {
-            let spans = style_inline_markdown(input, InlineStyleMode::Normal, DelimiterDisplay::Show);
-            assert_eq!(spans_text(&spans), input, "text preservation failed for: {input:?}");
+            let spans =
+                style_inline_markdown(input, InlineStyleMode::Normal, DelimiterDisplay::Show);
+            assert_eq!(
+                spans_text(&spans),
+                input,
+                "text preservation failed for: {input:?}"
+            );
         }
     }
 
     #[test]
     fn inline_md_bold() {
-        let spans = style_inline_markdown("a **bold** b", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "a **bold** b",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans.len(), 5); // "a " + "**" + "bold" + "**" + " b"
         assert!(spans[2].style.add_modifier.contains(Modifier::BOLD));
         assert_eq!(spans[2].content.as_ref(), "bold");
@@ -603,7 +673,11 @@ mod tests {
 
     #[test]
     fn inline_md_italic() {
-        let spans = style_inline_markdown("a *italic* b", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "a *italic* b",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans.len(), 5);
         assert!(spans[2].style.add_modifier.contains(Modifier::ITALIC));
         assert_eq!(spans[2].content.as_ref(), "italic");
@@ -611,7 +685,11 @@ mod tests {
 
     #[test]
     fn inline_md_code() {
-        let spans = style_inline_markdown("a `code` b", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "a `code` b",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans.len(), 5);
         assert_eq!(spans[2].content.as_ref(), "code");
         assert_eq!(spans[2].style.fg, Some(Color::Rgb(200, 160, 255)));
@@ -619,7 +697,8 @@ mod tests {
 
     #[test]
     fn inline_md_math() {
-        let spans = style_inline_markdown("a $x+1$ b", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans =
+            style_inline_markdown("a $x+1$ b", InlineStyleMode::Normal, DelimiterDisplay::Show);
         assert_eq!(spans.len(), 5);
         assert_eq!(spans[2].content.as_ref(), "x+1");
         assert_eq!(spans[2].style.fg, Some(Color::Cyan));
@@ -627,7 +706,11 @@ mod tests {
 
     #[test]
     fn inline_md_strikethrough() {
-        let spans = style_inline_markdown("a ~~old~~ b", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "a ~~old~~ b",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans.len(), 5);
         assert!(spans[2].style.add_modifier.contains(Modifier::CROSSED_OUT));
         assert_eq!(spans[2].content.as_ref(), "old");
@@ -644,25 +727,39 @@ mod tests {
     #[test]
     fn inline_md_empty_delimiters() {
         // Empty content between delimiters should not match
-        let spans = style_inline_markdown("a ** ** b", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans =
+            style_inline_markdown("a ** ** b", InlineStyleMode::Normal, DelimiterDisplay::Show);
         assert_eq!(spans_text(&spans), "a ** ** b");
     }
 
     #[test]
     fn inline_md_newline_blocks_match() {
         // Delimiters don't span across newlines
-        let spans = style_inline_markdown("**bold\ntext**", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "**bold\ntext**",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans_text(&spans), "**bold\ntext**");
         assert_eq!(spans.len(), 1); // all plain, no match
     }
 
     #[test]
     fn inline_md_multiple_patterns() {
-        let spans = style_inline_markdown("**b** *i* `c`", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "**b** *i* `c`",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans_text(&spans), "**b** *i* `c`");
         // Should have styled segments for each
         assert!(spans.iter().any(|s| s.content.as_ref() == "b" && s.style.add_modifier.contains(Modifier::BOLD)));
-        assert!(spans.iter().any(|s| s.content.as_ref() == "i" && s.style.add_modifier.contains(Modifier::ITALIC)));
+        assert!(
+            spans
+                .iter()
+                .any(|s| s.content.as_ref() == "i"
+                    && s.style.add_modifier.contains(Modifier::ITALIC))
+        );
         assert!(spans.iter().any(|s| s.content.as_ref() == "c" && s.style.fg == Some(Color::Rgb(200, 160, 255))));
     }
 
@@ -677,7 +774,11 @@ mod tests {
     #[test]
     fn inline_md_code_suppresses_inner() {
         // Bold delimiters inside code should not be parsed
-        let spans = style_inline_markdown("`**not bold**`", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            "`**not bold**`",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans_text(&spans), "`**not bold**`");
         assert_eq!(spans[1].content.as_ref(), "**not bold**");
         // Should be styled as code, not bold
@@ -687,44 +788,91 @@ mod tests {
     #[test]
     fn inline_md_bold_not_confused_with_italic() {
         // "**bold**" should not be parsed as two empty italic spans
-        let spans = style_inline_markdown("**bold**", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans =
+            style_inline_markdown("**bold**", InlineStyleMode::Normal, DelimiterDisplay::Show);
         assert_eq!(spans_text(&spans), "**bold**");
-        assert!(spans.iter().any(|s| s.content.as_ref() == "bold" && s.style.add_modifier.contains(Modifier::BOLD)));
-        assert!(!spans.iter().any(|s| s.style.add_modifier.contains(Modifier::ITALIC)));
+        assert!(
+            spans
+                .iter()
+                .any(|s| s.content.as_ref() == "bold"
+                    && s.style.add_modifier.contains(Modifier::BOLD))
+        );
+        assert!(
+            !spans
+                .iter()
+                .any(|s| s.style.add_modifier.contains(Modifier::ITALIC))
+        );
     }
 
     #[test]
     fn inline_md_escaped_opener_not_styled() {
         // A backslash before the opening delimiter should suppress matching
-        let spans = style_inline_markdown(r"\*literal*", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            r"\*literal*",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans_text(&spans), r"\*literal*");
-        assert!(!spans.iter().any(|s| s.style.add_modifier.contains(Modifier::ITALIC)));
+        assert!(
+            !spans
+                .iter()
+                .any(|s| s.style.add_modifier.contains(Modifier::ITALIC))
+        );
     }
 
     #[test]
     fn inline_md_escaped_double_opener() {
-        let spans = style_inline_markdown(r"\**not bold**", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            r"\**not bold**",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans_text(&spans), r"\**not bold**");
-        assert!(!spans.iter().any(|s| s.style.add_modifier.contains(Modifier::BOLD)));
+        assert!(
+            !spans
+                .iter()
+                .any(|s| s.style.add_modifier.contains(Modifier::BOLD))
+        );
     }
 
     #[test]
     fn inline_md_escaped_backtick() {
-        let spans = style_inline_markdown(r"\`not code`", InlineStyleMode::Normal, DelimiterDisplay::Show);
+        let spans = style_inline_markdown(
+            r"\`not code`",
+            InlineStyleMode::Normal,
+            DelimiterDisplay::Show,
+        );
         assert_eq!(spans_text(&spans), r"\`not code`");
-        assert!(!spans.iter().any(|s| s.style.fg == Some(Color::Rgb(200, 160, 255))));
+        assert!(
+            !spans
+                .iter()
+                .any(|s| s.style.fg == Some(Color::Rgb(200, 160, 255)))
+        );
     }
 
     #[test]
     fn inline_md_hide_delimiters() {
-        let spans = style_inline_markdown("a **bold** b", InlineStyleMode::Muted, DelimiterDisplay::Hide);
+        let spans = style_inline_markdown(
+            "a **bold** b",
+            InlineStyleMode::Muted,
+            DelimiterDisplay::Hide,
+        );
         assert_eq!(spans_text(&spans), "a bold b");
-        assert!(spans.iter().any(|s| s.content.as_ref() == "bold" && s.style.add_modifier.contains(Modifier::BOLD)));
+        assert!(
+            spans
+                .iter()
+                .any(|s| s.content.as_ref() == "bold"
+                    && s.style.add_modifier.contains(Modifier::BOLD))
+        );
     }
 
     #[test]
     fn inline_md_hide_delimiters_multiple() {
-        let spans = style_inline_markdown("**b** and `c`", InlineStyleMode::Muted, DelimiterDisplay::Hide);
+        let spans = style_inline_markdown(
+            "**b** and `c`",
+            InlineStyleMode::Muted,
+            DelimiterDisplay::Hide,
+        );
         assert_eq!(spans_text(&spans), "b and c");
     }
 }

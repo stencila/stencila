@@ -4,6 +4,7 @@ mod agent;
 mod app;
 mod autocomplete;
 mod commands;
+mod config;
 mod event;
 mod history;
 mod input;
@@ -11,6 +12,7 @@ mod logging;
 mod shell;
 mod terminal;
 mod ui;
+mod workflow;
 
 use clap::Parser;
 use eyre::Result;
@@ -58,6 +60,7 @@ impl Tui {
                 Some(event::AppEvent::Tick) => {
                     app.poll_running_commands();
                     app.poll_running_agent_exchanges();
+                    app.poll_workflow_events();
                     app.poll_log_events();
                     app.poll_upgrade_check();
                 }

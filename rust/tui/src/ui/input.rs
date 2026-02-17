@@ -13,7 +13,7 @@ use super::common::{
     cursor_position_wrapped, dim, style_inline_markdown, visual_line_count, wrap_content,
 };
 
-const WORKFLOW_COLOR: Color = Color::LightYellow;
+const WORKFLOW_COLOR: Color = Color::Magenta;
 const MAX_GHOST_LINES: usize = 3;
 
 fn last_visual_line_len(text: &str, wrap_width: usize) -> usize {
@@ -75,7 +75,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
 
     // Use workflow color when in workflow mode, agent color in multi-agent chat, otherwise kind color
     let bar_color = if app.active_workflow.is_some() {
-        Color::Yellow
+        Color::Magenta
     } else if app.mode == AppMode::Chat && app.sessions.len() > 1 {
         AgentSession::color(app.active_session)
     } else {
@@ -86,7 +86,17 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let gutter = NUM_GUTTER;
     if area.height > 0 {
         let indicator = if app.active_workflow.is_some() {
-            if app.active_workflow.as_ref().is_some_and(|w| w.started) {
+            if app
+                .active_workflow
+                .as_ref()
+                .is_some_and(|w| w.pending_interview.is_some())
+            {
+                " \u{2753} ".to_string()
+            } else if app
+                .active_workflow
+                .as_ref()
+                .is_some_and(|w| w.run_handle.is_some())
+            {
                 let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
                 format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
             } else {
@@ -170,15 +180,28 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
         }
     }
 
-    // Show placeholder text when in workflow mode with empty input and not yet started
-    if input_text.is_empty() {
-        if let Some(workflow) = &app.active_workflow {
-            if !workflow.started {
-                let placeholder =
-                    format!("What's your goal for the {} workflow?", workflow.info.name);
-                visual_lines.clear();
-                visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
-            }
+    // Show placeholder text when in workflow mode with empty input
+    if input_text.is_empty()
+        && let Some(workflow) = &app.active_workflow
+    {
+        if workflow.pending_interview.is_some() {
+            let q = &workflow
+                .pending_interview
+                .as_ref()
+                .expect("checked is_some above")
+                .question;
+            let placeholder = if q.options.is_empty() {
+                "Type your answer...".to_string()
+            } else {
+                let opts: Vec<String> = q.options.iter().map(|o| o.key.to_string()).collect();
+                format!("Choose: {}", opts.join(" / "))
+            };
+            visual_lines.clear();
+            visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
+        } else if workflow.run_handle.is_none() {
+            let placeholder = format!("What's your goal for the {} workflow?", workflow.info.name);
+            visual_lines.clear();
+            visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
         }
     }
 
@@ -248,7 +271,11 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Show inline send/run hint anchored to the bottom-right of the input area.
     // Hide when running or when the last visible line's text would overlap.
     if !is_running {
-        let hint_text = if app.active_workflow.as_ref().is_some_and(|w| !w.started) {
+        let hint_text = if app
+            .active_workflow
+            .as_ref()
+            .is_some_and(|w| w.run_handle.is_none())
+        {
             " start"
         } else {
             match app.mode {
@@ -293,13 +320,10 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
 /// Build label spans for an active workflow in the hints line.
 fn workflow_label_spans(workflow: &ActiveWorkflow) -> Vec<Span<'static>> {
     let name = &workflow.info.name;
-    let status = if !workflow.started {
+    let status = if workflow.run_handle.is_none() {
         "pending".to_string()
-    } else if workflow.total_stages > 0 {
-        format!(
-            "running stage {}/{}",
-            workflow.current_stage, workflow.total_stages
-        )
+    } else if workflow.pending_interview.is_some() {
+        "awaiting input".to_string()
     } else {
         "running".to_string()
     };

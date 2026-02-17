@@ -315,12 +315,7 @@ pub(super) fn workflows(frame: &mut Frame, app: &App, input_area: Rect) {
         .map(|(i, candidate)| {
             let name_col = format!("   {:<max_name_width$}  ", candidate.name);
             let detail = if candidate.info.description.is_empty() {
-                candidate
-                    .info
-                    .goal
-                    .as_deref()
-                    .unwrap_or("")
-                    .to_string()
+                candidate.info.goal.as_deref().unwrap_or("").to_string()
             } else {
                 candidate.info.description.clone()
             };

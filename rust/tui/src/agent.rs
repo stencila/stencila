@@ -137,9 +137,9 @@ fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Op
 /// background event-draining task.
 #[derive(Debug, Default)]
 #[allow(clippy::struct_excessive_bools)]
-struct AgentProgress {
+pub(crate) struct AgentProgress {
     /// Structured response segments (text interleaved with annotations).
-    segments: Vec<ResponseSegment>,
+    pub(crate) segments: Vec<ResponseSegment>,
     /// Whether any deltas were received for the current text segment.
     received_deltas: bool,
     /// Whether reasoning deltas were received for this turn.
@@ -652,7 +652,7 @@ fn handle_tool_call_start(
 }
 
 /// Process a single session event, updating the shared progress.
-fn process_event(
+pub(crate) fn process_event(
     event: &stencila_agents::types::SessionEvent,
     progress: &Arc<Mutex<AgentProgress>>,
 ) {

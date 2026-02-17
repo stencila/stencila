@@ -7,7 +7,10 @@ use ratatui::{
 };
 
 use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
-use crate::app::{AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus};
+use crate::app::{
+    AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind,
+    WorkflowStatusState,
+};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
@@ -16,6 +19,7 @@ use super::common::{
 use super::markdown::MdRenderCache;
 
 /// Render the scrollable message area.
+#[allow(clippy::too_many_lines)]
 pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let content_width = area.width.saturating_sub(NUM_GUTTER + 2).max(1) as usize;
     let mut lines: Vec<Line> = Vec::new();
@@ -33,6 +37,18 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             AppMessage::Welcome => {
                 welcome_lines(&mut lines, app.upgrade_available.as_deref());
             }
+            AppMessage::System { content } => {
+                for text_line in content.lines() {
+                    for chunk in wrap_content(text_line, content_width) {
+                        lines.push(Line::from(vec![
+                            Span::raw("   "),
+                            Span::styled(SIDEBAR_CHAR, dim()),
+                            Span::raw(" "),
+                            Span::styled(chunk, dim()),
+                        ]));
+                    }
+                }
+            }
             AppMessage::Exchange {
                 kind,
                 status,
@@ -41,13 +57,18 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 response_segments,
                 exit_code,
                 agent_index,
+                agent_name: workflow_agent_name,
             } => {
                 exchange_num += 1;
-                let agent_tag = agent_index.and_then(|idx| {
-                    app.sessions
-                        .get(idx)
-                        .map(|s| (s.name.clone(), AgentSession::color(idx)))
-                });
+                let agent_tag = if let Some(name) = workflow_agent_name {
+                    Some((name.clone(), Color::Magenta))
+                } else {
+                    agent_index.and_then(|idx| {
+                        app.sessions
+                            .get(idx)
+                            .map(|s| (s.name.clone(), AgentSession::color(idx)))
+                    })
+                };
                 exchange_lines(
                     &mut lines,
                     exchange_num,
@@ -64,17 +85,33 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                     md_cache,
                 );
             }
-            AppMessage::System { content } => {
-                for text_line in content.lines() {
-                    for chunk in wrap_content(text_line, content_width) {
-                        lines.push(Line::from(vec![
-                            Span::raw("   "),
-                            Span::styled(SIDEBAR_CHAR, dim()),
-                            Span::raw(" "),
-                            Span::styled(chunk, dim()),
-                        ]));
-                    }
-                }
+            AppMessage::WorkflowStatus {
+                state,
+                label,
+                detail,
+            } => {
+                workflow_status_lines(
+                    &mut lines,
+                    *state,
+                    label,
+                    detail.as_deref(),
+                    tick_count,
+                    content_width,
+                );
+            }
+            AppMessage::WorkflowProgress {
+                kind,
+                label,
+                detail,
+            } => {
+                workflow_progress_lines(
+                    &mut lines,
+                    *kind,
+                    label,
+                    detail.as_deref(),
+                    tick_count,
+                    content_width,
+                );
             }
         }
     }
@@ -193,10 +230,14 @@ fn exchange_lines(
     md_cache: &mut MdRenderCache,
 ) {
     let kind_color = agent_tag.map_or_else(|| kind.color(), |(_, color)| *color);
-    let base_color = match status {
-        ExchangeStatus::Running | ExchangeStatus::Succeeded => kind_color,
-        ExchangeStatus::Failed => Color::Red,
-        ExchangeStatus::Cancelled => Color::DarkGray,
+    let base_color = if kind == ExchangeKind::Workflow {
+        kind.color()
+    } else {
+        match status {
+            ExchangeStatus::Running | ExchangeStatus::Succeeded => kind_color,
+            ExchangeStatus::Failed => Color::Red,
+            ExchangeStatus::Cancelled => Color::DarkGray,
+        }
     };
 
     let sidebar_style = Style::new().fg(base_color);
@@ -228,10 +269,12 @@ fn exchange_lines(
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            line_spans.extend(style_inline_markdown(&chunk, InlineStyleMode::Normal, DelimiterDisplay::Show));
-            lines.push(
-                Line::from(line_spans).style(Style::new().bg(super::common::INPUT_BG)),
-            );
+            line_spans.extend(style_inline_markdown(
+                &chunk,
+                InlineStyleMode::Normal,
+                DelimiterDisplay::Hide,
+            ));
+            lines.push(Line::from(line_spans).style(Style::new().bg(super::common::INPUT_BG)));
         }
     }
 
@@ -289,8 +332,9 @@ fn exchange_lines(
         response_text(lines, resp, base_color, content_width);
     }
 
-    // Cancelled indicator appended after any existing response
-    if status == ExchangeStatus::Cancelled {
+    // Cancelled indicator appended after any existing response (skip for workflow
+    // exchanges since their cancellation is shown via a dedicated system message).
+    if status == ExchangeStatus::Cancelled && kind != ExchangeKind::Workflow {
         let dim_style = Style::new().fg(Color::DarkGray).add_modifier(Modifier::DIM);
         lines.push(Line::from(vec![
             Span::raw(num_padding),
@@ -446,10 +490,7 @@ fn tool_call_symbol(status: &ToolCallStatus, tick: Option<u32>) -> (char, Style)
             };
             (sym, Style::new().fg(Color::Gray))
         }
-        ToolCallStatus::Done => (
-            '\u{25cf}',
-            Style::new().fg(Color::LightGreen),
-        ),
+        ToolCallStatus::Done => ('\u{25cf}', Style::new().fg(Color::LightGreen)),
         ToolCallStatus::Error { .. } => ('\u{25cf}', Style::new().fg(Color::Red)),
     }
 }
@@ -616,6 +657,107 @@ fn response_text(lines: &mut Vec<Line>, resp: &str, base_color: Color, content_w
     }
 }
 
+/// Workflow-specific color palette.
+const WORKFLOW_COLOR: Color = Color::Magenta;
+
+/// Render an in-place-updatable workflow status line styled like an exchange.
+#[allow(clippy::too_many_arguments)]
+fn workflow_status_lines(
+    lines: &mut Vec<Line>,
+    state: WorkflowStatusState,
+    label: &str,
+    detail: Option<&str>,
+    tick_count: u32,
+    content_width: usize,
+) {
+    let gutter_text = match state {
+        WorkflowStatusState::Running => {
+            let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+            format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
+        }
+        WorkflowStatusState::Completed => " ⚙ ".to_string(),
+        WorkflowStatusState::Failed => " ! ".to_string(),
+        WorkflowStatusState::Cancelled => " ⊘ ".to_string(),
+    };
+    let gutter_style = Style::new().fg(WORKFLOW_COLOR);
+
+    let sidebar_style = Style::new().fg(WORKFLOW_COLOR);
+    let dim_sidebar_style = Style::new().fg(WORKFLOW_COLOR).add_modifier(Modifier::DIM);
+
+    lines.push(Line::from(vec![
+        Span::styled(gutter_text.clone(), gutter_style),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled(label.to_string(), Style::new().fg(Color::White)),
+    ]));
+
+    if let Some(detail_text) = detail {
+        let detail_style = match state {
+            WorkflowStatusState::Failed => Style::new().fg(Color::Red),
+            _ => dim(),
+        };
+        for text_line in detail_text.lines() {
+            for chunk in wrap_content(text_line, content_width) {
+                lines.push(Line::from(vec![
+                    Span::raw("   "),
+                    Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                    Span::raw(" "),
+                    Span::styled(chunk, detail_style),
+                ]));
+            }
+        }
+    }
+}
+
+/// Render workflow progress lines
+fn workflow_progress_lines(
+    lines: &mut Vec<Line>,
+    kind: WorkflowProgressKind,
+    label: &str,
+    detail: Option<&str>,
+    tick_count: u32,
+    content_width: usize,
+) {
+    let gutter_text = match kind {
+        WorkflowProgressKind::Running => {
+            let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+            format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
+        }
+        WorkflowProgressKind::Started | WorkflowProgressKind::Completed => " ⚙ ".to_string(),
+        WorkflowProgressKind::Failed => " ! ".to_string(),
+        WorkflowProgressKind::Cancelled => " ⊘ ".to_string(),
+        WorkflowProgressKind::Retrying => "   ".to_string(),
+    };
+    let gutter_style = Style::new().fg(WORKFLOW_COLOR);
+
+    let sidebar_style = Style::new().fg(WORKFLOW_COLOR);
+    let dim_sidebar_style = Style::new().fg(WORKFLOW_COLOR).add_modifier(Modifier::DIM);
+
+    lines.push(Line::from(vec![
+        Span::styled(gutter_text.clone(), gutter_style),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled(label.to_string(), Style::new().fg(Color::White)),
+    ]));
+
+    if let Some(detail_text) = detail {
+        let detail_style = match kind {
+            WorkflowProgressKind::Failed => Style::new().fg(Color::Red),
+            _ => dim(),
+        };
+        for text_line in detail_text.lines() {
+            for chunk in wrap_content(text_line, content_width) {
+                lines.push(Line::from(vec![
+                    Span::raw("   "),
+                    Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+                    Span::raw(" "),
+                    Span::styled(chunk, detail_style),
+                ]));
+            }
+        }
+    }
+}
+
 /// Render a prefixed annotation line: `"● label"` with symbol styling and dim content.
 fn push_annotation_lines(
     lines: &mut Vec<Line>,
@@ -638,6 +780,7 @@ fn push_annotation_lines(
     );
 }
 
+#[allow(clippy::too_many_arguments)]
 fn push_annotation_lines_inner(
     lines: &mut Vec<Line>,
     sidebar_style: Style,
