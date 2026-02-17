@@ -10,8 +10,8 @@ use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus};
 
 use super::common::{
-    BRAILLE_SPINNER_FRAMES, NUM_GUTTER, SIDEBAR_CHAR, THINKING_FRAMES, TOOL_CALL_FRAMES, dim,
-    wrap_content,
+    BRAILLE_SPINNER_FRAMES, DelimiterDisplay, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
+    THINKING_FRAMES, TOOL_CALL_FRAMES, dim, style_inline_markdown, wrap_content,
 };
 use super::markdown::MdRenderCache;
 
@@ -223,14 +223,14 @@ fn exchange_lines(
             } else {
                 Span::raw(num_padding)
             };
+            let mut line_spans = vec![
+                num_col,
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+            ];
+            line_spans.extend(style_inline_markdown(&chunk, InlineStyleMode::Normal, DelimiterDisplay::Show));
             lines.push(
-                Line::from(vec![
-                    num_col,
-                    Span::styled(SIDEBAR_CHAR, sidebar_style),
-                    Span::raw(" "),
-                    Span::raw(chunk),
-                ])
-                .style(Style::new().bg(super::common::INPUT_BG)),
+                Line::from(line_spans).style(Style::new().bg(super::common::INPUT_BG)),
             );
         }
     }
@@ -523,7 +523,7 @@ fn thinking_segment(
                     continue;
                 }
                 let prefix = if first_source_line { '\u{21b3}' } else { ' ' };
-                push_annotation_lines(
+                push_annotation_lines_inner(
                     lines,
                     dim_sidebar_style,
                     prefix,
@@ -531,6 +531,7 @@ fn thinking_segment(
                     source_line,
                     dim(),
                     content_width,
+                    Some(InlineStyleMode::Muted),
                 );
                 visual_count += wc;
                 first_source_line = false;
@@ -584,7 +585,7 @@ fn thinking_segment(
                 } else {
                     ' '
                 };
-                push_annotation_lines(
+                push_annotation_lines_inner(
                     lines,
                     dim_sidebar_style,
                     prefix,
@@ -592,6 +593,7 @@ fn thinking_segment(
                     source_line,
                     dim(),
                     content_width,
+                    Some(InlineStyleMode::Muted),
                 );
             }
         }
@@ -624,6 +626,28 @@ fn push_annotation_lines(
     content_style: Style,
     content_width: usize,
 ) {
+    push_annotation_lines_inner(
+        lines,
+        sidebar_style,
+        symbol,
+        symbol_style,
+        content,
+        content_style,
+        content_width,
+        None,
+    );
+}
+
+fn push_annotation_lines_inner(
+    lines: &mut Vec<Line>,
+    sidebar_style: Style,
+    symbol: char,
+    symbol_style: Style,
+    content: &str,
+    content_style: Style,
+    content_width: usize,
+    inline_md: Option<InlineStyleMode>,
+) {
     let num_padding = "   ";
     let avail = content_width.saturating_sub(2); // "● " prefix
     let chunks = wrap_content(content, avail);
@@ -633,12 +657,20 @@ fn push_annotation_lines(
         } else {
             Span::raw("  ")
         };
-        lines.push(Line::from(vec![
+        let mut line_spans = vec![
             Span::raw(num_padding),
             Span::styled(SIDEBAR_CHAR, sidebar_style),
             Span::raw(" "),
             prefix,
-            Span::styled(chunk.clone(), content_style),
-        ]));
+        ];
+        if let Some(mode) = inline_md {
+            for mut span in style_inline_markdown(chunk, mode, DelimiterDisplay::Hide) {
+                span.style = content_style.patch(span.style);
+                line_spans.push(span);
+            }
+        } else {
+            line_spans.push(Span::styled(chunk.clone(), content_style));
+        }
+        lines.push(Line::from(line_spans));
     }
 }

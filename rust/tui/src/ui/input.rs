@@ -9,8 +9,8 @@ use ratatui::{
 use crate::app::{AgentSession, App, AppMode, ExchangeKind};
 
 use super::common::{
-    BRAILLE_SPINNER_FRAMES, INPUT_BG, NUM_GUTTER, SIDEBAR_CHAR, cursor_position_wrapped, dim,
-    visual_line_count, wrap_content,
+    BRAILLE_SPINNER_FRAMES, DelimiterDisplay, INPUT_BG, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
+    cursor_position_wrapped, dim, style_inline_markdown, visual_line_count, wrap_content,
 };
 
 const MAX_GHOST_LINES: usize = 3;
@@ -151,7 +151,8 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             visual_lines.push(Line::from(String::new()));
         } else {
             for chunk in wrap_content(logical_line, wrap_width) {
-                visual_lines.push(Line::from(chunk));
+                visual_lines
+                    .push(Line::from(style_inline_markdown(&chunk, InlineStyleMode::Normal, DelimiterDisplay::Show)));
             }
         }
     }
@@ -174,11 +175,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
         if let Some(first_chunk) = chunks_iter.next()
             && let Some(last) = visual_lines.last_mut()
         {
-            let existing: String = last.spans.iter().map(|s| s.content.as_ref()).collect();
-            *last = Line::from(vec![
-                Span::raw(existing),
-                Span::styled(first_chunk, dim_style),
-            ]);
+            last.spans.push(Span::styled(first_chunk, dim_style));
         }
 
         // Add remaining ghost chunks as new visual lines
