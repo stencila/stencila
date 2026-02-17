@@ -76,8 +76,8 @@ impl HandlerRegistry {
     }
 
     /// Create a registry pre-loaded with the built-in handlers:
-    /// `start`, `exit`, `conditional`, `codergen` (simulation), `tool`,
-    /// and `parallel.fan_in`.
+    /// `start`, `exit`, `fail`, `conditional`, `codergen` (simulation),
+    /// `tool`, and `parallel.fan_in`.
     ///
     /// Handlers that require runtime dependencies are not included:
     /// - `parallel` — requires `Arc<HandlerRegistry>` + `Arc<dyn EventEmitter>`
@@ -89,6 +89,7 @@ impl HandlerRegistry {
         let mut registry = Self::new();
         registry.register("start", handlers::StartHandler);
         registry.register("exit", handlers::ExitHandler);
+        registry.register("fail", handlers::FailHandler);
         registry.register("conditional", handlers::ConditionalHandler);
         registry.register("codergen", handlers::CodergenHandler::simulation());
         registry.register("tool", handlers::ToolHandler);
@@ -122,7 +123,7 @@ impl HandlerRegistry {
             return Some(handler.clone());
         }
 
-        // Step 2: well-known start/exit IDs (only for default "box" shape)
+        // Step 2: well-known start/exit/fail IDs (only for default "box" shape)
         if node.shape() == "box" {
             if crate::Graph::START_IDS.contains(&node.id.as_str())
                 && let Some(handler) = self.handlers.get("start")
@@ -131,6 +132,11 @@ impl HandlerRegistry {
             }
             if crate::Graph::EXIT_IDS.contains(&node.id.as_str())
                 && let Some(handler) = self.handlers.get("exit")
+            {
+                return Some(handler.clone());
+            }
+            if crate::Graph::FAIL_IDS.contains(&node.id.as_str())
+                && let Some(handler) = self.handlers.get("fail")
             {
                 return Some(handler.clone());
             }

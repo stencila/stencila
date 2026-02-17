@@ -3,6 +3,7 @@
 //! These handlers cover the structural and execution node types:
 //! - [`StartHandler`] — pipeline entry point
 //! - [`ExitHandler`] — pipeline termination
+//! - [`FailHandler`] — explicit pipeline failure
 //! - [`ConditionalHandler`] — routing decision point
 //! - [`CodergenHandler`] — LLM code generation
 //! - [`ToolHandler`] — shell command execution
@@ -13,6 +14,7 @@
 mod codergen;
 mod conditional;
 mod exit;
+mod fail;
 mod fan_in;
 mod parallel;
 mod start;
@@ -22,6 +24,7 @@ mod wait_human;
 pub use codergen::{CodergenBackend, CodergenHandler, CodergenResponse};
 pub use conditional::ConditionalHandler;
 pub use exit::ExitHandler;
+pub use fail::FailHandler;
 pub use fan_in::FanInHandler;
 pub use parallel::{DEFAULT_MAX_PARALLEL, ParallelHandler};
 pub use start::StartHandler;

@@ -208,7 +208,7 @@ impl Node {
     ///
     /// Resolution order:
     /// 1. Explicit `type` attribute
-    /// 2. Start/exit node matched by well-known ID (e.g. `Start`, `End`)
+    /// 2. Start/exit/fail node matched by well-known ID (e.g. `Start`, `End`, `Fail`)
     /// 3. Shape-based mapping per §2.8
     #[must_use]
     pub fn handler_type(&self) -> &str {
@@ -221,6 +221,9 @@ impl Node {
         if Graph::EXIT_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
             return "exit";
         }
+        if Graph::FAIL_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
+            return "fail";
+        }
         shape_to_handler_type(self.shape())
     }
 }
@@ -230,6 +233,7 @@ pub(crate) fn shape_to_handler_type(shape: &str) -> &'static str {
     match shape {
         "Mdiamond" => "start",
         "Msquare" => "exit",
+        "invtriangle" => "fail",
         "hexagon" | "human" => "wait.human",
         "diamond" => "conditional",
         "component" => "parallel",
@@ -376,6 +380,12 @@ impl Graph {
     /// Fallback IDs identifying an exit node.
     pub const EXIT_IDS: &'static [&'static str] = &["exit", "Exit", "end", "End"];
 
+    /// Shape identifying a fail node.
+    pub const FAIL_SHAPE: &'static str = "invtriangle";
+
+    /// Fallback IDs identifying a fail node.
+    pub const FAIL_IDS: &'static [&'static str] = &["fail", "Fail"];
+
     /// Check whether a node is a start node (by shape or ID).
     #[must_use]
     pub fn is_start_node(node: &Node) -> bool {
@@ -386,6 +396,12 @@ impl Graph {
     #[must_use]
     pub fn is_exit_node(node: &Node) -> bool {
         node.shape() == Self::EXIT_SHAPE || Self::EXIT_IDS.contains(&node.id.as_str())
+    }
+
+    /// Check whether a node is a fail node (by shape or ID).
+    #[must_use]
+    pub fn is_fail_node(node: &Node) -> bool {
+        node.shape() == Self::FAIL_SHAPE || Self::FAIL_IDS.contains(&node.id.as_str())
     }
 
     /// Find the start node of the pipeline.
@@ -454,6 +470,14 @@ mod tests {
         for id in ["exit", "Exit", "end", "End"] {
             let node = Node::new(id);
             assert_eq!(node.handler_type(), "exit", "failed for id={id}");
+        }
+    }
+
+    #[test]
+    fn handler_type_fail_by_id() {
+        for id in ["fail", "Fail"] {
+            let node = Node::new(id);
+            assert_eq!(node.handler_type(), "fail", "failed for id={id}");
         }
     }
 

@@ -360,6 +360,7 @@ impl LintRule for StylesheetSyntaxRule {
 const KNOWN_HANDLER_TYPES: &[&str] = &[
     "start",
     "exit",
+    "fail",
     "conditional",
     "codergen",
     "tool",

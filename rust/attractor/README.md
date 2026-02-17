@@ -47,9 +47,15 @@ For nested subgraphs, if an inner subgraph has no label-derived class, nodes inh
 
 The fidelity/thread resolver supports a graph attribute `default_thread_id` as the graph-level default thread key used in `full` fidelity thread resolution.
 
-### Start and exit ID fallbacks
+### Start, exit, and fail ID fallbacks
 
-Start and exit detection accepts canonical ID aliases (`start`/`Start` and `exit`/`Exit`/`end`/`End`) in addition to shape-based detection.
+Start, exit, and fail detection accepts canonical ID aliases (`start`/`Start`, `exit`/`Exit`/`end`/`End`, and `fail`/`Fail`) in addition to shape-based detection.
+
+### Fail node
+
+The attractor spec has no dedicated node type for declaring explicit failure. The spec's failure mechanisms (§3.7) cover *routing after* a handler fails, but the only way to produce a FAIL outcome is through a handler that actually errors (e.g., a tool with a non-zero exit code). This means pipelines that need an explicit failure path must use workarounds like `type="tool", tool_command="exit 1"`.
+
+The `fail` handler type fills this gap by providing a first-class failure node, mirroring the `start`/`exit` pattern. A node is recognized as a fail node by shape (`invtriangle`), by ID (`fail` or `Fail`), or by explicit `type="fail"`. The handler returns `Outcome::fail()`, terminating the pipeline with a failure status.
 
 ### Runtime variable expansion in prompts
 
@@ -258,3 +264,7 @@ cargo fmt -p stencila-attractor
 cargo clippy --fix --allow-dirty --all-targets -p stencila-attractor
 cargo test -p stencila-attractor
 ```
+
+### Documentation
+
+User-facing pipeline features (new node types, attributes, shapes, workflow patterns) are documented in `site/docs/workflows/`. If you make changes that affect how users write or run pipelines, update the relevant docs there as well, in particular `site/docs/workflows/pipelines.md`.
