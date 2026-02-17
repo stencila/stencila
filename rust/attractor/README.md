@@ -53,7 +53,7 @@ Start, exit, and fail detection accepts canonical ID aliases (`start`/`Start`, `
 
 ### Fail node
 
-The attractor spec has no dedicated node type for declaring explicit failure. The spec's failure mechanisms (§3.7) cover *routing after* a handler fails, but the only way to produce a FAIL outcome is through a handler that actually errors (e.g., a tool with a non-zero exit code). This means pipelines that need an explicit failure path must use workarounds like `type="tool", tool_command="exit 1"`.
+The attractor spec has no dedicated node type for declaring explicit failure. The spec's failure mechanisms (§3.7) cover *routing after* a handler fails, but the only way to produce a FAIL outcome is through a handler that actually errors (e.g., a shell node with a non-zero exit code). This means pipelines that need an explicit failure path must use workarounds like `type="shell", shell_command="exit 1"`.
 
 The `fail` handler type fills this gap by providing a first-class failure node, mirroring the `start`/`exit` pattern. A node is recognized as a fail node by shape (`invtriangle`), by ID (`fail` or `Fail`), or by explicit `type="fail"`. The handler returns `Outcome::fail()`, terminating the pipeline with a failure status.
 
@@ -84,6 +84,10 @@ Outcome deserialization accepts both `preferred_next_label` (spec field name) an
 ## Deviations
 
 These are intentional deviations from the spec.
+
+### Shell handler type (spec: `tool`)
+
+The spec calls the `parallelogram`-shaped handler type `tool` (§4.10). This implementation renames it to `shell` because the handler exclusively runs shell commands via `sh -c`, and the name "tool" creates confusion with LLM tool calls (function calling) used in the codergen handler and elsewhere. The node attribute is `shell_command` (spec: `tool_command`) and the context key is `shell.output` (spec: `tool.output`).
 
 ### Nested block comments
 
@@ -143,7 +147,7 @@ During run initialization, `graph.*` keys are mirrored into context as strings v
 
 ### Node `timeout` enforcement is not centralized (§2.6, §4.*)
 
-There is no engine-level timeout wrapper applied uniformly to all handlers. `tool` applies `timeout`; other handlers generally do not enforce node-level timeouts.
+There is no engine-level timeout wrapper applied uniformly to all handlers. `shell` applies `timeout`; other handlers generally do not enforce node-level timeouts.
 
 ### Auto-status synthesis (§2.6, Appendix C)
 
@@ -247,7 +251,7 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `tests/spec_1_types.rs`     | §2.4, §5.1–5.3, App D | Core types, context, checkpoint                       |
 | `tests/spec_2_parser.rs`    | §2.1–2.13, App A–B | DOT parser and graph model                            |
 | `tests/spec_3_engine.rs`    | §3.1–3.8, §4.1–4.4 | Edge selection, engine core, retry, basic handlers    |
-| `tests/spec_4_handlers.rs`  | §4.5, §4.10        | Codergen and tool handlers                            |
+| `tests/spec_4_handlers.rs`  | §4.5, §4.10        | Codergen and shell handlers                           |
 | `tests/spec_4_parallel.rs`  | §4.8–4.9           | Parallel fan-out, fan-in, join/error policies         |
 | `tests/spec_5_state.rs`     | §5.3–5.5           | Artifacts, fidelity, thread IDs, checkpoint resume    |
 | `tests/spec_6_human.rs`     | §4.6, §6           | Interviewers, WaitForHuman handler, accelerator keys  |

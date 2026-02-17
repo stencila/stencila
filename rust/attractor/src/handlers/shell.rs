@@ -1,4 +1,4 @@
-//! Tool handler (§4.10).
+//! Shell handler (§4.10).
 //!
 //! Executes shell commands specified in node attributes. Captures
 //! stdout and stderr, with optional timeout support.
@@ -14,15 +14,15 @@ use crate::graph::{Graph, Node};
 use crate::handler::Handler;
 use crate::types::Outcome;
 
-/// Handler for tool (shell command) nodes.
+/// Handler for shell command nodes.
 ///
-/// Reads the `tool_command` attribute from the node and executes it
+/// Reads the `shell_command` attribute from the node and executes it
 /// via `sh -c`. An optional `timeout` attribute (duration) limits
 /// execution time.
-pub struct ToolHandler;
+pub struct ShellHandler;
 
 #[async_trait]
-impl Handler for ToolHandler {
+impl Handler for ShellHandler {
     async fn execute(
         &self,
         node: &Node,
@@ -30,9 +30,9 @@ impl Handler for ToolHandler {
         _graph: &Graph,
         _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
-        let Some(command) = node.get_str_attr("tool_command") else {
+        let Some(command) = node.get_str_attr("shell_command") else {
             return Ok(Outcome::fail(format!(
-                "node '{}' has type 'tool' but no 'tool_command' attribute",
+                "node '{}' has type 'shell' but no 'shell_command' attribute",
                 node.id
             )));
         };
@@ -53,7 +53,7 @@ impl Handler for ToolHandler {
                     let mut outcome = Outcome::success();
                     outcome.context_updates = IndexMap::new();
                     outcome.context_updates.insert(
-                        "tool.output".to_string(),
+                        "shell.output".to_string(),
                         serde_json::Value::String(output.stdout),
                     );
                     Ok(outcome)

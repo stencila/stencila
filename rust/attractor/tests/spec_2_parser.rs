@@ -832,7 +832,7 @@ fn handler_type_from_shape() -> TestResult {
         g.get_node("g").ok_or("g")?.handler_type(),
         "parallel.fan_in"
     );
-    assert_eq!(g.get_node("h").ok_or("h")?.handler_type(), "tool");
+    assert_eq!(g.get_node("h").ok_or("h")?.handler_type(), "shell");
     assert_eq!(
         g.get_node("i").ok_or("i")?.handler_type(),
         "stack.manager_loop"

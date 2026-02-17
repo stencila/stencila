@@ -238,7 +238,7 @@ pub(crate) fn shape_to_handler_type(shape: &str) -> &'static str {
         "diamond" => "conditional",
         "component" => "parallel",
         "tripleoctagon" => "parallel.fan_in",
-        "parallelogram" => "tool",
+        "parallelogram" => "shell",
         "house" => "stack.manager_loop",
         // "box" and all unknown shapes default to codergen
         _ => "codergen",
@@ -447,8 +447,8 @@ mod tests {
     fn handler_type_explicit_type_attr() {
         let mut node = Node::new("n1");
         node.attrs
-            .insert("type".into(), AttrValue::String("tool".into()));
-        assert_eq!(node.handler_type(), "tool");
+            .insert("type".into(), AttrValue::String("shell".into()));
+        assert_eq!(node.handler_type(), "shell");
     }
 
     #[test]

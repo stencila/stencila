@@ -23,7 +23,7 @@ use crate::types::Outcome;
 ///
 /// Handlers are the core extension point. Built-in handlers cover
 /// start, exit, and conditional nodes; external handlers implement
-/// LLM calls, tool execution, parallel fan-out, etc.
+/// LLM calls, shell execution, parallel fan-out, etc.
 #[async_trait]
 pub trait Handler: Send + Sync {
     /// Execute the given node and return an outcome.
@@ -77,7 +77,7 @@ impl HandlerRegistry {
 
     /// Create a registry pre-loaded with the built-in handlers:
     /// `start`, `exit`, `fail`, `conditional`, `codergen` (simulation),
-    /// `tool`, and `parallel.fan_in`.
+    /// `shell`, and `parallel.fan_in`.
     ///
     /// Handlers that require runtime dependencies are not included:
     /// - `parallel` — requires `Arc<HandlerRegistry>` + `Arc<dyn EventEmitter>`
@@ -92,7 +92,7 @@ impl HandlerRegistry {
         registry.register("fail", handlers::FailHandler);
         registry.register("conditional", handlers::ConditionalHandler);
         registry.register("codergen", handlers::CodergenHandler::simulation());
-        registry.register("tool", handlers::ToolHandler);
+        registry.register("shell", handlers::ShellHandler);
         registry.register("parallel.fan_in", handlers::FanInHandler);
         registry
     }

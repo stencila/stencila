@@ -53,7 +53,7 @@ impl EngineConfig {
     /// default handler registry, default transforms, and no-op event emitter.
     ///
     /// The default registry includes handlers for `start`, `exit`,
-    /// `conditional`, `codergen` (simulation mode), `tool`, and
+    /// `conditional`, `codergen` (simulation mode), `shell`, and
     /// `parallel.fan_in`. Handlers that require runtime dependencies
     /// are **not** included: `parallel` (needs `Arc<HandlerRegistry>` +
     /// `Arc<dyn EventEmitter>`) and `wait.human` (needs `Arc<dyn

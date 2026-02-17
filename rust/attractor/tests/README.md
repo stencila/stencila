@@ -9,7 +9,7 @@ Test files are named `spec_N_<topic>.rs` where `N` maps to the primary spec sect
 | `spec_1_types.rs`          | §2.4, §5.1–5.3, App D | Core types, context, checkpoint                    |
 | `spec_2_parser.rs`         | §2.1–2.13, App A–B | DOT parser and graph model                            |
 | `spec_3_engine.rs`         | §3.1–3.8, §4.1–4.4 | Edge selection, engine core, retry, basic handlers    |
-| `spec_4_handlers.rs`       | §4.5, §4.10        | Codergen, tool handlers, variable expansion           |
+| `spec_4_handlers.rs`       | §4.5, §4.10        | Codergen, shell handlers, variable expansion          |
 | `spec_4_parallel.rs`       | §4.8–4.9           | Parallel fan-out, join/error policies, max_parallel, fan-in tie-breaks |
 | `spec_5_state.rs`          | §5.3–5.5           | Checkpoint resume, fidelity modes, artifact store     |
 | `spec_6_human.rs`          | §6, §4.6           | Human-in-the-loop, interviewer implementations        |

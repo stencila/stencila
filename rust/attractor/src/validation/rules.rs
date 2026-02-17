@@ -363,7 +363,7 @@ const KNOWN_HANDLER_TYPES: &[&str] = &[
     "fail",
     "conditional",
     "codergen",
-    "tool",
+    "shell",
     "wait.human",
     "parallel",
     "parallel.fan_in",

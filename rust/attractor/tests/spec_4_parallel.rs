@@ -56,7 +56,7 @@ fn parallel_graph(targets: &[&str]) -> Graph {
     g
 }
 
-/// Build a registry with defaults (start, exit, conditional, codergen, tool).
+/// Build a registry with defaults (start, exit, conditional, codergen, shell).
 fn default_registry() -> Arc<HandlerRegistry> {
     Arc::new(HandlerRegistry::with_defaults())
 }

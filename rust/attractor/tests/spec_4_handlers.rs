@@ -1,4 +1,4 @@
-//! Tests for codergen handler (§4.5) and tool handler (§4.10).
+//! Tests for codergen handler (§4.5) and shell handler (§4.10).
 
 mod common;
 
@@ -12,7 +12,7 @@ use stencila_attractor::error::{AttractorError, AttractorResult};
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
 use stencila_attractor::handler::Handler;
 use stencila_attractor::handlers::{
-    CodergenBackend, CodergenHandler, CodergenResponse, ToolHandler,
+    CodergenBackend, CodergenHandler, CodergenResponse, ShellHandler,
 };
 use stencila_attractor::types::{Duration, Outcome, StageStatus};
 
@@ -409,16 +409,16 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
 }
 
 // ===========================================================================
-// Tool handler tests
+// Shell handler tests
 // ===========================================================================
 
 #[tokio::test]
-async fn tool_executes_command() -> AttractorResult<()> {
+async fn shell_executes_command() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
-    let handler = ToolHandler;
+    let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs
-        .insert("tool_command".into(), AttrValue::from("echo hello"));
+        .insert("shell_command".into(), AttrValue::from("echo hello"));
     let ctx = Context::new();
     let g = Graph::new("test");
 
@@ -428,12 +428,12 @@ async fn tool_executes_command() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn tool_captures_stdout() -> AttractorResult<()> {
+async fn shell_captures_stdout() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
-    let handler = ToolHandler;
+    let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs
-        .insert("tool_command".into(), AttrValue::from("echo hello"));
+        .insert("shell_command".into(), AttrValue::from("echo hello"));
     let ctx = Context::new();
     let g = Graph::new("test");
 
@@ -441,7 +441,7 @@ async fn tool_captures_stdout() -> AttractorResult<()> {
 
     let output = outcome
         .context_updates
-        .get("tool.output")
+        .get("shell.output")
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert_eq!(output.trim(), "hello");
@@ -449,26 +449,26 @@ async fn tool_captures_stdout() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn tool_missing_command() -> AttractorResult<()> {
+async fn shell_missing_command() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
-    let handler = ToolHandler;
-    let node = Node::new("tool1"); // No tool_command
+    let handler = ShellHandler;
+    let node = Node::new("tool1"); // No shell_command
     let ctx = Context::new();
     let g = Graph::new("test");
 
     let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
     assert_eq!(outcome.status, StageStatus::Fail);
-    assert!(outcome.failure_reason.contains("tool_command"));
+    assert!(outcome.failure_reason.contains("shell_command"));
     Ok(())
 }
 
 #[tokio::test]
-async fn tool_nonzero_exit() -> AttractorResult<()> {
+async fn shell_nonzero_exit() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
-    let handler = ToolHandler;
+    let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs.insert(
-        "tool_command".into(),
+        "shell_command".into(),
         AttrValue::from("echo fail >&2 && exit 1"),
     );
     let ctx = Context::new();
@@ -481,15 +481,15 @@ async fn tool_nonzero_exit() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn tool_timeout_expires() -> AttractorResult<()> {
+async fn shell_timeout_expires() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
-    let handler = ToolHandler;
+    let handler = ShellHandler;
     let g = Graph::new("test");
 
     // Duration variant (unquoted in DOT: timeout=100ms)
     let mut node = Node::new("tool1");
     node.attrs
-        .insert("tool_command".into(), AttrValue::from("sleep 10"));
+        .insert("shell_command".into(), AttrValue::from("sleep 10"));
     node.attrs.insert(
         "timeout".into(),
         AttrValue::Duration(Duration::from_spec_str("100ms")?),
@@ -503,7 +503,7 @@ async fn tool_timeout_expires() -> AttractorResult<()> {
     // String variant (quoted in DOT: timeout="100ms")
     let mut node = Node::new("tool2");
     node.attrs
-        .insert("tool_command".into(), AttrValue::from("sleep 10"));
+        .insert("shell_command".into(), AttrValue::from("sleep 10"));
     node.attrs
         .insert("timeout".into(), AttrValue::from("100ms"));
     let outcome = handler
@@ -516,12 +516,12 @@ async fn tool_timeout_expires() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn tool_empty_stdout() -> AttractorResult<()> {
+async fn shell_empty_stdout() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
-    let handler = ToolHandler;
+    let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs
-        .insert("tool_command".into(), AttrValue::from("true"));
+        .insert("shell_command".into(), AttrValue::from("true"));
     let ctx = Context::new();
     let g = Graph::new("test");
 
@@ -530,7 +530,7 @@ async fn tool_empty_stdout() -> AttractorResult<()> {
 
     let output = outcome
         .context_updates
-        .get("tool.output")
+        .get("shell.output")
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert!(output.is_empty());
@@ -538,7 +538,7 @@ async fn tool_empty_stdout() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn tool_end_to_end() -> AttractorResult<()> {
+async fn shell_end_to_end() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
 
     let mut middle = Node::new("middle");
@@ -547,7 +547,7 @@ async fn tool_end_to_end() -> AttractorResult<()> {
         .insert("shape".into(), AttrValue::from("parallelogram"));
     middle
         .attrs
-        .insert("tool_command".into(), AttrValue::from("echo done"));
+        .insert("shell_command".into(), AttrValue::from("echo done"));
     let g = pipeline_with_middle(middle);
 
     let config = EngineConfig::new(tmp.path());
