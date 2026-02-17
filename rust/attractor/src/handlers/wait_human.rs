@@ -164,7 +164,7 @@ impl Handler for WaitForHumanHandler {
         self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
             node_id: node.id.clone(),
         });
-        let answer = self.interviewer.ask(&question);
+        let answer = self.interviewer.ask(&question).await;
 
         // 4. Handle timeout/skip
         if answer.is_timeout() {

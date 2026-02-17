@@ -122,24 +122,24 @@ fn answer_with_option() {
 // §6.4 — AutoApproveInterviewer
 // ===========================================================================
 
-#[test]
-fn auto_approve_yes_no() {
+#[tokio::test]
+async fn auto_approve_yes_no() {
     let interviewer = AutoApproveInterviewer;
     let q = Question::yes_no("Proceed?", "stage");
-    let answer = interviewer.ask(&q);
+    let answer = interviewer.ask(&q).await;
     assert_eq!(answer.value, AnswerValue::Yes);
 }
 
-#[test]
-fn auto_approve_confirmation() {
+#[tokio::test]
+async fn auto_approve_confirmation() {
     let interviewer = AutoApproveInterviewer;
     let q = Question::confirmation("Confirm?", "stage");
-    let answer = interviewer.ask(&q);
+    let answer = interviewer.ask(&q).await;
     assert_eq!(answer.value, AnswerValue::Yes);
 }
 
-#[test]
-fn auto_approve_multiple_choice_selects_first() {
+#[tokio::test]
+async fn auto_approve_multiple_choice_selects_first() {
     let interviewer = AutoApproveInterviewer;
     let opts = vec![
         QuestionOption {
@@ -152,7 +152,7 @@ fn auto_approve_multiple_choice_selects_first() {
         },
     ];
     let q = Question::multiple_choice("Pick:", opts, "stage");
-    let answer = interviewer.ask(&q);
+    let answer = interviewer.ask(&q).await;
     assert_eq!(answer.value, AnswerValue::Selected("A".into()));
     assert!(answer.selected_option.is_some());
     assert_eq!(
@@ -161,19 +161,19 @@ fn auto_approve_multiple_choice_selects_first() {
     );
 }
 
-#[test]
-fn auto_approve_multiple_choice_no_options() {
+#[tokio::test]
+async fn auto_approve_multiple_choice_no_options() {
     let interviewer = AutoApproveInterviewer;
     let q = Question::multiple_choice("Pick:", vec![], "stage");
-    let answer = interviewer.ask(&q);
+    let answer = interviewer.ask(&q).await;
     assert_eq!(answer.value, AnswerValue::Text("auto-approved".into()));
 }
 
-#[test]
-fn auto_approve_freeform() {
+#[tokio::test]
+async fn auto_approve_freeform() {
     let interviewer = AutoApproveInterviewer;
     let q = Question::freeform("Name?", "stage");
-    let answer = interviewer.ask(&q);
+    let answer = interviewer.ask(&q).await;
     assert_eq!(answer.value, AnswerValue::Text("auto-approved".into()));
 }
 
@@ -181,8 +181,8 @@ fn auto_approve_freeform() {
 // §6.4 — QueueInterviewer
 // ===========================================================================
 
-#[test]
-fn queue_fifo_order() {
+#[tokio::test]
+async fn queue_fifo_order() {
     let q1 = Answer::new(AnswerValue::Yes);
     let q2 = Answer::new(AnswerValue::No);
     let q3 = Answer::new(AnswerValue::Text("hello".into()));
@@ -191,33 +191,33 @@ fn queue_fifo_order() {
     assert_eq!(interviewer.remaining(), 3);
 
     let q = Question::yes_no("Q1?", "s");
-    let a1 = interviewer.ask(&q);
+    let a1 = interviewer.ask(&q).await;
     assert_eq!(a1.value, AnswerValue::Yes);
 
-    let a2 = interviewer.ask(&q);
+    let a2 = interviewer.ask(&q).await;
     assert_eq!(a2.value, AnswerValue::No);
 
-    let a3 = interviewer.ask(&q);
+    let a3 = interviewer.ask(&q).await;
     assert_eq!(a3.value, AnswerValue::Text("hello".into()));
 
     assert_eq!(interviewer.remaining(), 0);
 }
 
-#[test]
-fn queue_returns_skipped_when_empty() {
+#[tokio::test]
+async fn queue_returns_skipped_when_empty() {
     let interviewer = QueueInterviewer::new(vec![]);
     let q = Question::yes_no("Q?", "s");
-    let answer = interviewer.ask(&q);
+    let answer = interviewer.ask(&q).await;
     assert_eq!(answer.value, AnswerValue::Skipped);
 }
 
-#[test]
-fn queue_exhaustion_returns_skipped() {
+#[tokio::test]
+async fn queue_exhaustion_returns_skipped() {
     let interviewer = QueueInterviewer::new(vec![Answer::new(AnswerValue::Yes)]);
     let q = Question::yes_no("Q?", "s");
 
-    let _ = interviewer.ask(&q); // consume the one answer
-    let answer = interviewer.ask(&q); // now empty
+    let _ = interviewer.ask(&q).await; // consume the one answer
+    let answer = interviewer.ask(&q).await; // now empty
     assert_eq!(answer.value, AnswerValue::Skipped);
 }
 
@@ -225,8 +225,8 @@ fn queue_exhaustion_returns_skipped() {
 // §6.4 — CallbackInterviewer
 // ===========================================================================
 
-#[test]
-fn callback_delegates_to_function() {
+#[tokio::test]
+async fn callback_delegates_to_function() {
     let interviewer = CallbackInterviewer::new(|q: &Question| {
         if q.question_type == QuestionType::YesNo {
             Answer::new(AnswerValue::No)
@@ -236,11 +236,11 @@ fn callback_delegates_to_function() {
     });
 
     let yes_no = Question::yes_no("Q?", "s");
-    assert_eq!(interviewer.ask(&yes_no).value, AnswerValue::No);
+    assert_eq!(interviewer.ask(&yes_no).await.value, AnswerValue::No);
 
     let freeform = Question::freeform("Q?", "s");
     assert_eq!(
-        interviewer.ask(&freeform).value,
+        interviewer.ask(&freeform).await.value,
         AnswerValue::Text("callback".into())
     );
 }
@@ -249,17 +249,17 @@ fn callback_delegates_to_function() {
 // §6.4 — RecordingInterviewer
 // ===========================================================================
 
-#[test]
-fn recording_records_interactions() {
+#[tokio::test]
+async fn recording_records_interactions() {
     let inner = AutoApproveInterviewer;
     let recording = RecordingInterviewer::new(inner);
 
     let q1 = Question::yes_no("Deploy?", "stage");
-    let a1 = recording.ask(&q1);
+    let a1 = recording.ask(&q1).await;
     assert_eq!(a1.value, AnswerValue::Yes);
 
     let q2 = Question::freeform("Name?", "stage");
-    let a2 = recording.ask(&q2);
+    let a2 = recording.ask(&q2).await;
     assert_eq!(a2.value, AnswerValue::Text("auto-approved".into()));
 
     let recs = recording.recordings();
@@ -269,8 +269,8 @@ fn recording_records_interactions() {
     assert_eq!(recs[1].question_text, "Name?");
 }
 
-#[test]
-fn recording_delegates_to_inner() {
+#[tokio::test]
+async fn recording_delegates_to_inner() {
     let inner = QueueInterviewer::new(vec![
         Answer::new(AnswerValue::Text("first".into())),
         Answer::new(AnswerValue::Text("second".into())),
@@ -278,8 +278,14 @@ fn recording_delegates_to_inner() {
     let recording = RecordingInterviewer::new(inner);
 
     let q = Question::freeform("Q?", "s");
-    assert_eq!(recording.ask(&q).value, AnswerValue::Text("first".into()));
-    assert_eq!(recording.ask(&q).value, AnswerValue::Text("second".into()));
+    assert_eq!(
+        recording.ask(&q).await.value,
+        AnswerValue::Text("first".into())
+    );
+    assert_eq!(
+        recording.ask(&q).await.value,
+        AnswerValue::Text("second".into())
+    );
 
     let recs = recording.recordings();
     assert_eq!(recs.len(), 2);
@@ -289,11 +295,11 @@ fn recording_delegates_to_inner() {
 // Interviewer default methods
 // ===========================================================================
 
-#[test]
-fn ask_multiple_default() {
+#[tokio::test]
+async fn ask_multiple_default() {
     let interviewer = AutoApproveInterviewer;
     let questions = vec![Question::yes_no("Q1?", "s"), Question::freeform("Q2?", "s")];
-    let answers = interviewer.ask_multiple(&questions);
+    let answers = interviewer.ask_multiple(&questions).await;
     assert_eq!(answers.len(), 2);
     assert_eq!(answers[0].value, AnswerValue::Yes);
     assert_eq!(answers[1].value, AnswerValue::Text("auto-approved".into()));

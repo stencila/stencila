@@ -5,6 +5,8 @@
 
 use std::sync::Mutex;
 
+use async_trait::async_trait;
+
 use crate::interviewer::{Answer, AnswerValue, Interviewer, Question};
 
 /// An interviewer that dequeues pre-filled answers.
@@ -44,8 +46,9 @@ impl QueueInterviewer {
     }
 }
 
+#[async_trait]
 impl Interviewer for QueueInterviewer {
-    fn ask(&self, _question: &Question) -> Answer {
+    async fn ask(&self, _question: &Question) -> Answer {
         let mut queue = self
             .answers
             .lock()

@@ -6,6 +6,8 @@
 
 use std::fmt;
 
+use async_trait::async_trait;
+
 /// The type of question being asked (§6.2).
 // TODO(spec-ambiguity): §6.2 defines YES_NO/MULTIPLE_CHOICE/FREEFORM/CONFIRMATION
 // but §11.8 uses SINGLE_SELECT/MULTI_SELECT/FREE_TEXT/CONFIRM. Using §6.2 names
@@ -192,15 +194,20 @@ impl Answer {
 ///
 /// Implementations provide different ways of presenting questions
 /// to humans: CLI, web UI, pre-filled queues for testing, etc.
+#[async_trait]
 pub trait Interviewer: Send + Sync {
     /// Ask a single question and wait for an answer.
-    fn ask(&self, question: &Question) -> Answer;
+    async fn ask(&self, question: &Question) -> Answer;
 
     /// Ask multiple questions and return answers in order.
     ///
     /// Default implementation calls [`ask`](Self::ask) for each question.
-    fn ask_multiple(&self, questions: &[Question]) -> Vec<Answer> {
-        questions.iter().map(|q| self.ask(q)).collect()
+    async fn ask_multiple(&self, questions: &[Question]) -> Vec<Answer> {
+        let mut answers = Vec::with_capacity(questions.len());
+        for q in questions {
+            answers.push(self.ask(q).await);
+        }
+        answers
     }
 
     /// Send a one-way informational message (no response expected).

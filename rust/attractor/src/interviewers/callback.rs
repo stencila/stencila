@@ -3,6 +3,8 @@
 //! Delegates question answering to a provided callback function.
 //! Useful for integrating with external systems.
 
+use async_trait::async_trait;
+
 use crate::interviewer::{Answer, Interviewer, Question};
 
 /// An interviewer that delegates to a callback function.
@@ -26,8 +28,9 @@ impl CallbackInterviewer {
     }
 }
 
+#[async_trait]
 impl Interviewer for CallbackInterviewer {
-    fn ask(&self, question: &Question) -> Answer {
+    async fn ask(&self, question: &Question) -> Answer {
         (self.callback)(question)
     }
 }
