@@ -15,8 +15,7 @@ use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Node, NodeType, Workflow};
 
 /// Where a workflow was discovered from.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, clap::ValueEnum)]
 pub enum WorkflowSource {
     /// `.stencila/workflows/` in the workspace
     Workspace,
@@ -128,12 +127,8 @@ impl WorkflowInstance {
             .pipeline
             .as_deref()
             .ok_or_else(|| eyre::eyre!("Workflow `{}` has no pipeline defined", self.name))?;
-        stencila_attractor::parse_dot(pipeline).map_err(|e| {
-            eyre::eyre!(
-                "Failed to parse pipeline for workflow `{}`: {e}",
-                self.name
-            )
-        })
+        stencila_attractor::parse_dot(pipeline)
+            .map_err(|e| eyre::eyre!("Failed to parse pipeline for workflow `{}`: {e}", self.name))
     }
 
     /// Return the agent names referenced in the pipeline DOT.
@@ -143,10 +138,10 @@ impl WorkflowInstance {
         };
         let mut agents = Vec::new();
         for node in graph.nodes.values() {
-            if let Some(stencila_attractor::AttrValue::String(agent)) = node.attrs.get("agent") {
-                if !agents.contains(agent) {
-                    agents.push(agent.clone());
-                }
+            if let Some(stencila_attractor::AttrValue::String(agent)) = node.attrs.get("agent")
+                && !agents.contains(agent)
+            {
+                agents.push(agent.clone());
             }
         }
         agents
@@ -263,8 +258,7 @@ mod tests {
         } else {
             String::new()
         };
-        let content =
-            format!("---\nname: {name}\ndescription: {description}\n---\n{dot_block}");
+        let content = format!("---\nname: {name}\ndescription: {description}\n---\n{dot_block}");
         std::fs::write(wf_dir.join("WORKFLOW.md"), content).expect("write WORKFLOW.md");
     }
 
@@ -323,9 +317,7 @@ mod tests {
 }"#;
         create_workflow(tmp.path(), "test-wf", "A test workflow", Some(dot));
 
-        let path = tmp
-            .path()
-            .join(".stencila/workflows/test-wf/WORKFLOW.md");
+        let path = tmp.path().join(".stencila/workflows/test-wf/WORKFLOW.md");
         let instance = load_workflow(&path).await.expect("load");
 
         assert_eq!(instance.name, "test-wf");
@@ -339,9 +331,7 @@ mod tests {
         let tmp = tempfile::tempdir().expect("tempdir");
         create_workflow(tmp.path(), "no-dot", "A workflow without pipeline", None);
 
-        let path = tmp
-            .path()
-            .join(".stencila/workflows/no-dot/WORKFLOW.md");
+        let path = tmp.path().join(".stencila/workflows/no-dot/WORKFLOW.md");
         let instance = load_workflow(&path).await.expect("load");
 
         assert_eq!(instance.name, "no-dot");
@@ -362,9 +352,7 @@ mod tests {
 }"#;
         create_workflow(tmp.path(), "graph-wf", "A test workflow", Some(dot));
 
-        let path = tmp
-            .path()
-            .join(".stencila/workflows/graph-wf/WORKFLOW.md");
+        let path = tmp.path().join(".stencila/workflows/graph-wf/WORKFLOW.md");
         let instance = load_workflow(&path).await.expect("load");
 
         let graph = instance.graph();
@@ -376,19 +364,15 @@ mod tests {
         let tmp = tempfile::tempdir().expect("tempdir");
         create_workflow(tmp.path(), "no-pipe", "No pipeline", None);
 
-        let path = tmp
-            .path()
-            .join(".stencila/workflows/no-pipe/WORKFLOW.md");
+        let path = tmp.path().join(".stencila/workflows/no-pipe/WORKFLOW.md");
         let instance = load_workflow(&path).await.expect("load");
 
         let graph = instance.graph();
         assert!(graph.is_err());
-        assert!(
-            graph
-                .unwrap_err()
-                .to_string()
-                .contains("has no pipeline defined")
-        );
+        match graph {
+            Ok(..) => panic!("Expected error"),
+            Err(error) => assert!(error.to_string().contains("has no pipeline defined")),
+        }
     }
 
     // -- agent_references() tests --
@@ -406,9 +390,7 @@ mod tests {
 }"#;
         create_workflow(tmp.path(), "refs-wf", "Agent refs test", Some(dot));
 
-        let path = tmp
-            .path()
-            .join(".stencila/workflows/refs-wf/WORKFLOW.md");
+        let path = tmp.path().join(".stencila/workflows/refs-wf/WORKFLOW.md");
         let instance = load_workflow(&path).await.expect("load");
 
         let agents = instance.agent_references();

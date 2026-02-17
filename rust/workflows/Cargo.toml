@@ -3,12 +3,10 @@ name = "stencila-workflows"
 edition = "2024"
 version.workspace = true
 
-[features]
-cli = ["clap", "stencila-cli-utils"]
-
 [dependencies]
 Inflector = { workspace = true }
 async-trait = { workspace = true }
+clap = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
 regex = { workspace = true }
@@ -17,16 +15,13 @@ serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 stencila-agents = { path = "../agents", default-features = false }
 stencila-attractor = { path = "../attractor" }
+stencila-cli-utils = { path = "../cli-utils" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-schema = { path = "../schema" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-
-# Optional CLI dependencies
-clap = { workspace = true, optional = true }
-stencila-cli-utils = { path = "../cli-utils", optional = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

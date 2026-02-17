@@ -193,8 +193,7 @@ mod tests {
 
         let todo_desc = Workflow::new("TODO".into(), "test".into());
         assert!(
-            validate_workflow(&todo_desc, None)
-                .contains(&ValidationError::DescriptionPlaceholder)
+            validate_workflow(&todo_desc, None).contains(&ValidationError::DescriptionPlaceholder)
         );
 
         Ok(())

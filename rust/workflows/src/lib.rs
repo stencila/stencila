@@ -4,5 +4,7 @@ pub use workflow_def::*;
 mod workflow_validate;
 pub use workflow_validate::*;
 
-#[cfg(feature = "cli")]
+mod workflow_run;
+pub use workflow_run::*;
+
 pub mod cli;
