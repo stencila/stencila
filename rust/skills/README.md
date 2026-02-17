@@ -71,7 +71,7 @@ The following are known limitations of this implementation:
 
 ### Updating the spec
 
-A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes.
+A vendored copy of the [upstream spec](https://github.com/agentskills/agentskills) is kept in `specs/` for reference. Use the protocol below to check for and incorporate upstream changes.
 
 1. Preview upstream changes without mutating the repo:
 
@@ -79,13 +79,15 @@ A vendored copy of the spec is kept in `specs/` for reference. Use the protocol 
 make spec-diff
 ```
 
-2. Vendor the latest spec:
+No output means the vendored copy is already up to date — you can stop here.
+
+2. If there are changes, vendor the latest spec:
 
 ```sh
 make spec-update
 ```
 
-3. Generate the repo diff for review and PR context:
+3. Review the vendored diff for PR context:
 
 ```sh
 git --no-pager diff -- specs/agent-skills.md
@@ -95,7 +97,7 @@ git --no-pager diff -- specs/agent-skills.md
 
 - Add or update failing tests in the matching `tests/spec_*.rs` file(s) first.
 - Implement the minimum code changes in `src/` until tests pass.
-- Keep deferred subsections explicit in `## Limitations` if any gaps remain.
+- Note any extensions, deviations, and limitations in the above sections.
 
 ### Testing
 
