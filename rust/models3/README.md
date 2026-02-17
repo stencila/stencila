@@ -221,7 +221,7 @@ When tool-call argument parsing/schema validation fails, the current behavior is
 
 ### Updating the spec
 
-A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes.
+A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes. All `make` targets run from `rust/models3/`.
 
 1. Preview upstream changes without mutating the repo:
 
@@ -235,13 +235,15 @@ make spec-diff
 make spec-update
 ```
 
-3. Generate the repo diff for review and PR context:
+3. Review the vendored diff (for commit / PR context):
 
 ```sh
 git --no-pager diff -- specs/unified-llm-spec.md
 ```
 
-4. Convert spec diffs into implementation work:
+If the diff is cosmetic (e.g. typo fixes, link updates, rewording with no new or changed requirements), stop here — no implementation work is needed.
+
+4. Convert spec requirement changes into implementation work:
 
 - Update requirement rows and status in `tests/spec-traceability.md`.
 - Add or update failing tests in the matching `tests/spec_*.rs` file(s) first.

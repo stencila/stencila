@@ -45,7 +45,7 @@ The following open-source projects solve related problems and are worth studying
 
 - **LiteLLM** (https://github.com/BerriAI/litellm) -- Python. Supports 100+ providers behind a single `completion()` interface. Demonstrates the value of a unified calling convention and the model string routing pattern. Shows how to handle the long tail of provider-specific quirks at scale.
 
-- **pi-ai** (https://github.com/nicktmro/pipe-ai) -- TypeScript. A multi-provider AI client from @mariozechner's pi-mono project. Demonstrates cost tracking, usage aggregation, and a clean provider adapter pattern with explicit reasoning token support.
+- **pi-ai** (https://github.com/badlogic/pi-mono/tree/main/packages/ai) -- TypeScript. A multi-provider AI client from @mariozechner's pi-mono project. Demonstrates cost tracking, usage aggregation, and a clean provider adapter pattern with explicit reasoning token support.
 
 ---
 
