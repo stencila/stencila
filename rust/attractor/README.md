@@ -51,6 +51,18 @@ The fidelity/thread resolver supports a graph attribute `default_thread_id` as t
 
 Start and exit detection accepts canonical ID aliases (`start`/`Start` and `exit`/`Exit`/`end`/`End`) in addition to shape-based detection.
 
+### Runtime variable expansion in prompts
+
+In addition to the parse-time `$goal` expansion, the codergen handler expands runtime variables at execution time so that each stage can reference the outputs of previously completed stages:
+
+| Variable         | Expands to                                              |
+|------------------|---------------------------------------------------------|
+| `$last_response` | Full text of the last stage's LLM response              |
+| `$last_stage`    | Node ID of the last completed stage                     |
+| `$last_outcome`  | Outcome status of the last stage (e.g. `success`, `fail`) |
+
+These are expanded per-stage during the engine loop, not at graph parse time.
+
 ### Agent node attribute
 
 The `agent` node attribute specifies which Stencila agent should execute the node (e.g., `agent="code-engineer"`). This is not part of the attractor spec; the spec uses the `codergen` handler with a pluggable `CodergenBackend`. The `agent` attribute is a Stencila-specific extension that maps nodes to named agents in the Stencila agent registry.
