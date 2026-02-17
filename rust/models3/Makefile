@@ -1,12 +1,12 @@
 SPEC_URL := https://raw.githubusercontent.com/strongdm/attractor/refs/heads/main/unified-llm-spec.md
 SPEC_FILE := specs/unified-llm-spec.md
 
-.PHONY: update-spec spec-diff
+.PHONY: spec-update spec-diff
 
 spec-diff:
-	mkdir -p specs
-	tmp=$$(mktemp); \
-	curl -fSL -o "$$tmp" $(SPEC_URL); \
+	@mkdir -p specs
+	@tmp=$$(mktemp); \
+	curl -fsSL -o "$$tmp" $(SPEC_URL); \
 	if [ -f "$(SPEC_FILE)" ]; then \
 		git --no-pager diff --no-index --word-diff=color --unified=3 "$(SPEC_FILE)" "$$tmp" || true; \
 	else \
@@ -14,6 +14,6 @@ spec-diff:
 	fi; \
 	rm -f "$$tmp"
 
-update-spec:
+spec-update:
 	mkdir -p specs
 	curl -fSL -o $(SPEC_FILE) $(SPEC_URL)

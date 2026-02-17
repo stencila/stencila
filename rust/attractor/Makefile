@@ -3,7 +3,7 @@ SPEC_FILE := specs/attractor-spec.md
 
 CRATE := stencila-attractor
 
-.PHONY: fmt lint test check update-spec spec-diff
+.PHONY: fmt lint test check spec-update spec-diff
 
 fmt:
 	cargo fmt -p $(CRATE)
@@ -17,9 +17,9 @@ test:
 check: fmt lint test
 
 spec-diff:
-	mkdir -p specs
-	tmp=$$(mktemp); \
-	curl -fSL -o "$$tmp" $(SPEC_URL); \
+	@mkdir -p specs
+	@tmp=$$(mktemp); \
+	curl -fsSL -o "$$tmp" $(SPEC_URL); \
 	if [ -f "$(SPEC_FILE)" ]; then \
 		git --no-pager diff --no-index --word-diff=color --unified=3 "$(SPEC_FILE)" "$$tmp" || true; \
 	else \

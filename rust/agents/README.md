@@ -295,7 +295,7 @@ make spec-diff
 2. Vendor the latest spec:
 
 ```sh
-make update-spec
+make spec-update
 ```
 
 3. Generate the repo diff for review and PR context:
