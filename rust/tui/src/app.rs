@@ -1787,8 +1787,11 @@ impl App {
                     }
                 }
                 WorkflowEvent::Completed(_result) => {
-                    // Not currently handled, see handling of PipelineCompleted
-                    // and PipelineFailed events in handle_pipeline_event
+                    if let Some(workflow) = &mut self.active_workflow {
+                        // Keep the workflow active but drop run handle to allow
+                        // a new goal and re-run
+                        workflow.run_handle = None;
+                    }
                 }
             }
             self.scroll_pinned = true;
