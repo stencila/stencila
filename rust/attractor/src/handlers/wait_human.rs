@@ -92,7 +92,7 @@ pub fn parse_accelerator_key(label: &str) -> String {
     }
 
     // Pattern: K - Label
-    if trimmed.len() >= 4 && trimmed.as_bytes().get(1..4) == Some(b" - ") {
+    if trimmed.len() >= 4 && trimmed.as_bytes().get(1..4) == Some(b" - ".as_slice()) {
         return trimmed[..1].to_uppercase();
     }
 

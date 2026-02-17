@@ -124,15 +124,15 @@ impl HandlerRegistry {
 
         // Step 2: well-known start/exit IDs (only for default "box" shape)
         if node.shape() == "box" {
-            if crate::Graph::START_IDS.contains(&node.id.as_str()) {
-                if let Some(handler) = self.handlers.get("start") {
-                    return Some(handler.clone());
-                }
+            if crate::Graph::START_IDS.contains(&node.id.as_str())
+                && let Some(handler) = self.handlers.get("start")
+            {
+                return Some(handler.clone());
             }
-            if crate::Graph::EXIT_IDS.contains(&node.id.as_str()) {
-                if let Some(handler) = self.handlers.get("exit") {
-                    return Some(handler.clone());
-                }
+            if crate::Graph::EXIT_IDS.contains(&node.id.as_str())
+                && let Some(handler) = self.handlers.get("exit")
+            {
+                return Some(handler.clone());
             }
         }
 

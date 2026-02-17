@@ -79,10 +79,10 @@ pub fn resolve_thread_id(
     //    use the last token from the comma-separated class list.
     if let Some(class) = node.get_str_attr("class")
         && let Some(last_class) = class.rsplit(',').next().map(str::trim)
-            && !last_class.is_empty()
-        {
-            return last_class.to_string();
-        }
+        && !last_class.is_empty()
+    {
+        return last_class.to_string();
+    }
 
     // 5. Previous node ID
     previous_node_id.to_string()

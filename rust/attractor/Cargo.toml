@@ -11,6 +11,7 @@ indexmap = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-agents = { path = "../agents" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

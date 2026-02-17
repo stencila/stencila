@@ -101,7 +101,7 @@ pub fn normalize_label(label: &str) -> String {
         if bytes.get(1) == Some(&b')') && bytes.get(2) == Some(&b' ') {
             return trimmed[3..].to_string();
         }
-        if trimmed.len() >= 4 && bytes.get(1..4) == Some(b" - ") {
+        if trimmed.len() >= 4 && bytes.get(1..4) == Some(b" - ".as_slice()) {
             return trimmed[4..].to_string();
         }
     }
