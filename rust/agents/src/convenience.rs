@@ -283,3 +283,64 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
 
     Ok((agent, session, event_receiver))
 }
+
+/// Run a single prompt against a named agent and return the collected response
+/// text.
+///
+/// Creates a session from the agent definition, submits the prompt, drains all
+/// events to collect `AssistantTextDelta` tokens, and returns the assembled
+/// response string. The session is closed on drop.
+///
+/// This is a fire-and-forget convenience for callers that don't need streaming.
+///
+/// # Errors
+///
+/// Returns an error if the agent is not found, session creation fails, or the
+/// LLM call fails.
+pub async fn run_prompt(name: &str, prompt: &str) -> AgentResult<String> {
+    let (_agent, mut session, mut event_rx) = create_session(name).await?;
+
+    let mut submit_future = Box::pin(session.submit(prompt));
+    let mut submit_done = false;
+    let mut submit_result: Option<AgentResult<()>> = None;
+    let mut collected_text = String::new();
+
+    loop {
+        tokio::select! {
+            biased;
+
+            event = event_rx.recv() => {
+                let Some(event) = event else {
+                    break;
+                };
+                if event.kind == crate::types::EventKind::AssistantTextDelta {
+                    if let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
+                        collected_text.push_str(delta);
+                    }
+                }
+            }
+
+            result = &mut submit_future, if !submit_done => {
+                submit_done = true;
+                submit_result = Some(result);
+            }
+        }
+
+        if submit_done {
+            while let Ok(event) = event_rx.try_recv() {
+                if event.kind == crate::types::EventKind::AssistantTextDelta {
+                    if let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
+                        collected_text.push_str(delta);
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    if let Some(Err(e)) = submit_result {
+        return Err(e);
+    }
+
+    Ok(collected_text)
+}
