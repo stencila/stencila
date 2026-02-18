@@ -8,8 +8,7 @@ use ratatui::{
 
 use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{
-    App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind,
-    WorkflowStatusState,
+    App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind, WorkflowStatusState,
 };
 
 use super::common::{
@@ -61,18 +60,12 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } => {
                 exchange_num += 1;
                 let agent_tag = if let Some(name) = workflow_agent_name {
-                    let color = app
-                        .color_registry
-                        .get(name)
-                        .unwrap_or(Color::DarkGray);
+                    let color = app.color_registry.get(name).unwrap_or(Color::DarkGray);
                     Some((name.clone(), color))
                 } else {
                     agent_index.and_then(|idx| {
                         app.sessions.get(idx).map(|s| {
-                            let color = app
-                                .color_registry
-                                .get(&s.name)
-                                .unwrap_or(Color::Blue);
+                            let color = app.color_registry.get(&s.name).unwrap_or(Color::Blue);
                             (s.name.clone(), color)
                         })
                     })

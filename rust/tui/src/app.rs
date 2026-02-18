@@ -1080,7 +1080,8 @@ impl App {
                     let name = agent_name
                         .as_deref()
                         .or_else(|| {
-                            agent_index.and_then(|idx| self.sessions.get(idx).map(|s| s.name.as_str()))
+                            agent_index
+                                .and_then(|idx| self.sessions.get(idx).map(|s| s.name.as_str()))
                         })
                         .unwrap_or("chat");
                     let c = self
@@ -1115,10 +1116,7 @@ impl App {
             .filter(|(i, _)| *i != self.active_session)
             .map(|(_, s)| MentionCandidate {
                 name: s.name.clone(),
-                color: self
-                    .color_registry
-                    .get(&s.name)
-                    .unwrap_or(Color::DarkGray),
+                color: self.color_registry.get(&s.name).unwrap_or(Color::DarkGray),
                 definition: s.definition.clone(),
             })
             .collect();
@@ -1888,6 +1886,36 @@ impl App {
                             }
                             _ => ActiveWorkflowState::Failed,
                         };
+                        if let Err(err) = &result {
+                            let error_text = err.to_string();
+                            match self.config.workflow_verbosity {
+                                WorkflowVerbosity::Minimal => {
+                                    if let Some(idx) = workflow.workflow_status_msg_index
+                                        && let Some(AppMessage::WorkflowStatus {
+                                            state,
+                                            detail,
+                                            ..
+                                        }) = self.messages.get_mut(idx)
+                                    {
+                                        *state = WorkflowStatusState::Failed;
+                                        *detail = Some(error_text);
+                                    } else {
+                                        self.messages.push(AppMessage::WorkflowStatus {
+                                            state: WorkflowStatusState::Failed,
+                                            label: format!("Workflow {}", workflow.info.name),
+                                            detail: Some(error_text),
+                                        });
+                                    }
+                                }
+                                _ => {
+                                    self.messages.push(AppMessage::WorkflowProgress {
+                                        kind: WorkflowProgressKind::Failed,
+                                        label: format!("Workflow {} failed", workflow.info.name),
+                                        detail: Some(error_text),
+                                    });
+                                }
+                            }
+                        }
                         workflow.run_handle = None;
                     }
                 }
