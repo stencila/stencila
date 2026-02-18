@@ -369,7 +369,7 @@ impl SubAgentManager {
         let working_dir = optional_str(&args, "working_dir").map(str::to_string);
         let model_override = optional_str(&args, "model").map(str::to_string);
         let max_turns =
-            optional_u64(&args, "max_turns").map_or(50, |v| u32::try_from(v).unwrap_or(u32::MAX));
+            optional_u64(&args, "max_turns").map_or(0, |v| u32::try_from(v).unwrap_or(u32::MAX));
 
         // Build child config from parent, inheriting behavioral settings
         let child_config = self.parent_config.for_child(max_turns, max_depth);
@@ -765,7 +765,7 @@ pub fn spawn_agent_definition() -> ToolDefinition {
                 },
                 "max_turns": {
                     "type": "integer",
-                    "description": "Turn limit for the subagent (default: 50)."
+                    "description": "Turn limit for the subagent (default: 0, unlimited)."
                 }
             },
             "required": ["task"]

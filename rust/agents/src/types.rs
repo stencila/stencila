@@ -156,7 +156,7 @@ pub struct SessionConfig {
 }
 
 fn default_max_tool_rounds() -> u32 {
-    200
+    0
 }
 fn default_command_timeout_ms() -> u64 {
     10_000

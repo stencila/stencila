@@ -147,7 +147,7 @@ RECORD Session:
 ```
 RECORD SessionConfig:
     max_turns                   : Integer = 0       -- 0 = unlimited
-    max_tool_rounds_per_input   : Integer = 200     -- per user input, not per session
+    max_tool_rounds_per_input   : Integer = 0       -- 0 = unlimited, per user input, not per session
     default_command_timeout_ms  : Integer = 10000   -- 10 seconds
     max_command_timeout_ms      : Integer = 600000  -- 10 minutes
     reasoning_effort            : String | None     -- "low", "medium", "high", or null
@@ -227,7 +227,7 @@ FUNCTION process_input(session, user_input):
 
     LOOP:
         -- 1. Check limits
-        IF round_count >= session.config.max_tool_rounds_per_input:
+        IF session.config.max_tool_rounds_per_input > 0 AND round_count >= session.config.max_tool_rounds_per_input:
             session.emit(TURN_LIMIT, round = round_count)
             BREAK
 
@@ -1061,7 +1061,7 @@ TOOL spawn_agent:
         task            : String (required)     -- natural language task description
         working_dir     : String (optional)     -- subdirectory to scope the agent to
         model           : String (optional)     -- model override (default: parent's model)
-        max_turns       : Integer (optional)    -- turn limit (default: 50)
+        max_turns       : Integer (optional)    -- turn limit (default: 0, unlimited)
     returns: Agent ID and initial status
 
 TOOL send_input:
@@ -1102,7 +1102,7 @@ The subagent:
 - Gets its own Session with independent conversation history
 - Shares the parent's `ExecutionEnvironment` (same filesystem)
 - Uses the parent's `ProviderProfile` (or an overridden model)
-- Has its own turn limits (configurable, default: 50)
+- Has its own turn limits (configurable, default: 0, unlimited)
 - Cannot spawn sub-sub-agents (depth limiting, default max depth: 1, configurable via `max_subagent_depth`)
 
 ### 7.4 Use Cases

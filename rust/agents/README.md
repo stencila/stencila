@@ -185,7 +185,7 @@ The spec says the initial provider prompts and tool definitions should be exact 
 
 ### Git commit summary format (`§6.4`)
 
-The spec describes recent commit *subject lines*. This implementation gathers commits with `git log --oneline -10`, which includes abbreviated hashes plus subjects.
+The spec describes recent commit _subject lines_. This implementation gathers commits with `git log --oneline -10`, which includes abbreviated hashes plus subjects.
 
 ### Subagent profile inheritance (`§7.3`)
 
@@ -282,6 +282,16 @@ Project instruction discovery enforces a 32KB final prompt budget, but each disc
 
 ## Development
 
+### Workflow
+
+The `make check` recipe performs the workflow below:
+
+```sh
+cargo clippy --fix --allow-dirty --all-targets -p stencila-agents
+cargo fmt -p stencila-agents
+cargo test --all-features -p stencila-agents
+```
+
 ### Updating the spec
 
 A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes.
@@ -311,12 +321,10 @@ git --no-pager diff -- specs/coding-agent-loop-spec.md
 - Implement the minimum code changes in `src/` and adapters until tests pass.
 - Keep deferred subsections explicit in `## Limitations` if any gaps remain.
 
-5. Run the required crate workflow:
+5. Run the crate check recipe:
 
 ```sh
-cargo fmt -p stencila-agents
-cargo clippy --fix --allow-dirty --all-targets -p stencila-agents
-cargo test -p stencila-agents
+make check
 ```
 
 6. If feature-gated paths changed, also run:
@@ -343,11 +351,3 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `spec_6_prompts.rs`    | 6.1-6.5                   | System prompts: environment context, git context, project docs, prompt assembly                       |
 | `spec_7_subagents.rs`  | 7.1-7.4                   | Subagent lifecycle: spawn, send_input, wait, close_agent, depth limiting, auto-registration           |
 | `spec_9_acceptance.rs` | 9.12-9.13                 | Live integration tests: parity matrix + smoke tests (env-gated)                                       |
-
-Use the crate workflow below:
-
-```sh
-cargo fmt -p stencila-agents
-cargo clippy --fix --allow-dirty --all-targets -p stencila-agents
-cargo test -p stencila-agents
-```

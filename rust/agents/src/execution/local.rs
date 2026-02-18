@@ -553,7 +553,14 @@ fn grep_recursive(
 
     if base.is_file() {
         // Single-file grep: ignore glob_filter (file was explicitly requested)
-        grep_file(base, base.parent().unwrap_or(base), re, max, cancelled, &mut results);
+        grep_file(
+            base,
+            base.parent().unwrap_or(base),
+            re,
+            max,
+            cancelled,
+            &mut results,
+        );
     } else {
         // Use ignore::WalkBuilder for directory traversal with symlink cycle
         // detection and .gitignore/.ignore filtering so that build artifacts

@@ -313,11 +313,10 @@ pub async fn run_prompt(name: &str, prompt: &str) -> AgentResult<String> {
                 let Some(event) = event else {
                     break;
                 };
-                if event.kind == crate::types::EventKind::AssistantTextDelta {
-                    if let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
+                if event.kind == crate::types::EventKind::AssistantTextDelta
+                    && let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
                         collected_text.push_str(delta);
                     }
-                }
             }
 
             result = &mut submit_future, if !submit_done => {
@@ -328,10 +327,10 @@ pub async fn run_prompt(name: &str, prompt: &str) -> AgentResult<String> {
 
         if submit_done {
             while let Ok(event) = event_rx.try_recv() {
-                if event.kind == crate::types::EventKind::AssistantTextDelta {
-                    if let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
-                        collected_text.push_str(delta);
-                    }
+                if event.kind == crate::types::EventKind::AssistantTextDelta
+                    && let Some(serde_json::Value::String(delta)) = event.data.get("delta")
+                {
+                    collected_text.push_str(delta);
                 }
             }
             break;

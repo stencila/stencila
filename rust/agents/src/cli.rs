@@ -499,12 +499,13 @@ impl Run {
                 // Drain remaining buffered events
                 while let Ok(event) = event_rx.try_recv() {
                     if let EventKind::AssistantTextDelta = event.kind
-                        && let Some(serde_json::Value::String(delta)) = event.data.get("delta") {
-                            if !writing_to_file {
-                                print!("{delta}");
-                            }
-                            collected_text.push_str(delta);
+                        && let Some(serde_json::Value::String(delta)) = event.data.get("delta")
+                    {
+                        if !writing_to_file {
+                            print!("{delta}");
                         }
+                        collected_text.push_str(delta);
+                    }
                 }
 
                 break;

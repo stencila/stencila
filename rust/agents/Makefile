@@ -1,7 +1,9 @@
 SPEC_URL := https://raw.githubusercontent.com/strongdm/attractor/refs/heads/main/coding-agent-loop-spec.md
 SPEC_FILE := specs/coding-agent-loop-spec.md
 
-.PHONY: spec-update spec-diff
+CRATE := stencila-agents
+
+.PHONY: lint format test check spec-update spec-diff
 
 spec-diff:
 	@mkdir -p specs
@@ -17,3 +19,14 @@ spec-diff:
 spec-update:
 	mkdir -p specs
 	curl -fSL -o $(SPEC_FILE) $(SPEC_URL)
+
+lint:
+	cargo clippy --fix --allow-dirty --all-targets -p $(CRATE)
+
+format:
+	cargo fmt -p $(CRATE)
+
+test:
+	cargo test --all-features -p $(CRATE)
+
+check: lint format test

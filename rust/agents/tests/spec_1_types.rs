@@ -343,7 +343,7 @@ fn error_serialize_json() -> AgentResult<()> {
 fn session_config_defaults_match_spec() {
     let config = SessionConfig::default();
     assert_eq!(config.max_turns, 0, "0 = unlimited");
-    assert_eq!(config.max_tool_rounds_per_input, 200);
+    assert_eq!(config.max_tool_rounds_per_input, 0, "0 = unlimited");
     assert_eq!(config.default_command_timeout_ms, 10_000);
     assert_eq!(config.max_command_timeout_ms, 600_000);
     assert_eq!(config.reasoning_effort, None);
@@ -376,7 +376,7 @@ fn session_config_from_partial_json() -> AgentResult<()> {
         })?;
     assert_eq!(config.max_turns, 50);
     // All other fields should have spec defaults
-    assert_eq!(config.max_tool_rounds_per_input, 200);
+    assert_eq!(config.max_tool_rounds_per_input, 0);
     assert_eq!(config.default_command_timeout_ms, 10_000);
     assert!(config.enable_loop_detection);
     Ok(())

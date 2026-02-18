@@ -625,7 +625,9 @@ impl Session {
             }
 
             // 2b. Check round limit
-            if round_count >= self.config.max_tool_rounds_per_input {
+            if self.config.max_tool_rounds_per_input > 0
+                && round_count >= self.config.max_tool_rounds_per_input
+            {
                 self.emit_turn_limit("max_tool_rounds_per_input", round_count);
                 break;
             }

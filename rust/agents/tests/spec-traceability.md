@@ -14,7 +14,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.3 | SessionState serde | spec_1_types.rs | session_state_serde_roundtrip, session_state_serializes_screaming_snake | Pass |
 | 2.3 | SessionState negative | spec_1_types.rs | session_state_invalid_string_rejected | Pass |
 | 2.3 | AwaitingInput auto-detect | spec_2_loop.rs | awaiting_input_auto_detected_question_mark, awaiting_input_auto_detected_interrogative_phrase, awaiting_input_multiline_question, awaiting_input_let_me_know_pattern | Pass |
-| 2.3 | AwaitingInput negative | spec_2_loop.rs | awaiting_input_not_triggered_for_statement, awaiting_input_disabled_via_config, awaiting_input_not_triggered_after_tool_calls, awaiting_input_not_triggered_on_turn_limit, awaiting_input_empty_text_stays_idle, awaiting_input_not_triggered_on_max_turns_with_prior_question, awaiting_input_not_triggered_on_zero_rounds_with_prior_question | Pass |
+| 2.3 | AwaitingInput negative | spec_2_loop.rs | awaiting_input_not_triggered_for_statement, awaiting_input_disabled_via_config, awaiting_input_not_triggered_after_tool_calls, awaiting_input_not_triggered_on_turn_limit, awaiting_input_empty_text_stays_idle, awaiting_input_not_triggered_on_max_turns_with_prior_question, awaiting_input_not_triggered_on_one_round_limit_with_prior_question | Pass |
 | 2.3 | AwaitingInput resume | spec_2_loop.rs | awaiting_input_submit_resumes_to_idle | Pass |
 | 2.4 | Turn::User | spec_1_types.rs | turn_user_construction, turn_user_has_valid_timestamp, turn_serde_roundtrip_user | Pass |
 | 2.4 | Turn::Assistant | spec_1_types.rs | turn_assistant_construction, turn_serde_roundtrip_assistant_with_tool_calls | Pass |
@@ -289,6 +289,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.5 | Parallel tool execution | spec_2_loop.rs | parallel_tool_execution | Pass |
 | 2.5 | Sequential tool execution | spec_2_loop.rs | sequential_tool_execution | Pass |
 | 2.6 | Round limit reached | spec_2_loop.rs | round_limit_reached | Pass |
+| 2.6 | Zero round limit means unlimited | spec_2_loop.rs | zero_round_limit_means_unlimited | Pass |
 | 2.6 | Session turn limit | spec_2_loop.rs | session_turn_limit | Pass |
 | 2.6 | Turn limit is idle not closed | spec_2_loop.rs | turn_limit_is_idle_not_closed | Pass |
 | 2.6 | Abort stops loop | spec_2_loop.rs | abort_stops_loop | Pass |

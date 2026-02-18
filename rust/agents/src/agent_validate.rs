@@ -149,7 +149,7 @@ pub fn validate_agent(agent: &Agent, dir_name: Option<&str>) -> Vec<ValidationEr
     }
 
     if let Some(max_rounds) = agent.options.max_tool_rounds
-        && max_rounds <= 0
+        && max_rounds < 0
     {
         errors.push(ValidationError::MaxToolRoundsInvalid(max_rounds));
     }
@@ -254,12 +254,20 @@ mod tests {
         );
         agent.options.max_turns = None;
 
-        // Invalid max_tool_rounds
+        // Zero max_tool_rounds is valid (0 = unlimited per spec §2.2)
         agent.options.max_tool_rounds = Some(0);
+        assert!(
+            !validate_agent(&agent, None)
+                .iter()
+                .any(|e| matches!(e, ValidationError::MaxToolRoundsInvalid(_)))
+        );
+
+        // Negative max_tool_rounds is invalid
+        agent.options.max_tool_rounds = Some(-1);
         assert!(
             validate_agent(&agent, None)
                 .iter()
-                .any(|e| matches!(e, ValidationError::MaxToolRoundsInvalid(0)))
+                .any(|e| matches!(e, ValidationError::MaxToolRoundsInvalid(-1)))
         );
         agent.options.max_tool_rounds = None;
 

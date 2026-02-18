@@ -1171,8 +1171,7 @@ async fn thinking_parts_preserved_in_history() -> AgentResult<()> {
     // Response 2: final text
     let final_response = text_response("Here are the contents.")?;
 
-    let (mut session, _rx, client) =
-        test_session(vec![thinking_response, Ok(final_response)])?;
+    let (mut session, _rx, client) = test_session(vec![thinking_response, Ok(final_response)])?;
     session.submit("Read test.rs").await?;
 
     let requests = client.take_requests()?;
@@ -1205,10 +1204,7 @@ async fn thinking_parts_preserved_in_history() -> AgentResult<()> {
             matches!(p, ContentPart::Thinking { thinking } if thinking.signature.as_deref() == Some("sig_abc"))
         })
     });
-    assert!(
-        has_signature,
-        "thinking content should preserve signature"
-    );
+    assert!(has_signature, "thinking content should preserve signature");
 
     Ok(())
 }
@@ -1726,7 +1722,7 @@ async fn session_id_is_present() -> AgentResult<()> {
 #[tokio::test]
 async fn config_returns_default_values() -> AgentResult<()> {
     let (session, _rx, _) = test_session(vec![])?;
-    assert_eq!(session.config().max_tool_rounds_per_input, 200);
+    assert_eq!(session.config().max_tool_rounds_per_input, 0);
     assert_eq!(session.config().max_turns, 0);
     assert!(session.config().enable_loop_detection);
 
@@ -3287,29 +3283,50 @@ async fn awaiting_input_not_triggered_on_max_turns_with_prior_question() -> Agen
 }
 
 #[tokio::test]
-async fn awaiting_input_not_triggered_on_zero_rounds_with_prior_question() -> AgentResult<()> {
-    // Regression: max_tool_rounds_per_input = 0 means the round limit is hit
-    // on the very first iteration (before any LLM call). A prior question in
-    // history must not leak into the state.
+async fn awaiting_input_not_triggered_on_one_round_limit_with_prior_question() -> AgentResult<()> {
+    // Regression: when the round limit fires on the first iteration (before
+    // a new LLM call produces fresh text), a prior AwaitingInput question must
+    // not leak into the state.
     //
     // Setup: first submit with default config produces a question → AwaitingInput.
-    // Then change round limit to 0 so the next submit breaks immediately.
+    // Then change round limit to 1 so the next submit breaks after one round.
     let (mut session, _rx, _) = test_session_with_config(
-        vec![text_response("What approach do you prefer?")],
+        vec![
+            text_response("What approach do you prefer?"),
+            text_response("OK, done."),
+        ],
         SessionConfig::default(),
     )?;
 
     session.submit("Refactor").await?;
     assert_eq!(session.state(), SessionState::AwaitingInput);
 
-    // Now set round limit to 0 — next submit breaks immediately.
-    session.config_mut().max_tool_rounds_per_input = 0;
+    // Now set round limit to 1 — next submit breaks after one round.
+    session.config_mut().max_tool_rounds_per_input = 1;
     session.submit("Option A").await?;
     assert_eq!(
         session.state(),
         SessionState::Idle,
-        "Zero-round limit should not re-trigger AwaitingInput from prior question"
+        "Round limit should not re-trigger AwaitingInput from prior question"
     );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn zero_round_limit_means_unlimited() -> AgentResult<()> {
+    // Spec update: max_tool_rounds_per_input = 0 now means unlimited.
+    // Verify the loop runs normally (no immediate break) when set to 0.
+    let (mut session, _rx, _) = test_session_with_config(
+        vec![text_response("Hello!")],
+        SessionConfig {
+            max_tool_rounds_per_input: 0,
+            ..SessionConfig::default()
+        },
+    )?;
+
+    session.submit("Hi").await?;
+    assert_eq!(session.state(), SessionState::Idle);
 
     Ok(())
 }
