@@ -603,6 +603,34 @@ fn parse_gemini_json(content: &str, source: ConfigSource) -> McpResult<Vec<McpSe
 mod tests {
     use super::*;
 
+    /// Mutex to serialize tests that modify environment variables.
+    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    /// Run a closure with HOME and XDG_CONFIG_HOME pointed at the temp dir
+    /// so that user-level configs (stencila, claude, codex, gemini) are not
+    /// picked up from the real home directory.
+    #[allow(unsafe_code)]
+    fn with_isolated_home<F: FnOnce()>(tmp: &tempfile::TempDir, f: F) {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let old_home = std::env::var("HOME").ok();
+        let old_xdg = std::env::var("XDG_CONFIG_HOME").ok();
+        unsafe {
+            std::env::set_var("HOME", tmp.path());
+            std::env::set_var("XDG_CONFIG_HOME", tmp.path().join(".config"));
+        }
+        f();
+        unsafe {
+            match old_home {
+                Some(v) => std::env::set_var("HOME", v),
+                None => std::env::remove_var("HOME"),
+            }
+            match old_xdg {
+                Some(v) => std::env::set_var("XDG_CONFIG_HOME", v),
+                None => std::env::remove_var("XDG_CONFIG_HOME"),
+            }
+        }
+    }
+
     // -- Stencila config (via stencila-config crate) --
 
     #[test]
@@ -629,36 +657,40 @@ GITHUB_TOKEN = "abc123"
 "#;
         std::fs::write(tmp.path().join("stencila.toml"), toml).expect("write");
 
-        let servers = discover(tmp.path());
-        assert_eq!(servers.len(), 3);
+        with_isolated_home(&tmp, || {
+            let servers = discover(tmp.path());
+            assert_eq!(servers.len(), 3);
 
-        let fs_server = servers
-            .iter()
-            .find(|s| s.id == "filesystem")
-            .expect("filesystem");
-        assert!(fs_server.enabled);
-        assert!(
-            matches!(&fs_server.transport, TransportConfig::Stdio { command, .. } if command == "npx")
-        );
-        assert_eq!(fs_server.source, Some(ConfigSource::Stencila));
+            let fs_server = servers
+                .iter()
+                .find(|s| s.id == "filesystem")
+                .expect("filesystem");
+            assert!(fs_server.enabled);
+            assert!(
+                matches!(&fs_server.transport, TransportConfig::Stdio { command, .. } if command == "npx")
+            );
+            assert_eq!(fs_server.source, Some(ConfigSource::Stencila));
 
-        let remote = servers.iter().find(|s| s.id == "remote").expect("remote");
-        assert!(!remote.enabled);
-        assert_eq!(remote.name.as_deref(), Some("Remote"));
+            let remote = servers.iter().find(|s| s.id == "remote").expect("remote");
+            assert!(!remote.enabled);
+            assert_eq!(remote.name.as_deref(), Some("Remote"));
 
-        let github = servers.iter().find(|s| s.id == "github").expect("github");
-        assert_eq!(
-            github.env.get("GITHUB_TOKEN").map(String::as_str),
-            Some("abc123")
-        );
+            let github = servers.iter().find(|s| s.id == "github").expect("github");
+            assert_eq!(
+                github.env.get("GITHUB_TOKEN").map(String::as_str),
+                Some("abc123")
+            );
+        });
     }
 
     #[test]
     fn stencila_no_mcp_section() {
         let tmp = tempfile::tempdir().expect("tempdir");
         std::fs::write(tmp.path().join("stencila.toml"), "# empty\n").expect("write");
-        let servers = discover(tmp.path());
-        assert!(servers.is_empty());
+        with_isolated_home(&tmp, || {
+            let servers = discover(tmp.path());
+            assert!(servers.is_empty());
+        });
     }
 
     // -- Claude JSON parser --
@@ -1001,16 +1033,18 @@ transport.command = "original-cmd"
         }"#;
         std::fs::write(tmp.path().join(".mcp.json"), mcp_json).expect("write");
 
-        let servers = discover(tmp.path());
+        with_isolated_home(&tmp, || {
+            let servers = discover(tmp.path());
 
-        assert_eq!(servers.len(), 1);
-        assert_eq!(servers[0].id, "shared");
-        // Claude workspace loaded after Stencila workspace → last wins
-        assert!(
-            matches!(&servers[0].transport, TransportConfig::Stdio { command, .. }
-            if command == "overridden-cmd")
-        );
-        assert_eq!(servers[0].source, Some(ConfigSource::ClaudeWorkspace));
+            assert_eq!(servers.len(), 1);
+            assert_eq!(servers[0].id, "shared");
+            // Claude workspace loaded after Stencila workspace → last wins
+            assert!(
+                matches!(&servers[0].transport, TransportConfig::Stdio { command, .. }
+                if command == "overridden-cmd")
+            );
+            assert_eq!(servers[0].source, Some(ConfigSource::ClaudeWorkspace));
+        });
     }
 
     #[test]
@@ -1031,19 +1065,23 @@ transport.command = "alpha-cmd"
         }"#;
         std::fs::write(tmp.path().join(".mcp.json"), mcp_json).expect("write");
 
-        let servers = discover(tmp.path());
+        with_isolated_home(&tmp, || {
+            let servers = discover(tmp.path());
 
-        assert_eq!(servers.len(), 2);
-        // Sorted alphabetically
-        assert_eq!(servers[0].id, "alpha");
-        assert_eq!(servers[1].id, "beta");
+            assert_eq!(servers.len(), 2);
+            // Sorted alphabetically
+            assert_eq!(servers[0].id, "alpha");
+            assert_eq!(servers[1].id, "beta");
+        });
     }
 
     #[test]
     fn discover_empty_when_no_configs() {
         let tmp = tempfile::tempdir().expect("tempdir");
-        let servers = discover(tmp.path());
-        assert!(servers.is_empty());
+        with_isolated_home(&tmp, || {
+            let servers = discover(tmp.path());
+            assert!(servers.is_empty());
+        });
     }
 
     #[test]
@@ -1062,8 +1100,10 @@ transport.command = "test"
 "#;
         std::fs::write(tmp.path().join("stencila.toml"), toml).expect("write");
 
-        let servers = discover(tmp.path());
-        // Both are returned — `enabled` is a field, filtering is the caller's job
-        assert_eq!(servers.len(), 2);
+        with_isolated_home(&tmp, || {
+            let servers = discover(tmp.path());
+            // Both are returned — `enabled` is a field, filtering is the caller's job
+            assert_eq!(servers.len(), 2);
+        });
     }
 }
