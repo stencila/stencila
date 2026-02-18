@@ -51,8 +51,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Run an agent with a prompt</dim>
   <b>stencila agents run</> <g>code-engineer</> <y>\"What files are in this directory?\"</>
 
-  <dim># Run with a specific model override</dim>
-  <b>stencila agents run</> <g>code-engineer</> <y>\"Hello\"</> <c>--model</> <g>gpt-4o</>
+  <dim># Dry run to see agent config and prompt</dim>
+  <b>stencila agents run</> <g>code-engineer</> <y>\"Hello\"</> <c>--dry-run</>
 "
 );
 
