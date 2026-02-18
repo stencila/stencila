@@ -77,6 +77,10 @@ pub struct Agent {
     /// Provider identifier for the agent.
     pub provider: Option<String>,
 
+    /// Reasoning effort level for the agent.
+    #[serde(alias = "reasoning-effort", alias = "reasoning_effort")]
+    pub reasoning_effort: Option<String>,
+
     /// Skill names this agent can use.
     #[serde(alias = "allowed-skills", alias = "allowed_skills", alias = "allowedSkill", alias = "allowed-skill", alias = "allowed_skill")]
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -86,10 +90,6 @@ pub struct Agent {
     #[serde(alias = "allowed-tools", alias = "allowed_tools", alias = "allowedTool", alias = "allowed-tool", alias = "allowed_tool")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub allowed_tools: Option<Vec<String>>,
-
-    /// Reasoning effort level for the agent.
-    #[serde(alias = "reasoning-effort", alias = "reasoning_effort")]
-    pub reasoning_effort: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -308,6 +308,19 @@ pub struct AgentOptions {
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
 
+    /// Whether to enable MCP tools.
+    #[serde(alias = "enable-mcp", alias = "enable_mcp")]
+    pub enable_mcp: Option<Boolean>,
+
+    /// Whether to enable MCP codemode orchestration.
+    #[serde(alias = "enable-mcp-codemode", alias = "enable_mcp_codemode")]
+    pub enable_mcp_codemode: Option<Boolean>,
+
+    /// MCP server IDs this agent is allowed to use.
+    #[serde(alias = "allowed-mcp-servers", alias = "allowed_mcp_servers", alias = "allowedMcpServer", alias = "allowed-mcp-server", alias = "allowed_mcp_server")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub allowed_mcp_servers: Option<Vec<String>>,
+
     /// Maximum conversation turns (0 = unlimited).
     #[serde(alias = "max-turns", alias = "max_turns")]
     pub max_turns: Option<Integer>,
@@ -326,14 +339,6 @@ pub struct AgentOptions {
 
     /// Environment requirements for the agent.
     pub compatibility: Option<String>,
-
-    /// Whether to enable MCP tools.
-    #[serde(alias = "enable-mcp", alias = "enable_mcp")]
-    pub enable_mcp: Option<Boolean>,
-
-    /// Whether to enable codemode orchestration.
-    #[serde(alias = "enable-codemode", alias = "enable_codemode")]
-    pub enable_codemode: Option<Boolean>,
 }
 
 impl Agent {

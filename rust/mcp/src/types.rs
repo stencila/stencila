@@ -101,6 +101,9 @@ pub struct InitializeResult {
     pub capabilities: ServerCapabilities,
     #[serde(default)]
     pub server_info: Option<ServerInfo>,
+    /// Usage instructions/hints from the server (MCP spec 2025-03-26+).
+    #[serde(default)]
+    pub instructions: Option<String>,
 }
 
 /// Server capabilities declared during initialization.

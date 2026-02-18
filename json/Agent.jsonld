@@ -889,6 +889,18 @@
       }
     },
     {
+      "@id": "stencila:reasoningEffort",
+      "@type": "rdfs:Property",
+      "rdfs:label": "reasoningEffort",
+      "rdfs:comment": "Reasoning effort level for the agent.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:allowedSkills",
       "@type": "rdfs:Property",
       "rdfs:label": "allowedSkills",
@@ -918,10 +930,34 @@
       }
     },
     {
-      "@id": "stencila:reasoningEffort",
+      "@id": "stencila:enableMcp",
       "@type": "rdfs:Property",
-      "rdfs:label": "reasoningEffort",
-      "rdfs:comment": "Reasoning effort level for the agent.",
+      "rdfs:label": "enableMcp",
+      "rdfs:comment": "Whether to enable MCP tools.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:enableMcpCodemode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "enableMcpCodemode",
+      "rdfs:comment": "Whether to enable MCP codemode orchestration.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:allowedMcpServers",
+      "@type": "rdfs:Property",
+      "rdfs:label": "allowedMcpServers",
+      "rdfs:comment": "MCP server IDs this agent is allowed to use.",
       "schema:domainIncludes": {
         "@id": "stencila:Agent"
       },
@@ -992,30 +1028,6 @@
       ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:enableMcp",
-      "@type": "rdfs:Property",
-      "rdfs:label": "enableMcp",
-      "rdfs:comment": "Whether to enable MCP tools.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Agent"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
-    },
-    {
-      "@id": "stencila:enableCodemode",
-      "@type": "rdfs:Property",
-      "rdfs:label": "enableCodemode",
-      "rdfs:comment": "Whether to enable codemode orchestration.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Agent"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
       }
     }
   ]

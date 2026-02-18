@@ -1,6 +1,6 @@
 //! Codemode tool registration and MCP orchestration via JavaScript.
 //!
-//! When `enable_codemode` is active, a single `codemode` tool is registered.
+//! When `enable_mcp_codemode` is active, a single `mcp_codemode` tool is registered.
 //! The LLM writes JavaScript to orchestrate MCP calls in a sandboxed QuickJS
 //! environment. TypeScript declarations are included in the system prompt so
 //! the LLM knows what functions are available.
@@ -12,15 +12,15 @@ use serde_json::json;
 use stencila_codemode::{
     DirtyServerTracker, RunRequest, RunResponse, codemode_run, generate_declarations,
 };
-use stencila_mcp::{ConnectionPool, McpServer};
+use stencila_mcp::ConnectionPool;
 use stencila_models3::types::tool::ToolDefinition;
 
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 
-/// Tool name for the codemode tool.
-pub const TOOL_CODEMODE: &str = "codemode";
+/// Tool name for the MCP codemode tool.
+pub const TOOL_CODEMODE: &str = "mcp_codemode";
 
 /// Maximum character budget for TypeScript declarations in the system prompt.
 const DECLARATION_BUDGET: usize = 4000;
@@ -29,17 +29,21 @@ const DECLARATION_BUDGET: usize = 4000;
 // Tool registration
 // ---------------------------------------------------------------------------
 
-/// Register the `codemode` tool in the profile's tool registry.
+/// Register the `mcp_codemode` tool in the profile's tool registry.
 ///
 /// The tool takes `code` (JavaScript), optional `timeout_ms`, and optional
 /// `max_tool_calls` parameters. The executor runs the code in a sandboxed
 /// QuickJS environment with access to MCP servers.
+///
+/// When `allowed` is `Some`, only the listed MCP server IDs are visible to
+/// codemode at runtime.
 pub fn register_codemode_tool(
     profile: &mut dyn ProviderProfile,
     pool: &Arc<ConnectionPool>,
     dirty_tracker: &Arc<Mutex<DirtyServerTracker>>,
+    allowed: Option<Vec<String>>,
 ) -> AgentResult<()> {
-    let tool = RegisteredTool::new(definition(), executor(pool, dirty_tracker));
+    let tool = RegisteredTool::new(definition(), executor(pool, dirty_tracker, allowed));
     profile.tool_registry_mut().register(tool)
 }
 
@@ -80,6 +84,7 @@ fn definition() -> ToolDefinition {
 fn executor(
     pool: &Arc<ConnectionPool>,
     dirty_tracker: &Arc<Mutex<DirtyServerTracker>>,
+    allowed: Option<Vec<String>>,
 ) -> ToolExecutorFn {
     let pool = Arc::clone(pool);
     let tracker = Arc::clone(dirty_tracker);
@@ -87,6 +92,7 @@ fn executor(
     Box::new(move |args, _env| {
         let pool = Arc::clone(&pool);
         let tracker = Arc::clone(&tracker);
+        let allowed = allowed.clone();
         Box::pin(async move {
             let code = crate::tools::required_str(&args, "code")?.to_string();
 
@@ -113,13 +119,8 @@ fn executor(
                 requested_capabilities: None,
             };
 
-            // Gather connected servers as Arc<dyn McpServer>
-            let servers: Vec<Arc<dyn McpServer>> = pool
-                .connected_servers()
-                .await
-                .into_iter()
-                .map(|s| s as Arc<dyn McpServer>)
-                .collect();
+            // Gather connected servers, filtered by allow-list
+            let servers = crate::mcp::filter_servers(&pool, allowed.as_deref()).await;
 
             // Take dirty server set
             let dirty: HashSet<String> = tracker
@@ -140,61 +141,65 @@ fn executor(
 
 /// Build the codemode section of the system prompt.
 ///
-/// Generates TypeScript declarations for all connected MCP servers. If the
-/// declarations fit within the character budget, they are included in full.
-/// Otherwise, a summary with server names and tool counts is provided.
-pub async fn build_codemode_prompt(pool: &Arc<ConnectionPool>) -> String {
-    let servers: Vec<Arc<dyn McpServer>> = pool
-        .connected_servers()
-        .await
-        .into_iter()
-        .map(|s| s as Arc<dyn McpServer>)
-        .collect();
+/// Always includes a listing of available MCP servers with their
+/// instructions/descriptions. When TypeScript declarations fit within the
+/// character budget they are appended; otherwise a hint to use runtime
+/// discovery is included.
+///
+/// When `allowed` is `Some`, only those server IDs are included.
+pub async fn build_codemode_prompt(
+    pool: &Arc<ConnectionPool>,
+    allowed: Option<&[String]>,
+) -> String {
+    let servers = crate::mcp::filter_servers(pool, allowed).await;
 
     if servers.is_empty() {
         return String::new();
     }
 
-    // Try to generate full declarations
-    match generate_declarations(&servers).await {
-        Ok(declarations) if declarations.len() <= DECLARATION_BUDGET => {
-            format!(
-                "# Codemode\n\n\
-                 Use the `codemode` tool to execute JavaScript with access to MCP servers. \
-                 The following TypeScript declarations describe available functions:\n\n\
-                 ```typescript\n{declarations}\n```\n"
-            )
-        }
-        Ok(_) | Err(_) => {
-            // Over budget or error — fall back to summary
-            build_codemode_summary(&servers).await
-        }
-    }
-}
+    let mut prompt = format!(
+        "# MCP Codemode\n\n\
+         Use the `{TOOL_CODEMODE}` tool to execute JavaScript with access to MCP servers.\n\n",
+    );
 
-/// Build a summary of available MCP servers when full declarations are too large.
-async fn build_codemode_summary(servers: &[Arc<dyn McpServer>]) -> String {
-    let mut lines: Vec<String> = Vec::new();
-
-    for server in servers {
+    // Always list servers with instructions/descriptions
+    prompt.push_str("## Available MCP servers\n\n");
+    for server in &servers {
         let server_id = server.server_id();
         let server_name = server.server_name();
         let tool_count = server.tools().await.map(|t| t.len()).unwrap_or(0);
 
-        lines.push(format!(
-            "- **{server_name}** (`{server_id}`): {tool_count} tools"
+        prompt.push_str(&format!(
+            "- **{server_name}** (`{server_id}`): {tool_count} tools\n"
         ));
+
+        if let Some(instructions) = server.instructions() {
+            for line in instructions.lines() {
+                prompt.push_str(&format!("  {line}\n"));
+            }
+        } else if let Some(description) = server.description() {
+            prompt.push_str(&format!("  {description}\n"));
+        }
     }
 
-    format!(
-        "# Codemode\n\n\
-         Use the `codemode` tool to execute JavaScript with access to MCP servers. \
-         The full TypeScript declarations are too large for the system prompt. \
-         Use `import {{ listServers, listTools }} from '@codemode/discovery'` \
-         to explore available tools at runtime.\n\n\
-         Available servers:\n{}\n",
-        lines.join("\n")
-    )
+    // Try to generate full TypeScript declarations
+    match generate_declarations(&servers).await {
+        Ok(declarations) if declarations.len() <= DECLARATION_BUDGET => {
+            prompt.push_str(&format!(
+                "\n## TypeScript declarations\n\n\
+                 ```typescript\n{declarations}\n```\n"
+            ));
+        }
+        Ok(_) | Err(_) => {
+            prompt.push_str(
+                "\nThe full TypeScript declarations are too large for the system prompt. \
+                 Use `import { listServers, listTools } from '@codemode/discovery'` \
+                 to explore available tools at runtime.\n",
+            );
+        }
+    }
+
+    prompt
 }
 
 // ---------------------------------------------------------------------------

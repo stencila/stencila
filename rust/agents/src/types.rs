@@ -107,9 +107,12 @@ pub struct SessionConfig {
 
     /// Whether to register MCP tools directly in the agent's tool registry.
     ///
-    /// When enabled and the `mcp` feature is active, each MCP tool is
-    /// registered as an individual tool that the LLM can call directly.
-    /// Simple for LLMs but can overwhelm with many tools.
+    /// When enabled and the `mcp` feature is active, each tool from every
+    /// connected MCP server is registered individually. This is simple but
+    /// token-expensive — prefer `enable_mcp_codemode` for most agents.
+    ///
+    /// Defaults to `false`. Set `enableMcp: true` in the agent definition
+    /// to opt in to direct MCP tool registration.
     #[serde(default)]
     pub enable_mcp: bool,
 
@@ -118,12 +121,23 @@ pub struct SessionConfig {
     /// When enabled and the `codemode` feature is active, a single `codemode`
     /// tool is registered that lets the LLM write JavaScript to orchestrate
     /// MCP calls in a sandboxed environment. TypeScript declarations are
-    /// included in the system prompt.
+    /// included in the system prompt. Much more token-efficient than direct
+    /// MCP tool registration.
     ///
-    /// Defaults to `false` — callers must explicitly opt in to MCP
-    /// discovery and server connections.
-    #[serde(default)]
-    pub enable_codemode: bool,
+    /// Defaults to `true` — codemode is available when MCP servers are
+    /// discovered. Set `enableMcpCodemode: false` in the agent definition
+    /// to disable.
+    #[serde(default = "default_true")]
+    pub enable_mcp_codemode: bool,
+
+    /// MCP server IDs this agent is allowed to use.
+    ///
+    /// When `None`, all discovered and connected MCP servers are available.
+    /// When `Some`, only the listed server IDs are used — other servers are
+    /// ignored even if connected. Supports the principle of least privilege:
+    /// agents should only have access to the MCP servers they actually need.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_mcp_servers: Option<Vec<String>>,
 
     /// Whether loop detection is enabled.
     #[serde(default = "default_true")]
@@ -201,7 +215,8 @@ impl SessionConfig {
             auto_detect_awaiting_input: self.auto_detect_awaiting_input,
             enable_skills: self.enable_skills,
             enable_mcp: self.enable_mcp,
-            enable_codemode: self.enable_codemode,
+            enable_mcp_codemode: self.enable_mcp_codemode,
+            allowed_mcp_servers: self.allowed_mcp_servers.clone(),
             // Inherited: subagents use the same commit trailer
             commit_instructions: self.commit_instructions.clone(),
             // Session-specific: not inherited
@@ -229,7 +244,8 @@ impl Default for SessionConfig {
             auto_detect_awaiting_input: true,
             enable_skills: true,
             enable_mcp: false,
-            enable_codemode: false,
+            enable_mcp_codemode: true,
+            allowed_mcp_servers: None,
         }
     }
 }
@@ -290,8 +306,12 @@ impl SessionConfig {
             config.enable_mcp = val;
         }
 
-        if let Some(val) = agent.options.enable_codemode {
-            config.enable_codemode = val;
+        if let Some(val) = agent.options.enable_mcp_codemode {
+            config.enable_mcp_codemode = val;
+        }
+
+        if let Some(ref servers) = agent.options.allowed_mcp_servers {
+            config.allowed_mcp_servers = Some(servers.clone());
         }
 
         Ok(config)

@@ -1134,14 +1134,23 @@ class Agent(CreativeWork):
     provider: str | None = None
     """Provider identifier for the agent."""
 
+    reasoning_effort: str | None = None
+    """Reasoning effort level for the agent."""
+
     allowed_skills: list[str] | None = None
     """Skill names this agent can use."""
 
     allowed_tools: list[str] | None = None
     """Tool names available to the agent."""
 
-    reasoning_effort: str | None = None
-    """Reasoning effort level for the agent."""
+    enable_mcp: bool | None = None
+    """Whether to enable MCP tools."""
+
+    enable_mcp_codemode: bool | None = None
+    """Whether to enable MCP codemode orchestration."""
+
+    allowed_mcp_servers: list[str] | None = None
+    """MCP server IDs this agent is allowed to use."""
 
     max_turns: int | None = None
     """Maximum conversation turns (0 = unlimited)."""
@@ -1157,12 +1166,6 @@ class Agent(CreativeWork):
 
     compatibility: str | None = None
     """Environment requirements for the agent."""
-
-    enable_mcp: bool | None = None
-    """Whether to enable MCP tools."""
-
-    enable_codemode: bool | None = None
-    """Whether to enable codemode orchestration."""
 
 
 @dataclass(kw_only=True, repr=False)

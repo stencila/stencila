@@ -23,15 +23,49 @@ use crate::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 
 /// Discover MCP servers and create a connection pool.
 ///
+/// When `allowed` is `Some`, only server configs whose ID appears in the
+/// list are included — disallowed servers are never spawned or connected.
+/// When `None`, all discovered (enabled) servers are connected.
+///
 /// Returns the pool and a list of `(server_id, error)` for servers that
 /// failed to connect.
 pub async fn setup_mcp_pool(
     workspace_dir: &Path,
+    allowed: Option<&[String]>,
 ) -> (Arc<ConnectionPool>, Vec<(String, stencila_mcp::McpError)>) {
-    let configs = discover(workspace_dir);
+    let mut configs = discover(workspace_dir);
+    if let Some(ids) = allowed {
+        configs.retain(|c| ids.iter().any(|id| id == &c.id));
+    }
     let pool = Arc::new(ConnectionPool::new(configs));
     let errors = pool.connect_all().await;
     (pool, errors)
+}
+
+// ---------------------------------------------------------------------------
+// Server filtering
+// ---------------------------------------------------------------------------
+
+/// Return connected servers filtered by an optional allow-list.
+///
+/// When `allowed` is `Some`, only servers whose ID appears in the list are
+/// returned. When `None`, all connected servers are returned.
+pub async fn filter_servers(
+    pool: &Arc<ConnectionPool>,
+    allowed: Option<&[String]>,
+) -> Vec<Arc<dyn McpServer>> {
+    let servers = pool.connected_servers().await;
+    match allowed {
+        None => servers
+            .into_iter()
+            .map(|s| s as Arc<dyn McpServer>)
+            .collect(),
+        Some(ids) => servers
+            .into_iter()
+            .filter(|s| ids.iter().any(|id| id == s.server_id()))
+            .map(|s| s as Arc<dyn McpServer>)
+            .collect(),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -83,13 +117,17 @@ pub fn mcp_tool_name(server_id: &str, tool_name: &str) -> String {
 
 /// Register all tools from connected MCP servers into the profile's registry.
 ///
+/// When `allowed` is `Some`, only servers whose ID is in the list are
+/// included. When `None`, all connected servers are registered.
+///
 /// Returns a system prompt metadata section describing the registered MCP
 /// tools, or an empty string if no tools were registered.
 pub async fn register_mcp_tools(
     profile: &mut dyn ProviderProfile,
     pool: &Arc<ConnectionPool>,
+    allowed: Option<&[String]>,
 ) -> String {
-    let servers = pool.connected_servers().await;
+    let servers = filter_servers(pool, allowed).await;
     if servers.is_empty() {
         return String::new();
     }

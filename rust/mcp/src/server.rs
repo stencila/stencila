@@ -52,6 +52,9 @@ pub struct LiveMcpServer {
     /// Server capabilities from the initialize response.
     server_capabilities: ServerCapabilities,
 
+    /// Usage instructions/hints from the initialize response.
+    instructions: Option<String>,
+
     /// Cached tool definitions (populated on first `tools()` call).
     tools_cache: RwLock<Option<Vec<McpToolInfo>>>,
 
@@ -138,6 +141,7 @@ impl LiveMcpServer {
 
         let server_info = init_result.server_info;
         let server_capabilities = init_result.capabilities;
+        let instructions = init_result.instructions;
         let tools_dirty = Arc::new(AtomicBool::new(false));
 
         let mut server = Self {
@@ -145,6 +149,7 @@ impl LiveMcpServer {
             transport,
             server_info,
             server_capabilities,
+            instructions,
             tools_cache: RwLock::new(None),
             tools_dirty,
             tool_timeout: DEFAULT_TOOL_TIMEOUT,
@@ -233,6 +238,10 @@ impl McpServer for LiveMcpServer {
             return &info.name;
         }
         self.config.name.as_deref().unwrap_or(&self.config.id)
+    }
+
+    fn instructions(&self) -> Option<&str> {
+        self.instructions.as_deref()
     }
 
     fn version(&self) -> Option<&str> {

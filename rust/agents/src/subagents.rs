@@ -400,7 +400,7 @@ impl SubAgentManager {
         let child_prompt_config = {
             let mut c = child_config.clone();
             c.enable_mcp = false;
-            c.enable_codemode = false;
+            c.enable_mcp_codemode = false;
             c
         };
         let (mut system_prompt, _) = crate::prompts::build_system_prompt(
@@ -413,9 +413,12 @@ impl SubAgentManager {
         // Register MCP/codemode tools on child profile using parent's pool
         #[cfg(any(feature = "mcp", feature = "codemode"))]
         if let Some(ref pool) = self.mcp_pool {
+            let allowed = child_config.allowed_mcp_servers.as_deref();
+
             #[cfg(feature = "mcp")]
             if child_config.enable_mcp {
-                let mcp_metadata = crate::mcp::register_mcp_tools(&mut *child_profile, pool).await;
+                let mcp_metadata =
+                    crate::mcp::register_mcp_tools(&mut *child_profile, pool, allowed).await;
                 if !mcp_metadata.is_empty() {
                     system_prompt.push_str("\n\n");
                     system_prompt.push_str(&mcp_metadata);
@@ -423,20 +426,23 @@ impl SubAgentManager {
             }
 
             #[cfg(feature = "codemode")]
-            if child_config.enable_codemode {
+            if child_config.enable_mcp_codemode {
                 let tracker = self.dirty_tracker.clone().unwrap_or_else(|| {
                     std::sync::Arc::new(std::sync::Mutex::new(
                         stencila_codemode::DirtyServerTracker::new(),
                     ))
                 });
 
-                if let Err(e) =
-                    crate::codemode::register_codemode_tool(&mut *child_profile, pool, &tracker)
-                {
+                if let Err(e) = crate::codemode::register_codemode_tool(
+                    &mut *child_profile,
+                    pool,
+                    &tracker,
+                    child_config.allowed_mcp_servers.clone(),
+                ) {
                     tracing::warn!("failed to register codemode tool on subagent: {e}");
                 }
 
-                let codemode_prompt = crate::codemode::build_codemode_prompt(pool).await;
+                let codemode_prompt = crate::codemode::build_codemode_prompt(pool, allowed).await;
                 if !codemode_prompt.is_empty() {
                     system_prompt.push_str("\n\n");
                     system_prompt.push_str(&codemode_prompt);

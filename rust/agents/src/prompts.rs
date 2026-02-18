@@ -341,12 +341,13 @@ async fn setup_mcp_layers(
     config: &SessionConfig,
     prompt: &mut String,
 ) -> Option<McpContext> {
-    if !config.enable_mcp && !config.enable_codemode {
+    if !config.enable_mcp && !config.enable_mcp_codemode {
         return None;
     }
 
     let workspace_dir = std::path::Path::new(env.working_directory());
-    let (pool, connection_errors) = crate::mcp::setup_mcp_pool(workspace_dir).await;
+    let allowed = config.allowed_mcp_servers.as_deref();
+    let (pool, connection_errors) = crate::mcp::setup_mcp_pool(workspace_dir, allowed).await;
 
     for (server_id, err) in &connection_errors {
         tracing::warn!(server_id, "MCP server connection failed: {err}");
@@ -359,7 +360,7 @@ async fn setup_mcp_layers(
 
     #[cfg(feature = "mcp")]
     if config.enable_mcp {
-        let mcp_metadata = crate::mcp::register_mcp_tools(profile, &pool).await;
+        let mcp_metadata = crate::mcp::register_mcp_tools(profile, &pool, allowed).await;
         if !mcp_metadata.is_empty() {
             prompt.push_str("\n\n");
             prompt.push_str(&mcp_metadata);
@@ -367,16 +368,21 @@ async fn setup_mcp_layers(
     }
 
     #[cfg(feature = "codemode")]
-    let dirty_tracker = if config.enable_codemode {
+    let dirty_tracker = if config.enable_mcp_codemode {
         let tracker = std::sync::Arc::new(std::sync::Mutex::new(
             stencila_codemode::DirtyServerTracker::new(),
         ));
 
-        if let Err(e) = crate::codemode::register_codemode_tool(profile, &pool, &tracker) {
+        if let Err(e) = crate::codemode::register_codemode_tool(
+            profile,
+            &pool,
+            &tracker,
+            config.allowed_mcp_servers.clone(),
+        ) {
             tracing::warn!("failed to register codemode tool: {e}");
         }
 
-        let codemode_prompt = crate::codemode::build_codemode_prompt(&pool).await;
+        let codemode_prompt = crate::codemode::build_codemode_prompt(&pool, allowed).await;
         if !codemode_prompt.is_empty() {
             prompt.push_str("\n\n");
             prompt.push_str(&codemode_prompt);

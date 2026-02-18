@@ -723,6 +723,16 @@
       "$comment": "The provider to use, e.g. \"anthropic\", \"openai\", \"gemini\". When not specified,\nthe first available provider is used.\n",
       "type": "string"
     },
+    "reasoningEffort": {
+      "@id": "stencila:reasoningEffort",
+      "description": "Reasoning effort level for the agent.",
+      "$comment": "Valid values are \"low\", \"medium\", \"high\", or a custom provider-specific value.\nWhen not specified, the provider's default is used.\n",
+      "aliases": [
+        "reasoning-effort",
+        "reasoning_effort"
+      ],
+      "type": "string"
+    },
     "allowedSkills": {
       "@id": "stencila:allowedSkills",
       "description": "Skill names this agent can use.",
@@ -755,15 +765,39 @@
         "type": "string"
       }
     },
-    "reasoningEffort": {
-      "@id": "stencila:reasoningEffort",
-      "description": "Reasoning effort level for the agent.",
-      "$comment": "Valid values are \"low\", \"medium\", \"high\", or a custom provider-specific value.\nWhen not specified, the provider's default is used.\n",
+    "enableMcp": {
+      "@id": "stencila:enableMcp",
+      "description": "Whether to enable MCP tools.",
       "aliases": [
-        "reasoning-effort",
-        "reasoning_effort"
+        "enable-mcp",
+        "enable_mcp"
       ],
-      "type": "string"
+      "type": "boolean"
+    },
+    "enableMcpCodemode": {
+      "@id": "stencila:enableMcpCodemode",
+      "description": "Whether to enable MCP codemode orchestration.",
+      "aliases": [
+        "enable-mcp-codemode",
+        "enable_mcp_codemode"
+      ],
+      "type": "boolean"
+    },
+    "allowedMcpServers": {
+      "@id": "stencila:allowedMcpServers",
+      "description": "MCP server IDs this agent is allowed to use.",
+      "$comment": "When unset, all discovered and connected MCP servers are available.\nWhen set, only the listed server IDs are used — other servers are\nignored even if connected. This supports the principle of least\nprivilege: agents should only have access to the MCP servers they\nactually need.\n",
+      "aliases": [
+        "allowed-mcp-servers",
+        "allowed_mcp_servers",
+        "allowedMcpServer",
+        "allowed-mcp-server",
+        "allowed_mcp_server"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "maxTurns": {
       "@id": "stencila:maxTurns",
@@ -806,24 +840,6 @@
       "description": "Environment requirements for the agent.",
       "$comment": "Max 500 characters. Indicates intended product, required system packages,\nnetwork access needs, etc. Most agents do not need this field.\n",
       "type": "string"
-    },
-    "enableMcp": {
-      "@id": "stencila:enableMcp",
-      "description": "Whether to enable MCP tools.",
-      "aliases": [
-        "enable-mcp",
-        "enable_mcp"
-      ],
-      "type": "boolean"
-    },
-    "enableCodemode": {
-      "@id": "stencila:enableCodemode",
-      "description": "Whether to enable codemode orchestration.",
-      "aliases": [
-        "enable-codemode",
-        "enable_codemode"
-      ],
-      "type": "boolean"
     }
   }
 }

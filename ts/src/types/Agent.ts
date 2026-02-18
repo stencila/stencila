@@ -42,6 +42,11 @@ export class Agent extends CreativeWork {
   provider?: string;
 
   /**
+   * Reasoning effort level for the agent.
+   */
+  reasoningEffort?: string;
+
+  /**
    * Skill names this agent can use.
    */
   allowedSkills?: string[];
@@ -52,9 +57,19 @@ export class Agent extends CreativeWork {
   allowedTools?: string[];
 
   /**
-   * Reasoning effort level for the agent.
+   * Whether to enable MCP tools.
    */
-  reasoningEffort?: string;
+  enableMcp?: boolean;
+
+  /**
+   * Whether to enable MCP codemode orchestration.
+   */
+  enableMcpCodemode?: boolean;
+
+  /**
+   * MCP server IDs this agent is allowed to use.
+   */
+  allowedMcpServers?: string[];
 
   /**
    * Maximum conversation turns (0 = unlimited).
@@ -80,16 +95,6 @@ export class Agent extends CreativeWork {
    * Environment requirements for the agent.
    */
   compatibility?: string;
-
-  /**
-   * Whether to enable MCP tools.
-   */
-  enableMcp?: boolean;
-
-  /**
-   * Whether to enable codemode orchestration.
-   */
-  enableCodemode?: boolean;
 
   constructor(description: string, name: string, options?: Partial<Agent>) {
     super();

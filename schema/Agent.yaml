@@ -67,6 +67,13 @@ properties:
       The provider to use, e.g. "anthropic", "openai", "gemini". When not specified,
       the first available provider is used.
     type: string
+  reasoningEffort:
+    "@id": stencila:reasoningEffort
+    description: Reasoning effort level for the agent.
+    $comment: |
+      Valid values are "low", "medium", "high", or a custom provider-specific value.
+      When not specified, the provider's default is used.
+    type: string
   allowedSkills:
     "@id": stencila:allowedSkills
     description: Skill names this agent can use.
@@ -85,13 +92,26 @@ properties:
     type: array
     items:
       type: string
-  reasoningEffort:
-    "@id": stencila:reasoningEffort
-    description: Reasoning effort level for the agent.
+  enableMcp:
+    "@id": stencila:enableMcp
+    description: Whether to enable MCP tools.
+    type: boolean
+  enableMcpCodemode:
+    "@id": stencila:enableMcpCodemode
+    description: Whether to enable MCP codemode orchestration.
+    type: boolean
+  allowedMcpServers:
+    "@id": stencila:allowedMcpServers
+    description: MCP server IDs this agent is allowed to use.
     $comment: |
-      Valid values are "low", "medium", "high", or a custom provider-specific value.
-      When not specified, the provider's default is used.
-    type: string
+      When unset, all discovered and connected MCP servers are available.
+      When set, only the listed server IDs are used — other servers are
+      ignored even if connected. This supports the principle of least
+      privilege: agents should only have access to the MCP servers they
+      actually need.
+    type: array
+    items:
+      type: string
   maxTurns:
     "@id": stencila:maxTurns
     description: Maximum conversation turns (0 = unlimited).
@@ -115,11 +135,3 @@ properties:
       Max 500 characters. Indicates intended product, required system packages,
       network access needs, etc. Most agents do not need this field.
     type: string
-  enableMcp:
-    "@id": stencila:enableMcp
-    description: Whether to enable MCP tools.
-    type: boolean
-  enableCodemode:
-    "@id": stencila:enableCodemode
-    description: Whether to enable codemode orchestration.
-    type: boolean

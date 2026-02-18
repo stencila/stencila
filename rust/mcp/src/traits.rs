@@ -64,6 +64,11 @@ pub trait McpServer: Send + Sync {
         None
     }
 
+    /// Usage instructions/hints from the server (MCP spec `instructions` field).
+    fn instructions(&self) -> Option<&str> {
+        None
+    }
+
     /// An optional version string for this server.
     fn version(&self) -> Option<&str> {
         None
