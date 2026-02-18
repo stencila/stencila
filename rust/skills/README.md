@@ -69,6 +69,16 @@ The following are known limitations of this implementation:
 
 ## Development
 
+### Workflow
+
+The `make check` recipe performs the workflow:
+
+```sh
+cargo clippy --fix --allow-dirty --all-targets -p stencila-skills
+cargo fmt -p stencila-skills
+cargo test --all-features -p stencila-skills
+```
+
 ### Updating the spec
 
 A vendored copy of the [upstream spec](https://github.com/agentskills/agentskills) is kept in `specs/` for reference. Use the protocol below to check for and incorporate upstream changes.
@@ -99,10 +109,16 @@ git --no-pager diff -- specs/agent-skills.md
 - Implement the minimum code changes in `src/` until tests pass.
 - Note any extensions, deviations, and limitations in the above sections.
 
-### Testing
+5. Run the crate check recipe:
 
 ```sh
-cargo fmt -p stencila-skills
-cargo clippy --fix --allow-dirty --all-targets -p stencila-skills
-cargo test -p stencila-skills
+make check
+```
+
+### Testing
+
+Use the crate check recipe:
+
+```sh
+make check
 ```

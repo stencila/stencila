@@ -1,7 +1,9 @@
 SPEC_URL := https://raw.githubusercontent.com/strongdm/attractor/refs/heads/main/unified-llm-spec.md
 SPEC_FILE := specs/unified-llm-spec.md
 
-.PHONY: spec-update spec-diff
+CRATE := stencila-models3
+
+.PHONY: lint format test check spec-update spec-diff
 
 spec-diff:
 	@mkdir -p specs
@@ -17,3 +19,14 @@ spec-diff:
 spec-update:
 	mkdir -p specs
 	curl -fSL -o $(SPEC_FILE) $(SPEC_URL)
+
+lint:
+	cargo clippy --fix --allow-dirty --all-targets -p $(CRATE)
+
+format:
+	cargo fmt -p $(CRATE)
+
+test:
+	cargo test --all-features -p $(CRATE)
+
+check: lint format test

@@ -219,6 +219,16 @@ When tool-call argument parsing/schema validation fails, the current behavior is
 
 ## Development
 
+### Workflow
+
+The `make check` recipe performs the workflow:
+
+```sh
+cargo clippy --fix --allow-dirty --all-targets -p stencila-models3
+cargo fmt -p stencila-models3
+cargo test --all-features -p stencila-models3
+```
+
 ### Updating the spec
 
 A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes. All `make` targets run from `rust/models3/`.
@@ -250,12 +260,10 @@ If the diff is cosmetic (e.g. typo fixes, link updates, rewording with no new or
 - Implement the minimum code changes in `src/` and adapters until tests pass.
 - Keep deferred subsections explicit in `## Limitations` if any gaps remain.
 
-5. Run the required crate workflow:
+5. Run the crate check recipe:
 
 ```sh
-cargo fmt -p stencila-models3
-cargo clippy --fix --allow-dirty --all-targets -p stencila-models3
-cargo test -p stencila-models3
+make check
 ```
 
 6. If feature-gated paths changed, also run:
@@ -282,12 +290,10 @@ Providers whose keys are absent are silently skipped. Discovered models are appe
 
 ### Testing
 
-Use the crate workflow below:
+Use the crate check recipe:
 
 ```sh
-cargo fmt -p stencila-models3
-cargo clippy --fix --allow-dirty --all-targets -p stencila-models3
-cargo test -p stencila-models3
+make check
 ```
 
 Acceptance tests in `tests/spec_8_acceptance.rs` are env-gated and skip per-provider when live API quota/rate-limit conditions prevent execution.

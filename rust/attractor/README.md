@@ -199,6 +199,16 @@ The 21 cross-feature integration test cases from the parity matrix are deferred,
 
 ## Development
 
+### Workflow
+
+The `make check` recipe performs the workflow:
+
+```sh
+cargo clippy --fix --allow-dirty --all-targets -p stencila-attractor
+cargo fmt -p stencila-attractor
+cargo test --all-features -p stencila-attractor
+```
+
 ### Updating the spec
 
 A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes.
@@ -228,12 +238,10 @@ git --no-pager diff -- specs/attractor-spec.md
 - Implement the minimum code changes in `src/` and adapters until tests pass.
 - Keep deferred subsections explicit in `## Limitations` if any gaps remain.
 
-5. Run the required crate workflow:
+5. Run the crate check recipe:
 
 ```sh
-cargo fmt -p stencila-attractor
-cargo clippy --fix --allow-dirty --all-targets -p stencila-attractor
-cargo test -p stencila-attractor
+make check
 ```
 
 6. If feature-gated paths changed, also run:
@@ -261,12 +269,10 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `tests/spec_9_events.rs`    | §9.6                | Event emitters: NoOp, Collecting, Observer, Broadcast |
 | `tests/spec_10_conditions.rs`| §10                | Condition expression language                         |
 
-Use the crate workflow below:
+Use the crate check recipe:
 
 ```sh
-cargo fmt -p stencila-attractor
-cargo clippy --fix --allow-dirty --all-targets -p stencila-attractor
-cargo test -p stencila-attractor
+make check
 ```
 
 ### Documentation

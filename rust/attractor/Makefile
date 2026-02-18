@@ -3,18 +3,7 @@ SPEC_FILE := specs/attractor-spec.md
 
 CRATE := stencila-attractor
 
-.PHONY: fmt lint test check spec-update spec-diff
-
-fmt:
-	cargo fmt -p $(CRATE)
-
-lint:
-	cargo clippy --fix --allow-dirty --all-targets -p $(CRATE)
-
-test:
-	cargo test -p $(CRATE)
-
-check: fmt lint test
+.PHONY: lint format test check spec-update spec-diff
 
 spec-diff:
 	@mkdir -p specs
@@ -30,3 +19,14 @@ spec-diff:
 spec-update:
 	mkdir -p specs
 	curl -fSL -o $(SPEC_FILE) $(SPEC_URL)
+
+lint:
+	cargo clippy --fix --allow-dirty --all-targets -p $(CRATE)
+
+format:
+	cargo fmt -p $(CRATE)
+
+test:
+	cargo test --all-features -p $(CRATE)
+
+check: lint format test
