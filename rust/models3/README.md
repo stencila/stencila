@@ -231,13 +231,15 @@ cargo test --all-features -p stencila-models3
 
 ### Updating the spec
 
-A vendored copy of the spec is kept in `specs/` for reference. Use the protocol below when upstream changes. All `make` targets run from `rust/models3/`.
+A vendored copy of the spec is kept in `specs/` for reference. Follow the steps below when upstream changes.
 
-1. Preview upstream changes without mutating the repo:
+1. Preview upstream changes without modifying the repo:
 
 ```sh
 make spec-diff
 ```
+
+No output means the vendored copy is already up to date — no further work is needed.
 
 2. Vendor the latest spec:
 
@@ -245,20 +247,20 @@ make spec-diff
 make spec-update
 ```
 
-3. Review the vendored diff (for commit / PR context):
+3. Review the vendored diff for commit/PR context:
 
 ```sh
 git --no-pager diff -- specs/unified-llm-spec.md
 ```
 
-If the diff is cosmetic (e.g. typo fixes, link updates, rewording with no new or changed requirements), stop here — no implementation work is needed.
+If the diff is cosmetic only (typo fixes, rewording with no new requirements), no further work is needed.
 
-4. Convert spec requirement changes into implementation work:
+4. Convert spec changes into implementation work:
 
 - Update requirement rows and status in `tests/spec-traceability.md`.
 - Add or update failing tests in the matching `tests/spec_*.rs` file(s) first.
-- Implement the minimum code changes in `src/` and adapters until tests pass.
-- Keep deferred subsections explicit in `## Limitations` if any gaps remain.
+- Implement the minimum code changes in `src/` until tests pass.
+- Note any extensions, deviations, and/or limitations in the sections above.
 
 5. Run the crate check recipe:
 
@@ -266,11 +268,6 @@ If the diff is cosmetic (e.g. typo fixes, link updates, rewording with no new or
 make check
 ```
 
-6. If feature-gated paths changed, also run:
-
-```sh
-cargo test -p stencila-models3 --all-features
-```
 
 ### Updating the model catalog
 
