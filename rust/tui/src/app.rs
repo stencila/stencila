@@ -6,6 +6,7 @@ use stencila_attractor::events::PipelineEvent;
 use strum::Display;
 use tokio::{sync::mpsc, task::JoinHandle};
 
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use crate::{
@@ -52,7 +53,7 @@ impl ExchangeKind {
         match self {
             Self::Agent => Color::Blue,
             Self::Shell => Color::Yellow,
-            Self::Workflow => Color::Magenta,
+            Self::Workflow => Color::Rgb(0, 180, 160),
         }
     }
 }
@@ -76,15 +77,52 @@ pub enum ExchangeStatus {
     Cancelled,
 }
 
-/// Fixed palette of colors for agent sessions.
-const AGENT_COLORS: [Color; 6] = [
+/// Fixed palette of colors for agent names, cycled on first encounter.
+const AGENT_COLORS: [Color; 8] = [
     Color::Blue,
     Color::Magenta,
     Color::Cyan,
     Color::Green,
-    Color::Yellow,
-    Color::Red,
+    Color::LightYellow,
+    Color::LightRed,
+    Color::LightBlue,
+    Color::LightMagenta,
 ];
+
+/// Registry that assigns a stable color to each unique agent name.
+///
+/// Colors are drawn from [`AGENT_COLORS`] and assigned lazily on first
+/// encounter, cycling when more names than palette entries are seen.
+pub struct AgentColorRegistry {
+    map: HashMap<String, Color>,
+    next_index: usize,
+}
+
+impl AgentColorRegistry {
+    pub fn new() -> Self {
+        Self {
+            map: HashMap::new(),
+            next_index: 0,
+        }
+    }
+
+    /// Get (or assign) a color for the given agent name (case-insensitive).
+    pub fn color_for(&mut self, name: &str) -> Color {
+        let key = name.to_ascii_lowercase();
+        if let Some(&c) = self.map.get(&key) {
+            return c;
+        }
+        let c = AGENT_COLORS[self.next_index % AGENT_COLORS.len()];
+        self.next_index += 1;
+        self.map.insert(key, c);
+        c
+    }
+
+    /// Lookup without assigning (for read-only contexts).
+    pub fn get(&self, name: &str) -> Option<Color> {
+        self.map.get(&name.to_ascii_lowercase()).copied()
+    }
+}
 
 /// An agent session with its own model, instructions, and running state.
 pub struct AgentSession {
@@ -116,11 +154,6 @@ impl AgentSession {
             running_agent_exchanges: Vec::new(),
             context_usage_percent: 0,
         }
-    }
-
-    /// Color for this agent session, based on its index.
-    pub fn color(index: usize) -> Color {
-        AGENT_COLORS[index % AGENT_COLORS.len()]
     }
 }
 
@@ -372,6 +405,9 @@ pub struct App {
 
     /// Cache for markdown rendering of response text segments.
     pub md_render_cache: crate::ui::markdown::MdRenderCache,
+
+    /// Registry mapping agent names to stable colors.
+    pub color_registry: AgentColorRegistry,
 }
 
 impl App {
@@ -382,7 +418,10 @@ impl App {
         upgrade_handle: Option<JoinHandle<Option<String>>>,
     ) -> Self {
         let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
-        let default_session = AgentSession::new(default_name);
+        let default_session = AgentSession::new(&default_name);
+
+        let mut color_registry = AgentColorRegistry::new();
+        color_registry.color_for(&default_name);
 
         Self {
             config: AppConfig::default(),
@@ -419,6 +458,7 @@ impl App {
             upgrade_available: None,
             upgrade_msg_index: None,
             md_render_cache: crate::ui::markdown::MdRenderCache::default(),
+            color_registry,
         }
     }
 
@@ -846,6 +886,7 @@ impl App {
         let mut session = AgentSession::new(&info.name);
         session.definition = Some(info.clone());
 
+        self.color_registry.color_for(&info.name);
         self.sessions.push(session);
         self.active_session = self.sessions.len() - 1;
         self.input.clear();
@@ -1024,6 +1065,7 @@ impl App {
                 kind,
                 response: Some(resp),
                 agent_index,
+                agent_name,
                 ..
             } = message
             {
@@ -1035,13 +1077,17 @@ impl App {
                 let (label, color) = if *kind == ExchangeKind::Shell {
                     ("shell".to_string(), ExchangeKind::Shell.color())
                 } else {
-                    let name = agent_index
-                        .and_then(|idx| self.sessions.get(idx))
-                        .map_or_else(|| "chat".to_string(), |s| s.name.clone());
-                    let c = agent_index
-                        .map(AgentSession::color)
+                    let name = agent_name
+                        .as_deref()
+                        .or_else(|| {
+                            agent_index.and_then(|idx| self.sessions.get(idx).map(|s| s.name.as_str()))
+                        })
+                        .unwrap_or("chat");
+                    let c = self
+                        .color_registry
+                        .get(name)
                         .unwrap_or(ExchangeKind::Agent.color());
-                    (name, c)
+                    (name.to_string(), c)
                 };
                 // First line of response as preview (no truncation — renderer handles it)
                 let preview = resp.lines().next().unwrap_or("").to_string();
@@ -1067,9 +1113,12 @@ impl App {
             .iter()
             .enumerate()
             .filter(|(i, _)| *i != self.active_session)
-            .map(|(i, s)| MentionCandidate {
+            .map(|(_, s)| MentionCandidate {
                 name: s.name.clone(),
-                color: AgentSession::color(i),
+                color: self
+                    .color_registry
+                    .get(&s.name)
+                    .unwrap_or(Color::DarkGray),
                 definition: s.definition.clone(),
             })
             .collect();
@@ -1083,7 +1132,10 @@ impl App {
             }
             candidates.push(MentionCandidate {
                 name: def.name.clone(),
-                color: Color::DarkGray,
+                color: self
+                    .color_registry
+                    .get(&def.name)
+                    .unwrap_or(Color::DarkGray),
                 definition: Some(AgentDefinitionInfo {
                     name: def.name.clone(),
                     description: def.description.clone(),
@@ -1284,7 +1336,9 @@ impl App {
         }
         // Drop all sessions (and their agent handles)
         self.sessions.clear();
+        self.color_registry = AgentColorRegistry::new();
         let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
+        self.color_registry.color_for(&default_name);
         self.sessions.push(AgentSession::new(default_name));
         self.active_session = 0;
         self.messages.clear();
@@ -2062,6 +2116,7 @@ impl App {
             PipelineEvent::StagePrompt {
                 agent_name, prompt, ..
             } => {
+                self.color_registry.color_for(agent_name);
                 if let Some(msg_index) = self
                     .active_workflow
                     .as_ref()
@@ -3503,7 +3558,7 @@ mod tests {
 
         assert!(app.active_workflow.is_some());
         assert_eq!(
-            app.active_workflow.as_ref().unwrap().state,
+            app.active_workflow.as_ref().expect("checked above").state,
             ActiveWorkflowState::Cancelled
         );
     }

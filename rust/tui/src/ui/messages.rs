@@ -8,7 +8,7 @@ use ratatui::{
 
 use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{
-    AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind,
+    App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind,
     WorkflowStatusState,
 };
 
@@ -61,12 +61,20 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } => {
                 exchange_num += 1;
                 let agent_tag = if let Some(name) = workflow_agent_name {
-                    Some((name.clone(), Color::Magenta))
+                    let color = app
+                        .color_registry
+                        .get(name)
+                        .unwrap_or(Color::DarkGray);
+                    Some((name.clone(), color))
                 } else {
                     agent_index.and_then(|idx| {
-                        app.sessions
-                            .get(idx)
-                            .map(|s| (s.name.clone(), AgentSession::color(idx)))
+                        app.sessions.get(idx).map(|s| {
+                            let color = app
+                                .color_registry
+                                .get(&s.name)
+                                .unwrap_or(Color::Blue);
+                            (s.name.clone(), color)
+                        })
                     })
                 };
                 exchange_lines(
@@ -231,7 +239,15 @@ fn exchange_lines(
 ) {
     let kind_color = agent_tag.map_or_else(|| kind.color(), |(_, color)| *color);
     let base_color = if kind == ExchangeKind::Workflow {
-        kind.color()
+        // Workflow exchanges start grey (agent unknown) and adopt the
+        // agent's registered color once StagePrompt has been received.
+        match status {
+            ExchangeStatus::Running | ExchangeStatus::Succeeded => {
+                agent_tag.map_or(Color::DarkGray, |(_, color)| *color)
+            }
+            ExchangeStatus::Failed => Color::Red,
+            ExchangeStatus::Cancelled => Color::DarkGray,
+        }
     } else {
         match status {
             ExchangeStatus::Running | ExchangeStatus::Succeeded => kind_color,
@@ -658,7 +674,7 @@ fn response_text(lines: &mut Vec<Line>, resp: &str, base_color: Color, content_w
 }
 
 /// Workflow-specific color palette.
-const WORKFLOW_COLOR: Color = Color::Magenta;
+const WORKFLOW_COLOR: Color = Color::Rgb(0, 180, 160);
 
 /// Render an in-place-updatable workflow status line styled like an exchange.
 #[allow(clippy::too_many_arguments)]

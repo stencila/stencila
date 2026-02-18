@@ -5,7 +5,7 @@ use ratatui::{
     text::{Line, Span},
 };
 
-use crate::app::{AgentSession, App};
+use crate::app::App;
 use crate::autocomplete::agents::AgentCandidateKind;
 
 use super::common::{
@@ -235,13 +235,16 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
         .enumerate()
         .map(|(i, candidate)| match &candidate.kind {
             AgentCandidateKind::Session {
-                index,
                 is_active,
                 definition,
+                ..
             } => {
                 let bullet = if *is_active { "\u{25cf} " } else { "  " };
                 let name_col = format!(" {bullet}{:<max_name_width$}  ", candidate.name);
-                let color = AgentSession::color(*index);
+                let color = app
+                    .color_registry
+                    .get(&candidate.name)
+                    .unwrap_or(ratatui::style::Color::Blue);
 
                 let detail = definition.as_ref().and_then(|info| {
                     if !info.description.is_empty() {

@@ -6,14 +6,14 @@ use ratatui::{
     widgets::{Block, Paragraph},
 };
 
-use crate::app::{ActiveWorkflow, ActiveWorkflowState, AgentSession, App, AppMode, ExchangeKind};
+use crate::app::{ActiveWorkflow, ActiveWorkflowState, App, AppMode, ExchangeKind};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, INPUT_BG, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
     cursor_position_wrapped, dim, style_inline_markdown, visual_line_count, wrap_content,
 };
 
-const WORKFLOW_COLOR: Color = Color::Magenta;
+const WORKFLOW_COLOR: Color = Color::Rgb(0, 180, 160);
 const MAX_GHOST_LINES: usize = 3;
 
 fn last_visual_line_len(text: &str, wrap_width: usize) -> usize {
@@ -75,9 +75,11 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
 
     // Use workflow color when in workflow mode, agent color in multi-agent chat, otherwise kind color
     let bar_color = if app.active_workflow.is_some() {
-        Color::Magenta
-    } else if app.mode == AppMode::Agent && app.sessions.len() > 1 {
-        AgentSession::color(app.active_session)
+        WORKFLOW_COLOR
+    } else if app.mode == AppMode::Agent {
+        app.color_registry
+            .get(&app.active().name)
+            .unwrap_or(kind.color())
     } else {
         kind.color()
     };
@@ -357,7 +359,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     } else if app.mode == AppMode::Agent {
         // Always show active agent name in agent's color
         let name = &app.active().name;
-        let color = AgentSession::color(app.active_session);
+        let color = app.color_registry.get(name).unwrap_or(Color::Blue);
         let pct = app.active().context_usage_percent;
         let mut spans = vec![Span::styled(format!("   {name}"), Style::new().fg(color))];
         if pct > 0 {
