@@ -83,14 +83,17 @@ The pipeline uses a human gate at the review stage.
     );
 
     // Pipeline should be extracted from the dot code block
-    let pipeline = workflow.pipeline.as_deref().expect("pipeline should be Some");
+    let pipeline = workflow
+        .pipeline
+        .as_deref()
+        .expect("pipeline should be Some");
     assert!(pipeline.contains("digraph code_review"));
     assert!(pipeline.contains("start -> plan -> implement -> validate -> review"));
     assert!(pipeline.contains(r#"agent="code-planner""#));
 
     // Content should be present (heading, paragraph, code block, trailing paragraph)
     assert!(workflow.content.is_some());
-    let content = workflow.content.as_ref().unwrap();
+    let content = workflow.content.as_ref().expect("content should be Some");
     assert!(!content.is_empty());
 
     // modelStylesheet should be parsed from frontmatter
@@ -175,7 +178,10 @@ digraph second { c -> d }
         other => panic!("Expected Workflow, got {:?}", other),
     };
 
-    let pipeline = workflow.pipeline.as_deref().expect("pipeline should be Some");
+    let pipeline = workflow
+        .pipeline
+        .as_deref()
+        .expect("pipeline should be Some");
     // Should extract the first dot block, not the second
     assert!(pipeline.contains("digraph first"));
     assert!(!pipeline.contains("digraph second"));
@@ -256,7 +262,13 @@ This workflow has documentation but no pipeline definition yet.
 
     assert_eq!(workflow.name, "doc-only");
     assert!(workflow.content.is_some());
-    assert!(!workflow.content.as_ref().unwrap().is_empty());
+    assert!(
+        !workflow
+            .content
+            .as_ref()
+            .expect("content should be Some")
+            .is_empty()
+    );
     assert!(workflow.pipeline.is_none());
 
     Ok(())
@@ -291,7 +303,7 @@ digraph auto { x -> y }
         workflow
             .pipeline
             .as_deref()
-            .unwrap()
+            .expect("pipeline should be Some")
             .contains("digraph auto")
     );
 
@@ -375,7 +387,7 @@ Some additional documentation.
     assert!(
         w2.pipeline
             .as_deref()
-            .unwrap()
+            .expect("pipeline should be Some")
             .contains("digraph roundtrip")
     );
 

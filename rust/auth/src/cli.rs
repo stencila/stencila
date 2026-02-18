@@ -38,15 +38,20 @@ enum Command {
 }
 
 impl Cli {
+    /// Run the auth CLI command.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the subcommand fails.
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            return Status.run().await;
+            return Status.run();
         };
 
         match command {
-            Command::Status(status) => status.run().await,
+            Command::Status(status) => status.run(),
             Command::Login(login) => login.run().await,
-            Command::Logout(logout) => logout.run().await,
+            Command::Logout(logout) => logout.run(),
         }
     }
 }
@@ -104,7 +109,8 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Status {
-    async fn run(self) -> Result<()> {
+    #[allow(clippy::unused_self)]
+    fn run(self) -> Result<()> {
         let providers = [
             Provider::Anthropic,
             Provider::Copilot,
@@ -238,7 +244,7 @@ pub static LOGOUT_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Logout {
-    async fn run(self) -> Result<()> {
+    fn run(self) -> Result<()> {
         let key = self.provider.secret_key();
 
         if persist::load_credentials(key)?.is_some() {

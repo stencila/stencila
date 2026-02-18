@@ -37,7 +37,8 @@ impl CodexCliCredentials {
     ///
     /// When `false`, the credentials are OAuth-only and require the
     /// `ChatGPT` backend endpoint (`chatgpt.com/backend-api/codex`).
-    #[must_use] pub fn has_api_key(&self) -> bool {
+    #[must_use]
+    pub fn has_api_key(&self) -> bool {
         self.api_key.is_some()
     }
 }

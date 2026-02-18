@@ -131,7 +131,7 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 
 /// Stencila configuration
 #[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     /// The workspace directory this config was loaded from
@@ -205,7 +205,7 @@ pub struct Config {
     /// transport.command = "npx"
     /// transport.args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
     /// ```
-    pub mcp: Option<mcp::McpConfig>,
+    pub mcp: Option<McpConfig>,
 
     /// Model configuration.
     ///

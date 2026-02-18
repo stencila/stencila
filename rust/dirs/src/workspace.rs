@@ -328,5 +328,4 @@ mod tests {
         let result = closest_dot_dir(tmp.path(), ".nonexistent-dir-xyz");
         assert!(result.is_none());
     }
-
 }

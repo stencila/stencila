@@ -363,10 +363,8 @@ fn accumulator_prefers_finish_response() {
         rate_limit: None,
     };
 
-    let mut finish_event = StreamEvent::finish(
-        FinishReason::new(Reason::Stop, None),
-        Usage::default(),
-    );
+    let mut finish_event =
+        StreamEvent::finish(FinishReason::new(Reason::Stop, None), Usage::default());
     finish_event.response = Some(Box::new(finish_response));
     acc.process(&finish_event);
 

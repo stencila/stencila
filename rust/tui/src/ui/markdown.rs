@@ -510,7 +510,11 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
             .collect();
 
         // Number of display lines for this row
-        let num_lines = wrapped_cells.iter().map(std::vec::Vec::len).max().unwrap_or(1);
+        let num_lines = wrapped_cells
+            .iter()
+            .map(std::vec::Vec::len)
+            .max()
+            .unwrap_or(1);
 
         for line_idx in 0..num_lines {
             let mut line = indent.clone();
@@ -518,8 +522,8 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
                 line.push(Span::styled("\u{2502} ", border_style));
                 let w = col_widths[c];
                 let spans = wrapped.get(line_idx);
-                let content_chars: usize = spans
-                    .map_or(0, |s| s.iter().map(|sp| sp.content.width()).sum());
+                let content_chars: usize =
+                    spans.map_or(0, |s| s.iter().map(|sp| sp.content.width()).sum());
                 let align = aligns
                     .get(c)
                     .copied()
@@ -1119,10 +1123,7 @@ mod tests {
         let result = render_markdown(md, 80);
         let text = lines_to_text(&result);
         // ├ is used for row separators; expect one after header + two between data rows = 3
-        let sep_count = text
-            .iter()
-            .filter(|l| l.contains("\u{251c}"))
-            .count();
+        let sep_count = text.iter().filter(|l| l.contains("\u{251c}")).count();
         assert_eq!(
             sep_count, 3,
             "expected 3 row separator lines (between 4 rows), got {sep_count}: {text:?}"

@@ -1238,10 +1238,7 @@ mod tests {
         // Create a minimal config pointing to the temp directory
         let config = stencila_config::Config {
             workspace_dir: temp_dir.path().to_path_buf(),
-            workspace: None,
-            remotes: None,
-            outputs: None,
-            site: None,
+            ..Default::default()
         };
 
         let redirects = discover_user_redirects(temp_dir.path(), &config).await?;
@@ -1275,13 +1272,11 @@ mod tests {
         // Create config with exclude pattern
         let config = stencila_config::Config {
             workspace_dir: temp_dir.path().to_path_buf(),
-            workspace: None,
-            remotes: None,
-            outputs: None,
             site: Some(stencila_config::SiteConfig {
                 exclude: Some(vec!["excluded/".to_string()]),
                 ..Default::default()
             }),
+            ..Default::default()
         };
 
         let redirects = discover_user_redirects(temp_dir.path(), &config).await?;

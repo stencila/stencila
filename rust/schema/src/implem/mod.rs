@@ -1,7 +1,7 @@
 //! Implementations of traits for types
 
-mod agent;
 mod admonition;
+mod agent;
 mod appendix_break;
 mod array;
 mod article;

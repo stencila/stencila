@@ -54,16 +54,21 @@ enum Command {
 }
 
 impl Cli {
+    /// Run the MCP CLI command.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the subcommand fails.
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            return List::default().run().await;
+            return List::default().run();
         };
 
         match command {
-            Command::List(list) => list.run().await,
+            Command::List(list) => list.run(),
             Command::Show(show) => show.run().await,
             Command::Add(add) => add.run().await,
-            Command::Remove(remove) => remove.run().await,
+            Command::Remove(remove) => remove.run(),
         }
     }
 }
@@ -98,7 +103,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl List {
-    async fn run(self) -> Result<()> {
+    fn run(self) -> Result<()> {
         let dir = self.dir.canonicalize().unwrap_or(self.dir);
         let servers = crate::discover(&dir);
 
@@ -414,7 +419,7 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Remove {
-    async fn run(self) -> Result<()> {
+    fn run(self) -> Result<()> {
         let target = if self.user {
             stencila_config::ConfigTarget::User
         } else {

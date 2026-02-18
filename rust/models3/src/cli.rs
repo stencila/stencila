@@ -53,6 +53,11 @@ enum Command {
 }
 
 impl Cli {
+    /// Run the models CLI command.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the subcommand fails.
     pub async fn run(self) -> Result<()> {
         self.run_with_auth(&AuthOptions::default()).await
     }
@@ -61,14 +66,18 @@ impl Cli {
     ///
     /// Providers present in the overrides are treated as available even
     /// when no API key secret is set.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the subcommand fails.
     pub async fn run_with_auth(self, auth: &AuthOptions) -> Result<()> {
         let Some(command) = self.command else {
-            List::default().run(auth).await?;
+            List::default().run(auth)?;
             return Ok(());
         };
 
         match command {
-            Command::List(list) => list.run(auth).await?,
+            Command::List(list) => list.run(auth)?,
             Command::Run(run) => run.run(auth).await?,
         }
 
@@ -108,7 +117,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl List {
-    async fn run(self, auth: &AuthOptions) -> Result<()> {
+    fn run(self, auth: &AuthOptions) -> Result<()> {
         let mut models = catalog::list_models(None).map_err(|e| eyre::eyre!("{e}"))?;
 
         if let Some(prefix) = &self.prefix {
@@ -203,19 +212,22 @@ fn format_capabilities(model: &ModelInfo) -> String {
 
 /// Format a context window as a right-aligned, color-banded cell.
 fn context_cell(tokens: u64) -> Cell {
+    #[allow(
+        clippy::cast_precision_loss,
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss
+    )]
     let label = if tokens >= 1_000_000 {
-        let millions = tokens as f64 / 1_000_000.0;
-        if (millions - millions.round()).abs() < f64::EPSILON {
-            format!("{}M", millions as u64)
+        if tokens % 1_000_000 == 0 {
+            format!("{}M", tokens / 1_000_000)
         } else {
-            format!("{millions:.1}M")
+            format!("{:.1}M", tokens as f64 / 1_000_000.0)
         }
     } else if tokens >= 1_000 {
-        let thousands = tokens as f64 / 1_000.0;
-        if (thousands - thousands.round()).abs() < f64::EPSILON {
-            format!("{}K", thousands as u64)
+        if tokens % 1_000 == 0 {
+            format!("{}K", tokens / 1_000)
         } else {
-            format!("{thousands:.1}K")
+            format!("{:.1}K", tokens as f64 / 1_000.0)
         }
     } else {
         tokens.to_string()
@@ -250,6 +262,7 @@ fn cost_cell(cost: Option<f64>) -> Cell {
 /// paths are read and included as file content.
 #[derive(Debug, Args)]
 #[command(after_long_help = RUN_AFTER_LONG_HELP)]
+#[allow(clippy::struct_field_names)]
 struct Run {
     /// Text prompts and/or file paths (automatically detected)
     args: Vec<String>,
@@ -309,7 +322,7 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Run {
-    #[allow(clippy::print_stdout, clippy::print_stderr)]
+    #[allow(clippy::print_stdout, clippy::print_stderr, clippy::too_many_lines)]
     async fn run(self, auth: &AuthOptions) -> Result<()> {
         // Build prompt from args: detect file paths and read their content
         let mut parts = Vec::new();
@@ -341,7 +354,7 @@ impl Run {
         .map_err(|e| eyre::eyre!("{e}"))?;
 
         let (model_id, resolved_provider) =
-            resolve_model_and_provider(&self.model, &self.provider, &client)?;
+            resolve_model_and_provider(self.model.as_deref(), self.provider.as_deref(), &client)?;
         let provider_label = resolved_provider.as_deref().unwrap_or("<default>");
 
         // Dry run: show the prompt and selected model, then exit
@@ -408,14 +421,15 @@ impl Run {
                 eyre::eyre!("model run failed (model: {model_id}, provider: {provider_label}): {e}")
             })?;
             if event.event_type == crate::types::stream_event::StreamEventType::TextDelta
-                && let Some(ref delta) = event.delta {
-                    if writing_to_file {
-                        collected_text.push_str(delta);
-                    } else {
-                        print!("{delta}");
-                        collected_text.push_str(delta);
-                    }
+                && let Some(ref delta) = event.delta
+            {
+                if writing_to_file {
+                    collected_text.push_str(delta);
+                } else {
+                    print!("{delta}");
+                    collected_text.push_str(delta);
                 }
+            }
         }
 
         // Get usage from the accumulated response
@@ -444,21 +458,18 @@ impl Run {
 /// - If `--model` is provided, resolves exact id/alias first, then unambiguous prefix.
 /// - If provider remains unspecified, it is inferred from the resolved catalog model.
 fn resolve_model_and_provider(
-    model_flag: &Option<String>,
-    provider_flag: &Option<String>,
+    model_flag: Option<&str>,
+    provider_flag: Option<&str>,
     client: &crate::client::Client,
 ) -> Result<(String, Option<String>)> {
     match model_flag {
         None => {
-            let provider = provider_flag
-                .as_deref()
-                .or(client.select_provider())
-                .ok_or_else(|| {
-                    eyre::eyre!(
-                        "No --model specified and no model provider available. \
+            let provider = provider_flag.or(client.select_provider()).ok_or_else(|| {
+                eyre::eyre!(
+                    "No --model specified and no model provider available. \
                         Use `stencila signin` or `stencila secrets set` to enable."
-                    )
-                })?;
+                )
+            })?;
             let info = catalog::get_latest_model(provider, None)
                 .map_err(|e| eyre::eyre!("{e}"))?
                 .ok_or_else(|| eyre::eyre!("No models found for provider '{provider}'"))?;
@@ -470,7 +481,7 @@ fn resolve_model_and_provider(
                 catalog::get_model_info(raw_model).map_err(|e| eyre::eyre!("{e}"))?
             {
                 if let Some(provider) = provider_flag
-                    && provider != &info.provider
+                    && provider != info.provider
                 {
                     return Err(eyre::eyre!(
                         "Model '{raw_model}' resolves to provider '{}', but --provider is '{provider}'",
@@ -481,8 +492,7 @@ fn resolve_model_and_provider(
             }
 
             // 2) Prefix lookup (e.g. --model claude -> latest matching claude-* model)
-            let candidates =
-                catalog::list_models(provider_flag.as_deref()).map_err(|e| eyre::eyre!("{e}"))?;
+            let candidates = catalog::list_models(provider_flag).map_err(|e| eyre::eyre!("{e}"))?;
             let matches: Vec<_> = candidates
                 .into_iter()
                 .filter(|m| {
@@ -492,7 +502,7 @@ fn resolve_model_and_provider(
                 .collect();
 
             match matches.len() {
-                0 => Ok((raw_model.clone(), provider_flag.clone())),
+                0 => Ok((raw_model.to_string(), provider_flag.map(String::from))),
                 1 => {
                     let info = &matches[0];
                     Ok((info.id.clone(), Some(info.provider.clone())))

@@ -189,12 +189,11 @@ fn extract_dot_pipeline(blocks: &[Block]) -> Option<String> {
             code,
             ..
         }) = block
+            && lang == "dot"
         {
-            if lang == "dot" {
-                let source = code.to_string();
-                if !source.is_empty() {
-                    return Some(source);
-                }
+            let source = code.to_string();
+            if !source.is_empty() {
+                return Some(source);
             }
         }
     }
