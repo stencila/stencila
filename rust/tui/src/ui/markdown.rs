@@ -10,6 +10,7 @@ use ratatui::{
     text::Span,
 };
 use syntect::{easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet};
+use unicode_width::UnicodeWidthStr;
 
 /// Dim dark gray style, reused across many node renderers.
 const DIM_DARK_GRAY: Style = Style::new().fg(Color::DarkGray).add_modifier(Modifier::DIM);
@@ -455,7 +456,7 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
     let mut col_widths: Vec<usize> = vec![0; num_cols];
     for row in &rows {
         for (c, cell) in row.iter().enumerate() {
-            let cell_chars: usize = cell.iter().map(|f| f.text.chars().count()).sum();
+            let cell_chars: usize = cell.iter().map(|f| f.text.width()).sum();
             col_widths[c] = col_widths[c].max(cell_chars).max(1);
         }
     }
@@ -518,7 +519,7 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
                 let w = col_widths[c];
                 let spans = wrapped.get(line_idx);
                 let content_chars: usize = spans
-                    .map_or(0, |s| s.iter().map(|sp| sp.content.chars().count()).sum());
+                    .map_or(0, |s| s.iter().map(|sp| sp.content.width()).sum());
                 let align = aligns
                     .get(c)
                     .copied()
@@ -814,7 +815,7 @@ fn wrap_fragments(fragments: &[StyledFragment], width: usize) -> Vec<Vec<Span<'s
             let words = split_words(sub_text);
 
             for word in &words {
-                let word_len = word.chars().count();
+                let word_len = word.width();
 
                 if word_len == 0 {
                     continue;
@@ -833,18 +834,27 @@ fn wrap_fragments(fragments: &[StyledFragment], width: usize) -> Vec<Vec<Span<'s
 
                 // If a single word exceeds width, break it character-by-character
                 if word_len > width && col == 0 {
+                    use unicode_width::UnicodeWidthChar;
                     let chars: Vec<char> = word.chars().collect();
                     let mut pos = 0;
                     while pos < chars.len() {
-                        let chunk_end = (pos + width).min(chars.len());
+                        let mut chunk_width = 0;
+                        let mut chunk_end = pos;
+                        while chunk_end < chars.len() {
+                            let cw = UnicodeWidthChar::width(chars[chunk_end]).unwrap_or(0);
+                            if chunk_width + cw > width && chunk_end > pos {
+                                break;
+                            }
+                            chunk_width += cw;
+                            chunk_end += 1;
+                        }
                         let chunk: String = chars[pos..chunk_end].iter().collect();
-                        let chunk_len = chunk.chars().count();
                         if !current_line.is_empty() && col > 0 {
                             lines.push(std::mem::take(&mut current_line));
                             col = 0;
                         }
                         current_line.push(Span::styled(chunk, frag.style));
-                        col += chunk_len;
+                        col += chunk_width;
                         pos = chunk_end;
                         if pos < chars.len() {
                             lines.push(std::mem::take(&mut current_line));
