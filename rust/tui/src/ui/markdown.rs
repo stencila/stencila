@@ -552,8 +552,8 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
             result.push(line);
         }
 
-        // Header separator
-        if r == 0 && rows.len() > 1 {
+        // Row separator (between every row except after the last)
+        if r < rows.len() - 1 {
             let sep =
                 build_border_line(&col_widths, "\u{251c}", "\u{2500}", "\u{253c}", "\u{2524}");
             let mut line = indent.clone();
@@ -1110,6 +1110,23 @@ mod tests {
         // Should have box-drawing characters
         assert!(text.iter().any(|l| l.contains("\u{250c}")));
         assert!(text.iter().any(|l| l.contains("\u{2514}")));
+    }
+
+    #[test]
+    fn test_table_row_borders() {
+        // Multiple data rows should have separators between them
+        let md = "| A | B |\n| - | - |\n| 1 | 2 |\n| 3 | 4 |\n| 5 | 6 |";
+        let result = render_markdown(md, 80);
+        let text = lines_to_text(&result);
+        // ├ is used for row separators; expect one after header + two between data rows = 3
+        let sep_count = text
+            .iter()
+            .filter(|l| l.contains("\u{251c}"))
+            .count();
+        assert_eq!(
+            sep_count, 3,
+            "expected 3 row separator lines (between 4 rows), got {sep_count}: {text:?}"
+        );
     }
 
     #[test]
