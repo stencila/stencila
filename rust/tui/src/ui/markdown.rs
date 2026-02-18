@@ -876,7 +876,7 @@ fn truncate_chars(s: &str, max_chars: usize) -> String {
 // ---------------------------------------------------------------------------
 
 fn highlight_code(lang: Option<&str>, code: &str) -> Vec<Vec<Span<'static>>> {
-    let fallback_style = DIM_DARK_GRAY;
+    let fallback_style = Style::new().fg(Color::Gray);
 
     let syntax = lang.and_then(|l| {
         // Normalize: extract first token (e.g., "rust,ignore" -> "rust")
