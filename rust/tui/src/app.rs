@@ -945,6 +945,17 @@ impl App {
 
     /// Submit the current input as a user message or slash command.
     fn submit_input(&mut self) {
+        // Trailing backslash means "insert newline, don't submit".
+        // This gives users a way to enter multiline input even when
+        // Shift+Enter / Alt+Enter aren't available (e.g. some terminals
+        // send a literal `\` for Shift+Enter).
+        if self.input.text().ends_with('\\') {
+            let len = self.input.text().len();
+            self.input.replace_range(len - 1..len, "");
+            self.input.insert_newline();
+            return;
+        }
+
         let text = self.input.take();
         self.input_scroll = 0;
 
@@ -2682,6 +2693,48 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT));
         app.handle_event(&key_event(KeyCode::Char('y'), KeyModifiers::NONE));
         assert_eq!(app.input.text(), "x\ny");
+    }
+
+    #[tokio::test]
+    async fn trailing_backslash_enter_inserts_newline() {
+        let mut app = App::new_for_test();
+        // Type "hello\" then press Enter — should insert newline, not submit
+        for c in "hello\\".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert_eq!(app.input.text(), "hello\n");
+        // Should not have submitted — only the welcome message
+        assert_eq!(app.messages.len(), 1);
+
+        // Continue typing and submit without backslash
+        for c in "world".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert_eq!(app.input.text(), "hello\nworld");
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(app.input.is_empty());
+        assert_eq!(app.messages.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn trailing_backslash_multiline_continuation() {
+        let mut app = App::new_for_test();
+        // Build up multiple lines using trailing backslash
+        for c in "line1\\".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        for c in "line2\\".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        for c in "line3".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert_eq!(app.input.text(), "line1\nline2\nline3");
+        // Only welcome message — nothing submitted yet
+        assert_eq!(app.messages.len(), 1);
     }
 
     #[tokio::test]
