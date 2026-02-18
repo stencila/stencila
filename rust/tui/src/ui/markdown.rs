@@ -417,8 +417,8 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
     let width = ctx.effective_width();
     let border_style = DIM_DARK_GRAY;
 
-    // Collect all rows and their cell contents as plain text
-    let mut rows: Vec<Vec<String>> = Vec::new();
+    // Collect all rows and their cell contents as styled fragments
+    let mut rows: Vec<Vec<Vec<StyledFragment>>> = Vec::new();
     let mut num_cols = 0;
 
     for child in &table.children {
@@ -426,9 +426,7 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
             let mut cells = Vec::new();
             for cell_node in &row.children {
                 if let markdown::mdast::Node::TableCell(cell) = cell_node {
-                    let frags = collect_inlines_from_children(&cell.children);
-                    let text: String = frags.iter().map(|f| f.text.as_str()).collect();
-                    cells.push(text);
+                    cells.push(collect_inlines_from_children(&cell.children));
                 }
             }
             num_cols = num_cols.max(cells.len());
@@ -443,14 +441,13 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
     // Pad rows to same number of columns
     for row in &mut rows {
         while row.len() < num_cols {
-            row.push(String::new());
+            row.push(Vec::new());
         }
     }
 
     // Check if we have enough width for table borders
     let min_table_width = num_cols * 3 + num_cols + 1;
     if min_table_width > width {
-        // Narrow-width fallback: record layout
         return render_table_narrow(&rows, ctx);
     }
 
@@ -458,7 +455,8 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
     let mut col_widths: Vec<usize> = vec![0; num_cols];
     for row in &rows {
         for (c, cell) in row.iter().enumerate() {
-            col_widths[c] = col_widths[c].max(cell.chars().count()).max(1);
+            let cell_chars: usize = cell.iter().map(|f| f.text.chars().count()).sum();
+            col_widths[c] = col_widths[c].max(cell_chars).max(1);
         }
     }
 
@@ -487,44 +485,71 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
     result.push(line);
 
     for (r, row) in rows.iter().enumerate() {
-        // Content row: │ val │ val │
-        let mut line = indent.clone();
         let is_header = r == 0;
-        let cell_style = if is_header {
-            Style::new().add_modifier(Modifier::BOLD)
-        } else {
-            Style::default()
-        };
 
-        for (c, cell) in row.iter().enumerate() {
-            line.push(Span::styled("\u{2502} ", border_style));
-            let w = col_widths[c];
-            let cell_chars = cell.chars().count();
-            let padded = if cell_chars > w {
-                truncate_chars(cell, w)
-            } else {
+        // Wrap each cell's styled fragments to its column width
+        let wrapped_cells: Vec<Vec<Vec<Span<'static>>>> = row
+            .iter()
+            .enumerate()
+            .map(|(c, frags)| {
+                let w = col_widths[c];
+                let cell_frags: Vec<StyledFragment> = if is_header {
+                    frags
+                        .iter()
+                        .map(|f| StyledFragment {
+                            text: f.text.clone(),
+                            style: f.style.add_modifier(Modifier::BOLD),
+                        })
+                        .collect()
+                } else {
+                    frags.clone()
+                };
+                wrap_fragments(&cell_frags, w)
+            })
+            .collect();
+
+        // Number of display lines for this row
+        let num_lines = wrapped_cells.iter().map(std::vec::Vec::len).max().unwrap_or(1);
+
+        for line_idx in 0..num_lines {
+            let mut line = indent.clone();
+            for (c, wrapped) in wrapped_cells.iter().enumerate() {
+                line.push(Span::styled("\u{2502} ", border_style));
+                let w = col_widths[c];
+                let spans = wrapped.get(line_idx);
+                let content_chars: usize = spans
+                    .map_or(0, |s| s.iter().map(|sp| sp.content.chars().count()).sum());
                 let align = aligns
                     .get(c)
                     .copied()
                     .unwrap_or(markdown::mdast::AlignKind::Left);
-                match align {
-                    markdown::mdast::AlignKind::Right => {
-                        format!("{cell:>w$}")
+                let (left_pad, right_pad) = if content_chars >= w {
+                    (0, 0)
+                } else {
+                    let gap = w - content_chars;
+                    match align {
+                        markdown::mdast::AlignKind::Right => (gap, 0),
+                        markdown::mdast::AlignKind::Center => {
+                            let lp = gap / 2;
+                            (lp, gap - lp)
+                        }
+                        _ => (0, gap),
                     }
-                    markdown::mdast::AlignKind::Center => {
-                        let pad = w.saturating_sub(cell_chars);
-                        let left_pad = pad / 2;
-                        let right_pad = pad - left_pad;
-                        format!("{}{}{}", " ".repeat(left_pad), cell, " ".repeat(right_pad))
-                    }
-                    _ => format!("{cell:<w$}"),
+                };
+                if left_pad > 0 {
+                    line.push(Span::raw(" ".repeat(left_pad)));
                 }
-            };
-            line.push(Span::styled(padded, cell_style));
-            line.push(Span::raw(" "));
+                if let Some(spans) = spans {
+                    line.extend(spans.iter().cloned());
+                }
+                if right_pad > 0 {
+                    line.push(Span::raw(" ".repeat(right_pad)));
+                }
+                line.push(Span::raw(" "));
+            }
+            line.push(Span::styled("\u{2502}", border_style));
+            result.push(line);
         }
-        line.push(Span::styled("\u{2502}", border_style));
-        result.push(line);
 
         // Header separator
         if r == 0 && rows.len() > 1 {
@@ -566,23 +591,30 @@ fn build_border_line(
     s
 }
 
-fn render_table_narrow(rows: &[Vec<String>], ctx: &RenderContext) -> Vec<Vec<Span<'static>>> {
+fn render_table_narrow(
+    rows: &[Vec<Vec<StyledFragment>>],
+    ctx: &RenderContext,
+) -> Vec<Vec<Span<'static>>> {
     let indent = ctx.indent_prefix();
     let bold = Style::new().add_modifier(Modifier::BOLD);
 
     let mut result = Vec::new();
 
-    // First row is header
-    let headers: Vec<&str> = rows
+    // First row is header — extract plain text for labels
+    let headers: Vec<String> = rows
         .first()
-        .map(|r| r.iter().map(String::as_str).collect())
+        .map(|r| {
+            r.iter()
+                .map(|frags| frags.iter().map(|f| f.text.as_str()).collect())
+                .collect()
+        })
         .unwrap_or_default();
 
     if rows.len() <= 1 {
         // Header-only table: render each header cell as a bold line
         for header in &headers {
             let mut line = indent.clone();
-            line.push(Span::styled((*header).to_string(), bold));
+            line.push(Span::styled(header.clone(), bold));
             result.push(line);
         }
         return result;
@@ -594,11 +626,13 @@ fn render_table_narrow(rows: &[Vec<String>], ctx: &RenderContext) -> Vec<Vec<Spa
             line.push(Span::styled("\u{2500}\u{2500}\u{2500}", DIM_DARK_GRAY));
             result.push(line);
         }
-        for (c, cell) in row.iter().enumerate() {
-            let header = headers.get(c).copied().unwrap_or("?");
+        for (c, cell_frags) in row.iter().enumerate() {
+            let header = headers.get(c).map_or("?", String::as_str);
             let mut line = indent.clone();
             line.push(Span::styled(format!("{header}: "), bold));
-            line.push(Span::raw(cell.clone()));
+            for frag in cell_frags {
+                line.push(Span::styled(frag.text.clone(), frag.style));
+            }
             result.push(line);
         }
     }
@@ -866,11 +900,6 @@ fn split_words(text: &str) -> Vec<String> {
     words
 }
 
-/// Truncate a string to at most `max_chars` characters (safe for multibyte).
-fn truncate_chars(s: &str, max_chars: usize) -> String {
-    s.chars().take(max_chars).collect()
-}
-
 // ---------------------------------------------------------------------------
 // Syntax highlighting
 // ---------------------------------------------------------------------------
@@ -1110,6 +1139,51 @@ mod tests {
         assert!(text.iter().any(|l| l.contains("Name")));
         assert!(text.iter().any(|l| l.contains("Age")));
         assert!(text.iter().any(|l| l.contains("City")));
+    }
+
+    #[test]
+    fn test_table_cell_wrapping() {
+        // Cell text longer than the column width should wrap, not be truncated
+        let md = "| Header |\n| - |\n| one two three four five six |";
+        let result = render_markdown(md, 20);
+        let text = lines_to_text(&result);
+        // All words must appear somewhere in the rendered output
+        for word in &["one", "two", "three", "four", "five", "six"] {
+            assert!(
+                text.iter().any(|l| l.contains(word)),
+                "word '{word}' missing from table output: {text:?}"
+            );
+        }
+        // Should span more than 3 lines (top border, header, separator, at least 2 content lines, bottom border)
+        assert!(
+            text.len() > 5,
+            "expected wrapping to produce more lines, got {}: {:?}",
+            text.len(),
+            text
+        );
+    }
+
+    #[test]
+    fn test_table_cell_inline_markdown() {
+        // Bold, italic, and inline code inside table cells should be styled
+        let md = "| A | B |\n| - | - |\n| **bold** | `code` |";
+        let result = render_markdown(md, 80);
+        // Collect all spans across all lines
+        let all_spans: Vec<&Span> = result.iter().flat_map(|line| line.iter()).collect();
+        // There should be a bold span containing "bold"
+        assert!(
+            all_spans.iter().any(
+                |s| s.content.contains("bold") && s.style.add_modifier.contains(Modifier::BOLD)
+            ),
+            "expected a bold span containing 'bold'"
+        );
+        // There should be a colored span containing "code" (inline code uses purple)
+        assert!(
+            all_spans
+                .iter()
+                .any(|s| s.content.contains("code") && s.style.fg.is_some()),
+            "expected a styled span containing 'code'"
+        );
     }
 
     #[test]
