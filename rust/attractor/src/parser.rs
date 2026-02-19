@@ -2,7 +2,9 @@ use indexmap::IndexMap;
 use winnow::{
     ModalResult, Parser,
     ascii::{multispace0, multispace1},
-    combinator::{alt, delimited, opt, peek, repeat, separated},
+    combinator::{alt, cut_err, opt, peek, repeat, separated},
+    error::{AddContext, ContextError, ErrMode, StrContext, StrContextValue},
+    stream::Stream,
     token::{any, take_while},
 };
 
@@ -44,24 +46,81 @@ pub fn parse_dot(input: &str) -> AttractorResult<Graph> {
     }
 
     let cleaned = strip_comments(input)?;
-    let mut remaining = cleaned.as_str();
+    let full = cleaned.as_str();
+    let mut remaining = full;
 
     let (name, stmts) =
         parse_graph
             .parse_next(&mut remaining)
             .map_err(|e| AttractorError::InvalidPipeline {
-                reason: format!("DOT parse error: {e}"),
+                reason: format_parse_error(full, full.len() - remaining.len(), &e),
             })?;
 
     // Check for trailing content (multiple graphs)
     let trailing = remaining.trim();
     if !trailing.is_empty() {
+        let offset = full.len() - remaining.len();
+        let (line, col) = offset_to_line_col(full, offset);
         return Err(AttractorError::InvalidPipeline {
-            reason: "only one graph per file".to_string(),
+            reason: format!(
+                "only one graph per file (trailing content at line {line}, column {col})"
+            ),
         });
     }
 
     build_graph(name, &stmts)
+}
+
+// ---------------------------------------------------------------------------
+// Error formatting helpers
+// ---------------------------------------------------------------------------
+
+/// Convert a byte offset in `input` to a 1-based (line, column) pair.
+///
+/// The column counts Unicode scalar values (characters), not bytes. For
+/// ASCII-only DOT files (the common case) the two are identical. For
+/// multi-byte UTF-8 content (e.g. inside quoted strings) the column may
+/// differ from the byte offset within the line.
+fn offset_to_line_col(input: &str, offset: usize) -> (usize, usize) {
+    let mut line = 1;
+    let mut col = 1;
+    for (i, ch) in input.char_indices() {
+        if i >= offset {
+            break;
+        }
+        if ch == '\n' {
+            line += 1;
+            col = 1;
+        } else {
+            col += 1;
+        }
+    }
+    (line, col)
+}
+
+/// Format a winnow parse error with position info and a source snippet.
+fn format_parse_error(input: &str, offset: usize, error: &ErrMode<ContextError>) -> String {
+    let (line, col) = offset_to_line_col(input, offset);
+
+    let detail = match error {
+        ErrMode::Backtrack(ctx) | ErrMode::Cut(ctx) => {
+            let display = ctx.to_string();
+            if display.is_empty() {
+                "unexpected token".to_string()
+            } else {
+                display
+            }
+        }
+        ErrMode::Incomplete(_) => "incomplete input".to_string(),
+    };
+
+    let source_line = input.lines().nth(line - 1).unwrap_or("");
+    let gutter = " ".repeat(line.to_string().len());
+
+    format!(
+        "at line {line}, column {col}: {detail}\n{gutter} |\n{line} | {source_line}\n{gutter} | {}^",
+        " ".repeat(col.saturating_sub(1))
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -70,6 +129,10 @@ pub fn parse_dot(input: &str) -> AttractorResult<Graph> {
 
 /// Strip `//` line comments and `/* */` block comments, preserving content
 /// inside quoted strings.
+///
+/// Replaced characters are substituted with spaces, and newlines within
+/// comments are preserved, so that byte offsets in the output correspond to
+/// the same line and column positions as in the original source.
 ///
 /// # Errors
 ///
@@ -100,26 +163,35 @@ fn strip_comments(input: &str) -> AttractorResult<String> {
                 }
             }
         }
-        // Line comment
+        // Line comment — replace with spaces, keep the newline
         else if i + 1 < len && chars[i] == '/' && chars[i + 1] == '/' {
-            // Skip to end of line
+            result.push(' ');
+            result.push(' ');
             i += 2;
             while i < len && chars[i] != '\n' {
+                result.push(' ');
                 i += 1;
             }
         }
-        // Block comment
+        // Block comment — replace with spaces, preserve newlines
         else if i + 1 < len && chars[i] == '/' && chars[i + 1] == '*' {
+            result.push(' ');
+            result.push(' ');
             i += 2;
             let mut depth = 1;
             while i < len && depth > 0 {
                 if i + 1 < len && chars[i] == '/' && chars[i + 1] == '*' {
                     depth += 1;
+                    result.push(' ');
+                    result.push(' ');
                     i += 2;
                 } else if i + 1 < len && chars[i] == '*' && chars[i + 1] == '/' {
                     depth -= 1;
+                    result.push(' ');
+                    result.push(' ');
                     i += 2;
                 } else {
+                    result.push(if chars[i] == '\n' { '\n' } else { ' ' });
                     i += 1;
                 }
             }
@@ -203,9 +275,7 @@ fn identifier<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
     let id = bare_identifier.parse_next(input)?;
     if DOT_KEYWORDS.contains(&id) {
         *input = checkpoint;
-        return Err(winnow::error::ErrMode::Backtrack(
-            winnow::error::ContextError::new(),
-        ));
+        return Err(ErrMode::Backtrack(ContextError::new()));
     }
     Ok(id)
 }
@@ -258,9 +328,15 @@ fn quoted_string_value(input: &mut &str) -> ModalResult<String> {
             '\\' => result.push('\\'),
             '"' => result.push('"'),
             _ => {
-                return Err(winnow::error::ErrMode::Cut(
-                    winnow::error::ContextError::new(),
-                ));
+                let cp = input.checkpoint();
+                let err = ContextError::new().add_context(
+                    &*input,
+                    &cp,
+                    StrContext::Expected(StrContextValue::Description(
+                        "valid escape sequence (\\n, \\t, \\\\, or \\\")",
+                    )),
+                );
+                return Err(ErrMode::Cut(err));
             }
         }
     }
@@ -281,9 +357,7 @@ fn boolean_value(input: &mut &str) -> ModalResult<AttrValue> {
 
     if !at_word_boundary(input) {
         *input = checkpoint;
-        return Err(winnow::error::ErrMode::Backtrack(
-            winnow::error::ContextError::new(),
-        ));
+        return Err(ErrMode::Backtrack(ContextError::new()));
     }
     Ok(AttrValue::Boolean(val))
 }
@@ -296,15 +370,13 @@ fn duration_value(input: &mut &str) -> ModalResult<AttrValue> {
 
     if !at_word_boundary(input) {
         *input = checkpoint;
-        return Err(winnow::error::ErrMode::Backtrack(
-            winnow::error::ContextError::new(),
-        ));
+        return Err(ErrMode::Backtrack(ContextError::new()));
     }
 
     let spec_str = format!("{digits}{unit}");
     let dur = Duration::from_spec_str(&spec_str).map_err(|_| {
         *input = checkpoint;
-        winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new())
+        ErrMode::Backtrack(ContextError::new())
     })?;
     Ok(AttrValue::Duration(dur))
 }
@@ -327,7 +399,7 @@ fn float_value(input: &mut &str) -> ModalResult<AttrValue> {
 
     let n: f64 = s.parse().map_err(|_| {
         *input = checkpoint;
-        winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new())
+        ErrMode::Backtrack(ContextError::new())
     })?;
     Ok(AttrValue::Float(n))
 }
@@ -341,9 +413,7 @@ fn integer_value(input: &mut &str) -> ModalResult<AttrValue> {
     // Reject if followed by a dot (that's a float, not integer)
     if peek(opt('.')).parse_next(input)?.is_some() {
         *input = checkpoint;
-        return Err(winnow::error::ErrMode::Backtrack(
-            winnow::error::ContextError::new(),
-        ));
+        return Err(ErrMode::Backtrack(ContextError::new()));
     }
 
     let mut s = String::new();
@@ -354,7 +424,7 @@ fn integer_value(input: &mut &str) -> ModalResult<AttrValue> {
 
     let n: i64 = s.parse().map_err(|_| {
         *input = checkpoint;
-        winnow::error::ErrMode::Backtrack(winnow::error::ContextError::new())
+        ErrMode::Backtrack(ContextError::new())
     })?;
     Ok(AttrValue::Integer(n))
 }
@@ -403,17 +473,24 @@ fn attr_sep(input: &mut &str) -> ModalResult<()> {
 
 /// Parse an attribute block: `[ key=val, key=val, ... ]`.
 fn attr_block(input: &mut &str) -> ModalResult<IndexMap<String, AttrValue>> {
-    delimited(
-        ('[', ws),
-        opt(separated(1.., attr_pair, attr_sep)).map(|pairs: Option<Vec<(String, AttrValue)>>| {
-            pairs
-                .unwrap_or_default()
-                .into_iter()
-                .collect::<IndexMap<String, AttrValue>>()
-        }),
-        (ws, ']'),
-    )
-    .parse_next(input)
+    '['.parse_next(input)?;
+    ws.parse_next(input)?;
+
+    // After '[', commit — a closing ']' is required
+    let pairs: Option<Vec<(String, AttrValue)>> =
+        opt(separated(1.., attr_pair, attr_sep)).parse_next(input)?;
+
+    let map = pairs
+        .unwrap_or_default()
+        .into_iter()
+        .collect::<IndexMap<String, AttrValue>>();
+
+    ws.parse_next(input)?;
+    cut_err(']')
+        .context(StrContext::Expected(StrContextValue::CharLiteral(']')))
+        .parse_next(input)?;
+
+    Ok(map)
 }
 
 // ---------------------------------------------------------------------------
@@ -470,16 +547,27 @@ fn edge_stmt(input: &mut &str) -> ModalResult<Statement> {
     let checkpoint = *input;
     let undirected: ModalResult<&str> = "--".parse_next(input);
     if undirected.is_ok() {
-        return Err(winnow::error::ErrMode::Cut(
-            winnow::error::ContextError::new(),
-        ));
+        let cp = input.checkpoint();
+        let err = ContextError::new()
+            .add_context(
+                &*input,
+                &cp,
+                StrContext::Expected(StrContextValue::Description(
+                    "'->' (only directed edges are supported)",
+                )),
+            )
+            .add_context(&*input, &cp, StrContext::Label("edge operator"));
+        return Err(ErrMode::Cut(err));
     }
     *input = checkpoint;
 
     "->".parse_next(input)?;
     ws.parse_next(input)?;
 
-    let second = node_id.parse_next(input)?;
+    // After '->', commit — a target node is required
+    let second = cut_err(node_id)
+        .context(StrContext::Label("edge target node"))
+        .parse_next(input)?;
     ws.parse_next(input)?;
 
     let mut chain = vec![first, second];
@@ -490,7 +578,9 @@ fn edge_stmt(input: &mut &str) -> ModalResult<Statement> {
         let arrow: ModalResult<&str> = "->".parse_next(input);
         if arrow.is_ok() {
             ws.parse_next(input)?;
-            let next = node_id.parse_next(input)?;
+            let next = cut_err(node_id)
+                .context(StrContext::Label("edge target node"))
+                .parse_next(input)?;
             ws.parse_next(input)?;
             chain.push(next);
         } else {
@@ -520,15 +610,25 @@ fn subgraph_stmt(input: &mut &str) -> ModalResult<Statement> {
     ws.parse_next(input)?;
     let name = opt(bare_identifier.map(String::from)).parse_next(input)?;
     ws.parse_next(input)?;
-    let stmts = delimited(
-        ('{', ws),
-        repeat(0.., statement).fold(Vec::new, |mut acc, s| {
+
+    // After "subgraph", commit — a body is required
+    cut_err('{')
+        .context(StrContext::Expected(StrContextValue::CharLiteral('{')))
+        .parse_next(input)?;
+    ws.parse_next(input)?;
+
+    let stmts = repeat(0.., statement)
+        .fold(Vec::new, |mut acc, s| {
             acc.push(s);
             acc
-        }),
-        (ws, '}'),
-    )
-    .parse_next(input)?;
+        })
+        .parse_next(input)?;
+
+    ws.parse_next(input)?;
+    cut_err('}')
+        .context(StrContext::Expected(StrContextValue::CharLiteral('}')))
+        .parse_next(input)?;
+
     opt_semi.parse_next(input)?;
     Ok(Statement::Subgraph { name, stmts })
 }
@@ -548,29 +648,49 @@ fn statement(input: &mut &str) -> ModalResult<Statement> {
         graph_attr_decl,
         node_stmt,
     ))
+    .context(StrContext::Label("statement"))
     .parse_next(input)
 }
 
 /// Parse the top-level graph: `digraph name { stmts }`.
 fn parse_graph(input: &mut &str) -> ModalResult<(String, Vec<Statement>)> {
     ws.parse_next(input)?;
-    "digraph".parse_next(input)?;
-    multispace1.parse_next(input)?;
+    "digraph"
+        .context(StrContext::Expected(StrContextValue::StringLiteral(
+            "digraph",
+        )))
+        .parse_next(input)?;
+
+    // After "digraph", commit — the rest must be valid
+    cut_err(multispace1)
+        .context(StrContext::Expected(StrContextValue::Description(
+            "whitespace after 'digraph'",
+        )))
+        .parse_next(input)?;
 
     // Graph name must be a bare identifier per §2.2
-    let name = bare_identifier.map(String::from).parse_next(input)?;
+    let name = cut_err(bare_identifier.map(String::from))
+        .context(StrContext::Label("graph name"))
+        .parse_next(input)?;
 
     ws.parse_next(input)?;
 
-    let stmts = delimited(
-        ('{', ws),
-        repeat(0.., statement).fold(Vec::new, |mut acc, s| {
+    cut_err('{')
+        .context(StrContext::Expected(StrContextValue::CharLiteral('{')))
+        .parse_next(input)?;
+    ws.parse_next(input)?;
+
+    let stmts = repeat(0.., statement)
+        .fold(Vec::new, |mut acc, s| {
             acc.push(s);
             acc
-        }),
-        (ws, '}'),
-    )
-    .parse_next(input)?;
+        })
+        .parse_next(input)?;
+
+    ws.parse_next(input)?;
+    cut_err('}')
+        .context(StrContext::Expected(StrContextValue::CharLiteral('}')))
+        .parse_next(input)?;
 
     ws.parse_next(input)?;
 

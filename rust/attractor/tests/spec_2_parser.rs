@@ -657,6 +657,115 @@ fn error_messages_contain_context() -> TestResult {
     let err = result.err().ok_or("expected error")?;
     // Should be an InvalidPipeline with some useful context
     assert!(matches!(err, AttractorError::InvalidPipeline { .. }));
+    let msg = err.to_string();
+    // Should contain line/column info
+    assert!(msg.contains("line"), "error should mention line: {msg}");
+    assert!(msg.contains("column"), "error should mention column: {msg}");
+    Ok(())
+}
+
+#[test]
+fn error_missing_comma_shows_position() -> TestResult {
+    // Missing comma between attributes — common user mistake
+    let dot = r#"digraph G {
+    A [label="hello" shape=box]
+}"#;
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    // Should point to line 2 where the missing comma is
+    assert!(msg.contains("line 2"), "error should point to line 2: {msg}");
+    // Should mention expected ']'
+    assert!(msg.contains(']'), "error should mention ']': {msg}");
+    Ok(())
+}
+
+#[test]
+fn error_undirected_edge_shows_context() -> TestResult {
+    let dot = "digraph G { A -- B; }";
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    // Should mention directed edges
+    assert!(
+        msg.contains("directed"),
+        "error should mention directed edges: {msg}"
+    );
+    Ok(())
+}
+
+#[test]
+fn error_missing_closing_brace_shows_position() -> TestResult {
+    let dot = "digraph G {\n    A -> B\n";
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    assert!(msg.contains("line"), "error should mention line: {msg}");
+    assert!(msg.contains('}'), "error should mention '}}': {msg}");
+    Ok(())
+}
+
+#[test]
+fn error_invalid_escape_shows_context() -> TestResult {
+    let dot = r#"digraph G { A [label="hello\rworld"]; }"#;
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    assert!(
+        msg.contains("escape"),
+        "error should mention escape sequence: {msg}"
+    );
+    Ok(())
+}
+
+#[test]
+fn error_after_line_comment_reports_correct_line() -> TestResult {
+    // The error is on line 4, not shifted by the comment on line 2.
+    let dot = r#"digraph G {
+    // this is a comment
+    A -> B
+    C [label="hello" shape=box]
+}"#;
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    assert!(
+        msg.contains("line 4"),
+        "error should point to line 4: {msg}"
+    );
+    Ok(())
+}
+
+#[test]
+fn error_after_block_comment_reports_correct_line() -> TestResult {
+    // The block comment spans lines 2-4. The error is on line 5.
+    let dot = r#"digraph G {
+    /* this is
+       a multi-line
+       block comment */
+    A [label="hello" shape=box]
+}"#;
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    assert!(
+        msg.contains("line 5"),
+        "error should point to line 5: {msg}"
+    );
+    Ok(())
+}
+
+#[test]
+fn error_after_inline_comment_reports_correct_column() -> TestResult {
+    // The inline comment on line 2 should not shift error positions on line 3.
+    let dot = "digraph G {\n    A -> B // go to B\n    C [label=\"x\" shape=box]\n}";
+    let result = parse_dot(dot);
+    assert!(result.is_err());
+    let msg = result.err().ok_or("expected error")?.to_string();
+    assert!(
+        msg.contains("line 3"),
+        "error should point to line 3: {msg}"
+    );
     Ok(())
 }
 
