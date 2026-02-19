@@ -22,12 +22,13 @@ use stencila_models3::types::role::Role;
 use stencila_models3::types::tool::{ToolCall, ToolDefinition};
 use stencila_models3::types::usage::Usage;
 
+use stencila_agents::api_session::{ApiSession, LlmClient};
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use stencila_agents::registry::{RegisteredTool, ToolOutput, ToolRegistry};
-use stencila_agents::session::{AbortController, LlmClient, Session};
+use stencila_agents::types::AbortController;
 use stencila_agents::types::{
     DirEntry, EventKind, ExecResult, GrepOptions, ReasoningEffort, SessionConfig, SessionState,
 };
@@ -476,7 +477,7 @@ fn unknown_call() -> ToolCall {
 fn test_session(
     responses: Vec<Result<Response, SdkError>>,
 ) -> AgentResult<(
-    Session,
+    ApiSession,
     stencila_agents::events::EventReceiver,
     Arc<MockClient>,
 )> {
@@ -488,7 +489,7 @@ fn test_session_with_config(
     responses: Vec<Result<Response, SdkError>>,
     config: SessionConfig,
 ) -> AgentResult<(
-    Session,
+    ApiSession,
     stencila_agents::events::EventReceiver,
     Arc<MockClient>,
 )> {
@@ -502,13 +503,13 @@ fn test_session_with_profile(
     config: SessionConfig,
     profile: impl ProviderProfile + 'static,
 ) -> AgentResult<(
-    Session,
+    ApiSession,
     stencila_agents::events::EventReceiver,
     Arc<MockClient>,
 )> {
     let client = Arc::new(MockClient::new(responses));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
-    let (session, receiver) = Session::new(
+    let (session, receiver) = ApiSession::new(
         Box::new(profile),
         env,
         client.clone(),
@@ -1599,7 +1600,7 @@ async fn run_parity_session(
     ]));
     let env = Arc::new(CapturingExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env.clone() as Arc<dyn ExecutionEnvironment>,
             client.clone(),
@@ -1778,7 +1779,7 @@ async fn abort_cancels_in_flight_tool_execution() -> AgentResult<()> {
     ]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env,
             client.clone(),
@@ -1871,7 +1872,7 @@ async fn context_usage_warning_emitted_at_80_percent() -> AgentResult<()> {
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let profile = TestProfile::new()?;
     let (mut session, mut rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env,
             client.clone(),
@@ -1946,7 +1947,7 @@ async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResul
         enable_skills: false,
         ..SessionConfig::default()
     };
-    let (prompt, _) = stencila_agents::session::build_system_prompt(
+    let (prompt, _) = stencila_agents::api_session::build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
         &no_skills_config,
@@ -1998,7 +1999,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
         enable_skills: false,
         ..SessionConfig::default()
     };
-    let (prompt, _) = stencila_agents::session::build_system_prompt(
+    let (prompt, _) = stencila_agents::api_session::build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
         &no_skills_config,
@@ -2008,7 +2009,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
     let profile2 = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let client = Arc::new(MockClient::new(vec![text_response("ok")]));
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile2),
             env.clone(),
             client.clone(),
@@ -2124,7 +2125,7 @@ async fn end_to_end_prompt_includes_project_docs_layer() -> AgentResult<()> {
         enable_skills: false,
         ..SessionConfig::default()
     };
-    let (prompt, _) = stencila_agents::session::build_system_prompt(
+    let (prompt, _) = stencila_agents::api_session::build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
         &no_skills_config,
@@ -2218,7 +2219,7 @@ async fn abort_during_llm_call() -> AgentResult<()> {
     ));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let profile = TestProfile::new()?;
-    let (mut session, _rx) = Session::new(
+    let (mut session, _rx) = ApiSession::new(
         Box::new(profile),
         env,
         client,
@@ -2325,7 +2326,7 @@ async fn shell_timeout_clamped_to_max() -> AgentResult<()> {
     ]));
     let env = Arc::new(CapturingExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env.clone() as Arc<dyn ExecutionEnvironment>,
             client.clone(),
@@ -2588,7 +2589,7 @@ async fn streaming_real_incremental_deltas() -> AgentResult<()> {
     let client: Arc<dyn LlmClient> = Arc::new(StreamingMockClient::new(vec![stream_events]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let profile = TestProfile::new()?;
-    let (mut session, mut rx) = Session::new(
+    let (mut session, mut rx) = ApiSession::new(
         Box::new(profile),
         env,
         client,
@@ -2749,7 +2750,7 @@ async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> 
     });
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let profile = TestProfile::new()?;
-    let (mut session, mut rx) = Session::new(
+    let (mut session, mut rx) = ApiSession::new(
         Box::new(profile),
         env,
         client,
@@ -2866,7 +2867,7 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
     let client: Arc<dyn LlmClient> = Arc::new(StreamingMockClient::new(vec![stream_events]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let profile = TestProfile::new()?;
-    let (mut session, mut rx) = Session::new(
+    let (mut session, mut rx) = ApiSession::new(
         Box::new(profile),
         env,
         client,
@@ -2929,7 +2930,7 @@ async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<
         text_response("I see a PNG image"),
     ]));
     let env = Arc::new(MockExecEnv::new().with_image_mode());
-    let (mut session, _rx) = Session::new(
+    let (mut session, _rx) = ApiSession::new(
         Box::new(profile),
         env as Arc<dyn ExecutionEnvironment>,
         client.clone(),
@@ -2977,7 +2978,7 @@ async fn openai_image_tool_result_excludes_image_from_message() -> AgentResult<(
         text_response("I see a PNG image"),
     ]));
     let env = Arc::new(MockExecEnv::new().with_image_mode());
-    let (mut session, _rx) = Session::new(
+    let (mut session, _rx) = ApiSession::new(
         Box::new(profile),
         env as Arc<dyn ExecutionEnvironment>,
         client.clone(),
@@ -3429,7 +3430,7 @@ async fn soft_abort_during_llm_streaming() -> AgentResult<()> {
     });
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let profile = TestProfile::new()?;
-    let (mut session, mut rx) = Session::new(
+    let (mut session, mut rx) = ApiSession::new(
         Box::new(profile),
         env,
         client,
@@ -3483,7 +3484,7 @@ async fn soft_abort_during_tool_execution() -> AgentResult<()> {
     ]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env,
             client.clone(),
@@ -3672,7 +3673,7 @@ async fn sequential_multi_tool_abort_race_backfills_results() -> AgentResult<()>
     ]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env,
             client.clone(),
@@ -3740,7 +3741,7 @@ async fn parallel_multi_tool_abort_race_has_correct_result_count() -> AgentResul
     ]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env,
             client.clone(),
@@ -3804,7 +3805,7 @@ async fn hard_abort_sequential_multi_tool_has_no_orphan_tool_calls() -> AgentRes
     ]));
     let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
     let (mut session, _rx, _) = {
-        let (s, r) = Session::new(
+        let (s, r) = ApiSession::new(
             Box::new(profile),
             env,
             client.clone(),

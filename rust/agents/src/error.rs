@@ -52,6 +52,23 @@ pub enum AgentError {
     #[error("mcp error: {message}")]
     Mcp { message: String },
 
+    // --- CLI provider errors ---
+    /// A CLI tool binary was not found on PATH.
+    #[error("CLI tool not found: {binary}")]
+    CliNotFound { binary: String },
+
+    /// A CLI subprocess exited with a nonzero code.
+    #[error("CLI process failed (exit {code}): {stderr}")]
+    CliProcessFailed { code: i32, stderr: String },
+
+    /// Failed to parse output from a CLI subprocess.
+    #[error("CLI parse error: {message}")]
+    CliParseError { message: String },
+
+    /// A CLI provider does not support the requested operation.
+    #[error("CLI unsupported: {operation}")]
+    CliUnsupported { operation: String },
+
     // --- Session-level errors (Appendix B) ---
     /// The session has been closed and cannot accept further input.
     #[error("session closed")]
@@ -94,7 +111,11 @@ impl AgentError {
             | Self::Io { .. }
             | Self::Mcp { .. } => true,
 
-            Self::SessionClosed
+            Self::CliNotFound { .. }
+            | Self::CliProcessFailed { .. }
+            | Self::CliParseError { .. }
+            | Self::CliUnsupported { .. }
+            | Self::SessionClosed
             | Self::InvalidState { .. }
             | Self::TurnLimitExceeded { .. }
             | Self::ContextLengthExceeded { .. }
@@ -124,7 +145,11 @@ impl AgentError {
     #[must_use]
     pub fn is_session_error(&self) -> bool {
         match self {
-            Self::SessionClosed
+            Self::CliNotFound { .. }
+            | Self::CliProcessFailed { .. }
+            | Self::CliParseError { .. }
+            | Self::CliUnsupported { .. }
+            | Self::SessionClosed
             | Self::InvalidState { .. }
             | Self::TurnLimitExceeded { .. }
             | Self::ContextLengthExceeded { .. } => true,
@@ -144,9 +169,6 @@ impl AgentError {
     }
 
     /// A short error code suitable for logging or event payloads.
-    ///
-    /// All arms are listed explicitly — no wildcards — so adding a new
-    /// variant produces a compile error until classified.
     #[must_use]
     pub fn code(&self) -> &'static str {
         match self {
@@ -159,6 +181,10 @@ impl AgentError {
             Self::UnknownTool { .. } => "UNKNOWN_TOOL",
             Self::Io { .. } => "IO_ERROR",
             Self::Mcp { .. } => "MCP_ERROR",
+            Self::CliNotFound { .. } => "CLI_NOT_FOUND",
+            Self::CliProcessFailed { .. } => "CLI_PROCESS_FAILED",
+            Self::CliParseError { .. } => "CLI_PARSE_ERROR",
+            Self::CliUnsupported { .. } => "CLI_UNSUPPORTED",
             Self::SessionClosed => "SESSION_CLOSED",
             Self::InvalidState { .. } => "INVALID_STATE",
             Self::TurnLimitExceeded { .. } => "TURN_LIMIT_EXCEEDED",

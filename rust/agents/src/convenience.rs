@@ -6,12 +6,13 @@ use std::sync::Arc;
 use eyre::Result;
 
 use crate::agent_def::{self, AgentInstance};
+use crate::agent_session::AgentSession;
+use crate::api_session::{ApiSession, Models3Client};
 use crate::error::{AgentError, AgentResult};
 use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
 use crate::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts;
-use crate::session::{Models3Client, Session};
 use crate::types::SessionConfig;
 
 /// Options for [`create_agent`].
@@ -136,23 +137,16 @@ pub fn resolve_default_agent_name(name: &str) -> String {
         .unwrap_or_else(|| name.to_string())
 }
 
-/// Create an agent session from a named agent definition.
-///
-/// Discovers the agent by name (searching workspace then user config),
-/// reads its instructions from the AGENT.md body, builds a [`SessionConfig`]
-/// from its schema fields, and creates a session.
-///
-/// If `name` is `"default"`, it is resolved to the agent configured in
-/// `[agents].default` in `stencila.toml` (falling back to `"default"` if unset).
-///
-/// Returns the discovered [`AgentInstance`] alongside the session and event
-/// receiver so callers can inspect agent metadata (name, description, etc.).
-///
-/// # Errors
-///
-/// Returns an error if the agent is not found, the AGENT.md cannot be read,
-/// or session creation fails (no API keys, unsupported provider, etc.).
-pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, EventReceiver)> {
+/// CLI provider names that delegate to external CLI tools.
+const CLI_PROVIDERS: &[&str] = &["claude-cli", "codex-cli", "gemini-cli"];
+
+/// Whether a provider name refers to a CLI provider.
+fn is_cli_provider(provider: &str) -> bool {
+    CLI_PROVIDERS.contains(&provider)
+}
+
+/// Shared preamble: resolve name, load agent definition, build session config.
+async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, SessionConfig)> {
     let resolved_name = resolve_default_agent_name(name);
 
     let cwd = std::env::current_dir().map_err(|e| {
@@ -169,12 +163,54 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
             })
         })?;
 
-    let mut config = SessionConfig::from_agent(&agent).await.map_err(|e| {
+    let config = SessionConfig::from_agent(&agent).await.map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
             message: format!("Failed to build session config from agent: {e}"),
         })
     })?;
 
+    Ok((agent, config))
+}
+
+/// Create an agent session from a named agent definition.
+///
+/// Discovers the agent by name (searching workspace then user config),
+/// reads its instructions from the AGENT.md body, builds a [`SessionConfig`]
+/// from its schema fields, and creates a session. If the agent's provider is
+/// a CLI provider (`claude-cli`, `codex-cli`, `gemini-cli`), a CLI-backed
+/// session is returned; otherwise a standard API session is used.
+///
+/// If `name` is `"default"`, it is resolved to the agent configured in
+/// `[agents].default` in `stencila.toml` (falling back to `"default"` if unset).
+///
+/// Returns the discovered [`AgentInstance`] alongside the unified
+/// [`AgentSession`] and event receiver so callers can inspect agent metadata
+/// (name, description, etc.).
+///
+/// # Errors
+///
+/// Returns an error if the agent is not found, the AGENT.md cannot be read,
+/// or session creation fails (no API keys, unsupported provider, etc.).
+pub async fn create_session(
+    name: &str,
+) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
+    let (agent, config) = load_agent_and_config(name).await?;
+
+    // Route to CLI or API based on the provider
+    if agent.provider.as_deref().is_some_and(is_cli_provider) {
+        let (session, event_receiver) = create_cli_session_inner(&agent, config)?;
+        return Ok((agent, AgentSession::Cli(session), event_receiver));
+    }
+
+    let (session, event_receiver) = create_api_session_inner(&agent, config).await?;
+    Ok((agent, AgentSession::Api(session), event_receiver))
+}
+
+/// Build an API-backed [`Session`] from a resolved agent and config.
+async fn create_api_session_inner(
+    agent: &AgentInstance,
+    mut config: SessionConfig,
+) -> AgentResult<(ApiSession, EventReceiver)> {
     let client = stencila_models3::client::Client::from_env().map_err(AgentError::Sdk)?;
 
     // Resolve provider and model together: when the agent specifies a model
@@ -271,7 +307,7 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
     let (system_prompt, mcp_context) =
         prompts::build_system_prompt(&mut *profile, &*env, &config).await?;
 
-    let (session, event_receiver) = Session::new(
+    let (session, event_receiver) = ApiSession::new(
         profile,
         env,
         llm_client,
@@ -281,7 +317,48 @@ pub async fn create_session(name: &str) -> AgentResult<(AgentInstance, Session, 
         mcp_context,
     );
 
-    Ok((agent, session, event_receiver))
+    Ok((session, event_receiver))
+}
+
+/// Build a CLI-backed [`CliSession`] from a resolved agent and config.
+fn create_cli_session_inner(
+    agent: &AgentInstance,
+    config: SessionConfig,
+) -> AgentResult<(crate::cli_providers::CliSession, EventReceiver)> {
+    use crate::cli_providers::{CliProviderConfig, CliSession};
+
+    let provider_name = agent.provider.as_deref().ok_or_else(|| {
+        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+            message: "CLI session requires a provider to be specified in the agent definition"
+                .to_string(),
+        })
+    })?;
+
+    let cli_config = CliProviderConfig::from_session_config(&config, agent.model.as_deref());
+
+    let provider: Box<dyn crate::cli_providers::CliProvider> = match provider_name {
+        "claude-cli" => Box::new(crate::cli_providers::claude::ClaudeCliProvider::new(
+            cli_config,
+        )),
+        "codex-cli" => Box::new(crate::cli_providers::codex::CodexCliProvider::new(
+            cli_config,
+        )),
+        "gemini-cli" => Box::new(crate::cli_providers::gemini::GeminiCliProvider::new(
+            cli_config,
+        )),
+        other => {
+            return Err(AgentError::CliUnsupported {
+                operation: format!(
+                    "Provider '{other}' is not a CLI provider. \
+                     Use claude-cli, codex-cli, or gemini-cli."
+                ),
+            });
+        }
+    };
+
+    let (session, event_receiver) = CliSession::new(provider, config);
+
+    Ok((session, event_receiver))
 }
 
 /// Run a single prompt against a named agent and return the collected response

@@ -8904,6 +8904,7 @@ dependencies = [
  "jsonschema",
  "libc",
  "regex",
+ "semver",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -8921,6 +8922,7 @@ dependencies = [
  "tokio",
  "tracing",
  "uuid",
+ "which",
 ]
 
 [[package]]
@@ -11679,6 +11681,7 @@ dependencies = [
  "clap",
  "eyre",
  "glob",
+ "indicatif",
  "regex",
  "serde",
  "serde_json",

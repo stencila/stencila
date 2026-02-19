@@ -83,7 +83,13 @@ pub mod loop_detection;
 pub mod subagents;
 
 /// Agent session and core agentic loop (spec 2.1, 2.5-2.8, 2.10, Appendix B).
-pub mod session;
+pub mod api_session;
+
+/// CLI-based providers: Claude, Codex, and Gemini CLI tool adapters.
+pub mod cli_providers;
+
+/// Unified agent session type wrapping API and CLI backends.
+pub mod agent_session;
 
 /// High-level session factory for convenient setup.
 pub mod convenience;

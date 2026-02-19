@@ -7,7 +7,7 @@ use inflector::Inflector;
 use serde_json::Value;
 use stencila_agents::convenience::create_session;
 use stencila_agents::error::AgentError;
-use stencila_agents::session::AbortController;
+use stencila_agents::types::AbortController;
 use stencila_agents::types::EventKind;
 use tokio::sync::mpsc;
 

@@ -26,12 +26,12 @@ use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 use tokio::sync::{mpsc, oneshot};
 
+use crate::api_session::{ApiSession, LlmClient};
 use crate::error::{AgentError, AgentResult};
 use crate::execution::{ExecutionEnvironment, ScopedExecutionEnvironment};
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
-use crate::session::{AbortController, AbortSignal, LlmClient, Session};
-use crate::types::SessionConfig;
+use crate::types::{AbortController, AbortSignal, SessionConfig};
 
 // ---------------------------------------------------------------------------
 // Tool name constants
@@ -185,7 +185,7 @@ impl std::fmt::Debug for SubAgentHandle {
 /// 4. Exits when the command channel closes, a `Close` is received, or
 ///    the abort signal fires.
 async fn run_agent_task(
-    mut session: Session,
+    mut session: ApiSession,
     task: String,
     abort_signal: AbortSignal,
     initial_result_tx: oneshot::Sender<AgentStepResult>,
@@ -475,7 +475,7 @@ impl SubAgentManager {
         // Create the child session. The receiver is dropped immediately —
         // the emitter silently discards events when no receiver exists,
         // avoiding unbounded memory growth from unconsumed child events.
-        let (mut session, _receiver) = Session::new(
+        let (mut session, _receiver) = ApiSession::new(
             child_profile,
             child_env,
             Arc::clone(&self.client),
@@ -923,7 +923,7 @@ fn format_result_json(agent_id: &str, result: &SubAgentResult, error: Option<&st
 }
 
 /// Extract the result from a session (called inside the spawned task).
-fn extract_result_from_session(session: &Session) -> SubAgentResult {
+fn extract_result_from_session(session: &ApiSession) -> SubAgentResult {
     let output = session
         .history()
         .iter()

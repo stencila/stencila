@@ -7,6 +7,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
+use stencila_agents::api_session::{ApiSession, Models3Client};
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::events::EventReceiver;
 use stencila_agents::execution::LocalExecutionEnvironment;
@@ -14,7 +15,6 @@ use stencila_agents::profiles::AnthropicProfile;
 use stencila_agents::profiles::GeminiProfile;
 use stencila_agents::profiles::OpenAiProfile;
 use stencila_agents::prompts;
-use stencila_agents::session::{Models3Client, Session};
 use stencila_agents::types::{EventKind, SessionConfig, SessionEvent};
 use stencila_models3::error::SdkError;
 
@@ -89,7 +89,7 @@ pub async fn live_session(
     provider: &str,
     working_dir: &Path,
     config: SessionConfig,
-) -> AgentResult<(Session, EventReceiver)> {
+) -> AgentResult<(ApiSession, EventReceiver)> {
     let model = test_model(provider);
 
     // Build profile
@@ -116,7 +116,7 @@ pub async fn live_session(
         prompts::build_system_prompt(&mut *profile, &*exec_env, &config).await?;
 
     // Create session (depth 0 = top-level)
-    let (session, receiver) = Session::new(
+    let (session, receiver) = ApiSession::new(
         profile,
         exec_env,
         llm_client,
@@ -149,7 +149,7 @@ pub fn make_tempdir() -> AgentResult<tempfile::TempDir> {
 /// Returns `Ok(None)` if the provider should be skipped (rate limit / quota).
 /// Returns `Ok(Some(events))` on success.
 pub async fn submit_and_drain(
-    session: &mut Session,
+    session: &mut ApiSession,
     receiver: &mut EventReceiver,
     prompt: &str,
 ) -> AgentResult<Option<Vec<SessionEvent>>> {

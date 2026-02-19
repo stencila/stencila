@@ -30,12 +30,12 @@ use stencila_models3::types::role::Role;
 use stencila_models3::types::tool::{ToolCall, ToolDefinition};
 use stencila_models3::types::usage::Usage;
 
+use stencila_agents::api_session::{ApiSession, LlmClient};
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use stencila_agents::registry::{RegisteredTool, ToolOutput, ToolRegistry};
-use stencila_agents::session::{LlmClient, Session};
 use stencila_agents::subagents;
 use stencila_agents::types::{DirEntry, EventKind, ExecResult, GrepOptions, SessionConfig};
 
@@ -370,7 +370,7 @@ fn close_call(agent_id: &str) -> ToolCall {
 fn test_session(
     responses: Vec<Result<Response, SdkError>>,
 ) -> AgentResult<(
-    Session,
+    ApiSession,
     stencila_agents::events::EventReceiver,
     Arc<MockClient>,
     Arc<MockExecEnv>,
@@ -382,7 +382,7 @@ fn test_session_with_config(
     responses: Vec<Result<Response, SdkError>>,
     config: SessionConfig,
 ) -> AgentResult<(
-    Session,
+    ApiSession,
     stencila_agents::events::EventReceiver,
     Arc<MockClient>,
     Arc<MockExecEnv>,
@@ -390,7 +390,7 @@ fn test_session_with_config(
     let profile = TestProfile::new()?;
     let client = Arc::new(MockClient::new(responses));
     let env = Arc::new(MockExecEnv::new());
-    let (session, receiver) = Session::new(
+    let (session, receiver) = ApiSession::new(
         Box::new(profile),
         env.clone() as Arc<dyn ExecutionEnvironment>,
         client.clone(),
@@ -403,7 +403,9 @@ fn test_session_with_config(
 }
 
 /// Collect all tool result turns from session history.
-fn collect_tool_results(session: &Session) -> Vec<&Vec<stencila_models3::types::tool::ToolResult>> {
+fn collect_tool_results(
+    session: &ApiSession,
+) -> Vec<&Vec<stencila_models3::types::tool::ToolResult>> {
     session
         .history()
         .iter()
@@ -1174,7 +1176,7 @@ async fn session_auto_registers_subagent_tools_when_depth_allows() -> AgentResul
         ..SessionConfig::default()
     };
 
-    let (mut session, _rx) = Session::new(
+    let (mut session, _rx) = ApiSession::new(
         Box::new(profile),
         env as Arc<dyn ExecutionEnvironment>,
         client.clone(),

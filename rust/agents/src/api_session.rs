@@ -17,7 +17,6 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU8, Ordering};
 
 use async_trait::async_trait;
 use futures::StreamExt;
@@ -40,7 +39,7 @@ use crate::profile::ProviderProfile;
 use crate::registry::ToolOutput;
 use crate::subagents::SubAgentManager;
 use crate::truncation::{TruncationConfig, truncate_tool_output};
-use crate::types::{SessionConfig, SessionState, Turn, now_timestamp};
+use crate::types::{AbortKind, AbortSignal, SessionConfig, SessionState, Turn, now_timestamp};
 
 // ---------------------------------------------------------------------------
 // LlmClient trait
@@ -133,153 +132,6 @@ impl LlmClient for Models3Client {
 }
 
 // ---------------------------------------------------------------------------
-// Abort types
-// ---------------------------------------------------------------------------
-
-/// The kind of abort that has been signaled.
-///
-/// Stored as a `u8` in an [`AtomicU8`] so that a single atomic load
-/// suffices at each abort check point.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u8)]
-pub enum AbortKind {
-    /// No abort — the session is actively processing.
-    Active = 0,
-    /// Soft abort — cancel the current exchange but keep the session alive.
-    Soft = 1,
-    /// Hard abort — close the session permanently.
-    Hard = 2,
-}
-
-impl AbortKind {
-    /// Convert a raw `u8` into an [`AbortKind`].
-    ///
-    /// Returns [`Active`](AbortKind::Active) for any value other than 1 or 2
-    /// (defensive: unknown values are treated as "not aborted").
-    fn from_u8(value: u8) -> Self {
-        match value {
-            1 => Self::Soft,
-            2 => Self::Hard,
-            _ => Self::Active,
-        }
-    }
-}
-
-/// Controller that creates abort signals and triggers cancellation.
-///
-/// Create with [`AbortController::new()`], pass [`signal()`](Self::signal)
-/// to the session, and call [`soft_abort()`](Self::soft_abort) to cancel the
-/// current exchange (session stays alive) or [`abort()`](Self::abort) to
-/// close the session permanently.
-#[derive(Debug, Clone)]
-pub struct AbortController {
-    state: Arc<AtomicU8>,
-}
-
-impl AbortController {
-    /// Create a new abort controller.
-    #[must_use]
-    pub fn new() -> Self {
-        Self {
-            state: Arc::new(AtomicU8::new(AbortKind::Active as u8)),
-        }
-    }
-
-    /// Get an abort signal that can be polled.
-    #[must_use]
-    pub fn signal(&self) -> AbortSignal {
-        AbortSignal {
-            state: Arc::clone(&self.state),
-        }
-    }
-
-    /// Signal a soft abort — cancel the current exchange but keep the
-    /// session alive for subsequent [`submit()`](Session::submit) calls.
-    ///
-    /// Has no effect if a hard abort is already active (hard abort cannot
-    /// be downgraded).
-    pub fn soft_abort(&self) {
-        // Only upgrade Active → Soft; never downgrade Hard → Soft.
-        let _ = self.state.compare_exchange(
-            AbortKind::Active as u8,
-            AbortKind::Soft as u8,
-            Ordering::Release,
-            Ordering::Relaxed,
-        );
-    }
-
-    /// Signal a hard abort — close the session permanently.
-    ///
-    /// All signals derived from this controller will immediately report
-    /// `is_aborted() == true`. This is sticky across submits: the session
-    /// transitions to `Closed` and future `submit()` calls return
-    /// `SessionClosed`.
-    pub fn abort(&self) {
-        self.state.store(AbortKind::Hard as u8, Ordering::Release);
-    }
-
-    /// Reset the controller to the [`Active`](AbortKind::Active) state.
-    ///
-    /// Useful when reusing a controller across sessions or after a hard
-    /// abort to start fresh.
-    pub fn reset(&self) {
-        self.state.store(AbortKind::Active as u8, Ordering::Release);
-    }
-}
-
-impl Default for AbortController {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-/// Polling signal for session cancellation.
-#[derive(Debug, Clone)]
-pub struct AbortSignal {
-    state: Arc<AtomicU8>,
-}
-
-impl AbortSignal {
-    /// Read the current abort kind with a single atomic load.
-    #[must_use]
-    pub fn kind(&self) -> AbortKind {
-        AbortKind::from_u8(self.state.load(Ordering::Acquire))
-    }
-
-    /// Whether any abort (soft or hard) has been signaled.
-    #[must_use]
-    pub fn is_aborted(&self) -> bool {
-        self.kind() != AbortKind::Active
-    }
-
-    /// Returns a future that resolves when any abort is signaled.
-    ///
-    /// Polls the atomic flag every 10ms. Suitable for use with
-    /// `tokio::select!` to cancel in-flight work.
-    pub async fn cancelled(&self) {
-        loop {
-            if self.is_aborted() {
-                return;
-            }
-            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
-        }
-    }
-
-    /// Reset a soft abort back to active, leaving hard aborts sticky.
-    ///
-    /// Called automatically at the start of each [`submit()`](Session::submit)
-    /// so that a soft-aborted session is ready for the next exchange.
-    pub(crate) fn reset_soft(&self) {
-        let _ = self.state.compare_exchange(
-            AbortKind::Soft as u8,
-            AbortKind::Active as u8,
-            Ordering::Release,
-            Ordering::Relaxed,
-        );
-    }
-}
-
-// ---------------------------------------------------------------------------
 // ImageAttachment
 // ---------------------------------------------------------------------------
 
@@ -290,15 +142,15 @@ struct ImageAttachment {
 }
 
 // ---------------------------------------------------------------------------
-// Session
+// API Session
 // ---------------------------------------------------------------------------
 
 /// An agent session managing the conversation loop (spec 2.1).
 ///
-/// Created via [`Session::new()`], driven by [`submit()`](Self::submit).
+/// Created via [`ApiSession::new()`], driven by [`submit()`](Self::submit).
 /// Events are delivered through the [`EventReceiver`] returned by the
 /// constructor.
-pub struct Session {
+pub struct ApiSession {
     config: SessionConfig,
     state: SessionState,
     history: Vec<Turn>,
@@ -339,7 +191,7 @@ pub struct Session {
     owns_mcp_pool: bool,
 }
 
-impl std::fmt::Debug for Session {
+impl std::fmt::Debug for ApiSession {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Session")
             .field("state", &self.state)
@@ -349,7 +201,7 @@ impl std::fmt::Debug for Session {
     }
 }
 
-impl Session {
+impl ApiSession {
     /// Create a new session.
     ///
     /// Returns the session and an [`EventReceiver`] for consuming events.
@@ -1367,7 +1219,7 @@ impl Session {
     }
 }
 
-impl Drop for Session {
+impl Drop for ApiSession {
     fn drop(&mut self) {
         self.close();
     }
