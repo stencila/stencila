@@ -328,6 +328,7 @@ fn all_outcome_status_strings() -> TestResult {
             context_updates: indexmap::IndexMap::new(),
             notes: String::new(),
             failure_reason: String::new(),
+            jump_target: None,
         };
         let cond = format!("outcome={expected_str}");
         assert!(

@@ -674,7 +674,10 @@ fn error_missing_comma_shows_position() -> TestResult {
     assert!(result.is_err());
     let msg = result.err().ok_or("expected error")?.to_string();
     // Should point to line 2 where the missing comma is
-    assert!(msg.contains("line 2"), "error should point to line 2: {msg}");
+    assert!(
+        msg.contains("line 2"),
+        "error should point to line 2: {msg}"
+    );
     // Should mention expected ']'
     assert!(msg.contains(']'), "error should mention ']': {msg}");
     Ok(())

@@ -6,6 +6,7 @@
 //! `FirstSuccess` returns as soon as one branch succeeds; `FailFast`
 //! cancels remaining branches on the first failure.
 
+use std::collections::{HashSet, VecDeque};
 use std::path::Path;
 use std::sync::Arc;
 
@@ -137,12 +138,29 @@ impl Handler for ParallelHandler {
                 .max(1),
         };
 
+        // Compute the structural fan-in node before launching branches so
+        // that (a) branches can stop when they reach it, and (b) the engine
+        // can jump directly to it after the parallel handler returns.
+        //
+        // Use a Vec (preserving edge order from the graph) for deterministic
+        // BFS traversal — HashSet iteration order varies across runs.
+        let branch_entry_ids: Vec<String> = edges.iter().map(|e| e.to.clone()).collect();
+        let fan_in_id = find_fan_in_node(graph, &node.id, &branch_entry_ids);
+
         self.emitter.emit(PipelineEvent::ParallelStarted {
             node_id: node.id.clone(),
         });
 
         let branch_results = self
-            .run_branches(&node.id, &edges, context, graph, logs_root, &policies)
+            .run_branches(
+                &node.id,
+                &edges,
+                context,
+                graph,
+                logs_root,
+                &policies,
+                fan_in_id.as_deref(),
+            )
             .await;
 
         self.emitter.emit(PipelineEvent::ParallelCompleted {
@@ -165,10 +183,145 @@ impl Handler for ParallelHandler {
             .collect();
         context.set("parallel.results", serde_json::Value::Array(results_json));
 
-        let outcome = evaluate_join(&branch_results, policies.join, policies.error);
+        let mut outcome = evaluate_join(&branch_results, policies.join, policies.error);
+
+        // Set the jump target so the engine advances directly to the
+        // fan-in node, bypassing normal edge selection (which would
+        // re-enter one of the already-executed branches).
+        outcome.jump_target = fan_in_id;
 
         Ok(outcome)
     }
+}
+
+/// Find the structural fan-in (convergence) node for a set of parallel branches.
+///
+/// A fan-in node is the first node where parallel branches reconverge —
+/// i.e. a node that is reachable from multiple distinct branch entry
+/// nodes. This covers both:
+///
+/// - **Explicit fan-in nodes** (handler type `parallel.fan_in`) that may be
+///   multiple hops downstream from branch entries.
+/// - **Implicit convergence points** — ordinary nodes where branches happen
+///   to merge (the "diamond" topology).
+///
+/// ## Algorithm
+///
+/// 1. For each branch entry node (iterated in the caller-provided slice
+///    order), perform a BFS forward through the graph to collect the set
+///    of all reachable node IDs.
+///
+/// 2. Among discovered nodes (excluding branch entries), select the
+///    candidate reachable from the **most** branches. For ≥3 branches
+///    this prevents selecting an early pairwise merge when a later
+///    all-branch convergence exists (e.g. in a staggered merge topology
+///    where A+B converge at `merge_ab` and then `merge_ab`+C converge
+///    at `merge_abc`, the function selects `merge_abc`).
+///
+/// 3. If multiple candidates tie on branch count, BFS discovery order
+///    (earliest encounter first) breaks the tie, preferring the
+///    topologically closest convergence point.
+///
+/// A candidate must be reachable from at least 2 branches; single-branch
+/// parallel nodes (or fully divergent branches) yield `None`.
+///
+/// The `parallel_node_id` is excluded from candidates to prevent cyclic
+/// graphs (where branches have back-edges to the parallel node) from
+/// selecting the parallel node itself as the fan-in, which would cause
+/// an infinite re-execution loop.
+///
+/// ## Determinism
+///
+/// The caller must provide `branch_entry_ids` as an ordered slice (not a
+/// `HashSet`) so that BFS traversal order — and therefore the global
+/// discovery order — is determined by graph topology (edge ordering), not
+/// by hash randomization. This ensures the same fan-in node is selected
+/// across runs for the same graph.
+///
+/// ## Complexity
+///
+/// O(B × (N + E)) where B = number of branches, N = nodes, E = edges.
+/// For typical pipeline graphs (small B, moderate N) this is negligible.
+fn find_fan_in_node(
+    graph: &Graph,
+    parallel_node_id: &str,
+    branch_entry_ids: &[String],
+) -> Option<String> {
+    let entry_set: HashSet<&str> = branch_entry_ids.iter().map(String::as_str).collect();
+    let num_branches = branch_entry_ids.len();
+
+    // Phase 1: BFS forward from each branch entry to collect reachable sets.
+    // Also record a global discovery order so we can use it as a tiebreaker
+    // (earlier in discovery = topologically closer to the parallel node).
+    let mut reachable_per_branch: Vec<HashSet<String>> = Vec::new();
+    let mut discovery_order: Vec<String> = Vec::new();
+    let mut discovered: HashSet<String> = HashSet::new();
+
+    for entry_id in branch_entry_ids {
+        let mut visited = HashSet::new();
+        let mut queue = VecDeque::new();
+        queue.push_back(entry_id.clone());
+
+        while let Some(current) = queue.pop_front() {
+            if !visited.insert(current.clone()) {
+                continue;
+            }
+
+            if discovered.insert(current.clone()) {
+                discovery_order.push(current.clone());
+            }
+
+            for edge in graph.outgoing_edges(&current) {
+                if !visited.contains(&edge.to) {
+                    queue.push_back(edge.to.clone());
+                }
+            }
+        }
+
+        reachable_per_branch.push(visited);
+    }
+
+    // Phase 2: Select the candidate reachable from the most branches.
+    //
+    // Among nodes reachable from ≥2 branches, prefer the one with the
+    // highest branch count. This ensures that in a staggered merge
+    // topology (A+B → merge_ab → merge_abc ← C), we select merge_abc
+    // (count=3) over merge_ab (count=2).
+    //
+    // On a tie (same branch count), BFS discovery order breaks it:
+    // earlier in discovery = closer to the parallel node.
+    let mut best: Option<(String, usize)> = None;
+
+    for node_id in &discovery_order {
+        if entry_set.contains(node_id.as_str()) || node_id == parallel_node_id {
+            continue;
+        }
+        let branch_count = reachable_per_branch
+            .iter()
+            .filter(|set| set.contains(node_id))
+            .count();
+        if branch_count < 2 {
+            continue;
+        }
+
+        // If this candidate is reachable from all branches, it's the
+        // ideal convergence point — return immediately.
+        if branch_count == num_branches {
+            return Some(node_id.clone());
+        }
+
+        // Otherwise, track the best-so-far (highest branch count wins;
+        // discovery order is the implicit tiebreak since we iterate in
+        // that order and only upgrade on strictly greater count).
+        if best
+            .as_ref()
+            .is_none_or(|(_, best_count)| branch_count > *best_count)
+        {
+            best = Some((node_id.clone(), branch_count));
+        }
+    }
+
+    best.map(|(id, _)| id)
 }
 
 impl ParallelHandler {
@@ -179,6 +332,11 @@ impl ParallelHandler {
     /// `FirstSuccess` stops polling remaining branches once one succeeds.
     /// `FailFast` stops on the first failure. Remaining futures are
     /// dropped (cancelled) when the drain loop exits early.
+    ///
+    /// `fan_in_id` is the pre-computed structural fan-in node (if any).
+    /// It is passed to each branch executor so that branches stop
+    /// traversal when they reach the convergence point.
+    #[allow(clippy::too_many_arguments)]
     async fn run_branches(
         &self,
         parallel_node_id: &str,
@@ -187,8 +345,10 @@ impl ParallelHandler {
         graph: &Graph,
         logs_root: &Path,
         policies: &ParallelPolicies,
+        fan_in_id: Option<&str>,
     ) -> Vec<BranchResult> {
         let semaphore = Arc::new(Semaphore::new(policies.max_parallel));
+        let fan_in_id: Arc<Option<String>> = Arc::new(fan_in_id.map(String::from));
 
         let futs: FuturesUnordered<_> = edges
             .iter()
@@ -202,6 +362,7 @@ impl ParallelHandler {
                 let graph = graph.clone();
                 let logs_root = logs_root.to_path_buf();
                 let sem = Arc::clone(&semaphore);
+                let fan_in_id = Arc::clone(&fan_in_id);
 
                 async move {
                     // Acquire a semaphore permit to bound concurrency.
@@ -225,6 +386,7 @@ impl ParallelHandler {
                         &graph,
                         &logs_root,
                         &registry,
+                        fan_in_id.as_deref(),
                     )
                     .await;
 
@@ -342,14 +504,26 @@ fn evaluate_join(
 /// Execute a branch as a subgraph traversal (§4.8).
 ///
 /// Walks forward from `start_id`, executing each node's handler and
-/// applying context updates, until reaching a fan-in node, an exit
-/// node, a node with no handler, or a dead end (no outgoing edges).
+/// applying context updates, until reaching a termination point:
+///
+/// - The **fan-in node** (convergence point computed by [`find_fan_in_node`]).
+///   This is the single source of truth for fan-in detection — both explicit
+///   `parallel.fan_in` handler nodes and implicit structural convergence
+///   points are identified by the same BFS reachability analysis, so the
+///   branch executor only needs a simple ID comparison.
+/// - An **exit node** (graph exit/end).
+/// - A **dead end** (no viable outgoing edge).
+/// - A **handler failure** (node has no registered handler, or execution fails).
+///
+/// `fan_in_id` is `None` when no convergence point exists (e.g. branches
+/// that terminate independently without reconverging).
 async fn execute_branch_subgraph(
     start_id: &str,
     context: &Context,
     graph: &Graph,
     logs_root: &Path,
     registry: &HandlerRegistry,
+    fan_in_id: Option<&str>,
 ) -> AttractorResult<Outcome> {
     let mut current_id = start_id.to_string();
     let mut last_outcome = Outcome::success();
@@ -361,7 +535,17 @@ async fn execute_branch_subgraph(
             }
         })?;
 
-        // Stop at fan-in nodes — they are handled by the parent engine
+        // Stop at the pre-computed fan-in node. This covers both explicit
+        // `parallel.fan_in` handler nodes and structural convergence points
+        // — the BFS in `find_fan_in_node` discovers both.
+        if fan_in_id == Some(current_id.as_str()) {
+            break;
+        }
+
+        // Fallback: always stop at explicit fan-in nodes even when
+        // `find_fan_in_node` returned None (e.g. single-branch parallel).
+        // Without this, the branch would execute the FanInHandler before
+        // `parallel.results` exists in context, causing a spurious failure.
         if node.handler_type() == "parallel.fan_in" {
             break;
         }
@@ -396,10 +580,24 @@ async fn execute_branch_subgraph(
             break;
         }
 
-        // Use the engine's edge-selection algorithm (§3.3) so that
-        // conditions, preferred labels, and weights all apply within
-        // branch subgraph traversal, matching the main loop semantics.
-        if let Some(edge) = select_edge(&current_id, &last_outcome, context, graph) {
+        // Advance to the next node within the branch.
+        //
+        // This mirrors the engine's advance() logic so that nested
+        // parallel nodes, jump targets, and edge selection all behave
+        // consistently with the top-level engine loop.
+        if let Some(target) = &last_outcome.jump_target {
+            // The handler (e.g. a nested parallel) set an explicit jump
+            // target. Honor it instead of following outgoing edges —
+            // those edges are the nested handler's internal branches.
+            current_id.clone_from(target);
+        } else if node.handler_type() == "parallel" {
+            // A nested parallel handler with no jump target means its
+            // branches were all terminal. Don't follow its outgoing
+            // edges (which are already-executed branch entries).
+            break;
+        } else if let Some(edge) = select_edge(&current_id, &last_outcome, context, graph) {
+            // Normal edge selection (§3.3) — conditions, preferred
+            // labels, and weights all apply within branch traversal.
             current_id.clone_from(&edge.to);
         } else {
             break; // Dead end — no viable outgoing edge

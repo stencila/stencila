@@ -645,3 +645,562 @@ async fn fan_in_empty_results_array() -> AttractorResult<()> {
     assert_eq!(outcome.status, StageStatus::Fail);
     Ok(())
 }
+
+// ===========================================================================
+// Structural fan-in detection
+// ===========================================================================
+
+/// Build a graph with a parallel fan-out → multi-step branches → convergence.
+///
+/// Topology:
+///   parallel_node → branch_a → step_a2 → merge
+///   parallel_node → branch_b → step_b2 → merge
+///
+/// The "merge" node is the structural fan-in point, reachable from both
+/// branch entries but NOT directly connected to them.
+fn multi_hop_diamond_graph() -> Graph {
+    let mut g = Graph::new("multi_hop_diamond");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    // Branch A: two steps
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("step_a2"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("branch_a", "step_a2"));
+    g.add_edge(Edge::new("step_a2", "merge"));
+
+    // Branch B: two steps
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("step_b2"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_b", "step_b2"));
+    g.add_edge(Edge::new("step_b2", "merge"));
+
+    // Convergence node
+    g.add_node(Node::new("merge"));
+
+    g
+}
+
+#[tokio::test]
+async fn parallel_fan_in_multi_hop_structural() -> AttractorResult<()> {
+    // When branches have intermediate nodes (branch_a → step_a2 → merge),
+    // the fan-in node "merge" should still be detected via BFS reachability
+    // and set as jump_target.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let g = multi_hop_diamond_graph();
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert!(outcome.status.is_success());
+    // The jump_target should be the structural convergence node, not in context_updates
+    assert_eq!(outcome.jump_target.as_deref(), Some("merge"));
+    assert!(
+        !outcome
+            .context_updates
+            .contains_key("parallel.fan_in_target")
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_single_hop_structural() -> AttractorResult<()> {
+    // Classic diamond: parallel → A → merge, parallel → B → merge.
+    // The simplest structural fan-in case.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("single_hop_diamond");
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("merge"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_a", "merge"));
+    g.add_edge(Edge::new("branch_b", "merge"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert!(outcome.status.is_success());
+    assert_eq!(outcome.jump_target.as_deref(), Some("merge"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_explicit_multi_hop() -> AttractorResult<()> {
+    // Explicit parallel.fan_in node multiple hops from branch entries:
+    //   parallel_node → branch_a → step_a2 → fan_in_node
+    //   parallel_node → branch_b → step_b2 → fan_in_node
+    // where fan_in_node has shape=tripleoctagon (handler type parallel.fan_in).
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("explicit_fan_in");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("step_a2"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("branch_a", "step_a2"));
+    g.add_edge(Edge::new("step_a2", "fan_in_node"));
+
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("step_b2"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_b", "step_b2"));
+    g.add_edge(Edge::new("step_b2", "fan_in_node"));
+
+    // Explicit fan-in node with the canonical shape
+    let mut fan_in = Node::new("fan_in_node");
+    fan_in
+        .attrs
+        .insert("shape".into(), AttrValue::from("tripleoctagon"));
+    g.add_node(fan_in);
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert!(outcome.status.is_success());
+    // The BFS should discover the explicit fan-in node even though it's
+    // multiple hops from the branch entry nodes.
+    assert_eq!(outcome.jump_target.as_deref(), Some("fan_in_node"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_no_fan_in_when_branches_diverge() -> AttractorResult<()> {
+    // When branches do not converge, jump_target should be None.
+    //   parallel_node → branch_a → end_a
+    //   parallel_node → branch_b → end_b
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("divergent");
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("end_a"));
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("end_b"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("branch_a", "end_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_b", "end_b"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert!(outcome.status.is_success());
+    assert_eq!(outcome.jump_target, None);
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_target_not_in_context_updates() -> AttractorResult<()> {
+    // Ensure the jump target is on outcome.jump_target, NOT leaked into
+    // context_updates (which would pollute the pipeline context).
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let g = multi_hop_diamond_graph();
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    // jump_target is set
+    assert!(outcome.jump_target.is_some());
+    // But it must NOT appear in context_updates
+    assert!(
+        !outcome
+            .context_updates
+            .contains_key("parallel.fan_in_target")
+    );
+    // Only the expected keys should be in context_updates
+    assert!(
+        outcome
+            .context_updates
+            .contains_key("parallel.success_count")
+    );
+    assert!(outcome.context_updates.contains_key("parallel.fail_count"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_single_branch_with_explicit_fan_in_does_not_fail() -> AttractorResult<()> {
+    // Regression test: a single-branch parallel node with a downstream
+    // explicit parallel.fan_in node. find_fan_in_node returns None (only
+    // one branch, so no convergence), but the branch must still stop at
+    // the fan_in node rather than trying to execute it (which would fail
+    // because parallel.results doesn't exist in the branch context yet).
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("single_branch_fan_in");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    // Single branch
+    g.add_node(Node::new("branch_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("branch_a", "fan_in_node"));
+
+    // Explicit fan-in node (tripleoctagon shape → parallel.fan_in handler)
+    let mut fan_in = Node::new("fan_in_node");
+    fan_in
+        .attrs
+        .insert("shape".into(), AttrValue::from("tripleoctagon"));
+    g.add_node(fan_in);
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    // With only one branch, there's no structural convergence.
+    assert_eq!(outcome.jump_target, None);
+    // The branch should succeed — the fan_in node is NOT executed within
+    // the branch (it's stopped by the handler-type fallback guard).
+    assert!(
+        outcome.status.is_success(),
+        "single-branch parallel should succeed, not fail from executing fan_in prematurely"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_detection_is_deterministic() -> AttractorResult<()> {
+    // Run the same multi-hop diamond graph multiple times and verify
+    // that the fan-in node selected is always the same, regardless of
+    // hash randomization across iterations.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let g = multi_hop_diamond_graph();
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+
+    let mut targets = Vec::new();
+    for _ in 0..20 {
+        let registry = default_registry();
+        let emitter = Arc::new(NoOpEmitter);
+        let handler = ParallelHandler::new(registry, emitter);
+        let ctx = Context::new();
+
+        let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+        targets.push(outcome.jump_target.clone());
+    }
+
+    // All runs must agree on the same fan-in node.
+    let first = &targets[0];
+    assert!(
+        targets.iter().all(|t| t == first),
+        "fan-in target varied across runs: {targets:?}"
+    );
+    assert_eq!(first.as_deref(), Some("merge"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_staggered_merge_selects_all_branch_convergence() -> AttractorResult<()> {
+    // Staggered merge topology with 3 branches:
+    //   parallel_node → A → merge_ab → merge_abc → (done)
+    //   parallel_node → B → merge_ab ↗
+    //   parallel_node → C → merge_abc ↗
+    //
+    // merge_ab is reachable from 2 branches (A, B).
+    // merge_abc is reachable from all 3 (A via merge_ab, B via merge_ab, C).
+    // The fan-in must be merge_abc, not merge_ab.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("staggered_merge");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("A"));
+    g.add_node(Node::new("B"));
+    g.add_node(Node::new("C"));
+    g.add_node(Node::new("merge_ab"));
+    g.add_node(Node::new("merge_abc"));
+
+    g.add_edge(Edge::new("parallel_node", "A"));
+    g.add_edge(Edge::new("parallel_node", "B"));
+    g.add_edge(Edge::new("parallel_node", "C"));
+    g.add_edge(Edge::new("A", "merge_ab"));
+    g.add_edge(Edge::new("B", "merge_ab"));
+    g.add_edge(Edge::new("merge_ab", "merge_abc"));
+    g.add_edge(Edge::new("C", "merge_abc"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert!(outcome.status.is_success());
+    assert_eq!(
+        outcome.jump_target.as_deref(),
+        Some("merge_abc"),
+        "should select all-branch convergence, not pairwise merge_ab"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_dead_end_branch_still_finds_partial_convergence() -> AttractorResult<()> {
+    // 3 branches where one is a dead end:
+    //   parallel_node → A → merge
+    //   parallel_node → B → merge
+    //   parallel_node → C → dead_end (no outgoing edges)
+    //
+    // merge is reachable from 2 of 3 branches. Since C can't reach any
+    // shared node, merge is the best available convergence point.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("dead_end_branch");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("A"));
+    g.add_node(Node::new("B"));
+    g.add_node(Node::new("C"));
+    g.add_node(Node::new("merge"));
+    g.add_node(Node::new("dead_end"));
+
+    g.add_edge(Edge::new("parallel_node", "A"));
+    g.add_edge(Edge::new("parallel_node", "B"));
+    g.add_edge(Edge::new("parallel_node", "C"));
+    g.add_edge(Edge::new("A", "merge"));
+    g.add_edge(Edge::new("B", "merge"));
+    g.add_edge(Edge::new("C", "dead_end"));
+    // dead_end has no outgoing edges
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert!(outcome.status.is_success());
+    assert_eq!(
+        outcome.jump_target.as_deref(),
+        Some("merge"),
+        "should find partial convergence when one branch is a dead end"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_excludes_parallel_node_in_cyclic_graph() -> AttractorResult<()> {
+    // Cyclic graph: branches have back-edges to the parallel node.
+    //   parallel_node → branch_a → parallel_node (back-edge)
+    //   parallel_node → branch_b → parallel_node (back-edge)
+    //
+    // Without the exclusion, find_fan_in_node would select parallel_node
+    // itself as the fan-in (reachable from both branches), causing the
+    // engine to jump back and re-execute the parallel handler forever.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("cyclic_parallel");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("branch_b"));
+
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    // Back-edges to parallel_node
+    g.add_edge(Edge::new("branch_a", "parallel_node"));
+    g.add_edge(Edge::new("branch_b", "parallel_node"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    // The parallel node must NOT be selected as the fan-in target.
+    assert_ne!(
+        outcome.jump_target.as_deref(),
+        Some("parallel_node"),
+        "fan-in must not be the parallel node itself in cyclic graphs"
+    );
+    // With only back-edges and no forward convergence, jump_target should be None.
+    assert_eq!(outcome.jump_target, None);
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_fan_in_cyclic_with_real_convergence() -> AttractorResult<()> {
+    // Cyclic graph with a real convergence node beyond the back-edges:
+    //   parallel_node → branch_a → parallel_node (back-edge)
+    //                   branch_a → merge
+    //   parallel_node → branch_b → parallel_node (back-edge)
+    //                   branch_b → merge
+    //
+    // merge is the correct fan-in, not parallel_node.
+    let tmp = make_tempdir()?;
+    let logs_root = tmp.path();
+    std::fs::create_dir_all(logs_root.join("nodes"))?;
+
+    let registry = default_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = Graph::new("cyclic_with_merge");
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("merge"));
+
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_a", "parallel_node")); // back-edge
+    g.add_edge(Edge::new("branch_a", "merge"));
+    g.add_edge(Edge::new("branch_b", "parallel_node")); // back-edge
+    g.add_edge(Edge::new("branch_b", "merge"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+
+    assert_eq!(
+        outcome.jump_target.as_deref(),
+        Some("merge"),
+        "should select merge, not parallel_node, as fan-in in cyclic graph"
+    );
+    Ok(())
+}

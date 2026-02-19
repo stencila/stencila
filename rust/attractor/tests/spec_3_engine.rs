@@ -2254,3 +2254,266 @@ async fn engine_preferred_label_cleared_between_stages() -> AttractorResult<()> 
     );
     Ok(())
 }
+
+// ===========================================================================
+// Engine — parallel fan-in integration (full run_loop path)
+// ===========================================================================
+
+/// Build a full pipeline graph with parallel fan-out, multi-hop branches,
+/// and a convergence node, exercising the engine's `advance()` jump path:
+///
+///   start → parallel_node → branch_a → step_a2 → merge → exit
+///                         → branch_b → step_b2 ↗
+///
+/// `parallel_node` has shape `component` (handler type `parallel`).
+/// Branch nodes and `merge` have shape `box` (handler type `codergen`).
+fn parallel_diamond_pipeline() -> Graph {
+    let mut g = Graph::new("parallel_diamond");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("step_a2"));
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("step_b2"));
+    g.add_node(Node::new("merge"));
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "parallel_node"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_a", "step_a2"));
+    g.add_edge(Edge::new("step_a2", "merge"));
+    g.add_edge(Edge::new("branch_b", "step_b2"));
+    g.add_edge(Edge::new("step_b2", "merge"));
+    g.add_edge(Edge::new("merge", "exit"));
+
+    g
+}
+
+#[tokio::test]
+async fn engine_parallel_diamond_reaches_exit() -> AttractorResult<()> {
+    // Integration test: a full pipeline run with parallel fan-out, multi-hop
+    // branches converging at a structural fan-in node, must reach the exit
+    // node via the jump_target mechanism in advance().
+    let tmp = common::make_tempdir()?;
+
+    let g = parallel_diamond_pipeline();
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true;
+
+    // Register the parallel handler (needs Arc<HandlerRegistry> + emitter).
+    let registry = Arc::new(HandlerRegistry::with_defaults());
+    let emitter: Arc<dyn EventEmitter> = Arc::new(NoOpEmitter);
+    config.registry.register(
+        "parallel",
+        stencila_attractor::handlers::ParallelHandler::new(
+            Arc::clone(&registry),
+            Arc::clone(&emitter),
+        ),
+    );
+    // Branch nodes use default codergen handler (already registered).
+
+    let outcome = engine::run(&g, config).await?;
+
+    assert_eq!(
+        outcome.status,
+        StageStatus::Success,
+        "pipeline should complete successfully via parallel → branches → merge → exit"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn engine_parallel_diamond_no_fan_in_target_in_context() -> AttractorResult<()> {
+    // Verify that the fan-in jump target does NOT leak into the pipeline
+    // context after the parallel handler executes.
+    let tmp = common::make_tempdir()?;
+
+    let g = parallel_diamond_pipeline();
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true;
+
+    let registry = Arc::new(HandlerRegistry::with_defaults());
+    let emitter: Arc<dyn EventEmitter> = Arc::new(NoOpEmitter);
+    config.registry.register(
+        "parallel",
+        stencila_attractor::handlers::ParallelHandler::new(
+            Arc::clone(&registry),
+            Arc::clone(&emitter),
+        ),
+    );
+
+    engine::run(&g, config).await?;
+
+    // Load the checkpoint and verify no stale fan-in target in context.
+    let entries: Vec<_> = std::fs::read_dir(tmp.path())
+        .map_err(|e| AttractorError::Io {
+            message: e.to_string(),
+        })?
+        .filter_map(|e| e.ok())
+        .collect();
+    let run_dir = &entries[0].path();
+    let checkpoint = Checkpoint::load(&run_dir.join("checkpoint.json"))?;
+
+    assert!(
+        !checkpoint
+            .context_values
+            .contains_key("parallel.fan_in_target"),
+        "parallel.fan_in_target should not be present in the pipeline context"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn engine_parallel_divergent_branches_completes_without_reentry() -> AttractorResult<()> {
+    // Regression test: a parallel node whose branches diverge (no
+    // convergence point) must complete the pipeline without re-entering
+    // an already-executed branch.
+    //
+    //   start → parallel_node → branch_a → end_a
+    //                         → branch_b → end_b
+    //   (exit node exists but is unreachable — parallel is terminal)
+    //
+    // Before the fix, advance() would fall through to select_edge after
+    // the parallel handler returned jump_target=None, picking branch_a
+    // or branch_b and causing duplicate execution.
+    let tmp = common::make_tempdir()?;
+
+    let mut g = Graph::new("divergent_parallel");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("branch_a"));
+    g.add_node(Node::new("end_a"));
+    g.add_node(Node::new("branch_b"));
+    g.add_node(Node::new("end_b"));
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "parallel_node"));
+    g.add_edge(Edge::new("parallel_node", "branch_a"));
+    g.add_edge(Edge::new("parallel_node", "branch_b"));
+    g.add_edge(Edge::new("branch_a", "end_a"));
+    g.add_edge(Edge::new("branch_b", "end_b"));
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true;
+
+    let registry = Arc::new(HandlerRegistry::with_defaults());
+    let emitter: Arc<dyn EventEmitter> = Arc::new(NoOpEmitter);
+    config.registry.register(
+        "parallel",
+        stencila_attractor::handlers::ParallelHandler::new(
+            Arc::clone(&registry),
+            Arc::clone(&emitter),
+        ),
+    );
+
+    let outcome = engine::run(&g, config).await?;
+
+    // Pipeline should complete (not loop or re-enter branches).
+    // The parallel handler succeeds; advance returns End because
+    // there's no fan-in target.
+    assert!(
+        outcome.status.is_success(),
+        "divergent parallel should complete successfully, got {:?}",
+        outcome.status
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn engine_parallel_staggered_merge_reaches_exit() -> AttractorResult<()> {
+    // 3-branch staggered merge topology through the full engine loop:
+    //   start → parallel_node → A → merge_ab → merge_abc → exit
+    //                         → B → merge_ab ↗
+    //                         → C → merge_abc ↗
+    //
+    // The engine must select merge_abc (all-branch convergence) as the
+    // jump target, not merge_ab (pairwise only).
+    let tmp = common::make_tempdir()?;
+
+    let mut g = Graph::new("staggered_merge");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    g.add_node(Node::new("A"));
+    g.add_node(Node::new("B"));
+    g.add_node(Node::new("C"));
+    g.add_node(Node::new("merge_ab"));
+    g.add_node(Node::new("merge_abc"));
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "parallel_node"));
+    g.add_edge(Edge::new("parallel_node", "A"));
+    g.add_edge(Edge::new("parallel_node", "B"));
+    g.add_edge(Edge::new("parallel_node", "C"));
+    g.add_edge(Edge::new("A", "merge_ab"));
+    g.add_edge(Edge::new("B", "merge_ab"));
+    g.add_edge(Edge::new("merge_ab", "merge_abc"));
+    g.add_edge(Edge::new("C", "merge_abc"));
+    g.add_edge(Edge::new("merge_abc", "exit"));
+
+    let mut config = EngineConfig::new(tmp.path());
+    config.skip_validation = true;
+
+    let registry = Arc::new(HandlerRegistry::with_defaults());
+    let emitter: Arc<dyn EventEmitter> = Arc::new(NoOpEmitter);
+    config.registry.register(
+        "parallel",
+        stencila_attractor::handlers::ParallelHandler::new(
+            Arc::clone(&registry),
+            Arc::clone(&emitter),
+        ),
+    );
+
+    let outcome = engine::run(&g, config).await?;
+
+    assert_eq!(
+        outcome.status,
+        StageStatus::Success,
+        "staggered 3-branch merge should complete via merge_abc → exit"
+    );
+    Ok(())
+}

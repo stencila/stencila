@@ -478,6 +478,23 @@ fn advance(
     graph: &Graph,
     state: &mut LoopState,
 ) -> AdvanceResult {
+    // If the handler set an explicit jump target (e.g. the parallel
+    // handler routing to the structural fan-in node), skip normal edge
+    // selection and advance directly to that node.
+    if let Some(target) = &outcome.jump_target {
+        state.current_node_id.clone_from(target);
+        return AdvanceResult::Continue;
+    }
+
+    // A parallel handler with no jump target means all branches were
+    // executed internally and no convergence point exists. Falling
+    // through to select_edge would re-enter an already-executed branch
+    // (the parallel node's outgoing edges ARE the branch entries).
+    // Treat this as a terminal node — the pipeline ends here.
+    if node.handler_type() == "parallel" {
+        return AdvanceResult::End;
+    }
+
     let Some(edge) = select_edge(&node.id, outcome, context, graph) else {
         return AdvanceResult::End;
     };

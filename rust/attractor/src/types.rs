@@ -77,6 +77,18 @@ pub struct Outcome {
     /// The reason for failure (populated when status is `Fail`).
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub failure_reason: String,
+
+    /// Optional node ID that the engine should jump to directly,
+    /// bypassing normal edge selection.
+    ///
+    /// Set by the parallel handler to route execution to the structural
+    /// fan-in node after all branches complete. Using a dedicated field
+    /// (rather than piggybacking on `context_updates`) keeps the jump
+    /// target out of the pipeline context, preventing stale values from
+    /// leaking into downstream stages or interfering with later parallel
+    /// blocks.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub jump_target: Option<String>,
 }
 
 impl Outcome {
@@ -90,6 +102,7 @@ impl Outcome {
             context_updates: IndexMap::new(),
             notes: String::new(),
             failure_reason: String::new(),
+            jump_target: None,
         }
     }
 
@@ -103,6 +116,7 @@ impl Outcome {
             suggested_next_ids: Vec::new(),
             context_updates: IndexMap::new(),
             notes: String::new(),
+            jump_target: None,
         }
     }
 
@@ -116,6 +130,7 @@ impl Outcome {
             suggested_next_ids: Vec::new(),
             context_updates: IndexMap::new(),
             notes: String::new(),
+            jump_target: None,
         }
     }
 
@@ -129,6 +144,7 @@ impl Outcome {
             context_updates: IndexMap::new(),
             notes: String::new(),
             failure_reason: String::new(),
+            jump_target: None,
         }
     }
 }
