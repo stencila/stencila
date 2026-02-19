@@ -556,6 +556,8 @@ pub enum EventKind {
     LoopDetection,
     /// Context usage update (approximate percentage of context window used).
     ContextUsage,
+    /// Informational message (e.g. recovery retry).
+    Info,
     /// An error occurred.
     Error,
 }

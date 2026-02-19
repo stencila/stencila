@@ -481,6 +481,10 @@ impl Run {
                             let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("Loop detected");
                             eprintln!("[warning] {msg}");
                         }
+                        EventKind::Info => {
+                            let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("info");
+                            eprintln!("[info] {msg}");
+                        }
                         EventKind::Error => {
                             let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("unknown error");
                             eprintln!("[error] {msg}");

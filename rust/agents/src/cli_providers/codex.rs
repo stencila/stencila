@@ -506,22 +506,14 @@ impl CodexCliProvider {
 
         Ok(())
     }
-}
 
-#[async_trait]
-impl super::CliProvider for CodexCliProvider {
-    fn id(&self) -> &str {
-        "codex-cli"
-    }
-
-    async fn submit(
+    /// Submit a single prompt without recovery retries.
+    async fn submit_once(
         &mut self,
         input: &str,
         events: &EventEmitter,
         abort: Option<&AbortSignal>,
     ) -> AgentResult<()> {
-        require_cli("codex")?;
-
         self.ensure_server().await?;
         self.initialize().await?;
 
@@ -537,6 +529,69 @@ impl super::CliProvider for CodexCliProvider {
 
         // Read events and response
         self.read_until_complete(request_id, events, abort).await
+    }
+
+    /// Whether a submit error is likely recoverable by restarting the MCP
+    /// subprocess and opening a fresh Codex conversation.
+    fn is_retryable_submit_error(error: &AgentError) -> bool {
+        match error {
+            AgentError::CliParseError { .. } => true,
+            AgentError::CliProcessFailed { code, stderr } => {
+                *code == -1
+                    || stderr.contains("before returning a response")
+                    || stderr.to_ascii_lowercase().contains("tool")
+            }
+            AgentError::CliNotFound { .. }
+            | AgentError::CliUnsupported { .. }
+            | AgentError::FileNotFound { .. }
+            | AgentError::EditConflict { .. }
+            | AgentError::ShellTimeout { .. }
+            | AgentError::ShellExitError { .. }
+            | AgentError::PermissionDenied { .. }
+            | AgentError::ValidationError { .. }
+            | AgentError::UnknownTool { .. }
+            | AgentError::Io { .. }
+            | AgentError::Mcp { .. }
+            | AgentError::SessionClosed
+            | AgentError::InvalidState { .. }
+            | AgentError::TurnLimitExceeded { .. }
+            | AgentError::ContextLengthExceeded { .. }
+            | AgentError::Sdk(_) => false,
+        }
+    }
+
+    /// Reset codex subprocess + conversation state so the next submit starts
+    /// from a clean server and a fresh Codex session.
+    fn reset_state_after_submit_error(&mut self) {
+        super::close_child(&mut self.child);
+        self.initialized = false;
+        self.codex_session_id = None;
+        self.codex_conversation_id = None;
+    }
+}
+
+#[async_trait]
+impl super::CliProvider for CodexCliProvider {
+    fn id(&self) -> &str {
+        "codex-cli"
+    }
+
+    async fn submit(
+        &mut self,
+        input: &str,
+        events: &EventEmitter,
+        abort: Option<&AbortSignal>,
+    ) -> AgentResult<()> {
+        require_cli("codex")?;
+        self.submit_once(input, events, abort).await
+    }
+
+    fn should_retry_submit_error(&self, error: &AgentError) -> bool {
+        Self::is_retryable_submit_error(error)
+    }
+
+    fn reset_after_submit_error(&mut self) {
+        self.reset_state_after_submit_error();
     }
 
     fn close(&mut self) {
@@ -729,5 +784,48 @@ mod tests {
             provider.codex_conversation_id.as_deref(),
             Some("codex-conv-123")
         );
+    }
+
+    #[test]
+    fn test_should_retry_submit_error_for_parse_error() {
+        let err = AgentError::CliParseError {
+            message: "invalid json".to_string(),
+        };
+        assert!(CodexCliProvider::is_retryable_submit_error(&err));
+    }
+
+    #[test]
+    fn test_should_retry_submit_error_for_process_error() {
+        let err = AgentError::CliProcessFailed {
+            code: -1,
+            stderr: "Codex MCP server exited before returning a response".to_string(),
+        };
+        assert!(CodexCliProvider::is_retryable_submit_error(&err));
+    }
+
+    #[test]
+    fn test_should_retry_submit_error_for_tool_stderr() {
+        let err = AgentError::CliProcessFailed {
+            code: 1,
+            stderr: "Tool execution failed unexpectedly".to_string(),
+        };
+        assert!(CodexCliProvider::is_retryable_submit_error(&err));
+    }
+
+    #[test]
+    fn test_should_retry_submit_error_for_tool_stderr_case_insensitive() {
+        let err = AgentError::CliProcessFailed {
+            code: 1,
+            stderr: "TOOL call returned an error".to_string(),
+        };
+        assert!(CodexCliProvider::is_retryable_submit_error(&err));
+    }
+
+    #[test]
+    fn test_should_not_retry_submit_error_for_cli_not_found() {
+        let err = AgentError::CliNotFound {
+            binary: "codex".to_string(),
+        };
+        assert!(!CodexCliProvider::is_retryable_submit_error(&err));
     }
 }

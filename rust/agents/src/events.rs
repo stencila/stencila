@@ -210,6 +210,14 @@ impl EventEmitter {
         self.emit(EventKind::LoopDetection, data);
     }
 
+    /// Emit an `INFO` event with a code and message.
+    pub fn emit_info(&self, code: impl Into<String>, message: impl Into<String>) {
+        let mut data = serde_json::Map::new();
+        data.insert("code".into(), Value::String(code.into()));
+        data.insert("message".into(), Value::String(message.into()));
+        self.emit(EventKind::Info, data);
+    }
+
     /// Emit an `ERROR` event with a code and message.
     pub fn emit_error(&self, code: impl Into<String>, message: impl Into<String>) {
         let mut data = serde_json::Map::new();

@@ -83,6 +83,30 @@ impl ClaudeCliProvider {
 
         cmd
     }
+
+    /// Whether a submit error is likely transient and worth one retry.
+    fn is_retryable_submit_error(error: &AgentError) -> bool {
+        match error {
+            AgentError::CliParseError { .. } => true,
+            AgentError::CliProcessFailed { code, .. } => *code == -1,
+            AgentError::CliNotFound { .. }
+            | AgentError::CliUnsupported { .. }
+            | AgentError::FileNotFound { .. }
+            | AgentError::EditConflict { .. }
+            | AgentError::ShellTimeout { .. }
+            | AgentError::ShellExitError { .. }
+            | AgentError::PermissionDenied { .. }
+            | AgentError::ValidationError { .. }
+            | AgentError::UnknownTool { .. }
+            | AgentError::Io { .. }
+            | AgentError::Mcp { .. }
+            | AgentError::SessionClosed
+            | AgentError::InvalidState { .. }
+            | AgentError::TurnLimitExceeded { .. }
+            | AgentError::ContextLengthExceeded { .. }
+            | AgentError::Sdk(_) => false,
+        }
+    }
 }
 
 #[async_trait]
@@ -202,6 +226,14 @@ impl super::CliProvider for ClaudeCliProvider {
             String::new()
         };
         super::wait_for_child(&mut self.child, "claude", &error_detail).await
+    }
+
+    fn should_retry_submit_error(&self, error: &AgentError) -> bool {
+        Self::is_retryable_submit_error(error)
+    }
+
+    fn reset_after_submit_error(&mut self) {
+        super::close_child(&mut self.child);
     }
 
     fn close(&mut self) {
@@ -581,5 +613,21 @@ mod tests {
             evt.data.get("delta").and_then(Value::as_str),
             Some("Let me think...")
         );
+    }
+
+    #[test]
+    fn test_should_retry_submit_error_for_parse_error() {
+        let err = AgentError::CliParseError {
+            message: "invalid stream json".to_string(),
+        };
+        assert!(ClaudeCliProvider::is_retryable_submit_error(&err));
+    }
+
+    #[test]
+    fn test_should_not_retry_submit_error_for_cli_not_found() {
+        let err = AgentError::CliNotFound {
+            binary: "claude".to_string(),
+        };
+        assert!(!ClaudeCliProvider::is_retryable_submit_error(&err));
     }
 }

@@ -60,6 +60,30 @@ impl GeminiCliProvider {
 
         cmd
     }
+
+    /// Whether a submit error is likely transient and worth one retry.
+    fn is_retryable_submit_error(error: &AgentError) -> bool {
+        match error {
+            AgentError::CliParseError { .. } => true,
+            AgentError::CliProcessFailed { code, .. } => *code == -1,
+            AgentError::CliNotFound { .. }
+            | AgentError::CliUnsupported { .. }
+            | AgentError::FileNotFound { .. }
+            | AgentError::EditConflict { .. }
+            | AgentError::ShellTimeout { .. }
+            | AgentError::ShellExitError { .. }
+            | AgentError::PermissionDenied { .. }
+            | AgentError::ValidationError { .. }
+            | AgentError::UnknownTool { .. }
+            | AgentError::Io { .. }
+            | AgentError::Mcp { .. }
+            | AgentError::SessionClosed
+            | AgentError::InvalidState { .. }
+            | AgentError::TurnLimitExceeded { .. }
+            | AgentError::ContextLengthExceeded { .. }
+            | AgentError::Sdk(_) => false,
+        }
+    }
 }
 
 /// Process a line of output from the Gemini CLI.
@@ -248,6 +272,14 @@ impl super::CliProvider for GeminiCliProvider {
         super::wait_for_child(&mut self.child, "gemini", stderr_collected.trim()).await
     }
 
+    fn should_retry_submit_error(&self, error: &AgentError) -> bool {
+        Self::is_retryable_submit_error(error)
+    }
+
+    fn reset_after_submit_error(&mut self) {
+        super::close_child(&mut self.child);
+    }
+
     fn close(&mut self) {
         super::close_child(&mut self.child);
     }
@@ -376,5 +408,21 @@ mod tests {
 
         assert!(!emitted_text_start);
         assert!(receiver.try_recv().is_err());
+    }
+
+    #[test]
+    fn test_should_retry_submit_error_for_parse_error() {
+        let err = AgentError::CliParseError {
+            message: "invalid json".to_string(),
+        };
+        assert!(GeminiCliProvider::is_retryable_submit_error(&err));
+    }
+
+    #[test]
+    fn test_should_not_retry_submit_error_for_cli_not_found() {
+        let err = AgentError::CliNotFound {
+            binary: "gemini".to_string(),
+        };
+        assert!(!GeminiCliProvider::is_retryable_submit_error(&err));
     }
 }

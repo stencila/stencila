@@ -47,6 +47,15 @@ pub trait CliProvider: Send + std::fmt::Debug {
         abort: Option<&AbortSignal>,
     ) -> AgentResult<()>;
 
+    /// Whether a submit error is likely transient/recoverable and worth one
+    /// automatic retry.
+    fn should_retry_submit_error(&self, _error: &AgentError) -> bool {
+        false
+    }
+
+    /// Reset provider state after a failed submit before retrying.
+    fn reset_after_submit_error(&mut self) {}
+
     /// Close the CLI subprocess and clean up resources.
     fn close(&mut self);
 
@@ -201,10 +210,29 @@ impl CliSession {
         self.history.push(Turn::user(input));
         self.events.emit_user_input(input);
 
-        let result = self
+        let first_result = self
             .provider
             .submit(input, &self.events, self.abort_signal.as_ref())
             .await;
+
+        let result = match first_result {
+            Ok(()) => Ok(()),
+            Err(first_error)
+                if self.abort_kind() == AbortKind::Active
+                    && self.provider.should_retry_submit_error(&first_error) =>
+            {
+                self.events.emit_info(
+                    "CLI_RECOVERY_RETRY",
+                    format!("Retrying CLI submit after error: {first_error}"),
+                );
+                self.provider.reset_after_submit_error();
+                tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+                self.provider
+                    .submit(input, &self.events, self.abort_signal.as_ref())
+                    .await
+            }
+            Err(error) => Err(error),
+        };
 
         match result {
             Ok(()) => {
