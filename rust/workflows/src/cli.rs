@@ -2,7 +2,7 @@
 //!
 //! Provides `stencila workflows` subcommands: list, show, validate, create.
 
-use std::{path::PathBuf, process::exit};
+use std::{io::IsTerminal, path::PathBuf, process::exit, sync::Arc, time::Instant};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
@@ -393,6 +393,15 @@ struct Run {
     #[arg(long)]
     logs_dir: Option<PathBuf>,
 
+    /// Show detailed output with prompts and responses
+    ///
+    /// In verbose mode, each stage shows the agent name, full prompt text,
+    /// and full response in a box-drawing tree layout. Without this flag,
+    /// a compact progress view with spinners is shown (or plain text when
+    /// stderr is not a terminal).
+    #[arg(long, short)]
+    verbose: bool,
+
     /// Show workflow config and pipeline without executing
     #[arg(long)]
     dry_run: bool,
@@ -468,20 +477,33 @@ impl Run {
         if let Some(ref goal) = wf.goal {
             message!("   Goal: {}", goal);
         }
-        message!("   Logs: {}", logs_dir.display());
+        eprintln!();
 
-        let outcome = crate::workflow_run::run_workflow(&wf, &logs_dir).await?;
+        let is_tty = std::io::stderr().is_terminal();
+        let emitter: Arc<dyn stencila_attractor::events::EventEmitter> = if self.verbose {
+            Arc::new(crate::workflow_emitters::VerboseEventEmitter::new())
+        } else if is_tty {
+            Arc::new(crate::workflow_emitters::ProgressEventEmitter::new())
+        } else {
+            Arc::new(crate::workflow_emitters::PlainEventEmitter::new())
+        };
 
-        message!(
-            "\n{} Workflow `{}` finished (status={})",
-            if outcome.status.is_success() {
-                "✅"
-            } else {
-                "❌"
-            },
-            wf.name,
-            outcome.status.as_str()
-        );
+        let started = Instant::now();
+        let options = crate::workflow_run::RunOptions {
+            emitter,
+            interviewer: None,
+        };
+        let outcome = crate::workflow_run::run_workflow_with_options(&wf, &logs_dir, options).await?;
+        let elapsed = started.elapsed();
+
+        eprintln!();
+        eprintln!();
+        let time_str = format_elapsed(elapsed);
+        if outcome.status.is_success() {
+            message!("🎉 Workflow `{}` completed in {}", wf.name, time_str);
+        } else {
+            message!("❌ Workflow `{}` failed in {}", wf.name, time_str);
+        }
 
         if !outcome.notes.is_empty() {
             message!("   Notes: {}", outcome.notes);
@@ -495,5 +517,20 @@ impl Run {
         }
 
         Ok(())
+    }
+}
+
+fn format_elapsed(d: std::time::Duration) -> String {
+    let secs = d.as_secs_f64();
+    if secs < 60.0 {
+        format!("{secs:.1}s")
+    } else if secs < 3600.0 {
+        let mins = (secs / 60.0).floor() as u64;
+        let remaining = secs - (mins as f64 * 60.0);
+        format!("{mins}m {remaining:.0}s")
+    } else {
+        let hours = (secs / 3600.0).floor() as u64;
+        let remaining_mins = ((secs - (hours as f64 * 3600.0)) / 60.0).floor() as u64;
+        format!("{hours}h {remaining_mins}m")
     }
 }

@@ -9,6 +9,7 @@ async-trait = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
+indicatif = { workspace = true }
 regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
