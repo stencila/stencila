@@ -13,6 +13,7 @@ use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
 use crate::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts;
+use crate::routing::{self, SessionRoute};
 use crate::types::SessionConfig;
 
 /// Options for [`create_agent`].
@@ -101,29 +102,6 @@ pub async fn create_agent(
     agent_def::get_by_name(&cwd, name).await
 }
 
-/// Default model for each provider when none is specified.
-///
-/// Uses the alias that points to the latest for each provider
-fn default_model(provider: &str) -> Option<&'static str> {
-    match provider {
-        "anthropic" => Some("claude"),
-        "openai" => Some("gpt"),
-        "gemini" | "google" => Some("gemini"),
-        _ => None,
-    }
-}
-
-fn api_key_env_hint(provider: &str) -> &'static str {
-    match provider {
-        "anthropic" => "ANTHROPIC_API_KEY",
-        "openai" => "OPENAI_API_KEY",
-        "gemini" | "google" => "GEMINI_API_KEY",
-        "mistral" => "MISTRAL_API_KEY",
-        "deepseek" => "DEEPSEEK_API_KEY",
-        _ => "<PROVIDER>_API_KEY",
-    }
-}
-
 /// If `name` is `"default"`, resolve it to the configured default agent name
 /// from `[agents].default` in `stencila.toml`. Returns the name unchanged
 /// if it is not `"default"` or if no config is set.
@@ -135,14 +113,6 @@ pub fn resolve_default_agent_name(name: &str) -> String {
         .ok()
         .and_then(|config| config.agents.as_ref()?.default.clone())
         .unwrap_or_else(|| name.to_string())
-}
-
-/// CLI provider names that delegate to external CLI tools.
-const CLI_PROVIDERS: &[&str] = &["claude-cli", "codex-cli", "gemini-cli"];
-
-/// Whether a provider name refers to a CLI provider.
-fn is_cli_provider(provider: &str) -> bool {
-    CLI_PROVIDERS.contains(&provider)
 }
 
 /// Shared preamble: resolve name, load agent definition, build session config.
@@ -176,9 +146,17 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
 ///
 /// Discovers the agent by name (searching workspace then user config),
 /// reads its instructions from the AGENT.md body, builds a [`SessionConfig`]
-/// from its schema fields, and creates a session. If the agent's provider is
-/// a CLI provider (`claude-cli`, `codex-cli`, `gemini-cli`), a CLI-backed
-/// session is returned; otherwise a standard API session is used.
+/// from its schema fields, and routes the session:
+///
+/// 1. If the agent's provider is an explicit CLI provider (`claude-cli`,
+///    `codex-cli`, `gemini-cli`), a CLI-backed session is always used.
+/// 2. Otherwise an API provider is resolved (explicit, inferred from the model
+///    name, or the default configured provider).
+/// 3. If API credentials exist for that provider, an API session is created.
+/// 4. If no API credentials exist but a corresponding CLI tool is available
+///    (e.g. `anthropic` → `claude-cli`), falls back to a CLI session.
+/// 5. If no CLI mapping exists (e.g. `mistral`, `deepseek`), returns an error
+///    asking the user to set the appropriate API key.
 ///
 /// If `name` is `"default"`, it is resolved to the agent configured in
 /// `[agents].default` in `stencila.toml` (falling back to `"default"` if unset).
@@ -196,99 +174,66 @@ pub async fn create_session(
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
     let (agent, config) = load_agent_and_config(name).await?;
 
-    // Route to CLI or API based on the provider
-    if agent.provider.as_deref().is_some_and(is_cli_provider) {
-        let (session, event_receiver) = create_cli_session_inner(&agent, config)?;
-        return Ok((agent, AgentSession::Cli(session), event_receiver));
-    }
+    let client = stencila_models3::client::Client::from_env().ok();
 
-    let (session, event_receiver) = create_api_session_inner(&agent, config).await?;
-    Ok((agent, AgentSession::Api(session), event_receiver))
-}
-
-/// Build an API-backed [`Session`] from a resolved agent and config.
-async fn create_api_session_inner(
-    agent: &AgentInstance,
-    mut config: SessionConfig,
-) -> AgentResult<(ApiSession, EventReceiver)> {
-    let client = stencila_models3::client::Client::from_env().map_err(AgentError::Sdk)?;
-
-    // Resolve provider and model together: when the agent specifies a model
-    // but no provider, infer the provider from the model name (catalog lookup
-    // then name-based heuristics) instead of blindly using the default.
-    let (provider_name, model_name) = match (&agent.provider, &agent.model) {
-        (Some(p), Some(m)) => (p.to_string(), m.to_string()),
-        (Some(p), None) => {
-            let m = default_model(p)
-                .ok_or_else(|| {
-                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                        message: format!(
-                            "No default model for provider '{p}'. \
-                             Please specify a model explicitly."
-                        ),
-                    })
-                })?
-                .to_string();
-            (p.to_string(), m)
-        }
-        (None, Some(m)) => {
-            let p = client
-                .infer_provider_from_model(m)
-                .map_err(AgentError::Sdk)?
-                .ok_or_else(|| {
-                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                        message: format!(
-                            "Cannot infer provider for model '{m}'. \
-                             Please specify the provider explicitly."
-                        ),
-                    })
-                })?;
-            if !client.has_provider(&p) {
-                return Err(AgentError::Sdk(
-                    stencila_models3::error::SdkError::Configuration {
-                        message: format!(
-                            "Inferred provider '{p}' for model '{m}' is not configured. \
-                             Set the appropriate API key (e.g. {}) or specify a different provider.",
-                            api_key_env_hint(&p)
-                        ),
-                    },
-                ));
-            }
-            (p, m.to_string())
-        }
-        (None, None) => {
-            let p = client
-                .select_provider()
-                .ok_or_else(|| {
-                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                        message: "No API keys found. \
-                                  Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GEMINI_API_KEY."
-                            .to_string(),
-                    })
-                })?
-                .to_string();
-            let m = default_model(&p)
-                .ok_or_else(|| {
-                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                        message: format!(
-                            "No default model for provider '{p}'. \
-                             Please specify a model explicitly."
-                        ),
-                    })
-                })?
-                .to_string();
-            (p, m)
+    // Build an empty client as fallback for routing decisions when no API
+    // keys are available (from_env returned Err).
+    let empty_client;
+    let client_ref = match client.as_ref() {
+        Some(c) => c,
+        None => {
+            empty_client = stencila_models3::client::Client::builder()
+                .build()
+                .map_err(AgentError::Sdk)?;
+            &empty_client
         }
     };
 
+    let route = routing::route_session(
+        agent.provider.as_deref(),
+        agent.model.as_deref(),
+        client_ref,
+    )?;
+
+    match route {
+        SessionRoute::Cli { provider, model } => {
+            let (session, event_receiver) =
+                create_cli_session_inner(&provider, model.as_deref(), &config)?;
+            Ok((agent, AgentSession::Cli(session), event_receiver))
+        }
+        SessionRoute::Api { provider, model } => {
+            let (session, event_receiver) = create_api_session_inner(
+                &provider,
+                &model,
+                client.ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: "No API client available".to_string(),
+                    })
+                })?,
+                config,
+            )
+            .await?;
+            Ok((agent, AgentSession::Api(session), event_receiver))
+        }
+    }
+}
+
+/// Build an API-backed [`Session`] from an already-resolved provider, model,
+/// and authenticated client.
+async fn create_api_session_inner(
+    provider_name: &str,
+    model_name: &str,
+    client: stencila_models3::client::Client,
+    mut config: SessionConfig,
+) -> AgentResult<(ApiSession, EventReceiver)> {
     config.commit_instructions = Some(prompts::build_commit_instructions());
 
     let max_timeout = config.max_command_timeout_ms;
 
-    let mut profile: Box<dyn crate::profile::ProviderProfile> = match provider_name.as_str() {
-        "anthropic" => Box::new(AnthropicProfile::new(&model_name, max_timeout)?),
-        "openai" => Box::new(OpenAiProfile::new(&model_name, max_timeout)?),
-        "gemini" | "google" => Box::new(GeminiProfile::new(&model_name, max_timeout)?),
+    let mut profile: Box<dyn crate::profile::ProviderProfile> = match provider_name {
+        "anthropic" => Box::new(AnthropicProfile::new(model_name, max_timeout)?),
+        "openai" => Box::new(OpenAiProfile::new(model_name, max_timeout)?),
+        "gemini" | "google" => Box::new(GeminiProfile::new(model_name, max_timeout)?),
         name => {
             return Err(AgentError::Sdk(
                 stencila_models3::error::SdkError::Configuration {
@@ -320,23 +265,24 @@ async fn create_api_session_inner(
     Ok((session, event_receiver))
 }
 
-/// Build a CLI-backed [`CliSession`] from a resolved agent and config.
+/// Build a CLI-backed [`CliSession`] from a resolved CLI provider name,
+/// optional model override, and session config.
+///
+/// The `cli_provider` must be one of `claude-cli`, `codex-cli`, or
+/// `gemini-cli`. When a `model` is provided (e.g. from API→CLI fallback),
+/// it is forwarded to the CLI tool; otherwise the CLI uses the model from
+/// the session config (which may itself be `None`, letting the CLI use its
+/// own default).
 fn create_cli_session_inner(
-    agent: &AgentInstance,
-    config: SessionConfig,
+    cli_provider: &str,
+    model: Option<&str>,
+    config: &SessionConfig,
 ) -> AgentResult<(crate::cli_providers::CliSession, EventReceiver)> {
     use crate::cli_providers::{CliProviderConfig, CliSession};
 
-    let provider_name = agent.provider.as_deref().ok_or_else(|| {
-        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-            message: "CLI session requires a provider to be specified in the agent definition"
-                .to_string(),
-        })
-    })?;
+    let cli_config = CliProviderConfig::from_session_config(config, model);
 
-    let cli_config = CliProviderConfig::from_session_config(&config, agent.model.as_deref());
-
-    let provider: Box<dyn crate::cli_providers::CliProvider> = match provider_name {
+    let provider: Box<dyn crate::cli_providers::CliProvider> = match cli_provider {
         "claude-cli" => Box::new(crate::cli_providers::claude::ClaudeCliProvider::new(
             cli_config,
         )),
@@ -356,7 +302,7 @@ fn create_cli_session_inner(
         }
     };
 
-    let (session, event_receiver) = CliSession::new(provider, config);
+    let (session, event_receiver) = CliSession::new(provider, config.clone());
 
     Ok((session, event_receiver))
 }

@@ -91,5 +91,8 @@ pub mod cli_providers;
 /// Unified agent session type wrapping API and CLI backends.
 pub mod agent_session;
 
+/// Session routing: API vs CLI backend decision logic.
+pub mod routing;
+
 /// High-level session factory for convenient setup.
 pub mod convenience;
