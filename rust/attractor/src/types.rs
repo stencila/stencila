@@ -6,6 +6,169 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{AttractorError, AttractorResult};
 
+/// Byte-wise string equality usable in `const fn` contexts.
+const fn const_str_eq(a: &str, b: &str) -> bool {
+    let (a, b) = (a.as_bytes(), b.as_bytes());
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut i = 0;
+    while i < a.len() {
+        if a[i] != b[i] {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+/// The built-in handler types recognized by the attractor engine.
+///
+/// Each variant corresponds to a handler registered in the default
+/// [`HandlerRegistry`](crate::handler::HandlerRegistry). The `Display`
+/// implementation produces the canonical dot-separated string (e.g.
+/// `"parallel.fan_in"`), and `PartialEq<str>` allows ergonomic
+/// comparison with the string returned by [`Node::handler_type()`](crate::graph::Node::handler_type):
+///
+/// ```ignore
+/// if node.handler_type() == HandlerType::ParallelFanIn {
+///     // ...
+/// }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum HandlerType {
+    Start,
+    Exit,
+    Fail,
+    Conditional,
+    Codergen,
+    Shell,
+    WaitHuman,
+    Parallel,
+    ParallelFanIn,
+    StackManagerLoop,
+}
+
+impl HandlerType {
+    /// All known handler types.
+    pub const ALL: &[HandlerType] = &[
+        Self::Start,
+        Self::Exit,
+        Self::Fail,
+        Self::Conditional,
+        Self::Codergen,
+        Self::Shell,
+        Self::WaitHuman,
+        Self::Parallel,
+        Self::ParallelFanIn,
+        Self::StackManagerLoop,
+    ];
+
+    /// Return the canonical string representation.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Start => "start",
+            Self::Exit => "exit",
+            Self::Fail => "fail",
+            Self::Conditional => "conditional",
+            Self::Codergen => "codergen",
+            Self::Shell => "shell",
+            Self::WaitHuman => "wait.human",
+            Self::Parallel => "parallel",
+            Self::ParallelFanIn => "parallel.fan_in",
+            Self::StackManagerLoop => "stack.manager_loop",
+        }
+    }
+
+    /// Map a DOT shape name to the corresponding handler type per §2.8.
+    ///
+    /// Unknown shapes (including `"box"`) default to [`Codergen`](Self::Codergen).
+    #[must_use]
+    pub const fn from_shape(shape: &str) -> Self {
+        if const_str_eq(shape, "Mdiamond") {
+            Self::Start
+        } else if const_str_eq(shape, "Msquare") {
+            Self::Exit
+        } else if const_str_eq(shape, "invtriangle") {
+            Self::Fail
+        } else if const_str_eq(shape, "hexagon") || const_str_eq(shape, "human") {
+            Self::WaitHuman
+        } else if const_str_eq(shape, "diamond") {
+            Self::Conditional
+        } else if const_str_eq(shape, "component") {
+            Self::Parallel
+        } else if const_str_eq(shape, "tripleoctagon") {
+            Self::ParallelFanIn
+        } else if const_str_eq(shape, "parallelogram") {
+            Self::Shell
+        } else if const_str_eq(shape, "house") {
+            Self::StackManagerLoop
+        } else {
+            // "box" and all unknown shapes default to codergen
+            Self::Codergen
+        }
+    }
+}
+
+impl fmt::Display for HandlerType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl FromStr for HandlerType {
+    type Err = AttractorError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "start" => Ok(Self::Start),
+            "exit" => Ok(Self::Exit),
+            "fail" => Ok(Self::Fail),
+            "conditional" => Ok(Self::Conditional),
+            "codergen" => Ok(Self::Codergen),
+            "shell" => Ok(Self::Shell),
+            "wait.human" => Ok(Self::WaitHuman),
+            "parallel" => Ok(Self::Parallel),
+            "parallel.fan_in" => Ok(Self::ParallelFanIn),
+            "stack.manager_loop" => Ok(Self::StackManagerLoop),
+            other => Err(AttractorError::InvalidPipeline {
+                reason: format!("unknown handler type: {other}"),
+            }),
+        }
+    }
+}
+
+impl PartialEq<str> for HandlerType {
+    fn eq(&self, other: &str) -> bool {
+        self.as_str() == other
+    }
+}
+
+impl PartialEq<&str> for HandlerType {
+    fn eq(&self, other: &&str) -> bool {
+        self.as_str() == *other
+    }
+}
+
+impl PartialEq<HandlerType> for str {
+    fn eq(&self, other: &HandlerType) -> bool {
+        self == other.as_str()
+    }
+}
+
+impl PartialEq<HandlerType> for &str {
+    fn eq(&self, other: &HandlerType) -> bool {
+        *self == other.as_str()
+    }
+}
+
+impl From<HandlerType> for String {
+    fn from(ht: HandlerType) -> Self {
+        ht.as_str().to_string()
+    }
+}
+
 /// The outcome status of a pipeline stage execution.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

@@ -24,7 +24,7 @@ use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::{Handler, HandlerRegistry};
 use crate::retry::{build_retry_policy, execute_with_retry};
-use crate::types::{Outcome, StageStatus};
+use crate::types::{HandlerType, Outcome, StageStatus};
 
 /// Default max concurrency when `max_parallel` is not set on the node (§4.8).
 pub const DEFAULT_MAX_PARALLEL: usize = 4;
@@ -181,7 +181,10 @@ impl Handler for ParallelHandler {
                 })
             })
             .collect();
-        context.set("parallel.results", serde_json::Value::Array(results_json));
+        context.set(
+            format!("{}.results", HandlerType::Parallel),
+            serde_json::Value::Array(results_json),
+        );
 
         let mut outcome = evaluate_join(&branch_results, policies.join, policies.error);
 
@@ -490,11 +493,11 @@ fn evaluate_join(
 
     let mut updates = IndexMap::new();
     updates.insert(
-        "parallel.success_count".into(),
+        format!("{}.success_count", HandlerType::Parallel),
         serde_json::Value::Number(serde_json::Number::from(success_count)),
     );
     updates.insert(
-        "parallel.fail_count".into(),
+        format!("{}.fail_count", HandlerType::Parallel),
         serde_json::Value::Number(serde_json::Number::from(fail_count)),
     );
     outcome.context_updates = updates;
@@ -546,7 +549,7 @@ async fn execute_branch_subgraph(
         // `find_fan_in_node` returned None (e.g. single-branch parallel).
         // Without this, the branch would execute the FanInHandler before
         // `parallel.results` exists in context, causing a spurious failure.
-        if node.handler_type() == "parallel.fan_in" {
+        if node.handler_type() == HandlerType::ParallelFanIn {
             break;
         }
 
@@ -590,7 +593,7 @@ async fn execute_branch_subgraph(
             // target. Honor it instead of following outgoing edges —
             // those edges are the nested handler's internal branches.
             current_id.clone_from(target);
-        } else if node.handler_type() == "parallel" {
+        } else if node.handler_type() == HandlerType::Parallel {
             // A nested parallel handler with no jump target means its
             // branches were all terminal. Don't follow its outgoing
             // edges (which are already-executed branch entries).

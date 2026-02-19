@@ -17,7 +17,7 @@ use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::graph::{Graph, Node};
 use crate::handlers;
-use crate::types::Outcome;
+use crate::types::{HandlerType, Outcome};
 
 /// A handler that executes a pipeline node.
 ///
@@ -87,13 +87,16 @@ impl HandlerRegistry {
     #[must_use]
     pub fn with_defaults() -> Self {
         let mut registry = Self::new();
-        registry.register("start", handlers::StartHandler);
-        registry.register("exit", handlers::ExitHandler);
-        registry.register("fail", handlers::FailHandler);
-        registry.register("conditional", handlers::ConditionalHandler);
-        registry.register("codergen", handlers::CodergenHandler::simulation());
-        registry.register("shell", handlers::ShellHandler);
-        registry.register("parallel.fan_in", handlers::FanInHandler);
+        registry.register(HandlerType::Start, handlers::StartHandler);
+        registry.register(HandlerType::Exit, handlers::ExitHandler);
+        registry.register(HandlerType::Fail, handlers::FailHandler);
+        registry.register(HandlerType::Conditional, handlers::ConditionalHandler);
+        registry.register(
+            HandlerType::Codergen,
+            handlers::CodergenHandler::simulation(),
+        );
+        registry.register(HandlerType::Shell, handlers::ShellHandler);
+        registry.register(HandlerType::ParallelFanIn, handlers::FanInHandler);
         registry
     }
 
@@ -126,25 +129,25 @@ impl HandlerRegistry {
         // Step 2: well-known start/exit/fail IDs (only for default "box" shape)
         if node.shape() == "box" {
             if crate::Graph::START_IDS.contains(&node.id.as_str())
-                && let Some(handler) = self.handlers.get("start")
+                && let Some(handler) = self.handlers.get(HandlerType::Start.as_str())
             {
                 return Some(handler.clone());
             }
             if crate::Graph::EXIT_IDS.contains(&node.id.as_str())
-                && let Some(handler) = self.handlers.get("exit")
+                && let Some(handler) = self.handlers.get(HandlerType::Exit.as_str())
             {
                 return Some(handler.clone());
             }
             if crate::Graph::FAIL_IDS.contains(&node.id.as_str())
-                && let Some(handler) = self.handlers.get("fail")
+                && let Some(handler) = self.handlers.get(HandlerType::Fail.as_str())
             {
                 return Some(handler.clone());
             }
         }
 
         // Step 3: shape-based resolution
-        let shape_type = crate::graph::shape_to_handler_type(node.shape());
-        if let Some(handler) = self.handlers.get(shape_type) {
+        let shape_type = HandlerType::from_shape(node.shape());
+        if let Some(handler) = self.handlers.get(shape_type.as_str()) {
             return Some(handler.clone());
         }
 

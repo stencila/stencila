@@ -12,7 +12,7 @@ use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::fidelity::resolve_fidelity;
 use crate::graph::Graph;
-use crate::types::FidelityMode;
+use crate::types::{FidelityMode, HandlerType};
 
 /// State restored from a checkpoint for resuming execution.
 #[derive(Debug)]
@@ -142,7 +142,7 @@ fn determine_next_node(current_node: &str, graph: &Graph) -> AttractorResult<Str
             // If the current node is an exit node, resume at exit
             if graph
                 .get_node(current_node)
-                .is_some_and(|n| n.handler_type() == "exit" || Graph::is_exit_node(n))
+                .is_some_and(|n| n.handler_type() == HandlerType::Exit || Graph::is_exit_node(n))
             {
                 Ok(current_node.to_string())
             } else {

@@ -14,7 +14,7 @@ use crate::events::PipelineEvent;
 use crate::graph::Graph;
 use crate::retry::{build_retry_policy, execute_with_retry};
 use crate::run_directory::{Manifest, RunDirectory};
-use crate::types::{Outcome, StageStatus};
+use crate::types::{HandlerType, Outcome, StageStatus};
 
 use super::EngineConfig;
 use super::routing::{check_goal_gates, find_fail_edge, get_retry_target};
@@ -214,7 +214,7 @@ async fn execute_loop(
                 })?;
 
         // Terminal check: exit node → goal gates → finish
-        if node.handler_type() == "exit" {
+        if node.handler_type() == HandlerType::Exit {
             let gate_result = check_goal_gates(graph, &state.node_outcomes);
             if !gate_result.satisfied {
                 if let Some(target) = resolve_gate_retry(graph, &gate_result) {
@@ -491,7 +491,7 @@ fn advance(
     // through to select_edge would re-enter an already-executed branch
     // (the parallel node's outgoing edges ARE the branch entries).
     // Treat this as a terminal node — the pipeline ends here.
-    if node.handler_type() == "parallel" {
+    if node.handler_type() == HandlerType::Parallel {
         return AdvanceResult::End;
     }
 

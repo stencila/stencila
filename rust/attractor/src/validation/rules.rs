@@ -7,6 +7,7 @@ use std::collections::HashSet;
 
 use super::{Diagnostic, LintRule, Severity};
 use crate::graph::Graph;
+use crate::types::HandlerType;
 
 /// Return all 13 built-in lint rules.
 #[must_use]
@@ -356,20 +357,6 @@ impl LintRule for StylesheetSyntaxRule {
 // 9. type_known (WARNING) — handler types should be recognized
 // ---------------------------------------------------------------------------
 
-/// The set of handler types recognized by the built-in handler registry.
-const KNOWN_HANDLER_TYPES: &[&str] = &[
-    "start",
-    "exit",
-    "fail",
-    "conditional",
-    "codergen",
-    "shell",
-    "wait.human",
-    "parallel",
-    "parallel.fan_in",
-    "stack.manager_loop",
-];
-
 struct TypeKnownRule;
 
 impl LintRule for TypeKnownRule {
@@ -381,7 +368,7 @@ impl LintRule for TypeKnownRule {
         graph
             .nodes
             .values()
-            .filter(|n| !KNOWN_HANDLER_TYPES.contains(&n.handler_type()))
+            .filter(|n| n.handler_type().parse::<HandlerType>().is_err())
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Warning,
@@ -596,7 +583,7 @@ impl LintRule for GoalGateHasRetryRule {
 // ---------------------------------------------------------------------------
 
 /// Handler types considered LLM-backed (need a prompt or label).
-const LLM_HANDLER_TYPES: &[&str] = &["codergen"];
+const LLM_HANDLER_TYPES: &[&str] = &[HandlerType::Codergen.as_str()];
 
 struct PromptOnLlmNodesRule;
 

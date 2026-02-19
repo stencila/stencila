@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 use crate::error::{AttractorError, AttractorResult};
-use crate::types::Duration;
+use crate::types::{Duration, HandlerType};
 
 /// A typed attribute value in a graph node or edge.
 ///
@@ -216,32 +216,15 @@ impl Node {
             return explicit;
         }
         if Graph::START_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
-            return "start";
+            return HandlerType::Start.as_str();
         }
         if Graph::EXIT_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
-            return "exit";
+            return HandlerType::Exit.as_str();
         }
         if Graph::FAIL_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
-            return "fail";
+            return HandlerType::Fail.as_str();
         }
-        shape_to_handler_type(self.shape())
-    }
-}
-
-/// Map a DOT shape name to the corresponding handler type per §2.8.
-pub(crate) fn shape_to_handler_type(shape: &str) -> &'static str {
-    match shape {
-        "Mdiamond" => "start",
-        "Msquare" => "exit",
-        "invtriangle" => "fail",
-        "hexagon" | "human" => "wait.human",
-        "diamond" => "conditional",
-        "component" => "parallel",
-        "tripleoctagon" => "parallel.fan_in",
-        "parallelogram" => "shell",
-        "house" => "stack.manager_loop",
-        // "box" and all unknown shapes default to codergen
-        _ => "codergen",
+        HandlerType::from_shape(self.shape()).as_str()
     }
 }
 
