@@ -6,12 +6,35 @@
 //! every provider).
 
 use std::collections::HashMap;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 use std::time::Duration;
 
+use bytes::Bytes;
+use futures::stream::Stream;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
 use crate::error::{SdkError, SdkResult};
 use crate::types::timeout::Timeout;
+
+/// Error type for the byte stream returned by [`HttpClient::post_stream`].
+///
+/// Wraps transport errors from reqwest and adds an idle-timeout variant so
+/// that stream consumers can distinguish a timeout from a normal EOF.
+#[derive(Debug, thiserror::Error)]
+pub enum ByteStreamError {
+    #[error("{0}")]
+    Reqwest(#[from] reqwest::Error),
+
+    #[error("stream idle timeout after {idle_secs:.1}s")]
+    IdleTimeout { idle_secs: f64 },
+}
+
+/// A boxed byte stream with [`ByteStreamError`] as the error type.
+///
+/// This is the stream type returned by [`HttpClient::post_stream`] and
+/// accepted by [`super::sse::parse_sse`].
+pub type ByteStream = Pin<Box<dyn Stream<Item = Result<Bytes, ByteStreamError>> + Send>>;
 
 /// Default connect timeout in seconds.
 const DEFAULT_CONNECT_TIMEOUT_SECS: u64 = 10;
@@ -198,9 +221,10 @@ impl HttpClient {
     ///
     /// # Timeout handling
     ///
-    /// Only `Timeout.request` is applied per-request. `Timeout.stream_idle`
-    /// (inter-chunk idle timeout) must be enforced by wrapping the returned
-    /// stream at a higher layer.
+    /// `Timeout.request` is applied as a per-request deadline.
+    /// `Timeout.stream_idle` is enforced by wrapping the byte stream with
+    /// an [`IdleTimeoutStream`] that yields a [`ByteStreamError::IdleTimeout`]
+    /// error if no chunk arrives within the configured duration.
     ///
     /// # Errors
     ///
@@ -212,10 +236,7 @@ impl HttpClient {
         body: &B,
         headers: Option<&HeaderMap>,
         timeout: Option<&Timeout>,
-    ) -> SdkResult<(
-        std::pin::Pin<Box<dyn futures::Stream<Item = Result<bytes::Bytes, reqwest::Error>> + Send>>,
-        HeaderMap,
-    )> {
+    ) -> SdkResult<(ByteStream, HeaderMap)> {
         let url = format!("{}{path}", self.base_url);
 
         let mut request = self.inner.post(&url).headers(self.default_headers.clone());
@@ -269,8 +290,91 @@ impl HttpClient {
             ));
         }
 
-        let stream = Box::pin(response.bytes_stream());
+        use futures::StreamExt;
+        let stream: ByteStream = Box::pin(
+            response
+                .bytes_stream()
+                .map(|r| r.map_err(ByteStreamError::from)),
+        );
+
+        let stream: ByteStream = if let Some(t) = timeout
+            && let Some(secs) = t.stream_idle
+            && secs.is_finite()
+            && secs > 0.0
+        {
+            Box::pin(IdleTimeoutStream::new(
+                stream,
+                Duration::from_secs_f64(secs),
+            ))
+        } else {
+            stream
+        };
+
         Ok((stream, response_headers))
+    }
+}
+
+/// A stream wrapper that enforces an idle timeout between chunks.
+///
+/// If no item arrives from the inner stream within `idle_duration`, the
+/// stream yields a [`ByteStreamError::IdleTimeout`] error, then terminates.
+/// This surfaces the timeout as an explicit error rather than silent EOF,
+/// allowing downstream consumers (e.g. the SSE parser) to report it.
+///
+/// The timeout is reset each time the inner stream yields an item.
+struct IdleTimeoutStream {
+    inner: ByteStream,
+    idle_duration: Duration,
+    deadline: Pin<Box<tokio::time::Sleep>>,
+    timed_out: bool,
+}
+
+impl IdleTimeoutStream {
+    fn new(inner: ByteStream, idle_duration: Duration) -> Self {
+        Self {
+            inner,
+            idle_duration,
+            deadline: Box::pin(tokio::time::sleep(idle_duration)),
+            timed_out: false,
+        }
+    }
+}
+
+impl Stream for IdleTimeoutStream {
+    type Item = Result<Bytes, ByteStreamError>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.get_mut();
+
+        if this.timed_out {
+            return Poll::Ready(None);
+        }
+
+        // Poll the inner stream first.
+        match this.inner.as_mut().poll_next(cx) {
+            Poll::Ready(item) => {
+                // Reset the deadline for the next chunk.
+                this.deadline
+                    .as_mut()
+                    .reset(tokio::time::Instant::now() + this.idle_duration);
+                Poll::Ready(item)
+            }
+            Poll::Pending => {
+                // Inner stream is not ready — check the idle deadline.
+                match this.deadline.as_mut().poll(cx) {
+                    Poll::Ready(()) => {
+                        let idle_secs = this.idle_duration.as_secs_f64();
+                        tracing::warn!(
+                            idle_secs,
+                            "stream idle timeout expired, terminating byte stream"
+                        );
+                        this.timed_out = true;
+                        Poll::Ready(Some(Err(ByteStreamError::IdleTimeout { idle_secs })))
+                    }
+                    Poll::Pending => Poll::Pending,
+                }
+            }
+        }
     }
 }
 
@@ -381,6 +485,81 @@ fn extract_error_message(json: Option<&serde_json::Value>, raw: &str) -> String 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::StreamExt;
+    use std::task::Poll;
+
+    fn mock_bytes_stream(chunks: Vec<&'static str>) -> ByteStream {
+        Box::pin(futures::stream::iter(
+            chunks
+                .into_iter()
+                .map(|c| Ok(Bytes::from(c)))
+                .collect::<Vec<_>>(),
+        ))
+    }
+
+    #[tokio::test]
+    async fn idle_timeout_passes_through_fast_stream() {
+        let inner = mock_bytes_stream(vec!["hello", " ", "world"]);
+        let stream = IdleTimeoutStream::new(inner, Duration::from_secs(10));
+        tokio::pin!(stream);
+        let mut collected = Vec::new();
+        while let Some(item) = stream.next().await {
+            collected.push(item.unwrap());
+        }
+        assert_eq!(collected.len(), 3);
+        assert_eq!(collected[0], "hello");
+        assert_eq!(collected[2], "world");
+    }
+
+    #[tokio::test]
+    async fn idle_timeout_yields_error_then_ends() {
+        // A stream that yields one item then hangs forever
+        let inner: ByteStream = Box::pin(
+            futures::stream::iter(vec![Ok(Bytes::from("first"))]).chain(futures::stream::poll_fn(
+                |_cx| -> Poll<Option<Result<Bytes, ByteStreamError>>> { Poll::Pending },
+            )),
+        );
+
+        let stream = IdleTimeoutStream::new(inner, Duration::from_millis(50));
+        tokio::pin!(stream);
+
+        // First item should arrive
+        let first = stream.next().await;
+        assert!(first.is_some());
+        assert_eq!(first.unwrap().unwrap(), "first");
+
+        // Second poll should time out — yielding an IdleTimeout error
+        let second = stream.next().await;
+        assert!(second.is_some(), "timeout should yield an error item");
+        let err = second.unwrap().unwrap_err();
+        assert!(
+            matches!(err, ByteStreamError::IdleTimeout { .. }),
+            "expected IdleTimeout, got: {err:?}"
+        );
+
+        // After the error, stream should be done (returns None)
+        let third = stream.next().await;
+        assert!(third.is_none());
+    }
+
+    #[tokio::test]
+    async fn idle_timeout_stays_none_after_timeout() {
+        let inner: ByteStream = Box::pin(
+            futures::stream::iter(vec![Ok(Bytes::from("data"))]).chain(futures::stream::poll_fn(
+                |_cx| -> Poll<Option<Result<Bytes, ByteStreamError>>> { Poll::Pending },
+            )),
+        );
+
+        let stream = IdleTimeoutStream::new(inner, Duration::from_millis(20));
+        tokio::pin!(stream);
+
+        let _ = stream.next().await; // consume "data"
+        let _ = stream.next().await; // times out -> Err(IdleTimeout)
+
+        // Subsequent polls should return None
+        let third = stream.next().await;
+        assert!(third.is_none());
+    }
 
     #[test]
     fn builder_creates_client() -> SdkResult<()> {
