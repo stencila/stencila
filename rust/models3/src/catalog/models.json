@@ -194,6 +194,7 @@
     "input_cost_per_million": 1.25,
     "output_cost_per_million": 10.0,
     "aliases": [
+      "gemini",
       "gemini-pro",
       "gemini-pro-2.5"
     ]
@@ -602,7 +603,10 @@
     "supports_reasoning": true,
     "input_cost_per_million": 1.75,
     "output_cost_per_million": 14.0,
-    "aliases": []
+    "aliases": [
+      "codex",
+      "gpt-codex"
+    ]
   },
   {
     "id": "gpt-3.5-turbo-instruct",
