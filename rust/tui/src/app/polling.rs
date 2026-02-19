@@ -156,6 +156,9 @@ impl App {
                             question,
                             answer_tx,
                         });
+                        // If the user detached to agent mode, auto-switch back
+                        // so they can answer the interview prompt.
+                        self.mode = super::AppMode::Workflow;
                     }
                 }
                 WorkflowEvent::Completed(result) => {
@@ -279,7 +282,60 @@ impl App {
 
 #[cfg(test)]
 mod tests {
-    use super::super::App;
+    use super::super::{App, AppMode};
+
+    #[tokio::test]
+    async fn interview_event_resumes_workflow_mode() {
+        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+        use crate::workflow::WorkflowEvent;
+        use stencila_attractor::interviewer::{Question, QuestionType};
+        use tokio::sync::{mpsc, oneshot};
+
+        let mut app = App::new_for_test();
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: Some("goal".to_string()),
+        });
+        assert_eq!(app.mode, AppMode::Workflow);
+
+        // Detach to agent mode
+        app.exit_workflow_mode();
+        assert_eq!(app.mode, AppMode::Agent);
+        assert!(app.active_workflow.is_some());
+
+        // Set up a channel and inject a run_handle so poll_workflow_events can drain it
+        let (tx, rx) = mpsc::unbounded_channel();
+        if let Some(wf) = &mut app.active_workflow {
+            wf.run_handle = Some(crate::workflow::WorkflowRunHandle::new_for_test(rx));
+        }
+
+        // Send an interview question through the channel
+        let (answer_tx, _answer_rx) = oneshot::channel();
+        tx.send(WorkflowEvent::InterviewQuestion {
+            question: Question {
+                text: "Continue?".to_string(),
+                question_type: QuestionType::Freeform,
+                options: Vec::new(),
+                default: None,
+                timeout_seconds: None,
+                stage: "test".to_string(),
+            },
+            answer_tx,
+        })
+        .unwrap();
+
+        // Poll — should process the interview event and switch back to workflow mode
+        app.poll_workflow_events();
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(app
+            .active_workflow
+            .as_ref()
+            .unwrap()
+            .pending_interview
+            .is_some());
+    }
 
     #[tokio::test]
     async fn scroll_stays_stable_during_streaming() {

@@ -42,6 +42,14 @@ impl WorkflowRunHandle {
     pub fn abort(&self) {
         self.join_handle.abort();
     }
+
+    #[cfg(test)]
+    pub fn new_for_test(event_rx: mpsc::UnboundedReceiver<WorkflowEvent>) -> Self {
+        Self {
+            event_rx,
+            join_handle: tokio::spawn(async {}),
+        }
+    }
 }
 
 /// An `EventEmitter` that forwards events through a channel.

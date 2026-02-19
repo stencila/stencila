@@ -249,9 +249,11 @@ impl App {
         });
     }
 
-    /// Exit workflow mode and return to agent mode.
+    /// Exit workflow input mode and return to agent mode.
+    ///
+    /// This does not cancel or clear the active workflow. Any running workflow
+    /// continues in the background and its events remain visible in messages.
     pub fn exit_workflow_mode(&mut self) {
-        self.active_workflow = None;
         self.mode = AppMode::Agent;
         self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {

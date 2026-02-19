@@ -74,7 +74,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let is_running = app.has_running();
 
     // Use workflow color when in workflow mode, agent color in multi-agent chat, otherwise kind color
-    let bar_color = if app.active_workflow.is_some() {
+    let bar_color = if app.mode == AppMode::Workflow {
         WORKFLOW_COLOR
     } else if app.mode == AppMode::Agent {
         app.color_registry
@@ -87,7 +87,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Mode indicator in the gutter (no dark bg)
     let gutter = NUM_GUTTER;
     if area.height > 0 {
-        let indicator = if app.active_workflow.is_some() {
+        let indicator = if app.mode == AppMode::Workflow {
             if app
                 .active_workflow
                 .as_ref()
@@ -185,6 +185,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
 
     // Show placeholder text when in workflow mode with empty input
     if input_text.is_empty()
+        && app.mode == AppMode::Workflow
         && let Some(workflow) = &app.active_workflow
     {
         if workflow.pending_interview.is_some() {
@@ -283,10 +284,11 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Show inline send/run hint anchored to the bottom-right of the input area.
     // Hide when running or when the last visible line's text would overlap.
     if !is_running {
-        let hint_text = if app
-            .active_workflow
-            .as_ref()
-            .is_some_and(|w| w.run_handle.is_none())
+        let hint_text = if app.mode == AppMode::Workflow
+            && app
+                .active_workflow
+                .as_ref()
+                .is_some_and(|w| w.run_handle.is_none())
         {
             " start"
         } else {
@@ -354,7 +356,9 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     let has_ghost = app.ghost_suggestion.is_some();
 
     // Mode label on the left, indented to align with sidebar bars
-    let label_spans = if let Some(workflow) = &app.active_workflow {
+    let label_spans = if app.mode == AppMode::Workflow
+        && let Some(workflow) = &app.active_workflow
+    {
         workflow_label_spans(workflow)
     } else if app.mode == AppMode::Agent {
         // Always show active agent name in agent's color

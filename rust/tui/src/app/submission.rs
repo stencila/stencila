@@ -18,84 +18,88 @@ impl App {
 
         let text = self.input.take();
         self.input_scroll = 0;
+        self.dismiss_all_autocomplete();
 
-        // Workflow goal submission: when in workflow mode and not yet running,
-        // empty input uses the default goal (if available).
-        if let Some(workflow) = &self.active_workflow
-            && workflow.run_handle.is_none()
-        {
-            let goal = if text.trim().is_empty() {
-                workflow.info.goal.clone()
-            } else {
-                Some(text.clone())
-            };
-
-            if let Some(goal) = goal {
-                self.submit_workflow_goal(goal);
-            }
-            // If no goal provided and no default, do nothing (keep waiting)
-            return;
-        }
-
-        // Workflow interview answer submission: when a workflow is waiting
-        // for user input, send the answer through the oneshot channel.
-        if let Some(workflow) = &mut self.active_workflow
-            && let Some(pending) = workflow.pending_interview.take()
-        {
-            if text.trim().is_empty() {
-                // Put the pending interview back if input was empty
-                workflow.pending_interview = Some(pending);
-                return;
-            }
-            self.messages.push(AppMessage::System {
-                content: format!("\u{1f4ac} {text}"),
-            });
-            let _ = pending.answer_tx.send(text);
+        // Slash commands work in all modes and always take precedence.
+        if let Some((cmd, args)) = SlashCommand::parse(&text) {
+            cmd.execute(self, args);
             self.scroll_pinned = true;
             self.scroll_offset = 0;
             return;
+        }
+
+        if self.mode == AppMode::Workflow {
+            // Workflow goal submission: when in workflow mode and not yet running,
+            // empty input uses the default goal (if available).
+            if let Some(workflow) = &self.active_workflow
+                && workflow.run_handle.is_none()
+            {
+                let goal = if text.trim().is_empty() {
+                    workflow.info.goal.clone()
+                } else {
+                    Some(text.clone())
+                };
+
+                if let Some(goal) = goal {
+                    self.submit_workflow_goal(goal);
+                }
+                // If no goal provided and no default, do nothing (keep waiting)
+                return;
+            }
+
+            // Workflow interview answer submission: when a workflow is waiting
+            // for user input, send the answer through the oneshot channel.
+            if let Some(workflow) = &mut self.active_workflow
+                && let Some(pending) = workflow.pending_interview.take()
+            {
+                if text.trim().is_empty() {
+                    // Put the pending interview back if input was empty
+                    workflow.pending_interview = Some(pending);
+                    return;
+                }
+                self.messages.push(AppMessage::System {
+                    content: format!("\u{1f4ac} {text}"),
+                });
+                let _ = pending.answer_tx.send(text);
+                self.scroll_pinned = true;
+                self.scroll_offset = 0;
+                return;
+            }
         }
 
         if text.trim().is_empty() {
             return;
         }
 
-        self.dismiss_all_autocomplete();
-
         // Expand paste and response references for the actual request text.
         // History stores the original (unexpanded) text so refs remain visible.
         let expanded = self.expand_paste_refs(&text);
         let expanded = self.expand_response_refs(&expanded);
 
-        if let Some((cmd, args)) = SlashCommand::parse(&text) {
-            // Slash commands work all modes
-            cmd.execute(self, args);
-        } else {
-            // Other handling is dependent on app mode
-            match self.mode {
-                AppMode::Agent => {
-                    if let Some(mention) = self.parse_agent_mention(&expanded) {
-                        self.input_history.push_tagged(text, AppMode::Agent);
-                        self.execute_agent_mention(mention);
-                    } else if let Some(cmd) = expanded.strip_prefix('!')
-                        && !cmd.trim().is_empty()
-                    {
-                        let cmd = cmd.to_string();
-                        self.input_history
-                            .push_tagged(format!("!{cmd}"), AppMode::Agent);
-                        self.spawn_shell_command(cmd);
-                    } else {
-                        self.input_history.push_tagged(text, AppMode::Agent);
-                        self.submit_agent_message(expanded);
-                    }
+        // Other handling is dependent on app mode
+        match self.mode {
+            AppMode::Agent => {
+                if let Some(mention) = self.parse_agent_mention(&expanded) {
+                    self.input_history.push_tagged(text, AppMode::Agent);
+                    self.execute_agent_mention(mention);
+                } else if let Some(cmd) = expanded.strip_prefix('!')
+                    && !cmd.trim().is_empty()
+                {
+                    let cmd = cmd.to_string();
+                    self.input_history
+                        .push_tagged(format!("!{cmd}"), AppMode::Agent);
+                    self.spawn_shell_command(cmd);
+                } else {
+                    self.input_history.push_tagged(text, AppMode::Agent);
+                    self.submit_agent_message(expanded);
                 }
-                AppMode::Shell => {
-                    self.input_history.push_tagged(text, AppMode::Shell);
-                    self.spawn_shell_command(expanded);
-                }
-                AppMode::Workflow => {
-                    // No-op: workflow is running, input is ignored
-                }
+            }
+            AppMode::Shell => {
+                self.input_history.push_tagged(text, AppMode::Shell);
+                self.spawn_shell_command(expanded);
+            }
+            AppMode::Workflow => {
+                // No-op: workflow is running, input is ignored
             }
         }
 
@@ -304,6 +308,60 @@ mod tests {
 
         app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
         assert!(app.commands_state.is_visible());
+    }
+
+    #[tokio::test]
+    async fn detached_agent_submit_creates_agent_exchange() {
+        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+        use super::super::ExchangeKind;
+
+        let mut app = App::new_for_test();
+        // Activate a workflow then detach back to agent mode
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: Some("goal".to_string()),
+        });
+        app.exit_workflow_mode();
+        assert_eq!(app.mode, AppMode::Agent);
+        assert!(app.active_workflow.is_some());
+
+        let initial = app.messages.len();
+
+        // Submit normal text — should create an agent exchange, not a workflow goal
+        for c in "hello agent".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert!(app.input.is_empty());
+        assert!(app.messages.len() > initial);
+        assert!(app.messages[initial..].iter().any(|m| matches!(
+            m,
+            AppMessage::Exchange { kind: ExchangeKind::Agent, request, .. } if request == "hello agent"
+        )));
+    }
+
+    #[tokio::test]
+    async fn slash_exit_in_workflow_mode_keeps_workflow() {
+        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+
+        let mut app = App::new_for_test();
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+        });
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(app.active_workflow.is_some());
+
+        for c in "/exit".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        assert_eq!(app.mode, AppMode::Agent);
+        assert!(app.active_workflow.is_some());
+        assert!(!app.should_quit);
     }
 
     #[tokio::test]

@@ -304,10 +304,9 @@ impl App {
                     if self.mode == AppMode::Shell {
                         self.exit_shell_mode();
                     } else if self.mode == AppMode::Workflow {
-                        // Switch input to agent mode but keep the workflow
-                        // running — its progress events will continue appearing
-                        // in the message area.
-                        self.mode = AppMode::Agent;
+                        // Exit workflow input mode but keep the workflow
+                        // running in the background.
+                        self.exit_workflow_mode();
                     }
 
                     match selection {
@@ -918,5 +917,49 @@ mod tests {
         assert_eq!(app.mode, AppMode::Agent);
         assert_eq!(app.active_session, 1);
         assert!(!app.agents_state.is_visible());
+    }
+
+    #[tokio::test]
+    async fn agents_picker_exits_workflow_mode_but_keeps_workflow() {
+        use crate::autocomplete::{
+            agents::{AgentCandidate, AgentCandidateKind},
+            workflows::WorkflowDefinitionInfo,
+        };
+
+        let mut app = App::new_for_test();
+        app.sessions.push(AgentSession::new("other"));
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: Some("goal".to_string()),
+        });
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(app.active_workflow.is_some());
+
+        app.agents_state.open(vec![
+            AgentCandidate {
+                name: "default".to_string(),
+                kind: AgentCandidateKind::Session {
+                    index: 0,
+                    is_active: true,
+                    definition: None,
+                },
+            },
+            AgentCandidate {
+                name: "other".to_string(),
+                kind: AgentCandidateKind::Session {
+                    index: 1,
+                    is_active: false,
+                    definition: None,
+                },
+            },
+        ]);
+
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        assert_eq!(app.mode, AppMode::Agent);
+        assert_eq!(app.active_session, 1);
+        assert!(app.active_workflow.is_some());
     }
 }

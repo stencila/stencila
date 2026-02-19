@@ -15,7 +15,11 @@ use super::{
 
 impl App {
     /// Enter workflow mode for the given workflow definition.
+    ///
+    /// If a previous workflow is still running it is cancelled first so we
+    /// don't leak a detached background task.
     pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
+        self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
         self.active_workflow = Some(ActiveWorkflow {
             info,
@@ -402,7 +406,7 @@ mod tests {
 
         app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
         assert_eq!(app.mode, AppMode::Agent);
-        assert!(app.active_workflow.is_none());
+        assert!(app.active_workflow.is_some());
     }
 
     #[tokio::test]
