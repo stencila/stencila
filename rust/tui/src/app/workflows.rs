@@ -21,6 +21,7 @@ impl App {
     pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
         self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
+        let default_goal = info.goal.clone();
         self.active_workflow = Some(ActiveWorkflow {
             info,
             state: ActiveWorkflowState::Pending,
@@ -31,7 +32,11 @@ impl App {
             workflow_status_msg_index: None,
             stage_status_msg_index: None,
         });
-        self.input.clear();
+        if let Some(goal) = default_goal {
+            self.input.set_text(&goal);
+        } else {
+            self.input.clear();
+        }
         self.input_scroll = 0;
         self.scroll_pinned = true;
     }
@@ -426,5 +431,18 @@ mod tests {
         let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
         assert!(!quit);
         assert!(app.input.is_empty());
+    }
+
+    #[tokio::test]
+    async fn workflow_with_default_goal_prefills_input() {
+        let mut app = App::new_for_test();
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: Some("Review the latest pull request".to_string()),
+        });
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert_eq!(app.input.text(), "Review the latest pull request");
     }
 }

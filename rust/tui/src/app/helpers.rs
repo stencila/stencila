@@ -255,6 +255,8 @@ impl App {
     /// continues in the background and its events remain visible in messages.
     pub fn exit_workflow_mode(&mut self) {
         self.mode = AppMode::Agent;
+        self.input.clear();
+        self.input_scroll = 0;
         self.dismiss_all_autocomplete();
         self.messages.push(AppMessage::System {
             content: "Exiting workflow mode.".to_string(),
