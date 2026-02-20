@@ -863,8 +863,27 @@ impl ApiSession {
         messages.extend(self.convert_history_to_messages());
 
         let mut request = Request::new(self.profile.model(), messages);
-        request.tools = Some(self.profile.tools());
-        request.tool_choice = Some(ToolChoice::Auto);
+        let tools = if let Some(ref allowed) = self.config.allowed_tools {
+            let filtered: Vec<_> = self
+                .profile
+                .tools()
+                .into_iter()
+                .filter(|t| allowed.iter().any(|a| a == &t.name))
+                .collect();
+            if filtered.is_empty() {
+                // No tools match — omit tools and tool_choice entirely so
+                // providers don't reject the request.
+                None
+            } else {
+                Some(filtered)
+            }
+        } else {
+            Some(self.profile.tools())
+        };
+        if tools.is_some() {
+            request.tool_choice = Some(ToolChoice::Auto);
+        }
+        request.tools = tools;
         request.reasoning_effort = self
             .config
             .reasoning_effort
@@ -979,23 +998,90 @@ impl ApiSession {
     async fn execute_tool_calls(&mut self, tool_calls: &[ToolCall]) -> Option<Vec<ToolResult>> {
         let abort = self.abort_signal.clone();
 
-        let work = async {
-            // Separate subagent calls from regular calls.
-            // Subagent calls must run sequentially through &mut self because
-            // SubAgentManager needs mutable access.
-            let has_subagent = tool_calls
-                .iter()
-                .any(|tc| SubAgentManager::is_subagent_tool(&tc.name));
+        // Pre-check: reject tool calls not in the allowed_tools list.
+        // When allowed_tools is None, all tools are permitted.
+        let allowed = self.config.allowed_tools.clone();
 
-            if has_subagent {
-                // When any subagent tool is present, run all calls sequentially
-                // to avoid borrow conflicts with the subagent manager.
-                self.execute_tools_with_subagents(tool_calls).await
-            } else if self.profile.supports_parallel_tool_calls() && tool_calls.len() > 1 {
-                self.execute_tools_parallel(tool_calls).await
-            } else {
-                self.execute_tools_sequential(tool_calls).await
+        let work = async {
+            // When allowed_tools is None, all calls are permitted — take the
+            // original fast path with no splitting overhead.
+            if allowed.is_none() {
+                let has_subagent = tool_calls
+                    .iter()
+                    .any(|tc| SubAgentManager::is_subagent_tool(&tc.name));
+
+                return if has_subagent {
+                    self.execute_tools_with_subagents(tool_calls).await
+                } else if self.profile.supports_parallel_tool_calls() && tool_calls.len() > 1 {
+                    self.execute_tools_parallel(tool_calls).await
+                } else {
+                    self.execute_tools_sequential(tool_calls).await
+                };
             }
+
+            let allow_list = allowed.as_ref().expect("checked above");
+
+            // Build a results vec with slots for every tool call, pre-filled
+            // with None. Rejected calls are filled immediately; permitted calls
+            // are collected with their original index for batch execution.
+            let mut results: Vec<Option<ToolResult>> = vec![None; tool_calls.len()];
+            let mut permitted: Vec<(usize, &ToolCall)> = Vec::new();
+
+            for (idx, tc) in tool_calls.iter().enumerate() {
+                if allow_list.iter().any(|a| a == &tc.name) {
+                    permitted.push((idx, tc));
+                } else {
+                    let error_msg = format!(
+                        "Tool '{}' is not in this agent's allowedTools list. \
+                         Available tools: {}",
+                        tc.name,
+                        allow_list.join(", ")
+                    );
+                    self.events
+                        .emit_tool_call_start(&tc.name, &tc.id, &tc.arguments);
+                    self.events.emit_tool_call_end_error(&tc.id, &error_msg);
+                    results[idx] = Some(ToolResult {
+                        tool_call_id: tc.id.clone(),
+                        content: Value::String(error_msg),
+                        is_error: true,
+                    });
+                }
+            }
+
+            // Execute permitted calls and place results at their original indices.
+            if !permitted.is_empty() {
+                let permitted_calls: Vec<ToolCall> =
+                    permitted.iter().map(|(_, tc)| (*tc).clone()).collect();
+                let indices: Vec<usize> = permitted.iter().map(|(i, _)| *i).collect();
+
+                let has_subagent = permitted_calls
+                    .iter()
+                    .any(|tc| SubAgentManager::is_subagent_tool(&tc.name));
+
+                let executed = if has_subagent {
+                    self.execute_tools_with_subagents(&permitted_calls).await
+                } else if self.profile.supports_parallel_tool_calls()
+                    && permitted_calls.len() > 1
+                {
+                    self.execute_tools_parallel(&permitted_calls).await
+                } else {
+                    self.execute_tools_sequential(&permitted_calls).await
+                };
+
+                for (result, &idx) in executed.into_iter().zip(&indices) {
+                    results[idx] = Some(result);
+                }
+            }
+
+            // Unwrap all slots — every position was filled by either the
+            // rejection path or the execution path.
+            results
+                .into_iter()
+                .enumerate()
+                .map(|(i, slot)| {
+                    slot.unwrap_or_else(|| aborted_tool_result(&tool_calls[i].id))
+                })
+                .collect()
         };
 
         match abort {

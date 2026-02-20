@@ -92,6 +92,16 @@ pub struct SessionConfig {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reasoning_effort: Option<ReasoningEffort>,
 
+    /// Tool names this agent is allowed to use.
+    ///
+    /// When `None`, all tools registered in the provider profile are available.
+    /// When `Some`, only the listed tool names are sent to the LLM and allowed
+    /// to execute — calls to unlisted tools are rejected with an error result.
+    /// Supports the principle of least privilege: agents should only have
+    /// access to the tools they actually need.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allowed_tools: Option<Vec<String>>,
+
     /// Per-tool character output limits (overrides defaults from spec 5.2).
     #[serde(default)]
     pub tool_output_limits: std::collections::HashMap<String, usize>,
@@ -211,6 +221,7 @@ impl SessionConfig {
             max_tool_rounds_per_input: self.max_tool_rounds_per_input,
             default_command_timeout_ms: self.default_command_timeout_ms,
             max_command_timeout_ms: self.max_command_timeout_ms,
+            allowed_tools: self.allowed_tools.clone(),
             tool_output_limits: self.tool_output_limits.clone(),
             tool_line_limits: self.tool_line_limits.clone(),
             enable_loop_detection: self.enable_loop_detection,
@@ -237,6 +248,7 @@ impl Default for SessionConfig {
             default_command_timeout_ms: default_command_timeout_ms(),
             max_command_timeout_ms: default_max_command_timeout_ms(),
             reasoning_effort: None,
+            allowed_tools: None,
             tool_output_limits: std::collections::HashMap::new(),
             tool_line_limits: std::collections::HashMap::new(),
             enable_loop_detection: true,
@@ -284,6 +296,10 @@ impl SessionConfig {
             && val >= 0
         {
             config.max_turns = val as u32;
+        }
+
+        if let Some(ref tools) = agent.allowed_tools {
+            config.allowed_tools = Some(tools.clone());
         }
 
         if let Some(val) = agent.options.max_tool_rounds
