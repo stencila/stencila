@@ -88,7 +88,7 @@ pub enum AgentError {
 
     // --- Wrapper ---
     /// An error from the underlying LLM SDK.
-    #[error("sdk error: {0}")]
+    #[error("model api error: {0}")]
     Sdk(SdkError),
 }
 
