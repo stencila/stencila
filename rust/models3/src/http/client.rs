@@ -11,7 +11,7 @@ use std::task::{Context, Poll};
 use std::time::Duration;
 
 use bytes::Bytes;
-use futures::stream::Stream;
+use futures::{Stream, StreamExt};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
 use crate::error::{SdkError, SdkResult};
@@ -290,7 +290,6 @@ impl HttpClient {
             ));
         }
 
-        use futures::StreamExt;
         let stream: ByteStream = Box::pin(
             response
                 .bytes_stream()
@@ -504,7 +503,7 @@ mod tests {
         tokio::pin!(stream);
         let mut collected = Vec::new();
         while let Some(item) = stream.next().await {
-            collected.push(item.unwrap());
+            collected.push(item.expect("stream item should be Ok"));
         }
         assert_eq!(collected.len(), 3);
         assert_eq!(collected[0], "hello");
@@ -526,12 +525,15 @@ mod tests {
         // First item should arrive
         let first = stream.next().await;
         assert!(first.is_some());
-        assert_eq!(first.unwrap().unwrap(), "first");
+        assert_eq!(
+            first.expect("should be Some").expect("should be Ok"),
+            "first"
+        );
 
         // Second poll should time out — yielding an IdleTimeout error
         let second = stream.next().await;
         assert!(second.is_some(), "timeout should yield an error item");
-        let err = second.unwrap().unwrap_err();
+        let err = second.expect("should be Some").expect_err("should be Err");
         assert!(
             matches!(err, ByteStreamError::IdleTimeout { .. }),
             "expected IdleTimeout, got: {err:?}"
