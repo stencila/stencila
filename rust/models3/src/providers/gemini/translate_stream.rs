@@ -132,6 +132,14 @@ pub fn translate_sse_event(
 
             if state.text_started {
                 state.text_started = false;
+                // Move accumulated text into content so the final
+                // Response built in on_stream_end includes it.
+                let text = std::mem::take(&mut state.accumulated_text);
+                if !text.is_empty() {
+                    state
+                        .accumulated_content
+                        .push(ContentPart::Text { text });
+                }
                 out.push(StreamEvent {
                     event_type: StreamEventType::TextEnd,
                     delta: None,
