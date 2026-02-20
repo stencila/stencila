@@ -384,9 +384,27 @@ fn translate_tool_definition(tool: &ToolDefinition) -> SdkResult<Value> {
         "description".to_string(),
         Value::String(tool.description.clone()),
     );
-    decl.insert("parameters".to_string(), tool.parameters.clone());
+
+    let mut params = tool.parameters.clone();
+    strip_unsupported_schema_fields(&mut params);
+    decl.insert("parameters".to_string(), params);
 
     Ok(Value::Object(decl))
+}
+
+/// Recursively remove JSON Schema fields that Gemini does not support
+/// (e.g. `additionalProperties`).
+fn strip_unsupported_schema_fields(value: &mut Value) {
+    if let Some(obj) = value.as_object_mut() {
+        obj.remove("additionalProperties");
+        for v in obj.values_mut() {
+            strip_unsupported_schema_fields(v);
+        }
+    } else if let Some(arr) = value.as_array_mut() {
+        for v in arr.iter_mut() {
+            strip_unsupported_schema_fields(v);
+        }
+    }
 }
 
 fn translate_tool_choice(tool_choice: &ToolChoice) -> Value {
