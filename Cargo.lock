@@ -10808,6 +10808,7 @@ dependencies = [
  "clap",
  "eyre",
  "futures",
+ "indexmap 2.13.0",
  "jsonschema",
  "rand 0.9.2",
  "reqwest 0.13.1",

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::types::content::ContentPart;
 use crate::types::finish_reason::{FinishReason, Reason};
@@ -37,7 +37,7 @@ pub struct StreamAccumulator {
     /// In-progress tool calls being built from deltas, keyed by tool call ID.
     /// Multiple calls can be in-flight simultaneously when providers emit
     /// interleaved deltas (e.g. OpenAI Chat Completions).
-    pending_tool_calls: HashMap<String, InProgressToolCall>,
+    pending_tool_calls: IndexMap<String, InProgressToolCall>,
     usage: Option<Usage>,
     warnings: Vec<Warning>,
     response_id: Option<String>,
@@ -119,11 +119,11 @@ impl StreamAccumulator {
                     .map(|tc| tc.id.clone())
                     .filter(|id| !id.is_empty());
                 let current = call_id
-                    .and_then(|id| self.pending_tool_calls.remove(&id))
+                    .and_then(|id| self.pending_tool_calls.shift_remove(&id))
                     .or_else(|| {
                         if self.pending_tool_calls.len() == 1 {
                             let key = self.pending_tool_calls.keys().next()?.clone();
-                            self.pending_tool_calls.remove(&key)
+                            self.pending_tool_calls.shift_remove(&key)
                         } else {
                             None
                         }
@@ -239,7 +239,7 @@ impl StreamAccumulator {
             content.push(ContentPart::text(&self.text));
         }
 
-        // Add tool calls
+        // Add finalized tool calls
         for tc in &self.tool_calls {
             content.push(ContentPart::tool_call(
                 &tc.id,
@@ -248,15 +248,44 @@ impl StreamAccumulator {
             ));
         }
 
+        // Finalize any pending tool calls that never received a ToolCallEnd
+        // event (can happen when the provider's finish_reason doesn't match
+        // or the stream ends unexpectedly).
+        for pending in self.pending_tool_calls.values() {
+            if !pending.name.is_empty() {
+                let (arguments, parse_error) = ToolCall::parse_arguments(&pending.arguments_buf);
+                let tc = ToolCall {
+                    id: pending.id.clone(),
+                    name: pending.name.clone(),
+                    arguments,
+                    raw_arguments: Some(pending.arguments_buf.clone()),
+                    parse_error,
+                };
+                content.push(ContentPart::tool_call(&tc.id, &tc.name, tc.arguments));
+            }
+        }
+
+        // If content includes tool calls, ensure the finish reason reflects it.
+        let has_tool_calls = content
+            .iter()
+            .any(|p| matches!(p, ContentPart::ToolCall { .. }));
+        let finish_reason = if has_tool_calls {
+            FinishReason::new(
+                Reason::ToolCalls,
+                self.finish_reason.as_ref().and_then(|fr| fr.raw.clone()),
+            )
+        } else {
+            self.finish_reason
+                .clone()
+                .unwrap_or_else(|| FinishReason::new(Reason::Other, None))
+        };
+
         Response {
             id: self.response_id.clone().unwrap_or_default(),
             model: self.model.clone().unwrap_or_default(),
             provider: self.provider.clone().unwrap_or_default(),
             message: Message::new(Role::Assistant, content),
-            finish_reason: self
-                .finish_reason
-                .clone()
-                .unwrap_or_else(|| FinishReason::new(Reason::Other, None)),
+            finish_reason,
             usage: self.usage.clone().unwrap_or_default(),
             raw: None,
             warnings: if self.warnings.is_empty() {

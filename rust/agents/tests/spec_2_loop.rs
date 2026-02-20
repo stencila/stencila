@@ -883,6 +883,66 @@ async fn tool_error_sent_as_error_result() -> AgentResult<()> {
     Ok(())
 }
 
+/// Malformed (non-JSON) tool call arguments must:
+/// - emit TOOL_CALL_END with an error field
+/// - not invoke the tool executor
+/// - produce a ToolResult with is_error = true
+#[tokio::test]
+async fn parse_error_skips_execution_and_returns_error_result() -> AgentResult<()> {
+    let garbled_call = ToolCall {
+        id: "call-garbled".into(),
+        name: "echo".into(),
+        // String value containing invalid JSON triggers parse_error in response.tool_calls()
+        arguments: serde_json::Value::String("{not valid json".into()),
+        raw_arguments: Some("{not valid json".into()),
+        parse_error: Some("expected value at line 1 column 2".into()),
+    };
+
+    let (mut session, mut rx, _) = test_session(vec![
+        tool_call_response("", vec![garbled_call]),
+        text_response("I see, the arguments were malformed"),
+    ])?;
+
+    session.submit("Call echo with garbled args").await?;
+    assert_eq!(session.state(), SessionState::Idle);
+
+    // 1. ToolResult in history must have is_error = true
+    let tool_results_turn = session
+        .history()
+        .iter()
+        .find(|t| matches!(t, stencila_agents::types::Turn::ToolResults { .. }));
+    assert!(
+        tool_results_turn.is_some(),
+        "should have a ToolResults turn"
+    );
+
+    if let Some(stencila_agents::types::Turn::ToolResults { results, .. }) = tool_results_turn {
+        assert_eq!(results.len(), 1);
+        assert!(results[0].is_error, "ToolResult must be an error");
+        let content = results[0].content.as_str().unwrap_or("");
+        assert!(
+            content.contains("invalid JSON arguments"),
+            "Error should mention invalid JSON: {content}"
+        );
+    }
+
+    // 2. TOOL_CALL_END event must carry an error field (not output)
+    let events = drain_events(&mut rx).await;
+    let tool_end = events.iter().find(|e| e.kind == EventKind::ToolCallEnd);
+    assert!(tool_end.is_some(), "should have a ToolCallEnd event");
+    let tool_end = tool_end.expect("just asserted");
+    assert!(
+        tool_end.data.get("error").is_some(),
+        "ToolCallEnd event should carry an error field"
+    );
+    assert!(
+        tool_end.data.get("output").is_none(),
+        "ToolCallEnd error event must not carry an output field"
+    );
+
+    Ok(())
+}
+
 #[tokio::test]
 async fn tool_output_full_in_event_truncated_for_llm() -> AgentResult<()> {
     // Create a tool that returns a very long output
@@ -1340,7 +1400,10 @@ async fn rate_limit_error_keeps_session_open() -> AgentResult<()> {
     assert!(has_error, "Expected ERROR event for rate limit");
     // Session is NOT closed, so no SESSION_END event.
     let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
-    assert!(!has_end, "No SESSION_END after retryable error — session stays open");
+    assert!(
+        !has_end,
+        "No SESSION_END after retryable error — session stays open"
+    );
 
     Ok(())
 }
@@ -1365,7 +1428,10 @@ async fn network_error_keeps_session_open() -> AgentResult<()> {
     assert!(has_error, "Expected ERROR event for network error");
     // Session is NOT closed, so no SESSION_END event.
     let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
-    assert!(!has_end, "No SESSION_END after retryable error — session stays open");
+    assert!(
+        !has_end,
+        "No SESSION_END after retryable error — session stays open"
+    );
 
     Ok(())
 }

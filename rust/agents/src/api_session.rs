@@ -584,13 +584,11 @@ impl ApiSession {
                             Err(error) => {
                                 // Don't retry if any content (text or
                                 // reasoning) has been delivered to the user.
-                                let delivered = emitted_ref.load(
-                                    std::sync::atomic::Ordering::Relaxed,
-                                );
+                                let delivered =
+                                    emitted_ref.load(std::sync::atomic::Ordering::Relaxed);
 
                                 if !delivered
-                                    && let Some(delay) =
-                                        retry_policy.resolve_delay(&error, attempt)
+                                    && let Some(delay) = retry_policy.resolve_delay(&error, attempt)
                                 {
                                     let label = retry_error_label(&error);
                                     tracing::warn!(
@@ -607,10 +605,7 @@ impl ApiSession {
                                             retry_policy.max_retries
                                         ),
                                     );
-                                    tokio::time::sleep(
-                                        Duration::from_secs_f64(delay),
-                                    )
-                                    .await;
+                                    tokio::time::sleep(Duration::from_secs_f64(delay)).await;
                                     attempt += 1;
                                     continue;
                                 }
@@ -1514,6 +1509,23 @@ async fn execute_tool(
     trunc_config: &TruncationConfig,
 ) -> (ToolResult, Option<(String, ImageAttachment)>) {
     events.emit_tool_call_start(&tool_call.name, &tool_call.id, &tool_call.arguments);
+
+    // Check for argument parse errors (garbled/non-JSON arguments from the model)
+    if let Some(ref err) = tool_call.parse_error {
+        let error_msg = format!(
+            "invalid JSON arguments for tool '{}': {err}. The arguments must be a valid JSON object.",
+            tool_call.name
+        );
+        events.emit_tool_call_end_error(&tool_call.id, &error_msg);
+        return (
+            ToolResult {
+                tool_call_id: tool_call.id.clone(),
+                content: Value::String(error_msg),
+                is_error: true,
+            },
+            None,
+        );
+    }
 
     // VALIDATE (spec 3.8 step 2) — before execute
     if let Err(e) = registry.validate_arguments(&tool_call.name, &tool_call.arguments) {

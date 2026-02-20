@@ -683,6 +683,79 @@ fn accumulator_gemini_end_empty_id_fallback() {
     assert_eq!(calls[0].arguments, serde_json::json!({"query": "test"}));
 }
 
+/// Multiple pending tool calls that never receive ToolCallEnd must be
+/// finalized in insertion (stream start) order, not arbitrary HashMap order.
+#[test]
+fn accumulator_pending_tool_calls_preserve_start_order() {
+    use stencila_models3::types::tool::ToolCall;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+
+    // Start three tool calls — no ToolCallEnd will follow
+    for (id, name, args) in [
+        ("call-1", "alpha", r#"{"x":1}"#),
+        ("call-2", "beta", r#"{"x":2}"#),
+        ("call-3", "gamma", r#"{"x":3}"#),
+    ] {
+        acc.process(&StreamEvent::tool_call_event(
+            StreamEventType::ToolCallStart,
+            ToolCall {
+                id: id.into(),
+                name: name.into(),
+                arguments: serde_json::Value::Null,
+                raw_arguments: None,
+                parse_error: None,
+            },
+            serde_json::Value::Null,
+        ));
+        // Feed arguments as a delta
+        acc.process(&StreamEvent::tool_call_event(
+            StreamEventType::ToolCallDelta,
+            ToolCall {
+                id: id.into(),
+                name: String::new(),
+                arguments: serde_json::Value::Null,
+                raw_arguments: Some(args.into()),
+                parse_error: None,
+            },
+            serde_json::Value::Null,
+        ));
+    }
+
+    // Finish without any ToolCallEnd — pending calls are recovered
+    acc.process(&StreamEvent::finish(
+        FinishReason::new(Reason::ToolCalls, None),
+        Usage::default(),
+    ));
+
+    let resp = acc.response();
+    let tool_calls: Vec<_> = resp
+        .message
+        .content
+        .iter()
+        .filter_map(|p| match p {
+            stencila_models3::types::content::ContentPart::ToolCall { tool_call } => Some((
+                tool_call.id.as_str(),
+                tool_call.name.as_str(),
+                tool_call.arguments.clone(),
+            )),
+            _ => None,
+        })
+        .collect();
+
+    assert_eq!(tool_calls.len(), 3, "expected 3 recovered tool calls");
+    assert_eq!(tool_calls[0].0, "call-1");
+    assert_eq!(tool_calls[0].1, "alpha");
+    assert_eq!(tool_calls[0].2, serde_json::json!({"x": 1}));
+    assert_eq!(tool_calls[1].0, "call-2");
+    assert_eq!(tool_calls[1].1, "beta");
+    assert_eq!(tool_calls[1].2, serde_json::json!({"x": 2}));
+    assert_eq!(tool_calls[2].0, "call-3");
+    assert_eq!(tool_calls[2].1, "gamma");
+    assert_eq!(tool_calls[2].2, serde_json::json!({"x": 3}));
+}
+
 // ── stream_generate() ────────────────────────────────────────────
 
 #[tokio::test]
