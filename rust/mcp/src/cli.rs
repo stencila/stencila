@@ -5,7 +5,7 @@
 
 use std::path::PathBuf;
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use eyre::Result;
 use stencila_ask::{Answer, ask_with_default};
 use stencila_cli_utils::{
@@ -51,6 +51,12 @@ enum Command {
     Show(Show),
     Add(Add),
     Remove(Remove),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+enum Scope {
+    User,
+    Workspace,
 }
 
 impl Cli {
@@ -289,8 +295,16 @@ struct Add {
     force: bool,
 
     /// Add to user config (~/.config/stencila/stencila.toml)
-    #[arg(long)]
+    #[arg(long, conflicts_with_all = ["scope", "workspace"])]
     user: bool,
+
+    /// Add to workspace config (nearest stencila.toml)
+    #[arg(long, conflicts_with_all = ["scope", "user"])]
+    workspace: bool,
+
+    /// Config scope (compatibility with other tools)
+    #[arg(long, value_enum, conflicts_with_all = ["user", "workspace"])]
+    scope: Option<Scope>,
 
     /// Workspace directory
     #[arg(long, default_value = ".")]
@@ -313,6 +327,9 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Add to user-level config</dim>
   <b>stencila mcp add</> <c>--user</> <g>my-server my-mcp-server</>
+
+  <dim># Compatibility scope syntax</dim>
+  <b>stencila mcp add</> <c>--scope</> <g>user</> <g>my-server my-mcp-server</>
 "
 );
 
@@ -333,9 +350,12 @@ impl Add {
             }
         }
 
-        let target = if self.user {
+        let target = if self.user || matches!(self.scope, Some(Scope::User)) {
             stencila_config::ConfigTarget::User
+        } else if self.workspace || matches!(self.scope, Some(Scope::Workspace)) {
+            stencila_config::ConfigTarget::Nearest
         } else {
+            // Default scope is workspace (nearest stencila.toml)
             stencila_config::ConfigTarget::Nearest
         };
 
@@ -381,10 +401,11 @@ impl Add {
             stencila_config::set_value(&format!("{prefix}.name"), name, target)?;
         }
 
-        let location = if self.user {
-            "user config"
-        } else {
-            "stencila.toml"
+        let location = match target {
+            stencila_config::ConfigTarget::User => "user config",
+            stencila_config::ConfigTarget::Nearest | stencila_config::ConfigTarget::Local => {
+                "stencila.toml"
+            }
         };
         message!("Added MCP server `{}` to {}", self.id, location);
 
@@ -404,8 +425,16 @@ struct Remove {
     id: String,
 
     /// Remove from user config (~/.config/stencila/stencila.toml)
-    #[arg(long)]
+    #[arg(long, conflicts_with_all = ["scope", "workspace"])]
     user: bool,
+
+    /// Remove from workspace config (nearest stencila.toml)
+    #[arg(long, conflicts_with_all = ["scope", "user"])]
+    workspace: bool,
+
+    /// Config scope (compatibility with other tools)
+    #[arg(long, value_enum, conflicts_with_all = ["user", "workspace"])]
+    scope: Option<Scope>,
 }
 
 pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
@@ -415,14 +444,20 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Remove from user config</dim>
   <b>stencila mcp remove</> <c>--user</> <g>filesystem</>
+
+  <dim># Compatibility scope syntax</dim>
+  <b>stencila mcp remove</> <c>--scope</> <g>user</> <g>filesystem</>
 "
 );
 
 impl Remove {
     fn run(self) -> Result<()> {
-        let target = if self.user {
+        let target = if self.user || matches!(self.scope, Some(Scope::User)) {
             stencila_config::ConfigTarget::User
+        } else if self.workspace || matches!(self.scope, Some(Scope::Workspace)) {
+            stencila_config::ConfigTarget::Nearest
         } else {
+            // Default scope is workspace (nearest stencila.toml)
             stencila_config::ConfigTarget::Nearest
         };
 
