@@ -287,38 +287,17 @@ fn exchange_lines(
         }
     }
 
-    // Agent name tag after the request, with braille spinner in the gutter
-    // while the exchange is still running.
+    // Agent name tag after the request.
     if let Some((name, color)) = agent_tag {
         let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
-        let gutter = if status == ExchangeStatus::Running {
-            let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
-            Span::styled(
-                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
-                Style::new().fg(*color),
-            )
-        } else {
-            Span::raw(num_padding)
-        };
         lines.push(Line::from(vec![
-            gutter,
+            Span::raw(num_padding),
             Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
             Span::raw(" "),
             Span::styled(
                 name.clone(),
                 Style::new().fg(*color).add_modifier(Modifier::DIM),
             ),
-        ]));
-    } else if status == ExchangeStatus::Running {
-        // Single-agent mode: spinner in the gutter on a line below the request
-        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
-        let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
-        lines.push(Line::from(vec![
-            Span::styled(
-                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
-                Style::new().fg(base_color),
-            ),
-            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
         ]));
     }
 
@@ -339,6 +318,21 @@ fn exchange_lines(
         );
     } else if let Some(resp) = response {
         response_text(lines, resp, base_color, content_width);
+    }
+
+    // For running exchanges, show spinner at the bottom of the exchange so it
+    // stays close to where new content is appearing.
+    if status == ExchangeStatus::Running {
+        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+        let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
+        let spinner_color = agent_tag.map_or(base_color, |(_, color)| *color);
+        lines.push(Line::from(vec![
+            Span::styled(
+                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
+                Style::new().fg(spinner_color),
+            ),
+            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+        ]));
     }
 
     // Cancelled indicator appended after any existing response (skip for workflow
