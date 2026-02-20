@@ -195,9 +195,20 @@ fn translate_message_content_part(part: &Value, content: &mut Vec<ContentPart>) 
 
 fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
     let id = value
-        .get("id")
+        // Prefer `call_id` over item `id`.
+        //
+        // In the OpenAI Responses API, function-call output items can include
+        // both:
+        // - `id`      (the output item identifier, often `fc_*`)
+        // - `call_id` (the invocation identifier to correlate tool outputs)
+        //
+        // Tool-result messages must reference `call_id`, not the output item
+        // `id`. Using `id` can produce invalid follow-up requests where
+        // `function_call_output.call_id` does not match what the provider
+        // expects.
+        .get("call_id")
         .and_then(Value::as_str)
-        .or_else(|| value.get("call_id").and_then(Value::as_str))?
+        .or_else(|| value.get("id").and_then(Value::as_str))?
         .to_string();
     let name = value
         .get("name")

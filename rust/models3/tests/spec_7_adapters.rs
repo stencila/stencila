@@ -530,6 +530,84 @@ fn openai_response_translation_maps_usage_fields() -> Result<(), Box<dyn std::er
     Ok(())
 }
 
+/// When an OpenAI Responses API function-call output item includes both `id`
+/// (the output-item identifier) and `call_id` (the invocation correlation ID),
+/// the translated tool-call must use `call_id`. Using `id` would cause
+/// subsequent `function_call_output.call_id` to mismatch, producing invalid
+/// requests that terminate the session.
+#[test]
+fn openai_response_translation_prefers_call_id_over_item_id()
+-> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("openai/response_translation_prefers_call_id.json")?;
+
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(
+        tool_calls[0].id, "call_correct_id",
+        "tool call ID should be call_id, not the output-item id"
+    );
+    assert_eq!(tool_calls[0].name, "read_file");
+
+    Ok(())
+}
+
+/// When `call_id` is absent (e.g. older API versions or non-Responses
+/// endpoints), the translator must fall back to using `id`.
+#[test]
+fn openai_response_translation_falls_back_to_id_when_call_id_missing()
+-> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("openai/response_translation_falls_back_to_id.json")?;
+
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(
+        tool_calls[0].id, "call_fallback_id",
+        "tool call ID should fall back to id when call_id is absent"
+    );
+    assert_eq!(tool_calls[0].name, "apply_patch");
+
+    Ok(())
+}
+
+/// When `response.completed` is received during streaming, the final
+/// `Finish.response` must carry tool-call IDs derived from `call_id`, not
+/// the output-item `id`.
+#[test]
+fn openai_stream_completed_prefers_call_id_in_finish_response()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut state = openai::translate_stream::OpenAIStreamState::default();
+
+    let completed_event = fixture_sse_event(
+        "response.completed",
+        "openai/stream_completed_prefers_call_id.json",
+    )?;
+
+    let events = openai::translate_stream::translate_sse_event(&completed_event, &mut state)?;
+
+    let finish = events
+        .iter()
+        .find(|ev| ev.event_type == StreamEventType::Finish)
+        .ok_or("missing Finish event")?;
+
+    let response = finish
+        .response
+        .as_ref()
+        .ok_or("Finish event missing response")?;
+
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(
+        tool_calls[0].id, "call_stream_correct",
+        "streamed Finish response tool-call ID should be call_id, not item id"
+    );
+
+    Ok(())
+}
+
 #[test]
 fn openai_error_translation_refines_quota_and_provider() {
     let err = SdkError::RateLimit {

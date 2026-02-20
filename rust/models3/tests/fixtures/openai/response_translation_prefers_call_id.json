@@ -1,0 +1,19 @@
+{
+  "id": "resp_456",
+  "model": "gpt-5.3-codex",
+  "status": "completed",
+  "output": [
+    {
+      "type": "function_call",
+      "id": "fc_item_001",
+      "call_id": "call_correct_id",
+      "name": "read_file",
+      "arguments": "{\"path\":\"/tmp/test.txt\"}"
+    }
+  ],
+  "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5,
+    "total_tokens": 15
+  }
+}
