@@ -270,12 +270,16 @@ fn translate_content_parts(
                     tool_call.arguments.clone()
                 };
 
-                result.push(json!({
+                let mut part_obj = json!({
                     "functionCall": {
                         "name": tool_call.name,
                         "args": args
                     }
-                }));
+                });
+                if let Some(sig) = &tool_call.thought_signature {
+                    part_obj["thoughtSignature"] = Value::String(sig.clone());
+                }
+                result.push(part_obj);
             }
             ContentPart::ToolResult { tool_result } => {
                 let function_name = find_function_name(all_messages, &tool_result.tool_call_id)
@@ -329,10 +333,19 @@ fn translate_content_parts(
                     }));
                 }
             }
-            // Thinking, RedactedThinking, and unknown extensions: skip on input
-            ContentPart::Thinking { .. }
-            | ContentPart::RedactedThinking { .. }
-            | ContentPart::Extension(_) => {}
+            ContentPart::Thinking { thinking } => {
+                let mut part_obj = json!({
+                    "text": thinking.text,
+                    "thought": true
+                });
+                if let Some(sig) = &thinking.signature {
+                    part_obj["thoughtSignature"] = Value::String(sig.clone());
+                }
+                result.push(part_obj);
+            }
+            // Redacted thinking is Anthropic-specific opaque content — skip when
+            // translating to Gemini to avoid leaking provider-internal payloads.
+            ContentPart::RedactedThinking { .. } | ContentPart::Extension(_) => {}
         }
     }
 

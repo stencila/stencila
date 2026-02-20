@@ -72,6 +72,7 @@ impl ContentPart {
                 name: name.into(),
                 arguments,
                 call_type: "function".to_string(),
+                thought_signature: None,
             },
         }
     }
@@ -267,6 +268,9 @@ pub struct ToolCallData {
         skip_serializing_if = "ToolCallData::is_default_type"
     )]
     pub call_type: String,
+    /// Provider-specific thought signature for round-tripping (Gemini thinking models).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thought_signature: Option<String>,
 }
 
 impl ToolCallData {

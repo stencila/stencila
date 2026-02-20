@@ -339,6 +339,7 @@ fn handle_block_stop(payload: Value, state: &mut AnthropicStreamState, out: &mut
                         name: tc_state.name.clone(),
                         arguments: parsed_arguments.clone(),
                         call_type: "function".to_string(),
+                        thought_signature: None,
                     },
                 });
                 out.push(tool_call_event(

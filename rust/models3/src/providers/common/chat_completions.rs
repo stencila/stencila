@@ -561,6 +561,7 @@ fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
         name,
         arguments,
         call_type: "function".to_string(),
+        thought_signature: None,
     })
 }
 
@@ -964,6 +965,7 @@ pub(crate) fn translate_sse_event(
                             name: tool_state.name.clone(),
                             arguments: parsed_args,
                             call_type: "function".to_string(),
+                            thought_signature: None,
                         },
                     });
                 }

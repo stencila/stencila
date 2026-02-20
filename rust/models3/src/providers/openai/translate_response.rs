@@ -234,6 +234,7 @@ fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
         name,
         arguments,
         call_type: "function".to_string(),
+        thought_signature: None,
     })
 }
 

@@ -658,6 +658,7 @@ fn response_tool_calls_parses_string_arguments() {
             name: "get_weather".into(),
             arguments: serde_json::Value::String("{\"city\":\"NYC\"}".into()),
             call_type: "function".into(),
+            thought_signature: None,
         },
     }]);
     let calls = resp.tool_calls();
@@ -678,6 +679,7 @@ fn response_tool_calls_surfaces_parse_error_for_malformed_json() {
             name: "get_weather".into(),
             arguments: serde_json::Value::String("not valid json{".into()),
             call_type: "function".into(),
+            thought_signature: None,
         },
     }]);
     let calls = resp.tool_calls();
@@ -703,6 +705,7 @@ fn tool_call_data_default_type_is_function() {
         name: "test".into(),
         arguments: serde_json::json!({}),
         call_type: "function".into(),
+        thought_signature: None,
     };
     assert_eq!(tc.call_type, "function");
 }
@@ -714,6 +717,7 @@ fn tool_call_data_type_omitted_in_json_when_default() -> Result<(), Box<dyn std:
         name: "test".into(),
         arguments: serde_json::json!({}),
         call_type: "function".into(),
+        thought_signature: None,
     };
     let json = serde_json::to_string(&tc)?;
     assert!(!json.contains("\"type\""), "default type should be omitted");
@@ -727,6 +731,7 @@ fn tool_call_data_custom_type_round_trips() -> Result<(), Box<dyn std::error::Er
         name: "test".into(),
         arguments: serde_json::json!({}),
         call_type: "custom".into(),
+        thought_signature: None,
     };
     let json = serde_json::to_string(&tc)?;
     assert!(json.contains("\"type\":\"custom\""));

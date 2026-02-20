@@ -82,10 +82,14 @@ fn translate_candidate_part(part: &Value, content: &mut Vec<ContentPart>) {
             .and_then(Value::as_bool)
             .unwrap_or(false)
         {
+            let signature = part
+                .get("thoughtSignature")
+                .and_then(Value::as_str)
+                .map(ToString::to_string);
             content.push(ContentPart::Thinking {
                 thinking: ThinkingData {
                     text: text.to_string(),
-                    signature: None,
+                    signature,
                     redacted: false,
                 },
             });
@@ -112,12 +116,18 @@ fn translate_candidate_part(part: &Value, content: &mut Vec<ContentPart>) {
 
         let id = format!("call_{}", uuid::Uuid::new_v4());
 
+        let thought_signature = part
+            .get("thoughtSignature")
+            .and_then(Value::as_str)
+            .map(ToString::to_string);
+
         content.push(ContentPart::ToolCall {
             tool_call: ToolCallData {
                 id,
                 name,
                 arguments: args,
                 call_type: "function".to_string(),
+                thought_signature,
             },
         });
     }

@@ -28,6 +28,8 @@ pub struct GeminiStreamState {
     accumulated_text: String,
     /// Accumulated thinking/reasoning text.
     accumulated_thinking: String,
+    /// Accumulated thinking signature (Gemini thinking models).
+    accumulated_thinking_signature: Option<String>,
     /// Model version from SSE payload (if available).
     model: Option<String>,
 }
@@ -136,9 +138,7 @@ pub fn translate_sse_event(
                 // Response built in on_stream_end includes it.
                 let text = std::mem::take(&mut state.accumulated_text);
                 if !text.is_empty() {
-                    state
-                        .accumulated_content
-                        .push(ContentPart::Text { text });
+                    state.accumulated_content.push(ContentPart::Text { text });
                 }
                 out.push(StreamEvent {
                     event_type: StreamEventType::TextEnd,
@@ -169,7 +169,7 @@ fn translate_stream_part(
     if let Some(text) = part.get("text").and_then(Value::as_str) {
         translate_text_part(text, part, state, out, raw);
     } else if let Some(function_call) = part.get("functionCall") {
-        translate_function_call_part(function_call, state, out, raw);
+        translate_function_call_part(function_call, part, state, out, raw);
     }
 }
 
@@ -186,6 +186,11 @@ fn translate_text_part(
         .unwrap_or(false);
 
     if is_thought {
+        // Capture thoughtSignature if present — last-write-wins since the
+        // signature is a complete opaque token, not a delta fragment.
+        if let Some(sig) = part.get("thoughtSignature").and_then(Value::as_str) {
+            state.accumulated_thinking_signature = Some(sig.to_string());
+        }
         state.accumulated_thinking.push_str(text);
         out.push(StreamEvent {
             event_type: StreamEventType::ReasoningDelta,
@@ -237,6 +242,7 @@ fn translate_text_part(
 
 fn translate_function_call_part(
     function_call: &Value,
+    part: &Value,
     state: &mut GeminiStreamState,
     out: &mut Vec<StreamEvent>,
     raw: &Value,
@@ -255,6 +261,11 @@ fn translate_function_call_part(
     let raw_args = serde_json::to_string(&args).ok();
     let id = format!("call_{}", uuid::Uuid::new_v4());
 
+    let thought_signature = part
+        .get("thoughtSignature")
+        .and_then(Value::as_str)
+        .map(ToString::to_string);
+
     // Accumulate tool call for the full response
     state.accumulated_content.push(ContentPart::ToolCall {
         tool_call: ToolCallData {
@@ -262,6 +273,7 @@ fn translate_function_call_part(
             name: name.clone(),
             arguments: args.clone(),
             call_type: "function".to_string(),
+            thought_signature,
         },
     });
 
@@ -351,10 +363,11 @@ impl crate::providers::common::stream::SseStreamState for GeminiStreamState {
         // Accumulate thinking content if present
         let thinking = std::mem::take(&mut self.accumulated_thinking);
         if !thinking.is_empty() {
+            let signature = self.accumulated_thinking_signature.take();
             self.accumulated_content.push(ContentPart::Thinking {
                 thinking: ThinkingData {
                     text: thinking,
-                    signature: None,
+                    signature,
                     redacted: false,
                 },
             });
