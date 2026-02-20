@@ -136,6 +136,7 @@ impl List {
         let mut table = Tabulated::new();
         table.set_header([
             "Id",
+            "Aliases",
             "Provider",
             "Capabilities",
             "Context",
@@ -151,8 +152,15 @@ impl List {
                 Cell::new(&model.id).add_attribute(Attribute::Dim)
             };
 
+            let aliases_cell = if model.aliases.is_empty() {
+                Cell::new("").add_attribute(Attribute::Dim)
+            } else {
+                Cell::new(model.aliases.join(", "))
+            };
+
             table.add_row([
                 id_cell,
+                aliases_cell,
                 provider_cell(&model.provider),
                 Cell::new(format_capabilities(model)),
                 context_cell(model.context_window),
