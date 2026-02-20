@@ -202,6 +202,8 @@ fn server_declarations(server: &ServerToolset) -> String {
                 );
             }
         }
+
+        output.push_str("\n");
     }
 
     // __meta__ export
