@@ -652,6 +652,7 @@ fn handle_tool_call_start(
 }
 
 /// Process a single session event, updating the shared progress.
+#[allow(clippy::too_many_lines)]
 pub(crate) fn process_event(
     event: &stencila_agents::types::SessionEvent,
     progress: &Arc<Mutex<AgentProgress>>,
@@ -726,6 +727,19 @@ pub(crate) fn process_event(
                 {
                     g.context_usage_percent = pct as u32;
                 }
+            }
+        }
+        EventKind::Info => {
+            // Informational messages (e.g. retry notifications) — show inline
+            // as a warning-styled segment so the user knows what's happening.
+            if let Ok(mut g) = progress.lock() {
+                let message = event
+                    .data
+                    .get("message")
+                    .and_then(Value::as_str)
+                    .unwrap_or("info");
+                g.segments
+                    .push(ResponseSegment::Warning(message.to_string()));
             }
         }
         EventKind::Error => {

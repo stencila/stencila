@@ -1300,59 +1300,72 @@ async fn turn_limit_is_idle_not_closed() -> AgentResult<()> {
 }
 
 #[tokio::test]
-async fn server_error_closes_session() -> AgentResult<()> {
-    // Retryable error that exhausted SDK retries
-    let (mut session, _rx, _) = test_session(vec![Err(SdkError::Server {
-        message: "500 internal server error".into(),
-        details: ProviderDetails::default(),
-    })])?;
+async fn server_error_keeps_session_open() -> AgentResult<()> {
+    // Retryable error: session retries with exponential backoff, then stays
+    // open (Idle) so the user can try again.
+    let err = || {
+        Err(SdkError::Server {
+            message: "500 internal server error".into(),
+            details: ProviderDetails::default(),
+        })
+    };
+    // 1 initial + 2 retries = 3 responses needed (default max_retries = 2)
+    let (mut session, _rx, _) = test_session(vec![err(), err(), err()])?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
-    assert_eq!(session.state(), SessionState::Closed);
+    assert_eq!(session.state(), SessionState::Idle);
 
     Ok(())
 }
 
 #[tokio::test]
-async fn rate_limit_error_closes_session() -> AgentResult<()> {
-    // RateLimit errors are retried by the SDK layer; if still failing after
-    // retries, the session should transition to CLOSED (spec Appendix B).
-    let (mut session, mut rx, _) = test_session(vec![Err(SdkError::RateLimit {
-        message: "429 too many requests".into(),
-        details: ProviderDetails::default(),
-    })])?;
+async fn rate_limit_error_keeps_session_open() -> AgentResult<()> {
+    // RateLimit errors are retried with exponential backoff. If still failing
+    // after retries, the session stays open (Idle) so the user can try again.
+    let err = || {
+        Err(SdkError::RateLimit {
+            message: "429 too many requests".into(),
+            details: ProviderDetails::default(),
+        })
+    };
+    let (mut session, mut rx, _) = test_session(vec![err(), err(), err()])?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
-    assert_eq!(session.state(), SessionState::Closed);
+    assert_eq!(session.state(), SessionState::Idle);
 
     let events = drain_events(&mut rx).await;
     let has_error = events.iter().any(|e| e.kind == EventKind::Error);
-    let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
     assert!(has_error, "Expected ERROR event for rate limit");
-    assert!(has_end, "Expected SESSION_END after rate limit");
+    // Session is NOT closed, so no SESSION_END event.
+    let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
+    assert!(!has_end, "No SESSION_END after retryable error — session stays open");
 
     Ok(())
 }
 
 #[tokio::test]
-async fn network_error_closes_session() -> AgentResult<()> {
-    // Network errors are retried by the SDK layer; if still failing after
-    // retries, the session should transition to CLOSED (spec Appendix B).
-    let (mut session, mut rx, _) = test_session(vec![Err(SdkError::Network {
-        message: "connection refused".into(),
-    })])?;
+async fn network_error_keeps_session_open() -> AgentResult<()> {
+    // Network errors are retried with exponential backoff. If still failing
+    // after retries, the session stays open (Idle) so the user can try again.
+    let err = || {
+        Err(SdkError::Network {
+            message: "connection refused".into(),
+        })
+    };
+    let (mut session, mut rx, _) = test_session(vec![err(), err(), err()])?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
-    assert_eq!(session.state(), SessionState::Closed);
+    assert_eq!(session.state(), SessionState::Idle);
 
     let events = drain_events(&mut rx).await;
     let has_error = events.iter().any(|e| e.kind == EventKind::Error);
-    let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
     assert!(has_error, "Expected ERROR event for network error");
-    assert!(has_end, "Expected SESSION_END after network error");
+    // Session is NOT closed, so no SESSION_END event.
+    let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
+    assert!(!has_end, "No SESSION_END after retryable error — session stays open");
 
     Ok(())
 }
@@ -2799,14 +2812,19 @@ async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> 
 async fn error_before_streaming_emits_empty_text_end() -> AgentResult<()> {
     // When the error occurs before any streaming (complete() fails),
     // TEXT_END should have empty text and still pair with TEXT_START.
-    let (mut session, mut rx, _) = test_session(vec![Err(SdkError::Server {
-        message: "500 error".into(),
-        details: ProviderDetails::default(),
-    })])?;
+    // Server errors are retried, so provide enough responses for all attempts.
+    let err = || {
+        Err(SdkError::Server {
+            message: "500 error".into(),
+            details: ProviderDetails::default(),
+        })
+    };
+    let (mut session, mut rx, _) = test_session(vec![err(), err(), err()])?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
-    assert_eq!(session.state(), SessionState::Closed);
+    // Server errors are retryable — session stays Idle after exhausting retries.
+    assert_eq!(session.state(), SessionState::Idle);
 
     let events = drain_events(&mut rx).await;
     let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
@@ -2820,7 +2838,6 @@ async fn error_before_streaming_emits_empty_text_end() -> AgentResult<()> {
         "TEXT_END should be present for strict pairing: {kinds:?}"
     );
     assert!(kinds.contains(&EventKind::Error));
-    assert!(kinds.contains(&EventKind::SessionEnd));
 
     // TEXT_START must come before TEXT_END
     let start_pos = events
@@ -2879,7 +2896,9 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
 
     let result = session.submit("Stream error").await;
     assert!(result.is_err());
-    assert_eq!(session.state(), SessionState::Closed);
+    // Stream errors are retryable, so the session stays open (Idle) to
+    // allow the user to retry — it is not closed.
+    assert_eq!(session.state(), SessionState::Idle);
 
     let events = drain_events(&mut rx).await;
     let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();

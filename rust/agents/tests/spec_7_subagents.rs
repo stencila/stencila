@@ -1044,10 +1044,7 @@ async fn close_then_wait_returns_error() -> AgentResult<()> {
 async fn send_input_to_failed_agent_returns_error() -> AgentResult<()> {
     // Spawn an agent that fails, then try to send input to it.
     use stencila_models3::error::ProviderDetails;
-    let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent: spawn + wait batch
-        tool_call_response("", vec![spawn_call("Doomed task"), wait_call("agent-1")]),
-        // Child's LLM call fails
+    let server_err = || {
         Err(SdkError::Server {
             message: "internal server error".into(),
             details: ProviderDetails {
@@ -1058,7 +1055,15 @@ async fn send_input_to_failed_agent_returns_error() -> AgentResult<()> {
                 retry_after: None,
                 raw: None,
             },
-        }),
+        })
+    };
+    let (mut session, _rx, _client, _env) = test_session(vec![
+        // Parent: spawn + wait batch
+        tool_call_response("", vec![spawn_call("Doomed task"), wait_call("agent-1")]),
+        // Child's LLM call fails (1 initial + 2 retries)
+        server_err(),
+        server_err(),
+        server_err(),
         // Parent: send_input to the failed agent
         tool_call_response("", vec![send_input_call("agent-1", "hello")]),
         // Parent: natural completion

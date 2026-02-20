@@ -17,12 +17,14 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
+use std::time::Duration;
 
 use async_trait::async_trait;
 use futures::StreamExt;
 use serde_json::Value;
 use stencila_models3::api::accumulator::StreamAccumulator;
 use stencila_models3::error::SdkError;
+use stencila_models3::retry::RetryPolicy;
 use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::message::Message;
 use stencila_models3::types::request::Request;
@@ -518,13 +520,23 @@ impl ApiSession {
             // `partial_text` accumulates streamed deltas so that abort and
             // error paths can emit TEXT_END with the text received so far
             // (instead of an empty string that contradicts earlier deltas).
+            //
+            // Retryable errors (network, timeout, server, rate-limit) are
+            // retried with exponential backoff. Once any content has been
+            // delivered to the user (text deltas *or* reasoning events),
+            // retries are skipped because the partial output cannot be
+            // un-delivered.
+            let retry_policy = RetryPolicy::default();
             let partial_text = std::sync::Mutex::new(String::new());
+            let content_emitted = std::sync::atomic::AtomicBool::new(false);
             let stream_result: Option<Result<Response, SdkError>> = {
                 let events_ref = &self.events;
                 let partial_ref = &partial_text;
+                let emitted_ref = &content_emitted;
                 let on_event = |event: StreamEvent| match event.event_type {
                     StreamEventType::TextDelta => {
                         if let Some(ref delta) = event.delta {
+                            emitted_ref.store(true, std::sync::atomic::Ordering::Relaxed);
                             if let Ok(mut buf) = partial_ref.lock() {
                                 buf.push_str(delta);
                             }
@@ -532,6 +544,7 @@ impl ApiSession {
                         }
                     }
                     StreamEventType::ReasoningStart => {
+                        emitted_ref.store(true, std::sync::atomic::Ordering::Relaxed);
                         events_ref.emit_assistant_reasoning_start();
                     }
                     StreamEventType::ReasoningDelta => {
@@ -548,26 +561,73 @@ impl ApiSession {
                 let client = Arc::clone(&self.client);
                 let use_streaming = self.profile.supports_streaming();
 
-                let call = async {
-                    if use_streaming {
-                        client.stream_complete(request, &on_event).await
-                    } else {
-                        let response = client.complete(request).await?;
-                        let text = response.text();
-                        if !text.is_empty() {
-                            on_event(StreamEvent::text_delta(&text));
+                let call_with_retry = async {
+                    let mut attempt: u32 = 0;
+                    loop {
+                        let result = if use_streaming {
+                            client.stream_complete(request.clone(), &on_event).await
+                        } else {
+                            match client.complete(request.clone()).await {
+                                Ok(response) => {
+                                    let text = response.text();
+                                    if !text.is_empty() {
+                                        on_event(StreamEvent::text_delta(&text));
+                                    }
+                                    Ok(response)
+                                }
+                                Err(e) => Err(e),
+                            }
+                        };
+
+                        match result {
+                            Ok(response) => return Ok(response),
+                            Err(error) => {
+                                // Don't retry if any content (text or
+                                // reasoning) has been delivered to the user.
+                                let delivered = emitted_ref.load(
+                                    std::sync::atomic::Ordering::Relaxed,
+                                );
+
+                                if !delivered
+                                    && let Some(delay) =
+                                        retry_policy.resolve_delay(&error, attempt)
+                                {
+                                    let label = retry_error_label(&error);
+                                    tracing::warn!(
+                                        attempt,
+                                        delay_secs = delay,
+                                        error = %error,
+                                        "retryable LLM error, backing off"
+                                    );
+                                    events_ref.emit_info(
+                                        "LLM_RETRY",
+                                        format!(
+                                            "{label}, retrying ({}/{})...",
+                                            attempt + 1,
+                                            retry_policy.max_retries
+                                        ),
+                                    );
+                                    tokio::time::sleep(
+                                        Duration::from_secs_f64(delay),
+                                    )
+                                    .await;
+                                    attempt += 1;
+                                    continue;
+                                }
+
+                                return Err(error);
+                            }
                         }
-                        Ok(response)
                     }
                 };
 
                 if let Some(ref signal) = self.abort_signal {
                     tokio::select! {
-                        result = call => Some(result),
+                        result = call_with_retry => Some(result),
                         () = signal.cancelled() => None,
                     }
                 } else {
-                    Some(call.await)
+                    Some(call_with_retry.await)
                 }
             };
 
@@ -1336,13 +1396,21 @@ impl ApiSession {
 
     /// Handle an SDK error from an LLM call (spec Appendix B).
     ///
-    /// All SDK errors reaching the session layer cause CLOSED state — retryable
-    /// errors have already been retried by the SDK's retry layer.
+    /// Non-retryable errors (authentication, invalid request, etc.) close the
+    /// session — these indicate a persistent problem that the user cannot fix
+    /// by simply retrying.
+    ///
+    /// Retryable errors (network, timeout, server, rate-limit) have already
+    /// been retried with exponential backoff by the session-level retry loop.
+    /// If they still fail, the session transitions back to IDLE rather than
+    /// CLOSED, allowing the user to try again without losing conversation
+    /// history.
     ///
     /// Context-length errors are emitted with `"severity": "warning"` per
     /// spec (the host may implement compaction), while other errors use
     /// plain ERROR events.
     fn handle_sdk_error(&mut self, error: SdkError) -> AgentResult<()> {
+        let is_retryable = error.is_retryable();
         let is_context_length = matches!(error, SdkError::ContextLength { .. });
         let agent_error = AgentError::from(error);
 
@@ -1358,8 +1426,15 @@ impl ApiSession {
                 .emit_error(agent_error.code(), agent_error.to_string());
         }
 
-        self.close();
-        Err(agent_error)
+        if is_retryable {
+            // Retryable errors: keep the session open so the user can retry.
+            // Transition back to IDLE rather than CLOSED.
+            self.state = SessionState::Idle;
+            Err(agent_error)
+        } else {
+            self.close();
+            Err(agent_error)
+        }
     }
 
     // -- Helpers --
@@ -1390,6 +1465,20 @@ impl ApiSession {
 impl Drop for ApiSession {
     fn drop(&mut self) {
         self.close();
+    }
+}
+
+/// Human-readable label for a retryable error, used in the `LLM_RETRY` info
+/// event so the user sees an accurate description of what went wrong.
+fn retry_error_label(error: &SdkError) -> &'static str {
+    match error {
+        SdkError::RateLimit { .. } => "Rate limited",
+        SdkError::Server { .. } => "Server error",
+        SdkError::RequestTimeout { .. } => "Request timeout",
+        SdkError::Network { .. } => "Network error",
+        SdkError::Stream { .. } => "Stream error",
+        // Fallback — should not happen since only retryable errors reach here.
+        _ => "Transient error",
     }
 }
 
