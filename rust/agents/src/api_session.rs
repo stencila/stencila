@@ -39,7 +39,9 @@ use crate::profile::ProviderProfile;
 use crate::registry::ToolOutput;
 use crate::subagents::SubAgentManager;
 use crate::truncation::{TruncationConfig, truncate_tool_output};
-use crate::types::{AbortKind, AbortSignal, SessionConfig, SessionState, Turn, now_timestamp};
+use crate::types::{
+    AbortKind, AbortSignal, EventKind, SessionConfig, SessionState, Turn, now_timestamp,
+};
 
 // ---------------------------------------------------------------------------
 // LlmClient trait
@@ -462,6 +464,10 @@ impl ApiSession {
         // (text-only assistant response). Prevents question detection from
         // matching stale assistant turns when exiting via limits.
         let mut natural_completion = false;
+        // Track whether we have already attempted context compaction for
+        // the current LLM call. Prevents infinite retry loops — we compact
+        // at most once per call.
+        let mut compaction_attempted = false;
 
         // The loop runs until natural completion, a limit, or abort.
         // SDK errors propagate immediately (session → CLOSED).
@@ -584,9 +590,35 @@ impl ApiSession {
                     // Error: emit TEXT_END with any partial text received.
                     let text = partial_text.into_inner().unwrap_or_default();
                     self.events.emit_assistant_text_end(&text, None);
+
+                    // On context-length errors, attempt automatic compaction
+                    // once before giving up. This drops thinking blocks and
+                    // summarises older tool results to free context space.
+                    if matches!(e, SdkError::ContextLength { .. })
+                        && !compaction_attempted
+                        && self.compact_history()
+                    {
+                        compaction_attempted = true;
+                        let mut data = serde_json::Map::new();
+                        data.insert("severity".into(), Value::String("warning".into()));
+                        data.insert(
+                            "message".into(),
+                            Value::String(
+                                "Context length exceeded — compacted history and retrying".into(),
+                            ),
+                        );
+                        self.events.emit(EventKind::Error, data);
+                        continue;
+                    }
+
                     return self.handle_sdk_error(e);
                 }
             };
+
+            // Successful LLM call — reset the compaction flag so that
+            // later rounds (which may accumulate new content) can compact
+            // again if needed.
+            compaction_attempted = false;
 
             // 6. Record assistant turn
             let text = response.text();
@@ -1110,6 +1142,7 @@ impl ApiSession {
                     content,
                     tool_calls,
                     reasoning,
+                    thinking_parts,
                     ..
                 } => {
                     chars += content.len() as u64;
@@ -1120,6 +1153,16 @@ impl ApiSession {
                     if let Some(r) = reasoning {
                         chars += r.len() as u64;
                     }
+                    for part in thinking_parts {
+                        if let ContentPart::Thinking { thinking }
+                        | ContentPart::RedactedThinking { thinking } = part
+                        {
+                            chars += thinking.text.len() as u64;
+                            if let Some(ref sig) = thinking.signature {
+                                chars += sig.len() as u64;
+                            }
+                        }
+                    }
                 }
                 Turn::ToolResults { results, .. } => {
                     for r in results {
@@ -1129,6 +1172,131 @@ impl ApiSession {
             }
         }
         chars
+    }
+
+    /// Attempt to compact the conversation history to reduce context size.
+    ///
+    /// Returns `true` if the history was actually modified (some content was
+    /// removed), `false` if there is nothing left to compact.
+    ///
+    /// Strategy (all three phases are applied, tracked by a `modified` flag):
+    /// 1. Strip thinking/reasoning blocks from all assistant turns.
+    /// 2. Summarise tool results in older turns (keep the last 2 exchanges
+    ///    intact so the model retains recent context).
+    /// 3. Drop the oldest turns from the middle of the conversation, keeping
+    ///    the first user message for task context and the last few turns for
+    ///    recency. The tail boundary is adjusted to avoid orphaned
+    ///    `ToolResults` turns whose matching `Assistant(tool_calls)` was
+    ///    dropped.
+    fn compact_history(&mut self) -> bool {
+        let before = self.estimate_history_chars();
+        let mut modified = false;
+
+        // Phase 1: strip thinking/reasoning from ALL assistant turns.
+        for turn in self.history.iter_mut() {
+            if let Turn::Assistant {
+                reasoning,
+                thinking_parts,
+                ..
+            } = turn
+            {
+                if reasoning.is_some() {
+                    *reasoning = None;
+                    modified = true;
+                }
+                if !thinking_parts.is_empty() {
+                    thinking_parts.clear();
+                    modified = true;
+                }
+            }
+        }
+
+        // Phase 2: summarise tool results in older turns and remove
+        // associated image attachments.
+        // Keep the last 4 history entries intact (roughly the last
+        // assistant + tool_results pair).
+        let len = self.history.len();
+        let preserve_tail = 4.min(len);
+        let compactable = len.saturating_sub(preserve_tail);
+        for turn in self.history[..compactable].iter_mut() {
+            if let Turn::ToolResults { results, .. } = turn {
+                for r in results.iter_mut() {
+                    // Always strip image attachments from older turns —
+                    // image bytes can be megabytes while the textual
+                    // content is short.
+                    if self.image_attachments.remove(&r.tool_call_id).is_some() {
+                        modified = true;
+                    }
+                    let s = r.content.to_string();
+                    if s.len() > 200 {
+                        r.content = Value::String(format!(
+                            "[Output compacted — {} chars removed to free context space]",
+                            s.len()
+                        ));
+                        modified = true;
+                    }
+                }
+            }
+        }
+
+        // Phase 3: if the history is very long, drop middle exchanges.
+        // Keep the first turn (user task) and the last turns, removing
+        // everything in between if there are more than 10 turns total.
+        //
+        // The tail boundary is adjusted backwards to avoid starting with
+        // an orphaned ToolResults turn (whose matching Assistant was
+        // dropped). This keeps tool-call/tool-result pairs intact so
+        // providers don't reject the request.
+        if self.history.len() > 10 {
+            let keep_head = 1;
+            let total = self.history.len();
+            let mut tail_start = total.saturating_sub(preserve_tail.max(4));
+
+            // Walk forward from the candidate boundary until we find a
+            // turn that is safe to start with (anything other than
+            // ToolResults, which would be orphaned).
+            while tail_start < total {
+                if matches!(self.history[tail_start], Turn::ToolResults { .. }) {
+                    tail_start += 1;
+                } else {
+                    break;
+                }
+            }
+
+            let keep_tail = total - tail_start;
+            if keep_head + keep_tail < total {
+                let removed = total - keep_head - keep_tail;
+                // Remove image attachments for tool results in dropped turns.
+                for turn in &self.history[keep_head..tail_start] {
+                    if let Turn::ToolResults { results, .. } = turn {
+                        for r in results {
+                            self.image_attachments.remove(&r.tool_call_id);
+                        }
+                    }
+                }
+                let summary = Turn::system(format!(
+                    "[Context compacted: {removed} earlier turns were removed to fit within \
+                     the model's context window. The original user request and recent \
+                     conversation are preserved.]"
+                ));
+                let mut new_history = Vec::with_capacity(keep_head + 1 + keep_tail);
+                new_history.extend(self.history.drain(..keep_head));
+                new_history.push(summary);
+                let remaining = self.history.len();
+                new_history.extend(self.history.drain(remaining - keep_tail..));
+                self.history = new_history;
+                modified = true;
+            }
+        }
+
+        let after = self.estimate_history_chars();
+        tracing::debug!(
+            before_chars = before,
+            after_chars = after,
+            modified,
+            "context compaction complete"
+        );
+        modified
     }
 
     // -- Loop detection --

@@ -265,7 +265,13 @@ impl SdkError {
             Some(ErrorClassification::NotFound)
         } else if lower.contains("unauthorized") || lower.contains("invalid key") {
             Some(ErrorClassification::Authentication)
-        } else if lower.contains("context length") || lower.contains("too many tokens") {
+        } else if lower.contains("context length")
+            || lower.contains("too many tokens")
+            || lower.contains("prompt is too long")
+            || lower.contains("input is too long")
+            || lower.contains("too large for model")
+            || lower.contains("maximum number of tokens")
+        {
             Some(ErrorClassification::ContextLength)
         } else if lower.contains("content filter") || lower.contains("safety") {
             Some(ErrorClassification::ContentFilter)

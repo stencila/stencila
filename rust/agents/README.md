@@ -135,6 +135,10 @@ The spec requires async event delivery but does not define testing/consumption h
 
 When `spawn_agent` includes `working_dir`, the child system prompt is augmented with explicit scope instructions ("You are scoped to the subdirectory..."). This extra guidance is not required by the spec but improves model behavior by reinforcing directory boundaries in addition to runtime `ScopedExecutionEnvironment` checks.
 
+### Automatic context compaction on overflow (`§5.5`, `§8`)
+
+The spec explicitly leaves compaction out of scope: "The agent does NOT perform automatic compaction or summarization" (§5.5) and recommends that hosts implement their own strategy using context-usage signals. This implementation adds a naive, best-effort compaction that triggers only when the LLM returns a context-length error. On the first such error per LLM call, the session attempts a three-phase compaction — (1) strip thinking/reasoning blocks from all assistant turns, (2) summarise tool results in older turns, (3) drop middle conversation exchanges — then retries the request once. If the retry also fails or nothing could be compacted, the error propagates normally. This does not address more sophisticated strategies such as LLM-generated summaries, pinned turns, progressive eviction policies, or proactive compaction before hitting the limit.
+
 ### `create_session` accepts `google` as a Gemini alias
 
 The convenience constructor accepts both `"gemini"` and `"google"` provider names and maps them to the Gemini profile. The core provider profile ID remains `"gemini"`.
