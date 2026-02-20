@@ -9015,6 +9015,7 @@ dependencies = [
  "stencila-codec-m365",
  "stencila-codec-utils",
  "stencila-codecs",
+ "stencila-codemode",
  "stencila-config",
  "stencila-dirs",
  "stencila-document",

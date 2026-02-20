@@ -13,6 +13,7 @@ mod execute;
 mod init;
 mod lint;
 pub mod logging;
+mod mcp_codemode;
 mod merge;
 mod new;
 mod open;
@@ -152,6 +153,13 @@ mod tests {
             ("secrets::cli", stencila_secrets::cli::CLI_AFTER_LONG_HELP),
             ("secrets::set", stencila_secrets::cli::SET_AFTER_LONG_HELP),
             ("secrets::delete", stencila_secrets::cli::DELETE_AFTER_LONG_HELP),
+            // MCP module help strings
+            ("mcp::cli", stencila_mcp::cli::CLI_AFTER_LONG_HELP),
+            ("mcp::list", stencila_mcp::cli::LIST_AFTER_LONG_HELP),
+            ("mcp::show", stencila_mcp::cli::SHOW_AFTER_LONG_HELP),
+            ("mcp::add", stencila_mcp::cli::ADD_AFTER_LONG_HELP),
+            ("mcp::remove", stencila_mcp::cli::REMOVE_AFTER_LONG_HELP),
+            ("mcp::codemode", stencila_mcp::cli::CODEMODE_AFTER_LONG_HELP),
             // Tools module help strings
             ("tools::cli", stencila_tools::cli::CLI_AFTER_LONG_HELP),
             ("tools::list", stencila_tools::cli::LIST_AFTER_LONG_HELP),

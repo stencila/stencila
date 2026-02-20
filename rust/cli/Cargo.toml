@@ -38,6 +38,7 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codec-m365 = { path = "../codec-m365" }
+stencila-codemode = { path = "../codemode" }
 stencila-codecs = { path = "../codecs" }
 stencila-config = { path = "../config" }
 stencila-dirs = { path = "../dirs" }

@@ -9,8 +9,8 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, init, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, open, outputs, pull, push, render, site, status, sync, uninstall, unwatch, upgrade,
-    watch,
+    mcp_codemode, merge, new, open, outputs, pull, push, render, site, status, sync, uninstall,
+    unwatch, upgrade, watch,
 };
 
 /// CLI subcommands and global options
@@ -360,7 +360,10 @@ impl Cli {
             Command::Formats(codecs) => codecs.run().await,
             Command::Themes(themes) => themes.run().await,
 
-            Command::Mcp(mcp) => mcp.run().await,
+            Command::Mcp(mcp) => match mcp.into_codemode() {
+                Ok(codemode) => mcp_codemode::run(codemode).await,
+                Err(mcp) => mcp.run().await,
+            },
             Command::Tools(tools) => tools.run().await,
 
             Command::Secrets(secrets) => secrets.run().await,

@@ -42,6 +42,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Remove a server</dim>
   <b>stencila mcp remove</> <g>filesystem</>
+
+  <dim># Print TypeScript declarations for all servers</dim>
+  <b>stencila mcp codemode</>
+
+  <dim># Print declarations for a specific server only</dim>
+  <b>stencila mcp codemode</> <c>--server</> <g>filesystem</>
 "
 );
 
@@ -51,6 +57,7 @@ enum Command {
     Show(Show),
     Add(Add),
     Remove(Remove),
+    Codemode(Codemode),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -60,12 +67,26 @@ enum Scope {
 }
 
 impl Cli {
+    /// Extract the [`Codemode`] args if the subcommand is `codemode`.
+    ///
+    /// Returns `Ok(args)` for the codemode subcommand, or `Err(self)` for
+    /// everything else (giving ownership back so [`run`](Self::run) can be
+    /// called). The caller (top-level CLI) uses this to handle codemode
+    /// execution where `stencila-codemode` is available, avoiding a circular
+    /// dependency.
+    pub fn into_codemode(self) -> Result<Codemode, Self> {
+        match self.command {
+            Some(Command::Codemode(c)) => Ok(c),
+            _ => Err(self),
+        }
+    }
+
     /// Run the MCP CLI command.
     ///
     /// # Errors
     ///
     /// Returns an error if the subcommand fails.
-    pub async fn run(self) -> Result<()> {
+    pub async fn run(self) -> eyre::Result<()> {
         let Some(command) = self.command else {
             return List::default().run();
         };
@@ -75,6 +96,9 @@ impl Cli {
             Command::Show(show) => show.run().await,
             Command::Add(add) => add.run().await,
             Command::Remove(remove) => remove.run(),
+            Command::Codemode(_) => {
+                unreachable!("codemode subcommand should be handled via Cli::into_codemode()")
+            }
         }
     }
 }
@@ -473,6 +497,39 @@ impl Remove {
         Ok(())
     }
 }
+
+/// Print generated TypeScript declarations for MCP codemode
+///
+/// Connects to discovered MCP servers, fetches their tools, and prints the
+/// `.d.ts` declarations that would be injected at runtime into the codemode
+/// sandbox. Useful for verifying what an LLM agent sees.
+#[derive(Debug, Args)]
+#[command(after_long_help = CODEMODE_AFTER_LONG_HELP)]
+pub struct Codemode {
+    /// Only include specific server(s) (repeatable)
+    #[arg(long, value_name = "ID")]
+    pub server: Vec<String>,
+
+    /// Workspace directory to discover servers from
+    #[arg(long, default_value = ".")]
+    pub dir: PathBuf,
+}
+
+pub static CODEMODE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Print declarations for all available servers</dim>
+  <b>stencila mcp codemode</>
+
+  <dim># Print declarations for a specific server</dim>
+  <b>stencila mcp codemode</> <c>--server</> <g>filesystem</>
+
+  <dim># Print declarations for multiple servers</dim>
+  <b>stencila mcp codemode</> <c>--server</> <g>filesystem</> <c>--server</> <g>github</>
+
+  <dim># Specify a workspace directory</dim>
+  <b>stencila mcp codemode</> <c>--dir</> <g>./my-project</>
+"
+);
 
 /// Format a transport config as a compact, colored [`Cell`] for table display.
 fn format_transport(transport: &crate::TransportConfig) -> Cell {
