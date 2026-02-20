@@ -320,19 +320,28 @@ fn exchange_lines(
         response_text(lines, resp, base_color, content_width);
     }
 
-    // For running exchanges, show spinner at the bottom of the exchange so it
-    // stays close to where new content is appearing.
+    // For running exchanges, show spinner in the gutter of the last line so it
+    // stays close to where new content is appearing without adding an extra line.
     if status == ExchangeStatus::Running {
-        let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
         let frame_idx = (tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
         let spinner_color = agent_tag.map_or(base_color, |(_, color)| *color);
-        lines.push(Line::from(vec![
-            Span::styled(
-                format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
-                Style::new().fg(spinner_color),
-            ),
-            Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
-        ]));
+        let spinner_span = Span::styled(
+            format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx]),
+            Style::new().fg(spinner_color),
+        );
+        if let Some(last_line) = lines.last_mut() {
+            let mut spans: Vec<Span> = last_line.spans.clone();
+            if !spans.is_empty() {
+                spans[0] = spinner_span;
+            }
+            *last_line = Line::from(spans).style(last_line.style);
+        } else {
+            let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
+            lines.push(Line::from(vec![
+                spinner_span,
+                Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
+            ]));
+        }
     }
 
     // Cancelled indicator appended after any existing response (skip for workflow
