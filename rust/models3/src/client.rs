@@ -509,12 +509,19 @@ impl Client {
     pub fn infer_provider_from_model(&self, model: &str) -> SdkResult<Option<String>> {
         let catalog = crate::catalog::read_catalog()?;
         let mut matches: Vec<String> = Vec::new();
-        for info in &*catalog {
-            if (info.id == model || info.aliases.iter().any(|alias| alias == model))
-                && !matches.contains(&info.provider)
-            {
+
+        // Check by direct model ID
+        for info in &catalog.models {
+            if info.id == model && !matches.contains(&info.provider) {
                 matches.push(info.provider.clone());
             }
+        }
+
+        // If not found by ID, check alias index
+        if matches.is_empty()
+            && let Some((provider, _)) = catalog.aliases.get(model)
+        {
+            matches.push(provider.clone());
         }
         drop(catalog);
 

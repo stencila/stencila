@@ -199,7 +199,6 @@ impl ProviderAdapter for OpenAIChatCompletionsAdapter {
                                 supports_reasoning: false,
                                 input_cost_per_million: None,
                                 output_cost_per_million: None,
-                                aliases: vec![],
                             })
                         })
                         .collect()

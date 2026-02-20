@@ -181,6 +181,7 @@ impl SseParser {
 impl Stream for SseParser {
     type Item = SdkResult<SseEvent>;
 
+    #[allow(clippy::too_many_lines)]
     fn poll_next(
         self: Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,

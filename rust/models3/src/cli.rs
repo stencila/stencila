@@ -152,10 +152,12 @@ impl List {
                 Cell::new(&model.id).add_attribute(Attribute::Dim)
             };
 
-            let aliases_cell = if model.aliases.is_empty() {
+            let model_aliases =
+                catalog::get_model_aliases(&model.provider, &model.id).unwrap_or_default();
+            let aliases_cell = if model_aliases.is_empty() {
                 Cell::new("").add_attribute(Attribute::Dim)
             } else {
-                Cell::new(model.aliases.join(", "))
+                Cell::new(model_aliases.join(", "))
             };
 
             table.add_row([
@@ -505,7 +507,10 @@ fn resolve_model_and_provider(
                 .into_iter()
                 .filter(|m| {
                     m.id.starts_with(raw_model)
-                        || m.aliases.iter().any(|alias| alias.starts_with(raw_model))
+                        || catalog::get_model_aliases(&m.provider, &m.id)
+                            .unwrap_or_default()
+                            .iter()
+                            .any(|alias| alias.starts_with(raw_model))
                 })
                 .collect();
 

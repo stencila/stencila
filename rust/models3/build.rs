@@ -59,8 +59,6 @@ struct ModelInfo {
     input_cost_per_million: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     output_cost_per_million: Option<f64>,
-    #[serde(default)]
-    aliases: Vec<String>,
 }
 
 type ModelsDevCatalog = HashMap<String, ModelsDevProvider>;
@@ -306,7 +304,6 @@ fn fetch_anthropic_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
-                        aliases: vec![],
                     })
                 })
                 .collect()
@@ -380,7 +377,6 @@ fn fetch_openai_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
-                        aliases: vec![],
                     })
                 })
                 .collect()
@@ -440,7 +436,6 @@ fn fetch_mistral_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
-                        aliases: vec![],
                     })
                 })
                 .collect()
@@ -475,7 +470,6 @@ fn fetch_deepseek_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
-                        aliases: vec![],
                     })
                 })
                 .collect()
@@ -536,7 +530,6 @@ fn fetch_gemini_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
-                        aliases: vec![],
                     })
                 })
                 .collect()

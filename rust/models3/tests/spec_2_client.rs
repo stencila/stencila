@@ -58,15 +58,10 @@ fn catalog_lookup_by_id() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn catalog_lookup_by_alias() -> Result<(), Box<dyn std::error::Error>> {
-    // Find any model that has aliases, then look it up by the first alias
-    let all = list_models(None)?;
-    let with_alias = all
-        .iter()
-        .find(|m| !m.aliases.is_empty())
-        .ok_or("no models with aliases")?;
-    let alias = &with_alias.aliases[0];
-    let info = get_model_info(alias)?.ok_or("alias lookup failed")?;
-    assert_eq!(info.id, with_alias.id);
+    // Use a version-pinned alias that remains stable even when
+    // other tests merge new models into the shared catalog.
+    let info = get_model_info("opus-4.6")?.ok_or("alias lookup failed")?;
+    assert_eq!(info.id, "claude-opus-4-6");
     Ok(())
 }
 
@@ -166,17 +161,12 @@ fn catalog_merge_adds_new_model() -> Result<(), Box<dyn std::error::Error>> {
         supports_reasoning: false,
         input_cost_per_million: None,
         output_cost_per_million: None,
-        aliases: vec!["spec2-merge-alias".into()],
     }])?;
 
     let info = get_model_info("spec2-merge-add-test")?.ok_or("merged model not found by ID")?;
     assert_eq!(info.provider, "test_provider");
     assert!(info.supports_tools);
     assert_eq!(info.context_window, 2048);
-
-    // Also findable by alias
-    let by_alias = get_model_info("spec2-merge-alias")?.ok_or("merged model not found by alias")?;
-    assert_eq!(by_alias.id, "spec2-merge-add-test");
     Ok(())
 }
 
@@ -194,7 +184,6 @@ fn catalog_merge_updates_existing_model() -> Result<(), Box<dyn std::error::Erro
         supports_reasoning: false,
         input_cost_per_million: None,
         output_cost_per_million: None,
-        aliases: vec![],
     }])?;
 
     merge_models(vec![ModelInfo {
@@ -208,7 +197,6 @@ fn catalog_merge_updates_existing_model() -> Result<(), Box<dyn std::error::Erro
         supports_reasoning: false,
         input_cost_per_million: None,
         output_cost_per_million: None,
-        aliases: vec![],
     }])?;
 
     let info = get_model_info("spec2-merge-update-test")?.ok_or("updated model not found")?;
@@ -219,14 +207,13 @@ fn catalog_merge_updates_existing_model() -> Result<(), Box<dyn std::error::Erro
 }
 
 #[test]
-fn catalog_merge_prepends_new_model_to_provider_group() -> Result<(), Box<dyn std::error::Error>> {
-    let all = list_models(None)?;
-    let existing_provider = &all.first().ok_or("catalog is empty")?.provider;
-
+fn catalog_merge_inserts_into_provider_group() -> Result<(), Box<dyn std::error::Error>> {
+    // After merge, the model should be findable in its provider group.
+    // Position is determined by sort (quality ranking), not insertion order.
     merge_models(vec![ModelInfo {
-        id: "spec2-prepend-latest-test".into(),
-        provider: existing_provider.clone(),
-        display_name: "Prepend Latest Test".into(),
+        id: "spec2-merge-insert-test".into(),
+        provider: "spec2_merge_sort".into(),
+        display_name: "Merge Insert Test".into(),
         context_window: 999_999,
         max_output: None,
         supports_tools: true,
@@ -234,12 +221,10 @@ fn catalog_merge_prepends_new_model_to_provider_group() -> Result<(), Box<dyn st
         supports_reasoning: true,
         input_cost_per_million: None,
         output_cost_per_million: None,
-        aliases: vec![],
     }])?;
 
-    // New model should be first (latest) for the provider
-    let latest = get_latest_model(existing_provider, None)?.ok_or("no latest model after merge")?;
-    assert_eq!(latest.id, "spec2-prepend-latest-test");
+    let found = get_model_info("spec2-merge-insert-test")?;
+    assert!(found.is_some(), "merged model should be findable");
     Ok(())
 }
 
@@ -261,7 +246,6 @@ async fn catalog_refresh_adds_discovered_models() -> Result<(), Box<dyn std::err
                 supports_reasoning: false,
                 input_cost_per_million: None,
                 output_cost_per_million: None,
-                aliases: vec![],
             }],
         ))
         .build()?;
@@ -293,7 +277,6 @@ async fn catalog_refresh_appends_after_curated_entries() -> Result<(), Box<dyn s
         supports_reasoning: false,
         input_cost_per_million: Some(3.0),
         output_cost_per_million: Some(15.0),
-        aliases: vec![],
     }])?;
 
     // Now refresh discovers a new model for the same provider
@@ -311,7 +294,6 @@ async fn catalog_refresh_appends_after_curated_entries() -> Result<(), Box<dyn s
                 supports_reasoning: false,
                 input_cost_per_million: None,
                 output_cost_per_million: None,
-                aliases: vec![],
             }],
         ))
         .build()?;
@@ -345,7 +327,6 @@ async fn catalog_refresh_skips_already_known_models() -> Result<(), Box<dyn std:
         supports_reasoning: false,
         input_cost_per_million: None,
         output_cost_per_million: None,
-        aliases: vec![],
     }])?;
 
     let client = Client::builder()
@@ -362,7 +343,6 @@ async fn catalog_refresh_skips_already_known_models() -> Result<(), Box<dyn std:
                 supports_reasoning: false,
                 input_cost_per_million: None,
                 output_cost_per_million: None,
-                aliases: vec![],
             }],
         ))
         .build()?;
@@ -402,7 +382,6 @@ async fn catalog_refresh_reports_provider_errors() -> Result<(), Box<dyn std::er
                 supports_reasoning: false,
                 input_cost_per_million: None,
                 output_cost_per_million: None,
-                aliases: vec![],
             }],
         ))
         .build()?;
