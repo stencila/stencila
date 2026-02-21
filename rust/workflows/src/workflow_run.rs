@@ -108,7 +108,7 @@ pub async fn run_workflow_with_options(
     // running pipeline.
     let stencila_dir = stencila_dirs::closest_stencila_dir(workflow.path(), true).await?;
     let workspace_root = stencila_dirs::workspace_dir(&stencila_dir)?;
-    let effective_db_path = stencila_dir.join("db.sqlite3");
+    let effective_db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
 
     let run_id = uuid::Uuid::now_v7().to_string();
     let artifacts_dir =

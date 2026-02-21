@@ -10,6 +10,7 @@ clap = { workspace = true }
 eyre = { workspace = true }
 indexmap = { workspace = true }
 reqwest = { workspace = true }
+sha2 = { workspace = true }
 tempfile = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

@@ -41,6 +41,7 @@ stencila-codec-m365 = { path = "../codec-m365" }
 stencila-codemode = { path = "../codemode" }
 stencila-codecs = { path = "../codecs" }
 stencila-config = { path = "../config" }
+stencila-db = { path = "../db" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
@@ -49,7 +50,6 @@ stencila-linters = { path = "../linters" }
 stencila-lsp = { path = "../lsp" }
 stencila-mcp = { path = "../mcp", features = ["cli"] }
 stencila-models3 = { path = "../models3", features = ["cli"] }
-stencila-node-db = { path = "../node-db" }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-node-execute = { path = "../node-execute" }
 stencila-node-strip = { path = "../node-strip" }

@@ -9068,6 +9068,7 @@ dependencies = [
  "stencila-codecs",
  "stencila-codemode",
  "stencila-config",
+ "stencila-db",
  "stencila-dirs",
  "stencila-document",
  "stencila-format",
@@ -9076,7 +9077,6 @@ dependencies = [
  "stencila-lsp",
  "stencila-mcp",
  "stencila-models3",
- "stencila-node-db",
  "stencila-node-diagnostics",
  "stencila-node-execute",
  "stencila-node-strip",
@@ -9161,6 +9161,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
+ "sha2 0.10.9",
  "stencila-ask",
  "stencila-codec-docx",
  "stencila-codec-utils",
@@ -10177,9 +10178,15 @@ dependencies = [
 name = "stencila-db"
 version = "2.13.0"
 dependencies = [
+ "chrono",
+ "eyre",
  "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
  "tempfile",
  "tracing",
+ "zstd",
 ]
 
 [[package]]
