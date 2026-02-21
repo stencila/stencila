@@ -4,10 +4,12 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+bytes = { workspace = true }
 cached = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
+futures = { workspace = true }
 indexmap = { workspace = true }
 reqwest = { workspace = true }
 sha2 = { workspace = true }

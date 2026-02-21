@@ -9049,7 +9049,6 @@ dependencies = [
  "flate2",
  "glob",
  "indexmap 2.13.0",
- "indicatif",
  "itertools 0.14.0",
  "pathdiff",
  "reqwest 0.13.1",
@@ -9133,6 +9132,7 @@ dependencies = [
  "comfy-table",
  "derive_more 2.1.1",
  "eyre",
+ "indicatif",
  "itertools 0.14.0",
  "serde",
  "serde_json",
@@ -9151,10 +9151,12 @@ dependencies = [
 name = "stencila-cloud"
 version = "0.0.0"
 dependencies = [
+ "bytes",
  "cached",
  "chrono",
  "clap",
  "eyre",
+ "futures",
  "indexmap 2.13.0",
  "reqwest 0.13.1",
  "serde",

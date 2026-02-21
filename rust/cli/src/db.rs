@@ -1,11 +1,13 @@
 use std::env::current_dir;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
-
+use stencila_ask::{Answer, AskOptions, ask_with};
 use stencila_cli_utils::color_print::cstr;
 use stencila_cli_utils::message;
+use stencila_cli_utils::progress::{new_bytes_bar, new_items_bar, new_spinner};
 use stencila_db::rusqlite;
 use stencila_db::sync;
 
@@ -39,6 +41,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Create a new baseline snapshot</dim>
   <b>stencila db snapshot</b>
+
+  <dim># Clean local blob cache</dim>
+  <b>stencila db clean</b>
+
+  <dim># Remove orphaned remote blobs</dim>
+  <b>stencila db gc</b>
 "
 );
 
@@ -51,6 +59,8 @@ enum Command {
     Verify(Verify),
     Reset(Reset),
     Snapshot(Snapshot),
+    Clean(Clean),
+    Gc(Gc),
 }
 
 impl Cli {
@@ -63,6 +73,8 @@ impl Cli {
             Command::Verify(verify) => verify.run().await,
             Command::Reset(reset) => reset.run().await,
             Command::Snapshot(snapshot) => snapshot.run().await,
+            Command::Clean(clean) => clean.run().await,
+            Command::Gc(gc) => gc.run().await,
         }
     }
 }
@@ -175,15 +187,27 @@ impl Push {
         ws_id: &str,
         local_schema: std::collections::BTreeMap<String, i32>,
     ) -> Result<()> {
+        let spinner = new_spinner("Compressing snapshot...");
         let compressed = sync::create_snapshot(db_path)?;
         let hash = sync::sha256_hex(&compressed);
         let size = compressed.len() as u64;
+        spinner.finish_and_clear();
 
         // Cache before uploading (upload consumes the Vec)
         sync::write_cached_blob(stencila_dir, "snapshots", &hash, &compressed)?;
 
         // Upload blob before writing manifest (invariant §5)
-        stencila_cloud::db::upload_blob(ws_id, "snapshots", &hash, compressed).await?;
+        let pb = new_bytes_bar(size, "Uploading snapshot");
+        let pb_ref = pb.clone();
+        stencila_cloud::db::upload_blob_with_progress(
+            ws_id,
+            "snapshots",
+            &hash,
+            compressed,
+            Some(Arc::new(move |sent| pb_ref.set_position(sent))),
+        )
+        .await?;
+        pb.finish_and_clear();
 
         let manifest =
             sync::new_snapshot_manifest(hash.clone(), size, local_schema, self.message.clone());
@@ -217,6 +241,8 @@ impl Push {
         // Guard: ensure head.tmp is cleaned up even if we return early on error
         let _cleanup = TempFileGuard::new(head_path.clone());
 
+        let spinner = new_spinner("Reconstructing manifest head...");
+
         let snapshot_blob = fetch_blob(
             stencila_dir,
             ws_id,
@@ -225,11 +251,15 @@ impl Push {
         )
         .await?;
 
+        let total_cs = manifest.changesets.len();
         let mut cs_blobs = Vec::new();
-        for entry in &manifest.changesets {
+        for (i, entry) in manifest.changesets.iter().enumerate() {
+            spinner.set_message(format!("Fetching changeset {}/{}...", i + 1, total_cs));
             let data = fetch_blob(stencila_dir, ws_id, "changesets", &entry.hash).await?;
             cs_blobs.push((entry.hash.clone(), data));
         }
+
+        spinner.set_message("Rebuilding head database...");
 
         let cs_refs: Vec<(&str, &[u8])> = cs_blobs
             .iter()
@@ -244,12 +274,28 @@ impl Push {
         )?;
 
         // Diff local db against the reconstructed head
+        spinner.set_message("Computing diff...");
         let cs_bytes = sync::create_changeset(db_path, &head_path)?;
+        spinner.finish_and_clear();
 
         let Some(cs_bytes) = cs_bytes else {
             message!("✅ Nothing to push — database is unchanged");
             return Ok(());
         };
+
+        // Auto-snapshot rotation: if adding this changeset would cross
+        // the threshold, take a snapshot instead. This check runs after
+        // diff so that "no changes" is always detected first.
+        if sync::should_auto_snapshot(&manifest) {
+            message!(
+                "⚡ Auto-rotating to snapshot ({} changesets, {} cumulative)",
+                manifest.changesets.len(),
+                format_bytes(manifest.changesets.iter().map(|c| c.size).sum::<u64>())
+            );
+            return self
+                .push_snapshot(stencila_dir, db_path, manifest_path, ws_id, local_schema)
+                .await;
+        }
 
         let hash = sync::sha256_hex(&cs_bytes);
         let size = cs_bytes.len() as u64;
@@ -258,7 +304,17 @@ impl Push {
         sync::write_cached_blob(stencila_dir, "changesets", &hash, &cs_bytes)?;
 
         // Upload blob before writing manifest (invariant §5)
-        stencila_cloud::db::upload_blob(ws_id, "changesets", &hash, cs_bytes).await?;
+        let pb = new_bytes_bar(size, "Uploading changeset");
+        let pb_ref = pb.clone();
+        stencila_cloud::db::upload_blob_with_progress(
+            ws_id,
+            "changesets",
+            &hash,
+            cs_bytes,
+            Some(Arc::new(move |sent| pb_ref.set_position(sent))),
+        )
+        .await?;
+        pb.finish_and_clear();
 
         // Append changeset to manifest
         let entry =
@@ -364,21 +420,26 @@ impl Pull {
         let _cleanup = TempFileGuard::new(tmp_path.clone());
 
         if need_snapshot {
-            let snap_data = fetch_blob(
+            let pb = new_bytes_bar(manifest.base_snapshot.size, "Downloading snapshot");
+            let pb_ref = pb.clone();
+            let snap_data = fetch_blob_with_progress(
                 &stencila_dir,
                 &ws_id,
                 "snapshots",
                 &manifest.base_snapshot.hash,
+                Some(Arc::new(move |recv, _total| pb_ref.set_position(recv))),
             )
             .await?;
+            pb.finish_and_clear();
+            let spinner = new_spinner("Restoring snapshot...");
             sync::restore_snapshot(
                 &snap_data,
                 &manifest.base_snapshot.compression,
                 &tmp_path,
                 &manifest.base_snapshot.hash,
             )?;
+            spinner.finish_and_clear();
         } else {
-            // Checkpoint WAL before copying so the main file is self-contained
             sync::checkpoint_and_copy(&db_path, &tmp_path)?;
         }
 
@@ -410,9 +471,14 @@ impl Pull {
         };
 
         let pending = &manifest.changesets[start_idx..];
-        for entry in pending {
-            let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
-            sync::apply_changeset(&tmp_path, &cs_data, &entry.hash)?;
+        if !pending.is_empty() {
+            let pb = new_items_bar(pending.len() as u64, "changesets");
+            for entry in pending {
+                let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
+                sync::apply_changeset(&tmp_path, &cs_data, &entry.hash)?;
+                pb.inc(1);
+            }
+            pb.finish_and_clear();
         }
 
         // Atomic replace (invariant §4)
@@ -438,10 +504,25 @@ async fn fetch_blob(
     kind: &str,
     hash: &str,
 ) -> Result<Vec<u8>> {
+    fetch_blob_with_progress(stencila_dir, workspace_id, kind, hash, None).await
+}
+
+/// Fetch a blob with an optional progress callback for the download.
+///
+/// The callback receives `(bytes_received, total_bytes)`.
+async fn fetch_blob_with_progress(
+    stencila_dir: &std::path::Path,
+    workspace_id: &str,
+    kind: &str,
+    hash: &str,
+    on_progress: Option<Arc<dyn Fn(u64, Option<u64>) + Send + Sync>>,
+) -> Result<Vec<u8>> {
     if let Some(data) = sync::read_cached_blob(stencila_dir, kind, hash) {
         return Ok(data);
     }
-    let data = stencila_cloud::db::download_blob(workspace_id, kind, hash).await?;
+    let data =
+        stencila_cloud::db::download_blob_with_progress(workspace_id, kind, hash, on_progress)
+            .await?;
     sync::write_cached_blob(stencila_dir, kind, hash, &data)?;
     Ok(data)
 }
@@ -563,7 +644,11 @@ impl Log {
                 .as_deref()
                 .map(|m| format!("  \"{m}\""))
                 .unwrap_or_default();
-            println!("#{idx:<3} {:.8}  {date}  {}{msg}", entry.hash, format_bytes(entry.size));
+            println!(
+                "#{idx:<3} {:.8}  {date}  {}{msg}",
+                entry.hash,
+                format_bytes(entry.size)
+            );
         }
 
         // Print the base snapshot as #1
@@ -606,10 +691,7 @@ impl Verify {
         let ws_id = workspace_id()?;
 
         if !db_path.exists() {
-            eyre::bail!(
-                "No database at `{}`; nothing to verify",
-                db_path.display()
-            );
+            eyre::bail!("No database at `{}`; nothing to verify", db_path.display());
         }
 
         let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
@@ -620,25 +702,23 @@ impl Verify {
             )
         })?;
 
-        message!("Rebuilding database from manifest to compare...");
-
         // Reconstruct manifest head into a temp file
         let ref_path = db_path.with_extension("verify.tmp");
         let _cleanup = TempFileGuard::new(ref_path.clone());
 
-        // Rebuild using the same order as pull/reset:
-        //   snapshot → migrate → changesets
-        // Using reconstruct_head here would apply changesets before
-        // migrations, which can produce different results if migrations
-        // backfill data or add columns that changesets reference.
-        let snapshot_blob = fetch_blob(
+        let pb = new_bytes_bar(manifest.base_snapshot.size, "Downloading snapshot");
+        let pb_ref = pb.clone();
+        let snapshot_blob = fetch_blob_with_progress(
             &stencila_dir,
             &ws_id,
             "snapshots",
             &manifest.base_snapshot.hash,
+            Some(Arc::new(move |recv, _total| pb_ref.set_position(recv))),
         )
         .await?;
+        pb.finish_and_clear();
 
+        let spinner = new_spinner("Restoring snapshot...");
         sync::restore_snapshot(
             &snapshot_blob,
             &manifest.base_snapshot.compression,
@@ -652,13 +732,21 @@ impl Verify {
             stencila_workflows::run_migrations(&ref_db)
                 .map_err(|e| eyre::eyre!("Failed to run migrations on reference database: {e}"))?;
         }
+        spinner.finish_and_clear();
 
-        for entry in &manifest.changesets {
-            let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
-            sync::apply_changeset(&ref_path, &cs_data, &entry.hash)?;
+        if !manifest.changesets.is_empty() {
+            let pb = new_items_bar(manifest.changesets.len() as u64, "changesets");
+            for entry in &manifest.changesets {
+                let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
+                sync::apply_changeset(&ref_path, &cs_data, &entry.hash)?;
+                pb.inc(1);
+            }
+            pb.finish_and_clear();
         }
 
+        let spinner = new_spinner("Comparing databases...");
         let result = sync::verify_databases(&db_path, &ref_path)?;
+        spinner.finish_and_clear();
 
         // Also check sync position validity — verify_databases intentionally
         // excludes internal tables (_sync, _migrations), so data can match
@@ -729,23 +817,25 @@ impl Reset {
         let tmp_path = db_path.with_extension("sqlite3.tmp");
         let _cleanup = TempFileGuard::new(tmp_path.clone());
 
-        message!(
-            "Downloading snapshot {:.8}...",
-            manifest.base_snapshot.hash
-        );
-        let snap_data = fetch_blob(
+        let pb = new_bytes_bar(manifest.base_snapshot.size, "Downloading snapshot");
+        let pb_ref = pb.clone();
+        let snap_data = fetch_blob_with_progress(
             &stencila_dir,
             &ws_id,
             "snapshots",
             &manifest.base_snapshot.hash,
+            Some(Arc::new(move |recv, _total| pb_ref.set_position(recv))),
         )
         .await?;
+        pb.finish_and_clear();
+        let spinner = new_spinner("Restoring snapshot...");
         sync::restore_snapshot(
             &snap_data,
             &manifest.base_snapshot.compression,
             &tmp_path,
             &manifest.base_snapshot.hash,
         )?;
+        spinner.finish_and_clear();
 
         // Run migrations so the schema matches current code before applying changesets
         {
@@ -757,20 +847,18 @@ impl Reset {
 
         // Apply all changesets
         let cs_count = manifest.changesets.len();
-        for (i, entry) in manifest.changesets.iter().enumerate() {
-            message!(
-                "Applying changeset {}/{} ({:.8})...",
-                i + 1,
-                cs_count,
-                entry.hash
-            );
-            let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
-            sync::apply_changeset(&tmp_path, &cs_data, &entry.hash)?;
+        if cs_count > 0 {
+            let pb = new_items_bar(cs_count as u64, "changesets");
+            for entry in &manifest.changesets {
+                let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
+                sync::apply_changeset(&tmp_path, &cs_data, &entry.hash)?;
+                pb.inc(1);
+            }
+            pb.finish_and_clear();
         }
 
         // Atomic replace (invariant §4)
-        std::fs::rename(&tmp_path, &db_path)
-            .map_err(|e| eyre::eyre!("atomic replace: {e}"))?;
+        std::fs::rename(&tmp_path, &db_path).map_err(|e| eyre::eyre!("atomic replace: {e}"))?;
 
         message!(
             "✅ Reset complete. Restored snapshot + applied {} changeset(s).",
@@ -854,15 +942,27 @@ impl Snapshot {
         let local_schema = sync::schema_versions(&conn)?;
         drop(conn);
 
+        let spinner = new_spinner("Compressing snapshot...");
         let compressed = sync::create_snapshot(&db_path)?;
         let hash = sync::sha256_hex(&compressed);
         let size = compressed.len() as u64;
+        spinner.finish_and_clear();
 
         // Cache before uploading
         sync::write_cached_blob(&stencila_dir, "snapshots", &hash, &compressed)?;
 
         // Upload blob before writing manifest (invariant §5)
-        stencila_cloud::db::upload_blob(&ws_id, "snapshots", &hash, compressed).await?;
+        let pb = new_bytes_bar(size, "Uploading snapshot");
+        let pb_ref = pb.clone();
+        stencila_cloud::db::upload_blob_with_progress(
+            &ws_id,
+            "snapshots",
+            &hash,
+            compressed,
+            Some(Arc::new(move |sent| pb_ref.set_position(sent))),
+        )
+        .await?;
+        pb.finish_and_clear();
 
         let manifest =
             sync::new_snapshot_manifest(hash.clone(), size, local_schema, self.message.clone());
@@ -878,6 +978,251 @@ impl Snapshot {
         );
 
         Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// clean (local blob cache GC)
+// ---------------------------------------------------------------------------
+
+/// Clean up the local blob cache
+///
+/// Removes cached blobs that are no longer referenced by the current
+/// manifest. Useful for reclaiming disk space after snapshot rotations.
+#[derive(Debug, Args)]
+#[command(after_long_help = CLEAN_AFTER_LONG_HELP)]
+pub struct Clean {}
+
+pub static CLEAN_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Remove unreferenced cached blobs</dim>
+  <b>stencila db clean</b>
+"
+);
+
+impl Clean {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, _db_path) = resolve_paths().await?;
+
+        let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
+        let manifest = sync::read_manifest(&manifest_path)?.ok_or_else(|| {
+            eyre::eyre!(
+                "No manifest at `{}`; nothing to clean against",
+                manifest_path.display()
+            )
+        })?;
+
+        let (removed, freed) = sync::clean_blob_cache(&stencila_dir, &manifest)?;
+
+        if removed == 0 {
+            message!("✅ Cache is clean — no orphaned blobs");
+        } else {
+            message!(
+                "🧹 Removed {} cached blob(s), freed {}",
+                removed,
+                format_bytes(freed)
+            );
+        }
+
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// gc (remote blob garbage collection)
+// ---------------------------------------------------------------------------
+
+/// Remove orphaned remote blobs
+///
+/// Lists all blobs stored on Stencila Cloud for this workspace and removes
+/// any that are not referenced by the current manifest. This cleans up blobs
+/// left behind by rebased or force-pushed manifests.
+#[derive(Debug, Args)]
+#[command(after_long_help = GC_AFTER_LONG_HELP)]
+pub struct Gc {
+    /// Show what would be removed without actually deleting
+    #[arg(long)]
+    dry_run: bool,
+
+    /// Run `git fetch --all` before scanning refs (without prompting)
+    #[arg(long, conflicts_with = "no_fetch")]
+    fetch: bool,
+
+    /// Skip `git fetch` (without prompting)
+    #[arg(long, conflicts_with = "fetch")]
+    no_fetch: bool,
+}
+
+pub static GC_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Remove orphaned remote blobs</dim>
+  <b>stencila db gc</b>
+
+  <dim># Preview what would be removed</dim>
+  <b>stencila db gc --dry-run</b>
+
+  <dim># Non-interactive: fetch first, then GC</dim>
+  <b>stencila db gc --fetch</b>
+
+  <dim># Non-interactive: skip fetch</dim>
+  <b>stencila db gc --no-fetch</b>
+"
+);
+
+impl Gc {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, _db_path) = resolve_paths().await?;
+        let ws_id = workspace_id()?;
+
+        // Collect referenced hashes from ALL git refs, not just the
+        // current checkout, to avoid deleting blobs needed by other branches.
+        let referenced = self.collect_all_referenced_hashes(&stencila_dir).await?;
+
+        if referenced.is_empty() {
+            eyre::bail!("No manifests found in any git ref; cannot determine referenced blobs");
+        }
+
+        let spinner = new_spinner("Listing remote blobs...");
+
+        let mut orphaned = Vec::new();
+        for kind in &["snapshots", "changesets"] {
+            let remote_hashes = stencila_cloud::db::list_blobs(&ws_id, kind).await?;
+            for hash in remote_hashes {
+                if !referenced.contains(&hash) {
+                    orphaned.push((kind.to_string(), hash));
+                }
+            }
+        }
+        spinner.finish_and_clear();
+
+        if orphaned.is_empty() {
+            message!("✅ No orphaned remote blobs");
+            return Ok(());
+        }
+
+        if self.dry_run {
+            message!("Would remove {} orphaned blob(s):", orphaned.len());
+            for (kind, hash) in &orphaned {
+                let short = &hash[..hash.len().min(8)];
+                message!("  {}/{}", kind, short);
+            }
+            return Ok(());
+        }
+
+        let pb = new_items_bar(orphaned.len() as u64, "blobs");
+        for (kind, hash) in &orphaned {
+            stencila_cloud::db::delete_blob(&ws_id, kind, hash).await?;
+            pb.inc(1);
+        }
+        pb.finish_and_clear();
+
+        message!("🧹 Removed {} orphaned remote blob(s)", orphaned.len());
+
+        Ok(())
+    }
+
+    /// Collect all blob hashes referenced by db.json manifests across
+    /// every git ref (branches, remote-tracking branches, tags).
+    ///
+    /// Offers to run `git fetch` first so remote-tracking refs are
+    /// up-to-date, ensuring blobs used by collaborators' branches are
+    /// not mistakenly treated as orphaned.
+    async fn collect_all_referenced_hashes(
+        &self,
+        stencila_dir: &std::path::Path,
+    ) -> Result<std::collections::HashSet<String>> {
+        use stencila_codec_utils::{closest_git_repo, git_list_refs, git_show_file_at_ref};
+
+        let repo_root = closest_git_repo(stencila_dir)?;
+
+        // Compute the repo-relative path to .stencila/db.json
+        let manifest_abs = stencila_dir.join(sync::MANIFEST_FILE);
+        let manifest_rel = manifest_abs
+            .strip_prefix(&repo_root)
+            .unwrap_or(&manifest_abs);
+        let manifest_rel_str = manifest_rel.to_string_lossy();
+
+        // Decide whether to fetch: explicit flags take precedence,
+        // otherwise prompt interactively.
+        let do_fetch = if self.fetch {
+            true
+        } else if self.no_fetch {
+            false
+        } else {
+            ask_with(
+                "Run `git fetch --all` first to ensure remote-tracking refs are up-to-date?",
+                AskOptions {
+                    default: Some(Answer::Yes),
+                    ..Default::default()
+                },
+            )
+            .await?
+            .is_yes()
+        };
+
+        if do_fetch {
+            let spinner = new_spinner("Running git fetch --all...");
+            let status = std::process::Command::new("git")
+                .arg("-C")
+                .arg(&repo_root)
+                .args(["fetch", "--all", "--quiet"])
+                .status();
+            spinner.finish_and_clear();
+            match status {
+                Ok(status) if status.success() => {}
+                Ok(status) => {
+                    message!(
+                        "⚠️  git fetch exited with {}; continuing with existing refs",
+                        status
+                    );
+                }
+                Err(error) => {
+                    message!("⚠️  git fetch failed: {}; continuing with existing refs", error);
+                }
+            }
+        }
+
+        let spinner = new_spinner("Scanning git refs for manifests...");
+
+        let refs = git_list_refs(&repo_root)?;
+        let mut referenced = std::collections::HashSet::new();
+        let mut manifests_found = 0usize;
+
+        for ref_name in &refs {
+            if let Some(content) = git_show_file_at_ref(&repo_root, ref_name, &manifest_rel_str) {
+                if let Ok(manifest) = serde_json::from_str::<sync::Manifest>(&content) {
+                    if manifest.format == sync::MANIFEST_FORMAT {
+                        referenced.insert(manifest.base_snapshot.hash.clone());
+                        for cs in &manifest.changesets {
+                            referenced.insert(cs.hash.clone());
+                        }
+                        manifests_found += 1;
+                    }
+                }
+            }
+        }
+
+        // Also include the current working-tree manifest (may contain
+        // unpushed-to-git changes from a recent `db push`)
+        let current_manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
+        if let Ok(Some(manifest)) = sync::read_manifest(&current_manifest_path) {
+            referenced.insert(manifest.base_snapshot.hash.clone());
+            for cs in &manifest.changesets {
+                referenced.insert(cs.hash.clone());
+            }
+            manifests_found += 1;
+        }
+
+        spinner.finish_and_clear();
+
+        message!(
+            "Found {} manifest(s) across {} ref(s), {} referenced blob(s)",
+            manifests_found,
+            refs.len(),
+            referenced.len()
+        );
+
+        Ok(referenced)
     }
 }
 
@@ -930,3 +1275,5 @@ fn format_bytes(n: u64) -> String {
         format!("{:.1} GB", n as f64 / (1024.0 * 1024.0 * 1024.0))
     }
 }
+
+

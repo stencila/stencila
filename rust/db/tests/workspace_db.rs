@@ -375,3 +375,190 @@ mod verify {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// should_auto_snapshot tests
+// ---------------------------------------------------------------------------
+
+mod auto_snapshot {
+    use stencila_db::sync::{
+        self, AUTO_SNAPSHOT_CHANGESET_LIMIT, AUTO_SNAPSHOT_SIZE_LIMIT, Manifest, SnapshotEntry,
+        ChangesetEntry, MANIFEST_FORMAT, should_auto_snapshot,
+    };
+    use std::collections::BTreeMap;
+
+    fn make_manifest(changeset_count: usize, changeset_size: u64) -> Manifest {
+        let schema = BTreeMap::from([("test".to_string(), 1)]);
+        Manifest {
+            format: MANIFEST_FORMAT.to_string(),
+            schema_version: schema.clone(),
+            base_snapshot: SnapshotEntry {
+                hash: "snap000".to_string(),
+                compression: "zstd".to_string(),
+                schema_version: schema.clone(),
+                created_at: "2026-01-01T00:00:00Z".to_string(),
+                size: 1000,
+                message: None,
+            },
+            changesets: (0..changeset_count)
+                .map(|i| ChangesetEntry {
+                    hash: format!("cs{i:04}"),
+                    schema_version: schema.clone(),
+                    created_at: "2026-01-01T00:00:00Z".to_string(),
+                    size: changeset_size,
+                    message: None,
+                })
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn empty_manifest_does_not_trigger() {
+        let m = make_manifest(0, 100);
+        assert!(!should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn well_below_limit_does_not_trigger() {
+        let m = make_manifest(10, 100);
+        assert!(!should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn one_below_count_limit_does_not_trigger() {
+        // With limit=50, having 48 existing changesets means adding one
+        // would make 49, still below 50.
+        let m = make_manifest(AUTO_SNAPSHOT_CHANGESET_LIMIT - 2, 100);
+        assert!(!should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn at_count_boundary_triggers() {
+        // With limit=50, having 49 existing changesets means adding one
+        // would make 50 — triggers rotation.
+        let m = make_manifest(AUTO_SNAPSHOT_CHANGESET_LIMIT - 1, 100);
+        assert!(should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn above_count_limit_triggers() {
+        let m = make_manifest(AUTO_SNAPSHOT_CHANGESET_LIMIT, 100);
+        assert!(should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn cumulative_size_below_limit_does_not_trigger() {
+        // 10 changesets × 1 MB each = 10 MB, below 50 MB limit
+        let m = make_manifest(10, 1_000_000);
+        assert!(!should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn cumulative_size_at_limit_triggers() {
+        // Total size exactly at threshold
+        let count = 10;
+        let per_cs = AUTO_SNAPSHOT_SIZE_LIMIT / count as u64;
+        let m = make_manifest(count, per_cs);
+        assert!(should_auto_snapshot(&m));
+    }
+
+    #[test]
+    fn cumulative_size_above_limit_triggers() {
+        let m = make_manifest(5, AUTO_SNAPSHOT_SIZE_LIMIT);
+        assert!(should_auto_snapshot(&m));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// clean_blob_cache tests
+// ---------------------------------------------------------------------------
+
+mod cache_clean {
+    use stencila_db::sync::{
+        self, Manifest, SnapshotEntry, ChangesetEntry, MANIFEST_FORMAT,
+        write_cached_blob, clean_blob_cache,
+    };
+    use std::collections::BTreeMap;
+
+    fn make_manifest(snapshot_hash: &str, changeset_hashes: &[&str]) -> Manifest {
+        let schema = BTreeMap::from([("test".to_string(), 1)]);
+        Manifest {
+            format: MANIFEST_FORMAT.to_string(),
+            schema_version: schema.clone(),
+            base_snapshot: SnapshotEntry {
+                hash: snapshot_hash.to_string(),
+                compression: "zstd".to_string(),
+                schema_version: schema.clone(),
+                created_at: "2026-01-01T00:00:00Z".to_string(),
+                size: 1000,
+                message: None,
+            },
+            changesets: changeset_hashes
+                .iter()
+                .map(|h| ChangesetEntry {
+                    hash: h.to_string(),
+                    schema_version: schema.clone(),
+                    created_at: "2026-01-01T00:00:00Z".to_string(),
+                    size: 500,
+                    message: None,
+                })
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn keeps_referenced_removes_unreferenced() {
+        let dir = TempDir::new().expect("temp dir");
+        let stencila_dir = dir.path();
+
+        let manifest = make_manifest("snap_aaa", &["cs_bbb", "cs_ccc"]);
+
+        // Write referenced blobs
+        write_cached_blob(stencila_dir, "snapshots", "snap_aaa", b"snapshot data").unwrap();
+        write_cached_blob(stencila_dir, "changesets", "cs_bbb", b"changeset b").unwrap();
+        write_cached_blob(stencila_dir, "changesets", "cs_ccc", b"changeset c").unwrap();
+
+        // Write unreferenced (orphaned) blobs
+        write_cached_blob(stencila_dir, "snapshots", "snap_old", b"old snapshot").unwrap();
+        write_cached_blob(stencila_dir, "changesets", "cs_old", b"old changeset").unwrap();
+
+        let (removed, freed) = clean_blob_cache(stencila_dir, &manifest).unwrap();
+
+        assert_eq!(removed, 2);
+        assert!(freed > 0);
+
+        // Referenced blobs still exist
+        assert!(sync::cache_path(stencila_dir, "snapshots", "snap_aaa").exists());
+        assert!(sync::cache_path(stencila_dir, "changesets", "cs_bbb").exists());
+        assert!(sync::cache_path(stencila_dir, "changesets", "cs_ccc").exists());
+
+        // Unreferenced blobs are gone
+        assert!(!sync::cache_path(stencila_dir, "snapshots", "snap_old").exists());
+        assert!(!sync::cache_path(stencila_dir, "changesets", "cs_old").exists());
+    }
+
+    #[test]
+    fn empty_cache_returns_zero() {
+        let dir = TempDir::new().expect("temp dir");
+        let manifest = make_manifest("snap_aaa", &["cs_bbb"]);
+
+        let (removed, freed) = clean_blob_cache(dir.path(), &manifest).unwrap();
+        assert_eq!(removed, 0);
+        assert_eq!(freed, 0);
+    }
+
+    #[test]
+    fn all_referenced_returns_zero() {
+        let dir = TempDir::new().expect("temp dir");
+        let stencila_dir = dir.path();
+        let manifest = make_manifest("snap_aaa", &["cs_bbb"]);
+
+        write_cached_blob(stencila_dir, "snapshots", "snap_aaa", b"data").unwrap();
+        write_cached_blob(stencila_dir, "changesets", "cs_bbb", b"data").unwrap();
+
+        let (removed, _) = clean_blob_cache(stencila_dir, &manifest).unwrap();
+        assert_eq!(removed, 0);
+    }
+
+    use tempfile::TempDir;
+}

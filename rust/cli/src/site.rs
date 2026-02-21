@@ -4,7 +4,6 @@ use std::path::{Path, PathBuf};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail, eyre};
-use indicatif::{ProgressBar, ProgressStyle};
 use stencila_document::{Document, ExecuteOptions};
 use url::Url;
 
@@ -13,6 +12,7 @@ use stencila_cli_utils::{
     ToStdout,
     color_print::cstr,
     message, parse_domain,
+    progress::{ProgressBar, new_items_bar, new_spinner},
     tabulated::{Cell, CellAlignment, Color, Tabulated},
 };
 use stencila_cloud::ensure_workspace;
@@ -39,16 +39,8 @@ struct RenderProgressBar {
 
 impl RenderProgressBar {
     fn new(initial_message: &str) -> Self {
-        let spinner = ProgressBar::new_spinner();
-        spinner.set_style(
-            ProgressStyle::default_spinner()
-                .template("{spinner:.green} {msg}")
-                .expect("valid template"),
-        );
-        spinner.set_message(initial_message.to_string());
-        spinner.enable_steady_tick(std::time::Duration::from_millis(100));
         Self {
-            spinner,
+            spinner: new_spinner(initial_message),
             progress_bar: None,
             completed: false,
             label: None,
@@ -66,17 +58,7 @@ impl RenderProgressBar {
         if let Some(label) = &self.label {
             message(label);
         }
-        let pb = ProgressBar::new(documents as u64);
-        pb.set_style(
-            ProgressStyle::default_bar()
-                .template(
-                    "{spinner:.green} {elapsed_precise} {bar:40.cyan/blue} {pos}/{len} documents ({eta})",
-                )
-                .expect("valid template")
-                .progress_chars("━╸─"),
-        );
-        pb.enable_steady_tick(std::time::Duration::from_millis(100));
-        self.progress_bar = Some(pb);
+        self.progress_bar = Some(new_items_bar(documents as u64, "documents"));
     }
 
     fn on_document_encoded(&self) {
@@ -142,15 +124,7 @@ impl UploadProgressBar {
         if let Some(label) = &self.label {
             message(label);
         }
-        let pb = ProgressBar::new_spinner();
-        pb.set_style(
-            ProgressStyle::default_spinner()
-                .template("{spinner:.green} {elapsed_precise} {msg}")
-                .expect("valid template"),
-        );
-        pb.set_message("Collecting files...");
-        pb.enable_steady_tick(std::time::Duration::from_millis(100));
-        self.progress_bar = Some(pb);
+        self.progress_bar = Some(new_spinner("Collecting files..."));
     }
 
     fn on_upload_starting(&mut self, total: usize) {
@@ -158,17 +132,7 @@ impl UploadProgressBar {
         if let Some(pb) = self.progress_bar.take() {
             pb.finish_and_clear();
         }
-        let pb = ProgressBar::new(total as u64);
-        pb.set_style(
-            ProgressStyle::default_bar()
-                .template(
-                    "{spinner:.green} {elapsed_precise} {bar:40.cyan/blue} {pos}/{len} files ({eta})",
-                )
-                .expect("valid template")
-                .progress_chars("━╸─"),
-        );
-        pb.enable_steady_tick(std::time::Duration::from_millis(100));
-        self.progress_bar = Some(pb);
+        self.progress_bar = Some(new_items_bar(total as u64, "files"));
     }
 
     fn on_processing(&self, processed: usize) {

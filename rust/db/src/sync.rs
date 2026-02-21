@@ -47,6 +47,12 @@ pub struct ChangesetEntry {
 pub const MANIFEST_FORMAT: &str = "stencila-db-sync-v1";
 pub const MANIFEST_FILE: &str = "db.json";
 
+/// Maximum number of changesets before automatic snapshot rotation on push.
+pub const AUTO_SNAPSHOT_CHANGESET_LIMIT: usize = 50;
+
+/// Cumulative changeset size (bytes) that triggers automatic snapshot rotation.
+pub const AUTO_SNAPSHOT_SIZE_LIMIT: u64 = 50 * 1024 * 1024; // 50 MB
+
 // ---------------------------------------------------------------------------
 // Manifest I/O
 // ---------------------------------------------------------------------------
@@ -190,6 +196,57 @@ pub fn write_cached_blob(
 ) -> Result<()> {
     ensure_cache_dir(stencila_dir, kind)?;
     fs::write(cache_path(stencila_dir, kind, hash), data).context("write blob to cache")
+}
+
+/// Remove cached blobs that are not referenced by the given manifest.
+///
+/// Returns `(removed_count, freed_bytes)`.
+pub fn clean_blob_cache(stencila_dir: &Path, manifest: &Manifest) -> Result<(usize, u64)> {
+    let mut referenced = std::collections::HashSet::new();
+    referenced.insert(manifest.base_snapshot.hash.clone());
+    for cs in &manifest.changesets {
+        referenced.insert(cs.hash.clone());
+    }
+
+    let mut removed = 0usize;
+    let mut freed = 0u64;
+
+    for kind in &["snapshots", "changesets"] {
+        let dir = stencila_dir.join("cache").join("db").join(kind);
+        if !dir.exists() {
+            continue;
+        }
+        let entries = fs::read_dir(&dir).context("read cache dir")?;
+        for entry in entries {
+            let entry = entry.context("read cache entry")?;
+            let file_name = entry.file_name();
+            let name = file_name.to_string_lossy();
+            if !referenced.contains(name.as_ref()) {
+                let meta = entry.metadata().ok();
+                let size = meta.map(|m| m.len()).unwrap_or(0);
+                if fs::remove_file(entry.path()).is_ok() {
+                    removed += 1;
+                    freed += size;
+                }
+            }
+        }
+    }
+
+    Ok((removed, freed))
+}
+
+/// Check whether adding one more changeset to this manifest would reach
+/// the automatic snapshot rotation threshold (by count or cumulative size).
+///
+/// The check accounts for the pending changeset that is about to be
+/// appended, so with a limit of 50, this returns `true` when there are
+/// already 49 changesets (the next one would be #50).
+pub fn should_auto_snapshot(manifest: &Manifest) -> bool {
+    if manifest.changesets.len() + 1 >= AUTO_SNAPSHOT_CHANGESET_LIMIT {
+        return true;
+    }
+    let total_size: u64 = manifest.changesets.iter().map(|c| c.size).sum();
+    total_size >= AUTO_SNAPSHOT_SIZE_LIMIT
 }
 
 // ---------------------------------------------------------------------------

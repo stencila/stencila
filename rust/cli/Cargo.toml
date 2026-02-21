@@ -21,7 +21,6 @@ console-subscriber = { version = "0.5.0", optional = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
 glob = { workspace = true }
-indicatif = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 pathdiff = { workspace = true }
