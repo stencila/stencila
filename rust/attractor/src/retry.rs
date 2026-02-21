@@ -8,7 +8,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use futures::FutureExt;
-use rand::Rng;
+use rand::RngExt;
 use serde::{Deserialize, Serialize};
 
 use crate::context::Context;

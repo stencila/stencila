@@ -9,7 +9,7 @@ use std::{
 
 use eyre::{Result, bail};
 use itertools::Itertools;
-use rand::{Rng, distr::Alphanumeric, rng};
+use rand::{RngExt, distr::Alphanumeric, rng};
 
 use stencila_codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
 use stencila_codec_utils::{move_file, split_paragraph};

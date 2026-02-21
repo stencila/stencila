@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use eyre::{Result, bail};
 use glob::glob;
-use rand::{Rng, distr::Alphanumeric, rng};
+use rand::{RngExt, distr::Alphanumeric, rng};
 use tokio::fs::{create_dir_all, read_to_string, remove_file, write};
 
 use stencila_codec_utils::move_file;

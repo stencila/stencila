@@ -18,7 +18,7 @@ use axum::{
 };
 use clap::Args;
 use eyre::bail;
-use rand::{Rng, rng};
+use rand::{RngExt, rng};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 use tokio::{

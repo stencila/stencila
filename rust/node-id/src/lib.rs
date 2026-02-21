@@ -4,7 +4,7 @@ use std::{
 };
 
 use derive_more::Deref;
-use rand::{Rng, distr::Alphanumeric, rng};
+use rand::{RngExt, distr::Alphanumeric, rng};
 
 use eyre::{Report, bail};
 use serde_with::{DeserializeFromStr, SerializeDisplay};

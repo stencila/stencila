@@ -9,7 +9,7 @@ use std::{
 use clap::{Args, ValueEnum};
 use eyre::{Context, Result, bail};
 use itertools::Itertools;
-use rand::{Rng, rng, rngs::ThreadRng};
+use rand::{RngExt, rng, rngs::ThreadRng};
 use serde_json::json;
 use stencila_format::Format;
 

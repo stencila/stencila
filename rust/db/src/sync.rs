@@ -309,7 +309,7 @@ pub fn create_changeset(db_path: &Path, head_path: &Path) -> Result<Option<Vec<u
     let mut session = Session::new(&conn)?;
     for table in &tables {
         session
-            .diff(rusqlite::DatabaseName::Attached("head"), table)
+            .diff::<&str, &str>("head", table.as_str())
             .with_context(|| format!("diff table `{table}`"))?;
     }
 

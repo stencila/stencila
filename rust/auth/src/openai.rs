@@ -392,7 +392,7 @@ pub fn load_credentials() -> Result<Option<OpenAICredentials>> {
 // ---------------------------------------------------------------------------
 
 fn generate_state() -> String {
-    use rand::Rng;
+    use rand::RngExt;
     let mut bytes = [0u8; 16];
     rand::rng().fill(&mut bytes);
     hex::encode(bytes)

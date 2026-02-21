@@ -4,7 +4,7 @@
 //! code verifier and derives a SHA-256 challenge for the authorization request.
 
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
-use rand::Rng;
+use rand::RngExt;
 use sha2::{Digest, Sha256};
 
 /// A PKCE code verifier and its corresponding challenge.
