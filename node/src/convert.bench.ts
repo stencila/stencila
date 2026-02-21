@@ -1,7 +1,6 @@
 import { Article } from '@stencila/types'
 import * as Benchmark from 'benchmark'
 
-// eslint-disable-next-line import/no-unresolved
 import { fromString, toString } from './convert.js'
 
 const suite = new Benchmark.Suite()

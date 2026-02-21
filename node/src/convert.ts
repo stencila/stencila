@@ -1,8 +1,6 @@
 import { type Node, node } from '@stencila/types'
 
-// eslint-disable-next-line import/no-unresolved
 import * as bindings from './bindings.js'
-// eslint-disable-next-line import/no-unresolved
 import { type DecodeOptions, type EncodeOptions } from './options.js'
 
 export { DecodeOptions, EncodeOptions }
