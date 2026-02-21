@@ -15,6 +15,7 @@ pub const SKILLS_DIR: &str = "skills";
 pub const AGENTS_DIR: &str = "agents";
 pub const WORKFLOWS_DIR: &str = "workflows";
 pub const DB_FILE: &str = "db.kuzu";
+pub const DB_SQLITE_FILE: &str = "db.sqlite3";
 
 #[derive(SmartDefault)]
 pub struct CreateStencilaDirOptions {
@@ -41,7 +42,7 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
     }
 
     if options.gitignore_file {
-        write(path.join(".gitignore"), "*\n").await?;
+        write(path.join(".gitignore"), "*\n!.gitignore\n!db.json\n").await?;
     }
 
     if options.cache_dir {

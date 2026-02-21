@@ -108,39 +108,7 @@ pub async fn run_workflow_with_options(
     // running pipeline.
     let stencila_dir = stencila_dirs::closest_stencila_dir(workflow.path(), true).await?;
     let workspace_root = stencila_dirs::workspace_dir(&stencila_dir)?;
-    let db_path = stencila_dir.join("workspace.db");
-    let legacy_path = stencila_dir.join("workflows.db");
-
-    // Resolve which DB file to open, handling the workflows.db → workspace.db
-    // migration and edge cases.
-    let effective_db_path = if db_path.exists() && legacy_path.exists() {
-        tracing::warn!(
-            "Both `{}` and `{}` exist. Using `workspace.db`; \
-             the legacy `workflows.db` can be removed once you have \
-             confirmed no data is needed from it.",
-            db_path.display(),
-            legacy_path.display()
-        );
-        db_path.clone()
-    } else if !db_path.exists() && legacy_path.exists() {
-        match std::fs::rename(&legacy_path, &db_path) {
-            Ok(()) => {
-                tracing::info!("Migrated workflows.db → workspace.db");
-                db_path.clone()
-            }
-            Err(e) => {
-                tracing::warn!(
-                    "Failed to rename `{}` to `{}`: {e}; \
-                     falling back to legacy path",
-                    legacy_path.display(),
-                    db_path.display()
-                );
-                legacy_path
-            }
-        }
-    } else {
-        db_path.clone()
-    };
+    let effective_db_path = stencila_dir.join("db.sqlite3");
 
     let run_id = uuid::Uuid::now_v7().to_string();
     let artifacts_dir =

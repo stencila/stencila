@@ -106,10 +106,6 @@ mod tests {
             ("document::clean", stencila_document::cli::CLEAN_AFTER_LONG_HELP),
             ("document::query", stencila_document::cli::QUERY_AFTER_LONG_HELP),
             // DB module help strings
-            ("db::new", stencila_node_db::cli::NEW_AFTER_LONG_HELP),
-            ("db::add", crate::db::ADD_AFTER_LONG_HELP),
-            ("db::remove", crate::db::REMOVE_AFTER_LONG_HELP),
-            ("db::query", crate::db::QUERY_AFTER_LONG_HELP),
             ("db::migrate", stencila_node_db::cli::MIGRATE_AFTER_LONG_HELP),
             ("db::migrations", stencila_node_db::cli::MIGRATIONS_AFTER_LONG_HELP),
             // Prompts module help strings

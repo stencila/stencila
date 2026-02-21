@@ -14,7 +14,7 @@ use crate::migration::Migration;
 /// Wraps `Arc<Mutex<rusqlite::Connection>>` with connection setup
 /// (WAL mode, foreign keys, busy timeout) and a per-domain migration runner.
 ///
-/// The database file lives at `.stencila/workspace.db` in the workspace root.
+/// The database file lives at `.stencila/db.sqlite3` in the workspace root.
 /// Multiple domains (workflows, chat sessions, etc.) share the same database,
 /// each owning their own set of tables managed via namespaced migrations.
 pub struct WorkspaceDb {
@@ -28,11 +28,6 @@ impl WorkspaceDb {
     /// Enables WAL mode for concurrent read access, turns on foreign key
     /// enforcement, and sets a 5-second busy timeout. Creates the
     /// `_migrations` tracking table if it does not exist.
-    ///
-    /// For backwards compatibility with existing `workflows.db` files that
-    /// used `PRAGMA user_version` for migration tracking, this also checks
-    /// for that legacy state and bootstraps the `_migrations` table
-    /// accordingly.
     ///
     /// # Errors
     ///
@@ -54,24 +49,6 @@ impl WorkspaceDb {
                 PRIMARY KEY (domain, version)
             )",
         )?;
-
-        // Legacy compatibility: if user_version >= 1 and no workflow migrations
-        // recorded yet, the DB was created by the old attractor sqlite_backend.
-        // Record the initial workflow migration as already applied.
-        let user_version: i32 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-        if user_version >= 1 {
-            let count: i32 = conn.query_row(
-                "SELECT COUNT(*) FROM _migrations WHERE domain = 'workflows'",
-                [],
-                |row| row.get(0),
-            )?;
-            if count == 0 {
-                conn.execute(
-                    "INSERT INTO _migrations (domain, version, name) VALUES ('workflows', 1, 'initial')",
-                    [],
-                )?;
-            }
-        }
 
         Ok(Self {
             conn: Arc::new(Mutex::new(conn)),

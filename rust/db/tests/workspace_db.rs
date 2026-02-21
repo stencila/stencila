@@ -7,7 +7,7 @@ use stencila_db::migration::Migration;
 
 fn temp_workspace_db() -> (TempDir, WorkspaceDb) {
     let dir = TempDir::new().expect("temp dir");
-    let db_path = dir.path().join("workspace.db");
+    let db_path = dir.path().join("db.sqlite3");
     let db = WorkspaceDb::open(&db_path).expect("open");
     (dir, db)
 }
@@ -29,7 +29,7 @@ fn open_creates_migrations_table() {
 #[test]
 fn open_is_idempotent() {
     let dir = TempDir::new().expect("temp dir");
-    let db_path = dir.path().join("workspace.db");
+    let db_path = dir.path().join("db.sqlite3");
     let _db1 = WorkspaceDb::open(&db_path).expect("first open");
     let _db2 = WorkspaceDb::open(&db_path).expect("second open");
 }
@@ -168,39 +168,9 @@ fn multi_domain_migrations() {
 }
 
 #[test]
-fn legacy_user_version_compat() {
-    let dir = TempDir::new().expect("temp dir");
-    let db_path = dir.path().join("legacy.db");
-
-    // Simulate a legacy database with user_version = 1 and workflow tables
-    {
-        let conn = stencila_db::rusqlite::Connection::open(&db_path).expect("open");
-        conn.pragma_update(None, "user_version", 1).expect("pragma");
-        conn.execute_batch(
-            "CREATE TABLE workflow_runs (run_id TEXT PRIMARY KEY);
-             CREATE TABLE workflow_context (run_id TEXT, key TEXT, value TEXT, updated_at TEXT, PRIMARY KEY(run_id, key));"
-        ).expect("create tables");
-    }
-
-    // Opening as WorkspaceDb should detect legacy state and bootstrap _migrations
-    let db = WorkspaceDb::open(&db_path).expect("open legacy");
-
-    let conn = db.connection().lock().expect("lock");
-    let (domain, version): (String, i32) = conn
-        .query_row(
-            "SELECT domain, version FROM _migrations WHERE domain = 'workflows'",
-            [],
-            |row| Ok((row.get(0)?, row.get(1)?)),
-        )
-        .expect("query");
-    assert_eq!(domain, "workflows");
-    assert_eq!(version, 1);
-}
-
-#[test]
 fn db_path_is_recorded() {
     let dir = TempDir::new().expect("temp dir");
-    let db_path = dir.path().join("workspace.db");
+    let db_path = dir.path().join("db.sqlite3");
     let db = WorkspaceDb::open(&db_path).expect("open");
     assert_eq!(db.db_path(), db_path);
 }

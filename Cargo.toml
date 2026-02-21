@@ -54,7 +54,7 @@ quote = "1.0.43"
 rand = "0.9.2"
 regex = "1.12.2"
 reqwest = { version = "0.13.1", default-features = false, features = ["json", "multipart", "query", "rustls", "stream"] }
-rusqlite = { version = "0.35", features = ["bundled"] }
+rusqlite = { version = "0.35", features = ["bundled", "session"] }
 roxmltree = "0.21.1"
 rust-embed = { version = "8.11.0", features = ["interpolate-folder-path", "include-exclude"] }
 schemars = { version = "1.2.0", features = ["indexmap2", "url2"] }
