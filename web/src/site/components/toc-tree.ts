@@ -381,7 +381,7 @@ export class StencilaTocTree extends LitElement {
       return
     }
 
-    let newIndex: number | null = null
+    let newIndex: number | null
 
     switch (event.key) {
       case 'ArrowDown':

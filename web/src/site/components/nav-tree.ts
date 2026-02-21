@@ -359,7 +359,7 @@ export class StencilaNavTree extends LitElement {
     }
 
     const currentElement = focusables[currentIndex]
-    let newIndex: number | null = null
+    let newIndex: number | null
 
     switch (event.key) {
       case 'ArrowDown':

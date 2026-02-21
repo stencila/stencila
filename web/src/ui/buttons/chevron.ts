@@ -46,7 +46,7 @@ export class ChevronButton extends LitElement {
       this.position = this.direction
     }
 
-    let rotation = ''
+    let rotation: string
 
     switch (this.direction) {
       case 'left':
