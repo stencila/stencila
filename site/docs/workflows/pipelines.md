@@ -47,7 +47,66 @@ Every node represents a task in the pipeline. The node's `shape` determines what
 
 You can also write `shape=human` as a shorthand for `shape=hexagon`.
 
-Nodes named `Start` or `End` are automatically recognized as entry and exit points — no special shape needed. Nodes named `Fail` are automatically recognized as failure points.
+## Shorthand conventions
+
+To reduce boilerplate, the pipeline engine recognizes certain node IDs and attribute names as implying a handler type. You do not need to set `shape` explicitly when using these conventions.
+
+### Node IDs
+
+| Node ID              | Implied shape     | Handler type     |
+|----------------------|-------------------|------------------|
+| `Start`, `start`     | `Mdiamond`        | Entry point      |
+| `End`, `end`, `Exit`, `exit` | `Msquare` | Exit point       |
+| `Fail`, `fail`       | `invtriangle`     | Failure          |
+| `FanOut…`            | `component`       | Parallel fan-out |
+| `Review…`, `Approve…`| `hexagon`         | Human review     |
+| `Check…`, `Branch…`  | `diamond`         | Conditional      |
+| `Shell…`, `Run…`     | `parallelogram`   | Shell command    |
+
+The first three are exact ID matches; the rest are prefix matches (e.g. `FanOutSearch`, `ReviewDraft`, `CheckQuality`).
+
+An explicit `shape` attribute always takes precedence over ID-based inference. If a node has a `prompt` or `agent` attribute, it is treated as an LLM task (`box`), overriding prefix-based ID inference — so `ReviewData [prompt="Summarize the reviews"]` stays a codergen node, not a human gate. Reserved structural IDs (`Start`/`End`/`Exit`/`Fail`) are exempt: they always receive their structural shape.
+
+### Property shortcuts
+
+| Shorthand                  | Expands to                                          |
+|----------------------------|-----------------------------------------------------|
+| `ask="Do you approve?"`    | `shape=hexagon, label="Do you approve?"`            |
+| `cmd="make build"`         | `shape=parallelogram, shell_command="make build"`   |
+| `shell="cargo test"`       | `shape=parallelogram, shell_command="cargo test"`   |
+| `branch="Quality OK?"`    | `shape=diamond, label="Quality OK?"`                |
+
+Property shortcuts never override an explicitly set `shape`, `label`, or `shell_command`. All sugar keys (`ask`, `cmd`, `shell`, `branch`) are always removed from the node, even when a higher-precedence shortcut wins.
+
+### Resolution order
+
+When a node has no explicit `shape`, the engine applies the first matching rule:
+
+1. **Property shortcuts** — `ask` > `cmd`/`shell` > `branch` (all consumed regardless of which wins)
+2. **`prompt` or `agent`** — node is an LLM task, prefix-based ID inference is skipped (structural IDs exempt)
+3. **Node ID** — exact or prefix match from the table above
+
+**Example** — the combined example from below can be written more concisely:
+
+```dot
+digraph ResearchWorkflow {
+    graph [goal="Systematic review of renewable energy storage technologies"]
+
+    Start -> Search -> Screen -> Analyze -> CheckQuality
+    CheckQuality -> Review    [label="Pass", condition="outcome=success"]
+    CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
+    Review -> Publish         [label="[A] Approve"]
+    Review -> Search          [label="[R] Revise"]
+    Publish -> End
+
+    Search       [prompt="Search databases for recent papers on: $goal"]
+    Screen       [prompt="Screen papers for relevance and quality"]
+    Analyze      [prompt="Extract and synthesize key findings"]
+    Publish      [prompt="Format the final review for publication"]
+}
+```
+
+Here `CheckQuality` is automatically a conditional node and `Review` is automatically a human gate — no `shape=` needed.
 
 ## Common attributes
 
