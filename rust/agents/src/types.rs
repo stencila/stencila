@@ -381,6 +381,12 @@ pub enum Turn {
         reasoning: Option<String>,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         thinking_parts: Vec<ContentPart>,
+        /// Original content parts from the response message, preserved for
+        /// lossless round-tripping. Contains provider-specific metadata such
+        /// as Gemini `thought_signature` on tool call parts that would be lost
+        /// if reconstructed from the `tool_calls` field alone.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        response_content_parts: Vec<ContentPart>,
         #[serde(default)]
         usage: Usage,
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -419,6 +425,7 @@ impl Turn {
             tool_calls: Vec::new(),
             reasoning: None,
             thinking_parts: Vec::new(),
+            response_content_parts: Vec::new(),
             usage: Usage::default(),
             response_id: None,
             timestamp: now_timestamp(),

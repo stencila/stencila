@@ -1270,6 +1270,78 @@ async fn thinking_parts_preserved_in_history() -> AgentResult<()> {
     Ok(())
 }
 
+/// Tool call metadata (such as Gemini `thought_signature`) must survive
+/// the history → messages round-trip. Regression test for a bug where
+/// `convert_history_to_messages` reconstructed `ContentPart::tool_call()`
+/// from decomposed `ToolCall` fields, losing the signature.
+#[tokio::test]
+async fn tool_call_thought_signature_preserved_in_round_trip() -> AgentResult<()> {
+    use stencila_models3::types::content::ToolCallData;
+
+    // Response 1: tool call with a thought_signature (simulating Gemini thinking model)
+    let tool_call_response_with_sig = {
+        let parts = vec![
+            ContentPart::text("I'll check that file."),
+            ContentPart::ToolCall {
+                tool_call: ToolCallData {
+                    id: "call-1".into(),
+                    name: "read_file".into(),
+                    arguments: json!({"file_path": "test.rs"}),
+                    call_type: "function".into(),
+                    thought_signature: Some("gemini_sig_xyz".into()),
+                },
+            },
+        ];
+        Ok(Response {
+            id: "resp-1".into(),
+            model: "test-model".into(),
+            provider: "test".into(),
+            message: Message::new(Role::Assistant, parts),
+            finish_reason: FinishReason::new(Reason::ToolCalls, None),
+            usage: Usage::default(),
+            raw: None,
+            warnings: None,
+            rate_limit: None,
+        })
+    };
+
+    // Response 2: final text
+    let final_response = text_response("Done.")?;
+
+    let (mut session, _rx, client) =
+        test_session(vec![tool_call_response_with_sig, Ok(final_response)])?;
+    session.submit("Read test.rs").await?;
+
+    let requests = client.take_requests()?;
+    assert_eq!(requests.len(), 2);
+
+    // The second request's assistant message should contain the tool call
+    // with the original thought_signature intact.
+    let second_req = &requests[1];
+    let assistant_msgs: Vec<_> = second_req
+        .messages
+        .iter()
+        .filter(|m| m.role == Role::Assistant)
+        .collect();
+    assert!(!assistant_msgs.is_empty());
+
+    let has_signature = assistant_msgs.iter().any(|m| {
+        m.content.iter().any(|p| {
+            matches!(
+                p,
+                ContentPart::ToolCall { tool_call }
+                    if tool_call.thought_signature.as_deref() == Some("gemini_sig_xyz")
+            )
+        })
+    });
+    assert!(
+        has_signature,
+        "tool call thought_signature must be preserved in the round-tripped assistant message"
+    );
+
+    Ok(())
+}
+
 // ===========================================================================
 // Error handling tests (spec Appendix B, 9.11)
 // ===========================================================================

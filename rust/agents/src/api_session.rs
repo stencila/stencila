@@ -713,11 +713,13 @@ impl ApiSession {
             self.events
                 .emit_assistant_text_end(&text, reasoning.clone());
 
+            let response_content_parts = response.message.content.clone();
             self.history.push(Turn::Assistant {
                 content: text,
                 tool_calls: tool_calls.clone(),
                 reasoning,
                 thinking_parts,
+                response_content_parts,
                 usage,
                 response_id: Some(response_id),
                 timestamp: now_timestamp(),
@@ -934,9 +936,18 @@ impl ApiSession {
                     content,
                     tool_calls,
                     thinking_parts,
+                    response_content_parts,
                     ..
                 } => {
-                    if thinking_parts.is_empty() && tool_calls.is_empty() {
+                    if !response_content_parts.is_empty() {
+                        // Use the original response content parts to preserve
+                        // provider-specific metadata (e.g. Gemini thought_signature
+                        // on function call parts).
+                        messages.push(Message::new(
+                            Role::Assistant,
+                            response_content_parts.clone(),
+                        ));
+                    } else if thinking_parts.is_empty() && tool_calls.is_empty() {
                         messages.push(Message::assistant(content.as_str()));
                     } else {
                         let mut parts = Vec::new();
@@ -1296,23 +1307,33 @@ impl ApiSession {
                     tool_calls,
                     reasoning,
                     thinking_parts,
+                    response_content_parts,
                     ..
                 } => {
-                    chars += content.len() as u64;
-                    for tc in tool_calls {
-                        chars += tc.name.len() as u64;
-                        chars += tc.arguments.to_string().len() as u64;
-                    }
-                    if let Some(r) = reasoning {
-                        chars += r.len() as u64;
-                    }
-                    for part in thinking_parts {
-                        if let ContentPart::Thinking { thinking }
-                        | ContentPart::RedactedThinking { thinking } = part
-                        {
-                            chars += thinking.text.len() as u64;
-                            if let Some(ref sig) = thinking.signature {
-                                chars += sig.len() as u64;
+                    if !response_content_parts.is_empty() {
+                        // Estimate from the original parts (what we actually
+                        // send) to avoid undercounting provider metadata such
+                        // as Gemini thought_signature strings.
+                        chars += estimate_content_parts_chars(response_content_parts);
+                    } else {
+                        // Legacy turns without response_content_parts: fall
+                        // back to the decomposed fields.
+                        chars += content.len() as u64;
+                        for tc in tool_calls {
+                            chars += tc.name.len() as u64;
+                            chars += tc.arguments.to_string().len() as u64;
+                        }
+                        if let Some(r) = reasoning {
+                            chars += r.len() as u64;
+                        }
+                        for part in thinking_parts {
+                            if let ContentPart::Thinking { thinking }
+                            | ContentPart::RedactedThinking { thinking } = part
+                            {
+                                chars += thinking.text.len() as u64;
+                                if let Some(ref sig) = thinking.signature {
+                                    chars += sig.len() as u64;
+                                }
                             }
                         }
                     }
@@ -1350,6 +1371,7 @@ impl ApiSession {
             if let Turn::Assistant {
                 reasoning,
                 thinking_parts,
+                response_content_parts,
                 ..
             } = turn
             {
@@ -1359,6 +1381,16 @@ impl ApiSession {
                 }
                 if !thinking_parts.is_empty() {
                     thinking_parts.clear();
+                    modified = true;
+                }
+                let before_len = response_content_parts.len();
+                response_content_parts.retain(|p| {
+                    !matches!(
+                        p,
+                        ContentPart::Thinking { .. } | ContentPart::RedactedThinking { .. }
+                    )
+                });
+                if response_content_parts.len() != before_len {
                     modified = true;
                 }
             }
@@ -1559,6 +1591,35 @@ impl Drop for ApiSession {
     fn drop(&mut self) {
         self.close();
     }
+}
+
+/// Estimate character count from a slice of [`ContentPart`]s.
+///
+/// Used by [`ApiSession::estimate_history_chars`] when `response_content_parts`
+/// is available, so that provider metadata (e.g. Gemini `thought_signature`)
+/// is included in the estimate.
+fn estimate_content_parts_chars(parts: &[ContentPart]) -> u64 {
+    let mut chars: u64 = 0;
+    for part in parts {
+        match part {
+            ContentPart::Text { text } => chars += text.len() as u64,
+            ContentPart::ToolCall { tool_call } => {
+                chars += tool_call.name.len() as u64;
+                chars += tool_call.arguments.to_string().len() as u64;
+                if let Some(ref sig) = tool_call.thought_signature {
+                    chars += sig.len() as u64;
+                }
+            }
+            ContentPart::Thinking { thinking } | ContentPart::RedactedThinking { thinking } => {
+                chars += thinking.text.len() as u64;
+                if let Some(ref sig) = thinking.signature {
+                    chars += sig.len() as u64;
+                }
+            }
+            _ => {}
+        }
+    }
+    chars
 }
 
 /// Human-readable label for a retryable error, used in the `LLM_RETRY` info
