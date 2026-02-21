@@ -1,4 +1,4 @@
-import { html, LitElement, PropertyValues } from 'lit'
+import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
@@ -7,7 +7,7 @@ import { compileECharts } from './image-object-echarts'
 import { compileLeaflet } from './image-object-leaflet'
 import { compileMermaid } from './image-object-mermaid'
 import { compilePlotly } from './image-object-plotly'
-import { imageObjectStyles, MEDIA_TYPES } from './image-object-shared'
+import { MEDIA_TYPES, imageObjectStyles } from './image-object-shared'
 import { compileVegaLite } from './image-object-vegalite'
 
 /**

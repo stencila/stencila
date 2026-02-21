@@ -8,7 +8,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { generateTrigrams, tokenize, tokenPrefix } from './tokenize'
+import { generateTrigrams, tokenPrefix, tokenize } from './tokenize'
 
 describe('tokenize', () => {
   it('basic tokenization', () => {

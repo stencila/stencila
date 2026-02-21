@@ -2,7 +2,7 @@ import { html, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../../glide/events'
-import { SiteAction, type BaseFooterState, isLocalhost, joinPath } from '../site-action'
+import { type BaseFooterState, SiteAction, isLocalhost, joinPath } from '../site-action'
 import { FilesIndexLoader } from '../site-files'
 
 import type {
@@ -14,11 +14,11 @@ import {
   STORAGE_KEY_FILES,
   UPLOAD_SUBMIT_PATH,
   formatFileSize,
-  getFileExtension,
-  isExtensionAllowed,
   generateId,
-  readFileAsBase64,
+  getFileExtension,
   getFileIcon,
+  isExtensionAllowed,
+  readFileAsBase64,
 } from './utils'
 
 /**

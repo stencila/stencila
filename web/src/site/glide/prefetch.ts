@@ -6,7 +6,7 @@
  */
 
 import { getPageCache } from './cache'
-import { dispatch, PrefetchEvents } from './events'
+import { PrefetchEvents, dispatch } from './events'
 import { isEligibleForPrefetch, normalizeUrl } from './links'
 import { parseHTML } from './parser'
 import type { NavConfig } from './types'

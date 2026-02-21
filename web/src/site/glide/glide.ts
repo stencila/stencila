@@ -9,7 +9,7 @@ import type { StencilaNavTree } from '../components/nav-tree'
 import type { StencilaTocTree } from '../components/toc-tree'
 
 import { getPageCache, initPageCache } from './cache'
-import { dispatch, GLIDE_REQUEST, GlideEvents } from './events'
+import { GLIDE_REQUEST, GlideEvents, dispatch } from './events'
 import {
   pushNavState,
   restoreScrollPosition,

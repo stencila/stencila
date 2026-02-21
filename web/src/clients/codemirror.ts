@@ -1,9 +1,9 @@
 import { Extension, SelectionRange, TransactionSpec } from '@codemirror/state'
 import { EditorView, ViewUpdate } from '@codemirror/view'
 
-import type { NodeId, DocumentAccess, DocumentId } from '../types'
+import type { DocumentAccess, DocumentId, NodeId } from '../types'
 
-import { FormatOperation, FormatPatch, FormatClient } from './format'
+import { FormatClient, FormatOperation, FormatPatch } from './format'
 
 /// The number milliseconds to debounce sending updates
 const SEND_DEBOUNCE = 300

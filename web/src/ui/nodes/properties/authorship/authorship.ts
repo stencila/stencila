@@ -1,12 +1,12 @@
 import { ContextConsumer } from '@lit/context'
 import { ProvenanceCategory } from '@stencila/types'
-import { LitElement, html, css, PropertyValueMap } from 'lit'
-import { property, customElement, state } from 'lit/decorators'
+import { LitElement, PropertyValueMap, css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../../twind'
-import { documentContext, DocumentContext } from '../../../document/context'
-import { entityContext, EntityContext } from '../../entity-context'
+import { DocumentContext, documentContext } from '../../../document/context'
+import { EntityContext, entityContext } from '../../entity-context'
 import {
   ProvenanceOpacityLevel,
   getProvenanceOpacity,

@@ -3,9 +3,9 @@ import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../glide/events'
 import {
-  getAccessConfig,
-  canAccess,
   addAccessBadgeToItem,
+  canAccess,
+  getAccessConfig,
 } from '../utils/access'
 
 import type {

@@ -4,7 +4,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { parseQuery, SearchEngine } from './engine'
+import { SearchEngine, parseQuery } from './engine'
 import type { ShardData } from './types'
 
 // Mock fetch for testing - using ShardData format

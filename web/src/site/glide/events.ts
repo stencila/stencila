@@ -6,8 +6,8 @@
  */
 
 import type {
-  GlideEventDetail,
   GlideErrorEventDetail,
+  GlideEventDetail,
   PrefetchEndEventDetail,
   PrefetchStartEventDetail,
 } from './types'

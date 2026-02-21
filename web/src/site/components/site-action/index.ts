@@ -1,21 +1,21 @@
-import { LitElement, html, nothing, type TemplateResult } from 'lit'
+import { LitElement, type TemplateResult, html, nothing } from 'lit'
 import { property, state } from 'lit/decorators.js'
 
 import {
-  type SiteAuthStatusResponse,
-  type BaseFooterState,
-  type ActionRegistration,
   type ActionPosition,
-  SITE_ACTION_REGISTER,
+  type ActionRegistration,
+  type BaseFooterState,
   SITE_ACTION_BADGE_UPDATE,
-  SITE_ACTION_UNREGISTER,
+  SITE_ACTION_REGISTER,
   SITE_ACTION_REQUEST_REGISTER,
+  SITE_ACTION_UNREGISTER,
+  type SiteAuthStatusResponse,
 } from './types'
 import {
-  isLocalhost,
   GITHUB_OAUTH_URL,
   getCachedAuthStatus,
   invalidateAuthCache,
+  isLocalhost,
 } from './utils'
 
 // Re-export types and utils for consumers

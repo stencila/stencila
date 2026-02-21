@@ -1,6 +1,6 @@
 import { InlineTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html, PropertyValueMap } from 'lit'
+import { PropertyValueMap, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { ChatMessage } from '../../../nodes/chat-message'

@@ -1,6 +1,6 @@
 import { consume } from '@lit/context'
 import { apply } from '@twind/core'
-import { LitElement, html, css } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 
 import { Entity } from '../../nodes/entity'
@@ -9,7 +9,7 @@ import { UIBlockOnDemand } from '../nodes/cards/block-on-demand'
 import { UIInlineOnDemand } from '../nodes/cards/inline-on-demand'
 
 import { ColorScheme, ColorSchemeManager } from './color-scheme'
-import { documentContext, DocumentContext, NodeMarkerState } from './context'
+import { DocumentContext, NodeMarkerState, documentContext } from './context'
 import { Theme, ThemeManager } from './themes'
 
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'

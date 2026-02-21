@@ -1,9 +1,9 @@
-import { readFileSync, readdirSync, existsSync } from 'fs'
-import { resolve, join } from 'path'
+import { existsSync, readFileSync, readdirSync } from 'fs'
+import { join, resolve } from 'path'
 
 import { Node } from '@stencila/types'
 import { format } from 'prettier'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { encode } from './html'
 

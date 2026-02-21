@@ -1,5 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import { apply, css as twCss, Twind } from '@twind/core'
+import { Twind, apply, css as twCss } from '@twind/core'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 

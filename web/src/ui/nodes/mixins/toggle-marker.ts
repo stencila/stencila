@@ -2,7 +2,7 @@ import { consume } from '@lit/context'
 import { BlockTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html } from 'lit'
-import { state, property } from 'lit/decorators'
+import { property, state } from 'lit/decorators'
 
 import { ChatMessage } from '../../../nodes/chat-message'
 import { Excerpt } from '../../../nodes/excerpt'

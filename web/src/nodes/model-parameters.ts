@@ -1,10 +1,10 @@
 import { ExecutionBounds } from '@stencila/types'
 import { apply, css } from '@twind/core'
-import { html, TemplateResult } from 'lit'
+import { TemplateResult, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { patchValue } from '../clients/commands'
-import { data, Model } from '../system'
+import { Model, data } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
 import { NodeTypeUI, nodeUi } from '../ui/nodes/icons-and-colours'

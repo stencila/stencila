@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
 import { ThemeClient } from '../clients/themes'
-import type { DocumentId, DocumentAccess } from '../types'
+import type { DocumentAccess, DocumentId } from '../types'
 import { initUno } from '../unocss'
 
 import { DocumentView } from './document'

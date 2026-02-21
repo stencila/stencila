@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import SlPopup from '@shoelace-style/shoelace/dist/components/popup/popup.js'
 import { css } from '@twind/core'
-import { html, PropertyValues } from 'lit'
+import { PropertyValues, html } from 'lit'
 import { customElement, query, state } from 'lit/decorators'
 
 import { ChatMessage } from '../../nodes/chat-message'

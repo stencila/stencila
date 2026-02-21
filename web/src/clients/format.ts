@@ -1,7 +1,7 @@
 import type { NodeType } from '@stencila/types'
 import { diffApply, jsonPatchPathConverter } from 'just-diff-apply'
 
-import type { NodeId, DocumentAccess, DocumentId } from '../types'
+import type { DocumentAccess, DocumentId, NodeId } from '../types'
 
 import { Client } from './client'
 

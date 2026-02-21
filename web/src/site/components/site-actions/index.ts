@@ -3,12 +3,12 @@ import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../../glide/events'
 import {
-  SITE_ACTION_REGISTER,
-  SITE_ACTION_BADGE_UPDATE,
-  SITE_ACTION_UNREGISTER,
-  SITE_ACTION_REQUEST_REGISTER,
   type ActionRegistration,
   type BadgeUpdateDetail,
+  SITE_ACTION_BADGE_UPDATE,
+  SITE_ACTION_REGISTER,
+  SITE_ACTION_REQUEST_REGISTER,
+  SITE_ACTION_UNREGISTER,
 } from '../site-action'
 
 /**

@@ -1,4 +1,4 @@
-import type { Validator, Node } from '@stencila/types'
+import type { Node, Validator } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 

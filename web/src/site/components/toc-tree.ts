@@ -1,4 +1,4 @@
-import { html, LitElement, nothing, PropertyValues } from 'lit'
+import { LitElement, PropertyValues, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { GlideEvents } from '../glide/events'

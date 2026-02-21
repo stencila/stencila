@@ -1,16 +1,16 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import {
-  foldGutter,
-  defaultHighlightStyle,
   LanguageDescription,
-  syntaxHighlighting,
   LanguageSupport,
   StreamLanguage,
+  defaultHighlightStyle,
+  foldGutter,
+  syntaxHighlighting,
 } from '@codemirror/language'
 import { Diagnostic, linter, setDiagnostics } from '@codemirror/lint'
 import { Compartment, EditorState, Extension } from '@codemirror/state'
-import { lineNumbers, EditorView, keymap, ViewUpdate } from '@codemirror/view'
+import { EditorView, ViewUpdate, keymap, lineNumbers } from '@codemirror/view'
 import { ExecutionRequired, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, PropertyValues, html } from 'lit'
@@ -24,12 +24,12 @@ import { isCSSFeatureVisible } from '../../../../utilities/cssVariables'
 import '../../../buttons/chevron'
 
 import { createTheme } from './themes'
-import { AuthorshipRun, AuthorshipMarker as AuthorshipMarker } from './types'
+import { AuthorshipMarker as AuthorshipMarker, AuthorshipRun } from './types'
 import {
+  clipBoardKeyBindings,
+  createLinterDiagnostics,
   createProvenanceDecorations,
   provenanceTooltip,
-  createLinterDiagnostics,
-  clipBoardKeyBindings,
 } from './utils'
 
 /**

@@ -5,21 +5,21 @@ import { GlideEvents } from '../../glide/events'
 import { navigate } from '../../glide/glide'
 import type { GlideEventDetail } from '../../glide/types'
 import {
-  SiteAction,
   type BaseFooterState,
-  isLocalhost,
+  SiteAction,
   getPathname,
+  isLocalhost,
   isStencilaHosted,
 } from '../site-action'
 
 import {
-  supportsHighlightAPI,
-  findTextPosition,
-  findNodeWithId,
-  getCharOffset,
-  createRangeForItem,
   caretRangeFromPoint,
+  createRangeForItem,
+  findNodeWithId,
+  findTextPosition,
+  getCharOffset,
   rangeContainsPoint,
+  supportsHighlightAPI,
 } from './dom'
 import type {
   ItemAddDetail,
@@ -29,11 +29,11 @@ import type {
   SelectionInfo,
 } from './item'
 import type {
+  ApiError,
   ReviewItem,
   ReviewItemAnchor,
-  SourceInfo,
   ReviewResponse,
-  ApiError,
+  SourceInfo,
 } from './types'
 import {
   SHARE_PARAM,
@@ -42,9 +42,9 @@ import {
   hasSharedReview,
 } from './url'
 import {
+  REVIEW_SUBMIT_PATH,
   STORAGE_KEY_ITEMS,
   STORAGE_KEY_SOURCE,
-  REVIEW_SUBMIT_PATH,
 } from './utils'
 import './item'
 

@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html, PropertyValues } from 'lit'
+import { PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'

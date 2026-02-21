@@ -1,20 +1,20 @@
 import { html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import { SiteAction, type BaseFooterState, isLocalhost } from '../site-action'
+import { type BaseFooterState, SiteAction, isLocalhost } from '../site-action'
 
 import type {
+  PickerMessage,
   RemoteService,
   WatchDirection,
   WatchMode,
-  PickerMessage,
 } from './types'
 import {
-  REMOTE_SUBMIT_PATH,
   GOOGLE_PICKER_URL,
   MICROSOFT_PICKER_URL,
   PICKER_ORIGIN,
   PICKER_POLL_INTERVAL,
+  REMOTE_SUBMIT_PATH,
   generateTargetPath,
   getServiceDisplayName,
 } from './utils'

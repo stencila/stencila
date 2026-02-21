@@ -1,5 +1,5 @@
 import { css } from '@twind/core'
-import { html, PropertyValues } from 'lit'
+import { PropertyValues, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
@@ -13,7 +13,7 @@ import { compileECharts, renderEChartsContainer } from './image-object-echarts'
 import { compileLeaflet, renderLeafletIframe } from './image-object-leaflet'
 import { compileMermaid, renderMermaid } from './image-object-mermaid'
 import { compilePlotly, renderPlotlyContainer } from './image-object-plotly'
-import { imageObjectStyles, MEDIA_TYPES } from './image-object-shared'
+import { MEDIA_TYPES, imageObjectStyles } from './image-object-shared'
 import {
   compileVegaLite,
   renderVegaLiteContainer,

@@ -1,4 +1,4 @@
-import { Author, CreativeWorkType, Reference as ReferenceType, Text, Inline, Person, PersonOrOrganization, IntegerOrString, StringOrNumber, PropertyValueOrString } from '@stencila/types'
+import { Author, CreativeWorkType, Inline, IntegerOrString, Person, PersonOrOrganization, PropertyValueOrString, Reference as ReferenceType, StringOrNumber, Text } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 

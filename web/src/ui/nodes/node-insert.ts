@@ -1,5 +1,5 @@
 import { css } from '@twind/core'
-import { html, LitElement } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { insertClones } from '../../clients/commands'

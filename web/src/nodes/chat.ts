@@ -2,7 +2,7 @@ import { MutationController } from '@lit-labs/observers/mutation-controller'
 import SlCarousel from '@shoelace-style/shoelace/dist/components/carousel/carousel'
 import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-item/carousel-item'
 import { apply } from '@twind/core'
-import { css, html, PropertyValues } from 'lit'
+import { PropertyValues, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { archiveNode } from '../clients/commands'

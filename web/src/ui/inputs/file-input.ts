@@ -1,7 +1,7 @@
 import { File as StencilaFile } from '@stencila/types'
-import { html, LitElement } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import { createRef, ref, Ref } from 'lit/directives/ref'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../twind'
 

@@ -7,12 +7,12 @@
  * vega packages after npm install.
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, join } from 'path'
+import { fileURLToPath } from 'url'
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const nodeModulesDir = join(__dirname, '../../node_modules');
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const nodeModulesDir = join(__dirname, '../../node_modules')
 
 const patches = [
   { package: 'vega', main: 'build/vega.module.js' },
@@ -24,38 +24,38 @@ const patches = [
   { package: 'vega-schema-url-parser', main: 'build/index.js' },
   // vega-canvas needs special handling - use browser build to avoid canvas native module
   { package: 'vega-canvas', main: 'build/vega-canvas.browser.js', browser: 'build/vega-canvas.browser.js' },
-];
+]
 
 for (const { package: pkg, main, browser } of patches) {
-  const pkgJsonPath = join(nodeModulesDir, pkg, 'package.json');
+  const pkgJsonPath = join(nodeModulesDir, pkg, 'package.json')
 
   if (!existsSync(pkgJsonPath)) {
-    console.log(`Skipping ${pkg} - not installed`);
-    continue;
+    console.log(`Skipping ${pkg} - not installed`)
+    continue
   }
 
   try {
-    const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'));
-    let modified = false;
+    const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'))
+    let modified = false
 
     if (!pkgJson.main) {
-      pkgJson.main = main;
-      modified = true;
-      console.log(`Patched ${pkg}: added main="${main}"`);
+      pkgJson.main = main
+      modified = true
+      console.log(`Patched ${pkg}: added main="${main}"`)
     } else {
-      console.log(`${pkg} already has main field: ${pkgJson.main}`);
+      console.log(`${pkg} already has main field: ${pkgJson.main}`)
     }
 
     if (browser && !pkgJson.browser) {
-      pkgJson.browser = browser;
-      modified = true;
-      console.log(`Patched ${pkg}: added browser="${browser}"`);
+      pkgJson.browser = browser
+      modified = true
+      console.log(`Patched ${pkg}: added browser="${browser}"`)
     }
 
     if (modified) {
-      writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, 2) + '\n');
+      writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, 2) + '\n')
     }
   } catch (err) {
-    console.error(`Error patching ${pkg}:`, err.message);
+    console.error(`Error patching ${pkg}:`, err.message)
   }
 }

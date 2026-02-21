@@ -1,8 +1,8 @@
 import { SuggestionStatus } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html, PropertyValues } from 'lit'
+import { PropertyValues, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
-import { createRef, Ref, ref } from 'lit/directives/ref'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { reviseNode } from '../../../clients/commands'
 import { withTwind } from '../../../twind'

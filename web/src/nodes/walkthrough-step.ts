@@ -1,5 +1,5 @@
 import { apply } from '@twind/core'
-import { html, PropertyValues } from 'lit'
+import { PropertyValues, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { patchValue } from '../clients/commands'

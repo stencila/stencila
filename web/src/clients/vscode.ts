@@ -1,7 +1,7 @@
 import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 
 import { Entity } from '../nodes/entity'
-import { data, Kernel, Model, Prompt } from '../system'
+import { Kernel, Model, Prompt, data } from '../system'
 import { NodeId } from '../types'
 import { MarkerToggleInterface } from '../ui/nodes/mixins/toggle-marker'
 import { UIBaseClass } from '../ui/nodes/mixins/ui-base-class'

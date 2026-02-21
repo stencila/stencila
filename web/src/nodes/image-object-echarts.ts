@@ -1,7 +1,7 @@
 import { html } from 'lit'
 
 import { deepMerge } from '../utilities/deepMerge'
-import { buildPlotTheme, PlotTokens } from '../utilities/plotTheme'
+import { PlotTokens, buildPlotTheme } from '../utilities/plotTheme'
 
 /**
  * Map Stencila shape names to ECharts symbol names

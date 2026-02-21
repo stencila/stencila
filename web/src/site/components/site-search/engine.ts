@@ -5,7 +5,7 @@
  */
 
 import { SearchIndexLoader } from './loader'
-import { generateTrigrams, tokenize, tokenPrefix } from './tokenize'
+import { generateTrigrams, tokenPrefix, tokenize } from './tokenize'
 import type {
   ParsedQuery,
   QueryTerm,

@@ -1,6 +1,6 @@
 import { MutationController } from '@lit-labs/observers/mutation-controller'
 import { Author } from '@stencila/types'
-import { html, LitElement } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { Reference } from '../../nodes/reference'

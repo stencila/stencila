@@ -1,9 +1,9 @@
 import { Diagnostic } from '@codemirror/lint'
 import {
-  EditorView,
   Decoration,
-  hoverTooltip,
+  EditorView,
   KeyBinding,
+  hoverTooltip,
 } from '@codemirror/view'
 
 import { CompilationMessage } from '../../../../nodes/compilation-message'

@@ -1,7 +1,7 @@
 import { provide } from '@lit/context'
 import { NodeType } from '@stencila/types'
 import { apply, css } from '@twind/core'
-import { html, LitElement } from 'lit'
+import { LitElement, html } from 'lit'
 import { property, state } from 'lit/decorators'
 
 import { insertClones, mergeNode } from '../clients/commands'

@@ -4,7 +4,7 @@ import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { patchValue } from '../clients/commands'
-import { data, Prompt } from '../system'
+import { Prompt, data } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
 import { NodeTypeUI, nodeUi } from '../ui/nodes/icons-and-colours'

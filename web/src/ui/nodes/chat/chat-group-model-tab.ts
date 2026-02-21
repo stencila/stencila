@@ -1,5 +1,5 @@
 import { ExecutionStatus } from '@stencila/types'
-import { html, LitElement } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { ChatMessage } from '../../../nodes/chat-message'

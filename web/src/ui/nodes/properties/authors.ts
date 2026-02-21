@@ -1,6 +1,6 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { NodeType } from '@stencila/types'
-import { html, LitElement } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'

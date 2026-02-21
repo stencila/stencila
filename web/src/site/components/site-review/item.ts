@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { ref, createRef, Ref } from 'lit/directives/ref.js'
+import { Ref, createRef, ref } from 'lit/directives/ref.js'
 
 import type { ReviewItem, ReviewItemAnchor } from './types'
 
