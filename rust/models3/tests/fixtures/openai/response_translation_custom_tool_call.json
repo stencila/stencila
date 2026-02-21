@@ -1,0 +1,18 @@
+{
+  "id": "resp_custom_1",
+  "model": "gpt-5.3-codex",
+  "status": "completed",
+  "output": [
+    {
+      "type": "custom_tool_call",
+      "call_id": "call_custom_patch",
+      "name": "apply_patch",
+      "input": "*** Begin Patch\n*** End Patch\n"
+    }
+  ],
+  "usage": {
+    "input_tokens": 8,
+    "output_tokens": 12,
+    "total_tokens": 20
+  }
+}

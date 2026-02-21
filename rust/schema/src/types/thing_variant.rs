@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::agent::Agent;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::brand::Brand;
@@ -31,16 +32,20 @@ use super::property_value::PropertyValue;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::review::Review;
+use super::skill::Skill;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::table::Table;
 use super::video_object::VideoObject;
+use super::workflow::Workflow;
 
 /// Union type for all types that are descended from `Thing`
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum ThingVariant {
     #[default]
+    Agent(Agent),
+
     Article(Article),
 
     AudioObject(AudioObject),
@@ -99,6 +104,8 @@ pub enum ThingVariant {
 
     Review(Review),
 
+    Skill(Skill),
+
     SoftwareApplication(SoftwareApplication),
 
     SoftwareSourceCode(SoftwareSourceCode),
@@ -106,4 +113,6 @@ pub enum ThingVariant {
     Table(Table),
 
     VideoObject(VideoObject),
+
+    Workflow(Workflow),
 }

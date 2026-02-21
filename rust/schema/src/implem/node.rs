@@ -14,6 +14,7 @@ impl Node {
 
         variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             Array,
@@ -121,6 +122,7 @@ impl Node {
             Review,
             Section,
             Sentence,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Strikeout,
@@ -152,7 +154,8 @@ impl Node {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         )
     }
 
@@ -177,6 +180,7 @@ impl Node {
 
         variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             ArrayHint,
@@ -277,6 +281,7 @@ impl Node {
             Review,
             Section,
             Sentence,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Strikeout,
@@ -306,7 +311,8 @@ impl Node {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         )
     }
 }
@@ -374,6 +380,7 @@ impl ReadNode for Node {
 
         load_map_variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             ArrayHint,
@@ -475,6 +482,7 @@ impl ReadNode for Node {
             Review,
             Section,
             Sentence,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Strikeout,
@@ -504,7 +512,8 @@ impl ReadNode for Node {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         )
     }
 }
@@ -645,6 +654,7 @@ impl From<CreativeWorkVariant> for Node {
         }
 
         variants!(
+            Agent,
             Article,
             AudioObject,
             Chat,
@@ -661,10 +671,12 @@ impl From<CreativeWorkVariant> for Node {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
-            VideoObject
+            VideoObject,
+            Workflow
         )
     }
 }

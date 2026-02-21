@@ -13,6 +13,7 @@ mod execute;
 mod init;
 mod lint;
 pub mod logging;
+mod mcp_codemode;
 mod merge;
 mod new;
 mod open;
@@ -105,12 +106,11 @@ mod tests {
             ("document::clean", stencila_document::cli::CLEAN_AFTER_LONG_HELP),
             ("document::query", stencila_document::cli::QUERY_AFTER_LONG_HELP),
             // DB module help strings
-            ("db::new", stencila_node_db::cli::NEW_AFTER_LONG_HELP),
-            ("db::add", crate::db::ADD_AFTER_LONG_HELP),
-            ("db::remove", crate::db::REMOVE_AFTER_LONG_HELP),
-            ("db::query", crate::db::QUERY_AFTER_LONG_HELP),
-            ("db::migrate", stencila_node_db::cli::MIGRATE_AFTER_LONG_HELP),
-            ("db::migrations", stencila_node_db::cli::MIGRATIONS_AFTER_LONG_HELP),
+            ("db", crate::db::CLI_AFTER_LONG_HELP),
+            ("db::push", crate::db::PUSH_AFTER_LONG_HELP),
+            ("db::pull", crate::db::PULL_AFTER_LONG_HELP),
+            ("db::status", crate::db::STATUS_AFTER_LONG_HELP),
+
             // Prompts module help strings
             ("prompts::cli", stencila_prompts::cli::CLI_AFTER_LONG_HELP),
             ("prompts::list", stencila_prompts::cli::LIST_AFTER_LONG_HELP),
@@ -118,10 +118,23 @@ mod tests {
             ("prompts::infer", stencila_prompts::cli::INFER_AFTER_LONG_HELP),
             ("prompts::update", stencila_prompts::cli::UPDATE_AFTER_LONG_HELP),
             ("prompts::reset", stencila_prompts::cli::RESET_AFTER_LONG_HELP),
+            // Workflows module help strings
+            ("workflows::cli", stencila_workflows::cli::CLI_AFTER_LONG_HELP),
+            ("workflows::list", stencila_workflows::cli::LIST_AFTER_LONG_HELP),
+            ("workflows::show", stencila_workflows::cli::SHOW_AFTER_LONG_HELP),
+            ("workflows::validate", stencila_workflows::cli::VALIDATE_AFTER_LONG_HELP),
+            ("workflows::create", stencila_workflows::cli::CREATE_AFTER_LONG_HELP),
+            // Agents module help strings
+            ("agents::cli", stencila_agents::cli::CLI_AFTER_LONG_HELP),
+            ("agents::list", stencila_agents::cli::LIST_AFTER_LONG_HELP),
+            ("agents::show", stencila_agents::cli::SHOW_AFTER_LONG_HELP),
+            ("agents::validate", stencila_agents::cli::VALIDATE_AFTER_LONG_HELP),
+            ("agents::create", stencila_agents::cli::CREATE_AFTER_LONG_HELP),
+            ("agents::run", stencila_agents::cli::RUN_AFTER_LONG_HELP),
             // Models module help strings
-            ("models::cli", stencila_models::cli::CLI_AFTER_LONG_HELP),
-            ("models::list", stencila_models::cli::LIST_AFTER_LONG_HELP),
-            ("models::run", stencila_models::cli::RUN_AFTER_LONG_HELP),
+            ("models::cli", stencila_models3::cli::CLI_AFTER_LONG_HELP),
+            ("models::list", stencila_models3::cli::LIST_AFTER_LONG_HELP),
+            ("models::run", stencila_models3::cli::RUN_AFTER_LONG_HELP),
             // Kernels module help strings
             ("kernels::cli", stencila_kernels::cli::CLI_AFTER_LONG_HELP),
             ("kernels::list", stencila_kernels::cli::LIST_AFTER_LONG_HELP),
@@ -139,6 +152,13 @@ mod tests {
             ("secrets::cli", stencila_secrets::cli::CLI_AFTER_LONG_HELP),
             ("secrets::set", stencila_secrets::cli::SET_AFTER_LONG_HELP),
             ("secrets::delete", stencila_secrets::cli::DELETE_AFTER_LONG_HELP),
+            // MCP module help strings
+            ("mcp::cli", stencila_mcp::cli::CLI_AFTER_LONG_HELP),
+            ("mcp::list", stencila_mcp::cli::LIST_AFTER_LONG_HELP),
+            ("mcp::show", stencila_mcp::cli::SHOW_AFTER_LONG_HELP),
+            ("mcp::add", stencila_mcp::cli::ADD_AFTER_LONG_HELP),
+            ("mcp::remove", stencila_mcp::cli::REMOVE_AFTER_LONG_HELP),
+            ("mcp::codemode", stencila_mcp::cli::CODEMODE_AFTER_LONG_HELP),
             // Tools module help strings
             ("tools::cli", stencila_tools::cli::CLI_AFTER_LONG_HELP),
             ("tools::list", stencila_tools::cli::LIST_AFTER_LONG_HELP),

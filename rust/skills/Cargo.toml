@@ -1,0 +1,33 @@
+[package]
+name = "stencila-skills"
+edition = "2024"
+version.workspace = true
+
+[features]
+cli = ["clap", "stencila-cli-utils"]
+
+[dependencies]
+eyre = { workspace = true }
+glob = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
+stencila-schema = { path = "../schema" }
+
+# Optional CLI dependencies
+clap = { workspace = true, optional = true }
+stencila-cli-utils = { path = "../cli-utils", optional = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true

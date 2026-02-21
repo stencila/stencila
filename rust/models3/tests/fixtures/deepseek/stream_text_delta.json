@@ -1,0 +1,12 @@
+{
+  "id": "chatcmpl_deepseek_stream_1",
+  "model": "deepseek-chat",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "content": "Hel"
+      }
+    }
+  ]
+}

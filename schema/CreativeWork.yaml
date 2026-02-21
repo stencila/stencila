@@ -242,7 +242,6 @@ properties:
       anyOf:
         - $ref: CreativeWorkVariant
         - type: string
-          pattern: url
     strip: [metadata]
     dom:
       elem: section

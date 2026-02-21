@@ -2,6 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
+import { type Agent } from "./Agent.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Chat } from "./Chat.js";
@@ -18,15 +19,18 @@ import { type Prompt } from "./Prompt.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Review } from "./Review.js";
+import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Table } from "./Table.js";
 import { type VideoObject } from "./VideoObject.js";
+import { type Workflow } from "./Workflow.js";
 
 /**
  * Union type for all types that are descended from `CreativeWork`
  */
 export type CreativeWorkVariant =
+  Agent |
   Article |
   AudioObject |
   Chat |
@@ -43,16 +47,19 @@ export type CreativeWorkVariant =
   PublicationIssue |
   PublicationVolume |
   Review |
+  Skill |
   SoftwareApplication |
   SoftwareSourceCode |
   Table |
-  VideoObject;
+  VideoObject |
+  Workflow;
 
 /**
  * Create a `CreativeWorkVariant` from an object
  */
 export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVariant {
   switch(other.type) {
+    case "Agent":
     case "Article":
     case "AudioObject":
     case "Chat":
@@ -69,10 +76,12 @@ export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVar
     case "PublicationIssue":
     case "PublicationVolume":
     case "Review":
+    case "Skill":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Table":
     case "VideoObject":
+    case "Workflow":
       return hydrate(other) as CreativeWorkVariant
     default:
       // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript

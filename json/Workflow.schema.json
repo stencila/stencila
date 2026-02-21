@@ -1,0 +1,774 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Workflow.schema.json",
+  "@id": "stencila:Workflow",
+  "title": "Workflow",
+  "nick": "wfl",
+  "extends": [
+    "CreativeWork"
+  ],
+  "category": "works",
+  "description": "A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.",
+  "$comment": "A workflow is a directory containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown\nbody. The pipeline is defined as a Graphviz DOT digraph in the first ```dot code block in the\nbody. Additional Markdown content provides human-readable documentation for the workflow.\n\nWorkflows are discovered from `.stencila/workflows/<name>/WORKFLOW.md`.\nEach node in the DOT graph can reference an agent by name via the `agent` attribute; agents are\nresolved from workspace `.stencila/agents/` and user-level `~/.config/stencila/agents/`.\nBecause workflows are typically shared (committed to a repository as part of a lab), while\nagents may be personal (user-level agents can encapsulate individual model preferences and\nprovider configuration), this separation allows the same shared workflow to be executed with\ndifferent agent configurations by different users. Agent definitions provide defaults for\nmodel, provider, system instructions, and tools, but explicit node attributes override them.\n\nThe DOT graph follows the Attractor specification: a strict subset of digraph syntax with typed\nattributes for node handlers, edge routing, retry policies, and human-in-the-loop gates.\n",
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type",
+    "name",
+    "description"
+  ],
+  "core": [
+    "id",
+    "workType",
+    "doi",
+    "frontmatter",
+    "content",
+    "pipeline",
+    "goal"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the workflow.",
+      "$comment": "Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric\nand hyphens, no leading/trailing/consecutive hyphens. By convention, names\ndescribe the workflow's purpose, e.g. `code-review`, `test-and-deploy`,\n`plan-implement-validate`.\n",
+      "patch": {
+        "formats": [
+          "md",
+          "myst",
+          "qmd",
+          "smd"
+        ]
+      },
+      "type": "string",
+      "pattern": "^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    },
+    "workType": {
+      "@id": "stencila:workType",
+      "description": "The type of `CreativeWork` (e.g. article, book, software application).",
+      "aliases": [
+        "work-type",
+        "work_type"
+      ],
+      "$ref": "CreativeWorkType.schema.json"
+    },
+    "doi": {
+      "@id": "stencila:doi",
+      "description": "The work's Digital Object Identifier (https://doi.org/).",
+      "type": "string"
+    },
+    "about": {
+      "@id": "schema:about",
+      "description": "The subject matter of the content.",
+      "$comment": "Consistent with https://schema.org/about, this property allows for\nlinking to one of more `Thing` nodes. This could for example include\na `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for\nsubject areas the creative work relates to).\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ThingVariant.schema.json"
+      }
+    },
+    "abstract": {
+      "@id": "schema:abstract",
+      "description": "A short description that summarizes a `CreativeWork`.",
+      "strip": [
+        "metadata"
+      ],
+      "walk": true,
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the `CreativeWork`.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "authors"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the work.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
+    },
+    "contributors": {
+      "@id": "schema:contributor",
+      "description": "A secondary contributor to the `CreativeWork`.",
+      "aliases": [
+        "contributor"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "editors": {
+      "@id": "schema:editor",
+      "description": "People who edited the `CreativeWork`.",
+      "$comment": "Note that, consistent with schema.org, this property can only include\na `Person`, unlike `authors` and `maintainers` which can also include\n`Organization`.\n",
+      "aliases": [
+        "editor"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Person.schema.json"
+      }
+    },
+    "maintainers": {
+      "@id": "schema:maintainer",
+      "description": "The maintainers of the `CreativeWork`.",
+      "$comment": "A maintainer of a `Dataset`, `SoftwareApplication`, or other `CreativeWork`.\nA maintainer is a `Person` or `Organization` that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The `isBasedOn` property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
+      "aliases": [
+        "maintainer"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "@id": "schema:comment",
+      "description": "Comments about this creative work.",
+      "aliases": [
+        "comment"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Comment.schema.json"
+      }
+    },
+    "dateCreated": {
+      "@id": "schema:dateCreated",
+      "description": "Date/time of creation.",
+      "aliases": [
+        "date-created",
+        "date_created"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "dateReceived": {
+      "@id": "schema:dateReceived",
+      "description": "Date/time that work was received.",
+      "aliases": [
+        "date-received",
+        "date_received"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "dateAccepted": {
+      "@id": "stencila:dateAccepted",
+      "description": "Date/time of acceptance.",
+      "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
+      "aliases": [
+        "date-accepted",
+        "date_accepted"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "dateModified": {
+      "@id": "schema:dateModified",
+      "description": "Date/time of most recent modification.",
+      "aliases": [
+        "date-modified",
+        "date_modified"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "datePublished": {
+      "@id": "schema:datePublished",
+      "description": "Date of first publication.",
+      "aliases": [
+        "date",
+        "date-published",
+        "date_published"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "People or organizations that funded the `CreativeWork`.",
+      "aliases": [
+        "funder"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      }
+    },
+    "fundedBy": {
+      "@id": "stencila:fundedBy",
+      "description": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
+      "$comment": "This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)\nfor a property that is the reverse of `fundedItems`.\nIt is an any because a `CreativeWork` may have been funded through more than\none `Grant`.\n",
+      "aliases": [
+        "funded-by",
+        "funded_by"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Grant.schema.json"
+          },
+          {
+            "$ref": "MonetaryGrant.schema.json"
+          }
+        ]
+      }
+    },
+    "genre": {
+      "@id": "schema:genre",
+      "description": "Genre of the creative work, broadcast channel or group.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "keywords": {
+      "@id": "schema:keywords",
+      "description": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
+      "aliases": [
+        "keyword"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "isPartOf": {
+      "@id": "schema:isPartOf",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.",
+      "aliases": [
+        "is-part-of",
+        "is_part_of"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "CreativeWorkVariant.schema.json"
+    },
+    "licenses": {
+      "@id": "schema:license",
+      "description": "License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.",
+      "aliases": [
+        "license"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "CreativeWorkVariant.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "parts": {
+      "@id": "schema:hasParts",
+      "description": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
+      "aliases": [
+        "hasParts",
+        "part"
+      ],
+      "strip": [
+        "content"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "CreativeWorkVariant.schema.json"
+      }
+    },
+    "publisher": {
+      "@id": "schema:publisher",
+      "description": "A publisher of the CreativeWork.",
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        }
+      ]
+    },
+    "bibliography": {
+      "@id": "stencila:bibliography",
+      "description": "A bibliography of references which may be cited in the work.",
+      "$comment": "Unlike `references` which contains only the references that are actually\ncited in the work, `bibliography` is a database of all available references\nloaded from an external source file at compile time. It is ephemeral and\nnot persisted when the document is saved.\n",
+      "strip": [
+        "output"
+      ],
+      "$ref": "Bibliography.schema.json"
+    },
+    "references": {
+      "@id": "schema:citation",
+      "description": "References to other creative works, such as another publication, web page, scholarly article, etc.",
+      "aliases": [
+        "citations",
+        "reference"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Reference.schema.json"
+      }
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "The textual content of this creative work.",
+      "strip": [
+        "content"
+      ],
+      "$ref": "Text.schema.json"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "The title of the creative work.",
+      "aliases": [
+        "headline"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "walk": true,
+      "dom": {
+        "elem": "h1"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    },
+    "repository": {
+      "@id": "schema:codeRepository",
+      "description": "URL of the repository where the un-compiled, human readable source of the work is located.",
+      "type": "string",
+      "format": "uri"
+    },
+    "path": {
+      "@id": "stencila:path",
+      "description": "The file system path of the source of the work.",
+      "$comment": "Usually only used when the work is within a Git (or other version control) repository,\nand then is usually relative to the repository root.\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "commit": {
+      "@id": "stencila:commit",
+      "description": "The commit hash (or similar) of the source of the work.",
+      "$comment": "Only used when the work's source file is within a Git (or other version control) repository.\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "version": {
+      "@id": "schema:version",
+      "description": "The version of the creative work.",
+      "$comment": "In this case `string` is listed as an alternative before `number` to\navoid semantic version numbers e.g. `1.0` being parsed, and subsequently\nencoded, as `1` thereby resulting in loss of information.\n",
+      "strip": [
+        "metadata"
+      ],
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "frontmatter": {
+      "@id": "stencila:frontmatter",
+      "description": "Frontmatter containing workflow metadata.",
+      "$comment": "Currently assumed to be YAML.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "myst",
+          "qmd",
+          "smd"
+        ]
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the workflow (Markdown body containing the DOT pipeline and documentation).",
+      "$comment": "When present, the Markdown body should contain at least one ```dot fenced code block\ndefining the pipeline digraph. Additional Markdown content serves as human-readable\ndocumentation. The first ```dot code block is extracted as the pipeline definition during\ndecoding. For in-memory workflows, content may be omitted if the pipeline property is\nset directly.\n",
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "pipeline": {
+      "@id": "stencila:pipeline",
+      "description": "The raw DOT source defining the pipeline digraph.",
+      "$comment": "Extracted from the first ```dot fenced code block in the content during decoding.\nCan also be set directly for programmatic workflow construction. When encoding to\nMarkdown, the pipeline string is embedded as a ```dot code block in the content.\n\nThe DOT source must define a single `digraph` with exactly one start node\n(shape=Mdiamond) and one exit node (shape=Msquare). Nodes use the `agent` attribute\nto reference agent definitions by name, e.g. `implement [agent=\"code-engineer\"]`.\n",
+      "type": "string"
+    },
+    "goal": {
+      "@id": "stencila:goal",
+      "description": "The high-level goal for the pipeline.",
+      "$comment": "Exposed as `$goal` in node prompt templates and mirrored into the run context as\n`graph.goal`. Maps to the `goal` graph-level attribute in the Attractor specification.\n",
+      "type": "string"
+    },
+    "modelStylesheet": {
+      "@id": "stencila:modelStylesheet",
+      "description": "CSS-like stylesheet for supplementary per-node LLM model and provider overrides.",
+      "$comment": "The primary way to configure model, provider, reasoning effort, and tools for workflow\nnodes is through agent definitions referenced via the `agent` attribute on each node.\nThe model stylesheet provides a supplementary mechanism for bulk overrides across nodes\nby shape, class, or ID — useful when you want to adjust model selection across many\nnodes without modifying individual agent definitions. For example:\n\n  box { model = \"claude-sonnet-4-5\" }\n  .critical { reasoning_effort = \"high\" }\n  #review { model = \"gpt-5.2\" }\n\nSpecificity order: universal < shape < class < ID. Stylesheet values override agent\ndefaults but are themselves overridden by explicit node attributes. Maps to the\n`model_stylesheet` graph-level attribute in the Attractor specification.\n",
+      "aliases": [
+        "model-stylesheet",
+        "model_stylesheet"
+      ],
+      "type": "string"
+    },
+    "defaultMaxRetry": {
+      "@id": "stencila:defaultMaxRetry",
+      "description": "Global retry ceiling for nodes that omit max_retries.",
+      "$comment": "Defaults to 50 per the Attractor specification. Maps to the `default_max_retry`\ngraph-level attribute.\n",
+      "aliases": [
+        "default-max-retry",
+        "default_max_retry"
+      ],
+      "type": "integer"
+    },
+    "retryTarget": {
+      "@id": "stencila:retryTarget",
+      "description": "Node ID to jump to if exit is reached with unsatisfied goal gates.",
+      "$comment": "Maps to the `retry_target` graph-level attribute in the Attractor specification.\n",
+      "aliases": [
+        "retry-target",
+        "retry_target"
+      ],
+      "type": "string"
+    },
+    "fallbackRetryTarget": {
+      "@id": "stencila:fallbackRetryTarget",
+      "description": "Secondary jump target if retryTarget is missing or invalid.",
+      "$comment": "Maps to the `fallback_retry_target` graph-level attribute.\n",
+      "aliases": [
+        "fallback-retry-target",
+        "fallback_retry_target"
+      ],
+      "type": "string"
+    },
+    "defaultFidelity": {
+      "@id": "stencila:defaultFidelity",
+      "description": "Default context fidelity mode for LLM sessions.",
+      "$comment": "Controls how context values are compressed or summarized for LLM prompts.\nValid values: \"full\", \"truncate\", \"compact\", \"summary:low\", \"summary:medium\",\n\"summary:high\". Maps to the `default_fidelity` graph-level attribute.\n",
+      "aliases": [
+        "default-fidelity",
+        "default_fidelity"
+      ],
+      "type": "string"
+    }
+  }
+}

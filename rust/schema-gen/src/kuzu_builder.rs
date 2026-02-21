@@ -156,6 +156,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
             no_skip_props: vec!["CreativeWork.workType", "Reference.workType"],
             skip_types: vec![
                 // Object types for which tables are not created
+                "Agent",
                 "AppendixBreak",
                 "Bibliography",
                 "Brand",
@@ -194,6 +195,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "PromptBlock",
                 "PropertyValue",
                 "ProvenanceCount",
+                "Skill",
                 "SoftwareApplication",
                 "Strikeout",
                 "Strong",
@@ -206,6 +208,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Unknown",
                 "Walkthrough",
                 "WalkthroughStep",
+                "Workflow",
                 // Types for which tables are not currently created
                 "Collection",
                 "Comment",

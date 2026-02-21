@@ -1,0 +1,52 @@
+[package]
+name = "stencila-auth"
+version = "0.0.0"
+edition = "2024"
+
+[features]
+default = ["login", "anthropic", "gemini", "copilot", "openai"]
+login = [
+    "dep:base64",
+    "dep:directories",
+    "dep:eyre",
+    "dep:keyring",
+    "dep:rand",
+    "dep:serde_json",
+    "dep:sha2",
+    "dep:stencila-ask",
+    "dep:stencila-secrets",
+    "dep:url",
+    "dep:webbrowser",
+]
+anthropic = ["login"]
+gemini = ["login"]
+copilot = ["login"]
+openai = ["login"]
+cli = ["login", "dep:clap", "dep:stencila-cli-utils"]
+
+[dependencies]
+base64 = { workspace = true, optional = true }
+clap = { workspace = true, optional = true }
+directories = { workspace = true, optional = true }
+eyre = { workspace = true, optional = true }
+keyring = { workspace = true, optional = true }
+rand = { workspace = true, optional = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
+stencila-ask = { path = "../ask", optional = true }
+stencila-cli-utils = { path = "../cli-utils", optional = true }
+stencila-secrets = { path = "../secrets", optional = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true, optional = true }
+webbrowser = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tokio = { workspace = true }
+
+[lints]
+workspace = true

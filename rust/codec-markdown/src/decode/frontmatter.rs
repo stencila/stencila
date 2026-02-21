@@ -6,7 +6,8 @@ use stencila_codec::{
     NodeType,
     stencila_format::Format,
     stencila_schema::{
-        Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, shortcuts::t,
+        Agent, Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, Skill,
+        Workflow, shortcuts::t,
     },
 };
 
@@ -34,11 +35,14 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
                 // require it, so that `serde_json::from_value` succeeds
                 if matches!(
                     node_type,
-                    NodeType::Article | NodeType::Prompt | NodeType::Chat
+                    NodeType::Article | NodeType::Prompt | NodeType::Chat | NodeType::Skill
                 ) && value.get("content").is_none()
                 {
                     value.insert("type".into(), json!(node_type.to_string()));
                     value.insert("content".to_string(), json!([]));
+                } else if matches!(node_type, NodeType::Agent | NodeType::Workflow) {
+                    // Agent and Workflow have optional content — only inject `type`, not `content`
+                    value.insert("type".into(), json!(node_type.to_string()));
                 }
                 node_type
             } else {
@@ -76,8 +80,14 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
 
             let node_type = if let Some(node_type) = node_type {
                 node_type
+            } else if yaml.contains("type: Agent") {
+                NodeType::Agent
+            } else if yaml.contains("type: Workflow") {
+                NodeType::Workflow
             } else if yaml.contains("type: Prompt") {
                 NodeType::Prompt
+            } else if yaml.contains("type: Skill") {
+                NodeType::Skill
             } else if yaml.contains("type: Chat") {
                 NodeType::Chat
             } else {
@@ -114,8 +124,39 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
         value["title"] = json!([]);
     }
 
+    // For Skills and Agents, hoist `metadata` entries to top level so they
+    // map to CreativeWork fields (per Agent Skills Spec §metadata)
+    if matches!(node_type, NodeType::Skill | NodeType::Agent)
+        && let Some(object) = value.as_object_mut()
+        && let Some(serde_json::Value::Object(meta)) = object.remove("metadata")
+    {
+        for (key, val) in meta {
+            object.entry(&key).or_insert(val);
+        }
+    }
+
     // Deserialize value to the node type
     let mut node = match node_type {
+        NodeType::Agent => serde_json::from_value::<Agent>(value).map_or_else(
+            |error| {
+                messages.push(CompilationMessage::new(
+                    MessageLevel::Error,
+                    format!("{error} in YAML frontmatter"),
+                ));
+                Node::Agent(Agent::default())
+            },
+            Node::Agent,
+        ),
+        NodeType::Workflow => serde_json::from_value::<Workflow>(value).map_or_else(
+            |error| {
+                messages.push(CompilationMessage::new(
+                    MessageLevel::Error,
+                    format!("{error} in YAML frontmatter"),
+                ));
+                Node::Workflow(Workflow::default())
+            },
+            Node::Workflow,
+        ),
         NodeType::Prompt => serde_json::from_value::<Prompt>(value).map_or_else(
             |error| {
                 messages.push(CompilationMessage::new(
@@ -125,6 +166,16 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
                 Node::Prompt(Prompt::default())
             },
             Node::Prompt,
+        ),
+        NodeType::Skill => serde_json::from_value::<Skill>(value).map_or_else(
+            |error| {
+                messages.push(CompilationMessage::new(
+                    MessageLevel::Error,
+                    format!("{error} in YAML frontmatter"),
+                ));
+                Node::Skill(Skill::default())
+            },
+            Node::Skill,
         ),
         NodeType::Chat => serde_json::from_value::<Chat>(value).map_or_else(
             |error| {
@@ -157,6 +208,18 @@ pub fn frontmatter(yaml: &str, node_type: Option<NodeType>) -> (Node, Vec<Compil
         Node::Prompt(prompt) => {
             prompt.title = title.unwrap_or_else(|| vec![t("Untitled")]);
             prompt.options.r#abstract = abs;
+        }
+        Node::Agent(agent) => {
+            agent.options.title = title;
+            agent.options.r#abstract = abs;
+        }
+        Node::Skill(skill) => {
+            skill.options.title = title;
+            skill.options.r#abstract = abs;
+        }
+        Node::Workflow(workflow) => {
+            workflow.options.title = title;
+            workflow.options.r#abstract = abs;
         }
         Node::Chat(chat) => {
             chat.title = title;

@@ -206,6 +206,9 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Chat"
         },
         {
@@ -290,6 +293,9 @@
           "@id": "stencila:Sentence"
         },
         {
+          "@id": "stencila:Skill"
+        },
+        {
           "@id": "stencila:StyledBlock"
         },
         {
@@ -306,6 +312,9 @@
         },
         {
           "@id": "stencila:WalkthroughStep"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {

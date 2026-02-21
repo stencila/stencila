@@ -1,0 +1,24 @@
+{
+  "name": "shell",
+  "description": "Execute a shell command and return its output. The command runs in a bash shell with a configurable timeout.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "command": {
+        "type": "string",
+        "description": "The shell command to execute."
+      },
+      "timeout_ms": {
+        "type": "integer",
+        "description": "Timeout in milliseconds. Defaults to 10000 (10 seconds).",
+        "minimum": 1
+      },
+      "description": {
+        "type": "string",
+        "description": "Human-readable description of what the command does (for logging only)."
+      }
+    },
+    "required": ["command"],
+    "additionalProperties": false
+  }
+}

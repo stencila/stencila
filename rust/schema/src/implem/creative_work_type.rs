@@ -4,6 +4,7 @@ impl CreativeWorkVariant {
     // Get the type of the creative work
     pub fn work_type(&self) -> CreativeWorkType {
         match self {
+            CreativeWorkVariant::Agent(..) => CreativeWorkType::Agent,
             CreativeWorkVariant::Article(..) => CreativeWorkType::Article,
             CreativeWorkVariant::AudioObject(..) => CreativeWorkType::AudioObject,
             CreativeWorkVariant::Chat(..) => CreativeWorkType::Chat,
@@ -23,7 +24,9 @@ impl CreativeWorkVariant {
             CreativeWorkVariant::SoftwareApplication(..) => CreativeWorkType::SoftwareApplication,
             CreativeWorkVariant::SoftwareSourceCode(..) => CreativeWorkType::SoftwareSourceCode,
             CreativeWorkVariant::Table(..) => CreativeWorkType::Table,
+            CreativeWorkVariant::Skill(..) => CreativeWorkType::Skill,
             CreativeWorkVariant::VideoObject(..) => CreativeWorkType::VideoObject,
+            CreativeWorkVariant::Workflow(..) => CreativeWorkType::Workflow,
         }
     }
 
@@ -37,6 +40,7 @@ impl CreativeWorkVariant {
             };
         }
         works!(
+            Agent,
             Article,
             AudioObject,
             Chat,
@@ -53,10 +57,12 @@ impl CreativeWorkVariant {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
-            VideoObject
+            VideoObject,
+            Workflow
         )
     }
 
@@ -80,6 +86,7 @@ impl CreativeWorkVariant {
             };
         }
         works!(
+            Agent,
             Claim,
             Collection,
             Comment,
@@ -91,9 +98,11 @@ impl CreativeWorkVariant {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
-            Table
+            Table,
+            Workflow
         )
     }
 }
@@ -111,6 +120,7 @@ impl TryFrom<Node> for CreativeWorkVariant {
             };
         }
         works!(
+            Agent,
             Article,
             AudioObject,
             Chat,
@@ -126,10 +136,12 @@ impl TryFrom<Node> for CreativeWorkVariant {
             PublicationIssue,
             PublicationVolume,
             Review,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Table,
-            VideoObject
+            VideoObject,
+            Workflow
         )
     }
 }

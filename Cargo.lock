@@ -1853,9 +1853,14 @@ checksum = "d8b9f2e4c67f833b660cdb0a3523065869fb35570177239812ed4c905aeff87b"
 dependencies = [
  "bitflags 2.10.0",
  "crossterm_winapi",
+ "derive_more 2.1.1",
  "document-features",
+ "futures-core",
+ "mio",
  "parking_lot",
  "rustix",
+ "signal-hook",
+ "signal-hook-mio",
  "winapi",
 ]
 
@@ -3193,6 +3198,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "fallible-iterator"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2acce4a10f12dc2fb14a218589d4f1f62ef011b2d0cc4b3cb1bba8e94da14649"
+
+[[package]]
+name = "fallible-streaming-iterator"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
+
+[[package]]
 name = "fancy-regex"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4183,6 +4200,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashlink"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7382cf6263419f2d8df38c55d7da83da5c18aef87fc7a7fc1fb1e344edfe14c1"
+dependencies = [
+ "hashbrown 0.15.5",
+]
+
+[[package]]
 name = "hayagriva"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4774,6 +4800,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "instability"
+version = "0.3.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "357b7205c6cd18dd2c86ed312d1e70add149aea98e7ef72b9fdf0270e555c11d"
+dependencies = [
+ "darling 0.23.0",
+ "indoc",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.114",
+]
+
+[[package]]
 name = "instant"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5048,6 +5087,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "kasuari"
+version = "0.4.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fe90c1150662e858c7d5f945089b7517b0a80d8bf7ba4b1b5ffc984e7230a5b"
+dependencies = [
+ "hashbrown 0.16.1",
+ "portable-atomic",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "keyring"
 version = "3.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5224,6 +5274,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "libsqlite3-sys"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "947e6816f7825b2b45027c2c32e7085da9934defa535de4a6a46b10a4d5257fa"
+dependencies = [
+ "bindgen",
+ "cc",
+ "pkg-config",
+ "vcpkg",
+]
+
+[[package]]
 name = "lightningcss"
 version = "1.0.0-alpha.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5261,6 +5323,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "line-clipping"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f4de44e98ddbf09375cbf4d17714d18f39195f4f4894e8524501726fd9a8a4a"
+dependencies = [
+ "bitflags 2.10.0",
 ]
 
 [[package]]
@@ -6215,6 +6286,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.114",
+]
+
+[[package]]
+name = "num_threads"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c7398b9c8b70908f6371f47ed36737907c87c52af34c268fed0bf0ceb92ead9"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
@@ -7313,6 +7393,69 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f93e7e49bb0bf967717f7bd674458b3d6b0c5f48ec7e3038166026a69fc22223"
 
 [[package]]
+name = "ratatui"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1ce67fb8ba4446454d1c8dbaeda0557ff5e94d39d5e5ed7f10a65eb4c8266bc"
+dependencies = [
+ "instability",
+ "ratatui-core",
+ "ratatui-crossterm",
+ "ratatui-widgets",
+]
+
+[[package]]
+name = "ratatui-core"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ef8dea09a92caaf73bff7adb70b76162e5937524058a7e5bff37869cbbec293"
+dependencies = [
+ "bitflags 2.10.0",
+ "compact_str 0.9.0",
+ "hashbrown 0.16.1",
+ "indoc",
+ "itertools 0.14.0",
+ "kasuari",
+ "lru",
+ "strum",
+ "thiserror 2.0.18",
+ "unicode-segmentation",
+ "unicode-truncate",
+ "unicode-width 0.2.2",
+]
+
+[[package]]
+name = "ratatui-crossterm"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "577c9b9f652b4c121fb25c6a391dd06406d3b092ba68827e6d2f09550edc54b3"
+dependencies = [
+ "cfg-if",
+ "crossterm",
+ "instability",
+ "ratatui-core",
+]
+
+[[package]]
+name = "ratatui-widgets"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7dbfa023cd4e604c2553483820c5fe8aa9d71a42eea5aa77c6e7f35756612db"
+dependencies = [
+ "bitflags 2.10.0",
+ "hashbrown 0.16.1",
+ "indoc",
+ "instability",
+ "itertools 0.14.0",
+ "line-clipping",
+ "ratatui-core",
+ "strum",
+ "time",
+ "unicode-segmentation",
+ "unicode-width 0.2.2",
+]
+
+[[package]]
 name = "raw-cpuid"
 version = "10.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7799,6 +7942,20 @@ checksum = "a7cc970b249fbe527d6e02e0a227762c9108b2f49d81094fe357ffc6d14d7f6f"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "rusqlite"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a22715a5d6deef63c637207afbe68d0c72c3f8d0022d7cf9714c442d6157606b"
+dependencies = [
+ "bitflags 2.10.0",
+ "fallible-iterator",
+ "fallible-streaming-iterator",
+ "hashlink",
+ "libsqlite3-sys",
+ "smallvec",
 ]
 
 [[package]]
@@ -8543,6 +8700,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
+name = "signal-hook"
+version = "0.3.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d881a16cf4426aa584979d30bd82cb33429027e42122b169753d6ef1085ed6e2"
+dependencies = [
+ "libc",
+ "signal-hook-registry",
+]
+
+[[package]]
+name = "signal-hook-mio"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b75a19a7a740b25bc7944bdee6172368f988763b744e3d4dfe753f6b4ece40cc"
+dependencies = [
+ "libc",
+ "mio",
+ "signal-hook",
+]
+
+[[package]]
 name = "signal-hook-registry"
 version = "1.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8759,6 +8937,42 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
+name = "stencila-agents"
+version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "clap",
+ "eyre",
+ "futures",
+ "glob",
+ "ignore",
+ "indexmap 2.13.0",
+ "jsonschema",
+ "libc",
+ "regex",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-cli-utils",
+ "stencila-codecs",
+ "stencila-codemode",
+ "stencila-config",
+ "stencila-dirs",
+ "stencila-mcp",
+ "stencila-models3",
+ "stencila-schema",
+ "stencila-skills",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "uuid",
+ "which",
+]
+
+[[package]]
 name = "stencila-ask"
 version = "0.0.0"
 dependencies = [
@@ -8775,6 +8989,53 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-attractor"
+version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "futures",
+ "indexmap 2.13.0",
+ "rand 0.9.2",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "stencila-agents",
+ "stencila-db",
+ "tar",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "winnow",
+ "zstd",
+]
+
+[[package]]
+name = "stencila-auth"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "clap",
+ "directories",
+ "eyre",
+ "keyring",
+ "rand 0.9.2",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-secrets",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "url",
+ "webbrowser",
+]
+
+[[package]]
 name = "stencila-cli"
 version = "0.0.0"
 dependencies = [
@@ -8788,7 +9049,6 @@ dependencies = [
  "flate2",
  "glob",
  "indexmap 2.13.0",
- "indicatif",
  "itertools 0.14.0",
  "pathdiff",
  "reqwest 0.13.1",
@@ -8796,22 +9056,26 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "stencila-agents",
  "stencila-ask",
+ "stencila-auth",
  "stencila-cli-utils",
  "stencila-cloud",
  "stencila-codec-gdoc",
  "stencila-codec-m365",
  "stencila-codec-utils",
  "stencila-codecs",
+ "stencila-codemode",
  "stencila-config",
+ "stencila-db",
  "stencila-dirs",
  "stencila-document",
  "stencila-format",
  "stencila-kernels",
  "stencila-linters",
  "stencila-lsp",
- "stencila-models",
- "stencila-node-db",
+ "stencila-mcp",
+ "stencila-models3",
  "stencila-node-diagnostics",
  "stencila-node-execute",
  "stencila-node-strip",
@@ -8823,12 +9087,15 @@ dependencies = [
  "stencila-secrets",
  "stencila-server",
  "stencila-site",
+ "stencila-skills",
  "stencila-snap",
  "stencila-spread",
  "stencila-themes",
  "stencila-tools",
+ "stencila-tui",
  "stencila-version",
  "stencila-web-dist",
+ "stencila-workflows",
  "strum",
  "tar",
  "tempfile",
@@ -8865,6 +9132,7 @@ dependencies = [
  "comfy-table",
  "derive_more 2.1.1",
  "eyre",
+ "indicatif",
  "itertools 0.14.0",
  "serde",
  "serde_json",
@@ -8883,16 +9151,19 @@ dependencies = [
 name = "stencila-cloud"
 version = "0.0.0"
 dependencies = [
+ "bytes",
  "cached",
  "chrono",
  "clap",
  "eyre",
+ "futures",
  "indexmap 2.13.0",
  "reqwest 0.13.1",
  "serde",
  "serde_json",
  "serde_with",
  "serde_yaml",
+ "sha2 0.10.9",
  "stencila-ask",
  "stencila-codec-docx",
  "stencila-codec-utils",
@@ -9823,6 +10094,7 @@ dependencies = [
  "stencila-codec-xlsx",
  "stencila-codec-yaml",
  "stencila-codec-zenodo",
+ "stencila-node-stabilize",
  "stencila-node-strip",
  "stencila-node-structuring",
  "stencila-remotes",
@@ -9832,6 +10104,23 @@ dependencies = [
  "tracing",
  "url",
  "walkdir",
+]
+
+[[package]]
+name = "stencila-codemode"
+version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "jsonschema",
+ "pretty_assertions",
+ "rquickjs",
+ "serde",
+ "serde_json",
+ "stencila-mcp",
+ "strsim",
+ "thiserror 2.0.18",
+ "tokio",
+ "url",
 ]
 
 [[package]]
@@ -9888,6 +10177,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-db"
+version = "2.13.0"
+dependencies = [
+ "chrono",
+ "eyre",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tempfile",
+ "tracing",
+ "zstd",
+]
+
+[[package]]
 name = "stencila-dirs"
 version = "0.0.0"
 dependencies = [
@@ -9896,6 +10200,7 @@ dependencies = [
  "eyre",
  "smart-default",
  "strum",
+ "tempfile",
  "tokio",
 ]
 
@@ -10420,6 +10725,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-mcp"
+version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "clap",
+ "directories",
+ "eyre",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-config",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "toml 0.9.11+spec-1.1.0",
+ "tracing",
+]
+
+[[package]]
 name = "stencila-model"
 version = "0.0.0"
 dependencies = [
@@ -10540,6 +10867,33 @@ dependencies = [
  "stencila-cloud",
  "stencila-model",
  "tokio",
+]
+
+[[package]]
+name = "stencila-models3"
+version = "2.13.0"
+dependencies = [
+ "base64 0.22.1",
+ "bytes",
+ "clap",
+ "eyre",
+ "futures",
+ "indexmap 2.13.0",
+ "jsonschema",
+ "rand 0.9.2",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-auth",
+ "stencila-cli-utils",
+ "stencila-config",
+ "stencila-secrets",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "ureq 2.12.1",
+ "uuid",
 ]
 
 [[package]]
@@ -11243,6 +11597,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-skills"
+version = "2.13.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "glob",
+ "regex",
+ "serde",
+ "serde_json",
+ "stencila-cli-utils",
+ "stencila-codec-markdown",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-schema",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "stencila-snap"
 version = "0.0.0"
 dependencies = [
@@ -11323,6 +11698,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-tui"
+version = "2.13.0"
+dependencies = [
+ "Inflector",
+ "async-trait",
+ "clap",
+ "crossterm",
+ "directories",
+ "eyre",
+ "futures",
+ "ignore",
+ "markdown",
+ "ratatui",
+ "serde_json",
+ "stencila-agents",
+ "stencila-attractor",
+ "stencila-auth",
+ "stencila-dirs",
+ "stencila-models3",
+ "stencila-version",
+ "stencila-workflows",
+ "strum",
+ "syntect",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "unicode-width 0.2.2",
+]
+
+[[package]]
 name = "stencila-version"
 version = "2.13.0"
 dependencies = [
@@ -11335,6 +11741,38 @@ version = "0.0.0"
 dependencies = [
  "rust-embed",
  "stencila-version",
+]
+
+[[package]]
+name = "stencila-workflows"
+version = "2.13.0"
+dependencies = [
+ "Inflector",
+ "async-trait",
+ "chrono",
+ "clap",
+ "eyre",
+ "glob",
+ "indicatif",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-agents",
+ "stencila-attractor",
+ "stencila-cli-utils",
+ "stencila-codecs",
+ "stencila-db",
+ "stencila-dirs",
+ "stencila-models3",
+ "stencila-schema",
+ "stencila-skills",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "uuid",
+ "zstd",
 ]
 
 [[package]]
@@ -11713,7 +12151,9 @@ checksum = "f9e442fc33d7fdb45aa9bfeb312c095964abdf596f7567261062b2a7107aaabd"
 dependencies = [
  "deranged",
  "itoa",
+ "libc",
  "num-conv",
+ "num_threads",
  "powerfmt",
  "serde_core",
  "time-core",
@@ -12556,6 +12996,17 @@ name = "unicode-segmentation"
 version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
+
+[[package]]
+name = "unicode-truncate"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16b380a1238663e5f8a691f9039c73e1cdae598a30e9855f541d29b08b53e9a5"
+dependencies = [
+ "itertools 0.14.0",
+ "unicode-segmentation",
+ "unicode-width 0.2.2",
+]
 
 [[package]]
 name = "unicode-width"

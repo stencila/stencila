@@ -41,9 +41,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let nav_content = nav::generate_nav_yaml(&root_doc);
     let nav_path = dest.join("_nav.yaml");
     tokio::fs::write(&nav_path, nav_content).await?;
-    eprintln!("Wrote navigation file: {}", nav_path.display());
-
-    eprintln!("Generated CLI documentation at: {}", dest.display());
+    #[allow(clippy::print_stderr)]
+    {
+        eprintln!("Wrote navigation file: {}", nav_path.display());
+        eprintln!("Generated CLI documentation at: {}", dest.display());
+    }
 
     Ok(())
 }

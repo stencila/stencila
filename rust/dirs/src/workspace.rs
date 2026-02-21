@@ -11,7 +11,11 @@ pub const STENCILA_DIR: &str = ".stencila";
 pub const DOCS_FILE: &str = "docs.json";
 pub const CACHE_DIR: &str = "cache";
 pub const ARTIFACTS_DIR: &str = "artifacts";
+pub const SKILLS_DIR: &str = "skills";
+pub const AGENTS_DIR: &str = "agents";
+pub const WORKFLOWS_DIR: &str = "workflows";
 pub const DB_FILE: &str = "db.kuzu";
+pub const DB_SQLITE_FILE: &str = "db.sqlite3";
 
 #[derive(SmartDefault)]
 pub struct CreateStencilaDirOptions {
@@ -38,7 +42,7 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
     }
 
     if options.gitignore_file {
-        write(path.join(".gitignore"), "*\n").await?;
+        write(path.join(".gitignore"), "*\n!.gitignore\n!db.json\n").await?;
     }
 
     if options.cache_dir {
@@ -81,6 +85,39 @@ pub async fn stencila_artifacts_dir(stencila_dir: &Path, ensure: bool) -> Result
     Ok(artifacts_dir)
 }
 
+/// Get the path of the `.stencila/skills` directory and optionally ensure it exists
+pub async fn stencila_skills_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let skills_dir = stencila_dir.join(SKILLS_DIR);
+
+    if ensure && !skills_dir.exists() {
+        create_dir_all(&skills_dir).await?;
+    }
+
+    Ok(skills_dir)
+}
+
+/// Get the path of the `.stencila/agents` directory and optionally ensure it exists
+pub async fn stencila_agents_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let agents_dir = stencila_dir.join(AGENTS_DIR);
+
+    if ensure && !agents_dir.exists() {
+        create_dir_all(&agents_dir).await?;
+    }
+
+    Ok(agents_dir)
+}
+
+/// Get the path of the `.stencila/workflows` directory and optionally ensure it exists
+pub async fn stencila_workflows_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let workflows_dir = stencila_dir.join(WORKFLOWS_DIR);
+
+    if ensure && !workflows_dir.exists() {
+        create_dir_all(&workflows_dir).await?;
+    }
+
+    Ok(workflows_dir)
+}
+
 /// Get the path of the `.stencila/db.kuzu` file and optionally ensure its parent exists
 pub async fn stencila_db_file(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
     let db_file = stencila_dir.join(DB_FILE);
@@ -93,6 +130,27 @@ pub async fn stencila_db_file(stencila_dir: &Path, ensure: bool) -> Result<PathB
     }
 
     Ok(db_file)
+}
+
+/// Find the closest ancestor directory containing a subdirectory named `dir_name`.
+///
+/// Walks from `path` upward. Returns `None` if not found.
+/// Read-only — never creates directories.
+pub fn closest_dot_dir(path: &Path, dir_name: &str) -> Option<PathBuf> {
+    let starting_path = path.canonicalize().ok()?;
+    let starting_dir = if starting_path.is_file() {
+        starting_path.parent()?.to_path_buf()
+    } else {
+        starting_path
+    };
+    let mut current = starting_dir;
+    loop {
+        let candidate = current.join(dir_name);
+        if candidate.is_dir() {
+            return Some(candidate);
+        }
+        current = current.parent()?.to_path_buf();
+    }
 }
 
 /// Get the closest `.stencila` directory to a path
@@ -230,4 +288,45 @@ pub fn workspace_relative_path(
     };
 
     Ok(relative_path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn closest_dot_dir_finds_in_direct_parent() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let dot_claude = tmp.path().join(".claude");
+        std::fs::create_dir_all(&dot_claude).expect("create .claude");
+
+        let result = closest_dot_dir(tmp.path(), ".claude");
+        assert_eq!(
+            result.as_deref(),
+            Some(dot_claude.canonicalize().expect("canon").as_path())
+        );
+    }
+
+    #[test]
+    fn closest_dot_dir_walks_up_to_ancestor() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let dot_codex = tmp.path().join(".codex");
+        std::fs::create_dir_all(&dot_codex).expect("create .codex");
+
+        let child = tmp.path().join("a").join("b").join("c");
+        std::fs::create_dir_all(&child).expect("create child");
+
+        let result = closest_dot_dir(&child, ".codex");
+        assert_eq!(
+            result.as_deref(),
+            Some(dot_codex.canonicalize().expect("canon").as_path())
+        );
+    }
+
+    #[test]
+    fn closest_dot_dir_returns_none_when_not_found() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let result = closest_dot_dir(tmp.path(), ".nonexistent-dir-xyz");
+        assert!(result.is_none());
+    }
 }

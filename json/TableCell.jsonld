@@ -39,6 +39,9 @@
           "@id": "schema:Thing"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Button"
         },
         {
@@ -63,10 +66,16 @@
           "@id": "stencila:Parameter"
         },
         {
+          "@id": "stencila:Skill"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
           "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {
@@ -155,6 +164,9 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Chat"
         },
         {
@@ -239,6 +251,9 @@
           "@id": "stencila:Sentence"
         },
         {
+          "@id": "stencila:Skill"
+        },
+        {
           "@id": "stencila:StyledBlock"
         },
         {
@@ -255,6 +270,9 @@
         },
         {
           "@id": "stencila:WalkthroughStep"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {

@@ -27,6 +27,9 @@
       "$ref": "Admonition.schema.json"
     },
     {
+      "$ref": "Agent.schema.json"
+    },
+    {
       "$ref": "Annotation.schema.json"
     },
     {
@@ -327,6 +330,9 @@
       "$ref": "Sentence.schema.json"
     },
     {
+      "$ref": "Skill.schema.json"
+    },
+    {
       "$ref": "SoftwareApplication.schema.json"
     },
     {
@@ -415,6 +421,9 @@
     },
     {
       "$ref": "WalkthroughStep.schema.json"
+    },
+    {
+      "$ref": "Workflow.schema.json"
     },
     {
       "$ref": "Cord.schema.json"

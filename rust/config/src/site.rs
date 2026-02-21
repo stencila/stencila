@@ -1865,8 +1865,8 @@ mod tests {
                 .remove("site")
                 .expect("Missing site key");
 
-        assert!(config.search.is_some());
-        assert!(config.search.as_ref().unwrap().is_enabled());
+        let search = config.search.as_ref().expect("search should be Some");
+        assert!(search.is_enabled());
     }
 
     #[test]
@@ -1882,8 +1882,7 @@ mod tests {
                 .remove("site")
                 .expect("Missing site key");
 
-        assert!(config.search.is_some());
-        let search = config.search.as_ref().unwrap();
+        let search = config.search.as_ref().expect("search should be Some");
         assert!(search.is_enabled());
         assert!(!search.is_fuzzy_enabled());
     }

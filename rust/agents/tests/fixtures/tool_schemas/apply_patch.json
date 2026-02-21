@@ -1,0 +1,15 @@
+{
+  "name": "apply_patch",
+  "description": "Apply code changes using the patch format. Supports creating, deleting, and modifying files in a single operation.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "patch": {
+        "type": "string",
+        "description": "The patch content in v4a format."
+      }
+    },
+    "required": ["patch"],
+    "additionalProperties": false
+  }
+}

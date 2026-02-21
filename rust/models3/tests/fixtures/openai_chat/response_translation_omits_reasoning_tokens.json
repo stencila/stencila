@@ -1,0 +1,20 @@
+{
+  "id": "chatcmpl_123",
+  "model": "llama-3.1-70b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 6,
+    "total_tokens": 16,
+    "prompt_tokens_details": {"cached_tokens": 3}
+  }
+}

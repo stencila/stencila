@@ -12,8 +12,6 @@ pub use stencila_model::{
     ModelTask, ModelType,
 };
 
-pub mod cli;
-
 /// Get a list of available models
 pub async fn list() -> Vec<Arc<dyn Model>> {
     let futures = (0..=6).map(|provider| async move {

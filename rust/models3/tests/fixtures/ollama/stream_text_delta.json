@@ -1,0 +1,12 @@
+{
+  "id": "chatcmpl_ollama_stream_1",
+  "model": "llama3.2:1b",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "content": "Hel"
+      }
+    }
+  ]
+}

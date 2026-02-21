@@ -1,0 +1,131 @@
+title: Workflow
+"@id": stencila:Workflow
+nick: wfl
+extends: CreativeWork
+category: works
+description: A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+$comment: |
+  A workflow is a directory containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown
+  body. The pipeline is defined as a Graphviz DOT digraph in the first ```dot code block in the
+  body. Additional Markdown content provides human-readable documentation for the workflow.
+
+  Workflows are discovered from `.stencila/workflows/<name>/WORKFLOW.md`.
+  Each node in the DOT graph can reference an agent by name via the `agent` attribute; agents are
+  resolved from workspace `.stencila/agents/` and user-level `~/.config/stencila/agents/`.
+  Because workflows are typically shared (committed to a repository as part of a lab), while
+  agents may be personal (user-level agents can encapsulate individual model preferences and
+  provider configuration), this separation allows the same shared workflow to be executed with
+  different agent configurations by different users. Agent definitions provide defaults for
+  model, provider, system instructions, and tools, but explicit node attributes override them.
+
+  The DOT graph follows the Attractor specification: a strict subset of digraph syntax with typed
+  attributes for node handlers, edge routing, retry policies, and human-in-the-loop gates.
+markdown:
+  derive: false
+required:
+  - name
+  - description
+core:
+  - frontmatter
+  - content
+  - pipeline
+  - goal
+properties:
+  name:
+    "@id": schema:name
+    description: The name of the workflow.
+    $comment: |
+      Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric
+      and hyphens, no leading/trailing/consecutive hyphens. By convention, names
+      describe the workflow's purpose, e.g. `code-review`, `test-and-deploy`,
+      `plan-implement-validate`.
+    type: string
+    pattern: '^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$'
+    patch:
+      formats: [md, myst, qmd, smd]
+  frontmatter:
+    "@id": stencila:frontmatter
+    description: Frontmatter containing workflow metadata.
+    $comment: Currently assumed to be YAML.
+    type: string
+    strip: [metadata]
+    patch:
+      formats: [md, myst, qmd, smd]
+  content:
+    "@id": stencila:content
+    description: The content of the workflow (Markdown body containing the DOT pipeline and documentation).
+    $comment: |
+      When present, the Markdown body should contain at least one ```dot fenced code block
+      defining the pipeline digraph. Additional Markdown content serves as human-readable
+      documentation. The first ```dot code block is extracted as the pipeline definition during
+      decoding. For in-memory workflows, content may be omitted if the pipeline property is
+      set directly.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: section
+  pipeline:
+    "@id": stencila:pipeline
+    description: The raw DOT source defining the pipeline digraph.
+    $comment: |
+      Extracted from the first ```dot fenced code block in the content during decoding.
+      Can also be set directly for programmatic workflow construction. When encoding to
+      Markdown, the pipeline string is embedded as a ```dot code block in the content.
+
+      The DOT source must define a single `digraph` with exactly one start node
+      (shape=Mdiamond) and one exit node (shape=Msquare). Nodes use the `agent` attribute
+      to reference agent definitions by name, e.g. `implement [agent="code-engineer"]`.
+    type: string
+  goal:
+    "@id": stencila:goal
+    description: The high-level goal for the pipeline.
+    $comment: |
+      Exposed as `$goal` in node prompt templates and mirrored into the run context as
+      `graph.goal`. Maps to the `goal` graph-level attribute in the Attractor specification.
+    type: string
+  modelStylesheet:
+    "@id": stencila:modelStylesheet
+    description: CSS-like stylesheet for supplementary per-node LLM model and provider overrides.
+    $comment: |
+      The primary way to configure model, provider, reasoning effort, and tools for workflow
+      nodes is through agent definitions referenced via the `agent` attribute on each node.
+      The model stylesheet provides a supplementary mechanism for bulk overrides across nodes
+      by shape, class, or ID — useful when you want to adjust model selection across many
+      nodes without modifying individual agent definitions. For example:
+
+        box { model = "claude-sonnet-4-5" }
+        .critical { reasoning_effort = "high" }
+        #review { model = "gpt-5.2" }
+
+      Specificity order: universal < shape < class < ID. Stylesheet values override agent
+      defaults but are themselves overridden by explicit node attributes. Maps to the
+      `model_stylesheet` graph-level attribute in the Attractor specification.
+    type: string
+  defaultMaxRetry:
+    "@id": stencila:defaultMaxRetry
+    description: Global retry ceiling for nodes that omit max_retries.
+    $comment: |
+      Defaults to 50 per the Attractor specification. Maps to the `default_max_retry`
+      graph-level attribute.
+    type: integer
+  retryTarget:
+    "@id": stencila:retryTarget
+    description: Node ID to jump to if exit is reached with unsatisfied goal gates.
+    $comment: |
+      Maps to the `retry_target` graph-level attribute in the Attractor specification.
+    type: string
+  fallbackRetryTarget:
+    "@id": stencila:fallbackRetryTarget
+    description: Secondary jump target if retryTarget is missing or invalid.
+    $comment: |
+      Maps to the `fallback_retry_target` graph-level attribute.
+    type: string
+  defaultFidelity:
+    "@id": stencila:defaultFidelity
+    description: Default context fidelity mode for LLM sessions.
+    $comment: |
+      Controls how context values are compressed or summarized for LLM prompts.
+      Valid values: "full", "truncate", "compact", "summary:low", "summary:medium",
+      "summary:high". Maps to the `default_fidelity` graph-level attribute.
+    type: string

@@ -131,6 +131,10 @@
   },
   "anyOf": [
     {
+      "@id": "stencila:AgentCreativeWorkType",
+      "const": "Agent"
+    },
+    {
       "@id": "stencila:ArticleCreativeWorkType",
       "const": "Article"
     },
@@ -243,6 +247,10 @@
       "const": "Review"
     },
     {
+      "@id": "stencila:SkillCreativeWorkType",
+      "const": "Skill"
+    },
+    {
       "@id": "stencila:SoftwareApplicationCreativeWorkType",
       "const": "SoftwareApplication"
     },
@@ -274,5 +282,6 @@
       "@id": "stencila:WorkflowCreativeWorkType",
       "const": "Workflow"
     }
-  ]
+  ],
+  "default": "Article"
 }

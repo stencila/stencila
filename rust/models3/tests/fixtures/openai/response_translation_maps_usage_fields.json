@@ -1,0 +1,27 @@
+{
+  "id": "resp_123",
+  "model": "gpt-5.2",
+  "status": "completed",
+  "output": [
+    {
+      "type": "message",
+      "content": [
+        {"type": "output_text", "text": "Result: "},
+        {"type": "output_text", "text": "sunny"}
+      ]
+    },
+    {
+      "type": "function_call",
+      "id": "call_1",
+      "name": "get_weather",
+      "arguments": "{\"city\":\"Paris\"}"
+    }
+  ],
+  "usage": {
+    "input_tokens": 20,
+    "output_tokens": 30,
+    "total_tokens": 50,
+    "output_tokens_details": {"reasoning_tokens": 11},
+    "prompt_tokens_details": {"cached_tokens": 7}
+  }
+}

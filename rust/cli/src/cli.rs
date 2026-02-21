@@ -9,8 +9,8 @@ use stencila_version::STENCILA_VERSION;
 use crate::{
     compile, convert, db, demo, execute, init, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, open, outputs, pull, push, render, site, status, sync, uninstall, unwatch, upgrade,
-    watch,
+    mcp_codemode, merge, new, open, outputs, pull, push, render, site, status, sync, uninstall,
+    unwatch, upgrade, watch,
 };
 
 /// CLI subcommands and global options
@@ -27,7 +27,7 @@ use crate::{
 )]
 pub struct Cli {
     #[command(subcommand)]
-    pub command: Command,
+    pub command: Option<Command>,
 
     /// Print help: `-h` for brief help, `--help` for more details.
     #[arg(
@@ -260,14 +260,23 @@ pub enum Command {
 
     Db(db::Cli),
 
-    Prompts(stencila_prompts::cli::Cli),
-    Models(stencila_models::cli::Cli),
+    Workflows(stencila_workflows::cli::Cli),
+    Agents(stencila_agents::cli::Cli),
+    Skills(stencila_skills::cli::Cli),
+    Models(stencila_models3::cli::Cli),
     Kernels(stencila_kernels::cli::Cli),
     Linters(stencila_linters::cli::Cli),
     Formats(stencila_codecs::cli::Cli),
     Themes(stencila_themes::cli::Cli),
-    Secrets(stencila_secrets::cli::Cli),
+
+    // TODO: deprecate
+    Prompts(stencila_prompts::cli::Cli),
+
+    Mcp(stencila_mcp::cli::Cli),
     Tools(stencila_tools::cli::Cli),
+
+    Secrets(stencila_secrets::cli::Cli),
+    Auth(stencila_auth::cli::Cli),
 
     Serve(ServeOptions),
     Snap(stencila_snap::cli::Cli),
@@ -282,6 +291,8 @@ pub enum Command {
 
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
+
+    Tui(stencila_tui::Tui),
 }
 
 impl Cli {
@@ -294,7 +305,12 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         tracing::trace!("Running CLI command");
 
-        match self.command {
+        // Default to launching the TUI when no subcommand is provided
+        let command = self
+            .command
+            .unwrap_or(Command::Tui(stencila_tui::Tui::default()));
+
+        match command {
             Command::New(new) => new.run().await,
 
             Command::Init(init) => init.run().await,
@@ -329,13 +345,29 @@ impl Cli {
             Command::Db(db) => db.run().await,
 
             Command::Prompts(prompts) => prompts.run().await,
-            Command::Models(models) => models.run().await,
+            Command::Workflows(workflows) => workflows.run().await,
+            Command::Agents(agents) => agents.run().await,
+            Command::Skills(skills) => skills.run().await,
+            Command::Models(models) => {
+                // models3 depends on oauth (types only, no login feature),
+                // so it can't load persisted credentials. The CLI wires in the
+                // login-capable oauth crate as the composition root.
+                let auth = stencila_auth::load_auth_overrides();
+                models.run_with_auth(&auth).await
+            }
             Command::Kernels(kernels) => kernels.run().await,
             Command::Linters(linters) => linters.run().await,
             Command::Formats(codecs) => codecs.run().await,
             Command::Themes(themes) => themes.run().await,
-            Command::Secrets(secrets) => secrets.run().await,
+
+            Command::Mcp(mcp) => match mcp.into_codemode() {
+                Ok(codemode) => mcp_codemode::run(codemode).await,
+                Err(mcp) => mcp.run().await,
+            },
             Command::Tools(tools) => tools.run().await,
+
+            Command::Secrets(secrets) => secrets.run().await,
+            Command::Auth(oauth) => oauth.run().await,
 
             Command::Serve(options) => stencila_server::serve(options).await,
             Command::Snap(snap) => snap.run().await,
@@ -350,7 +382,9 @@ impl Cli {
             Command::Uninstall(uninstall) => uninstall.run().await,
 
             // Handled before this function
-            Command::Lsp => bail!("The LSP command should already been run"),
+            Command::Tui(_) | Command::Lsp => {
+                bail!("The TUI and LSP commands should already have been run")
+            }
         }
     }
 }

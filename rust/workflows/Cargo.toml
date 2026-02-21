@@ -1,0 +1,38 @@
+[package]
+name = "stencila-workflows"
+edition = "2024"
+version.workspace = true
+
+[dependencies]
+Inflector = { workspace = true }
+async-trait = { workspace = true }
+clap = { workspace = true }
+chrono = { workspace = true }
+eyre = { workspace = true }
+glob = { workspace = true }
+indicatif = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+stencila-agents = { path = "../agents", default-features = false }
+stencila-models3 = { path = "../models3" }
+stencila-skills = { path = "../skills" }
+stencila-attractor = { path = "../attractor", features = ["sqlite"] }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-db = { path = "../db" }
+stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
+stencila-schema = { path = "../schema" }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+zstd = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true

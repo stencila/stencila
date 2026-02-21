@@ -1,6 +1,7 @@
 //! Implementations of traits for types
 
 mod admonition;
+mod agent;
 mod appendix_break;
 mod array;
 mod article;
@@ -77,6 +78,7 @@ mod raw_block;
 mod reference;
 mod section;
 mod section_type;
+mod skill;
 mod software_application;
 mod string_or_number;
 mod styled_block;
@@ -95,6 +97,7 @@ mod time;
 mod timestamp;
 mod validators;
 mod walkthrough;
+mod workflow;
 
 mod utils;
 

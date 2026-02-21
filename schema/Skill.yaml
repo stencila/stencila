@@ -1,0 +1,71 @@
+title: Skill
+"@id": stencila:Skill
+nick: skl
+extends: CreativeWork
+category: works
+description: An agent skill providing instructions for AI agents.
+$comment: |
+  An implementation of the [Agent Skills Specification](https://agentskills.io/specification).
+  A skill is a directory containing a `SKILL.md` file with YAML frontmatter and a Markdown body
+  that provides instructions for AI agents. Skills support progressive disclosure: metadata
+  (~100 tokens) is loaded at startup, full instructions on activation, and referenced files
+  on demand.
+markdown:
+  derive: false
+required:
+  - name
+  - description
+  - content
+core:
+  - frontmatter
+  - compatibility
+  - allowedTools
+properties:
+  name:
+    '@id': schema:name
+    description: The name of the skill.
+    $comment: |
+      Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric
+      and hyphens, no leading/trailing/consecutive hyphens. By convention, names
+      follow a `thing-activity` pattern describing the skill's domain and action,
+      e.g. `code-review`, `data-analysis`, `site-design`.
+    type: string
+    pattern: '^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$'
+    patch:
+      formats: [md, myst, qmd, smd]
+  frontmatter:
+    "@id": stencila:frontmatter
+    description: Frontmatter containing skill metadata.
+    $comment: Currently assumed to be YAML.
+    type: string
+    strip: [metadata]
+    patch:
+      formats: [md, myst, qmd, smd]
+  content:
+    "@id": stencila:content
+    description: The content of the skill (the Markdown body).
+    $comment: |
+      The Markdown body after the frontmatter contains the skill instructions. There are no
+      format restrictions per the spec. Recommended sections include step-by-step instructions,
+      examples of inputs and outputs, and common edge cases.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: section
+  compatibility:
+    "@id": stencila:compatibility
+    description: Environment requirements for the skill.
+    $comment: |
+      Max 500 characters per the spec. Indicates intended product, required system packages,
+      network access needs, etc. Most skills do not need this field.
+    type: string
+  allowedTools:
+    "@id": stencila:allowedTools
+    description: Pre-approved tools for the skill.
+    $comment: |
+      Experimental per the spec. In the spec this is a space-delimited string named
+      `allowed-tools`; we parse it into an array of strings for easier programmatic use.
+    type: array
+    items:
+      type: string

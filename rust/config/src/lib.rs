@@ -32,9 +32,12 @@ static WATCH_ID_REGEX: LazyLock<Regex> =
 static DOMAIN_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(DOMAIN_PATTERN).expect("Invalid regex"));
 
+mod agents;
 pub mod cli;
 mod init;
 mod layout;
+mod mcp;
+mod models;
 mod outputs;
 mod remotes;
 mod singleton;
@@ -51,12 +54,15 @@ mod workspace;
 use crate::workspace::WorkspaceConfig;
 
 pub use {
+    agents::AgentsConfig,
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
         NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeIcons,
         PrevNextStyle, RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
     },
+    mcp::{McpConfig, McpServerEntry, McpTransportConfig},
+    models::{KNOWN_MODEL_PROVIDERS, ModelsConfig},
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,
@@ -125,7 +131,7 @@ static MANAGED_CONFIG_KEYS: &[ManagedConfigKey] = &[
 
 /// Stencila configuration
 #[skip_serializing_none]
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     /// The workspace directory this config was loaded from
@@ -183,6 +189,28 @@ pub struct Config {
 
     /// Site configuration.
     pub site: Option<SiteConfig>,
+
+    /// Agent configuration.
+    ///
+    /// Controls which agent is used by default.
+    pub agents: Option<AgentsConfig>,
+
+    /// Model context protocol (MCP) server configuration.
+    ///
+    /// Defines MCP servers that agents can connect to.
+    ///
+    /// ```toml
+    /// [mcp.servers.filesystem]
+    /// transport.type = "stdio"
+    /// transport.command = "npx"
+    /// transport.args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    /// ```
+    pub mcp: Option<McpConfig>,
+
+    /// Model configuration.
+    ///
+    /// Controls provider ordering/selection for model-backed features.
+    pub models: Option<ModelsConfig>,
 }
 
 impl Config {

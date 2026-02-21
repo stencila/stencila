@@ -8,6 +8,8 @@ use json_value_merge::Merge;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
+use stencila_codecs::node_type_from_path;
+use stencila_node_stabilize::stabilize;
 use tokio::{
     self,
     fs::{read_to_string, remove_file, write},
@@ -460,7 +462,7 @@ async fn examples() -> Result<()> {
                     if let Some(entry) = mapping.entries().last() {
                         assert!(matches!(
                             entry.node_type,
-                            NodeType::Article | NodeType::Prompt | NodeType::Chat
+                            NodeType::Article | NodeType::Prompt | NodeType::Chat | NodeType::Skill
                         ));
                     }
                 } else {
@@ -477,6 +479,7 @@ async fn examples() -> Result<()> {
                     format: Some(config.format.clone()),
                     reproducible: Some(false),
                     structuring_options: StructuringOptions::none(),
+                    node_type: node_type_from_path(&path),
                     ..config.decode.options.clone()
                 });
 
@@ -531,7 +534,7 @@ async fn examples() -> Result<()> {
                 if let Some(entry) = mapping.entries().last() {
                     assert!(matches!(
                         entry.node_type,
-                        NodeType::Article | NodeType::Prompt | NodeType::Chat
+                        NodeType::Article | NodeType::Prompt | NodeType::Chat | NodeType::Skill
                     ));
                 }
 
@@ -543,6 +546,11 @@ async fn examples() -> Result<()> {
                 };
                 decoded.strip(&targets);
                 original.strip(&targets);
+
+                // Stabilize uids of nodes.
+                // Ids are ignored in PartialEq/Eq but they cause unnecessary diff noise.
+                stabilize(&mut decoded);
+                stabilize(&mut original);
 
                 assert_eq!(
                     decoded,

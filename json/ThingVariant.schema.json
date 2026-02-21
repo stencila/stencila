@@ -3,6 +3,9 @@
   "description": "Union type for all types that are descended from `Thing`",
   "anyOf": [
     {
+      "$ref": "Agent.schema.json"
+    },
+    {
       "$ref": "Article.schema.json"
     },
     {
@@ -90,6 +93,9 @@
       "$ref": "Review.schema.json"
     },
     {
+      "$ref": "Skill.schema.json"
+    },
+    {
       "$ref": "SoftwareApplication.schema.json"
     },
     {
@@ -100,6 +106,9 @@
     },
     {
       "$ref": "VideoObject.schema.json"
+    },
+    {
+      "$ref": "Workflow.schema.json"
     }
   ]
 }

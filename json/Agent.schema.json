@@ -1,0 +1,845 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Agent.schema.json",
+  "@id": "stencila:Agent",
+  "title": "Agent",
+  "nick": "agt",
+  "extends": [
+    "CreativeWork"
+  ],
+  "category": "works",
+  "description": "An agent definition specifying model, tools, and behavioral configuration.",
+  "$comment": "An agent is a directory containing an `AGENT.md` file with YAML frontmatter and an optional\nMarkdown body providing system instructions. Agents are discovered from two locations:\nworkspace `.stencila/agents/` and user config `~/.config/stencila/agents/`.\n",
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type",
+    "name",
+    "description"
+  ],
+  "core": [
+    "id",
+    "workType",
+    "doi",
+    "frontmatter",
+    "model",
+    "provider",
+    "allowedSkills",
+    "allowedTools",
+    "reasoningEffort",
+    "content"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the agent.",
+      "$comment": "Must be lowercase kebab-case: 1-64 characters, only lowercase alphanumeric\nand hyphens, no leading/trailing/consecutive hyphens. By convention, names\nfollow a `thing-role` pattern describing the agent's domain and function,\ne.g. `code-engineer`, `code-reviewer`, `data-analyst`, `site-designer`.\n",
+      "patch": {
+        "formats": [
+          "md",
+          "myst",
+          "qmd",
+          "smd"
+        ]
+      },
+      "type": "string",
+      "pattern": "^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    },
+    "workType": {
+      "@id": "stencila:workType",
+      "description": "The type of `CreativeWork` (e.g. article, book, software application).",
+      "aliases": [
+        "work-type",
+        "work_type"
+      ],
+      "$ref": "CreativeWorkType.schema.json"
+    },
+    "doi": {
+      "@id": "stencila:doi",
+      "description": "The work's Digital Object Identifier (https://doi.org/).",
+      "type": "string"
+    },
+    "about": {
+      "@id": "schema:about",
+      "description": "The subject matter of the content.",
+      "$comment": "Consistent with https://schema.org/about, this property allows for\nlinking to one of more `Thing` nodes. This could for example include\na `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for\nsubject areas the creative work relates to).\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ThingVariant.schema.json"
+      }
+    },
+    "abstract": {
+      "@id": "schema:abstract",
+      "description": "A short description that summarizes a `CreativeWork`.",
+      "strip": [
+        "metadata"
+      ],
+      "walk": true,
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the `CreativeWork`.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "authors"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "provenance": {
+      "@id": "stencila:provenance",
+      "description": "A summary of the provenance of the content within the work.",
+      "strip": [
+        "provenance"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ProvenanceCount.schema.json"
+      }
+    },
+    "contributors": {
+      "@id": "schema:contributor",
+      "description": "A secondary contributor to the `CreativeWork`.",
+      "aliases": [
+        "contributor"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
+    },
+    "editors": {
+      "@id": "schema:editor",
+      "description": "People who edited the `CreativeWork`.",
+      "$comment": "Note that, consistent with schema.org, this property can only include\na `Person`, unlike `authors` and `maintainers` which can also include\n`Organization`.\n",
+      "aliases": [
+        "editor"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Person.schema.json"
+      }
+    },
+    "maintainers": {
+      "@id": "schema:maintainer",
+      "description": "The maintainers of the `CreativeWork`.",
+      "$comment": "A maintainer of a `Dataset`, `SoftwareApplication`, or other `CreativeWork`.\nA maintainer is a `Person` or `Organization` that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The `isBasedOn` property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
+      "aliases": [
+        "maintainer"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "@id": "schema:comment",
+      "description": "Comments about this creative work.",
+      "aliases": [
+        "comment"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Comment.schema.json"
+      }
+    },
+    "dateCreated": {
+      "@id": "schema:dateCreated",
+      "description": "Date/time of creation.",
+      "aliases": [
+        "date-created",
+        "date_created"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "dateReceived": {
+      "@id": "schema:dateReceived",
+      "description": "Date/time that work was received.",
+      "aliases": [
+        "date-received",
+        "date_received"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "dateAccepted": {
+      "@id": "stencila:dateAccepted",
+      "description": "Date/time of acceptance.",
+      "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
+      "aliases": [
+        "date-accepted",
+        "date_accepted"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "dateModified": {
+      "@id": "schema:dateModified",
+      "description": "Date/time of most recent modification.",
+      "aliases": [
+        "date-modified",
+        "date_modified"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "datePublished": {
+      "@id": "schema:datePublished",
+      "description": "Date of first publication.",
+      "aliases": [
+        "date",
+        "date-published",
+        "date_published"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "People or organizations that funded the `CreativeWork`.",
+      "aliases": [
+        "funder"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      }
+    },
+    "fundedBy": {
+      "@id": "stencila:fundedBy",
+      "description": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
+      "$comment": "This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)\nfor a property that is the reverse of `fundedItems`.\nIt is an any because a `CreativeWork` may have been funded through more than\none `Grant`.\n",
+      "aliases": [
+        "funded-by",
+        "funded_by"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Grant.schema.json"
+          },
+          {
+            "$ref": "MonetaryGrant.schema.json"
+          }
+        ]
+      }
+    },
+    "genre": {
+      "@id": "schema:genre",
+      "description": "Genre of the creative work, broadcast channel or group.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "keywords": {
+      "@id": "schema:keywords",
+      "description": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
+      "aliases": [
+        "keyword"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "isPartOf": {
+      "@id": "schema:isPartOf",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.",
+      "aliases": [
+        "is-part-of",
+        "is_part_of"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "CreativeWorkVariant.schema.json"
+    },
+    "licenses": {
+      "@id": "schema:license",
+      "description": "License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.",
+      "aliases": [
+        "license"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "CreativeWorkVariant.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "parts": {
+      "@id": "schema:hasParts",
+      "description": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
+      "aliases": [
+        "hasParts",
+        "part"
+      ],
+      "strip": [
+        "content"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "CreativeWorkVariant.schema.json"
+      }
+    },
+    "publisher": {
+      "@id": "schema:publisher",
+      "description": "A publisher of the CreativeWork.",
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
+      },
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        }
+      ]
+    },
+    "bibliography": {
+      "@id": "stencila:bibliography",
+      "description": "A bibliography of references which may be cited in the work.",
+      "$comment": "Unlike `references` which contains only the references that are actually\ncited in the work, `bibliography` is a database of all available references\nloaded from an external source file at compile time. It is ephemeral and\nnot persisted when the document is saved.\n",
+      "strip": [
+        "output"
+      ],
+      "$ref": "Bibliography.schema.json"
+    },
+    "references": {
+      "@id": "schema:citation",
+      "description": "References to other creative works, such as another publication, web page, scholarly article, etc.",
+      "aliases": [
+        "citations",
+        "reference"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Reference.schema.json"
+      }
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "The textual content of this creative work.",
+      "strip": [
+        "content"
+      ],
+      "$ref": "Text.schema.json"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "The title of the creative work.",
+      "aliases": [
+        "headline"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "walk": true,
+      "dom": {
+        "elem": "h1"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    },
+    "repository": {
+      "@id": "schema:codeRepository",
+      "description": "URL of the repository where the un-compiled, human readable source of the work is located.",
+      "type": "string",
+      "format": "uri"
+    },
+    "path": {
+      "@id": "stencila:path",
+      "description": "The file system path of the source of the work.",
+      "$comment": "Usually only used when the work is within a Git (or other version control) repository,\nand then is usually relative to the repository root.\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "commit": {
+      "@id": "stencila:commit",
+      "description": "The commit hash (or similar) of the source of the work.",
+      "$comment": "Only used when the work's source file is within a Git (or other version control) repository.\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "version": {
+      "@id": "schema:version",
+      "description": "The version of the creative work.",
+      "$comment": "In this case `string` is listed as an alternative before `number` to\navoid semantic version numbers e.g. `1.0` being parsed, and subsequently\nencoded, as `1` thereby resulting in loss of information.\n",
+      "strip": [
+        "metadata"
+      ],
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "frontmatter": {
+      "@id": "stencila:frontmatter",
+      "description": "Frontmatter containing agent metadata.",
+      "$comment": "Currently assumed to be YAML.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "myst",
+          "qmd",
+          "smd"
+        ]
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the agent (the Markdown body providing system instructions).",
+      "$comment": "The Markdown body after the frontmatter contains the agent's system instructions.\nThis is optional — an agent may be configuration-only with no instructions.\n",
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "model": {
+      "@id": "stencila:model",
+      "description": "Model identifier for the agent.",
+      "$comment": "The model to use, e.g. \"claude-sonnet-4-5\", \"gpt-5.2-codex\". When not specified,\nthe default model for the provider is used.\n",
+      "type": "string"
+    },
+    "provider": {
+      "@id": "stencila:provider",
+      "description": "Provider identifier for the agent.",
+      "$comment": "The provider to use, e.g. \"anthropic\", \"openai\", \"gemini\". When not specified,\nthe first available provider is used.\n",
+      "type": "string"
+    },
+    "reasoningEffort": {
+      "@id": "stencila:reasoningEffort",
+      "description": "Reasoning effort level for the agent.",
+      "$comment": "Valid values are \"low\", \"medium\", \"high\", or a custom provider-specific value.\nWhen not specified, the provider's default is used.\n",
+      "aliases": [
+        "reasoning-effort",
+        "reasoning_effort"
+      ],
+      "type": "string"
+    },
+    "allowedSkills": {
+      "@id": "stencila:allowedSkills",
+      "description": "Skill names this agent can use.",
+      "$comment": "When unset, all discovered skills are available to the agent.\nWhen set, only the listed skills are available.\n",
+      "aliases": [
+        "allowed-skills",
+        "allowed_skills",
+        "allowedSkill",
+        "allowed-skill",
+        "allowed_skill"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowedTools": {
+      "@id": "stencila:allowedTools",
+      "description": "Tool names available to the agent.",
+      "$comment": "Experimental per the spec. In the spec this is a space-delimited string named\n`allowed-tools`; we parse it into an array of strings for easier programmatic use.\n",
+      "aliases": [
+        "allowed-tools",
+        "allowed_tools",
+        "allowedTool",
+        "allowed-tool",
+        "allowed_tool"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enableMcp": {
+      "@id": "stencila:enableMcp",
+      "description": "Whether to enable MCP tools.",
+      "aliases": [
+        "enable-mcp",
+        "enable_mcp"
+      ],
+      "type": "boolean"
+    },
+    "enableMcpCodemode": {
+      "@id": "stencila:enableMcpCodemode",
+      "description": "Whether to enable MCP codemode orchestration.",
+      "aliases": [
+        "enable-mcp-codemode",
+        "enable_mcp_codemode"
+      ],
+      "type": "boolean"
+    },
+    "allowedMcpServers": {
+      "@id": "stencila:allowedMcpServers",
+      "description": "MCP server IDs this agent is allowed to use.",
+      "$comment": "When unset, all discovered and connected MCP servers are available.\nWhen set, only the listed server IDs are used — other servers are\nignored even if connected. This supports the principle of least\nprivilege: agents should only have access to the MCP servers they\nactually need.\n",
+      "aliases": [
+        "allowed-mcp-servers",
+        "allowed_mcp_servers",
+        "allowedMcpServer",
+        "allowed-mcp-server",
+        "allowed_mcp_server"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "maxTurns": {
+      "@id": "stencila:maxTurns",
+      "description": "Maximum conversation turns (0 = unlimited).",
+      "aliases": [
+        "max-turns",
+        "max_turns"
+      ],
+      "type": "integer"
+    },
+    "toolTimeout": {
+      "@id": "stencila:toolTimeout",
+      "description": "Default timeout for tool execution in seconds.",
+      "aliases": [
+        "tool-timeout",
+        "tool_timeout"
+      ],
+      "type": "integer"
+    },
+    "maxToolRounds": {
+      "@id": "stencila:maxToolRounds",
+      "description": "Maximum tool-call rounds per user input.",
+      "aliases": [
+        "max-tool-rounds",
+        "max_tool_rounds"
+      ],
+      "type": "integer"
+    },
+    "maxSubagentDepth": {
+      "@id": "stencila:maxSubagentDepth",
+      "description": "Maximum subagent nesting depth.",
+      "aliases": [
+        "max-subagent-depth",
+        "max_subagent_depth"
+      ],
+      "type": "integer"
+    },
+    "compatibility": {
+      "@id": "stencila:compatibility",
+      "description": "Environment requirements for the agent.",
+      "$comment": "Max 500 characters. Indicates intended product, required system packages,\nnetwork access needs, etc. Most agents do not need this field.\n",
+      "type": "string"
+    }
+  }
+}

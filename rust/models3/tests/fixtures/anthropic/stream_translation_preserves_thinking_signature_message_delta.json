@@ -1,0 +1,5 @@
+{
+  "type": "message_delta",
+  "delta": {"stop_reason": "end_turn"},
+  "usage": {"output_tokens": 15}
+}

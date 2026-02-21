@@ -152,6 +152,7 @@ impl VisitorMut for Stabilizer {
 
         variants!(
             Admonition,
+            Agent,
             Annotation,
             AppendixBreak,
             ArrayHint,
@@ -252,6 +253,7 @@ impl VisitorMut for Stabilizer {
             Review,
             Section,
             Sentence,
+            Skill,
             SoftwareApplication,
             SoftwareSourceCode,
             Strikeout,
@@ -281,7 +283,8 @@ impl VisitorMut for Stabilizer {
             Variable,
             VideoObject,
             Walkthrough,
-            WalkthroughStep
+            WalkthroughStep,
+            Workflow
         );
 
         WalkControl::Continue

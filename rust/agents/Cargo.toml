@@ -1,0 +1,53 @@
+[package]
+name = "stencila-agents"
+edition = "2024"
+version.workspace = true
+
+[features]
+default = ["skills", "mcp", "codemode"]
+skills = ["dep:stencila-skills"]
+mcp = ["dep:stencila-mcp"]
+codemode = ["dep:stencila-mcp", "dep:stencila-codemode"]
+cli = ["clap", "stencila-cli-utils"]
+
+[dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true }
+eyre = { workspace = true }
+futures = { workspace = true }
+glob = { workspace = true }
+ignore = { workspace = true }
+indexmap = { workspace = true }
+jsonschema = { workspace = true }
+regex = { workspace = true }
+semver = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+stencila-codecs = { path = "../codecs" }
+stencila-config = { path = "../config" }
+stencila-dirs = { path = "../dirs" }
+stencila-models3 = { path = "../models3" }
+stencila-schema = { path = "../schema" }
+stencila-codemode = { path = "../codemode", optional = true }
+stencila-mcp = { path = "../mcp", optional = true }
+stencila-skills = { path = "../skills", optional = true }
+
+# Optional CLI dependencies
+clap = { workspace = true, optional = true }
+stencila-cli-utils = { path = "../cli-utils", optional = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+which = { workspace = true }
+uuid = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true

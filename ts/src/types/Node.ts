@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
+import { type Agent } from "./Agent.js";
 import { type Annotation } from "./Annotation.js";
 import { type AppendixBreak } from "./AppendixBreak.js";
 import { type Array } from "./Array.js";
@@ -107,6 +108,7 @@ import { type Reference } from "./Reference.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type Sentence } from "./Sentence.js";
+import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
@@ -138,6 +140,7 @@ import { type Variable } from "./Variable.js";
 import { type VideoObject } from "./VideoObject.js";
 import { type Walkthrough } from "./Walkthrough.js";
 import { type WalkthroughStep } from "./WalkthroughStep.js";
+import { type Workflow } from "./Workflow.js";
 
 /**
  * Union type for all types in this schema, including primitives and entities
@@ -151,6 +154,7 @@ export type Node =
   string |
   Array |
   Admonition |
+  Agent |
   Annotation |
   AppendixBreak |
   ArrayHint |
@@ -251,6 +255,7 @@ export type Node =
   Review |
   Section |
   Sentence |
+  Skill |
   SoftwareApplication |
   SoftwareSourceCode |
   Strikeout |
@@ -281,6 +286,7 @@ export type Node =
   VideoObject |
   Walkthrough |
   WalkthroughStep |
+  Workflow |
   Cord |
   Object;
 
@@ -293,6 +299,7 @@ export function node(other: Node): Node {
   }
   switch(other.type) {
     case "Admonition":
+    case "Agent":
     case "Annotation":
     case "AppendixBreak":
     case "ArrayHint":
@@ -393,6 +400,7 @@ export function node(other: Node): Node {
     case "Review":
     case "Section":
     case "Sentence":
+    case "Skill":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Strikeout":
@@ -423,6 +431,7 @@ export function node(other: Node): Node {
     case "VideoObject":
     case "Walkthrough":
     case "WalkthroughStep":
+    case "Workflow":
       return hydrate(other) as Node
     default:
       throw new Error(`Unexpected type for Node: ${other.type}`);

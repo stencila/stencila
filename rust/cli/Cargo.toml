@@ -21,7 +21,6 @@ console-subscriber = { version = "0.5.0", optional = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
 glob = { workspace = true }
-indicatif = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 pathdiff = { workspace = true }
@@ -30,27 +29,32 @@ self-replace = "1.3.7"
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-agents = { path = "../agents", features = ["cli"] }
 stencila-ask = { path = "../ask" }
+stencila-auth = { path = "../auth", features = ["cli"] }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codec-gdoc = { path = "../codec-gdoc" }
 stencila-codec-m365 = { path = "../codec-m365" }
+stencila-codemode = { path = "../codemode" }
 stencila-codecs = { path = "../codecs" }
 stencila-config = { path = "../config" }
+stencila-db = { path = "../db" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
 stencila-kernels = { path = "../kernels" }
 stencila-linters = { path = "../linters" }
 stencila-lsp = { path = "../lsp" }
-stencila-models = { path = "../models" }
-stencila-node-db = { path = "../node-db" }
+stencila-mcp = { path = "../mcp", features = ["cli"] }
+stencila-models3 = { path = "../models3", features = ["cli"] }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-node-execute = { path = "../node-execute" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-node-supplements = { path = "../node-supplements" }
 stencila-prompts = { path = "../prompts" }
+stencila-skills = { path = "../skills", features = ["cli"] }
 stencila-publish = { path = "../publish" }
 stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
@@ -61,8 +65,10 @@ stencila-snap = { path = "../snap" }
 stencila-spread = { path = "../spread" }
 stencila-themes = { path = "../themes" }
 stencila-tools = { path = "../tools" }
+stencila-tui = { path = "../tui" }
 stencila-version = { path = "../version" }
 stencila-web-dist = { path = "../web-dist" }
+stencila-workflows = { path = "../workflows" }
 strum = { workspace = true }
 tar = { workspace = true }
 tempfile = { workspace = true }

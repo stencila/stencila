@@ -1,0 +1,12 @@
+{
+  "id": "chatcmpl_mistral_stream_1",
+  "model": "mistral-small-latest",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "content": "Hel"
+      }
+    }
+  ]
+}

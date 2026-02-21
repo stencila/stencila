@@ -80,6 +80,7 @@ proptest = { workspace = true }
 regex = { workspace = true }
 serde_yaml = { workspace = true }
 smart-default = { workspace = true }
+stencila-node-stabilize = { path = "../node-stabilize" }
 
 [lints]
 workspace = true

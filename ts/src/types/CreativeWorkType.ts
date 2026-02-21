@@ -3,6 +3,7 @@
  * The kind of a creative work.
  */
 export type CreativeWorkType =
+  'Agent' |
   'Article' |
   'AudioObject' |
   'Blog' |
@@ -31,6 +32,7 @@ export type CreativeWorkType =
   'PublicationVolume' |
   'Report' |
   'Review' |
+  'Skill' |
   'SoftwareApplication' |
   'SoftwareRepository' |
   'SoftwareSourceCode' |

@@ -9,6 +9,7 @@ export type NodeType =
   | "String"
   | "Array"
   | "Admonition"
+  | "Agent"
   | "Annotation"
   | "AppendixBreak"
   | "ArrayHint"
@@ -109,6 +110,7 @@ export type NodeType =
   | "Review"
   | "Section"
   | "Sentence"
+  | "Skill"
   | "SoftwareApplication"
   | "SoftwareSourceCode"
   | "Strikeout"
@@ -139,6 +141,7 @@ export type NodeType =
   | "VideoObject"
   | "Walkthrough"
   | "WalkthroughStep"
+  | "Workflow"
   | "Cord"
   | "Object";
 
@@ -151,6 +154,7 @@ export const NodeTypeList = [
   "String",
   "Array",
   "Admonition",
+  "Agent",
   "Annotation",
   "AppendixBreak",
   "ArrayHint",
@@ -251,6 +255,7 @@ export const NodeTypeList = [
   "Review",
   "Section",
   "Sentence",
+  "Skill",
   "SoftwareApplication",
   "SoftwareSourceCode",
   "Strikeout",
@@ -281,6 +286,7 @@ export const NodeTypeList = [
   "VideoObject",
   "Walkthrough",
   "WalkthroughStep",
+  "Workflow",
   "Cord",
   "Object",
 ];

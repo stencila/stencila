@@ -20,7 +20,12 @@ pub fn generate_nav_yaml(root: &CommandDoc) -> String {
     let subcommand_map: std::collections::HashMap<&str, &CommandDoc> = root
         .subcommands
         .iter()
-        .map(|cmd| (cmd.path.last().unwrap().as_str(), cmd))
+        .map(|cmd| {
+            (
+                cmd.path.last().expect("path should not be empty").as_str(),
+                cmd,
+            )
+        })
         .collect();
 
     for group in COMMAND_GROUPS {
@@ -42,7 +47,7 @@ pub fn generate_nav_yaml(root: &CommandDoc) -> String {
 
 /// Write a command to YAML, recursively including subcommands if present
 fn write_command_yaml(output: &mut String, cmd: &CommandDoc, indent: usize) {
-    let name = cmd.path.last().unwrap();
+    let name = cmd.path.last().expect("path should not be empty");
     let spaces = " ".repeat(indent);
 
     if cmd.subcommands.is_empty() {

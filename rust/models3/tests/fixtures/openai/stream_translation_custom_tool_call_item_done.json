@@ -1,0 +1,9 @@
+{
+  "type": "response.output_item.done",
+  "item": {
+    "type": "custom_tool_call",
+    "call_id": "call_custom_2",
+    "name": "apply_patch",
+    "input": "*** Begin Patch\n*** End Patch\n"
+  }
+}

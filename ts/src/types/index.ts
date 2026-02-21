@@ -2,6 +2,7 @@
 
 export * from "./Admonition.js";
 export * from "./AdmonitionType.js";
+export * from "./Agent.js";
 export * from "./Annotation.js";
 export * from "./AppendixBreak.js";
 export * from "./Array.js";
@@ -153,6 +154,7 @@ export * from "./Role.js";
 export * from "./Section.js";
 export * from "./SectionType.js";
 export * from "./Sentence.js";
+export * from "./Skill.js";
 export * from "./SoftwareApplication.js";
 export * from "./SoftwareSourceCode.js";
 export * from "./SoftwareSourceCodeOrSoftwareApplicationOrString.js";
@@ -196,3 +198,4 @@ export * from "./VerticalAlignment.js";
 export * from "./VideoObject.js";
 export * from "./Walkthrough.js";
 export * from "./WalkthroughStep.js";
+export * from "./Workflow.js";

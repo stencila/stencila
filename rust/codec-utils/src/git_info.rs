@@ -473,6 +473,87 @@ pub fn get_current_commit(path: Option<&Path>) -> Option<String> {
     }
 }
 
+/// List all refs (branches, remote-tracking branches, tags) in a repository
+///
+/// Uses `git for-each-ref` to enumerate all refs under `refs/`.
+///
+/// # Arguments
+///
+/// * `repo_root` - Path to the root of the Git repository.
+///
+/// # Returns
+///
+/// A vector of ref names such as `refs/heads/main`, `refs/remotes/origin/feature`,
+/// `refs/tags/v1.0`, etc.
+///
+/// # Errors
+///
+/// Returns an error if git is not available or the command fails.
+pub fn git_list_refs(repo_root: &Path) -> Result<Vec<String>> {
+    if which::which("git").is_err() {
+        bail!("git is not available");
+    }
+
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args(["for-each-ref", "--format=%(refname)", "refs/"])
+        .stderr(Stdio::piped())
+        .output()?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        bail!("git for-each-ref failed: {stderr}");
+    }
+
+    let stdout = String::from_utf8(output.stdout)?;
+    let refs = stdout
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(String::from)
+        .collect();
+
+    Ok(refs)
+}
+
+/// Get the content of a file at a given ref
+///
+/// Uses `git show {ref_name}:{file_path}` to retrieve file content
+/// from any branch, tag, or commit.
+///
+/// # Arguments
+///
+/// * `repo_root` - Path to the root of the Git repository.
+/// * `ref_name` - The ref to read from (e.g. `refs/heads/main`, `HEAD~1`, a commit SHA).
+/// * `file_path` - Repository-relative path to the file.
+///
+/// # Returns
+///
+/// * `Some(content)` if the file exists at that ref
+/// * `None` if the file doesn't exist at that ref or the command fails
+pub fn git_show_file_at_ref(repo_root: &Path, ref_name: &str, file_path: &str) -> Option<String> {
+    if which::which("git").is_err() {
+        return None;
+    }
+
+    let object = format!("{ref_name}:{file_path}");
+
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .arg("show")
+        .arg(&object)
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+
+    if output.status.success() {
+        Some(String::from_utf8(output.stdout).ok()?.trim().to_string())
+    } else {
+        None
+    }
+}
+
 /// Result of detecting current git ref
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GitRef {

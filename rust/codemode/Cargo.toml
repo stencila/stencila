@@ -1,0 +1,25 @@
+[package]
+name = "stencila-codemode"
+edition = "2024"
+version.workspace = true
+
+[dependencies]
+async-trait = { workspace = true }
+jsonschema = { workspace = true }
+rquickjs = { version = "0.11.0", features = ["futures", "macro", "parallel", "loader"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+strsim = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+url = { workspace = true }
+
+stencila-mcp = { path = "../mcp" }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full", "test-util"] }
+
+[lints]
+workspace = true

@@ -440,6 +440,9 @@
           "@id": "schema:Thing"
         },
         {
+          "@id": "stencila:Agent"
+        },
+        {
           "@id": "stencila:Button"
         },
         {
@@ -464,10 +467,16 @@
           "@id": "stencila:Parameter"
         },
         {
+          "@id": "stencila:Skill"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
           "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:Workflow"
         }
       ],
       "schema:rangeIncludes": {

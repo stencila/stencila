@@ -214,6 +214,7 @@ class CreativeWorkType(StrEnum):
     The kind of a creative work.
     """
 
+    Agent = "Agent"
     Article = "Article"
     AudioObject = "AudioObject"
     Blog = "Blog"
@@ -242,6 +243,7 @@ class CreativeWorkType(StrEnum):
     PublicationVolume = "PublicationVolume"
     Report = "Report"
     Review = "Review"
+    Skill = "Skill"
     SoftwareApplication = "SoftwareApplication"
     SoftwareRepository = "SoftwareRepository"
     SoftwareSourceCode = "SoftwareSourceCode"
@@ -1107,6 +1109,63 @@ class Admonition(Entity):
 
     provenance: list[ProvenanceCount] | None = None
     """A summary of the provenance of the content within the admonition."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Agent(CreativeWork):
+    """
+    An agent definition specifying model, tools, and behavioral configuration.
+    """
+
+    type: Literal["Agent"] = "Agent"
+
+    name: str
+    """The name of the agent."""
+
+    frontmatter: str | None = None
+    """Frontmatter containing agent metadata."""
+
+    content: list[Block] | None = None
+    """The content of the agent (the Markdown body providing system instructions)."""
+
+    model: str | None = None
+    """Model identifier for the agent."""
+
+    provider: str | None = None
+    """Provider identifier for the agent."""
+
+    reasoning_effort: str | None = None
+    """Reasoning effort level for the agent."""
+
+    allowed_skills: list[str] | None = None
+    """Skill names this agent can use."""
+
+    allowed_tools: list[str] | None = None
+    """Tool names available to the agent."""
+
+    enable_mcp: bool | None = None
+    """Whether to enable MCP tools."""
+
+    enable_mcp_codemode: bool | None = None
+    """Whether to enable MCP codemode orchestration."""
+
+    allowed_mcp_servers: list[str] | None = None
+    """MCP server IDs this agent is allowed to use."""
+
+    max_turns: int | None = None
+    """Maximum conversation turns (0 = unlimited)."""
+
+    tool_timeout: int | None = None
+    """Default timeout for tool execution in seconds."""
+
+    max_tool_rounds: int | None = None
+    """Maximum tool-call rounds per user input."""
+
+    max_subagent_depth: int | None = None
+    """Maximum subagent nesting depth."""
+
+    compatibility: str | None = None
+    """Environment requirements for the agent."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2934,6 +2993,30 @@ class Sentence(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Skill(CreativeWork):
+    """
+    An agent skill providing instructions for AI agents.
+    """
+
+    type: Literal["Skill"] = "Skill"
+
+    name: str
+    """The name of the skill."""
+
+    frontmatter: str | None = None
+    """Frontmatter containing skill metadata."""
+
+    content: list[Block]
+    """The content of the skill (the Markdown body)."""
+
+    compatibility: str | None = None
+    """Environment requirements for the skill."""
+
+    allowed_tools: list[str] | None = None
+    """Pre-approved tools for the skill."""
+
+
+@dataclass(kw_only=True, repr=False)
 class SoftwareApplication(CreativeWork):
     """
     A software application.
@@ -3370,6 +3453,45 @@ class WalkthroughStep(Entity):
     content: list[Block]
     """The content of the step."""
 
+
+@dataclass(kw_only=True, repr=False)
+class Workflow(CreativeWork):
+    """
+    A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+    """
+
+    type: Literal["Workflow"] = "Workflow"
+
+    name: str
+    """The name of the workflow."""
+
+    frontmatter: str | None = None
+    """Frontmatter containing workflow metadata."""
+
+    content: list[Block] | None = None
+    """The content of the workflow (Markdown body containing the DOT pipeline and documentation)."""
+
+    pipeline: str | None = None
+    """The raw DOT source defining the pipeline digraph."""
+
+    goal: str | None = None
+    """The high-level goal for the pipeline."""
+
+    model_stylesheet: str | None = None
+    """CSS-like stylesheet for supplementary per-node LLM model and provider overrides."""
+
+    default_max_retry: int | None = None
+    """Global retry ceiling for nodes that omit max_retries."""
+
+    retry_target: str | None = None
+    """Node ID to jump to if exit is reached with unsatisfied goal gates."""
+
+    fallback_retry_target: str | None = None
+    """Secondary jump target if retryTarget is missing or invalid."""
+
+    default_fidelity: str | None = None
+    """Default context fidelity mode for LLM sessions."""
+
 Author = Union[
     Person,
     Organization,
@@ -3438,6 +3560,7 @@ Union type in block content node types.
 
 
 CreativeWorkVariant = Union[
+    Agent,
     Article,
     AudioObject,
     Chat,
@@ -3454,10 +3577,12 @@ CreativeWorkVariant = Union[
     PublicationIssue,
     PublicationVolume,
     Review,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Table,
     VideoObject,
+    Workflow,
 ]
 """
 Union type for all types that are descended from `CreativeWork`
@@ -3544,6 +3669,7 @@ Node = Union[
     str,
     Array,
     Admonition,
+    Agent,
     Annotation,
     AppendixBreak,
     ArrayHint,
@@ -3644,6 +3770,7 @@ Node = Union[
     Review,
     Section,
     Sentence,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
@@ -3674,6 +3801,7 @@ Node = Union[
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Workflow,
     Cord,
     Object,
 ]
@@ -3683,6 +3811,7 @@ Union type for all types in this schema, including primitives and entities
 
 
 ThingVariant = Union[
+    Agent,
     Article,
     AudioObject,
     Brand,
@@ -3712,10 +3841,12 @@ ThingVariant = Union[
     PublicationIssue,
     PublicationVolume,
     Review,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Table,
     VideoObject,
+    Workflow,
 ]
 """
 Union type for all types that are descended from `Thing`
@@ -3763,6 +3894,7 @@ TYPES = [
     StyledBlock,
     Suggestion,
     Admonition,
+    Agent,
     Annotation,
     AppendixBreak,
     ArrayHint,
@@ -3856,6 +3988,7 @@ TYPES = [
     Review,
     Section,
     Sentence,
+    Skill,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
@@ -3884,6 +4017,7 @@ TYPES = [
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Workflow,
 ]
 
 

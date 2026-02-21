@@ -1,0 +1,37 @@
+[package]
+name = "stencila-attractor"
+edition = "2024"
+version.workspace = true
+
+[features]
+default = []
+sqlite = ["dep:stencila-db", "dep:sha2", "dep:tar", "dep:zstd"]
+
+[dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+indexmap = { workspace = true }
+rand = { workspace = true }
+stencila-db = { path = "../db", optional = true }
+serde = { workspace = true }
+sha2 = { workspace = true, optional = true }
+tar = { workspace = true, optional = true }
+zstd = { workspace = true, optional = true }
+serde_json = { workspace = true }
+stencila-agents = { path = "../agents" }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+winnow = { workspace = true }
+
+[dev-dependencies]
+sha2 = { workspace = true }
+stencila-db = { path = "../db" }
+tar = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }
+zstd = { workspace = true }
+
+[lints]
+workspace = true

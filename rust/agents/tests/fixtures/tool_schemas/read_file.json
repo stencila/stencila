@@ -1,0 +1,25 @@
+{
+  "name": "read_file",
+  "description": "Read the contents of a file. Output includes line numbers formatted as `{line_number} | {content}`. Use offset and limit to read specific portions of large files.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "file_path": {
+        "type": "string",
+        "description": "Absolute path to the file to read."
+      },
+      "offset": {
+        "type": "integer",
+        "description": "Line number to start reading from (1-based). Defaults to 1.",
+        "minimum": 1
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Maximum number of lines to read. Defaults to 2000.",
+        "minimum": 1
+      }
+    },
+    "required": ["file_path"],
+    "additionalProperties": false
+  }
+}

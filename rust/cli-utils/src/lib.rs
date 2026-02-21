@@ -34,6 +34,9 @@ mod datatable;
 pub mod tabulated;
 pub use tabulated::Tabulated;
 
+// Progress bars
+pub mod progress;
+
 // Utilities
 pub use terminal_size;
 

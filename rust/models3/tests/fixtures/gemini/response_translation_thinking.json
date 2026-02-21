@@ -1,0 +1,21 @@
+{
+  "modelVersion": "gemini-2.5-pro",
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {"text": "Thinking deeply...", "thought": true},
+          {"text": "The answer is 42"}
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP"
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 5,
+    "candidatesTokenCount": 10,
+    "totalTokenCount": 15,
+    "thoughtsTokenCount": 3
+  }
+}
