@@ -32,6 +32,39 @@ struct LoopState {
     last_outcome: Outcome,
 }
 
+/// Run the core traversal loop with a pre-created context.
+///
+/// Used when the caller needs to provide a custom context backend (e.g.
+/// SQLite-backed). Populates the context with goal and graph attributes
+/// just like [`run_loop`].
+pub(crate) async fn run_loop_with_context(
+    graph: &Graph,
+    config: EngineConfig,
+    context: Context,
+) -> AttractorResult<Outcome> {
+    let start_node = graph.find_start_node()?;
+    graph.find_exit_node()?;
+
+    let run_dir = create_run_dir(graph, &config)?;
+    populate_context(graph, &context);
+
+    config.emitter.emit(PipelineEvent::PipelineStarted {
+        pipeline_name: graph.name.clone(),
+    });
+
+    let state = LoopState {
+        current_node_id: start_node.id.clone(),
+        completed_nodes: Vec::new(),
+        node_outcomes: IndexMap::new(),
+        node_statuses: IndexMap::new(),
+        node_retries: IndexMap::new(),
+        stage_index: 0,
+        last_outcome: Outcome::success(),
+    };
+
+    execute_loop(graph, config, run_dir, context, state).await
+}
+
 /// Run the core traversal loop for a pipeline graph.
 pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorResult<Outcome> {
     // Validate both start and exit nodes exist before running (§3.2).
@@ -173,13 +206,18 @@ fn create_run_dir(graph: &Graph, config: &EngineConfig) -> AttractorResult<RunDi
 /// runs and loop restarts (§2.7/§3.2).
 fn init_run(graph: &Graph, config: &EngineConfig) -> AttractorResult<(RunDirectory, Context)> {
     let run_dir = create_run_dir(graph, config)?;
+    let context = Context::new();
+    populate_context(graph, &context);
+    Ok((run_dir, context))
+}
 
+/// Populate a context with goal and graph-level attributes.
+fn populate_context(graph: &Graph, context: &Context) {
     let goal = graph
         .get_graph_attr("goal")
         .map(super::super::graph::AttrValue::to_string_value)
         .unwrap_or_default();
 
-    let context = Context::new();
     if !goal.is_empty() {
         context.set("goal", Value::String(goal));
     }
@@ -189,8 +227,6 @@ fn init_run(graph: &Graph, config: &EngineConfig) -> AttractorResult<(RunDirecto
             Value::String(value.to_string_value()),
         );
     }
-
-    Ok((run_dir, context))
 }
 
 /// The shared traversal loop used by both fresh runs and resumed runs.
@@ -218,6 +254,21 @@ async fn execute_loop(
             let gate_result = check_goal_gates(graph, &state.node_outcomes);
             if !gate_result.satisfied {
                 if let Some(target) = resolve_gate_retry(graph, &gate_result) {
+                    #[cfg(feature = "sqlite")]
+                    if let Some(backend) = context.sqlite_backend()
+                        && let Err(e) = backend.insert_edge(
+                            #[allow(clippy::cast_possible_wrap)]
+                            (state.stage_index as i64),
+                            &node.id,
+                            &target,
+                            Some("goal_gate_retry"),
+                        )
+                    {
+                        tracing::warn!(
+                            "SQLite insert_edge({} -> {target}) for goal gate failed: {e}",
+                            node.id
+                        );
+                    }
                     state.current_node_id = target;
                     continue;
                 }
@@ -308,6 +359,21 @@ async fn execute_loop(
             &mut state,
             next_node_id.as_deref(),
         )?;
+
+        // Persist edge traversal to SQLite when available.
+        #[cfg(feature = "sqlite")]
+        if let (Some(next), Some(backend)) = (next_node_id.as_deref(), context.sqlite_backend())
+            && let Err(e) = backend.insert_edge(
+                #[allow(clippy::cast_possible_wrap)]
+                (state.stage_index as i64),
+                &node.id,
+                next,
+                None,
+            )
+        {
+            tracing::warn!("SQLite insert_edge({} -> {next}) failed: {e}", node.id);
+        }
+
         config.emitter.emit(PipelineEvent::CheckpointSaved {
             node_id: node.id.clone(),
         });
@@ -423,6 +489,39 @@ fn record_and_checkpoint(
     if let Some(count) = context.get_i64(&format!("internal.retry_count.{}", node.id)) {
         #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
         state.node_retries.insert(node.id.clone(), count as u32);
+    }
+
+    // Persist node record to SQLite when available.
+    #[cfg(feature = "sqlite")]
+    if let Some(backend) = context.sqlite_backend() {
+        let retry_count = i64::from(state.node_retries.get(&node.id).copied().unwrap_or(0));
+        let failure_reason = if outcome.status == StageStatus::Fail {
+            Some(outcome.failure_reason.as_str())
+        } else {
+            None
+        };
+        let model = context
+            .get(&format!("internal.model.{}", node.id))
+            .and_then(|v| v.as_str().map(|s| s.to_string()));
+        let provider = context
+            .get(&format!("internal.provider.{}", node.id))
+            .and_then(|v| v.as_str().map(|s| s.to_string()));
+        let input_tokens = context.get_i64(&format!("internal.input_tokens.{}", node.id));
+        let output_tokens = context.get_i64(&format!("internal.output_tokens.{}", node.id));
+        let record = crate::sqlite_backend::NodeRecord {
+            node_id: &node.id,
+            status: outcome.status.as_str(),
+            model: model.as_deref(),
+            provider: provider.as_deref(),
+            duration_ms: None,
+            input_tokens,
+            output_tokens,
+            retry_count: Some(retry_count),
+            failure_reason,
+        };
+        if let Err(e) = backend.upsert_node(&record) {
+            tracing::warn!("SQLite upsert_node({}) failed: {e}", node.id);
+        }
     }
 
     let checkpoint = Checkpoint::from_context(

@@ -424,7 +424,7 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Run {
-    #[allow(clippy::print_stdout)]
+    #[allow(clippy::print_stdout, clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
         let mut wf = workflow_def::get_by_name(&cwd, &self.name).await?;
@@ -493,7 +493,8 @@ impl Run {
             emitter,
             interviewer: None,
         };
-        let outcome = crate::workflow_run::run_workflow_with_options(&wf, &logs_dir, options).await?;
+        let outcome =
+            crate::workflow_run::run_workflow_with_options(&wf, &logs_dir, options).await?;
         let elapsed = started.elapsed();
 
         eprintln!();

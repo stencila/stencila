@@ -142,6 +142,8 @@ Available variables:
 - `preferred_label` — the handler's preferred edge label
 - `context.*` — values from the shared pipeline context
 
+When an LLM writes context via the `set_workflow_context` tool, keys are stored under the `llm.` namespace (for example, writing `decision` stores `llm.decision`). Keys starting with `internal.` are reserved.
+
 # Workflow patterns
 
 ## Linear pipeline

@@ -442,6 +442,22 @@ impl ApiSession {
         self.total_turns
     }
 
+    /// Register an additional tool on this session's profile.
+    ///
+    /// Can be called at any point. Tools registered before the first
+    /// `submit()` are included from the start; tools registered later
+    /// will appear in subsequent LLM requests.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the tool definition fails validation.
+    pub fn register_tool(
+        &mut self,
+        tool: crate::registry::RegisteredTool,
+    ) -> crate::error::AgentResult<()> {
+        self.profile.tool_registry_mut().register(tool)
+    }
+
     /// The MCP connection pool, if MCP/codemode is active.
     #[cfg(any(feature = "mcp", feature = "codemode"))]
     #[must_use]
@@ -1060,9 +1076,7 @@ impl ApiSession {
 
                 let executed = if has_subagent {
                     self.execute_tools_with_subagents(&permitted_calls).await
-                } else if self.profile.supports_parallel_tool_calls()
-                    && permitted_calls.len() > 1
-                {
+                } else if self.profile.supports_parallel_tool_calls() && permitted_calls.len() > 1 {
                     self.execute_tools_parallel(&permitted_calls).await
                 } else {
                     self.execute_tools_sequential(&permitted_calls).await
@@ -1078,9 +1092,7 @@ impl ApiSession {
             results
                 .into_iter()
                 .enumerate()
-                .map(|(i, slot)| {
-                    slot.unwrap_or_else(|| aborted_tool_result(&tool_calls[i].id))
-                })
+                .map(|(i, slot)| slot.unwrap_or_else(|| aborted_tool_result(&tool_calls[i].id)))
                 .collect()
         };
 

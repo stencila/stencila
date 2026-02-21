@@ -99,6 +99,29 @@ pub async fn run(graph: &Graph, config: EngineConfig) -> crate::error::Attractor
     loop_core::run_loop(&graph, config).await
 }
 
+/// Run a pipeline with a pre-created context.
+///
+/// Like [`run`] but accepts an externally-created [`Context`] (e.g. one
+/// backed by `SQLite`) instead of creating a fresh in-memory context.
+///
+/// # Errors
+///
+/// Same as [`run`].
+pub async fn run_with_context(
+    graph: &Graph,
+    config: EngineConfig,
+    context: crate::context::Context,
+) -> crate::error::AttractorResult<Outcome> {
+    let mut graph = graph.clone();
+    config.transforms.apply_all(&mut graph)?;
+
+    if !config.skip_validation {
+        crate::validation::validate_or_raise(&graph, &[])?;
+    }
+
+    loop_core::run_loop_with_context(&graph, config, context).await
+}
+
 /// Resume a pipeline from a checkpoint file (§5.3).
 ///
 /// Loads execution state from the checkpoint, restores context and
@@ -123,5 +146,28 @@ pub async fn resume(
     }
 
     let resume_state = crate::resume::resume_from_checkpoint(checkpoint_path, &graph)?;
+    loop_core::resume_loop(&graph, config, resume_state).await
+}
+
+/// Resume a pipeline from SQLite-backed run state.
+///
+/// Reconstructs resume state from run-scoped tables (`workflow_nodes`,
+/// `workflow_edges`, and SQLite-backed context/logs) instead of reading
+/// `checkpoint.json`.
+#[cfg(feature = "sqlite")]
+pub async fn resume_with_sqlite(
+    graph: &Graph,
+    config: EngineConfig,
+    conn: std::sync::Arc<std::sync::Mutex<rusqlite::Connection>>,
+    run_id: &str,
+) -> crate::error::AttractorResult<Outcome> {
+    let mut graph = graph.clone();
+    config.transforms.apply_all(&mut graph)?;
+
+    if !config.skip_validation {
+        crate::validation::validate_or_raise(&graph, &[])?;
+    }
+
+    let resume_state = crate::resume::resume_from_sqlite(conn, run_id, &graph)?;
     loop_core::resume_loop(&graph, config, resume_state).await
 }

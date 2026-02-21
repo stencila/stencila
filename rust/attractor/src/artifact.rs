@@ -42,6 +42,10 @@ enum ArtifactData {
 pub struct ArtifactStore {
     artifacts: RwLock<HashMap<String, (ArtifactInfo, ArtifactData)>>,
     base_dir: Option<PathBuf>,
+    #[cfg(feature = "sqlite")]
+    sqlite_backend: Option<crate::sqlite_backend::SqliteBackend>,
+    #[cfg(feature = "sqlite")]
+    workspace_root: Option<PathBuf>,
 }
 
 impl ArtifactStore {
@@ -54,6 +58,26 @@ impl ArtifactStore {
         Self {
             artifacts: RwLock::new(HashMap::new()),
             base_dir,
+            #[cfg(feature = "sqlite")]
+            sqlite_backend: None,
+            #[cfg(feature = "sqlite")]
+            workspace_root: None,
+        }
+    }
+
+    /// Create a store that also registers persisted artifacts in SQLite.
+    #[cfg(feature = "sqlite")]
+    #[must_use]
+    pub fn with_sqlite(
+        base_dir: Option<PathBuf>,
+        sqlite_backend: crate::sqlite_backend::SqliteBackend,
+        workspace_root: PathBuf,
+    ) -> Self {
+        Self {
+            artifacts: RwLock::new(HashMap::new()),
+            base_dir,
+            sqlite_backend: Some(sqlite_backend),
+            workspace_root: Some(workspace_root),
         }
     }
 
@@ -71,7 +95,13 @@ impl ArtifactStore {
         let id = artifact_id.into();
         let name = name.into();
         let size = data.len();
-        let is_file_backed = size > FILE_BACKING_THRESHOLD && self.base_dir.is_some();
+        #[cfg(feature = "sqlite")]
+        let force_file_backed = self.sqlite_backend.is_some();
+        #[cfg(not(feature = "sqlite"))]
+        let force_file_backed = false;
+
+        let is_file_backed =
+            (size > FILE_BACKING_THRESHOLD || force_file_backed) && self.base_dir.is_some();
 
         let stored_data = if let (true, Some(base)) = (is_file_backed, &self.base_dir) {
             let dir = base.join("artifacts");
@@ -99,6 +129,8 @@ impl ArtifactStore {
             let _ = std::fs::remove_file(old_path);
         }
         artifacts.insert(id, (info.clone(), stored_data));
+        #[cfg(feature = "sqlite")]
+        self.register_sqlite_artifact(&info, artifacts.get(&info.id).map(|(_, data)| data));
         Ok(info)
     }
 
@@ -175,5 +207,39 @@ impl ArtifactStore {
     #[must_use]
     pub fn base_dir(&self) -> Option<&Path> {
         self.base_dir.as_deref()
+    }
+
+    #[cfg(feature = "sqlite")]
+    fn register_sqlite_artifact(&self, info: &ArtifactInfo, data: Option<&ArtifactData>) {
+        let (Some(backend), Some(workspace_root), Some(data)) =
+            (&self.sqlite_backend, &self.workspace_root, data)
+        else {
+            return;
+        };
+
+        let ArtifactData::FileBacked(path) = data else {
+            return;
+        };
+
+        let relative = path
+            .canonicalize()
+            .ok()
+            .and_then(|p| {
+                workspace_root
+                    .canonicalize()
+                    .ok()
+                    .and_then(|root| p.strip_prefix(root).ok().map(|rel| rel.to_path_buf()))
+            })
+            .unwrap_or_else(|| path.clone());
+
+        if let Err(error) = backend.insert_artifact(
+            &info.id,
+            &info.name,
+            None,
+            i64::try_from(info.size_bytes).ok(),
+            &relative.to_string_lossy(),
+        ) {
+            tracing::warn!("Failed to register artifact in SQLite: {error}");
+        }
     }
 }

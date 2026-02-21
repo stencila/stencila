@@ -10,4 +10,6 @@ pub use workflow_emitters::*;
 mod workflow_run;
 pub use workflow_run::*;
 
+mod tools;
+
 pub mod cli;

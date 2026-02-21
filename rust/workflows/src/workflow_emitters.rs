@@ -56,6 +56,12 @@ pub struct ProgressEventEmitter {
     state: Mutex<HashMap<String, StageState>>,
 }
 
+impl Default for ProgressEventEmitter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProgressEventEmitter {
     #[must_use]
     pub fn new() -> Self {
@@ -90,7 +96,7 @@ impl EventEmitter for ProgressEventEmitter {
                 let bar = self.multi.add(ProgressBar::new_spinner());
                 bar.set_style(
                     ProgressStyle::with_template("{spinner:.cyan} {msg}")
-                        .unwrap()
+                        .expect("static spinner template should be valid")
                         .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ "),
                 );
                 bar.enable_steady_tick(std::time::Duration::from_millis(80));
@@ -241,6 +247,12 @@ struct VerboseState {
 
 pub struct VerboseEventEmitter {
     state: Mutex<VerboseState>,
+}
+
+impl Default for VerboseEventEmitter {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl VerboseEventEmitter {
@@ -399,6 +411,12 @@ struct PlainStageState {
 
 pub struct PlainEventEmitter {
     state: Mutex<HashMap<String, PlainStageState>>,
+}
+
+impl Default for PlainEventEmitter {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PlainEventEmitter {
