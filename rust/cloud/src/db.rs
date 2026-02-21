@@ -186,29 +186,66 @@ struct BlobListResponse {
     hashes: Vec<String>,
 }
 
+/// Default page size for paginated blob listing requests.
+const BLOB_LIST_PAGE_SIZE: u64 = 100;
+
+/// Maximum number of pages to fetch before bailing out.
+/// Acts as a safeguard against non-terminating loops if the server
+/// misbehaves (e.g. ignores the offset parameter).
+const BLOB_LIST_MAX_PAGES: u64 = 1000;
+
 /// List all blob hashes of a given kind stored on Stencila Cloud for a workspace.
+///
+/// The endpoint uses limit/offset pagination, so this function fetches pages
+/// sequentially until an incomplete page signals the end of results.
 #[tracing::instrument]
 pub async fn list_blobs(workspace_id: &str, kind: &str) -> Result<Vec<String>> {
     let token =
         api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
 
-    let url = blob_list_url(workspace_id, kind);
-
-    let response = Client::builder()
+    let base_url = blob_list_url(workspace_id, kind);
+    let client = Client::builder()
         .user_agent(STENCILA_USER_AGENT)
-        .build()?
-        .get(&url)
-        .bearer_auth(token)
-        .send()
-        .await?;
+        .build()?;
 
-    if !response.status().is_success() {
-        check_response(response).await?;
-        unreachable!()
+    let mut all_hashes = Vec::new();
+    let mut offset: u64 = 0;
+    let mut page: u64 = 0;
+
+    loop {
+        page += 1;
+        if page > BLOB_LIST_MAX_PAGES {
+            bail!(
+                "Blob listing exceeded {BLOB_LIST_MAX_PAGES} pages — \
+                 possible server pagination issue"
+            );
+        }
+
+        let url = format!("{base_url}?limit={BLOB_LIST_PAGE_SIZE}&offset={offset}");
+
+        let response = client
+            .get(&url)
+            .bearer_auth(&token)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            check_response(response).await?;
+            unreachable!()
+        }
+
+        let page: BlobListResponse = response.json().await?;
+        let count = page.hashes.len() as u64;
+        all_hashes.extend(page.hashes);
+
+        if count < BLOB_LIST_PAGE_SIZE {
+            break;
+        }
+
+        offset += count;
     }
 
-    let body: BlobListResponse = response.json().await?;
-    Ok(body.hashes)
+    Ok(all_hashes)
 }
 
 /// Delete a blob from Stencila Cloud.
