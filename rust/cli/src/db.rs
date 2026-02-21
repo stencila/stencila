@@ -27,6 +27,18 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Pull database state from cloud</dim>
   <b>stencila db pull</b>
+
+  <dim># Show changeset history</dim>
+  <b>stencila db log</b>
+
+  <dim># Verify local db matches manifest</dim>
+  <b>stencila db verify</b>
+
+  <dim># Rebuild database from manifest</dim>
+  <b>stencila db reset</b>
+
+  <dim># Create a new baseline snapshot</dim>
+  <b>stencila db snapshot</b>
 "
 );
 
@@ -35,6 +47,10 @@ enum Command {
     Push(Push),
     Pull(Pull),
     Status(Status),
+    Log(Log),
+    Verify(Verify),
+    Reset(Reset),
+    Snapshot(Snapshot),
 }
 
 impl Cli {
@@ -43,6 +59,10 @@ impl Cli {
             Command::Push(push) => push.run().await,
             Command::Pull(pull) => pull.run().await,
             Command::Status(status) => status.run().await,
+            Command::Log(log) => log.run().await,
+            Command::Verify(verify) => verify.run().await,
+            Command::Reset(reset) => reset.run().await,
+            Command::Snapshot(snapshot) => snapshot.run().await,
         }
     }
 }
@@ -119,7 +139,11 @@ impl Push {
         if needs_snapshot {
             if let Some(ref m) = existing {
                 if m.schema_version != local_schema {
-                    tracing::info!("Schema changed, creating snapshot instead of changeset");
+                    message!(
+                        "⚡ Schema changed ({} → {}), creating snapshot instead of changeset",
+                        format_schema_version(&m.schema_version),
+                        format_schema_version(&local_schema)
+                    );
                 }
             }
             self.push_snapshot(
@@ -475,20 +499,383 @@ impl Status {
                 let size = format_bytes(s.base_snapshot_size.unwrap_or(0));
                 println!("  Base snapshot: {:.8} ({date}, {size})", hash);
             }
-            println!(
-                "  Applied changesets: {} of {}",
-                s.applied_changesets, s.total_changesets
-            );
-            if s.up_to_date {
-                println!("  Status: up to date");
-            } else if !s.db_exists {
-                println!("  Status: run `stencila db pull` to restore");
+            if s.diverged {
+                println!("  Applied changesets: unknown (diverged)");
+                println!(
+                    "  Status: ⚠ diverged — local sync position not in manifest. \
+                     Run `stencila db reset` to rebuild, or `stencila db push` to \
+                     preserve local changes first."
+                );
             } else {
-                println!("  Status: behind — run `stencila db pull`");
+                println!(
+                    "  Applied changesets: {} of {}",
+                    s.applied_changesets, s.total_changesets
+                );
+                if s.up_to_date {
+                    println!("  Status: up to date");
+                } else if !s.db_exists {
+                    println!("  Status: run `stencila db pull` to restore");
+                } else {
+                    println!("  Status: behind — run `stencila db pull`");
+                }
             }
         } else {
             println!("Sync: no manifest (run `stencila db push` to initialize)");
         }
+
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// log
+// ---------------------------------------------------------------------------
+
+/// Show changeset history from the manifest
+#[derive(Debug, Args)]
+#[command(after_long_help = LOG_AFTER_LONG_HELP)]
+pub struct Log {}
+
+pub static LOG_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Show changeset history</dim>
+  <b>stencila db log</b>
+"
+);
+
+impl Log {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, _db_path) = resolve_paths().await?;
+        let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
+        let manifest = sync::read_manifest(&manifest_path)?.ok_or_else(|| {
+            eyre::eyre!(
+                "No manifest at `{}`; nothing to show",
+                manifest_path.display()
+            )
+        })?;
+
+        // Print changesets in reverse chronological order
+        for (i, entry) in manifest.changesets.iter().enumerate().rev() {
+            let idx = i + 2; // #1 is the snapshot
+            let date = entry.created_at.get(..16).unwrap_or(&entry.created_at);
+            let msg = entry
+                .message
+                .as_deref()
+                .map(|m| format!("  \"{m}\""))
+                .unwrap_or_default();
+            println!("#{idx:<3} {:.8}  {date}  {}{msg}", entry.hash, format_bytes(entry.size));
+        }
+
+        // Print the base snapshot as #1
+        let snap = &manifest.base_snapshot;
+        let date = snap.created_at.get(..16).unwrap_or(&snap.created_at);
+        let msg = snap
+            .message
+            .as_deref()
+            .map(|m| format!("  \"{m}\""))
+            .unwrap_or_default();
+        println!(
+            "#1   [snapshot] {:.8}  {date}  {}{msg}",
+            snap.hash,
+            format_bytes(snap.size)
+        );
+
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// verify
+// ---------------------------------------------------------------------------
+
+/// Verify local database matches the manifest state
+#[derive(Debug, Args)]
+#[command(after_long_help = VERIFY_AFTER_LONG_HELP)]
+pub struct Verify {}
+
+pub static VERIFY_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Verify local database matches manifest</dim>
+  <b>stencila db verify</b>
+"
+);
+
+impl Verify {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, db_path) = resolve_paths().await?;
+        let ws_id = workspace_id()?;
+
+        if !db_path.exists() {
+            eyre::bail!(
+                "No database at `{}`; nothing to verify",
+                db_path.display()
+            );
+        }
+
+        let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
+        let manifest = sync::read_manifest(&manifest_path)?.ok_or_else(|| {
+            eyre::eyre!(
+                "No manifest at `{}`; nothing to verify against",
+                manifest_path.display()
+            )
+        })?;
+
+        message!("Rebuilding database from manifest to compare...");
+
+        // Reconstruct manifest head into a temp file
+        let ref_path = db_path.with_extension("verify.tmp");
+        let _cleanup = TempFileGuard::new(ref_path.clone());
+
+        // Rebuild using the same order as pull/reset:
+        //   snapshot → migrate → changesets
+        // Using reconstruct_head here would apply changesets before
+        // migrations, which can produce different results if migrations
+        // backfill data or add columns that changesets reference.
+        let snapshot_blob = fetch_blob(
+            &stencila_dir,
+            &ws_id,
+            "snapshots",
+            &manifest.base_snapshot.hash,
+        )
+        .await?;
+
+        sync::restore_snapshot(
+            &snapshot_blob,
+            &manifest.base_snapshot.compression,
+            &ref_path,
+            &manifest.base_snapshot.hash,
+        )?;
+
+        {
+            let ref_db = stencila_db::WorkspaceDb::open(&ref_path)
+                .map_err(|e| eyre::eyre!("Failed to open reference database: {e}"))?;
+            stencila_workflows::run_migrations(&ref_db)
+                .map_err(|e| eyre::eyre!("Failed to run migrations on reference database: {e}"))?;
+        }
+
+        for entry in &manifest.changesets {
+            let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
+            sync::apply_changeset(&ref_path, &cs_data, &entry.hash)?;
+        }
+
+        let result = sync::verify_databases(&db_path, &ref_path)?;
+
+        // Also check sync position validity — verify_databases intentionally
+        // excludes internal tables (_sync, _migrations), so data can match
+        // while the sync position is invalid for the current manifest.
+        let s = sync::status(&stencila_dir, &db_path)?;
+
+        let mut problems = result.differences;
+        if s.diverged {
+            problems.push(
+                "Sync position: local _sync head is not in the current manifest \
+                 (diverged — likely a branch switch or rewind)"
+                    .to_string(),
+            );
+        }
+
+        if problems.is_empty() {
+            message!("✅ Local database matches manifest state");
+            Ok(())
+        } else {
+            println!("❌ Local database does not match manifest state:");
+            for diff in &problems {
+                println!("  • {diff}");
+            }
+            println!();
+            eyre::bail!(
+                "Verification failed ({} difference{}). Run `stencila db reset` to rebuild from the manifest.",
+                problems.len(),
+                if problems.len() == 1 { "" } else { "s" }
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// reset
+// ---------------------------------------------------------------------------
+
+/// Rebuild local database from the manifest
+///
+/// Discards the local database and rebuilds it from scratch using the
+/// manifest (snapshot + all changesets). This is the escape hatch when
+/// the local database has diverged or become corrupted.
+#[derive(Debug, Args)]
+#[command(after_long_help = RESET_AFTER_LONG_HELP)]
+pub struct Reset {}
+
+pub static RESET_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Rebuild database from manifest</dim>
+  <b>stencila db reset</b>
+"
+);
+
+impl Reset {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, db_path) = resolve_paths().await?;
+        let ws_id = workspace_id()?;
+
+        let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
+        let manifest = sync::read_manifest(&manifest_path)?.ok_or_else(|| {
+            eyre::eyre!(
+                "No manifest at `{}`; nothing to reset from",
+                manifest_path.display()
+            )
+        })?;
+
+        // Build into a temp file for atomicity (invariant §4)
+        let tmp_path = db_path.with_extension("sqlite3.tmp");
+        let _cleanup = TempFileGuard::new(tmp_path.clone());
+
+        message!(
+            "Downloading snapshot {:.8}...",
+            manifest.base_snapshot.hash
+        );
+        let snap_data = fetch_blob(
+            &stencila_dir,
+            &ws_id,
+            "snapshots",
+            &manifest.base_snapshot.hash,
+        )
+        .await?;
+        sync::restore_snapshot(
+            &snap_data,
+            &manifest.base_snapshot.compression,
+            &tmp_path,
+            &manifest.base_snapshot.hash,
+        )?;
+
+        // Run migrations so the schema matches current code before applying changesets
+        {
+            let tmp_db = stencila_db::WorkspaceDb::open(&tmp_path)
+                .map_err(|e| eyre::eyre!("Failed to open temp database for migration: {e}"))?;
+            stencila_workflows::run_migrations(&tmp_db)
+                .map_err(|e| eyre::eyre!("Failed to run migrations on temp database: {e}"))?;
+        }
+
+        // Apply all changesets
+        let cs_count = manifest.changesets.len();
+        for (i, entry) in manifest.changesets.iter().enumerate() {
+            message!(
+                "Applying changeset {}/{} ({:.8})...",
+                i + 1,
+                cs_count,
+                entry.hash
+            );
+            let cs_data = fetch_blob(&stencila_dir, &ws_id, "changesets", &entry.hash).await?;
+            sync::apply_changeset(&tmp_path, &cs_data, &entry.hash)?;
+        }
+
+        // Atomic replace (invariant §4)
+        std::fs::rename(&tmp_path, &db_path)
+            .map_err(|e| eyre::eyre!("atomic replace: {e}"))?;
+
+        message!(
+            "✅ Reset complete. Restored snapshot + applied {} changeset(s).",
+            cs_count
+        );
+
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// snapshot
+// ---------------------------------------------------------------------------
+
+/// Create a new baseline snapshot
+///
+/// Forces creation of a new baseline snapshot, even if the schema hasn't
+/// changed. Useful when many changesets have accumulated and replay time
+/// is growing. Uploads the snapshot and resets the manifest's changeset list.
+#[derive(Debug, Args)]
+#[command(after_long_help = SNAPSHOT_AFTER_LONG_HELP)]
+pub struct Snapshot {
+    /// Optional message describing this snapshot
+    #[arg(short, long)]
+    message: Option<String>,
+
+    /// Force snapshot even when local database is not at manifest head
+    #[arg(long)]
+    force: bool,
+}
+
+pub static SNAPSHOT_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Create a new baseline snapshot</dim>
+  <b>stencila db snapshot</b>
+
+  <dim># Create with a description</dim>
+  <b>stencila db snapshot -m \"compact after batch processing\"</b>
+"
+);
+
+impl Snapshot {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, db_path) = resolve_paths().await?;
+        let ws_id = workspace_id()?;
+
+        if !db_path.exists() {
+            eyre::bail!(
+                "No database at `{}`; nothing to snapshot",
+                db_path.display()
+            );
+        }
+
+        let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
+
+        // Guard: snapshot is a compaction operation that replaces the manifest.
+        // If the local DB is behind or diverged, snapshotting would silently
+        // discard changeset history. Require up-to-date state unless --force.
+        let s = sync::status(&stencila_dir, &db_path)?;
+        if s.manifest_exists && !self.force {
+            if s.diverged {
+                eyre::bail!(
+                    "Local database has diverged from the manifest. Run `stencila db reset` first, \
+                     or use `stencila db snapshot --force` to snapshot the current local state anyway."
+                );
+            }
+            if !s.up_to_date {
+                eyre::bail!(
+                    "Local database is behind the manifest ({}/{} changesets applied). \
+                     Run `stencila db pull` first, or use `stencila db snapshot --force` to \
+                     snapshot the current local state anyway.",
+                    s.applied_changesets,
+                    s.total_changesets
+                );
+            }
+        }
+
+        // Read local schema version
+        let conn = rusqlite::Connection::open(&db_path)?;
+        sync::ensure_sync_table(&conn)?;
+        let local_schema = sync::schema_versions(&conn)?;
+        drop(conn);
+
+        let compressed = sync::create_snapshot(&db_path)?;
+        let hash = sync::sha256_hex(&compressed);
+        let size = compressed.len() as u64;
+
+        // Cache before uploading
+        sync::write_cached_blob(&stencila_dir, "snapshots", &hash, &compressed)?;
+
+        // Upload blob before writing manifest (invariant §5)
+        stencila_cloud::db::upload_blob(&ws_id, "snapshots", &hash, compressed).await?;
+
+        let manifest =
+            sync::new_snapshot_manifest(hash.clone(), size, local_schema, self.message.clone());
+        sync::write_manifest(&manifest_path, &manifest)?;
+
+        let conn = rusqlite::Connection::open(&db_path)?;
+        sync::set_sync_position(&conn, &hash)?;
+
+        message!(
+            "📦 Created snapshot {:.8} ({}). Changeset history reset. Remember to `git add .stencila/db.json`",
+            hash,
+            format_bytes(size)
+        );
 
         Ok(())
     }
@@ -520,6 +907,16 @@ impl Drop for TempFileGuard {
     fn drop(&mut self) {
         Self::remove_all(&self.0);
     }
+}
+
+fn format_schema_version(sv: &std::collections::BTreeMap<String, i32>) -> String {
+    if sv.is_empty() {
+        return "(none)".to_string();
+    }
+    sv.iter()
+        .map(|(d, v)| format!("{d}@{v}"))
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 fn format_bytes(n: u64) -> String {

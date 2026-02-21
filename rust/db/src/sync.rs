@@ -193,6 +193,16 @@ pub fn write_cached_blob(
 }
 
 // ---------------------------------------------------------------------------
+// SQL identifier quoting
+// ---------------------------------------------------------------------------
+
+/// Quote a SQL identifier for safe interpolation. Doubles any embedded
+/// double-quote characters per the SQL standard: `a"b` → `"a""b"`.
+fn quote_ident(name: &str) -> String {
+    format!("\"{}\"", name.replace('"', "\"\""))
+}
+
+// ---------------------------------------------------------------------------
 // Changeset generation via Session::diff
 // ---------------------------------------------------------------------------
 
@@ -402,6 +412,225 @@ pub fn new_changeset_entry(
 }
 
 // ---------------------------------------------------------------------------
+// Logical database comparison (for verify)
+// ---------------------------------------------------------------------------
+
+/// Result of comparing two databases logically (table-by-table, row-by-row).
+pub struct VerifyResult {
+    pub matches: bool,
+    pub differences: Vec<String>,
+}
+
+/// Compare two database files logically. Both are queried table-by-table and
+/// row digests are compared. Internal SQLite page layout makes file-level
+/// comparison unreliable.
+pub fn verify_databases(local_path: &Path, reference_path: &Path) -> Result<VerifyResult> {
+    let local = Connection::open(local_path)?;
+    let reference = Connection::open(reference_path)?;
+
+    let local_tables = user_table_names(&local)?;
+    let ref_tables = user_table_names(&reference)?;
+
+    let mut diffs = Vec::new();
+
+    // Check for tables in local but not in reference
+    for t in &local_tables {
+        if !ref_tables.contains(t) {
+            diffs.push(format!("Table `{t}` exists locally but not in manifest state"));
+        }
+    }
+
+    // Check for tables in reference but not in local
+    for t in &ref_tables {
+        if !local_tables.contains(t) {
+            diffs.push(format!(
+                "Table `{t}` exists in manifest state but not locally"
+            ));
+        }
+    }
+
+    // Compare schema definitions for shared tables (DDL, indexes, triggers)
+    let shared: Vec<&String> = local_tables
+        .iter()
+        .filter(|t| ref_tables.contains(t))
+        .collect();
+
+    for table in &shared {
+        // Compare table DDL (column definitions, constraints)
+        let local_ddl = table_ddl(&local, table)?;
+        let ref_ddl = table_ddl(&reference, table)?;
+        if local_ddl != ref_ddl {
+            diffs.push(format!(
+                "Table `{table}`: schema differs (local: `{local_ddl}`, manifest: `{ref_ddl}`)"
+            ));
+        }
+
+        // Compare indexes on this table
+        let local_indexes = table_indexes(&local, table)?;
+        let ref_indexes = table_indexes(&reference, table)?;
+        if local_indexes != ref_indexes {
+            let missing: Vec<_> = ref_indexes
+                .iter()
+                .filter(|(name, _)| !local_indexes.iter().any(|(n, _)| n == name))
+                .map(|(n, _)| n.as_str())
+                .collect();
+            let extra: Vec<_> = local_indexes
+                .iter()
+                .filter(|(name, _)| !ref_indexes.iter().any(|(n, _)| n == name))
+                .map(|(n, _)| n.as_str())
+                .collect();
+            let altered: Vec<_> = local_indexes
+                .iter()
+                .filter(|(name, sql)| {
+                    ref_indexes
+                        .iter()
+                        .any(|(n, s)| n == name && s != sql)
+                })
+                .map(|(n, _)| n.as_str())
+                .collect();
+            let mut parts = Vec::new();
+            if !missing.is_empty() {
+                parts.push(format!("missing: {}", missing.join(", ")));
+            }
+            if !extra.is_empty() {
+                parts.push(format!("extra: {}", extra.join(", ")));
+            }
+            if !altered.is_empty() {
+                parts.push(format!("altered: {}", altered.join(", ")));
+            }
+            diffs.push(format!(
+                "Table `{table}`: indexes differ ({})",
+                parts.join("; ")
+            ));
+        }
+
+        // Compare triggers on this table
+        let local_triggers = table_triggers(&local, table)?;
+        let ref_triggers = table_triggers(&reference, table)?;
+        if local_triggers != ref_triggers {
+            diffs.push(format!("Table `{table}`: triggers differ"));
+        }
+    }
+
+    // Compare row data for shared tables
+    for table in &shared {
+        // Compare row counts first (fast path)
+        let qt = quote_ident(table);
+        let local_count: i64 = local.query_row(
+            &format!("SELECT COUNT(*) FROM {qt}"),
+            [],
+            |row| row.get(0),
+        )?;
+        let ref_count: i64 = reference.query_row(
+            &format!("SELECT COUNT(*) FROM {qt}"),
+            [],
+            |row| row.get(0),
+        )?;
+
+        if local_count != ref_count {
+            diffs.push(format!(
+                "Table `{table}`: row count differs (local: {local_count}, manifest: {ref_count})"
+            ));
+            continue;
+        }
+
+        if local_count == 0 {
+            continue;
+        }
+
+        // Compare content via a hash of all rows.
+        // We serialize each row as a group_concat of all columns and hash the full output.
+        let local_hash = table_content_hash(&local, table)?;
+        let ref_hash = table_content_hash(&reference, table)?;
+
+        if local_hash != ref_hash {
+            diffs.push(format!(
+                "Table `{table}`: content differs ({local_count} rows)"
+            ));
+        }
+    }
+
+    Ok(VerifyResult {
+        matches: diffs.is_empty(),
+        differences: diffs,
+    })
+}
+
+fn table_ddl(conn: &Connection, table: &str) -> Result<String> {
+    let sql: String = conn.query_row(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name = ?1",
+        [table],
+        |row| row.get(0),
+    )?;
+    Ok(sql)
+}
+
+fn table_indexes(conn: &Connection, table: &str) -> Result<Vec<(String, String)>> {
+    let mut stmt = conn.prepare(
+        "SELECT name, COALESCE(sql, '') FROM sqlite_master \
+         WHERE type='index' AND tbl_name = ?1 \
+         ORDER BY name",
+    )?;
+    let indexes: Vec<(String, String)> = stmt
+        .query_map([table], |row| Ok((row.get(0)?, row.get(1)?)))?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(indexes)
+}
+
+fn table_triggers(conn: &Connection, table: &str) -> Result<Vec<(String, String)>> {
+    let mut stmt = conn.prepare(
+        "SELECT name, COALESCE(sql, '') FROM sqlite_master \
+         WHERE type='trigger' AND tbl_name = ?1 \
+         ORDER BY name",
+    )?;
+    let triggers: Vec<(String, String)> = stmt
+        .query_map([table], |row| Ok((row.get(0)?, row.get(1)?)))?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(triggers)
+}
+
+fn table_content_hash(conn: &Connection, table: &str) -> Result<String> {
+    // Get column names to build a deterministic query
+    let qt = quote_ident(table);
+    let mut col_stmt = conn.prepare(&format!("PRAGMA table_info({qt})"))?;
+    let columns: Vec<String> = col_stmt
+        .query_map([], |row| row.get::<_, String>(1))?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+
+    if columns.is_empty() {
+        return Ok(String::new());
+    }
+
+    // Build a query that concatenates all columns with a separator, ordered deterministically.
+    // We use quote() to handle NULLs and binary data consistently.
+    let col_exprs: Vec<String> = columns
+        .iter()
+        .map(|c| format!("quote({})", quote_ident(c)))
+        .collect();
+    let concat_expr = col_exprs.join(" || '|' || ");
+
+    let query = format!(
+        "SELECT {concat_expr} FROM {qt} ORDER BY {}",
+        columns
+            .iter()
+            .map(|c| quote_ident(c))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+
+    let mut hasher = Sha256::new();
+    let mut stmt = conn.prepare(&query)?;
+    let mut rows = stmt.query([])?;
+    while let Some(row) = rows.next()? {
+        let val: String = row.get(0)?;
+        hasher.update(val.as_bytes());
+        hasher.update(b"\n");
+    }
+
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
+// ---------------------------------------------------------------------------
 // Status
 // ---------------------------------------------------------------------------
 
@@ -417,6 +646,10 @@ pub struct SyncStatus {
     pub applied_changesets: usize,
     pub sync_head: Option<String>,
     pub up_to_date: bool,
+    /// Local `_sync` position exists but is not found in the current
+    /// manifest's history (base snapshot or any changeset). This indicates
+    /// a branch rewind or divergence — the user needs `stencila db reset`.
+    pub diverged: bool,
 }
 
 pub fn status(stencila_dir: &Path, db_path: &Path) -> Result<SyncStatus> {
@@ -447,18 +680,18 @@ pub fn status(stencila_dir: &Path, db_path: &Path) -> Result<SyncStatus> {
                 .map(|c| c.hash.as_str())
                 .unwrap_or(&m.base_snapshot.hash);
 
-            let applied = if let Some(ref head) = sync_head {
+            let (applied, diverged) = if let Some(ref head) = sync_head {
                 if *head == m.base_snapshot.hash {
-                    0
+                    (0, false)
                 } else {
-                    m.changesets
-                        .iter()
-                        .position(|c| c.hash == *head)
-                        .map(|i| i + 1)
-                        .unwrap_or(0)
+                    match m.changesets.iter().position(|c| c.hash == *head) {
+                        Some(i) => (i + 1, false),
+                        // sync_head exists but is not in the manifest history
+                        None => (0, true),
+                    }
                 }
             } else {
-                0
+                (0, false)
             };
 
             Ok(SyncStatus {
@@ -471,8 +704,9 @@ pub fn status(stencila_dir: &Path, db_path: &Path) -> Result<SyncStatus> {
                 base_snapshot_size: Some(m.base_snapshot.size),
                 total_changesets: m.changesets.len(),
                 applied_changesets: applied,
-                up_to_date: sync_head.as_deref() == Some(target),
+                up_to_date: !diverged && sync_head.as_deref() == Some(target),
                 sync_head,
+                diverged,
             })
         }
         None => Ok(SyncStatus {
@@ -487,6 +721,7 @@ pub fn status(stencila_dir: &Path, db_path: &Path) -> Result<SyncStatus> {
             applied_changesets: 0,
             sync_head,
             up_to_date: false,
+            diverged: false,
         }),
     }
 }

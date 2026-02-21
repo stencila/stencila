@@ -4,6 +4,7 @@ use tempfile::TempDir;
 
 use stencila_db::WorkspaceDb;
 use stencila_db::migration::Migration;
+use stencila_db::rusqlite;
 
 fn temp_workspace_db() -> (TempDir, WorkspaceDb) {
     let dir = TempDir::new().expect("temp dir");
@@ -173,4 +174,204 @@ fn db_path_is_recorded() {
     let db_path = dir.path().join("db.sqlite3");
     let db = WorkspaceDb::open(&db_path).expect("open");
     assert_eq!(db.db_path(), db_path);
+}
+
+// ---------------------------------------------------------------------------
+// verify_databases tests
+// ---------------------------------------------------------------------------
+
+mod verify {
+    use super::*;
+    use stencila_db::sync::verify_databases;
+
+    fn create_db_with_data(dir: &std::path::Path, name: &str, rows: &[(i32, &str)]) -> std::path::PathBuf {
+        let path = dir.join(name);
+        let db = WorkspaceDb::open(&path).expect("open");
+        db.migrate(
+            "test",
+            &[Migration {
+                version: 1,
+                name: "create_items",
+                sql: "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT NOT NULL);",
+            }],
+        )
+        .expect("migrate");
+        let conn = db.connection().lock().expect("lock");
+        for &(id, name) in rows {
+            conn.execute(
+                "INSERT INTO items (id, name) VALUES (?1, ?2)",
+                rusqlite::params![id, name],
+            )
+            .expect("insert");
+        }
+        path
+    }
+
+    #[test]
+    fn identical_databases_match() {
+        let dir = TempDir::new().expect("temp dir");
+        let rows = &[(1, "alice"), (2, "bob")];
+        let a = create_db_with_data(dir.path(), "a.sqlite3", rows);
+        let b = create_db_with_data(dir.path(), "b.sqlite3", rows);
+
+        let result = verify_databases(&a, &b).expect("verify");
+        assert!(result.matches, "Identical databases should match");
+        assert!(result.differences.is_empty());
+    }
+
+    #[test]
+    fn different_row_counts_detected() {
+        let dir = TempDir::new().expect("temp dir");
+        let a = create_db_with_data(dir.path(), "a.sqlite3", &[(1, "alice"), (2, "bob")]);
+        let b = create_db_with_data(dir.path(), "b.sqlite3", &[(1, "alice")]);
+
+        let result = verify_databases(&a, &b).expect("verify");
+        assert!(!result.matches);
+        assert!(result.differences.iter().any(|d| d.contains("row count")));
+    }
+
+    #[test]
+    fn different_content_detected() {
+        let dir = TempDir::new().expect("temp dir");
+        let a = create_db_with_data(dir.path(), "a.sqlite3", &[(1, "alice")]);
+        let b = create_db_with_data(dir.path(), "b.sqlite3", &[(1, "bob")]);
+
+        let result = verify_databases(&a, &b).expect("verify");
+        assert!(!result.matches);
+        assert!(result.differences.iter().any(|d| d.contains("content differs")));
+    }
+
+    #[test]
+    fn missing_table_detected() {
+        let dir = TempDir::new().expect("temp dir");
+
+        // a has two tables, b has one
+        let a_path = dir.path().join("a.sqlite3");
+        let a_db = WorkspaceDb::open(&a_path).expect("open");
+        a_db.migrate(
+            "test",
+            &[
+                Migration {
+                    version: 1,
+                    name: "create_items",
+                    sql: "CREATE TABLE items (id INTEGER PRIMARY KEY);",
+                },
+                Migration {
+                    version: 2,
+                    name: "create_extra",
+                    sql: "CREATE TABLE extra (id INTEGER PRIMARY KEY);",
+                },
+            ],
+        )
+        .expect("migrate");
+
+        let b_path = dir.path().join("b.sqlite3");
+        let b_db = WorkspaceDb::open(&b_path).expect("open");
+        b_db.migrate(
+            "test",
+            &[Migration {
+                version: 1,
+                name: "create_items",
+                sql: "CREATE TABLE items (id INTEGER PRIMARY KEY);",
+            }],
+        )
+        .expect("migrate");
+
+        let result = verify_databases(&a_path, &b_path).expect("verify");
+        assert!(!result.matches);
+        assert!(result.differences.iter().any(|d| d.contains("extra")));
+    }
+
+    #[test]
+    fn empty_databases_match() {
+        let dir = TempDir::new().expect("temp dir");
+        let a = create_db_with_data(dir.path(), "a.sqlite3", &[]);
+        let b = create_db_with_data(dir.path(), "b.sqlite3", &[]);
+
+        let result = verify_databases(&a, &b).expect("verify");
+        assert!(result.matches);
+    }
+
+    #[test]
+    fn schema_drift_detected() {
+        let dir = TempDir::new().expect("temp dir");
+
+        // a has items with (id, name), b has items with (id, name, email)
+        let a_path = dir.path().join("a.sqlite3");
+        let a_db = WorkspaceDb::open(&a_path).expect("open");
+        a_db.migrate(
+            "test",
+            &[Migration {
+                version: 1,
+                name: "create_items",
+                sql: "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT NOT NULL);",
+            }],
+        )
+        .expect("migrate");
+
+        let b_path = dir.path().join("b.sqlite3");
+        let b_db = WorkspaceDb::open(&b_path).expect("open");
+        b_db.migrate(
+            "test",
+            &[Migration {
+                version: 1,
+                name: "create_items_v2",
+                sql: "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT);",
+            }],
+        )
+        .expect("migrate");
+
+        let result = verify_databases(&a_path, &b_path).expect("verify");
+        assert!(!result.matches);
+        assert!(
+            result.differences.iter().any(|d| d.contains("schema differs")),
+            "Expected schema difference, got: {:?}",
+            result.differences
+        );
+    }
+
+    #[test]
+    fn index_difference_detected() {
+        let dir = TempDir::new().expect("temp dir");
+
+        // a has an index, b doesn't
+        let a_path = dir.path().join("a.sqlite3");
+        let a_db = WorkspaceDb::open(&a_path).expect("open");
+        a_db.migrate(
+            "test",
+            &[
+                Migration {
+                    version: 1,
+                    name: "create_items",
+                    sql: "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT NOT NULL);",
+                },
+                Migration {
+                    version: 2,
+                    name: "add_index",
+                    sql: "CREATE INDEX idx_items_name ON items (name);",
+                },
+            ],
+        )
+        .expect("migrate");
+
+        let b_path = dir.path().join("b.sqlite3");
+        let b_db = WorkspaceDb::open(&b_path).expect("open");
+        b_db.migrate(
+            "test",
+            &[Migration {
+                version: 1,
+                name: "create_items",
+                sql: "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT NOT NULL);",
+            }],
+        )
+        .expect("migrate");
+
+        let result = verify_databases(&a_path, &b_path).expect("verify");
+        assert!(!result.matches);
+        assert!(
+            result.differences.iter().any(|d| d.contains("indexes differ")),
+            "Expected index difference, got: {:?}",
+            result.differences
+        );
+    }
 }
