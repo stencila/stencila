@@ -18,9 +18,9 @@ use crate::handler::Handler;
 use crate::run_directory::RunDirectory;
 use crate::types::Outcome;
 
-/// The response type returned by a codergen backend.
-pub enum CodergenResponse {
-    /// A plain text response from the LLM.
+/// The output type returned by a codergen backend.
+pub enum CodergenOutput {
+    /// A plain text output from the LLM.
     Text(String),
     /// A fully constructed outcome (bypasses default outcome building).
     FullOutcome(Outcome),
@@ -40,7 +40,7 @@ pub trait CodergenBackend: Send + Sync {
         context: &Context,
         emitter: Arc<dyn EventEmitter>,
         stage_index: usize,
-    ) -> AttractorResult<CodergenResponse>;
+    ) -> AttractorResult<CodergenOutput>;
 }
 
 /// Handler for codergen (LLM code generation) nodes.
@@ -99,7 +99,7 @@ const RESPONSE_TRUNCATION_LIMIT: usize = 200;
 ///
 /// Finds the last char boundary at or before the limit to avoid
 /// panicking on multi-byte UTF-8.
-fn truncate_response(s: &str) -> String {
+fn truncate_output(s: &str) -> String {
     if s.len() <= RESPONSE_TRUNCATION_LIMIT {
         s.to_string()
     } else {
@@ -134,7 +134,7 @@ impl Handler for CodergenHandler {
         // Build prompt: prefer explicit "prompt" attr, fall back to node label
         let raw_prompt = node.get_str_attr("prompt").unwrap_or_else(|| node.label());
 
-        // Expand runtime variables ($last_response, $last_stage) from context.
+        // Expand runtime variables ($last_output, $last_stage) from context.
         // This runs at execution time (not at parse time like VariableExpansionTransform)
         // so that each stage sees the outputs of previously completed stages.
         let prompt = expand_runtime_variables(raw_prompt, context);
@@ -151,14 +151,14 @@ impl Handler for CodergenHandler {
         let stage_dir = run_dir.node_dir(&node.id);
         std::fs::create_dir_all(&stage_dir)?;
 
-        // Write the prompt (after expansion)
-        std::fs::write(stage_dir.join("prompt.md"), &prompt)?;
+        // Write the input (after expansion)
+        std::fs::write(stage_dir.join("input.md"), &prompt)?;
 
-        // Emit the prompt event
-        self.emitter.emit(PipelineEvent::StagePrompt {
+        // Emit the input event
+        self.emitter.emit(PipelineEvent::StageInput {
             node_id: node.id.clone(),
             stage_index,
-            prompt: prompt.clone(),
+            input: prompt.clone(),
             agent_name: agent_name.to_string(),
         });
 
@@ -166,7 +166,7 @@ impl Handler for CodergenHandler {
         let response = match &self.backend {
             None => {
                 // Simulation mode
-                CodergenResponse::Text(format!("[Simulated] Response for stage: {}", node.id))
+                CodergenOutput::Text(format!("[Simulated] Response for stage: {}", node.id))
             }
             Some(backend) => match backend
                 .run(node, &prompt, context, self.emitter.clone(), stage_index)
@@ -181,24 +181,24 @@ impl Handler for CodergenHandler {
             },
         };
 
-        // Handle the response
+        // Handle the output
         match response {
-            CodergenResponse::FullOutcome(outcome) => {
-                self.emitter.emit(PipelineEvent::StageResponse {
+            CodergenOutput::FullOutcome(outcome) => {
+                self.emitter.emit(PipelineEvent::StageOutput {
                     node_id: node.id.clone(),
                     stage_index,
-                    response: outcome.notes.clone(),
+                    output: outcome.notes.clone(),
                 });
                 run_dir.write_status(&node.id, &outcome)?;
                 Ok(outcome)
             }
-            CodergenResponse::Text(text) => {
-                self.emitter.emit(PipelineEvent::StageResponse {
+            CodergenOutput::Text(text) => {
+                self.emitter.emit(PipelineEvent::StageOutput {
                     node_id: node.id.clone(),
                     stage_index,
-                    response: text.clone(),
+                    output: text.clone(),
                 });
-                std::fs::write(stage_dir.join("response.md"), &text)?;
+                std::fs::write(stage_dir.join("output.md"), &text)?;
                 let outcome = build_text_outcome(&node.id, &text, context);
                 run_dir.write_status(&node.id, &outcome)?;
                 Ok(outcome)
@@ -209,8 +209,8 @@ impl Handler for CodergenHandler {
 
 /// Build a success outcome from a text response, with context updates.
 ///
-/// Stores both a truncated `last_response` (for checkpoint serialization and
-/// condition expressions) and the full `last_response_full` (for runtime
+/// Stores both a truncated `last_output` (for checkpoint serialization and
+/// condition expressions) and the full `last_output_full` (for runtime
 /// variable expansion in subsequent stages).
 fn build_text_outcome(node_id: &str, text: &str, context: &Context) -> Outcome {
     let mut outcome = Outcome::success();
@@ -221,11 +221,11 @@ fn build_text_outcome(node_id: &str, text: &str, context: &Context) -> Outcome {
         serde_json::Value::String(node_id.to_string()),
     );
     outcome.context_updates.insert(
-        "last_response".to_string(),
-        serde_json::Value::String(truncate_response(text)),
+        "last_output".to_string(),
+        serde_json::Value::String(truncate_output(text)),
     );
     outcome.context_updates.insert(
-        "last_response_full".to_string(),
+        "last_output_full".to_string(),
         serde_json::Value::String(text.to_string()),
     );
 
@@ -243,9 +243,9 @@ fn build_text_outcome(node_id: &str, text: &str, context: &Context) -> Outcome {
     outcome
 }
 
-/// Expand runtime variables in a prompt string from context values.
+/// Expand runtime variables in an input string from context values.
 ///
-/// Replaces `$last_response` with the full text of the last stage's response,
+/// Replaces `$last_output` with the full text of the last stage's output,
 /// `$last_stage` with the ID of the last completed stage, and `$last_outcome`
 /// with the outcome status (e.g. "success", "fail") of the last stage. These
 /// are expanded at execution time (not parse time) so each stage sees the
@@ -263,9 +263,9 @@ fn expand_runtime_variables(prompt: &str, context: &Context) -> String {
         result = result.replace("$last_outcome", &value);
     }
 
-    if result.contains("$last_response") {
-        let value = context.get_string("last_response_full");
-        result = result.replace("$last_response", &value);
+    if result.contains("$last_output") {
+        let value = context.get_string("last_output_full");
+        result = result.replace("$last_output", &value);
     }
 
     result

@@ -22,7 +22,7 @@ use stencila_attractor::events::{EventEmitter, ObserverEmitter, PipelineEvent};
 use stencila_attractor::graph::{AttrValue, Graph};
 use stencila_attractor::handler::HandlerRegistry;
 use stencila_attractor::handlers::{
-    CodergenBackend, CodergenHandler, CodergenResponse, ParallelHandler, WaitForHumanHandler,
+    CodergenBackend, CodergenHandler, CodergenOutput, ParallelHandler, WaitForHumanHandler,
 };
 use stencila_attractor::interviewer::{AnswerValue, Interviewer, Question};
 use stencila_attractor::types::Outcome;
@@ -319,7 +319,7 @@ impl CodergenBackend for AgentCodergenBackend {
         context: &Context,
         emitter: Arc<dyn EventEmitter>,
         stage_index: usize,
-    ) -> stencila_attractor::AttractorResult<CodergenResponse> {
+    ) -> stencila_attractor::AttractorResult<CodergenOutput> {
         let agent_name = node.get_str_attr("agent").unwrap_or("default");
 
         tracing::debug!(
@@ -442,8 +442,8 @@ impl CodergenBackend for AgentCodergenBackend {
                         reason: format!("Failed to compress node output: {e}"),
                     }
                 })?;
-            if let Err(e) = backend.save_node_response(&node_id, &compressed) {
-                tracing::warn!("SQLite save_node_response({node_id}) failed: {e}");
+            if let Err(e) = backend.save_node_output(&node_id, &compressed) {
+                tracing::warn!("SQLite save_node_output({node_id}) failed: {e}");
             }
 
             let metadata = self.agent_metadata.get(agent_name);
@@ -477,7 +477,7 @@ impl CodergenBackend for AgentCodergenBackend {
             }
         }
 
-        Ok(CodergenResponse::Text(collected_text))
+        Ok(CodergenOutput::Text(collected_text))
     }
 }
 
@@ -749,13 +749,13 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
             } => {
                 eprintln!("[stage {stage_index}] Started: {node_id}");
             }
-            PipelineEvent::StagePrompt {
+            PipelineEvent::StageInput {
                 node_id,
                 stage_index,
-                prompt,
+                input,
                 agent_name,
             } => {
-                let preview: String = prompt.chars().take(100).collect();
+                let preview: String = input.chars().take(100).collect();
                 eprintln!(
                     "[stage {stage_index}] Prompt for {node_id} (agent={agent_name}): {preview}"
                 );
@@ -763,12 +763,12 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
             PipelineEvent::StageSessionEvent { .. } => {
                 // Suppress streaming session events in CLI stderr output
             }
-            PipelineEvent::StageResponse {
+            PipelineEvent::StageOutput {
                 node_id,
                 stage_index,
-                response,
+                output,
             } => {
-                let preview: String = response.chars().take(100).collect();
+                let preview: String = output.chars().take(100).collect();
                 eprintln!("[stage {stage_index}] Response from {node_id}: {preview}");
             }
             PipelineEvent::StageCompleted {

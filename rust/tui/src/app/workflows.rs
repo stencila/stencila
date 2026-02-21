@@ -159,8 +159,8 @@ impl App {
                     workflow.stage_status_msg_index = Some(msg_index);
                 }
             }
-            PipelineEvent::StagePrompt {
-                agent_name, prompt, ..
+            PipelineEvent::StageInput {
+                agent_name, input, ..
             } => {
                 if let Some(idx) = self
                     .active_workflow
@@ -169,7 +169,7 @@ impl App {
                     && let Some(AppMessage::WorkflowProgress { detail, .. }) =
                         self.messages.get_mut(idx)
                 {
-                    *detail = Some(format!("{agent_name}: {prompt}"));
+                    *detail = Some(format!("{agent_name}: {input}"));
                 }
             }
             PipelineEvent::StageCompleted { outcome, .. } => {
@@ -273,8 +273,8 @@ impl App {
                         Some(Arc::new(Mutex::new(AgentProgress::default())));
                 }
             }
-            PipelineEvent::StagePrompt {
-                agent_name, prompt, ..
+            PipelineEvent::StageInput {
+                agent_name, input, ..
             } => {
                 self.color_registry.color_for(agent_name);
                 if let Some(msg_index) = self
@@ -288,7 +288,7 @@ impl App {
                     }) = self.messages.get_mut(msg_index)
                 {
                     request.push_str("\n\n");
-                    request.push_str(prompt);
+                    request.push_str(input);
                     *workflow_agent_name = Some(agent_name.clone());
                 }
             }
@@ -310,7 +310,7 @@ impl App {
                     }
                 }
             }
-            // PipelineEvent::StageResponse: response already built incrementally from StageSessionEvent
+            // PipelineEvent::StageOutput: response already built incrementally from StageSessionEvent
             PipelineEvent::StageCompleted { outcome, .. } => {
                 if let Some(workflow) = &mut self.active_workflow {
                     if let Some(msg_index) = workflow.current_exchange_msg_index.take()

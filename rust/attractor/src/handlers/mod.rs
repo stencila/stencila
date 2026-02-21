@@ -21,7 +21,7 @@ mod shell;
 mod start;
 mod wait_human;
 
-pub use codergen::{CodergenBackend, CodergenHandler, CodergenResponse};
+pub use codergen::{CodergenBackend, CodergenHandler, CodergenOutput};
 pub use conditional::ConditionalHandler;
 pub use exit::ExitHandler;
 pub use fail::FailHandler;

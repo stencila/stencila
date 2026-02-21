@@ -12,7 +12,7 @@ use stencila_attractor::error::{AttractorError, AttractorResult};
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
 use stencila_attractor::handler::Handler;
 use stencila_attractor::handlers::{
-    CodergenBackend, CodergenHandler, CodergenResponse, ShellHandler,
+    CodergenBackend, CodergenHandler, CodergenOutput, ShellHandler,
 };
 use stencila_attractor::types::{Duration, Outcome, StageStatus};
 
@@ -22,21 +22,21 @@ use common::make_tempdir;
 // Test helpers
 // ---------------------------------------------------------------------------
 
-/// A backend that returns a preconfigured response.
+/// A backend that returns a preconfigured output.
 struct MockBackend {
-    response: CodergenResponse,
+    output: CodergenOutput,
 }
 
 impl MockBackend {
     fn text(s: &str) -> Self {
         Self {
-            response: CodergenResponse::Text(s.to_string()),
+            output: CodergenOutput::Text(s.to_string()),
         }
     }
 
     fn full_outcome(outcome: Outcome) -> Self {
         Self {
-            response: CodergenResponse::FullOutcome(outcome),
+            output: CodergenOutput::FullOutcome(outcome),
         }
     }
 }
@@ -50,11 +50,11 @@ impl CodergenBackend for MockBackend {
         _context: &Context,
         _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
         _stage_index: usize,
-    ) -> AttractorResult<CodergenResponse> {
-        // Clone the inner data manually since CodergenResponse doesn't impl Clone
-        match &self.response {
-            CodergenResponse::Text(s) => Ok(CodergenResponse::Text(s.clone())),
-            CodergenResponse::FullOutcome(o) => Ok(CodergenResponse::FullOutcome(o.clone())),
+    ) -> AttractorResult<CodergenOutput> {
+        // Clone the inner data manually since CodergenOutput doesn't impl Clone
+        match &self.output {
+            CodergenOutput::Text(s) => Ok(CodergenOutput::Text(s.clone())),
+            CodergenOutput::FullOutcome(o) => Ok(CodergenOutput::FullOutcome(o.clone())),
         }
     }
 }
@@ -81,7 +81,7 @@ impl CodergenBackend for ErrorBackend {
         _context: &Context,
         _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
         _stage_index: usize,
-    ) -> AttractorResult<CodergenResponse> {
+    ) -> AttractorResult<CodergenOutput> {
         Err(AttractorError::HandlerFailed {
             node_id: "test".into(),
             reason: self.message.clone(),
@@ -131,10 +131,10 @@ async fn codergen_simulation_mode() -> AttractorResult<()> {
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.notes.contains("task1"));
 
-    // Check the response file contains simulated text
-    let response = std::fs::read_to_string(logs_root.join("nodes/task1/response.md"))?;
-    assert!(response.contains("[Simulated]"));
-    assert!(response.contains("task1"));
+    // Check the output file contains simulated text
+    let output = std::fs::read_to_string(logs_root.join("nodes/task1/output.md"))?;
+    assert!(output.contains("[Simulated]"));
+    assert!(output.contains("task1"));
     Ok(())
 }
 
@@ -153,8 +153,8 @@ async fn codergen_prompt_from_attr() -> AttractorResult<()> {
 
     handler.execute(&node, &ctx, &g, logs_root).await?;
 
-    let prompt = std::fs::read_to_string(logs_root.join("nodes/task1/prompt.md"))?;
-    assert_eq!(prompt, "Write a function");
+    let input = std::fs::read_to_string(logs_root.join("nodes/task1/input.md"))?;
+    assert_eq!(input, "Write a function");
     Ok(())
 }
 
@@ -174,8 +174,8 @@ async fn codergen_prompt_fallback_to_label() -> AttractorResult<()> {
 
     handler.execute(&node, &ctx, &g, logs_root).await?;
 
-    let prompt = std::fs::read_to_string(logs_root.join("nodes/task1/prompt.md"))?;
-    assert_eq!(prompt, "Generate Code");
+    let input = std::fs::read_to_string(logs_root.join("nodes/task1/input.md"))?;
+    assert_eq!(input, "Generate Code");
     Ok(())
 }
 
@@ -194,8 +194,8 @@ async fn codergen_backend_returns_text() -> AttractorResult<()> {
     let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
-    let response = std::fs::read_to_string(logs_root.join("nodes/task1/response.md"))?;
-    assert_eq!(response, "Hello from LLM");
+    let output = std::fs::read_to_string(logs_root.join("nodes/task1/output.md"))?;
+    assert_eq!(output, "Hello from LLM");
     Ok(())
 }
 
@@ -240,7 +240,7 @@ async fn codergen_backend_error() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn codergen_writes_prompt_md() -> AttractorResult<()> {
+async fn codergen_writes_input_md() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
     let logs_root = tmp.path();
     std::fs::create_dir_all(logs_root.join("nodes"))?;
@@ -254,7 +254,7 @@ async fn codergen_writes_prompt_md() -> AttractorResult<()> {
 
     handler.execute(&node, &ctx, &g, logs_root).await?;
 
-    let path = logs_root.join("nodes/task1/prompt.md");
+    let path = logs_root.join("nodes/task1/input.md");
     assert!(path.exists());
     let content = std::fs::read_to_string(path)?;
     assert_eq!(content, "My custom prompt");
@@ -262,12 +262,12 @@ async fn codergen_writes_prompt_md() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn codergen_writes_response_md() -> AttractorResult<()> {
+async fn codergen_writes_output_md() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
     let logs_root = tmp.path();
     std::fs::create_dir_all(logs_root.join("nodes"))?;
 
-    let backend = Arc::new(MockBackend::text("LLM response text"));
+    let backend = Arc::new(MockBackend::text("LLM output text"));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
@@ -275,10 +275,10 @@ async fn codergen_writes_response_md() -> AttractorResult<()> {
 
     handler.execute(&node, &ctx, &g, logs_root).await?;
 
-    let path = logs_root.join("nodes/task1/response.md");
+    let path = logs_root.join("nodes/task1/output.md");
     assert!(path.exists());
     let content = std::fs::read_to_string(path)?;
-    assert_eq!(content, "LLM response text");
+    assert_eq!(content, "LLM output text");
     Ok(())
 }
 
@@ -309,7 +309,7 @@ async fn codergen_context_updates() -> AttractorResult<()> {
     let logs_root = tmp.path();
     std::fs::create_dir_all(logs_root.join("nodes"))?;
 
-    let backend = Arc::new(MockBackend::text("some response"));
+    let backend = Arc::new(MockBackend::text("some output"));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
@@ -323,23 +323,23 @@ async fn codergen_context_updates() -> AttractorResult<()> {
         .and_then(|v| v.as_str());
     assert_eq!(last_stage, Some("task1"));
 
-    let last_response = outcome
+    let last_output = outcome
         .context_updates
-        .get("last_response")
+        .get("last_output")
         .and_then(|v| v.as_str());
-    assert_eq!(last_response, Some("some response"));
+    assert_eq!(last_output, Some("some output"));
     Ok(())
 }
 
 #[tokio::test]
-async fn codergen_response_truncation() -> AttractorResult<()> {
+async fn codergen_output_truncation() -> AttractorResult<()> {
     let tmp = make_tempdir()?;
     let logs_root = tmp.path();
     std::fs::create_dir_all(logs_root.join("nodes"))?;
 
-    // Create a response longer than 200 chars
-    let long_response = "x".repeat(300);
-    let backend = Arc::new(MockBackend::text(&long_response));
+    // Create an output longer than 200 chars
+    let long_output = "x".repeat(300);
+    let backend = Arc::new(MockBackend::text(&long_output));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
@@ -347,17 +347,17 @@ async fn codergen_response_truncation() -> AttractorResult<()> {
 
     let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
 
-    let last_response = outcome
+    let last_output = outcome
         .context_updates
-        .get("last_response")
+        .get("last_output")
         .and_then(|v| v.as_str())
         .unwrap_or("");
     // Truncated to 200 + "..."
-    assert_eq!(last_response.len(), 203);
-    assert!(last_response.ends_with("..."));
+    assert_eq!(last_output.len(), 203);
+    assert!(last_output.ends_with("..."));
 
-    // Full response is still written to file
-    let full = std::fs::read_to_string(logs_root.join("nodes/task1/response.md"))?;
+    // Full output is still written to file
+    let full = std::fs::read_to_string(logs_root.join("nodes/task1/output.md"))?;
     assert_eq!(full.len(), 300);
     Ok(())
 }
@@ -385,10 +385,10 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
     // Build a string with multi-byte chars that would panic if sliced at byte 200.
     // Each emoji is 4 bytes; 50 emojis = 200 bytes. Add one more so byte 200
     // falls in the middle of the 51st emoji.
-    let response: String = std::iter::repeat_n('\u{1F600}', 51).collect(); // 204 bytes
-    assert!(response.len() > 200);
+    let output: String = std::iter::repeat_n('\u{1F600}', 51).collect(); // 204 bytes
+    assert!(output.len() > 200);
 
-    let backend = Arc::new(MockBackend::text(&response));
+    let backend = Arc::new(MockBackend::text(&output));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
@@ -396,15 +396,15 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
 
     let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
 
-    let last_response = outcome
+    let last_output = outcome
         .context_updates
-        .get("last_response")
+        .get("last_output")
         .and_then(|v| v.as_str())
         .unwrap_or("");
     // Should be truncated without panicking, at a char boundary
-    assert!(last_response.ends_with("..."));
+    assert!(last_output.ends_with("..."));
     // 50 emojis (200 bytes) + "..." = valid truncation
-    assert!(last_response.is_char_boundary(last_response.len()));
+    assert!(last_output.is_char_boundary(last_output.len()));
     Ok(())
 }
 

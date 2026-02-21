@@ -10,7 +10,7 @@ use stencila_attractor::context::Context;
 use stencila_attractor::engine::{self, EngineConfig};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
-use stencila_attractor::handlers::{CodergenBackend, CodergenHandler, CodergenResponse};
+use stencila_attractor::handlers::{CodergenBackend, CodergenHandler, CodergenOutput};
 use stencila_attractor::transform::{Transform, TransformRegistry};
 use stencila_attractor::transforms::VariableExpansionTransform;
 use stencila_attractor::types::StageStatus;
@@ -290,11 +290,11 @@ impl CodergenBackend for CapturingBackend {
         _context: &Context,
         _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
         _stage_index: usize,
-    ) -> AttractorResult<CodergenResponse> {
+    ) -> AttractorResult<CodergenOutput> {
         if let Ok(mut captured) = self.captured.lock() {
             captured.push(prompt.to_string());
         }
-        Ok(CodergenResponse::Text("ok".to_string()))
+        Ok(CodergenOutput::Text("ok".to_string()))
     }
 }
 

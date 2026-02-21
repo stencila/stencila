@@ -111,7 +111,7 @@ impl EventEmitter for ProgressEventEmitter {
                 );
             }
 
-            PipelineEvent::StagePrompt {
+            PipelineEvent::StageInput {
                 ref node_id,
                 ref agent_name,
                 ..
@@ -122,7 +122,7 @@ impl EventEmitter for ProgressEventEmitter {
                 }
             }
 
-            PipelineEvent::StageResponse { .. } => {}
+            PipelineEvent::StageOutput { .. } => {}
 
             PipelineEvent::StageCompleted { ref node_id, .. } => {
                 if let Some(s) = state.remove(node_id) {
@@ -294,13 +294,13 @@ impl EventEmitter for VerboseEventEmitter {
                 eprintln!("├─ {bold_name}");
             }
 
-            PipelineEvent::StagePrompt {
+            PipelineEvent::StageInput {
                 ref node_id,
-                ref prompt,
+                ref input,
                 ref agent_name,
                 ..
             } => {
-                let preview = truncate_to(prompt, 100);
+                let preview = truncate_to(input, 100);
                 let label_agent = color("2", "Agent:");
                 eprintln!("│  {label_agent} {agent_name}");
                 let _ = node_id;
@@ -310,8 +310,8 @@ impl EventEmitter for VerboseEventEmitter {
 
             PipelineEvent::StageSessionEvent { .. } => {}
 
-            PipelineEvent::StageResponse { ref response, .. } => {
-                let preview = truncate_to(response, 100);
+            PipelineEvent::StageOutput { ref output, .. } => {
+                let preview = truncate_to(output, 100);
                 let label = color("2", "Response:");
                 eprintln!("│  {label} {preview}");
             }
@@ -448,7 +448,7 @@ impl EventEmitter for PlainEventEmitter {
                 );
             }
 
-            PipelineEvent::StagePrompt {
+            PipelineEvent::StageInput {
                 ref node_id,
                 ref agent_name,
                 ..
@@ -458,13 +458,13 @@ impl EventEmitter for PlainEventEmitter {
                 }
             }
 
-            PipelineEvent::StageResponse {
+            PipelineEvent::StageOutput {
                 ref node_id,
-                ref response,
+                ref output,
                 ..
             } => {
                 if let Some(s) = state.get_mut(node_id) {
-                    s.response_preview = single_line_preview(response, 60);
+                    s.response_preview = single_line_preview(output, 60);
                 }
             }
 

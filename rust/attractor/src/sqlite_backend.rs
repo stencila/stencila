@@ -306,25 +306,25 @@ impl SqliteBackend {
         Ok(())
     }
 
-    /// Save a compressed LLM response for a node.
+    /// Save a compressed LLM output for a node.
     ///
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
-    pub fn save_node_response(
+    pub fn save_node_output(
         &self,
         node_id: &str,
-        response: &[u8],
+        output: &[u8],
     ) -> Result<(), rusqlite::Error> {
         let conn = self
             .conn
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         conn.execute(
-            "INSERT INTO workflow_node_responses (run_id, node_id, response)
+            "INSERT INTO workflow_node_outputs (run_id, node_id, output)
              VALUES (?1, ?2, ?3)
-             ON CONFLICT(run_id, node_id) DO UPDATE SET response = excluded.response",
-            (&self.run_id, node_id, response),
+             ON CONFLICT(run_id, node_id) DO UPDATE SET output = excluded.output",
+            (&self.run_id, node_id, output),
         )?;
         Ok(())
     }
@@ -422,7 +422,7 @@ impl SqliteBackend {
             "workflow_logs",
             "workflow_edges",
             "workflow_interviews",
-            "workflow_node_responses",
+            "workflow_node_outputs",
         ] {
             let sql = format!("DELETE FROM {table} WHERE run_id = ?1");
             tx.execute(&sql, (&self.run_id,))?;

@@ -63,7 +63,7 @@ In addition to the parse-time `$goal` expansion, the codergen handler expands ru
 
 | Variable         | Expands to                                              |
 |------------------|---------------------------------------------------------|
-| `$last_response` | Full text of the last stage's LLM response              |
+| `$last_output`   | Full text of the last stage's output                    |
 | `$last_stage`    | Node ID of the last completed stage                     |
 | `$last_outcome`  | Outcome status of the last stage (e.g. `success`, `fail`) |
 
@@ -84,6 +84,12 @@ Outcome deserialization accepts both `preferred_next_label` (spec field name) an
 ## Deviations
 
 These are intentional deviations from the spec.
+
+### Input/output terminology (spec: prompt/response)
+
+The spec uses "prompt" and "response" for stage I/O, reflecting its LLM-centric origin. This implementation renames them to "input" and "output" in runtime artifacts, context keys, events, and database columns (e.g., `input.md`/`output.md`, `$last_output`, `StageInput`/`StageOutput`, `workflow_node_outputs`). The DOT authoring attribute `prompt="..."` is kept as a parse-time alias that maps to node input internally.
+
+**Rationale.** Attractor pipelines are not exclusively LLM workflows — they can orchestrate shell commands, human-in-the-loop steps, parallel fan-out, and arbitrary handler types. The terms "input" and "output" are handler-agnostic and align with the terminology used by established workflow engines such as Nextflow (`input:`/`output:` channel declarations), Snakemake (`input:`/`output:` rule directives), and CWL (`inputs`/`outputs`), making the concepts immediately familiar to users coming from scientific and data-engineering workflow backgrounds. Keeping the DOT `prompt` attribute as an authoring shorthand preserves the ergonomic affordance for LLM-focused pipelines without leaking LLM-specific naming into the runtime model.
 
 ### Shell handler type (spec: `tool`)
 

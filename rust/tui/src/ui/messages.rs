@@ -233,7 +233,7 @@ fn exchange_lines(
     let kind_color = agent_tag.map_or_else(|| kind.color(), |(_, color)| *color);
     let base_color = if kind == ExchangeKind::Workflow {
         // Workflow exchanges start grey (agent unknown) and adopt the
-        // agent's registered color once StagePrompt has been received.
+        // agent's registered color once StageInput has been received.
         match status {
             ExchangeStatus::Running | ExchangeStatus::Succeeded => {
                 agent_tag.map_or(Color::DarkGray, |(_, color)| *color)

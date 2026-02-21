@@ -601,10 +601,10 @@ impl LintRule for PromptOnLlmNodesRule {
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Warning,
-                message: format!("LLM node `{}` has no prompt or label attribute", n.id),
+                message: format!("LLM node `{}` has no input or label attribute", n.id),
                 node_id: Some(n.id.clone()),
                 edge: None,
-                fix: Some("add a prompt or label attribute".into()),
+                fix: Some("add an input or label attribute".into()),
             })
             .collect()
     }

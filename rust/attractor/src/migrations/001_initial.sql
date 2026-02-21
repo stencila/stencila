@@ -61,11 +61,11 @@ CREATE TABLE IF NOT EXISTS workflow_nodes (
     PRIMARY KEY (run_id, node_id)
 );
 
--- Per-node LLM responses.
-CREATE TABLE IF NOT EXISTS workflow_node_responses (
+-- Per-node LLM outputs.
+CREATE TABLE IF NOT EXISTS workflow_node_outputs (
     run_id   TEXT NOT NULL REFERENCES workflow_runs(run_id),
     node_id  TEXT NOT NULL,
-    response BLOB NOT NULL,
+    output   BLOB NOT NULL,
     PRIMARY KEY (run_id, node_id)
 );
 

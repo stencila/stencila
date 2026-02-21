@@ -68,7 +68,7 @@ Use `$`-prefixed variables in `prompt` attributes to inject dynamic values:
 | Variable         | Description                                              | When expanded |
 |------------------|----------------------------------------------------------|---------------|
 | `$goal`          | The pipeline-level goal from `graph [goal="..."]`        | Before the pipeline runs |
-| `$last_response` | Full text of the previous stage's LLM response           | At each stage |
+| `$last_output`   | Full text of the previous stage's LLM response           | At each stage |
 | `$last_stage`    | Node ID of the previous completed stage                  | At each stage |
 | `$last_outcome`  | Outcome status of the previous stage (`success`, `fail`) | At each stage |
 
@@ -83,8 +83,8 @@ digraph CountToThree {
     Start -> One -> Two -> Three -> End
 
     One    [prompt="Reply with just the number: 1"]
-    Two    [prompt="Add one to $last_response and reply with just the result."]
-    Three  [prompt="Add one to $last_response and reply with just the result."]
+    Two    [prompt="Add one to $last_output and reply with just the result."]
+    Three  [prompt="Add one to $last_output and reply with just the result."]
 }
 ```
 

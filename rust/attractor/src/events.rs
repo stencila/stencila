@@ -46,14 +46,14 @@ pub enum PipelineEvent {
         /// Zero-based index of this stage in the traversal.
         stage_index: usize,
     },
-    /// The prompt for a stage has been resolved and is about to be sent.
-    StagePrompt {
+    /// The input for a stage has been resolved and is about to be sent.
+    StageInput {
         /// Node ID being executed.
         node_id: String,
         /// Zero-based index of this stage.
         stage_index: usize,
-        /// The prompt text sent to the handler (e.g. to an LLM).
-        prompt: String,
+        /// The input text sent to the handler (e.g. to an LLM).
+        input: String,
         /// Name of the agent handling this stage.
         agent_name: String,
     },
@@ -66,14 +66,14 @@ pub enum PipelineEvent {
         /// The session event from the agent.
         event: stencila_agents::types::SessionEvent,
     },
-    /// The final complete response from a stage handler.
-    StageResponse {
-        /// Node ID that produced the response.
+    /// The final complete output from a stage handler.
+    StageOutput {
+        /// Node ID that produced the output.
         node_id: String,
         /// Zero-based index of this stage.
         stage_index: usize,
-        /// The complete response text from the handler.
-        response: String,
+        /// The complete output text from the handler.
+        output: String,
     },
     /// A stage completed successfully.
     StageCompleted {

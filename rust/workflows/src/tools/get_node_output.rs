@@ -42,7 +42,7 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
 
                 let conn = conn.lock().unwrap_or_else(|e| e.into_inner());
                 let result = conn.query_row(
-                    "SELECT response FROM workflow_node_responses WHERE run_id = ?1 AND node_id = ?2",
+                    "SELECT output FROM workflow_node_outputs WHERE run_id = ?1 AND node_id = ?2",
                     (&run_id, node_id),
                     |row| row.get::<_, Vec<u8>>(0),
                 );

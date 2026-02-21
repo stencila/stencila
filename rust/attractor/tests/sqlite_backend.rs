@@ -143,7 +143,7 @@ fn migration_creates_tables() {
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN \
              ('workflow_runs', 'workflow_context', 'workflow_nodes', 'workflow_logs', \
               'workflow_edges', 'workflow_artifacts', 'workflow_interviews', \
-              'workflow_node_responses', 'workflow_definition_snapshots', \
+              'workflow_node_outputs', 'workflow_definition_snapshots', \
               'workflow_run_definitions')",
             [],
             |row| row.get(0),
@@ -311,24 +311,24 @@ fn definition_snapshot_dedup() {
 }
 
 #[test]
-fn save_and_load_node_response() {
+fn save_and_load_node_output() {
     let (_dir, backend) = temp_db();
     backend.insert_run("p", "", "").expect("insert run");
 
-    let response = b"Hello, this is the LLM response";
+    let output = b"Hello, this is the LLM output";
     backend
-        .save_node_response("plan", response)
-        .expect("save response");
+        .save_node_output("plan", output)
+        .expect("save output");
 
     let conn = backend.connection().lock().expect("lock");
     let data: Vec<u8> = conn
         .query_row(
-            "SELECT response FROM workflow_node_responses WHERE run_id = ?1 AND node_id = ?2",
+            "SELECT output FROM workflow_node_outputs WHERE run_id = ?1 AND node_id = ?2",
             ("run-1", "plan"),
             |row| row.get(0),
         )
         .expect("query");
-    assert_eq!(data, response);
+    assert_eq!(data, output);
 }
 
 #[test]
@@ -352,8 +352,8 @@ fn delete_run_removes_run_scoped_rows() {
         .insert_edge(0, "start", "plan", None)
         .expect("insert edge");
     backend
-        .save_node_response("plan", b"hello")
-        .expect("save response");
+        .save_node_output("plan", b"hello")
+        .expect("save output");
 
     backend.delete_run().expect("delete run");
 
