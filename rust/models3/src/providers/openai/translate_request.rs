@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use reqwest::header::HeaderMap;
 use serde_json::{Map, Value, json};
 
@@ -31,8 +33,15 @@ pub fn translate_request(request: &Request, stream: bool) -> SdkResult<Translate
     let mut instructions = Vec::new();
     let mut input = Vec::new();
 
+    // Upstream reference:
+    // https://github.com/openai/codex/blob/main/codex-rs/protocol/src/models.rs
+    // https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/context.rs
+    // Tracks non-function tool-call kinds (`custom_tool_call`, `local_shell_call`)
+    // so tool results can round-trip with the matching output item type.
+    let tool_call_types = collect_tool_call_types(request);
+
     for message in &request.messages {
-        translate_message(message, &mut instructions, &mut input)?;
+        translate_message(message, &tool_call_types, &mut instructions, &mut input)?;
     }
 
     // Always include `instructions` — the ChatGPT backend codex endpoint
@@ -119,6 +128,7 @@ pub fn translate_request(request: &Request, stream: bool) -> SdkResult<Translate
 #[allow(clippy::too_many_lines)]
 fn translate_message(
     message: &crate::types::message::Message,
+    tool_call_types: &HashMap<String, String>,
     instructions: &mut Vec<String>,
     input: &mut Vec<Value>,
 ) -> SdkResult<()> {
@@ -193,17 +203,28 @@ fn translate_message(
                     }
                     ContentPart::ToolCall { tool_call } => {
                         flush(&mut message_content, input);
-                        input.push(json!({
-                            "type": "function_call",
-                            "call_id": tool_call.id,
-                            "name": tool_call.name,
-                            "arguments": value_to_json_string(&tool_call.arguments, "openai")?
-                        }));
+                        if tool_call.call_type == "custom" {
+                            input.push(json!({
+                                "type": "custom_tool_call",
+                                "call_id": tool_call.id,
+                                "name": tool_call.name,
+                                "input": value_to_json_string(&tool_call.arguments, "openai")?
+                            }));
+                        } else {
+                            input.push(json!({
+                                "type": "function_call",
+                                "call_id": tool_call.id,
+                                "name": tool_call.name,
+                                "arguments": value_to_json_string(&tool_call.arguments, "openai")?
+                            }));
+                        }
                     }
                     ContentPart::ToolResult { tool_result } => {
                         flush(&mut message_content, input);
+                        let output_type =
+                            output_item_type_for_call(tool_call_types, &tool_result.tool_call_id);
                         input.push(json!({
-                            "type": "function_call_output",
+                            "type": output_type,
                             "call_id": tool_result.tool_call_id,
                             "output": value_to_json_string(&tool_result.content, "openai")?
                         }));
@@ -239,8 +260,10 @@ fn translate_message(
             for part in &message.content {
                 match part {
                     ContentPart::ToolResult { tool_result } => {
+                        let output_type =
+                            output_item_type_for_call(tool_call_types, &tool_result.tool_call_id);
                         input.push(json!({
-                            "type": "function_call_output",
+                            "type": output_type,
                             "call_id": tool_result.tool_call_id,
                             "output": value_to_json_string(&tool_result.content, "openai")?
                         }));
@@ -255,8 +278,9 @@ fn translate_message(
                                 },
                             }
                         })?;
+                        let output_type = output_item_type_for_call(tool_call_types, &tool_call_id);
                         input.push(json!({
-                            "type": "function_call_output",
+                            "type": output_type,
                             "call_id": tool_call_id,
                             "output": text
                         }));
@@ -278,6 +302,28 @@ fn translate_message(
     }
 
     Ok(())
+}
+
+fn collect_tool_call_types(request: &Request) -> HashMap<String, String> {
+    let mut call_types = HashMap::new();
+    for message in &request.messages {
+        for part in &message.content {
+            if let ContentPart::ToolCall { tool_call } = part {
+                call_types.insert(tool_call.id.clone(), tool_call.call_type.clone());
+            }
+        }
+    }
+    call_types
+}
+
+fn output_item_type_for_call(
+    tool_call_types: &HashMap<String, String>,
+    call_id: &str,
+) -> &'static str {
+    match tool_call_types.get(call_id).map(String::as_str) {
+        Some("custom") => "custom_tool_call_output",
+        _ => "function_call_output",
+    }
 }
 
 fn translate_response_format(format: &ResponseFormat) -> Value {

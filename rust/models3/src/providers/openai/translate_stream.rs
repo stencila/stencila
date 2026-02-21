@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use serde_json::Value;
+use serde_json::{Map, Value, json};
 
 use crate::error::{ProviderDetails, SdkError, SdkResult};
 use crate::http::sse::SseEvent;
@@ -81,42 +81,71 @@ pub fn translate_sse_event(
         // The function name is only available here; subsequent argument-delta
         // events do NOT carry it.
         "response.output_item.added" => {
+            // Upstream references:
+            // https://github.com/openai/codex/blob/main/codex-rs/codex-api/src/sse/responses.rs
+            // https://github.com/openai/codex/blob/main/codex-rs/protocol/src/models.rs
+            // The stream can announce non-function tool calls as output items.
             let item = payload.get("item").unwrap_or(&payload);
             let item_type = item.get("type").and_then(Value::as_str).unwrap_or_default();
-            if item_type == "function_call" {
-                let call_id = item
-                    .get("call_id")
-                    .and_then(Value::as_str)
-                    .or_else(|| item.get("id").and_then(Value::as_str))
-                    .unwrap_or("call_0")
-                    .to_string();
-                let name = item
-                    .get("name")
-                    .and_then(Value::as_str)
-                    .unwrap_or("unknown_tool")
-                    .to_string();
+            match item_type {
+                "function_call" => {
+                    let call_id = item
+                        .get("call_id")
+                        .and_then(Value::as_str)
+                        .or_else(|| item.get("id").and_then(Value::as_str))
+                        .unwrap_or("call_0")
+                        .to_string();
+                    let name = item
+                        .get("name")
+                        .and_then(Value::as_str)
+                        .unwrap_or("unknown_tool")
+                        .to_string();
 
-                state.tool_calls.insert(
-                    call_id.clone(),
-                    ToolCallState {
-                        name: name.clone(),
-                        arguments: String::new(),
-                    },
-                );
+                    state.tool_calls.insert(
+                        call_id.clone(),
+                        ToolCallState {
+                            name: name.clone(),
+                            arguments: String::new(),
+                        },
+                    );
 
-                out.push(tool_call_event(
-                    StreamEventType::ToolCallStart,
-                    ToolCall {
-                        id: call_id,
-                        name,
-                        arguments: Value::String(String::new()),
-                        raw_arguments: Some(String::new()),
-                        parse_error: None,
-                    },
-                    payload,
-                ));
-            } else {
-                out.push(provider_event(payload));
+                    out.push(tool_call_event(
+                        StreamEventType::ToolCallStart,
+                        ToolCall {
+                            id: call_id,
+                            name,
+                            arguments: Value::String(String::new()),
+                            raw_arguments: Some(String::new()),
+                            parse_error: None,
+                        },
+                        payload,
+                    ));
+                }
+                "custom_tool_call" | "local_shell_call" => {
+                    let (call_id, name, _arguments, raw_arguments, _parse_error) =
+                        normalize_non_function_tool_call(item);
+
+                    state.tool_calls.insert(
+                        call_id.clone(),
+                        ToolCallState {
+                            name: name.clone(),
+                            arguments: raw_arguments,
+                        },
+                    );
+
+                    out.push(tool_call_event(
+                        StreamEventType::ToolCallStart,
+                        ToolCall {
+                            id: call_id.clone(),
+                            name: name.clone(),
+                            arguments: Value::Object(Map::new()),
+                            raw_arguments: Some(String::new()),
+                            parse_error: None,
+                        },
+                        payload,
+                    ));
+                }
+                _ => out.push(provider_event(payload)),
             }
         }
         // Reasoning summary part added — emit ReasoningStart.
@@ -374,6 +403,39 @@ pub fn translate_sse_event(
                     ));
                     state.tool_calls.remove(&call_id);
                 }
+                "custom_tool_call" | "local_shell_call" => {
+                    let (call_id, name, arguments, raw_arguments, parse_error) =
+                        normalize_non_function_tool_call(item);
+
+                    // Non-function calls usually arrive only at `.done`.
+                    // If we didn't see an earlier start event, synthesize one.
+                    if !state.tool_calls.contains_key(&call_id) {
+                        out.push(tool_call_event(
+                            StreamEventType::ToolCallStart,
+                            ToolCall {
+                                id: call_id.clone(),
+                                name: name.clone(),
+                                arguments: Value::Object(Map::new()),
+                                raw_arguments: Some(String::new()),
+                                parse_error: None,
+                            },
+                            payload.clone(),
+                        ));
+                    }
+
+                    out.push(tool_call_event(
+                        StreamEventType::ToolCallEnd,
+                        ToolCall {
+                            id: call_id.clone(),
+                            name,
+                            arguments,
+                            raw_arguments: Some(raw_arguments),
+                            parse_error,
+                        },
+                        payload,
+                    ));
+                    state.tool_calls.remove(&call_id);
+                }
                 _ => {
                     out.push(provider_event(payload));
                 }
@@ -495,4 +557,77 @@ fn extract_call_id(payload: &Value) -> String {
 
 fn parse_tool_arguments(raw: &str) -> (Value, Option<String>) {
     ToolCall::parse_arguments(raw)
+}
+
+fn normalize_non_function_tool_call(
+    item: &Value,
+) -> (String, String, Value, String, Option<String>) {
+    // Upstream fixture/examples:
+    // https://github.com/openai/codex/blob/main/codex-rs/core/tests/common/responses.rs
+    // Normalizes Responses API `custom_tool_call` / `local_shell_call`
+    // into the unified tool-call shape expected by stencila-agents.
+    let item_type = item.get("type").and_then(Value::as_str).unwrap_or_default();
+    let call_id = item
+        .get("call_id")
+        .and_then(Value::as_str)
+        .or_else(|| item.get("id").and_then(Value::as_str))
+        .unwrap_or("call_0")
+        .to_string();
+
+    match item_type {
+        "custom_tool_call" => {
+            let name = item
+                .get("name")
+                .and_then(Value::as_str)
+                .unwrap_or("unknown_tool")
+                .to_string();
+            let input = item
+                .get("input")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_string();
+
+            let (parsed, parse_error) = parse_tool_arguments(&input);
+            let arguments = if parse_error.is_none() && parsed.is_object() {
+                parsed
+            } else if name == "apply_patch" {
+                json!({ "patch": input })
+            } else {
+                json!({ "input": input })
+            };
+            (call_id, name, arguments, input, parse_error)
+        }
+        "local_shell_call" => {
+            let action = item
+                .get("action")
+                .and_then(Value::as_object)
+                .cloned()
+                .unwrap_or_default();
+            let command = action
+                .get("command")
+                .and_then(Value::as_array)
+                .map(|parts| {
+                    parts
+                        .iter()
+                        .filter_map(Value::as_str)
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                })
+                .unwrap_or_default();
+            let arguments = if command.is_empty() {
+                Value::Object(Map::new())
+            } else {
+                json!({ "command": command })
+            };
+            let raw_arguments = serde_json::to_string(&action).unwrap_or_default();
+            (call_id, "shell".to_string(), arguments, raw_arguments, None)
+        }
+        _ => (
+            call_id,
+            "unknown_tool".to_string(),
+            Value::Object(Map::new()),
+            String::new(),
+            None,
+        ),
+    }
 }

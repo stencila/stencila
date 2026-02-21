@@ -530,6 +530,28 @@ fn openai_response_translation_maps_usage_fields() -> Result<(), Box<dyn std::er
     Ok(())
 }
 
+#[test]
+fn openai_response_translation_custom_tool_call_maps_apply_patch_input()
+-> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("openai/response_translation_custom_tool_call.json")?;
+
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(tool_calls[0].id, "call_custom_patch");
+    assert_eq!(tool_calls[0].name, "apply_patch");
+    assert_eq!(
+        tool_calls[0]
+            .arguments
+            .get("patch")
+            .and_then(serde_json::Value::as_str),
+        Some("*** Begin Patch\n*** End Patch\n")
+    );
+
+    Ok(())
+}
+
 /// When an OpenAI Responses API function-call output item includes both `id`
 /// (the output-item identifier) and `call_id` (the invocation correlation ID),
 /// the translated tool-call must use `call_id`. Using `id` would cause
@@ -672,6 +694,101 @@ fn openai_stream_translation_maps_text_and_finish() -> Result<(), Box<dyn std::e
     assert_eq!(
         finish.usage.as_ref().and_then(|u| u.reasoning_tokens),
         Some(1)
+    );
+
+    Ok(())
+}
+
+#[test]
+fn openai_stream_translation_custom_tool_call_item_done_emits_start_and_end()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut state = openai::translate_stream::OpenAIStreamState::default();
+
+    let event = fixture_sse_event(
+        "response.output_item.done",
+        "openai/stream_translation_custom_tool_call_item_done.json",
+    )?;
+    let events = openai::translate_stream::translate_sse_event(&event, &mut state)?;
+
+    assert_eq!(events[0].event_type, StreamEventType::StreamStart);
+    assert_eq!(events[1].event_type, StreamEventType::ToolCallStart);
+    assert_eq!(events[2].event_type, StreamEventType::ToolCallEnd);
+
+    let tc = events[2].tool_call.as_ref().ok_or("missing tool call")?;
+    assert_eq!(tc.id, "call_custom_2");
+    assert_eq!(tc.name, "apply_patch");
+    assert_eq!(tc.arguments["patch"], "*** Begin Patch\n*** End Patch\n");
+    assert!(tc.parse_error.is_some());
+
+    Ok(())
+}
+
+#[test]
+fn openai_stream_translation_local_shell_call_item_done_maps_to_shell_tool_call()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut state = openai::translate_stream::OpenAIStreamState::default();
+
+    let event = fixture_sse_event(
+        "response.output_item.done",
+        "openai/stream_translation_local_shell_call_item_done.json",
+    )?;
+    let events = openai::translate_stream::translate_sse_event(&event, &mut state)?;
+
+    assert_eq!(events[0].event_type, StreamEventType::StreamStart);
+    assert_eq!(events[1].event_type, StreamEventType::ToolCallStart);
+    assert_eq!(events[2].event_type, StreamEventType::ToolCallEnd);
+
+    let tc = events[2].tool_call.as_ref().ok_or("missing tool call")?;
+    assert_eq!(tc.id, "call_shell_1");
+    assert_eq!(tc.name, "shell");
+    assert_eq!(tc.arguments["command"], "echo hello");
+
+    Ok(())
+}
+
+#[test]
+fn openai_request_translation_uses_custom_tool_output_for_custom_tool_results()
+-> Result<(), Box<dyn std::error::Error>> {
+    let request = Request::new(
+        "gpt-5.3-codex",
+        vec![
+            Message::user("Apply this patch"),
+            Message::new(
+                Role::Assistant,
+                vec![ContentPart::ToolCall {
+                    tool_call: ToolCallData {
+                        id: "call_custom_9".to_string(),
+                        name: "apply_patch".to_string(),
+                        arguments: serde_json::json!({"patch":"*** Begin Patch\n*** End Patch\n"}),
+                        call_type: "custom".to_string(),
+                        thought_signature: None,
+                    },
+                }],
+            ),
+            Message::tool_result("call_custom_9", serde_json::json!("ok"), false),
+        ],
+    );
+
+    let translated = openai::translate_request::translate_request(&request, false)?;
+    let input = translated
+        .body
+        .get("input")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("missing input array")?;
+
+    assert!(
+        input
+            .iter()
+            .any(|item| item.get("type").and_then(serde_json::Value::as_str)
+                == Some("custom_tool_call")),
+        "expected custom_tool_call in translated input"
+    );
+    assert!(
+        input
+            .iter()
+            .any(|item| item.get("type").and_then(serde_json::Value::as_str)
+                == Some("custom_tool_call_output")),
+        "expected custom_tool_call_output in translated input"
     );
 
     Ok(())

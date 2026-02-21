@@ -1,0 +1,12 @@
+{
+  "type": "response.output_item.done",
+  "item": {
+    "type": "local_shell_call",
+    "call_id": "call_shell_1",
+    "status": "completed",
+    "action": {
+      "type": "exec",
+      "command": ["echo", "hello"]
+    }
+  }
+}
