@@ -12,6 +12,9 @@ use serde::Deserialize;
 use crate::{api_token, base_url, check_response};
 use stencila_version::STENCILA_USER_AGENT;
 
+/// Progress callback for blob downloads: `(bytes_received, total_bytes)`.
+type ProgressCallback = dyn Fn(u64, Option<u64>) + Send + Sync;
+
 const BLOB_API_VERSION: &str = "v1";
 
 fn blob_url(workspace_id: &str, kind: &str, hash: &str) -> String {
@@ -40,12 +43,7 @@ fn blob_list_url(workspace_id: &str, kind: &str) -> String {
 /// * `hash` - SHA-256 hex digest of `data`
 /// * `data` - Raw blob bytes (consumed to avoid copying large snapshots)
 #[tracing::instrument(skip(data))]
-pub async fn upload_blob(
-    workspace_id: &str,
-    kind: &str,
-    hash: &str,
-    data: Vec<u8>,
-) -> Result<()> {
+pub async fn upload_blob(workspace_id: &str, kind: &str, hash: &str, data: Vec<u8>) -> Result<()> {
     upload_blob_with_progress(workspace_id, kind, hash, data, None).await
 }
 
@@ -136,7 +134,7 @@ pub async fn download_blob_with_progress(
     workspace_id: &str,
     kind: &str,
     hash: &str,
-    on_progress: Option<Arc<dyn Fn(u64, Option<u64>) + Send + Sync>>,
+    on_progress: Option<Arc<ProgressCallback>>,
 ) -> Result<Vec<u8>> {
     let token =
         api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
@@ -204,9 +202,7 @@ pub async fn list_blobs(workspace_id: &str, kind: &str) -> Result<Vec<String>> {
         api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
 
     let base_url = blob_list_url(workspace_id, kind);
-    let client = Client::builder()
-        .user_agent(STENCILA_USER_AGENT)
-        .build()?;
+    let client = Client::builder().user_agent(STENCILA_USER_AGENT).build()?;
 
     let mut all_hashes = Vec::new();
     let mut offset: u64 = 0;
@@ -223,11 +219,7 @@ pub async fn list_blobs(workspace_id: &str, kind: &str) -> Result<Vec<String>> {
 
         let url = format!("{base_url}?limit={BLOB_LIST_PAGE_SIZE}&offset={offset}");
 
-        let response = client
-            .get(&url)
-            .bearer_auth(&token)
-            .send()
-            .await?;
+        let response = client.get(&url).bearer_auth(&token).send().await?;
 
         if !response.status().is_success() {
             check_response(response).await?;

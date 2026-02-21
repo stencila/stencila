@@ -10,9 +10,9 @@ use std::sync::{Arc, Mutex};
 
 use indexmap::IndexMap;
 use serde_json::Value;
+use stencila_db::WorkspaceDb;
 use stencila_db::migration::Migration;
 use stencila_db::rusqlite::Connection;
-use stencila_db::WorkspaceDb;
 
 use crate::context::ContextBackend;
 
@@ -78,7 +78,10 @@ impl SqliteBackend {
     /// # Errors
     ///
     /// Returns `rusqlite::Error` if migrations fail.
-    pub fn open(workspace_db: &WorkspaceDb, run_id: &str) -> Result<Self, stencila_db::rusqlite::Error> {
+    pub fn open(
+        workspace_db: &WorkspaceDb,
+        run_id: &str,
+    ) -> Result<Self, stencila_db::rusqlite::Error> {
         workspace_db.migrate("workflows", WORKFLOW_MIGRATIONS)?;
 
         Ok(Self {
@@ -284,7 +287,11 @@ impl SqliteBackend {
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
-    pub fn link_run_definition(&self, hash: &str, role: &str) -> Result<(), stencila_db::rusqlite::Error> {
+    pub fn link_run_definition(
+        &self,
+        hash: &str,
+        role: &str,
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()

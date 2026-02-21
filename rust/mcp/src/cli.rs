@@ -74,6 +74,11 @@ impl Cli {
     /// called). The caller (top-level CLI) uses this to handle codemode
     /// execution where `stencila-codemode` is available, avoiding a circular
     /// dependency.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(self)` when the subcommand is not `codemode`.
+    #[allow(clippy::result_large_err)]
     pub fn into_codemode(self) -> Result<Codemode, Self> {
         match self.command {
             Some(Command::Codemode(c)) => Ok(c),

@@ -68,7 +68,7 @@ fn append_dir_recursive(
 ) -> std::io::Result<()> {
     let mut entries: Vec<_> = std::fs::read_dir(current)?.filter_map(Result::ok).collect();
     // Sort for deterministic archive order → deterministic hash.
-    entries.sort_by_key(|e| e.file_name());
+    entries.sort_by_key(std::fs::DirEntry::file_name);
 
     for entry in entries {
         let name = entry.file_name();
@@ -80,9 +80,7 @@ fn append_dir_recursive(
         let ft = entry.file_type()?;
 
         if ft.is_file() {
-            let rel = path
-                .strip_prefix(root)
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+            let rel = path.strip_prefix(root).map_err(std::io::Error::other)?;
             builder.append_path_with_name(&path, rel)?;
         } else if ft.is_dir() {
             append_dir_recursive(builder, root, &path)?;

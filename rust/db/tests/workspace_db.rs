@@ -184,7 +184,11 @@ mod verify {
     use super::*;
     use stencila_db::sync::verify_databases;
 
-    fn create_db_with_data(dir: &std::path::Path, name: &str, rows: &[(i32, &str)]) -> std::path::PathBuf {
+    fn create_db_with_data(
+        dir: &std::path::Path,
+        name: &str,
+        rows: &[(i32, &str)],
+    ) -> std::path::PathBuf {
         let path = dir.join(name);
         let db = WorkspaceDb::open(&path).expect("open");
         db.migrate(
@@ -238,7 +242,12 @@ mod verify {
 
         let result = verify_databases(&a, &b).expect("verify");
         assert!(!result.matches);
-        assert!(result.differences.iter().any(|d| d.contains("content differs")));
+        assert!(
+            result
+                .differences
+                .iter()
+                .any(|d| d.contains("content differs"))
+        );
     }
 
     #[test]
@@ -324,7 +333,10 @@ mod verify {
         let result = verify_databases(&a_path, &b_path).expect("verify");
         assert!(!result.matches);
         assert!(
-            result.differences.iter().any(|d| d.contains("schema differs")),
+            result
+                .differences
+                .iter()
+                .any(|d| d.contains("schema differs")),
             "Expected schema difference, got: {:?}",
             result.differences
         );
@@ -369,7 +381,10 @@ mod verify {
         let result = verify_databases(&a_path, &b_path).expect("verify");
         assert!(!result.matches);
         assert!(
-            result.differences.iter().any(|d| d.contains("indexes differ")),
+            result
+                .differences
+                .iter()
+                .any(|d| d.contains("indexes differ")),
             "Expected index difference, got: {:?}",
             result.differences
         );
@@ -381,11 +396,11 @@ mod verify {
 // ---------------------------------------------------------------------------
 
 mod auto_snapshot {
-    use stencila_db::sync::{
-        self, AUTO_SNAPSHOT_CHANGESET_LIMIT, AUTO_SNAPSHOT_SIZE_LIMIT, Manifest, SnapshotEntry,
-        ChangesetEntry, MANIFEST_FORMAT, should_auto_snapshot,
-    };
     use std::collections::BTreeMap;
+    use stencila_db::sync::{
+        AUTO_SNAPSHOT_CHANGESET_LIMIT, AUTO_SNAPSHOT_SIZE_LIMIT, ChangesetEntry, MANIFEST_FORMAT,
+        Manifest, SnapshotEntry, should_auto_snapshot,
+    };
 
     fn make_manifest(changeset_count: usize, changeset_size: u64) -> Manifest {
         let schema = BTreeMap::from([("test".to_string(), 1)]);
@@ -473,12 +488,13 @@ mod auto_snapshot {
 // clean_blob_cache tests
 // ---------------------------------------------------------------------------
 
+#[allow(clippy::unwrap_used)]
 mod cache_clean {
-    use stencila_db::sync::{
-        self, Manifest, SnapshotEntry, ChangesetEntry, MANIFEST_FORMAT,
-        write_cached_blob, clean_blob_cache,
-    };
     use std::collections::BTreeMap;
+    use stencila_db::sync::{
+        self, ChangesetEntry, MANIFEST_FORMAT, Manifest, SnapshotEntry, clean_blob_cache,
+        write_cached_blob,
+    };
 
     fn make_manifest(snapshot_hash: &str, changeset_hashes: &[&str]) -> Manifest {
         let schema = BTreeMap::from([("test".to_string(), 1)]);

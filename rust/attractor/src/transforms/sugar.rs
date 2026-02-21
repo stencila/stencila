@@ -74,8 +74,10 @@ impl Transform for NodeSugarTransform {
             // `ask` implies human gate
             if let Some(val) = ask_val {
                 if !has_shape {
-                    node.attrs
-                        .insert("shape".to_string(), AttrValue::String("hexagon".to_string()));
+                    node.attrs.insert(
+                        "shape".to_string(),
+                        AttrValue::String("hexagon".to_string()),
+                    );
                 }
                 if !node.attrs.contains_key("label") {
                     node.attrs.insert("label".to_string(), val);
@@ -100,8 +102,10 @@ impl Transform for NodeSugarTransform {
             // `branch` implies conditional node
             if let Some(val) = branch_val {
                 if !has_shape {
-                    node.attrs
-                        .insert("shape".to_string(), AttrValue::String("diamond".to_string()));
+                    node.attrs.insert(
+                        "shape".to_string(),
+                        AttrValue::String("diamond".to_string()),
+                    );
                 }
                 if !node.attrs.contains_key("label") {
                     node.attrs.insert("label".to_string(), val);

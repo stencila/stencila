@@ -12,8 +12,7 @@ pub async fn run(args: Codemode) -> Result<()> {
     let configs: Vec<stencila_mcp::McpServerConfig> = if args.server.is_empty() {
         all_configs.into_iter().filter(|c| c.enabled).collect()
     } else {
-        let known_ids: HashSet<&str> =
-            all_configs.iter().map(|c| c.id.as_str()).collect();
+        let known_ids: HashSet<&str> = all_configs.iter().map(|c| c.id.as_str()).collect();
 
         for id in &args.server {
             if !known_ids.contains(id.as_str()) {
@@ -23,8 +22,7 @@ pub async fn run(args: Codemode) -> Result<()> {
             }
         }
 
-        let requested: HashSet<&str> =
-            args.server.iter().map(String::as_str).collect();
+        let requested: HashSet<&str> = args.server.iter().map(String::as_str).collect();
 
         all_configs
             .into_iter()
@@ -34,8 +32,7 @@ pub async fn run(args: Codemode) -> Result<()> {
 
     if configs.is_empty() {
         if args.server.is_empty() {
-            eprintln!("No MCP servers available. Use `stencila mcp add` to add one.");
-            return Ok(());
+            bail!("No MCP servers available. Use `stencila mcp add` to add one.");
         }
         bail!("No enabled servers matched the requested IDs.");
     }

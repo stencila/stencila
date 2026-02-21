@@ -284,7 +284,10 @@ impl Context {
     ///
     /// Returns a `rusqlite::Error` if migrations fail.
     #[cfg(feature = "sqlite")]
-    pub fn with_sqlite(workspace_db: &stencila_db::WorkspaceDb, run_id: &str) -> Result<Self, stencila_db::rusqlite::Error> {
+    pub fn with_sqlite(
+        workspace_db: &stencila_db::WorkspaceDb,
+        run_id: &str,
+    ) -> Result<Self, stencila_db::rusqlite::Error> {
         let backend = crate::sqlite_backend::SqliteBackend::open(workspace_db, run_id)?;
         Ok(Self {
             backend: Box::new(backend),

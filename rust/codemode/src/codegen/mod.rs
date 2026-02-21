@@ -203,7 +203,7 @@ fn server_declarations(server: &ServerToolset) -> String {
             }
         }
 
-        output.push_str("\n");
+        output.push('\n');
     }
 
     // __meta__ export

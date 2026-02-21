@@ -281,6 +281,7 @@ impl App {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::super::{App, AppMode};
 
@@ -329,12 +330,13 @@ mod tests {
         app.poll_workflow_events();
 
         assert_eq!(app.mode, AppMode::Workflow);
-        assert!(app
-            .active_workflow
-            .as_ref()
-            .unwrap()
-            .pending_interview
-            .is_some());
+        assert!(
+            app.active_workflow
+                .as_ref()
+                .unwrap()
+                .pending_interview
+                .is_some()
+        );
     }
 
     #[tokio::test]

@@ -145,9 +145,8 @@ pub fn set_sync_position(conn: &Connection, hash: &str) -> Result<()> {
 
 pub fn schema_versions(conn: &Connection) -> Result<BTreeMap<String, i32>> {
     let mut map = BTreeMap::new();
-    let mut stmt = conn.prepare(
-        "SELECT domain, COALESCE(MAX(version), 0) FROM _migrations GROUP BY domain",
-    )?;
+    let mut stmt =
+        conn.prepare("SELECT domain, COALESCE(MAX(version), 0) FROM _migrations GROUP BY domain")?;
     let mut rows = stmt.query([])?;
     while let Some(row) = rows.next()? {
         let domain: String = row.get(0)?;
@@ -188,12 +187,7 @@ pub fn read_cached_blob(stencila_dir: &Path, kind: &str, hash: &str) -> Option<V
     }
 }
 
-pub fn write_cached_blob(
-    stencila_dir: &Path,
-    kind: &str,
-    hash: &str,
-    data: &[u8],
-) -> Result<()> {
+pub fn write_cached_blob(stencila_dir: &Path, kind: &str, hash: &str, data: &[u8]) -> Result<()> {
     ensure_cache_dir(stencila_dir, kind)?;
     fs::write(cache_path(stencila_dir, kind, hash), data).context("write blob to cache")
 }
@@ -493,7 +487,9 @@ pub fn verify_databases(local_path: &Path, reference_path: &Path) -> Result<Veri
     // Check for tables in local but not in reference
     for t in &local_tables {
         if !ref_tables.contains(t) {
-            diffs.push(format!("Table `{t}` exists locally but not in manifest state"));
+            diffs.push(format!(
+                "Table `{t}` exists locally but not in manifest state"
+            ));
         }
     }
 
@@ -538,11 +534,7 @@ pub fn verify_databases(local_path: &Path, reference_path: &Path) -> Result<Veri
                 .collect();
             let altered: Vec<_> = local_indexes
                 .iter()
-                .filter(|(name, sql)| {
-                    ref_indexes
-                        .iter()
-                        .any(|(n, s)| n == name && s != sql)
-                })
+                .filter(|(name, sql)| ref_indexes.iter().any(|(n, s)| n == name && s != sql))
                 .map(|(n, _)| n.as_str())
                 .collect();
             let mut parts = Vec::new();
@@ -573,16 +565,10 @@ pub fn verify_databases(local_path: &Path, reference_path: &Path) -> Result<Veri
     for table in &shared {
         // Compare row counts first (fast path)
         let qt = quote_ident(table);
-        let local_count: i64 = local.query_row(
-            &format!("SELECT COUNT(*) FROM {qt}"),
-            [],
-            |row| row.get(0),
-        )?;
-        let ref_count: i64 = reference.query_row(
-            &format!("SELECT COUNT(*) FROM {qt}"),
-            [],
-            |row| row.get(0),
-        )?;
+        let local_count: i64 =
+            local.query_row(&format!("SELECT COUNT(*) FROM {qt}"), [], |row| row.get(0))?;
+        let ref_count: i64 =
+            reference.query_row(&format!("SELECT COUNT(*) FROM {qt}"), [], |row| row.get(0))?;
 
         if local_count != ref_count {
             diffs.push(format!(

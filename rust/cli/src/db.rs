@@ -149,14 +149,14 @@ impl Push {
         };
 
         if needs_snapshot {
-            if let Some(ref m) = existing {
-                if m.schema_version != local_schema {
-                    message!(
-                        "⚡ Schema changed ({} → {}), creating snapshot instead of changeset",
-                        format_schema_version(&m.schema_version),
-                        format_schema_version(&local_schema)
-                    );
-                }
+            if let Some(ref m) = existing
+                && m.schema_version != local_schema
+            {
+                message!(
+                    "⚡ Schema changed ({} → {}), creating snapshot instead of changeset",
+                    format_schema_version(&m.schema_version),
+                    format_schema_version(&local_schema)
+                );
             }
             self.push_snapshot(
                 &stencila_dir,
@@ -173,7 +173,7 @@ impl Push {
                 &manifest_path,
                 &ws_id,
                 local_schema,
-                existing.unwrap(),
+                existing.expect("existing manifest when not needs_snapshot"),
             )
             .await
         }
@@ -507,6 +507,8 @@ async fn fetch_blob(
     fetch_blob_with_progress(stencila_dir, workspace_id, kind, hash, None).await
 }
 
+type ProgressCallback = Option<Arc<dyn Fn(u64, Option<u64>) + Send + Sync>>;
+
 /// Fetch a blob with an optional progress callback for the download.
 ///
 /// The callback receives `(bytes_received, total_bytes)`.
@@ -515,7 +517,7 @@ async fn fetch_blob_with_progress(
     workspace_id: &str,
     kind: &str,
     hash: &str,
-    on_progress: Option<Arc<dyn Fn(u64, Option<u64>) + Send + Sync>>,
+    on_progress: ProgressCallback,
 ) -> Result<Vec<u8>> {
     if let Some(data) = sync::read_cached_blob(stencila_dir, kind, hash) {
         return Ok(data);
@@ -544,6 +546,7 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Status {
+    #[allow(clippy::print_stdout)]
     pub async fn run(self) -> Result<()> {
         let (stencila_dir, db_path) = resolve_paths().await?;
         let s = sync::status(&stencila_dir, &db_path)?;
@@ -625,6 +628,7 @@ pub static LOG_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Log {
+    #[allow(clippy::print_stdout)]
     pub async fn run(self) -> Result<()> {
         let (stencila_dir, _db_path) = resolve_paths().await?;
         let manifest_path = stencila_dir.join(sync::MANIFEST_FILE);
@@ -686,6 +690,7 @@ pub static VERIFY_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Verify {
+    #[allow(clippy::print_stdout)]
     pub async fn run(self) -> Result<()> {
         let (stencila_dir, db_path) = resolve_paths().await?;
         let ws_id = workspace_id()?;
@@ -1177,7 +1182,10 @@ impl Gc {
                     );
                 }
                 Err(error) => {
-                    message!("⚠️  git fetch failed: {}; continuing with existing refs", error);
+                    message!(
+                        "⚠️  git fetch failed: {}; continuing with existing refs",
+                        error
+                    );
                 }
             }
         }
@@ -1189,16 +1197,15 @@ impl Gc {
         let mut manifests_found = 0usize;
 
         for ref_name in &refs {
-            if let Some(content) = git_show_file_at_ref(&repo_root, ref_name, &manifest_rel_str) {
-                if let Ok(manifest) = serde_json::from_str::<sync::Manifest>(&content) {
-                    if manifest.format == sync::MANIFEST_FORMAT {
-                        referenced.insert(manifest.base_snapshot.hash.clone());
-                        for cs in &manifest.changesets {
-                            referenced.insert(cs.hash.clone());
-                        }
-                        manifests_found += 1;
-                    }
+            if let Some(content) = git_show_file_at_ref(&repo_root, ref_name, &manifest_rel_str)
+                && let Ok(manifest) = serde_json::from_str::<sync::Manifest>(&content)
+                && manifest.format == sync::MANIFEST_FORMAT
+            {
+                referenced.insert(manifest.base_snapshot.hash.clone());
+                for cs in &manifest.changesets {
+                    referenced.insert(cs.hash.clone());
                 }
+                manifests_found += 1;
             }
         }
 
@@ -1275,5 +1282,3 @@ fn format_bytes(n: u64) -> String {
         format!("{:.1} GB", n as f64 / (1024.0 * 1024.0 * 1024.0))
     }
 }
-
-

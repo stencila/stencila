@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)]
 //! Tests for node sugar transform.
 
 use stencila_attractor::error::AttractorResult;
@@ -619,10 +620,7 @@ fn prompt_on_review_id_keeps_codergen() -> AttractorResult<()> {
     )?;
     // prompt present → stays as box/codergen, not hexagon
     assert_eq!(node_shape(&g, "ReviewData"), "box");
-    assert_eq!(
-        g.get_node("ReviewData").unwrap().handler_type(),
-        "codergen"
-    );
+    assert_eq!(g.get_node("ReviewData").unwrap().handler_type(), "codergen");
     Ok(())
 }
 
@@ -652,10 +650,7 @@ fn agent_on_review_id_keeps_codergen() -> AttractorResult<()> {
         "#,
     )?;
     assert_eq!(node_shape(&g, "ReviewCode"), "box");
-    assert_eq!(
-        g.get_node("ReviewCode").unwrap().handler_type(),
-        "codergen"
-    );
+    assert_eq!(g.get_node("ReviewCode").unwrap().handler_type(), "codergen");
     Ok(())
 }
 

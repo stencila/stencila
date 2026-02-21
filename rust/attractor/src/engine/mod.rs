@@ -154,6 +154,10 @@ pub async fn resume(
 /// Reconstructs resume state from run-scoped tables (`workflow_nodes`,
 /// `workflow_edges`, and SQLite-backed context/logs) instead of reading
 /// `checkpoint.json`.
+///
+/// # Errors
+///
+/// Same as [`run`], plus `SQLite` query errors when loading run state.
 #[cfg(feature = "sqlite")]
 pub async fn resume_with_sqlite(
     graph: &Graph,
@@ -168,6 +172,6 @@ pub async fn resume_with_sqlite(
         crate::validation::validate_or_raise(&graph, &[])?;
     }
 
-    let resume_state = crate::resume::resume_from_sqlite(conn, run_id, &graph)?;
+    let resume_state = crate::resume::resume_from_sqlite(&conn, run_id, &graph)?;
     loop_core::resume_loop(&graph, config, resume_state).await
 }

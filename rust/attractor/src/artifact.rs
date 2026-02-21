@@ -65,7 +65,7 @@ impl ArtifactStore {
         }
     }
 
-    /// Create a store that also registers persisted artifacts in SQLite.
+    /// Create a store that also registers persisted artifacts in `SQLite`.
     #[cfg(feature = "sqlite")]
     #[must_use]
     pub fn with_sqlite(
@@ -221,16 +221,15 @@ impl ArtifactStore {
             return;
         };
 
-        let relative = path
-            .canonicalize()
-            .ok()
-            .and_then(|p| {
-                workspace_root
-                    .canonicalize()
-                    .ok()
-                    .and_then(|root| p.strip_prefix(root).ok().map(|rel| rel.to_path_buf()))
-            })
-            .unwrap_or_else(|| path.clone());
+        let relative =
+            path.canonicalize()
+                .ok()
+                .and_then(|p| {
+                    workspace_root.canonicalize().ok().and_then(|root| {
+                        p.strip_prefix(root).ok().map(std::path::Path::to_path_buf)
+                    })
+                })
+                .unwrap_or_else(|| path.clone());
 
         if let Err(error) = backend.insert_artifact(
             &info.id,

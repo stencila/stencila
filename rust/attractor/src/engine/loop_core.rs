@@ -502,10 +502,10 @@ fn record_and_checkpoint(
         };
         let model = context
             .get(&format!("internal.model.{}", node.id))
-            .and_then(|v| v.as_str().map(|s| s.to_string()));
+            .and_then(|v| v.as_str().map(std::string::ToString::to_string));
         let provider = context
             .get(&format!("internal.provider.{}", node.id))
-            .and_then(|v| v.as_str().map(|s| s.to_string()));
+            .and_then(|v| v.as_str().map(std::string::ToString::to_string));
         let input_tokens = context.get_i64(&format!("internal.input_tokens.{}", node.id));
         let output_tokens = context.get_i64(&format!("internal.output_tokens.{}", node.id));
         let record = crate::sqlite_backend::NodeRecord {

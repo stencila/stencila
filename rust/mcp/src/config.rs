@@ -606,7 +606,7 @@ mod tests {
     /// Mutex to serialize tests that modify environment variables.
     static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-    /// Run a closure with HOME and XDG_CONFIG_HOME pointed at the temp dir
+    /// Run a closure with HOME and `XDG_CONFIG_HOME` pointed at the temp dir
     /// so that user-level configs (stencila, claude, codex, gemini) are not
     /// picked up from the real home directory.
     #[allow(unsafe_code)]

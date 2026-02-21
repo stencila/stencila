@@ -80,41 +80,8 @@ pub fn resume_from_checkpoint(
     // Check if fidelity degradation is needed (§5.3):
     // Use the full §5.4 precedence chain (edge → node → graph → default)
     // to determine effective fidelity.
-    //
-    // To disambiguate nodes with multiple incoming edges, we use the
-    // penultimate entry in `completed_nodes` as the actual predecessor.
-    // This identifies the specific incoming edge that was traversed,
-    // rather than conservatively checking all incoming edges.
-    let predecessor = checkpoint
-        .completed_nodes
-        .len()
-        .checked_sub(2)
-        .and_then(|idx| checkpoint.completed_nodes.get(idx));
-
-    let degrade_fidelity = graph
-        .get_node(&checkpoint.current_node)
-        .is_some_and(|node| {
-            let incoming = graph.incoming_edges(&checkpoint.current_node);
-            // Try to find the specific incoming edge from the predecessor
-            let specific_edge =
-                predecessor.and_then(|pred| incoming.iter().find(|e| e.from == *pred).copied());
-
-            if let Some(edge) = specific_edge {
-                // Unambiguous: we know which edge was traversed
-                resolve_fidelity(node, Some(edge), graph) == FidelityMode::Full
-            } else if incoming.len() <= 1 {
-                // Single or no incoming edge — unambiguous
-                let incoming_edge = incoming.first().copied();
-                resolve_fidelity(node, incoming_edge, graph) == FidelityMode::Full
-            } else {
-                // Multiple incoming edges and no predecessor info —
-                // degrade if any path could have used Full fidelity
-                // (conservative fallback for legacy checkpoints).
-                incoming
-                    .iter()
-                    .any(|edge| resolve_fidelity(node, Some(edge), graph) == FidelityMode::Full)
-            }
-        });
+    let degrade_fidelity =
+        should_degrade_fidelity(graph, &checkpoint.current_node, &checkpoint.completed_nodes);
 
     Ok(ResumeState {
         context,
@@ -125,14 +92,19 @@ pub fn resume_from_checkpoint(
     })
 }
 
-/// Resume pipeline execution state from SQLite rows for a run.
+/// Resume pipeline execution state from `SQLite` rows for a run.
 ///
 /// Reconstructs loop state from `workflow_nodes` and `workflow_edges`.
-/// Context and logs are already durable in SQLite and are provided by
+/// Context and logs are already durable in `SQLite` and are provided by
 /// a SQLite-backed [`Context`].
+///
+/// # Errors
+///
+/// Returns an error if `SQLite` queries fail or the graph structure
+/// doesn't match the stored run state.
 #[cfg(feature = "sqlite")]
 pub fn resume_from_sqlite(
-    conn: std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
+    conn: &std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
     run_id: &str,
     graph: &Graph,
 ) -> AttractorResult<ResumeState> {
@@ -143,67 +115,13 @@ pub fn resume_from_sqlite(
     let mut completed_nodes_ordered = Vec::new();
     let mut node_statuses = IndexMap::new();
 
-    let edge = {
-        let db = conn
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        let mut stmt = db
-            .prepare(
-                "SELECT node_id, status, retry_count
-                 FROM workflow_nodes
-                 WHERE run_id = ?1
-                 ORDER BY COALESCE(completed_at, started_at, ''), node_id",
-            )
-            .map_err(|error| crate::error::AttractorError::Io {
-                message: format!("Failed to prepare workflow_nodes resume query: {error}"),
-            })?;
-
-        let mut rows = stmt
-            .query((run_id,))
-            .map_err(|error| crate::error::AttractorError::Io {
-                message: format!("Failed to query workflow_nodes for resume: {error}"),
-            })?;
-        while let Some(row) = rows
-            .next()
-            .map_err(|error| crate::error::AttractorError::Io {
-                message: format!("Failed to read workflow_nodes resume row: {error}"),
-            })?
-        {
-            let node_id: String = row
-                .get(0)
-                .map_err(|error| crate::error::AttractorError::Io {
-                    message: format!("Failed to read resumed node_id: {error}"),
-                })?;
-            let status: String = row
-                .get(1)
-                .map_err(|error| crate::error::AttractorError::Io {
-                    message: format!("Failed to read resumed node status: {error}"),
-                })?;
-            let retry_count: i64 =
-                row.get(2)
-                    .map_err(|error| crate::error::AttractorError::Io {
-                        message: format!("Failed to read resumed node retry count: {error}"),
-                    })?;
-            completed_nodes_ordered.push(node_id.clone());
-            node_statuses.insert(node_id.clone(), status);
-            context.set(
-                format!("internal.retry_count.{node_id}"),
-                serde_json::Value::Number(serde_json::Number::from(retry_count)),
-            );
-        }
-        drop(rows);
-        drop(stmt);
-
-        db.query_row(
-            "SELECT from_node, to_node
-             FROM workflow_edges
-             WHERE run_id = ?1
-             ORDER BY step_index DESC
-             LIMIT 1",
-            (run_id,),
-            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
-        )
-    };
+    let edge = load_sqlite_run_state(
+        conn,
+        run_id,
+        &context,
+        &mut completed_nodes_ordered,
+        &mut node_statuses,
+    )?;
 
     let (current_node, next_node_id) = match edge {
         Ok((from, to)) => (from, to),
@@ -218,13 +136,100 @@ pub fn resume_from_sqlite(
         }
     };
 
+    let degrade_fidelity = should_degrade_fidelity(graph, &current_node, &completed_nodes_ordered);
+
+    Ok(ResumeState {
+        context,
+        completed_nodes_ordered,
+        node_statuses,
+        next_node_id,
+        degrade_fidelity,
+    })
+}
+
+#[cfg(feature = "sqlite")]
+fn load_sqlite_run_state(
+    conn: &std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
+    run_id: &str,
+    context: &Context,
+    completed_nodes_ordered: &mut Vec<String>,
+    node_statuses: &mut IndexMap<String, String>,
+) -> AttractorResult<Result<(String, String), stencila_db::rusqlite::Error>> {
+    let db = conn
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let mut stmt = db
+        .prepare(
+            "SELECT node_id, status, retry_count
+             FROM workflow_nodes
+             WHERE run_id = ?1
+             ORDER BY COALESCE(completed_at, started_at, ''), node_id",
+        )
+        .map_err(|error| crate::error::AttractorError::Io {
+            message: format!("Failed to prepare workflow_nodes resume query: {error}"),
+        })?;
+
+    let mut rows = stmt
+        .query((run_id,))
+        .map_err(|error| crate::error::AttractorError::Io {
+            message: format!("Failed to query workflow_nodes for resume: {error}"),
+        })?;
+    while let Some(row) = rows
+        .next()
+        .map_err(|error| crate::error::AttractorError::Io {
+            message: format!("Failed to read workflow_nodes resume row: {error}"),
+        })?
+    {
+        let node_id: String = row
+            .get(0)
+            .map_err(|error| crate::error::AttractorError::Io {
+                message: format!("Failed to read resumed node_id: {error}"),
+            })?;
+        let status: String = row
+            .get(1)
+            .map_err(|error| crate::error::AttractorError::Io {
+                message: format!("Failed to read resumed node status: {error}"),
+            })?;
+        let retry_count: i64 = row
+            .get(2)
+            .map_err(|error| crate::error::AttractorError::Io {
+                message: format!("Failed to read resumed node retry count: {error}"),
+            })?;
+        completed_nodes_ordered.push(node_id.clone());
+        node_statuses.insert(node_id.clone(), status);
+        context.set(
+            format!("internal.retry_count.{node_id}"),
+            serde_json::Value::Number(serde_json::Number::from(retry_count)),
+        );
+    }
+    drop(rows);
+    drop(stmt);
+
+    let edge = db.query_row(
+        "SELECT from_node, to_node
+         FROM workflow_edges
+         WHERE run_id = ?1
+         ORDER BY step_index DESC
+         LIMIT 1",
+        (run_id,),
+        |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+    );
+
+    Ok(edge)
+}
+
+fn should_degrade_fidelity(
+    graph: &Graph,
+    current_node: &str,
+    completed_nodes_ordered: &[String],
+) -> bool {
     let predecessor = completed_nodes_ordered
         .len()
         .checked_sub(2)
         .and_then(|idx| completed_nodes_ordered.get(idx));
 
-    let degrade_fidelity = graph.get_node(&current_node).is_some_and(|node| {
-        let incoming = graph.incoming_edges(&current_node);
+    graph.get_node(current_node).is_some_and(|node| {
+        let incoming = graph.incoming_edges(current_node);
         let specific_edge =
             predecessor.and_then(|pred| incoming.iter().find(|e| e.from == *pred).copied());
 
@@ -238,14 +243,6 @@ pub fn resume_from_sqlite(
                 .iter()
                 .any(|edge| resolve_fidelity(node, Some(edge), graph) == FidelityMode::Full)
         }
-    });
-
-    Ok(ResumeState {
-        context,
-        completed_nodes_ordered,
-        node_statuses,
-        next_node_id,
-        degrade_fidelity,
     })
 }
 

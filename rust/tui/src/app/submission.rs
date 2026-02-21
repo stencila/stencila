@@ -312,8 +312,8 @@ mod tests {
 
     #[tokio::test]
     async fn detached_agent_submit_creates_agent_exchange() {
-        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
         use super::super::ExchangeKind;
+        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
 
         let mut app = App::new_for_test();
         // Activate a workflow then detach back to agent mode

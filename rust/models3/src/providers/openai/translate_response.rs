@@ -100,17 +100,7 @@ fn translate_output_item(item: &Value, content: &mut Vec<ContentPart>) {
                 }
             }
         }
-        "function_call" => {
-            if let Some(tool_call) = parse_tool_call(item) {
-                content.push(ContentPart::ToolCall { tool_call });
-            }
-        }
-        "custom_tool_call" => {
-            if let Some(tool_call) = parse_tool_call(item) {
-                content.push(ContentPart::ToolCall { tool_call });
-            }
-        }
-        "local_shell_call" => {
+        "function_call" | "custom_tool_call" | "local_shell_call" => {
             if let Some(tool_call) = parse_tool_call(item) {
                 content.push(ContentPart::ToolCall { tool_call });
             }
