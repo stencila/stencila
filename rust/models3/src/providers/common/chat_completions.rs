@@ -553,8 +553,7 @@ fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
         .and_then(Value::as_str)
         .unwrap_or("{}");
 
-    let arguments = serde_json::from_str::<Value>(raw_arguments)
-        .unwrap_or_else(|_| Value::String(raw_arguments.to_string()));
+    let (arguments, _) = crate::types::tool::ToolCall::parse_arguments(raw_arguments);
 
     Some(ToolCallData {
         id,

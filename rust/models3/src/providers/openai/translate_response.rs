@@ -223,8 +223,8 @@ fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
         .unwrap_or(Value::Object(serde_json::Map::new()));
 
     let arguments = if let Some(arguments_str) = arguments.as_str() {
-        serde_json::from_str::<Value>(arguments_str)
-            .unwrap_or_else(|_| Value::String(arguments_str.to_string()))
+        let (parsed, _) = crate::types::tool::ToolCall::parse_arguments(arguments_str);
+        parsed
     } else {
         arguments
     };

@@ -109,8 +109,10 @@ impl ToolCall {
     /// Parse a raw argument string into structured JSON.
     ///
     /// Returns `(parsed_value, parse_error)`. If the raw string is empty,
-    /// returns an empty object. If parsing fails, returns the raw string
-    /// as `Value::String` and the parse error message.
+    /// returns an empty object. If parsing fails, attempts to salvage a
+    /// JSON object from the string by scanning for the first `{` — some
+    /// reasoning models (e.g. GPT-5.x-codex) occasionally prepend garbled
+    /// reasoning tokens to the arguments string.
     #[must_use]
     pub fn parse_arguments(raw: &str) -> (serde_json::Value, Option<String>) {
         if raw.is_empty() {
@@ -119,12 +121,48 @@ impl ToolCall {
 
         match serde_json::from_str::<serde_json::Value>(raw) {
             Ok(parsed) => (parsed, None),
-            Err(e) => (
-                serde_json::Value::String(raw.to_string()),
-                Some(e.to_string()),
-            ),
+            Err(original_err) => {
+                // Attempt to salvage: find the first '{' and try parsing
+                // from there. This handles reasoning tokens prepended to
+                // the JSON arguments by some models.
+                if let Some(salvaged) = salvage_json_object(raw) {
+                    return (salvaged, None);
+                }
+                (
+                    serde_json::Value::String(raw.to_string()),
+                    Some(original_err.to_string()),
+                )
+            }
         }
     }
+}
+
+/// Try to extract a valid JSON object from a string that may have
+/// non-JSON text prepended (e.g. reasoning tokens from the model).
+///
+/// Scans forward from the first `{` and attempts to parse progressively
+/// longer substrings ending at each `}` from the end. Returns `Some`
+/// on the first successful parse, `None` if no valid object is found.
+fn salvage_json_object(raw: &str) -> Option<serde_json::Value> {
+    let start = raw.find('{')?;
+    let candidate = &raw[start..];
+    // Try parsing the substring from the first `{` to the end.
+    // If there is trailing garbage after the JSON, trim from the last `}`.
+    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(candidate)
+        && parsed.is_object()
+    {
+        return Some(parsed);
+    }
+    // Walk backwards through closing braces to find the longest valid suffix.
+    for (offset, _) in candidate.rmatch_indices('}') {
+        let sub = &candidate[..=offset];
+        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(sub)
+            && parsed.is_object()
+        {
+            return Some(parsed);
+        }
+    }
+    None
 }
 
 /// A unified tool result returned from tool execution.
@@ -160,4 +198,82 @@ pub enum ToolChoice {
     Required,
     /// Model must call this specific tool.
     Tool(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_arguments_empty() {
+        let (val, err) = ToolCall::parse_arguments("");
+        assert!(err.is_none());
+        assert!(val.is_object());
+        assert!(val.as_object().expect("should be object").is_empty());
+    }
+
+    #[test]
+    fn parse_arguments_valid_json() {
+        let (val, err) = ToolCall::parse_arguments(r#"{"command":"ls"}"#);
+        assert!(err.is_none());
+        assert_eq!(val["command"], "ls");
+    }
+
+    #[test]
+    fn parse_arguments_garbled_prefix() {
+        let raw = r#"Running tests numerusformassistant to=functions.shell json{"command":"cargo test","timeout_ms":120000}"#;
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
+        assert_eq!(val["command"], "cargo test");
+        assert_eq!(val["timeout_ms"], 120_000);
+    }
+
+    #[test]
+    fn parse_arguments_garbled_prefix_with_unicode() {
+        let raw = "+#+#+#+#+#+assistant to=functions.shell մեկնաdelays 天天中彩票json{\"file_path\":\"/tmp/test.rs\"}";
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
+        assert_eq!(val["file_path"], "/tmp/test.rs");
+    }
+
+    #[test]
+    fn parse_arguments_garbled_prefix_and_suffix() {
+        let raw = r#"some garbage {"key":"value"} trailing text"#;
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
+        assert_eq!(val["key"], "value");
+    }
+
+    #[test]
+    fn parse_arguments_no_json_at_all() {
+        let (val, err) = ToolCall::parse_arguments("just plain text with no braces");
+        assert!(err.is_some());
+        assert_eq!(
+            val.as_str().expect("should be string"),
+            "just plain text with no braces"
+        );
+    }
+
+    #[test]
+    fn parse_arguments_no_valid_json_in_braces() {
+        let (val, err) = ToolCall::parse_arguments("prefix {not valid json} suffix");
+        assert!(err.is_some());
+        assert!(val.is_string());
+    }
+
+    #[test]
+    fn salvage_nested_braces() {
+        let raw = r#"garble {"outer":{"inner":"value"}}"#;
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
+        assert_eq!(val["outer"]["inner"], "value");
+    }
+
+    #[test]
+    fn salvage_does_not_return_arrays() {
+        let raw = "prefix [1,2,3]";
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_some(), "arrays should not be salvaged as tool args");
+        assert!(val.is_string());
+    }
 }

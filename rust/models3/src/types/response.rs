@@ -54,14 +54,8 @@ impl Response {
                 ContentPart::ToolCall { tool_call } => {
                     let (arguments, raw_arguments, parse_error) =
                         if let Some(raw) = tool_call.arguments.as_str() {
-                            match serde_json::from_str::<serde_json::Value>(raw) {
-                                Ok(parsed) => (parsed, Some(raw.to_string()), None),
-                                Err(e) => (
-                                    serde_json::Value::String(raw.to_string()),
-                                    Some(raw.to_string()),
-                                    Some(e.to_string()),
-                                ),
-                            }
+                            let (parsed, err) = ToolCall::parse_arguments(raw);
+                            (parsed, Some(raw.to_string()), err)
                         } else {
                             (tool_call.arguments.clone(), None, None)
                         };
