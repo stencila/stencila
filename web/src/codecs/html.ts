@@ -90,13 +90,14 @@ class EncodeContext {
       this.formatAttribute('id', 'xxx') +
       this.formatAttribute('depth', this.ancestors.length) +
       this.formatAttribute('ancestors', this.ancestors.join('.'))
-    if (this.ancestors.length === 0) {
-      attrs += ' root'
-    }
 
     // Add extra attributes
     for (const [name, value] of Object.entries(extraAttrs)) {
       attrs += this.formatAttribute(name, value)
+    }
+
+    if (this.ancestors.length === 0) {
+      attrs += ' root'
     }
 
     this.html += `<${tagName} ${attrs}>`
@@ -440,6 +441,16 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     fields: {
       title: { element: 'h1' },
       depth: { skip: true },
+      content: { element: 'section' },
+    },
+  },
+
+  Skill: {
+    fields: {
+      description: { position: -10 },
+      name: { position: -9 },
+      authors: { element: 'section', position: -1 },
+      provenance: { element: 'div', position: -1 },
       content: { element: 'section' },
     },
   },
