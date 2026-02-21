@@ -1,7 +1,7 @@
 import js from '@eslint/js'
-import importPlugin from 'eslint-plugin-import'
 import litPlugin from 'eslint-plugin-lit'
 import wcPlugin from 'eslint-plugin-wc'
+import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default [
@@ -9,21 +9,19 @@ export default [
   ...tseslint.config(
     js.configs.recommended,
     tseslint.configs.recommended,
-    importPlugin.flatConfigs.recommended,
-    importPlugin.flatConfigs.typescript
   ),
   // Global configuration for all workspaces
   {
     languageOptions: {
       globals: {
-        browser: true,
-        es2021: true,
-        es6: true,
-        node: true,
+        ...globals.browser,
+        ...globals.es2021,
+        ...globals.node,
       },
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
@@ -44,19 +42,14 @@ export default [
         },
       ],
 
-      'import/order': [
+      'sort-imports': [
         'error',
         {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-          ],
-          alphabetize: { order: 'asc' },
-          'newlines-between': 'always',
+          ignoreCase: false,
+          ignoreDeclarationSort: true,
+          ignoreMemberSort: false,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+          allowSeparatedGroups: true,
         },
       ],
 
@@ -121,6 +114,13 @@ export default [
       'switch-colon-spacing': ['error', { after: true, before: false }],
     },
   },
+  // TypeScript files don't need no-undef (TypeScript handles this)
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
+    rules: {
+      'no-undef': 'off',
+    },
+  },
   // Ignore patterns
   {
     ignores: [
@@ -134,6 +134,7 @@ export default [
       '**/coverage/**',
       '**/dist/**',
       '**/node_modules/**',
+      '**/.vscode-test/**',
       '**/out/**',
       '**/public/**',
     ],
@@ -184,7 +185,6 @@ export default [
       curly: 'warn',
       eqeqeq: 'warn',
       'no-throw-literal': 'warn',
-      'import/no-unresolved': ['error', { ignore: ['vscode'] }],
     },
   },
 ]
