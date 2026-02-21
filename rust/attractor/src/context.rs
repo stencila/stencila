@@ -277,16 +277,15 @@ impl Context {
 
     /// Create a context backed by `SQLite`.
     ///
-    /// Opens (or creates) the database at `db_path`, runs migrations,
-    /// and scopes all operations to `run_id`.
+    /// Uses the given [`WorkspaceDb`](stencila_db::WorkspaceDb) connection,
+    /// runs workflow migrations, and scopes all operations to `run_id`.
     ///
     /// # Errors
     ///
-    /// Returns a `rusqlite::Error` if the database cannot be opened or
-    /// migrations fail.
+    /// Returns a `rusqlite::Error` if migrations fail.
     #[cfg(feature = "sqlite")]
-    pub fn with_sqlite(db_path: &std::path::Path, run_id: &str) -> Result<Self, rusqlite::Error> {
-        let backend = crate::sqlite_backend::SqliteBackend::open(db_path, run_id)?;
+    pub fn with_sqlite(workspace_db: &stencila_db::WorkspaceDb, run_id: &str) -> Result<Self, stencila_db::rusqlite::Error> {
+        let backend = crate::sqlite_backend::SqliteBackend::open(workspace_db, run_id)?;
         Ok(Self {
             backend: Box::new(backend),
         })
@@ -300,7 +299,7 @@ impl Context {
     #[must_use]
     pub fn sqlite_connection(
         &self,
-    ) -> Option<&std::sync::Arc<std::sync::Mutex<rusqlite::Connection>>> {
+    ) -> Option<&std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>> {
         self.backend
             .as_any()
             .downcast_ref::<crate::sqlite_backend::SqliteBackend>()

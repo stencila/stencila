@@ -132,7 +132,7 @@ pub fn resume_from_checkpoint(
 /// a SQLite-backed [`Context`].
 #[cfg(feature = "sqlite")]
 pub fn resume_from_sqlite(
-    conn: std::sync::Arc<std::sync::Mutex<rusqlite::Connection>>,
+    conn: std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
     run_id: &str,
     graph: &Graph,
 ) -> AttractorResult<ResumeState> {
@@ -207,7 +207,7 @@ pub fn resume_from_sqlite(
 
     let (current_node, next_node_id) = match edge {
         Ok((from, to)) => (from, to),
-        Err(rusqlite::Error::QueryReturnedNoRows) => {
+        Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => {
             let start = graph.find_start_node()?.id.clone();
             (start.clone(), start)
         }

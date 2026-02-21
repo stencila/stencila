@@ -15,12 +15,12 @@ regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
-rusqlite = { workspace = true }
 stencila-agents = { path = "../agents", default-features = false }
 stencila-models3 = { path = "../models3" }
 stencila-skills = { path = "../skills" }
 stencila-attractor = { path = "../attractor", features = ["sqlite"] }
 stencila-cli-utils = { path = "../cli-utils" }
+stencila-db = { path = "../db" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-schema = { path = "../schema" }

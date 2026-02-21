@@ -8996,11 +8996,11 @@ dependencies = [
  "futures",
  "indexmap 2.13.0",
  "rand 0.9.2",
- "rusqlite",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "stencila-agents",
+ "stencila-db",
  "tar",
  "tempfile",
  "thiserror 2.0.18",
@@ -10169,6 +10169,15 @@ dependencies = [
  "stencila-web-dist",
  "test-log",
  "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-db"
+version = "2.13.0"
+dependencies = [
+ "rusqlite",
+ "tempfile",
  "tracing",
 ]
 
@@ -11736,7 +11745,6 @@ dependencies = [
  "glob",
  "indicatif",
  "regex",
- "rusqlite",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -11744,6 +11752,7 @@ dependencies = [
  "stencila-attractor",
  "stencila-cli-utils",
  "stencila-codecs",
+ "stencila-db",
  "stencila-dirs",
  "stencila-models3",
  "stencila-schema",

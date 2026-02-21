@@ -158,7 +158,7 @@ pub async fn resume(
 pub async fn resume_with_sqlite(
     graph: &Graph,
     config: EngineConfig,
-    conn: std::sync::Arc<std::sync::Mutex<rusqlite::Connection>>,
+    conn: std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
     run_id: &str,
 ) -> crate::error::AttractorResult<Outcome> {
     let mut graph = graph.clone();

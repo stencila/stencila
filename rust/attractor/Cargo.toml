@@ -5,7 +5,7 @@ version.workspace = true
 
 [features]
 default = []
-sqlite = ["dep:rusqlite", "dep:sha2", "dep:tar", "dep:zstd"]
+sqlite = ["dep:stencila-db", "dep:sha2", "dep:tar", "dep:zstd"]
 
 [dependencies]
 async-trait = { workspace = true }
@@ -13,7 +13,7 @@ chrono = { workspace = true }
 futures = { workspace = true }
 indexmap = { workspace = true }
 rand = { workspace = true }
-rusqlite = { workspace = true, optional = true }
+stencila-db = { path = "../db", optional = true }
 serde = { workspace = true }
 sha2 = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
@@ -26,8 +26,8 @@ tracing = { workspace = true }
 winnow = { workspace = true }
 
 [dev-dependencies]
-rusqlite = { workspace = true }
 sha2 = { workspace = true }
+stencila-db = { path = "../db" }
 tar = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt"] }

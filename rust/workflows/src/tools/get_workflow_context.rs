@@ -2,7 +2,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use rusqlite::Connection;
+use stencila_db::rusqlite::Connection;
 use serde_json::json;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_models3::types::tool::ToolDefinition;
@@ -45,7 +45,7 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                     );
                     match result {
                         Ok(value) => Ok(ToolOutput::Text(value)),
-                        Err(rusqlite::Error::QueryReturnedNoRows) => {
+                        Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => {
                             Ok(ToolOutput::Text(format!("Key not found: {key}")))
                         }
                         Err(e) => Ok(ToolOutput::Text(format!("Error: {e}"))),

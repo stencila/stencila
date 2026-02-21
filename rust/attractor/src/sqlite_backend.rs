@@ -5,34 +5,30 @@
 //! spec (§5). Feature-gated behind `sqlite`.
 
 use std::fmt;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 use indexmap::IndexMap;
-use rusqlite::Connection;
 use serde_json::Value;
+use stencila_db::migration::Migration;
+use stencila_db::rusqlite::Connection;
+use stencila_db::WorkspaceDb;
 
 use crate::context::ContextBackend;
 
 // ---------------------------------------------------------------------------
-// Migration
+// Workflow migrations
 // ---------------------------------------------------------------------------
 
-/// Run schema migrations on the database.
+/// Migrations for the `workflows` domain.
 ///
-/// Uses `SQLite`'s built-in `PRAGMA user_version` for version tracking.
-fn migrate(conn: &Connection) -> Result<(), rusqlite::Error> {
-    let version: i32 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-
-    if version < 1 {
-        let tx = conn.unchecked_transaction()?;
-        tx.execute_batch(include_str!("migrations/001_initial.sql"))?;
-        tx.pragma_update(None, "user_version", 1)?;
-        tx.commit()?;
-    }
-
-    Ok(())
-}
+/// These are registered with [`WorkspaceDb::migrate`] when a
+/// [`SqliteBackend`] is opened.
+pub static WORKFLOW_MIGRATIONS: &[Migration] = &[Migration {
+    version: 1,
+    name: "initial",
+    sql: include_str!("migrations/001_initial.sql"),
+}];
 
 // ---------------------------------------------------------------------------
 // NodeRecord
@@ -74,24 +70,19 @@ impl fmt::Debug for SqliteBackend {
 }
 
 impl SqliteBackend {
-    /// Open (or create) a `SQLite` database at `db_path`, run migrations,
-    /// and return a backend scoped to `run_id`.
+    /// Open a backend scoped to `run_id` using an existing [`WorkspaceDb`].
     ///
-    /// Enables WAL mode for concurrent read access.
+    /// Runs the `workflows` domain migrations on the shared database and
+    /// returns a backend that operates on that connection.
     ///
     /// # Errors
     ///
-    /// Returns `rusqlite::Error` if the database cannot be opened or
-    /// migrations fail.
-    pub fn open(db_path: &Path, run_id: &str) -> Result<Self, rusqlite::Error> {
-        let conn = Connection::open(db_path)?;
-        conn.pragma_update(None, "journal_mode", "WAL")?;
-        conn.pragma_update(None, "foreign_keys", "ON")?;
-        conn.busy_timeout(std::time::Duration::from_secs(5))?;
-        migrate(&conn)?;
+    /// Returns `rusqlite::Error` if migrations fail.
+    pub fn open(workspace_db: &WorkspaceDb, run_id: &str) -> Result<Self, stencila_db::rusqlite::Error> {
+        workspace_db.migrate("workflows", WORKFLOW_MIGRATIONS)?;
 
         Ok(Self {
-            conn: Arc::new(Mutex::new(conn)),
+            conn: workspace_db.connection().clone(),
             run_id: run_id.to_string(),
         })
     }
@@ -131,7 +122,7 @@ impl SqliteBackend {
         workflow_name: &str,
         goal: &str,
         stencila_version: &str,
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -154,7 +145,7 @@ impl SqliteBackend {
         status: &str,
         total_tokens: i64,
         node_count: i64,
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -180,7 +171,7 @@ impl SqliteBackend {
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
-    pub fn node_count(&self) -> Result<i64, rusqlite::Error> {
+    pub fn node_count(&self) -> Result<i64, stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -197,7 +188,7 @@ impl SqliteBackend {
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
-    pub fn upsert_node(&self, record: &NodeRecord<'_>) -> Result<(), rusqlite::Error> {
+    pub fn upsert_node(&self, record: &NodeRecord<'_>) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -247,7 +238,7 @@ impl SqliteBackend {
         from_node: &str,
         to_node: &str,
         edge_label: Option<&str>,
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -275,7 +266,7 @@ impl SqliteBackend {
         content: &[u8],
         kind: &str,
         name: &str,
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -293,7 +284,7 @@ impl SqliteBackend {
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
-    pub fn link_run_definition(&self, hash: &str, role: &str) -> Result<(), rusqlite::Error> {
+    pub fn link_run_definition(&self, hash: &str, role: &str) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -315,7 +306,7 @@ impl SqliteBackend {
         &self,
         node_id: &str,
         output: &[u8],
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -341,7 +332,7 @@ impl SqliteBackend {
         mime_type: Option<&str>,
         size_bytes: Option<i64>,
         path: &str,
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -372,7 +363,7 @@ impl SqliteBackend {
         asked_at: &str,
         answered_at: Option<&str>,
         duration_ms: Option<i64>,
-    ) -> Result<(), rusqlite::Error> {
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -406,7 +397,7 @@ impl SqliteBackend {
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
-    pub fn delete_run(&self) -> Result<(), rusqlite::Error> {
+    pub fn delete_run(&self) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
@@ -455,7 +446,7 @@ impl SqliteBackend {
         let db_path: String = conn
             .query_row("PRAGMA database_list", [], |row| row.get(2))
             .ok()?;
-        let stencila_dir = Path::new(&db_path).parent()?;
+        let stencila_dir = std::path::Path::new(&db_path).parent()?;
         Some(
             stencila_dir
                 .join("artifacts")

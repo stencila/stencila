@@ -12,6 +12,7 @@ use tempfile::TempDir;
 
 use stencila_attractor::context::Context;
 use stencila_attractor::sqlite_backend::{NodeRecord, SqliteBackend};
+use stencila_db::WorkspaceDb;
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -20,14 +21,16 @@ use stencila_attractor::sqlite_backend::{NodeRecord, SqliteBackend};
 fn temp_db() -> (TempDir, SqliteBackend) {
     let dir = TempDir::new().expect("temp dir");
     let db_path = dir.path().join("test.db");
-    let backend = SqliteBackend::open(&db_path, "run-1").expect("open db");
+    let workspace_db = WorkspaceDb::open(&db_path).expect("open workspace db");
+    let backend = SqliteBackend::open(&workspace_db, "run-1").expect("open db");
     (dir, backend)
 }
 
 fn temp_context() -> (TempDir, Context) {
     let dir = TempDir::new().expect("temp dir");
     let db_path = dir.path().join("test.db");
-    let ctx = Context::with_sqlite(&db_path, "run-1").expect("open context");
+    let workspace_db = WorkspaceDb::open(&db_path).expect("open workspace db");
+    let ctx = Context::with_sqlite(&workspace_db, "run-1").expect("open context");
 
     // Insert a run row so foreign key constraints are satisfied
     if let Some(backend) = ctx.sqlite_backend() {
@@ -158,18 +161,25 @@ fn migration_is_idempotent() {
     let db_path = dir.path().join("test.db");
 
     // Open twice — second open should not fail
-    let _b1 = SqliteBackend::open(&db_path, "run-1").expect("first open");
-    let _b2 = SqliteBackend::open(&db_path, "run-2").expect("second open");
+    let workspace_db = WorkspaceDb::open(&db_path).expect("open workspace db");
+    let _b1 = SqliteBackend::open(&workspace_db, "run-1").expect("first open");
+    let _b2 = SqliteBackend::open(&workspace_db, "run-2").expect("second open");
 }
 
 #[test]
-fn user_version_is_set() {
+fn migration_is_tracked() {
     let (_dir, backend) = temp_db();
     let conn = backend.connection().lock().expect("lock");
-    let version: i32 = conn
-        .pragma_query_value(None, "user_version", |r| r.get(0))
-        .expect("pragma");
+    let (domain, version, name): (String, i32, String) = conn
+        .query_row(
+            "SELECT domain, version, name FROM _migrations WHERE domain = 'workflows'",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .expect("query");
+    assert_eq!(domain, "workflows");
     assert_eq!(version, 1);
+    assert_eq!(name, "initial");
 }
 
 // ---------------------------------------------------------------------------
@@ -402,9 +412,10 @@ fn concurrent_reads_and_writes() {
 fn runs_are_isolated() {
     let dir = TempDir::new().expect("temp dir");
     let db_path = dir.path().join("test.db");
+    let workspace_db = WorkspaceDb::open(&db_path).expect("open workspace db");
 
-    let ctx1 = Context::with_sqlite(&db_path, "run-a").expect("ctx1");
-    let ctx2 = Context::with_sqlite(&db_path, "run-b").expect("ctx2");
+    let ctx1 = Context::with_sqlite(&workspace_db, "run-a").expect("ctx1");
+    let ctx2 = Context::with_sqlite(&workspace_db, "run-b").expect("ctx2");
 
     // Insert run rows for foreign key constraints
     if let Some(b) = ctx1.sqlite_backend() {

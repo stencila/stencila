@@ -2,7 +2,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use rusqlite::Connection;
+use stencila_db::rusqlite::Connection;
 use serde_json::json;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_models3::types::tool::ToolDefinition;

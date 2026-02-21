@@ -12,8 +12,8 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use eyre::Result;
-use rusqlite::Connection;
 use stencila_agents::types::Turn;
+use stencila_db::rusqlite::Connection;
 
 use stencila_attractor::context::Context;
 use stencila_attractor::definition_snapshot;
@@ -108,14 +108,49 @@ pub async fn run_workflow_with_options(
     // running pipeline.
     let stencila_dir = stencila_dirs::closest_stencila_dir(workflow.path(), true).await?;
     let workspace_root = stencila_dirs::workspace_dir(&stencila_dir)?;
-    let db_path = stencila_dir.join("workflows.db");
+    let db_path = stencila_dir.join("workspace.db");
+    let legacy_path = stencila_dir.join("workflows.db");
+
+    // Resolve which DB file to open, handling the workflows.db → workspace.db
+    // migration and edge cases.
+    let effective_db_path = if db_path.exists() && legacy_path.exists() {
+        tracing::warn!(
+            "Both `{}` and `{}` exist. Using `workspace.db`; \
+             the legacy `workflows.db` can be removed once you have \
+             confirmed no data is needed from it.",
+            db_path.display(),
+            legacy_path.display()
+        );
+        db_path.clone()
+    } else if !db_path.exists() && legacy_path.exists() {
+        match std::fs::rename(&legacy_path, &db_path) {
+            Ok(()) => {
+                tracing::info!("Migrated workflows.db → workspace.db");
+                db_path.clone()
+            }
+            Err(e) => {
+                tracing::warn!(
+                    "Failed to rename `{}` to `{}`: {e}; \
+                     falling back to legacy path",
+                    legacy_path.display(),
+                    db_path.display()
+                );
+                legacy_path
+            }
+        }
+    } else {
+        db_path.clone()
+    };
+
     let run_id = uuid::Uuid::now_v7().to_string();
     let artifacts_dir =
         stencila_dirs::closest_artifacts_for(workflow.path(), &format!("workflow-runs/{run_id}"))
             .await?;
 
-    let context = Context::with_sqlite(&db_path, &run_id)
-        .map_err(|e| eyre::eyre!("Failed to open workflow database: {e}"))?;
+    let workspace_db = stencila_db::WorkspaceDb::open(&effective_db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+    let context = Context::with_sqlite(&workspace_db, &run_id)
+        .map_err(|e| eyre::eyre!("Failed to initialize workflow context: {e}"))?;
 
     if let Some(backend) = context.sqlite_backend() {
         let goal = workflow.goal.as_deref().unwrap_or("");

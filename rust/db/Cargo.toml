@@ -1,0 +1,14 @@
+[package]
+name = "stencila-db"
+edition = "2024"
+version.workspace = true
+
+[dependencies]
+rusqlite = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

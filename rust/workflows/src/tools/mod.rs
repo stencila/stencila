@@ -14,7 +14,7 @@ mod store_artifact;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use rusqlite::Connection;
+use stencila_db::rusqlite::Connection;
 
 /// Register all workflow-context tools on an agent session.
 ///
