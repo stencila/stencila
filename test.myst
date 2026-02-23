@@ -1,0 +1,8 @@
+```{code-cell} r
+data <- rpois(1000, lambda=5)
+h <- hist(data, breaks=seq(min(data)-0.5, max(data)+0.5, by=1), col='green', freq=FALSE)
+x_vals <- min(data):max(data)
+lines(x_vals, dpois(x_vals, lambda=mean(data)), col='darkblue', lwd=2, type='b')
+```
+
+Added paragraph.
