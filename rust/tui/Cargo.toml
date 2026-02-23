@@ -23,6 +23,8 @@ stencila-auth = { path = "../auth", default-features = false }
 stencila-models3 = { path = "../models3" }
 stencila-dirs = { path = "../dirs" }
 strum = { workspace = true }
+stencila-config = { path = "../config" }
+stencila-server = { path = "../server" }
 stencila-version = { path = "../version" }
 tokio = { workspace = true }
 tracing = { workspace = true }

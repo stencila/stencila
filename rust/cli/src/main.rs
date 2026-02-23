@@ -49,13 +49,13 @@ async fn main() -> Result<()> {
 
     if matches!(cli.command, Some(Command::Lsp)) {
         stencila_lsp::run(log_level.into(), &cli.log_filter).await?
-    } else if matches!(cli.command, None | Some(Command::Tui(_))) {
+    } else if cli.command.is_none() {
         // TUI installs its own tracing subscriber that captures log events
         // as in-app system messages instead of writing to stderr.
         stencila_ask::setup_cli(cli.assume_answer()).await?;
         let upgrade_handle = upgrade::check(false);
 
-        stencila_tui::Tui::default()
+        cli.tui
             .run(log_level.into(), &cli.log_filter, Some(upgrade_handle))
             .await?;
     } else {

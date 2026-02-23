@@ -29,6 +29,10 @@ pub struct Cli {
     #[command(subcommand)]
     pub command: Option<Command>,
 
+    /// TUI options (applied when no subcommand or `tui` subcommand is used)
+    #[command(flatten)]
+    pub tui: stencila_tui::Tui,
+
     /// Print help: `-h` for brief help, `--help` for more details.
     #[arg(
         short, long,
@@ -291,8 +295,6 @@ pub enum Command {
 
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
-
-    Tui(stencila_tui::Tui),
 }
 
 impl Cli {
@@ -305,10 +307,9 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         tracing::trace!("Running CLI command");
 
-        // Default to launching the TUI when no subcommand is provided
-        let command = self
-            .command
-            .unwrap_or(Command::Tui(stencila_tui::Tui::default()));
+        let Some(command) = self.command else {
+            bail!("No subcommand provided (TUI should have been launched)")
+        };
 
         match command {
             Command::New(new) => new.run().await,
@@ -382,8 +383,8 @@ impl Cli {
             Command::Uninstall(uninstall) => uninstall.run().await,
 
             // Handled before this function
-            Command::Tui(_) | Command::Lsp => {
-                bail!("The TUI and LSP commands should already have been run")
+            Command::Lsp => {
+                bail!("The LSP command should already have been run")
             }
         }
     }

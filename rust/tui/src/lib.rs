@@ -10,11 +10,12 @@ mod history;
 mod input;
 mod logging;
 mod shell;
+mod site_preview;
 mod terminal;
 mod ui;
 mod workflow;
 
-use clap::Parser;
+use clap::Args;
 use eyre::Result;
 use tokio::task::JoinHandle;
 use tracing_subscriber::filter::LevelFilter;
@@ -22,8 +23,12 @@ use tracing_subscriber::filter::LevelFilter;
 use crate::{app::App, event::EventReader};
 
 /// Run interactively
-#[derive(Debug, Default, Parser)]
-pub struct Tui {}
+#[derive(Debug, Default, Clone, Args)]
+pub struct Tui {
+    /// Do not serve a preview of the workspace site
+    #[arg(long, help_heading = "TUI Options")]
+    pub no_preview: bool,
+}
 
 impl Tui {
     /// Run the interactive TUI application.
@@ -42,6 +47,17 @@ impl Tui {
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();
         let mut app = App::new(log_receiver, upgrade_handle);
+
+        if !self.no_preview {
+            match site_preview::spawn_preview() {
+                Ok(handle) => app.site_preview = handle,
+                Err(error) => {
+                    app.messages.push(app::AppMessage::System {
+                        content: format!("Failed to start site preview: {error}"),
+                    });
+                }
+            }
+        }
 
         // Load history from disk (best-effort)
         let history_path = history::history_file_path();
@@ -63,6 +79,7 @@ impl Tui {
                     app.poll_workflow_events();
                     app.poll_log_events();
                     app.poll_upgrade_check();
+                    app.poll_site_preview();
                 }
                 None => break,
             }

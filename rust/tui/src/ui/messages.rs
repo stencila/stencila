@@ -36,6 +36,19 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             AppMessage::Welcome => {
                 welcome_lines(&mut lines, app.upgrade_available.as_deref());
             }
+            AppMessage::SitePreviewReady { url } => {
+                lines.push(Line::from(vec![
+                    Span::styled(" ● ", Color::Blue),
+                    Span::styled(SIDEBAR_CHAR, Color::Blue),
+                    Span::raw(" Site preview ready at: "),
+                ]));
+                lines.push(Line::from(vec![
+                    Span::raw("   "),
+                    Span::styled(SIDEBAR_CHAR, Color::Blue),
+                    Span::raw(" "),
+                    Span::styled(url, Color::Blue),
+                ]));
+            }
             AppMessage::System { content } => {
                 for text_line in content.lines() {
                     for chunk in wrap_content(text_line, content_width) {

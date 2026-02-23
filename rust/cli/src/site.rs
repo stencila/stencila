@@ -21,12 +21,11 @@ use stencila_cloud::sites::{
     list_site_branches, set_site_domain, update_site_access, update_site_reviews,
 };
 use stencila_config::{
-    ConfigTarget, LayoutConfig, RouteSpread, SiteReviewsSpec, SiteUploadsSpec, SpreadMode,
+    ConfigTarget, RouteSpread, SiteReviewsSpec, SiteUploadsSpec, SpreadMode,
     config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread, get,
     set_value, unset_value, validate_placeholders,
 };
 use stencila_server::{ServeOptions, SiteMessage, get_server_token};
-use stencila_web_dist::web_base_localhost;
 use tokio::sync::{broadcast, mpsc};
 
 /// Helper for managing render progress display with spinner and progress bar
@@ -880,9 +879,6 @@ impl Preview {
     pub async fn run(self) -> Result<()> {
         let cfg = get()?;
 
-        // Get layout from config
-        let layout = cfg.site.as_ref().and_then(|s| s.layout.clone());
-
         // Resolve site root
         let site_root = cfg
             .site
@@ -897,7 +893,7 @@ impl Preview {
 
         // Initial render (render() outputs uncompressed HTML with flat structure)
         message!("📁 Rendering site to temporary directory...");
-        Self::render_site(&site_root, &temp_path, self.port, layout.as_ref(), None).await?;
+        Self::render_site_with_progress(&site_root, &temp_path, self.port, None).await?;
 
         // Serve directly from temp_path (render uses flat structure, no decompression needed)
         let serve_dir = temp_path.clone();
@@ -952,12 +948,11 @@ impl Preview {
             tokio::signal::ctrl_c().await?;
         } else {
             message!("👁️ Watching for changes (Ctrl+C to stop)");
-            Self::watch_and_rerender(
+            Self::watch_and_rerender_with_progress(
                 &cfg.workspace_dir,
                 &site_root,
                 &temp_path,
                 self.port,
-                layout,
                 site_notify_tx,
             )
             .await?;
@@ -972,58 +967,28 @@ impl Preview {
         Ok(())
     }
 
-    /// Render the site to the output directory
+    /// Render the site with CLI progress bars.
     ///
-    /// If `changed_paths` is provided, only re-render documents matching those paths.
-    /// If `None`, render all documents (used for config changes).
-    async fn render_site(
+    /// Wraps the shared [`stencila_server::preview::render_site`] with
+    /// a progress channel that drives [`RenderProgressBar`].
+    async fn render_site_with_progress(
         source: &Path,
         output: &Path,
         port: u16,
-        _layout: Option<&LayoutConfig>,
         changed_paths: Option<&[PathBuf]>,
     ) -> Result<()> {
         use std::pin::pin;
         use stencila_site::RenderProgress;
 
-        // Use render() to render to the output directory
         let (tx, mut rx) = tokio::sync::mpsc::channel::<RenderProgress>(100);
 
-        // Base URL for local preview
-        let base_url = format!("http://localhost:{port}");
-
-        // Web base URL for preview: always use localhost since the preview server
-        // serves bundled web assets at /~static/dev (works offline, ensures version consistency)
-        let web_base = web_base_localhost(port);
-
-        // Create progress bar
         let mut progress = RenderProgressBar::new("Discovering routes...");
 
-        // Create the render future
-        let render_future = stencila_site::render(
-            source,
-            output,
-            &base_url,
-            Some(web_base.as_str()),
-            None,          // route_filter
-            None,          // path_filter (prefix)
-            changed_paths, // source_files (exact match)
-            Some(tx),
-            |doc_path, arguments: HashMap<String, String>| async move {
-                let doc = Document::open(&doc_path, None).await?;
-                let arguments: Vec<(&str, &str)> = arguments
-                    .iter()
-                    .map(|(name, value)| (name.as_str(), value.as_str()))
-                    .collect();
-                doc.call(&arguments, ExecuteOptions::default()).await?;
-                Ok(doc.root().await)
-            },
-        );
+        let render_future =
+            stencila_server::preview::render_site(source, output, port, changed_paths, Some(tx));
 
-        // Pin the future so we can poll it in select!
         let mut render_future = pin!(render_future);
 
-        // Handle progress events while render runs
         let result = loop {
             tokio::select! {
                 result = &mut render_future => break result,
@@ -1051,184 +1016,78 @@ impl Preview {
             progress.finish_with_message("rendered");
         }
 
-        // Ensure progress bar cleanup
         drop(progress);
 
         result?;
         Ok(())
     }
 
-    /// Watch for changes and re-render
-    async fn watch_and_rerender(
+    /// Watch for changes and re-render with CLI progress bars and messages.
+    ///
+    /// Wraps the shared [`stencila_server::preview::watch_and_rerender`],
+    /// consuming its [`PreviewEvent`]s and printing CLI messages.
+    async fn watch_and_rerender_with_progress(
         workspace_root: &Path,
         site_root: &Path,
         output: &Path,
         port: u16,
-        mut layout: Option<LayoutConfig>,
         site_notify: broadcast::Sender<SiteMessage>,
     ) -> Result<()> {
-        // Watch config file for layout changes
-        let mut config_receiver = stencila_config::watch(workspace_root).await?;
+        use stencila_server::preview::PreviewEvent;
 
-        // Watch site root for file changes
-        let mut site_receiver = stencila_site::watch(site_root, Some(output)).await?;
+        let (event_tx, mut event_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel::<()>();
 
-        // Track pending render task and what triggered it
-        enum RenderTrigger {
-            Config,
-            Site { paths: Vec<String> },
-        }
-        let mut pending_render: Option<(tokio::task::JoinHandle<Result<()>>, RenderTrigger)> = None;
+        let ws_root = workspace_root.to_path_buf();
+        let sr = site_root.to_path_buf();
+        let out = output.to_path_buf();
+        let watch_handle = tokio::spawn(async move {
+            stencila_server::preview::watch_and_rerender(
+                &ws_root,
+                &sr,
+                &out,
+                port,
+                site_notify,
+                event_tx,
+                shutdown_rx,
+            )
+            .await
+        });
 
         loop {
             tokio::select! {
-                // Ctrl+C to exit
                 _ = tokio::signal::ctrl_c() => {
-                    // Cancel any pending render before exiting
-                    if let Some((handle, _)) = pending_render.take() {
-                        handle.abort();
-                    }
                     break;
                 }
-
-                // Config changed - update layout and re-render
-                Some(result) = async {
-                    match config_receiver.as_mut() {
-                        Some(rx) => rx.recv().await,
-                        None => std::future::pending().await,
-                    }
-                } => {
-                    match result {
-                        Ok(new_config) => {
-                            layout = new_config.site.and_then(|s| s.layout);
-
-                            // Cancel any in-progress render
-                            if let Some((handle, _)) = pending_render.take() {
-                                handle.abort();
-                                // Wait for task to finish (progress bars clean up on drop)
-                                let _ = handle.await;
-                                message!("🔄 Config changed, restarting render...");
+                Some(event) = event_rx.recv() => {
+                    match event {
+                        PreviewEvent::Rerendering { files } => {
+                            let display: Vec<_> = files.iter().take(3).map(String::as_str).collect();
+                            let suffix = if files.len() > 3 {
+                                format!(" (+{} more)", files.len() - 3)
                             } else {
-                                message!("🔄 Config changed, re-rendering...");
-                            }
-
-                            // Start new render (full render for config changes)
-                            let site_root = site_root.to_path_buf();
-                            let output = output.to_path_buf();
-                            let layout_clone = layout.clone();
-                            let handle = tokio::spawn(async move {
-                                Self::render_site(&site_root, &output, port, layout_clone.as_ref(), None).await
-                            });
-                            pending_render = Some((handle, RenderTrigger::Config));
+                                String::new()
+                            };
+                            message!(
+                                "🔄 Files changed: {}{}, re-rendering...",
+                                display.join(", "),
+                                suffix,
+                            );
                         }
-                        Err(error) => {
-                            message!("⚠️ Config error: {}", error);
+                        PreviewEvent::RerenderComplete => {}
+                        PreviewEvent::Error(err) => {
+                            message!("❌ {}", err);
                         }
+                        PreviewEvent::ServerReady { .. } => {}
                     }
                 }
-
-                // Site files changed - re-render
-                Some(event) = site_receiver.recv() => {
-                    let changed: Vec<_> = event.paths.iter()
-                        .filter_map(|p| p.file_name())
-                        .filter_map(|n| n.to_str())
-                        .take(3) // Limit display to 3 files
-                        .collect();
-
-                    let nav_override_changed = event.paths.iter().any(|path| matches!(
-                        path.file_name().and_then(|name| name.to_str()),
-                        Some("_nav.yaml" | "_nav.yml" | "_nav.toml" | "_nav.json")
-                    ));
-
-                    let suffix = if event.paths.len() > 3 {
-                        format!(" (+{} more)", event.paths.len() - 3)
-                    } else {
-                        String::new()
-                    };
-
-                    // Cancel any in-progress render
-                    if let Some((handle, _)) = pending_render.take() {
-                        handle.abort();
-                        // Wait for task to finish (progress bars clean up on drop)
-                        let _ = handle.await;
-                        message!(
-                            "🔄 Files changed: {}{}, restarting render{}...",
-                            changed.join(", "),
-                            suffix,
-                            if nav_override_changed { " (full site)" } else { "" }
-                        );
-                    } else {
-                        message!(
-                            "🔄 Files changed: {}{}, re-rendering{}...",
-                            changed.join(", "),
-                            suffix,
-                            if nav_override_changed { " (full site)" } else { "" }
-                        );
-                    }
-
-                    // Collect paths for notification and incremental rendering
-                    let changed_paths = if nav_override_changed {
-                        None
-                    } else {
-                        Some(event.paths.clone())
-                    };
-                    let paths: Vec<String> = event.paths.iter()
-                        .filter_map(|p| p.to_str())
-                        .map(String::from)
-                        .collect();
-
-                    // Start new render (incremental - only changed files)
-                    let site_root = site_root.to_path_buf();
-                    let output = output.to_path_buf();
-                    let layout_clone = layout.clone();
-                    let handle = tokio::spawn(async move {
-                        Self::render_site(
-                            &site_root,
-                            &output,
-                            port,
-                            layout_clone.as_ref(),
-                            changed_paths.as_deref(),
-                        )
-                        .await
-                    });
-                    pending_render = Some((handle, RenderTrigger::Site { paths }));
-                }
-
-                // Render completed
-                Some(result) = async {
-                    match &mut pending_render {
-                        Some((handle, _)) => Some(handle.await),
-                        None => std::future::pending().await,
-                    }
-                } => {
-                    let trigger = pending_render.take().map(|(_, t)| t);
-                    match result {
-                        Ok(Ok(())) => {
-                            // Notify browser to reload after successful re-render
-                            match trigger {
-                                Some(RenderTrigger::Config) => {
-                                    let _ = site_notify.send(SiteMessage::ConfigChange);
-                                }
-                                Some(RenderTrigger::Site { paths }) => {
-                                    let _ = site_notify.send(SiteMessage::SiteChange { paths });
-                                }
-                                None => {}
-                            }
-                        }
-                        Ok(Err(error)) => {
-                            message!("❌ Render error: {}", error);
-                            // Continue watching - don't exit on render errors
-                        }
-                        Err(_) => {
-                            // Task was aborted (cancelled), this is expected
-                        }
-                    }
-                }
-
                 else => break,
             }
         }
 
+        // Signal cooperative shutdown, then abort as fallback
+        let _ = shutdown_tx.send(());
+        watch_handle.abort();
         Ok(())
     }
 }

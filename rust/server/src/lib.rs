@@ -4,6 +4,7 @@ mod auth;
 mod documents;
 mod errors;
 mod login;
+pub mod preview;
 mod server;
 mod site;
 mod statics;

@@ -1,5 +1,7 @@
 use futures::FutureExt;
 
+use stencila_server::preview::PreviewEvent;
+
 use crate::{
     agent::ResponseSegment,
     config::WorkflowVerbosity,
@@ -234,6 +236,41 @@ impl App {
             None => {
                 // Not ready yet — put the handle back for next tick
                 self.upgrade_handle = Some(handle);
+            }
+        }
+    }
+
+    /// Poll the background site preview for events. Called on tick events.
+    pub fn poll_site_preview(&mut self) {
+        let Some(handle) = &mut self.site_preview else {
+            return;
+        };
+        while let Ok(event) = handle.event_rx.try_recv() {
+            match event {
+                PreviewEvent::Rerendering { files } => {
+                    let files_count = files.len();
+                    let files_iter = files.into_iter();
+                    let mut files_list = files_iter.take(3).collect::<Vec<_>>().join(", ");
+                    let remainder = files_count.saturating_sub(3);
+                    if remainder > 0 {
+                        files_list.push_str(", and ");
+                        files_list.push_str(&remainder.to_string());
+                        files_list.push_str(" more.");
+                    }
+                    self.messages.push(AppMessage::System {
+                        content: format!("Re-rendering {files_list}"),
+                    });
+                }
+                PreviewEvent::ServerReady { url, token } => {
+                    let url = format!("{url}/~login?sst={token}");
+                    self.messages.push(AppMessage::SitePreviewReady { url });
+                }
+                PreviewEvent::Error(error) => {
+                    self.messages.push(AppMessage::System {
+                        content: format!("Site preview: {error}"),
+                    });
+                }
+                PreviewEvent::RerenderComplete => {}
             }
         }
     }

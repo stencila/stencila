@@ -201,6 +201,9 @@ pub enum AppMessage {
     /// The initial welcome message.
     Welcome,
 
+    /// The site preview is ready
+    SitePreviewReady { url: String },
+
     /// A system/informational message (mode transitions, slash command output, etc.).
     System { content: String },
 
@@ -396,6 +399,9 @@ pub struct App {
     /// Visible height of the message area in the last frame (set by `ui::render`).
     pub visible_message_height: u16,
 
+    /// Background site preview handle, if site config exists.
+    pub site_preview: Option<crate::site_preview::SitePreviewHandle>,
+
     /// Background upgrade check handle, consumed once resolved.
     upgrade_handle: Option<JoinHandle<Option<String>>>,
     /// Set when a newer version is available (from the background upgrade check).
@@ -455,6 +461,7 @@ impl App {
             scroll_offset: 0,
             total_message_lines: 0,
             visible_message_height: 0,
+            site_preview: None,
             upgrade_handle,
             upgrade_available: None,
             upgrade_msg_index: None,
