@@ -1579,7 +1579,7 @@
   },
   "dependencies": {
     "@vscode/python-extension": "1.0.5",
-    "posthog-js": "1.298.1",
+    "posthog-js": "1.353.1",
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
