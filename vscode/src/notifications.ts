@@ -3,14 +3,14 @@ import { LanguageClient } from 'vscode-languageclient/node'
 
 import {
   activeDecoration,
+  failedDecoration,
   pendingDecoration,
   runningDecoration,
   skippedDecoration,
   staleDecoration,
+  succeededBoxDecoration,
   succeededDecoration,
   succeededForkDecoration,
-  succeededBoxDecoration,
-  failedDecoration,
   unexecutedDecoration,
 } from './decorations'
 import { gutterDecorationType } from './gutters'

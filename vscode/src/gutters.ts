@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import path from 'path'
 
 import * as vscode from 'vscode'

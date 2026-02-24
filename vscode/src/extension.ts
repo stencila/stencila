@@ -13,8 +13,8 @@ import { event, registerEventing } from './events'
 import { registerKernelsView } from './kernels'
 import { registerModelsView } from './models'
 import {
-  registerStatusNotifications,
   registerNodeInfoNotifications,
+  registerStatusNotifications,
 } from './notifications'
 import { registerPromptsView } from './prompts'
 import { getPythonEnvVars, registerPythonExtensionListener } from './python'
@@ -23,9 +23,9 @@ import { registerStencilaShell } from './shell'
 import { registerStatusBar } from './status-bar'
 import { registerWalkthroughCommands } from './walkthroughs'
 import {
+  DomPatch,
   closeDocumentViewPanels,
   documentPatchHandlers,
-  DomPatch,
   registerSubscriptionNotifications,
 } from './webviews'
 import { workspaceSetup } from './workspace'

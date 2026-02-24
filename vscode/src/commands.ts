@@ -3,7 +3,7 @@
 import * as vscode from 'vscode'
 
 import { event } from './events'
-import { createNodeViewPanel, createDocumentViewPanel } from './webviews'
+import { createDocumentViewPanel, createNodeViewPanel } from './webviews'
 
 class Format {
   constructor(
