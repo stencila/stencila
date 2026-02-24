@@ -201,8 +201,8 @@ pub struct NodeMapEntry {
     /// The type of the node
     pub node_type: NodeType,
 
-    /// The id of the node
-    pub node_id: NodeId,
+    /// The id of the node (uid only, matching the DOM `id` attribute in site view)
+    pub node_id: String,
 
     /// The start position
     pub start: usize,
@@ -240,7 +240,7 @@ impl Mapping {
 
                 NodeMapEntry {
                     node_type: entry.node_type,
-                    node_id: entry.node_id.clone(),
+                    node_id: entry.node_id.uid_str().to_string(),
                     start,
                     end,
                 }
