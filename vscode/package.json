@@ -17,7 +17,7 @@
   },
   "icon": "icons/stencila-128.png",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.93.0"
   },
   "extensionDependencies": [
     "ms-python.python",
@@ -1578,15 +1578,15 @@
     "package": "npx vsce package"
   },
   "dependencies": {
-    "@vscode/python-extension": "1.0.5",
-    "posthog-js": "1.298.1",
+    "@vscode/python-extension": "1.0.6",
+    "posthog-js": "1.353.1",
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/mocha": "10.0.10",
     "@types/node": "25.3.0",
-    "@types/vscode": "1.90.0",
+    "@types/vscode": "1.93.0",
     "@typescript-eslint/parser": "8.56.1",
     "@vscode/test-cli": "0.0.12",
     "@vscode/test-electron": "2.5.2",
