@@ -1,4 +1,8 @@
-use std::{num::NonZeroU32, sync::LazyLock};
+use std::{
+    collections::HashMap,
+    num::NonZeroU32,
+    sync::{LazyLock, Mutex},
+};
 
 use governor::{
     Quota, RateLimiter as GovernorRateLimiter,
@@ -8,7 +12,10 @@ use governor::{
 use itertools::Itertools;
 use reqwest::{Client, Response, StatusCode};
 use serde::de::DeserializeOwned;
-use tokio::time::{Duration, Instant, sleep};
+use tokio::{
+    runtime::{Handle, Id as RuntimeId},
+    time::{Duration, Instant, sleep},
+};
 
 use stencila_codec::{
     eyre::{Result, bail},
@@ -56,12 +63,37 @@ async fn apply_rate_limiting() -> Result<()> {
     Ok(())
 }
 
-static CLIENT: LazyLock<Client> = LazyLock::new(|| {
-    Client::builder()
+/// Build a configured HTTP client for OpenAlex requests.
+///
+/// Benefit: centralizing client construction keeps headers/options consistent
+/// everywhere and makes future transport tuning a single change.
+fn build_client() -> Result<Client> {
+    Ok(Client::builder()
         .user_agent(STENCILA_USER_AGENT)
-        .build()
-        .expect("invalid")
-});
+        .build()?)
+}
+
+/// Cache one client per runtime so tests with per-test runtimes don't end up
+/// reusing a client tied to a dropped runtime.
+static CLIENTS: LazyLock<Mutex<HashMap<RuntimeId, Client>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// Get a cached client for the current Tokio runtime.
+///
+/// Benefit: preserves connection pooling (performance) while avoiding reuse of
+/// clients across dropped test runtimes (stability).
+fn get_client() -> Result<Client> {
+    let runtime_id = Handle::current().id();
+    let mut clients = CLIENTS.lock().expect("client cache poisoned");
+
+    if let Some(client) = clients.get(&runtime_id) {
+        return Ok(client.clone());
+    }
+
+    let client = build_client()?;
+    clients.insert(runtime_id, client.clone());
+    Ok(client)
+}
 
 /// Generate an OpenAlex API URL
 ///
@@ -101,7 +133,18 @@ pub fn build_url(path: &str, query_params: &[(&str, String)]) -> String {
     url
 }
 
-/// Make a a request with retry logic for 429 errors
+/// Detect transport errors that are usually transient and worth retrying.
+///
+/// Benefit: reduces flaky failures from short-lived runtime teardown and
+/// intermittent DNS/network hiccups in CI.
+fn should_retry_transport_error(error: &reqwest::Error) -> bool {
+    let error = error.to_string().to_ascii_lowercase();
+    error.contains("runtime dropped the dispatch task")
+        || error.contains("dispatch task is gone")
+        || error.contains("temporary failure in name resolution")
+}
+
+/// Make a request with retry logic for transport and 429 errors
 ///
 /// This is necessary because 429 (too many requests) can still occur despite
 /// governors adhering to documented rate limits.
@@ -112,7 +155,28 @@ async fn request(path: &str, query_params: &[(&str, String)]) -> Result<Response
     for attempt in 0..=MAX_RETRIES {
         apply_rate_limiting().await?;
 
-        let response = CLIENT.get(&url).send().await?;
+        let client = get_client()?;
+        let response = match client.get(&url).send().await {
+            Ok(response) => response,
+            Err(error) => {
+                let retryable = error.is_connect()
+                    || error.is_timeout()
+                    || error.is_request()
+                    || should_retry_transport_error(&error);
+
+                if retryable && attempt < MAX_RETRIES {
+                    let delay_ms = 500 * (1 << attempt); // 500ms, 1000ms, 2000ms etc
+                    tracing::trace!(
+                        "Request error, retrying after {delay_ms}ms (attempt {}/{MAX_RETRIES}): {error}",
+                        attempt + 1
+                    );
+                    sleep(Duration::from_millis(delay_ms)).await;
+                    continue;
+                }
+
+                return Err(error.into());
+            }
+        };
 
         if response.status() == StatusCode::TOO_MANY_REQUESTS && attempt < MAX_RETRIES {
             let delay_ms = 500 * (1 << attempt); // 500ms, 1000ms, 2000ms etc
