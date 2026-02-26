@@ -290,6 +290,23 @@ docker pull ghcr.io/stencila/stencila
 
 </details>
 
+### Latest unreleased CLI (build from `main`)
+
+If you want the latest unreleased version of the CLI from this repository's `main` branch, use the helper script:
+
+```console
+git clone https://github.com/stencila/stencila
+cd stencila
+bash scripts/install-main.sh
+```
+
+The script is intended for contributors and testers who may not already have a Rust or Node.js toolchain. It checks for Rust (via `rustup`) and Node.js, prompts to install them if missing (or lets you exit and install them yourself), then builds and installs the `stencila` binary locally using Cargo.
+
+Useful options:
+
+- `--yes`: Run non-interactively with default yes answers
+- `--skip-pull`: Skip pulling `origin/main` before building
+
 ### SDKs
 
 <details>
