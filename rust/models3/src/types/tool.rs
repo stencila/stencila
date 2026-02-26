@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::de::Deserializer as JsonDeserializer;
 
 use crate::error::{ProviderDetails, SdkError, SdkResult};
 
@@ -144,19 +145,12 @@ impl ToolCall {
 /// longer substrings ending at each `}` from the end. Returns `Some`
 /// on the first successful parse, `None` if no valid object is found.
 fn salvage_json_object(raw: &str) -> Option<serde_json::Value> {
-    let start = raw.find('{')?;
-    let candidate = &raw[start..];
-    // Try parsing the substring from the first `{` to the end.
-    // If there is trailing garbage after the JSON, trim from the last `}`.
-    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(candidate)
-        && parsed.is_object()
-    {
-        return Some(parsed);
-    }
-    // Walk backwards through closing braces to find the longest valid suffix.
-    for (offset, _) in candidate.rmatch_indices('}') {
-        let sub = &candidate[..=offset];
-        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(sub)
+    // Try each `{` as a candidate start so earlier brace-like noise does not
+    // block recovery of a valid JSON object later in the string.
+    for (start, _) in raw.match_indices('{') {
+        let candidate = &raw[start..];
+        let mut de = JsonDeserializer::from_str(candidate);
+        if let Ok(parsed) = serde_json::Value::deserialize(&mut de)
             && parsed.is_object()
         {
             return Some(parsed);
@@ -242,6 +236,24 @@ mod tests {
         let (val, err) = ToolCall::parse_arguments(raw);
         assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
         assert_eq!(val["key"], "value");
+    }
+
+    #[test]
+    fn parse_arguments_skips_earlier_non_json_braces() {
+        let raw = r#"preface {not-json} assistant to=functions.shell json {"command":"cargo test","timeout_ms":120000}"#;
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
+        assert_eq!(val["command"], "cargo test");
+        assert_eq!(val["timeout_ms"], 120_000);
+    }
+
+    #[test]
+    fn parse_arguments_assistant_wrapper_then_json_newline() {
+        let raw = "Final commit verification assistant to=functions.shell commentary \u{10d8}\u{10ec}\u{10dc} json\n\n{\"command\":\"git log -1 --pretty=fuller\",\"timeout_ms\":10000}";
+        let (val, err) = ToolCall::parse_arguments(raw);
+        assert!(err.is_none(), "expected salvaged parse, got: {err:?}");
+        assert_eq!(val["command"], "git log -1 --pretty=fuller");
+        assert_eq!(val["timeout_ms"], 10_000);
     }
 
     #[test]
