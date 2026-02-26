@@ -54,7 +54,7 @@ mod workspace;
 use crate::workspace::WorkspaceConfig;
 
 pub use {
-    agents::AgentsConfig,
+    agents::{AgentsConfig, CommitAttribution},
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
         EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,

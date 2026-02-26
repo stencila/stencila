@@ -9,6 +9,9 @@ use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
 use crate::types::SessionConfig;
 
+const STENCILA_GIT_NAME: &str = "Stencila";
+const STENCILA_GIT_EMAIL: &str = "47797644+stencila[bot]@users.noreply.github.com";
+
 // ---------------------------------------------------------------------------
 // GitContext (spec 6.4)
 // ---------------------------------------------------------------------------
@@ -185,18 +188,39 @@ pub async fn build_environment_context_from_env(
     )
 }
 
-/// Build commit instructions telling the agent how to set the git committer.
-///
-/// Returns a static instruction block for the system prompt that tells the
-/// agent to set `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL` environment
-/// variables when making git commits.
-pub fn build_commit_instructions() -> String {
-    "Do not make git commits unless explicitly asked to by the user.\n\n\
-     When making git commits, always set the committer identity using environment variables:\n\n  \
-     GIT_COMMITTER_NAME=\"Stencila\" \
-     GIT_COMMITTER_EMAIL=\"47797644+stencila[bot]@users.noreply.github.com\" \
-     git commit ..."
-        .to_string()
+/// Build commit instructions based on configured attribution policy.
+pub fn build_commit_instructions(mode: stencila_config::CommitAttribution) -> String {
+    let preface = "Do not make git commits unless explicitly asked to by the user.";
+
+    match mode {
+        stencila_config::CommitAttribution::Author => format!(
+            "{preface}\n\n\
+             When making git commits, set the author identity to Stencila using environment variables:\n\n  \
+             GIT_AUTHOR_NAME=\"{STENCILA_GIT_NAME}\" \
+             GIT_AUTHOR_EMAIL=\"{STENCILA_GIT_EMAIL}\" \
+             git commit ...\n\n\
+             Use the repository's normal committer identity unless the user asks otherwise."
+        ),
+        stencila_config::CommitAttribution::CoAuthor => format!(
+            "{preface}\n\n\
+             When making git commits, use the repository's normal author and committer identity.\n\n\
+             Add this trailer exactly once to the commit message:\n\n  \
+             Co-authored-by: {STENCILA_GIT_NAME} <{STENCILA_GIT_EMAIL}>"
+        ),
+        stencila_config::CommitAttribution::Committer => format!(
+            "{preface}\n\n\
+             When making git commits, always set the committer identity using environment variables:\n\n  \
+             GIT_COMMITTER_NAME=\"{STENCILA_GIT_NAME}\" \
+             GIT_COMMITTER_EMAIL=\"{STENCILA_GIT_EMAIL}\" \
+             git commit ..."
+        ),
+        stencila_config::CommitAttribution::None => format!(
+            "{preface}\n\n\
+             When making git commits, do not mention Stencila in attribution.\n\
+             Do not use Stencila as author or committer and do not add a Stencila co-author trailer.\n\n\
+             Use the repository's normal commit identity."
+        ),
+    }
 }
 
 /// Format git context as a summary block for inclusion in the system prompt.
@@ -398,4 +422,65 @@ async fn setup_mcp_layers(
         #[cfg(feature = "codemode")]
         dirty_tracker,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use stencila_config::CommitAttribution;
+
+    #[test]
+    fn commit_instructions_author() {
+        let text = build_commit_instructions(CommitAttribution::Author);
+        assert!(text.contains("GIT_AUTHOR_NAME"));
+        assert!(text.contains("GIT_AUTHOR_EMAIL"));
+        assert!(text.contains(STENCILA_GIT_NAME));
+        assert!(text.contains(STENCILA_GIT_EMAIL));
+        assert!(!text.contains("Co-authored-by"));
+    }
+
+    #[test]
+    fn commit_instructions_co_author() {
+        let text = build_commit_instructions(CommitAttribution::CoAuthor);
+        assert!(text.contains("Co-authored-by"));
+        assert!(text.contains(STENCILA_GIT_NAME));
+        assert!(text.contains(STENCILA_GIT_EMAIL));
+        assert!(!text.contains("GIT_AUTHOR_NAME"));
+        assert!(!text.contains("GIT_COMMITTER_NAME"));
+    }
+
+    #[test]
+    fn commit_instructions_committer() {
+        let text = build_commit_instructions(CommitAttribution::Committer);
+        assert!(text.contains("GIT_COMMITTER_NAME"));
+        assert!(text.contains("GIT_COMMITTER_EMAIL"));
+        assert!(text.contains(STENCILA_GIT_NAME));
+        assert!(text.contains(STENCILA_GIT_EMAIL));
+        assert!(!text.contains("Co-authored-by"));
+    }
+
+    #[test]
+    fn commit_instructions_none() {
+        let text = build_commit_instructions(CommitAttribution::None);
+        assert!(text.contains("do not mention Stencila in attribution"));
+        assert!(!text.contains("GIT_AUTHOR_NAME"));
+        assert!(!text.contains("GIT_COMMITTER_NAME"));
+        assert!(!text.contains("Co-authored-by"));
+    }
+
+    #[test]
+    fn commit_instructions_all_include_preface() {
+        for mode in [
+            CommitAttribution::Author,
+            CommitAttribution::CoAuthor,
+            CommitAttribution::Committer,
+            CommitAttribution::None,
+        ] {
+            let text = build_commit_instructions(mode);
+            assert!(
+                text.contains("Do not make git commits unless explicitly asked to by the user"),
+                "missing preface for {mode:?}"
+            );
+        }
+    }
 }

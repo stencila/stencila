@@ -96,9 +96,16 @@ impl CliProviderConfig {
     /// can attempt to use it directly.
     #[must_use]
     pub fn from_session_config(config: &SessionConfig, model: Option<&str>) -> Self {
+        let instructions = match (&config.commit_instructions, &config.user_instructions) {
+            (Some(commit), Some(user)) => Some(format!("{commit}\n\n{user}")),
+            (Some(commit), None) => Some(commit.clone()),
+            (None, Some(user)) => Some(user.clone()),
+            (None, None) => None,
+        };
+
         Self {
             model: model.map(resolve_model_alias),
-            instructions: config.user_instructions.clone(),
+            instructions,
             max_turns: if config.max_turns > 0 {
                 Some(config.max_turns)
             } else {

@@ -115,6 +115,14 @@ pub fn resolve_default_agent_name(name: &str) -> String {
         .unwrap_or_else(|| name.to_string())
 }
 
+/// Resolve commit attribution policy from configuration.
+fn resolve_commit_attribution() -> stencila_config::CommitAttribution {
+    stencila_config::get()
+        .ok()
+        .and_then(|config| config.agents.as_ref().and_then(|agents| agents.commit_attribution))
+        .unwrap_or_default()
+}
+
 /// Shared preamble: resolve name, load agent definition, build session config.
 async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, SessionConfig)> {
     let resolved_name = resolve_default_agent_name(name);
@@ -133,11 +141,14 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
             })
         })?;
 
-    let config = SessionConfig::from_agent(&agent).await.map_err(|e| {
+    let mut config = SessionConfig::from_agent(&agent).await.map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
             message: format!("Failed to build session config from agent: {e}"),
         })
     })?;
+
+    let commit_attribution = resolve_commit_attribution();
+    config.commit_instructions = Some(prompts::build_commit_instructions(commit_attribution));
 
     Ok((agent, config))
 }
@@ -224,10 +235,8 @@ async fn create_api_session_inner(
     provider_name: &str,
     model_name: &str,
     client: stencila_models3::client::Client,
-    mut config: SessionConfig,
+    config: SessionConfig,
 ) -> AgentResult<(ApiSession, EventReceiver)> {
-    config.commit_instructions = Some(prompts::build_commit_instructions());
-
     let max_timeout = config.max_command_timeout_ms;
 
     let mut profile: Box<dyn crate::profile::ProviderProfile> = match provider_name {
