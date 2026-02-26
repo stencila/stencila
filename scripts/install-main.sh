@@ -62,7 +62,7 @@ confirm() {
   local reply
   read -r -p "$prompt $suffix " reply
   reply="${reply:-$default}"
-  [[ "${reply,,}" =~ ^(y|yes)$ ]]
+  [[ "$(echo "$reply" | tr 'A-Z' 'a-z')" =~ ^(y|yes)$ ]]
 }
 
 parse_args() {
