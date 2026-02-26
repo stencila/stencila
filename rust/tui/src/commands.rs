@@ -63,6 +63,11 @@ impl SlashCommand {
         self.get_message().unwrap_or("")
     }
 
+    /// Whether this command is temporarily hidden from autocomplete and help.
+    pub fn is_hidden(self) -> bool {
+        matches!(self, Self::Clear)
+    }
+
     /// Whether this command's name starts with the given prefix.
     pub fn matches_prefix(self, prefix: &str) -> bool {
         self.name().starts_with(prefix)
@@ -72,7 +77,7 @@ impl SlashCommand {
     /// Return all commands whose name starts with `prefix`.
     pub fn matching(prefix: &str) -> Vec<SlashCommand> {
         Self::iter()
-            .filter(|cmd| cmd.matches_prefix(prefix))
+            .filter(|cmd| !cmd.is_hidden() && cmd.matches_prefix(prefix))
             .collect()
     }
 
@@ -240,6 +245,9 @@ fn execute_cancel(app: &mut App) {
 fn execute_help(app: &mut App) {
     let mut help = String::from("Available commands:\n");
     for cmd in SlashCommand::iter() {
+        if cmd.is_hidden() {
+            continue;
+        }
         let _ = writeln!(help, "  {:12} {}", cmd.name(), cmd.description());
     }
     help.push_str("\nKey bindings:\n");
@@ -333,7 +341,8 @@ mod tests {
     #[test]
     fn matching_filters() {
         let all = SlashCommand::matching("/");
-        assert_eq!(all.len(), SlashCommand::iter().count());
+        let visible_count = SlashCommand::iter().filter(|c| !c.is_hidden()).count();
+        assert_eq!(all.len(), visible_count);
 
         let h_cmds = SlashCommand::matching("/h");
         assert_eq!(h_cmds.len(), 2); // /help, /history
