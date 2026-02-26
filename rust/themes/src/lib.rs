@@ -1802,15 +1802,14 @@ mod tests {
         );
         let mut overrides = BTreeMap::new();
         overrides.insert("document-title".to_string(), "Research Paper".to_string());
-        // Note: lightningcss minification removes spaces, so "Smith & Jones" becomes "Smith&Jones"
         overrides.insert("document-authors".to_string(), "Smith & Jones".to_string());
 
         let computed = theme.computed_variables_with_overrides(LengthConversion::Points, overrides);
 
         // Variable references should resolve
         assert_eq!(computed.get("header-text"), Some(&json!("Research Paper")));
-        // After CSS minification, spaces around & are removed
-        assert_eq!(computed.get("header-author"), Some(&json!("Smith&Jones")));
+        // String values are preserved as-is (not passed through CSS minification)
+        assert_eq!(computed.get("header-author"), Some(&json!("Smith & Jones")));
         // Length conversion should still work
         assert_eq!(computed.get("base-size"), Some(&json!(12.0)));
     }
