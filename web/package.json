@@ -115,7 +115,7 @@
     "@parcel/transformer-inline-string": "2.16.4",
     "@parcel/transformer-typescript-tsc": "2.16.4",
     "@playwright/test": "1.58.2",
-    "@tailwindcss/postcss": "4.2.0",
+    "@tailwindcss/postcss": "4.2.1",
     "@types/katex": "0.16.8",
     "@types/plotly.js-dist-min": "2.3.4",
     "@types/prismjs": "1.26.6",
