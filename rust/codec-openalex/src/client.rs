@@ -68,9 +68,7 @@ async fn apply_rate_limiting() -> Result<()> {
 /// Benefit: centralizing client construction keeps headers/options consistent
 /// everywhere and makes future transport tuning a single change.
 fn build_client() -> Result<Client> {
-    Ok(Client::builder()
-        .user_agent(STENCILA_USER_AGENT)
-        .build()?)
+    Ok(Client::builder().user_agent(STENCILA_USER_AGENT).build()?)
 }
 
 /// Cache one client per runtime so tests with per-test runtimes don't end up

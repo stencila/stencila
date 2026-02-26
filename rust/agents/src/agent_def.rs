@@ -1,9 +1,13 @@
 //! Agent definition loading and discovery.
 //!
-//! Parses `AGENT.md` files (YAML frontmatter + optional Markdown body) from
-//! two locations — workspace `.stencila/agents/` and user config
-//! `~/.config/stencila/agents/` — and provides a public API mirroring the
-//! skills crate pattern.
+//! Discovers agents from three sources (lowest to highest precedence):
+//! 1. CLI tools detected on PATH (`claude`, `codex`, `gemini`)
+//! 2. User config `~/.config/stencila/agents/` (`AGENT.md` files)
+//! 3. Workspace `.stencila/agents/` (`AGENT.md` files)
+//!
+//! CLI-detected agents are created in-memory without requiring an `AGENT.md`
+//! on disk. Workspace and user agents are parsed from YAML frontmatter +
+//! optional Markdown body.
 
 use std::path::{Path, PathBuf};
 
@@ -23,6 +27,9 @@ pub enum AgentSource {
     Workspace,
     /// `~/.config/stencila/agents/` (user-level)
     User,
+    /// Auto-detected from a CLI tool found on PATH
+    #[cfg_attr(feature = "cli", clap(name = "cli"))]
+    CliDetected,
 }
 
 impl std::fmt::Display for AgentSource {
@@ -30,6 +37,7 @@ impl std::fmt::Display for AgentSource {
         match self {
             Self::Workspace => f.write_str("workspace"),
             Self::User => f.write_str("user"),
+            Self::CliDetected => f.write_str("cli"),
         }
     }
 }
@@ -106,6 +114,16 @@ impl AgentInstance {
         })
     }
 
+    /// Create an in-memory agent instance (no file on disk).
+    fn in_memory(inner: Agent, source: AgentSource) -> Self {
+        Self {
+            inner,
+            path: PathBuf::new(),
+            home: PathBuf::new(),
+            source: Some(source),
+        }
+    }
+
     /// Return a copy with the source set.
     fn with_source(mut self, source: AgentSource) -> Self {
         self.source = Some(source);
@@ -130,8 +148,13 @@ impl AgentInstance {
     /// Read the AGENT.md file and extract the Markdown body (instructions),
     /// stripping the YAML frontmatter.
     ///
-    /// Returns `None` if the file has no body after the frontmatter.
+    /// Returns `None` if the file has no body after the frontmatter, or if
+    /// this is an in-memory agent with no backing file.
     pub async fn instructions(&self) -> Result<Option<String>> {
+        if self.path.as_os_str().is_empty() {
+            return Ok(None);
+        }
+
         let raw = read_to_string(&self.path).await?;
 
         let trimmed = raw.trim();
@@ -169,25 +192,68 @@ fn user_agents_dir() -> Option<PathBuf> {
     stencila_dirs::get_app_dir(stencila_dirs::DirType::Agents, false).ok()
 }
 
+/// CLI tools that can be auto-detected on PATH and exposed as agents.
+const CLI_AGENT_DEFS: &[(&str, &str, &str)] = &[
+    (
+        "claude",
+        "Claude Code CLI with local settings and standard system prompt",
+        "claude-cli",
+    ),
+    (
+        "codex",
+        "Codex CLI with local settings and standard system prompt",
+        "codex-cli",
+    ),
+    (
+        "gemini",
+        "Gemini CLI with local settings and standard system prompt",
+        "gemini-cli",
+    ),
+];
+
+/// Build in-memory agent instances for CLI tools found on PATH.
+fn detect_cli_agents() -> Vec<AgentInstance> {
+    CLI_AGENT_DEFS
+        .iter()
+        .filter(|(binary, _, _)| crate::cli_providers::is_cli_available(binary))
+        .map(|(name, description, provider)| {
+            let agent = stencila_schema::Agent {
+                name: name.to_string(),
+                description: description.to_string(),
+                provider: Some(provider.to_string()),
+                ..Default::default()
+            };
+            AgentInstance::in_memory(agent, AgentSource::CliDetected)
+        })
+        .collect()
+}
+
 /// Discover agents from workspace and user config, with workspace taking precedence.
 ///
-/// Agents are discovered from:
-/// 1. Workspace `.stencila/agents/` (via closest `.stencila` dir)
+/// Agents are discovered from (lowest to highest precedence):
+/// 1. CLI tools detected on PATH (`claude`, `codex`, `gemini`)
 /// 2. User config `~/.config/stencila/agents/`
+/// 3. Workspace `.stencila/agents/` (via closest `.stencila` dir)
 ///
-/// When the same agent name appears in both locations, the workspace version wins.
+/// When the same agent name appears in multiple locations, the higher-precedence
+/// version wins.
 pub async fn discover(cwd: &Path) -> Vec<AgentInstance> {
     let mut by_name: std::collections::HashMap<String, AgentInstance> =
         std::collections::HashMap::new();
 
-    // User agents first (lower precedence)
+    // CLI-detected agents first (lowest precedence)
+    for agent in detect_cli_agents() {
+        by_name.insert(agent.name.clone(), agent);
+    }
+
+    // User agents second (overwrites CLI-detected)
     if let Some(user_dir) = user_agents_dir() {
         for agent in list(&user_dir).await {
             by_name.insert(agent.name.clone(), agent.with_source(AgentSource::User));
         }
     }
 
-    // Workspace agents second (higher precedence, overwrites user)
+    // Workspace agents last (highest precedence, overwrites user and CLI)
     if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
         let agents_dir = stencila_dir.join("agents");
         for agent in list(&agents_dir).await {
@@ -203,18 +269,23 @@ pub async fn discover(cwd: &Path) -> Vec<AgentInstance> {
     agents
 }
 
-/// Find an agent by name across workspace and user config.
+/// Find an agent by name across CLI-detected, user config, and workspace agents.
 pub async fn get_by_name(cwd: &Path, name: &str) -> Result<AgentInstance> {
     let mut found: Option<AgentInstance> = None;
 
-    // Check user agents first
+    // Check CLI-detected agents first (lowest precedence)
+    if let Some(agent) = detect_cli_agents().into_iter().find(|a| a.name == name) {
+        found = Some(agent);
+    }
+
+    // Check user agents (overwrites CLI-detected if found)
     if let Some(user_dir) = user_agents_dir()
         && let Ok(agent) = get(&user_dir, name).await
     {
         found = Some(agent.with_source(AgentSource::User));
     }
 
-    // Check workspace agents (overwrites user if found)
+    // Check workspace agents (highest precedence, overwrites user if found)
     if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
         let agents_dir = stencila_dir.join("agents");
         if let Ok(agent) = get(&agents_dir, name).await {
@@ -320,21 +391,24 @@ mod tests {
     #[tokio::test]
     async fn discover_workspace_overrides_user() {
         let tmp = tempfile::tempdir().expect("tempdir");
-        // User agent (simulated by discovering in workspace only for this test)
         create_workspace_agent(tmp.path(), "shared", "workspace version");
 
         let agents = discover(tmp.path()).await;
 
-        assert_eq!(agents.len(), 1);
-        assert_eq!(agents[0].name, "shared");
-        assert_eq!(agents[0].source(), Some(AgentSource::Workspace));
+        let shared = agents.iter().find(|a| a.name == "shared").expect("found");
+        assert_eq!(shared.source(), Some(AgentSource::Workspace));
     }
 
     #[tokio::test]
-    async fn discover_empty_when_no_agents_exist() {
+    async fn discover_no_workspace_or_user_agents() {
         let tmp = tempfile::tempdir().expect("tempdir");
         let agents = discover(tmp.path()).await;
-        assert!(agents.is_empty());
+        // Only CLI-detected agents (if any CLIs are on PATH)
+        assert!(
+            agents
+                .iter()
+                .all(|a| a.source() == Some(AgentSource::CliDetected))
+        );
     }
 
     #[tokio::test]
@@ -345,9 +419,28 @@ mod tests {
 
         let agents = discover(tmp.path()).await;
 
-        assert_eq!(agents.len(), 2);
-        assert_eq!(agents[0].name, "alpha");
-        assert_eq!(agents[1].name, "beta");
+        let workspace: Vec<_> = agents
+            .iter()
+            .filter(|a| a.source() == Some(AgentSource::Workspace))
+            .collect();
+        assert_eq!(workspace.len(), 2);
+        assert_eq!(workspace[0].name, "alpha");
+        assert_eq!(workspace[1].name, "beta");
+    }
+
+    #[tokio::test]
+    async fn discover_workspace_overrides_cli_detected() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        // Create a workspace agent with the same name as a CLI tool
+        create_workspace_agent(tmp.path(), "claude", "custom claude");
+
+        let agents = discover(tmp.path()).await;
+
+        if let Some(claude) = agents.iter().find(|a| a.name == "claude") {
+            // Workspace should win over CLI-detected
+            assert_eq!(claude.source(), Some(AgentSource::Workspace));
+            assert_eq!(claude.description, "custom claude");
+        }
     }
 
     // -- get_by_name() tests --

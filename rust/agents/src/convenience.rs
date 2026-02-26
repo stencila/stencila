@@ -119,7 +119,12 @@ pub fn resolve_default_agent_name(name: &str) -> String {
 fn resolve_commit_attribution() -> stencila_config::CommitAttribution {
     stencila_config::get()
         .ok()
-        .and_then(|config| config.agents.as_ref().and_then(|agents| agents.commit_attribution))
+        .and_then(|config| {
+            config
+                .agents
+                .as_ref()
+                .and_then(|agents| agents.commit_attribution)
+        })
         .unwrap_or_default()
 }
 

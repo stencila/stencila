@@ -286,10 +286,7 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
 
                 if i == selected {
                     Line::from(vec![
-                        Span::styled(
-                            name_col,
-                            selected_style().add_modifier(Modifier::BOLD),
-                        ),
+                        Span::styled(name_col, selected_style().add_modifier(Modifier::BOLD)),
                         Span::styled(detail, selected_secondary_style()),
                     ])
                 } else {

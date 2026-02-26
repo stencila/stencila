@@ -2,7 +2,10 @@
 //!
 //! Provides `stencila agents` subcommands: list, show, validate, create.
 
-use std::{path::PathBuf, process::exit};
+use std::{
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
@@ -29,6 +32,17 @@ use crate::{
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
+}
+
+enum ResolvedValidationTarget {
+    Path {
+        path: PathBuf,
+        dir_name: Option<String>,
+    },
+    Agent {
+        agent: stencila_schema::Agent,
+        dir_name: Option<String>,
+    },
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -86,8 +100,9 @@ impl Cli {
 
 /// List available agents
 ///
-/// Shows agents from workspace `.stencila/agents/` and user config
-/// `~/.config/stencila/agents/`. Use `--source` to filter by source.
+/// Shows agents from workspace `.stencila/agents/`, user config
+/// `~/.config/stencila/agents/`, and auto-detected CLI tools on PATH.
+/// Use `--source` to filter by source.
 #[derive(Default, Debug, Args)]
 #[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
@@ -110,6 +125,9 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># List only workspace agents</dim>
   <b>stencila agents list</> <c>--source</> <g>workspace</>
+
+  <dim># List only CLI-detected agents</dim>
+  <b>stencila agents list</> <c>--source</> <g>cli</>
 "
 );
 
@@ -138,6 +156,7 @@ impl List {
             let source_cell = match agent.source() {
                 Some(AgentSource::Workspace) => Cell::new("workspace").fg(Color::Blue),
                 Some(AgentSource::User) => Cell::new("user").fg(Color::Green),
+                Some(AgentSource::CliDetected) => Cell::new("cli").fg(Color::Cyan),
                 None => Cell::new("-").fg(Color::DarkGrey),
             };
 
@@ -278,8 +297,9 @@ pub static VALIDATE_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Validate {
-    /// Resolve the target to an AGENT.md path and optional directory name
-    async fn resolve_target(&self) -> Result<(PathBuf, Option<String>)> {
+    /// Resolve the target to either an AGENT.md path or an in-memory agent,
+    /// plus optional directory name for name-vs-directory validation.
+    async fn resolve_target(&self) -> Result<ResolvedValidationTarget> {
         let path = PathBuf::from(&self.target);
 
         // If target is a path to an AGENT.md file
@@ -293,7 +313,7 @@ impl Validate {
                 .and_then(|p| p.file_name())
                 .and_then(|n| n.to_str())
                 .map(String::from);
-            return Ok((path, dir_name));
+            return Ok(ResolvedValidationTarget::Path { path, dir_name });
         }
 
         // If target is a directory (containing AGENT.md)
@@ -301,7 +321,10 @@ impl Validate {
             let agent_md = path.join("AGENT.md");
             if agent_md.exists() {
                 let dir_name = path.file_name().and_then(|n| n.to_str()).map(String::from);
-                return Ok((agent_md, dir_name));
+                return Ok(ResolvedValidationTarget::Path {
+                    path: agent_md,
+                    dir_name,
+                });
             }
             eyre::bail!("No AGENT.md found in directory `{}`", path.display());
         }
@@ -309,19 +332,27 @@ impl Validate {
         // Otherwise, treat as an agent name — look up across all sources
         let cwd = std::env::current_dir()?;
         let agent = agent_def::get_by_name(&cwd, &self.target).await?;
-        let agent_path = agent.path().to_path_buf();
-        let dir_name = agent_path
-            .parent()
-            .and_then(|p| p.file_name())
-            .and_then(|n| n.to_str())
-            .map(String::from);
-        Ok((agent_path, dir_name))
+
+        // CLI-detected agents are in-memory and have no AGENT.md path.
+        let dir_name = if agent.path().as_os_str().is_empty() {
+            None
+        } else {
+            agent
+                .path()
+                .parent()
+                .and_then(|p| p.file_name())
+                .and_then(|n| n.to_str())
+                .map(String::from)
+        };
+
+        Ok(ResolvedValidationTarget::Agent {
+            agent: agent.inner,
+            dir_name,
+        })
     }
 
-    async fn run(self) -> Result<()> {
-        let (agent_md, dir_name) = self.resolve_target().await?;
-
-        let content = tokio::fs::read_to_string(&agent_md).await?;
+    async fn parse_agent(path: &Path) -> Result<stencila_schema::Agent> {
+        let content = tokio::fs::read_to_string(path).await?;
         let node = stencila_codecs::from_str(
             &content,
             Some(DecodeOptions {
@@ -333,7 +364,19 @@ impl Validate {
         .await?;
 
         let Node::Agent(agent) = node else {
-            eyre::bail!("Failed to parse `{}` as an Agent", agent_md.display());
+            eyre::bail!("Failed to parse `{}` as an Agent", path.display());
+        };
+
+        Ok(agent)
+    }
+
+    async fn run(self) -> Result<()> {
+        let (agent, dir_name) = match self.resolve_target().await? {
+            ResolvedValidationTarget::Path { path, dir_name } => {
+                let agent = Self::parse_agent(&path).await?;
+                (agent, dir_name)
+            }
+            ResolvedValidationTarget::Agent { agent, dir_name } => (agent, dir_name),
         };
 
         let errors = agent_validate::validate_agent(&agent, dir_name.as_deref());
