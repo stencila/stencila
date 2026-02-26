@@ -119,45 +119,62 @@ impl SlashCommand {
 }
 
 fn execute_agents(app: &mut App) {
+    // Discovered agent definitions (from .stencila/agents/ and ~/.config/stencila/agents/)
+    let definitions: Vec<_> = if let Ok(handle) = tokio::runtime::Handle::try_current() {
+        tokio::task::block_in_place(|| {
+            handle.block_on(stencila_agents::agent_def::discover(
+                &std::env::current_dir().unwrap_or_default(),
+            ))
+        })
+    } else {
+        Vec::new()
+    };
+
     // Existing TUI sessions
     let mut candidates: Vec<AgentCandidate> = app
         .sessions
         .iter()
         .enumerate()
-        .map(|(i, s)| AgentCandidate {
-            name: s.name.clone(),
-            kind: AgentCandidateKind::Session {
-                index: i,
-                is_active: i == app.active_session,
-                definition: s.definition.clone(),
-            },
+        .map(|(i, s)| {
+            let definition = s.definition.clone().or_else(|| {
+                definitions
+                    .iter()
+                    .find(|d| d.name == s.name)
+                    .map(|d| AgentDefinitionInfo {
+                        name: d.name.clone(),
+                        description: d.description.clone(),
+                        model: d.model.clone(),
+                        provider: d.provider.clone(),
+                        source: d.source().map(|src| src.to_string()).unwrap_or_default(),
+                    })
+            });
+            AgentCandidate {
+                name: s.name.clone(),
+                kind: AgentCandidateKind::Session {
+                    index: i,
+                    is_active: i == app.active_session,
+                    definition,
+                },
+            }
         })
         .collect();
 
-    // Discovered agent definitions (from .stencila/agents/ and ~/.config/stencila/agents/)
+    // Add definitions that don't already have a session
     let session_names: Vec<&str> = app.sessions.iter().map(|s| s.name.as_str()).collect();
-    if let Ok(handle) = tokio::runtime::Handle::try_current() {
-        let definitions = tokio::task::block_in_place(|| {
-            handle.block_on(stencila_agents::agent_def::discover(
-                &std::env::current_dir().unwrap_or_default(),
-            ))
-        });
-        for def in definitions {
-            // Skip definitions whose name matches an already-active session
-            if session_names.contains(&def.name.as_str()) {
-                continue;
-            }
-            candidates.push(AgentCandidate {
-                name: def.name.clone(),
-                kind: AgentCandidateKind::Definition(AgentDefinitionInfo {
-                    name: def.name.clone(),
-                    description: def.description.clone(),
-                    model: def.model.clone(),
-                    provider: def.provider.clone(),
-                    source: def.source().map(|s| s.to_string()).unwrap_or_default(),
-                }),
-            });
+    for def in &definitions {
+        if session_names.contains(&def.name.as_str()) {
+            continue;
         }
+        candidates.push(AgentCandidate {
+            name: def.name.clone(),
+            kind: AgentCandidateKind::Definition(AgentDefinitionInfo {
+                name: def.name.clone(),
+                description: def.description.clone(),
+                model: def.model.clone(),
+                provider: def.provider.clone(),
+                source: def.source().map(|s| s.to_string()).unwrap_or_default(),
+            }),
+        });
     }
 
     app.agents_state.open(candidates);

@@ -239,7 +239,7 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
                 definition,
                 ..
             } => {
-                let bullet = if *is_active { "\u{25cf} " } else { "  " };
+                let bullet = if *is_active { "> " } else { "\u{25cf} " };
                 let name_col = format!(" {bullet}{:<max_name_width$}  ", candidate.name);
                 let color = app
                     .color_registry
@@ -277,7 +277,7 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
                 }
             }
             AgentCandidateKind::Definition(info) => {
-                let name_col = format!("   {:<max_name_width$}  ", candidate.name);
+                let name_col = format!(" \u{25cb} {:<max_name_width$}  ", candidate.name);
                 let detail = if info.description.is_empty() {
                     info.source.clone()
                 } else {
@@ -286,7 +286,10 @@ pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
 
                 if i == selected {
                     Line::from(vec![
-                        Span::styled(name_col, selected_style()),
+                        Span::styled(
+                            name_col,
+                            selected_style().add_modifier(Modifier::BOLD),
+                        ),
                         Span::styled(detail, selected_secondary_style()),
                     ])
                 } else {
