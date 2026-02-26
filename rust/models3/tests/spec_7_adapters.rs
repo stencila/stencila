@@ -724,6 +724,173 @@ fn openai_stream_translation_custom_tool_call_item_done_emits_start_and_end()
 }
 
 #[test]
+fn openai_response_translation_wrapped_tool_call_text_synthesizes_tool_call()
+-> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = serde_json::json!({
+        "id": "resp_wrapped_1",
+        "model": "gpt-5.3-codex",
+        "output": [{
+            "type": "output_text",
+            "text": "Final commit verification assistant to=functions.shell commentary \njson\n\n{\"command\":\"git log -1 --pretty=fuller\",\"timeout_ms\":10000}"
+        }],
+        "usage": {
+            "input_tokens": 1,
+            "output_tokens": 1,
+            "total_tokens": 2
+        }
+    });
+
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(tool_calls[0].name, "shell");
+    assert_eq!(
+        tool_calls[0].arguments["command"],
+        "git log -1 --pretty=fuller"
+    );
+    assert_eq!(tool_calls[0].arguments["timeout_ms"], 10_000);
+    assert_eq!(response.finish_reason.reason, Reason::ToolCalls);
+
+    Ok(())
+}
+
+#[test]
+fn openai_response_translation_wrapped_tool_call_rejects_non_functions_recipient()
+-> Result<(), Box<dyn std::error::Error>> {
+    // A recipient like `namespace.tool` (without the `functions.` prefix)
+    // must NOT be recognised as a wrapped tool call.
+    let raw_response = serde_json::json!({
+        "id": "resp_reject_1",
+        "model": "gpt-5.3-codex",
+        "output": [{
+            "type": "output_text",
+            "text": "assistant to=namespace.shell json\n{\"command\":\"ls\"}"
+        }],
+        "usage": { "input_tokens": 1, "output_tokens": 1, "total_tokens": 2 }
+    });
+
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+    assert!(
+        response.tool_calls().is_empty(),
+        "non-functions. recipient should not produce a tool call"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn openai_response_translation_wrapped_tool_call_ignores_conversational_mention()
+-> Result<(), Box<dyn std::error::Error>> {
+    // Text that casually mentions the marker in prose should be kept as text.
+    let raw_response = serde_json::json!({
+        "id": "resp_reject_2",
+        "model": "gpt-5.3-codex",
+        "output": [{
+            "type": "output_text",
+            "text": "The assistant to=functions feature routes tool calls in the API."
+        }],
+        "usage": { "input_tokens": 1, "output_tokens": 1, "total_tokens": 2 }
+    });
+
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+    assert!(
+        response.tool_calls().is_empty(),
+        "conversational mention should not produce a tool call"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn openai_stream_translation_wrapped_tool_call_output_item_done_emits_tool_events()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut state = openai::translate_stream::OpenAIStreamState::default();
+    let event = SseEvent {
+        event_type: "response.output_item.done".to_string(),
+        data: serde_json::json!({
+            "type": "response.output_item.done",
+            "item": {
+                "id": "out_text_3",
+                "type": "output_text",
+                "text": "Running command assistant to=functions.shell commentary json\n{\"command\":\"cargo test -q\",\"timeout_ms\":120000}"
+            }
+        })
+        .to_string(),
+        retry: None,
+    };
+
+    let events = openai::translate_stream::translate_sse_event(&event, &mut state)?;
+    assert_eq!(events[0].event_type, StreamEventType::StreamStart);
+    assert_eq!(events[1].event_type, StreamEventType::ToolCallStart);
+    assert_eq!(events[2].event_type, StreamEventType::ToolCallEnd);
+
+    let tc = events[2].tool_call.as_ref().ok_or("missing tool call")?;
+    assert_eq!(tc.id, "out_text_3");
+    assert_eq!(tc.name, "shell");
+    assert_eq!(tc.arguments["command"], "cargo test -q");
+    assert_eq!(tc.arguments["timeout_ms"], 120_000);
+
+    Ok(())
+}
+
+#[test]
+fn openai_stream_translation_wrapped_tool_call_after_text_deltas_emits_text_end()
+-> Result<(), Box<dyn std::error::Error>> {
+    let mut state = openai::translate_stream::OpenAIStreamState::default();
+
+    // Simulate a prior text delta that opened a TextStart for this item.
+    let delta_event = SseEvent {
+        event_type: "response.output_text.delta".to_string(),
+        data: serde_json::json!({
+            "type": "response.output_text.delta",
+            "item_id": "out_text_4",
+            "output_index": 0,
+            "content_index": 0,
+            "delta": "Running command "
+        })
+        .to_string(),
+        retry: None,
+    };
+    let delta_events = openai::translate_stream::translate_sse_event(&delta_event, &mut state)?;
+    assert!(delta_events.iter().any(|e| e.event_type == StreamEventType::TextStart));
+
+    // Now the item.done arrives with the full wrapped tool call text.
+    let done_event = SseEvent {
+        event_type: "response.output_item.done".to_string(),
+        data: serde_json::json!({
+            "type": "response.output_item.done",
+            "item": {
+                "id": "out_text_4",
+                "type": "output_text",
+                "text": "Running command assistant to=functions.shell json\n{\"command\":\"cargo test -q\",\"timeout_ms\":120000}"
+            }
+        })
+        .to_string(),
+        retry: None,
+    };
+    let events = openai::translate_stream::translate_sse_event(&done_event, &mut state)?;
+
+    // Should see: TextEnd (closing the prior text segment), ToolCallStart, ToolCallEnd.
+    let event_types: Vec<_> = events.iter().map(|e| e.event_type.clone()).collect();
+    assert!(
+        event_types.contains(&StreamEventType::TextEnd),
+        "expected TextEnd before tool call events, got: {event_types:?}"
+    );
+    let text_end_pos = event_types.iter().position(|t| *t == StreamEventType::TextEnd).unwrap();
+    let tc_start_pos = event_types.iter().position(|t| *t == StreamEventType::ToolCallStart).unwrap();
+    assert!(
+        text_end_pos < tc_start_pos,
+        "TextEnd should precede ToolCallStart, got: {event_types:?}"
+    );
+
+    let tc = events.last().unwrap().tool_call.as_ref().ok_or("missing tool call")?;
+    assert_eq!(tc.name, "shell");
+    assert_eq!(tc.arguments["command"], "cargo test -q");
+
+    Ok(())
+}
+
+#[test]
 fn openai_stream_translation_local_shell_call_item_done_maps_to_shell_tool_call()
 -> Result<(), Box<dyn std::error::Error>> {
     let mut state = openai::translate_stream::OpenAIStreamState::default();

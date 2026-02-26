@@ -338,6 +338,68 @@ pub fn translate_sse_event(
             let item_type = item.get("type").and_then(Value::as_str).unwrap_or_default();
             match item_type {
                 "message" | "output_text" => {
+                    let wrapped_text = extract_output_item_text(item);
+                    let fallback_id = item
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .or_else(|| item.get("item_id").and_then(Value::as_str))
+                        .map(ToString::to_string)
+                        .unwrap_or_else(|| extract_text_id(&payload));
+                    if let Some(text) = wrapped_text.as_deref()
+                        && let Some(tool_call_data) =
+                            crate::providers::openai::translate_response::extract_wrapped_tool_call_from_text(
+                                text,
+                                &fallback_id,
+                            )
+                    {
+                        // Close any open text segment for this item so
+                        // consumers see a paired TextStart/TextEnd before
+                        // the synthesised tool-call events.  Use `payload`
+                        // (the outer SSE envelope) so the text-id derivation
+                        // matches the delta path which also uses the envelope.
+                        let text_id = extract_text_id(&payload);
+                        if state.started_text_ids.remove(&text_id) {
+                            out.push(StreamEvent {
+                                event_type: StreamEventType::TextEnd,
+                                delta: None,
+                                text_id: Some(text_id),
+                                reasoning_delta: None,
+                                tool_call: None,
+                                finish_reason: None,
+                                usage: None,
+                                response: None,
+                                error: None,
+                                warnings: None,
+                                raw: Some(payload.clone()),
+                            });
+                        }
+
+                        let tool_call = ToolCall {
+                            id: tool_call_data.id,
+                            name: tool_call_data.name,
+                            arguments: tool_call_data.arguments,
+                            raw_arguments: None,
+                            parse_error: None,
+                        };
+                        out.push(tool_call_event(
+                            StreamEventType::ToolCallStart,
+                            ToolCall {
+                                id: tool_call.id.clone(),
+                                name: tool_call.name.clone(),
+                                arguments: Value::Object(Map::new()),
+                                raw_arguments: Some(String::new()),
+                                parse_error: None,
+                            },
+                            payload.clone(),
+                        ));
+                        out.push(tool_call_event(
+                            StreamEventType::ToolCallEnd,
+                            tool_call,
+                            payload,
+                        ));
+                        return Ok(out);
+                    }
+
                     let text_id = extract_text_id(item);
                     if state.started_text_ids.contains(&text_id) {
                         out.push(StreamEvent {
@@ -557,6 +619,26 @@ fn extract_call_id(payload: &Value) -> String {
 
 fn parse_tool_arguments(raw: &str) -> (Value, Option<String>) {
     ToolCall::parse_arguments(raw)
+}
+
+fn extract_output_item_text(item: &Value) -> Option<String> {
+    if let Some(text) = item.get("text").and_then(Value::as_str) {
+        return Some(text.to_string());
+    }
+
+    if let Some(parts) = item.get("content").and_then(Value::as_array) {
+        let mut out = String::new();
+        for part in parts {
+            if let Some(text) = part.get("text").and_then(Value::as_str) {
+                out.push_str(text);
+            }
+        }
+        if !out.is_empty() {
+            return Some(out);
+        }
+    }
+
+    None
 }
 
 fn normalize_non_function_tool_call(

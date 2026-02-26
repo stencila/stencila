@@ -71,8 +71,8 @@ fn translate_output_content(raw_response: &Value) -> Vec<ContentPart> {
     let mut content = Vec::new();
 
     if let Some(output) = raw_response.get("output").and_then(Value::as_array) {
-        for item in output {
-            translate_output_item(item, &mut content);
+        for (index, item) in output.iter().enumerate() {
+            translate_output_item(item, index, &mut content);
         }
     }
 
@@ -87,7 +87,7 @@ fn translate_output_content(raw_response: &Value) -> Vec<ContentPart> {
     content
 }
 
-fn translate_output_item(item: &Value, content: &mut Vec<ContentPart>) {
+fn translate_output_item(item: &Value, index: usize, content: &mut Vec<ContentPart>) {
     let Some(item_type) = item.get("type").and_then(Value::as_str) else {
         return;
     };
@@ -107,9 +107,15 @@ fn translate_output_item(item: &Value, content: &mut Vec<ContentPart>) {
         }
         "output_text" => {
             if let Some(text) = item.get("text").and_then(Value::as_str) {
-                content.push(ContentPart::Text {
-                    text: text.to_string(),
-                });
+                if let Some(tool_call) =
+                    extract_wrapped_tool_call_from_text(text, &format!("wrapped_call_{index}"))
+                {
+                    content.push(ContentPart::ToolCall { tool_call });
+                } else {
+                    content.push(ContentPart::Text {
+                        text: text.to_string(),
+                    });
+                }
             }
         }
         "reasoning" => {
@@ -168,9 +174,16 @@ fn translate_message_content_part(part: &Value, content: &mut Vec<ContentPart>) 
     match part_type {
         "output_text" | "input_text" | "text" => {
             if let Some(text) = part.get("text").and_then(Value::as_str) {
-                content.push(ContentPart::Text {
-                    text: text.to_string(),
-                });
+                if let Some(tool_call) = extract_wrapped_tool_call_from_text(
+                    text,
+                    &format!("wrapped_call_part_{}", content.len()),
+                ) {
+                    content.push(ContentPart::ToolCall { tool_call });
+                } else {
+                    content.push(ContentPart::Text {
+                        text: text.to_string(),
+                    });
+                }
             }
         }
         "function_call" => {
@@ -191,6 +204,69 @@ fn translate_message_content_part(part: &Value, content: &mut Vec<ContentPart>) 
         }
         _ => {}
     }
+}
+
+/// Extract a tool call from OpenAI/Codex wrapper text emitted as plain output.
+///
+/// In some OpenAI `gpt-*` responses, tool calls occasionally appear as
+/// text instead of structured `function_call` / `custom_tool_call` items. The
+/// observed shape looks like:
+///
+/// `... assistant to=functions.<tool> ... json ... { ...args... }`
+///
+/// Often this wrapper includes stray unicode or commentary tokens
+/// between segments. When this happens, downstream code sees assistant text
+/// rather than a tool call and the tool loop does not execute.
+///
+/// This helper implements an OpenAI-only compatibility fallback:
+/// - detect the `assistant to=` marker;
+/// - require the recipient to use the `functions.<name>` form;
+/// - parse the trailing JSON object as arguments;
+/// - synthesize a `ToolCallData` only when parsing succeeds to a JSON object.
+///
+/// If extraction fails at any step, returns `None` so normal text handling is
+/// preserved (no false-positive tool call synthesis).
+pub(crate) fn extract_wrapped_tool_call_from_text(
+    text: &str,
+    fallback_id: &str,
+) -> Option<ToolCallData> {
+    let marker = "assistant to=";
+    let marker_start = text.find(marker)?;
+    let after_marker = &text[marker_start + marker.len()..];
+    let recipient_end = after_marker
+        .find(char::is_whitespace)
+        .unwrap_or(after_marker.len());
+    let recipient = after_marker[..recipient_end].trim();
+    // Only recognise the `functions.<name>` form used by OpenAI tool routing.
+    let name = recipient.strip_prefix("functions.")?;
+    if name.is_empty() {
+        return None;
+    }
+    let name = name.to_string();
+    let tail = &after_marker[recipient_end..];
+    // Skip past an optional `json` language tag that sometimes appears
+    // between the recipient and the argument object.  The search is
+    // intentionally broad (first occurrence) because the tag always
+    // precedes the JSON object in observed payloads.
+    let json_tag = "json";
+    let args_region = if let Some(json_pos) = tail.find(json_tag) {
+        &tail[json_pos + json_tag.len()..]
+    } else {
+        tail
+    };
+    let (arguments, parse_error) =
+        crate::types::tool::ToolCall::parse_arguments(args_region.trim());
+    if parse_error.is_some() || !arguments.is_object() {
+        return None;
+    }
+
+    Some(ToolCallData {
+        id: fallback_id.to_string(),
+        name,
+        arguments,
+        call_type: "function".to_string(),
+        thought_signature: None,
+    })
 }
 
 fn parse_tool_call(value: &Value) -> Option<ToolCallData> {
