@@ -876,14 +876,14 @@ fn openai_stream_translation_wrapped_tool_call_after_text_deltas_emits_text_end(
         event_types.contains(&StreamEventType::TextEnd),
         "expected TextEnd before tool call events, got: {event_types:?}"
     );
-    let text_end_pos = event_types.iter().position(|t| *t == StreamEventType::TextEnd).unwrap();
-    let tc_start_pos = event_types.iter().position(|t| *t == StreamEventType::ToolCallStart).unwrap();
+    let text_end_pos = event_types.iter().position(|t| *t == StreamEventType::TextEnd).expect("expected TextEnd event");
+    let tc_start_pos = event_types.iter().position(|t| *t == StreamEventType::ToolCallStart).expect("expected ToolCallStart event");
     assert!(
         text_end_pos < tc_start_pos,
         "TextEnd should precede ToolCallStart, got: {event_types:?}"
     );
 
-    let tc = events.last().unwrap().tool_call.as_ref().ok_or("missing tool call")?;
+    let tc = events.last().expect("expected at least one event").tool_call.as_ref().ok_or("missing tool call")?;
     assert_eq!(tc.name, "shell");
     assert_eq!(tc.arguments["command"], "cargo test -q");
 

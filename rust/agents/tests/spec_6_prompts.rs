@@ -605,7 +605,7 @@ fn gemini_base_instructions_topics() -> AgentResult<()> {
 
 #[test]
 fn commit_instructions_contains_committer_env_vars() {
-    let instructions = stencila_agents::prompts::build_commit_instructions();
+    let instructions = stencila_agents::prompts::build_commit_instructions(stencila_config::CommitAttribution::Committer);
     assert!(instructions.contains("GIT_COMMITTER_NAME=\"Stencila\""));
     assert!(
         instructions
@@ -615,7 +615,7 @@ fn commit_instructions_contains_committer_env_vars() {
 
 #[test]
 fn commit_instructions_mentions_commit() {
-    let instructions = stencila_agents::prompts::build_commit_instructions();
+    let instructions = stencila_agents::prompts::build_commit_instructions(Default::default());
     assert!(
         instructions.contains("commit"),
         "instructions should mention git commits"
@@ -624,7 +624,7 @@ fn commit_instructions_mentions_commit() {
 
 #[test]
 fn commit_instructions_requires_explicit_ask() {
-    let instructions = stencila_agents::prompts::build_commit_instructions();
+    let instructions = stencila_agents::prompts::build_commit_instructions(Default::default());
     assert!(
         instructions.contains("Do not make git commits unless explicitly asked"),
         "instructions should tell agent not to commit unless asked"
