@@ -491,7 +491,19 @@ impl Remove {
         };
 
         let key = format!("mcp.servers.{}", self.id);
-        let config_file = stencila_config::unset_value(&key, target)?;
+        let config_file = match stencila_config::unset_value(&key, target) {
+            Ok(config_file) => config_file,
+            Err(error) => {
+                let error_message = error.to_string();
+                if error_message.contains(&format!("Key path not found: {key}"))
+                    || error_message.contains(&format!("Key not found: {key}"))
+                {
+                    return Err(eyre::eyre!("No mcp server found with id `{}`", self.id));
+                }
+
+                return Err(error);
+            }
+        };
 
         message!(
             "Removed MCP server `{}` from `{}`",
