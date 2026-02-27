@@ -36,6 +36,14 @@ impl App {
                 ParsedCommand::CliPassthrough(cmd) => {
                     let exe = std::env::current_exe()
                         .map_or_else(|_| "stencila".to_string(), |p| p.display().to_string());
+                    // Record in history as a shell command so Up-arrow recall works.
+                    // In Agent mode, prefix with `!` (the shell-escape syntax);
+                    // in Shell mode, store the bare command.
+                    let history_text = match self.mode {
+                        AppMode::Agent => format!("!{}", cmd.display),
+                        _ => cmd.display.clone(),
+                    };
+                    self.input_history.push_tagged(history_text, self.mode);
                     self.spawn_cli_command(exe, cmd.args, cmd.display);
                 }
             }
