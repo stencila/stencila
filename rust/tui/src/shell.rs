@@ -2,12 +2,32 @@ use std::sync::{Arc, Mutex};
 
 use tokio::{process::Command, sync::oneshot};
 
+/// Match the content_width calculation in ui/messages.rs:
+/// NUM_GUTTER (3) + sidebar char (1) + space (1) = 5 columns of chrome.
+const TUI_CHROME: u16 = 5;
+
 /// The result of a completed shell command.
 pub struct CommandResult {
     /// The captured stdout+stderr output.
     pub output: String,
     /// The process exit code (0 = success).
     pub exit_code: i32,
+}
+
+/// Whether TUI rendering env vars should be applied to this shell command.
+///
+/// This is intentionally a curated list to avoid changing behavior for arbitrary
+/// user commands. Currently, only commands that start with `stencila` are
+/// opted-in.
+fn should_apply_tui_env(command: &str) -> bool {
+    command.trim_start().starts_with("stencila")
+}
+
+/// Compute the effective content width used by the TUI message area.
+fn tui_columns() -> Option<String> {
+    crossterm::terminal::size()
+        .ok()
+        .map(|(w, _)| w.saturating_sub(TUI_CHROME).max(1).to_string())
 }
 
 /// A shell command running asynchronously in the background.
@@ -76,9 +96,24 @@ fn build_shell_command(command: &str) -> Command {
 /// stderr are captured separately and merged in the result.
 pub fn spawn_command(command: String) -> RunningShellCommand {
     let cmd_clone = command.clone();
+    let apply_tui_env = should_apply_tui_env(&command);
+    let columns = if apply_tui_env {
+        tui_columns().unwrap_or_default()
+    } else {
+        String::new()
+    };
+
     spawn_child(command, move || {
-        build_shell_command(&cmd_clone)
-            .stdout(std::process::Stdio::piped())
+        let mut cmd = build_shell_command(&cmd_clone);
+
+        if apply_tui_env {
+            cmd.env("FORCE_COLOR", "1");
+            if !columns.is_empty() {
+                cmd.env("COLUMNS", &columns);
+            }
+        }
+
+        cmd.stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
     })
@@ -99,12 +134,7 @@ pub fn spawn_command_argv(
     args: Vec<String>,
     display: String,
 ) -> RunningShellCommand {
-    // Match the content_width calculation in ui/messages.rs:
-    // NUM_GUTTER (3) + sidebar char (1) + space (1) = 5 columns of chrome.
-    const TUI_CHROME: u16 = 5;
-    let columns = crossterm::terminal::size()
-        .map(|(w, _)| w.saturating_sub(TUI_CHROME).max(1).to_string())
-        .unwrap_or_default();
+    let columns = tui_columns().unwrap_or_default();
 
     spawn_child(display, move || {
         let mut cmd = Command::new(&program);
@@ -331,5 +361,16 @@ mod tests {
 
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.output, "arg with spaces");
+    }
+
+    #[test]
+    fn apply_tui_env_for_curated_shell_commands() {
+        assert!(should_apply_tui_env("stencila"));
+        assert!(should_apply_tui_env("stencila kernels list"));
+        assert!(should_apply_tui_env("   stencila --help"));
+
+        assert!(!should_apply_tui_env("echo stencila"));
+        assert!(!should_apply_tui_env("./stencila --help"));
+        assert!(!should_apply_tui_env("STENCILA --help"));
     }
 }
