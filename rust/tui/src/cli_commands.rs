@@ -58,10 +58,7 @@ fn build_node(cmd: &clap::Command) -> CliCommandNode {
         .filter(|arg| arg.is_positional() && arg.is_required_set() && !arg.is_hide_set())
         .map(|arg| {
             let name = arg.get_id().as_str().to_uppercase();
-            if arg
-                .get_num_args()
-                .is_some_and(|r| r.max_values() > 1)
-            {
+            if arg.get_num_args().is_some_and(|r| r.max_values() > 1) {
                 format!("<{name}>...")
             } else {
                 format!("<{name}>")
@@ -202,11 +199,7 @@ mod tests {
                         clap::Command::new("add")
                             .about("Add a server")
                             .arg(clap::Arg::new("id").required(true))
-                            .arg(
-                                clap::Arg::new("spec")
-                                    .required(true)
-                                    .num_args(1..),
-                            ),
+                            .arg(clap::Arg::new("spec").required(true).num_args(1..)),
                     ),
             )
             .subcommand(clap::Command::new("convert").about("Convert documents"))
@@ -284,26 +277,21 @@ mod tests {
     #[test]
     fn find_missing_args_hint_returns_hint() {
         let tree = test_cli_tree();
-        let hint =
-            find_missing_args_hint(&tree, &["skills".into(), "show".into()]);
+        let hint = find_missing_args_hint(&tree, &["skills".into(), "show".into()]);
         assert_eq!(hint, Some("<NAME>".to_string()));
     }
 
     #[test]
     fn find_missing_args_hint_none_when_no_required() {
         let tree = test_cli_tree();
-        let hint =
-            find_missing_args_hint(&tree, &["skills".into(), "list".into()]);
+        let hint = find_missing_args_hint(&tree, &["skills".into(), "list".into()]);
         assert_eq!(hint, None);
     }
 
     #[test]
     fn find_missing_args_hint_none_when_extra_args() {
         let tree = test_cli_tree();
-        let hint = find_missing_args_hint(
-            &tree,
-            &["skills".into(), "show".into(), "foo".into()],
-        );
+        let hint = find_missing_args_hint(&tree, &["skills".into(), "show".into(), "foo".into()]);
         assert_eq!(hint, None);
     }
 }
