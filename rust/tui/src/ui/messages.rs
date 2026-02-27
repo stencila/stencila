@@ -490,11 +490,16 @@ fn response_segments_lines(
                 if !prev_was_annotation {
                     lines.push(blank_line());
                 }
+                let symbol_color = if message.trim_start().starts_with("Error:") {
+                    Color::Red
+                } else {
+                    Color::Yellow
+                };
                 push_annotation_lines(
                     lines,
                     dim_sidebar_style,
                     '\u{25cf}',
-                    Style::new().fg(Color::Yellow),
+                    Style::new().fg(symbol_color),
                     message,
                     dim(),
                     content_width,
