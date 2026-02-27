@@ -98,6 +98,117 @@ impl Cli {
     }
 }
 
+fn summarize_agent_details(agent: &stencila_schema::Agent) -> Option<String> {
+    let mut details = Vec::new();
+
+    if let Some(model) = agent.model.as_deref()
+        && !model.is_empty()
+    {
+        details.push(format!("model={model}"));
+    }
+
+    if let Some(provider) = agent.provider.as_deref()
+        && !provider.is_empty()
+    {
+        details.push(format!("provider={provider}"));
+    }
+
+    if let Some(reasoning) = agent.reasoning_effort.as_deref()
+        && !reasoning.is_empty()
+    {
+        details.push(format!("reasoning={reasoning}"));
+    }
+
+    if let Some(skills) = agent.allowed_skills.as_deref()
+        && !skills.is_empty()
+    {
+        details.push(format!("skills={}", summarize_string_list(skills)));
+    }
+
+    if let Some(tools) = agent.allowed_tools.as_deref()
+        && !tools.is_empty()
+    {
+        details.push(format!("tools={}", summarize_string_list(tools)));
+    }
+
+    if let Some(enable_mcp) = agent.options.enable_mcp {
+        details.push(format!("mcp={}", if enable_mcp { "on" } else { "off" }));
+    }
+
+    if let Some(enable_mcp_codemode) = agent.options.enable_mcp_codemode {
+        details.push(format!(
+            "mcp-codemode={}",
+            if enable_mcp_codemode { "on" } else { "off" }
+        ));
+    }
+
+    if let Some(servers) = agent.options.allowed_mcp_servers.as_deref()
+        && !servers.is_empty()
+    {
+        details.push(format!("mcp-servers={}", summarize_string_list(servers)));
+    }
+
+    if let Some(max_turns) = agent.options.max_turns {
+        details.push(format!("max-turns={max_turns}"));
+    }
+
+    if let Some(tool_timeout) = agent.options.tool_timeout {
+        details.push(format!("tool-timeout={tool_timeout}s"));
+    }
+
+    if let Some(max_tool_rounds) = agent.options.max_tool_rounds {
+        details.push(format!("max-tool-rounds={max_tool_rounds}"));
+    }
+
+    if let Some(max_subagent_depth) = agent.options.max_subagent_depth {
+        details.push(format!("max-subagent-depth={max_subagent_depth}"));
+    }
+
+    if let Some(compatibility) = agent.options.compatibility.as_deref()
+        && !compatibility.is_empty()
+    {
+        details.push(format!(
+            "compatibility={}",
+            summarize_text(compatibility, 40)
+        ));
+    }
+
+    if details.is_empty() {
+        None
+    } else {
+        Some(details.join("; "))
+    }
+}
+
+fn summarize_string_list(items: &[String]) -> String {
+    const MAX_ITEMS: usize = 3;
+
+    let shown = items
+        .iter()
+        .take(MAX_ITEMS)
+        .map(String::as_str)
+        .collect::<Vec<_>>();
+    let remaining = items.len().saturating_sub(MAX_ITEMS);
+
+    if remaining == 0 {
+        shown.join(",")
+    } else {
+        format!("{},+{remaining}", shown.join(","))
+    }
+}
+
+fn summarize_text(text: &str, max_chars: usize) -> String {
+    let trimmed = text.trim();
+    let count = trimmed.chars().count();
+
+    if count <= max_chars {
+        return trimmed.to_string();
+    }
+
+    let prefix = trimmed.chars().take(max_chars).collect::<String>();
+    format!("{prefix}…")
+}
+
 /// List available agents
 ///
 /// Shows agents from workspace `.stencila/agents/`, user config
@@ -150,7 +261,7 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header(["Name", "Description", "Source", "Model"]);
+        table.set_header(["Name", "Description", "Source", "Details"]);
 
         for agent in list {
             let source_cell = match agent.source() {
@@ -160,13 +271,15 @@ impl List {
                 None => Cell::new("-").fg(Color::DarkGrey),
             };
 
-            let model = agent.model.as_deref().unwrap_or("-");
+            let details = summarize_agent_details(&agent.inner)
+                .map(Cell::new)
+                .unwrap_or_else(|| Cell::new("-").fg(Color::DarkGrey));
 
             table.add_row([
                 Cell::new(&agent.name).add_attribute(Attribute::Bold),
                 Cell::new(&agent.description),
                 source_cell,
-                Cell::new(model),
+                details,
             ]);
         }
 
