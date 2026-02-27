@@ -168,6 +168,53 @@ impl AgentError {
         }
     }
 
+    /// Whether this error means the session has transitioned to `Closed`
+    /// and cannot accept further submits.
+    ///
+    /// This is narrower than [`is_session_error()`](Self::is_session_error):
+    /// it returns `true` only when the underlying session is definitely
+    /// unusable (state = Closed). Hosts can use this to decide whether to
+    /// drop and recreate the session.
+    ///
+    /// Notably, `TurnLimitExceeded` and `InvalidState` return `false`
+    /// because they are returned *before* processing begins and the session
+    /// remains in `Idle` state. Resetting on those would silently bypass
+    /// per-session turn limits.
+    ///
+    /// All arms are listed explicitly — no wildcards — so adding a new
+    /// variant produces a compile error until classified.
+    #[must_use]
+    pub fn requires_session_reset(&self) -> bool {
+        match self {
+            // Session is already closed or the CLI provider closed it on error.
+            Self::SessionClosed
+            | Self::CliNotFound { .. }
+            | Self::CliProcessFailed { .. }
+            | Self::CliParseError { .. }
+            | Self::CliUnsupported { .. }
+            | Self::ContextLengthExceeded { .. } => true,
+
+            // Non-retryable SDK errors close the API session.
+            // Retryable SDK errors leave the session Idle.
+            Self::Sdk(sdk_err) => !sdk_err.is_retryable(),
+
+            // Turn limit and invalid-state are returned before processing;
+            // the session stays Idle and should NOT be reset.
+            Self::TurnLimitExceeded { .. } | Self::InvalidState { .. } => false,
+
+            // Tool-level errors are handled internally; session stays Idle.
+            Self::FileNotFound { .. }
+            | Self::EditConflict { .. }
+            | Self::ShellTimeout { .. }
+            | Self::ShellExitError { .. }
+            | Self::PermissionDenied { .. }
+            | Self::ValidationError { .. }
+            | Self::UnknownTool { .. }
+            | Self::Io { .. }
+            | Self::Mcp { .. } => false,
+        }
+    }
+
     /// A short error code suitable for logging or event payloads.
     #[must_use]
     pub fn code(&self) -> &'static str {

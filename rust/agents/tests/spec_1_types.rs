@@ -272,6 +272,97 @@ fn error_is_not_session_error_for_retryable_sdk_variants() {
 }
 
 // ===========================================================================
+// AgentError — requires_session_reset()
+// ===========================================================================
+
+#[test]
+fn requires_session_reset_for_closed_session_errors() {
+    let errors: Vec<AgentError> = vec![
+        AgentError::SessionClosed,
+        AgentError::CliNotFound {
+            binary: "x".into(),
+        },
+        AgentError::CliProcessFailed {
+            code: 1,
+            stderr: "err".into(),
+        },
+        AgentError::CliParseError {
+            message: "x".into(),
+        },
+        AgentError::CliUnsupported {
+            operation: "x".into(),
+        },
+        AgentError::ContextLengthExceeded {
+            message: "x".into(),
+        },
+    ];
+    for err in &errors {
+        assert!(
+            err.requires_session_reset(),
+            "{err:?} should require session reset"
+        );
+    }
+}
+
+#[test]
+fn requires_session_reset_false_for_alive_session_errors() {
+    let errors: Vec<AgentError> = vec![
+        AgentError::TurnLimitExceeded {
+            message: "x".into(),
+        },
+        AgentError::InvalidState {
+            expected: "Idle".into(),
+            actual: "Processing".into(),
+        },
+    ];
+    for err in &errors {
+        assert!(
+            !err.requires_session_reset(),
+            "{err:?} should NOT require session reset"
+        );
+    }
+}
+
+#[test]
+fn requires_session_reset_false_for_tool_errors() {
+    let errors: Vec<AgentError> = vec![
+        AgentError::FileNotFound { path: "x".into() },
+        AgentError::EditConflict { reason: "x".into() },
+        AgentError::ShellTimeout { timeout_ms: 1 },
+        AgentError::ShellExitError {
+            code: 1,
+            stderr: String::new(),
+        },
+    ];
+    for err in &errors {
+        assert!(
+            !err.requires_session_reset(),
+            "{err:?} should NOT require session reset"
+        );
+    }
+}
+
+#[test]
+fn requires_session_reset_for_non_retryable_sdk_errors() {
+    let pd = ProviderDetails::default();
+    let err = AgentError::Sdk(SdkError::Authentication {
+        message: "bad key".into(),
+        details: pd,
+    });
+    assert!(err.requires_session_reset());
+}
+
+#[test]
+fn requires_session_reset_false_for_retryable_sdk_errors() {
+    let pd = ProviderDetails::default();
+    let err = AgentError::Sdk(SdkError::RateLimit {
+        message: "429".into(),
+        details: pd,
+    });
+    assert!(!err.requires_session_reset());
+}
+
+// ===========================================================================
 // AgentError — code() and serialization
 // ===========================================================================
 

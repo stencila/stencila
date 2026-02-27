@@ -6,7 +6,6 @@ use std::sync::{Arc, Mutex};
 use inflector::Inflector;
 use serde_json::Value;
 use stencila_agents::convenience::create_session;
-use stencila_agents::error::AgentError;
 use stencila_agents::types::AbortController;
 use stencila_agents::types::EventKind;
 use tokio::sync::mpsc;
@@ -384,8 +383,11 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
         drop(submit_fut);
 
         // Session closed — drop it so a fresh one is created automatically
-        // on the next submit to this agent task.
-        if matches!(submit_result, Some(Err(AgentError::SessionClosed))) {
+        // on the next submit to this agent task. Uses the narrower
+        // `requires_session_reset()` (not `is_session_error()`) to avoid
+        // resetting on errors like TurnLimitExceeded where the session is
+        // still alive.
+        if matches!(&submit_result, Some(Err(e)) if e.requires_session_reset()) {
             session = None;
             event_rx = None;
         }
