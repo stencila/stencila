@@ -461,16 +461,59 @@ fn render_table(table: &markdown::mdast::Table, ctx: &RenderContext) -> Vec<Vec<
         }
     }
 
-    // Shrink proportionally if total exceeds available width
+    // Compute minimum column widths: the widest single word (unwrappable unit)
+    // in each column. Columns should not be shrunk below this so that short
+    // content like numbers never wraps unnecessarily.
+    let mut min_col_widths: Vec<usize> = vec![1; num_cols];
+    for row in &rows {
+        for (c, cell) in row.iter().enumerate() {
+            for frag in cell {
+                for word in frag.text.split_whitespace() {
+                    min_col_widths[c] = min_col_widths[c].max(word.width());
+                }
+            }
+        }
+    }
+
+    // Shrink columns if total exceeds available width, preferring to take
+    // space from wider columns while respecting each column's minimum width.
     let border_overhead = num_cols + 1; // one │ per column + 1
     let padding_overhead = num_cols * 2; // 1 space each side per column
     let avail_for_content = width.saturating_sub(border_overhead + padding_overhead);
     let total_content: usize = col_widths.iter().sum();
 
     if total_content > avail_for_content && avail_for_content > 0 {
-        let ratio = avail_for_content as f64 / total_content as f64;
-        for w in &mut col_widths {
-            *w = ((*w as f64 * ratio).floor() as usize).max(1);
+        let mut excess = total_content - avail_for_content;
+
+        // Sort column indices by width descending so we shrink the widest first
+        let mut order: Vec<usize> = (0..num_cols).collect();
+        order.sort_by(|&a, &b| col_widths[b].cmp(&col_widths[a]));
+
+        // Iteratively shave excess from the widest columns
+        for &c in &order {
+            if excess == 0 {
+                break;
+            }
+            let shrinkable = col_widths[c].saturating_sub(min_col_widths[c]);
+            let take = shrinkable.min(excess);
+            col_widths[c] -= take;
+            excess -= take;
+        }
+
+        // If still over budget (all columns at word-minimums), continue
+        // shrinking widest-first down to an absolute floor of 1. This avoids
+        // proportional scaling which would penalise narrow columns equally.
+        if excess > 0 {
+            order.sort_by(|&a, &b| col_widths[b].cmp(&col_widths[a]));
+            for &c in &order {
+                if excess == 0 {
+                    break;
+                }
+                let shrinkable = col_widths[c].saturating_sub(1);
+                let take = shrinkable.min(excess);
+                col_widths[c] -= take;
+                excess -= take;
+            }
         }
     }
 
@@ -1322,5 +1365,57 @@ mod tests {
         let result = render_markdown(md, 80);
         let text = lines_to_text(&result);
         assert!(text.iter().any(|l| l.contains("print")));
+    }
+
+    #[test]
+    fn test_table_long_token_preserves_narrow_cols() {
+        // A column with a long unbroken token (e.g. URL) should not cause
+        // narrow numeric columns to be shrunk via proportional fallback.
+        let md = "\
+| ID | URL | Count |
+| - | - | - |
+| 1 | https://example.com/very/long/path/to/resource | 42 |
+| 2 | https://example.com/another/long/path/here | 7 |";
+        let result = render_markdown(md, 50);
+        let text = lines_to_text(&result);
+
+        // The narrow columns (ID and Count) should remain intact on their lines
+        assert!(
+            text.iter()
+                .any(|l| l.contains("\u{2502} 1 ") && l.contains(" 42 ")),
+            "ID '1' and Count '42' should appear on same line: {text:?}"
+        );
+        assert!(
+            text.iter()
+                .any(|l| l.contains("\u{2502} 2 ") && l.contains(" 7 ")),
+            "ID '2' and Count '7' should appear on same line: {text:?}"
+        );
+    }
+
+    #[test]
+    fn test_table_narrow_columns_preserved() {
+        // Narrow numeric columns should not be shrunk below their content width
+        // when wider description columns can absorb the shrinkage instead.
+        let md = "\
+| ID | Count | Description |
+| - | - | - |
+| 1 | 42 | A fairly long description that takes up space |
+| 2 | 7 | Another verbose description with many words |";
+        // Width that forces shrinkage but leaves enough room for the table
+        let result = render_markdown(md, 50);
+        let text = lines_to_text(&result);
+
+        // Each data row should have a line where ID and Count appear together,
+        // meaning neither narrow column was wrapped onto a separate line.
+        assert!(
+            text.iter()
+                .any(|l| l.contains("\u{2502} 1 ") && l.contains(" 42 ")),
+            "expected a line with both '1' and '42' intact: {text:?}"
+        );
+        assert!(
+            text.iter()
+                .any(|l| l.contains("\u{2502} 2 ") && l.contains(" 7 ")),
+            "expected a line with both '2' and '7' intact: {text:?}"
+        );
     }
 }
