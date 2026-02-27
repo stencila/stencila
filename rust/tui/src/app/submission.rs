@@ -34,6 +34,22 @@ impl App {
                     cmd.execute(self, args);
                 }
                 ParsedCommand::CliPassthrough(cmd) => {
+                    // Bare top-level command with subcommands (e.g. `/kernels`):
+                    // instead of running the default `list` action, open the
+                    // autocomplete picker so the user discovers subcommands.
+                    if cmd.args.len() == 1 {
+                        let has_children = tree_ref
+                            .iter()
+                            .find(|n| n.name == cmd.args[0])
+                            .is_some_and(|n| !n.children.is_empty());
+                        if has_children {
+                            let with_space = format!("/{} ", cmd.args[0]);
+                            self.input.set_text(&with_space);
+                            self.commands_state.update(self.input.text());
+                            return;
+                        }
+                    }
+
                     let exe = std::env::current_exe()
                         .map_or_else(|_| "stencila".to_string(), |p| p.display().to_string());
                     // Record in history as a shell command so Up-arrow recall works.
@@ -426,5 +442,76 @@ mod tests {
             &app.messages[initial_count + 1],
             AppMessage::System { content } if content.contains("Exiting shell mode")
         ));
+    }
+
+    #[tokio::test]
+    async fn bare_cli_command_with_children_opens_picker() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/skills` and press Enter
+        for c in "/skills".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should NOT have spawned a command (no new messages)
+        assert_eq!(app.messages.len(), initial_msg_count);
+        // Input should be set to "/skills " to show subcommand picker
+        assert_eq!(app.input.text(), "/skills ");
+        // Autocomplete should be visible with subcommand candidates
+        assert!(app.commands_state.is_visible());
+        assert!(app.commands_state.candidates().len() >= 2); // list, show
+    }
+
+    #[tokio::test]
+    async fn bare_cli_command_without_children_executes() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/formats` (no children in test tree) and press Enter
+        for c in "/formats".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should have spawned a command (new exchange message)
+        assert!(app.messages.len() > initial_msg_count);
+        // Input should be consumed
+        assert!(app.input.is_empty());
+    }
+
+    #[tokio::test]
+    async fn cli_command_with_subcommand_executes() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/skills list` and press Enter — should execute, not open picker
+        for c in "/skills list".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should have spawned a command
+        assert!(app.messages.len() > initial_msg_count);
+        assert!(app.input.is_empty());
     }
 }
