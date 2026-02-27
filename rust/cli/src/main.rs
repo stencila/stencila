@@ -2,7 +2,7 @@
 
 use std::{env::set_var, process::exit};
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use eyre::Result;
 
 use stencila_cli::{
@@ -56,7 +56,12 @@ async fn main() -> Result<()> {
         let upgrade_handle = upgrade::check(false);
 
         cli.tui
-            .run(log_level.into(), &cli.log_filter, Some(upgrade_handle))
+            .run(
+                log_level.into(),
+                &cli.log_filter,
+                Some(upgrade_handle),
+                Some(Cli::command()),
+            )
             .await?;
     } else {
         logging::setup(log_level, &cli.log_filter, log_format)?;

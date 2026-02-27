@@ -75,19 +75,67 @@ fn build_shell_command(command: &str) -> Command {
 /// Windows) so that shell features like pipes and redirects work. stdout and
 /// stderr are captured separately and merged in the result.
 pub fn spawn_command(command: String) -> RunningShellCommand {
+    let cmd_clone = command.clone();
+    spawn_child(command, move || {
+        build_shell_command(&cmd_clone)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+    })
+}
+
+/// Spawn a CLI command as a direct process (not via shell).
+///
+/// Unlike `spawn_command()` which uses `sh -c`, this takes an explicit
+/// program and argv vector and spawns the process directly. This avoids
+/// shell quoting issues for CLI passthrough commands.
+///
+/// Sets `FORCE_COLOR=1` so the CLI emits ANSI colors even though stdout is
+/// a pipe, and `COLUMNS` to the available content width (terminal width
+/// minus the TUI gutter, sidebar, and padding) so table output fits
+/// without wrapping.
+pub fn spawn_command_argv(
+    program: String,
+    args: Vec<String>,
+    display: String,
+) -> RunningShellCommand {
+    // Match the content_width calculation in ui/messages.rs:
+    // NUM_GUTTER (3) + sidebar char (1) + space (1) = 5 columns of chrome.
+    const TUI_CHROME: u16 = 5;
+    let columns = crossterm::terminal::size()
+        .map(|(w, _)| w.saturating_sub(TUI_CHROME).max(1).to_string())
+        .unwrap_or_default();
+
+    spawn_child(display, move || {
+        let mut cmd = Command::new(&program);
+        cmd.args(&args)
+            .env("FORCE_COLOR", "1")
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped());
+
+        if !columns.is_empty() {
+            cmd.env("COLUMNS", &columns);
+        }
+
+        cmd.spawn()
+    })
+}
+
+/// Shared spawn infrastructure used by both `spawn_command` and `spawn_command_argv`.
+///
+/// `display` is the human-readable command string stored in the result.
+/// `build` is a closure that configures and spawns the `tokio::process::Child`.
+fn spawn_child(
+    display: String,
+    build: impl FnOnce() -> std::io::Result<tokio::process::Child> + Send + 'static,
+) -> RunningShellCommand {
     let result: Arc<Mutex<Option<CommandResult>>> = Arc::new(Mutex::new(None));
     let (cancel_tx, cancel_rx) = oneshot::channel::<()>();
 
     let result_clone = Arc::clone(&result);
-    let cmd_clone = command.clone();
 
     tokio::spawn(async move {
-        let child = build_shell_command(&cmd_clone)
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn();
-
-        let mut child = match child {
+        let mut child = match build() {
             Ok(c) => c,
             Err(e) => {
                 if let Ok(mut guard) = result_clone.lock() {
@@ -149,7 +197,7 @@ pub fn spawn_command(command: String) -> RunningShellCommand {
     });
 
     RunningShellCommand {
-        command,
+        command: display,
         result,
         cancel_tx: Some(cancel_tx),
     }
@@ -242,5 +290,46 @@ mod tests {
         assert_eq!(result.exit_code, 0);
         assert!(result.output.contains("out"));
         assert!(result.output.contains("err"));
+    }
+
+    #[tokio::test]
+    async fn spawn_argv_echo() {
+        let mut running = spawn_command_argv(
+            "echo".to_string(),
+            vec!["hello world".to_string()],
+            "echo hello world".to_string(),
+        );
+        assert_eq!(running.command(), "echo hello world");
+
+        let result = loop {
+            if let Some(r) = running.try_take_result() {
+                break r;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        };
+
+        assert_eq!(result.exit_code, 0);
+        // echo with argv passes the whole argument including space
+        assert_eq!(result.output, "hello world");
+    }
+
+    #[tokio::test]
+    async fn spawn_argv_preserves_args_with_spaces() {
+        // Verify that args with spaces are passed correctly (not re-split)
+        let mut running = spawn_command_argv(
+            "printf".to_string(),
+            vec!["%s\n".to_string(), "arg with spaces".to_string()],
+            "printf '%s\\n' 'arg with spaces'".to_string(),
+        );
+
+        let result = loop {
+            if let Some(r) = running.try_take_result() {
+                break r;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        };
+
+        assert_eq!(result.exit_code, 0);
+        assert_eq!(result.output, "arg with spaces");
     }
 }

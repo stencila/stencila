@@ -342,7 +342,8 @@ pub fn translate_sse_event(
                     let fallback_id = item
                         .get("id")
                         .and_then(Value::as_str)
-                        .or_else(|| item.get("item_id").and_then(Value::as_str)).map_or_else(|| extract_text_id(&payload), ToString::to_string);
+                        .or_else(|| item.get("item_id").and_then(Value::as_str))
+                        .map_or_else(|| extract_text_id(&payload), ToString::to_string);
                     if let Some(text) = wrapped_text.as_deref()
                         && let Some(tool_call_data) =
                             crate::providers::openai::translate_response::extract_wrapped_tool_call_from_text(

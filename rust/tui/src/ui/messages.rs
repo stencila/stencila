@@ -671,13 +671,17 @@ fn response_text(lines: &mut Vec<Line>, resp: &str, base_color: Color, content_w
     let num_padding = "   ";
     let dim_sidebar_style = Style::new().fg(base_color).add_modifier(Modifier::DIM);
     for text_line in resp.lines() {
+        let mut carry_style = Style::default();
         for chunk in wrap_content(text_line, content_width) {
-            lines.push(Line::from(vec![
+            let mut line_spans = vec![
                 Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
                 Span::raw(" "),
-                Span::raw(chunk),
-            ]));
+            ];
+            let (ansi_spans, next_style) = super::common::parse_ansi_spans(&chunk, carry_style);
+            carry_style = next_style;
+            line_spans.extend(ansi_spans);
+            lines.push(Line::from(line_spans));
         }
     }
 }

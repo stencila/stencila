@@ -5,6 +5,7 @@ use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
 use crate::app::{App, AppMessage, AppMode};
 use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
 use crate::autocomplete::workflows::{WorkflowCandidate, WorkflowDefinitionInfo};
+use crate::cli_commands::CliCommandNode;
 
 /// Slash commands available in the TUI.
 ///
@@ -52,12 +53,6 @@ impl SlashCommand {
         ["/", &self.to_string()].concat()
     }
 
-    /// Slash-prefixed alias of this command.
-    #[allow(clippy::unused_self)]
-    pub fn aliases(self) -> Vec<&'static str> {
-        Vec::new()
-    }
-
     /// A short description for the autocomplete popup.
     pub fn description(self) -> &'static str {
         self.get_message().unwrap_or("")
@@ -68,37 +63,11 @@ impl SlashCommand {
         matches!(self, Self::Clear)
     }
 
-    /// Whether this command's name starts with the given prefix.
-    pub fn matches_prefix(self, prefix: &str) -> bool {
-        self.name().starts_with(prefix)
-            || self.aliases().iter().any(|alias| alias.starts_with(prefix))
-    }
-
-    /// Return all commands whose name starts with `prefix`.
-    pub fn matching(prefix: &str) -> Vec<SlashCommand> {
-        Self::iter()
-            .filter(|cmd| !cmd.is_hidden() && cmd.matches_prefix(prefix))
-            .collect()
-    }
-
-    /// Parse a command from the input text.
+    /// Whether a CLI command name shadows a built-in slash command.
     ///
-    /// Returns the command and the remaining arguments, or `None` if the input
-    /// doesn't match any command.
-    pub fn parse(input: &str) -> Option<(SlashCommand, &str)> {
-        let trimmed = input.trim();
-        if !trimmed.starts_with('/') {
-            return None;
-        }
-
-        // Split into command word and arguments
-        let (cmd_word, args) = trimmed
-            .split_once(char::is_whitespace)
-            .map_or((trimmed, ""), |(c, a)| (c, a.trim()));
-
-        Self::iter()
-            .find(|cmd| cmd.name() == cmd_word || cmd.aliases().contains(&cmd_word))
-            .map(|cmd| (cmd, args))
+    /// Used by autocomplete and help to avoid showing duplicate entries.
+    pub fn shadows_builtin(name: &str) -> bool {
+        Self::iter().any(|cmd| cmd.to_string() == name)
     }
 
     /// Execute this command, mutating the app state.
@@ -121,6 +90,129 @@ impl SlashCommand {
             Self::Workflows => execute_workflows(app),
         }
     }
+}
+
+/// Result of parsing a slash command input.
+pub enum ParsedCommand<'a> {
+    Builtin(SlashCommand, &'a str),
+    CliPassthrough(CliPassthroughCmd),
+}
+
+/// A CLI passthrough command with its argv vector.
+pub struct CliPassthroughCmd {
+    /// The argv vector, e.g. `["skills", "list", "--as", "json"]`
+    pub args: Vec<String>,
+    /// Display name for the exchange, e.g. "skills list --as json"
+    pub display: String,
+}
+
+impl SlashCommand {
+    /// Whether this command only matches when no arguments follow.
+    /// When args are present, the input falls through to CLI passthrough.
+    pub fn is_exact_only(self) -> bool {
+        matches!(
+            self,
+            Self::Agents
+                | Self::Workflows
+                | Self::Cancel
+                | Self::Clear
+                | Self::New
+                | Self::Shell
+                | Self::Quit
+                | Self::Exit
+        )
+    }
+}
+
+/// Parse a command from the input text, checking built-in commands first,
+/// then falling through to CLI passthrough commands.
+///
+/// Built-in commands classified as "exact-only" only match when no arguments
+/// follow. With arguments, they fall through to CLI passthrough if the
+/// command word matches a CLI tree entry (e.g. `/agents list` runs
+/// `stencila agents list` instead of opening the popup). If no CLI tree
+/// match exists, the built-in is executed anyway (ignoring the extra args)
+/// to avoid the surprising behavior of `/quit now` being sent as chat text.
+pub fn parse_command<'a>(input: &'a str, cli_tree: &[CliCommandNode]) -> Option<ParsedCommand<'a>> {
+    let trimmed = input.trim();
+    if !trimmed.starts_with('/') {
+        return None;
+    }
+    let without_slash = &trimmed[1..];
+    let (cmd_word, args) = without_slash
+        .split_once(char::is_whitespace)
+        .map_or((without_slash, ""), |(c, a)| (c, a.trim()));
+
+    let has_args = !args.is_empty();
+    let builtin = cmd_word.parse::<SlashCommand>().ok();
+
+    // 1. Non-exact-only built-in, or exact-only without args: use built-in
+    if let Some(builtin) = builtin
+        && (!has_args || !builtin.is_exact_only())
+    {
+        return Some(ParsedCommand::Builtin(builtin, args));
+    }
+
+    // 2. Try CLI tree match (exact-only built-ins with args fall through here)
+    if cli_tree.iter().any(|node| node.name == cmd_word) {
+        let mut cmd_args: Vec<String> = vec![cmd_word.to_string()];
+        if has_args {
+            cmd_args.extend(split_args(args));
+        }
+        let display = format!("stencila {}", cmd_args.join(" "));
+        return Some(ParsedCommand::CliPassthrough(CliPassthroughCmd {
+            args: cmd_args,
+            display,
+        }));
+    }
+
+    // 3. Exact-only built-in with args but no CLI tree match: still run
+    //    the built-in rather than letting `/quit now` become chat text.
+    if let Some(builtin) = builtin {
+        return Some(ParsedCommand::Builtin(builtin, args));
+    }
+
+    None
+}
+
+/// Split an argument string into individual arguments.
+///
+/// Handles quoting (double and single quotes) and backslash escapes for
+/// arguments containing spaces. Outside of quotes, `\ ` (backslash-space)
+/// is treated as a literal space within the current argument.
+fn split_args(args: &str) -> Vec<String> {
+    let mut result = Vec::new();
+    let mut current = String::new();
+    let mut chars = args.chars().peekable();
+    let mut in_single = false;
+    let mut in_double = false;
+
+    while let Some(c) = chars.next() {
+        match c {
+            '\\' if !in_single => {
+                // Backslash escape: consume the next character literally
+                if let Some(&next) = chars.peek() {
+                    chars.next();
+                    current.push(next);
+                } else {
+                    // Trailing backslash with nothing after — keep it
+                    current.push('\\');
+                }
+            }
+            '\'' if !in_double => in_single = !in_single,
+            '"' if !in_single => in_double = !in_double,
+            c if c.is_whitespace() && !in_single && !in_double => {
+                if !current.is_empty() {
+                    result.push(std::mem::take(&mut current));
+                }
+            }
+            _ => current.push(c),
+        }
+    }
+    if !current.is_empty() {
+        result.push(current);
+    }
+    result
 }
 
 fn execute_agents(app: &mut App) {
@@ -250,6 +342,25 @@ fn execute_help(app: &mut App) {
         }
         let _ = writeln!(help, "  {:12} {}", cmd.name(), cmd.description());
     }
+
+    // CLI passthrough commands (skip those that shadow a built-in)
+    if let Some(ref tree) = app.cli_tree
+        && !tree.is_empty()
+    {
+        let cli_only = crate::cli_commands::visible_top_level(tree);
+        if !cli_only.is_empty() {
+            help.push_str("\nCLI commands:\n");
+            for node in &cli_only {
+                let _ = writeln!(
+                    help,
+                    "  {:12} {}",
+                    format!("/{}", node.name),
+                    node.description
+                );
+            }
+        }
+    }
+
     help.push_str("\nKey bindings:\n");
     help.push_str("  Enter          Send message / run command\n");
     help.push_str(
@@ -302,6 +413,7 @@ fn execute_upgrade(app: &mut App) {
 mod tests {
     use super::*;
     use crate::app::AgentSession;
+    use crate::cli_commands::test_cli_tree;
 
     #[test]
     fn name_and_description() {
@@ -312,90 +424,6 @@ mod tests {
     #[test]
     fn agents_command_name() {
         assert_eq!(SlashCommand::Agents.name(), "/agents");
-    }
-
-    #[test]
-    fn matches_prefix_exact() {
-        assert!(SlashCommand::Help.matches_prefix("/help"));
-        assert!(SlashCommand::Clear.matches_prefix("/clear"));
-        assert!(SlashCommand::Agents.matches_prefix("/agents"));
-    }
-
-    #[test]
-    fn matches_prefix_partial() {
-        assert!(SlashCommand::Help.matches_prefix("/h"));
-        assert!(SlashCommand::Help.matches_prefix("/he"));
-        assert!(SlashCommand::History.matches_prefix("/h"));
-        assert!(!SlashCommand::Help.matches_prefix("/c"));
-        assert!(SlashCommand::Agents.matches_prefix("/age"));
-    }
-
-    #[test]
-    fn matches_prefix_slash_only() {
-        // All commands match bare "/"
-        for cmd in SlashCommand::iter() {
-            assert!(cmd.matches_prefix("/"));
-        }
-    }
-
-    #[test]
-    fn matching_filters() {
-        let all = SlashCommand::matching("/");
-        let visible_count = SlashCommand::iter().filter(|c| !c.is_hidden()).count();
-        assert_eq!(all.len(), visible_count);
-
-        let h_cmds = SlashCommand::matching("/h");
-        assert_eq!(h_cmds.len(), 2); // /help, /history
-
-        let s_cmds = SlashCommand::matching("/s");
-        assert_eq!(s_cmds, vec![SlashCommand::Shell]);
-
-        let q_cmds = SlashCommand::matching("/q");
-        assert_eq!(q_cmds, vec![SlashCommand::Quit]);
-
-        let none = SlashCommand::matching("/z");
-        assert!(none.is_empty());
-
-        let new_cmds = SlashCommand::matching("/new");
-        assert_eq!(new_cmds, vec![SlashCommand::New]);
-    }
-
-    #[test]
-    fn parse_valid_commands() {
-        assert_eq!(SlashCommand::parse("/help"), Some((SlashCommand::Help, "")));
-        assert_eq!(
-            SlashCommand::parse("/clear"),
-            Some((SlashCommand::Clear, ""))
-        );
-        assert_eq!(
-            SlashCommand::parse("/agents"),
-            Some((SlashCommand::Agents, ""))
-        );
-    }
-
-    #[test]
-    fn parse_with_leading_trailing_whitespace() {
-        assert_eq!(
-            SlashCommand::parse("  /quit  "),
-            Some((SlashCommand::Quit, ""))
-        );
-        assert_eq!(
-            SlashCommand::parse("  /history  "),
-            Some((SlashCommand::History, ""))
-        );
-    }
-
-    #[test]
-    fn parse_unknown_command() {
-        assert_eq!(SlashCommand::parse("/unknown"), None);
-        // /model should no longer be recognized
-        assert_eq!(SlashCommand::parse("/model"), None);
-    }
-
-    #[test]
-    fn parse_not_a_command() {
-        assert_eq!(SlashCommand::parse("hello"), None);
-        assert_eq!(SlashCommand::parse(""), None);
     }
 
     #[test]
@@ -518,5 +546,175 @@ mod tests {
         assert!(app.agents_state.is_visible());
         // 2 existing agents (plus any discovered definitions)
         assert!(app.agents_state.candidates().len() >= 2);
+    }
+
+    // --- parse_command tests ---
+
+    #[test]
+    fn parse_command_builtin_exact() {
+        let tree = test_cli_tree();
+        let result = parse_command("/help", &tree);
+        assert!(matches!(
+            result,
+            Some(ParsedCommand::Builtin(SlashCommand::Help, ""))
+        ));
+    }
+
+    #[test]
+    fn parse_command_builtin_with_args() {
+        let tree = test_cli_tree();
+        let result = parse_command("/help topics", &tree);
+        assert!(matches!(
+            result,
+            Some(ParsedCommand::Builtin(SlashCommand::Help, "topics"))
+        ));
+    }
+
+    #[test]
+    fn parse_command_exact_only_no_args() {
+        let tree = test_cli_tree();
+        let result = parse_command("/agents", &tree);
+        assert!(matches!(
+            result,
+            Some(ParsedCommand::Builtin(SlashCommand::Agents, ""))
+        ));
+    }
+
+    #[test]
+    fn parse_command_exact_only_with_args_fallthrough() {
+        let tree = test_cli_tree();
+        let result = parse_command("/agents list", &tree);
+        match result {
+            Some(ParsedCommand::CliPassthrough(cmd)) => {
+                assert_eq!(cmd.args, vec!["agents", "list"]);
+                assert_eq!(cmd.display, "stencila agents list");
+            }
+            _ => panic!("Expected CliPassthrough"),
+        }
+    }
+
+    #[test]
+    fn parse_command_cli_only() {
+        let tree = test_cli_tree();
+        let result = parse_command("/skills list", &tree);
+        match result {
+            Some(ParsedCommand::CliPassthrough(cmd)) => {
+                assert_eq!(cmd.args, vec!["skills", "list"]);
+                assert_eq!(cmd.display, "stencila skills list");
+            }
+            _ => panic!("Expected CliPassthrough"),
+        }
+    }
+
+    #[test]
+    fn parse_command_cli_with_flags() {
+        let tree = test_cli_tree();
+        let result = parse_command("/skills list --as json", &tree);
+        match result {
+            Some(ParsedCommand::CliPassthrough(cmd)) => {
+                assert_eq!(cmd.args, vec!["skills", "list", "--as", "json"]);
+            }
+            _ => panic!("Expected CliPassthrough"),
+        }
+    }
+
+    #[test]
+    fn parse_command_unknown() {
+        let tree = test_cli_tree();
+        assert!(parse_command("/notacmd", &tree).is_none());
+    }
+
+    #[test]
+    fn parse_command_not_slash() {
+        let tree = test_cli_tree();
+        assert!(parse_command("hello", &tree).is_none());
+    }
+
+    #[test]
+    fn parse_command_empty_cli_tree() {
+        let tree: Vec<CliCommandNode> = vec![];
+        // Built-ins still work
+        assert!(matches!(
+            parse_command("/help", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Help, ""))
+        ));
+        // Unknown returns None
+        assert!(parse_command("/skills", &tree).is_none());
+    }
+
+    #[test]
+    fn split_args_handles_quotes() {
+        let args = split_args(r#"show "my skill" --verbose"#);
+        assert_eq!(args, vec!["show", "my skill", "--verbose"]);
+    }
+
+    #[test]
+    fn split_args_handles_single_quotes() {
+        let args = split_args("show 'my skill' --verbose");
+        assert_eq!(args, vec!["show", "my skill", "--verbose"]);
+    }
+
+    #[test]
+    fn split_args_simple() {
+        let args = split_args("list --as json");
+        assert_eq!(args, vec!["list", "--as", "json"]);
+    }
+
+    #[test]
+    fn split_args_backslash_escaped_space() {
+        let args = split_args(r"show path\ with\ spaces --verbose");
+        assert_eq!(args, vec!["show", "path with spaces", "--verbose"]);
+    }
+
+    #[test]
+    fn split_args_backslash_escaped_quote() {
+        let args = split_args(r#"show "it\'s a test""#);
+        assert_eq!(args, vec!["show", "it's a test"]);
+    }
+
+    #[test]
+    fn split_args_trailing_backslash() {
+        let args = split_args(r"show trailing\");
+        assert_eq!(args, vec![r"show", r"trailing\"]);
+    }
+
+    // --- Finding 2: exact-only built-ins with args but no CLI match ---
+
+    #[test]
+    fn parse_command_quit_with_args_still_quits() {
+        // /quit is exact-only and "quit" is not in the CLI tree,
+        // so it should still resolve to the Quit built-in.
+        let tree = test_cli_tree();
+        assert!(matches!(
+            parse_command("/quit now", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Quit, "now"))
+        ));
+    }
+
+    #[test]
+    fn parse_command_exit_with_args_still_exits() {
+        let tree = test_cli_tree();
+        assert!(matches!(
+            parse_command("/exit please", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Exit, "please"))
+        ));
+    }
+
+    #[test]
+    fn parse_command_clear_with_args_still_clears() {
+        let tree = test_cli_tree();
+        assert!(matches!(
+            parse_command("/clear all", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Clear, "all"))
+        ));
+    }
+
+    #[test]
+    fn parse_command_shell_with_args_still_shell() {
+        let tree = test_cli_tree();
+        assert!(matches!(
+            parse_command("/shell foo", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Shell, "foo"))
+        ));
     }
 }

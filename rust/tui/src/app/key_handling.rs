@@ -81,6 +81,9 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Tab) => {
                 if let Some(name) = self.commands_state.accept() {
                     self.input.set_text(&name);
+                    // Re-trigger autocomplete to support drill-down into
+                    // CLI command children (e.g. "/skills " → show subcommands)
+                    self.commands_state.update(self.input.text());
                 }
             }
             (KeyModifiers::NONE, KeyCode::Esc) => self.commands_state.dismiss(),

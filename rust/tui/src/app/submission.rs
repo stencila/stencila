@@ -1,4 +1,7 @@
-use crate::{agent::AgentHandle, commands::SlashCommand};
+use crate::{
+    agent::AgentHandle,
+    commands::{ParsedCommand, parse_command},
+};
 
 use super::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
 
@@ -21,8 +24,21 @@ impl App {
         self.dismiss_all_autocomplete();
 
         // Slash commands work in all modes and always take precedence.
-        if let Some((cmd, args)) = SlashCommand::parse(&text) {
-            cmd.execute(self, args);
+        // Two-tier dispatch: built-in commands first, then CLI passthrough.
+        let cli_tree = self.cli_tree.clone();
+        let empty_tree: Vec<crate::cli_commands::CliCommandNode> = Vec::new();
+        let tree_ref = cli_tree.as_deref().unwrap_or(&empty_tree);
+        if let Some(parsed) = parse_command(&text, tree_ref) {
+            match parsed {
+                ParsedCommand::Builtin(cmd, args) => {
+                    cmd.execute(self, args);
+                }
+                ParsedCommand::CliPassthrough(cmd) => {
+                    let exe = std::env::current_exe()
+                        .map_or_else(|_| "stencila".to_string(), |p| p.display().to_string());
+                    self.spawn_cli_command(exe, cmd.args, cmd.display);
+                }
+            }
             self.scroll_pinned = true;
             self.scroll_offset = 0;
             return;
@@ -110,10 +126,31 @@ impl App {
 
     /// Spawn a shell command as a background task.
     pub(super) fn spawn_shell_command(&mut self, command: String) {
+        let running = crate::shell::spawn_command(command.clone());
+        self.track_shell_exchange(command, running);
+    }
+
+    /// Spawn a CLI command as a direct process (argv-based, no shell).
+    pub(super) fn spawn_cli_command(
+        &mut self,
+        program: String,
+        args: Vec<String>,
+        display: String,
+    ) {
+        let running = crate::shell::spawn_command_argv(program, args, display.clone());
+        self.track_shell_exchange(display, running);
+    }
+
+    /// Push a shell-style exchange message and track the running command.
+    fn track_shell_exchange(
+        &mut self,
+        request: String,
+        running: crate::shell::RunningShellCommand,
+    ) {
         self.messages.push(AppMessage::Exchange {
             kind: ExchangeKind::Shell,
             status: ExchangeStatus::Running,
-            request: command.clone(),
+            request,
             response: None,
             response_segments: None,
             exit_code: None,
@@ -121,7 +158,6 @@ impl App {
             agent_name: None,
         });
         let msg_index = self.messages.len() - 1;
-        let running = crate::shell::spawn_command(command);
         self.running_shell_commands.push((msg_index, running));
     }
 

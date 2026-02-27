@@ -49,33 +49,90 @@ pub(super) const fn selected_secondary_style() -> Style {
 /// Compute char-offset break points for word-wrapping a single logical line
 /// (no embedded newlines). Each returned offset is where a new visual line
 /// begins. Falls back to hard breaks for words longer than `width`.
+///
+/// ANSI escape sequences (e.g. `\x1b[1m`) are treated as zero-width so they
+/// do not inflate the measured line length.
 fn line_wrap_breaks(line: &str, width: usize) -> Vec<usize> {
     if width == 0 {
         return vec![];
     }
 
     let chars: Vec<char> = line.chars().collect();
-    let mut breaks = Vec::new();
-    let mut line_start = 0;
 
-    while line_start < chars.len() {
-        if line_start + width >= chars.len() {
-            break;
+    // Build a parallel array: `true` if the char at that index is part of an
+    // ANSI escape sequence and should not count towards visual width.
+    let invisible = ansi_invisible_mask(&chars);
+
+    let mut breaks = Vec::new();
+    let mut idx = 0; // current char index
+    let mut visual_col = 0; // visual columns consumed on the current line
+    let mut last_ws_idx: Option<usize> = None; // last breakable whitespace char index
+
+    while idx < chars.len() {
+        if invisible[idx] {
+            idx += 1;
+            continue;
         }
 
-        let line_end = line_start + width;
-        let break_at = chars[line_start..line_end]
-            .iter()
-            .rposition(|&c| c.is_whitespace() && c != '\n')
-            .map(|p| line_start + p + 1)
-            .filter(|&p| p > line_start)
-            .unwrap_or(line_end);
+        visual_col += 1;
 
-        breaks.push(break_at);
-        line_start = break_at;
+        if chars[idx].is_whitespace() && chars[idx] != '\n' {
+            last_ws_idx = Some(idx);
+        }
+
+        if visual_col > width && idx < chars.len() {
+            // Need to break: prefer the last whitespace position
+            let break_at = if let Some(ws) = last_ws_idx {
+                ws + 1
+            } else {
+                idx // hard break at current position
+            };
+
+            breaks.push(break_at);
+
+            // Restart measurement from break_at
+            visual_col = 0;
+            last_ws_idx = None;
+            idx = break_at;
+            continue;
+        }
+
+        idx += 1;
     }
 
     breaks
+}
+
+/// Return a mask indicating which char indices belong to ANSI escape sequences.
+///
+/// An ANSI escape sequence starts with `ESC [` and ends at the first byte in
+/// the range `0x40..=0x7E` (the "final byte"). For SGR sequences the final
+/// byte is `m`, but we handle all CSI sequences so that cursor-movement and
+/// other codes are also treated as invisible.
+fn ansi_invisible_mask(chars: &[char]) -> Vec<bool> {
+    let mut mask = vec![false; chars.len()];
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '\x1b' && i + 1 < chars.len() && chars[i + 1] == '[' {
+            mask[i] = true; // ESC
+            i += 1;
+            mask[i] = true; // [
+            i += 1;
+            // Consume parameter bytes and the final byte
+            while i < chars.len() {
+                mask[i] = true;
+                if chars[i] as u32 >= 0x40 && chars[i] as u32 <= 0x7E {
+                    // final byte — sequence complete
+                    i += 1;
+                    break;
+                }
+                i += 1;
+            }
+        } else {
+            i += 1;
+        }
+    }
+    mask
 }
 
 /// Split text into chunks that fit within `width` characters using word
@@ -498,6 +555,113 @@ pub(super) fn render_popup(frame: &mut Frame, area: Rect, lines: Vec<Line>, titl
     frame.render_widget(popup, area);
 }
 
+/// Parse a string containing ANSI SGR escape sequences into styled ratatui spans.
+///
+/// Handles the escape codes emitted by the CLI's `comfy-table` / `yansi` output:
+/// - `\x1b[1m` bold, `\x1b[0m` reset
+/// - `\x1b[38;5;Nm` 256-color foreground
+/// - `\x1b[39m` default foreground
+/// - Basic foreground colors `\x1b[30m`–`\x1b[37m` and bright `\x1b[90m`–`\x1b[97m`
+///
+/// Accepts an initial `Style` to carry over from a previous chunk (e.g. when
+/// text is word-wrapped into multiple lines) and returns the final active style
+/// alongside the spans.
+///
+/// Unrecognized sequences are silently consumed (their text content is not lost).
+pub(super) fn parse_ansi_spans(input: &str, initial_style: Style) -> (Vec<Span<'static>>, Style) {
+    let mut spans: Vec<Span<'static>> = Vec::new();
+    let mut style = initial_style;
+    let mut buf = String::new();
+    let mut chars = input.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '\x1b' && chars.peek() == Some(&'[') {
+            // Flush accumulated text
+            if !buf.is_empty() {
+                spans.push(Span::styled(std::mem::take(&mut buf), style));
+            }
+            chars.next(); // consume '['
+
+            // Collect the parameter bytes (digits and semicolons)
+            let mut params = String::new();
+            while let Some(&pc) = chars.peek() {
+                if pc.is_ascii_digit() || pc == ';' {
+                    params.push(pc);
+                    chars.next();
+                } else {
+                    break;
+                }
+            }
+            // Consume the final byte (should be 'm' for SGR)
+            let final_byte = chars.next();
+            if final_byte == Some('m') {
+                apply_sgr(&mut style, &params);
+            }
+            // Non-SGR sequences are silently dropped
+        } else {
+            buf.push(c);
+        }
+    }
+    if !buf.is_empty() {
+        spans.push(Span::styled(buf, style));
+    }
+    (spans, style)
+}
+
+/// Apply SGR (Select Graphic Rendition) parameters to a style.
+fn apply_sgr(style: &mut Style, params: &str) {
+    if params.is_empty() || params == "0" {
+        *style = Style::default();
+        return;
+    }
+
+    let codes: Vec<u8> = params.split(';').filter_map(|s| s.parse().ok()).collect();
+    let mut i = 0;
+    while i < codes.len() {
+        match codes[i] {
+            0 => *style = Style::default(),
+            1 => *style = style.add_modifier(Modifier::BOLD),
+            2 => *style = style.add_modifier(Modifier::DIM),
+            3 => *style = style.add_modifier(Modifier::ITALIC),
+            4 => *style = style.add_modifier(Modifier::UNDERLINED),
+            22 => *style = style.remove_modifier(Modifier::BOLD | Modifier::DIM),
+            23 => *style = style.remove_modifier(Modifier::ITALIC),
+            24 => *style = style.remove_modifier(Modifier::UNDERLINED),
+            // Basic foreground colors
+            30 => style.fg = Some(Color::Black),
+            31 => style.fg = Some(Color::Red),
+            32 => style.fg = Some(Color::Green),
+            33 => style.fg = Some(Color::Yellow),
+            34 => style.fg = Some(Color::Blue),
+            35 => style.fg = Some(Color::Magenta),
+            36 => style.fg = Some(Color::Cyan),
+            37 => style.fg = Some(Color::White),
+            39 => style.fg = None,
+            // Bright foreground colors
+            90 => style.fg = Some(Color::DarkGray),
+            91 => style.fg = Some(Color::LightRed),
+            92 => style.fg = Some(Color::LightGreen),
+            93 => style.fg = Some(Color::LightYellow),
+            94 => style.fg = Some(Color::LightBlue),
+            95 => style.fg = Some(Color::LightMagenta),
+            96 => style.fg = Some(Color::LightCyan),
+            97 => style.fg = Some(Color::Gray),
+            // 256-color foreground: 38;5;N
+            38 if i + 2 < codes.len() && codes[i + 1] == 5 => {
+                style.fg = Some(Color::Indexed(codes[i + 2]));
+                i += 2;
+            }
+            // 256-color background: 48;5;N
+            48 if i + 2 < codes.len() && codes[i + 1] == 5 => {
+                style.bg = Some(Color::Indexed(codes[i + 2]));
+                i += 2;
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -874,5 +1038,106 @@ mod tests {
             DelimiterDisplay::Hide,
         );
         assert_eq!(spans_text(&spans), "b and c");
+    }
+
+    // --- ANSI parsing tests ---
+
+    #[test]
+    fn ansi_plain_text() {
+        let (spans, _) = parse_ansi_spans("hello world", Style::default());
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0].content.as_ref(), "hello world");
+        assert_eq!(spans[0].style, Style::default());
+    }
+
+    #[test]
+    fn ansi_bold() {
+        let (spans, _) = parse_ansi_spans("before \x1b[1mbold\x1b[0m after", Style::default());
+        assert_eq!(spans.len(), 3);
+        assert_eq!(spans[0].content.as_ref(), "before ");
+        assert_eq!(spans[1].content.as_ref(), "bold");
+        assert!(spans[1].style.add_modifier.contains(Modifier::BOLD));
+        assert_eq!(spans[2].content.as_ref(), " after");
+        assert_eq!(spans[2].style, Style::default());
+    }
+
+    #[test]
+    fn ansi_256_color() {
+        // \x1b[38;5;10m = 256-color green foreground
+        let (spans, _) = parse_ansi_spans("\x1b[38;5;10mgreen\x1b[39m normal", Style::default());
+        assert_eq!(spans.len(), 2);
+        assert_eq!(spans[0].content.as_ref(), "green");
+        assert_eq!(spans[0].style.fg, Some(Color::Indexed(10)));
+        assert_eq!(spans[1].content.as_ref(), " normal");
+        assert_eq!(spans[1].style.fg, None);
+    }
+
+    #[test]
+    fn ansi_basic_colors() {
+        let (spans, _) = parse_ansi_spans("\x1b[31mred\x1b[32mgreen\x1b[0mplain", Style::default());
+        assert_eq!(spans.len(), 3);
+        assert_eq!(spans[0].style.fg, Some(Color::Red));
+        assert_eq!(spans[1].style.fg, Some(Color::Green));
+        assert_eq!(spans[2].style, Style::default());
+    }
+
+    #[test]
+    fn ansi_empty_string() {
+        let (spans, _) = parse_ansi_spans("", Style::default());
+        assert!(spans.is_empty());
+    }
+
+    #[test]
+    fn ansi_only_escapes() {
+        let (spans, _) = parse_ansi_spans("\x1b[1m\x1b[0m", Style::default());
+        assert!(spans.is_empty());
+    }
+
+    #[test]
+    fn ansi_style_carries_across_chunks() {
+        // Simulate a color opened in chunk 1 that should carry into chunk 2
+        let (spans1, carry) = parse_ansi_spans("\x1b[31mhello", Style::default());
+        assert_eq!(spans1.len(), 1);
+        assert_eq!(spans1[0].style.fg, Some(Color::Red));
+        assert_eq!(carry.fg, Some(Color::Red));
+
+        let (spans2, _) = parse_ansi_spans("world\x1b[0m", carry);
+        assert_eq!(spans2.len(), 1);
+        assert_eq!(spans2[0].content.as_ref(), "world");
+        assert_eq!(spans2[0].style.fg, Some(Color::Red));
+    }
+
+    // --- ANSI-aware wrapping tests ---
+
+    #[test]
+    fn wrap_ignores_ansi_escape_width() {
+        // "hello" is 5 visible chars; the ANSI escapes should not count.
+        // With width 10 this should NOT wrap.
+        let line = "\x1b[1mhello\x1b[0m";
+        assert_eq!(wrap_content(line, 10), vec![line]);
+    }
+
+    #[test]
+    fn wrap_ansi_line_fits_exactly() {
+        // 5 visible chars in width 5 — no wrap needed
+        let line = "\x1b[31mhello\x1b[0m";
+        assert_eq!(wrap_content(line, 5), vec![line]);
+    }
+
+    #[test]
+    fn wrap_ansi_table_row_no_spurious_break() {
+        // Simulate a table row with ANSI bold column headers.
+        // Visual content is 20 chars; ANSI adds invisible bytes.
+        let line = "│ \x1b[1mName\x1b[0m  \x1b[1mType\x1b[0m  \x1b[1mLang\x1b[0m │";
+        // Width 30 should be enough — no wrapping
+        let chunks = wrap_content(line, 30);
+        assert_eq!(chunks.len(), 1, "should not wrap: {chunks:?}");
+    }
+
+    #[test]
+    fn visual_lines_ansi_no_extra() {
+        let line = "\x1b[1mhello world\x1b[0m";
+        // 11 visible chars, width 20 -> 1 line
+        assert_eq!(visual_line_count(line, 20), 1);
     }
 }

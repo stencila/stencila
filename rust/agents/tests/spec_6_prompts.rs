@@ -605,7 +605,9 @@ fn gemini_base_instructions_topics() -> AgentResult<()> {
 
 #[test]
 fn commit_instructions_contains_committer_env_vars() {
-    let instructions = stencila_agents::prompts::build_commit_instructions(stencila_config::CommitAttribution::Committer);
+    let instructions = stencila_agents::prompts::build_commit_instructions(
+        stencila_config::CommitAttribution::Committer,
+    );
     assert!(instructions.contains("GIT_COMMITTER_NAME=\"Stencila\""));
     assert!(
         instructions

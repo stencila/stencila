@@ -22,6 +22,7 @@ use crate::{
         ResponsesState, WorkflowsState, agents::AgentDefinitionInfo,
         workflows::WorkflowDefinitionInfo,
     },
+    cli_commands::CliCommandNode,
     config::AppConfig,
     history::InputHistory,
     input::InputState,
@@ -415,6 +416,9 @@ pub struct App {
 
     /// Registry mapping agent names to stable colors.
     pub color_registry: AgentColorRegistry,
+
+    /// CLI command tree for slash command passthrough and autocomplete.
+    pub cli_tree: Option<Arc<Vec<CliCommandNode>>>,
 }
 
 impl App {
@@ -423,12 +427,18 @@ impl App {
     pub fn new(
         log_receiver: mpsc::UnboundedReceiver<String>,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
+        cli_tree: Option<Arc<Vec<CliCommandNode>>>,
     ) -> Self {
         let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
         let default_session = AgentSession::new(&default_name);
 
         let mut color_registry = AgentColorRegistry::new();
         color_registry.color_for(&default_name);
+
+        let mut commands_state = CommandsState::new();
+        if let Some(ref tree) = cli_tree {
+            commands_state.set_cli_tree(Arc::clone(tree));
+        }
 
         Self {
             config: AppConfig::default(),
@@ -437,7 +447,7 @@ impl App {
             messages: vec![AppMessage::Welcome],
             input: InputState::default(),
             input_history: InputHistory::new(),
-            commands_state: CommandsState::new(),
+            commands_state,
             files_state: FilesState::new(),
             history_state: HistoryState::new(),
             responses_state: ResponsesState::new(),
@@ -467,6 +477,7 @@ impl App {
             upgrade_msg_index: None,
             md_render_cache: crate::ui::markdown::MdRenderCache::default(),
             color_registry,
+            cli_tree,
         }
     }
 
@@ -530,6 +541,6 @@ impl App {
     /// Create an `App` with a dummy log receiver for testing.
     pub(crate) fn new_for_test() -> Self {
         let (_tx, rx) = mpsc::unbounded_channel();
-        Self::new(rx, None)
+        Self::new(rx, None, None)
     }
 }

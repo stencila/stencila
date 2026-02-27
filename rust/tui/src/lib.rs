@@ -3,6 +3,7 @@
 mod agent;
 mod app;
 mod autocomplete;
+pub mod cli_commands;
 mod commands;
 mod config;
 mod event;
@@ -41,12 +42,16 @@ impl Tui {
         log_level: LevelFilter,
         log_filter: &str,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
+        cli_command: Option<clap::Command>,
     ) -> Result<()> {
         let log_receiver = logging::setup(log_level, log_filter);
 
+        let cli_tree =
+            cli_command.map(|cmd| cli_commands::arc_tree(cli_commands::build_command_tree(&cmd)));
+
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();
-        let mut app = App::new(log_receiver, upgrade_handle);
+        let mut app = App::new(log_receiver, upgrade_handle, cli_tree);
 
         if !self.no_preview {
             match site_preview::spawn_preview() {
