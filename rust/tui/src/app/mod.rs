@@ -520,6 +520,17 @@ impl App {
             .running_agent_exchanges
             .is_empty()
     }
+
+    /// Whether the input area should visually present as shell mode.
+    ///
+    /// In Agent mode, typing `!` at the start of input means the text will be
+    /// executed as a shell command. The input area adopts shell styling (yellow
+    /// sidebar, `$` indicator, "run" hint) to give immediate visual feedback.
+    pub fn input_looks_like_shell(&self) -> bool {
+        self.mode == AppMode::Agent
+            && self.input.text().starts_with('!')
+            && self.input.text().len() > 1
+    }
 }
 
 /// Truncate a response to a short preview: first line, max `max_chars` characters.
