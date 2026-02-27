@@ -16,11 +16,23 @@ impl App {
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
             || (self.responses_state.is_visible() && self.handle_responses_autocomplete(key));
 
+        // Snapshot text *after* autocomplete handlers (which may set both
+        // input text and command_usage_hint together). Subsequent edits
+        // in handle_normal_key will clear the hint.
+        let text_before = self.input.text().to_string();
+
         if !consumed {
             self.handle_normal_key(key);
             // Only refresh autocomplete after normal key handling — autocomplete
             // handlers manage their own state (e.g. Esc dismisses without re-trigger).
             self.refresh_autocomplete();
+        }
+
+        // Clear the command usage hint when input text changes (user typed
+        // or deleted something), but preserve it across non-editing keys
+        // like arrow navigation, Esc, etc.
+        if self.command_usage_hint.is_some() && self.input.text() != text_before {
+            self.command_usage_hint = None;
         }
 
         // Ghost suggestion always refreshes (input/cursor may have changed in either path).
@@ -84,6 +96,13 @@ impl App {
                     // Re-trigger autocomplete to support drill-down into
                     // CLI command children (e.g. "/skills " → show subcommands)
                     self.commands_state.update(self.input.text());
+                    // If the accepted command is a leaf with required args,
+                    // show usage hint as ghost text.
+                    if !self.commands_state.is_visible()
+                        && let Some(hint) = self.cli_usage_hint_for_input()
+                    {
+                        self.command_usage_hint = Some(format!(" {hint}"));
+                    }
                 }
             }
             (KeyModifiers::NONE, KeyCode::Esc) => self.commands_state.dismiss(),
@@ -93,11 +112,30 @@ impl App {
                 if let Some(name) = self.commands_state.accept() {
                     self.input.set_text(&name);
                 }
-                self.submit_input();
+                // If the command requires positional args, don't submit —
+                // show the usage hint as ghost text instead.
+                if let Some(hint) = self.cli_usage_hint_for_input() {
+                    self.command_usage_hint = Some(format!(" {hint}"));
+                } else {
+                    self.submit_input();
+                }
             }
             _ => return false,
         }
         true
+    }
+
+    /// Extract CLI command path words from the current input (e.g. "/mcp add" → ["mcp", "add"])
+    /// and return the usage hint if the leaf node has required positional args.
+    fn cli_usage_hint_for_input(&self) -> Option<String> {
+        let text = self.input.text();
+        let trimmed = text.trim();
+        let without_slash = trimmed.strip_prefix('/')?;
+        let path: Vec<String> = without_slash.split_whitespace().map(String::from).collect();
+        if path.is_empty() {
+            return None;
+        }
+        self.commands_state.usage_hint_for(&path)
     }
 
     /// Handle a key event when the files autocomplete popup is visible.
@@ -964,5 +1002,99 @@ mod tests {
         assert_eq!(app.mode, AppMode::Agent);
         assert_eq!(app.active_session, 1);
         assert!(app.active_workflow.is_some());
+    }
+
+    #[tokio::test]
+    async fn autocomplete_enter_on_leaf_with_required_args_shows_hint() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/skills ` to show subcommands, then select "show" (has <NAME> arg)
+        for c in "/skills ".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert!(app.commands_state.is_visible());
+
+        // Navigate to "show" candidate (it may be first or second)
+        let show_idx = app
+            .commands_state
+            .candidates()
+            .iter()
+            .position(|c| c.name() == "/skills show")
+            .expect("show should be a candidate");
+        for _ in 0..show_idx {
+            app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        }
+
+        // Press Enter — should NOT execute, should show hint
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        assert_eq!(app.messages.len(), initial_msg_count);
+        assert_eq!(app.input.text(), "/skills show");
+        assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
+    }
+
+    #[tokio::test]
+    async fn autocomplete_tab_on_leaf_with_required_args_shows_hint() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        // Type `/skills ` to show subcommands
+        for c in "/skills ".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        assert!(app.commands_state.is_visible());
+
+        // Navigate to "show" candidate
+        let show_idx = app
+            .commands_state
+            .candidates()
+            .iter()
+            .position(|c| c.name() == "/skills show")
+            .expect("show should be a candidate");
+        for _ in 0..show_idx {
+            app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        }
+
+        // Press Tab — should accept and show hint as ghost text
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+
+        assert_eq!(app.input.text(), "/skills show");
+        assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
+    }
+
+    #[tokio::test]
+    async fn usage_hint_persists_across_non_editing_keys() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        // Type `/skills show` and press Enter to trigger hint
+        for c in "/skills show".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
+
+        // Non-editing keys should NOT clear the hint
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
+
+        // Typing a character SHOULD clear the hint
+        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
+        assert!(app.command_usage_hint.is_none());
     }
 }

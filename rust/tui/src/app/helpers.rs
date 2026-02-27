@@ -88,12 +88,27 @@ impl App {
     ///
     /// Shows ghost text when: input is non-empty, cursor is at end,
     /// input is single-line, and no autocomplete popup is visible.
+    ///
+    /// A `command_usage_hint` (set when a CLI command needs positional
+    /// args) takes priority over history-based suggestions. It persists
+    /// until the input text changes (see `handle_key`).
     pub(super) fn refresh_ghost_suggestion(&mut self) {
         let text = self.input.text();
         let at_end = self.input.cursor() == text.len();
 
         if text.is_empty() || !at_end || !self.input.is_single_line() || self.any_popup_visible() {
             self.ghost_suggestion = None;
+            self.ghost_is_truncated = false;
+            self.command_usage_hint = None;
+            return;
+        }
+
+        // Command usage hint takes priority over history ghost text.
+        // Use as_ref/clone so the hint persists across refresh cycles;
+        // it is cleared only when the input text actually changes
+        // (see `clear_command_usage_hint`).
+        if let Some(hint) = self.command_usage_hint.clone() {
+            self.ghost_suggestion = Some(hint);
             self.ghost_is_truncated = false;
             return;
         }
@@ -112,7 +127,6 @@ impl App {
 
         if let Some(suffix) = result {
             self.ghost_suggestion = Some(suffix);
-            // ghost_is_truncated is computed at render time based on visual line count
             self.ghost_is_truncated = false;
         } else {
             self.ghost_suggestion = None;

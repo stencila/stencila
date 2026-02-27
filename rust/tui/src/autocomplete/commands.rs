@@ -250,6 +250,15 @@ impl CommandsState {
         }
     }
 
+    /// Look up the usage hint for a CLI command path (e.g. `["mcp", "add"]`).
+    ///
+    /// Returns `Some("…")` when the leaf node has required positional args,
+    /// `None` otherwise.
+    pub fn usage_hint_for(&self, path: &[String]) -> Option<String> {
+        let tree = self.cli_tree.as_deref()?;
+        crate::cli_commands::find_missing_args_hint(tree, path)
+    }
+
     /// Hide the popup and reset state.
     pub fn dismiss(&mut self) {
         self.visible = false;
@@ -400,6 +409,7 @@ mod tests {
             name: "workflows".to_string(),
             description: "CLI workflows".to_string(),
             children: vec![],
+            usage_hint: String::new(),
         }]);
         state.set_cli_tree(tree);
         state.update("/");

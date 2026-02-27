@@ -50,6 +50,18 @@ impl App {
                         }
                     }
 
+                    // If the leaf subcommand requires positional args that
+                    // haven't been provided, show ghost text instead of
+                    // executing (which would fail with a clap error).
+                    if let Some(hint) =
+                        crate::cli_commands::find_missing_args_hint(tree_ref, &cmd.args)
+                    {
+                        let slash_cmd = format!("/{}", cmd.args.join(" "));
+                        self.input.set_text(&slash_cmd);
+                        self.command_usage_hint = Some(format!(" {hint}"));
+                        return;
+                    }
+
                     let exe = std::env::current_exe()
                         .map_or_else(|_| "stencila".to_string(), |p| p.display().to_string());
                     // Record in history as a shell command so Up-arrow recall works.
@@ -511,6 +523,75 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
 
         // Should have spawned a command
+        assert!(app.messages.len() > initial_msg_count);
+        assert!(app.input.is_empty());
+    }
+
+    #[tokio::test]
+    async fn cli_subcommand_with_required_args_shows_hint_on_enter() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/skills show` (requires <NAME>) and press Enter
+        for c in "/skills show".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should NOT have spawned a command
+        assert_eq!(app.messages.len(), initial_msg_count);
+        // Input should be preserved with the command text
+        assert_eq!(app.input.text(), "/skills show");
+        // Ghost suggestion should show the usage hint
+        assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
+    }
+
+    #[tokio::test]
+    async fn cli_subcommand_with_args_provided_executes() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/skills show foo` (required arg provided) and press Enter
+        for c in "/skills show foo".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should have spawned a command
+        assert!(app.messages.len() > initial_msg_count);
+        assert!(app.input.is_empty());
+    }
+
+    #[tokio::test]
+    async fn cli_subcommand_no_required_args_executes() {
+        use std::sync::Arc;
+
+        let mut app = App::new_for_test();
+        let tree = Arc::new(crate::cli_commands::test_cli_tree());
+        app.cli_tree = Some(Arc::clone(&tree));
+        app.commands_state.set_cli_tree(tree);
+
+        let initial_msg_count = app.messages.len();
+
+        // Type `/skills list` (no required args) and press Enter
+        for c in "/skills list".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+
+        // Should have spawned a command immediately
         assert!(app.messages.len() > initial_msg_count);
         assert!(app.input.is_empty());
     }

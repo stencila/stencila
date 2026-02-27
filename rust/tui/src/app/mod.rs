@@ -371,6 +371,11 @@ pub struct App {
     /// Offset for cycling ghost suggestions via Up/Down arrows.
     /// 0 = most recent prefix match (default), incremented by Up, decremented by Down.
     ghost_nav_offset: usize,
+    /// Usage hint for a CLI command that requires positional args.
+    /// Takes priority over history-based ghost text. Persists across
+    /// non-editing key events (arrows, Esc, etc.) and is cleared only
+    /// when the input text actually changes.
+    pub command_usage_hint: Option<String>,
 
     /// Agent sessions. Index 0 is the default session.
     pub sessions: Vec<AgentSession>,
@@ -461,6 +466,7 @@ impl App {
             ghost_suggestion: None,
             ghost_is_truncated: false,
             ghost_nav_offset: 0,
+            command_usage_hint: None,
             running_shell_commands: Vec::new(),
             active_workflow: None,
             sessions: vec![default_session],
