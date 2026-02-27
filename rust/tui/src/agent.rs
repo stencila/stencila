@@ -491,6 +491,14 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let id = str_arg("agent_id").unwrap_or_default();
             format!("Close agent {id}")
         }
+        "mcp_codemode" => {
+            let code = str_arg("code").unwrap_or_default();
+            if code.is_empty() {
+                "MCP Codemode".to_string()
+            } else {
+                format!("MCP Codemode: {code}")
+            }
+        }
         _ => {
             let label = tool_name.to_sentence_case();
             let summary = generic_summary(arguments);
@@ -853,6 +861,16 @@ mod tests {
     fn format_wait() {
         let args = serde_json::json!({"agent_id": "agent-1"});
         assert_eq!(format_tool_start("wait", &args), "Wait for agent-1");
+    }
+
+    #[test]
+    fn format_mcp_codemode() {
+        let args =
+            serde_json::json!({"code": "import { listServers } from \"@codemode/discovery\";"});
+        assert_eq!(
+            format_tool_start("mcp_codemode", &args),
+            "MCP Codemode: import { listServers } from \"@codemode/discovery\";"
+        );
     }
 
     #[test]
