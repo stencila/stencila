@@ -510,9 +510,7 @@ fn models_dev_cache_path() -> PathBuf {
     std::env::temp_dir().join(MODELS_DEV_CACHE_FILE)
 }
 
-async fn fetch_models_dev_metadata(
-    client: &reqwest::Client,
-) -> Result<ModelsDevCatalog, String> {
+async fn fetch_models_dev_metadata(client: &reqwest::Client) -> Result<ModelsDevCatalog, String> {
     let cache_path = models_dev_cache_path();
 
     if cache_path.exists() {
@@ -541,10 +539,7 @@ async fn fetch_models_dev_metadata(
     }
 
     std::fs::write(&cache_path, &bytes).map_err(|e| e.to_string())?;
-    println!(
-        "Downloaded models.dev metadata to {}",
-        cache_path.display()
-    );
+    println!("Downloaded models.dev metadata to {}", cache_path.display());
 
     Ok(metadata)
 }

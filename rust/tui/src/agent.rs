@@ -752,8 +752,7 @@ pub(crate) fn process_event(
                     .get("message")
                     .and_then(Value::as_str)
                     .unwrap_or("info");
-                g.segments
-                    .push(ResponseSegment::Info(message.to_string()));
+                g.segments.push(ResponseSegment::Info(message.to_string()));
             }
         }
         EventKind::Warning => {
@@ -788,8 +787,7 @@ pub(crate) fn process_event(
                         .get("message")
                         .and_then(Value::as_str)
                         .unwrap_or("unknown error");
-                    g.segments
-                        .push(ResponseSegment::Error(message.to_string()));
+                    g.segments.push(ResponseSegment::Error(message.to_string()));
                     g.error = Some(message.to_string());
                 }
             }
