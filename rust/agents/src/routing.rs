@@ -160,10 +160,10 @@ impl RoutingDecision {
     /// Format as a concise one-line summary for user display.
     pub fn summary(&self) -> String {
         let (backend, provider, model) = match &self.route {
-            SessionRoute::Api { provider, model } => ("API", provider.as_str(), Some(model.as_str())),
-            SessionRoute::Cli { provider, model } => {
-                ("CLI", provider.as_str(), model.as_deref())
+            SessionRoute::Api { provider, model } => {
+                ("API", provider.as_str(), Some(model.as_str()))
             }
+            SessionRoute::Cli { provider, model } => ("CLI", provider.as_str(), model.as_deref()),
         };
 
         let model_display = if let Some((alias, concrete)) = &self.alias_resolution {
@@ -185,13 +185,14 @@ impl RoutingDecision {
         if !self.fallback_used {
             return None;
         }
-        let reason = self.fallback_reason.as_deref().unwrap_or("no API credentials");
+        let reason = self
+            .fallback_reason
+            .as_deref()
+            .unwrap_or("no API credentials");
         let SessionRoute::Cli { provider, .. } = &self.route else {
             return None;
         };
-        Some(format!(
-            "Falling back to {provider} — {reason}"
-        ))
+        Some(format!("Falling back to {provider} — {reason}"))
     }
 }
 
@@ -249,21 +250,58 @@ pub fn route_session_explained(
     }
 
     // 2. Resolve API provider + model
-    let (api_provider, model, provider_source, model_source) =
-        match (agent_provider, agent_model) {
-            (Some(p), Some(m)) => (
+    let (api_provider, model, provider_source, model_source) = match (agent_provider, agent_model) {
+        (Some(p), Some(m)) => (
+            p.to_string(),
+            m.to_string(),
+            ProviderSource::AgentExplicit,
+            ModelSource::AgentExplicit,
+        ),
+        (Some(p), None) => {
+            let m = default_model(p)
+                .ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: format!(
+                            "No default model for provider '{p}'. \
+                                 Please specify a model explicitly."
+                        ),
+                    })
+                })?
+                .to_string();
+            (
                 p.to_string(),
-                m.to_string(),
+                m,
                 ProviderSource::AgentExplicit,
+                ModelSource::DefaultAlias,
+            )
+        }
+        (None, Some(m)) => {
+            let p = client
+                .infer_provider_from_model(m)
+                .map_err(AgentError::Sdk)?
+                .ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: format!(
+                            "Cannot infer provider for model '{m}'. \
+                                 Please specify the provider explicitly."
+                        ),
+                    })
+                })?;
+            (
+                p,
+                m.to_string(),
+                ProviderSource::InferredFromModel,
                 ModelSource::AgentExplicit,
-            ),
-            (Some(p), None) => {
+            )
+        }
+        (None, None) => {
+            if let Some(p) = client.select_provider() {
                 let m = default_model(p)
                     .ok_or_else(|| {
                         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
                             message: format!(
                                 "No default model for provider '{p}'. \
-                                 Please specify a model explicitly."
+                                     Please specify a model explicitly."
                             ),
                         })
                     })?
@@ -271,72 +309,34 @@ pub fn route_session_explained(
                 (
                     p.to_string(),
                     m,
-                    ProviderSource::AgentExplicit,
+                    ProviderSource::DefaultConfig,
                     ModelSource::DefaultAlias,
                 )
-            }
-            (None, Some(m)) => {
-                let p = client
-                    .infer_provider_from_model(m)
-                    .map_err(AgentError::Sdk)?
-                    .ok_or_else(|| {
-                        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                            message: format!(
-                                "Cannot infer provider for model '{m}'. \
-                                 Please specify the provider explicitly."
-                            ),
-                        })
-                    })?;
-                (
-                    p,
-                    m.to_string(),
-                    ProviderSource::InferredFromModel,
-                    ModelSource::AgentExplicit,
-                )
-            }
-            (None, None) => {
-                if let Some(p) = client.select_provider() {
-                    let m = default_model(p)
-                        .ok_or_else(|| {
-                            AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                                message: format!(
-                                    "No default model for provider '{p}'. \
-                                     Please specify a model explicitly."
-                                ),
-                            })
-                        })?
-                        .to_string();
-                    (
-                        p.to_string(),
-                        m,
-                        ProviderSource::DefaultConfig,
-                        ModelSource::DefaultAlias,
-                    )
-                } else {
-                    // No API providers — fall back to first available CLI tool
-                    let cli_provider = detect_cli_provider().ok_or_else(|| {
-                        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                            message: "No API providers configured and no supported CLI tool \
+            } else {
+                // No API providers — fall back to first available CLI tool
+                let cli_provider = detect_cli_provider().ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: "No API providers configured and no supported CLI tool \
                                       found on PATH.\n\
                                       Install one of: claude, codex, gemini — \
                                       or set an API key (e.g. ANTHROPIC_API_KEY, OPENAI_API_KEY)."
-                                .to_string(),
-                        })
-                    })?;
-                    return Ok(RoutingDecision {
-                        route: SessionRoute::Cli {
-                            provider: cli_provider,
-                            model: None,
-                        },
-                        provider_source: ProviderSource::CliDefault,
-                        model_source: ModelSource::CliDefault,
-                        alias_resolution: None,
-                        fallback_used: false,
-                        fallback_reason: None,
-                    });
-                }
+                            .to_string(),
+                    })
+                })?;
+                return Ok(RoutingDecision {
+                    route: SessionRoute::Cli {
+                        provider: cli_provider,
+                        model: None,
+                    },
+                    provider_source: ProviderSource::CliDefault,
+                    model_source: ModelSource::CliDefault,
+                    alias_resolution: None,
+                    fallback_used: false,
+                    fallback_reason: None,
+                });
             }
-        };
+        }
+    };
 
     let alias_resolution = resolve_alias_preview(&model);
 
@@ -367,9 +367,7 @@ pub fn route_session_explained(
             model_source,
             alias_resolution,
             fallback_used: true,
-            fallback_reason: Some(format!(
-                "No API key for {api_provider} (set {env_hint})"
-            )),
+            fallback_reason: Some(format!("No API key for {api_provider} (set {env_hint})")),
         });
     }
 
@@ -432,9 +430,7 @@ mod tests {
 
     /// Build an empty client with no providers.
     fn empty_client() -> stencila_models3::client::Client {
-        stencila_models3::client::Client::builder()
-            .build()
-            .unwrap()
+        stencila_models3::client::Client::builder().build().unwrap()
     }
 
     // -----------------------------------------------------------------------
@@ -470,7 +466,8 @@ mod tests {
     #[test]
     fn explicit_provider_and_model_no_auth_falls_back_to_cli() {
         let client = empty_client();
-        let route = route_session(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client).unwrap();
+        let route =
+            route_session(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client).unwrap();
         // No API auth → falls back to claude-cli
         assert_eq!(
             route,
@@ -552,12 +549,9 @@ mod tests {
     #[test]
     fn explained_api_fallback_has_warning() {
         let client = empty_client();
-        let decision = route_session_explained(
-            Some("anthropic"),
-            Some("claude-sonnet-4-20250514"),
-            &client,
-        )
-        .unwrap();
+        let decision =
+            route_session_explained(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
+                .unwrap();
 
         assert!(decision.fallback_used);
         assert!(decision.fallback_reason.is_some());
@@ -570,8 +564,7 @@ mod tests {
     #[test]
     fn explained_default_alias_model_source() {
         let client = empty_client();
-        let decision =
-            route_session_explained(Some("openai"), None, &client).unwrap();
+        let decision = route_session_explained(Some("openai"), None, &client).unwrap();
 
         assert_eq!(decision.model_source, ModelSource::DefaultAlias);
         // Model should be "gpt" (the default alias for openai)

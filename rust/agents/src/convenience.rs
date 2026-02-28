@@ -240,25 +240,26 @@ pub async fn create_session(
     };
 
     match decision.route {
-        SessionRoute::Cli { ref provider, ref model } => {
+        SessionRoute::Cli {
+            ref provider,
+            ref model,
+        } => {
             let (session, event_receiver) =
                 create_cli_session_inner(provider, model.as_deref(), &config)?;
             emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Cli(session), event_receiver))
         }
-        SessionRoute::Api { ref provider, ref model } => {
+        SessionRoute::Api {
+            ref provider,
+            ref model,
+        } => {
             let api_client = client.ok_or_else(|| {
                 AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
                     message: "No API client available".to_string(),
                 })
             })?;
-            let (session, event_receiver) = create_api_session_inner(
-                provider,
-                model,
-                api_client,
-                config,
-            )
-            .await?;
+            let (session, event_receiver) =
+                create_api_session_inner(provider, model, api_client, config).await?;
             emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Api(session), event_receiver))
         }

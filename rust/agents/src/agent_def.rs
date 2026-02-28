@@ -268,11 +268,7 @@ pub async fn discover(cwd: &Path) -> Vec<AgentInstance> {
     }
 
     let mut agents: Vec<AgentInstance> = by_name.into_values().collect();
-    agents.sort_by(|a, b| {
-        a.source
-            .cmp(&b.source)
-            .then_with(|| a.name.cmp(&b.name))
-    });
+    agents.sort_by(|a, b| a.source.cmp(&b.source).then_with(|| a.name.cmp(&b.name)));
     agents
 }
 

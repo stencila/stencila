@@ -279,9 +279,7 @@ fn error_is_not_session_error_for_retryable_sdk_variants() {
 fn requires_session_reset_for_closed_session_errors() {
     let errors: Vec<AgentError> = vec![
         AgentError::SessionClosed,
-        AgentError::CliNotFound {
-            binary: "x".into(),
-        },
+        AgentError::CliNotFound { binary: "x".into() },
         AgentError::CliProcessFailed {
             code: 1,
             stderr: "err".into(),
