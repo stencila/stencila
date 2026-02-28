@@ -1,7 +1,7 @@
 import { ExecutionBounds } from '@stencila/types'
 import { apply, css } from '@twind/core'
 import { TemplateResult, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
 
 import { patchValue } from '../clients/commands'
 import { Model, data } from '../system'

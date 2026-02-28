@@ -1,6 +1,6 @@
 import { NodeType, SuggestionStatus } from '@stencila/types'
 import { css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { closestGlobally } from '../utilities/closestGlobally'

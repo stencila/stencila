@@ -1,6 +1,6 @@
 import { css } from '@twind/core'
 import { PropertyValues, html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 

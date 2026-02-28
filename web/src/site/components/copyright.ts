@@ -1,5 +1,5 @@
 import { LitElement } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement } from 'lit/decorators'
 
 /**
  * Copyright component with auto-updating year

@@ -22,7 +22,7 @@ export class DomClient extends FormatClient {
     super(id, 'read', 'dom')
 
     this.subscribe((html) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log(`📝 DomClient morphing element`, renderRoot)
       }
 

@@ -1,5 +1,5 @@
 import { LitElement, type TemplateResult, html, nothing } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { property, state } from 'lit/decorators'
 
 import {
   type ActionPosition,

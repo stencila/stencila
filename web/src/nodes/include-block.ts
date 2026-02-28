@@ -1,7 +1,7 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 
 import { patchValue, patchValueExecute } from '../clients/commands'
 import { withTwind } from '../twind'

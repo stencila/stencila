@@ -104,7 +104,7 @@ export abstract class Client {
     this.ws.onmessage = (event: MessageEvent<string>) => {
       const message = JSON.parse(event.data)
 
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log(`🚩 ${this.constructor.name} received:`, message)
       }
 
@@ -130,7 +130,7 @@ export abstract class Client {
    * @param message The message as a JavaScript object
    */
   protected sendMessage(message: Record<string, unknown>) {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`📨 ${this.constructor.name} sending:`, message)
     }
 

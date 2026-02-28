@@ -1,5 +1,5 @@
 import { ExecutionBounds } from '@stencila/types'
-import { property } from 'lit/decorators.js'
+import { property } from 'lit/decorators'
 
 import { Executable } from './executable'
 

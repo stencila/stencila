@@ -21,29 +21,6 @@
     "documents"
   ],
   "type": "module",
-  "targets": {
-    "default": {
-      "source": [
-        "src/images/favicon.png",
-        "src/themes/init.js",
-        "src/themes/*.css",
-        "src/views/dynamic.ts",
-        "src/views/static.ts",
-        "src/site.ts"
-      ],
-      "distDir": "./dist"
-    },
-    "vscode": {
-      "source": [
-        "src/themes/*.css",
-        "src/views/vscode.ts"
-      ],
-      "distDir": "../vscode/out/web"
-    }
-  },
-  "browserslist": [
-    "fully supports es6-class"
-  ],
   "scripts": {
     "audit": "better-npm-audit audit",
     "fix": "eslint --fix \"src/**/*.ts\"",
@@ -53,11 +30,11 @@
     "cover": "vitest run --coverage",
     "typecheck": "../node_modules/.bin/tsc --skipLibCheck --noEmit",
     "e2e": "playwright test",
-    "start": "parcel watch",
-    "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist --no-cache",
-    "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-scope-hoist --no-cache",
+    "start": "vite build --watch",
+    "build": "vite build",
+    "build:vscode": "vite build --config vite.config.vscode.ts",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
-    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*,@tailwindcss/postcss' --ignore-patterns 'vitest.config.ts,**/*.test.ts'"
+    "unused": "depcheck --quiet --ignores 'vite,vite-*,postcss-*,@tailwindcss/postcss' --ignore-patterns 'vitest.config.ts,**/*.test.ts'"
   },
   "dependencies": {
     "@codemirror/commands": "6.10.2",
@@ -74,9 +51,9 @@
     "@codemirror/lint": "6.9.4",
     "@codemirror/state": "6.5.4",
     "@codemirror/view": "6.39.15",
-    "@lezer/highlight": "1.2.3",
     "@iconify-json/bi": "^1.2.7",
     "@iconify-json/lucide": "^1.2.94",
+    "@lezer/highlight": "1.2.3",
     "@lit-labs/observers": "2.1.0",
     "@lit/context": "1.1.6",
     "@shoelace-style/shoelace": "2.20.1",
@@ -111,17 +88,15 @@
   },
   "devDependencies": {
     "@argos-ci/playwright": "6.4.2",
-    "@parcel/compressor-brotli": "2.16.4",
-    "@parcel/transformer-inline-string": "2.16.4",
-    "@parcel/transformer-typescript-tsc": "2.16.4",
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.2.1",
     "@types/katex": "0.16.8",
     "@types/plotly.js-dist-min": "2.3.4",
     "@types/prismjs": "1.26.6",
     "glob": "13.0.6",
-    "parcel": "2.16.4",
     "postcss-import": "16.1.1",
-    "tsx": "4.21.0"
+    "tsx": "4.21.0",
+    "vite": "^7.3.1",
+    "vite-plugin-compression2": "^2.4.0"
   }
 }

@@ -2,9 +2,9 @@ import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
-import left from './logo-circle-left.svg'
-import middle from './logo-circle-middle.svg'
-import right from './logo-circle-right.svg'
+import left from './logo-circle-left.svg?raw'
+import middle from './logo-circle-middle.svg?raw'
+import right from './logo-circle-right.svg?raw'
 
 @customElement('stencila-animated-logo')
 export class StencilaAnimatedLogo extends LitElement {

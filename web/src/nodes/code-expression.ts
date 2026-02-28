@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'

@@ -1,5 +1,5 @@
 import { html, nothing } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 
 import { GlideEvents } from '../../glide/events'
 import { navigate } from '../../glide/glide'

@@ -1,4 +1,4 @@
-import { presetIcons } from '@unocss/preset-icons/dist/browser.mjs'
+import { presetIcons } from '@unocss/preset-icons/browser'
 import { presetWind4 } from '@unocss/preset-wind4'
 import initUnocssRuntime from '@unocss/runtime'
 

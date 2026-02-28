@@ -1,6 +1,6 @@
 import { LabelType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'

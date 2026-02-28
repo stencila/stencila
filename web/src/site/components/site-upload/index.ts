@@ -1,5 +1,5 @@
 import { html, nothing } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators'
 
 import { GlideEvents } from '../../glide/events'
 import { type BaseFooterState, SiteAction, isLocalhost, joinPath } from '../site-action'

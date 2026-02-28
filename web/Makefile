@@ -8,7 +8,6 @@ else
 	cd .. && npm install --ignore-scripts
 endif
 	make -C ../ts build
-	node scripts/patch-vega.js
 
 # Make formatting and linting fixes
 fix: install
@@ -46,7 +45,7 @@ audit: install
 	cd .. && npm run audit
 
 # Build the distribution
-build: install clean
+build: install
 	npm run build
 
 # Publish the distribution (requires rclone and relevant secrets)
@@ -61,7 +60,6 @@ publish: build
 
 # Clean up development artifacts
 clean:
-	mv dist/.gitignore dist.gitignore
 	rm -rf dist
 	mkdir dist
-	mv dist.gitignore dist/.gitignore
+	@printf '# Ignore everything in this folder (except this file)\n# to ensure that the folder exists in the repo so that it\n# is available for embedding in the Rust CLI\n*\n!.gitignore\n' > dist/.gitignore

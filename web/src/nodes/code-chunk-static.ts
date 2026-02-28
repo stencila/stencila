@@ -1,6 +1,6 @@
 import type { LabelType } from '@stencila/types'
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
 
 import { booleanConverter } from '../utilities/booleanConverter'
 

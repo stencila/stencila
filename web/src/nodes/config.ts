@@ -1,5 +1,5 @@
 import { LitElement, PropertyValues } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
 
 /**
  * Web component representing a Stencila Schema `Config` node

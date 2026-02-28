@@ -1,5 +1,5 @@
 import { NodeType } from '@stencila/types'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
 
 import { DomClient } from '../clients/dom'
 import { ThemeClient } from '../clients/themes'

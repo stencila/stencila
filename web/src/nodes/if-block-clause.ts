@@ -1,7 +1,7 @@
 import { ContextConsumer } from '@lit/context'
 import { apply } from '@twind/core'
 import { PropertyValues, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { IconName } from '../ui/icons/icon'

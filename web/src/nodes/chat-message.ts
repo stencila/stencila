@@ -1,7 +1,7 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { PropertyValues, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { booleanConverter } from '../utilities/booleanConverter'

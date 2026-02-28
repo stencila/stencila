@@ -1,6 +1,6 @@
 import { apply } from '@twind/core'
 import { PropertyValues, TemplateResult, html } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { property, state } from 'lit/decorators'
 
 import { Entity } from './entity'
 

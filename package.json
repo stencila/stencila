@@ -6,8 +6,7 @@
     "web"
   ],
   "scripts": {
-    "audit": "better-npm-audit audit",
-    "postinstall": "node web/scripts/patch-vega.js"
+    "audit": "better-npm-audit audit"
   },
   "engines": {
     "node": ">=18"

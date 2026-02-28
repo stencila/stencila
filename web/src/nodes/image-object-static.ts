@@ -1,6 +1,6 @@
 import { LitElement, PropertyValues, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
-import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
+import { customElement, property, state } from 'lit/decorators'
+import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
 import { compileCytoscape } from './image-object-cytoscape'
 import { compileECharts } from './image-object-echarts'

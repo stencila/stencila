@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
 import { html } from 'lit'
-import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
+import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
 import { colorToHex } from '../utilities/colorUtils'
 import { getCSSVariables } from '../utilities/cssVariables'

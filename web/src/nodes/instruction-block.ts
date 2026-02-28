@@ -1,6 +1,6 @@
 import { apply } from '@twind/core'
 import { PropertyValues, css, html } from 'lit'
-import { customElement, query, state } from 'lit/decorators.js'
+import { customElement, query, state } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { archiveNode, patchValue, reviseNode } from '../clients/commands'

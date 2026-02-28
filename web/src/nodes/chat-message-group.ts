@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators'
 
 import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'

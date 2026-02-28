@@ -1,6 +1,6 @@
 import { File } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { runChat } from '../../../clients/commands'

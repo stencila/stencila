@@ -1,4 +1,4 @@
-import { customElement } from 'lit/decorators.js'
+import { customElement } from 'lit/decorators'
 
 import { VSCodeClient } from '../clients/vscode'
 import { initUno } from '../unocss'

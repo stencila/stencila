@@ -4,7 +4,7 @@ import {
   ExecutionStatus,
   ExecutionTag,
 } from '@stencila/types'
-import { property } from 'lit/decorators.js'
+import { property } from 'lit/decorators'
 
 import { Entity } from './entity'
 

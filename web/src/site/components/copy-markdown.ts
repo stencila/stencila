@@ -1,5 +1,5 @@
 import { LitElement } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators'
 
 type CopyState = 'idle' | 'loading' | 'success' | 'error'
 
