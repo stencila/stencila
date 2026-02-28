@@ -32,6 +32,3 @@ preset = "landing"
 [[site.layout.overrides]]
 routes = ["/docs/**"]
 preset = "docs"
-
-[agents]
-default = "coder-a"
