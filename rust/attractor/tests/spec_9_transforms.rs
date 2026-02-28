@@ -300,8 +300,6 @@ impl CodergenBackend for CapturingBackend {
 
 #[tokio::test]
 async fn engine_applies_variable_expansion() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("test");
     g.graph_attrs
         .insert("goal".into(), AttrValue::from("build a widget"));
@@ -328,7 +326,7 @@ async fn engine_applies_variable_expansion() -> AttractorResult<()> {
     let backend = Arc::new(CapturingBackend::new());
     let handler = CodergenHandler::with_backend(backend.clone());
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register("codergen", handler);
 
     let outcome = engine::run(&g, config).await?;

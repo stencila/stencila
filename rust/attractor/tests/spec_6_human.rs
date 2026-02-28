@@ -21,8 +21,6 @@ use stencila_attractor::interviewers::{
 };
 use stencila_attractor::types::StageStatus;
 
-use common::make_tempdir;
-
 // ===========================================================================
 // §6.2 — Question types
 // ===========================================================================
@@ -381,7 +379,6 @@ fn human_gate_graph(choices: &[(&str, &str)]) -> Graph {
 
 #[tokio::test]
 async fn wait_human_selects_first_option() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let interviewer = Arc::new(AutoApproveInterviewer);
     let handler = WaitForHumanHandler::new(interviewer);
 
@@ -393,7 +390,7 @@ async fn wait_human_selects_first_option() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.suggested_next_ids.contains(&"deploy".to_string()));
@@ -409,7 +406,6 @@ async fn wait_human_selects_first_option() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_queue_selects_specific() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     // Queue with a "Selected R" answer
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
         AnswerValue::Selected("R".into()),
@@ -424,7 +420,7 @@ async fn wait_human_queue_selects_specific() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.suggested_next_ids.contains(&"rollback".to_string()));
@@ -433,7 +429,6 @@ async fn wait_human_queue_selects_specific() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_timeout_with_default() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
         AnswerValue::Timeout,
     )]));
@@ -455,7 +450,7 @@ async fn wait_human_timeout_with_default() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.suggested_next_ids.contains(&"rollback".to_string()));
@@ -464,7 +459,6 @@ async fn wait_human_timeout_with_default() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_timeout_no_default_retries() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
         AnswerValue::Timeout,
     )]));
@@ -478,7 +472,7 @@ async fn wait_human_timeout_no_default_retries() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Retry);
     Ok(())
@@ -489,7 +483,6 @@ async fn wait_human_timeout_attr_propagated_to_question() -> AttractorResult<()>
     use std::sync::Mutex;
     use stencila_attractor::types::Duration;
 
-    let tmp = make_tempdir()?;
     let captured: Arc<Mutex<Option<f64>>> = Arc::new(Mutex::new(None));
     let captured_clone = Arc::clone(&captured);
     let interviewer = Arc::new(CallbackInterviewer::new(move |q: &Question| {
@@ -516,9 +509,7 @@ async fn wait_human_timeout_attr_propagated_to_question() -> AttractorResult<()>
             node_id: "gate".into(),
         }
     })?;
-    handler
-        .execute(node, &Context::new(), &g, tmp.path())
-        .await?;
+    handler.execute(node, &Context::new(), &g).await?;
     let secs = captured
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
@@ -540,9 +531,7 @@ async fn wait_human_timeout_attr_propagated_to_question() -> AttractorResult<()>
             node_id: "gate".into(),
         }
     })?;
-    handler
-        .execute(node, &Context::new(), &g, tmp.path())
-        .await?;
+    handler.execute(node, &Context::new(), &g).await?;
     let secs = captured
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
@@ -556,7 +545,6 @@ async fn wait_human_timeout_attr_propagated_to_question() -> AttractorResult<()>
 
 #[tokio::test]
 async fn wait_human_skipped_fails() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
         AnswerValue::Skipped,
     )]));
@@ -570,7 +558,7 @@ async fn wait_human_skipped_fails() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     Ok(())
@@ -578,7 +566,6 @@ async fn wait_human_skipped_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_no_edges_fails() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let interviewer = Arc::new(AutoApproveInterviewer);
     let handler = WaitForHumanHandler::new(interviewer);
 
@@ -596,7 +583,7 @@ async fn wait_human_no_edges_fails() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     Ok(())
@@ -604,7 +591,6 @@ async fn wait_human_no_edges_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_text_match_by_key() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     // Answer with text "R" which should match the key of the rollback choice
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(AnswerValue::Text(
         "R".into(),
@@ -619,7 +605,7 @@ async fn wait_human_text_match_by_key() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.suggested_next_ids.contains(&"rollback".to_string()));
@@ -631,7 +617,6 @@ async fn wait_human_text_match_by_key() -> AttractorResult<()> {
 /// See README.md Deviations for rationale.
 #[tokio::test]
 async fn wait_human_unmatched_answer_fails() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     // Answer with text that matches no choice key or label
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(AnswerValue::Text(
         "banana".into(),
@@ -646,7 +631,7 @@ async fn wait_human_unmatched_answer_fails() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // Deviation from spec: returns FAIL rather than falling back to choices[0]
     assert_eq!(outcome.status, StageStatus::Fail);
@@ -655,7 +640,6 @@ async fn wait_human_unmatched_answer_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_recording_captures_interaction() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let inner = AutoApproveInterviewer;
     let recording = Arc::new(RecordingInterviewer::new(inner));
     let handler = WaitForHumanHandler::new(recording.clone());
@@ -668,7 +652,7 @@ async fn wait_human_recording_captures_interaction() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let _outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let _outcome = handler.execute(node, &ctx, &g).await?;
 
     let recs = recording.recordings();
     assert_eq!(recs.len(), 1);
@@ -678,7 +662,6 @@ async fn wait_human_recording_captures_interaction() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn wait_human_edge_label_fallback_to_target() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let interviewer = Arc::new(AutoApproveInterviewer);
     let handler = WaitForHumanHandler::new(interviewer);
 
@@ -698,7 +681,7 @@ async fn wait_human_edge_label_fallback_to_target() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.suggested_next_ids.contains(&"deploy".to_string()));

@@ -26,7 +26,6 @@ pub mod interviewers;
 pub mod parser;
 pub mod resume;
 pub mod retry;
-pub mod run_directory;
 #[cfg(feature = "sqlite")]
 pub mod sqlite_backend;
 pub mod stylesheet;

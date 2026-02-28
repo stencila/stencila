@@ -16,8 +16,6 @@ use stencila_attractor::handlers::{
 };
 use stencila_attractor::types::{Duration, Outcome, StageStatus};
 
-use common::make_tempdir;
-
 // ---------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------
@@ -117,33 +115,20 @@ fn pipeline_with_middle(middle: Node) -> Graph {
 
 #[tokio::test]
 async fn codergen_simulation_mode() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let handler = CodergenHandler::simulation();
     let node = Node::new("task1");
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     assert!(outcome.notes.contains("task1"));
-
-    // Check the output file contains simulated text
-    let output = std::fs::read_to_string(logs_root.join("nodes/task1/output.md"))?;
-    assert!(output.contains("[Simulated]"));
-    assert!(output.contains("task1"));
     Ok(())
 }
 
 #[tokio::test]
 async fn codergen_prompt_from_attr() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let handler = CodergenHandler::simulation();
     let mut node = Node::new("task1");
     node.attrs
@@ -151,60 +136,41 @@ async fn codergen_prompt_from_attr() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    handler.execute(&node, &ctx, &g, logs_root).await?;
-
-    let input = std::fs::read_to_string(logs_root.join("nodes/task1/input.md"))?;
-    assert_eq!(input, "Write a function");
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
 #[tokio::test]
 async fn codergen_prompt_fallback_to_label() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let handler = CodergenHandler::simulation();
     let mut node = Node::new("task1");
     node.attrs
         .insert("label".into(), AttrValue::from("Generate Code"));
-    // No "prompt" attribute
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    handler.execute(&node, &ctx, &g, logs_root).await?;
-
-    let input = std::fs::read_to_string(logs_root.join("nodes/task1/input.md"))?;
-    assert_eq!(input, "Generate Code");
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
 #[tokio::test]
 async fn codergen_backend_returns_text() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let backend = Arc::new(MockBackend::text("Hello from LLM"));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
-    let output = std::fs::read_to_string(logs_root.join("nodes/task1/output.md"))?;
-    assert_eq!(output, "Hello from LLM");
     Ok(())
 }
 
 #[tokio::test]
 async fn codergen_backend_returns_outcome() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let custom_outcome = Outcome::fail("custom failure");
     let backend = Arc::new(MockBackend::full_outcome(custom_outcome.clone()));
     let handler = CodergenHandler::with_backend(backend);
@@ -212,7 +178,7 @@ async fn codergen_backend_returns_outcome() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     assert_eq!(outcome.failure_reason, "custom failure");
@@ -221,17 +187,13 @@ async fn codergen_backend_returns_outcome() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn codergen_backend_error() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let backend = Arc::new(ErrorBackend::new("LLM is down"));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     // Backend errors are caught and returned as FAIL (not propagated as Err)
     assert_eq!(outcome.status, StageStatus::Fail);
@@ -240,82 +202,14 @@ async fn codergen_backend_error() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn codergen_writes_input_md() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
-    let handler = CodergenHandler::simulation();
-    let mut node = Node::new("task1");
-    node.attrs
-        .insert("prompt".into(), AttrValue::from("My custom prompt"));
-    let ctx = Context::new();
-    let g = Graph::new("test");
-
-    handler.execute(&node, &ctx, &g, logs_root).await?;
-
-    let path = logs_root.join("nodes/task1/input.md");
-    assert!(path.exists());
-    let content = std::fs::read_to_string(path)?;
-    assert_eq!(content, "My custom prompt");
-    Ok(())
-}
-
-#[tokio::test]
-async fn codergen_writes_output_md() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
-    let backend = Arc::new(MockBackend::text("LLM output text"));
-    let handler = CodergenHandler::with_backend(backend);
-    let node = Node::new("task1");
-    let ctx = Context::new();
-    let g = Graph::new("test");
-
-    handler.execute(&node, &ctx, &g, logs_root).await?;
-
-    let path = logs_root.join("nodes/task1/output.md");
-    assert!(path.exists());
-    let content = std::fs::read_to_string(path)?;
-    assert_eq!(content, "LLM output text");
-    Ok(())
-}
-
-#[tokio::test]
-async fn codergen_writes_status_json() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
-    let handler = CodergenHandler::simulation();
-    let node = Node::new("task1");
-    let ctx = Context::new();
-    let g = Graph::new("test");
-
-    handler.execute(&node, &ctx, &g, logs_root).await?;
-
-    let path = logs_root.join("nodes/task1/status.json");
-    assert!(path.exists());
-    let content = std::fs::read_to_string(path)?;
-    let parsed: Outcome = serde_json::from_str(&content)?;
-    assert_eq!(parsed.status, StageStatus::Success);
-    Ok(())
-}
-
-#[tokio::test]
 async fn codergen_context_updates() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let backend = Arc::new(MockBackend::text("some output"));
     let handler = CodergenHandler::with_backend(backend);
     let node = Node::new("task1");
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let last_stage = outcome
         .context_updates
@@ -333,10 +227,6 @@ async fn codergen_context_updates() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn codergen_output_truncation() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     // Create an output longer than 200 chars
     let long_output = "x".repeat(300);
     let backend = Arc::new(MockBackend::text(&long_output));
@@ -345,7 +235,7 @@ async fn codergen_output_truncation() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let last_output = outcome
         .context_updates
@@ -355,21 +245,15 @@ async fn codergen_output_truncation() -> AttractorResult<()> {
     // Truncated to 200 + "..."
     assert_eq!(last_output.len(), 203);
     assert!(last_output.ends_with("..."));
-
-    // Full output is still written to file
-    let full = std::fs::read_to_string(logs_root.join("nodes/task1/output.md"))?;
-    assert_eq!(full.len(), 300);
     Ok(())
 }
 
 #[tokio::test]
 async fn codergen_end_to_end() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-
     let middle = Node::new("middle"); // default shape "box" → "codergen"
     let g = pipeline_with_middle(middle);
 
-    let config = EngineConfig::new(tmp.path());
+    let config = EngineConfig::new();
     // with_defaults() now includes codergen simulation handler
     let outcome = engine::run(&g, config).await?;
     assert_eq!(outcome.status, StageStatus::Success);
@@ -378,10 +262,6 @@ async fn codergen_end_to_end() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     // Build a string with multi-byte chars that would panic if sliced at byte 200.
     // Each emoji is 4 bytes; 50 emojis = 200 bytes. Add one more so byte 200
     // falls in the middle of the 51st emoji.
@@ -394,7 +274,7 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let last_output = outcome
         .context_updates
@@ -414,7 +294,6 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_executes_command() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs
@@ -422,14 +301,13 @@ async fn shell_executes_command() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
     assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
 #[tokio::test]
 async fn shell_captures_stdout() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs
@@ -437,7 +315,7 @@ async fn shell_captures_stdout() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let output = outcome
         .context_updates
@@ -450,13 +328,12 @@ async fn shell_captures_stdout() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_missing_command() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = ShellHandler;
     let node = Node::new("tool1"); // No shell_command
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("shell_command"));
     Ok(())
@@ -464,7 +341,6 @@ async fn shell_missing_command() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_nonzero_exit() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs.insert(
@@ -474,7 +350,7 @@ async fn shell_nonzero_exit() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("non-zero"));
     Ok(())
@@ -482,7 +358,6 @@ async fn shell_nonzero_exit() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_timeout_expires() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = ShellHandler;
     let g = Graph::new("test");
 
@@ -494,9 +369,7 @@ async fn shell_timeout_expires() -> AttractorResult<()> {
         "timeout".into(),
         AttrValue::Duration(Duration::from_spec_str("100ms")?),
     );
-    let outcome = handler
-        .execute(&node, &Context::new(), &g, tmp.path())
-        .await?;
+    let outcome = handler.execute(&node, &Context::new(), &g).await?;
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("timed out"));
 
@@ -506,9 +379,7 @@ async fn shell_timeout_expires() -> AttractorResult<()> {
         .insert("shell_command".into(), AttrValue::from("sleep 10"));
     node.attrs
         .insert("timeout".into(), AttrValue::from("100ms"));
-    let outcome = handler
-        .execute(&node, &Context::new(), &g, tmp.path())
-        .await?;
+    let outcome = handler.execute(&node, &Context::new(), &g).await?;
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("timed out"));
 
@@ -517,7 +388,6 @@ async fn shell_timeout_expires() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_empty_stdout() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = ShellHandler;
     let mut node = Node::new("tool1");
     node.attrs
@@ -525,7 +395,7 @@ async fn shell_empty_stdout() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
     assert_eq!(outcome.status, StageStatus::Success);
 
     let output = outcome
@@ -539,8 +409,6 @@ async fn shell_empty_stdout() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_end_to_end() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-
     let mut middle = Node::new("middle");
     middle
         .attrs
@@ -550,7 +418,7 @@ async fn shell_end_to_end() -> AttractorResult<()> {
         .insert("shell_command".into(), AttrValue::from("echo done"));
     let g = pipeline_with_middle(middle);
 
-    let config = EngineConfig::new(tmp.path());
+    let config = EngineConfig::new();
     let outcome = engine::run(&g, config).await?;
     assert_eq!(outcome.status, StageStatus::Success);
     Ok(())

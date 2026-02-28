@@ -4,7 +4,6 @@
 //! backend trait for the actual LLM call, with a built-in simulation
 //! mode for testing.
 
-use std::path::Path;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -15,7 +14,6 @@ use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
-use crate::run_directory::RunDirectory;
 use crate::types::Outcome;
 
 /// The output type returned by a codergen backend.
@@ -123,14 +121,7 @@ impl Handler for CodergenHandler {
         node: &Node,
         context: &Context,
         _graph: &Graph,
-        logs_root: &Path,
     ) -> AttractorResult<Outcome> {
-        // TODO(§5.4): When a real LLM backend is wired in, resolve fidelity
-        // mode here (via `resolve_fidelity(node, incoming_edge, graph)`) and
-        // check `context.get("internal.resume_degrade_fidelity")` to apply
-        // §5.3 degradation on the first resumed hop. Currently only the
-        // simulation backend is used, which has no LLM sessions to degrade.
-
         // Build prompt: prefer explicit "prompt" attr, fall back to node label
         let raw_prompt = node.get_str_attr("prompt").unwrap_or_else(|| node.label());
 
@@ -145,14 +136,6 @@ impl Handler for CodergenHandler {
         // Read stage_index from context (set by the engine loop).
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let stage_index = context.get_i64("internal.stage_index").unwrap_or(0) as usize;
-
-        // Use RunDirectory for consistent path layout and status writing.
-        let run_dir = RunDirectory::open(logs_root);
-        let stage_dir = run_dir.node_dir(&node.id);
-        std::fs::create_dir_all(&stage_dir)?;
-
-        // Write the input (after expansion)
-        std::fs::write(stage_dir.join("input.md"), &prompt)?;
 
         // Emit the input event
         self.emitter.emit(PipelineEvent::StageInput {
@@ -174,9 +157,7 @@ impl Handler for CodergenHandler {
             {
                 Ok(resp) => resp,
                 Err(e) => {
-                    let outcome = Outcome::fail(format!("Backend error: {e}"));
-                    run_dir.write_status(&node.id, &outcome)?;
-                    return Ok(outcome);
+                    return Ok(Outcome::fail(format!("Backend error: {e}")));
                 }
             },
         };
@@ -189,7 +170,6 @@ impl Handler for CodergenHandler {
                     stage_index,
                     output: outcome.notes.clone(),
                 });
-                run_dir.write_status(&node.id, &outcome)?;
                 Ok(outcome)
             }
             CodergenOutput::Text(text) => {
@@ -198,9 +178,7 @@ impl Handler for CodergenHandler {
                     stage_index,
                     output: text.clone(),
                 });
-                std::fs::write(stage_dir.join("output.md"), &text)?;
                 let outcome = build_text_outcome(&node.id, &text, context);
-                run_dir.write_status(&node.id, &outcome)?;
                 Ok(outcome)
             }
         }

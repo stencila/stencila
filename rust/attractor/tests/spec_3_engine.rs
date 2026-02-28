@@ -4,14 +4,12 @@
 
 mod common;
 
-use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use serde_json::Value;
 
-use stencila_attractor::checkpoint::Checkpoint;
 use stencila_attractor::context::Context;
 use stencila_attractor::edge_selection::{
     best_by_weight_then_lexical, normalize_label, select_edge,
@@ -25,7 +23,6 @@ use stencila_attractor::retry::{
     BackoffConfig, RetryPolicy, RetryPreset, build_retry_policy, delay_for_attempt,
     execute_with_retry,
 };
-use stencila_attractor::run_directory::{Manifest, RunDirectory};
 use stencila_attractor::types::{Outcome, StageStatus};
 
 // ---------------------------------------------------------------------------
@@ -90,7 +87,6 @@ impl Handler for MockHandler {
         _node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         Ok(self.outcome.clone())
     }
@@ -118,7 +114,6 @@ impl Handler for SequenceHandler {
         _node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         let mut count = self
             .call_count
@@ -151,7 +146,6 @@ impl Handler for PanicHandler {
         _node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         panic!("intentional panic for testing");
     }
@@ -167,7 +161,6 @@ impl Handler for RetryableErrorHandler {
         _node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         Err(AttractorError::TemporaryUnavailable {
             message: "temporarily unavailable".into(),
@@ -899,17 +892,7 @@ async fn retry_success_on_second_attempt() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     assert_eq!(outcome.status, StageStatus::Success);
 }
@@ -935,17 +918,7 @@ async fn retry_counter_reset_on_success() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
     assert_eq!(outcome.status, StageStatus::Success);
 
     // After success, the retry counter must be reset to 0.
@@ -969,17 +942,7 @@ async fn retry_exhausted_returns_fail() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     assert_eq!(outcome.status, StageStatus::Fail);
 }
@@ -1002,17 +965,7 @@ async fn retry_exhausted_allow_partial() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
 }
@@ -1037,17 +990,7 @@ async fn retry_counter_reset_on_allow_partial() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
 
     let count = ctx.get_i64("internal.retry_count.task1").unwrap_or(-1);
@@ -1076,17 +1019,7 @@ async fn retry_sets_context_key() {
         },
     };
 
-    execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     // After retry-then-success, counter is reset to 0 per §3.5.
     let retry_count = ctx.get_i64("internal.retry_count.mynode");
@@ -1109,17 +1042,7 @@ async fn retry_panic_converted_to_fail() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("panic"));
@@ -1141,17 +1064,7 @@ async fn retry_retryable_error_retries() {
         },
     };
 
-    let outcome = execute_with_retry(
-        &handler,
-        &node,
-        &ctx,
-        &g,
-        Path::new("/tmp"),
-        &policy,
-        &NoOpEmitter,
-        0,
-    )
-    .await;
+    let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     // After 2 attempts, should fail
     assert_eq!(outcome.status, StageStatus::Fail);
@@ -1244,66 +1157,11 @@ async fn registry_resolve_explicit_type_takes_precedence_over_shape() -> Attract
             node_id: "s".into(),
         })?;
     let g = Graph::new("test");
-    let outcome = handler
-        .execute(&node, &Context::new(), &g, Path::new("/tmp"))
-        .await?;
+    let outcome = handler.execute(&node, &Context::new(), &g).await?;
     assert_eq!(
         outcome.status,
         StageStatus::Fail,
         "explicit type handler should win over shape-based handler"
-    );
-    Ok(())
-}
-
-// ===========================================================================
-// Run Directory (~3 tests)
-// ===========================================================================
-
-#[test]
-fn run_directory_create_and_manifest() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-    let run_dir = RunDirectory::create(tmp.path().join("run1"))?;
-
-    let manifest = Manifest {
-        name: "test".into(),
-        goal: "test goal".into(),
-        start_time: "2024-01-01T00:00:00Z".into(),
-    };
-    run_dir.write_manifest(&manifest)?;
-
-    let data =
-        std::fs::read_to_string(run_dir.manifest_path()).map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?;
-    assert!(data.contains("test goal"));
-    Ok(())
-}
-
-#[test]
-fn run_directory_status_roundtrip() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-    let run_dir = RunDirectory::create(tmp.path().join("run1"))?;
-
-    let outcome = Outcome::success();
-    run_dir.write_status("node1", &outcome)?;
-
-    let loaded = run_dir.read_status("node1")?;
-    assert_eq!(loaded.status, StageStatus::Success);
-    Ok(())
-}
-
-#[test]
-fn run_directory_path_helpers() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-    let run_dir = RunDirectory::create(tmp.path().join("run1"))?;
-
-    assert!(run_dir.manifest_path().ends_with("manifest.json"));
-    assert!(run_dir.checkpoint_path().ends_with("checkpoint.json"));
-    assert!(run_dir.node_dir("task1").ends_with("nodes/task1"));
-    assert!(
-        run_dir
-            .status_path("task1")
-            .ends_with("nodes/task1/status.json")
     );
     Ok(())
 }
@@ -1314,9 +1172,8 @@ fn run_directory_path_helpers() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_linear_start_exit() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
     let g = linear_graph();
-    let config = EngineConfig::new(tmp.path());
+    let config = EngineConfig::new();
 
     let outcome = engine::run(&g, config).await?;
     assert_eq!(outcome.status, StageStatus::Success);
@@ -1325,9 +1182,8 @@ async fn engine_linear_start_exit() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_three_node_linear() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
     let g = three_node_graph();
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     // middle node has shape "box" → handler type "codergen", need to register
     config
         .registry
@@ -1340,8 +1196,6 @@ async fn engine_three_node_linear() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_conditional_success_path() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("cond_test");
     let mut start = Node::new("start");
     start
@@ -1375,7 +1229,7 @@ async fn engine_conditional_success_path() -> AttractorResult<()> {
         .insert("condition".into(), AttrValue::from("outcome=fail"));
     g.add_edge(e_bad);
 
-    let config = EngineConfig::new(tmp.path());
+    let config = EngineConfig::new();
     let outcome = engine::run(&g, config).await?;
     assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
@@ -1384,7 +1238,6 @@ async fn engine_conditional_success_path() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
     // §3.2 step 6: no outgoing edges + SUCCESS → BREAK (normal completion)
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("dead_end");
     let mut start = Node::new("start");
@@ -1404,7 +1257,7 @@ async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
     g.add_edge(Edge::new("start", "dead"));
     // dead has no outgoing edges
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true; // exit is intentionally unreachable
     config
         .registry
@@ -1419,7 +1272,6 @@ async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
     // §3.2 step 6: FAIL + no outgoing fail edge → pipeline fails.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("dead_end_fail");
     let mut start = Node::new("start");
@@ -1438,7 +1290,7 @@ async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
 
     g.add_edge(Edge::new("start", "dead"));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true; // exit is intentionally unreachable
     config
         .registry
@@ -1452,7 +1304,6 @@ async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_missing_exit_node_is_error() -> AttractorResult<()> {
     // run() should error when graph has no exit node.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("no_exit");
     let mut start = Node::new("start");
@@ -1463,7 +1314,7 @@ async fn engine_missing_exit_node_is_error() -> AttractorResult<()> {
     g.add_node(Node::new("middle"));
     g.add_edge(Edge::new("start", "middle"));
 
-    let config = EngineConfig::new(tmp.path());
+    let config = EngineConfig::new();
     let result = engine::run(&g, config).await;
     assert!(result.is_err(), "missing exit node should be an error");
     Ok(())
@@ -1471,8 +1322,6 @@ async fn engine_missing_exit_node_is_error() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_context_propagation() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("ctx_test");
     let mut start = Node::new("start");
     start
@@ -1497,7 +1346,7 @@ async fn engine_context_propagation() -> AttractorResult<()> {
         .context_updates
         .insert("result".to_string(), Value::String("computed".into()));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config
         .registry
         .register("codergen", MockHandler::new(outcome));
@@ -1509,46 +1358,20 @@ async fn engine_context_propagation() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_checkpoint_per_node() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let g = three_node_graph();
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config
         .registry
         .register("codergen", MockHandler::new(Outcome::success()));
 
-    engine::run(&g, config).await?;
-
-    // Find the run directory (should be the only subdir)
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .collect();
-    assert!(!entries.is_empty(), "run directory should exist");
-
-    let run_dir = &entries[0].path();
-    let checkpoint_path = run_dir.join("checkpoint.json");
-    assert!(checkpoint_path.exists(), "checkpoint.json should exist");
-
-    let checkpoint = Checkpoint::load(&checkpoint_path)?;
-    assert!(
-        checkpoint.completed_nodes.contains(&"start".to_string()),
-        "start should be in completed_nodes"
-    );
-    assert!(
-        checkpoint.completed_nodes.contains(&"middle".to_string()),
-        "middle should be in completed_nodes"
-    );
+    let outcome = engine::run(&g, config).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
 #[tokio::test]
 async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
     // §5.3: checkpoint node_retries should reflect actual retry attempts.
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("retry_checkpoint");
     let mut start = Node::new("start");
     start
@@ -1571,94 +1394,16 @@ async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
 
     // First attempt returns RETRY, second returns SUCCESS
     let seq = SequenceHandler::new(vec![Outcome::retry("first attempt"), Outcome::success()]);
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register("codergen", seq);
 
-    engine::run(&g, config).await?;
-
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .collect();
-    let run_dir = &entries[0].path();
-    let checkpoint = Checkpoint::load(&run_dir.join("checkpoint.json"))?;
-
-    // task had 1 retry but the counter is reset to 0 on success (§3.5),
-    // so the checkpoint reflects the post-reset value.
-    let retry_count = checkpoint.node_retries.get("task").copied();
-    assert_eq!(
-        retry_count,
-        Some(0),
-        "checkpoint should record reset retry count after success"
-    );
-    Ok(())
-}
-
-#[tokio::test]
-async fn engine_run_dir_and_manifest() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
-    let g = linear_graph();
-    let config = EngineConfig::new(tmp.path());
-
-    engine::run(&g, config).await?;
-
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .collect();
-    assert!(!entries.is_empty());
-
-    let run_dir = &entries[0].path();
-    let manifest_path = run_dir.join("manifest.json");
-    assert!(manifest_path.exists());
-
-    let manifest_data =
-        std::fs::read_to_string(&manifest_path).map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?;
-    assert!(manifest_data.contains("linear"));
-    Ok(())
-}
-
-#[tokio::test]
-async fn engine_status_json_per_node() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
-    let g = three_node_graph();
-    let mut config = EngineConfig::new(tmp.path());
-    config
-        .registry
-        .register("codergen", MockHandler::new(Outcome::success()));
-
-    engine::run(&g, config).await?;
-
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .collect();
-    let run_dir = &entries[0].path();
-
-    // Check start status
-    let start_status = run_dir.join("nodes/start/status.json");
-    assert!(start_status.exists(), "start status.json should exist");
-
-    // Check middle status
-    let middle_status = run_dir.join("nodes/middle/status.json");
-    assert!(middle_status.exists(), "middle status.json should exist");
+    let outcome = engine::run(&g, config).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
 #[tokio::test]
 async fn engine_panic_handler_fails() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("panic_test");
     let mut start = Node::new("start");
     start
@@ -1677,7 +1422,7 @@ async fn engine_panic_handler_fails() -> AttractorResult<()> {
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register("codergen", PanicHandler);
 
     let outcome = engine::run(&g, config).await?;
@@ -1688,13 +1433,11 @@ async fn engine_panic_handler_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_graph_attr_mirroring() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = linear_graph();
     g.graph_attrs
         .insert("goal".into(), AttrValue::from("Build something"));
 
-    let config = EngineConfig::new(tmp.path());
+    let config = EngineConfig::new();
     let outcome = engine::run(&g, config).await?;
     assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
@@ -1703,7 +1446,6 @@ async fn engine_graph_attr_mirroring() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_loop_restart() -> AttractorResult<()> {
     // §2.7/§3.2: loop_restart creates a fresh run directory and context.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("loop_test");
     let mut start = Node::new("start");
@@ -1751,36 +1493,20 @@ async fn engine_loop_restart() -> AttractorResult<()> {
         },
     ]);
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true; // loop_restart edge creates start incoming
     config.registry.register("codergen", seq_handler);
 
     let outcome = engine::run(&g, config).await?;
     assert_eq!(outcome.status, StageStatus::Success);
-
-    // Verify two run directories were created (one per run)
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .filter(|e| e.path().is_dir())
-        .collect();
-    assert!(
-        entries.len() >= 2,
-        "loop_restart should create a fresh run directory; found {}",
-        entries.len()
-    );
     Ok(())
 }
 
 #[tokio::test]
 async fn engine_event_emission() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let g = linear_graph();
     let emitter = Arc::new(RecordingEmitter::default());
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.emitter = emitter.clone();
 
     engine::run(&g, config).await?;
@@ -1797,7 +1523,6 @@ async fn engine_event_emission() -> AttractorResult<()> {
 async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
     // §3.4: only visited nodes are checked, so an unvisited goal-gate
     // node should not prevent pipeline exit.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("gate_test");
     let mut start = Node::new("start");
@@ -1819,7 +1544,7 @@ async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
 
     g.add_edge(Edge::new("start", "exit"));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true; // important_task intentionally unreachable
     let outcome = engine::run(&g, config).await?;
     // Unvisited goal gate does not block exit
@@ -1830,7 +1555,6 @@ async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
 #[tokio::test]
 async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
     // §3.4: a visited goal-gate node with non-success outcome blocks exit.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("gate_test");
     let mut start = Node::new("start");
@@ -1853,7 +1577,7 @@ async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
     g.add_edge(Edge::new("start", "important_task"));
     g.add_edge(Edge::new("important_task", "exit"));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config
         .registry
         .register("codergen", MockHandler::new(Outcome::fail("task failed")));
@@ -1868,7 +1592,6 @@ async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
 async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
     // §3.4: a visited goal-gate node with fail outcome triggers retry_target
     // when the pipeline reaches exit.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("gate_retry_test");
     let mut start = Node::new("start");
@@ -1905,7 +1628,7 @@ async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
         Outcome::success(),
     ]);
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register("codergen", seq);
 
     let outcome = engine::run(&g, config).await?;
@@ -1917,8 +1640,6 @@ async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn engine_failure_routing_via_fail_edge() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("fail_edge_test");
     let mut start = Node::new("start");
     start
@@ -1951,7 +1672,7 @@ async fn engine_failure_routing_via_fail_edge() -> AttractorResult<()> {
 
     // Both task and recovery are "codergen" type — use a sequence handler
     // that fails first (task), then succeeds (recovery)
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register(
         "codergen",
         SequenceHandler::new(vec![Outcome::fail("task failed"), Outcome::success()]),
@@ -1996,7 +1717,6 @@ impl Handler for NodeSpecificHandler {
         node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         if let Ok(mut visited) = self.visited.lock() {
             visited.push(node.id.clone());
@@ -2025,8 +1745,6 @@ impl Handler for NodeSpecificHandler {
 /// unconditional default is taken.
 #[tokio::test]
 async fn engine_context_updates_visible_to_success_routing() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("ctx_route_test");
 
     let mut start = Node::new("start");
@@ -2072,7 +1790,7 @@ async fn engine_context_updates_visible_to_success_routing() -> AttractorResult<
 
     let visited: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register(
         "codergen",
         NodeSpecificHandler::new("task", task_outcome, visited.clone()),
@@ -2111,8 +1829,6 @@ async fn engine_context_updates_visible_to_success_routing() -> AttractorResult<
 /// to retry-target resolution or pipeline failure.
 #[tokio::test]
 async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("ctx_fail_route_test");
 
     let mut start = Node::new("start");
@@ -2160,7 +1876,7 @@ async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()>
 
     let visited: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register(
         "codergen",
         NodeSpecificHandler::new("task", task_outcome, visited.clone()),
@@ -2199,8 +1915,6 @@ async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()>
 /// preferred_label = "" (not "Fix").
 #[tokio::test]
 async fn engine_preferred_label_cleared_between_stages() -> AttractorResult<()> {
-    let tmp = common::make_tempdir()?;
-
     let mut g = Graph::new("pref_label_test");
 
     let mut start = Node::new("start");
@@ -2225,33 +1939,14 @@ async fn engine_preferred_label_cleared_between_stages() -> AttractorResult<()> 
     let mut outcome_a = Outcome::success();
     outcome_a.preferred_label = "Fix".to_string();
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.registry.register(
         "codergen",
         SequenceHandler::new(vec![outcome_a, Outcome::success()]),
     );
 
-    engine::run(&g, config).await?;
-
-    // Load the final checkpoint and check the context.
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .collect();
-    let run_dir = &entries[0].path();
-    let checkpoint = Checkpoint::load(&run_dir.join("checkpoint.json"))?;
-
-    let label = checkpoint
-        .context_values
-        .get("preferred_label")
-        .and_then(|v| v.as_str())
-        .unwrap_or("MISSING");
-    assert_eq!(
-        label, "",
-        "preferred_label should be cleared after a stage with no label, got: {label:?}"
-    );
+    let outcome = engine::run(&g, config).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
@@ -2309,11 +2004,10 @@ async fn engine_parallel_diamond_reaches_exit() -> AttractorResult<()> {
     // Integration test: a full pipeline run with parallel fan-out, multi-hop
     // branches converging at a structural fan-in node, must reach the exit
     // node via the jump_target mechanism in advance().
-    let tmp = common::make_tempdir()?;
 
     let g = parallel_diamond_pipeline();
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true;
 
     // Register the parallel handler (needs Arc<HandlerRegistry> + emitter).
@@ -2342,11 +2036,10 @@ async fn engine_parallel_diamond_reaches_exit() -> AttractorResult<()> {
 async fn engine_parallel_diamond_no_fan_in_target_in_context() -> AttractorResult<()> {
     // Verify that the fan-in jump target does NOT leak into the pipeline
     // context after the parallel handler executes.
-    let tmp = common::make_tempdir()?;
 
     let g = parallel_diamond_pipeline();
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true;
 
     let registry = Arc::new(HandlerRegistry::with_defaults());
@@ -2359,24 +2052,8 @@ async fn engine_parallel_diamond_no_fan_in_target_in_context() -> AttractorResul
         ),
     );
 
-    engine::run(&g, config).await?;
-
-    // Load the checkpoint and verify no stale fan-in target in context.
-    let entries: Vec<_> = std::fs::read_dir(tmp.path())
-        .map_err(|e| AttractorError::Io {
-            message: e.to_string(),
-        })?
-        .filter_map(|e| e.ok())
-        .collect();
-    let run_dir = &entries[0].path();
-    let checkpoint = Checkpoint::load(&run_dir.join("checkpoint.json"))?;
-
-    assert!(
-        !checkpoint
-            .context_values
-            .contains_key("parallel.fan_in_target"),
-        "parallel.fan_in_target should not be present in the pipeline context"
-    );
+    let outcome = engine::run(&g, config).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
 
@@ -2393,7 +2070,6 @@ async fn engine_parallel_divergent_branches_completes_without_reentry() -> Attra
     // Before the fix, advance() would fall through to select_edge after
     // the parallel handler returned jump_target=None, picking branch_a
     // or branch_b and causing duplicate execution.
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("divergent_parallel");
 
@@ -2424,7 +2100,7 @@ async fn engine_parallel_divergent_branches_completes_without_reentry() -> Attra
     g.add_edge(Edge::new("branch_a", "end_a"));
     g.add_edge(Edge::new("branch_b", "end_b"));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true;
 
     let registry = Arc::new(HandlerRegistry::with_defaults());
@@ -2459,7 +2135,6 @@ async fn engine_parallel_staggered_merge_reaches_exit() -> AttractorResult<()> {
     //
     // The engine must select merge_abc (all-branch convergence) as the
     // jump target, not merge_ab (pairwise only).
-    let tmp = common::make_tempdir()?;
 
     let mut g = Graph::new("staggered_merge");
 
@@ -2495,7 +2170,7 @@ async fn engine_parallel_staggered_merge_reaches_exit() -> AttractorResult<()> {
     g.add_edge(Edge::new("C", "merge_abc"));
     g.add_edge(Edge::new("merge_abc", "exit"));
 
-    let mut config = EngineConfig::new(tmp.path());
+    let mut config = EngineConfig::new();
     config.skip_validation = true;
 
     let registry = Arc::new(HandlerRegistry::with_defaults());

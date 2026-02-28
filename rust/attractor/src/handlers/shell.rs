@@ -3,8 +3,6 @@
 //! Executes shell commands specified in node attributes. Captures
 //! stdout and stderr, with optional timeout support.
 
-use std::path::Path;
-
 use async_trait::async_trait;
 use indexmap::IndexMap;
 
@@ -28,7 +26,6 @@ impl Handler for ShellHandler {
         node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         let Some(command) = node.get_str_attr("shell_command") else {
             return Ok(Outcome::fail(format!(

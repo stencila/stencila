@@ -32,12 +32,12 @@ use crate::WorkflowInstance;
 /// Run a workflow pipeline to completion using a stderr event emitter.
 ///
 /// Convenience wrapper around [`run_workflow_with_options`] for CLI usage.
-pub async fn run_workflow(workflow: &WorkflowInstance, logs_dir: &Path) -> Result<Outcome> {
+pub async fn run_workflow(workflow: &WorkflowInstance) -> Result<Outcome> {
     let options = RunOptions {
         emitter: stderr_event_emitter(),
         interviewer: None,
     };
-    run_workflow_with_options(workflow, logs_dir, options).await
+    run_workflow_with_options(workflow, options).await
 }
 
 /// Options for running a workflow from external callers (e.g. TUI).
@@ -77,7 +77,6 @@ struct DbRecordingInterviewer {
 /// Returns the final `Outcome` from the pipeline engine.
 pub async fn run_workflow_with_options(
     workflow: &WorkflowInstance,
-    logs_dir: &Path,
     options: RunOptions,
 ) -> Result<Outcome> {
     let mut graph = workflow.graph()?;
@@ -160,7 +159,6 @@ pub async fn run_workflow_with_options(
         }
     });
     let config = build_engine_config(
-        logs_dir,
         options.emitter,
         interviewer,
         db_conn.clone(),
@@ -493,7 +491,6 @@ impl CodergenBackend for AgentCodergenBackend {
 /// `interviewer` is provided, both registries also get `wait.human`.
 #[allow(clippy::too_many_arguments)]
 fn build_engine_config(
-    logs_dir: &Path,
     emitter: Arc<dyn EventEmitter>,
     interviewer: Option<Arc<dyn Interviewer>>,
     db_conn: Option<Arc<Mutex<Connection>>>,
@@ -503,7 +500,7 @@ fn build_engine_config(
     artifacts_dir: Option<std::path::PathBuf>,
     workspace_root: Option<std::path::PathBuf>,
 ) -> EngineConfig {
-    let mut config = EngineConfig::new(logs_dir);
+    let mut config = EngineConfig::new();
     config.emitter = emitter.clone();
 
     // Inner registry: used by ParallelHandler for branch execution.

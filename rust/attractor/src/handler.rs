@@ -1,14 +1,13 @@
 //! Handler trait and registry (§4.1–4.2).
 //!
 //! Handlers execute pipeline nodes. Each handler receives the node
-//! definition, the current context, the full graph, and a path for
-//! writing logs, and returns an [`Outcome`].
+//! definition, the current context, and the full graph, and returns
+//! an [`Outcome`].
 //!
 //! The [`HandlerRegistry`] maps handler type strings (from
 //! [`Node::handler_type()`]) to concrete handler implementations.
 
 use std::collections::HashMap;
-use std::path::Path;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -33,13 +32,11 @@ pub trait Handler: Send + Sync {
     /// * `node` — the node being executed
     /// * `context` — the shared pipeline context
     /// * `graph` — the full pipeline graph (for reading attributes)
-    /// * `logs_root` — directory for writing per-node logs
     async fn execute(
         &self,
         node: &Node,
         context: &Context,
         graph: &Graph,
-        logs_root: &Path,
     ) -> AttractorResult<Outcome>;
 }
 

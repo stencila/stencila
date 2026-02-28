@@ -387,12 +387,6 @@ struct Run {
     #[arg(long, short)]
     goal: Option<String>,
 
-    /// Directory for run logs and artifacts
-    ///
-    /// Defaults to a temporary directory.
-    #[arg(long)]
-    logs_dir: Option<PathBuf>,
-
     /// Show detailed output with prompts and responses
     ///
     /// In verbose mode, each stage shows the agent name, full prompt text,
@@ -414,9 +408,6 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Run with a goal override</dim>
   <b>stencila workflows run</> <g>code-review</> <c>--goal</> <y>\"Implement login feature\"</>
-
-  <dim># Run with a custom logs directory</dim>
-  <b>stencila workflows run</> <g>code-review</> <c>--logs-dir</> <g>./run-logs</>
 
   <dim># Dry run to see pipeline config</dim>
   <b>stencila workflows run</> <g>code-review</> <c>--dry-run</>
@@ -463,16 +454,6 @@ impl Run {
             return Ok(());
         }
 
-        // Determine logs directory
-        let logs_dir = if let Some(ref dir) = self.logs_dir {
-            tokio::fs::create_dir_all(dir).await?;
-            dir.clone()
-        } else {
-            let tmp = std::env::temp_dir().join(format!("stencila-workflow-{}", self.name));
-            tokio::fs::create_dir_all(&tmp).await?;
-            tmp
-        };
-
         message!("🚀 Running workflow `{}`", wf.name);
         if let Some(ref goal) = wf.goal {
             message!("   Goal: {}", goal);
@@ -493,8 +474,7 @@ impl Run {
             emitter,
             interviewer: None,
         };
-        let outcome =
-            crate::workflow_run::run_workflow_with_options(&wf, &logs_dir, options).await?;
+        let outcome = crate::workflow_run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
 
         eprintln!();

@@ -13,7 +13,6 @@ use crate::error::{AttractorError, AttractorResult};
 use crate::events::PipelineEvent;
 use crate::graph::Graph;
 use crate::retry::{build_retry_policy, execute_with_retry};
-use crate::run_directory::{Manifest, RunDirectory};
 use crate::types::{HandlerType, Outcome, StageStatus};
 
 use super::EngineConfig;
@@ -45,7 +44,6 @@ pub(crate) async fn run_loop_with_context(
     let start_node = graph.find_start_node()?;
     graph.find_exit_node()?;
 
-    let run_dir = create_run_dir(graph, &config)?;
     populate_context(graph, &context);
 
     config.emitter.emit(PipelineEvent::PipelineStarted {
@@ -62,7 +60,7 @@ pub(crate) async fn run_loop_with_context(
         last_outcome: Outcome::success(),
     };
 
-    execute_loop(graph, config, run_dir, context, state).await
+    execute_loop(graph, config, context, state).await
 }
 
 /// Run the core traversal loop for a pipeline graph.
@@ -71,7 +69,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
     let start_node = graph.find_start_node()?;
     graph.find_exit_node()?;
 
-    let (run_dir, context) = init_run(graph, &config)?;
+    let context = init_run(graph)?;
 
     config.emitter.emit(PipelineEvent::PipelineStarted {
         pipeline_name: graph.name.clone(),
@@ -87,7 +85,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
         last_outcome: Outcome::success(),
     };
 
-    execute_loop(graph, config, run_dir, context, state).await
+    execute_loop(graph, config, context, state).await
 }
 
 /// Resume the core traversal loop from a previously saved checkpoint.
@@ -102,7 +100,6 @@ pub(crate) async fn resume_loop(
 ) -> AttractorResult<Outcome> {
     graph.find_exit_node()?;
 
-    let run_dir = create_run_dir(graph, &config)?;
     let context = resume_state.context;
 
     config.emitter.emit(PipelineEvent::PipelineStarted {
@@ -174,41 +171,18 @@ pub(crate) async fn resume_loop(
         last_outcome: Outcome::success(),
     };
 
-    execute_loop(graph, config, run_dir, context, state).await
+    execute_loop(graph, config, context, state).await
 }
 
-/// Create a run directory with manifest for a pipeline run.
+/// Initialize the context from graph attributes.
 ///
-/// Used by both fresh runs (via [`init_run`]) and resumed runs which
-/// supply their own restored context.
-fn create_run_dir(graph: &Graph, config: &EngineConfig) -> AttractorResult<RunDirectory> {
-    let run_id = chrono::Utc::now().format("%Y%m%dT%H%M%S%.6f").to_string();
-    let run_dir = RunDirectory::create(config.logs_root.join(&run_id))?;
-
-    let goal = graph
-        .get_graph_attr("goal")
-        .map(super::super::graph::AttrValue::to_string_value)
-        .unwrap_or_default();
-
-    run_dir.write_manifest(&Manifest {
-        name: graph.name.clone(),
-        goal,
-        start_time: chrono::Utc::now().to_rfc3339(),
-    })?;
-
-    Ok(run_dir)
-}
-
-/// Initialize the run directory and context from graph attributes.
-///
-/// Creates a fresh run directory and a new context populated with the
-/// graph's `goal` and other graph-level attributes. Used for fresh
-/// runs and loop restarts (§2.7/§3.2).
-fn init_run(graph: &Graph, config: &EngineConfig) -> AttractorResult<(RunDirectory, Context)> {
-    let run_dir = create_run_dir(graph, config)?;
+/// Creates a new context populated with the graph's `goal` and other
+/// graph-level attributes. Used for fresh runs and loop restarts
+/// (§2.7/§3.2).
+fn init_run(graph: &Graph) -> AttractorResult<Context> {
     let context = Context::new();
     populate_context(graph, &context);
-    Ok((run_dir, context))
+    Ok(context)
 }
 
 /// Populate a context with goal and graph-level attributes.
@@ -237,7 +211,6 @@ fn populate_context(graph: &Graph, context: &Context) {
 async fn execute_loop(
     graph: &Graph,
     config: EngineConfig,
-    mut run_dir: RunDirectory,
     mut context: Context,
     mut state: LoopState,
 ) -> AttractorResult<Outcome> {
@@ -283,9 +256,8 @@ async fn execute_loop(
                 return Ok(Outcome::fail(reason));
             }
 
-            let outcome =
-                execute_node(node, graph, &config, &run_dir, &context, state.stage_index).await?;
-            record_and_checkpoint(node, &outcome, &run_dir, &context, &mut state, None)?;
+            let outcome = execute_node(node, graph, &config, &context, state.stage_index).await?;
+            record_and_checkpoint(node, &outcome, &context, &mut state, None)?;
             config.emitter.emit(PipelineEvent::CheckpointSaved {
                 node_id: node.id.clone(),
             });
@@ -306,8 +278,7 @@ async fn execute_loop(
             stage_index: state.stage_index,
         });
 
-        let outcome =
-            execute_node(node, graph, &config, &run_dir, &context, state.stage_index).await?;
+        let outcome = execute_node(node, graph, &config, &context, state.stage_index).await?;
 
         // Clear one-shot fidelity degradation marker after the first
         // resumed hop (§5.3). For fresh runs the key is absent, so
@@ -354,7 +325,6 @@ async fn execute_loop(
         record_and_checkpoint(
             node,
             &outcome,
-            &run_dir,
             &context,
             &mut state,
             next_node_id.as_deref(),
@@ -408,9 +378,8 @@ async fn execute_loop(
                 state.stage_index += 1;
             }
             Some(AdvanceResult::LoopRestart(target)) => {
-                // §2.7/§3.2: create fresh run directory and context
-                let (new_run_dir, new_context) = init_run(graph, &config)?;
-                run_dir = new_run_dir;
+                // §2.7/§3.2: create fresh context
+                let new_context = init_run(graph)?;
                 context = new_context;
                 state.completed_nodes.clear();
                 state.node_outcomes.clear();
@@ -435,7 +404,6 @@ async fn execute_node(
     node: &crate::graph::Node,
     graph: &Graph,
     config: &EngineConfig,
-    run_dir: &RunDirectory,
     context: &Context,
     stage_index: usize,
 ) -> AttractorResult<Outcome> {
@@ -453,7 +421,6 @@ async fn execute_node(
         node,
         context,
         graph,
-        run_dir.root(),
         &policy,
         config.emitter.as_ref(),
         stage_index,
@@ -472,12 +439,10 @@ async fn execute_node(
 fn record_and_checkpoint(
     node: &crate::graph::Node,
     outcome: &Outcome,
-    run_dir: &RunDirectory,
     context: &Context,
     state: &mut LoopState,
     next_node_id: Option<&str>,
 ) -> AttractorResult<()> {
-    run_dir.write_status(&node.id, outcome)?;
     state.completed_nodes.push(node.id.clone());
     state.node_outcomes.insert(node.id.clone(), outcome.clone());
     state
@@ -524,18 +489,18 @@ fn record_and_checkpoint(
         }
     }
 
-    let checkpoint = Checkpoint::from_context(
+    let _checkpoint = Checkpoint::from_context(
         context,
         &node.id,
         state.completed_nodes.clone(),
         state.node_statuses.clone(),
         state.node_retries.clone(),
     );
-    let checkpoint = match next_node_id {
-        Some(next) => checkpoint.with_next_node(next),
-        None => checkpoint,
+    let _checkpoint = match next_node_id {
+        Some(next) => _checkpoint.with_next_node(next),
+        None => _checkpoint,
     };
-    checkpoint.save(&run_dir.checkpoint_path())
+    Ok(())
 }
 
 /// Try to find a retry target for a failed goal gate.

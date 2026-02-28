@@ -3,8 +3,6 @@
 //! Consolidates results from a preceding parallel node and selects
 //! the best candidate using heuristic ranking.
 
-use std::path::Path;
-
 use async_trait::async_trait;
 use indexmap::IndexMap;
 
@@ -40,7 +38,6 @@ impl Handler for FanInHandler {
         _node: &Node,
         context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         // Read parallel results from context
         let results = context.get(&format!("{}.results", HandlerType::Parallel));

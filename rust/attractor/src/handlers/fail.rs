@@ -1,7 +1,5 @@
 //! Fail handler — explicit pipeline failure node.
 
-use std::path::Path;
-
 use async_trait::async_trait;
 
 use crate::context::Context;
@@ -24,7 +22,6 @@ impl Handler for FailHandler {
         _node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         Ok(Outcome::fail("Pipeline failed (explicit fail node)"))
     }

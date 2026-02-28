@@ -7,7 +7,6 @@
 //! cancels remaining branches on the first failure.
 
 use std::collections::{HashSet, VecDeque};
-use std::path::Path;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -117,7 +116,6 @@ impl Handler for ParallelHandler {
         node: &Node,
         context: &Context,
         graph: &Graph,
-        logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         let edges = graph.outgoing_edges(&node.id);
         if edges.is_empty() {
@@ -157,7 +155,6 @@ impl Handler for ParallelHandler {
                 &edges,
                 context,
                 graph,
-                logs_root,
                 &policies,
                 fan_in_id.as_deref(),
             )
@@ -339,14 +336,12 @@ impl ParallelHandler {
     /// `fan_in_id` is the pre-computed structural fan-in node (if any).
     /// It is passed to each branch executor so that branches stop
     /// traversal when they reach the convergence point.
-    #[allow(clippy::too_many_arguments)]
     async fn run_branches(
         &self,
         parallel_node_id: &str,
         edges: &[&crate::graph::Edge],
         context: &Context,
         graph: &Graph,
-        logs_root: &Path,
         policies: &ParallelPolicies,
         fan_in_id: Option<&str>,
     ) -> Vec<BranchResult> {
@@ -363,14 +358,10 @@ impl ParallelHandler {
                 let registry = Arc::clone(&self.registry);
                 let emitter = Arc::clone(&self.emitter);
                 let graph = graph.clone();
-                let logs_root = logs_root.to_path_buf();
                 let sem = Arc::clone(&semaphore);
                 let fan_in_id = Arc::clone(&fan_in_id);
 
                 async move {
-                    // Acquire a semaphore permit to bound concurrency.
-                    // OwnedSemaphoreError only occurs if the Semaphore is
-                    // closed, which we never do; treat it as a branch failure.
                     let Ok(_permit) = sem.acquire_owned().await else {
                         return BranchResult {
                             target: target_id,
@@ -387,7 +378,6 @@ impl ParallelHandler {
                         &target_id,
                         &branch_context,
                         &graph,
-                        &logs_root,
                         &registry,
                         fan_in_id.as_deref(),
                     )
@@ -524,7 +514,6 @@ async fn execute_branch_subgraph(
     start_id: &str,
     context: &Context,
     graph: &Graph,
-    logs_root: &Path,
     registry: &HandlerRegistry,
     fan_in_id: Option<&str>,
 ) -> AttractorResult<Outcome> {
@@ -568,10 +557,8 @@ async fn execute_branch_subgraph(
 
         let policy = build_retry_policy(node, graph);
         let emitter = NoOpEmitter;
-        last_outcome = execute_with_retry(
-            &handler, node, context, graph, logs_root, &policy, &emitter, 0,
-        )
-        .await;
+        last_outcome =
+            execute_with_retry(&handler, node, context, graph, &policy, &emitter, 0).await;
 
         // Apply context updates within the branch
         if !last_outcome.context_updates.is_empty() {

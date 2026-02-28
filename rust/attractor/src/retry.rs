@@ -4,7 +4,6 @@
 //! jitter for transient failures during node execution.
 
 use std::panic::AssertUnwindSafe;
-use std::path::Path;
 use std::sync::Arc;
 
 use futures::FutureExt;
@@ -189,13 +188,11 @@ pub fn build_retry_policy(node: &Node, graph: &Graph) -> RetryPolicy {
 ///
 /// Returns the final outcome after retries are exhausted or a
 /// terminal result is reached.
-#[allow(clippy::too_many_arguments)]
 pub async fn execute_with_retry(
     handler: &Arc<dyn Handler>,
     node: &Node,
     context: &Context,
     graph: &Graph,
-    logs_root: &Path,
     policy: &RetryPolicy,
     emitter: &dyn EventEmitter,
     stage_index: usize,
@@ -211,7 +208,7 @@ pub async fn execute_with_retry(
         attempt += 1;
 
         // Execute with panic catching
-        let result = AssertUnwindSafe(handler.execute(node, context, graph, logs_root))
+        let result = AssertUnwindSafe(handler.execute(node, context, graph))
             .catch_unwind()
             .await;
 

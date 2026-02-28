@@ -151,12 +151,11 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
             let mut workflow = stencila_workflows::get_by_name(&cwd, &name).await?;
             workflow.inner.goal = Some(goal);
 
-            let logs_dir = cwd.join(".stencila").join("logs");
             let options = stencila_workflows::RunOptions {
                 emitter,
                 interviewer: Some(interviewer),
             };
-            stencila_workflows::run_workflow_with_options(&workflow, &logs_dir, options).await
+            stencila_workflows::run_workflow_with_options(&workflow, options).await
         }
         .await;
 

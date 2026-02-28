@@ -8,7 +8,6 @@
 mod loop_core;
 mod routing;
 
-use std::path::PathBuf;
 use std::sync::Arc;
 
 use crate::events::{EventEmitter, NoOpEmitter};
@@ -21,8 +20,6 @@ pub use routing::{GoalGateResult, check_goal_gates, get_retry_target};
 
 /// Configuration for the pipeline engine.
 pub struct EngineConfig {
-    /// Root directory for run artifacts (run directories are created inside).
-    pub logs_root: PathBuf,
     /// Handler registry for resolving node types to handlers.
     pub registry: HandlerRegistry,
     /// Transform registry for graph preprocessing before execution.
@@ -40,7 +37,6 @@ pub struct EngineConfig {
 impl std::fmt::Debug for EngineConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("EngineConfig")
-            .field("logs_root", &self.logs_root)
             .field("registry", &self.registry)
             .field("transforms", &"TransformRegistry { .. }")
             .field("skip_validation", &self.skip_validation)
@@ -49,8 +45,8 @@ impl std::fmt::Debug for EngineConfig {
 }
 
 impl EngineConfig {
-    /// Create a new engine configuration with the given logs root,
-    /// default handler registry, default transforms, and no-op event emitter.
+    /// Create a new engine configuration with the default handler registry,
+    /// default transforms, and no-op event emitter.
     ///
     /// The default registry includes handlers for `start`, `exit`,
     /// `conditional`, `codergen` (simulation mode), `shell`, and
@@ -60,14 +56,19 @@ impl EngineConfig {
     /// Interviewer>`). Register them explicitly via
     /// `config.registry.register(...)` before calling [`run`].
     #[must_use]
-    pub fn new(logs_root: impl Into<PathBuf>) -> Self {
+    pub fn new() -> Self {
         Self {
-            logs_root: logs_root.into(),
             registry: HandlerRegistry::with_defaults(),
             transforms: TransformRegistry::with_defaults(),
             emitter: Arc::new(NoOpEmitter),
             skip_validation: false,
         }
+    }
+}
+
+impl Default for EngineConfig {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

@@ -4,7 +4,6 @@
 //! from the node's outgoing edges. Implements the human-in-the-loop
 //! pattern using the [`Interviewer`] trait.
 
-use std::path::Path;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -111,7 +110,6 @@ impl Handler for WaitForHumanHandler {
         node: &Node,
         _context: &Context,
         graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         // 1. Derive choices from outgoing edges
         let edges = graph.outgoing_edges(&node.id);

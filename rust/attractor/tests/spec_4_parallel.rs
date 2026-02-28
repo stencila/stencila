@@ -2,7 +2,6 @@
 
 mod common;
 
-use std::path::Path;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -15,8 +14,6 @@ use stencila_attractor::handler::{Handler, HandlerRegistry};
 use stencila_attractor::handlers::{DEFAULT_MAX_PARALLEL, FanInHandler, ParallelHandler};
 use stencila_attractor::types::{Outcome, StageStatus};
 
-use common::make_tempdir;
-
 /// A handler that always returns FAIL.
 struct FailHandler;
 
@@ -27,7 +24,6 @@ impl Handler for FailHandler {
         _node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         Ok(Outcome::fail("intentional failure"))
     }
@@ -67,10 +63,6 @@ fn default_registry() -> Arc<HandlerRegistry> {
 
 #[tokio::test]
 async fn parallel_executes_all_branches() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -83,7 +75,7 @@ async fn parallel_executes_all_branches() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
 
@@ -98,7 +90,6 @@ async fn parallel_executes_all_branches() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn parallel_no_edges_fails() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -117,7 +108,7 @@ async fn parallel_no_edges_fails() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     Ok(())
@@ -125,10 +116,6 @@ async fn parallel_no_edges_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn parallel_context_isolation() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -144,7 +131,7 @@ async fn parallel_context_isolation() -> AttractorResult<()> {
     let ctx = Context::new();
     ctx.set("parent_key", serde_json::json!("parent_value"));
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
     assert!(outcome.status.is_success());
 
     // Parent context value should still be there
@@ -160,10 +147,6 @@ async fn parallel_context_isolation() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn parallel_wait_all_default_policy() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -177,7 +160,7 @@ async fn parallel_wait_all_default_policy() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
 
@@ -243,10 +226,6 @@ fn mixed_registry() -> Arc<HandlerRegistry> {
 
 #[tokio::test]
 async fn parallel_first_success_returns_on_first_success() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = mixed_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -263,7 +242,7 @@ async fn parallel_first_success_returns_on_first_success() -> AttractorResult<()
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // At least one succeeded → overall success
     assert!(outcome.status.is_success());
@@ -272,10 +251,6 @@ async fn parallel_first_success_returns_on_first_success() -> AttractorResult<()
 
 #[tokio::test]
 async fn parallel_first_success_all_fail() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = mixed_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -292,7 +267,7 @@ async fn parallel_first_success_all_fail() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // No branch succeeded → FAIL
     assert_eq!(outcome.status, StageStatus::Fail);
@@ -301,10 +276,6 @@ async fn parallel_first_success_all_fail() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn parallel_fail_fast_stops_on_first_failure() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = mixed_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -321,7 +292,7 @@ async fn parallel_fail_fast_stops_on_first_failure() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // With fail_fast + wait_all, we get partial success (some succeeded, some failed)
     // but the key thing is it doesn't wait for all — we just verify it completes.
@@ -342,10 +313,6 @@ async fn parallel_fail_fast_stops_on_first_failure() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn parallel_error_policy_ignore_hides_failures() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = mixed_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -358,7 +325,7 @@ async fn parallel_error_policy_ignore_hides_failures() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // With ignore policy, failures are hidden → overall SUCCESS
     assert!(outcome.status.is_success());
@@ -367,10 +334,6 @@ async fn parallel_error_policy_ignore_hides_failures() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn parallel_wait_all_mixed_partial_success() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = mixed_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -384,7 +347,7 @@ async fn parallel_wait_all_mixed_partial_success() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // Mixed results with continue policy → PARTIAL_SUCCESS
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
@@ -406,10 +369,6 @@ async fn parallel_wait_all_mixed_partial_success() -> AttractorResult<()> {
 /// handles the all-fail case.
 #[tokio::test]
 async fn parallel_wait_all_all_branches_fail_returns_partial() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = mixed_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -423,7 +382,7 @@ async fn parallel_wait_all_all_branches_fail_returns_partial() -> AttractorResul
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // Per §4.8 pseudocode: wait_all with failures → PARTIAL_SUCCESS (never FAIL)
     // so the engine follows the normal edge to fan-in.
@@ -450,10 +409,6 @@ async fn parallel_max_parallel_default() {
 
 #[tokio::test]
 async fn parallel_max_parallel_from_attr() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
-
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
     let handler = ParallelHandler::new(registry, emitter);
@@ -467,7 +422,7 @@ async fn parallel_max_parallel_from_attr() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     let results = ctx.get("parallel.results");
@@ -482,7 +437,6 @@ async fn parallel_max_parallel_from_attr() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_tiebreak_by_score() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
@@ -495,7 +449,7 @@ async fn fan_in_tiebreak_by_score() -> AttractorResult<()> {
     ]);
     ctx.set("parallel.results", results);
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let best_id = outcome
         .context_updates
@@ -507,7 +461,6 @@ async fn fan_in_tiebreak_by_score() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_tiebreak_by_id() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
@@ -521,7 +474,7 @@ async fn fan_in_tiebreak_by_id() -> AttractorResult<()> {
     ]);
     ctx.set("parallel.results", results);
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let best_id = outcome
         .context_updates
@@ -538,13 +491,12 @@ async fn fan_in_tiebreak_by_id() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_no_results_fails() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(outcome.failure_reason.contains("No parallel results"));
@@ -553,7 +505,6 @@ async fn fan_in_no_results_fails() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_selects_best_candidate() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
@@ -567,7 +518,7 @@ async fn fan_in_selects_best_candidate() -> AttractorResult<()> {
     ]);
     ctx.set("parallel.results", results);
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     let best_id = outcome
@@ -581,7 +532,6 @@ async fn fan_in_selects_best_candidate() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_all_failed() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
@@ -593,7 +543,7 @@ async fn fan_in_all_failed() -> AttractorResult<()> {
     ]);
     ctx.set("parallel.results", results);
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     assert!(
@@ -606,7 +556,6 @@ async fn fan_in_all_failed() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_partial_success_best() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
@@ -618,7 +567,7 @@ async fn fan_in_partial_success_best() -> AttractorResult<()> {
     ]);
     ctx.set("parallel.results", results);
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     // Best is partial_success → overall should be PartialSuccess
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
@@ -632,7 +581,6 @@ async fn fan_in_partial_success_best() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn fan_in_empty_results_array() -> AttractorResult<()> {
-    let tmp = make_tempdir()?;
     let handler = FanInHandler;
     let node = Node::new("fan_in");
     let ctx = Context::new();
@@ -640,7 +588,7 @@ async fn fan_in_empty_results_array() -> AttractorResult<()> {
 
     ctx.set("parallel.results", serde_json::json!([]));
 
-    let outcome = handler.execute(&node, &ctx, &g, tmp.path()).await?;
+    let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Fail);
     Ok(())
@@ -691,9 +639,6 @@ async fn parallel_fan_in_multi_hop_structural() -> AttractorResult<()> {
     // When branches have intermediate nodes (branch_a → step_a2 → merge),
     // the fan-in node "merge" should still be detected via BFS reachability
     // and set as jump_target.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -707,7 +652,7 @@ async fn parallel_fan_in_multi_hop_structural() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     // The jump_target should be the structural convergence node, not in context_updates
@@ -724,9 +669,6 @@ async fn parallel_fan_in_multi_hop_structural() -> AttractorResult<()> {
 async fn parallel_fan_in_single_hop_structural() -> AttractorResult<()> {
     // Classic diamond: parallel → A → merge, parallel → B → merge.
     // The simplest structural fan-in case.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -752,7 +694,7 @@ async fn parallel_fan_in_single_hop_structural() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     assert_eq!(outcome.jump_target.as_deref(), Some("merge"));
@@ -765,9 +707,6 @@ async fn parallel_fan_in_explicit_multi_hop() -> AttractorResult<()> {
     //   parallel_node → branch_a → step_a2 → fan_in_node
     //   parallel_node → branch_b → step_b2 → fan_in_node
     // where fan_in_node has shape=tripleoctagon (handler type parallel.fan_in).
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -806,7 +745,7 @@ async fn parallel_fan_in_explicit_multi_hop() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     // The BFS should discover the explicit fan-in node even though it's
@@ -820,9 +759,6 @@ async fn parallel_no_fan_in_when_branches_diverge() -> AttractorResult<()> {
     // When branches do not converge, jump_target should be None.
     //   parallel_node → branch_a → end_a
     //   parallel_node → branch_b → end_b
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -849,7 +785,7 @@ async fn parallel_no_fan_in_when_branches_diverge() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     assert_eq!(outcome.jump_target, None);
@@ -860,9 +796,6 @@ async fn parallel_no_fan_in_when_branches_diverge() -> AttractorResult<()> {
 async fn parallel_fan_in_target_not_in_context_updates() -> AttractorResult<()> {
     // Ensure the jump target is on outcome.jump_target, NOT leaked into
     // context_updates (which would pollute the pipeline context).
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -876,7 +809,7 @@ async fn parallel_fan_in_target_not_in_context_updates() -> AttractorResult<()> 
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // jump_target is set
     assert!(outcome.jump_target.is_some());
@@ -903,9 +836,6 @@ async fn parallel_single_branch_with_explicit_fan_in_does_not_fail() -> Attracto
     // one branch, so no convergence), but the branch must still stop at
     // the fan_in node rather than trying to execute it (which would fail
     // because parallel.results doesn't exist in the branch context yet).
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -937,7 +867,7 @@ async fn parallel_single_branch_with_explicit_fan_in_does_not_fail() -> Attracto
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // With only one branch, there's no structural convergence.
     assert_eq!(outcome.jump_target, None);
@@ -955,9 +885,6 @@ async fn parallel_fan_in_detection_is_deterministic() -> AttractorResult<()> {
     // Run the same multi-hop diamond graph multiple times and verify
     // that the fan-in node selected is always the same, regardless of
     // hash randomization across iterations.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let g = multi_hop_diamond_graph();
     let node = g.get_node("parallel_node").ok_or_else(|| {
@@ -973,7 +900,7 @@ async fn parallel_fan_in_detection_is_deterministic() -> AttractorResult<()> {
         let handler = ParallelHandler::new(registry, emitter);
         let ctx = Context::new();
 
-        let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+        let outcome = handler.execute(node, &ctx, &g).await?;
         targets.push(outcome.jump_target.clone());
     }
 
@@ -997,9 +924,6 @@ async fn parallel_fan_in_staggered_merge_selects_all_branch_convergence() -> Att
     // merge_ab is reachable from 2 branches (A, B).
     // merge_abc is reachable from all 3 (A via merge_ab, B via merge_ab, C).
     // The fan-in must be merge_abc, not merge_ab.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -1033,7 +957,7 @@ async fn parallel_fan_in_staggered_merge_selects_all_branch_convergence() -> Att
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     assert_eq!(
@@ -1053,9 +977,6 @@ async fn parallel_fan_in_dead_end_branch_still_finds_partial_convergence() -> At
     //
     // merge is reachable from 2 of 3 branches. Since C can't reach any
     // shared node, merge is the best available convergence point.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -1089,7 +1010,7 @@ async fn parallel_fan_in_dead_end_branch_still_finds_partial_convergence() -> At
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
     assert_eq!(
@@ -1109,9 +1030,6 @@ async fn parallel_fan_in_excludes_parallel_node_in_cyclic_graph() -> AttractorRe
     // Without the exclusion, find_fan_in_node would select parallel_node
     // itself as the fan-in (reachable from both branches), causing the
     // engine to jump back and re-execute the parallel handler forever.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -1140,7 +1058,7 @@ async fn parallel_fan_in_excludes_parallel_node_in_cyclic_graph() -> AttractorRe
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     // The parallel node must NOT be selected as the fan-in target.
     assert_ne!(
@@ -1162,9 +1080,6 @@ async fn parallel_fan_in_cyclic_with_real_convergence() -> AttractorResult<()> {
     //                   branch_b → merge
     //
     // merge is the correct fan-in, not parallel_node.
-    let tmp = make_tempdir()?;
-    let logs_root = tmp.path();
-    std::fs::create_dir_all(logs_root.join("nodes"))?;
 
     let registry = default_registry();
     let emitter = Arc::new(NoOpEmitter);
@@ -1195,7 +1110,7 @@ async fn parallel_fan_in_cyclic_with_real_convergence() -> AttractorResult<()> {
     })?;
     let ctx = Context::new();
 
-    let outcome = handler.execute(node, &ctx, &g, logs_root).await?;
+    let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(
         outcome.jump_target.as_deref(),

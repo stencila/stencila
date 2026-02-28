@@ -1,7 +1,5 @@
 //! Conditional handler (§4.7).
 
-use std::path::Path;
-
 use async_trait::async_trait;
 
 use crate::context::Context;
@@ -26,7 +24,6 @@ impl Handler for ConditionalHandler {
         node: &Node,
         _context: &Context,
         _graph: &Graph,
-        _logs_root: &Path,
     ) -> AttractorResult<Outcome> {
         let mut outcome = Outcome::success();
         outcome.notes = format!(
