@@ -32,7 +32,7 @@ stencila-web-dist = { path = "../web-dist" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tower-cookies = "0.11.0"
-tower-http = { version = "0.6.6", features = ["trace", "cors", "fs"] }
+tower-http = { version = "0.6.6", features = ["trace", "cors", "fs", "set-header"] }
 tracing = { workspace = true }
 uuid = { workspace = true }
 

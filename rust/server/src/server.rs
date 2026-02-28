@@ -11,7 +11,7 @@ use axum::{
     Router,
     body::Body,
     extract::{Query, State},
-    http::{HeaderMap, Method, Request, StatusCode, header::HeaderValue},
+    http::{HeaderMap, Method, Request, StatusCode, header, header::HeaderValue},
     middleware::{Next, from_fn_with_state as middleware_fn},
     response::{IntoResponse, Response},
     routing::get,
@@ -29,11 +29,13 @@ use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 use tower_http::{
     cors::{Any, CorsLayer},
     services::ServeDir,
+    set_header::SetResponseHeaderLayer,
     trace::TraceLayer,
 };
 
 use stencila_dirs::{DirType, get_app_dir};
 use stencila_document::SyncDirection;
+use stencila_version::STENCILA_SERVER;
 pub(crate) use stencila_version::STENCILA_VERSION;
 
 use crate::{
@@ -354,11 +356,6 @@ pub async fn serve(
                     .route_layer(middleware_fn(state.clone(), auth_middleware)),
             )
             .fallback_service(ServeDir::new(&static_dir))
-            .layer(create_cors_layer(cors))
-            .layer(TraceLayer::new_for_http())
-            .layer(CookieManagerLayer::new())
-            .with_state(state)
-            .into_make_service()
     } else {
         // Normal mode: dynamic document processing
         Router::new()
@@ -389,12 +386,13 @@ pub async fn serve(
                 get(documents::serve_root)
                     .route_layer(middleware_fn(state.clone(), auth_middleware)),
             )
-            .layer(create_cors_layer(cors))
-            .layer(TraceLayer::new_for_http())
-            .layer(CookieManagerLayer::new())
-            .with_state(state)
-            .into_make_service()
-    };
+    }
+    .layer(create_server_header_layer())
+    .layer(create_cors_layer(cors))
+    .layer(TraceLayer::new_for_http())
+    .layer(CookieManagerLayer::new())
+    .with_state(state)
+    .into_make_service();
 
     if !no_startup_message {
         tracing::info!("Starting server at {url}");
@@ -530,6 +528,14 @@ async fn auth_middleware(
     }
 
     Err((StatusCode::UNAUTHORIZED, "Unauthorized").into_response())
+}
+
+/// Create a layer that sets the `Server` response header
+fn create_server_header_layer() -> SetResponseHeaderLayer<HeaderValue> {
+    SetResponseHeaderLayer::if_not_present(
+        header::SERVER,
+        HeaderValue::from_static(STENCILA_SERVER),
+    )
 }
 
 /// Create a CORS layer based on the specified level

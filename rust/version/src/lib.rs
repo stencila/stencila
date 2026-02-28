@@ -12,6 +12,9 @@ pub const STENCILA_USER_AGENT: &str = concat!(
     " (mailto:user-agent@stencila.io)"
 );
 
+/// A versioned Server header for responses
+pub const STENCILA_SERVER: &str = concat!("Stencila/", env!("CARGO_PKG_VERSION"));
+
 /// The current version of Stencila as a [`semver::Version`]
 pub fn stencila_version() -> Version {
     Version::parse(STENCILA_VERSION).expect("version should always be a semver")
