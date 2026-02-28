@@ -18,19 +18,16 @@ pub struct CliCommandNode {
 ///
 /// New CLI commands default to hidden in TUI until explicitly added here.
 const ALLOWLIST: &[&str] = &[
-    "skills",
-    "models",
-    "kernels",
     "agents",
-    "workflows",
-    "formats",
-    "themes",
-    "linters",
-    "tools",
-    "mcp",
-    "secrets",
     "config",
-    "auth",
+    "formats",
+    "kernels",
+    "linters",
+    "mcp",
+    "models",
+    "skills",
+    "themes",
+    "workflows",
 ];
 
 /// Build the command tree from the top-level clap `Command`.

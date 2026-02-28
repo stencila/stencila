@@ -1,9 +1,7 @@
 use std::sync::Arc;
 
-use strum::IntoEnumIterator;
-
 use crate::cli_commands::CliCommandNode;
-use crate::commands::SlashCommand;
+use crate::commands::{CommandSlot, SlashCommand};
 
 /// A candidate shown in the autocomplete popup.
 #[derive(Debug, Clone)]
@@ -139,15 +137,50 @@ impl CommandsState {
         self.candidates.len() == 1 && self.candidates[0].name() == input
     }
 
-    /// All top-level candidates: built-in commands + CLI root commands.
+    /// All top-level candidates in display order (built-in + CLI commands
+    /// interleaved according to [`SlashCommand::display_order`]).
     fn all_top_level_candidates(&self) -> Vec<CommandCandidate> {
-        let mut candidates: Vec<CommandCandidate> = SlashCommand::iter()
-            .filter(|cmd| !cmd.is_hidden())
-            .map(CommandCandidate::Builtin)
-            .collect();
+        let visible_cli: Vec<&CliCommandNode> = self
+            .cli_tree
+            .as_deref()
+            .map(|tree| crate::cli_commands::visible_top_level(tree))
+            .unwrap_or_default();
 
-        if let Some(ref tree) = self.cli_tree {
-            for node in crate::cli_commands::visible_top_level(tree) {
+        let mut candidates = Vec::new();
+        let mut placed_cli: Vec<&str> = Vec::new();
+
+        for slot in SlashCommand::display_order() {
+            match slot {
+                CommandSlot::Builtin(cmd) if !cmd.is_hidden() => {
+                    candidates.push(CommandCandidate::Builtin(*cmd));
+                }
+                CommandSlot::Cli(name) => {
+                    if let Some(node) = visible_cli.iter().find(|n| n.name == *name) {
+                        candidates.push(CommandCandidate::CliCommand {
+                            path: vec![node.name.clone()],
+                            description: node.description.clone(),
+                        });
+                        placed_cli.push(name);
+                    }
+                }
+                CommandSlot::RemainingCli => {
+                    for node in &visible_cli {
+                        if !placed_cli.contains(&node.name.as_str()) {
+                            candidates.push(CommandCandidate::CliCommand {
+                                path: vec![node.name.clone()],
+                                description: node.description.clone(),
+                            });
+                        }
+                    }
+                    placed_cli.extend(visible_cli.iter().map(|n| n.name.as_str()));
+                }
+                _ => {}
+            }
+        }
+
+        // Safety net: if RemainingCli was absent, append any unplaced CLI commands.
+        for node in &visible_cli {
+            if !placed_cli.contains(&node.name.as_str()) {
                 candidates.push(CommandCandidate::CliCommand {
                     path: vec![node.name.clone()],
                     description: node.description.clone(),
@@ -406,20 +439,20 @@ mod tests {
         let mut state = CommandsState::new();
         // Create a CLI tree that has a command with same name as a builtin
         let tree = Arc::new(vec![CliCommandNode {
-            name: "workflows".to_string(),
-            description: "CLI workflows".to_string(),
+            name: "help".to_string(),
+            description: "CLI help".to_string(),
             children: vec![],
             usage_hint: String::new(),
         }]);
         state.set_cli_tree(tree);
         state.update("/");
-        // "workflows" should appear only once (as a builtin)
-        let wf_count = state
+        // "help" should appear only once (as a builtin, not also as a CLI command)
+        let count = state
             .candidates()
             .iter()
-            .filter(|c| c.name() == "/workflows")
+            .filter(|c| c.name() == "/help")
             .count();
-        assert_eq!(wf_count, 1);
+        assert_eq!(count, 1);
     }
 
     #[test]
