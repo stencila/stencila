@@ -39,7 +39,7 @@ pub struct AgentCandidate {
     pub name: String,
 }
 
-/// State for the agent picker popup triggered by `/agents`.
+/// State for the agent picker popup triggered by `/agent`.
 pub struct AgentsState {
     /// Whether the popup is currently visible.
     visible: bool,

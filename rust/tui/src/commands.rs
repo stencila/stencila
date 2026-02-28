@@ -16,8 +16,8 @@ pub enum SlashCommand {
     #[strum(message = "Run a workflow")]
     Workflows,
 
-    #[strum(serialize = "agents", message = "Switch agents")]
-    Agents,
+    #[strum(serialize = "agent", message = "Start and switch agent sessions")]
+    Agent,
 
     #[strum(message = "Cancel a running command")]
     Cancel,
@@ -73,7 +73,7 @@ impl SlashCommand {
     /// Execute this command, mutating the app state.
     pub async fn execute(self, app: &mut App, _args: &str) {
         match self {
-            Self::Agents => execute_agents(app).await,
+            Self::Agent => execute_agents(app).await,
             Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
             Self::New => execute_new(app).await,
@@ -112,7 +112,7 @@ impl SlashCommand {
     pub fn is_exact_only(self) -> bool {
         matches!(
             self,
-            Self::Agents
+            Self::Agent
                 | Self::Workflows
                 | Self::Cancel
                 | Self::Clear
@@ -404,8 +404,8 @@ mod tests {
     }
 
     #[test]
-    fn agents_command_name() {
-        assert_eq!(SlashCommand::Agents.name(), "/agents");
+    fn agent_command_name() {
+        assert_eq!(SlashCommand::Agent.name(), "/agent");
     }
 
     #[tokio::test]
@@ -511,9 +511,9 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn execute_agents_single_session_opens_popup() {
+    async fn execute_agent_single_session_opens_popup() {
         let mut app = App::new_for_test().await;
-        SlashCommand::Agents.execute(&mut app, "").await;
+        SlashCommand::Agent.execute(&mut app, "").await;
         // Should open popup with 1 existing agent
         // (plus any discovered definitions, but in test there are none)
         assert!(app.agents_state.is_visible());
@@ -521,10 +521,10 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn execute_agents_multiple_sessions() {
+    async fn execute_agent_multiple_sessions() {
         let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("test"));
-        SlashCommand::Agents.execute(&mut app, "").await;
+        SlashCommand::Agent.execute(&mut app, "").await;
         assert!(app.agents_state.is_visible());
         // 2 existing agents (plus any discovered definitions)
         assert!(app.agents_state.candidates().len() >= 2);
@@ -553,17 +553,30 @@ mod tests {
     }
 
     #[test]
-    fn parse_command_exact_only_no_args() {
+    fn parse_command_agent_exact_only_no_args() {
         let tree = test_cli_tree();
-        let result = parse_command("/agents", &tree);
+        let result = parse_command("/agent", &tree);
         assert!(matches!(
             result,
-            Some(ParsedCommand::Builtin(SlashCommand::Agents, ""))
+            Some(ParsedCommand::Builtin(SlashCommand::Agent, ""))
         ));
     }
 
     #[test]
-    fn parse_command_exact_only_with_args_fallthrough() {
+    fn parse_command_agents_cli_passthrough_no_args() {
+        let tree = test_cli_tree();
+        let result = parse_command("/agents", &tree);
+        match result {
+            Some(ParsedCommand::CliPassthrough(cmd)) => {
+                assert_eq!(cmd.args, vec!["agents"]);
+                assert_eq!(cmd.display, "stencila agents");
+            }
+            _ => panic!("Expected CliPassthrough"),
+        }
+    }
+
+    #[test]
+    fn parse_command_agents_cli_passthrough_with_args() {
         let tree = test_cli_tree();
         let result = parse_command("/agents list", &tree);
         match result {
