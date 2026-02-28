@@ -77,7 +77,7 @@ fn executor(
                 }
 
                 // Ensure artifacts for a run are stored under
-                // `.stencila/artifacts/workflow-runs/{run_id}/`.
+                // `.stencila/artifacts/workflows/{run_id}/`.
                 let file_name = source
                     .file_name()
                     .map_or_else(|| "artifact.bin".into(), |name| name.to_os_string());

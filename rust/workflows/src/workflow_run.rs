@@ -111,9 +111,9 @@ pub async fn run_workflow_with_options(
     let effective_db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
 
     let run_id = uuid::Uuid::now_v7().to_string();
-    let artifacts_dir =
-        stencila_dirs::closest_artifacts_for(workflow.path(), &format!("workflow-runs/{run_id}"))
-            .await?;
+    let stencila_artifacts_dir =
+        stencila_dirs::stencila_artifacts_dir(&stencila_dir, false).await?;
+    let artifacts_dir = stencila_artifacts_dir.join(format!("workflows/{run_id}"));
 
     let workspace_db = stencila_db::WorkspaceDb::open(&effective_db_path)
         .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;

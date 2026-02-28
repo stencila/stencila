@@ -399,7 +399,7 @@ impl SqliteBackend {
 
     /// Delete this run and all run-scoped rows in a single transaction.
     ///
-    /// Also removes `.stencila/artifacts/workflow-runs/{run_id}` when present.
+    /// Also removes `.stencila/artifacts/workflows/{run_id}` when present.
     ///
     /// # Errors
     ///
@@ -457,7 +457,7 @@ impl SqliteBackend {
         Some(
             stencila_dir
                 .join("artifacts")
-                .join("workflow-runs")
+                .join("workflows")
                 .join(&self.run_id),
         )
     }
