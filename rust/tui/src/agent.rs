@@ -613,13 +613,13 @@ fn handle_assistant_text_end(
             }
             append_text(&mut g.segments, text);
         } else if !g.has_tool_calls {
-            // Streaming, single-turn: reconcile text (keep Thinking segments)
-            let thinking: Vec<ResponseSegment> = g
+            // Streaming, single-turn: reconcile text (keep non-text segments)
+            let kept: Vec<ResponseSegment> = g
                 .segments
                 .drain(..)
-                .filter(|s| matches!(s, ResponseSegment::Thinking { .. }))
+                .filter(|s| !matches!(s, ResponseSegment::Text(_)))
                 .collect();
-            g.segments = thinking;
+            g.segments = kept;
             if let Some(r) = reasoning {
                 g.segments.push(ResponseSegment::Thinking {
                     text: r.to_string(),
