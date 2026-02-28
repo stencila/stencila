@@ -109,8 +109,8 @@ pub enum ProviderSource {
 impl fmt::Display for ProviderSource {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::AgentExplicit => write!(f, "from agent definition"),
-            Self::InferredFromModel => write!(f, "inferred from model"),
+            Self::AgentExplicit => write!(f, "provider from agent definition"),
+            Self::InferredFromModel => write!(f, "provider inferred from model"),
             Self::DefaultConfig => write!(f, "default configured provider"),
             Self::CliDefault => write!(f, "CLI fallback (no API providers)"),
         }
@@ -167,7 +167,7 @@ impl RoutingDecision {
         };
 
         let model_display = if let Some((alias, concrete)) = &self.alias_resolution {
-            format!("{alias} → {concrete}")
+            format!("{alias}→{concrete}")
         } else if let Some(m) = model {
             m.to_string()
         } else {
@@ -175,7 +175,7 @@ impl RoutingDecision {
         };
 
         format!(
-            "Using {provider} / {model_display} ({backend}; {provider_source})",
+            "Using {provider}/{model_display} ({backend}; {provider_source})",
             provider_source = self.provider_source,
         )
     }
