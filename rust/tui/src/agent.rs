@@ -42,8 +42,12 @@ pub enum ResponseSegment {
         label: String,
         status: ToolCallStatus,
     },
+    /// An informational annotation (e.g. routing decision, retry notification).
+    Info(String),
     /// A warning annotation (e.g. turn limit, loop detection).
     Warning(String),
+    /// An error annotation (e.g. context-usage error with warning severity).
+    Error(String),
 }
 
 /// Extract only the plain assistant text from a segment list.
@@ -741,8 +745,7 @@ pub(crate) fn process_event(
         }
         EventKind::Info => {
             // Informational messages (e.g. routing decision, retry notifications)
-            // — show inline as a warning-styled segment so the user knows what's
-            // happening.
+            // — show inline so the user knows what's happening.
             if let Ok(mut g) = progress.lock() {
                 let message = event
                     .data
@@ -750,7 +753,7 @@ pub(crate) fn process_event(
                     .and_then(Value::as_str)
                     .unwrap_or("info");
                 g.segments
-                    .push(ResponseSegment::Warning(message.to_string()));
+                    .push(ResponseSegment::Info(message.to_string()));
             }
         }
         EventKind::Warning => {
@@ -780,14 +783,14 @@ pub(crate) fn process_event(
                     g.segments
                         .push(ResponseSegment::Warning(message.to_string()));
                 } else {
-                    g.error = Some(
-                        event
-                            .data
-                            .get("message")
-                            .and_then(Value::as_str)
-                            .unwrap_or("unknown error")
-                            .to_string(),
-                    );
+                    let message = event
+                        .data
+                        .get("message")
+                        .and_then(Value::as_str)
+                        .unwrap_or("unknown error");
+                    g.segments
+                        .push(ResponseSegment::Error(message.to_string()));
+                    g.error = Some(message.to_string());
                 }
             }
         }

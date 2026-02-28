@@ -100,7 +100,7 @@ impl App {
                     // partial text) and append the error as a warning so the
                     // user sees what happened *without* losing context.
                     let mut segs = result.segments;
-                    segs.push(ResponseSegment::Warning(format!("Error: {err}")));
+                    segs.push(ResponseSegment::Error(err.clone()));
                     let text = crate::agent::plain_text_from_segments(&segs);
                     let resp = if text.is_empty() {
                         err

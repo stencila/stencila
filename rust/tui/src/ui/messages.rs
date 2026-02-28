@@ -486,20 +486,22 @@ fn response_segments_lines(
                 );
                 prev_was_annotation = true;
             }
-            ResponseSegment::Warning(message) => {
+            ResponseSegment::Info(message)
+            | ResponseSegment::Warning(message)
+            | ResponseSegment::Error(message) => {
+                let color = match segment {
+                    ResponseSegment::Info(_) => Color::Blue,
+                    ResponseSegment::Error(_) => Color::Red,
+                    _ => Color::Yellow,
+                };
                 if !prev_was_annotation {
                     lines.push(blank_line());
                 }
-                let symbol_color = if message.trim_start().starts_with("Error:") {
-                    Color::Red
-                } else {
-                    Color::Yellow
-                };
                 push_annotation_lines(
                     lines,
                     dim_sidebar_style,
                     '\u{25cf}',
-                    Style::new().fg(symbol_color),
+                    Style::new().fg(color),
                     message,
                     dim(),
                     content_width,
