@@ -53,14 +53,17 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Show details about a specific agent</dim>
   <b>stencila agents show</> <g>code-review</>
 
-  <dim># Validate an agent by name, directory, or file path</dim>
-  <b>stencila agents validate</> <g>code-review</>
-
   <dim># Create a new agent in the workspace</dim>
   <b>stencila agents create</> <g>my-agent</> <y>\"A helpful assistant\"</>
 
   <dim># Create a new agent in user config</dim>
   <b>stencila agents create</> <g>my-agent</> <y>\"A helpful assistant\"</> <c>--user</>
+
+  <dim># Validate an agent by name, directory, or file path</dim>
+  <b>stencila agents validate</> <g>code-review</>
+
+  <dim># Show how an agent session would be routed</dim>
+  <b>stencila agents resolve</> <g>code-engineer</>
 
   <dim># Run an agent with a prompt</dim>
   <b>stencila agents run</> <g>code-engineer</> <y>\"What files are in this directory?\"</>
@@ -74,8 +77,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 enum Command {
     List(List),
     Show(Show),
-    Validate(Validate),
     Create(Create),
+    Validate(Validate),
+    Resolve(Resolve),
     Run(Run),
 }
 
@@ -89,8 +93,9 @@ impl Cli {
         match command {
             Command::List(list) => list.run().await?,
             Command::Show(show) => show.run().await?,
-            Command::Validate(validate) => validate.run().await?,
             Command::Create(create) => create.run().await?,
+            Command::Validate(validate) => validate.run().await?,
+            Command::Resolve(resolve) => resolve.run().await?,
             Command::Run(run) => run.run().await?,
         }
 
@@ -512,6 +517,135 @@ impl Validate {
     }
 }
 
+/// Show how an agent session would be routed
+///
+/// Dry-run routing resolution: shows the provider, model, session type,
+/// credential source, and reasoning without starting a session. Useful for
+/// debugging why a particular provider or model was chosen.
+#[derive(Debug, Args)]
+#[command(after_long_help = RESOLVE_AFTER_LONG_HELP)]
+struct Resolve {
+    /// The name of the agent to resolve
+    name: String,
+
+    /// Show extended routing details
+    #[arg(long)]
+    why: bool,
+}
+
+pub static RESOLVE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Show routing for the default agent</dim>
+  <b>stencila agents resolve</> <g>default</>
+
+  <dim># Show extended routing details</dim>
+  <b>stencila agents resolve</> <g>code-engineer</> <c>--why</>
+"
+);
+
+impl Resolve {
+    #[allow(clippy::print_stdout)]
+    async fn run(self) -> Result<()> {
+        use crate::routing;
+
+        let resolved_name = crate::convenience::resolve_default_agent_name(&self.name).await;
+        let cwd = std::env::current_dir()?;
+        let agent = agent_def::get_by_name(&cwd, &resolved_name).await?;
+
+        let client = stencila_models3::client::Client::from_env().ok();
+        let no_api_client = client.is_none();
+        let empty_client;
+        let client_ref = match client.as_ref() {
+            Some(c) => c,
+            None => {
+                empty_client = stencila_models3::client::Client::builder()
+                    .build()
+                    .map_err(|e| eyre::eyre!("{e}"))?;
+                &empty_client
+            }
+        };
+
+        if no_api_client {
+            eprintln!("Note: no API client configured; showing CLI fallback route");
+        }
+
+        let decision = routing::route_session_explained(
+            agent.provider.as_deref(),
+            agent.model.as_deref(),
+            client_ref,
+        )
+        .map_err(|e| eyre::eyre!("{e}"))?;
+
+        let (backend, provider, model) = match &decision.route {
+            routing::SessionRoute::Api { provider, model } => {
+                ("API", provider.as_str(), Some(model.as_str()))
+            }
+            routing::SessionRoute::Cli { provider, model } => {
+                ("CLI", provider.as_str(), model.as_deref())
+            }
+        };
+
+        let model_display = if let Some((alias, concrete)) = &decision.alias_resolution {
+            format!("{alias} → {concrete}")
+        } else if let Some(m) = model {
+            m.to_string()
+        } else {
+            "default".to_string()
+        };
+
+        let credential_display = client_ref
+            .get_credential_source(provider)
+            .map_or_else(|| "-".to_string(), |s| s.to_string());
+
+        println!("Agent:       {} ({})", agent.name, agent.home().display());
+        println!("Provider:    {} ({})", provider, decision.provider_source);
+        println!("Model:       {model_display}");
+        println!("Session:     {backend}");
+        println!("Credentials: {credential_display}");
+
+        if decision.fallback_used {
+            let reason = decision
+                .fallback_reason
+                .as_deref()
+                .unwrap_or("no API credentials");
+            println!("Fallback:    ⚠️  {reason}");
+        }
+
+        if self.why {
+            println!();
+            println!("Extended Details\n");
+            println!("Provider source:  {}", decision.provider_source);
+            println!("Model source:     {}", decision.model_source);
+
+            let mut provider_names = client_ref.provider_names();
+            provider_names.sort();
+            if provider_names.is_empty() {
+                println!("API providers:    (none configured)");
+            } else {
+                println!("API providers:    {}", provider_names.join(", "));
+            }
+
+            if let Some(configured) = stencila_config::load_and_validate(&cwd)
+                .ok()
+                .and_then(|c| c.models)
+                .and_then(|m| m.providers)
+            {
+                println!("Config priority:  {}", configured.join(", "));
+            } else {
+                println!("Config priority:  (not set; using registration order)");
+            }
+
+            for name in &provider_names {
+                if let Some(source) = client_ref.get_credential_source(name) {
+                    println!("  {name}: {source}");
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
 /// Run an agent with a prompt
 ///
 /// Discovers a named agent definition, creates an agent session using the
@@ -640,6 +774,10 @@ impl Run {
                         EventKind::Info => {
                             let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("info");
                             eprintln!("[info] {msg}");
+                        }
+                        EventKind::Warning => {
+                            let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("warning");
+                            eprintln!("[warning] {msg}");
                         }
                         EventKind::Error => {
                             let msg = event.data.get("message").and_then(serde_json::Value::as_str).unwrap_or("unknown error");

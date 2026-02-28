@@ -300,6 +300,12 @@ impl CliSession {
         &self.config
     }
 
+    /// The session's event emitter.
+    #[must_use]
+    pub fn events(&self) -> &EventEmitter {
+        &self.events
+    }
+
     /// The session ID from the event emitter.
     #[must_use]
     pub fn session_id(&self) -> &str {

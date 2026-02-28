@@ -581,6 +581,9 @@ pub enum EventKind {
     ContextUsage,
     /// Informational message (e.g. recovery retry).
     Info,
+    /// A warning that deserves user attention but is not an error
+    /// (e.g. API→CLI fallback).
+    Warning,
     /// An error occurred.
     Error,
 }

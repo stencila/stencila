@@ -13,7 +13,7 @@ use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
 use crate::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts;
-use crate::routing::{self, SessionRoute};
+use crate::routing::{self, RoutingDecision, SessionRoute};
 use crate::types::SessionConfig;
 
 /// Options for [`create_agent`].
@@ -224,30 +224,42 @@ pub async fn create_session(
         }
     };
 
-    let route = routing::route_session(
+    let decision = routing::route_session_explained(
         agent.provider.as_deref(),
         agent.model.as_deref(),
         client_ref,
     )?;
 
-    match route {
-        SessionRoute::Cli { provider, model } => {
+    // Capture credential source for the selected provider before the
+    // client is potentially consumed by the API path.
+    let credential_source = match &decision.route {
+        SessionRoute::Api { provider, .. } => client
+            .as_ref()
+            .and_then(|c| c.get_credential_source(provider).cloned()),
+        _ => None,
+    };
+
+    match decision.route {
+        SessionRoute::Cli { ref provider, ref model } => {
             let (session, event_receiver) =
-                create_cli_session_inner(&provider, model.as_deref(), &config)?;
+                create_cli_session_inner(provider, model.as_deref(), &config)?;
+            emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Cli(session), event_receiver))
         }
-        SessionRoute::Api { provider, model } => {
+        SessionRoute::Api { ref provider, ref model } => {
+            let api_client = client.ok_or_else(|| {
+                AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                    message: "No API client available".to_string(),
+                })
+            })?;
             let (session, event_receiver) = create_api_session_inner(
-                &provider,
-                &model,
-                client.ok_or_else(|| {
-                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                        message: "No API client available".to_string(),
-                    })
-                })?,
+                provider,
+                model,
+                api_client,
                 config,
             )
             .await?;
+            emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Api(session), event_receiver))
         }
     }
@@ -398,4 +410,26 @@ pub async fn run_prompt(name: &str, prompt: &str) -> AgentResult<String> {
     }
 
     Ok(collected_text)
+}
+
+/// Emit routing decision events on the session's event emitter.
+///
+/// Emits a summary `Info` event (always), and a fallback `Warning` event
+/// when an API→CLI fallback occurred. Credential source is included in the
+/// summary when available.
+fn emit_routing_events(
+    events: &crate::events::EventEmitter,
+    decision: &RoutingDecision,
+    credential_source: Option<&stencila_models3::client::CredentialSource>,
+) {
+    let mut summary = decision.summary();
+    if let Some(source) = credential_source {
+        summary = format!("{summary} [credentials: {source}]");
+    }
+
+    events.emit_info("ROUTING_DECISION", &summary);
+
+    if let Some(warning) = decision.fallback_warning() {
+        events.emit_warning("ROUTING_FALLBACK", &warning);
+    }
 }

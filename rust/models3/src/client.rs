@@ -53,6 +53,37 @@ fn provider_enabled(configured: Option<&Vec<String>>, provider: &str) -> bool {
     }
 }
 
+/// How a provider's credentials were obtained.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CredentialSource {
+    /// A standard API key environment variable (e.g. `ANTHROPIC_API_KEY`).
+    /// The `&'static str` is always a string literal naming the env var.
+    EnvApiKey(&'static str),
+    /// Codex CLI OAuth credentials from `~/.codex/auth.json`.
+    CodexCliOAuth,
+    /// Claude Code OAuth credentials.
+    ClaudeCodeOAuth,
+    /// A `GOOGLE_API_KEY` fallback for Gemini.
+    GoogleApiKeyFallback,
+    /// OAuth override supplied via `AuthOptions`.
+    AuthOverride,
+    /// Auto-detected (e.g. Ollama via host env var).
+    AutoDetected,
+}
+
+impl std::fmt::Display for CredentialSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::EnvApiKey(var) => write!(f, "{var}"),
+            Self::CodexCliOAuth => write!(f, "codex-cli-oauth"),
+            Self::ClaudeCodeOAuth => write!(f, "claude-code-oauth"),
+            Self::GoogleApiKeyFallback => write!(f, "GOOGLE_API_KEY"),
+            Self::AuthOverride => write!(f, "auth-override"),
+            Self::AutoDetected => write!(f, "auto-detected"),
+        }
+    }
+}
+
 /// The main orchestration layer.
 ///
 /// Holds registered provider adapters, routes requests by provider
@@ -61,6 +92,7 @@ pub struct Client {
     providers: HashMap<String, Box<dyn ProviderAdapter>>,
     default_provider: Option<String>,
     middleware: Vec<Box<dyn Middleware>>,
+    credential_sources: HashMap<String, CredentialSource>,
 }
 
 impl std::fmt::Debug for Client {
@@ -69,6 +101,7 @@ impl std::fmt::Debug for Client {
             .field("providers", &self.providers.keys().collect::<Vec<_>>())
             .field("default_provider", &self.default_provider)
             .field("middleware_count", &self.middleware.len())
+            .field("credential_sources", &self.credential_sources)
             .finish()
     }
 }
@@ -119,8 +152,9 @@ impl Client {
             let base_url = openai_base_url(false);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
-            builder =
-                builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
+            builder = builder
+                .add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?)
+                .credential_source("openai", CredentialSource::EnvApiKey("OPENAI_API_KEY"));
         } else if provider_enabled(configured.as_ref(), "openai")
             && let Some(creds) = codex_cli::load_credentials()
         {
@@ -130,9 +164,11 @@ impl Client {
             let base_url = openai_base_url(is_oauth);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
-            builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
-                auth, base_url, org, project, account_id,
-            )?);
+            builder = builder
+                .add_provider(OpenAIAdapter::with_auth_and_account(
+                    auth, base_url, org, project, account_id,
+                )?)
+                .credential_source("openai", CredentialSource::CodexCliOAuth);
         }
 
         // Anthropic
@@ -142,46 +178,63 @@ impl Client {
             if claude_code::load_credentials().is_some() {
                 tracing::info!("ANTHROPIC_API_KEY is set; ignoring Claude Code OAuth credentials");
             }
-            builder = builder.add_provider(AnthropicAdapter::from_env()?);
+            builder = builder
+                .add_provider(AnthropicAdapter::from_env()?)
+                .credential_source(
+                    "anthropic",
+                    CredentialSource::EnvApiKey("ANTHROPIC_API_KEY"),
+                );
         } else if provider_enabled(configured.as_ref(), "anthropic")
             && let Some(creds) = claude_code::load_credentials()
         {
             tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
             let auth = claude_code::build_auth_credential(creds);
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
-            builder = builder.add_provider(AnthropicAdapter::with_auth(auth, base_url)?);
+            builder = builder
+                .add_provider(AnthropicAdapter::with_auth(auth, base_url)?)
+                .credential_source("anthropic", CredentialSource::ClaudeCodeOAuth);
         }
 
         // Gemini (with GOOGLE_API_KEY fallback)
         if provider_enabled(configured.as_ref(), "gemini") && get_secret("GEMINI_API_KEY").is_some()
         {
-            builder = builder.add_provider(GeminiAdapter::from_env()?);
+            builder = builder
+                .add_provider(GeminiAdapter::from_env()?)
+                .credential_source("gemini", CredentialSource::EnvApiKey("GEMINI_API_KEY"));
         } else if provider_enabled(configured.as_ref(), "gemini")
             && let Some(api_key) = get_secret("GOOGLE_API_KEY")
         {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
-            builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
+            builder = builder
+                .add_provider(GeminiAdapter::new(api_key, base_url)?)
+                .credential_source("gemini", CredentialSource::GoogleApiKeyFallback);
         }
 
         // Mistral
         if provider_enabled(configured.as_ref(), "mistral")
             && get_secret("MISTRAL_API_KEY").is_some()
         {
-            builder = builder.add_provider(MistralAdapter::from_env()?);
+            builder = builder
+                .add_provider(MistralAdapter::from_env()?)
+                .credential_source("mistral", CredentialSource::EnvApiKey("MISTRAL_API_KEY"));
         }
 
         // DeepSeek
         if provider_enabled(configured.as_ref(), "deepseek")
             && get_secret("DEEPSEEK_API_KEY").is_some()
         {
-            builder = builder.add_provider(DeepSeekAdapter::from_env()?);
+            builder = builder
+                .add_provider(DeepSeekAdapter::from_env()?)
+                .credential_source("deepseek", CredentialSource::EnvApiKey("DEEPSEEK_API_KEY"));
         }
 
         // Ollama (no API key required — register when explicitly configured)
         if provider_enabled(configured.as_ref(), "ollama")
             && (std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok())
         {
-            builder = builder.add_provider(OllamaAdapter::from_env()?);
+            builder = builder
+                .add_provider(OllamaAdapter::from_env()?)
+                .credential_source("ollama", CredentialSource::AutoDetected);
         }
 
         builder.build()
@@ -227,21 +280,24 @@ impl Client {
             let base_url = openai_base_url(options.openai_account_id.is_some());
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
-            builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
-                auth.clone(),
-                base_url,
-                org,
-                project,
-                options.openai_account_id.clone(),
-            )?);
+            builder = builder
+                .add_provider(OpenAIAdapter::with_auth_and_account(
+                    auth.clone(),
+                    base_url,
+                    org,
+                    project,
+                    options.openai_account_id.clone(),
+                )?)
+                .credential_source("openai", CredentialSource::AuthOverride);
         } else if provider_enabled(configured.as_ref(), "openai")
             && let Some(api_key) = get_secret("OPENAI_API_KEY")
         {
             let base_url = openai_base_url(false);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
-            builder =
-                builder.add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?);
+            builder = builder
+                .add_provider(OpenAIAdapter::with_config(api_key, base_url, org, project)?)
+                .credential_source("openai", CredentialSource::EnvApiKey("OPENAI_API_KEY"));
         } else if provider_enabled(configured.as_ref(), "openai")
             && let Some(creds) = codex_cli::load_credentials()
         {
@@ -252,9 +308,11 @@ impl Client {
             let base_url = openai_base_url(is_oauth);
             let org = std::env::var("OPENAI_ORG_ID").ok();
             let project = std::env::var("OPENAI_PROJECT_ID").ok();
-            builder = builder.add_provider(OpenAIAdapter::with_auth_and_account(
-                auth, base_url, org, project, account_id,
-            )?);
+            builder = builder
+                .add_provider(OpenAIAdapter::with_auth_and_account(
+                    auth, base_url, org, project, account_id,
+                )?)
+                .credential_source("openai", CredentialSource::CodexCliOAuth);
         }
 
         // Anthropic
@@ -263,17 +321,25 @@ impl Client {
         {
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
             builder = builder.add_provider(AnthropicAdapter::with_auth(auth.clone(), base_url)?);
+            builder = builder.credential_source("anthropic", CredentialSource::AuthOverride);
         } else if provider_enabled(configured.as_ref(), "anthropic")
             && get_secret("ANTHROPIC_API_KEY").is_some()
         {
-            builder = builder.add_provider(AnthropicAdapter::from_env()?);
+            builder = builder
+                .add_provider(AnthropicAdapter::from_env()?)
+                .credential_source(
+                    "anthropic",
+                    CredentialSource::EnvApiKey("ANTHROPIC_API_KEY"),
+                );
         } else if provider_enabled(configured.as_ref(), "anthropic")
             && let Some(creds) = claude_code::load_credentials()
         {
             tracing::debug!("Using Claude Code OAuth credentials for Anthropic");
             let auth = claude_code::build_auth_credential(creds);
             let base_url = std::env::var("ANTHROPIC_BASE_URL").ok();
-            builder = builder.add_provider(AnthropicAdapter::with_auth(auth, base_url)?);
+            builder = builder
+                .add_provider(AnthropicAdapter::with_auth(auth, base_url)?)
+                .credential_source("anthropic", CredentialSource::ClaudeCodeOAuth);
         }
 
         // Gemini (with GOOGLE_API_KEY fallback)
@@ -281,16 +347,22 @@ impl Client {
             && let Some(auth) = overrides.get("gemini")
         {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
-            builder = builder.add_provider(GeminiAdapter::with_auth(auth.clone(), base_url)?);
+            builder = builder
+                .add_provider(GeminiAdapter::with_auth(auth.clone(), base_url)?)
+                .credential_source("gemini", CredentialSource::AuthOverride);
         } else if provider_enabled(configured.as_ref(), "gemini")
             && get_secret("GEMINI_API_KEY").is_some()
         {
             builder = builder.add_provider(GeminiAdapter::from_env()?);
+            builder =
+                builder.credential_source("gemini", CredentialSource::EnvApiKey("GEMINI_API_KEY"));
         } else if provider_enabled(configured.as_ref(), "gemini")
             && let Some(api_key) = get_secret("GOOGLE_API_KEY")
         {
             let base_url = std::env::var("GEMINI_BASE_URL").ok();
-            builder = builder.add_provider(GeminiAdapter::new(api_key, base_url)?);
+            builder = builder
+                .add_provider(GeminiAdapter::new(api_key, base_url)?)
+                .credential_source("gemini", CredentialSource::GoogleApiKeyFallback);
         }
 
         // Mistral
@@ -298,11 +370,15 @@ impl Client {
             && let Some(auth) = overrides.get("mistral")
         {
             let base_url = std::env::var("MISTRAL_BASE_URL").ok();
-            builder = builder.add_provider(MistralAdapter::with_auth(auth.clone(), base_url)?);
+            builder = builder
+                .add_provider(MistralAdapter::with_auth(auth.clone(), base_url)?)
+                .credential_source("mistral", CredentialSource::AuthOverride);
         } else if provider_enabled(configured.as_ref(), "mistral")
             && get_secret("MISTRAL_API_KEY").is_some()
         {
-            builder = builder.add_provider(MistralAdapter::from_env()?);
+            builder = builder
+                .add_provider(MistralAdapter::from_env()?)
+                .credential_source("mistral", CredentialSource::EnvApiKey("MISTRAL_API_KEY"));
         }
 
         // DeepSeek
@@ -310,11 +386,15 @@ impl Client {
             && let Some(auth) = overrides.get("deepseek")
         {
             let base_url = std::env::var("DEEPSEEK_BASE_URL").ok();
-            builder = builder.add_provider(DeepSeekAdapter::with_auth(auth.clone(), base_url)?);
+            builder = builder
+                .add_provider(DeepSeekAdapter::with_auth(auth.clone(), base_url)?)
+                .credential_source("deepseek", CredentialSource::AuthOverride);
         } else if provider_enabled(configured.as_ref(), "deepseek")
             && get_secret("DEEPSEEK_API_KEY").is_some()
         {
-            builder = builder.add_provider(DeepSeekAdapter::from_env()?);
+            builder = builder
+                .add_provider(DeepSeekAdapter::from_env()?)
+                .credential_source("deepseek", CredentialSource::EnvApiKey("DEEPSEEK_API_KEY"));
         }
 
         // Ollama
@@ -322,11 +402,15 @@ impl Client {
             && let Some(auth) = overrides.get("ollama")
         {
             let base_url = OllamaAdapter::base_url_from_env_or_default();
-            builder = builder.add_provider(OllamaAdapter::with_auth(base_url, Some(auth.clone()))?);
+            builder = builder
+                .add_provider(OllamaAdapter::with_auth(base_url, Some(auth.clone()))?)
+                .credential_source("ollama", CredentialSource::AuthOverride);
         } else if provider_enabled(configured.as_ref(), "ollama")
             && (std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok())
         {
-            builder = builder.add_provider(OllamaAdapter::from_env()?);
+            builder = builder
+                .add_provider(OllamaAdapter::from_env()?)
+                .credential_source("ollama", CredentialSource::AutoDetected);
         }
 
         builder.build()
@@ -439,6 +523,12 @@ impl Client {
     #[must_use]
     pub fn has_provider(&self, name: &str) -> bool {
         self.providers.contains_key(name)
+    }
+
+    /// The credential source for a registered provider, if tracked.
+    #[must_use]
+    pub fn get_credential_source(&self, name: &str) -> Option<&CredentialSource> {
+        self.credential_sources.get(name)
     }
 
     /// The number of registered middleware.
@@ -633,6 +723,7 @@ pub struct ClientBuilder {
     providers: HashMap<String, Box<dyn ProviderAdapter>>,
     default_provider: Option<String>,
     middleware: Vec<Box<dyn Middleware>>,
+    credential_sources: HashMap<String, CredentialSource>,
 }
 
 impl std::fmt::Debug for ClientBuilder {
@@ -641,6 +732,7 @@ impl std::fmt::Debug for ClientBuilder {
             .field("providers", &self.providers.keys().collect::<Vec<_>>())
             .field("default_provider", &self.default_provider)
             .field("middleware_count", &self.middleware.len())
+            .field("credential_sources", &self.credential_sources)
             .finish()
     }
 }
@@ -659,6 +751,7 @@ impl ClientBuilder {
             providers: HashMap::new(),
             default_provider: None,
             middleware: Vec::new(),
+            credential_sources: HashMap::new(),
         }
     }
 
@@ -705,6 +798,17 @@ impl ClientBuilder {
         self
     }
 
+    /// Record how a provider's credentials were obtained.
+    #[must_use]
+    pub fn credential_source(
+        mut self,
+        provider: impl Into<String>,
+        source: CredentialSource,
+    ) -> Self {
+        self.credential_sources.insert(provider.into(), source);
+        self
+    }
+
     /// Append a middleware to the chain.
     ///
     /// Middleware executes in registration order for the request phase
@@ -737,6 +841,7 @@ impl ClientBuilder {
             providers: self.providers,
             default_provider: self.default_provider,
             middleware: self.middleware,
+            credential_sources: self.credential_sources,
         })
     }
 }

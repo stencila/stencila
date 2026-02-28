@@ -740,14 +740,28 @@ pub(crate) fn process_event(
             }
         }
         EventKind::Info => {
-            // Informational messages (e.g. retry notifications) — show inline
-            // as a warning-styled segment so the user knows what's happening.
+            // Informational messages (e.g. routing decision, retry notifications)
+            // — show inline as a warning-styled segment so the user knows what's
+            // happening.
             if let Ok(mut g) = progress.lock() {
                 let message = event
                     .data
                     .get("message")
                     .and_then(Value::as_str)
                     .unwrap_or("info");
+                g.segments
+                    .push(ResponseSegment::Warning(message.to_string()));
+            }
+        }
+        EventKind::Warning => {
+            // Warnings (e.g. API→CLI fallback) — show inline with warning
+            // styling to signal that something unexpected happened.
+            if let Ok(mut g) = progress.lock() {
+                let message = event
+                    .data
+                    .get("message")
+                    .and_then(Value::as_str)
+                    .unwrap_or("warning");
                 g.segments
                     .push(ResponseSegment::Warning(message.to_string()));
             }
