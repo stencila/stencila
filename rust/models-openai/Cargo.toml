@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-async-openai = { version = "0.30.1", features = ["rustls"] }
+async-openai = { version = "0.33.0", features = ["rustls"] }
 cached = { workspace = true }
 itertools = { workspace = true }
 stencila-model = { path = "../model" }
