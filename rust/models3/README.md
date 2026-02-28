@@ -271,19 +271,18 @@ make check
 
 ### Updating the model catalog
 
-The curated model catalog lives in `src/catalog/models.json`. At build time, the `build.rs` script can optionally fetch current model listings from provider APIs and append any newly discovered models to this file. This is gated behind the `REFRESH_MODEL_CATALOG` environment variable and requires API keys for the providers you want to refresh:
+The curated model catalog lives in `src/catalog/models.json`. A standalone binary fetches current model listings from provider APIs and merges any newly discovered models into this file. Set API keys for the providers you want to refresh:
 
 ```sh
-REFRESH_MODEL_CATALOG=1 \
-  OPENAI_API_KEY=sk-... \
+OPENAI_API_KEY=sk-... \
   ANTHROPIC_API_KEY=sk-ant-... \
   GEMINI_API_KEY=AI... \
   MISTRAL_API_KEY=... \
   DEEPSEEK_API_KEY=... \
-  cargo build -p stencila-models3
+  cargo run -p stencila-models3 --bin refresh-catalog
 ```
 
-Providers whose keys are absent are silently skipped. Discovered models are appended after curated entries (so curated metadata is preserved and `get_latest_model` continues to prefer them). Models already in the catalog by `(provider, id)` are not duplicated.
+Providers whose keys are absent are silently skipped. Discovered models are appended after curated entries (so curated metadata is preserved and `get_latest_model` continues to prefer them). Models already in the catalog by `(provider, id)` are not duplicated. After fetching from provider APIs, the catalog is enriched with metadata (costs, context windows, capabilities) from [models.dev](https://models.dev).
 
 ### Testing
 
