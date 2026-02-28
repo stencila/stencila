@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use strum::{Display, EnumIter, EnumMessage, EnumString, IntoEnumIterator};
+use strum::{Display, EnumMessage, EnumString};
 
 use crate::app::{App, AppMessage, AppMode};
 use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
@@ -10,7 +10,7 @@ use crate::cli_commands::CliCommandNode;
 /// Slash commands available in the TUI.
 ///
 /// Note that for each variant, the comment is the description.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter, EnumMessage)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumMessage)]
 #[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
     #[strum(serialize = "workflow", message = "Run a workflow")]
@@ -47,14 +47,12 @@ pub enum SlashCommand {
     Quit,
 }
 
-/// A slot in the display ordering: either a built-in command, a specific
-/// CLI passthrough command (by name), or a marker for all remaining CLI
-/// commands not explicitly placed.
+/// A slot in the display ordering: either a built-in command or a CLI
+/// passthrough command (by name).
 #[derive(Debug, Clone, Copy)]
 pub enum CommandSlot {
     Builtin(SlashCommand),
     Cli(&'static str),
-    RemainingCli,
 }
 
 impl SlashCommand {
@@ -63,11 +61,9 @@ impl SlashCommand {
     ///
     /// - `Builtin(X)` places a built-in slash command.
     /// - `Cli("name")` places a specific CLI passthrough command by name.
-    /// - `RemainingCli` places all CLI commands not explicitly listed via `Cli`.
     ///
-    /// Any CLI command referenced by `Cli` that doesn't exist in the tree is
-    /// silently skipped. If `RemainingCli` is omitted, unlisted CLI commands
-    /// are appended at the end.
+    /// Only CLI commands listed here are exposed in the TUI. Any `Cli` entry
+    /// that doesn't match a clap subcommand is silently skipped.
     pub fn display_order() -> &'static [CommandSlot] {
         use CommandSlot::*;
         use SlashCommand::*;
@@ -78,17 +74,37 @@ impl SlashCommand {
             Cli("agents"),
             Cli("skills"),
             Cli("models"),
+            Cli("mcp"),
+            Cli("db"),
             Builtin(Cancel),
             Builtin(Clear),
-            Builtin(Help),
             Builtin(New),
             Builtin(History),
             Builtin(Shell),
-            RemainingCli,
+            Cli("kernels"),
+            Cli("formats"),
+            Cli("linters"),
+            Cli("themes"),
+            Cli("secrets"),
+            Cli("config"),
             Builtin(Upgrade),
             Builtin(Exit),
             Builtin(Quit),
+            Builtin(Help),
         ]
+    }
+
+    /// The CLI command names referenced by `Cli` slots in `display_order`.
+    ///
+    /// Used as the allowlist when building the CLI command tree from clap.
+    pub fn cli_allowlist() -> Vec<&'static str> {
+        Self::display_order()
+            .iter()
+            .filter_map(|slot| match slot {
+                CommandSlot::Cli(name) => Some(*name),
+                _ => None,
+            })
+            .collect()
     }
 }
 
@@ -106,13 +122,6 @@ impl SlashCommand {
     /// Whether this command is temporarily hidden from autocomplete and help.
     pub fn is_hidden(self) -> bool {
         matches!(self, Self::Clear)
-    }
-
-    /// Whether a CLI command name shadows a built-in slash command.
-    ///
-    /// Used by autocomplete and help to avoid showing duplicate entries.
-    pub fn shadows_builtin(name: &str) -> bool {
-        Self::iter().any(|cmd| cmd.to_string() == name)
     }
 
     /// Execute this command, mutating the app state.
@@ -364,22 +373,8 @@ fn execute_cancel(app: &mut App) {
 fn execute_help(app: &mut App) {
     let mut help = String::from("Available commands:\n");
 
-    let cli_nodes: Vec<&crate::cli_commands::CliCommandNode> = app
-        .cli_tree
-        .as_deref()
-        .map(|tree| crate::cli_commands::visible_top_level(tree))
-        .unwrap_or_default();
-
-    let mut placed_cli: Vec<&str> = Vec::new();
-    let write_cli_node =
-        |help: &mut String, node: &crate::cli_commands::CliCommandNode| {
-            let _ = writeln!(
-                help,
-                "  {:12} {}",
-                format!("/{}", node.name),
-                node.description
-            );
-        };
+    let tree: &[crate::cli_commands::CliCommandNode] =
+        app.cli_tree.as_deref().map_or(&[], |t| t.as_slice());
 
     for slot in SlashCommand::display_order() {
         match slot {
@@ -387,27 +382,16 @@ fn execute_help(app: &mut App) {
                 let _ = writeln!(help, "  {:12} {}", cmd.name(), cmd.description());
             }
             CommandSlot::Cli(name) => {
-                if let Some(node) = cli_nodes.iter().find(|n| n.name == *name) {
-                    write_cli_node(&mut help, node);
-                    placed_cli.push(name);
+                if let Some(node) = tree.iter().find(|n| n.name == *name) {
+                    let _ = writeln!(
+                        help,
+                        "  {:12} {}",
+                        format!("/{}", node.name),
+                        node.description
+                    );
                 }
-            }
-            CommandSlot::RemainingCli => {
-                for node in &cli_nodes {
-                    if !placed_cli.contains(&node.name.as_str()) {
-                        write_cli_node(&mut help, node);
-                    }
-                }
-                placed_cli.extend(cli_nodes.iter().map(|n| n.name.as_str()));
             }
             _ => {}
-        }
-    }
-
-    // Safety net: any unplaced CLI commands
-    for node in &cli_nodes {
-        if !placed_cli.contains(&node.name.as_str()) {
-            write_cli_node(&mut help, node);
         }
     }
 

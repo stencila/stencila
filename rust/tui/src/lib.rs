@@ -46,8 +46,10 @@ impl Tui {
     ) -> Result<()> {
         let log_receiver = logging::setup(log_level, log_filter);
 
-        let cli_tree =
-            cli_command.map(|cmd| cli_commands::arc_tree(cli_commands::build_command_tree(&cmd)));
+        let cli_tree = cli_command.map(|cmd| {
+            let allowlist = commands::SlashCommand::cli_allowlist();
+            cli_commands::arc_tree(cli_commands::build_command_tree(&cmd, &allowlist))
+        });
 
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();

@@ -140,14 +140,9 @@ impl CommandsState {
     /// All top-level candidates in display order (built-in + CLI commands
     /// interleaved according to [`SlashCommand::display_order`]).
     fn all_top_level_candidates(&self) -> Vec<CommandCandidate> {
-        let visible_cli: Vec<&CliCommandNode> = self
-            .cli_tree
-            .as_deref()
-            .map(|tree| crate::cli_commands::visible_top_level(tree))
-            .unwrap_or_default();
+        let tree = self.cli_tree.as_deref().map_or(&[][..], |t| t.as_slice());
 
         let mut candidates = Vec::new();
-        let mut placed_cli: Vec<&str> = Vec::new();
 
         for slot in SlashCommand::display_order() {
             match slot {
@@ -155,36 +150,14 @@ impl CommandsState {
                     candidates.push(CommandCandidate::Builtin(*cmd));
                 }
                 CommandSlot::Cli(name) => {
-                    if let Some(node) = visible_cli.iter().find(|n| n.name == *name) {
+                    if let Some(node) = tree.iter().find(|n| n.name == *name) {
                         candidates.push(CommandCandidate::CliCommand {
                             path: vec![node.name.clone()],
                             description: node.description.clone(),
                         });
-                        placed_cli.push(name);
                     }
-                }
-                CommandSlot::RemainingCli => {
-                    for node in &visible_cli {
-                        if !placed_cli.contains(&node.name.as_str()) {
-                            candidates.push(CommandCandidate::CliCommand {
-                                path: vec![node.name.clone()],
-                                description: node.description.clone(),
-                            });
-                        }
-                    }
-                    placed_cli.extend(visible_cli.iter().map(|n| n.name.as_str()));
                 }
                 _ => {}
-            }
-        }
-
-        // Safety net: if RemainingCli was absent, append any unplaced CLI commands.
-        for node in &visible_cli {
-            if !placed_cli.contains(&node.name.as_str()) {
-                candidates.push(CommandCandidate::CliCommand {
-                    path: vec![node.name.clone()],
-                    description: node.description.clone(),
-                });
             }
         }
 
@@ -435,9 +408,10 @@ mod tests {
     }
 
     #[test]
-    fn builtin_not_duplicated_by_cli() {
+    fn cli_tree_node_without_display_slot_ignored() {
         let mut state = CommandsState::new();
-        // Create a CLI tree that has a command with same name as a builtin
+        // "help" is in the CLI tree but has no Cli("help") in display_order,
+        // so it should not appear as a CLI candidate.
         let tree = Arc::new(vec![CliCommandNode {
             name: "help".to_string(),
             description: "CLI help".to_string(),
@@ -446,7 +420,7 @@ mod tests {
         }]);
         state.set_cli_tree(tree);
         state.update("/");
-        // "help" should appear only once (as a builtin, not also as a CLI command)
+        // "help" appears only once — as the builtin, not as a CLI command
         let count = state
             .candidates()
             .iter()

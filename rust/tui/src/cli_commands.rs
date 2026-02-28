@@ -14,31 +14,15 @@ pub struct CliCommandNode {
     pub usage_hint: String,
 }
 
-/// Top-level CLI commands exposed as TUI slash commands.
-///
-/// New CLI commands default to hidden in TUI until explicitly added here.
-const ALLOWLIST: &[&str] = &[
-    "agents",
-    "config",
-    "formats",
-    "kernels",
-    "linters",
-    "mcp",
-    "models",
-    "skills",
-    "themes",
-    "workflows",
-];
-
 /// Build the command tree from the top-level clap `Command`.
 ///
-/// Only includes commands present in the allowlist at the top level.
+/// Only includes commands whose names appear in `allowlist` at the top level.
 /// Hidden commands (per clap's `is_hide_set()`) are excluded at every level.
 /// Children are included recursively without further allowlist checks.
-pub fn build_command_tree(cli_command: &clap::Command) -> Vec<CliCommandNode> {
+pub fn build_command_tree(cli_command: &clap::Command, allowlist: &[&str]) -> Vec<CliCommandNode> {
     cli_command
         .get_subcommands()
-        .filter(|cmd| !cmd.is_hide_set() && ALLOWLIST.contains(&cmd.get_name()))
+        .filter(|cmd| !cmd.is_hide_set() && allowlist.contains(&cmd.get_name()))
         .map(build_node)
         .collect()
 }
@@ -76,14 +60,6 @@ fn build_node(cmd: &clap::Command) -> CliCommandNode {
 #[must_use]
 pub fn arc_tree(tree: Vec<CliCommandNode>) -> Arc<Vec<CliCommandNode>> {
     Arc::new(tree)
-}
-
-/// Return top-level CLI nodes that do not shadow a built-in slash command.
-#[must_use]
-pub fn visible_top_level(tree: &[CliCommandNode]) -> Vec<&CliCommandNode> {
-    tree.iter()
-        .filter(|node| !crate::commands::SlashCommand::shadows_builtin(&node.name))
-        .collect()
 }
 
 /// Walk the CLI tree along `path` and return the usage hint for the deepest
@@ -207,9 +183,11 @@ mod tests {
             )
     }
 
+    const TEST_ALLOWLIST: &[&str] = &["skills", "models", "mcp"];
+
     #[test]
     fn builds_only_allowlisted_commands() {
-        let tree = build_command_tree(&synthetic_cli());
+        let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
         let names: Vec<&str> = tree.iter().map(|n| n.name.as_str()).collect();
         assert!(names.contains(&"skills"));
         assert!(names.contains(&"models"));
@@ -221,7 +199,7 @@ mod tests {
 
     #[test]
     fn includes_children_recursively() {
-        let tree = build_command_tree(&synthetic_cli());
+        let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
         let skills = tree
             .iter()
             .find(|n| n.name == "skills")
@@ -235,7 +213,7 @@ mod tests {
 
     #[test]
     fn descriptions_populated() {
-        let tree = build_command_tree(&synthetic_cli());
+        let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
         let models = tree
             .iter()
             .find(|n| n.name == "models")
@@ -247,13 +225,13 @@ mod tests {
     fn empty_tree_when_no_matches() {
         let cmd = clap::Command::new("test")
             .subcommand(clap::Command::new("convert").about("Not in allowlist"));
-        let tree = build_command_tree(&cmd);
+        let tree = build_command_tree(&cmd, TEST_ALLOWLIST);
         assert!(tree.is_empty());
     }
 
     #[test]
     fn usage_hint_extracted_from_clap() {
-        let tree = build_command_tree(&synthetic_cli());
+        let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
         let skills = tree.iter().find(|n| n.name == "skills").unwrap();
         // "list" has no required positional args
         let list = skills.children.iter().find(|n| n.name == "list").unwrap();
@@ -265,7 +243,7 @@ mod tests {
 
     #[test]
     fn usage_hint_variadic_args() {
-        let tree = build_command_tree(&synthetic_cli());
+        let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
         let mcp = tree.iter().find(|n| n.name == "mcp").unwrap();
         let add = mcp.children.iter().find(|n| n.name == "add").unwrap();
         assert_eq!(add.usage_hint, "<ID> <SPEC>...");
