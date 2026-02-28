@@ -13,6 +13,7 @@ pub mod list_dir;
 pub mod read_file;
 pub mod read_many_files;
 pub mod shell;
+pub mod web_fetch;
 pub mod write_file;
 
 use serde_json::Value;
@@ -21,10 +22,10 @@ use crate::error::{AgentError, AgentResult};
 use crate::execution::{ExecutionEnvironment, FileContent};
 use crate::registry::{RegisteredTool, ToolRegistry};
 
-/// Register the 6 shared core tools (spec 3.3).
+/// Register the shared core tools (spec 3.3).
 ///
 /// These tools are common to all provider profiles:
-/// `read_file`, `write_file`, `edit_file`, `shell`, `grep`, `glob`.
+/// `read_file`, `write_file`, `edit_file`, `shell`, `grep`, `glob`, `web_fetch`.
 pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
     let tools: Vec<RegisteredTool> = vec![
         RegisteredTool::new(read_file::definition(), read_file::executor()),
@@ -33,6 +34,7 @@ pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
         RegisteredTool::new(shell::definition(), shell::executor()),
         RegisteredTool::new(grep::definition(), grep::executor()),
         RegisteredTool::new(glob::definition(), glob::executor()),
+        RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
     ];
     for tool in tools {
         registry.register(tool)?;

@@ -4,8 +4,7 @@
 //! and `list_dir` (directory listing with depth).
 //!
 //! Tool set: `read_file`, `read_many_files`, `write_file`, `edit_file`,
-//! `shell` (10s timeout), `grep`, `glob`, `list_dir`.
-//! Subagent tools added in Phase 9.
+//! `shell` (10s timeout), `grep`, `glob`, `list_dir`, `web_fetch`.
 
 use std::collections::HashMap;
 
@@ -15,7 +14,7 @@ use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
 use crate::tools::{
-    edit_file, glob, grep, list_dir, read_file, read_many_files, shell, write_file,
+    edit_file, glob, grep, list_dir, read_file, read_many_files, shell, web_fetch, write_file,
 };
 
 /// Default shell timeout for Gemini: 10 seconds.
@@ -52,6 +51,12 @@ For long-running commands, set a longer `timeout_ms`.
 
 Use `grep` to search file contents by pattern and `glob` to find files by name.
 
+## Fetching Web Content
+
+Use `web_fetch` to download web pages and save them locally for reading. \
+The content is saved to `.stencila/cache/web/` and can be explored with \
+`read_file`, `grep`, or `glob`. HTML pages are automatically converted to Markdown.
+
 # Project Configuration
 
 If the project contains a `GEMINI.md` file, follow the instructions within it. \
@@ -80,7 +85,7 @@ impl GeminiProfile {
     ///
     /// Populates the tool registry with the Gemini-specific tool set:
     /// `read_file`, `read_many_files`, `write_file`, `edit_file`,
-    /// `shell`, `grep`, `glob`, `list_dir`.
+    /// `shell`, `grep`, `glob`, `list_dir`, `web_fetch`.
     ///
     /// # Errors
     ///
@@ -101,6 +106,7 @@ impl GeminiProfile {
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
             RegisteredTool::new(list_dir::definition(), list_dir::executor()),
+            RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
         ];
         for tool in tools {
             registry.register(tool)?;

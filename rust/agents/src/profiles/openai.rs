@@ -5,7 +5,7 @@
 //! using it.
 //!
 //! Tool set: `read_file`, `apply_patch`, `write_file`, `shell` (10s timeout),
-//! `grep`, `glob`. Subagent tools added in Phase 9.
+//! `grep`, `glob`, `web_fetch`.
 
 use std::collections::HashMap;
 
@@ -14,7 +14,7 @@ use serde_json::Value;
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
-use crate::tools::{apply_patch, glob, grep, read_file, shell, write_file};
+use crate::tools::{apply_patch, glob, grep, read_file, shell, web_fetch, write_file};
 
 /// Default shell timeout for OpenAI: 10 seconds.
 const DEFAULT_SHELL_TIMEOUT_MS: u64 = 10_000;
@@ -52,6 +52,12 @@ For long-running commands, set a longer `timeout_ms`.
 
 Use `grep` to search file contents by pattern and `glob` to find files by name.
 
+## Fetching Web Content
+
+Use `web_fetch` to download web pages and save them locally for reading. \
+The content is saved to `.stencila/cache/web/` and can be explored with \
+`read_file`, `grep`, or `glob`. HTML pages are automatically converted to Markdown.
+
 # Coding Best Practices
 
 - Write clean, readable code that follows the project's existing conventions.
@@ -74,7 +80,8 @@ impl OpenAiProfile {
     /// (default 600 000 = 10 minutes).
     ///
     /// Populates the tool registry with the OpenAI-specific tool set:
-    /// `read_file`, `apply_patch`, `write_file`, `shell`, `grep`, `glob`.
+    /// `read_file`, `apply_patch`, `write_file`, `shell`, `grep`, `glob`,
+    /// `web_fetch`.
     ///
     /// # Errors
     ///
@@ -93,6 +100,7 @@ impl OpenAiProfile {
             ),
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
+            RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
         ];
         for tool in tools {
             registry.register(tool)?;

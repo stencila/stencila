@@ -379,6 +379,7 @@ schema_parity_test!(
     "read_many_files"
 );
 schema_parity_test!(list_dir_schema_matches_fixture, list_dir, "list_dir");
+schema_parity_test!(web_fetch_schema_matches_fixture, web_fetch, "web_fetch");
 
 // =========================================================================
 // read_file tests (3)
@@ -967,11 +968,11 @@ async fn list_dir_not_found() {
 // =========================================================================
 
 #[test]
-fn register_core_tools_adds_six() -> AgentResult<()> {
+fn register_core_tools_adds_seven() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_core_tools(&mut registry)?;
 
-    assert_eq!(registry.len(), 6);
+    assert_eq!(registry.len(), 7);
     let names = registry.names();
     assert!(names.contains(&"read_file"));
     assert!(names.contains(&"write_file"));
@@ -979,6 +980,7 @@ fn register_core_tools_adds_six() -> AgentResult<()> {
     assert!(names.contains(&"shell"));
     assert!(names.contains(&"grep"));
     assert!(names.contains(&"glob"));
+    assert!(names.contains(&"web_fetch"));
     Ok(())
 }
 
@@ -988,7 +990,7 @@ fn register_gemini_tools_adds_two_more() -> AgentResult<()> {
     tools::register_core_tools(&mut registry)?;
     tools::register_gemini_tools(&mut registry)?;
 
-    assert_eq!(registry.len(), 8);
+    assert_eq!(registry.len(), 9);
     assert!(registry.names().contains(&"read_many_files"));
     assert!(registry.names().contains(&"list_dir"));
     Ok(())

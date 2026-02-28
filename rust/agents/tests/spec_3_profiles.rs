@@ -71,8 +71,8 @@ fn openai_profile_model() -> AgentResult<()> {
 #[test]
 fn openai_profile_tool_count() -> AgentResult<()> {
     let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
-    // Spec 3.4: read_file, apply_patch, write_file, shell, grep, glob
-    assert_eq!(profile.tool_registry().len(), 6);
+    // Spec 3.4: read_file, apply_patch, write_file, shell, grep, glob, web_fetch
+    assert_eq!(profile.tool_registry().len(), 7);
     Ok(())
 }
 
@@ -88,7 +88,8 @@ fn openai_profile_tool_names() -> AgentResult<()> {
             "write_file",
             "shell",
             "grep",
-            "glob"
+            "glob",
+            "web_fetch"
         ]
     );
     Ok(())
@@ -106,7 +107,7 @@ fn openai_profile_has_apply_patch_not_edit_file() -> AgentResult<()> {
 fn openai_profile_tools_returns_definitions() -> AgentResult<()> {
     let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
     let tools = profile.tools();
-    assert_eq!(tools.len(), 6);
+    assert_eq!(tools.len(), 7);
     let tool_names: Vec<&str> = tools.iter().map(|t| t.name.as_str()).collect();
     assert_eq!(
         tool_names,
@@ -116,7 +117,8 @@ fn openai_profile_tools_returns_definitions() -> AgentResult<()> {
             "write_file",
             "shell",
             "grep",
-            "glob"
+            "glob",
+            "web_fetch"
         ]
     );
     Ok(())
@@ -143,8 +145,8 @@ fn anthropic_profile_model() -> AgentResult<()> {
 #[test]
 fn anthropic_profile_tool_count() -> AgentResult<()> {
     let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
-    // Spec 3.5: read_file, write_file, edit_file, shell, grep, glob
-    assert_eq!(profile.tool_registry().len(), 6);
+    // Spec 3.5: read_file, write_file, edit_file, shell, grep, glob, web_fetch
+    assert_eq!(profile.tool_registry().len(), 7);
     Ok(())
 }
 
@@ -160,7 +162,8 @@ fn anthropic_profile_tool_names() -> AgentResult<()> {
             "edit_file",
             "shell",
             "grep",
-            "glob"
+            "glob",
+            "web_fetch"
         ]
     );
     Ok(())
@@ -195,8 +198,8 @@ fn gemini_profile_model() -> AgentResult<()> {
 #[test]
 fn gemini_profile_tool_count() -> AgentResult<()> {
     let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
-    // Spec 3.6: read_file, read_many_files, write_file, edit_file, shell, grep, glob, list_dir
-    assert_eq!(profile.tool_registry().len(), 8);
+    // Spec 3.6: read_file, read_many_files, write_file, edit_file, shell, grep, glob, list_dir, web_fetch
+    assert_eq!(profile.tool_registry().len(), 9);
     Ok(())
 }
 
@@ -214,7 +217,8 @@ fn gemini_profile_tool_names() -> AgentResult<()> {
             "shell",
             "grep",
             "glob",
-            "list_dir"
+            "list_dir",
+            "web_fetch"
         ]
     );
     Ok(())
@@ -419,12 +423,12 @@ fn build_system_prompt_contains_base_instructions() -> AgentResult<()> {
 #[test]
 fn custom_tool_registration() -> AgentResult<()> {
     let mut profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
-    assert_eq!(profile.tool_registry().len(), 6);
+    assert_eq!(profile.tool_registry().len(), 7);
 
     profile
         .tool_registry_mut()
         .register(custom_tool("run_tests"))?;
-    assert_eq!(profile.tool_registry().len(), 7);
+    assert_eq!(profile.tool_registry().len(), 8);
     assert!(profile.tool_registry().get("run_tests").is_some());
     Ok(())
 }
@@ -453,7 +457,7 @@ fn custom_tool_override_replaces_existing() -> AgentResult<()> {
     assert_eq!(new_desc.as_deref(), Some("Custom tool: edit_file"));
 
     // Tool count unchanged (replacement, not addition).
-    assert_eq!(profile.tool_registry().len(), 6);
+    assert_eq!(profile.tool_registry().len(), 7);
     Ok(())
 }
 

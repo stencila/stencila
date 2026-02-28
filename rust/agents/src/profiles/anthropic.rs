@@ -5,7 +5,7 @@
 //! search-and-replace pattern. Do NOT use `apply_patch` with Anthropic models.
 //!
 //! Tool set: `read_file`, `write_file`, `edit_file`, `shell` (120s timeout),
-//! `grep`, `glob`. Subagent tools added in Phase 9.
+//! `grep`, `glob`, `web_fetch`.
 
 use std::collections::HashMap;
 
@@ -14,7 +14,7 @@ use serde_json::Value;
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
 use crate::registry::{RegisteredTool, ToolRegistry};
-use crate::tools::{edit_file, glob, grep, read_file, shell, write_file};
+use crate::tools::{edit_file, glob, grep, read_file, shell, web_fetch, write_file};
 
 /// Default shell timeout for Anthropic: 120 seconds (per Claude Code convention).
 const DEFAULT_SHELL_TIMEOUT_MS: u64 = 120_000;
@@ -54,6 +54,12 @@ For long-running commands, set a longer `timeout_ms`.
 Use `grep` to search file contents by pattern and `glob` to find files by name. \
 Search the codebase to understand existing patterns before making changes.
 
+## Fetching Web Content
+
+Use `web_fetch` to download web pages and save them locally for reading. \
+The content is saved to `.stencila/cache/web/` and can be explored with \
+`read_file`, `grep`, or `glob`. HTML pages are automatically converted to Markdown.
+
 # Coding Best Practices
 
 - Write clean, readable code that follows the project's existing conventions.
@@ -78,7 +84,7 @@ impl AnthropicProfile {
     ///
     /// Populates the tool registry with the Anthropic-specific tool set:
     /// `read_file`, `write_file`, `edit_file`, `shell` (120s default),
-    /// `grep`, `glob`.
+    /// `grep`, `glob`, `web_fetch`.
     ///
     /// # Errors
     ///
@@ -97,6 +103,7 @@ impl AnthropicProfile {
             ),
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
+            RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
         ];
         for tool in tools {
             registry.register(tool)?;

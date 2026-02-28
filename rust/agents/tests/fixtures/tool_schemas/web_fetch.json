@@ -1,0 +1,20 @@
+{
+  "name": "web_fetch",
+  "description": "Fetch a URL and save the content to .stencila/cache/web/. HTML is converted to Markdown with images extracted to a media directory. Other content types are saved as-is. Returns a manifest of saved files. Use read_file, grep, or glob to explore the content.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "url": {
+        "type": "string",
+        "description": "The URL to fetch."
+      },
+      "raw": {
+        "type": "boolean",
+        "description": "If true, save the response body as-is without conversion. If false (default), convert HTML to Markdown and extract media assets.",
+        "default": false
+      }
+    },
+    "required": ["url"],
+    "additionalProperties": false
+  }
+}

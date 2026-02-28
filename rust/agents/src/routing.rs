@@ -430,7 +430,9 @@ mod tests {
 
     /// Build an empty client with no providers.
     fn empty_client() -> stencila_models3::client::Client {
-        stencila_models3::client::Client::builder().build().unwrap()
+        stencila_models3::client::Client::builder()
+            .build()
+            .expect("should build empty client")
     }
 
     // -----------------------------------------------------------------------
@@ -440,7 +442,8 @@ mod tests {
     #[test]
     fn explicit_cli_provider_routes_to_cli() {
         let client = empty_client();
-        let route = route_session(Some("claude-cli"), Some("my-model"), &client).unwrap();
+        let route = route_session(Some("claude-cli"), Some("my-model"), &client)
+            .expect("should route claude-cli");
         assert_eq!(
             route,
             SessionRoute::Cli {
@@ -453,7 +456,8 @@ mod tests {
     #[test]
     fn explicit_cli_provider_no_model() {
         let client = empty_client();
-        let route = route_session(Some("codex-cli"), None, &client).unwrap();
+        let route =
+            route_session(Some("codex-cli"), None, &client).expect("should route codex-cli");
         assert_eq!(
             route,
             SessionRoute::Cli {
@@ -466,8 +470,8 @@ mod tests {
     #[test]
     fn explicit_provider_and_model_no_auth_falls_back_to_cli() {
         let client = empty_client();
-        let route =
-            route_session(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client).unwrap();
+        let route = route_session(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
+            .expect("should route anthropic with model");
         // No API auth → falls back to claude-cli
         assert_eq!(
             route,
@@ -481,7 +485,8 @@ mod tests {
     #[test]
     fn explicit_provider_no_model_uses_default_alias() {
         let client = empty_client();
-        let route = route_session(Some("anthropic"), None, &client).unwrap();
+        let route = route_session(Some("anthropic"), None, &client)
+            .expect("should route anthropic without model");
         assert_eq!(
             route,
             SessionRoute::Cli {
@@ -528,8 +533,8 @@ mod tests {
     #[test]
     fn explained_explicit_cli_has_correct_metadata() {
         let client = empty_client();
-        let decision =
-            route_session_explained(Some("claude-cli"), Some("my-model"), &client).unwrap();
+        let decision = route_session_explained(Some("claude-cli"), Some("my-model"), &client)
+            .expect("should explain claude-cli route");
 
         assert_eq!(decision.provider_source, ProviderSource::AgentExplicit);
         assert_eq!(decision.model_source, ModelSource::AgentExplicit);
@@ -540,7 +545,8 @@ mod tests {
     #[test]
     fn explained_cli_no_model_uses_cli_default() {
         let client = empty_client();
-        let decision = route_session_explained(Some("gemini-cli"), None, &client).unwrap();
+        let decision = route_session_explained(Some("gemini-cli"), None, &client)
+            .expect("should explain gemini-cli route");
 
         assert_eq!(decision.provider_source, ProviderSource::AgentExplicit);
         assert_eq!(decision.model_source, ModelSource::CliDefault);
@@ -551,12 +557,14 @@ mod tests {
         let client = empty_client();
         let decision =
             route_session_explained(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
-                .unwrap();
+                .expect("should explain anthropic fallback route");
 
         assert!(decision.fallback_used);
         assert!(decision.fallback_reason.is_some());
         assert!(decision.fallback_warning().is_some());
-        let warning = decision.fallback_warning().unwrap();
+        let warning = decision
+            .fallback_warning()
+            .expect("should have fallback warning");
         assert!(warning.contains("ANTHROPIC_API_KEY"));
         assert!(warning.starts_with("Falling back to claude-cli"));
     }
@@ -564,7 +572,8 @@ mod tests {
     #[test]
     fn explained_default_alias_model_source() {
         let client = empty_client();
-        let decision = route_session_explained(Some("openai"), None, &client).unwrap();
+        let decision = route_session_explained(Some("openai"), None, &client)
+            .expect("should explain openai route");
 
         assert_eq!(decision.model_source, ModelSource::DefaultAlias);
         // Model should be "gpt" (the default alias for openai)
@@ -600,8 +609,8 @@ mod tests {
     #[test]
     fn summary_format_includes_provider_and_backend() {
         let client = empty_client();
-        let decision =
-            route_session_explained(Some("claude-cli"), Some("my-model"), &client).unwrap();
+        let decision = route_session_explained(Some("claude-cli"), Some("my-model"), &client)
+            .expect("should explain claude-cli for summary");
 
         let summary = decision.summary();
         assert!(summary.contains("claude-cli"));

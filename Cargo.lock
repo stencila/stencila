@@ -4422,12 +4422,11 @@ checksum = "48ce8546b993eaf241d69ded33b1be6d205dd9857ec879d9d18bd05d3676e144"
 
 [[package]]
 name = "http"
-version = "1.3.1"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4a85d31aea989eead29a3aaf9e1115a180df8282431156e533de47660892565"
+checksum = "e3ba2a386d7f85a81f119ad7498ebe444d2e22c2af0b86b069416ace48b3311a"
 dependencies = [
  "bytes",
- "fnv",
  "itoa",
 ]
 
@@ -4455,10 +4454,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "http-cache-semantics"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0603b99309a1e404c2c0945650c0f775b50bb72ac90ae570cb93f9ff05d9efe7"
+dependencies = [
+ "http",
+ "http-serde",
+ "reqwest 0.13.2",
+ "serde",
+ "time",
+]
+
+[[package]]
 name = "http-range-header"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9171a2ea8a68358193d15dd5d70c1c10a2afc3e7e4c5bc92bc9f025cebd7359c"
+
+[[package]]
+name = "http-serde"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f056c8559e3757392c8d091e796416e4649d8e49e88b8d76df6c002f05027fd"
+dependencies = [
+ "http",
+ "serde",
+]
 
 [[package]]
 name = "httparse"
@@ -9106,28 +9128,37 @@ dependencies = [
  "eyre",
  "futures",
  "glob",
+ "http",
+ "http-cache-semantics",
  "ignore",
  "indexmap 2.13.0",
  "jsonschema 0.42.1",
  "libc",
  "regex",
+ "reqwest 0.13.2",
  "semver",
  "serde",
  "serde_json",
  "serde_yaml",
+ "sha2 0.10.9",
  "stencila-cli-utils",
+ "stencila-codec-html",
+ "stencila-codec-markdown",
  "stencila-codecs",
  "stencila-codemode",
  "stencila-config",
  "stencila-dirs",
  "stencila-mcp",
  "stencila-models3",
+ "stencila-node-media",
  "stencila-schema",
  "stencila-skills",
+ "stencila-version",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
  "tracing",
+ "url",
  "uuid",
  "which",
 ]
