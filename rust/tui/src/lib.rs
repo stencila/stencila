@@ -51,7 +51,7 @@ impl Tui {
 
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();
-        let mut app = App::new(log_receiver, upgrade_handle, cli_tree);
+        let mut app = App::new(log_receiver, upgrade_handle, cli_tree).await;
 
         if !self.no_preview {
             match site_preview::spawn_preview() {
@@ -74,7 +74,7 @@ impl Tui {
             guard.terminal.draw(|frame| ui::render(frame, &mut app))?;
             match events.next().await {
                 Some(event::AppEvent::Terminal(ref evt)) => {
-                    if app.handle_event(evt) {
+                    if app.handle_event(evt).await {
                         break;
                     }
                 }

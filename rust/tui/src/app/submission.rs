@@ -7,7 +7,7 @@ use super::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
 
 impl App {
     /// Submit the current input as a user message or slash command.
-    pub(super) fn submit_input(&mut self) {
+    pub(super) async fn submit_input(&mut self) {
         // Trailing backslash means "insert newline, don't submit".
         // This gives users a way to enter multiline input even when
         // Shift+Enter / Alt+Enter aren't available (e.g. some terminals
@@ -31,7 +31,7 @@ impl App {
         if let Some(parsed) = parse_command(&text, tree_ref) {
             match parsed {
                 ParsedCommand::Builtin(cmd, args) => {
-                    cmd.execute(self, args);
+                    cmd.execute(self, args).await;
                 }
                 ParsedCommand::CliPassthrough(cmd) => {
                     // Bare top-level command with subcommands (e.g. `/kernels`):
@@ -270,11 +270,13 @@ mod tests {
 
     #[tokio::test]
     async fn slash_help_shows_system_message() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "/help".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(app.input.is_empty());
         assert!(app.messages.iter().any(|m| matches!(
             m,
@@ -284,32 +286,39 @@ mod tests {
 
     #[tokio::test]
     async fn slash_clear_resets_active_session() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "/clear".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.messages.len(), 1);
         assert!(matches!(app.messages[0], AppMessage::Welcome));
     }
 
     #[tokio::test]
     async fn slash_quit_exits() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "/quit".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        let quit = app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        let quit = app
+            .handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(quit);
     }
 
     #[tokio::test]
     async fn unknown_slash_treated_as_user_message() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "/notacmd".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(app.input.is_empty());
         // Should be treated as a user message (agent exchange)
         assert!(app.messages.iter().any(|m| matches!(
@@ -320,9 +329,11 @@ mod tests {
 
     #[tokio::test]
     async fn bare_dollar_treated_as_user_message() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT))
+            .await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         // "$" alone is a user message — should create an exchange
         assert!(app.messages.iter().any(|m| matches!(
             m,
@@ -334,11 +345,13 @@ mod tests {
 
     #[tokio::test]
     async fn slash_shell_enters_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "/shell".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.mode, AppMode::Shell);
         // System message about entering shell mode
         assert!(app.messages.iter().any(|m| matches!(
@@ -349,36 +362,42 @@ mod tests {
 
     #[tokio::test]
     async fn slash_exit_in_shell_mode_returns_to_chat() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
 
         for c in "/exit".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.mode, AppMode::Agent);
         assert!(!app.should_quit);
     }
 
     #[tokio::test]
     async fn slash_quit_quits_from_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
 
         for c in "/quit".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        let quit = app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        let quit = app
+            .handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(quit);
     }
 
     #[tokio::test]
     async fn autocomplete_works_in_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
 
-        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE))
+            .await;
         assert!(app.commands_state.is_visible());
     }
 
@@ -387,7 +406,7 @@ mod tests {
         use super::super::ExchangeKind;
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Activate a workflow then detach back to agent mode
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
@@ -402,9 +421,11 @@ mod tests {
 
         // Submit normal text — should create an agent exchange, not a workflow goal
         for c in "hello agent".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(app.input.is_empty());
         assert!(app.messages.len() > initial);
         assert!(app.messages[initial..].iter().any(|m| matches!(
@@ -417,7 +438,7 @@ mod tests {
     async fn slash_exit_in_workflow_mode_keeps_workflow() {
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
             description: String::new(),
@@ -427,9 +448,11 @@ mod tests {
         assert!(app.active_workflow.is_some());
 
         for c in "/exit".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         assert_eq!(app.mode, AppMode::Agent);
         assert!(app.active_workflow.is_some());
@@ -438,7 +461,7 @@ mod tests {
 
     #[tokio::test]
     async fn enter_and_exit_shell_mode_messages() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let initial_count = app.messages.len();
 
         app.enter_shell_mode();
@@ -460,7 +483,7 @@ mod tests {
     async fn bare_cli_command_with_children_opens_picker() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -469,9 +492,11 @@ mod tests {
 
         // Type `/skills` and press Enter
         for c in "/skills".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // Should NOT have spawned a command (no new messages)
         assert_eq!(app.messages.len(), initial_msg_count);
@@ -486,7 +511,7 @@ mod tests {
     async fn bare_cli_command_without_children_executes() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -495,9 +520,11 @@ mod tests {
 
         // Type `/formats` (no children in test tree) and press Enter
         for c in "/formats".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // Should have spawned a command (new exchange message)
         assert!(app.messages.len() > initial_msg_count);
@@ -509,7 +536,7 @@ mod tests {
     async fn cli_command_with_subcommand_executes() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -518,9 +545,11 @@ mod tests {
 
         // Type `/skills list` and press Enter — should execute, not open picker
         for c in "/skills list".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // Should have spawned a command
         assert!(app.messages.len() > initial_msg_count);
@@ -531,7 +560,7 @@ mod tests {
     async fn cli_subcommand_with_required_args_shows_hint_on_enter() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -540,9 +569,11 @@ mod tests {
 
         // Type `/skills show` (requires <NAME>) and press Enter
         for c in "/skills show".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // Should NOT have spawned a command
         assert_eq!(app.messages.len(), initial_msg_count);
@@ -556,7 +587,7 @@ mod tests {
     async fn cli_subcommand_with_args_provided_executes() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -565,9 +596,11 @@ mod tests {
 
         // Type `/skills show foo` (required arg provided) and press Enter
         for c in "/skills show foo".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // Should have spawned a command
         assert!(app.messages.len() > initial_msg_count);
@@ -578,7 +611,7 @@ mod tests {
     async fn cli_subcommand_no_required_args_executes() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -587,9 +620,11 @@ mod tests {
 
         // Type `/skills list` (no required args) and press Enter
         for c in "/skills list".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // Should have spawned a command immediately
         assert!(app.messages.len() > initial_msg_count);

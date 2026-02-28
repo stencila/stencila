@@ -243,8 +243,8 @@ mod tests {
     }
 
     /// Helper: create an app with some exchanges that have responses.
-    fn app_with_exchanges() -> App {
-        let mut app = App::new_for_test();
+    async fn app_with_exchanges() -> App {
+        let mut app = App::new_for_test().await;
         // Exchange 1: has response
         app.messages.push(AppMessage::Exchange {
             kind: ExchangeKind::Shell,
@@ -283,7 +283,7 @@ mod tests {
 
     #[tokio::test]
     async fn response_candidates_returns_correct_list() {
-        let app = app_with_exchanges();
+        let app = app_with_exchanges().await;
         let candidates = app.response_candidates();
         // Exchange 1 and 3 have responses; newest first
         assert_eq!(candidates.len(), 2);
@@ -293,17 +293,20 @@ mod tests {
 
     #[tokio::test]
     async fn dollar_triggers_response_autocomplete() {
-        let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
+        let mut app = app_with_exchanges().await;
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT))
+            .await;
         assert!(app.responses_state.is_visible());
         assert_eq!(app.responses_state.candidates().len(), 2);
     }
 
     #[tokio::test]
     async fn dollar_with_digit_filters_responses() {
-        let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
-        app.handle_event(&key_event(KeyCode::Char('1'), KeyModifiers::NONE));
+        let mut app = app_with_exchanges().await;
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT))
+            .await;
+        app.handle_event(&key_event(KeyCode::Char('1'), KeyModifiers::NONE))
+            .await;
         assert!(app.responses_state.is_visible());
         assert_eq!(app.responses_state.candidates().len(), 1);
         assert_eq!(app.responses_state.candidates()[0].number, 1);
@@ -311,21 +314,25 @@ mod tests {
 
     #[tokio::test]
     async fn response_esc_dismisses() {
-        let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
+        let mut app = app_with_exchanges().await;
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT))
+            .await;
         assert!(app.responses_state.is_visible());
 
-        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE))
+            .await;
         assert!(!app.responses_state.is_visible());
     }
 
     #[tokio::test]
     async fn response_tab_accepts() {
-        let mut app = app_with_exchanges();
-        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT));
+        let mut app = app_with_exchanges().await;
+        app.handle_event(&key_event(KeyCode::Char('$'), KeyModifiers::SHIFT))
+            .await;
         assert!(app.responses_state.is_visible());
 
-        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE))
+            .await;
         assert!(!app.responses_state.is_visible());
         // Input should contain [Response #N: ...]
         assert!(app.input.text().contains("[Response #"));
@@ -333,28 +340,28 @@ mod tests {
 
     #[tokio::test]
     async fn expand_response_refs_replaces_known() {
-        let app = app_with_exchanges();
+        let app = app_with_exchanges().await;
         let expanded = app.expand_response_refs("see [Response #1: hello...]");
         assert_eq!(expanded, "see hello");
     }
 
     #[tokio::test]
     async fn expand_response_refs_leaves_unknown() {
-        let app = app_with_exchanges();
+        let app = app_with_exchanges().await;
         let expanded = app.expand_response_refs("see [Response #99: unknown...]");
         assert_eq!(expanded, "see [Response #99: unknown...]");
     }
 
     #[tokio::test]
     async fn expand_response_refs_no_refs() {
-        let app = app_with_exchanges();
+        let app = app_with_exchanges().await;
         let expanded = app.expand_response_refs("plain text");
         assert_eq!(expanded, "plain text");
     }
 
     #[tokio::test]
     async fn expand_response_refs_multiple() {
-        let app = app_with_exchanges();
+        let app = app_with_exchanges().await;
         let expanded =
             app.expand_response_refs("[Response #1: hello...] and [Response #3: total 42...]");
         assert_eq!(expanded, "hello and total 42\ndrwxr-xr-x 2 user user 4096");

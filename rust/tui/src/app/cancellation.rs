@@ -212,7 +212,7 @@ mod tests {
 
     #[tokio::test]
     async fn cancel_workflow_keeps_active_workflow() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
             description: String::new(),

@@ -71,12 +71,12 @@ impl SlashCommand {
     }
 
     /// Execute this command, mutating the app state.
-    pub fn execute(self, app: &mut App, _args: &str) {
+    pub async fn execute(self, app: &mut App, _args: &str) {
         match self {
-            Self::Agents => execute_agents(app),
+            Self::Agents => execute_agents(app).await,
             Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
-            Self::New => execute_new(app),
+            Self::New => execute_new(app).await,
             Self::Exit => match app.mode {
                 AppMode::Shell => app.exit_shell_mode(),
                 AppMode::Workflow => app.exit_workflow_mode(),
@@ -87,7 +87,7 @@ impl SlashCommand {
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
             Self::Upgrade => execute_upgrade(app),
-            Self::Workflows => execute_workflows(app),
+            Self::Workflows => execute_workflows(app).await,
         }
     }
 }
@@ -215,17 +215,10 @@ fn split_args(args: &str) -> Vec<String> {
     result
 }
 
-fn execute_agents(app: &mut App) {
+async fn execute_agents(app: &mut App) {
     // Discovered agent definitions (from .stencila/agents/ and ~/.config/stencila/agents/)
-    let definitions: Vec<_> = if let Ok(handle) = tokio::runtime::Handle::try_current() {
-        tokio::task::block_in_place(|| {
-            handle.block_on(stencila_agents::agent_def::discover(
-                &std::env::current_dir().unwrap_or_default(),
-            ))
-        })
-    } else {
-        Vec::new()
-    };
+    let definitions: Vec<_> =
+        stencila_agents::agent_def::discover(&std::env::current_dir().unwrap_or_default()).await;
 
     // Existing TUI sessions
     let mut candidates: Vec<AgentCandidate> = app
@@ -277,20 +270,9 @@ fn execute_agents(app: &mut App) {
     app.agents_state.open(candidates);
 }
 
-fn execute_workflows(app: &mut App) {
+async fn execute_workflows(app: &mut App) {
     let definitions: Vec<stencila_workflows::WorkflowInstance> =
-        if let Ok(handle) = tokio::runtime::Handle::try_current() {
-            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                tokio::task::block_in_place(|| {
-                    handle.block_on(stencila_workflows::discover(
-                        &std::env::current_dir().unwrap_or_default(),
-                    ))
-                })
-            }))
-            .unwrap_or_default()
-        } else {
-            Vec::new()
-        };
+        stencila_workflows::discover(&std::env::current_dir().unwrap_or_default()).await;
 
     let candidates: Vec<WorkflowCandidate> = definitions
         .into_iter()
@@ -387,8 +369,8 @@ fn execute_clear(app: &mut App) {
     app.reset_active_session();
 }
 
-fn execute_new(app: &mut App) {
-    app.reset_all();
+async fn execute_new(app: &mut App) {
+    app.reset_all().await;
 }
 
 fn execute_history(app: &mut App) {
@@ -426,11 +408,11 @@ mod tests {
         assert_eq!(SlashCommand::Agents.name(), "/agents");
     }
 
-    #[test]
-    fn execute_help_adds_message() {
-        let mut app = App::new_for_test();
+    #[tokio::test]
+    async fn execute_help_adds_message() {
+        let mut app = App::new_for_test().await;
         let initial_count = app.messages.len();
-        SlashCommand::Help.execute(&mut app, "");
+        SlashCommand::Help.execute(&mut app, "").await;
         assert_eq!(app.messages.len(), initial_count + 1);
         assert!(matches!(
             &app.messages[initial_count],
@@ -440,9 +422,9 @@ mod tests {
 
     #[tokio::test]
     async fn execute_clear_resets_active_session() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         assert!(!app.messages.is_empty());
-        SlashCommand::Clear.execute(&mut app, "");
+        SlashCommand::Clear.execute(&mut app, "").await;
         // Messages reset to just the welcome message
         assert_eq!(app.messages.len(), 1);
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
@@ -450,10 +432,10 @@ mod tests {
 
     #[tokio::test]
     async fn execute_new_resets_all() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("extra"));
         app.active_session = 1;
-        SlashCommand::New.execute(&mut app, "");
+        SlashCommand::New.execute(&mut app, "").await;
         // Back to a single default session
         assert_eq!(app.sessions.len(), 1);
         assert_eq!(app.active_session, 0);
@@ -462,51 +444,51 @@ mod tests {
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
-    #[test]
-    fn execute_exit_quits_in_chat_mode() {
-        let mut app = App::new_for_test();
+    #[tokio::test]
+    async fn execute_exit_quits_in_chat_mode() {
+        let mut app = App::new_for_test().await;
         assert!(!app.should_quit);
-        SlashCommand::Exit.execute(&mut app, "");
+        SlashCommand::Exit.execute(&mut app, "").await;
         assert!(app.should_quit);
     }
 
-    #[test]
-    fn execute_exit_returns_to_chat_in_shell_mode() {
-        let mut app = App::new_for_test();
+    #[tokio::test]
+    async fn execute_exit_returns_to_chat_in_shell_mode() {
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
-        SlashCommand::Exit.execute(&mut app, "");
+        SlashCommand::Exit.execute(&mut app, "").await;
         assert_eq!(app.mode, AppMode::Agent);
         assert!(!app.should_quit);
     }
 
-    #[test]
-    fn execute_quit_always_quits() {
+    #[tokio::test]
+    async fn execute_quit_always_quits() {
         // From chat mode
-        let mut app = App::new_for_test();
-        SlashCommand::Quit.execute(&mut app, "");
+        let mut app = App::new_for_test().await;
+        SlashCommand::Quit.execute(&mut app, "").await;
         assert!(app.should_quit);
 
         // From shell mode
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
-        SlashCommand::Quit.execute(&mut app, "");
+        SlashCommand::Quit.execute(&mut app, "").await;
         assert!(app.should_quit);
     }
 
-    #[test]
-    fn execute_shell_enters_shell_mode() {
-        let mut app = App::new_for_test();
+    #[tokio::test]
+    async fn execute_shell_enters_shell_mode() {
+        let mut app = App::new_for_test().await;
         assert_eq!(app.mode, AppMode::Agent);
-        SlashCommand::Shell.execute(&mut app, "");
+        SlashCommand::Shell.execute(&mut app, "").await;
         assert_eq!(app.mode, AppMode::Shell);
     }
 
-    #[test]
-    fn execute_history_empty() {
-        let mut app = App::new_for_test();
+    #[tokio::test]
+    async fn execute_history_empty() {
+        let mut app = App::new_for_test().await;
         let initial = app.messages.len();
-        SlashCommand::History.execute(&mut app, "");
+        SlashCommand::History.execute(&mut app, "").await;
         assert_eq!(app.messages.len(), initial + 1);
         assert!(matches!(
             &app.messages[initial],
@@ -515,34 +497,34 @@ mod tests {
         assert!(!app.history_state.is_visible());
     }
 
-    #[test]
-    fn execute_history_opens_popup() {
-        let mut app = App::new_for_test();
+    #[tokio::test]
+    async fn execute_history_opens_popup() {
+        let mut app = App::new_for_test().await;
         app.input_history.push("first".to_string());
         app.input_history.push("second".to_string());
         let initial = app.messages.len();
-        SlashCommand::History.execute(&mut app, "");
+        SlashCommand::History.execute(&mut app, "").await;
         // No new message — popup opened instead
         assert_eq!(app.messages.len(), initial);
         assert!(app.history_state.is_visible());
         assert_eq!(app.history_state.candidates().len(), 2);
     }
 
-    #[test]
-    fn execute_agents_single_session_opens_popup() {
-        let mut app = App::new_for_test();
-        SlashCommand::Agents.execute(&mut app, "");
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn execute_agents_single_session_opens_popup() {
+        let mut app = App::new_for_test().await;
+        SlashCommand::Agents.execute(&mut app, "").await;
         // Should open popup with 1 existing agent
         // (plus any discovered definitions, but in test there are none)
         assert!(app.agents_state.is_visible());
         assert!(!app.agents_state.candidates().is_empty());
     }
 
-    #[test]
-    fn execute_agents_multiple_sessions() {
-        let mut app = App::new_for_test();
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn execute_agents_multiple_sessions() {
+        let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("test"));
-        SlashCommand::Agents.execute(&mut app, "");
+        SlashCommand::Agents.execute(&mut app, "").await;
         assert!(app.agents_state.is_visible());
         // 2 existing agents (plus any discovered definitions)
         assert!(app.agents_state.candidates().len() >= 2);

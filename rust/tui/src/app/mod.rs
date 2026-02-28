@@ -429,12 +429,13 @@ pub struct App {
 impl App {
     /// Create a new App with a welcome banner.
     ///
-    pub fn new(
+    pub async fn new(
         log_receiver: mpsc::UnboundedReceiver<String>,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
         cli_tree: Option<Arc<Vec<CliCommandNode>>>,
     ) -> Self {
-        let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
+        let default_name =
+            stencila_agents::convenience::resolve_default_agent_name("default").await;
         let default_session = AgentSession::new(&default_name);
 
         let mut color_registry = AgentColorRegistry::new();
@@ -493,9 +494,9 @@ impl App {
     }
 
     /// Handle a terminal event. Returns `true` if the app should exit.
-    pub fn handle_event(&mut self, event: &Event) -> bool {
+    pub async fn handle_event(&mut self, event: &Event) -> bool {
         match event {
-            Event::Key(key) => self.handle_key(key),
+            Event::Key(key) => self.handle_key(key).await,
             Event::Paste(text) => self.handle_paste(text),
             Event::Mouse(mouse) => match mouse.kind {
                 MouseEventKind::ScrollUp => self.scroll_up(3),
@@ -556,8 +557,8 @@ fn truncate_preview(text: &str, max_chars: usize) -> String {
 #[cfg(test)]
 impl App {
     /// Create an `App` with a dummy log receiver for testing.
-    pub(crate) fn new_for_test() -> Self {
+    pub(crate) async fn new_for_test() -> Self {
         let (_tx, rx) = mpsc::unbounded_channel();
-        Self::new(rx, None, None)
+        Self::new(rx, None, None).await
     }
 }

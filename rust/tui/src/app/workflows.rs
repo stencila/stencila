@@ -400,7 +400,7 @@ mod tests {
 
     #[tokio::test]
     async fn ctrl_d_exits_workflow_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
             description: String::new(),
@@ -409,14 +409,15 @@ mod tests {
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
 
-        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.mode, AppMode::Agent);
         assert!(app.active_workflow.is_some());
     }
 
     #[tokio::test]
     async fn workflow_ctrl_c_clears_input() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
             description: String::new(),
@@ -424,18 +425,21 @@ mod tests {
         });
 
         for c in "some text".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert_eq!(app.input.text(), "some text");
 
-        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        let quit = app
+            .handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL))
+            .await;
         assert!(!quit);
         assert!(app.input.is_empty());
     }
 
     #[tokio::test]
     async fn workflow_with_default_goal_prefills_input() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
             description: String::new(),

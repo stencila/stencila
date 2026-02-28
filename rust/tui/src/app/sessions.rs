@@ -166,16 +166,16 @@ mod tests {
 
     #[tokio::test]
     async fn default_session_exists() {
-        let app = App::new_for_test();
+        let app = App::new_for_test().await;
         assert_eq!(app.sessions.len(), 1);
-        let expected = stencila_agents::convenience::resolve_default_agent_name("default");
+        let expected = stencila_agents::convenience::resolve_default_agent_name("default").await;
         assert_eq!(app.sessions[0].name, expected);
         assert_eq!(app.active_session, 0);
     }
 
     #[tokio::test]
     async fn switch_to_session() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("test-agent"));
         let initial = app.messages.len();
 
@@ -186,7 +186,7 @@ mod tests {
 
     #[tokio::test]
     async fn switch_to_same_session_noop() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let initial = app.messages.len();
         app.switch_to_session(0);
         assert_eq!(app.messages.len(), initial); // no message added
@@ -194,36 +194,42 @@ mod tests {
 
     #[tokio::test]
     async fn ctrl_a_cycles_agents() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("agent-a"));
         app.sessions.push(AgentSession::new("agent-b"));
 
         // Ctrl+A cycles forward
-        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.active_session, 1);
 
-        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.active_session, 2);
 
-        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.active_session, 0); // wraps around
     }
 
     #[tokio::test]
     async fn ctrl_a_noop_single_session() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.active_session, 0);
     }
 
     #[tokio::test]
     async fn exchange_has_agent_index() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Submit a chat message (agent will be unavailable in test, which is fine)
         for c in "test".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         // The last exchange should have agent_index = Some(0)
         let exchange = app

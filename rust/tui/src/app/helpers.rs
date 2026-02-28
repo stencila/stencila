@@ -225,7 +225,7 @@ impl App {
 
     /// Reset everything: cancel all running work, drop all sessions, create a
     /// fresh default session, and clear all messages. Equivalent to restarting.
-    pub fn reset_all(&mut self) {
+    pub async fn reset_all(&mut self) {
         self.cancel_all_running();
         self.active_workflow = None;
         if self.mode == AppMode::Workflow {
@@ -234,7 +234,8 @@ impl App {
         // Drop all sessions (and their agent handles)
         self.sessions.clear();
         self.color_registry = AgentColorRegistry::new();
-        let default_name = stencila_agents::convenience::resolve_default_agent_name("default");
+        let default_name =
+            stencila_agents::convenience::resolve_default_agent_name("default").await;
         self.color_registry.color_for(&default_name);
         self.sessions.push(AgentSession::new(default_name));
         self.active_session = 0;
@@ -298,7 +299,7 @@ mod tests {
 
     #[tokio::test]
     async fn scroll_bounds() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Simulate a frame that rendered 20 total lines with 10 visible
         app.total_message_lines = 20;
         app.visible_message_height = 10;
@@ -330,62 +331,67 @@ mod tests {
     // --- Ghost suggestion tests ---
 
     /// Helper: set up an app with history entries and type a prefix.
-    fn app_with_history_and_prefix(entries: &[&str], prefix: &str) -> App {
-        let mut app = App::new_for_test();
+    async fn app_with_history_and_prefix(entries: &[&str], prefix: &str) -> App {
+        let mut app = App::new_for_test().await;
         for &entry in entries {
             app.input_history
                 .push_tagged(entry.to_string(), AppMode::Agent);
         }
         for c in prefix.chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         app
     }
 
     #[tokio::test]
     async fn ghost_appears_on_prefix_match() {
-        let app = app_with_history_and_prefix(&["hello world"], "hel");
+        let app = app_with_history_and_prefix(&["hello world"], "hel").await;
         assert_eq!(app.ghost_suggestion.as_deref(), Some("lo world"));
     }
 
     #[tokio::test]
     async fn ghost_clears_when_input_diverges() {
-        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel").await;
         assert!(app.ghost_suggestion.is_some());
 
         // Type 'x' — "helx" no longer matches "hello world"
-        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE))
+            .await;
         assert!(app.ghost_suggestion.is_none());
     }
 
     #[tokio::test]
     async fn ghost_clears_when_cursor_not_at_end() {
-        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel").await;
         assert!(app.ghost_suggestion.is_some());
 
         // Move cursor left — no longer at end
-        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE))
+            .await;
         assert!(app.ghost_suggestion.is_none());
     }
 
     #[tokio::test]
     async fn ghost_clears_when_multiline() {
-        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel").await;
         assert!(app.ghost_suggestion.is_some());
 
         // Insert newline — input becomes multiline
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT))
+            .await;
         assert!(app.ghost_suggestion.is_none());
     }
 
     #[tokio::test]
     async fn ghost_clears_when_popup_visible() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.input_history
             .push_tagged("/help me".to_string(), AppMode::Agent);
 
         // Type "/" — triggers command autocomplete popup
-        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE))
+            .await;
         assert!(app.commands_state.is_visible());
         // Ghost should be None because popup is visible
         assert!(app.ghost_suggestion.is_none());
@@ -393,7 +399,7 @@ mod tests {
 
     #[tokio::test]
     async fn ghost_not_shown_for_empty_input() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.input_history
             .push_tagged("hello".to_string(), AppMode::Agent);
         // No typing — ghost should not appear
@@ -402,17 +408,18 @@ mod tests {
 
     #[tokio::test]
     async fn ghost_not_shown_for_exact_match() {
-        let app = app_with_history_and_prefix(&["hello"], "hello");
+        let app = app_with_history_and_prefix(&["hello"], "hello").await;
         assert!(app.ghost_suggestion.is_none());
     }
 
     #[tokio::test]
     async fn tab_accepts_ghost_word() {
-        let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo");
+        let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo").await;
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" test --release"));
 
         // Tab accepts " test"
-        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "cargo test");
         // Ghost should refresh to " --release"
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" --release"));
@@ -420,12 +427,14 @@ mod tests {
 
     #[tokio::test]
     async fn multiple_tabs_accept_word_by_word() {
-        let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo");
+        let mut app = app_with_history_and_prefix(&["cargo test --release"], "cargo").await;
 
-        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "cargo test");
 
-        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "cargo test --release");
 
         // No more ghost text
@@ -434,36 +443,40 @@ mod tests {
 
     #[tokio::test]
     async fn right_at_end_accepts_all_ghost() {
-        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel").await;
         assert!(app.ghost_suggestion.is_some());
 
-        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "hello world");
         assert!(app.ghost_suggestion.is_none());
     }
 
     #[tokio::test]
     async fn right_in_middle_moves_cursor() {
-        let mut app = app_with_history_and_prefix(&["hello world"], "hel");
+        let mut app = app_with_history_and_prefix(&["hello world"], "hel").await;
         // Move cursor left first
-        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE))
+            .await;
         assert!(app.ghost_suggestion.is_none());
 
         // Right should move cursor, not accept ghost (there is none)
         let cursor_before = app.input.cursor();
-        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.cursor(), cursor_before + 1);
         assert_eq!(app.input.text(), "hel");
     }
 
     #[tokio::test]
     async fn ghost_multiline_history_shows_full_suffix() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Agent);
 
         for c in "hel".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         // Ghost contains the full suffix including newlines; visual truncation
         // is handled at render time.
@@ -475,13 +488,14 @@ mod tests {
 
     #[tokio::test]
     async fn ghost_multiline_exact_first_line_shows_nothing() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // History entry where the first line is an exact match for the typed input
         app.input_history
             .push_tagged("foo\nbar".to_string(), AppMode::Agent);
 
         for c in "foo".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         // No useful ghost to show — suffix starts with newline
         assert!(app.ghost_suggestion.is_none());
@@ -489,12 +503,13 @@ mod tests {
 
     #[tokio::test]
     async fn accept_all_ghost_multiline() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.input_history
             .push_tagged("hello world\nsecond line".to_string(), AppMode::Agent);
 
         for c in "hel".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert_eq!(
             app.ghost_suggestion.as_deref(),
@@ -502,7 +517,8 @@ mod tests {
         );
 
         // Right accepts all — inserts the full ghost text including newlines
-        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "hello world\nsecond line");
     }
 }

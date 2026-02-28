@@ -104,15 +104,33 @@ pub async fn create_agent(
 
 /// If `name` is `"default"`, resolve it to the configured default agent name
 /// from `[agents].default` in `stencila.toml`. Returns the name unchanged
-/// if it is not `"default"` or if no config is set.
-pub fn resolve_default_agent_name(name: &str) -> String {
+/// if it is not `"default"`.
+///
+/// When no config is set, falls back to the first discovered agent sorted
+/// by source (workspace first) then name. Returns `"default"` only when
+/// discovery also finds nothing.
+pub async fn resolve_default_agent_name(name: &str) -> String {
     if name != "default" {
         return name.to_string();
     }
-    stencila_config::get()
+
+    // Check config first
+    if let Some(configured) = stencila_config::get()
         .ok()
         .and_then(|config| config.agents.as_ref()?.default.clone())
-        .unwrap_or_else(|| name.to_string())
+    {
+        return configured;
+    }
+
+    // Fall back to the first discovered agent (sorted by source then name)
+    if let Ok(cwd) = std::env::current_dir() {
+        let agents = agent_def::discover(&cwd).await;
+        if let Some(first) = agents.first() {
+            return first.name.clone();
+        }
+    }
+
+    name.to_string()
 }
 
 /// Resolve commit attribution policy from configuration.
@@ -130,7 +148,7 @@ fn resolve_commit_attribution() -> stencila_config::CommitAttribution {
 
 /// Shared preamble: resolve name, load agent definition, build session config.
 async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, SessionConfig)> {
-    let resolved_name = resolve_default_agent_name(name);
+    let resolved_name = resolve_default_agent_name(name).await;
 
     let cwd = std::env::current_dir().map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
@@ -174,8 +192,9 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
 /// 5. If no CLI mapping exists (e.g. `mistral`, `deepseek`), returns an error
 ///    asking the user to set the appropriate API key.
 ///
-/// If `name` is `"default"`, it is resolved to the agent configured in
-/// `[agents].default` in `stencila.toml` (falling back to `"default"` if unset).
+/// If `name` is `"default"`, it is resolved via [`resolve_default_agent_name`]:
+/// first from `[agents].default` in `stencila.toml`, then from the first
+/// discovered agent, and finally `"default"` if nothing else is found.
 ///
 /// Returns the discovered [`AgentInstance`] alongside the unified
 /// [`AgentSession`] and event receiver so callers can inspect agent metadata

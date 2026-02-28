@@ -329,7 +329,7 @@ mod tests {
         use stencila_attractor::interviewer::{Question, QuestionType};
         use tokio::sync::{mpsc, oneshot};
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
             description: String::new(),
@@ -378,7 +378,7 @@ mod tests {
 
     #[tokio::test]
     async fn scroll_stays_stable_during_streaming() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.total_message_lines = 30;
         app.visible_message_height = 10;
 

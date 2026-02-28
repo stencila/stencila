@@ -6,13 +6,13 @@ use super::{App, AppMode};
 
 impl App {
     /// Dispatch a key event.
-    pub(super) fn handle_key(&mut self, key: &KeyEvent) {
+    pub(super) async fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
             || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
             || (self.workflows_state.is_visible() && self.handle_workflows_autocomplete(key))
             || (self.mentions_state.is_visible() && self.handle_mentions_autocomplete(key))
             || (self.history_state.is_visible() && self.handle_history_autocomplete(key))
-            || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key))
+            || (self.commands_state.is_visible() && self.handle_commands_autocomplete(key).await)
             || (self.files_state.is_visible() && self.handle_files_autocomplete(key))
             || (self.responses_state.is_visible() && self.handle_responses_autocomplete(key));
 
@@ -22,7 +22,7 @@ impl App {
         let text_before = self.input.text().to_string();
 
         if !consumed {
-            self.handle_normal_key(key);
+            self.handle_normal_key(key).await;
             // Only refresh autocomplete after normal key handling — autocomplete
             // handlers manage their own state (e.g. Esc dismisses without re-trigger).
             self.refresh_autocomplete();
@@ -88,7 +88,7 @@ impl App {
     /// Handle a key event when the commands autocomplete popup is visible.
     ///
     /// Returns `true` if the key was consumed.
-    fn handle_commands_autocomplete(&mut self, key: &KeyEvent) -> bool {
+    async fn handle_commands_autocomplete(&mut self, key: &KeyEvent) -> bool {
         match (key.modifiers, key.code) {
             (KeyModifiers::NONE, KeyCode::Tab) => {
                 if let Some(name) = self.commands_state.accept() {
@@ -117,7 +117,7 @@ impl App {
                 if let Some(hint) = self.cli_usage_hint_for_input() {
                     self.command_usage_hint = Some(format!(" {hint}"));
                 } else {
-                    self.submit_input();
+                    self.submit_input().await;
                 }
             }
             _ => return false,
@@ -207,7 +207,7 @@ impl App {
 
     /// Handle normal key input (no autocomplete popup intercept).
     #[allow(clippy::too_many_lines)]
-    fn handle_normal_key(&mut self, key: &KeyEvent) {
+    async fn handle_normal_key(&mut self, key: &KeyEvent) {
         // Reset ghost navigation offset for any key except Up/Down
         // (those keys cycle through prefix-matched ghost suggestions).
         if !matches!(key.code, KeyCode::Up | KeyCode::Down) {
@@ -274,7 +274,7 @@ impl App {
                 self.input.insert_newline();
             }
             (KeyModifiers::NONE, KeyCode::Enter) => {
-                self.submit_input();
+                self.submit_input().await;
             }
 
             (KeyModifiers::NONE, KeyCode::Tab) => {
@@ -471,79 +471,90 @@ mod tests {
 
     #[tokio::test]
     async fn welcome_message() {
-        let app = App::new_for_test();
+        let app = App::new_for_test().await;
         assert_eq!(app.messages.len(), 1);
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[tokio::test]
     async fn ctrl_c_quits_in_chat_mode() {
-        let mut app = App::new_for_test();
-        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        let mut app = App::new_for_test().await;
+        let quit = app
+            .handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL))
+            .await;
         assert!(quit);
         assert!(app.should_quit);
     }
 
     #[tokio::test]
     async fn ctrl_c_clears_input_in_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
 
         // Type some text
         for c in "hello".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert_eq!(app.input.text(), "hello");
 
         // Ctrl+C should clear input, not quit
-        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        let quit = app
+            .handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL))
+            .await;
         assert!(!quit);
         assert!(app.input.is_empty());
     }
 
     #[tokio::test]
     async fn ctrl_c_noop_on_empty_input_in_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
 
-        let quit = app.handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL));
+        let quit = app
+            .handle_event(&key_event(KeyCode::Char('c'), KeyModifiers::CONTROL))
+            .await;
         assert!(!quit);
         assert!(!app.should_quit);
     }
 
     #[tokio::test]
     async fn ctrl_d_exits_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
 
-        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.mode, AppMode::Agent);
     }
 
     #[tokio::test]
     async fn ctrl_d_noop_in_chat_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         assert_eq!(app.mode, AppMode::Agent);
 
-        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('d'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.mode, AppMode::Agent);
         assert!(!app.should_quit);
     }
 
     #[tokio::test]
     async fn typing_and_submit() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
 
         // Type "hello"
         for c in "hello".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert_eq!(app.input.text(), "hello");
 
         // Submit — without a tokio runtime the agent is unavailable,
         // so the exchange is created as Failed.
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(app.input.is_empty());
         assert_eq!(app.messages.len(), 2);
         assert!(matches!(
@@ -554,98 +565,120 @@ mod tests {
 
     #[tokio::test]
     async fn empty_submit_ignored() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         // Only the welcome message
         assert_eq!(app.messages.len(), 1);
     }
 
     #[tokio::test]
     async fn ctrl_l_resets_active_session() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
 
         // Type and submit a message
-        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.messages.len(), 2);
 
         // Ctrl+L resets to welcome
-        app.handle_event(&key_event(KeyCode::Char('l'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('l'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.messages.len(), 1);
         assert!(matches!(&app.messages[0], AppMessage::Welcome));
     }
 
     #[tokio::test]
     async fn shift_enter_inserts_newline() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::NONE));
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::SHIFT));
-        app.handle_event(&key_event(KeyCode::Char('b'), KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('a'), KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::SHIFT))
+            .await;
+        app.handle_event(&key_event(KeyCode::Char('b'), KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "a\nb");
     }
 
     #[tokio::test]
     async fn up_down_moves_cursor_in_multiline() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Paste multiline text: "abc\ndef"
-        app.handle_event(&Event::Paste("abc\ndef".to_string()));
+        app.handle_event(&Event::Paste("abc\ndef".to_string()))
+            .await;
         // Cursor at end (pos 7, line 1, col 3)
         assert_eq!(app.input.cursor(), 7);
 
         // Up moves to same column on previous line
-        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.cursor(), 3); // end of "abc"
 
         // Down moves back
-        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.cursor(), 7); // end of "def"
     }
 
     #[tokio::test]
     async fn alt_enter_inserts_newline() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT));
-        app.handle_event(&key_event(KeyCode::Char('y'), KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::ALT))
+            .await;
+        app.handle_event(&key_event(KeyCode::Char('y'), KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "x\ny");
     }
 
     #[tokio::test]
     async fn trailing_backslash_enter_inserts_newline() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Type "hello\" then press Enter — should insert newline, not submit
         for c in "hello\\".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "hello\n");
         // Should not have submitted — only the welcome message
         assert_eq!(app.messages.len(), 1);
 
         // Continue typing and submit without backslash
         for c in "world".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert_eq!(app.input.text(), "hello\nworld");
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(app.input.is_empty());
         assert_eq!(app.messages.len(), 2);
     }
 
     #[tokio::test]
     async fn trailing_backslash_multiline_continuation() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Build up multiple lines using trailing backslash
         for c in "line1\\".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         for c in "line2\\".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         for c in "line3".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert_eq!(app.input.text(), "line1\nline2\nline3");
         // Only welcome message — nothing submitted yet
@@ -654,8 +687,9 @@ mod tests {
 
     #[tokio::test]
     async fn paste_inserts_without_submit() {
-        let mut app = App::new_for_test();
-        app.handle_event(&Event::Paste("hello\nworld".to_string()));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&Event::Paste("hello\nworld".to_string()))
+            .await;
         assert_eq!(app.input.text(), "hello\nworld");
         // Should not have submitted — only the welcome message
         assert_eq!(app.messages.len(), 1);
@@ -663,17 +697,18 @@ mod tests {
 
     #[tokio::test]
     async fn paste_short_inserted_verbatim() {
-        let mut app = App::new_for_test();
-        app.handle_event(&Event::Paste("short text".to_string()));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&Event::Paste("short text".to_string()))
+            .await;
         assert_eq!(app.input.text(), "short text");
         assert!(app.pastes.is_empty());
     }
 
     #[tokio::test]
     async fn paste_large_inserts_token() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let long_text = "a".repeat(200);
-        app.handle_event(&Event::Paste(long_text.clone()));
+        app.handle_event(&Event::Paste(long_text.clone())).await;
         // Buffer contains the token, not the raw text
         let input = app.input.text().to_string();
         assert!(input.starts_with("[Paste #1: "));
@@ -687,9 +722,9 @@ mod tests {
 
     #[tokio::test]
     async fn paste_token_expanded_on_submit() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let long_text = "x".repeat(200);
-        app.handle_event(&Event::Paste(long_text.clone()));
+        app.handle_event(&Event::Paste(long_text.clone())).await;
         // Expand paste refs returns the full text
         let input = app.input.text().to_string();
         let expanded = app.expand_paste_refs(&input);
@@ -698,11 +733,11 @@ mod tests {
 
     #[tokio::test]
     async fn paste_multiple_tokens() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let text1 = "a".repeat(100);
         let text2 = "b".repeat(150);
-        app.handle_event(&Event::Paste(text1.clone()));
-        app.handle_event(&Event::Paste(text2.clone()));
+        app.handle_event(&Event::Paste(text1.clone())).await;
+        app.handle_event(&Event::Paste(text2.clone())).await;
         let input = app.input.text().to_string();
         assert!(input.contains("[Paste #1:"));
         assert!(input.contains("[Paste #2:"));
@@ -715,9 +750,9 @@ mod tests {
 
     #[tokio::test]
     async fn paste_token_newlines_in_preview_replaced() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let long_text = format!("line1\nline2\n{}", "x".repeat(100));
-        app.handle_event(&Event::Paste(long_text));
+        app.handle_event(&Event::Paste(long_text)).await;
         let input = app.input.text().to_string();
         // The token itself should not contain newlines
         assert!(!input.contains('\n'));
@@ -725,112 +760,132 @@ mod tests {
 
     #[tokio::test]
     async fn paste_normalizes_crlf_to_lf() {
-        let mut app = App::new_for_test();
-        app.handle_event(&Event::Paste("hello\r\nworld".to_string()));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&Event::Paste("hello\r\nworld".to_string()))
+            .await;
         assert_eq!(app.input.text(), "hello\nworld");
     }
 
     #[tokio::test]
     async fn paste_normalizes_cr_to_lf() {
-        let mut app = App::new_for_test();
-        app.handle_event(&Event::Paste("hello\rworld".to_string()));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&Event::Paste("hello\rworld".to_string()))
+            .await;
         assert_eq!(app.input.text(), "hello\nworld");
     }
 
     #[tokio::test]
     async fn history_up_down() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
 
         // Submit a few messages
         for msg in ["first", "second", "third"] {
             for c in msg.chars() {
-                app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+                app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                    .await;
             }
-            app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+                .await;
         }
 
         // Navigate up through history
-        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "third");
-        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "second");
-        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "first");
 
         // Navigate back down
-        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "second");
     }
 
     #[tokio::test]
     async fn history_preserves_draft() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
 
         // Submit two entries with the same prefix
         for text in ["old first", "old second"] {
             for c in text.chars() {
-                app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+                app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                    .await;
             }
-            app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+                .await;
         }
 
         // Type a prefix
         for c in "old".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
 
         // Default ghost shows " second" (most recent prefix match)
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" second"));
 
         // Up cycles ghost to the next older match — input stays "old"
-        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "old");
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" first"));
 
         // Down cycles ghost back to the most recent match
-        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.input.text(), "old");
         assert_eq!(app.ghost_suggestion.as_deref(), Some(" second"));
     }
 
     #[tokio::test]
     async fn ctrl_u_deletes_to_line_start() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "hello".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Char('u'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('u'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.input.text(), "");
     }
 
     #[tokio::test]
     async fn ctrl_k_deletes_to_line_end() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "hello".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Home, KeyModifiers::NONE));
-        app.handle_event(&key_event(KeyCode::Char('k'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Home, KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Char('k'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.input.text(), "");
     }
 
     #[tokio::test]
     async fn ctrl_s_enters_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         assert_eq!(app.mode, AppMode::Agent);
 
-        app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.mode, AppMode::Shell);
     }
 
     #[tokio::test]
     async fn ctrl_s_noop_in_shell_mode() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
 
         // Ctrl+S in shell mode should not do anything special
-        app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL));
+        app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL))
+            .await;
         assert_eq!(app.mode, AppMode::Shell);
     }
 
@@ -838,42 +893,49 @@ mod tests {
 
     #[tokio::test]
     async fn autocomplete_shows_on_slash() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE))
+            .await;
         assert!(app.commands_state.is_visible());
     }
 
     #[tokio::test]
     async fn autocomplete_narrows_on_typing() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE))
+            .await;
         let all_count = app.commands_state.candidates().len();
 
-        app.handle_event(&key_event(KeyCode::Char('h'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('h'), KeyModifiers::NONE))
+            .await;
         assert!(app.commands_state.candidates().len() < all_count);
     }
 
     #[tokio::test]
     async fn autocomplete_hides_on_esc() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE))
+            .await;
         assert!(app.commands_state.is_visible());
 
-        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE))
+            .await;
         assert!(!app.commands_state.is_visible());
     }
 
     #[tokio::test]
     async fn autocomplete_tab_accepts() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Type "/he" — matches /help and /history
         for c in "/he".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert!(app.commands_state.is_visible());
 
         // Tab accepts the first candidate
-        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE))
+            .await;
         assert!(!app.commands_state.is_visible());
         // Input should be one of the matching commands
         let text = app.input.text().to_string();
@@ -882,29 +944,34 @@ mod tests {
 
     #[tokio::test]
     async fn autocomplete_up_down_navigates() {
-        let mut app = App::new_for_test();
-        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE));
+        let mut app = App::new_for_test().await;
+        app.handle_event(&key_event(KeyCode::Char('/'), KeyModifiers::NONE))
+            .await;
         assert!(app.commands_state.is_visible());
         assert_eq!(app.commands_state.selected(), 0);
 
-        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.commands_state.selected(), 1);
 
-        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Up, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.commands_state.selected(), 0);
     }
 
     #[tokio::test]
     async fn autocomplete_enter_accepts_and_submits() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         // Type "/hel" — matches /help only
         for c in "/hel".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert!(app.commands_state.is_visible());
 
         // Enter should accept and submit
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(!app.commands_state.is_visible());
         assert!(app.input.is_empty());
         // Should have executed /help
@@ -913,11 +980,13 @@ mod tests {
 
     #[tokio::test]
     async fn autocomplete_dismissed_on_submit() {
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         for c in "/help".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert!(!app.commands_state.is_visible());
     }
 
@@ -925,7 +994,7 @@ mod tests {
     async fn agents_picker_exits_shell_mode() {
         use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind};
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("other"));
         app.enter_shell_mode();
         assert_eq!(app.mode, AppMode::Shell);
@@ -952,8 +1021,10 @@ mod tests {
         assert!(app.agents_state.is_visible());
 
         // Select second entry and accept
-        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         assert_eq!(app.mode, AppMode::Agent);
         assert_eq!(app.active_session, 1);
@@ -967,7 +1038,7 @@ mod tests {
             workflows::WorkflowDefinitionInfo,
         };
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("other"));
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
@@ -996,8 +1067,10 @@ mod tests {
             },
         ]);
 
-        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         assert_eq!(app.mode, AppMode::Agent);
         assert_eq!(app.active_session, 1);
@@ -1008,7 +1081,7 @@ mod tests {
     async fn autocomplete_enter_on_leaf_with_required_args_shows_hint() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
@@ -1017,7 +1090,8 @@ mod tests {
 
         // Type `/skills ` to show subcommands, then select "show" (has <NAME> arg)
         for c in "/skills ".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert!(app.commands_state.is_visible());
 
@@ -1029,11 +1103,13 @@ mod tests {
             .position(|c| c.name() == "/skills show")
             .expect("show should be a candidate");
         for _ in 0..show_idx {
-            app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+                .await;
         }
 
         // Press Enter — should NOT execute, should show hint
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
 
         assert_eq!(app.messages.len(), initial_msg_count);
         assert_eq!(app.input.text(), "/skills show");
@@ -1044,14 +1120,15 @@ mod tests {
     async fn autocomplete_tab_on_leaf_with_required_args_shows_hint() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
 
         // Type `/skills ` to show subcommands
         for c in "/skills ".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
         assert!(app.commands_state.is_visible());
 
@@ -1063,11 +1140,13 @@ mod tests {
             .position(|c| c.name() == "/skills show")
             .expect("show should be a candidate");
         for _ in 0..show_idx {
-            app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+                .await;
         }
 
         // Press Tab — should accept and show hint as ghost text
-        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Tab, KeyModifiers::NONE))
+            .await;
 
         assert_eq!(app.input.text(), "/skills show");
         assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
@@ -1077,24 +1156,28 @@ mod tests {
     async fn usage_hint_persists_across_non_editing_keys() {
         use std::sync::Arc;
 
-        let mut app = App::new_for_test();
+        let mut app = App::new_for_test().await;
         let tree = Arc::new(crate::cli_commands::test_cli_tree());
         app.cli_tree = Some(Arc::clone(&tree));
         app.commands_state.set_cli_tree(tree);
 
         // Type `/skills show` and press Enter to trigger hint
         for c in "/skills show".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE));
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
         }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
 
         // Non-editing keys should NOT clear the hint
-        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Esc, KeyModifiers::NONE))
+            .await;
         assert_eq!(app.ghost_suggestion, Some(" <NAME>".to_string()));
 
         // Typing a character SHOULD clear the hint
-        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE));
+        app.handle_event(&key_event(KeyCode::Char('x'), KeyModifiers::NONE))
+            .await;
         assert!(app.command_usage_hint.is_none());
     }
 }

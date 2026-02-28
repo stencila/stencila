@@ -20,7 +20,10 @@ use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Agent, Node, NodeType};
 
 /// Where an agent was discovered from.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+///
+/// Variant order determines sort priority: workspace agents sort first,
+/// then user, then CLI-detected.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 pub enum AgentSource {
     /// `.stencila/agents/` in the workspace
@@ -265,7 +268,11 @@ pub async fn discover(cwd: &Path) -> Vec<AgentInstance> {
     }
 
     let mut agents: Vec<AgentInstance> = by_name.into_values().collect();
-    agents.sort_by(|a, b| a.name.cmp(&b.name));
+    agents.sort_by(|a, b| {
+        a.source
+            .cmp(&b.source)
+            .then_with(|| a.name.cmp(&b.name))
+    });
     agents
 }
 
