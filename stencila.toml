@@ -32,3 +32,6 @@ preset = "landing"
 [[site.layout.overrides]]
 routes = ["/docs/**"]
 preset = "docs"
+
+[remotes]
+"site/docs/config/remotes.md" = "https://stencila-my.sharepoint.com/personal/nokome_stencila_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc=%7B8AD420FC-3D2F-4EFF-A272-55B922A84460%7D&file=remotes.md.docx"
