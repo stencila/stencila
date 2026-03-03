@@ -747,12 +747,31 @@ pub(crate) fn process_event(
             // Informational messages (e.g. routing decision, retry notifications)
             // — show inline so the user knows what's happening.
             if let Ok(mut g) = progress.lock() {
+                let code = event
+                    .data
+                    .get("code")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
                 let message = event
                     .data
                     .get("message")
                     .and_then(Value::as_str)
                     .unwrap_or("info");
-                g.segments.push(ResponseSegment::Info(message.to_string()));
+
+                if code == "LLM_RETRY" {
+                    // Replace existing retry info segment instead of
+                    // appending a new line for each attempt.
+                    if let Some(seg) = g.segments.iter_mut().rev().find(|s| {
+                        matches!(s, ResponseSegment::Info(m) if m.starts_with("LLM_RETRY:"))
+                    }) {
+                        *seg = ResponseSegment::Info(format!("LLM_RETRY:{message}"));
+                    } else {
+                        g.segments
+                            .push(ResponseSegment::Info(format!("LLM_RETRY:{message}")));
+                    }
+                } else {
+                    g.segments.push(ResponseSegment::Info(message.to_string()));
+                }
             }
         }
         EventKind::Warning => {

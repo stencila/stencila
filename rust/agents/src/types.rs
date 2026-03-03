@@ -180,6 +180,12 @@ pub struct SessionConfig {
     /// and transition to `AwaitingInput` instead of `Idle` (spec 2.3).
     #[serde(default = "default_true")]
     pub auto_detect_awaiting_input: bool,
+
+    /// Retry policy for LLM calls.
+    ///
+    /// Not serialized — only settable programmatically (e.g. for tests).
+    #[serde(skip)]
+    pub retry_policy: stencila_models3::retry::RetryPolicy,
 }
 
 fn default_max_tool_rounds() -> u32 {
@@ -233,6 +239,7 @@ impl SessionConfig {
             allowed_mcp_servers: self.allowed_mcp_servers.clone(),
             // Inherited: subagents use the same commit trailer
             commit_instructions: self.commit_instructions.clone(),
+            retry_policy: self.retry_policy.clone(),
             // Session-specific: not inherited
             reasoning_effort: None,
             user_instructions: None,
@@ -261,6 +268,7 @@ impl Default for SessionConfig {
             enable_mcp: false,
             enable_mcp_codemode: true,
             allowed_mcp_servers: None,
+            retry_policy: stencila_models3::retry::RetryPolicy::default(),
         }
     }
 }

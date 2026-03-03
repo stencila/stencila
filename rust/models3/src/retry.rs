@@ -35,7 +35,7 @@ use crate::error::{SdkError, SdkResult};
 /// Configuration for retry behavior.
 ///
 /// All fields have defaults per spec Section 6.6.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RetryPolicy {
     /// Maximum number of retry attempts (not counting the initial attempt).
     pub max_retries: u32,
@@ -56,7 +56,7 @@ pub struct RetryPolicy {
 impl Default for RetryPolicy {
     fn default() -> Self {
         Self {
-            max_retries: 2,
+            max_retries: 10,
             base_delay: 1.0,
             max_delay: 60.0,
             backoff_multiplier: 2.0,
@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn default_policy_values() {
         let policy = RetryPolicy::default();
-        assert_eq!(policy.max_retries, 2);
+        assert_eq!(policy.max_retries, 10);
         assert!((policy.base_delay - 1.0).abs() < f64::EPSILON);
         assert!((policy.max_delay - 60.0).abs() < f64::EPSILON);
         assert!((policy.backoff_multiplier - 2.0).abs() < f64::EPSILON);

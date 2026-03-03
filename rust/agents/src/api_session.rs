@@ -24,7 +24,6 @@ use futures::StreamExt;
 use serde_json::Value;
 use stencila_models3::api::accumulator::StreamAccumulator;
 use stencila_models3::error::SdkError;
-use stencila_models3::retry::RetryPolicy;
 use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::message::Message;
 use stencila_models3::types::request::Request;
@@ -548,7 +547,7 @@ impl ApiSession {
             // delivered to the user (text deltas *or* reasoning events),
             // retries are skipped because the partial output cannot be
             // un-delivered.
-            let retry_policy = RetryPolicy::default();
+            let retry_policy = self.config.retry_policy.clone();
             let partial_text = std::sync::Mutex::new(String::new());
             let content_emitted = std::sync::atomic::AtomicBool::new(false);
             let stream_result: Option<Result<Response, SdkError>> = {
@@ -611,7 +610,7 @@ impl ApiSession {
 
                                 if delivered && error.is_retryable() {
                                     let label = retry_error_label(&error);
-                                    tracing::warn!(
+                                    tracing::debug!(
                                         error = %error,
                                         "retryable LLM error after partial content delivery, cannot retry"
                                     );
@@ -628,7 +627,7 @@ impl ApiSession {
                                     && let Some(delay) = retry_policy.resolve_delay(&error, attempt)
                                 {
                                     let label = retry_error_label(&error);
-                                    tracing::warn!(
+                                    tracing::debug!(
                                         attempt,
                                         delay_secs = delay,
                                         error = %error,
@@ -650,13 +649,13 @@ impl ApiSession {
                                 if !delivered && error.is_retryable() {
                                     let label = retry_error_label(&error);
                                     if attempt >= retry_policy.max_retries {
-                                        tracing::warn!(
+                                        tracing::debug!(
                                             attempt,
                                             error = %error,
                                             "retryable LLM error, retries exhausted"
                                         );
                                         events_ref.emit_info(
-                                            "LLM_RETRIES_EXHAUSTED",
+                                            "LLM_RETRY",
                                             format!(
                                                 "{label}: all {} retries failed",
                                                 retry_policy.max_retries
@@ -665,13 +664,13 @@ impl ApiSession {
                                     } else {
                                         // Retry-After exceeds max_delay — provider
                                         // asked us to wait longer than we're willing to.
-                                        tracing::warn!(
+                                        tracing::debug!(
                                             attempt,
                                             error = %error,
                                             "retryable LLM error, Retry-After too large"
                                         );
                                         events_ref.emit_info(
-                                            "LLM_NO_RETRY",
+                                            "LLM_RETRY",
                                             format!(
                                                 "{label}: server requested a retry delay that exceeds the maximum",
                                             ),
@@ -1599,7 +1598,10 @@ impl ApiSession {
             data.insert("code".into(), Value::String(agent_error.code().into()));
             data.insert("message".into(), Value::String(agent_error.to_string()));
             self.events.emit(crate::types::EventKind::Error, data);
-        } else {
+        } else if !is_retryable {
+            // Only emit ERROR for non-retryable errors. For retryable errors
+            // the retry loop already emitted an LLM_RETRY info event that
+            // explains the outcome, so a duplicate error line is unnecessary.
             self.events
                 .emit_error(agent_error.code(), agent_error.to_string());
         }

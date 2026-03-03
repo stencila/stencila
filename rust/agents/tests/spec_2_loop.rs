@@ -473,6 +473,15 @@ fn unknown_call() -> ToolCall {
     }
 }
 
+/// A retry policy with near-zero delays for tests.
+fn fast_retry_policy() -> stencila_models3::retry::RetryPolicy {
+    stencila_models3::retry::RetryPolicy {
+        base_delay: 0.001,
+        jitter: false,
+        ..Default::default()
+    }
+}
+
 /// Create a test session with a mock client returning the given responses.
 fn test_session(
     responses: Vec<Result<Response, SdkError>>,
@@ -1435,14 +1444,21 @@ async fn turn_limit_is_idle_not_closed() -> AgentResult<()> {
 async fn server_error_keeps_session_open() -> AgentResult<()> {
     // Retryable error: session retries with exponential backoff, then stays
     // open (Idle) so the user can try again.
+    //
+    // Provide enough error responses to exhaust all retries (initial + max_retries).
+    // Use a fast retry policy so the test doesn't sleep for minutes.
     let err = || {
         Err(SdkError::Server {
             message: "500 internal server error".into(),
             details: ProviderDetails::default(),
         })
     };
-    // 1 initial + 2 retries = 3 responses needed (default max_retries = 2)
-    let (mut session, _rx, _) = test_session(vec![err(), err(), err()])?;
+    let config = SessionConfig {
+        retry_policy: fast_retry_policy(),
+        ..Default::default()
+    };
+    let (mut session, _rx, _) =
+        test_session_with_config((0..11).map(|_| err()).collect(), config)?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
@@ -1455,21 +1471,40 @@ async fn server_error_keeps_session_open() -> AgentResult<()> {
 async fn rate_limit_error_keeps_session_open() -> AgentResult<()> {
     // RateLimit errors are retried with exponential backoff. If still failing
     // after retries, the session stays open (Idle) so the user can try again.
+    //
+    // Provide enough error responses to exhaust all retries (initial + max_retries).
+    // Use a fast retry policy so the test doesn't sleep for minutes.
     let err = || {
         Err(SdkError::RateLimit {
             message: "429 too many requests".into(),
             details: ProviderDetails::default(),
         })
     };
-    let (mut session, mut rx, _) = test_session(vec![err(), err(), err()])?;
+    let config = SessionConfig {
+        retry_policy: fast_retry_policy(),
+        ..Default::default()
+    };
+    let (mut session, mut rx, _) =
+        test_session_with_config((0..11).map(|_| err()).collect(), config)?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
     assert_eq!(session.state(), SessionState::Idle);
 
     let events = drain_events(&mut rx).await;
-    let has_error = events.iter().any(|e| e.kind == EventKind::Error);
-    assert!(has_error, "Expected ERROR event for rate limit");
+    // Retryable errors emit an LLM_RETRY info event (not an ERROR event)
+    // to avoid duplicate noise in the TUI.
+    let has_retry_info = events.iter().any(|e| {
+        e.kind == EventKind::Info
+            && e.data
+                .get("code")
+                .and_then(serde_json::Value::as_str)
+                == Some("LLM_RETRY")
+    });
+    assert!(
+        has_retry_info,
+        "Expected LLM_RETRY info event for rate limit"
+    );
     // Session is NOT closed, so no SESSION_END event.
     let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
     assert!(
@@ -1484,20 +1519,36 @@ async fn rate_limit_error_keeps_session_open() -> AgentResult<()> {
 async fn network_error_keeps_session_open() -> AgentResult<()> {
     // Network errors are retried with exponential backoff. If still failing
     // after retries, the session stays open (Idle) so the user can try again.
+    //
+    // Provide enough error responses to exhaust all retries (initial + max_retries).
+    // Use a fast retry policy so the test doesn't sleep for minutes.
     let err = || {
         Err(SdkError::Network {
             message: "connection refused".into(),
         })
     };
-    let (mut session, mut rx, _) = test_session(vec![err(), err(), err()])?;
+    let config = SessionConfig {
+        retry_policy: fast_retry_policy(),
+        ..Default::default()
+    };
+    let (mut session, mut rx, _) =
+        test_session_with_config((0..11).map(|_| err()).collect(), config)?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
     assert_eq!(session.state(), SessionState::Idle);
 
     let events = drain_events(&mut rx).await;
-    let has_error = events.iter().any(|e| e.kind == EventKind::Error);
-    assert!(has_error, "Expected ERROR event for network error");
+    // Retryable errors emit an LLM_RETRY info event (not an ERROR event)
+    // to avoid duplicate noise in the TUI.
+    let has_retry_info = events.iter().any(|e| {
+        e.kind == EventKind::Info
+            && e.data
+                .get("code")
+                .and_then(serde_json::Value::as_str)
+                == Some("LLM_RETRY")
+    });
+    assert!(has_retry_info, "Expected LLM_RETRY info event for network error");
     // Session is NOT closed, so no SESSION_END event.
     let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
     assert!(

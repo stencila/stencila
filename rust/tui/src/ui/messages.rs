@@ -494,6 +494,10 @@ fn response_segments_lines(
                     ResponseSegment::Error(_) => Color::Red,
                     _ => Color::Yellow,
                 };
+                // Strip internal `LLM_RETRY:` tag used for in-place updates
+                let display_message = message
+                    .strip_prefix("LLM_RETRY:")
+                    .unwrap_or(message);
                 if !prev_was_annotation {
                     lines.push(blank_line());
                 }
@@ -502,7 +506,7 @@ fn response_segments_lines(
                     dim_sidebar_style,
                     '\u{25cf}',
                     Style::new().fg(color),
-                    message,
+                    display_message,
                     dim(),
                     content_width,
                 );
