@@ -42,12 +42,20 @@ const DEFAULT_CONNECT_TIMEOUT_SECS: u64 = 10;
 /// Default request timeout in seconds (spec §4.8: 120s).
 const DEFAULT_REQUEST_TIMEOUT_SECS: u64 = 120;
 
+/// Default idle timeout for streaming responses in seconds (spec §4.8: 30s).
+///
+/// Applied between consecutive byte chunks when no explicit `stream_idle`
+/// timeout is configured. This is a safety net against hung connections
+/// where the server stops sending data without closing the stream.
+const DEFAULT_STREAM_IDLE_TIMEOUT_SECS: u64 = 30;
+
 /// An HTTP client configured for LLM provider API calls.
 #[derive(Debug, Clone)]
 pub struct HttpClient {
     inner: reqwest::Client,
     base_url: String,
     default_headers: HeaderMap,
+    request_timeout: Duration,
 }
 
 impl HttpClient {
@@ -83,7 +91,11 @@ impl HttpClient {
     ) -> SdkResult<(R, HeaderMap)> {
         let url = format!("{}{path}", self.base_url);
 
-        let mut request = self.inner.get(&url).headers(self.default_headers.clone());
+        let mut request = self
+            .inner
+            .get(&url)
+            .headers(self.default_headers.clone())
+            .timeout(self.request_timeout);
 
         if let Some(h) = headers {
             request = request.headers(h.clone());
@@ -154,7 +166,11 @@ impl HttpClient {
     ) -> SdkResult<(R, HeaderMap)> {
         let url = format!("{}{path}", self.base_url);
 
-        let mut request = self.inner.post(&url).headers(self.default_headers.clone());
+        let mut request = self
+            .inner
+            .post(&url)
+            .headers(self.default_headers.clone())
+            .timeout(self.request_timeout);
 
         if let Some(h) = headers {
             request = request.headers(h.clone());
@@ -221,10 +237,14 @@ impl HttpClient {
     ///
     /// # Timeout handling
     ///
-    /// `Timeout.request` is applied as a per-request deadline.
-    /// `Timeout.stream_idle` is enforced by wrapping the byte stream with
-    /// an [`IdleTimeoutStream`] that yields a [`ByteStreamError::IdleTimeout`]
-    /// error if no chunk arrives within the configured duration.
+    /// No total wall-clock timeout is applied to streaming requests because
+    /// the reqwest timeout covers the entire response lifetime — including
+    /// all streamed chunks — which can legitimately exceed the default
+    /// request timeout for long-running generations. Instead, streaming
+    /// relies on `Timeout.stream_idle`, enforced by wrapping the byte
+    /// stream with an [`IdleTimeoutStream`] that yields a
+    /// [`ByteStreamError::IdleTimeout`] error if no chunk arrives within
+    /// the configured duration.
     ///
     /// # Errors
     ///
@@ -243,14 +263,6 @@ impl HttpClient {
 
         if let Some(h) = headers {
             request = request.headers(h.clone());
-        }
-
-        if let Some(t) = timeout
-            && let Some(secs) = t.request
-            && secs.is_finite()
-            && secs > 0.0
-        {
-            request = request.timeout(Duration::from_secs_f64(secs));
         }
 
         request = request.json(body);
@@ -296,18 +308,13 @@ impl HttpClient {
                 .map(|r| r.map_err(ByteStreamError::from)),
         );
 
-        let stream: ByteStream = if let Some(t) = timeout
-            && let Some(secs) = t.stream_idle
-            && secs.is_finite()
-            && secs > 0.0
-        {
-            Box::pin(IdleTimeoutStream::new(
-                stream,
-                Duration::from_secs_f64(secs),
-            ))
-        } else {
-            stream
-        };
+        let idle_duration = timeout
+            .and_then(|t| t.stream_idle)
+            .filter(|s| s.is_finite() && *s > 0.0)
+            .map(Duration::from_secs_f64)
+            .unwrap_or(Duration::from_secs(DEFAULT_STREAM_IDLE_TIMEOUT_SECS));
+
+        let stream: ByteStream = Box::pin(IdleTimeoutStream::new(stream, idle_duration));
 
         Ok((stream, response_headers))
     }
@@ -427,7 +434,6 @@ impl HttpClientBuilder {
 
         let client = reqwest::Client::builder()
             .connect_timeout(self.connect_timeout)
-            .timeout(self.request_timeout)
             .build()
             .map_err(|e| SdkError::Configuration {
                 message: format!("failed to build HTTP client: {e}"),
@@ -437,6 +443,7 @@ impl HttpClientBuilder {
             inner: client,
             base_url: self.base_url,
             default_headers: header_map,
+            request_timeout: self.request_timeout,
         })
     }
 }

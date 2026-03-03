@@ -195,7 +195,7 @@ Accumulator behavior currently assumes a single in-flight segment per kind and d
 
 ### Timeout coverage gaps (`§4.7`)
 
-`stream_generate()` does not enforce `total` timeout internally because streams are lazy; callers should wrap stream consumption in `tokio::time::timeout`. `per_step` timeout currently applies to provider stream connection setup, not per-event reads after connection is established. `Timeout.connect` and `Timeout.stream_idle` exist on the public `Timeout` type but are not currently enforced as request-level overrides in provider execution paths.
+`stream_generate()` does not enforce `total` timeout internally because streams are lazy; callers should wrap stream consumption in `tokio::time::timeout`. `per_step` timeout currently applies to provider stream connection setup, not per-event reads after connection is established. `Timeout.connect` exists on the public `Timeout` type but is not currently enforced as a request-level override in provider execution paths. `Timeout.stream_idle` is enforced at the HTTP layer with a 30s default (spec §4.8) — the byte stream is wrapped with an idle-timeout guard that terminates the stream if no chunk arrives within the configured duration.
 
 ### No implicit latest-model selection (`§2.9`)
 
