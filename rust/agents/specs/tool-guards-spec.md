@@ -782,6 +782,7 @@ Built-in rules cannot be overridden by domain lists. Evaluation is short-circuit
 ```rust
 pub const METADATA_HOSTS: &[&str] = &[
     "169.254.169.254",           // AWS, Azure, most cloud providers
+    "fd00:ec2::254",             // AWS IMDSv2 IPv6 endpoint
     "metadata.google.internal",  // GCP
     "100.100.100.200",           // Alibaba Cloud
 ];

@@ -108,8 +108,8 @@ pub struct ToolGuard {
     workspace_root: PathBuf,
     shell_guard: shell::ShellToolGuard,
     file_guard: file::FileToolGuard,
-    // Sub-guards will be added in later phases:
-    // web_guard: web::WebToolGuard,
+    web_guard: web::WebToolGuard,
+    // Audit will be added in a later phase:
     // audit_tx: Option<mpsc::Sender<AuditEvent>>,
 }
 
@@ -135,6 +135,9 @@ const FILE_TOOLS: &[&str] = &[
     "grep",
 ];
 
+/// Tool name that the web guard handles.
+const WEB_TOOL: &str = "web_fetch";
+
 impl ToolGuard {
     /// Construct a new guard policy.
     ///
@@ -145,15 +148,17 @@ impl ToolGuard {
     pub fn new(
         trust_level: TrustLevel,
         workspace_root: PathBuf,
-        _allowed_domains: Option<Vec<String>>,
-        _disallowed_domains: Option<Vec<String>>,
+        allowed_domains: Option<Vec<String>>,
+        disallowed_domains: Option<Vec<String>>,
     ) -> Self {
         let file_guard = file::FileToolGuard::new(workspace_root.clone());
+        let web_guard = web::WebToolGuard::new(allowed_domains, disallowed_domains);
         Self {
             trust_level,
             workspace_root,
             shell_guard: shell::ShellToolGuard,
             file_guard,
+            web_guard,
         }
     }
 
@@ -190,7 +195,12 @@ impl ToolGuard {
                     .evaluate(tool_name, args, working_dir, self.trust_level);
             }
 
-            // Phase 4 will add web_guard dispatch here.
+            if tool_name == WEB_TOOL {
+                if let Some(url) = args.get("url").and_then(|v| v.as_str()) {
+                    return self.web_guard.evaluate(url, self.trust_level);
+                }
+            }
+
             GuardVerdict::Allow
         }
     }
@@ -254,6 +264,75 @@ mod tests {
             std::path::Path::new("/tmp"),
         );
         assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn evaluate_dispatches_web_fetch() {
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
+        let ctx = GuardContext {
+            session_id: Arc::from("test-session"),
+            agent_name: Arc::from("test-agent"),
+        };
+
+        // Metadata endpoint should be denied
+        let verdict = guard.evaluate(
+            &ctx,
+            "web_fetch",
+            &serde_json::json!({"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"}),
+            std::path::Path::new("/tmp"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { rule_id: "web.credential_url", .. }));
+
+        // Normal HTTPS URL should be allowed
+        let verdict = guard.evaluate(
+            &ctx,
+            "web_fetch",
+            &serde_json::json!({"url": "https://example.com/"}),
+            std::path::Path::new("/tmp"),
+        );
+        assert_eq!(verdict, GuardVerdict::Allow);
+
+        // HTTP URL should warn at medium
+        let verdict = guard.evaluate(
+            &ctx,
+            "web_fetch",
+            &serde_json::json!({"url": "http://example.com/"}),
+            std::path::Path::new("/tmp"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Warn { rule_id: "web.non_https", .. }));
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn evaluate_dispatches_web_fetch_with_domain_lists() {
+        // With allowlist
+        let guard = ToolGuard::new(
+            TrustLevel::Medium,
+            PathBuf::from("/tmp"),
+            Some(vec!["docs.rs".to_string()]),
+            None,
+        );
+        let ctx = GuardContext {
+            session_id: Arc::from("test-session"),
+            agent_name: Arc::from("test-agent"),
+        };
+
+        let verdict = guard.evaluate(
+            &ctx,
+            "web_fetch",
+            &serde_json::json!({"url": "https://evil.com/"}),
+            std::path::Path::new("/tmp"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { rule_id: "web.domain_allowlist", .. }));
+
+        let verdict = guard.evaluate(
+            &ctx,
+            "web_fetch",
+            &serde_json::json!({"url": "https://docs.rs/"}),
+            std::path::Path::new("/tmp"),
+        );
+        assert_eq!(verdict, GuardVerdict::Allow);
     }
 
     #[cfg(feature = "tool-guard")]
