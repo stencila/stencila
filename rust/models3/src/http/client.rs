@@ -42,12 +42,13 @@ const DEFAULT_CONNECT_TIMEOUT_SECS: u64 = 10;
 /// Default request timeout in seconds (spec §4.8: 120s).
 const DEFAULT_REQUEST_TIMEOUT_SECS: u64 = 120;
 
-/// Default idle timeout for streaming responses in seconds (spec §4.8: 30s).
+/// Default idle timeout for streaming responses in seconds.
 ///
-/// Applied between consecutive byte chunks when no explicit `stream_idle`
-/// timeout is configured. This is a safety net against hung connections
-/// where the server stops sending data without closing the stream.
-const DEFAULT_STREAM_IDLE_TIMEOUT_SECS: u64 = 30;
+/// The spec (§4.8) suggests 30s but reasoning models can legitimately
+/// pause for extended periods during thinking phases before emitting
+/// text chunks. We use 300s as a generous safety net that catches truly
+/// hung connections without interfering with normal operation.
+const DEFAULT_STREAM_IDLE_TIMEOUT_SECS: u64 = 300;
 
 /// An HTTP client configured for LLM provider API calls.
 #[derive(Debug, Clone)]
