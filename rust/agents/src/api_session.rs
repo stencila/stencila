@@ -609,6 +609,21 @@ impl ApiSession {
                                 let delivered =
                                     emitted_ref.load(std::sync::atomic::Ordering::Relaxed);
 
+                                if delivered && error.is_retryable() {
+                                    let label = retry_error_label(&error);
+                                    tracing::warn!(
+                                        error = %error,
+                                        "retryable LLM error after partial content delivery, cannot retry"
+                                    );
+                                    events_ref.emit_info(
+                                        "LLM_NO_RETRY",
+                                        format!(
+                                            "{label}: cannot retry because partial content was already delivered",
+                                        ),
+                                    );
+                                    return Err(error);
+                                }
+
                                 if !delivered
                                     && let Some(delay) = retry_policy.resolve_delay(&error, attempt)
                                 {
@@ -630,6 +645,38 @@ impl ApiSession {
                                     tokio::time::sleep(Duration::from_secs_f64(delay)).await;
                                     attempt += 1;
                                     continue;
+                                }
+
+                                if !delivered && error.is_retryable() {
+                                    let label = retry_error_label(&error);
+                                    if attempt >= retry_policy.max_retries {
+                                        tracing::warn!(
+                                            attempt,
+                                            error = %error,
+                                            "retryable LLM error, retries exhausted"
+                                        );
+                                        events_ref.emit_info(
+                                            "LLM_RETRIES_EXHAUSTED",
+                                            format!(
+                                                "{label}: all {} retries failed",
+                                                retry_policy.max_retries
+                                            ),
+                                        );
+                                    } else {
+                                        // Retry-After exceeds max_delay — provider
+                                        // asked us to wait longer than we're willing to.
+                                        tracing::warn!(
+                                            attempt,
+                                            error = %error,
+                                            "retryable LLM error, Retry-After too large"
+                                        );
+                                        events_ref.emit_info(
+                                            "LLM_NO_RETRY",
+                                            format!(
+                                                "{label}: server requested a retry delay that exceeds the maximum",
+                                            ),
+                                        );
+                                    }
                                 }
 
                                 return Err(error);
