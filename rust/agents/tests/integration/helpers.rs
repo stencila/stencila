@@ -125,6 +125,8 @@ pub async fn live_session(
         0,
         mcp_context,
         None,
+        None,
+        None,
     );
 
     Ok((session, receiver))

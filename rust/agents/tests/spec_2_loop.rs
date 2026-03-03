@@ -527,6 +527,8 @@ fn test_session_with_profile(
         0,
         None,
         None,
+        None,
+        None,
     );
     Ok((session, receiver, client))
 }
@@ -1808,6 +1810,8 @@ async fn run_parity_session(
             0,
             None,
             None,
+            None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -1988,6 +1992,8 @@ async fn abort_cancels_in_flight_tool_execution() -> AgentResult<()> {
             0,
             None,
             None,
+            None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -2080,6 +2086,8 @@ async fn context_usage_warning_emitted_at_80_percent() -> AgentResult<()> {
             SessionConfig::default(),
             huge_prompt,
             0,
+            None,
+            None,
             None,
             None,
         );
@@ -2218,6 +2226,8 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
             SessionConfig::default(),
             prompt.clone(),
             0,
+            None,
+            None,
             None,
             None,
         );
@@ -2431,6 +2441,8 @@ async fn abort_during_llm_call() -> AgentResult<()> {
         0,
         None,
         None,
+        None,
+        None,
     );
 
     let controller = AbortController::new();
@@ -2537,6 +2549,8 @@ async fn shell_timeout_clamped_to_max() -> AgentResult<()> {
             SessionConfig::default(),
             "test".into(),
             0,
+            None,
+            None,
             None,
             None,
         );
@@ -2803,6 +2817,8 @@ async fn streaming_real_incremental_deltas() -> AgentResult<()> {
         0,
         None,
         None,
+        None,
+        None,
     );
 
     session.submit("Stream me").await?;
@@ -2965,6 +2981,8 @@ async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> 
         0,
         None,
         None,
+        None,
+        None,
     );
     session.set_abort_signal(controller.signal());
 
@@ -3099,6 +3117,8 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
         0,
         None,
         None,
+        None,
+        None,
     );
 
     let result = session.submit("Stream error").await;
@@ -3174,6 +3194,8 @@ async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<
         0,
         None,
         None,
+        None,
+        None,
     );
 
     session.submit("describe photo.png").await?;
@@ -3221,6 +3243,8 @@ async fn openai_image_tool_result_excludes_image_from_message() -> AgentResult<(
         SessionConfig::default(),
         "image test".into(),
         0,
+        None,
+        None,
         None,
         None,
     );
@@ -3676,6 +3700,8 @@ async fn soft_abort_during_llm_streaming() -> AgentResult<()> {
         0,
         None,
         None,
+        None,
+        None,
     );
     session.set_abort_signal(controller.signal());
 
@@ -3729,6 +3755,8 @@ async fn soft_abort_during_tool_execution() -> AgentResult<()> {
             SessionConfig::default(),
             "test system prompt".into(),
             0,
+            None,
+            None,
             None,
             None,
         );
@@ -3921,6 +3949,8 @@ async fn sequential_multi_tool_abort_race_backfills_results() -> AgentResult<()>
             0,
             None,
             None,
+            None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -3990,6 +4020,8 @@ async fn parallel_multi_tool_abort_race_has_correct_result_count() -> AgentResul
             0,
             None,
             None,
+            None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -4055,6 +4087,8 @@ async fn hard_abort_sequential_multi_tool_has_no_orphan_tool_calls() -> AgentRes
             0,
             None,
             None,
+            None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -4071,6 +4105,274 @@ async fn hard_abort_sequential_multi_tool_has_no_orphan_tool_calls() -> AgentRes
 
     session.submit("Run three tools").await?;
     assert_eq!(session.state(), SessionState::Closed);
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Tool guard wiring tests (Phase 5)
+// ---------------------------------------------------------------------------
+
+#[cfg(feature = "tool-guard")]
+#[tokio::test]
+async fn guard_blocks_destructive_shell_command() -> AgentResult<()> {
+    use stencila_agents::tool_guard::{GuardContext, ToolGuard, TrustLevel};
+
+    let profile = AnthropicProfile::new("test-model", 600_000)?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![shell_call("rm -rf /")]),
+        text_response("ok"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+
+    let guard = Arc::new(ToolGuard::new(
+        TrustLevel::Medium,
+        std::path::PathBuf::from("/tmp"),
+        None,
+        None,
+    ));
+    let ctx = Arc::new(GuardContext::new("test-guard-session", "test-guard-agent"));
+
+    let (mut session, mut rx) = ApiSession::new(
+        Box::new(profile),
+        env,
+        client.clone(),
+        SessionConfig::default(),
+        "test system prompt".into(),
+        0,
+        None,
+        None,
+        Some(guard),
+        Some(ctx),
+    );
+
+    session.submit("remove everything").await?;
+
+    // Drain events and check for BLOCKED output in ToolCallEnd event
+    let events = drain_events(&mut rx).await;
+    let found_blocked = events.iter().any(|event| {
+        event.kind == EventKind::ToolCallEnd
+            && event
+                .data
+                .get("output")
+                .and_then(|v| v.as_str())
+                .is_some_and(|s| s.contains("[BLOCKED by"))
+    });
+    assert!(found_blocked, "Expected guard to block destructive command");
+
+    Ok(())
+}
+
+#[cfg(feature = "tool-guard")]
+#[tokio::test]
+async fn guard_warn_appends_to_output() -> AgentResult<()> {
+    use stencila_agents::tool_guard::{GuardContext, ToolGuard, TrustLevel};
+
+    // `rm -r ./foo` at High trust → medium-confidence match → Warn
+    // The mock env will execute the command and return a result,
+    // and the guard warning should be appended to the output.
+    let profile = AnthropicProfile::new("test-model", 600_000)?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![shell_call("rm -r ./foo")]),
+        text_response("ok"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+
+    let guard = Arc::new(ToolGuard::new(
+        TrustLevel::High,
+        std::path::PathBuf::from("/tmp"),
+        None,
+        None,
+    ));
+    let ctx = Arc::new(GuardContext::new("test-warn-session", "test-warn-agent"));
+
+    let (mut session, mut rx) = ApiSession::new(
+        Box::new(profile),
+        env,
+        client.clone(),
+        SessionConfig::default(),
+        "test system prompt".into(),
+        0,
+        None,
+        None,
+        Some(guard),
+        Some(ctx),
+    );
+
+    session.submit("delete foo").await?;
+
+    // Drain events — the tool should execute but have a warning appended
+    let events = drain_events(&mut rx).await;
+    let found_warning = events.iter().any(|event| {
+        event.kind == EventKind::ToolCallEnd
+            && event
+                .data
+                .get("output")
+                .and_then(|v| v.as_str())
+                .is_some_and(|s| s.contains("[GUARD WARNING:"))
+    });
+    let found_blocked = events.iter().any(|event| {
+        event.kind == EventKind::ToolCallEnd
+            && event
+                .data
+                .get("output")
+                .and_then(|v| v.as_str())
+                .is_some_and(|s| s.contains("[BLOCKED by"))
+    });
+    assert!(
+        found_warning,
+        "Expected guard warning to be appended to tool output"
+    );
+    assert!(!found_blocked, "Warn should not block the tool");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn no_guard_allows_all_tools() -> AgentResult<()> {
+    // Without a guard, tools execute normally
+    let profile = TestProfile::new()?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![shell_call("rm -rf /")]),
+        text_response("ok"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+
+    let (mut session, mut rx) = ApiSession::new(
+        Box::new(profile),
+        env,
+        client.clone(),
+        SessionConfig::default(),
+        "test system prompt".into(),
+        0,
+        None,
+        None,
+        None,  // No guard
+        None,  // No guard context
+    );
+
+    session.submit("remove everything").await?;
+
+    // Without a guard, the tool should have been executed (not blocked)
+    let events = drain_events(&mut rx).await;
+    let found_blocked = events.iter().any(|event| {
+        event.kind == EventKind::ToolCallEnd
+            && event
+                .data
+                .get("output")
+                .and_then(|v| v.as_str())
+                .is_some_and(|s| s.contains("[BLOCKED by"))
+    });
+    assert!(
+        !found_blocked,
+        "Without guard, tool should not be blocked"
+    );
+
+    Ok(())
+}
+
+#[cfg(feature = "tool-guard")]
+#[tokio::test]
+async fn guard_without_context_still_enforces() -> AgentResult<()> {
+    use stencila_agents::tool_guard::{ToolGuard, TrustLevel};
+
+    let profile = AnthropicProfile::new("test-model", 600_000)?;
+    let client = Arc::new(MockClient::new(vec![
+        tool_call_response("", vec![shell_call("rm -rf /")]),
+        text_response("ok"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+
+    let guard = Arc::new(ToolGuard::new(
+        TrustLevel::Medium,
+        std::path::PathBuf::from("/tmp"),
+        None,
+        None,
+    ));
+
+    let (mut session, mut rx) = ApiSession::new(
+        Box::new(profile),
+        env,
+        client.clone(),
+        SessionConfig::default(),
+        "test system prompt".into(),
+        0,
+        None,
+        None,
+        Some(guard),
+        None, // guard_context deliberately omitted
+    );
+
+    session.submit("remove everything").await?;
+
+    let events = drain_events(&mut rx).await;
+    let found_blocked = events.iter().any(|event| {
+        event.kind == EventKind::ToolCallEnd
+            && event
+                .data
+                .get("output")
+                .and_then(|v| v.as_str())
+                .is_some_and(|s| s.contains("[BLOCKED by"))
+    });
+    assert!(
+        found_blocked,
+        "Guard with no context should still block via fallback"
+    );
+
+    Ok(())
+}
+
+#[cfg(feature = "tool-guard")]
+#[tokio::test]
+async fn guard_propagated_to_subagent_manager() -> AgentResult<()> {
+    use stencila_agents::tool_guard::{ToolGuard, TrustLevel};
+
+    let profile = AnthropicProfile::new("test-model", 600_000)?;
+    let client = Arc::new(MockClient::new(vec![text_response("ok")]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+
+    let guard = Arc::new(ToolGuard::new(
+        TrustLevel::Medium,
+        std::path::PathBuf::from("/tmp"),
+        None,
+        None,
+    ));
+
+    // With guard_context=Some
+    let (session, _rx) = ApiSession::new(
+        Box::new(profile),
+        env.clone(),
+        client.clone(),
+        SessionConfig::default(),
+        "test".into(),
+        0,
+        None,
+        None,
+        Some(guard.clone()),
+        Some(Arc::new(stencila_agents::tool_guard::GuardContext::new(
+            "s1", "agent1",
+        ))),
+    );
+    assert!(session.subagent_has_tool_guard());
+
+    // With guard_context=None — should still propagate after the fix
+    let profile2 = AnthropicProfile::new("test-model", 600_000)?;
+    let (session2, _rx2) = ApiSession::new(
+        Box::new(profile2),
+        env,
+        client.clone(),
+        SessionConfig::default(),
+        "test".into(),
+        0,
+        None,
+        None,
+        Some(guard),
+        None,
+    );
+    assert!(
+        session2.subagent_has_tool_guard(),
+        "Guard should propagate to subagent manager even without guard_context"
+    );
 
     Ok(())
 }

@@ -1271,31 +1271,39 @@ pub struct GuardContext {
 
 `ToolGuard::evaluate(context, tool_name, args, working_dir)` dispatches to the appropriate guard implementation and returns `GuardVerdict`.
 
-### 8.2 Per-Executor Injection
+### 8.2 Centralized Session-Level Injection
 
-Guarded tools expose:
+Guard evaluation is centralized in `ApiSession`'s `execute_tool` function, which runs before any tool executor is invoked. This avoids wrapping every individual tool executor and changing every profile constructor signature.
 
-```rust
-pub fn executor_with_guard(
-    guard: Option<Arc<ToolGuard>>,
-    context: Option<Arc<GuardContext>>,
-) -> ToolExecutorFn
-```
-
-Shell additionally exposes:
+`ApiSession` stores the guard and context as optional `Arc` fields:
 
 ```rust
-pub fn executor_with_guard_and_timeout(
-    guard: Option<Arc<ToolGuard>>,
-    context: Option<Arc<GuardContext>>,
-    default_timeout_ms: u64,
-    max_timeout_ms: u64,
-) -> ToolExecutorFn
+pub struct ApiSession {
+    // ...existing fields...
+    tool_guard: Option<Arc<ToolGuard>>,
+    guard_context: Option<Arc<GuardContext>>,
+}
 ```
 
-Provider profiles and registration helpers must thread both `guard` and `context` into guarded executors. `glob` and `list_dir` remain unguarded in the current scope.
+The `execute_tool` free function accepts these as parameters and evaluates the guard before calling the tool's executor. If a guard is present but `guard_context` is `None`, a fallback context with `"unknown"` attribution is synthesized so enforcement is never silently skipped.
 
-This wiring is required at both helper and provider-constructor layers. Updating `register_*_tools` alone is insufficient because provider profiles currently register many tools inline. `AnthropicProfile::new`, `OpenAiProfile::new`, and `GeminiProfile::new` must accept `Option<Arc<ToolGuard>>` + `Option<Arc<GuardContext>>` and switch guarded tools from `foo::executor()` to `foo::executor_with_guard(guard.clone(), context.clone())` (and shell to `executor_with_guard_and_timeout(...)`) so enforcement is active at runtime.
+```
+execute_tool(tool_call, registry, env, events, trunc_config, tool_guard, guard_context)
+    → guard check (Deny/Warn/Allow)
+    → tool executor (if not Deny)
+    → append warning to output (if Warn)
+```
+
+A shared helper preserves the `ToolOutput` variant when appending warnings:
+
+```rust
+fn append_guard_warning(output: ToolOutput, warning_text: &str) -> ToolOutput
+```
+
+- `ToolOutput::Text`: appends warning text to the string.
+- `ToolOutput::ImageWithText`: appends warning text to the `text` field; image bytes and media type are preserved unchanged.
+
+Tool modules, registration helpers, and provider profile constructors are **not modified** — they continue to expose and use their existing unguarded `executor()` functions. `glob` and `list_dir` are naturally unguarded because `ToolGuard::evaluate` returns `Allow` for unrecognized tool names.
 
 ### 8.3 Session and Subagent Propagation
 
@@ -1461,11 +1469,15 @@ OS-level sandboxing (bubblewrap, Landlock, etc.) is out of scope for this spec. 
 
 ### Integration
 
-- [ ] Guarded tools expose `executor_with_guard(...)`.
-- [ ] Shell exposes `executor_with_guard_and_timeout(...)`.
-- [ ] `register_core_tools`, `register_gemini_tools`, and `register_openai_tools` thread guard + context to guarded executors.
-- [ ] `AnthropicProfile::new`, `OpenAiProfile::new`, and `GeminiProfile::new` accept `Option<Arc<ToolGuard>>` + `Option<Arc<GuardContext>>` and use guarded executor constructors (not `foo::executor()` for guarded tools).
-- [ ] Subagents share policy `Arc<ToolGuard>` and use per-session `GuardContext`.
+- [ ] `ApiSession` stores `Option<Arc<ToolGuard>>` and `Option<Arc<GuardContext>>`.
+- [ ] `execute_tool` evaluates guard before calling the tool executor; synthesizes fallback context if guard is present but context is missing.
+- [ ] `Deny` returns formatted text output (not `is_error`) with `rule_id`, `reason`, `suggestion`.
+- [ ] `Warn` executes the tool and appends warning to the output (both `Text` and `ImageWithText` variants).
+- [ ] `append_guard_warning` preserves `ToolOutput` variant.
+- [ ] `create_api_session_inner` builds `ToolGuard` from agent definition and generates a shared session ID for events and guard context.
+- [ ] Subagents share policy `Arc<ToolGuard>` and use per-session `GuardContext` with deterministic child attribution (`"{parent}/subagent-{id}"`).
+- [ ] Child session ID is shared between event emitter and guard context (same string passed to both `ApiSession::new` and `GuardContext::new`).
+- [ ] Both feature-enabled and feature-disabled builds compile (tool modules, profiles, and registration helpers unchanged).
 - [ ] Info-level event emitted when a child agent's declared `trustLevel` differs from the inherited guard's level.
 
 ### Audit

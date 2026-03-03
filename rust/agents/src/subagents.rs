@@ -255,6 +255,11 @@ pub struct SubAgentManager {
     parent_config: SessionConfig,
     /// Counter for generating unique agent IDs.
     next_id: u32,
+    /// Tool guard shared from parent session. Child sessions share the same
+    /// guard policy.
+    tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
+    /// Parent agent name for deriving child guard context attribution.
+    parent_agent_name: Option<Arc<str>>,
     /// MCP connection pool shared with child sessions.
     #[cfg(any(feature = "mcp", feature = "codemode"))]
     mcp_pool: Option<Arc<stencila_mcp::ConnectionPool>>,
@@ -292,11 +297,27 @@ impl SubAgentManager {
             current_depth,
             parent_config,
             next_id: 0,
+            tool_guard: None,
+            parent_agent_name: None,
             #[cfg(any(feature = "mcp", feature = "codemode"))]
             mcp_pool: None,
             #[cfg(feature = "codemode")]
             dirty_tracker: None,
         }
+    }
+
+    /// Set the tool guard for sharing with child sessions.
+    pub fn set_tool_guard(
+        &mut self,
+        guard: Arc<crate::tool_guard::ToolGuard>,
+        parent_agent_name: Arc<str>,
+    ) {
+        self.tool_guard = Some(guard);
+        self.parent_agent_name = Some(parent_agent_name);
+    }
+
+    pub fn has_tool_guard(&self) -> bool {
+        self.tool_guard.is_some()
     }
 
     /// Set the MCP pool for sharing with child sessions.
@@ -472,6 +493,24 @@ impl SubAgentManager {
         #[cfg(not(any(feature = "mcp", feature = "codemode")))]
         let child_mcp_context: Option<crate::prompts::McpContext> = None;
 
+        // Generate a shared session ID for the child so that events and
+        // guard context use the same value (spec §5.4 / §0.6).
+        let child_id = self.next_id + 1;
+        let child_session_id = format!("subagent-{child_id}");
+
+        // Build child guard context with attribution to parent
+        let child_guard = self.tool_guard.clone();
+        let child_guard_context = child_guard.as_ref().map(|_| {
+            let parent_name = self
+                .parent_agent_name
+                .as_deref()
+                .unwrap_or("unknown");
+            Arc::new(crate::tool_guard::GuardContext::new(
+                child_session_id.as_str(),
+                format!("{parent_name}/subagent-{child_id}").as_str(),
+            ))
+        });
+
         // Create the child session. The receiver is dropped immediately —
         // the emitter silently discards events when no receiver exists,
         // avoiding unbounded memory growth from unconsumed child events.
@@ -483,7 +522,9 @@ impl SubAgentManager {
             system_prompt,
             self.current_depth + 1,
             child_mcp_context,
-            None,
+            Some(child_session_id),
+            child_guard,
+            child_guard_context,
         );
 
         // Set up abort controller for the child

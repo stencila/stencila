@@ -94,6 +94,26 @@ pub struct GuardContext {
     pub agent_name: Arc<str>,
 }
 
+impl GuardContext {
+    /// Create a new guard context.
+    pub fn new(session_id: impl Into<Arc<str>>, agent_name: impl Into<Arc<str>>) -> Self {
+        Self {
+            session_id: session_id.into(),
+            agent_name: agent_name.into(),
+        }
+    }
+
+    /// Fallback context used when a guard is present but no explicit context
+    /// was provided. Ensures enforcement is never silently skipped due to
+    /// missing attribution metadata.
+    pub(crate) fn fallback() -> Self {
+        Self {
+            session_id: Arc::from("unknown"),
+            agent_name: Arc::from("unknown"),
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // ToolGuard
 // ---------------------------------------------------------------------------
@@ -106,8 +126,11 @@ pub struct ToolGuard {
     trust_level: TrustLevel,
     #[allow(dead_code)]
     workspace_root: PathBuf,
+    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     shell_guard: shell::ShellToolGuard,
+    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     file_guard: file::FileToolGuard,
+    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     web_guard: web::WebToolGuard,
     // Audit will be added in a later phase:
     // audit_tx: Option<mpsc::Sender<AuditEvent>>,
@@ -122,10 +145,10 @@ impl std::fmt::Debug for ToolGuard {
     }
 }
 
-/// Tool names that the shell guard handles.
+#[cfg(feature = "tool-guard")]
 const SHELL_TOOL: &str = "shell";
 
-/// Tool names that the file guard handles.
+#[cfg(feature = "tool-guard")]
 const FILE_TOOLS: &[&str] = &[
     "read_file",
     "read_many_files",
@@ -135,7 +158,7 @@ const FILE_TOOLS: &[&str] = &[
     "grep",
 ];
 
-/// Tool name that the web guard handles.
+#[cfg(feature = "tool-guard")]
 const WEB_TOOL: &str = "web_fetch";
 
 impl ToolGuard {
@@ -236,10 +259,7 @@ mod tests {
     #[test]
     fn evaluate_returns_allow_for_unknown_tool() {
         let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
-        let ctx = GuardContext {
-            session_id: Arc::from("test-session"),
-            agent_name: Arc::from("test-agent"),
-        };
+        let ctx = GuardContext::new("test-session", "test-agent");
         let verdict = guard.evaluate(
             &ctx,
             "unknown_tool",
@@ -253,10 +273,7 @@ mod tests {
     #[test]
     fn evaluate_dispatches_shell_tool() {
         let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
-        let ctx = GuardContext {
-            session_id: Arc::from("test-session"),
-            agent_name: Arc::from("test-agent"),
-        };
+        let ctx = GuardContext::new("test-session", "test-agent");
         let verdict = guard.evaluate(
             &ctx,
             "shell",
@@ -270,10 +287,7 @@ mod tests {
     #[test]
     fn evaluate_dispatches_web_fetch() {
         let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
-        let ctx = GuardContext {
-            session_id: Arc::from("test-session"),
-            agent_name: Arc::from("test-agent"),
-        };
+        let ctx = GuardContext::new("test-session", "test-agent");
 
         // Metadata endpoint should be denied
         let verdict = guard.evaluate(
@@ -313,10 +327,7 @@ mod tests {
             Some(vec!["docs.rs".to_string()]),
             None,
         );
-        let ctx = GuardContext {
-            session_id: Arc::from("test-session"),
-            agent_name: Arc::from("test-agent"),
-        };
+        let ctx = GuardContext::new("test-session", "test-agent");
 
         let verdict = guard.evaluate(
             &ctx,
@@ -344,10 +355,7 @@ mod tests {
             None,
             None,
         );
-        let ctx = GuardContext {
-            session_id: Arc::from("test-session"),
-            agent_name: Arc::from("test-agent"),
-        };
+        let ctx = GuardContext::new("test-session", "test-agent");
 
         // read_file to system path should be denied
         let verdict = guard.evaluate(

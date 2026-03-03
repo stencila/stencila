@@ -183,6 +183,11 @@ pub struct ApiSession {
     /// not a practical concern.
     image_attachments: HashMap<String, ImageAttachment>,
 
+    /// Tool guard policy for this session. Shared via `Arc` with child sessions.
+    tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
+    /// Per-session guard context for audit attribution.
+    guard_context: Option<Arc<crate::tool_guard::GuardContext>>,
+
     /// MCP connection pool for server lifecycle and subagent sharing.
     #[cfg(any(feature = "mcp", feature = "codemode"))]
     mcp_pool: Option<Arc<stencila_mcp::ConnectionPool>>,
@@ -232,6 +237,8 @@ impl ApiSession {
         current_depth: u32,
         mcp_context: Option<crate::prompts::McpContext>,
         session_id: Option<String>,
+        tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
+        guard_context: Option<Arc<crate::tool_guard::GuardContext>>,
     ) -> (Self, EventReceiver) {
         let (emitter, receiver) = match session_id {
             Some(id) => events::channel_with_id(id),
@@ -276,6 +283,17 @@ impl ApiSession {
             config.clone(),
         );
 
+        // Propagate tool guard to subagent manager for child session sharing.
+        // Use the guard context's agent name when available, falling back to
+        // "unknown" so enforcement is never silently skipped in subagents.
+        if let Some(guard) = &tool_guard {
+            let parent_name = guard_context
+                .as_ref()
+                .map(|c| Arc::clone(&c.agent_name))
+                .unwrap_or_else(|| Arc::from("unknown"));
+            subagent_manager.set_tool_guard(Arc::clone(guard), parent_name);
+        }
+
         // Apply MCP context: store pool for lifecycle management and
         // propagate to subagent manager for child session sharing.
         #[cfg(any(feature = "mcp", feature = "codemode"))]
@@ -314,6 +332,8 @@ impl ApiSession {
             tool_call_signatures: VecDeque::new(),
             subagent_manager,
             image_attachments: HashMap::new(),
+            tool_guard,
+            guard_context,
             #[cfg(any(feature = "mcp", feature = "codemode"))]
             mcp_pool,
             #[cfg(any(feature = "mcp", feature = "codemode"))]
@@ -469,6 +489,22 @@ impl ApiSession {
         tool: crate::registry::RegisteredTool,
     ) -> crate::error::AgentResult<()> {
         self.profile.tool_registry_mut().register(tool)
+    }
+
+    /// The tool guard for this session, if set.
+    #[must_use]
+    pub fn tool_guard(&self) -> Option<&Arc<crate::tool_guard::ToolGuard>> {
+        self.tool_guard.as_ref()
+    }
+
+    /// The guard context for this session, if set.
+    #[must_use]
+    pub fn guard_context(&self) -> Option<&Arc<crate::tool_guard::GuardContext>> {
+        self.guard_context.as_ref()
+    }
+
+    pub fn subagent_has_tool_guard(&self) -> bool {
+        self.subagent_manager.has_tool_guard()
     }
 
     /// The MCP connection pool, if MCP/codemode is active.
@@ -1202,10 +1238,12 @@ impl ApiSession {
         let registry = self.profile.tool_registry();
         let events = &self.events;
         let trunc_config = &self.truncation_config;
+        let guard = self.tool_guard.as_ref();
+        let guard_ctx = self.guard_context.as_ref();
 
         let futs: Vec<_> = tool_calls
             .iter()
-            .map(|tc| execute_tool(tc, registry, env, events, trunc_config))
+            .map(|tc| execute_tool(tc, registry, env, events, trunc_config, guard, guard_ctx))
             .collect();
 
         let pairs = futures::future::join_all(futs).await;
@@ -1301,6 +1339,8 @@ impl ApiSession {
             &*self.execution_env,
             &self.events,
             &self.truncation_config,
+            self.tool_guard.as_ref(),
+            self.guard_context.as_ref(),
         )
         .await
     }
@@ -1729,6 +1769,8 @@ async fn execute_tool(
     env: &dyn ExecutionEnvironment,
     events: &EventEmitter,
     trunc_config: &TruncationConfig,
+    tool_guard: Option<&Arc<crate::tool_guard::ToolGuard>>,
+    guard_context: Option<&Arc<crate::tool_guard::GuardContext>>,
 ) -> (ToolResult, Option<(String, ImageAttachment)>) {
     events.emit_tool_call_start(&tool_call.name, &tool_call.id, &tool_call.arguments);
 
@@ -1763,6 +1805,51 @@ async fn execute_tool(
         );
     }
 
+    // GUARD CHECK — evaluate before executing the tool.
+    // If a guard is present but context is missing, synthesize a fallback so
+    // enforcement is never silently skipped due to missing attribution.
+    let guard_warn = if let Some(guard) = tool_guard {
+        let fallback;
+        let ctx = match guard_context {
+            Some(c) => c.as_ref(),
+            None => {
+                fallback = crate::tool_guard::GuardContext::fallback();
+                &fallback
+            }
+        };
+        let working_dir = std::path::Path::new(env.working_directory());
+        match guard.evaluate(ctx, &tool_call.name, &tool_call.arguments, working_dir) {
+            crate::tool_guard::GuardVerdict::Deny {
+                reason,
+                suggestion,
+                rule_id,
+            } => {
+                let deny_msg = format!(
+                    "[BLOCKED by {rule_id}] {reason}\n\nSuggestion: {suggestion}"
+                );
+                events.emit_tool_call_end(&tool_call.id, &deny_msg);
+                return (
+                    ToolResult {
+                        tool_call_id: tool_call.id.clone(),
+                        content: Value::String(deny_msg),
+                        is_error: false,
+                    },
+                    None,
+                );
+            }
+            crate::tool_guard::GuardVerdict::Warn {
+                reason,
+                suggestion,
+                rule_id,
+            } => Some(format!(
+                "\n\n⚠️  [GUARD WARNING: {rule_id}] {reason}\nSuggestion: {suggestion}"
+            )),
+            crate::tool_guard::GuardVerdict::Allow => None,
+        }
+    } else {
+        None
+    };
+
     let result = match registry.get(&tool_call.name) {
         Some(tool) => tool.execute(tool_call.arguments.clone(), env).await,
         None => Err(AgentError::UnknownTool {
@@ -1772,6 +1859,11 @@ async fn execute_tool(
 
     match result {
         Ok(output) => {
+            let output = if let Some(warning_text) = guard_warn {
+                append_guard_warning(output, &warning_text)
+            } else {
+                output
+            };
             let text = output.as_text();
             // Full output in event (spec 2.9: TOOL_CALL_END has untruncated output)
             events.emit_tool_call_end(&tool_call.id, text);
@@ -1809,6 +1901,66 @@ async fn execute_tool(
     }
 }
 
+/// Append a guard warning to tool output, preserving the output variant.
+fn append_guard_warning(output: ToolOutput, warning_text: &str) -> ToolOutput {
+    match output {
+        ToolOutput::Text(mut text) => {
+            text.push_str(warning_text);
+            ToolOutput::Text(text)
+        }
+        ToolOutput::ImageWithText {
+            mut text,
+            data,
+            media_type,
+        } => {
+            text.push_str(warning_text);
+            ToolOutput::ImageWithText {
+                text,
+                data,
+                media_type,
+            }
+        }
+    }
+}
+
 // Re-export for backward compatibility — the function lives in `prompts`
 // where it belongs alongside the other prompt-building helpers.
 pub use crate::prompts::build_system_prompt;
+
+#[cfg(test)]
+mod guard_wiring_tests {
+    use super::*;
+    use crate::registry::ToolOutput;
+
+    #[test]
+    fn append_guard_warning_text() {
+        let output = ToolOutput::Text("result".into());
+        let warned = append_guard_warning(output, "\n\n⚠️ warning");
+        match warned {
+            ToolOutput::Text(s) => assert!(s.ends_with("⚠️ warning")),
+            _ => panic!("expected Text variant"),
+        }
+    }
+
+    #[test]
+    fn append_guard_warning_image_with_text() {
+        let output = ToolOutput::ImageWithText {
+            text: "image info".into(),
+            data: vec![1, 2, 3],
+            media_type: "image/png".into(),
+        };
+        let warned = append_guard_warning(output, "\n\n⚠️ warning");
+        match warned {
+            ToolOutput::ImageWithText {
+                text,
+                data,
+                media_type,
+            } => {
+                assert!(text.ends_with("⚠️ warning"));
+                assert_eq!(data, vec![1, 2, 3]);
+                assert_eq!(media_type, "image/png");
+            }
+            _ => panic!("expected ImageWithText variant"),
+        }
+    }
+}

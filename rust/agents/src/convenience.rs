@@ -1,6 +1,7 @@
 //! High-level convenience functions for callers that don't want to manage
 //! agent discovery etc manually.
 
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use eyre::Result;
@@ -14,6 +15,7 @@ use crate::execution::LocalExecutionEnvironment;
 use crate::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts;
 use crate::routing::{self, RoutingDecision, SessionRoute};
+use crate::tool_guard::{GuardContext, ToolGuard, TrustLevel};
 use crate::types::SessionConfig;
 
 /// Options for [`create_agent`].
@@ -259,7 +261,7 @@ pub async fn create_session(
                 })
             })?;
             let (session, event_receiver) =
-                create_api_session_inner(provider, model, api_client, config).await?;
+                create_api_session_inner(provider, model, api_client, config, &agent).await?;
             emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Api(session), event_receiver))
         }
@@ -273,6 +275,7 @@ async fn create_api_session_inner(
     model_name: &str,
     client: stencila_models3::client::Client,
     config: SessionConfig,
+    agent: &AgentInstance,
 ) -> AgentResult<(ApiSession, EventReceiver)> {
     let max_timeout = config.max_command_timeout_ms;
 
@@ -295,6 +298,25 @@ async fn create_api_session_inner(
     let env = Arc::new(LocalExecutionEnvironment::new("."));
     let llm_client = Arc::new(Models3Client::new(client));
 
+    // Build tool guard from agent definition
+    let workspace_root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    let trust_level = TrustLevel::from_schema(agent.trust_level.as_deref());
+    let allowed_domains = agent.options.allowed_domains.clone();
+    let disallowed_domains = agent.options.disallowed_domains.clone();
+    let tool_guard = Arc::new(ToolGuard::new(
+        trust_level,
+        workspace_root,
+        allowed_domains,
+        disallowed_domains,
+    ));
+
+    // Generate session ID up front so guard context and events share the same value
+    let session_id = uuid::Uuid::new_v4().to_string();
+    let guard_context = Arc::new(GuardContext::new(
+        session_id.as_str(),
+        agent.name.as_str(),
+    ));
+
     let (system_prompt, mcp_context) =
         prompts::build_system_prompt(&mut *profile, &*env, &config).await?;
 
@@ -306,7 +328,9 @@ async fn create_api_session_inner(
         system_prompt,
         0,
         mcp_context,
-        None,
+        Some(session_id),
+        Some(tool_guard),
+        Some(guard_context),
     );
 
     Ok((session, event_receiver))

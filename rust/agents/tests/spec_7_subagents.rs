@@ -399,6 +399,8 @@ fn test_session_with_config(
         0,
         None,
         None,
+        None,
+        None,
     );
     Ok((session, receiver, client, env))
 }
@@ -1201,6 +1203,8 @@ async fn session_auto_registers_subagent_tools_when_depth_allows() -> AgentResul
         config,
         "test".into(),
         0,
+        None,
+        None,
         None,
         None,
     );
