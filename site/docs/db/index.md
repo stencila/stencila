@@ -3,7 +3,11 @@ title: Workspace Database
 description: Overview of the workspace database and how to sync it across collaborators
 ---
 
-The workspace database (`.stencila/db.sqlite3`) is a SQLite database that stores state for your Stencila workspace. Currently it holds workflow run history (execution results, node metrics, context snapshots, artifacts, and logs). The database is organized by domain, so additional domains may be added in the future.
+The workspace database (`.stencila/db.sqlite3`) is a SQLite database that stores state for your Stencila workspace. It is organized by domain and currently holds:
+
+- **Workflow run history** — execution results, node metrics, context snapshots, artifacts, and logs.
+
+- **Agent tool guard events** — `Warn` and `Deny` verdicts from the tool guard system are recorded for post-hoc review. Each event captures the session, agent, trust level, tool name, input, matched segment, verdict, rule, and optional reason/suggestion. `Allow` verdicts are not recorded.
 
 The database lives inside the `.stencila/` directory and is excluded from git by default. This keeps your repository clean but means collaborators don't automatically get your database when they clone the project. The **database sync** system solves this by letting you push and pull database state through Stencila Cloud, with git tracking a small manifest file that describes how to reconstruct the database.
 
