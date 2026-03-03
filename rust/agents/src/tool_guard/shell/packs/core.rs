@@ -99,11 +99,15 @@ fn chown_recursive_validator(cmd: &str) -> bool {
 }
 
 /// Sensitive paths for the `sensitive_read` rule.
-const SENSITIVE_READ_TARGETS: &[&str] = &["/etc/shadow", "/etc/gshadow", "/etc/sudoers"];
+///
+/// Shared with the safe-pattern validator in `mod.rs` so that read commands
+/// targeting these paths are excluded from the safe list and fall through to
+/// the destructive `sensitive_read` check.
+pub(super) const SENSITIVE_READ_TARGETS: &[&str] = &["/etc/shadow", "/etc/gshadow", "/etc/sudoers"];
 
-const SENSITIVE_READ_PREFIXES: &[&str] = &["~/.ssh/", "~/.gnupg/", "~/.aws/", "~/.config/gcloud/"];
+pub(super) const SENSITIVE_READ_PREFIXES: &[&str] = &["~/.ssh/", "~/.gnupg/", "~/.aws/", "~/.config/gcloud/"];
 
-const SENSITIVE_READ_BASENAMES: &[&str] = &[".env", ".netrc"];
+pub(super) const SENSITIVE_READ_BASENAMES: &[&str] = &[".env", ".netrc"];
 
 fn sensitive_read_validator(cmd: &str) -> bool {
     let tokens = tokenize_or_bail!(cmd, true);

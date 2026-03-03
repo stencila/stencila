@@ -169,6 +169,38 @@ fn find_all_dangerous_flags() -> &'static [&'static str] {
 }
 
 // ---------------------------------------------------------------------------
+// Sensitive path validator for safe read commands
+// ---------------------------------------------------------------------------
+
+/// Safe-pattern validator for read commands (`cat`, `bat`, `head`, etc.).
+///
+/// Returns `false` when any argument targets a sensitive path, so the
+/// command falls through to the `sensitive_read` destructive pattern.
+///
+/// Re-uses the canonical sensitive-path constants from `core.rs` to avoid
+/// drift between the safe-pattern exclusion and the destructive check.
+fn read_not_sensitive_validator(cmd: &str) -> bool {
+    use core::{SENSITIVE_READ_BASENAMES, SENSITIVE_READ_PREFIXES, SENSITIVE_READ_TARGETS};
+
+    let tokens = tokenize_or_bail!(cmd, false);
+    let first = tokens.first().map(|t| t.value.as_str()).unwrap_or("");
+    !tokens.iter().skip(1).any(|t| {
+        let v = t.value.as_str();
+        if v.starts_with('-') || v == first {
+            return false;
+        }
+        if SENSITIVE_READ_TARGETS.contains(&v) {
+            return true;
+        }
+        if SENSITIVE_READ_PREFIXES.iter().any(|p| v.starts_with(p)) {
+            return true;
+        }
+        let basename = v.rsplit('/').next().unwrap_or(v);
+        SENSITIVE_READ_BASENAMES.contains(&basename)
+    })
+}
+
+// ---------------------------------------------------------------------------
 // Safe pattern catalog (§3.3)
 // ---------------------------------------------------------------------------
 
@@ -177,14 +209,18 @@ fn find_all_dangerous_flags() -> &'static [&'static str] {
 /// Each entry uses the standard form `^command\b[^|><]*$` to exclude
 /// pipe and redirection operators. The `safe_pattern!` macro generates
 /// a `PatternRule` with empty reason/suggestion and `High` confidence.
+///
+/// Read commands (`cat`, `bat`, `head`, `tail`, `less`, `more`) have a
+/// validator that rejects sensitive paths, allowing the `sensitive_read`
+/// destructive pattern to catch them.
 pub static SAFE_PATTERNS: &[PatternRule] = &[
     // Read-only filesystem
     safe_pattern!("ls",         r"^ls\b[^|><]*$"),
-    safe_pattern!("cat",        r"^cat\b[^|><]*$"),
-    safe_pattern!("bat",        r"^bat\b[^|><]*$"),
-    safe_pattern!("head",       r"^head\b[^|><]*$"),
-    safe_pattern!("tail",       r"^tail\b[^|><]*$"),
-    safe_pattern!("less",       r"^less\b[^|><]*$"),
+    safe_pattern!("cat",        r"^cat\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("bat",        r"^bat\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("head",       r"^head\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("tail",       r"^tail\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("less",       r"^less\b[^|><]*$", read_not_sensitive_validator),
     safe_pattern!("wc",         r"^wc\b[^|><]*$"),
     safe_pattern!("file",       r"^file\b[^|><]*$"),
     safe_pattern!("stat",       r"^stat\b[^|><]*$"),
@@ -456,6 +492,26 @@ mod tests {
             "expected suffix {}, got: {full}",
             first_rule.id,
         );
+    }
+
+    #[test]
+    fn read_not_sensitive_validator_rejects_sensitive_paths() {
+        // Sensitive paths should be rejected (validator returns false = not safe)
+        assert!(!read_not_sensitive_validator("cat /etc/shadow"));
+        assert!(!read_not_sensitive_validator("bat ~/.ssh/id_rsa"));
+        assert!(!read_not_sensitive_validator("head ~/.aws/credentials"));
+        assert!(!read_not_sensitive_validator("tail ~/.gnupg/trustdb.gpg"));
+        assert!(!read_not_sensitive_validator("cat .env"));
+        assert!(!read_not_sensitive_validator("less /path/to/.netrc"));
+        assert!(!read_not_sensitive_validator("cat ~/.config/gcloud/creds.json"));
+
+        // Non-sensitive paths should be allowed (validator returns true = safe)
+        assert!(read_not_sensitive_validator("cat README.md"));
+        assert!(read_not_sensitive_validator("bat main.rs"));
+        assert!(read_not_sensitive_validator("head src/lib.rs"));
+        assert!(read_not_sensitive_validator("tail -f logfile.txt"));
+        assert!(read_not_sensitive_validator("less Cargo.toml"));
+        assert!(read_not_sensitive_validator("cat -n main.rs"));
     }
 
     #[test]
