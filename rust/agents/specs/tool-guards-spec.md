@@ -411,7 +411,7 @@ At `low` trust, only commands matching a known-safe pattern are allowed. The cat
 
 | Category | Safe Patterns |
 |----------|---------------|
-| Read-only filesystem | `ls`, `cat`, `head`, `tail`, `less`, `wc`, `file`, `stat`, `find` (no `-delete`/`-exec`/`-execdir`/`-ok`/`-okdir`/`-fprint`/`-fls`/`-fprintf`), `du`, `df`, `tree`, `grep`, `rg`, `diff`, `sort`, `md5sum`, `sha256sum`, `realpath`, `dirname`, `basename`, `readlink`, `test`, `[`, `[[` |
+| Read-only filesystem | `ls`, `cat`, `bat`, `head`, `tail`, `less`, `wc`, `file`, `stat`, `find` (no `-delete`/`-exec`/`-execdir`/`-ok`/`-okdir`/`-fprint`/`-fls`/`-fprintf`), `du`, `df`, `tree`, `grep`, `rg`, `diff`, `sort`, `md5sum`, `sha256sum`, `realpath`, `dirname`, `basename`, `readlink`, `test`, `[`, `[[` |
 | Read-only git | `git status`, `git log`, `git diff`, `git show`, `git branch` (no `-D`/`-d`), `git tag` (no `-d`), `git remote -v`, `git rev-parse` |
 | Read-only build inspection | `cargo check`, `cargo clippy` (no `--fix`), `go vet` |
 | Environment inspection | `env`, `printenv`, `which`, `whoami`, `uname`, `pwd`, `echo`, `date`, `hostname`, `id`, `groups` |
@@ -921,7 +921,7 @@ Guards against recursive and forced file deletion, and dangerous moves/overwrite
 | `chmod_broad` | `chmod` with `-R`/`--recursive` targeting `/`, `/etc`, `/usr`, `/home`, or using `777`/`a+rwx` on any path | Medium | Recursive or overly permissive chmod can break system security | Set specific permissions on specific files (e.g., `chmod 644 file`) |
 | `chown_recursive` | `chown` with `-R`/`--recursive` targeting `/`, `/etc`, `/usr`, `/home`, or system dirs | Medium | Recursive chown on system directories can break the OS | Change ownership of specific files only |
 | `overwrite_truncate` | `>`, `>>`, or `truncate` targeting system files (`/etc/*`, `/boot/*`, etc.) | Medium | Overwriting or appending to system files can break the OS | Use `sudo tee` with explicit paths, or edit specific config files |
-| `sensitive_read` | `cat`, `head`, `tail`, `less`, `more`, `strings`, or `xxd` targeting sensitive paths (`/etc/shadow`, `/etc/gshadow`, `/etc/sudoers`, `~/.ssh/*`, `~/.gnupg/*`, `~/.aws/*`, `~/.config/gcloud/*`, `*/.env`, `*/.netrc`) | Medium | Reading sensitive files (credentials, private keys, auth tokens) can leak secrets into the agent's context window, where they may be logged, transmitted, or included in generated output | Use targeted commands that don't expose raw secrets (e.g., `ssh-keygen -l -f ~/.ssh/id_rsa` to check a key fingerprint, `aws configure list` to check AWS config) |
+| `sensitive_read` | `cat`, `bat`, `head`, `tail`, `less`, `more`, `strings`, or `xxd` targeting sensitive paths (`/etc/shadow`, `/etc/gshadow`, `/etc/sudoers`, `~/.ssh/*`, `~/.gnupg/*`, `~/.aws/*`, `~/.config/gcloud/*`, `*/.env`, `*/.netrc`) | Medium | Reading sensitive files (credentials, private keys, auth tokens) can leak secrets into the agent's context window, where they may be logged, transmitted, or included in generated output | Use targeted commands that don't expose raw secrets (e.g., `ssh-keygen -l -f ~/.ssh/id_rsa` to check a key fingerprint, `aws configure list` to check AWS config) |
 
 **`overwrite_truncate` scope note:** This rule targets system paths only. Redirections to project files (e.g., `echo "test" > src/main.rs`) are considered normal agent operations and are not matched. Overwriting files outside the working directory but inside non-system paths (e.g., `> /tmp/data`) is also not matched. Broader redirect protection (e.g., outside-working-directory detection) is deferred as a future enhancement — it requires knowledge of the working directory, which the guard does not currently track.
 
@@ -1017,7 +1017,7 @@ Extended packs are evaluated at all trust levels. They cover domain-specific des
 | `volume_prune` | `docker volume prune` | High | Permanently deletes all unused volumes and their data | List volumes with `docker volume ls` and remove specific ones |
 | `force_remove` | `docker rm -f` / `docker rmi -f` on multiple targets or wildcards | Medium | Force-removes running containers or in-use images | Stop containers first with `docker stop`, then remove |
 
-#### 6.4.5 `kubernetes.kubectl`
+#### 6.4.5 `containers.kubectl`
 
 | Rule ID | Pattern (simplified) | Confidence | Reason | Suggestion |
 |---------|---------------------|------------|--------|------------|
@@ -1041,7 +1041,23 @@ Extended packs are evaluated at all trust levels. They cover domain-specific des
 | `terraform_destroy` | `terraform destroy` / `terraform apply -destroy` | High | Destroys all managed infrastructure resources | Use `terraform plan -destroy` to preview what will be destroyed |
 | `pulumi_destroy` | `pulumi destroy` | High | Destroys all managed infrastructure resources | Use `pulumi preview --diff` to review changes first |
 
-#### 6.4.8 `system.disk`
+#### 6.4.8 `cloud.gcp`
+
+| Rule ID | Pattern (simplified) | Confidence | Reason | Suggestion |
+|---------|---------------------|------------|--------|------------|
+| `compute_delete` | `gcloud compute instances delete` | High | Permanently destroys Compute Engine instances | Use `gcloud compute instances stop` to stop without deleting |
+| `storage_delete` | `gsutil rm` with `-r`/`--recursive`, or `gsutil rb` with `-f`/`--force` | High | Recursively deletes Cloud Storage objects or force-removes buckets | Use `gsutil ls` to inspect first; delete specific objects |
+| `sql_delete` | `gcloud sql instances delete` | High | Permanently deletes Cloud SQL instances | Create a backup first with `gcloud sql backups create` |
+
+#### 6.4.9 `cloud.azure`
+
+| Rule ID | Pattern (simplified) | Confidence | Reason | Suggestion |
+|---------|---------------------|------------|--------|------------|
+| `vm_delete` | `az vm delete` | High | Permanently destroys virtual machines | Use `az vm deallocate` to stop without deleting |
+| `group_delete` | `az group delete` | High | Deletes a resource group and all resources within it | Use `az group show` to review contents first |
+| `storage_delete` | `az storage blob delete` / `az storage container delete` | Medium | Deletes storage blobs or containers | Use `az storage blob list` to review contents first |
+
+#### 6.4.10 `system.disk`
 
 | Rule ID | Pattern (simplified) | Confidence | Reason | Suggestion |
 |---------|---------------------|------------|--------|------------|
@@ -1049,7 +1065,23 @@ Extended packs are evaluated at all trust levels. They cover domain-specific des
 | `mkfs` | `mkfs` / `mkfs.*` targeting a device | High | Formatting a device destroys all data on it | Verify the target device with `lsblk` first |
 | `fdisk_parted` | `fdisk` / `parted` / `gdisk` in non-print mode | Medium | Partition changes can cause data loss | Use `fdisk -l` or `parted print` to inspect first |
 
-#### 6.4.9 `packages.registries`
+#### 6.4.11 `system.network`
+
+| Rule ID | Pattern (simplified) | Confidence | Reason | Suggestion |
+|---------|---------------------|------------|--------|------------|
+| `iptables_flush` | `iptables -F` / `ip6tables --flush` | High | Flushing firewall rules removes all network security policies | Use `iptables -L` to list rules first; save with `iptables-save` |
+| `route_delete` | `ip route del`/`flush` / `route del` | Medium | Deleting routes can cause network connectivity loss | Use `ip route show` to review routes before modification |
+| `interface_down` | `ifconfig <iface> down` / `ip link set <iface> down` | Medium | Bringing down a network interface disrupts connectivity | Ensure you have alternative access before modifying interfaces |
+
+#### 6.4.12 `system.services`
+
+| Rule ID | Pattern (simplified) | Confidence | Reason | Suggestion |
+|---------|---------------------|------------|--------|------------|
+| `systemctl_destructive` | `systemctl stop`/`disable`/`mask` targeting critical services (ssh, network, firewall, docker, kubelet, systemd) | Medium | Stopping or disabling critical services can break the system | Use `systemctl status` to check service state first |
+| `service_stop` | `service <name> stop` | Medium | Stopping services can disrupt running applications | Use `service <name> status` to check before stopping |
+| `kill_signal` | `kill -9` | Medium | SIGKILL terminates processes without cleanup | Use `kill` (SIGTERM) first to allow graceful shutdown |
+
+#### 6.4.13 `packages.registries`
 
 Guards against destructive package manager operations that affect public registries or local cache.
 
@@ -1058,8 +1090,8 @@ Guards against destructive package manager operations that affect public registr
 | `npm_unpublish` | `npm unpublish` / `yarn npm unpublish` / `pnpm unpublish` | High | Unpublishing removes a package version from the public registry, potentially breaking dependents | Use `npm deprecate` to mark versions as deprecated instead |
 | `npm_deprecate` | `npm deprecate` / `pnpm deprecate` | Medium | Deprecating a package version affects all consumers | Verify the package name and version before deprecating |
 | `npm_cache_clean` | `npm cache clean --force` / `yarn cache clean` / `pnpm store prune` | Medium | Removes the local package cache, requiring full re-download | Use `npm cache verify` to check cache integrity instead |
-| `cargo_publish` | `cargo publish` | High | Publishing a crate to crates.io is a public, irreversible action — published versions cannot be fully removed | Verify package metadata with `cargo package --list` first; ensure version and contents are correct |
-| `npm_publish` | `npm publish` / `yarn publish` / `pnpm publish` | High | Publishing a package to a registry is a public, irreversible action | Verify package contents with `npm pack --dry-run` first; ensure version and contents are correct |
+| `cargo_publish` | `cargo publish` (excluding `--dry-run`) | High | Publishing a crate to crates.io is a public, irreversible action — published versions cannot be fully removed | Verify package metadata with `cargo package --list` first; ensure version and contents are correct. Use `cargo publish --dry-run` to test without publishing |
+| `npm_publish` | `npm publish` / `yarn publish` / `pnpm publish` (excluding `--dry-run`) | High | Publishing a package to a registry is a public, irreversible action | Verify package contents with `npm pack --dry-run` first; ensure version and contents are correct. Use `npm publish --dry-run` to test without publishing |
 
 ### 6.5 Shared Path Lists
 
@@ -1329,7 +1361,6 @@ rust/agents/src/tool_guard/
 │       ├── core.rs
 │       ├── database.rs
 │       ├── containers.rs
-│       ├── kubernetes.rs
 │       ├── cloud.rs
 │       ├── system.rs
 │       └── packages.rs
