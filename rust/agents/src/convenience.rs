@@ -306,6 +306,7 @@ async fn create_api_session_inner(
         system_prompt,
         0,
         mcp_context,
+        None,
     );
 
     Ok((session, event_receiver))

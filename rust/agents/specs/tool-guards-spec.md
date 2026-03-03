@@ -161,18 +161,19 @@ trustLevel:
       instead of denials; some file/web rules are relaxed to warnings or
       allowed (see §3.1 decision table).
   type: string
-  default: medium
-  enum:
-    - low
-    - medium
-    - high
 ```
 
-The `default: medium` ensures that Rust codegen produces `Default::default() == TrustLevel::Medium`.
+`trustLevel` remains an unconstrained string in the schema (consistent with
+`reasoningEffort`). Runtime parsing maps known values (`low`, `medium`, `high`)
+to internal guard behavior and treats unknown values as implementation-defined
+(currently defaulting to `medium`).
 
 ### 2.2 `allowedDomains` and `disallowedDomains`
 
 Added to `schema/Agent.yaml`:
+
+- `allowedDomains` and `disallowedDomains` are non-core optional properties
+  (stored under `AgentOptions`, not required in frontmatter).
 
 ```yaml
 allowedDomains:

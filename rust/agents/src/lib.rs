@@ -96,3 +96,6 @@ pub mod routing;
 
 /// High-level session factory for convenient setup.
 pub mod convenience;
+
+/// Tool guard framework: friction layer between agent tool calls and execution.
+pub mod tool_guard;

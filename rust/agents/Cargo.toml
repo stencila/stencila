@@ -4,10 +4,11 @@ edition = "2024"
 version.workspace = true
 
 [features]
-default = ["skills", "mcp", "codemode"]
+default = ["skills", "mcp", "codemode", "tool-guard"]
 skills = ["dep:stencila-skills"]
 mcp = ["dep:stencila-mcp"]
 codemode = ["dep:stencila-mcp", "dep:stencila-codemode"]
+tool-guard = ["dep:stencila-db"]
 cli = ["clap", "stencila-cli-utils"]
 
 [dependencies]
@@ -37,6 +38,7 @@ stencila-models3 = { path = "../models3" }
 stencila-node-media = { path = "../node-media" }
 stencila-schema = { path = "../schema" }
 stencila-codemode = { path = "../codemode", optional = true }
+stencila-db = { path = "../db", optional = true }
 stencila-mcp = { path = "../mcp", optional = true }
 stencila-skills = { path = "../skills", optional = true }
 stencila-version = { path = "../version" }

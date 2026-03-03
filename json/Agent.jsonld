@@ -901,6 +901,18 @@
       }
     },
     {
+      "@id": "stencila:trustLevel",
+      "@type": "rdfs:Property",
+      "rdfs:label": "trustLevel",
+      "rdfs:comment": "Trust level controlling how strictly the agent's operations are guarded.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:allowedSkills",
       "@type": "rdfs:Property",
       "rdfs:label": "allowedSkills",
@@ -925,6 +937,30 @@
           "@id": "stencila:Skill"
         }
       ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:allowedDomains",
+      "@type": "rdfs:Property",
+      "rdfs:label": "allowedDomains",
+      "rdfs:comment": "Domain allowlist for web_fetch.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:disallowedDomains",
+      "@type": "rdfs:Property",
+      "rdfs:label": "disallowedDomains",
+      "rdfs:comment": "Domain denylist for web_fetch.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

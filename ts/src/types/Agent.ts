@@ -47,6 +47,11 @@ export class Agent extends CreativeWork {
   reasoningEffort?: string;
 
   /**
+   * Trust level controlling how strictly the agent's operations are guarded.
+   */
+  trustLevel?: string;
+
+  /**
    * Skill names this agent can use.
    */
   allowedSkills?: string[];
@@ -55,6 +60,16 @@ export class Agent extends CreativeWork {
    * Tool names available to the agent.
    */
   allowedTools?: string[];
+
+  /**
+   * Domain allowlist for web_fetch.
+   */
+  allowedDomains?: string[];
+
+  /**
+   * Domain denylist for web_fetch.
+   */
+  disallowedDomains?: string[];
 
   /**
    * Whether to enable MCP tools.

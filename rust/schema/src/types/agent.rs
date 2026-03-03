@@ -81,6 +81,10 @@ pub struct Agent {
     #[serde(alias = "reasoning-effort", alias = "reasoning_effort")]
     pub reasoning_effort: Option<String>,
 
+    /// Trust level controlling how strictly the agent's operations are guarded.
+    #[serde(alias = "trust-level", alias = "trust_level")]
+    pub trust_level: Option<String>,
+
     /// Skill names this agent can use.
     #[serde(alias = "allowed-skills", alias = "allowed_skills", alias = "allowedSkill", alias = "allowed-skill", alias = "allowed_skill")]
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -307,6 +311,16 @@ pub struct AgentOptions {
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
+
+    /// Domain allowlist for web_fetch.
+    #[serde(alias = "allowed-domains", alias = "allowed_domains", alias = "allowedDomain", alias = "allowed-domain", alias = "allowed_domain")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub allowed_domains: Option<Vec<String>>,
+
+    /// Domain denylist for web_fetch.
+    #[serde(alias = "disallowed-domains", alias = "disallowed_domains", alias = "disallowedDomain", alias = "disallowed-domain", alias = "disallowed_domain")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub disallowed_domains: Option<Vec<String>>,
 
     /// Whether to enable MCP tools.
     #[serde(alias = "enable-mcp", alias = "enable_mcp")]

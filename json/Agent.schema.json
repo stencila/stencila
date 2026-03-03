@@ -25,9 +25,10 @@
     "frontmatter",
     "model",
     "provider",
+    "reasoningEffort",
+    "trustLevel",
     "allowedSkills",
     "allowedTools",
-    "reasoningEffort",
     "content"
   ],
   "properties": {
@@ -733,6 +734,16 @@
       ],
       "type": "string"
     },
+    "trustLevel": {
+      "@id": "stencila:trustLevel",
+      "description": "Trust level controlling how strictly the agent's operations are guarded.",
+      "$comment": "Controls tool guard behavior across shell, file, and web tools.\n- \"low\": default-deny for shell; strictest rules for file and web.\n- \"medium\" (default): default-allow with destructive behavior blocking.\n- \"high\": default-allow with relaxed blocking.\nWhen not specified, defaults to \"medium\" at guard construction time.\n",
+      "aliases": [
+        "trust-level",
+        "trust_level"
+      ],
+      "type": "string"
+    },
     "allowedSkills": {
       "@id": "stencila:allowedSkills",
       "description": "Skill names this agent can use.",
@@ -759,6 +770,38 @@
         "allowedTool",
         "allowed-tool",
         "allowed_tool"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowedDomains": {
+      "@id": "stencila:allowedDomains",
+      "description": "Domain allowlist for web_fetch.",
+      "$comment": "Supports exact hosts and `*.` wildcard subdomain entries.\nIf set, domains not in this list are denied.\nIf both allowedDomains and disallowedDomains are set, allowlist wins.\n",
+      "aliases": [
+        "allowed-domains",
+        "allowed_domains",
+        "allowedDomain",
+        "allowed-domain",
+        "allowed_domain"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "disallowedDomains": {
+      "@id": "stencila:disallowedDomains",
+      "description": "Domain denylist for web_fetch.",
+      "$comment": "Supports exact hosts and `*.` wildcard subdomain entries.\nIf set without allowedDomains, matching domains are denied.\nIf both allowedDomains and disallowedDomains are set, allowlist wins.\n",
+      "aliases": [
+        "disallowed-domains",
+        "disallowed_domains",
+        "disallowedDomain",
+        "disallowed-domain",
+        "disallowed_domain"
       ],
       "type": "array",
       "items": {

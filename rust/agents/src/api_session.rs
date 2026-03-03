@@ -218,6 +218,10 @@ impl ApiSession {
     /// sessions (depth 0) own the MCP pool and shut it down on close;
     /// child sessions share the pool without owning it.
     ///
+    /// When `session_id` is `Some`, that value is used as the session
+    /// identifier for both events and guard context attribution. When
+    /// `None`, a random UUID v4 is generated.
+    ///
     /// Emits a `SESSION_START` event immediately.
     pub fn new(
         mut profile: Box<dyn ProviderProfile>,
@@ -227,8 +231,12 @@ impl ApiSession {
         system_prompt: String,
         current_depth: u32,
         mcp_context: Option<crate::prompts::McpContext>,
+        session_id: Option<String>,
     ) -> (Self, EventReceiver) {
-        let (emitter, receiver) = events::channel();
+        let (emitter, receiver) = match session_id {
+            Some(id) => events::channel_with_id(id),
+            None => events::channel(),
+        };
         emitter.emit_session_start();
 
         let truncation_config = TruncationConfig {

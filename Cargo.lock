@@ -9147,6 +9147,7 @@ dependencies = [
  "stencila-codecs",
  "stencila-codemode",
  "stencila-config",
+ "stencila-db",
  "stencila-dirs",
  "stencila-mcp",
  "stencila-models3",

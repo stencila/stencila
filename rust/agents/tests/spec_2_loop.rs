@@ -526,6 +526,7 @@ fn test_session_with_profile(
         "test system prompt".into(),
         0,
         None,
+        None,
     );
     Ok((session, receiver, client))
 }
@@ -1810,6 +1811,7 @@ async fn run_parity_session(
             "parity test".into(),
             0,
             None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -1989,6 +1991,7 @@ async fn abort_cancels_in_flight_tool_execution() -> AgentResult<()> {
             "test system prompt".into(),
             0,
             None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -2081,6 +2084,7 @@ async fn context_usage_warning_emitted_at_80_percent() -> AgentResult<()> {
             SessionConfig::default(),
             huge_prompt,
             0,
+            None,
             None,
         );
         (s, r, client.clone())
@@ -2218,6 +2222,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
             SessionConfig::default(),
             prompt.clone(),
             0,
+            None,
             None,
         );
         (s, r, client.clone())
@@ -2429,6 +2434,7 @@ async fn abort_during_llm_call() -> AgentResult<()> {
         "test prompt".into(),
         0,
         None,
+        None,
     );
 
     let controller = AbortController::new();
@@ -2535,6 +2541,7 @@ async fn shell_timeout_clamped_to_max() -> AgentResult<()> {
             SessionConfig::default(),
             "test".into(),
             0,
+            None,
             None,
         );
         (s, r, client.clone())
@@ -2799,6 +2806,7 @@ async fn streaming_real_incremental_deltas() -> AgentResult<()> {
         "test prompt".into(),
         0,
         None,
+        None,
     );
 
     session.submit("Stream me").await?;
@@ -2960,6 +2968,7 @@ async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> 
         "test prompt".into(),
         0,
         None,
+        None,
     );
     session.set_abort_signal(controller.signal());
 
@@ -3096,6 +3105,7 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
         "test prompt".into(),
         0,
         None,
+        None,
     );
 
     let result = session.submit("Stream error").await;
@@ -3173,6 +3183,7 @@ async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<
         "image test".into(),
         0,
         None,
+        None,
     );
 
     session.submit("describe photo.png").await?;
@@ -3220,6 +3231,7 @@ async fn openai_image_tool_result_excludes_image_from_message() -> AgentResult<(
         SessionConfig::default(),
         "image test".into(),
         0,
+        None,
         None,
     );
 
@@ -3673,6 +3685,7 @@ async fn soft_abort_during_llm_streaming() -> AgentResult<()> {
         "test prompt".into(),
         0,
         None,
+        None,
     );
     session.set_abort_signal(controller.signal());
 
@@ -3726,6 +3739,7 @@ async fn soft_abort_during_tool_execution() -> AgentResult<()> {
             SessionConfig::default(),
             "test system prompt".into(),
             0,
+            None,
             None,
         );
         (s, r, client.clone())
@@ -3916,6 +3930,7 @@ async fn sequential_multi_tool_abort_race_backfills_results() -> AgentResult<()>
             "test system prompt".into(),
             0,
             None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -3984,6 +3999,7 @@ async fn parallel_multi_tool_abort_race_has_correct_result_count() -> AgentResul
             "test system prompt".into(),
             0,
             None,
+            None,
         );
         (s, r, client.clone())
     };
@@ -4047,6 +4063,7 @@ async fn hard_abort_sequential_multi_tool_has_no_orphan_tool_calls() -> AgentRes
             SessionConfig::default(),
             "test system prompt".into(),
             0,
+            None,
             None,
         );
         (s, r, client.clone())

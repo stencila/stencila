@@ -1137,11 +1137,20 @@ class Agent(CreativeWork):
     reasoning_effort: str | None = None
     """Reasoning effort level for the agent."""
 
+    trust_level: str | None = None
+    """Trust level controlling how strictly the agent's operations are guarded."""
+
     allowed_skills: list[str] | None = None
     """Skill names this agent can use."""
 
     allowed_tools: list[str] | None = None
     """Tool names available to the agent."""
+
+    allowed_domains: list[str] | None = None
+    """Domain allowlist for web_fetch."""
+
+    disallowed_domains: list[str] | None = None
+    """Domain denylist for web_fetch."""
 
     enable_mcp: bool | None = None
     """Whether to enable MCP tools."""

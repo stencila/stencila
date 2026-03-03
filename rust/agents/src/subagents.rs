@@ -483,6 +483,7 @@ impl SubAgentManager {
             system_prompt,
             self.current_depth + 1,
             child_mcp_context,
+            None,
         );
 
         // Set up abort controller for the child

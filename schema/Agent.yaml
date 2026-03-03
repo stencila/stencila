@@ -17,9 +17,10 @@ core:
   - frontmatter
   - model
   - provider
+  - reasoningEffort
+  - trustLevel
   - allowedSkills
   - allowedTools
-  - reasoningEffort
   - content
 properties:
   name:
@@ -74,6 +75,16 @@ properties:
       Valid values are "low", "medium", "high", or a custom provider-specific value.
       When not specified, the provider's default is used.
     type: string
+  trustLevel:
+    "@id": stencila:trustLevel
+    description: Trust level controlling how strictly the agent's operations are guarded.
+    $comment: |
+      Controls tool guard behavior across shell, file, and web tools.
+      - "low": default-deny for shell; strictest rules for file and web.
+      - "medium" (default): default-allow with destructive behavior blocking.
+      - "high": default-allow with relaxed blocking.
+      When not specified, defaults to "medium" at guard construction time.
+    type: string
   allowedSkills:
     "@id": stencila:allowedSkills
     description: Skill names this agent can use.
@@ -89,6 +100,26 @@ properties:
     $comment: |
       Experimental per the spec. In the spec this is a space-delimited string named
       `allowed-tools`; we parse it into an array of strings for easier programmatic use.
+    type: array
+    items:
+      type: string
+  allowedDomains:
+    "@id": stencila:allowedDomains
+    description: Domain allowlist for web_fetch.
+    $comment: |
+      Supports exact hosts and `*.` wildcard subdomain entries.
+      If set, domains not in this list are denied.
+      If both allowedDomains and disallowedDomains are set, allowlist wins.
+    type: array
+    items:
+      type: string
+  disallowedDomains:
+    "@id": stencila:disallowedDomains
+    description: Domain denylist for web_fetch.
+    $comment: |
+      Supports exact hosts and `*.` wildcard subdomain entries.
+      If set without allowedDomains, matching domains are denied.
+      If both allowedDomains and disallowedDomains are set, allowlist wins.
     type: array
     items:
       type: string
