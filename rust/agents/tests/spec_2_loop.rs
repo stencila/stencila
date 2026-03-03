@@ -3001,14 +3001,21 @@ async fn inflight_abort_preserves_partial_text_in_text_end() -> AgentResult<()> 
 async fn error_before_streaming_emits_empty_text_end() -> AgentResult<()> {
     // When the error occurs before any streaming (complete() fails),
     // TEXT_END should have empty text and still pair with TEXT_START.
-    // Server errors are retried, so provide enough responses for all attempts.
+    // Server errors are retried, so provide enough responses to exhaust
+    // all retries (initial + max_retries). Use a fast retry policy so
+    // the test doesn't sleep.
     let err = || {
         Err(SdkError::Server {
             message: "500 error".into(),
             details: ProviderDetails::default(),
         })
     };
-    let (mut session, mut rx, _) = test_session(vec![err(), err(), err()])?;
+    let config = SessionConfig {
+        retry_policy: fast_retry_policy(),
+        ..Default::default()
+    };
+    let (mut session, mut rx, _) =
+        test_session_with_config((0..11).map(|_| err()).collect(), config)?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
@@ -3026,7 +3033,15 @@ async fn error_before_streaming_emits_empty_text_end() -> AgentResult<()> {
         kinds.contains(&EventKind::AssistantTextEnd),
         "TEXT_END should be present for strict pairing: {kinds:?}"
     );
-    assert!(kinds.contains(&EventKind::Error));
+    // Retryable errors emit an LLM_RETRY info event (not an ERROR event).
+    let has_retry_info = events.iter().any(|e| {
+        e.kind == EventKind::Info
+            && e.data
+                .get("code")
+                .and_then(serde_json::Value::as_str)
+                == Some("LLM_RETRY")
+    });
+    assert!(has_retry_info, "Expected LLM_RETRY info event: {kinds:?}");
 
     // TEXT_START must come before TEXT_END
     let start_pos = events
@@ -3094,7 +3109,19 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
 
     assert!(kinds.contains(&EventKind::AssistantTextStart));
     assert!(kinds.contains(&EventKind::AssistantTextEnd));
-    assert!(kinds.contains(&EventKind::Error));
+    // Stream errors after partial delivery emit an LLM_NO_RETRY info event
+    // (not an ERROR event) because retryable errors no longer emit ERROR.
+    let has_no_retry_info = events.iter().any(|e| {
+        e.kind == EventKind::Info
+            && e.data
+                .get("code")
+                .and_then(serde_json::Value::as_str)
+                == Some("LLM_NO_RETRY")
+    });
+    assert!(
+        has_no_retry_info,
+        "Expected LLM_NO_RETRY info event: {kinds:?}"
+    );
 
     // TEXT_END should carry the partial text accumulated before the error.
     let text_end = events

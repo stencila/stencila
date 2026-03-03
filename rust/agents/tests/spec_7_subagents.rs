@@ -1057,18 +1057,30 @@ async fn send_input_to_failed_agent_returns_error() -> AgentResult<()> {
             },
         })
     };
-    let (mut session, _rx, _client, _env) = test_session(vec![
-        // Parent: spawn + wait batch
-        tool_call_response("", vec![spawn_call("Doomed task"), wait_call("agent-1")]),
-        // Child's LLM call fails (1 initial + 2 retries)
-        server_err(),
-        server_err(),
-        server_err(),
-        // Parent: send_input to the failed agent
-        tool_call_response("", vec![send_input_call("agent-1", "hello")]),
-        // Parent: natural completion
-        text_response("Got error for failed agent"),
-    ])?;
+    let config = SessionConfig {
+        retry_policy: stencila_models3::retry::RetryPolicy {
+            max_retries: 2,
+            base_delay: 0.001,
+            jitter: false,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let (mut session, _rx, _client, _env) = test_session_with_config(
+        vec![
+            // Parent: spawn + wait batch
+            tool_call_response("", vec![spawn_call("Doomed task"), wait_call("agent-1")]),
+            // Child's LLM call fails (1 initial + 2 retries)
+            server_err(),
+            server_err(),
+            server_err(),
+            // Parent: send_input to the failed agent
+            tool_call_response("", vec![send_input_call("agent-1", "hello")]),
+            // Parent: natural completion
+            text_response("Got error for failed agent"),
+        ],
+        config,
+    )?;
 
     session.submit("Spawn and fail").await?;
     assert_eq!(session.state(), stencila_agents::types::SessionState::Idle);
