@@ -7,7 +7,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
-use stencila_agents::api_session::{ApiSession, Models3Client};
+use stencila_agents::api_session::{ApiSession, ApiSessionInit, Models3Client};
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::events::EventReceiver;
 use stencila_agents::execution::LocalExecutionEnvironment;
@@ -123,10 +123,10 @@ pub async fn live_session(
         config,
         system_prompt,
         0,
-        mcp_context,
-        None,
-        None,
-        None,
+        ApiSessionInit {
+            mcp_context,
+            ..Default::default()
+        },
     );
 
     Ok((session, receiver))

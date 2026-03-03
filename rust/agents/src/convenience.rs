@@ -8,7 +8,7 @@ use eyre::Result;
 
 use crate::agent_def::{self, AgentInstance};
 use crate::agent_session::AgentSession;
-use crate::api_session::{ApiSession, Models3Client};
+use crate::api_session::{ApiSession, ApiSessionInit, Models3Client};
 use crate::error::{AgentError, AgentResult};
 use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
@@ -327,10 +327,12 @@ async fn create_api_session_inner(
         config,
         system_prompt,
         0,
-        mcp_context,
-        Some(session_id),
-        Some(tool_guard),
-        Some(guard_context),
+        ApiSessionInit {
+            mcp_context,
+            session_id: Some(session_id),
+            tool_guard: Some(tool_guard),
+            guard_context: Some(guard_context),
+        },
     );
 
     Ok((session, event_receiver))

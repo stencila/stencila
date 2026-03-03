@@ -30,7 +30,7 @@ use stencila_models3::types::role::Role;
 use stencila_models3::types::tool::{ToolCall, ToolDefinition};
 use stencila_models3::types::usage::Usage;
 
-use stencila_agents::api_session::{ApiSession, LlmClient};
+use stencila_agents::api_session::{ApiSession, ApiSessionInit, LlmClient};
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
@@ -397,10 +397,7 @@ fn test_session_with_config(
         config,
         "test system prompt".into(),
         0,
-        None,
-        None,
-        None,
-        None,
+        ApiSessionInit::default(),
     );
     Ok((session, receiver, client, env))
 }
@@ -1203,10 +1200,7 @@ async fn session_auto_registers_subagent_tools_when_depth_allows() -> AgentResul
         config,
         "test".into(),
         0,
-        None,
-        None,
-        None,
-        None,
+        ApiSessionInit::default(),
     );
 
     session.submit("hello").await?;

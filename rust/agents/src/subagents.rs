@@ -521,10 +521,12 @@ impl SubAgentManager {
             child_config,
             system_prompt,
             self.current_depth + 1,
-            child_mcp_context,
-            Some(child_session_id),
-            child_guard,
-            child_guard_context,
+            crate::api_session::ApiSessionInit {
+                mcp_context: child_mcp_context,
+                session_id: Some(child_session_id),
+                tool_guard: child_guard,
+                guard_context: child_guard_context,
+            },
         );
 
         // Set up abort controller for the child

@@ -209,6 +209,19 @@ impl std::fmt::Debug for ApiSession {
     }
 }
 
+/// Optional parameters for [`ApiSession::new`] that default to `None`.
+///
+/// Grouping these into a struct avoids long parameter lists and `None`
+/// repetition at callsites that do not use MCP, tool guards, or explicit
+/// session IDs.
+#[derive(Default)]
+pub struct ApiSessionInit {
+    pub mcp_context: Option<crate::prompts::McpContext>,
+    pub session_id: Option<String>,
+    pub tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
+    pub guard_context: Option<Arc<crate::tool_guard::GuardContext>>,
+}
+
 impl ApiSession {
     /// Create a new session.
     ///
@@ -223,9 +236,11 @@ impl ApiSession {
     /// sessions (depth 0) own the MCP pool and shut it down on close;
     /// child sessions share the pool without owning it.
     ///
-    /// When `session_id` is `Some`, that value is used as the session
-    /// identifier for both events and guard context attribution. When
-    /// `None`, a random UUID v4 is generated.
+    /// The optional fields in [`ApiSessionInit`] control MCP context,
+    /// session ID, and tool guard configuration. When `session_id` is
+    /// `Some`, that value is used as the session identifier for both
+    /// events and guard context attribution. When `None`, a random UUID
+    /// v4 is generated.
     ///
     /// Emits a `SESSION_START` event immediately.
     pub fn new(
@@ -235,11 +250,14 @@ impl ApiSession {
         config: SessionConfig,
         system_prompt: String,
         current_depth: u32,
-        mcp_context: Option<crate::prompts::McpContext>,
-        session_id: Option<String>,
-        tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
-        guard_context: Option<Arc<crate::tool_guard::GuardContext>>,
+        init: ApiSessionInit,
     ) -> (Self, EventReceiver) {
+        let ApiSessionInit {
+            mcp_context,
+            session_id,
+            tool_guard,
+            guard_context,
+        } = init;
         let (emitter, receiver) = match session_id {
             Some(id) => events::channel_with_id(id),
             None => events::channel(),
