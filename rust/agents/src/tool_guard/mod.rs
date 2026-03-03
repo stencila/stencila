@@ -9,10 +9,10 @@ use std::sync::Arc;
 use serde_json::Value;
 
 pub mod audit;
-pub mod file_guard;
+pub mod file;
 pub mod paths;
 pub mod shell;
-pub mod web_guard;
+pub mod web;
 
 // ---------------------------------------------------------------------------
 // TrustLevel
@@ -69,6 +69,20 @@ pub enum GuardVerdict {
     },
 }
 
+/// Return the strictest of two verdicts (Deny > Warn > Allow).
+///
+/// When both have the same severity, the first (`a`) wins — this preserves
+/// table-order / registration-order tie-breaking used by all sub-guards.
+pub(crate) fn strictest_verdict(a: GuardVerdict, b: GuardVerdict) -> GuardVerdict {
+    match (&a, &b) {
+        (GuardVerdict::Deny { .. }, _) => a,
+        (_, GuardVerdict::Deny { .. }) => b,
+        (GuardVerdict::Warn { .. }, _) => a,
+        (_, GuardVerdict::Warn { .. }) => b,
+        _ => a,
+    }
+}
+
 // ---------------------------------------------------------------------------
 // GuardContext
 // ---------------------------------------------------------------------------
@@ -89,14 +103,13 @@ pub struct GuardContext {
 /// Shared via `Arc` across parent and child sessions. The workspace root is
 /// fixed at construction and cannot be widened by child agents.
 pub struct ToolGuard {
-    #[allow(dead_code)]
     trust_level: TrustLevel,
     #[allow(dead_code)]
     workspace_root: PathBuf,
+    shell_guard: shell::ShellToolGuard,
+    file_guard: file::FileToolGuard,
     // Sub-guards will be added in later phases:
-    // shell_guard: ShellToolGuard,
-    // file_guard: FileToolGuard,
-    // web_guard: WebToolGuard,
+    // web_guard: web::WebToolGuard,
     // audit_tx: Option<mpsc::Sender<AuditEvent>>,
 }
 
@@ -109,35 +122,38 @@ impl std::fmt::Debug for ToolGuard {
     }
 }
 
+/// Tool names that the shell guard handles.
+const SHELL_TOOL: &str = "shell";
+
+/// Tool names that the file guard handles.
+const FILE_TOOLS: &[&str] = &[
+    "read_file",
+    "read_many_files",
+    "write_file",
+    "edit_file",
+    "apply_patch",
+    "grep",
+];
+
 impl ToolGuard {
     /// Construct a new guard policy.
     ///
-    /// `trust_level` defaults to `Medium` when `None` is passed.
     /// `allowed_domains` and `disallowed_domains` configure the web guard.
-    #[cfg(feature = "tool-guard")]
+    ///
+    /// When the `tool-guard` feature is disabled, the guard is constructed
+    /// normally but `evaluate()` always returns `Allow`.
     pub fn new(
         trust_level: TrustLevel,
         workspace_root: PathBuf,
         _allowed_domains: Option<Vec<String>>,
         _disallowed_domains: Option<Vec<String>>,
     ) -> Self {
+        let file_guard = file::FileToolGuard::new(workspace_root.clone());
         Self {
             trust_level,
             workspace_root,
-        }
-    }
-
-    /// No-op constructor when the `tool-guard` feature is disabled.
-    #[cfg(not(feature = "tool-guard"))]
-    pub fn new(
-        trust_level: TrustLevel,
-        workspace_root: PathBuf,
-        _allowed_domains: Option<Vec<String>>,
-        _disallowed_domains: Option<Vec<String>>,
-    ) -> Self {
-        Self {
-            trust_level,
-            workspace_root,
+            shell_guard: shell::ShellToolGuard,
+            file_guard,
         }
     }
 
@@ -150,19 +166,31 @@ impl ToolGuard {
     pub fn evaluate(
         &self,
         _context: &GuardContext,
-        _tool_name: &str,
-        _args: &Value,
-        _working_dir: &std::path::Path,
+        tool_name: &str,
+        args: &Value,
+        working_dir: &std::path::Path,
     ) -> GuardVerdict {
         #[cfg(not(feature = "tool-guard"))]
         {
+            let _ = (tool_name, args, working_dir);
             return GuardVerdict::Allow;
         }
 
         #[cfg(feature = "tool-guard")]
         {
-            // Dispatch stub — returns Allow for now.
-            // Phases 1–4 will wire shell/file/web evaluators here.
+            if tool_name == SHELL_TOOL {
+                if let Some(command) = args.get("command").and_then(|v| v.as_str()) {
+                    return self.shell_guard.evaluate(command, self.trust_level);
+                }
+            }
+
+            if FILE_TOOLS.contains(&tool_name) {
+                return self
+                    .file_guard
+                    .evaluate(tool_name, args, working_dir, self.trust_level);
+            }
+
+            // Phase 4 will add web_guard dispatch here.
             GuardVerdict::Allow
         }
     }
@@ -207,6 +235,65 @@ mod tests {
             "unknown_tool",
             &serde_json::json!({}),
             std::path::Path::new("/tmp"),
+        );
+        assert_eq!(verdict, GuardVerdict::Allow);
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn evaluate_dispatches_shell_tool() {
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
+        let ctx = GuardContext {
+            session_id: Arc::from("test-session"),
+            agent_name: Arc::from("test-agent"),
+        };
+        let verdict = guard.evaluate(
+            &ctx,
+            "shell",
+            &serde_json::json!({"command": "rm -rf /"}),
+            std::path::Path::new("/tmp"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn evaluate_dispatches_file_tools() {
+        let guard = ToolGuard::new(
+            TrustLevel::Medium,
+            PathBuf::from("/workspace"),
+            None,
+            None,
+        );
+        let ctx = GuardContext {
+            session_id: Arc::from("test-session"),
+            agent_name: Arc::from("test-agent"),
+        };
+
+        // read_file to system path should be denied
+        let verdict = guard.evaluate(
+            &ctx,
+            "read_file",
+            &serde_json::json!({"file_path": "/proc/self/environ"}),
+            std::path::Path::new("/workspace"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+
+        // write_file to system path should be denied
+        let verdict = guard.evaluate(
+            &ctx,
+            "write_file",
+            &serde_json::json!({"file_path": "/etc/passwd", "content": "bad"}),
+            std::path::Path::new("/workspace"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+
+        // write_file to workspace path should be allowed
+        let verdict = guard.evaluate(
+            &ctx,
+            "write_file",
+            &serde_json::json!({"file_path": "/workspace/src/main.rs", "content": "ok"}),
+            std::path::Path::new("/workspace"),
         );
         assert_eq!(verdict, GuardVerdict::Allow);
     }

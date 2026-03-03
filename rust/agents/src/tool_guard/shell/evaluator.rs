@@ -486,16 +486,7 @@ fn check_destructive_patterns(cmd: &str, trust_level: TrustLevel) -> Option<Guar
     })
 }
 
-/// Return the strictest of two verdicts (Deny > Warn > Allow).
-fn strictest_verdict(a: GuardVerdict, b: GuardVerdict) -> GuardVerdict {
-    match (&a, &b) {
-        (GuardVerdict::Deny { .. }, _) => a,
-        (_, GuardVerdict::Deny { .. }) => b,
-        (GuardVerdict::Warn { .. }, _) => a,
-        (_, GuardVerdict::Warn { .. }) => b,
-        _ => a,
-    }
-}
+use crate::tool_guard::strictest_verdict;
 
 #[cfg(test)]
 mod tests {
