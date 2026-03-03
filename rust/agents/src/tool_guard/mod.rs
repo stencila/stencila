@@ -132,8 +132,8 @@ pub struct ToolGuard {
     file_guard: file::FileToolGuard,
     #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     web_guard: web::WebToolGuard,
-    // Audit will be added in a later phase:
-    // audit_tx: Option<mpsc::Sender<AuditEvent>>,
+    #[cfg(feature = "tool-guard")]
+    audit_tx: Option<audit::AuditSender>,
 }
 
 impl std::fmt::Debug for ToolGuard {
@@ -176,12 +176,18 @@ impl ToolGuard {
     ) -> Self {
         let file_guard = file::FileToolGuard::new(workspace_root.clone());
         let web_guard = web::WebToolGuard::new(allowed_domains, disallowed_domains);
+
+        #[cfg(feature = "tool-guard")]
+        let audit_tx = audit::spawn_audit_writer(&workspace_root);
+
         Self {
             trust_level,
             workspace_root,
             shell_guard: shell::ShellToolGuard,
             file_guard,
             web_guard,
+            #[cfg(feature = "tool-guard")]
+            audit_tx,
         }
     }
 
@@ -189,6 +195,7 @@ impl ToolGuard {
     ///
     /// Dispatches to the appropriate sub-guard based on `tool_name`.
     /// Returns the strictest verdict across all evaluated segments.
+    /// Non-`Allow` verdicts are recorded to the audit database.
     ///
     /// When the `tool-guard` feature is disabled, always returns `Allow`.
     pub fn evaluate(
@@ -206,25 +213,161 @@ impl ToolGuard {
 
         #[cfg(feature = "tool-guard")]
         {
-            if tool_name == SHELL_TOOL {
-                if let Some(command) = args.get("command").and_then(|v| v.as_str()) {
-                    return self.shell_guard.evaluate(command, self.trust_level);
-                }
+            let verdict = self.evaluate_inner(tool_name, args, working_dir);
+
+            if !matches!(verdict, GuardVerdict::Allow) {
+                self.emit_audit_event(_context, tool_name, args, working_dir, &verdict);
             }
 
-            if FILE_TOOLS.contains(&tool_name) {
-                return self
-                    .file_guard
-                    .evaluate(tool_name, args, working_dir, self.trust_level);
+            verdict
+        }
+    }
+
+    #[cfg(feature = "tool-guard")]
+    fn evaluate_inner(
+        &self,
+        tool_name: &str,
+        args: &Value,
+        working_dir: &std::path::Path,
+    ) -> GuardVerdict {
+        if tool_name == SHELL_TOOL {
+            if let Some(command) = args.get("command").and_then(|v| v.as_str()) {
+                return self.shell_guard.evaluate(command, self.trust_level);
+            }
+        }
+
+        if FILE_TOOLS.contains(&tool_name) {
+            return self
+                .file_guard
+                .evaluate(tool_name, args, working_dir, self.trust_level);
+        }
+
+        if tool_name == WEB_TOOL {
+            if let Some(url) = args.get("url").and_then(|v| v.as_str()) {
+                return self.web_guard.evaluate(url, self.trust_level);
+            }
+        }
+
+        GuardVerdict::Allow
+    }
+
+    #[cfg(feature = "tool-guard")]
+    fn emit_audit_event(
+        &self,
+        context: &GuardContext,
+        tool_name: &str,
+        args: &Value,
+        working_dir: &std::path::Path,
+        verdict: &GuardVerdict,
+    ) {
+        let audit_tx = match &self.audit_tx {
+            Some(tx) => tx,
+            None => return,
+        };
+
+        let (verdict_str, rule_id, reason, suggestion) = match verdict {
+            GuardVerdict::Deny {
+                rule_id,
+                reason,
+                suggestion,
+            } => ("Deny", *rule_id, *reason, *suggestion),
+            GuardVerdict::Warn {
+                rule_id,
+                reason,
+                suggestion,
+            } => ("Warn", *rule_id, *reason, *suggestion),
+            GuardVerdict::Allow => return,
+        };
+
+        let (input, matched_segment) =
+            self.extract_audit_fields(tool_name, args, working_dir, verdict);
+
+        audit_tx.send(audit::AuditEvent {
+            session_id: context.session_id.to_string(),
+            agent_name: context.agent_name.to_string(),
+            trust_level: format!("{:?}", self.trust_level).to_lowercase(),
+            tool_name: tool_name.to_string(),
+            input,
+            matched_segment,
+            verdict: verdict_str,
+            rule_id,
+            reason,
+            suggestion,
+        });
+    }
+
+    /// Extract `(input, matched_segment)` for an audit event.
+    ///
+    /// For file tools, delegates to the file guard's `audit_segment` method
+    /// which re-evaluates each path to find the first normalized path that
+    /// produced the decisive verdict (spec §9.1).
+    #[cfg(feature = "tool-guard")]
+    fn extract_audit_fields(
+        &self,
+        tool_name: &str,
+        args: &Value,
+        working_dir: &std::path::Path,
+        verdict: &GuardVerdict,
+    ) -> (String, String) {
+        match tool_name {
+            "shell" => {
+                let command = args
+                    .get("command")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("<missing>");
+                (command.to_string(), command.to_string())
             }
 
-            if tool_name == WEB_TOOL {
-                if let Some(url) = args.get("url").and_then(|v| v.as_str()) {
-                    return self.web_guard.evaluate(url, self.trust_level);
-                }
+            "web_fetch" => {
+                let url = args
+                    .get("url")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("<missing>");
+                (url.to_string(), url.to_string())
             }
 
-            GuardVerdict::Allow
+            // File tools: matched_segment comes from the file guard which
+            // knows about normalization and multi-target decisive path logic.
+            // Input serialization varies by tool per spec §9.1.
+            _ if FILE_TOOLS.contains(&tool_name) => {
+                let segment = self.file_guard.audit_segment(
+                    tool_name,
+                    args,
+                    working_dir,
+                    self.trust_level,
+                    verdict,
+                );
+                let input = match tool_name {
+                    "read_many_files" => {
+                        match args.get("paths").and_then(|v| v.as_array()) {
+                            Some(arr) => {
+                                let strs: Vec<&str> =
+                                    arr.iter().filter_map(|v| v.as_str()).collect();
+                                serde_json::to_string(&strs).unwrap_or_default()
+                            }
+                            None => args.to_string(),
+                        }
+                    }
+                    "apply_patch" => args
+                        .get("patch")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    "grep" => segment.clone(),
+                    // read_file, write_file, edit_file
+                    _ => args
+                        .get("file_path")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("<unknown>")
+                        .to_string(),
+                };
+                (input, segment)
+            }
+
+            _ => {
+                let fallback = args.to_string();
+                (fallback.clone(), fallback)
+            }
         }
     }
 
@@ -383,5 +526,173 @@ mod tests {
             std::path::Path::new("/workspace"),
         );
         assert_eq!(verdict, GuardVerdict::Allow);
+    }
+
+    // -----------------------------------------------------------------------
+    // Audit field extraction tests (fixes for review findings #1–#3)
+    // -----------------------------------------------------------------------
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn audit_read_many_files_decisive_path_is_offending_not_first() {
+        // Finding #2: matched_segment must be the first path that produced the
+        // strictest verdict, not simply the first path in the array.
+        let guard = ToolGuard::new(
+            TrustLevel::Medium,
+            PathBuf::from("/workspace"),
+            None,
+            None,
+        );
+        let args = serde_json::json!({
+            "paths": ["/workspace/ok.rs", "/proc/self/environ"]
+        });
+        let verdict = guard.evaluate_inner(
+            "read_many_files",
+            &args,
+            std::path::Path::new("/workspace"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+
+        let (input, segment) = guard.extract_audit_fields(
+            "read_many_files",
+            &args,
+            std::path::Path::new("/workspace"),
+            &verdict,
+        );
+        // input should be a JSON array of the raw paths
+        assert!(input.contains("/workspace/ok.rs"));
+        assert!(input.contains("/proc/self/environ"));
+        // matched_segment must be the path that triggered Deny, not the first one
+        assert_eq!(segment, "/proc/self/environ");
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn audit_apply_patch_uses_stencila_format_not_unified_diff() {
+        // Finding #1: Stencila patches use `*** Delete File: path` format.
+        // The audit must parse this correctly, not return "Delete" as the path.
+        let guard = ToolGuard::new(
+            TrustLevel::Medium,
+            PathBuf::from("/workspace"),
+            None,
+            None,
+        );
+        let patch = "\
+*** Delete File: /etc/shadow
+*** Delete File: /workspace/a.rs
+*** Delete File: /workspace/b.rs
+*** Delete File: /workspace/c.rs
+*** Delete File: /workspace/d.rs
+*** Delete File: /workspace/e.rs";
+        let args = serde_json::json!({ "patch": patch });
+        let verdict = guard.evaluate_inner(
+            "apply_patch",
+            &args,
+            std::path::Path::new("/workspace"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+
+        let (_input, segment) = guard.extract_audit_fields(
+            "apply_patch",
+            &args,
+            std::path::Path::new("/workspace"),
+            &verdict,
+        );
+        // The decisive path is /etc/shadow (system write), not "Delete"
+        assert_eq!(segment, "/etc/shadow");
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn audit_apply_patch_delete_many_reports_count() {
+        // When the decisive rule is apply_patch_delete_many, segment is <delete_count:N>
+        let guard = ToolGuard::new(
+            TrustLevel::Medium,
+            PathBuf::from("/workspace"),
+            None,
+            None,
+        );
+        let patch = "\
+*** Delete File: /workspace/a.rs
+*** Delete File: /workspace/b.rs
+*** Delete File: /workspace/c.rs
+*** Delete File: /workspace/d.rs
+*** Delete File: /workspace/e.rs";
+        let args = serde_json::json!({ "patch": patch });
+        let verdict = guard.evaluate_inner(
+            "apply_patch",
+            &args,
+            std::path::Path::new("/workspace"),
+        );
+        assert!(matches!(verdict, GuardVerdict::Warn { rule_id: "file.apply_patch_delete_many", .. }));
+
+        let (_input, segment) = guard.extract_audit_fields(
+            "apply_patch",
+            &args,
+            std::path::Path::new("/workspace"),
+            &verdict,
+        );
+        assert_eq!(segment, "<delete_count:5>");
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn audit_file_path_is_normalized() {
+        // Finding #3: audit matched_segment must be normalized, not raw.
+        let guard = ToolGuard::new(
+            TrustLevel::Medium,
+            PathBuf::from("/workspace"),
+            None,
+            None,
+        );
+        // Use a relative path with `..` that resolves outside workspace
+        let args = serde_json::json!({ "file_path": "../../other-project/data.db" });
+        let verdict = guard.evaluate_inner(
+            "read_file",
+            &args,
+            std::path::Path::new("/workspace/subdir"),
+        );
+        // At medium trust, outside-workspace read is Warn
+        assert!(matches!(verdict, GuardVerdict::Warn { rule_id: "file.outside_workspace_read", .. }));
+
+        let (_input, segment) = guard.extract_audit_fields(
+            "read_file",
+            &args,
+            std::path::Path::new("/workspace/subdir"),
+            &verdict,
+        );
+        // Segment should be normalized absolute path, not raw relative
+        assert_eq!(segment, "/other-project/data.db");
+    }
+
+    #[cfg(feature = "tool-guard")]
+    #[test]
+    fn audit_grep_missing_path_uses_working_dir_normalized() {
+        // Finding #3: grep with no path should use working_dir for audit
+        let guard = ToolGuard::new(
+            TrustLevel::Low,
+            PathBuf::from("/workspace"),
+            None,
+            None,
+        );
+        // grep with no `path` field, working_dir is outside workspace
+        let args = serde_json::json!({ "pattern": "secret" });
+        let verdict = guard.evaluate_inner(
+            "grep",
+            &args,
+            std::path::Path::new("/other"),
+        );
+        // At low trust, outside-workspace read is Deny
+        assert!(matches!(verdict, GuardVerdict::Deny { .. }));
+
+        let (input, segment) = guard.extract_audit_fields(
+            "grep",
+            &args,
+            std::path::Path::new("/other"),
+            &verdict,
+        );
+        // Both input and segment should be the resolved working_dir path
+        assert_eq!(input, "/other");
+        assert_eq!(segment, "/other");
     }
 }

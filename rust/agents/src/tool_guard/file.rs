@@ -353,13 +353,98 @@ impl FileToolGuard {
 
         strictest
     }
+
+    /// Return the normalized decisive path for audit: the first path that
+    /// produced the strictest verdict (tie-break: input/operation order).
+    ///
+    /// For `apply_patch` where the decisive rule is `file.apply_patch_delete_many`,
+    /// returns `<delete_count:N>` instead of a path.
+    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
+    pub(crate) fn audit_segment(
+        &self,
+        tool_name: &str,
+        args: &Value,
+        working_dir: &Path,
+        trust_level: TrustLevel,
+        final_verdict: &GuardVerdict,
+    ) -> String {
+        // For single-path tools, normalize and return the single path.
+        match tool_name {
+            "read_file" | "write_file" | "edit_file" => {
+                let raw = args
+                    .get("file_path")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("<unknown>");
+                return paths::normalize_path(raw, working_dir, &self.home_dir)
+                    .display()
+                    .to_string();
+            }
+            "grep" => {
+                let raw = args
+                    .get("path")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or_else(|| working_dir.to_str().unwrap_or("."));
+                return paths::normalize_path(raw, working_dir, &self.home_dir)
+                    .display()
+                    .to_string();
+            }
+            _ => {}
+        }
+
+        // Multi-path tools: find the first path that reproduces the final verdict
+        // with the same severity AND rule_id.
+        if tool_name == "read_many_files" {
+            if let Some(arr) = args.get("paths").and_then(|v| v.as_array()) {
+                for p in arr {
+                    if let Some(s) = p.as_str() {
+                        let v = self.evaluate_read(s, working_dir, trust_level);
+                        if verdict_matches(&v, final_verdict) {
+                            return paths::normalize_path(s, working_dir, &self.home_dir)
+                                .display()
+                                .to_string();
+                        }
+                    }
+                }
+            }
+        }
+
+        if tool_name == "apply_patch" {
+            if let Some(patch_text) = args.get("patch").and_then(|v| v.as_str()) {
+                let (write_paths, delete_count) = parse_patch_paths(patch_text);
+
+                // If the decisive rule is delete_many, report the count
+                if matches!(final_verdict,
+                    GuardVerdict::Deny { rule_id: "file.apply_patch_delete_many", .. } |
+                    GuardVerdict::Warn { rule_id: "file.apply_patch_delete_many", .. })
+                {
+                    return format!("<delete_count:{delete_count}>");
+                }
+
+                // Otherwise find the first path that reproduces the verdict
+                for raw_path in &write_paths {
+                    let normalized =
+                        paths::normalize_path(raw_path, working_dir, &self.home_dir);
+                    let v = self.evaluate_write_normalized(
+                        &normalized,
+                        trust_level,
+                        delete_count,
+                    );
+                    if verdict_matches(&v, final_verdict) {
+                        return normalized.display().to_string();
+                    }
+                }
+            }
+        }
+
+        "<unknown>".to_string()
+    }
 }
 
 // ---------------------------------------------------------------------------
 // Patch parsing
 // ---------------------------------------------------------------------------
 
-fn parse_patch_paths(patch_text: &str) -> (Vec<String>, usize) {
+pub(crate) fn parse_patch_paths(patch_text: &str) -> (Vec<String>, usize) {
     let mut paths = Vec::new();
     let mut delete_count: usize = 0;
 
@@ -381,6 +466,26 @@ fn parse_patch_paths(patch_text: &str) -> (Vec<String>, usize) {
 }
 
 use super::strictest_verdict;
+
+/// Check whether two verdicts match in both severity (Warn/Deny) and rule_id.
+///
+/// Used by `audit_segment` to find the decisive path. Matching on rule_id
+/// (not just discriminant) prevents misattribution if rule evaluation order
+/// changes in the future.
+fn verdict_matches(a: &GuardVerdict, b: &GuardVerdict) -> bool {
+    match (a, b) {
+        (
+            GuardVerdict::Deny { rule_id: ra, .. },
+            GuardVerdict::Deny { rule_id: rb, .. },
+        ) => ra == rb,
+        (
+            GuardVerdict::Warn { rule_id: ra, .. },
+            GuardVerdict::Warn { rule_id: rb, .. },
+        ) => ra == rb,
+        (GuardVerdict::Allow, GuardVerdict::Allow) => true,
+        _ => false,
+    }
+}
 
 // ---------------------------------------------------------------------------
 // Tests
