@@ -495,9 +495,7 @@ fn response_segments_lines(
                     _ => Color::Yellow,
                 };
                 // Strip internal `LLM_RETRY:` tag used for in-place updates
-                let display_message = message
-                    .strip_prefix("LLM_RETRY:")
-                    .unwrap_or(message);
+                let display_message = message.strip_prefix("LLM_RETRY:").unwrap_or(message);
                 if !prev_was_annotation {
                     lines.push(blank_line());
                 }

@@ -1458,8 +1458,7 @@ async fn server_error_keeps_session_open() -> AgentResult<()> {
         retry_policy: fast_retry_policy(),
         ..Default::default()
     };
-    let (mut session, _rx, _) =
-        test_session_with_config((0..11).map(|_| err()).collect(), config)?;
+    let (mut session, _rx, _) = test_session_with_config((0..11).map(|_| err()).collect(), config)?;
 
     let result = session.submit("Hi").await;
     assert!(result.is_err());
@@ -1497,10 +1496,7 @@ async fn rate_limit_error_keeps_session_open() -> AgentResult<()> {
     // to avoid duplicate noise in the TUI.
     let has_retry_info = events.iter().any(|e| {
         e.kind == EventKind::Info
-            && e.data
-                .get("code")
-                .and_then(serde_json::Value::as_str)
-                == Some("LLM_RETRY")
+            && e.data.get("code").and_then(serde_json::Value::as_str) == Some("LLM_RETRY")
     });
     assert!(
         has_retry_info,
@@ -1544,12 +1540,12 @@ async fn network_error_keeps_session_open() -> AgentResult<()> {
     // to avoid duplicate noise in the TUI.
     let has_retry_info = events.iter().any(|e| {
         e.kind == EventKind::Info
-            && e.data
-                .get("code")
-                .and_then(serde_json::Value::as_str)
-                == Some("LLM_RETRY")
+            && e.data.get("code").and_then(serde_json::Value::as_str) == Some("LLM_RETRY")
     });
-    assert!(has_retry_info, "Expected LLM_RETRY info event for network error");
+    assert!(
+        has_retry_info,
+        "Expected LLM_RETRY info event for network error"
+    );
     // Session is NOT closed, so no SESSION_END event.
     let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
     assert!(
@@ -3045,10 +3041,7 @@ async fn error_before_streaming_emits_empty_text_end() -> AgentResult<()> {
     // Retryable errors emit an LLM_RETRY info event (not an ERROR event).
     let has_retry_info = events.iter().any(|e| {
         e.kind == EventKind::Info
-            && e.data
-                .get("code")
-                .and_then(serde_json::Value::as_str)
-                == Some("LLM_RETRY")
+            && e.data.get("code").and_then(serde_json::Value::as_str) == Some("LLM_RETRY")
     });
     assert!(has_retry_info, "Expected LLM_RETRY info event: {kinds:?}");
 
@@ -3123,10 +3116,7 @@ async fn midstream_error_preserves_partial_text_in_text_end() -> AgentResult<()>
     // (not an ERROR event) because retryable errors no longer emit ERROR.
     let has_no_retry_info = events.iter().any(|e| {
         e.kind == EventKind::Info
-            && e.data
-                .get("code")
-                .and_then(serde_json::Value::as_str)
-                == Some("LLM_NO_RETRY")
+            && e.data.get("code").and_then(serde_json::Value::as_str) == Some("LLM_NO_RETRY")
     });
     assert!(
         has_no_retry_info,
