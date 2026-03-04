@@ -501,10 +501,7 @@ impl SubAgentManager {
         // Build child guard context with attribution to parent
         let child_guard = self.tool_guard.clone();
         let child_guard_context = child_guard.as_ref().map(|_| {
-            let parent_name = self
-                .parent_agent_name
-                .as_deref()
-                .unwrap_or("unknown");
+            let parent_name = self.parent_agent_name.as_deref().unwrap_or("unknown");
             Arc::new(crate::tool_guard::GuardContext::new(
                 child_session_id.as_str(),
                 format!("{parent_name}/subagent-{child_id}").as_str(),

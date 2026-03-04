@@ -1842,9 +1842,8 @@ async fn execute_tool(
                 suggestion,
                 rule_id,
             } => {
-                let deny_msg = format!(
-                    "[BLOCKED by {rule_id}] {reason}\n\nSuggestion: {suggestion}"
-                );
+                let deny_msg =
+                    format!("[BLOCKED by {rule_id}] {reason}\n\nSuggestion: {suggestion}");
                 events.emit_tool_call_end(&tool_call.id, &deny_msg);
                 return (
                     ToolResult {

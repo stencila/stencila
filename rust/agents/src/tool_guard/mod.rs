@@ -126,13 +126,9 @@ pub struct ToolGuard {
     trust_level: TrustLevel,
     #[allow(dead_code)]
     workspace_root: PathBuf,
-    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     shell_guard: shell::ShellToolGuard,
-    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     file_guard: file::FileToolGuard,
-    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     web_guard: web::WebToolGuard,
-    #[cfg(feature = "tool-guard")]
     audit_tx: Option<audit::AuditSender>,
 }
 
@@ -145,10 +141,8 @@ impl std::fmt::Debug for ToolGuard {
     }
 }
 
-#[cfg(feature = "tool-guard")]
 const SHELL_TOOL: &str = "shell";
 
-#[cfg(feature = "tool-guard")]
 const FILE_TOOLS: &[&str] = &[
     "read_file",
     "read_many_files",
@@ -158,16 +152,12 @@ const FILE_TOOLS: &[&str] = &[
     "grep",
 ];
 
-#[cfg(feature = "tool-guard")]
 const WEB_TOOL: &str = "web_fetch";
 
 impl ToolGuard {
     /// Construct a new guard policy.
     ///
     /// `allowed_domains` and `disallowed_domains` configure the web guard.
-    ///
-    /// When the `tool-guard` feature is disabled, the guard is constructed
-    /// normally but `evaluate()` always returns `Allow`.
     pub fn new(
         trust_level: TrustLevel,
         workspace_root: PathBuf,
@@ -177,7 +167,6 @@ impl ToolGuard {
         let file_guard = file::FileToolGuard::new(workspace_root.clone());
         let web_guard = web::WebToolGuard::new(allowed_domains, disallowed_domains);
 
-        #[cfg(feature = "tool-guard")]
         let audit_tx = audit::spawn_audit_writer(&workspace_root);
 
         Self {
@@ -186,7 +175,6 @@ impl ToolGuard {
             shell_guard: shell::ShellToolGuard,
             file_guard,
             web_guard,
-            #[cfg(feature = "tool-guard")]
             audit_tx,
         }
     }
@@ -196,8 +184,6 @@ impl ToolGuard {
     /// Dispatches to the appropriate sub-guard based on `tool_name`.
     /// Returns the strictest verdict across all evaluated segments.
     /// Non-`Allow` verdicts are recorded to the audit database.
-    ///
-    /// When the `tool-guard` feature is disabled, always returns `Allow`.
     pub fn evaluate(
         &self,
         _context: &GuardContext,
@@ -205,25 +191,15 @@ impl ToolGuard {
         args: &Value,
         working_dir: &std::path::Path,
     ) -> GuardVerdict {
-        #[cfg(not(feature = "tool-guard"))]
-        {
-            let _ = (tool_name, args, working_dir);
-            return GuardVerdict::Allow;
+        let verdict = self.evaluate_inner(tool_name, args, working_dir);
+
+        if !matches!(verdict, GuardVerdict::Allow) {
+            self.emit_audit_event(_context, tool_name, args, working_dir, &verdict);
         }
 
-        #[cfg(feature = "tool-guard")]
-        {
-            let verdict = self.evaluate_inner(tool_name, args, working_dir);
-
-            if !matches!(verdict, GuardVerdict::Allow) {
-                self.emit_audit_event(_context, tool_name, args, working_dir, &verdict);
-            }
-
-            verdict
-        }
+        verdict
     }
 
-    #[cfg(feature = "tool-guard")]
     fn evaluate_inner(
         &self,
         tool_name: &str,
@@ -251,7 +227,6 @@ impl ToolGuard {
         GuardVerdict::Allow
     }
 
-    #[cfg(feature = "tool-guard")]
     fn emit_audit_event(
         &self,
         context: &GuardContext,
@@ -301,7 +276,6 @@ impl ToolGuard {
     /// For file tools, delegates to the file guard's `audit_segment` method
     /// which re-evaluates each path to find the first normalized path that
     /// produced the decisive verdict (spec §9.1).
-    #[cfg(feature = "tool-guard")]
     fn extract_audit_fields(
         &self,
         tool_name: &str,
@@ -338,16 +312,13 @@ impl ToolGuard {
                     verdict,
                 );
                 let input = match tool_name {
-                    "read_many_files" => {
-                        match args.get("paths").and_then(|v| v.as_array()) {
-                            Some(arr) => {
-                                let strs: Vec<&str> =
-                                    arr.iter().filter_map(|v| v.as_str()).collect();
-                                serde_json::to_string(&strs).unwrap_or_default()
-                            }
-                            None => args.to_string(),
+                    "read_many_files" => match args.get("paths").and_then(|v| v.as_array()) {
+                        Some(arr) => {
+                            let strs: Vec<&str> = arr.iter().filter_map(|v| v.as_str()).collect();
+                            serde_json::to_string(&strs).unwrap_or_default()
                         }
-                    }
+                        None => args.to_string(),
+                    },
                     "apply_patch" => args
                         .get("patch")
                         .and_then(|v| v.as_str())
@@ -412,7 +383,6 @@ mod tests {
         assert_eq!(verdict, GuardVerdict::Allow);
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn evaluate_dispatches_shell_tool() {
         let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
@@ -426,7 +396,6 @@ mod tests {
         assert!(matches!(verdict, GuardVerdict::Deny { .. }));
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn evaluate_dispatches_web_fetch() {
         let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/tmp"), None, None);
@@ -439,7 +408,13 @@ mod tests {
             &serde_json::json!({"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"}),
             std::path::Path::new("/tmp"),
         );
-        assert!(matches!(verdict, GuardVerdict::Deny { rule_id: "web.credential_url", .. }));
+        assert!(matches!(
+            verdict,
+            GuardVerdict::Deny {
+                rule_id: "web.credential_url",
+                ..
+            }
+        ));
 
         // Normal HTTPS URL should be allowed
         let verdict = guard.evaluate(
@@ -457,10 +432,15 @@ mod tests {
             &serde_json::json!({"url": "http://example.com/"}),
             std::path::Path::new("/tmp"),
         );
-        assert!(matches!(verdict, GuardVerdict::Warn { rule_id: "web.non_https", .. }));
+        assert!(matches!(
+            verdict,
+            GuardVerdict::Warn {
+                rule_id: "web.non_https",
+                ..
+            }
+        ));
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn evaluate_dispatches_web_fetch_with_domain_lists() {
         // With allowlist
@@ -478,7 +458,13 @@ mod tests {
             &serde_json::json!({"url": "https://evil.com/"}),
             std::path::Path::new("/tmp"),
         );
-        assert!(matches!(verdict, GuardVerdict::Deny { rule_id: "web.domain_allowlist", .. }));
+        assert!(matches!(
+            verdict,
+            GuardVerdict::Deny {
+                rule_id: "web.domain_allowlist",
+                ..
+            }
+        ));
 
         let verdict = guard.evaluate(
             &ctx,
@@ -489,15 +475,9 @@ mod tests {
         assert_eq!(verdict, GuardVerdict::Allow);
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn evaluate_dispatches_file_tools() {
-        let guard = ToolGuard::new(
-            TrustLevel::Medium,
-            PathBuf::from("/workspace"),
-            None,
-            None,
-        );
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/workspace"), None, None);
         let ctx = GuardContext::new("test-session", "test-agent");
 
         // read_file to system path should be denied
@@ -532,25 +512,16 @@ mod tests {
     // Audit field extraction tests (fixes for review findings #1–#3)
     // -----------------------------------------------------------------------
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn audit_read_many_files_decisive_path_is_offending_not_first() {
         // Finding #2: matched_segment must be the first path that produced the
         // strictest verdict, not simply the first path in the array.
-        let guard = ToolGuard::new(
-            TrustLevel::Medium,
-            PathBuf::from("/workspace"),
-            None,
-            None,
-        );
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/workspace"), None, None);
         let args = serde_json::json!({
             "paths": ["/workspace/ok.rs", "/proc/self/environ"]
         });
-        let verdict = guard.evaluate_inner(
-            "read_many_files",
-            &args,
-            std::path::Path::new("/workspace"),
-        );
+        let verdict =
+            guard.evaluate_inner("read_many_files", &args, std::path::Path::new("/workspace"));
         assert!(matches!(verdict, GuardVerdict::Deny { .. }));
 
         let (input, segment) = guard.extract_audit_fields(
@@ -566,17 +537,11 @@ mod tests {
         assert_eq!(segment, "/proc/self/environ");
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn audit_apply_patch_uses_stencila_format_not_unified_diff() {
         // Finding #1: Stencila patches use `*** Delete File: path` format.
         // The audit must parse this correctly, not return "Delete" as the path.
-        let guard = ToolGuard::new(
-            TrustLevel::Medium,
-            PathBuf::from("/workspace"),
-            None,
-            None,
-        );
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/workspace"), None, None);
         let patch = "\
 *** Delete File: /etc/shadow
 *** Delete File: /workspace/a.rs
@@ -585,11 +550,8 @@ mod tests {
 *** Delete File: /workspace/d.rs
 *** Delete File: /workspace/e.rs";
         let args = serde_json::json!({ "patch": patch });
-        let verdict = guard.evaluate_inner(
-            "apply_patch",
-            &args,
-            std::path::Path::new("/workspace"),
-        );
+        let verdict =
+            guard.evaluate_inner("apply_patch", &args, std::path::Path::new("/workspace"));
         assert!(matches!(verdict, GuardVerdict::Deny { .. }));
 
         let (_input, segment) = guard.extract_audit_fields(
@@ -602,16 +564,10 @@ mod tests {
         assert_eq!(segment, "/etc/shadow");
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn audit_apply_patch_delete_many_reports_count() {
         // When the decisive rule is apply_patch_delete_many, segment is <delete_count:N>
-        let guard = ToolGuard::new(
-            TrustLevel::Medium,
-            PathBuf::from("/workspace"),
-            None,
-            None,
-        );
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/workspace"), None, None);
         let patch = "\
 *** Delete File: /workspace/a.rs
 *** Delete File: /workspace/b.rs
@@ -619,12 +575,15 @@ mod tests {
 *** Delete File: /workspace/d.rs
 *** Delete File: /workspace/e.rs";
         let args = serde_json::json!({ "patch": patch });
-        let verdict = guard.evaluate_inner(
-            "apply_patch",
-            &args,
-            std::path::Path::new("/workspace"),
-        );
-        assert!(matches!(verdict, GuardVerdict::Warn { rule_id: "file.apply_patch_delete_many", .. }));
+        let verdict =
+            guard.evaluate_inner("apply_patch", &args, std::path::Path::new("/workspace"));
+        assert!(matches!(
+            verdict,
+            GuardVerdict::Warn {
+                rule_id: "file.apply_patch_delete_many",
+                ..
+            }
+        ));
 
         let (_input, segment) = guard.extract_audit_fields(
             "apply_patch",
@@ -635,16 +594,10 @@ mod tests {
         assert_eq!(segment, "<delete_count:5>");
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn audit_file_path_is_normalized() {
         // Finding #3: audit matched_segment must be normalized, not raw.
-        let guard = ToolGuard::new(
-            TrustLevel::Medium,
-            PathBuf::from("/workspace"),
-            None,
-            None,
-        );
+        let guard = ToolGuard::new(TrustLevel::Medium, PathBuf::from("/workspace"), None, None);
         // Use a relative path with `..` that resolves outside workspace
         let args = serde_json::json!({ "file_path": "../../other-project/data.db" });
         let verdict = guard.evaluate_inner(
@@ -653,7 +606,13 @@ mod tests {
             std::path::Path::new("/workspace/subdir"),
         );
         // At medium trust, outside-workspace read is Warn
-        assert!(matches!(verdict, GuardVerdict::Warn { rule_id: "file.outside_workspace_read", .. }));
+        assert!(matches!(
+            verdict,
+            GuardVerdict::Warn {
+                rule_id: "file.outside_workspace_read",
+                ..
+            }
+        ));
 
         let (_input, segment) = guard.extract_audit_fields(
             "read_file",
@@ -665,32 +624,18 @@ mod tests {
         assert_eq!(segment, "/other-project/data.db");
     }
 
-    #[cfg(feature = "tool-guard")]
     #[test]
     fn audit_grep_missing_path_uses_working_dir_normalized() {
         // Finding #3: grep with no path should use working_dir for audit
-        let guard = ToolGuard::new(
-            TrustLevel::Low,
-            PathBuf::from("/workspace"),
-            None,
-            None,
-        );
+        let guard = ToolGuard::new(TrustLevel::Low, PathBuf::from("/workspace"), None, None);
         // grep with no `path` field, working_dir is outside workspace
         let args = serde_json::json!({ "pattern": "secret" });
-        let verdict = guard.evaluate_inner(
-            "grep",
-            &args,
-            std::path::Path::new("/other"),
-        );
+        let verdict = guard.evaluate_inner("grep", &args, std::path::Path::new("/other"));
         // At low trust, outside-workspace read is Deny
         assert!(matches!(verdict, GuardVerdict::Deny { .. }));
 
-        let (input, segment) = guard.extract_audit_fields(
-            "grep",
-            &args,
-            std::path::Path::new("/other"),
-            &verdict,
-        );
+        let (input, segment) =
+            guard.extract_audit_fields("grep", &args, std::path::Path::new("/other"), &verdict);
         // Both input and segment should be the resolved working_dir path
         assert_eq!(input, "/other");
         assert_eq!(segment, "/other");

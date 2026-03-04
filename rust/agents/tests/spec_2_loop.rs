@@ -4062,7 +4062,6 @@ async fn hard_abort_sequential_multi_tool_has_no_orphan_tool_calls() -> AgentRes
 // Tool guard wiring tests (Phase 5)
 // ---------------------------------------------------------------------------
 
-#[cfg(feature = "tool-guard")]
 #[tokio::test]
 async fn guard_blocks_destructive_shell_command() -> AgentResult<()> {
     use stencila_agents::tool_guard::{GuardContext, ToolGuard, TrustLevel};
@@ -4113,7 +4112,6 @@ async fn guard_blocks_destructive_shell_command() -> AgentResult<()> {
     Ok(())
 }
 
-#[cfg(feature = "tool-guard")]
 #[tokio::test]
 async fn guard_warn_appends_to_output() -> AgentResult<()> {
     use stencila_agents::tool_guard::{GuardContext, ToolGuard, TrustLevel};
@@ -4211,15 +4209,11 @@ async fn no_guard_allows_all_tools() -> AgentResult<()> {
                 .and_then(|v| v.as_str())
                 .is_some_and(|s| s.contains("[BLOCKED by"))
     });
-    assert!(
-        !found_blocked,
-        "Without guard, tool should not be blocked"
-    );
+    assert!(!found_blocked, "Without guard, tool should not be blocked");
 
     Ok(())
 }
 
-#[cfg(feature = "tool-guard")]
 #[tokio::test]
 async fn guard_without_context_still_enforces() -> AgentResult<()> {
     use stencila_agents::tool_guard::{ToolGuard, TrustLevel};
@@ -4270,7 +4264,6 @@ async fn guard_without_context_still_enforces() -> AgentResult<()> {
     Ok(())
 }
 
-#[cfg(feature = "tool-guard")]
 #[tokio::test]
 async fn guard_propagated_to_subagent_manager() -> AgentResult<()> {
     use stencila_agents::tool_guard::{ToolGuard, TrustLevel};

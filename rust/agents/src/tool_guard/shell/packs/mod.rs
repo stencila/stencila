@@ -215,70 +215,93 @@ fn read_not_sensitive_validator(cmd: &str) -> bool {
 /// destructive pattern to catch them.
 pub static SAFE_PATTERNS: &[PatternRule] = &[
     // Read-only filesystem
-    safe_pattern!("ls",         r"^ls\b[^|><]*$"),
-    safe_pattern!("cat",        r"^cat\b[^|><]*$", read_not_sensitive_validator),
-    safe_pattern!("bat",        r"^bat\b[^|><]*$", read_not_sensitive_validator),
-    safe_pattern!("head",       r"^head\b[^|><]*$", read_not_sensitive_validator),
-    safe_pattern!("tail",       r"^tail\b[^|><]*$", read_not_sensitive_validator),
-    safe_pattern!("less",       r"^less\b[^|><]*$", read_not_sensitive_validator),
-    safe_pattern!("wc",         r"^wc\b[^|><]*$"),
-    safe_pattern!("file",       r"^file\b[^|><]*$"),
-    safe_pattern!("stat",       r"^stat\b[^|><]*$"),
-    safe_pattern!("find",       r"^find\b[^|><]*$", find_safe_validator),
-    safe_pattern!("du",         r"^du\b[^|><]*$"),
-    safe_pattern!("df",         r"^df\b[^|><]*$"),
-    safe_pattern!("tree",       r"^tree\b[^|><]*$"),
-    safe_pattern!("grep",       r"^grep\b[^|><]*$"),
-    safe_pattern!("rg",         r"^rg\b[^|><]*$"),
-    safe_pattern!("diff",       r"^diff\b[^|><]*$"),
-    safe_pattern!("sort",       r"^sort\b[^|><]*$"),
-    safe_pattern!("md5sum",     r"^md5sum\b[^|><]*$"),
-    safe_pattern!("sha256sum",  r"^sha256sum\b[^|><]*$"),
-    safe_pattern!("realpath",   r"^realpath\b[^|><]*$"),
-    safe_pattern!("dirname",    r"^dirname\b[^|><]*$"),
-    safe_pattern!("basename",   r"^basename\b[^|><]*$"),
-    safe_pattern!("readlink",   r"^readlink\b[^|><]*$"),
-    safe_pattern!("test",       r"^test\b[^|><]*$"),
-    safe_pattern!("bracket",    r"^\[[^|><]*$"),
+    safe_pattern!("ls", r"^ls\b[^|><]*$"),
+    safe_pattern!("cat", r"^cat\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("bat", r"^bat\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("head", r"^head\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("tail", r"^tail\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("less", r"^less\b[^|><]*$", read_not_sensitive_validator),
+    safe_pattern!("wc", r"^wc\b[^|><]*$"),
+    safe_pattern!("file", r"^file\b[^|><]*$"),
+    safe_pattern!("stat", r"^stat\b[^|><]*$"),
+    safe_pattern!("find", r"^find\b[^|><]*$", find_safe_validator),
+    safe_pattern!("du", r"^du\b[^|><]*$"),
+    safe_pattern!("df", r"^df\b[^|><]*$"),
+    safe_pattern!("tree", r"^tree\b[^|><]*$"),
+    safe_pattern!("grep", r"^grep\b[^|><]*$"),
+    safe_pattern!("rg", r"^rg\b[^|><]*$"),
+    safe_pattern!("diff", r"^diff\b[^|><]*$"),
+    safe_pattern!("sort", r"^sort\b[^|><]*$"),
+    safe_pattern!("md5sum", r"^md5sum\b[^|><]*$"),
+    safe_pattern!("sha256sum", r"^sha256sum\b[^|><]*$"),
+    safe_pattern!("realpath", r"^realpath\b[^|><]*$"),
+    safe_pattern!("dirname", r"^dirname\b[^|><]*$"),
+    safe_pattern!("basename", r"^basename\b[^|><]*$"),
+    safe_pattern!("readlink", r"^readlink\b[^|><]*$"),
+    safe_pattern!("test", r"^test\b[^|><]*$"),
+    safe_pattern!("bracket", r"^\[[^|><]*$"),
     safe_pattern!("double_bracket", r"^\[\[[^|><]*$"),
     // Read-only git
-    safe_pattern!("git_status",    r"^git\s+status\b[^|><]*$"),
-    safe_pattern!("git_log",       r"^git\s+log\b[^|><]*$"),
-    safe_pattern!("git_diff",      r"^git\s+diff\b[^|><]*$"),
-    safe_pattern!("git_show",      r"^git\s+show\b[^|><]*$"),
-    safe_pattern!("git_branch",    r"^git\s+branch\b[^|><]*$", git_branch_safe_validator),
-    safe_pattern!("git_tag",       r"^git\s+tag\b[^|><]*$", git_tag_safe_validator),
-    safe_pattern!("git_remote_v",  r"^git\s+remote\s+-v\b[^|><]*$"),
+    safe_pattern!("git_status", r"^git\s+status\b[^|><]*$"),
+    safe_pattern!("git_log", r"^git\s+log\b[^|><]*$"),
+    safe_pattern!("git_diff", r"^git\s+diff\b[^|><]*$"),
+    safe_pattern!("git_show", r"^git\s+show\b[^|><]*$"),
+    safe_pattern!(
+        "git_branch",
+        r"^git\s+branch\b[^|><]*$",
+        git_branch_safe_validator
+    ),
+    safe_pattern!("git_tag", r"^git\s+tag\b[^|><]*$", git_tag_safe_validator),
+    safe_pattern!("git_remote_v", r"^git\s+remote\s+-v\b[^|><]*$"),
     safe_pattern!("git_rev_parse", r"^git\s+rev-parse\b[^|><]*$"),
     // Read-only build inspection
-    safe_pattern!("cargo_check",  r"^cargo\s+check\b[^|><]*$"),
-    safe_pattern!("cargo_clippy", r"^cargo\s+clippy\b[^|><]*$", cargo_clippy_safe_validator),
-    safe_pattern!("go_vet",       r"^go\s+vet\b[^|><]*$"),
+    safe_pattern!("cargo_check", r"^cargo\s+check\b[^|><]*$"),
+    safe_pattern!(
+        "cargo_clippy",
+        r"^cargo\s+clippy\b[^|><]*$",
+        cargo_clippy_safe_validator
+    ),
+    safe_pattern!("go_vet", r"^go\s+vet\b[^|><]*$"),
     // Environment inspection
-    safe_pattern!("env",      r"^env\b[^|><]*$"),
+    safe_pattern!("env", r"^env\b[^|><]*$"),
     safe_pattern!("printenv", r"^printenv\b[^|><]*$"),
-    safe_pattern!("which",    r"^which\b[^|><]*$"),
-    safe_pattern!("whoami",   r"^whoami\b[^|><]*$"),
-    safe_pattern!("uname",    r"^uname\b[^|><]*$"),
-    safe_pattern!("pwd",      r"^pwd\b[^|><]*$"),
-    safe_pattern!("echo",     r"^echo\b[^|><]*$"),
-    safe_pattern!("date",     r"^date\b[^|><]*$"),
+    safe_pattern!("which", r"^which\b[^|><]*$"),
+    safe_pattern!("whoami", r"^whoami\b[^|><]*$"),
+    safe_pattern!("uname", r"^uname\b[^|><]*$"),
+    safe_pattern!("pwd", r"^pwd\b[^|><]*$"),
+    safe_pattern!("echo", r"^echo\b[^|><]*$"),
+    safe_pattern!("date", r"^date\b[^|><]*$"),
     safe_pattern!("hostname", r"^hostname\b[^|><]*$"),
-    safe_pattern!("id",       r"^id\b[^|><]*$"),
-    safe_pattern!("groups",   r"^groups\b[^|><]*$"),
+    safe_pattern!("id", r"^id\b[^|><]*$"),
+    safe_pattern!("groups", r"^groups\b[^|><]*$"),
     // Safe filesystem mutation
     safe_pattern!("mkdir", r"^mkdir\b[^|><]*$"),
     safe_pattern!("touch", r"^touch\b[^|><]*$"),
     // Stencila read-only
-    safe_pattern!("stencila_secrets_list",  r"^stencila\s+secrets\s+list\b[^|><]*$"),
-    safe_pattern!("stencila_auth_status",   r"^stencila\s+auth\s+status\b[^|><]*$"),
-    safe_pattern!("stencila_cloud_status",  r"^stencila\s+cloud\s+status\b[^|><]*$"),
-    safe_pattern!("stencila_db_status",     r"^stencila\s+db\s+status\b[^|><]*$"),
-    safe_pattern!("stencila_db_log",        r"^stencila\s+db\s+log\b[^|><]*$"),
-    safe_pattern!("stencila_db_verify",     r"^stencila\s+db\s+verify\b[^|><]*$"),
-    safe_pattern!("stencila_status",        r"^stencila\s+status\b[^|><]*$"),
-    safe_pattern!("stencila_formats_list",  r"^stencila\s+formats\s+list\b[^|><]*$"),
-    safe_pattern!("stencila_models_list",   r"^stencila\s+models\s+list\b[^|><]*$"),
+    safe_pattern!(
+        "stencila_secrets_list",
+        r"^stencila\s+secrets\s+list\b[^|><]*$"
+    ),
+    safe_pattern!(
+        "stencila_auth_status",
+        r"^stencila\s+auth\s+status\b[^|><]*$"
+    ),
+    safe_pattern!(
+        "stencila_cloud_status",
+        r"^stencila\s+cloud\s+status\b[^|><]*$"
+    ),
+    safe_pattern!("stencila_db_status", r"^stencila\s+db\s+status\b[^|><]*$"),
+    safe_pattern!("stencila_db_log", r"^stencila\s+db\s+log\b[^|><]*$"),
+    safe_pattern!("stencila_db_verify", r"^stencila\s+db\s+verify\b[^|><]*$"),
+    safe_pattern!("stencila_status", r"^stencila\s+status\b[^|><]*$"),
+    safe_pattern!(
+        "stencila_formats_list",
+        r"^stencila\s+formats\s+list\b[^|><]*$"
+    ),
+    safe_pattern!(
+        "stencila_models_list",
+        r"^stencila\s+models\s+list\b[^|><]*$"
+    ),
 ];
 
 // ---------------------------------------------------------------------------
@@ -503,7 +526,9 @@ mod tests {
         assert!(!read_not_sensitive_validator("tail ~/.gnupg/trustdb.gpg"));
         assert!(!read_not_sensitive_validator("cat .env"));
         assert!(!read_not_sensitive_validator("less /path/to/.netrc"));
-        assert!(!read_not_sensitive_validator("cat ~/.config/gcloud/creds.json"));
+        assert!(!read_not_sensitive_validator(
+            "cat ~/.config/gcloud/creds.json"
+        ));
 
         // Non-sensitive paths should be allowed (validator returns true = safe)
         assert!(read_not_sensitive_validator("cat README.md"));

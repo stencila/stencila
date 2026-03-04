@@ -1,7 +1,7 @@
 //! System packs: `system.disk`, `system.network`, `system.services`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern, has_token_prefix};
 use super::tokenize_or_bail;
+use super::{Confidence, Pack, PatternRule, destructive_pattern, has_token_prefix};
 
 /// Validator for `dd_to_device`: checks for `of=/dev/...`.
 fn dd_to_device_validator(cmd: &str) -> bool {
@@ -24,9 +24,29 @@ pub static DISK_PACK: Pack = Pack {
     description: "Guards against destructive disk operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("dd_to_device", r"\bdd\b", dd_to_device_validator, "Writing directly to devices can destroy partitions and data", "Specify a file path instead of a device", Confidence::High),
-        destructive_pattern!("mkfs", r"\bmkfs\b", "Formatting a device destroys all data on it", "Verify the target device with `lsblk` first", Confidence::High),
-        destructive_pattern!("fdisk_parted", r"\b(?:fdisk|parted|gdisk)\b", fdisk_parted_validator, "Partition changes can cause data loss", "Use `fdisk -l` or `parted print` to inspect first", Confidence::Medium),
+        destructive_pattern!(
+            "dd_to_device",
+            r"\bdd\b",
+            dd_to_device_validator,
+            "Writing directly to devices can destroy partitions and data",
+            "Specify a file path instead of a device",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "mkfs",
+            r"\bmkfs\b",
+            "Formatting a device destroys all data on it",
+            "Verify the target device with `lsblk` first",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "fdisk_parted",
+            r"\b(?:fdisk|parted|gdisk)\b",
+            fdisk_parted_validator,
+            "Partition changes can cause data loss",
+            "Use `fdisk -l` or `parted print` to inspect first",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -36,9 +56,27 @@ pub static NETWORK_PACK: Pack = Pack {
     description: "Guards against destructive network operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("iptables_flush", r"\b(?:iptables|ip6tables)\s+(?:-F|--flush)\b", "Flushing firewall rules removes all network security policies", "Use `iptables -L` to list rules first; save with `iptables-save`", Confidence::High),
-        destructive_pattern!("route_delete", r"\b(?:ip\s+route\s+(?:del|flush)|route\s+del)\b", "Deleting routes can cause network connectivity loss", "Use `ip route show` to review routes before modification", Confidence::Medium),
-        destructive_pattern!("interface_down", r"\b(?:ifconfig\s+\w+\s+down|ip\s+link\s+set\s+\w+\s+down)\b", "Bringing down a network interface disrupts connectivity", "Ensure you have alternative access before modifying interfaces", Confidence::Medium),
+        destructive_pattern!(
+            "iptables_flush",
+            r"\b(?:iptables|ip6tables)\s+(?:-F|--flush)\b",
+            "Flushing firewall rules removes all network security policies",
+            "Use `iptables -L` to list rules first; save with `iptables-save`",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "route_delete",
+            r"\b(?:ip\s+route\s+(?:del|flush)|route\s+del)\b",
+            "Deleting routes can cause network connectivity loss",
+            "Use `ip route show` to review routes before modification",
+            Confidence::Medium
+        ),
+        destructive_pattern!(
+            "interface_down",
+            r"\b(?:ifconfig\s+\w+\s+down|ip\s+link\s+set\s+\w+\s+down)\b",
+            "Bringing down a network interface disrupts connectivity",
+            "Ensure you have alternative access before modifying interfaces",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -50,7 +88,11 @@ fn systemctl_critical_validator(cmd: &str) -> bool {
     tokens.iter().any(|t| {
         let v = &t.value;
         // Skip flags (start with '-') and the command/sub-command tokens
-        if v.starts_with('-') || *v == "systemctl" || *v == "stop" || *v == "disable" || *v == "mask"
+        if v.starts_with('-')
+            || *v == "systemctl"
+            || *v == "stop"
+            || *v == "disable"
+            || *v == "mask"
         {
             return false;
         }
@@ -65,9 +107,28 @@ pub static SERVICES_PACK: Pack = Pack {
     description: "Guards against destructive system service operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("systemctl_destructive", r"\bsystemctl\s+(?:stop|disable|mask)\b", systemctl_critical_validator, "Stopping or disabling critical services can break the system", "Use `systemctl status` to check service state first", Confidence::Medium),
-        destructive_pattern!("service_stop", r"\bservice\s+\w+\s+stop\b", "Stopping services can disrupt running applications", "Use `service <name> status` to check before stopping", Confidence::Medium),
-        destructive_pattern!("kill_signal", r"\bkill\s+-9\b", "SIGKILL terminates processes without cleanup", "Use `kill` (SIGTERM) first to allow graceful shutdown", Confidence::Medium),
+        destructive_pattern!(
+            "systemctl_destructive",
+            r"\bsystemctl\s+(?:stop|disable|mask)\b",
+            systemctl_critical_validator,
+            "Stopping or disabling critical services can break the system",
+            "Use `systemctl status` to check service state first",
+            Confidence::Medium
+        ),
+        destructive_pattern!(
+            "service_stop",
+            r"\bservice\s+\w+\s+stop\b",
+            "Stopping services can disrupt running applications",
+            "Use `service <name> status` to check before stopping",
+            Confidence::Medium
+        ),
+        destructive_pattern!(
+            "kill_signal",
+            r"\bkill\s+-9\b",
+            "SIGKILL terminates processes without cleanup",
+            "Use `kill` (SIGTERM) first to allow graceful shutdown",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -75,8 +136,8 @@ pub static SERVICES_PACK: Pack = Pack {
 mod tests {
     use regex::Regex;
 
-    use super::*;
     use super::super::tests::rule_by_id;
+    use super::*;
 
     #[test]
     fn dd_to_device_validator_cases() {
@@ -88,8 +149,8 @@ mod tests {
 
     #[test]
     fn mkfs_matches() {
-        let re = Regex::new(rule_by_id(&DISK_PACK, "mkfs").pattern)
-            .expect("pattern should compile");
+        let re =
+            Regex::new(rule_by_id(&DISK_PACK, "mkfs").pattern).expect("pattern should compile");
         assert!(re.is_match("mkfs.ext4 /dev/sda1"));
         assert!(re.is_match("mkfs /dev/sda1"));
         assert!(!re.is_match("check_fs /dev/sda1"));
@@ -145,7 +206,9 @@ mod tests {
     fn systemctl_critical_validator_cases() {
         assert!(systemctl_critical_validator("systemctl stop sshd"));
         assert!(systemctl_critical_validator("systemctl disable docker"));
-        assert!(systemctl_critical_validator("systemctl mask NetworkManager"));
+        assert!(systemctl_critical_validator(
+            "systemctl mask NetworkManager"
+        ));
         assert!(systemctl_critical_validator("systemctl stop firewalld"));
         assert!(systemctl_critical_validator("systemctl disable kubelet"));
         assert!(systemctl_critical_validator(

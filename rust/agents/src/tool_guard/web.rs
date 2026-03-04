@@ -57,21 +57,24 @@ pub const HIGH_RISK_PORTS: &[u16] = &[
 // ---------------------------------------------------------------------------
 
 const CREDENTIAL_URL_REASON: &str = "Metadata credential paths return IAM tokens and secrets that can be used for privilege escalation";
-const CREDENTIAL_URL_SUGGESTION: &str = "Use the cloud provider's CLI for credential management (e.g., `aws sts get-caller-identity`)";
+const CREDENTIAL_URL_SUGGESTION: &str =
+    "Use the cloud provider's CLI for credential management (e.g., `aws sts get-caller-identity`)";
 
 const METADATA_ENDPOINT_REASON: &str =
     "Cloud metadata endpoints expose instance credentials and configuration";
 const METADATA_ENDPOINT_SUGGESTION: &str =
     "Access cloud credentials through the provider's CLI or SDK instead";
 
-const INTERNAL_NETWORK_REASON: &str = "Fetching internal network addresses can expose services not meant for external access (SSRF)";
+const INTERNAL_NETWORK_REASON: &str =
+    "Fetching internal network addresses can expose services not meant for external access (SSRF)";
 const INTERNAL_NETWORK_SUGGESTION: &str =
     "Use a public URL, or access internal services through an appropriate API";
 
 const NON_HTTPS_REASON: &str = "Unencrypted HTTP requests can expose data in transit";
 const NON_HTTPS_SUGGESTION: &str = "Use `https://` instead of `http://`";
 
-const HIGH_RISK_PORT_REASON: &str = "Port is associated with an infrastructure service not typically accessed via HTTP";
+const HIGH_RISK_PORT_REASON: &str =
+    "Port is associated with an infrastructure service not typically accessed via HTTP";
 const HIGH_RISK_PORT_SUGGESTION: &str =
     "Use the service's dedicated CLI or client library instead of HTTP";
 
@@ -80,7 +83,8 @@ const DOMAIN_ALLOWLIST_SUGGESTION: &str =
     "Add the domain to `allowedDomains` in the agent definition, or use an allowed domain";
 
 const DOMAIN_DENYLIST_REASON: &str = "Domain is in the agent's disallowed domain list";
-const DOMAIN_DENYLIST_SUGGESTION: &str = "Remove the domain from `disallowedDomains` if access is intended, or use a different source";
+const DOMAIN_DENYLIST_SUGGESTION: &str =
+    "Remove the domain from `disallowedDomains` if access is intended, or use a different source";
 
 const PARSE_FAILURE_REASON: &str = "URL could not be parsed";
 const PARSE_FAILURE_SUGGESTION: &str = "Provide a valid URL (e.g., `https://example.com/path`)";
@@ -233,12 +237,7 @@ fn parse_failure_deny() -> GuardVerdict {
 }
 
 fn normalize_domain_list(list: Option<Vec<String>>) -> Option<Vec<String>> {
-    list.map(|domains| {
-        domains
-            .into_iter()
-            .map(|d| normalize_host(&d))
-            .collect()
-    })
+    list.map(|domains| domains.into_iter().map(|d| normalize_host(&d)).collect())
 }
 
 // ---------------------------------------------------------------------------
@@ -314,7 +313,10 @@ fn is_internal_network(host: &str) -> bool {
     }
 
     // Check for IPv6 — url crate strips brackets from [::1]
-    let ipv6_str = host.strip_prefix('[').and_then(|s| s.strip_suffix(']')).unwrap_or(host);
+    let ipv6_str = host
+        .strip_prefix('[')
+        .and_then(|s| s.strip_suffix(']'))
+        .unwrap_or(host);
     if let Ok(ipv6) = ipv6_str.parse::<Ipv6Addr>() {
         return is_private_ipv6(ipv6);
     }
@@ -407,10 +409,7 @@ fn domain_matches_list(host: &str, domains: &[String]) -> bool {
 mod tests {
     use super::*;
 
-    fn guard(
-        allowed: Option<Vec<&str>>,
-        disallowed: Option<Vec<&str>>,
-    ) -> WebToolGuard {
+    fn guard(allowed: Option<Vec<&str>>, disallowed: Option<Vec<&str>>) -> WebToolGuard {
         WebToolGuard::new(
             allowed.map(|v| v.into_iter().map(|s| s.to_string()).collect()),
             disallowed.map(|v| v.into_iter().map(|s| s.to_string()).collect()),
@@ -470,10 +469,7 @@ mod tests {
     #[test]
     fn credential_url_aws_token() {
         let g = default_guard();
-        let v = g.evaluate(
-            "http://169.254.169.254/latest/api/token",
-            TrustLevel::High,
-        );
+        let v = g.evaluate("http://169.254.169.254/latest/api/token", TrustLevel::High);
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "web.credential_url");
     }
@@ -599,10 +595,7 @@ mod tests {
         // fd00:ec2::254 is in fc00::/7 (unique-local), but should fire
         // metadata_endpoint rather than internal_network for audit precision
         let g = default_guard();
-        let v = g.evaluate(
-            "http://[fd00:ec2::254]/some/path",
-            TrustLevel::Medium,
-        );
+        let v = g.evaluate("http://[fd00:ec2::254]/some/path", TrustLevel::Medium);
         assert_eq!(verdict_rule_id(&v), "web.metadata_endpoint");
     }
 
@@ -621,10 +614,7 @@ mod tests {
     fn metadata_denied_at_all_trust_levels() {
         let g = default_guard();
         for trust in [TrustLevel::Low, TrustLevel::Medium, TrustLevel::High] {
-            let v = g.evaluate(
-                "http://169.254.169.254/latest/meta-data/",
-                trust,
-            );
+            let v = g.evaluate("http://169.254.169.254/latest/meta-data/", trust);
             assert!(is_deny(&v), "expected deny at {trust:?}, got {v:?}");
         }
     }
@@ -791,10 +781,7 @@ mod tests {
         for &port in HIGH_RISK_PORTS {
             let url = format!("https://example.com:{port}/");
             let v = g.evaluate(&url, TrustLevel::Medium);
-            assert!(
-                is_warn(&v),
-                "expected warn for port {port}, got {v:?}"
-            );
+            assert!(is_warn(&v), "expected warn for port {port}, got {v:?}");
             assert_eq!(verdict_rule_id(&v), "web.high_risk_port");
         }
     }

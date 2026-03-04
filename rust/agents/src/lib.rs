@@ -98,7 +98,6 @@ pub mod routing;
 pub mod convenience;
 
 /// Database migrations for the `"agents"` domain.
-#[cfg(feature = "tool-guard")]
 pub mod migrations;
 
 /// Tool guard framework: friction layer between agent tool calls and execution.

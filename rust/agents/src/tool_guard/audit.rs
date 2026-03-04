@@ -7,21 +7,16 @@
 //! `mpsc` channel. If the database cannot be opened or migrated, auditing is
 //! silently disabled — guard enforcement still runs.
 
-#[cfg(feature = "tool-guard")]
 use std::path::Path;
 
-#[cfg(feature = "tool-guard")]
 use tokio::sync::mpsc;
 
-#[cfg(feature = "tool-guard")]
 use crate::migrations::AGENT_MIGRATIONS;
 
 /// Audit channel buffer size. Events beyond this are dropped (best-effort).
-#[cfg(feature = "tool-guard")]
 const CHANNEL_CAPACITY: usize = 256;
 
 /// A single audit event to be written to the database.
-#[cfg(feature = "tool-guard")]
 #[derive(Debug, Clone)]
 pub struct AuditEvent {
     pub session_id: String,
@@ -41,13 +36,11 @@ pub struct AuditEvent {
 /// Cheaply cloneable. Sending is non-blocking and best-effort: if the
 /// channel is full or the receiver has been dropped, the event is silently
 /// discarded.
-#[cfg(feature = "tool-guard")]
 #[derive(Debug, Clone)]
 pub struct AuditSender {
     tx: mpsc::Sender<AuditEvent>,
 }
 
-#[cfg(feature = "tool-guard")]
 impl AuditSender {
     /// Send an audit event (best-effort, non-blocking).
     pub fn send(&self, event: AuditEvent) {
@@ -65,7 +58,6 @@ impl AuditSender {
 ///
 /// If the database cannot be opened or migrated, returns `None` and logs a
 /// warning. Guard enforcement is unaffected.
-#[cfg(feature = "tool-guard")]
 pub fn spawn_audit_writer(workspace_root: &Path) -> Option<AuditSender> {
     let db_dir = workspace_root.join(".stencila");
     if let Err(e) = std::fs::create_dir_all(&db_dir) {
@@ -110,7 +102,6 @@ pub fn spawn_audit_writer(workspace_root: &Path) -> Option<AuditSender> {
     Some(AuditSender { tx })
 }
 
-#[cfg(feature = "tool-guard")]
 async fn audit_writer_task(
     conn: std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
     mut rx: mpsc::Receiver<AuditEvent>,
@@ -118,7 +109,9 @@ async fn audit_writer_task(
     while let Some(event) = rx.recv().await {
         // Perform the blocking DB insert on the current task. The audit writer
         // is the only consumer and inserts are fast (single row, WAL mode).
-        let conn = conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let conn = conn
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Err(e) = conn.execute(
             "INSERT INTO agent_tool_guard_events \
              (session_id, agent_name, trust_level, tool_name, input, \
@@ -146,7 +139,7 @@ async fn audit_writer_task(
 // Tests
 // ---------------------------------------------------------------------------
 
-#[cfg(all(test, feature = "tool-guard"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -305,7 +298,10 @@ mod tests {
         let blocker = tmp.path().join(".stencila");
         std::fs::write(&blocker, b"not a directory").unwrap();
         let result = spawn_audit_writer(tmp.path());
-        assert!(result.is_none(), "Audit should be disabled when DB cannot open");
+        assert!(
+            result.is_none(),
+            "Audit should be disabled when DB cannot open"
+        );
     }
 
     #[tokio::test]

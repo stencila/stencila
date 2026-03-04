@@ -12,9 +12,27 @@ pub static DOCKER_PACK: Pack = Pack {
     description: "Guards against destructive Docker operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("system_prune", r"\bdocker\s+system\s+prune\b", "Removes all unused containers, networks, images, and optionally volumes", "Use `docker container prune` or `docker image prune` for targeted cleanup", Confidence::High),
-        destructive_pattern!("volume_prune", r"\bdocker\s+volume\s+prune\b", "Permanently deletes all unused volumes and their data", "List volumes with `docker volume ls` and remove specific ones", Confidence::High),
-        destructive_pattern!("force_remove", r"\bdocker\s+(?:rm|rmi)\b.*(?:--force|-f)\b", "Force-removes running containers or in-use images", "Stop containers first with `docker stop`, then remove", Confidence::Medium),
+        destructive_pattern!(
+            "system_prune",
+            r"\bdocker\s+system\s+prune\b",
+            "Removes all unused containers, networks, images, and optionally volumes",
+            "Use `docker container prune` or `docker image prune` for targeted cleanup",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "volume_prune",
+            r"\bdocker\s+volume\s+prune\b",
+            "Permanently deletes all unused volumes and their data",
+            "List volumes with `docker volume ls` and remove specific ones",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "force_remove",
+            r"\bdocker\s+(?:rm|rmi)\b.*(?:--force|-f)\b",
+            "Force-removes running containers or in-use images",
+            "Stop containers first with `docker stop`, then remove",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -34,9 +52,28 @@ pub static KUBECTL_PACK: Pack = Pack {
     description: "Guards against destructive Kubernetes operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("delete_namespace", r"\bkubectl\s+delete\s+(?:namespace|ns)\b", "Deletes all resources in the namespace", "Delete specific resources within the namespace instead", Confidence::High),
-        destructive_pattern!("delete_all", r"\bkubectl\s+delete\b.*(?:--all\b|--all-namespaces\b|-A\b)", "Mass-deletes resources across scopes", "Delete specific resources by name", Confidence::High),
-        destructive_pattern!("drain_node", r"\bkubectl\s+drain\b", drain_no_dryrun_validator, "Evicts all pods from a node", "Use `kubectl drain --dry-run=client` first to preview", Confidence::Medium),
+        destructive_pattern!(
+            "delete_namespace",
+            r"\bkubectl\s+delete\s+(?:namespace|ns)\b",
+            "Deletes all resources in the namespace",
+            "Delete specific resources within the namespace instead",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "delete_all",
+            r"\bkubectl\s+delete\b.*(?:--all\b|--all-namespaces\b|-A\b)",
+            "Mass-deletes resources across scopes",
+            "Delete specific resources by name",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "drain_node",
+            r"\bkubectl\s+drain\b",
+            drain_no_dryrun_validator,
+            "Evicts all pods from a node",
+            "Use `kubectl drain --dry-run=client` first to preview",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -44,8 +81,8 @@ pub static KUBECTL_PACK: Pack = Pack {
 mod tests {
     use regex::Regex;
 
-    use super::*;
     use super::super::tests::rule_by_id;
+    use super::*;
 
     // -- Docker --
 

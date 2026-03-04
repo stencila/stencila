@@ -4,11 +4,6 @@
 //! guards at all trust levels. Implements every worked example from the
 //! tool-guards spec §3.2 and covers the Definition of Done checklist from §13.
 //!
-//! These tests require the `tool-guard` feature: without it,
-//! `ToolGuard::evaluate()` always returns `Allow` and all assertions
-//! expecting `Deny`/`Warn` would fail.
-
-#![cfg(feature = "tool-guard")]
 #![allow(clippy::result_large_err)]
 
 use std::path::{Path, PathBuf};
@@ -83,15 +78,15 @@ mod end_to_end {
     fn shell_rm_rf_root_blocked() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -rf /"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "rm -rf /"}), wd());
         assert!(is_deny(&v), "expected deny, got {v:?}");
         // Verify the verdict contains all required audit fields
-        if let GuardVerdict::Deny { rule_id, reason, suggestion } = &v {
+        if let GuardVerdict::Deny {
+            rule_id,
+            reason,
+            suggestion,
+        } = &v
+        {
             assert!(!rule_id.is_empty());
             assert!(!reason.is_empty());
             assert!(!suggestion.is_empty());
@@ -139,28 +134,16 @@ mod end_to_end {
     fn trust_level_varies_verdict() {
         let c = ctx();
         // `rm -r dir` (medium confidence) → Deny at low/medium, Warn at high
-        let v_low = guard(TrustLevel::Low).evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -r dir"}),
-            wd(),
-        );
+        let v_low =
+            guard(TrustLevel::Low).evaluate(&c, "shell", &json!({"command": "rm -r dir"}), wd());
         assert!(is_deny(&v_low), "expected deny at low, got {v_low:?}");
 
-        let v_med = guard(TrustLevel::Medium).evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -r dir"}),
-            wd(),
-        );
+        let v_med =
+            guard(TrustLevel::Medium).evaluate(&c, "shell", &json!({"command": "rm -r dir"}), wd());
         assert!(is_deny(&v_med), "expected deny at medium, got {v_med:?}");
 
-        let v_high = guard(TrustLevel::High).evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -r dir"}),
-            wd(),
-        );
+        let v_high =
+            guard(TrustLevel::High).evaluate(&c, "shell", &json!({"command": "rm -r dir"}), wd());
         assert!(is_warn(&v_high), "expected warn at high, got {v_high:?}");
     }
 
@@ -173,26 +156,22 @@ mod end_to_end {
         let child_ctx = GuardContext::new("subagent-1", "parent-agent/subagent-1");
 
         // Parent and child share the same guard (same Arc)
-        let parent_v = g.evaluate(
-            &parent_ctx,
-            "shell",
-            &json!({"command": "rm -rf /"}),
-            wd(),
-        );
-        let child_v = g.evaluate(
-            &child_ctx,
-            "shell",
-            &json!({"command": "rm -rf /"}),
-            wd(),
-        );
+        let parent_v = g.evaluate(&parent_ctx, "shell", &json!({"command": "rm -rf /"}), wd());
+        let child_v = g.evaluate(&child_ctx, "shell", &json!({"command": "rm -rf /"}), wd());
 
         // Both produce Deny (same policy)
         assert!(is_deny(&parent_v));
         assert!(is_deny(&child_v));
 
         // Guard contexts are distinct
-        assert_ne!(parent_ctx.session_id.as_ref(), child_ctx.session_id.as_ref());
-        assert_ne!(parent_ctx.agent_name.as_ref(), child_ctx.agent_name.as_ref());
+        assert_ne!(
+            parent_ctx.session_id.as_ref(),
+            child_ctx.session_id.as_ref()
+        );
+        assert_ne!(
+            parent_ctx.agent_name.as_ref(),
+            child_ctx.agent_name.as_ref()
+        );
     }
 
     // -- Unknown tool names → Allow --
@@ -205,7 +184,7 @@ mod end_to_end {
         assert!(is_allow(&v));
     }
 
-    // -- Guard with no tool-guard feature disabled paths (covered by feature flag) --
+    // -- Guard context with unknown attribution --
 
     #[test]
     fn guard_context_unknown_attribution() {
@@ -239,12 +218,7 @@ mod end_to_end {
     fn web_allowlist_blocks_unlisted_domain() {
         let g = guard_with_domains(TrustLevel::Medium, Some(vec!["docs.rs"]), None);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "https://evil.com/"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "https://evil.com/"}), wd());
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "web.domain_allowlist");
     }
@@ -253,12 +227,7 @@ mod end_to_end {
     fn web_denylist_blocks_listed_domain() {
         let g = guard_with_domains(TrustLevel::Medium, None, Some(vec!["evil.com"]));
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "https://evil.com/"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "https://evil.com/"}), wd());
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "web.domain_denylist");
     }
@@ -311,12 +280,7 @@ mod spec_conformance {
     fn example_3_ls_low() {
         let g = guard(TrustLevel::Low);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "ls -la"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "ls -la"}), wd());
         assert!(is_allow(&v), "Example 3 failed: expected allow, got {v:?}");
     }
 
@@ -339,12 +303,7 @@ mod spec_conformance {
     fn example_5_npm_start_low() {
         let g = guard(TrustLevel::Low);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "npm start"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "npm start"}), wd());
         assert!(is_deny(&v), "Example 5 failed: expected deny, got {v:?}");
         assert_eq!(verdict_rule_id(&v), "shell.default_deny");
     }
@@ -354,12 +313,7 @@ mod spec_conformance {
     fn example_6_single_quoted_substitution() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "echo '$(rm -rf /)'"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "echo '$(rm -rf /)'"}), wd());
         assert!(is_allow(&v), "Example 6 failed: expected allow, got {v:?}");
     }
 
@@ -488,12 +442,7 @@ mod spec_conformance {
         for i in 0..7 {
             patch.push_str(&format!("*** Delete File: src/old_{i}.rs\n"));
         }
-        let v = g.evaluate(
-            &c,
-            "apply_patch",
-            &json!({"patch": patch}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "apply_patch", &json!({"patch": patch}), wd());
         assert!(is_warn(&v), "F2 failed: expected warn, got {v:?}");
         assert_eq!(verdict_rule_id(&v), "file.apply_patch_delete_many");
     }
@@ -510,7 +459,10 @@ mod spec_conformance {
                 &json!({"file_path": "/etc/hosts", "content": "bad"}),
                 wd(),
             );
-            assert!(is_deny(&v), "F3 failed at {trust:?}: expected deny, got {v:?}");
+            assert!(
+                is_deny(&v),
+                "F3 failed at {trust:?}: expected deny, got {v:?}"
+            );
             assert_eq!(verdict_rule_id(&v), "file.system_path_write");
         }
     }
@@ -577,7 +529,10 @@ mod spec_conformance {
                 &json!({"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"}),
                 wd(),
             );
-            assert!(is_deny(&v), "W1 failed at {trust:?}: expected deny, got {v:?}");
+            assert!(
+                is_deny(&v),
+                "W1 failed at {trust:?}: expected deny, got {v:?}"
+            );
             assert_eq!(verdict_rule_id(&v), "web.credential_url");
         }
     }
@@ -602,12 +557,7 @@ mod spec_conformance {
     fn w3_domain_allowlist() {
         let g = guard_with_domains(TrustLevel::Medium, Some(vec!["docs.rs"]), None);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "https://evil.com"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "https://evil.com"}), wd());
         assert!(is_deny(&v), "W3 failed: expected deny, got {v:?}");
         assert_eq!(verdict_rule_id(&v), "web.domain_allowlist");
     }
@@ -647,12 +597,7 @@ mod definition_of_done {
         let c = ctx();
         for trust in [TrustLevel::Low, TrustLevel::Medium, TrustLevel::High] {
             let g = guard(trust);
-            let v = g.evaluate(
-                &c,
-                "shell",
-                &json!({"command": "rm -rf /"}),
-                wd(),
-            );
+            let v = g.evaluate(&c, "shell", &json!({"command": "rm -rf /"}), wd());
             assert!(is_deny(&v), "expected deny at {trust:?}, got {v:?}");
         }
     }
@@ -662,28 +607,16 @@ mod definition_of_done {
     #[test]
     fn shell_medium_confidence_varying_trust() {
         let c = ctx();
-        let v_low = guard(TrustLevel::Low).evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -r dir"}),
-            wd(),
-        );
+        let v_low =
+            guard(TrustLevel::Low).evaluate(&c, "shell", &json!({"command": "rm -r dir"}), wd());
         assert!(is_deny(&v_low));
 
-        let v_med = guard(TrustLevel::Medium).evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -r dir"}),
-            wd(),
-        );
+        let v_med =
+            guard(TrustLevel::Medium).evaluate(&c, "shell", &json!({"command": "rm -r dir"}), wd());
         assert!(is_deny(&v_med));
 
-        let v_high = guard(TrustLevel::High).evaluate(
-            &c,
-            "shell",
-            &json!({"command": "rm -r dir"}),
-            wd(),
-        );
+        let v_high =
+            guard(TrustLevel::High).evaluate(&c, "shell", &json!({"command": "rm -r dir"}), wd());
         assert!(is_warn(&v_high));
     }
 
@@ -846,12 +779,7 @@ mod definition_of_done {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
         // Shell guard sensitive_read uses `~` prefix (shell-level), not expanded
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "bat ~/.ssh/id_rsa"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "bat ~/.ssh/id_rsa"}), wd());
         assert!(is_deny(&v));
     }
 
@@ -876,12 +804,7 @@ mod definition_of_done {
     fn terraform_destroy_denied() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "terraform destroy"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "terraform destroy"}), wd());
         assert!(is_deny(&v));
     }
 
@@ -969,12 +892,7 @@ mod definition_of_done {
 *** Update File: src/main.rs
 *** Add File: /etc/passwd
 ";
-        let v = g.evaluate(
-            &c,
-            "apply_patch",
-            &json!({"patch": patch}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "apply_patch", &json!({"patch": patch}), wd());
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "file.system_path_write");
     }
@@ -985,12 +903,7 @@ mod definition_of_done {
     fn grep_missing_path_inside_workspace_allowed() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "grep",
-            &json!({"pattern": "TODO"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "grep", &json!({"pattern": "TODO"}), wd());
         assert!(is_allow(&v));
     }
 
@@ -1015,17 +928,12 @@ mod definition_of_done {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
         let ports = [
-            22, 23, 25, 135, 139, 445, 2375, 2376, 3306, 5432, 5900, 6379,
-            6443, 8500, 8200, 9200, 27017,
+            22, 23, 25, 135, 139, 445, 2375, 2376, 3306, 5432, 5900, 6379, 6443, 8500, 8200, 9200,
+            27017,
         ];
         for port in ports {
             let url = format!("https://example.com:{port}/");
-            let v = g.evaluate(
-                &c,
-                "web_fetch",
-                &json!({"url": url}),
-                wd(),
-            );
+            let v = g.evaluate(&c, "web_fetch", &json!({"url": url}), wd());
             assert!(is_warn(&v), "expected warn for port {port}, got {v:?}");
             assert_eq!(verdict_rule_id(&v), "web.high_risk_port");
         }
@@ -1050,12 +958,7 @@ mod definition_of_done {
     fn web_trailing_dot_stripped() {
         let g = guard_with_domains(TrustLevel::Medium, Some(vec!["docs.rs"]), None);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "https://docs.rs./"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "https://docs.rs./"}), wd());
         assert!(is_allow(&v));
     }
 
@@ -1096,12 +999,7 @@ mod definition_of_done {
             Some(vec!["docs.rs"]),
         );
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "https://docs.rs/"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "https://docs.rs/"}), wd());
         assert!(is_allow(&v));
     }
 
@@ -1142,12 +1040,7 @@ mod definition_of_done {
     fn web_private_ip_10_denied() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "http://10.0.0.1/"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "http://10.0.0.1/"}), wd());
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "web.internal_network");
     }
@@ -1156,12 +1049,7 @@ mod definition_of_done {
     fn web_ipv6_loopback_denied() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "http://[::1]/"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "http://[::1]/"}), wd());
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "web.internal_network");
     }
@@ -1187,12 +1075,7 @@ mod definition_of_done {
     fn web_parse_failure_denied() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "web_fetch",
-            &json!({"url": "not a url"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "web_fetch", &json!({"url": "not a url"}), wd());
         assert!(is_deny(&v));
         assert_eq!(verdict_rule_id(&v), "web.parse_failure");
     }
@@ -1314,12 +1197,7 @@ mod definition_of_done {
     fn git_clean_f_denied() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "git clean -f"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "git clean -f"}), wd());
         assert!(is_deny(&v));
     }
 
@@ -1327,12 +1205,7 @@ mod definition_of_done {
     fn git_clean_n_allowed() {
         let g = guard(TrustLevel::Medium);
         let c = ctx();
-        let v = g.evaluate(
-            &c,
-            "shell",
-            &json!({"command": "git clean -n"}),
-            wd(),
-        );
+        let v = g.evaluate(&c, "shell", &json!({"command": "git clean -n"}), wd());
         assert!(is_allow(&v));
     }
 

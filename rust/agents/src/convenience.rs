@@ -312,10 +312,7 @@ async fn create_api_session_inner(
 
     // Generate session ID up front so guard context and events share the same value
     let session_id = uuid::Uuid::new_v4().to_string();
-    let guard_context = Arc::new(GuardContext::new(
-        session_id.as_str(),
-        agent.name.as_str(),
-    ));
+    let guard_context = Arc::new(GuardContext::new(session_id.as_str(), agent.name.as_str()));
 
     let (system_prompt, mcp_context) =
         prompts::build_system_prompt(&mut *profile, &*env, &config).await?;

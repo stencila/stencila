@@ -20,7 +20,8 @@ const APPLY_PATCH_DELETE_THRESHOLD: usize = 5;
 const SYSTEM_READ_REASON: &str = "Reading virtual/device filesystem paths can expose kernel state, process internals, and credentials (e.g., /proc/self/environ)";
 const SYSTEM_READ_SUGGESTION: &str = "Use specific inspection commands instead (e.g., `uname` for system info, `env` for environment)";
 
-const SENSITIVE_READ_REASON: &str = "Reading credential and key files can leak secrets into the agent's context window";
+const SENSITIVE_READ_REASON: &str =
+    "Reading credential and key files can leak secrets into the agent's context window";
 const SENSITIVE_READ_SUGGESTION: &str = "Use targeted commands that don't expose raw secrets (e.g., `ssh-keygen -l -f` to check a key fingerprint)";
 
 const OUTSIDE_WORKSPACE_READ_REASON: &str = "Read target is outside the session workspace root";
@@ -31,7 +32,8 @@ const OUTSIDE_WORKSPACE_READ_SUGGESTION: &str =
 // Write rule strings
 // ---------------------------------------------------------------------------
 
-const SYSTEM_WRITE_REASON: &str = "Writing to system paths can break OS configuration and stability";
+const SYSTEM_WRITE_REASON: &str =
+    "Writing to system paths can break OS configuration and stability";
 const SYSTEM_WRITE_SUGGESTION: &str =
     "Use application-level config files in the project directory instead";
 
@@ -43,8 +45,7 @@ const OUTSIDE_WORKSPACE_WRITE_REASON: &str = "Write target is outside the sessio
 const OUTSIDE_WORKSPACE_WRITE_SUGGESTION: &str =
     "Write to a path within the project workspace, or verify the target path is intended";
 
-const PROTECTED_OVERWRITE_REASON: &str =
-    "Writing to .git/ internals can corrupt repository state";
+const PROTECTED_OVERWRITE_REASON: &str = "Writing to .git/ internals can corrupt repository state";
 const PROTECTED_OVERWRITE_SUGGESTION: &str =
     "Edit hooks or config via `git config` or manual review outside the agent";
 
@@ -104,8 +105,10 @@ impl FileToolGuard {
                 let mut strictest = GuardVerdict::Allow;
                 for p in paths {
                     if let Some(s) = p.as_str() {
-                        strictest =
-                            strictest_verdict(strictest, self.evaluate_read(s, working_dir, trust_level));
+                        strictest = strictest_verdict(
+                            strictest,
+                            self.evaluate_read(s, working_dir, trust_level),
+                        );
                         if matches!(strictest, GuardVerdict::Deny { .. }) {
                             return strictest;
                         }
@@ -142,11 +145,7 @@ impl FileToolGuard {
         let mut strictest = GuardVerdict::Allow;
 
         // Rule: file.system_path_read — Deny/Deny/Deny
-        if paths::path_matches_list(
-            &normalized,
-            SYSTEM_READ_PATHS,
-            &self.home_dir,
-        ) {
+        if paths::path_matches_list(&normalized, SYSTEM_READ_PATHS, &self.home_dir) {
             let verdict = match trust_level {
                 TrustLevel::Low | TrustLevel::Medium | TrustLevel::High => GuardVerdict::Deny {
                     reason: SYSTEM_READ_REASON,
@@ -161,11 +160,7 @@ impl FileToolGuard {
         }
 
         // Rule: file.sensitive_path_read — Deny/Deny/Warn
-        if paths::path_matches_list(
-            &normalized,
-            SENSITIVE_PATHS,
-            &self.home_dir,
-        ) {
+        if paths::path_matches_list(&normalized, SENSITIVE_PATHS, &self.home_dir) {
             let verdict = match trust_level {
                 TrustLevel::Low | TrustLevel::Medium => GuardVerdict::Deny {
                     reason: SENSITIVE_READ_REASON,
@@ -225,11 +220,7 @@ impl FileToolGuard {
         let mut strictest = GuardVerdict::Allow;
 
         // Rule: file.system_path_write — Deny/Deny/Deny
-        if paths::path_matches_list(
-            normalized,
-            SYSTEM_WRITE_PATHS,
-            &self.home_dir,
-        ) {
+        if paths::path_matches_list(normalized, SYSTEM_WRITE_PATHS, &self.home_dir) {
             let verdict = match trust_level {
                 TrustLevel::Low | TrustLevel::Medium | TrustLevel::High => GuardVerdict::Deny {
                     reason: SYSTEM_WRITE_REASON,
@@ -244,11 +235,7 @@ impl FileToolGuard {
         }
 
         // Rule: file.sensitive_path_write — Deny/Deny/Deny
-        if paths::path_matches_list(
-            normalized,
-            SENSITIVE_WRITE_PATHS,
-            &self.home_dir,
-        ) {
+        if paths::path_matches_list(normalized, SENSITIVE_WRITE_PATHS, &self.home_dir) {
             let verdict = match trust_level {
                 TrustLevel::Low | TrustLevel::Medium | TrustLevel::High => GuardVerdict::Deny {
                     reason: SENSITIVE_WRITE_REASON,
@@ -343,8 +330,7 @@ impl FileToolGuard {
         let mut strictest = GuardVerdict::Allow;
         for raw_path in &write_paths {
             let normalized = paths::normalize_path(raw_path, working_dir, &self.home_dir);
-            let verdict =
-                self.evaluate_write_normalized(&normalized, trust_level, delete_count);
+            let verdict = self.evaluate_write_normalized(&normalized, trust_level, delete_count);
             strictest = strictest_verdict(strictest, verdict);
             if matches!(strictest, GuardVerdict::Deny { .. }) {
                 return strictest;
@@ -359,7 +345,6 @@ impl FileToolGuard {
     ///
     /// For `apply_patch` where the decisive rule is `file.apply_patch_delete_many`,
     /// returns `<delete_count:N>` instead of a path.
-    #[cfg_attr(not(feature = "tool-guard"), allow(dead_code))]
     pub(crate) fn audit_segment(
         &self,
         tool_name: &str,
@@ -413,22 +398,23 @@ impl FileToolGuard {
                 let (write_paths, delete_count) = parse_patch_paths(patch_text);
 
                 // If the decisive rule is delete_many, report the count
-                if matches!(final_verdict,
-                    GuardVerdict::Deny { rule_id: "file.apply_patch_delete_many", .. } |
-                    GuardVerdict::Warn { rule_id: "file.apply_patch_delete_many", .. })
-                {
+                if matches!(
+                    final_verdict,
+                    GuardVerdict::Deny {
+                        rule_id: "file.apply_patch_delete_many",
+                        ..
+                    } | GuardVerdict::Warn {
+                        rule_id: "file.apply_patch_delete_many",
+                        ..
+                    }
+                ) {
                     return format!("<delete_count:{delete_count}>");
                 }
 
                 // Otherwise find the first path that reproduces the verdict
                 for raw_path in &write_paths {
-                    let normalized =
-                        paths::normalize_path(raw_path, working_dir, &self.home_dir);
-                    let v = self.evaluate_write_normalized(
-                        &normalized,
-                        trust_level,
-                        delete_count,
-                    );
+                    let normalized = paths::normalize_path(raw_path, working_dir, &self.home_dir);
+                    let v = self.evaluate_write_normalized(&normalized, trust_level, delete_count);
                     if verdict_matches(&v, final_verdict) {
                         return normalized.display().to_string();
                     }
@@ -474,14 +460,12 @@ use super::strictest_verdict;
 /// changes in the future.
 fn verdict_matches(a: &GuardVerdict, b: &GuardVerdict) -> bool {
     match (a, b) {
-        (
-            GuardVerdict::Deny { rule_id: ra, .. },
-            GuardVerdict::Deny { rule_id: rb, .. },
-        ) => ra == rb,
-        (
-            GuardVerdict::Warn { rule_id: ra, .. },
-            GuardVerdict::Warn { rule_id: rb, .. },
-        ) => ra == rb,
+        (GuardVerdict::Deny { rule_id: ra, .. }, GuardVerdict::Deny { rule_id: rb, .. }) => {
+            ra == rb
+        }
+        (GuardVerdict::Warn { rule_id: ra, .. }, GuardVerdict::Warn { rule_id: rb, .. }) => {
+            ra == rb
+        }
         (GuardVerdict::Allow, GuardVerdict::Allow) => true,
         _ => false,
     }
@@ -497,10 +481,7 @@ mod tests {
     use serde_json::json;
 
     fn test_guard() -> FileToolGuard {
-        FileToolGuard::new_with_home(
-            PathBuf::from("/workspace"),
-            PathBuf::from("/home/testuser"),
-        )
+        FileToolGuard::new_with_home(PathBuf::from("/workspace"), PathBuf::from("/home/testuser"))
     }
 
     fn verdict_rule_id(verdict: &GuardVerdict) -> &str {

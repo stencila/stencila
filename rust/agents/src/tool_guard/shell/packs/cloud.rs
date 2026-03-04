@@ -1,6 +1,6 @@
 //! Cloud packs: `cloud.aws`, `cloud.gcp`, `cloud.azure`, `cloud.iac`.
 
-use super::{tokenize_or_bail, Confidence, Pack, PatternRule, destructive_pattern, has_token};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, has_token, tokenize_or_bail};
 
 /// Validator for `s3_recursive_delete`: matches `aws s3 rm --recursive` or
 /// `aws s3 rb --force`.
@@ -17,10 +17,35 @@ pub static AWS_PACK: Pack = Pack {
     description: "Guards against destructive AWS operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("terminate_instances", r"\baws\s+ec2\s+terminate-instances\b", "Permanently destroys EC2 instances", "Use `aws ec2 stop-instances` to stop without terminating", Confidence::High),
-        destructive_pattern!("delete_db", r"\baws\s+rds\s+delete-db-(?:instance|cluster)\b", "Permanently deletes database instances", "Create a final snapshot first with `--final-db-snapshot-identifier`", Confidence::High),
-        destructive_pattern!("s3_recursive_delete", r"\baws\s+s3\s+(?:rm|rb)\b", s3_recursive_delete_validator, "Recursively deletes S3 objects or force-removes buckets", "Use `aws s3 ls` to inspect first; delete specific prefixes", Confidence::High),
-        destructive_pattern!("iam_delete", r"\baws\s+iam\s+delete-(?:user|role|policy)\b", "Removes IAM identities and their permissions", "Use `aws iam list-*` to review before deletion", Confidence::Medium),
+        destructive_pattern!(
+            "terminate_instances",
+            r"\baws\s+ec2\s+terminate-instances\b",
+            "Permanently destroys EC2 instances",
+            "Use `aws ec2 stop-instances` to stop without terminating",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "delete_db",
+            r"\baws\s+rds\s+delete-db-(?:instance|cluster)\b",
+            "Permanently deletes database instances",
+            "Create a final snapshot first with `--final-db-snapshot-identifier`",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "s3_recursive_delete",
+            r"\baws\s+s3\s+(?:rm|rb)\b",
+            s3_recursive_delete_validator,
+            "Recursively deletes S3 objects or force-removes buckets",
+            "Use `aws s3 ls` to inspect first; delete specific prefixes",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "iam_delete",
+            r"\baws\s+iam\s+delete-(?:user|role|policy)\b",
+            "Removes IAM identities and their permissions",
+            "Use `aws iam list-*` to review before deletion",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -30,8 +55,20 @@ pub static IAC_PACK: Pack = Pack {
     description: "Guards against destructive IaC operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("terraform_destroy", r"\bterraform\s+(?:destroy|apply\s+-destroy)\b", "Destroys all managed infrastructure resources", "Use `terraform plan -destroy` to preview what will be destroyed", Confidence::High),
-        destructive_pattern!("pulumi_destroy", r"\bpulumi\s+destroy\b", "Destroys all managed infrastructure resources", "Use `pulumi preview --diff` to review changes first", Confidence::High),
+        destructive_pattern!(
+            "terraform_destroy",
+            r"\bterraform\s+(?:destroy|apply\s+-destroy)\b",
+            "Destroys all managed infrastructure resources",
+            "Use `terraform plan -destroy` to preview what will be destroyed",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "pulumi_destroy",
+            r"\bpulumi\s+destroy\b",
+            "Destroys all managed infrastructure resources",
+            "Use `pulumi preview --diff` to review changes first",
+            Confidence::High
+        ),
     ],
 };
 
@@ -52,9 +89,28 @@ pub static GCP_PACK: Pack = Pack {
     description: "Guards against destructive GCP operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("compute_delete", r"\bgcloud\s+compute\s+instances\s+delete\b", "Permanently destroys Compute Engine instances", "Use `gcloud compute instances stop` to stop without deleting", Confidence::High),
-        destructive_pattern!("storage_delete", r"\bgsutil\s+(?:rm|rb)\b", gsutil_recursive_validator, "Recursively deletes Cloud Storage objects or force-removes buckets", "Use `gsutil ls` to inspect first; delete specific objects", Confidence::High),
-        destructive_pattern!("sql_delete", r"\bgcloud\s+sql\s+instances\s+delete\b", "Permanently deletes Cloud SQL instances", "Create a backup first with `gcloud sql backups create`", Confidence::High),
+        destructive_pattern!(
+            "compute_delete",
+            r"\bgcloud\s+compute\s+instances\s+delete\b",
+            "Permanently destroys Compute Engine instances",
+            "Use `gcloud compute instances stop` to stop without deleting",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "storage_delete",
+            r"\bgsutil\s+(?:rm|rb)\b",
+            gsutil_recursive_validator,
+            "Recursively deletes Cloud Storage objects or force-removes buckets",
+            "Use `gsutil ls` to inspect first; delete specific objects",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "sql_delete",
+            r"\bgcloud\s+sql\s+instances\s+delete\b",
+            "Permanently deletes Cloud SQL instances",
+            "Create a backup first with `gcloud sql backups create`",
+            Confidence::High
+        ),
     ],
 };
 
@@ -64,9 +120,27 @@ pub static AZURE_PACK: Pack = Pack {
     description: "Guards against destructive Azure operations",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("vm_delete", r"\baz\s+vm\s+delete\b", "Permanently destroys virtual machines", "Use `az vm deallocate` to stop without deleting", Confidence::High),
-        destructive_pattern!("group_delete", r"\baz\s+group\s+delete\b", "Deletes a resource group and all resources within it", "Use `az group show` to review contents first", Confidence::High),
-        destructive_pattern!("storage_delete", r"\baz\s+storage\s+(?:blob\s+delete|container\s+delete)\b", "Deletes storage blobs or containers", "Use `az storage blob list` to review contents first", Confidence::Medium),
+        destructive_pattern!(
+            "vm_delete",
+            r"\baz\s+vm\s+delete\b",
+            "Permanently destroys virtual machines",
+            "Use `az vm deallocate` to stop without deleting",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "group_delete",
+            r"\baz\s+group\s+delete\b",
+            "Deletes a resource group and all resources within it",
+            "Use `az group show` to review contents first",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "storage_delete",
+            r"\baz\s+storage\s+(?:blob\s+delete|container\s+delete)\b",
+            "Deletes storage blobs or containers",
+            "Use `az storage blob list` to review contents first",
+            Confidence::Medium
+        ),
     ],
 };
 
@@ -74,8 +148,8 @@ pub static AZURE_PACK: Pack = Pack {
 mod tests {
     use regex::Regex;
 
-    use super::*;
     use super::super::tests::rule_by_id;
+    use super::*;
 
     #[test]
     fn terminate_instances_matches() {
@@ -87,8 +161,8 @@ mod tests {
 
     #[test]
     fn delete_db_matches() {
-        let re = Regex::new(rule_by_id(&AWS_PACK, "delete_db").pattern)
-            .expect("pattern should compile");
+        let re =
+            Regex::new(rule_by_id(&AWS_PACK, "delete_db").pattern).expect("pattern should compile");
         assert!(re.is_match("aws rds delete-db-instance --db-instance-identifier mydb"));
         assert!(re.is_match("aws rds delete-db-cluster --db-cluster-identifier mycluster"));
         assert!(!re.is_match("aws rds describe-db-instances"));

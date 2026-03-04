@@ -1,6 +1,6 @@
 //! Package registry pack: `packages.registries`.
 
-use super::{tokenize_or_bail, Confidence, Pack, PatternRule, destructive_pattern, has_token};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, has_token, tokenize_or_bail};
 
 /// Validator for publish commands: returns `false` (does not fire) if `--dry-run`
 /// is present, since dry runs are safe.
@@ -15,11 +15,43 @@ pub static REGISTRIES_PACK: Pack = Pack {
     description: "Guards against destructive package manager operations affecting registries",
     safe_patterns: &[],
     destructive_patterns: &[
-        destructive_pattern!("npm_unpublish", r"\b(?:npm|yarn\s+npm|pnpm)\s+unpublish\b", "Unpublishing removes a package version from the public registry, potentially breaking dependents", "Use `npm deprecate` to mark versions as deprecated instead", Confidence::High),
-        destructive_pattern!("npm_deprecate", r"\b(?:npm|pnpm)\s+deprecate\b", "Deprecating a package version affects all consumers", "Verify the package name and version before deprecating", Confidence::Medium),
-        destructive_pattern!("npm_cache_clean", r"\b(?:npm\s+cache\s+clean\s+--force|yarn\s+cache\s+clean|pnpm\s+store\s+prune)\b", "Removes the local package cache, requiring full re-download", "Use `npm cache verify` to check cache integrity instead", Confidence::Medium),
-        destructive_pattern!("cargo_publish", r"\bcargo\s+publish\b", publish_no_dryrun_validator, "Publishing a crate to crates.io is a public, irreversible action", "Verify package metadata with `cargo package --list` first; ensure version and contents are correct", Confidence::High),
-        destructive_pattern!("npm_publish", r"\b(?:npm|yarn|pnpm)\s+publish\b", publish_no_dryrun_validator, "Publishing a package to a registry is a public, irreversible action", "Verify package contents with `npm pack --dry-run` first; ensure version and contents are correct", Confidence::High),
+        destructive_pattern!(
+            "npm_unpublish",
+            r"\b(?:npm|yarn\s+npm|pnpm)\s+unpublish\b",
+            "Unpublishing removes a package version from the public registry, potentially breaking dependents",
+            "Use `npm deprecate` to mark versions as deprecated instead",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "npm_deprecate",
+            r"\b(?:npm|pnpm)\s+deprecate\b",
+            "Deprecating a package version affects all consumers",
+            "Verify the package name and version before deprecating",
+            Confidence::Medium
+        ),
+        destructive_pattern!(
+            "npm_cache_clean",
+            r"\b(?:npm\s+cache\s+clean\s+--force|yarn\s+cache\s+clean|pnpm\s+store\s+prune)\b",
+            "Removes the local package cache, requiring full re-download",
+            "Use `npm cache verify` to check cache integrity instead",
+            Confidence::Medium
+        ),
+        destructive_pattern!(
+            "cargo_publish",
+            r"\bcargo\s+publish\b",
+            publish_no_dryrun_validator,
+            "Publishing a crate to crates.io is a public, irreversible action",
+            "Verify package metadata with `cargo package --list` first; ensure version and contents are correct",
+            Confidence::High
+        ),
+        destructive_pattern!(
+            "npm_publish",
+            r"\b(?:npm|yarn|pnpm)\s+publish\b",
+            publish_no_dryrun_validator,
+            "Publishing a package to a registry is a public, irreversible action",
+            "Verify package contents with `npm pack --dry-run` first; ensure version and contents are correct",
+            Confidence::High
+        ),
     ],
 };
 
@@ -27,8 +59,8 @@ pub static REGISTRIES_PACK: Pack = Pack {
 mod tests {
     use regex::Regex;
 
-    use super::*;
     use super::super::tests::rule_by_id;
+    use super::*;
 
     #[test]
     fn npm_unpublish_matches() {
