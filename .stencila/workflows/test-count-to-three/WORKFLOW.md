@@ -3,7 +3,7 @@ name: test-count-to-three
 description: Test workflow that counts from one to three
 ---
 
-A simple test of $last_output and $goal expansion.
+A simple test of `$last_output` and `$goal` expansion.
 
 ```dot
 digraph Workflow {
