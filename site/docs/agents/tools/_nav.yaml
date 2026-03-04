@@ -1,5 +1,5 @@
 items:
-  - name: "shell"
+  - label: "shell"
     children:
       # SHELL_PAGES_START
       - "bioinformatics"
