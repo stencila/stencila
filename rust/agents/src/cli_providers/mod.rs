@@ -77,6 +77,11 @@ pub struct CliProviderConfig {
     pub model: Option<String>,
 
     /// System prompt / instructions to append.
+    ///
+    /// Currently unused: CLI tools are full agents with their own system
+    /// prompts and tool registries, so [`from_session_config`](Self::from_session_config)
+    /// always sets this to `None`. Retained for potential future use (e.g.
+    /// lightweight hints that don't conflict with the CLI tool's own prompt).
     pub instructions: Option<String>,
 
     /// Maximum turns for the CLI tool (if supported).
@@ -94,18 +99,16 @@ impl CliProviderConfig {
     /// the identifier they expect. If the model name is not found in the
     /// catalog, the original string is passed through so that the CLI tool
     /// can attempt to use it directly.
+    ///
+    /// **Note:** `instructions` is always set to `None`. CLI tools (Claude
+    /// Code, Codex, Gemini CLI) are full agents with their own system prompts
+    /// and tool registries. Injecting Stencila's system prompt or user
+    /// instructions would conflict with the CLI tool's own configuration.
     #[must_use]
     pub fn from_session_config(config: &SessionConfig, model: Option<&str>) -> Self {
-        let instructions = match (&config.commit_instructions, &config.user_instructions) {
-            (Some(commit), Some(user)) => Some(format!("{commit}\n\n{user}")),
-            (Some(commit), None) => Some(commit.clone()),
-            (None, Some(user)) => Some(user.clone()),
-            (None, None) => None,
-        };
-
         Self {
             model: model.map(resolve_model_alias),
-            instructions,
+            instructions: None,
             max_turns: if config.max_turns > 0 {
                 Some(config.max_turns)
             } else {
