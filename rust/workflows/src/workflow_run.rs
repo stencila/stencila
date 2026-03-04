@@ -206,6 +206,11 @@ pub async fn run_workflow_with_options(
 /// type into the parsed `attractor::Graph`'s `graph_attrs` so that the
 /// attractor engine transforms and validators can see them.
 fn merge_workflow_attrs(workflow: &WorkflowInstance, graph: &mut Graph) {
+    graph
+        .graph_attrs
+        .entry("label".to_string())
+        .or_insert_with(|| AttrValue::String(workflow.name.clone()));
+
     if let Some(ref goal) = workflow.goal {
         graph
             .graph_attrs
