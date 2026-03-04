@@ -1318,10 +1318,10 @@ Tool modules, registration helpers, and provider profile constructors are **not 
 
 ### 9.1 Migration
 
-Domain: `"tool_guard"`
+Domain: `"agents"`
 
 ```sql
-CREATE TABLE IF NOT EXISTS tool_guard_events (
+CREATE TABLE IF NOT EXISTS agent_tool_guard_events (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     session_id       TEXT NOT NULL,
@@ -1335,12 +1335,12 @@ CREATE TABLE IF NOT EXISTS tool_guard_events (
     reason           TEXT,
     suggestion       TEXT
 );
-CREATE INDEX IF NOT EXISTS idx_tg_ts      ON tool_guard_events(timestamp);
-CREATE INDEX IF NOT EXISTS idx_tg_session ON tool_guard_events(session_id);
-CREATE INDEX IF NOT EXISTS idx_tg_agent   ON tool_guard_events(agent_name);
-CREATE INDEX IF NOT EXISTS idx_tg_verdict ON tool_guard_events(verdict);
-CREATE INDEX IF NOT EXISTS idx_tg_tool    ON tool_guard_events(tool_name);
-CREATE INDEX IF NOT EXISTS idx_tg_rule    ON tool_guard_events(rule_id);
+CREATE INDEX IF NOT EXISTS idx_atg_ts      ON agent_tool_guard_events(timestamp);
+CREATE INDEX IF NOT EXISTS idx_atg_session ON agent_tool_guard_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_atg_agent   ON agent_tool_guard_events(agent_name);
+CREATE INDEX IF NOT EXISTS idx_atg_verdict ON agent_tool_guard_events(verdict);
+CREATE INDEX IF NOT EXISTS idx_atg_tool    ON agent_tool_guard_events(tool_name);
+CREATE INDEX IF NOT EXISTS idx_atg_rule    ON agent_tool_guard_events(rule_id);
 ```
 
 `input` and `matched_segment` serialization is deterministic for multi-target tools:
@@ -1482,7 +1482,7 @@ OS-level sandboxing (bubblewrap, Landlock, etc.) is out of scope for this spec. 
 
 ### Audit
 
-- [ ] `tool_guard_events` migration created.
+- [ ] `agent_tool_guard_events` migration created.
 - [ ] `tool_name` and single non-null `rule_id` columns added.
 - [ ] `idx_tg_ts`, `idx_tg_tool`, and `idx_tg_rule` indexes exist.
 - [ ] Multi-target serialization is deterministic and records the first strictest decisive path (input/operation-order tie-break) with `rule_id`/`reason` from that decisive match.

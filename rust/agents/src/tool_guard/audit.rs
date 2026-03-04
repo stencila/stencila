@@ -11,17 +11,10 @@
 use std::path::Path;
 
 #[cfg(feature = "tool-guard")]
-use stencila_db::migration::Migration;
-
-#[cfg(feature = "tool-guard")]
 use tokio::sync::mpsc;
 
 #[cfg(feature = "tool-guard")]
-static TOOL_GUARD_MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "initial",
-    sql: include_str!("migrations/001_initial.sql"),
-}];
+use crate::migrations::AGENT_MIGRATIONS;
 
 /// Audit channel buffer size. Events beyond this are dropped (best-effort).
 #[cfg(feature = "tool-guard")]
@@ -95,7 +88,7 @@ pub fn spawn_audit_writer(workspace_root: &Path) -> Option<AuditSender> {
         }
     };
 
-    if let Err(e) = db.migrate("tool_guard", TOOL_GUARD_MIGRATIONS) {
+    if let Err(e) = db.migrate("agents", AGENT_MIGRATIONS) {
         tracing::warn!("Tool guard audit disabled: migration failed: {e}");
         return None;
     }
@@ -127,7 +120,7 @@ async fn audit_writer_task(
         // is the only consumer and inserts are fast (single row, WAL mode).
         let conn = conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Err(e) = conn.execute(
-            "INSERT INTO tool_guard_events \
+            "INSERT INTO agent_tool_guard_events \
              (session_id, agent_name, trust_level, tool_name, input, \
               matched_segment, verdict, rule_id, reason, suggestion) \
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
@@ -183,7 +176,7 @@ mod tests {
     async fn audit_event_written_for_deny() {
         let tmp = tempfile::tempdir().unwrap();
         let db = test_db(tmp.path());
-        db.migrate("tool_guard", TOOL_GUARD_MIGRATIONS).unwrap();
+        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
 
         let conn = db.connection().clone();
         let (tx, rx) = mpsc::channel(16);
@@ -200,7 +193,7 @@ mod tests {
         let conn = conn.lock().unwrap();
         let count: i32 = conn
             .query_row(
-                "SELECT COUNT(*) FROM tool_guard_events WHERE verdict = 'Deny'",
+                "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Deny'",
                 [],
                 |row| row.get(0),
             )
@@ -209,7 +202,7 @@ mod tests {
 
         let rule: String = conn
             .query_row(
-                "SELECT rule_id FROM tool_guard_events WHERE verdict = 'Deny'",
+                "SELECT rule_id FROM agent_tool_guard_events WHERE verdict = 'Deny'",
                 [],
                 |row| row.get(0),
             )
@@ -221,7 +214,7 @@ mod tests {
     async fn audit_event_written_for_warn() {
         let tmp = tempfile::tempdir().unwrap();
         let db = test_db(tmp.path());
-        db.migrate("tool_guard", TOOL_GUARD_MIGRATIONS).unwrap();
+        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
 
         let conn = db.connection().clone();
         let (tx, rx) = mpsc::channel(16);
@@ -238,7 +231,7 @@ mod tests {
         let conn = conn.lock().unwrap();
         let count: i32 = conn
             .query_row(
-                "SELECT COUNT(*) FROM tool_guard_events WHERE verdict = 'Warn'",
+                "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Warn'",
                 [],
                 |row| row.get(0),
             )
@@ -250,13 +243,13 @@ mod tests {
     async fn no_audit_event_for_allow() {
         let tmp = tempfile::tempdir().unwrap();
         let db = test_db(tmp.path());
-        db.migrate("tool_guard", TOOL_GUARD_MIGRATIONS).unwrap();
+        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
 
         let conn = db.connection().clone();
         // No events sent, table should be empty
         let conn = conn.lock().unwrap();
         let count: i32 = conn
-            .query_row("SELECT COUNT(*) FROM tool_guard_events", [], |row| {
+            .query_row("SELECT COUNT(*) FROM agent_tool_guard_events", [], |row| {
                 row.get(0)
             })
             .unwrap();
@@ -267,7 +260,7 @@ mod tests {
     async fn multi_target_correct_decisive_path() {
         let tmp = tempfile::tempdir().unwrap();
         let db = test_db(tmp.path());
-        db.migrate("tool_guard", TOOL_GUARD_MIGRATIONS).unwrap();
+        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
 
         let conn = db.connection().clone();
         let (tx, rx) = mpsc::channel(16);
@@ -295,7 +288,7 @@ mod tests {
         let conn = conn.lock().unwrap();
         let (input, segment): (String, String) = conn
             .query_row(
-                "SELECT input, matched_segment FROM tool_guard_events WHERE tool_name = 'read_many_files'",
+                "SELECT input, matched_segment FROM agent_tool_guard_events WHERE tool_name = 'read_many_files'",
                 [],
                 |row| Ok((row.get(0)?, row.get(1)?)),
             )
@@ -333,7 +326,7 @@ mod tests {
         let conn = db.connection().lock().unwrap();
         let count: i32 = conn
             .query_row(
-                "SELECT COUNT(*) FROM tool_guard_events WHERE verdict = 'Deny'",
+                "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Deny'",
                 [],
                 |row| row.get(0),
             )
