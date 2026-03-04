@@ -378,46 +378,46 @@ impl FileToolGuard {
 
         // Multi-path tools: find the first path that reproduces the final verdict
         // with the same severity AND rule_id.
-        if tool_name == "read_many_files" {
-            if let Some(arr) = args.get("paths").and_then(|v| v.as_array()) {
-                for p in arr {
-                    if let Some(s) = p.as_str() {
-                        let v = self.evaluate_read(s, working_dir, trust_level);
-                        if verdict_matches(&v, final_verdict) {
-                            return paths::normalize_path(s, working_dir, &self.home_dir)
-                                .display()
-                                .to_string();
-                        }
+        if tool_name == "read_many_files"
+            && let Some(arr) = args.get("paths").and_then(|v| v.as_array())
+        {
+            for p in arr {
+                if let Some(s) = p.as_str() {
+                    let v = self.evaluate_read(s, working_dir, trust_level);
+                    if verdict_matches(&v, final_verdict) {
+                        return paths::normalize_path(s, working_dir, &self.home_dir)
+                            .display()
+                            .to_string();
                     }
                 }
             }
         }
 
-        if tool_name == "apply_patch" {
-            if let Some(patch_text) = args.get("patch").and_then(|v| v.as_str()) {
-                let (write_paths, delete_count) = parse_patch_paths(patch_text);
+        if tool_name == "apply_patch"
+            && let Some(patch_text) = args.get("patch").and_then(|v| v.as_str())
+        {
+            let (write_paths, delete_count) = parse_patch_paths(patch_text);
 
-                // If the decisive rule is delete_many, report the count
-                if matches!(
-                    final_verdict,
-                    GuardVerdict::Deny {
-                        rule_id: "file.apply_patch_delete_many",
-                        ..
-                    } | GuardVerdict::Warn {
-                        rule_id: "file.apply_patch_delete_many",
-                        ..
-                    }
-                ) {
-                    return format!("<delete_count:{delete_count}>");
+            // If the decisive rule is delete_many, report the count
+            if matches!(
+                final_verdict,
+                GuardVerdict::Deny {
+                    rule_id: "file.apply_patch_delete_many",
+                    ..
+                } | GuardVerdict::Warn {
+                    rule_id: "file.apply_patch_delete_many",
+                    ..
                 }
+            ) {
+                return format!("<delete_count:{delete_count}>");
+            }
 
-                // Otherwise find the first path that reproduces the verdict
-                for raw_path in &write_paths {
-                    let normalized = paths::normalize_path(raw_path, working_dir, &self.home_dir);
-                    let v = self.evaluate_write_normalized(&normalized, trust_level, delete_count);
-                    if verdict_matches(&v, final_verdict) {
-                        return normalized.display().to_string();
-                    }
+            // Otherwise find the first path that reproduces the verdict
+            for raw_path in &write_paths {
+                let normalized = paths::normalize_path(raw_path, working_dir, &self.home_dir);
+                let v = self.evaluate_write_normalized(&normalized, trust_level, delete_count);
+                if verdict_matches(&v, final_verdict) {
+                    return normalized.display().to_string();
                 }
             }
         }

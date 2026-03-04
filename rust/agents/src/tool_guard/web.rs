@@ -178,24 +178,24 @@ impl WebToolGuard {
         }
 
         // Rule 5: web.high_risk_port — port in HIGH_RISK_PORTS
-        if let Some(port) = parsed.port() {
-            if HIGH_RISK_PORTS.contains(&port) {
-                let verdict = match trust_level {
-                    TrustLevel::Low => GuardVerdict::Deny {
-                        reason: HIGH_RISK_PORT_REASON,
-                        suggestion: HIGH_RISK_PORT_SUGGESTION,
-                        rule_id: "web.high_risk_port",
-                    },
-                    TrustLevel::Medium => GuardVerdict::Warn {
-                        reason: HIGH_RISK_PORT_REASON,
-                        suggestion: HIGH_RISK_PORT_SUGGESTION,
-                        rule_id: "web.high_risk_port",
-                    },
-                    TrustLevel::High => GuardVerdict::Allow,
-                };
-                if !matches!(verdict, GuardVerdict::Allow) {
-                    return verdict;
-                }
+        if let Some(port) = parsed.port()
+            && HIGH_RISK_PORTS.contains(&port)
+        {
+            let verdict = match trust_level {
+                TrustLevel::Low => GuardVerdict::Deny {
+                    reason: HIGH_RISK_PORT_REASON,
+                    suggestion: HIGH_RISK_PORT_SUGGESTION,
+                    rule_id: "web.high_risk_port",
+                },
+                TrustLevel::Medium => GuardVerdict::Warn {
+                    reason: HIGH_RISK_PORT_REASON,
+                    suggestion: HIGH_RISK_PORT_SUGGESTION,
+                    rule_id: "web.high_risk_port",
+                },
+                TrustLevel::High => GuardVerdict::Allow,
+            };
+            if !matches!(verdict, GuardVerdict::Allow) {
+                return verdict;
             }
         }
 
@@ -209,14 +209,14 @@ impl WebToolGuard {
                     rule_id: "web.domain_allowlist",
                 };
             }
-        } else if let Some(ref disallowed) = self.disallowed_domains {
-            if domain_matches_list(&host, disallowed) {
-                return GuardVerdict::Deny {
-                    reason: DOMAIN_DENYLIST_REASON,
-                    suggestion: DOMAIN_DENYLIST_SUGGESTION,
-                    rule_id: "web.domain_denylist",
-                };
-            }
+        } else if let Some(ref disallowed) = self.disallowed_domains
+            && domain_matches_list(&host, disallowed)
+        {
+            return GuardVerdict::Deny {
+                reason: DOMAIN_DENYLIST_REASON,
+                suggestion: DOMAIN_DENYLIST_SUGGESTION,
+                rule_id: "web.domain_denylist",
+            };
         }
 
         // Default: Allow if no rule fires.
@@ -279,7 +279,7 @@ fn is_metadata_host(host: &str) -> bool {
         .strip_prefix('[')
         .and_then(|s| s.strip_suffix(']'))
         .unwrap_or(host);
-    METADATA_HOSTS.iter().any(|&h| bare == h)
+    METADATA_HOSTS.contains(&bare)
 }
 
 // ---------------------------------------------------------------------------

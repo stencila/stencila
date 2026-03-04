@@ -143,11 +143,15 @@ async fn audit_writer_task(
 mod tests {
     use super::*;
 
+    type TestResult = Result<(), Box<dyn std::error::Error>>;
+
     /// Helper: open an in-memory-style temp DB for testing.
-    fn test_db(dir: &std::path::Path) -> stencila_db::WorkspaceDb {
-        std::fs::create_dir_all(dir.join(".stencila")).unwrap();
+    fn test_db(
+        dir: &std::path::Path,
+    ) -> Result<stencila_db::WorkspaceDb, Box<dyn std::error::Error>> {
+        std::fs::create_dir_all(dir.join(".stencila"))?;
         let db_path = dir.join(".stencila/db.sqlite3");
-        stencila_db::WorkspaceDb::open(&db_path).unwrap()
+        Ok(stencila_db::WorkspaceDb::open(&db_path)?)
     }
 
     fn sample_event(verdict: &'static str, rule_id: &'static str) -> AuditEvent {
@@ -166,10 +170,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn audit_event_written_for_deny() {
-        let tmp = tempfile::tempdir().unwrap();
-        let db = test_db(tmp.path());
-        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
+    async fn audit_event_written_for_deny() -> TestResult {
+        let tmp = tempfile::tempdir()?;
+        let db = test_db(tmp.path())?;
+        db.migrate("agents", AGENT_MIGRATIONS)?;
 
         let conn = db.connection().clone();
         let (tx, rx) = mpsc::channel(16);
@@ -178,36 +182,32 @@ mod tests {
         let handle = tokio::spawn(audit_writer_task(writer_conn, rx));
 
         tx.send(sample_event("Deny", "core.recursive_delete_root"))
-            .await
-            .unwrap();
+            .await?;
         drop(tx); // Close channel so writer exits
-        handle.await.unwrap();
+        handle.await?;
 
-        let conn = conn.lock().unwrap();
-        let count: i32 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Deny'",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = conn.lock().expect("mutex poisoned");
+        let count: i32 = conn.query_row(
+            "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Deny'",
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(count, 1);
 
-        let rule: String = conn
-            .query_row(
-                "SELECT rule_id FROM agent_tool_guard_events WHERE verdict = 'Deny'",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let rule: String = conn.query_row(
+            "SELECT rule_id FROM agent_tool_guard_events WHERE verdict = 'Deny'",
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(rule, "core.recursive_delete_root");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn audit_event_written_for_warn() {
-        let tmp = tempfile::tempdir().unwrap();
-        let db = test_db(tmp.path());
-        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
+    async fn audit_event_written_for_warn() -> TestResult {
+        let tmp = tempfile::tempdir()?;
+        let db = test_db(tmp.path())?;
+        db.migrate("agents", AGENT_MIGRATIONS)?;
 
         let conn = db.connection().clone();
         let (tx, rx) = mpsc::channel(16);
@@ -215,45 +215,42 @@ mod tests {
         let writer_conn = conn.clone();
         let handle = tokio::spawn(audit_writer_task(writer_conn, rx));
 
-        tx.send(sample_event("Warn", "web.non_https"))
-            .await
-            .unwrap();
+        tx.send(sample_event("Warn", "web.non_https")).await?;
         drop(tx);
-        handle.await.unwrap();
+        handle.await?;
 
-        let conn = conn.lock().unwrap();
-        let count: i32 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Warn'",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = conn.lock().expect("mutex poisoned");
+        let count: i32 = conn.query_row(
+            "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Warn'",
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(count, 1);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn no_audit_event_for_allow() {
-        let tmp = tempfile::tempdir().unwrap();
-        let db = test_db(tmp.path());
-        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
+    async fn no_audit_event_for_allow() -> TestResult {
+        let tmp = tempfile::tempdir()?;
+        let db = test_db(tmp.path())?;
+        db.migrate("agents", AGENT_MIGRATIONS)?;
 
         let conn = db.connection().clone();
         // No events sent, table should be empty
-        let conn = conn.lock().unwrap();
-        let count: i32 = conn
-            .query_row("SELECT COUNT(*) FROM agent_tool_guard_events", [], |row| {
+        let conn = conn.lock().expect("mutex poisoned");
+        let count: i32 =
+            conn.query_row("SELECT COUNT(*) FROM agent_tool_guard_events", [], |row| {
                 row.get(0)
-            })
-            .unwrap();
+            })?;
         assert_eq!(count, 0);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn multi_target_correct_decisive_path() {
-        let tmp = tempfile::tempdir().unwrap();
-        let db = test_db(tmp.path());
-        db.migrate("agents", AGENT_MIGRATIONS).unwrap();
+    async fn multi_target_correct_decisive_path() -> TestResult {
+        let tmp = tempfile::tempdir()?;
+        let db = test_db(tmp.path())?;
+        db.migrate("agents", AGENT_MIGRATIONS)?;
 
         let conn = db.connection().clone();
         let (tx, rx) = mpsc::channel(16);
@@ -274,39 +271,39 @@ mod tests {
             reason: "System path",
             suggestion: "Use a workspace-local file.",
         };
-        tx.send(event).await.unwrap();
+        tx.send(event).await?;
         drop(tx);
-        handle.await.unwrap();
+        handle.await?;
 
-        let conn = conn.lock().unwrap();
-        let (input, segment): (String, String) = conn
-            .query_row(
-                "SELECT input, matched_segment FROM agent_tool_guard_events WHERE tool_name = 'read_many_files'",
-                [],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
-            .unwrap();
+        let conn = conn.lock().expect("mutex poisoned");
+        let (input, segment): (String, String) = conn.query_row(
+            "SELECT input, matched_segment FROM agent_tool_guard_events WHERE tool_name = 'read_many_files'",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
         assert!(input.contains("/etc/shadow"));
         assert_eq!(segment, "/etc/shadow");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn db_failure_does_not_block_guard() {
+    async fn db_failure_does_not_block_guard() -> TestResult {
         // Create a temp dir, then place a regular file where .stencila/db.sqlite3
         // would go, making the directory creation fail deterministically.
-        let tmp = tempfile::tempdir().unwrap();
+        let tmp = tempfile::tempdir()?;
         let blocker = tmp.path().join(".stencila");
-        std::fs::write(&blocker, b"not a directory").unwrap();
+        std::fs::write(&blocker, b"not a directory")?;
         let result = spawn_audit_writer(tmp.path());
         assert!(
             result.is_none(),
             "Audit should be disabled when DB cannot open"
         );
+        Ok(())
     }
 
     #[tokio::test]
-    async fn spawn_audit_writer_creates_db_and_writes() {
-        let tmp = tempfile::tempdir().unwrap();
+    async fn spawn_audit_writer_creates_db_and_writes() -> TestResult {
+        let tmp = tempfile::tempdir()?;
         let sender = spawn_audit_writer(tmp.path()).expect("should create audit writer");
 
         sender.send(sample_event("Deny", "core.recursive_delete_root"));
@@ -318,15 +315,14 @@ mod tests {
 
         // Verify the event was written
         let db_path = tmp.path().join(".stencila/db.sqlite3");
-        let db = stencila_db::WorkspaceDb::open(&db_path).unwrap();
-        let conn = db.connection().lock().unwrap();
-        let count: i32 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Deny'",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let db = stencila_db::WorkspaceDb::open(&db_path)?;
+        let conn = db.connection().lock().expect("mutex poisoned");
+        let count: i32 = conn.query_row(
+            "SELECT COUNT(*) FROM agent_tool_guard_events WHERE verdict = 'Deny'",
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(count, 1);
+        Ok(())
     }
 }

@@ -146,13 +146,12 @@ pub fn path_matches_list(normalized: &Path, list: &[&str], home_dir: &Path) -> b
             std::borrow::Cow::Borrowed(entry)
         };
 
-        if expanded.ends_with('/') {
+        if let Some(without_slash) = expanded.strip_suffix('/') {
             // Prefix mode
             if norm_str.starts_with(expanded.as_ref()) {
                 return true;
             }
             // Also match the directory itself (without trailing slash)
-            let without_slash = &expanded[..expanded.len() - 1];
             if *norm_str == *without_slash {
                 return true;
             }
@@ -163,10 +162,10 @@ pub fn path_matches_list(normalized: &Path, list: &[&str], home_dir: &Path) -> b
             }
         } else {
             // Basename mode: match last component
-            if let Some(file_name) = normalized.file_name() {
-                if file_name == expanded.as_ref() {
-                    return true;
-                }
+            if let Some(file_name) = normalized.file_name()
+                && file_name == expanded.as_ref()
+            {
+                return true;
             }
         }
     }

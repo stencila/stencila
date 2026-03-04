@@ -206,10 +206,10 @@ impl ToolGuard {
         args: &Value,
         working_dir: &std::path::Path,
     ) -> GuardVerdict {
-        if tool_name == SHELL_TOOL {
-            if let Some(command) = args.get("command").and_then(|v| v.as_str()) {
-                return self.shell_guard.evaluate(command, self.trust_level);
-            }
+        if tool_name == SHELL_TOOL
+            && let Some(command) = args.get("command").and_then(|v| v.as_str())
+        {
+            return self.shell_guard.evaluate(command, self.trust_level);
         }
 
         if FILE_TOOLS.contains(&tool_name) {
@@ -218,10 +218,10 @@ impl ToolGuard {
                 .evaluate(tool_name, args, working_dir, self.trust_level);
         }
 
-        if tool_name == WEB_TOOL {
-            if let Some(url) = args.get("url").and_then(|v| v.as_str()) {
-                return self.web_guard.evaluate(url, self.trust_level);
-            }
+        if tool_name == WEB_TOOL
+            && let Some(url) = args.get("url").and_then(|v| v.as_str())
+        {
+            return self.web_guard.evaluate(url, self.trust_level);
         }
 
         GuardVerdict::Allow
