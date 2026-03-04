@@ -1,6 +1,6 @@
 //! Machine learning pack: `ml.experiment_tracking`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
 // ml.experiment_tracking
@@ -10,6 +10,12 @@ pub static EXPERIMENT_TRACKING_PACK: Pack = Pack {
     id: "ml.experiment_tracking",
     name: "ML Experiment Tracking",
     description: "Guards against destructive ML experiment and model tracking operations",
+    safe_patterns: &[
+        safe_pattern!("nvidia_smi", r"^nvidia-smi\b[^|><]*$"),
+        safe_pattern!("gpustat", r"^gpustat\b[^|><]*$"),
+        safe_pattern!("wandb_status", r"^wandb\s+status\b[^|><]*$"),
+        safe_pattern!("mlflow_models_list", r"^mlflow\s+models\s+list\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "mlflow_gc",
@@ -71,10 +77,9 @@ mod tests {
 
     #[test]
     fn mlflow_delete_experiment_matches() {
-        let re = Regex::new(
-            rule_by_id(&EXPERIMENT_TRACKING_PACK, "mlflow_delete_experiment").pattern,
-        )
-        .expect("pattern should compile");
+        let re =
+            Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "mlflow_delete_experiment").pattern)
+                .expect("pattern should compile");
         assert!(re.is_match("mlflow experiments delete --experiment-id 1"));
         assert!(re.is_match("mlflow experiments delete --experiment-id 42"));
         assert!(!re.is_match("mlflow experiments search"));
@@ -86,9 +91,8 @@ mod tests {
 
     #[test]
     fn wandb_artifact_delete_matches() {
-        let re =
-            Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "wandb_artifact_delete").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "wandb_artifact_delete").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("wandb artifact delete my-project/model:v0"));
         assert!(re.is_match("wandb artifact delete user/project/artifact:latest"));
         assert!(!re.is_match("wandb artifact get my-project/model:v0"));
@@ -98,9 +102,8 @@ mod tests {
 
     #[test]
     fn wandb_sweep_cancel_matches() {
-        let re =
-            Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "wandb_sweep_cancel").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "wandb_sweep_cancel").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("wandb sweep cancel user/project/sweep_id"));
         assert!(re.is_match("wandb sweep cancel abc123"));
         assert!(!re.is_match("wandb sweep create config.yaml"));
@@ -112,9 +115,8 @@ mod tests {
 
     #[test]
     fn clearml_task_delete_matches() {
-        let re =
-            Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "clearml_task_delete").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&EXPERIMENT_TRACKING_PACK, "clearml_task_delete").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("clearml-task --delete --id abc123"));
         assert!(re.is_match("clearml-task --project myproject --delete"));
         assert!(!re.is_match("clearml-task list"));

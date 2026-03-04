@@ -1,6 +1,8 @@
 //! Notebook pack: `notebooks.jupyter`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern, has_token, tokenize_or_bail};
+use super::{
+    Confidence, Pack, PatternRule, destructive_pattern, has_token, safe_pattern, tokenize_or_bail,
+};
 
 // ---------------------------------------------------------------------------
 // notebooks.jupyter
@@ -17,6 +19,10 @@ pub static JUPYTER_PACK: Pack = Pack {
     id: "notebooks.jupyter",
     name: "Jupyter Notebooks",
     description: "Guards against destructive Jupyter notebook operations",
+    safe_patterns: &[safe_pattern!(
+        "jupyter_kernelspec_list",
+        r"^jupyter\s+kernelspec\s+list\b[^|><]*$"
+    )],
     destructive_patterns: &[
         destructive_pattern!(
             "nbstripout",
@@ -76,9 +82,8 @@ mod tests {
 
     #[test]
     fn jupyter_kernelspec_uninstall_matches() {
-        let re =
-            Regex::new(rule_by_id(&JUPYTER_PACK, "jupyter_kernelspec_uninstall").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&JUPYTER_PACK, "jupyter_kernelspec_uninstall").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("jupyter kernelspec uninstall python3"));
         assert!(re.is_match("jupyter kernelspec remove mykernel"));
         assert!(!re.is_match("jupyter kernelspec list"));

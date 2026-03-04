@@ -1,6 +1,6 @@
 //! Dataset packs: `datasets.versioning`, `datasets.transfer`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
 // datasets.versioning
@@ -10,6 +10,16 @@ pub static VERSIONING_PACK: Pack = Pack {
     id: "datasets.versioning",
     name: "Data Versioning",
     description: "Guards against destructive operations on scientific data versioning tools",
+    safe_patterns: &[
+        safe_pattern!("dvc_status", r"^dvc\s+status\b[^|><]*$"),
+        safe_pattern!("dvc_diff", r"^dvc\s+diff\b[^|><]*$"),
+        safe_pattern!("dvc_params_diff", r"^dvc\s+params\s+diff\b[^|><]*$"),
+        safe_pattern!("dvc_metrics_show", r"^dvc\s+metrics\s+show\b[^|><]*$"),
+        safe_pattern!("dvc_plots_show", r"^dvc\s+plots\s+show\b[^|><]*$"),
+        safe_pattern!("git_annex_whereis", r"^git\s+annex\s+whereis\b[^|><]*$"),
+        safe_pattern!("git_annex_info", r"^git\s+annex\s+info\b[^|><]*$"),
+        safe_pattern!("datalad_status", r"^datalad\s+status\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "dvc_gc",
@@ -57,6 +67,13 @@ pub static TRANSFER_PACK: Pack = Pack {
     id: "datasets.transfer",
     name: "Data Transfer Tools",
     description: "Guards against destructive operations in scientific data transfer tools",
+    safe_patterns: &[
+        safe_pattern!("globus_ls", r"^globus\s+ls\b[^|><]*$"),
+        safe_pattern!("globus_task_list", r"^globus\s+task\s+list\b[^|><]*$"),
+        safe_pattern!("rclone_ls", r"^rclone\s+(?:ls|lsd|lsl|lsf|size)\b[^|><]*$"),
+        safe_pattern!("ils", r"^ils\b[^|><]*$"),
+        safe_pattern!("iquest", r"^iquest\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "globus_delete",
@@ -129,9 +146,8 @@ mod tests {
 
     #[test]
     fn git_annex_drop_force_matches() {
-        let re =
-            Regex::new(rule_by_id(&VERSIONING_PACK, "git_annex_drop_force").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&VERSIONING_PACK, "git_annex_drop_force").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("git annex drop --force large_file.dat"));
         assert!(!re.is_match("git annex drop large_file.dat"));
         assert!(!re.is_match("git annex whereis large_file.dat"));

@@ -13,6 +13,7 @@ pub static REGISTRIES_PACK: Pack = Pack {
     id: "packages.registries",
     name: "Package Registries",
     description: "Guards against destructive package manager operations affecting registries",
+    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "npm_unpublish",

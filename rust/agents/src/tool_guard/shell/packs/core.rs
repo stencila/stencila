@@ -2,7 +2,7 @@
 //!
 //! These are always evaluated, even at `trustLevel: high`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern, tokenize_or_bail};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern, tokenize_or_bail};
 use crate::tool_guard::shell::tokenizer::Token;
 
 // ---------------------------------------------------------------------------
@@ -100,9 +100,9 @@ fn chown_recursive_validator(cmd: &str) -> bool {
 
 /// Sensitive paths for the `sensitive_read` rule.
 ///
-/// Shared with the safe-pattern validator in `mod.rs` so that read commands
-/// targeting these paths are excluded from the safe list and fall through to
-/// the destructive `sensitive_read` check.
+/// Shared with the safe-pattern validator (`read_not_sensitive_validator`) so
+/// that read commands targeting these paths are excluded from the safe list
+/// and fall through to the destructive `sensitive_read` check.
 pub(super) const SENSITIVE_READ_TARGETS: &[&str] = &["/etc/shadow", "/etc/gshadow", "/etc/sudoers"];
 
 pub(super) const SENSITIVE_READ_PREFIXES: &[&str] =
@@ -131,10 +131,96 @@ fn sensitive_read_validator(cmd: &str) -> bool {
     })
 }
 
+/// Safe-pattern validator for read commands (`cat`, `bat`, `head`, etc.).
+/// Returns `false` when any argument targets a sensitive path.
+fn read_not_sensitive_validator(cmd: &str) -> bool {
+    let tokens = tokenize_or_bail!(cmd, false);
+    let first = tokens.first().map(|t| t.value.as_str()).unwrap_or("");
+    !tokens.iter().skip(1).any(|t| {
+        let v = t.value.as_str();
+        if v.starts_with('-') || v == first {
+            return false;
+        }
+        if SENSITIVE_READ_TARGETS.contains(&v) {
+            return true;
+        }
+        if SENSITIVE_READ_PREFIXES.iter().any(|p| v.starts_with(p)) {
+            return true;
+        }
+        let basename = v.rsplit('/').next().unwrap_or(v);
+        SENSITIVE_READ_BASENAMES.contains(&basename)
+    })
+}
+
+/// Validator for `find`: returns `false` (not safe) if any token is a dangerous flag.
+fn find_safe_validator(cmd: &str) -> bool {
+    let tokens = tokenize_or_bail!(cmd, false);
+    let dangerous = super::find_all_dangerous_flags();
+    !tokens.iter().any(|t| dangerous.contains(&t.value.as_str()))
+}
+
+/// Validator for `cargo clippy`: returns `false` if `--fix` is present.
+fn cargo_clippy_safe_validator(cmd: &str) -> bool {
+    let tokens = tokenize_or_bail!(cmd, false);
+    !tokens.iter().any(|t| t.value == "--fix")
+}
+
 pub static FILESYSTEM_PACK: Pack = Pack {
     id: "core.filesystem",
     name: "Filesystem",
     description: "Guards against recursive/forced file deletion and dangerous moves/overwrites",
+    safe_patterns: &[
+        // Read-only filesystem
+        safe_pattern!("ls", r"^ls\b[^|><]*$"),
+        safe_pattern!("cat", r"^cat\b[^|><]*$", read_not_sensitive_validator),
+        safe_pattern!("bat", r"^bat\b[^|><]*$", read_not_sensitive_validator),
+        safe_pattern!("head", r"^head\b[^|><]*$", read_not_sensitive_validator),
+        safe_pattern!("tail", r"^tail\b[^|><]*$", read_not_sensitive_validator),
+        safe_pattern!("less", r"^less\b[^|><]*$", read_not_sensitive_validator),
+        safe_pattern!("wc", r"^wc\b[^|><]*$"),
+        safe_pattern!("file", r"^file\b[^|><]*$"),
+        safe_pattern!("stat", r"^stat\b[^|><]*$"),
+        safe_pattern!("find", r"^find\b[^|><]*$", find_safe_validator),
+        safe_pattern!("du", r"^du\b[^|><]*$"),
+        safe_pattern!("df", r"^df\b[^|><]*$"),
+        safe_pattern!("tree", r"^tree\b[^|><]*$"),
+        safe_pattern!("grep", r"^grep\b[^|><]*$"),
+        safe_pattern!("rg", r"^rg\b[^|><]*$"),
+        safe_pattern!("diff", r"^diff\b[^|><]*$"),
+        safe_pattern!("sort", r"^sort\b[^|><]*$"),
+        safe_pattern!("md5sum", r"^md5sum\b[^|><]*$"),
+        safe_pattern!("sha256sum", r"^sha256sum\b[^|><]*$"),
+        safe_pattern!("realpath", r"^realpath\b[^|><]*$"),
+        safe_pattern!("dirname", r"^dirname\b[^|><]*$"),
+        safe_pattern!("basename", r"^basename\b[^|><]*$"),
+        safe_pattern!("readlink", r"^readlink\b[^|><]*$"),
+        safe_pattern!("test", r"^test\b[^|><]*$"),
+        safe_pattern!("bracket", r"^\[[^|><]*$"),
+        safe_pattern!("double_bracket", r"^\[\[[^|><]*$"),
+        // Build inspection
+        safe_pattern!("cargo_check", r"^cargo\s+check\b[^|><]*$"),
+        safe_pattern!(
+            "cargo_clippy",
+            r"^cargo\s+clippy\b[^|><]*$",
+            cargo_clippy_safe_validator
+        ),
+        safe_pattern!("go_vet", r"^go\s+vet\b[^|><]*$"),
+        // Environment inspection
+        safe_pattern!("env", r"^env\b[^|><]*$"),
+        safe_pattern!("printenv", r"^printenv\b[^|><]*$"),
+        safe_pattern!("which", r"^which\b[^|><]*$"),
+        safe_pattern!("whoami", r"^whoami\b[^|><]*$"),
+        safe_pattern!("uname", r"^uname\b[^|><]*$"),
+        safe_pattern!("pwd", r"^pwd\b[^|><]*$"),
+        safe_pattern!("echo", r"^echo\b[^|><]*$"),
+        safe_pattern!("date", r"^date\b[^|><]*$"),
+        safe_pattern!("hostname", r"^hostname\b[^|><]*$"),
+        safe_pattern!("id", r"^id\b[^|><]*$"),
+        safe_pattern!("groups", r"^groups\b[^|><]*$"),
+        // Safe filesystem mutation
+        safe_pattern!("mkdir", r"^mkdir\b[^|><]*$"),
+        safe_pattern!("touch", r"^touch\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "recursive_delete_root",
@@ -221,6 +307,18 @@ pub static FILESYSTEM_PACK: Pack = Pack {
 // ---------------------------------------------------------------------------
 // core.git
 // ---------------------------------------------------------------------------
+
+/// Validator for `git branch`: returns `false` if `-D` or `-d` (delete) flags are present.
+fn git_branch_safe_validator(cmd: &str) -> bool {
+    let tokens = tokenize_or_bail!(cmd, false);
+    !tokens.iter().any(|t| t.value == "-D" || t.value == "-d")
+}
+
+/// Validator for `git tag`: returns `false` if `-d` (delete) flag is present.
+fn git_tag_safe_validator(cmd: &str) -> bool {
+    let tokens = tokenize_or_bail!(cmd, false);
+    !tokens.iter().any(|t| t.value == "-d")
+}
 
 fn force_push_validator(cmd: &str) -> bool {
     let tokens = tokenize_or_bail!(cmd, true);
@@ -323,6 +421,20 @@ pub static GIT_PACK: Pack = Pack {
     id: "core.git",
     name: "Git",
     description: "Guards against destructive git operations that lose history or modify remote state",
+    safe_patterns: &[
+        safe_pattern!("git_status", r"^git\s+status\b[^|><]*$"),
+        safe_pattern!("git_log", r"^git\s+log\b[^|><]*$"),
+        safe_pattern!("git_diff", r"^git\s+diff\b[^|><]*$"),
+        safe_pattern!("git_show", r"^git\s+show\b[^|><]*$"),
+        safe_pattern!(
+            "git_branch",
+            r"^git\s+branch\b[^|><]*$",
+            git_branch_safe_validator
+        ),
+        safe_pattern!("git_tag", r"^git\s+tag\b[^|><]*$", git_tag_safe_validator),
+        safe_pattern!("git_remote_v", r"^git\s+remote\s+-v\b[^|><]*$"),
+        safe_pattern!("git_rev_parse", r"^git\s+rev-parse\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "reset_hard",
@@ -419,6 +531,7 @@ pub static OBFUSCATION_PACK: Pack = Pack {
     id: "core.obfuscation",
     name: "Obfuscation",
     description: "Guards against meta-execution patterns whose purpose is guard bypass",
+    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "pipe_to_shell",
@@ -466,6 +579,32 @@ pub static STENCILA_PACK: Pack = Pack {
     id: "core.stencila",
     name: "Stencila",
     description: "Guards the agent's own runtime, credentials, and publishing operations",
+    safe_patterns: &[
+        safe_pattern!(
+            "stencila_secrets_list",
+            r"^stencila\s+secrets\s+list\b[^|><]*$"
+        ),
+        safe_pattern!(
+            "stencila_auth_status",
+            r"^stencila\s+auth\s+status\b[^|><]*$"
+        ),
+        safe_pattern!(
+            "stencila_cloud_status",
+            r"^stencila\s+cloud\s+status\b[^|><]*$"
+        ),
+        safe_pattern!("stencila_db_status", r"^stencila\s+db\s+status\b[^|><]*$"),
+        safe_pattern!("stencila_db_log", r"^stencila\s+db\s+log\b[^|><]*$"),
+        safe_pattern!("stencila_db_verify", r"^stencila\s+db\s+verify\b[^|><]*$"),
+        safe_pattern!("stencila_status", r"^stencila\s+status\b[^|><]*$"),
+        safe_pattern!(
+            "stencila_formats_list",
+            r"^stencila\s+formats\s+list\b[^|><]*$"
+        ),
+        safe_pattern!(
+            "stencila_models_list",
+            r"^stencila\s+models\s+list\b[^|><]*$"
+        ),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "secrets_modify",
@@ -678,5 +817,61 @@ mod tests {
         assert!(gc_prune_validator("git gc --prune=now"));
         assert!(gc_prune_validator("git gc --prune=all"));
         assert!(!gc_prune_validator("git gc"));
+    }
+
+    // ---- safe-pattern validators ----
+
+    #[test]
+    fn find_safe_validator_flags() {
+        assert!(find_safe_validator("find . -name '*.txt'"));
+        assert!(find_safe_validator("find . -name exec-summary.txt"));
+        assert!(!find_safe_validator("find . -delete"));
+        assert!(!find_safe_validator("find . -exec rm {} \\;"));
+        assert!(!find_safe_validator("find . -execdir rm {} \\;"));
+        assert!(!find_safe_validator("find . -ok rm {} \\;"));
+        assert!(!find_safe_validator("find . -okdir rm {} \\;"));
+        assert!(!find_safe_validator("find . -fprint output.txt"));
+        assert!(!find_safe_validator("find . -fls output.txt"));
+        assert!(!find_safe_validator("find . -fprintf output.txt '%p'"));
+    }
+
+    #[test]
+    fn git_branch_safe_validator_flags() {
+        assert!(git_branch_safe_validator("git branch"));
+        assert!(git_branch_safe_validator("git branch feature-x"));
+        assert!(!git_branch_safe_validator("git branch -D feature-x"));
+        assert!(!git_branch_safe_validator("git branch -d feature-x"));
+    }
+
+    #[test]
+    fn git_tag_safe_validator_flags() {
+        assert!(git_tag_safe_validator("git tag v1.0"));
+        assert!(!git_tag_safe_validator("git tag -d v1.0"));
+    }
+
+    #[test]
+    fn cargo_clippy_safe_validator_flags() {
+        assert!(cargo_clippy_safe_validator("cargo clippy"));
+        assert!(cargo_clippy_safe_validator("cargo clippy -- -W warnings"));
+        assert!(!cargo_clippy_safe_validator("cargo clippy --fix"));
+    }
+
+    #[test]
+    fn read_not_sensitive_validator_rejects_sensitive_paths() {
+        assert!(!read_not_sensitive_validator("cat /etc/shadow"));
+        assert!(!read_not_sensitive_validator("bat ~/.ssh/id_rsa"));
+        assert!(!read_not_sensitive_validator("head ~/.aws/credentials"));
+        assert!(!read_not_sensitive_validator("tail ~/.gnupg/trustdb.gpg"));
+        assert!(!read_not_sensitive_validator("cat .env"));
+        assert!(!read_not_sensitive_validator("less /path/to/.netrc"));
+        assert!(!read_not_sensitive_validator(
+            "cat ~/.config/gcloud/creds.json"
+        ));
+        assert!(read_not_sensitive_validator("cat README.md"));
+        assert!(read_not_sensitive_validator("bat main.rs"));
+        assert!(read_not_sensitive_validator("head src/lib.rs"));
+        assert!(read_not_sensitive_validator("tail -f logfile.txt"));
+        assert!(read_not_sensitive_validator("less Cargo.toml"));
+        assert!(read_not_sensitive_validator("cat -n main.rs"));
     }
 }

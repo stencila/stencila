@@ -1,6 +1,6 @@
 //! Workflow packs: `workflows.engines`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
 // workflows.engines
@@ -10,6 +10,15 @@ pub static WORKFLOW_ENGINES_PACK: Pack = Pack {
     id: "workflows.engines",
     name: "Workflow Engines",
     description: "Guards against destructive operations in scientific workflow engines",
+    safe_patterns: &[
+        safe_pattern!("nextflow_log", r"^nextflow\s+log\b[^|><]*$"),
+        safe_pattern!("nextflow_list", r"^nextflow\s+list\b[^|><]*$"),
+        safe_pattern!("snakemake_summary", r"^snakemake\s+--summary\b[^|><]*$"),
+        safe_pattern!(
+            "snakemake_dryrun",
+            r"^snakemake\s+(?:--dryrun|-n|--dry-run)\b[^|><]*$"
+        ),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "nextflow_clean",

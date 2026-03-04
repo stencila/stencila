@@ -1,6 +1,6 @@
 //! Scientific computing pack: `scientific.computing`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
 // scientific.computing
@@ -10,6 +10,10 @@ pub static SCIENTIFIC_COMPUTING_PACK: Pack = Pack {
     id: "scientific.computing",
     name: "Scientific Computing",
     description: "Guards against destructive operations in scientific computing environments",
+    safe_patterns: &[
+        safe_pattern!("julia_version", r"^julia\s+--version\b[^|><]*$"),
+        safe_pattern!("matlab_ver", r"^matlab\b.*\bver\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "julia_pkg_gc",

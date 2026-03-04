@@ -1,6 +1,6 @@
 //! LaTeX pack: `latex.build_tools`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
 // latex.build_tools
@@ -10,6 +10,10 @@ pub static BUILD_TOOLS_PACK: Pack = Pack {
     id: "latex.build_tools",
     name: "LaTeX Build Tools",
     description: "Guards against destructive LaTeX build tool operations",
+    safe_patterns: &[
+        safe_pattern!("latexmk_version", r"^latexmk\s+--version\b[^|><]*$"),
+        safe_pattern!("biber_version", r"^biber\s+--version\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "latexmk_clean",

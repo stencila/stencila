@@ -22,6 +22,7 @@ pub static DISK_PACK: Pack = Pack {
     id: "system.disk",
     name: "Disk",
     description: "Guards against destructive disk operations",
+    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "dd_to_device",
@@ -53,6 +54,7 @@ pub static NETWORK_PACK: Pack = Pack {
     id: "system.network",
     name: "Network",
     description: "Guards against destructive network operations",
+    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "iptables_flush",
@@ -103,6 +105,7 @@ pub static SERVICES_PACK: Pack = Pack {
     id: "system.services",
     name: "Services",
     description: "Guards against destructive system service operations",
+    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "systemctl_destructive",

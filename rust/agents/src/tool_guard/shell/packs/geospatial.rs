@@ -1,6 +1,6 @@
 //! Geospatial packs: `geospatial.gdal`, `geospatial.climate_data`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
 // geospatial.gdal
@@ -10,6 +10,10 @@ pub static GDAL_PACK: Pack = Pack {
     id: "geospatial.gdal",
     name: "GDAL/OGR",
     description: "Guards against destructive GDAL/OGR geospatial data operations",
+    safe_patterns: &[
+        safe_pattern!("gdalinfo", r"^gdalinfo\b[^|><]*$"),
+        safe_pattern!("ogrinfo", r"^ogrinfo\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "gdal_translate_overwrite",
@@ -50,6 +54,13 @@ pub static CLIMATE_DATA_PACK: Pack = Pack {
     id: "geospatial.climate_data",
     name: "Climate Data Tools",
     description: "Guards against destructive operations on NetCDF/HDF climate data files",
+    safe_patterns: &[
+        safe_pattern!("ncdump", r"^ncdump\b[^|><]*$"),
+        safe_pattern!(
+            "cdo_info",
+            r"^cdo\s+(?:info|sinfo|showname|showvar)\b[^|><]*$"
+        ),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "ncatted_overwrite",

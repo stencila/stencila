@@ -1,6 +1,6 @@
 //! Environment packs: `environments.managers`, `environments.r`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern, tokenize_or_bail};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern, tokenize_or_bail};
 
 // ---------------------------------------------------------------------------
 // environments.managers
@@ -19,6 +19,23 @@ pub static MANAGERS_PACK: Pack = Pack {
     id: "environments.managers",
     name: "Environment Managers",
     description: "Guards against destructive operations on environment and package managers",
+    safe_patterns: &[
+        safe_pattern!("python_version", r"^python[23]?\s+--version\b[^|><]*$"),
+        safe_pattern!("pip_list", r"^pip[3]?\s+list\b[^|><]*$"),
+        safe_pattern!("pip_show", r"^pip[3]?\s+show\b[^|><]*$"),
+        safe_pattern!("pip_freeze", r"^pip[3]?\s+freeze\b[^|><]*$"),
+        safe_pattern!("conda_list", r"^conda\s+list\b[^|><]*$"),
+        safe_pattern!("conda_env_list", r"^conda\s+env\s+list\b[^|><]*$"),
+        safe_pattern!("conda_env_export", r"^conda\s+env\s+export\b[^|><]*$"),
+        safe_pattern!("conda_info", r"^conda\s+info\b[^|><]*$"),
+        safe_pattern!("mamba_list", r"^mamba\s+list\b[^|><]*$"),
+        safe_pattern!("mamba_env_list", r"^mamba\s+env\s+list\b[^|><]*$"),
+        safe_pattern!("uv_pip_list", r"^uv\s+pip\s+list\b[^|><]*$"),
+        safe_pattern!("uv_pip_show", r"^uv\s+pip\s+show\b[^|><]*$"),
+        safe_pattern!("spack_find", r"^spack\s+find\b[^|><]*$"),
+        safe_pattern!("spack_info", r"^spack\s+info\b[^|><]*$"),
+        safe_pattern!("spack_list", r"^spack\s+list\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "conda_env_remove",
@@ -102,6 +119,10 @@ pub static R_PACK: Pack = Pack {
     id: "environments.r",
     name: "R Language",
     description: "Guards against destructive R package management operations",
+    safe_patterns: &[
+        safe_pattern!("r_version", r"^R\s+--version\b[^|><]*$"),
+        safe_pattern!("rscript_version", r"^Rscript\s+--version\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "r_remove_packages",
@@ -142,7 +163,9 @@ mod tests {
 
     #[test]
     fn conda_env_remove_dryrun() {
-        assert!(conda_env_remove_no_dryrun_validator("conda env remove -n myenv"));
+        assert!(conda_env_remove_no_dryrun_validator(
+            "conda env remove -n myenv"
+        ));
         assert!(!conda_env_remove_no_dryrun_validator(
             "conda env remove -n myenv --dry-run"
         ));
@@ -244,11 +267,9 @@ mod tests {
 
     #[test]
     fn r_unlink_matches() {
-        let re = Regex::new(rule_by_id(&R_PACK, "r_unlink").pattern)
-            .expect("pattern should compile");
-        assert!(re.is_match(
-            "Rscript -e 'unlink(\"output\", recursive = TRUE)'"
-        ));
+        let re =
+            Regex::new(rule_by_id(&R_PACK, "r_unlink").pattern).expect("pattern should compile");
+        assert!(re.is_match("Rscript -e 'unlink(\"output\", recursive = TRUE)'"));
         assert!(!re.is_match("Rscript -e 'unlink(\"file.txt\")'"));
         assert!(!re.is_match("Rscript script.R"));
     }

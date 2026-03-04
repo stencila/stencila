@@ -1,15 +1,29 @@
 //! HPC packs: `hpc.schedulers`, `hpc.apptainer`.
 
-use super::{Confidence, Pack, PatternRule, destructive_pattern};
+use super::{Confidence, Pack, PatternRule, destructive_pattern, safe_pattern};
 
 // ---------------------------------------------------------------------------
-// hpc.schedulers  
+// hpc.schedulers
 // ---------------------------------------------------------------------------
 
 pub static SCHEDULERS_PACK: Pack = Pack {
     id: "hpc.schedulers",
     name: "HPC Schedulers",
     description: "Guards against destructive HPC job scheduler operations",
+    safe_patterns: &[
+        safe_pattern!("squeue", r"^squeue\b[^|><]*$"),
+        safe_pattern!("sinfo", r"^sinfo\b[^|><]*$"),
+        safe_pattern!("sacct", r"^sacct\b[^|><]*$"),
+        safe_pattern!("qstat", r"^qstat\b[^|><]*$"),
+        safe_pattern!("bjobs", r"^bjobs\b[^|><]*$"),
+        safe_pattern!("bhist", r"^bhist\b[^|><]*$"),
+        safe_pattern!("bqueues", r"^bqueues\b[^|><]*$"),
+        safe_pattern!("module_list", r"^module\s+list\b[^|><]*$"),
+        safe_pattern!("module_avail", r"^module\s+avail\b[^|><]*$"),
+        safe_pattern!("module_show", r"^module\s+show\b[^|><]*$"),
+        safe_pattern!("module_spider", r"^module\s+spider\b[^|><]*$"),
+        safe_pattern!("module_whatis", r"^module\s+whatis\b[^|><]*$"),
+    ],
     destructive_patterns: &[
         destructive_pattern!(
             "slurm_cancel_all",
@@ -64,6 +78,7 @@ pub static APPTAINER_PACK: Pack = Pack {
     id: "hpc.apptainer",
     name: "HPC Containers",
     description: "Guards against destructive Singularity/Apptainer container operations",
+    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "singularity_delete",
@@ -111,9 +126,8 @@ mod tests {
 
     #[test]
     fn slurm_scontrol_shutdown_matches() {
-        let re =
-            Regex::new(rule_by_id(&SCHEDULERS_PACK, "slurm_scontrol_shutdown").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&SCHEDULERS_PACK, "slurm_scontrol_shutdown").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("scontrol shutdown"));
         assert!(!re.is_match("scontrol show job 12345"));
         assert!(!re.is_match("scontrol show partition"));
@@ -150,9 +164,8 @@ mod tests {
 
     #[test]
     fn singularity_delete_matches() {
-        let re =
-            Regex::new(rule_by_id(&APPTAINER_PACK, "singularity_delete").pattern)
-                .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&APPTAINER_PACK, "singularity_delete").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("singularity delete library://user/collection/image:tag"));
         assert!(re.is_match("apptainer delete library://user/collection/image:tag"));
         assert!(!re.is_match("singularity pull library://user/collection/image:tag"));
@@ -162,10 +175,8 @@ mod tests {
 
     #[test]
     fn singularity_cache_clean_all_matches() {
-        let re = Regex::new(
-            rule_by_id(&APPTAINER_PACK, "singularity_cache_clean_all").pattern,
-        )
-        .expect("pattern should compile");
+        let re = Regex::new(rule_by_id(&APPTAINER_PACK, "singularity_cache_clean_all").pattern)
+            .expect("pattern should compile");
         assert!(re.is_match("singularity cache clean --all"));
         assert!(re.is_match("singularity cache clean -a"));
         assert!(re.is_match("apptainer cache clean --all"));
