@@ -1137,6 +1137,15 @@ class Agent(CreativeWork):
     reasoning_effort: str | None = None
     """Reasoning effort level for the agent."""
 
+    history_thinking_replay: str | None = None
+    """Whether to replay assistant thinking and reasoning in conversation history."""
+
+    truncation_preset: str | None = None
+    """Named preset for tool output truncation limits."""
+
+    compaction_trigger_percent: UnsignedInteger | None = None
+    """Context usage percentage that triggers proactive history compaction."""
+
     trust_level: str | None = None
     """Trust level controlling how strictly the agent's operations are guarded."""
 

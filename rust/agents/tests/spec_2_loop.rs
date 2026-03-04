@@ -30,7 +30,8 @@ use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use stencila_agents::registry::{RegisteredTool, ToolOutput, ToolRegistry};
 use stencila_agents::types::AbortController;
 use stencila_agents::types::{
-    DirEntry, EventKind, ExecResult, GrepOptions, ReasoningEffort, SessionConfig, SessionState,
+    DirEntry, EventKind, ExecResult, GrepOptions, HistoryThinkingReplay, ReasoningEffort,
+    SessionConfig, SessionState,
 };
 
 // ===========================================================================
@@ -1241,7 +1242,12 @@ async fn thinking_parts_preserved_in_history() -> AgentResult<()> {
     // Response 2: final text
     let final_response = text_response("Here are the contents.")?;
 
-    let (mut session, _rx, client) = test_session(vec![thinking_response, Ok(final_response)])?;
+    let config = SessionConfig {
+        history_thinking_replay: HistoryThinkingReplay::Full,
+        ..SessionConfig::default()
+    };
+    let (mut session, _rx, client) =
+        test_session_with_config(vec![thinking_response, Ok(final_response)], config)?;
     session.submit("Read test.rs").await?;
 
     let requests = client.take_requests()?;
@@ -1276,6 +1282,55 @@ async fn thinking_parts_preserved_in_history() -> AgentResult<()> {
     });
     assert!(has_signature, "thinking content should preserve signature");
 
+    Ok(())
+}
+
+#[tokio::test]
+async fn thinking_parts_not_replayed_by_default() -> AgentResult<()> {
+    use stencila_models3::types::content::ThinkingData;
+
+    let thinking_response = {
+        let mut parts = vec![
+            ContentPart::Thinking {
+                thinking: ThinkingData {
+                    text: "Hidden chain of thought".into(),
+                    signature: Some("sig_hidden".into()),
+                    redacted: false,
+                },
+            },
+            ContentPart::text("I'll read the file."),
+        ];
+        parts.push(ContentPart::tool_call(
+            "call-1",
+            "read_file",
+            json!({"file_path": "test.rs"}),
+        ));
+        Ok(Response {
+            id: "resp-1".into(),
+            model: "test-model".into(),
+            provider: "test".into(),
+            message: Message::new(Role::Assistant, parts),
+            finish_reason: FinishReason::new(Reason::ToolCalls, None),
+            usage: Usage::default(),
+            raw: None,
+            warnings: None,
+            rate_limit: None,
+        })
+    };
+
+    let final_response = text_response("Done.")?;
+    let (mut session, _rx, client) = test_session(vec![thinking_response, Ok(final_response)])?;
+    session.submit("Read test.rs").await?;
+
+    let requests = client.take_requests()?;
+    assert_eq!(requests.len(), 2);
+    let second_req = &requests[1];
+    let has_thinking = second_req.messages.iter().any(|m| {
+        m.content
+            .iter()
+            .any(|p| matches!(p, ContentPart::Thinking { .. }))
+    });
+    assert!(!has_thinking, "thinking should not be replayed by default");
     Ok(())
 }
 
@@ -2127,6 +2182,72 @@ async fn context_usage_no_warning_below_threshold() -> AgentResult<()> {
         "Should NOT emit context warning for small context"
     );
 
+    Ok(())
+}
+
+#[tokio::test]
+async fn proactive_compaction_emits_info_event() -> AgentResult<()> {
+    use stencila_models3::types::content::ThinkingData;
+
+    let thinking_response = {
+        let parts = vec![
+            ContentPart::Thinking {
+                thinking: ThinkingData {
+                    text: "I will reason before calling a tool.".into(),
+                    signature: Some("sig_proactive".into()),
+                    redacted: false,
+                },
+            },
+            ContentPart::tool_call("call-1", "echo", json!({"text":"hello"})),
+        ];
+        Ok(Response {
+            id: "resp-1".into(),
+            model: "test-model".into(),
+            provider: "test".into(),
+            message: Message::new(Role::Assistant, parts),
+            finish_reason: FinishReason::new(Reason::ToolCalls, None),
+            usage: Usage::default(),
+            raw: None,
+            warnings: None,
+            rate_limit: None,
+        })
+    };
+
+    let config = SessionConfig {
+        history_thinking_replay: HistoryThinkingReplay::Full,
+        compaction_trigger_percent: 1,
+        ..SessionConfig::default()
+    };
+
+    let huge_prompt = "x".repeat(500_000);
+    let client = Arc::new(MockClient::new(vec![
+        thinking_response,
+        text_response("ok"),
+    ]));
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, mut rx) = ApiSession::new(
+        Box::new(profile),
+        env,
+        client,
+        config,
+        huge_prompt,
+        0,
+        ApiSessionInit::default(),
+    );
+
+    session.submit("Run tool").await?;
+    let events = drain_events(&mut rx).await;
+    let has_proactive = events.iter().any(|e| {
+        e.kind == EventKind::Info
+            && e.data.get("code").and_then(serde_json::Value::as_str)
+                == Some("CONTEXT_COMPACTION")
+            && e.data
+                .get("message")
+                .and_then(serde_json::Value::as_str)
+                .is_some_and(|m| m.contains("proactive"))
+    });
+    assert!(has_proactive, "expected proactive compaction info event");
     Ok(())
 }
 

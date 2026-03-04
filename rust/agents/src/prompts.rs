@@ -40,6 +40,15 @@ pub struct GitContext {
 /// Returns a default (non-repo) context on any failure — git context
 /// is best-effort, never blocks session startup.
 pub async fn gather_git_context(env: &dyn ExecutionEnvironment) -> GitContext {
+    gather_git_context_with_options(env, true, 10).await
+}
+
+/// Gather git context with configurable status + recent-commit limits.
+pub async fn gather_git_context_with_options(
+    env: &dyn ExecutionEnvironment,
+    include_status: bool,
+    recent_commits_count: usize,
+) -> GitContext {
     let mut ctx = GitContext::default();
 
     // Check if we're in a git repo by running `git rev-parse`
@@ -56,9 +65,10 @@ pub async fn gather_git_context(env: &dyn ExecutionEnvironment) -> GitContext {
     ctx.branch = branch;
 
     // Short status: count modified and untracked files
-    if let Ok(r) = env
-        .exec_command("git status --short", 5_000, None, None)
-        .await
+    if include_status
+        && let Ok(r) = env
+            .exec_command("git status --short", 5_000, None, None)
+            .await
         && r.exit_code == 0
     {
         for line in r.stdout.lines() {
@@ -71,18 +81,19 @@ pub async fn gather_git_context(env: &dyn ExecutionEnvironment) -> GitContext {
         }
     }
 
-    // Recent commits (last 10)
-    if let Ok(r) = env
-        .exec_command("git log --oneline -10", 5_000, None, None)
-        .await
-        && r.exit_code == 0
-    {
-        ctx.recent_commits = r
-            .stdout
-            .lines()
-            .filter(|l| !l.is_empty())
-            .map(String::from)
-            .collect();
+    // Recent commits
+    if recent_commits_count > 0 {
+        let command = format!("git log --oneline -{recent_commits_count}");
+        if let Ok(r) = env.exec_command(&command, 5_000, None, None).await
+            && r.exit_code == 0
+        {
+            ctx.recent_commits = r
+                .stdout
+                .lines()
+                .filter(|l| !l.is_empty())
+                .map(String::from)
+                .collect();
+        }
     }
 
     ctx
@@ -177,7 +188,19 @@ pub async fn build_environment_context_from_env(
     model: &str,
     knowledge_cutoff: Option<&str>,
 ) -> String {
-    let git_context = gather_git_context(env).await;
+    build_environment_context_from_env_with_options(env, model, knowledge_cutoff, true, 10).await
+}
+
+/// Build the environment context from an execution environment with prompt-budget controls.
+pub async fn build_environment_context_from_env_with_options(
+    env: &dyn ExecutionEnvironment,
+    model: &str,
+    knowledge_cutoff: Option<&str>,
+    include_git_status: bool,
+    git_recent_commits_count: usize,
+) -> String {
+    let git_context =
+        gather_git_context_with_options(env, include_git_status, git_recent_commits_count).await;
     build_environment_context(
         env.working_directory(),
         env.platform(),
@@ -318,14 +341,27 @@ pub async fn build_system_prompt(
     // Suppress unused-variable when no feature flags are active.
     let _ = config;
 
-    let env_context = build_environment_context_from_env(env, profile.model(), None).await;
+    let env_context = build_environment_context_from_env_with_options(
+        env,
+        profile.model(),
+        None,
+        config.include_git_status_in_prompt,
+        config.git_recent_commits_count,
+    )
+    .await;
 
     let git_root = find_git_root(env).await;
     let working_dir = env.working_directory();
     let root = git_root.as_deref().unwrap_or(working_dir);
 
-    let project_docs =
-        crate::project_docs::discover_project_docs(env, profile.id(), root, working_dir).await?;
+    let project_docs = crate::project_docs::discover_project_docs_with_budget(
+        env,
+        profile.id(),
+        root,
+        working_dir,
+        config.project_docs_max_bytes,
+    )
+    .await?;
 
     #[allow(unused_mut)]
     let mut prompt = profile.build_system_prompt(&env_context, &project_docs);
@@ -406,7 +442,13 @@ async fn setup_mcp_layers(
             tracing::warn!("failed to register codemode tool: {e}");
         }
 
-        let codemode_prompt = crate::codemode::build_codemode_prompt(&pool, allowed).await;
+        let codemode_prompt = crate::codemode::build_codemode_prompt(
+            &pool,
+            allowed,
+            config.codemode_prompt_max_chars,
+            config.mcp_server_list_max,
+        )
+        .await;
         if !codemode_prompt.is_empty() {
             prompt.push_str("\n\n");
             prompt.push_str(&codemode_prompt);

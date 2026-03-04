@@ -27,6 +27,7 @@ semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+smart-default = { workspace = true }
 sha2 = { workspace = true }
 stencila-codec-html = { path = "../codec-html" }
 stencila-codec-markdown = { path = "../codec-markdown" }

@@ -13,9 +13,10 @@ use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
-use stencila_agents::project_docs::discover_project_docs;
+use stencila_agents::project_docs::{discover_project_docs, discover_project_docs_with_budget};
 use stencila_agents::prompts::{
     GitContext, build_environment_context, format_git_summary, gather_git_context,
+    gather_git_context_with_options,
 };
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
 
@@ -320,6 +321,33 @@ async fn gather_git_context_not_a_repo() -> AgentResult<()> {
     Ok(())
 }
 
+#[tokio::test]
+async fn gather_git_context_custom_commit_limit() -> AgentResult<()> {
+    let env = MockEnv::new("/project").with_git_repo("main").with_command(
+        "git log --oneline -3",
+        ExecResult {
+            stdout: "abc1234 feat: add feature\ndef5678 fix: bug fix\n".into(),
+            stderr: String::new(),
+            exit_code: 0,
+            timed_out: false,
+            duration_ms: 5,
+        },
+    );
+
+    let ctx = gather_git_context_with_options(&env, true, 3).await;
+    assert_eq!(ctx.recent_commits.len(), 2);
+    Ok(())
+}
+
+#[tokio::test]
+async fn gather_git_context_can_skip_status() -> AgentResult<()> {
+    let env = MockEnv::new("/project").with_git_repo("main");
+    let ctx = gather_git_context_with_options(&env, false, 10).await;
+    assert_eq!(ctx.modified_count, 0);
+    assert_eq!(ctx.untracked_count, 0);
+    Ok(())
+}
+
 #[test]
 fn format_git_summary_with_data() {
     let git = GitContext {
@@ -437,7 +465,7 @@ async fn discover_32kb_budget_enforcement() -> AgentResult<()> {
     let env = MockEnv::new("/project").with_file("/project/AGENTS.md", &big_content);
 
     let docs = discover_project_docs(&env, "anthropic", "/project", "/project").await?;
-    assert!(docs.contains("[Project instructions truncated at 32KB]"));
+    assert!(docs.contains("[Project instructions truncated at 32768 bytes]"));
     Ok(())
 }
 
@@ -452,9 +480,21 @@ async fn discover_budget_stops_at_second_file() -> AgentResult<()> {
         .with_file("/project/CLAUDE.md", &medium);
 
     let docs = discover_project_docs(&env, "anthropic", "/project", "/project").await?;
-    assert!(docs.contains("[Project instructions truncated at 32KB]"));
+    assert!(docs.contains("[Project instructions truncated at 32768 bytes]"));
     // First file content should be present
     assert!(docs.contains('a'));
+    Ok(())
+}
+
+#[tokio::test]
+async fn discover_custom_budget_enforcement() -> AgentResult<()> {
+    let env = MockEnv::new("/project")
+        .with_file("/project/AGENTS.md", &"a".repeat(500))
+        .with_file("/project/CLAUDE.md", &"b".repeat(500));
+
+    let docs =
+        discover_project_docs_with_budget(&env, "anthropic", "/project", "/project", 300).await?;
+    assert!(docs.contains("[Project instructions truncated at 300 bytes]"));
     Ok(())
 }
 

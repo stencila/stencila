@@ -2,6 +2,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU8, Ordering};
 
 use serde::{Deserialize, Serialize};
+use smart_default::SmartDefault;
 use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::tool::ToolCall;
 use stencila_models3::types::tool::ToolResult;
@@ -44,6 +45,27 @@ pub enum ReasoningEffort {
     Custom(String),
 }
 
+/// Whether assistant thinking and reasoning content is replayed in conversation history.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum HistoryThinkingReplay {
+    /// Strip all thinking and reasoning from history, saving context space.
+    #[default]
+    None,
+    /// Replay thinking and reasoning content as-is.
+    Full,
+}
+
+/// Built-in truncation presets for tool outputs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum TruncationPreset {
+    Strict,
+    #[default]
+    Balanced,
+    Verbose,
+}
+
 impl ReasoningEffort {
     /// Return the string representation for use in LLM requests.
     #[must_use]
@@ -70,27 +92,29 @@ impl std::fmt::Display for ReasoningEffort {
 /// Configuration for an agent session.
 ///
 /// All fields carry the spec-mandated defaults (Section 2.2).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, SmartDefault)]
+#[serde(default)]
 pub struct SessionConfig {
     /// Maximum total turns (0 = unlimited).
-    #[serde(default)]
     pub max_turns: u32,
 
     /// Maximum tool rounds per user input.
-    #[serde(default = "default_max_tool_rounds")]
     pub max_tool_rounds_per_input: u32,
 
     /// Default command timeout in milliseconds (10 seconds).
-    #[serde(default = "default_command_timeout_ms")]
+    #[default(10_000)]
     pub default_command_timeout_ms: u64,
 
     /// Maximum command timeout in milliseconds (10 minutes).
-    #[serde(default = "default_max_command_timeout_ms")]
+    #[default(600_000)]
     pub max_command_timeout_ms: u64,
 
     /// Reasoning effort level: Low, Medium, High, or None.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning_effort: Option<ReasoningEffort>,
+
+    /// Whether assistant thinking and reasoning is replayed in conversation history.
+    pub history_thinking_replay: HistoryThinkingReplay,
 
     /// Tool names this agent is allowed to use.
     ///
@@ -99,23 +123,52 @@ pub struct SessionConfig {
     /// to execute — calls to unlisted tools are rejected with an error result.
     /// Supports the principle of least privilege: agents should only have
     /// access to the tools they actually need.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_tools: Option<Vec<String>>,
 
     /// Per-tool character output limits (overrides defaults from spec 5.2).
-    #[serde(default)]
     pub tool_output_limits: std::collections::HashMap<String, usize>,
 
     /// Per-tool line output limits (overrides defaults from spec 5.2).
-    #[serde(default)]
     pub tool_line_limits: std::collections::HashMap<String, usize>,
+
+    /// Named truncation preset used as baseline tool-output limits.
+    pub truncation_preset: TruncationPreset,
+
+    /// Proactive compaction trigger as percent of context window.
+    #[default(70)]
+    pub compaction_trigger_percent: u8,
+
+    /// Compact tool results older than this number of most-recent turns.
+    #[default(2)]
+    pub compact_tool_results_older_than_turns: u32,
+
+    /// Maximum chars to preserve for compacted tool-result entries.
+    #[default(600)]
+    pub compact_max_tool_result_chars: usize,
+
+    /// Number of most-recent turns to preserve during context compaction.
+    #[default(4)]
+    pub compact_preserve_recent_turns: u32,
+
+    /// Maximum bytes of discovered project docs to include in system prompt.
+    #[default(12_000)]
+    pub project_docs_max_bytes: usize,
+
+    /// Number of recent git commits to include in environment context.
+    #[default(3)]
+    pub git_recent_commits_count: usize,
+
+    /// Whether to include git status counts in environment context.
+    #[default(true)]
+    pub include_git_status_in_prompt: bool,
 
     /// Whether to discover and enable workspace skills.
     ///
     /// When enabled and the `skills` feature is active, the system prompt
     /// includes compact skill metadata and a `use_skill` tool is registered
     /// for on-demand full-content loading.
-    #[serde(default = "default_true")]
+    #[default(true)]
     pub enable_skills: bool,
 
     /// Whether to register MCP tools directly in the agent's tool registry.
@@ -126,7 +179,6 @@ pub struct SessionConfig {
     ///
     /// Defaults to `false`. Set `enableMcp: true` in the agent definition
     /// to opt in to direct MCP tool registration.
-    #[serde(default)]
     pub enable_mcp: bool,
 
     /// Whether to register a single `codemode` tool for MCP orchestration.
@@ -140,28 +192,37 @@ pub struct SessionConfig {
     /// Defaults to `true` — codemode is available when MCP servers are
     /// discovered. Set `enableMcpCodemode: false` in the agent definition
     /// to disable.
-    #[serde(default = "default_true")]
+    #[default(true)]
     pub enable_mcp_codemode: bool,
+
+    /// Maximum chars of codemode prompt additions.
+    #[default(6_000)]
+    pub codemode_prompt_max_chars: usize,
+
+    /// Maximum MCP servers to list in codemode prompt.
+    #[default(8)]
+    pub mcp_server_list_max: usize,
 
     /// MCP server IDs this agent is allowed to use.
     ///
     /// When `None`, all discovered and connected MCP servers are available.
     /// When `Some`, only the listed server IDs are used — other servers are
-    /// ignored even if connected. Supports the principle of least privilege:
-    /// agents should only have access to the MCP servers they actually need.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    /// ignored even if connected. This supports the principle of least
+    /// privilege: agents should only have access to the MCP servers they
+    /// actually need.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_mcp_servers: Option<Vec<String>>,
 
     /// Whether loop detection is enabled.
-    #[serde(default = "default_true")]
+    #[default(true)]
     pub enable_loop_detection: bool,
 
     /// Number of consecutive identical tool calls before a loop warning.
-    #[serde(default = "default_loop_detection_window")]
+    #[default(10)]
     pub loop_detection_window: u32,
 
     /// Maximum nesting level for subagents.
-    #[serde(default = "default_max_subagent_depth")]
+    #[default(1)]
     pub max_subagent_depth: u32,
 
     /// Commit instructions appended to the system prompt.
@@ -169,16 +230,16 @@ pub struct SessionConfig {
     /// Populated by [`crate::convenience::create_session()`] with instructions
     /// to set the git committer identity. Inherited by subagents via
     /// [`for_child()`](Self::for_child).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub commit_instructions: Option<String>,
 
     /// User instruction override text (spec layer 5, appended last to system prompt).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user_instructions: Option<String>,
 
     /// Whether to auto-detect when the model is asking the user a question
     /// and transition to `AwaitingInput` instead of `Idle` (spec 2.3).
-    #[serde(default = "default_true")]
+    #[default(true)]
     pub auto_detect_awaiting_input: bool,
 
     /// Retry policy for LLM calls.
@@ -188,87 +249,21 @@ pub struct SessionConfig {
     pub retry_policy: stencila_models3::retry::RetryPolicy,
 }
 
-fn default_max_tool_rounds() -> u32 {
-    0
-}
-fn default_command_timeout_ms() -> u64 {
-    10_000
-}
-fn default_max_command_timeout_ms() -> u64 {
-    600_000
-}
-fn default_true() -> bool {
-    true
-}
-fn default_loop_detection_window() -> u32 {
-    10
-}
-fn default_max_subagent_depth() -> u32 {
-    1
-}
-
 impl SessionConfig {
     /// Derive a child configuration for a subagent session.
     ///
-    /// Inherits the parent's behavioral settings (timeouts, limits, loop
-    /// detection, skills) while allowing per-child overrides for `max_turns`
-    /// and `max_subagent_depth`. Fields that are session-specific
-    /// (`user_instructions`, `reasoning_effort`) are not inherited.
-    ///
-    /// Using this method instead of `SessionConfig { ..Default::default() }`
-    /// ensures newly added fields are inherited correctly without manual
-    /// updates in every call site.
+    /// Clones the parent configuration and overrides the per-child fields.
+    /// Session-specific fields (`user_instructions`, `reasoning_effort`)
+    /// are reset so they don't leak into subagents.
     #[must_use]
     pub fn for_child(&self, max_turns: u32, max_subagent_depth: u32) -> Self {
         Self {
             max_turns,
             max_subagent_depth,
-            // Inherit parent's behavioral settings
-            max_tool_rounds_per_input: self.max_tool_rounds_per_input,
-            default_command_timeout_ms: self.default_command_timeout_ms,
-            max_command_timeout_ms: self.max_command_timeout_ms,
-            allowed_tools: self.allowed_tools.clone(),
-            tool_output_limits: self.tool_output_limits.clone(),
-            tool_line_limits: self.tool_line_limits.clone(),
-            enable_loop_detection: self.enable_loop_detection,
-            loop_detection_window: self.loop_detection_window,
-            auto_detect_awaiting_input: self.auto_detect_awaiting_input,
-            enable_skills: self.enable_skills,
-            enable_mcp: self.enable_mcp,
-            enable_mcp_codemode: self.enable_mcp_codemode,
-            allowed_mcp_servers: self.allowed_mcp_servers.clone(),
-            // Inherited: subagents use the same commit trailer
-            commit_instructions: self.commit_instructions.clone(),
-            retry_policy: self.retry_policy.clone(),
             // Session-specific: not inherited
             reasoning_effort: None,
             user_instructions: None,
-        }
-    }
-}
-
-impl Default for SessionConfig {
-    fn default() -> Self {
-        Self {
-            max_turns: 0,
-            max_tool_rounds_per_input: default_max_tool_rounds(),
-            default_command_timeout_ms: default_command_timeout_ms(),
-            max_command_timeout_ms: default_max_command_timeout_ms(),
-            reasoning_effort: None,
-            allowed_tools: None,
-            tool_output_limits: std::collections::HashMap::new(),
-            tool_line_limits: std::collections::HashMap::new(),
-            enable_loop_detection: true,
-            loop_detection_window: default_loop_detection_window(),
-            max_subagent_depth: default_max_subagent_depth(),
-            commit_instructions: None,
-            user_instructions: None,
-            auto_detect_awaiting_input: true,
-            enable_skills: true,
-            enable_mcp: false,
-            enable_mcp_codemode: true,
-            allowed_mcp_servers: None,
-            retry_policy: stencila_models3::retry::RetryPolicy::default(),
+            ..self.clone()
         }
     }
 }
@@ -327,6 +322,38 @@ impl SessionConfig {
             && val >= 0
         {
             config.max_subagent_depth = val as u32;
+        }
+
+        if let Some(ref mode) = agent.options.history_thinking_replay {
+            config.history_thinking_replay = match mode.as_str() {
+                "full" => HistoryThinkingReplay::Full,
+                _ => HistoryThinkingReplay::None,
+            };
+        }
+
+        if let Some(ref preset) = agent.options.truncation_preset {
+            config.truncation_preset = match preset.as_str() {
+                "strict" => TruncationPreset::Strict,
+                "verbose" => TruncationPreset::Verbose,
+                _ => TruncationPreset::Balanced,
+            };
+        }
+
+        if let Some(percent) = agent.options.compaction_trigger_percent {
+            if percent <= 100 {
+                config.compaction_trigger_percent = percent as u8;
+            } else {
+                tracing::warn!(
+                    "compactionTriggerPercent={percent} out of range 0..100, using default"
+                );
+            }
+        }
+
+        // An empty allowedSkills array disables skill discovery entirely.
+        if let Some(ref skills) = agent.allowed_skills
+            && skills.is_empty()
+        {
+            config.enable_skills = false;
         }
 
         if let Some(val) = agent.options.enable_mcp {

@@ -901,6 +901,42 @@
       }
     },
     {
+      "@id": "stencila:historyThinkingReplay",
+      "@type": "rdfs:Property",
+      "rdfs:label": "historyThinkingReplay",
+      "rdfs:comment": "Whether to replay assistant thinking and reasoning in conversation history.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:truncationPreset",
+      "@type": "rdfs:Property",
+      "rdfs:label": "truncationPreset",
+      "rdfs:comment": "Named preset for tool output truncation limits.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:compactionTriggerPercent",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compactionTriggerPercent",
+      "rdfs:comment": "Context usage percentage that triggers proactive history compaction.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
       "@id": "stencila:trustLevel",
       "@type": "rdfs:Property",
       "rdfs:label": "trustLevel",

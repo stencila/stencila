@@ -463,7 +463,13 @@ impl SubAgentManager {
                     tracing::warn!("failed to register codemode tool on subagent: {e}");
                 }
 
-                let codemode_prompt = crate::codemode::build_codemode_prompt(pool, allowed).await;
+                let codemode_prompt = crate::codemode::build_codemode_prompt(
+                    pool,
+                    allowed,
+                    child_config.codemode_prompt_max_chars,
+                    child_config.mcp_server_list_max,
+                )
+                .await;
                 if !codemode_prompt.is_empty() {
                     system_prompt.push_str("\n\n");
                     system_prompt.push_str(&codemode_prompt);

@@ -11,6 +11,8 @@ use std::sync::LazyLock;
 
 use serde::{Deserialize, Serialize};
 
+use crate::types::TruncationPreset;
+
 // ---------------------------------------------------------------------------
 // TruncationMode (spec 5.1)
 // ---------------------------------------------------------------------------
@@ -130,12 +132,68 @@ const FALLBACK_POLICY: ToolTruncationPolicy = ToolTruncationPolicy {
 /// Per-session overrides for tool output limits.
 ///
 /// Empty maps mean "use the spec defaults from [`DEFAULT_POLICIES`]."
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct TruncationConfig {
+    /// Baseline preset applied before per-tool overrides.
+    pub preset: TruncationPreset,
     /// Per-tool character limit overrides.
     pub tool_output_limits: HashMap<String, usize>,
     /// Per-tool line limit overrides.
     pub tool_line_limits: HashMap<String, usize>,
+}
+
+impl Default for TruncationConfig {
+    fn default() -> Self {
+        Self {
+            preset: TruncationPreset::Balanced,
+            tool_output_limits: HashMap::new(),
+            tool_line_limits: HashMap::new(),
+        }
+    }
+}
+
+fn preset_char_limit(preset: TruncationPreset, tool_name: &str) -> Option<usize> {
+    match preset {
+        TruncationPreset::Verbose => None,
+        TruncationPreset::Balanced => match tool_name {
+            "read_file" => Some(30_000),
+            "shell" => Some(20_000),
+            "grep" => Some(12_000),
+            "glob" => Some(12_000),
+            "edit_file" | "apply_patch" => Some(8_000),
+            "write_file" => Some(1_000),
+            "spawn_agent" => Some(12_000),
+            _ => None,
+        },
+        TruncationPreset::Strict => match tool_name {
+            "read_file" => Some(15_000),
+            "shell" => Some(10_000),
+            "grep" => Some(6_000),
+            "glob" => Some(6_000),
+            "edit_file" | "apply_patch" => Some(5_000),
+            "write_file" => Some(700),
+            "spawn_agent" => Some(8_000),
+            _ => None,
+        },
+    }
+}
+
+fn preset_line_limit(preset: TruncationPreset, tool_name: &str) -> Option<usize> {
+    match preset {
+        TruncationPreset::Verbose => None,
+        TruncationPreset::Balanced => match tool_name {
+            "shell" => Some(200),
+            "grep" => Some(120),
+            "glob" => Some(250),
+            _ => None,
+        },
+        TruncationPreset::Strict => match tool_name {
+            "shell" => Some(120),
+            "grep" => Some(80),
+            "glob" => Some(150),
+            _ => None,
+        },
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -231,6 +289,7 @@ pub fn truncate_tool_output(output: &str, tool_name: &str, config: &TruncationCo
         .tool_output_limits
         .get(tool_name)
         .copied()
+        .or_else(|| preset_char_limit(config.preset, tool_name))
         .unwrap_or(policy.max_chars);
 
     let result = truncate_output(output, max_chars, policy.mode);
@@ -240,6 +299,7 @@ pub fn truncate_tool_output(output: &str, tool_name: &str, config: &TruncationCo
         .tool_line_limits
         .get(tool_name)
         .copied()
+        .or_else(|| preset_line_limit(config.preset, tool_name))
         .or(policy.max_lines);
 
     match max_lines {

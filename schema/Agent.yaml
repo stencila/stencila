@@ -75,6 +75,34 @@ properties:
       Valid values are "low", "medium", "high", or a custom provider-specific value.
       When not specified, the provider's default is used.
     type: string
+  historyThinkingReplay:
+    "@id": stencila:historyThinkingReplay
+    description: Whether to replay assistant thinking and reasoning in conversation history.
+    $comment: |
+      Controls whether chain-of-thought content (both provider-specific thinking parts
+      and reasoning text) is included when replaying assistant turns in subsequent requests.
+      - "none" (default): strip all thinking and reasoning from history, saving context space.
+      - "full": replay thinking and reasoning content as-is.
+    type: string
+  truncationPreset:
+    "@id": stencila:truncationPreset
+    description: Named preset for tool output truncation limits.
+    $comment: |
+      Controls how aggressively tool outputs are truncated before being included
+      in the conversation context.
+      - "strict": tighter limits, preserves more context budget for conversation.
+      - "balanced" (default): moderate limits suitable for most agents.
+      - "verbose": no additional truncation beyond spec defaults.
+    type: string
+  compactionTriggerPercent:
+    "@id": stencila:compactionTriggerPercent
+    description: Context usage percentage that triggers proactive history compaction.
+    $comment: |
+      When estimated context usage exceeds this percentage of the model's context
+      window, the agent proactively compacts conversation history (stripping
+      thinking blocks, summarizing old tool results, dropping oldest turns).
+      Set to 0 to disable proactive compaction. Defaults to 70.
+    $ref: UnsignedInteger
   trustLevel:
     "@id": stencila:trustLevel
     description: Trust level controlling how strictly the agent's operations are guarded.
@@ -90,7 +118,8 @@ properties:
     description: Skill names this agent can use.
     $comment: |
       When unset, all discovered skills are available to the agent.
-      When set, only the listed skills are available.
+      When set to a non-empty array, only the listed skills are available.
+      When set to an empty array, skills are disabled entirely (no discovery or registration).
     type: array
     items:
       type: string

@@ -135,9 +135,25 @@ The spec requires async event delivery but does not define testing/consumption h
 
 When `spawn_agent` includes `working_dir`, the child system prompt is augmented with explicit scope instructions ("You are scoped to the subdirectory..."). This extra guidance is not required by the spec but improves model behavior by reinforcing directory boundaries in addition to runtime `ScopedExecutionEnvironment` checks.
 
-### Automatic context compaction on overflow (`§5.5`, `§8`)
+### Automatic context compaction (`§5.5`, `§8`)
 
-The spec explicitly leaves compaction out of scope: "The agent does NOT perform automatic compaction or summarization" (§5.5) and recommends that hosts implement their own strategy using context-usage signals. This implementation adds a naive, best-effort compaction that triggers only when the LLM returns a context-length error. On the first such error per LLM call, the session attempts a three-phase compaction — (1) strip thinking/reasoning blocks from all assistant turns, (2) summarise tool results in older turns, (3) drop middle conversation exchanges — then retries the request once. If the retry also fails or nothing could be compacted, the error propagates normally. This does not address more sophisticated strategies such as LLM-generated summaries, pinned turns, progressive eviction policies, or proactive compaction before hitting the limit.
+The spec explicitly leaves compaction out of scope: "The agent does NOT perform automatic compaction or summarization" (§5.5) and recommends that hosts implement their own strategy using context-usage signals. This implementation adds two complementary compaction triggers:
+
+**Proactive compaction** runs on every loop iteration before the LLM request is built. It estimates context usage (history chars ÷ 4, plus a response-headroom reserve clamped to 1024–8192 tokens) and fires when the projected percentage exceeds `SessionConfig::compaction_trigger_percent` (default 70%, 0 to disable).
+
+**Reactive compaction** fires when the LLM returns a context-length error. On the first such error per LLM call, compaction runs and the request is retried once. If the retry also fails or nothing could be compacted, the error propagates normally.
+
+Both triggers run the same three-phase compaction pipeline:
+
+1. **Strip thinking/reasoning** — removes reasoning text and provider-specific thinking parts (including Anthropic extended-thinking blocks) from all assistant turns.
+2. **Summarise old tool results** — in turns older than the most recent `compact_tool_results_older_than_turns` (default 2), replaces tool-result content longer than `compact_max_tool_result_chars` (default 600) with a placeholder noting how many characters were removed. Associated image attachments are also dropped.
+3. **Drop middle exchanges** — when history exceeds `compact_preserve_recent_turns + 6` entries, removes everything between the first turn (original user task) and the last `compact_preserve_recent_turns` (default 4) entries, inserting a system message noting how many turns were removed. The tail boundary is adjusted forward to avoid orphaning a `ToolResults` turn whose matching `Assistant` was dropped.
+
+A single `CONTEXT_COMPACTION` info event is emitted with before/after token estimates and per-phase statistics (reasoning turns stripped, thinking parts stripped, tool results summarised, characters removed, turns dropped). The trigger field distinguishes proactive from reactive compaction.
+
+**History thinking replay.** Independently of compaction, `SessionConfig::history_thinking_replay` (default `"none"`) controls whether assistant thinking and reasoning content is included when replaying history in subsequent requests. When set to `"none"`, thinking parts are filtered from history messages at request-build time, reducing context usage without mutating stored history. Set to `"full"` to preserve all thinking content.
+
+**Truncation presets.** `SessionConfig::truncation_preset` selects baseline per-tool output limits applied before per-tool overrides. Three presets are available: `"strict"` (tightest limits), `"balanced"` (default), and `"verbose"` (no additional truncation beyond spec defaults). Per-tool overrides in `tool_output_limits` and `tool_line_limits` always take priority over preset values.
 
 ### `create_session` accepts `google` as a Gemini alias
 
@@ -189,7 +205,7 @@ The spec says the initial provider prompts and tool definitions should be exact 
 
 ### Git commit summary format (`§6.4`)
 
-The spec describes recent commit _subject lines_. This implementation gathers commits with `git log --oneline -10`, which includes abbreviated hashes plus subjects.
+The spec describes recent commit _subject lines_. This implementation gathers commits with `git log --oneline -N` (where N defaults to `SessionConfig::git_recent_commits_count`, default 3), which includes abbreviated hashes plus subjects.
 
 ### Subagent profile inheritance (`§7.3`)
 
@@ -278,7 +294,7 @@ The event channel uses `tokio::sync::mpsc::unbounded_channel`. If a host keeps t
 
 ### Project doc discovery reads full files before budget truncation (`§6.5`)
 
-Project instruction discovery enforces a 32KB final prompt budget, but each discovered file is read in full first (`read_file(..., limit = usize::MAX)`) and only then truncated/filtered into the aggregate budget. Very large instruction files can therefore increase startup I/O and memory before truncation.
+Project instruction discovery enforces a byte budget (`SessionConfig::project_docs_max_bytes`, default 12KB; the standalone `discover_project_docs` helper uses 32KB), but each discovered file is read in full first (`read_file(..., limit = usize::MAX)`) and only then truncated/filtered into the aggregate budget. Very large instruction files can therefore increase startup I/O and memory before truncation.
 
 ### Context-usage warnings are not throttled (`§5.5`)
 

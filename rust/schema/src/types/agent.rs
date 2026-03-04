@@ -24,6 +24,7 @@ use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
+use super::unsigned_integer::UnsignedInteger;
 
 /// An agent definition specifying model, tools, and behavioral configuration.
 #[skip_serializing_none]
@@ -311,6 +312,18 @@ pub struct AgentOptions {
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
+
+    /// Whether to replay assistant thinking and reasoning in conversation history.
+    #[serde(alias = "history-thinking-replay", alias = "history_thinking_replay")]
+    pub history_thinking_replay: Option<String>,
+
+    /// Named preset for tool output truncation limits.
+    #[serde(alias = "truncation-preset", alias = "truncation_preset")]
+    pub truncation_preset: Option<String>,
+
+    /// Context usage percentage that triggers proactive history compaction.
+    #[serde(alias = "compaction-trigger-percent", alias = "compaction_trigger_percent")]
+    pub compaction_trigger_percent: Option<UnsignedInteger>,
 
     /// Domain allowlist for web_fetch.
     #[serde(alias = "allowed-domains", alias = "allowed_domains", alias = "allowedDomain", alias = "allowed-domain", alias = "allowed_domain")]

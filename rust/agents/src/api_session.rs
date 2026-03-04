@@ -41,7 +41,8 @@ use crate::registry::ToolOutput;
 use crate::subagents::SubAgentManager;
 use crate::truncation::{TruncationConfig, truncate_tool_output};
 use crate::types::{
-    AbortKind, AbortSignal, EventKind, SessionConfig, SessionState, Turn, now_timestamp,
+    AbortKind, AbortSignal, EventKind, HistoryThinkingReplay, SessionConfig, SessionState, Turn,
+    now_timestamp,
 };
 
 // ---------------------------------------------------------------------------
@@ -142,6 +143,18 @@ impl LlmClient for Models3Client {
 struct ImageAttachment {
     data: Vec<u8>,
     media_type: String,
+}
+
+/// Metrics collected during a single context compaction pass.
+#[derive(Debug, Clone, Copy)]
+struct CompactionStats {
+    before_tokens: u64,
+    after_tokens: u64,
+    stripped_reasoning_turns: usize,
+    stripped_thinking_parts: usize,
+    summarized_tool_results: usize,
+    removed_tool_result_chars: usize,
+    removed_turns: usize,
 }
 
 // ---------------------------------------------------------------------------
@@ -265,6 +278,7 @@ impl ApiSession {
         emitter.emit_session_start();
 
         let truncation_config = TruncationConfig {
+            preset: config.truncation_preset,
             tool_output_limits: config.tool_output_limits.clone(),
             tool_line_limits: config.tool_line_limits.clone(),
         };
@@ -588,6 +602,9 @@ impl ApiSession {
             // 4. Context-usage warning (spec 5.5)
             self.check_context_usage();
 
+            // 4b. Proactive context compaction before hitting hard overflow.
+            self.maybe_proactive_compaction();
+
             // 5. Build and send LLM request (streaming, abort-aware)
             let request = self.build_request();
             self.events.emit_assistant_text_start();
@@ -781,7 +798,7 @@ impl ApiSession {
                     // summarises older tool results to free context space.
                     if matches!(e, SdkError::ContextLength { .. })
                         && !compaction_attempted
-                        && self.compact_history()
+                        && self.compact_history("reactive").is_some()
                     {
                         compaction_attempted = true;
                         let mut data = serde_json::Map::new();
@@ -1054,20 +1071,32 @@ impl ApiSession {
                     ..
                 } => {
                     if !response_content_parts.is_empty() {
-                        // Use the original response content parts to preserve
-                        // provider-specific metadata (e.g. Gemini thought_signature
-                        // on function call parts).
-                        messages.push(Message::new(
-                            Role::Assistant,
-                            response_content_parts.clone(),
-                        ));
+                        // Use original response parts where possible, with
+                        // configurable filtering of thinking/reasoning replay.
+                        let parts = self.filter_history_parts(response_content_parts);
+
+                        if parts.is_empty() && !content.is_empty() {
+                            messages.push(Message::assistant(content.as_str()));
+                        } else if !parts.is_empty() {
+                            messages.push(Message::new(Role::Assistant, parts));
+                        }
+                        // When both filtered parts and content are empty (e.g.
+                        // an assistant turn that was purely thinking), skip the
+                        // message entirely to avoid pushing an empty turn that
+                        // some providers would reject.
                     } else if thinking_parts.is_empty() && tool_calls.is_empty() {
                         messages.push(Message::assistant(content.as_str()));
                     } else {
+                        let replay = matches!(
+                            self.config.history_thinking_replay,
+                            HistoryThinkingReplay::Full
+                        );
                         let mut parts = Vec::new();
                         // Thinking blocks must precede text/tool_call content
                         // (required by Anthropic for extended thinking).
-                        parts.extend(thinking_parts.iter().cloned());
+                        if replay {
+                            parts.extend(thinking_parts.iter().cloned());
+                        }
                         if !content.is_empty() {
                             parts.push(ContentPart::text(content.as_str()));
                         }
@@ -1113,6 +1142,23 @@ impl ApiSession {
         }
 
         messages
+    }
+
+    /// Filter content parts for history replay based on `history_thinking_replay`.
+    fn filter_history_parts(&self, parts: &[ContentPart]) -> Vec<ContentPart> {
+        match self.config.history_thinking_replay {
+            HistoryThinkingReplay::Full => parts.to_vec(),
+            HistoryThinkingReplay::None => parts
+                .iter()
+                .filter(|part| {
+                    !matches!(
+                        part,
+                        ContentPart::Thinking { .. } | ContentPart::RedactedThinking { .. }
+                    )
+                })
+                .cloned()
+                .collect(),
+        }
     }
 
     // -- Steering --
@@ -1466,23 +1512,46 @@ impl ApiSession {
         chars
     }
 
+    /// Trigger context compaction when projected usage exceeds the configured threshold.
+    fn maybe_proactive_compaction(&mut self) {
+        let context_size = self.profile.context_window_size();
+        if context_size == 0 {
+            return;
+        }
+
+        let trigger_pct = self.config.compaction_trigger_percent.min(100) as u64;
+        if trigger_pct == 0 {
+            return;
+        }
+
+        let approx_tokens = self.estimate_history_chars() / 4;
+        // Reserve response headroom so proactive compaction happens before
+        // we are fully pinned against the context window.
+        let reserve_tokens = (context_size / 10).clamp(1_024, 8_192);
+        let projected_tokens = approx_tokens.saturating_add(reserve_tokens);
+        let projected_pct = (projected_tokens.saturating_mul(100)) / context_size;
+
+        if projected_pct < trigger_pct {
+            return;
+        }
+
+        self.compact_history(&format!(
+            "proactive (projected {projected_pct}% >= trigger {trigger_pct}%)"
+        ));
+    }
+
     /// Attempt to compact the conversation history to reduce context size.
     ///
-    /// Returns `true` if the history was actually modified (some content was
-    /// removed), `false` if there is nothing left to compact.
-    ///
-    /// Strategy (all three phases are applied, tracked by a `modified` flag):
-    /// 1. Strip thinking/reasoning blocks from all assistant turns.
-    /// 2. Summarise tool results in older turns (keep the last 2 exchanges
-    ///    intact so the model retains recent context).
-    /// 3. Drop the oldest turns from the middle of the conversation, keeping
-    ///    the first user message for task context and the last few turns for
-    ///    recency. The tail boundary is adjusted to avoid orphaned
-    ///    `ToolResults` turns whose matching `Assistant(tool_calls)` was
-    ///    dropped.
-    fn compact_history(&mut self) -> bool {
+    /// Returns compaction stats when history was modified, or `None` when
+    /// there was nothing left to compact.
+    fn compact_history(&mut self, trigger: &str) -> Option<CompactionStats> {
         let before = self.estimate_history_chars();
         let mut modified = false;
+        let mut stripped_reasoning_turns = 0usize;
+        let mut stripped_thinking_parts = 0usize;
+        let mut summarized_tool_results = 0usize;
+        let mut removed_tool_result_chars = 0usize;
+        let mut removed_turns = 0usize;
 
         // Phase 1: strip thinking/reasoning from ALL assistant turns.
         for turn in self.history.iter_mut() {
@@ -1496,8 +1565,10 @@ impl ApiSession {
                 if reasoning.is_some() {
                     *reasoning = None;
                     modified = true;
+                    stripped_reasoning_turns += 1;
                 }
                 if !thinking_parts.is_empty() {
+                    stripped_thinking_parts += thinking_parts.len();
                     thinking_parts.clear();
                     modified = true;
                 }
@@ -1510,6 +1581,7 @@ impl ApiSession {
                 });
                 if response_content_parts.len() != before_len {
                     modified = true;
+                    stripped_thinking_parts += before_len - response_content_parts.len();
                 }
             }
         }
@@ -1519,7 +1591,8 @@ impl ApiSession {
         // Keep the last 4 history entries intact (roughly the last
         // assistant + tool_results pair).
         let len = self.history.len();
-        let preserve_tail = 4.min(len);
+        let compact_older_than = self.config.compact_tool_results_older_than_turns as usize;
+        let preserve_tail = compact_older_than.min(len);
         let compactable = len.saturating_sub(preserve_tail);
         for turn in self.history[..compactable].iter_mut() {
             if let Turn::ToolResults { results, .. } = turn {
@@ -1531,10 +1604,14 @@ impl ApiSession {
                         modified = true;
                     }
                     let s = r.content.to_string();
-                    if s.len() > 200 {
+                    let max_chars = self.config.compact_max_tool_result_chars;
+                    if s.len() > max_chars {
+                        let removed = s.len().saturating_sub(max_chars);
+                        removed_tool_result_chars += removed;
+                        summarized_tool_results += 1;
                         r.content = Value::String(format!(
                             "[Output compacted — {} chars removed to free context space]",
-                            s.len()
+                            removed
                         ));
                         modified = true;
                     }
@@ -1550,10 +1627,11 @@ impl ApiSession {
         // an orphaned ToolResults turn (whose matching Assistant was
         // dropped). This keeps tool-call/tool-result pairs intact so
         // providers don't reject the request.
-        if self.history.len() > 10 {
+        let preserve_recent = (self.config.compact_preserve_recent_turns as usize).max(1);
+        if self.history.len() > (preserve_recent + 6) {
             let keep_head = 1;
             let total = self.history.len();
-            let mut tail_start = total.saturating_sub(preserve_tail.max(4));
+            let mut tail_start = total.saturating_sub(preserve_recent);
 
             // Walk forward from the candidate boundary until we find a
             // turn that is safe to start with (anything other than
@@ -1569,6 +1647,7 @@ impl ApiSession {
             let keep_tail = total - tail_start;
             if keep_head + keep_tail < total {
                 let removed = total - keep_head - keep_tail;
+                removed_turns += removed;
                 // Remove image attachments for tool results in dropped turns.
                 for turn in &self.history[keep_head..tail_start] {
                     if let Turn::ToolResults { results, .. } = turn {
@@ -1593,13 +1672,40 @@ impl ApiSession {
         }
 
         let after = self.estimate_history_chars();
+        let stats = CompactionStats {
+            before_tokens: before / 4,
+            after_tokens: after / 4,
+            stripped_reasoning_turns,
+            stripped_thinking_parts,
+            summarized_tool_results,
+            removed_tool_result_chars,
+            removed_turns,
+        };
         tracing::debug!(
             before_chars = before,
             after_chars = after,
             modified,
+            trigger,
             "context compaction complete"
         );
-        modified
+        if modified {
+            self.events.emit_info(
+                "CONTEXT_COMPACTION",
+                format!(
+                    "trigger={trigger}, ~{} -> ~{} tokens, reasoning_turns={}, thinking_parts={}, summarized_results={}, removed_result_chars={}, removed_turns={}",
+                    stats.before_tokens,
+                    stats.after_tokens,
+                    stats.stripped_reasoning_turns,
+                    stats.stripped_thinking_parts,
+                    stats.summarized_tool_results,
+                    stats.removed_tool_result_chars,
+                    stats.removed_turns
+                ),
+            );
+            Some(stats)
+        } else {
+            None
+        }
     }
 
     // -- Loop detection --

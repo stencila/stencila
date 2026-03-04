@@ -7,6 +7,7 @@ use stencila_agents::truncation::{
     DEFAULT_POLICIES, TruncationConfig, TruncationMode, truncate_lines, truncate_output,
     truncate_tool_output,
 };
+use stencila_agents::types::TruncationPreset;
 
 // =========================================================================
 // 5.1 — truncate_output (character-based)
@@ -477,6 +478,46 @@ fn truncate_tool_output_shell_uses_head_tail_mode() {
         result.contains("[WARNING"),
         "should contain truncation marker"
     );
+}
+
+#[test]
+fn truncation_preset_strict_tightens_defaults() {
+    let config = TruncationConfig {
+        preset: TruncationPreset::Strict,
+        ..Default::default()
+    };
+    let input = "x".repeat(20_000);
+    let result = truncate_tool_output(&input, "shell", &config);
+    assert!(
+        result.contains("characters were removed"),
+        "strict preset should truncate shell output sooner"
+    );
+}
+
+#[test]
+fn truncation_preset_verbose_matches_legacy_defaults() {
+    let config = TruncationConfig {
+        preset: TruncationPreset::Verbose,
+        ..Default::default()
+    };
+    let input = "x".repeat(20_000);
+    let result = truncate_tool_output(&input, "shell", &config);
+    assert_eq!(
+        result, input,
+        "verbose preset should keep shell at legacy 30k char limit"
+    );
+}
+
+#[test]
+fn truncation_per_tool_overrides_beat_preset() {
+    let mut config = TruncationConfig {
+        preset: TruncationPreset::Strict,
+        ..Default::default()
+    };
+    config.tool_output_limits.insert("shell".into(), 50_000);
+    let input = "x".repeat(20_000);
+    let result = truncate_tool_output(&input, "shell", &config);
+    assert_eq!(result, input, "explicit per-tool override should win");
 }
 
 // =========================================================================

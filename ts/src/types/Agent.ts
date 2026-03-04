@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { Integer } from "./Integer.js";
+import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * An agent definition specifying model, tools, and behavioral configuration.
@@ -45,6 +46,21 @@ export class Agent extends CreativeWork {
    * Reasoning effort level for the agent.
    */
   reasoningEffort?: string;
+
+  /**
+   * Whether to replay assistant thinking and reasoning in conversation history.
+   */
+  historyThinkingReplay?: string;
+
+  /**
+   * Named preset for tool output truncation limits.
+   */
+  truncationPreset?: string;
+
+  /**
+   * Context usage percentage that triggers proactive history compaction.
+   */
+  compactionTriggerPercent?: UnsignedInteger;
 
   /**
    * Trust level controlling how strictly the agent's operations are guarded.

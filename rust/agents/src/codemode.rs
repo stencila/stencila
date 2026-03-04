@@ -150,11 +150,22 @@ fn executor(
 pub async fn build_codemode_prompt(
     pool: &Arc<ConnectionPool>,
     allowed: Option<&[String]>,
+    max_prompt_chars: usize,
+    mcp_server_list_max: usize,
 ) -> String {
-    let servers = crate::mcp::filter_servers(pool, allowed).await;
+    if max_prompt_chars == 0 {
+        return String::new();
+    }
+
+    let mut servers = crate::mcp::filter_servers(pool, allowed).await;
 
     if servers.is_empty() {
         return String::new();
+    }
+
+    let total_server_count = servers.len();
+    if mcp_server_list_max > 0 && total_server_count > mcp_server_list_max {
+        servers.truncate(mcp_server_list_max);
     }
 
     let mut prompt = format!(
@@ -164,6 +175,14 @@ pub async fn build_codemode_prompt(
 
     // Always list servers with instructions/descriptions
     prompt.push_str("## Available MCP servers\n\n");
+    if total_server_count > servers.len() {
+        prompt.push_str(&format!(
+            "_Showing {} of {} connected servers._\n\n",
+            servers.len(),
+            total_server_count
+        ));
+    }
+
     for server in &servers {
         let server_id = server.server_id();
         let server_name = server.server_name();
@@ -199,7 +218,18 @@ pub async fn build_codemode_prompt(
         }
     }
 
-    prompt
+    if prompt.chars().count() <= max_prompt_chars {
+        return prompt;
+    }
+
+    let marker = "\n\n[Codemode prompt truncated due to codemode_prompt_max_chars]";
+    let marker_chars = marker.chars().count();
+    if max_prompt_chars <= marker_chars {
+        return marker.chars().take(max_prompt_chars).collect();
+    }
+    let keep = max_prompt_chars - marker_chars;
+    let truncated: String = prompt.chars().take(keep).collect();
+    format!("{truncated}{marker}")
 }
 
 // ---------------------------------------------------------------------------

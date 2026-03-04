@@ -734,6 +734,36 @@
       ],
       "type": "string"
     },
+    "historyThinkingReplay": {
+      "@id": "stencila:historyThinkingReplay",
+      "description": "Whether to replay assistant thinking and reasoning in conversation history.",
+      "$comment": "Controls whether chain-of-thought content (both provider-specific thinking parts\nand reasoning text) is included when replaying assistant turns in subsequent requests.\n- \"none\" (default): strip all thinking and reasoning from history, saving context space.\n- \"full\": replay thinking and reasoning content as-is.\n",
+      "aliases": [
+        "history-thinking-replay",
+        "history_thinking_replay"
+      ],
+      "type": "string"
+    },
+    "truncationPreset": {
+      "@id": "stencila:truncationPreset",
+      "description": "Named preset for tool output truncation limits.",
+      "$comment": "Controls how aggressively tool outputs are truncated before being included\nin the conversation context.\n- \"strict\": tighter limits, preserves more context budget for conversation.\n- \"balanced\" (default): moderate limits suitable for most agents.\n- \"verbose\": no additional truncation beyond spec defaults.\n",
+      "aliases": [
+        "truncation-preset",
+        "truncation_preset"
+      ],
+      "type": "string"
+    },
+    "compactionTriggerPercent": {
+      "@id": "stencila:compactionTriggerPercent",
+      "description": "Context usage percentage that triggers proactive history compaction.",
+      "$comment": "When estimated context usage exceeds this percentage of the model's context\nwindow, the agent proactively compacts conversation history (stripping\nthinking blocks, summarizing old tool results, dropping oldest turns).\nSet to 0 to disable proactive compaction. Defaults to 70.\n",
+      "aliases": [
+        "compaction-trigger-percent",
+        "compaction_trigger_percent"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
     "trustLevel": {
       "@id": "stencila:trustLevel",
       "description": "Trust level controlling how strictly the agent's operations are guarded.",
@@ -747,7 +777,7 @@
     "allowedSkills": {
       "@id": "stencila:allowedSkills",
       "description": "Skill names this agent can use.",
-      "$comment": "When unset, all discovered skills are available to the agent.\nWhen set, only the listed skills are available.\n",
+      "$comment": "When unset, all discovered skills are available to the agent.\nWhen set to a non-empty array, only the listed skills are available.\nWhen set to an empty array, skills are disabled entirely (no discovery or registration).\n",
       "aliases": [
         "allowed-skills",
         "allowed_skills",

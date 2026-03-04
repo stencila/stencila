@@ -8,8 +8,8 @@
 
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::types::{
-    DirEntry, EventKind, ExecResult, GrepOptions, ReasoningEffort, SessionConfig, SessionEvent,
-    SessionState, Turn,
+    DirEntry, EventKind, ExecResult, GrepOptions, HistoryThinkingReplay, ReasoningEffort,
+    SessionConfig, SessionEvent, SessionState, TruncationPreset, Turn,
 };
 use stencila_models3::error::{ProviderDetails, SdkError};
 use stencila_models3::types::tool::{ToolCall, ToolResult};
@@ -436,6 +436,17 @@ fn session_config_defaults_match_spec() {
     assert_eq!(config.default_command_timeout_ms, 10_000);
     assert_eq!(config.max_command_timeout_ms, 600_000);
     assert_eq!(config.reasoning_effort, None);
+    assert_eq!(config.history_thinking_replay, HistoryThinkingReplay::None);
+    assert_eq!(config.truncation_preset, TruncationPreset::Balanced);
+    assert_eq!(config.compaction_trigger_percent, 70);
+    assert_eq!(config.compact_tool_results_older_than_turns, 2);
+    assert_eq!(config.compact_max_tool_result_chars, 600);
+    assert_eq!(config.compact_preserve_recent_turns, 4);
+    assert_eq!(config.project_docs_max_bytes, 12_000);
+    assert_eq!(config.git_recent_commits_count, 3);
+    assert!(config.include_git_status_in_prompt);
+    assert_eq!(config.codemode_prompt_max_chars, 6_000);
+    assert_eq!(config.mcp_server_list_max, 8);
     assert!(config.tool_output_limits.is_empty());
     assert!(config.enable_loop_detection);
     assert_eq!(config.loop_detection_window, 10);

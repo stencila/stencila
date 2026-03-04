@@ -7,12 +7,6 @@
 use crate::error::AgentResult;
 use crate::execution::{ExecutionEnvironment, FileContent};
 
-/// Maximum total bytes for project documents (spec 6.5).
-const MAX_PROJECT_DOCS_BYTES: usize = 32 * 1024;
-
-/// Truncation marker appended when the byte budget is exceeded (spec 6.5).
-const TRUNCATION_MARKER: &str = "[Project instructions truncated at 32KB]";
-
 /// Return the recognized instruction file names for a provider (spec 6.5).
 ///
 /// `AGENTS.md` is always included regardless of provider.
@@ -45,11 +39,27 @@ pub async fn discover_project_docs(
     root: &str,
     working_dir: &str,
 ) -> AgentResult<String> {
+    discover_project_docs_with_budget(env, provider_id, root, working_dir, 32_768).await
+}
+
+/// Discover and load project instruction documents with a custom byte budget.
+pub async fn discover_project_docs_with_budget(
+    env: &dyn ExecutionEnvironment,
+    provider_id: &str,
+    root: &str,
+    working_dir: &str,
+    max_bytes: usize,
+) -> AgentResult<String> {
+    if max_bytes == 0 {
+        return Ok(String::new());
+    }
+
     let file_names = instruction_files(provider_id);
     let directories = directories_from_root_to_working_dir(root, working_dir);
 
     let mut result = String::new();
     let mut total_bytes: usize = 0;
+    let truncation_marker = format!("[Project instructions truncated at {max_bytes} bytes]");
 
     for dir in &directories {
         for &file_name in &file_names {
@@ -76,11 +86,11 @@ pub async fn discover_project_docs(
             let separator_len = if result.is_empty() { 0 } else { 2 };
             let content_bytes = content.len() + separator_len;
 
-            if total_bytes + content_bytes > MAX_PROJECT_DOCS_BYTES {
+            if total_bytes + content_bytes > max_bytes {
                 // Reserve space for "\n" + marker so total stays within budget
-                let marker_bytes = 1 + TRUNCATION_MARKER.len();
-                let remaining = MAX_PROJECT_DOCS_BYTES
-                    .saturating_sub(total_bytes + separator_len + marker_bytes);
+                let marker_bytes = 1 + truncation_marker.len();
+                let remaining =
+                    max_bytes.saturating_sub(total_bytes + separator_len + marker_bytes);
                 if remaining > 0 {
                     if !result.is_empty() {
                         result.push_str("\n\n");
@@ -90,7 +100,7 @@ pub async fn discover_project_docs(
                     result.push_str(&content[..safe_end]);
                 }
                 result.push('\n');
-                result.push_str(TRUNCATION_MARKER);
+                result.push_str(&truncation_marker);
                 return Ok(result);
             }
 
