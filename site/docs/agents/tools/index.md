@@ -1,21 +1,37 @@
 ---
 title: Tools
-description: Overview of the tools available to Stencila agents and the guard system that evaluates every tool call.
+description: Overview of the tools available to Stencila agents, how they enable the agentic loop, provider-aligned toolsets, and the guard system that evaluates every tool call.
 ---
 
-Stencila agents interact with the local environment through a set of tools. Each tool call is evaluated by a **guard system** before execution, providing a friction layer between the agent and potentially risky operations.
+## Why Tools Matter
 
-## Available Tools
+Tools are what differentiate an agent from a bare LLM conversation. Without tools, a model can only generate text. It cannot read your files, run your tests, or check whether its suggestions actually work. Tools close the loop between reasoning and action.
 
-| Tool | Description |
-| ---- | ----------- |
-| [**Shell**](shell/) | Execute shell commands |
-| [**File**](file) | Read, write, edit, and search files |
-| [**Web**](web) | Fetch web pages and save content locally |
+Stencila agents operate in an **agentic loop**: the model reasons about a task, requests one or more tool calls, Stencila executes them and returns the results, and the model reasons again based on those results. This cycle repeats until the task is complete or a limit is reached. It is this loop, not the model alone, that makes agents capable of multi-step coding and research tasks like debugging across files, running experiments, or iterating on analysis code until tests pass.
+
+## Provider-Aligned Toolsets
+
+Different model families are trained and optimized for different tool interfaces. OpenAI models produce better edits using their native `apply_patch` format (a v4a diff format). Anthropic models work best with `edit_file`'s `old_string`/`new_string` exact-match replacement. Gemini models expect additional tools like `read_many_files` and `list_dir` that match their reference CLI.
+
+Stencila handles this automatically. When an agent session starts, Stencila selects the tool definitions and system prompts that match the model's provider. Users do not need to configure this; the right tools are provided to the right models.
+
+A core set of tools is shared across all providers. Provider-specific tools extend this base:
+
+| Tool | Providers | Description |
+| ---- | --------- | ----------- |
+| [**Shell**](shell/) | All | Execute shell commands |
+| [**File**](file) (`read_file`, `write_file`, `grep`, `glob`) | All | Read, write, and search files |
+| [**Web**](web) (`web_fetch`) | All | Fetch web pages and save content locally |
+| `edit_file` | Anthropic, Gemini | Apply exact-match `old_string`/`new_string` replacements |
+| `apply_patch` | OpenAI | Apply multi-file edits in v4a diff format |
+| `read_many_files` | Gemini | Batch-read multiple files in a single call |
+| `list_dir` | Gemini | List directory contents with depth options |
 
 ## Tool Guards
 
-Every tool call passes through a guard before execution. The guard inspects the call parameters — the shell command, file path, or URL — and returns a verdict:
+Giving an agent access to tools means giving it the ability to modify files, execute arbitrary commands, and make network requests. A single hallucinated or misguided tool call can cause real damage — deleting files, force-pushing over git history, or leaking credentials into the model's context window.
+
+Tool guards are a **friction layer** that sits between the agent's tool calls and their execution. Every tool call passes through a guard before it runs. The guard inspects the call parameters — the shell command, file path, or URL — and returns a verdict:
 
 | Verdict   | Effect |
 | --------- | ------ |
@@ -29,15 +45,27 @@ Each tool has its own guard with domain-specific rules:
 - **[File guard](file#guard-rules)** — path-based risk checks for read, write, edit, patch, and search operations
 - **[Web guard](web#guard-rules)** — URL and domain safety checks preventing SSRF, credential exposure, and protocol abuse
 
+When a tool call is denied, the agent sees the reason and suggestion as tool output. This means the model can adjust its approach without user intervention (e.g using a safer command, or narrowing a file path).
+
+### Guards and Sandboxes
+
+Tool guards are complementary to OS-level security boundaries such as sandboxes (bubblewrap, Landlock, containers). The two layers address different threat surfaces:
+
+A sandbox constrains what the agent can do to the **local** environment; it cannot write outside a directory, cannot access the network, cannot read sensitive files. But many destructive operations are perfectly valid local commands that cause damage **elsewhere**: `git push --force` destroys history on the remote, `uv publish` pushes a package to PyPI, `aws s3 rm --recursive` deletes cloud storage. These commands can still execute successfully inside sandboxes that allow outbound network access, because the damage happens on a remote system.
+
+Guards address this gap. They distinguish destructive from non-destructive use of tools like `git`, `uv`, `docker`, and cloud CLIs regardless of where the agent runs. A sandboxed agent still needs guards to prevent it from force-pushing a branch or publishing a package by mistake.
+
 ### Trust Levels
 
-Every agent session runs at one of three trust levels, which controls how strictly tool calls are guarded:
+Rather than requiring users to approve every individual tool call, guards use **trust levels** to control enforcement automatically. Each agent can be configured with a trust level that determines how strictly its tool calls are guarded:
 
 | Level | Description |
 | ----- | ----------- |
-| **Low** | Most restrictive. Shell commands default to deny; file and web rules apply strictest verdicts. |
-| **Medium** (default) | Default-allow with destructive behavior blocking. |
-| **High** | Default-allow with relaxed blocking. Some rules downgrade from Deny to Warn. |
+| **Low** | Most restrictive. Shell commands default to deny unless they match a known-safe pattern. File and web rules apply strictest verdicts. Appropriate for untested agents or sensitive environments. |
+| **Medium** (default) | Default-allow with destructive behavior blocking. Known-destructive commands are denied; everything else is allowed. A reasonable default for most use. |
+| **High** | Default-allow with relaxed blocking. Some rules that deny at medium trust downgrade to warnings. Appropriate for trusted agents on non-critical workspaces. |
+
+This lets agents work autonomously at a level of freedom appropriate to the context, without requiring a human in the loop for every shell command or file write.
 
 ### Audit
 
