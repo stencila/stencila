@@ -60,5 +60,10 @@ libc = "0.2"
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 
+[[bin]]
+name = "generate-docs"
+path = "src/bin/generate-docs.rs"
+required-features = []
+
 [lints]
 workspace = true
