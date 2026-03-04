@@ -356,11 +356,11 @@ fn parse_options(format: &Format) -> ParseOptions {
     options.constructs.math_text = true;
     options.constructs.math_flow = true;
 
-    // TODO: do not disable this code in text
-    // Current turned off for custom parsing of Stencila, MyST and QMD
-    // code expressions but, because math is now turned on, this
-    // will not work for code with more than one $ symbol in it.
-    options.constructs.code_text = false;
+    // Enable inline code so that backtick code spans take precedence
+    // over dollar-sign math (e.g. `$code$` should be code, not math).
+    // Custom handling of code attributes (e.g. `code`{python}), MyST roles,
+    // and QMD code expressions is done in post-processing in `mds_to_inlines`.
+    options.constructs.code_text = true;
 
     // Do not enable indented code blocks for Stencila Markdown to avoid
     // conflict with indentation within fenced divs

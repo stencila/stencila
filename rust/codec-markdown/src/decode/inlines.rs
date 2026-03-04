@@ -34,30 +34,142 @@ use super::{
 };
 
 pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Inline> {
-    // Collate all the inline nodes
-    let mut nodes = Vec::new();
-    for md in mds {
-        if let mdast::Node::Text(mdast::Text { value, position }) = md {
-            // Parse the text string for extensions not handled by the `markdown` crate e.g.
-            // inline code, subscripts, superscripts etc and sentinel text like EDIT_END
-            let mut inlines = inlines(&value, &context.format)
-                .into_iter()
-                .map(|(inline, span)| {
+    // Collate all the inline nodes, handling merging of inline code with
+    // adjacent text for attributes and roles.
+    //
+    // The markdown crate parses backtick code spans (with `code_text` enabled) but
+    // does not handle:
+    //   - Stencila/Pandoc-style attributes after code e.g. `code`{python exec}
+    //   - MyST roles before code e.g. {eval}`1+1`
+    //   - QMD code expressions e.g. `{python} 1+1`
+    let mut nodes: Vec<(Inline, Range<usize>)> = Vec::new();
+
+    let mut iter = mds.into_iter().peekable();
+    while let Some(md) = iter.next() {
+        match md {
+            mdast::Node::Text(mdast::Text { value, position }) => {
+                // In MyST mode, check for a trailing role like `{eval}` before an InlineCode
+                if matches!(context.format, Format::Myst) {
+                    if let Some(mdast::Node::InlineCode(..)) = iter.peek() {
+                        if let Some((prefix, role_name)) = extract_trailing_role(&value) {
+                            // Push any text before the role
+                            if !prefix.is_empty() {
+                                let span = position
+                                    .as_ref()
+                                    .map(|p| {
+                                        p.start.offset..(p.start.offset + prefix.len())
+                                    })
+                                    .unwrap_or_default();
+                                nodes.push((Inline::Text(Text::from(prefix)), span));
+                            }
+
+                            // Consume the following InlineCode
+                            let code_node = iter.next().unwrap();
+                            let (code_value, code_pos) = match code_node {
+                                mdast::Node::InlineCode(mdast::InlineCode {
+                                    value,
+                                    position,
+                                }) => (value, position),
+                                _ => unreachable!(),
+                            };
+
+                            let span = code_pos
+                                .map(|p| p.start.offset..p.end.offset)
+                                .unwrap_or_default();
+                            let inline = apply_myst_role(&role_name, &code_value);
+                            nodes.push((inline, span));
+                            continue;
+                        }
+                    }
+                }
+
+                // Parse the text string for extensions not handled by the `markdown` crate e.g.
+                // subscripts, superscripts etc and sentinel text like EDIT_END
+                let mut parsed = inlines(&value, &context.format)
+                    .into_iter()
+                    .map(|(inline, span)| {
+                        let span = position
+                            .as_ref()
+                            .map(|p| {
+                                (p.start.offset + span.start)..(p.start.offset + span.end)
+                            })
+                            .unwrap_or_default();
+                        (inline, span)
+                    })
+                    .collect();
+                nodes.append(&mut parsed);
+            }
+
+            mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
+                // In QMD mode, check for code expression patterns like `{python} 1+1` or `r 1+1`
+                if matches!(context.format, Format::Qmd) {
+                    if let Some(inline) = try_parse_qmd_code_expression(&value) {
+                        let span = position
+                            .map(|p| p.start.offset..p.end.offset)
+                            .unwrap_or_default();
+                        nodes.push((inline, span));
+                        continue;
+                    }
+                }
+
+                // Check if next node is Text starting with `{...}` for attributes
+                if let Some(mdast::Node::Text(mdast::Text {
+                    value: text_val, ..
+                })) = iter.peek()
+                {
+                    if let Some(attrs_str) = extract_leading_attrs(text_val) {
+                        let remaining_text = text_val[attrs_str.len()..].to_string();
+                        let text_node = iter.next().unwrap();
+                        let text_pos = match &text_node {
+                            mdast::Node::Text(t) => t.position.clone(),
+                            _ => unreachable!(),
+                        };
+
+                        let span = position
+                            .as_ref()
+                            .map(|p| p.start.offset..p.end.offset)
+                            .or_else(|| {
+                                text_pos
+                                    .as_ref()
+                                    .map(|p| p.start.offset..p.end.offset)
+                            })
+                            .unwrap_or_default();
+
+                        let inline = apply_code_attrs(&value, &attrs_str);
+                        nodes.push((inline, span));
+
+                        // Push any remaining text after the attrs
+                        if !remaining_text.is_empty() {
+                            let rem_span = text_pos
+                                .as_ref()
+                                .map(|p| {
+                                    (p.start.offset + attrs_str.len())..p.end.offset
+                                })
+                                .unwrap_or_default();
+                            nodes.push((Inline::Text(Text::from(remaining_text)), rem_span));
+                        }
+                        continue;
+                    }
+                }
+
+                // Plain inline code
+                let span = position
+                    .map(|p| p.start.offset..p.end.offset)
+                    .unwrap_or_default();
+                nodes.push((
+                    Inline::CodeInline(CodeInline::new(value.into())),
+                    span,
+                ));
+            }
+
+            other => {
+                if let Some((inline, position)) = md_to_inline(other, context) {
                     let span = position
-                        .as_ref()
-                        .map(|position| {
-                            (position.start.offset + span.start)..(position.start.offset + span.end)
-                        })
+                        .map(|p| p.start.offset..p.end.offset)
                         .unwrap_or_default();
-                    (inline, span)
-                })
-                .collect();
-            nodes.append(&mut inlines);
-        } else if let Some((inline, position)) = md_to_inline(md, context) {
-            let span = position
-                .map(|position| position.start.offset..position.end.offset)
-                .unwrap_or_default();
-            nodes.push((inline, span))
+                    nodes.push((inline, span));
+                }
+            }
         }
     }
 
@@ -82,6 +194,178 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
     }
 
     inlines
+}
+
+/// Extract a leading `{...}` attribute string from text.
+///
+/// Returns `Some(attrs_str)` including the braces if the text starts with `{...}`,
+/// or `None` otherwise.
+fn extract_leading_attrs(text: &str) -> Option<String> {
+    if !text.starts_with('{') {
+        return None;
+    }
+    // Find the matching closing brace
+    let mut depth = 0;
+    for (i, ch) in text.char_indices() {
+        match ch {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(text[..=i].to_string());
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Extract a trailing `{...}` role name from text (for MyST roles).
+///
+/// Returns `Some((prefix, role_name))` where `prefix` is the text before the role,
+/// and `role_name` is the content inside the braces (without braces).
+fn extract_trailing_role(text: &str) -> Option<(&str, String)> {
+    if !text.ends_with('}') {
+        return None;
+    }
+    // Find the matching opening brace scanning backwards
+    if let Some(open) = text.rfind('{') {
+        let role_name = text[open + 1..text.len() - 1].to_string();
+        if !role_name.is_empty() && !role_name.contains('{') && !role_name.contains('}') {
+            let prefix = &text[..open];
+            return Some((prefix, role_name));
+        }
+    }
+    None
+}
+
+/// Apply attributes from a `{...}` string to an inline code value.
+///
+/// Reuses the existing `attrs` winnow parser to ensure consistent handling of
+/// commas, key=value pairs, and valid identifier characters.
+///
+/// Produces a `CodeInline`, `CodeExpression`, or `MathInline` depending on the attributes.
+fn apply_code_attrs(code: &str, attrs_str: &str) -> Inline {
+    // Parse the attrs string using the existing winnow `attrs` parser
+    let options = attrs
+        .parse(Located::new(attrs_str))
+        .unwrap_or_default();
+
+    if options.is_empty() {
+        return Inline::CodeInline(CodeInline {
+            code: code.into(),
+            ..Default::default()
+        });
+    }
+
+    let mut lang = None;
+    let mut exec = false;
+    let mut execution_mode = None;
+
+    for (name, value) in options {
+        if name == "exec" {
+            exec = true
+        } else if matches!(name, "always" | "auto" | "need" | "lock") && value.is_none() {
+            execution_mode = name.parse().ok()
+        } else if lang.is_none() && value.is_none() {
+            lang = Some(name.to_string());
+        }
+    }
+
+    if exec {
+        Inline::CodeExpression(CodeExpression {
+            code: code.into(),
+            programming_language: lang,
+            execution_mode,
+            ..Default::default()
+        })
+    } else if matches!(
+        lang.as_deref(),
+        Some("asciimath") | Some("math") | Some("mathml") | Some("latex") | Some("tex")
+    ) {
+        Inline::MathInline(MathInline {
+            code: code.into(),
+            math_language: lang,
+            ..Default::default()
+        })
+    } else {
+        Inline::CodeInline(CodeInline {
+            code: code.into(),
+            programming_language: lang,
+            ..Default::default()
+        })
+    }
+}
+
+/// Try to parse an inline code value as a QMD code expression.
+///
+/// Matches patterns like `{python} 1 + 1` or `r 1 + 1`.
+fn try_parse_qmd_code_expression(value: &str) -> Option<Inline> {
+    // Pattern: {lang} code
+    if value.starts_with('{') {
+        if let Some(close) = value.find('}') {
+            let lang = &value[1..close];
+            // Language must be word characters only
+            if !lang.is_empty() && lang.chars().all(|c| c.is_alphanumeric() || c == '_') {
+                let code = value[close + 1..].trim();
+                if !code.is_empty() {
+                    return Some(Inline::CodeExpression(CodeExpression {
+                        programming_language: Some(lang.to_string()),
+                        code: code.into(),
+                        ..Default::default()
+                    }));
+                }
+            }
+        }
+    }
+
+    // Pattern: r code (R shorthand)
+    if let Some(code) = value.strip_prefix("r ") {
+        let code = code.trim();
+        if !code.is_empty() {
+            return Some(Inline::CodeExpression(CodeExpression {
+                programming_language: Some("r".to_string()),
+                code: code.into(),
+                ..Default::default()
+            }));
+        }
+    }
+
+    None
+}
+
+/// Apply a MyST role to an inline code value.
+fn apply_myst_role(role_name: &str, code_value: &str) -> Inline {
+    let mut name_and_opts = role_name.trim().split(' ');
+    let name = name_and_opts.next().unwrap_or_default();
+
+    if name == "eval" {
+        const LANGS: &[&str] = &["javascript", "js", "python", "py", "r", "sql"];
+        let mut programming_language = None;
+        for option in name_and_opts {
+            if LANGS.contains(&option.to_lowercase().as_str()) {
+                programming_language = Some(option.to_string());
+                break;
+            }
+            let trimmed = option.trim_start_matches('.');
+            if LANGS.contains(&trimmed.to_lowercase().as_str()) {
+                programming_language = Some(trimmed.to_string());
+                break;
+            }
+        }
+
+        Inline::CodeExpression(CodeExpression {
+            code: code_value.into(),
+            programming_language,
+            ..Default::default()
+        })
+    } else {
+        // Unrecognized role: reconstitute as plain text
+        Inline::Text(Text::from(
+            &["{", role_name, "}`", code_value, "`"].concat(),
+        ))
+    }
 }
 
 /// Transform MDAST inline nodes to Stencila inlines nodes
@@ -114,6 +398,7 @@ fn md_to_inline(md: mdast::Node, context: &mut Context) -> Option<(Inline, Optio
             (Inline::Note(node), position)
         }
 
+        // Note: InlineCode is handled directly in mds_to_inlines for attribute/role merging
         mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
             (Inline::CodeInline(CodeInline::new(value.into())), position)
         }
@@ -1082,5 +1367,132 @@ mod tests {
             assert_eq!(expr.programming_language, Some("r".to_string()));
             assert_eq!(expr.code.as_str(), "1 + 1");
         }
+    }
+
+    /// Helper to decode Markdown and extract the inlines from the first paragraph
+    fn decode_para_inlines(md: &str, format: Format) -> Vec<Inline> {
+        use stencila_codec::DecodeOptions;
+        use stencila_codec::stencila_schema::{Article, Block, Node};
+
+        let options = DecodeOptions {
+            format: Some(format),
+            ..Default::default()
+        };
+        let (node, _) = super::super::decode(md, Some(options)).unwrap();
+        if let Node::Article(Article { content, .. }) = node {
+            if let Some(Block::Paragraph(para)) = content.first() {
+                return para.content.clone();
+            }
+        }
+        vec![]
+    }
+
+    #[test]
+    fn test_dollars_in_backticks() {
+        // Backtick code spans should take precedence over dollar-sign math
+        let inlines = decode_para_inlines("Some `$code$`", Format::Smd);
+        assert_eq!(inlines.len(), 2);
+        assert!(matches!(&inlines[0], Inline::Text(t) if t.value.as_str() == "Some "));
+        assert!(matches!(&inlines[1], Inline::CodeInline(c) if c.code.as_str() == "$code$"));
+
+        // Plain dollar math still works
+        let inlines = decode_para_inlines("Some $math$", Format::Smd);
+        assert_eq!(inlines.len(), 2);
+        assert!(matches!(&inlines[0], Inline::Text(t) if t.value.as_str() == "Some "));
+        assert!(matches!(&inlines[1], Inline::MathInline(m) if m.code.as_str() == "math"));
+
+        // Code with multiple dollars
+        let inlines = decode_para_inlines("`${a} ${b}`", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeInline(c) if c.code.as_str() == "${a} ${b}"));
+    }
+
+    #[test]
+    fn test_code_with_attrs_via_markdown() {
+        // Code with language attribute
+        let inlines = decode_para_inlines("`code`{python}", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeInline(c)
+            if c.code.as_str() == "code"
+            && c.programming_language.as_deref() == Some("python")));
+
+        // Code with exec attribute (space-separated)
+        let inlines = decode_para_inlines("`a + b`{python exec}", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeExpression(e)
+            if e.code.as_str() == "a + b"
+            && e.programming_language.as_deref() == Some("python")));
+
+        // Code with exec attribute (comma-separated)
+        let inlines = decode_para_inlines("`a + b`{python, exec}", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeExpression(e)
+            if e.code.as_str() == "a + b"
+            && e.programming_language.as_deref() == Some("python")));
+
+        // Code with math language → MathInline
+        let inlines = decode_para_inlines("`E = mc^2`{tex}", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::MathInline(m)
+            if m.code.as_str() == "E = mc^2"
+            && m.math_language.as_deref() == Some("tex")));
+
+        // Code with empty attrs → plain CodeInline
+        let inlines = decode_para_inlines("`code`{}", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeInline(c) if c.code.as_str() == "code"));
+
+        // Code with attrs followed by text
+        let inlines = decode_para_inlines("`code`{python} and more", Format::Smd);
+        assert_eq!(inlines.len(), 2);
+        assert!(matches!(&inlines[0], Inline::CodeInline(c)
+            if c.code.as_str() == "code"
+            && c.programming_language.as_deref() == Some("python")));
+        assert!(matches!(&inlines[1], Inline::Text(t) if t.value.as_str() == " and more"));
+    }
+
+    #[test]
+    fn test_qmd_code_expression_via_markdown() {
+        let inlines = decode_para_inlines("`{python} 1 + 1`", Format::Qmd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeExpression(e)
+            if e.code.as_str() == "1 + 1"
+            && e.programming_language.as_deref() == Some("python")));
+
+        let inlines = decode_para_inlines("`r 1 + 1`", Format::Qmd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeExpression(e)
+            if e.code.as_str() == "1 + 1"
+            && e.programming_language.as_deref() == Some("r")));
+
+        // Non-QMD: should be plain code
+        let inlines = decode_para_inlines("`{python} 1 + 1`", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeInline(..)));
+    }
+
+    #[test]
+    fn test_myst_role_via_markdown() {
+        let inlines = decode_para_inlines("{eval}`1 + 1`", Format::Myst);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeExpression(e)
+            if e.code.as_str() == "1 + 1"));
+
+        let inlines = decode_para_inlines("{eval python}`1 + 1`", Format::Myst);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::CodeExpression(e)
+            if e.code.as_str() == "1 + 1"
+            && e.programming_language.as_deref() == Some("python")));
+
+        // Text before MyST role
+        let inlines = decode_para_inlines("Value is {eval}`x`", Format::Myst);
+        assert_eq!(inlines.len(), 2);
+        assert!(matches!(&inlines[0], Inline::Text(t) if t.value.as_str() == "Value is "));
+        assert!(matches!(&inlines[1], Inline::CodeExpression(e) if e.code.as_str() == "x"));
+
+        // Unrecognized role → plain text
+        let inlines = decode_para_inlines("{unknown}`value`", Format::Myst);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(&inlines[0], Inline::Text(..)));
     }
 }
