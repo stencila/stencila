@@ -17,12 +17,6 @@ fn main() {
         "<!-- PACKS_TABLE_END -->",
         &packs_table(),
     );
-    replace_between(
-        &site_root.join("_nav.yaml"),
-        "# SHELL_PAGES_START",
-        "# SHELL_PAGES_END",
-        &shell_nav_entries(),
-    );
 
     #[allow(clippy::print_stderr)]
     {
@@ -87,23 +81,6 @@ fn packs_table() -> String {
             pack.safe_patterns.len(),
             pack.destructive_patterns.len(),
         ));
-    }
-    out
-}
-
-// ---------------------------------------------------------------------------
-// _nav.yaml — shell page entries (replaces # SHELL_PAGES sentinel)
-// ---------------------------------------------------------------------------
-
-fn shell_nav_entries() -> String {
-    let by_module = packs_by_module();
-    let mut out = String::new();
-    for module in by_module.keys() {
-        out.push_str(&format!("      - \"{module}\"\n"));
-    }
-    // Remove trailing newline so the sentinel replacement is clean
-    if out.ends_with('\n') {
-        out.pop();
     }
     out
 }

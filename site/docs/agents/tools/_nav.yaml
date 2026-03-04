@@ -1,24 +1,4 @@
 items:
-  - label: "shell"
-    children:
-      # SHELL_PAGES_START
-      - "bioinformatics"
-      - "chemistry"
-      - "cloud"
-      - "containers"
-      - "core"
-      - "database"
-      - "datasets"
-      - "environments"
-      - "geospatial"
-      - "hpc"
-      - "latex"
-      - "ml"
-      - "notebooks"
-      - "packages"
-      - "scientific"
-      - "system"
-      - "workflows"
-      # SHELL_PAGES_END
-  - "file"
-  - "web"
+  - file
+  - shell
+  - web
