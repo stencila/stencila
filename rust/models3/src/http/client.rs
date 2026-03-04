@@ -312,8 +312,10 @@ impl HttpClient {
         let idle_duration = timeout
             .and_then(|t| t.stream_idle)
             .filter(|s| s.is_finite() && *s > 0.0)
-            .map(Duration::from_secs_f64)
-            .unwrap_or(Duration::from_secs(DEFAULT_STREAM_IDLE_TIMEOUT_SECS));
+            .map_or(
+                Duration::from_secs(DEFAULT_STREAM_IDLE_TIMEOUT_SECS),
+                Duration::from_secs_f64,
+            );
 
         let stream: ByteStream = Box::pin(IdleTimeoutStream::new(stream, idle_duration));
 

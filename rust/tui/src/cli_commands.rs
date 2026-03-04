@@ -232,20 +232,38 @@ mod tests {
     #[test]
     fn usage_hint_extracted_from_clap() {
         let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
-        let skills = tree.iter().find(|n| n.name == "skills").unwrap();
+        let skills = tree
+            .iter()
+            .find(|n| n.name == "skills")
+            .expect("'skills' node should be in tree");
         // "list" has no required positional args
-        let list = skills.children.iter().find(|n| n.name == "list").unwrap();
+        let list = skills
+            .children
+            .iter()
+            .find(|n| n.name == "list")
+            .expect("'list' should be a child of 'skills'");
         assert!(list.usage_hint.is_empty());
         // "show" has a required <name> arg
-        let show = skills.children.iter().find(|n| n.name == "show").unwrap();
+        let show = skills
+            .children
+            .iter()
+            .find(|n| n.name == "show")
+            .expect("'show' should be a child of 'skills'");
         assert_eq!(show.usage_hint, "<NAME>");
     }
 
     #[test]
     fn usage_hint_variadic_args() {
         let tree = build_command_tree(&synthetic_cli(), TEST_ALLOWLIST);
-        let mcp = tree.iter().find(|n| n.name == "mcp").unwrap();
-        let add = mcp.children.iter().find(|n| n.name == "add").unwrap();
+        let mcp = tree
+            .iter()
+            .find(|n| n.name == "mcp")
+            .expect("'mcp' node should be in tree");
+        let add = mcp
+            .children
+            .iter()
+            .find(|n| n.name == "add")
+            .expect("'add' should be a child of 'mcp'");
         assert_eq!(add.usage_hint, "<ID> <SPEC>...");
     }
 

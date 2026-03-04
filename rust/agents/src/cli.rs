@@ -566,7 +566,7 @@ impl Resolve {
         };
 
         if no_api_client {
-            eprintln!("Note: no API client configured; showing CLI fallback route");
+            tracing::warn!("No API client configured; showing CLI fallback route");
         }
 
         let decision = routing::route_session_explained(

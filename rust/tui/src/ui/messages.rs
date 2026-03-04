@@ -395,6 +395,7 @@ fn exchange_lines(
 
 /// Render structured response segments with interleaved tool annotations.
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_lines)]
 fn response_segments_lines(
     lines: &mut Vec<Line>,
     segments: &[ResponseSegment],

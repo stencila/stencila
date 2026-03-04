@@ -69,7 +69,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
     let start_node = graph.find_start_node()?;
     graph.find_exit_node()?;
 
-    let context = init_run(graph)?;
+    let context = init_run(graph);
 
     config.emitter.emit(PipelineEvent::PipelineStarted {
         pipeline_name: graph.name.clone(),
@@ -179,10 +179,10 @@ pub(crate) async fn resume_loop(
 /// Creates a new context populated with the graph's `goal` and other
 /// graph-level attributes. Used for fresh runs and loop restarts
 /// (§2.7/§3.2).
-fn init_run(graph: &Graph) -> AttractorResult<Context> {
+fn init_run(graph: &Graph) -> Context {
     let context = Context::new();
     populate_context(graph, &context);
-    Ok(context)
+    context
 }
 
 /// Populate a context with goal and graph-level attributes.
@@ -257,7 +257,7 @@ async fn execute_loop(
             }
 
             let outcome = execute_node(node, graph, &config, &context, state.stage_index).await?;
-            record_and_checkpoint(node, &outcome, &context, &mut state, None)?;
+            record_and_checkpoint(node, &outcome, &context, &mut state, None);
             config.emitter.emit(PipelineEvent::CheckpointSaved {
                 node_id: node.id.clone(),
             });
@@ -328,7 +328,7 @@ async fn execute_loop(
             &context,
             &mut state,
             next_node_id.as_deref(),
-        )?;
+        );
 
         // Persist edge traversal to SQLite when available.
         #[cfg(feature = "sqlite")]
@@ -379,7 +379,7 @@ async fn execute_loop(
             }
             Some(AdvanceResult::LoopRestart(target)) => {
                 // §2.7/§3.2: create fresh context
-                let new_context = init_run(graph)?;
+                let new_context = init_run(graph);
                 context = new_context;
                 state.completed_nodes.clear();
                 state.node_outcomes.clear();
@@ -442,7 +442,7 @@ fn record_and_checkpoint(
     context: &Context,
     state: &mut LoopState,
     next_node_id: Option<&str>,
-) -> AttractorResult<()> {
+) {
     state.completed_nodes.push(node.id.clone());
     state.node_outcomes.insert(node.id.clone(), outcome.clone());
     state
@@ -489,7 +489,7 @@ fn record_and_checkpoint(
         }
     }
 
-    let _checkpoint = Checkpoint::from_context(
+    let checkpoint = Checkpoint::from_context(
         context,
         &node.id,
         state.completed_nodes.clone(),
@@ -497,10 +497,9 @@ fn record_and_checkpoint(
         state.node_retries.clone(),
     );
     let _checkpoint = match next_node_id {
-        Some(next) => _checkpoint.with_next_node(next),
-        None => _checkpoint,
+        Some(next) => checkpoint.with_next_node(next),
+        None => checkpoint,
     };
-    Ok(())
 }
 
 /// Try to find a retry target for a failed goal gate.

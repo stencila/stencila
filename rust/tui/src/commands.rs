@@ -65,8 +65,10 @@ impl SlashCommand {
     /// Only CLI commands listed here are exposed in the TUI. Any `Cli` entry
     /// that doesn't match a clap subcommand is silently skipped.
     pub fn display_order() -> &'static [CommandSlot] {
-        use CommandSlot::*;
-        use SlashCommand::*;
+        use CommandSlot::{Builtin, Cli};
+        use SlashCommand::{
+            Agent, Cancel, Clear, Exit, Help, History, New, Quit, Shell, Upgrade, Workflow,
+        };
         &[
             Builtin(Workflow),
             Cli("workflows"),
@@ -102,7 +104,7 @@ impl SlashCommand {
             .iter()
             .filter_map(|slot| match slot {
                 CommandSlot::Cli(name) => Some(*name),
-                _ => None,
+                CommandSlot::Builtin(_) => None,
             })
             .collect()
     }
@@ -391,7 +393,7 @@ fn execute_help(app: &mut App) {
                     );
                 }
             }
-            _ => {}
+            CommandSlot::Builtin(_) => {}
         }
     }
 

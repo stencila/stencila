@@ -125,7 +125,7 @@ impl App {
         true
     }
 
-    /// Extract CLI command path words from the current input (e.g. "/mcp add" → ["mcp", "add"])
+    /// Extract CLI command path words from the current input (e.g. "/mcp add" → `["mcp", "add"]`)
     /// and return the usage hint if the leaf node has required positional args.
     fn cli_usage_hint_for_input(&self) -> Option<String> {
         let text = self.input.text();

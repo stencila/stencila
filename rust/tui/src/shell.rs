@@ -2,8 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use tokio::{process::Command, sync::oneshot};
 
-/// Match the content_width calculation in ui/messages.rs:
-/// NUM_GUTTER (3) + sidebar char (1) + space (1) = 5 columns of chrome.
+/// Match the `content_width` calculation in `ui/messages.rs`:
+/// `NUM_GUTTER` (3) + sidebar char (1) + space (1) = 5 columns of chrome.
 const TUI_CHROME: u16 = 5;
 
 /// The result of a completed shell command.

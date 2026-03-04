@@ -409,6 +409,7 @@ async fn agent_task(mut rx: mpsc::UnboundedReceiver<AgentCommand>, name: String)
 /// Dispatches to per-tool summary functions for known tools, producing
 /// compact labels like `"Read src/main.rs"` or `"Shell cargo build"`.
 /// Unknown tools (e.g. MCP tools) fall back to a generic summary.
+#[allow(clippy::too_many_lines)]
 fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
     let obj = arguments.as_object();
     let str_arg = |key: &str| -> Option<String> {

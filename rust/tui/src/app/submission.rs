@@ -7,6 +7,7 @@ use super::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
 
 impl App {
     /// Submit the current input as a user message or slash command.
+    #[allow(clippy::too_many_lines)]
     pub(super) async fn submit_input(&mut self) {
         // Trailing backslash means "insert newline, don't submit".
         // This gives users a way to enter multiline input even when

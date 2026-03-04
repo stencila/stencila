@@ -157,7 +157,7 @@ impl CommandsState {
                         });
                     }
                 }
-                _ => {}
+                CommandSlot::Builtin(_) => {}
             }
         }
 
