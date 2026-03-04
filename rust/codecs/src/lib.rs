@@ -415,15 +415,17 @@ pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Nod
 
 /// Infer a [`NodeType`] from a file's stem (name without extension)
 ///
-/// Allows files like `SKILL.md`, `skill.myst`, `PROMPT.md`, `CHAT.smd`
-/// to be decoded as the corresponding node type without requiring
-/// an explicit `type` field in frontmatter.
+/// Allows files like `AGENT.md`, `CHAT.smd`, `PROMPT.md`, `SKILL.md`,
+/// `WORKFLOW.md` etc to be decoded as the corresponding node type
+/// without requiring an explicit `type` field in frontmatter.
 pub fn node_type_from_path(path: &Path) -> Option<NodeType> {
     let stem = path.file_stem()?.to_str()?;
     match stem.to_ascii_lowercase().as_str() {
-        "skill" => Some(NodeType::Skill),
-        "prompt" => Some(NodeType::Prompt),
+        "agent" => Some(NodeType::Agent),
         "chat" => Some(NodeType::Chat),
+        "prompt" => Some(NodeType::Prompt),
+        "skill" => Some(NodeType::Skill),
+        "workflow" => Some(NodeType::Workflow),
         _ => None,
     }
 }
