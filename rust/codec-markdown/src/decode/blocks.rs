@@ -33,8 +33,9 @@ use super::{
     Context, decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
-        model_parameters, name, node_to_string, primitive_node, prompt, relative_position,
+        attrs, attrs_list, block_node_type, execution_bounds, execution_mode,
+        instruction_type, is_executable_language, model_parameters, name, node_to_string,
+        primitive_node, prompt, relative_position,
     },
 };
 
@@ -1575,10 +1576,11 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
                 ..Default::default()
             })
         }
-        "code-cell" | "mermaid" => {
-            let programming_language = match name {
-                "mermaid" => Some(name.to_string()),
-                _ => args.map(String::from),
+        name if name == "code-cell" || is_executable_language(name) => {
+            let programming_language = if is_executable_language(name) {
+                Some(name.to_string())
+            } else {
+                args.map(String::from)
             };
 
             Block::CodeChunk(CodeChunk {
@@ -1717,7 +1719,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
     let meta = meta.unwrap_or_default();
     let is_exec = meta.starts_with("exec")
         || lang.as_deref() == Some("exec")
-        || lang.as_deref() == Some("mermaid")
+        || lang.as_deref().is_some_and(is_executable_language)
         || lang
             .as_ref()
             .map(|lang| lang.starts_with("{") && lang.ends_with("}"))
@@ -2471,6 +2473,44 @@ mod tests {
         if let Block::CodeChunk(chunk) = block {
             assert_eq!(chunk.programming_language, Some("mermaid".to_string()));
             assert_eq!(chunk.code.to_string(), "graph TD\n    A --> B");
+        }
+    }
+
+    // Graphviz code block should be treated as executable CodeChunk by default
+    #[test]
+    fn test_graphviz_code_block() {
+        let code = mdast::Code {
+            lang: Some("graphviz".to_string()),
+            meta: None,
+            value: "digraph { A -> B }".to_string(),
+            position: None,
+        };
+        let block = code_to_block(code, &mut Context::new(Format::Markdown));
+
+        assert!(matches!(block, Block::CodeChunk(CodeChunk { .. })));
+
+        if let Block::CodeChunk(chunk) = block {
+            assert_eq!(chunk.programming_language, Some("graphviz".to_string()));
+            assert_eq!(chunk.code.to_string(), "digraph { A -> B }");
+        }
+    }
+
+    // Dot code block should be treated as executable CodeChunk by default
+    #[test]
+    fn test_dot_code_block() {
+        let code = mdast::Code {
+            lang: Some("dot".to_string()),
+            meta: None,
+            value: "digraph { A -> B }".to_string(),
+            position: None,
+        };
+        let block = code_to_block(code, &mut Context::new(Format::Markdown));
+
+        assert!(matches!(block, Block::CodeChunk(CodeChunk { .. })));
+
+        if let Block::CodeChunk(chunk) = block {
+            assert_eq!(chunk.programming_language, Some("dot".to_string()));
+            assert_eq!(chunk.code.to_string(), "digraph { A -> B }");
         }
     }
 }

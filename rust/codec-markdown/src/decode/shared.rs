@@ -20,6 +20,15 @@ use stencila_codec::stencila_schema::{
 use stencila_codec_json5_trait::Json5Codec;
 use stencila_codec_text_trait::TextCodec;
 
+/// Whether a code block language should be treated as executable (i.e. decoded as a `CodeChunk`
+/// rather than a `CodeBlock`).
+///
+/// Languages like Mermaid and DOT/Graphviz produce visual output when executed, so code blocks
+/// using them should be executable by default.
+pub(super) fn is_executable_language(lang: &str) -> bool {
+    matches!(lang, "mermaid" | "graphviz" | "dot")
+}
+
 /// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
 /// Will only recognize names that are valid in (most) programming languages.
