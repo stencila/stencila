@@ -11,6 +11,12 @@ reviews = true
 uploads = true
 remotes = true
 
+[site.labels]
+cli = "CLI"
+db = "Database"
+"docs/agents/tools/shell/hpc" = "HPC"
+"docs/agents/tools/shell/ml" = "Machine Learning"
+
 [site.icons]
 "/" = "home"
 

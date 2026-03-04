@@ -6,8 +6,8 @@
 use stencila_config::{AccessLevel, NavItem, NavTreeIcons, SiteAccessConfig, SiteConfig};
 
 use crate::nav_common::{
-    apply_depth_limit, apply_icons, filter_nav_items, render_access_attr_if_more_restrictive,
-    render_group_access_attr, render_icon_span,
+    apply_depth_limit, apply_icons, apply_labels, filter_nav_items,
+    render_access_attr_if_more_restrictive, render_group_access_attr, render_icon_span,
 };
 
 /// Context for rendering the nav tree
@@ -40,6 +40,9 @@ pub(crate) fn render_nav_tree(
 
     // Clone nav items from context (already resolved from site.nav or auto-generated)
     let nav_items = context.nav_items.clone();
+
+    // Apply custom labels from site.labels
+    let nav_items = apply_labels(nav_items, &context.site_config.labels);
 
     // Apply icons from site.icons if icons mode is Show
     let nav_items = if matches!(icons_mode, NavTreeIcons::Show) {

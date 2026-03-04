@@ -760,6 +760,81 @@ fn apply_depth_limit_recursive(items: Vec<NavItem>, level: u8, max_depth: u8) ->
 }
 
 // =============================================================================
+// Label Resolution
+// =============================================================================
+
+/// Apply custom labels from site.labels to nav items
+///
+/// For Route items, looks up a custom label and converts to Link if found.
+/// For Link and Group items, explicit labels take precedence (no override).
+/// This allows acronyms like "CLI", "API" to display correctly instead of
+/// the auto-generated "Cli", "Api" from `segment_to_label`.
+pub(crate) fn apply_labels(
+    items: Vec<NavItem>,
+    labels: &Option<HashMap<String, String>>,
+) -> Vec<NavItem> {
+    let Some(labels) = labels else {
+        return items;
+    };
+
+    items
+        .into_iter()
+        .map(|item| apply_label_to_item(item, labels))
+        .collect()
+}
+
+fn apply_label_to_item(item: NavItem, labels: &HashMap<String, String>) -> NavItem {
+    match item {
+        NavItem::Route(route) => {
+            if let Some(label) = lookup_label_by_route(&route, labels) {
+                NavItem::Link {
+                    id: None,
+                    label,
+                    route,
+                    icon: None,
+                    description: None,
+                }
+            } else {
+                NavItem::Route(route)
+            }
+        }
+        NavItem::Group {
+            id,
+            label,
+            route,
+            children,
+            icon,
+            section_title,
+        } => {
+            // Try to resolve a custom label for this group from its route
+            let resolved_label = route
+                .as_deref()
+                .and_then(|r| lookup_label_by_route(r, labels))
+                .unwrap_or(label);
+            let resolved_children = children
+                .into_iter()
+                .map(|c| apply_label_to_item(c, labels))
+                .collect();
+            NavItem::Group {
+                id,
+                label: resolved_label,
+                route,
+                children: resolved_children,
+                icon,
+                section_title,
+            }
+        }
+        // Link items already have explicit labels, don't override
+        other => other,
+    }
+}
+
+/// Try to find a custom label by route, with various normalizations
+fn lookup_label_by_route(route: &str, labels: &HashMap<String, String>) -> Option<String> {
+    lookup_by_route(route, labels, |v| v.clone())
+}
+
+// =============================================================================
 // Icon Resolution
 // =============================================================================
 

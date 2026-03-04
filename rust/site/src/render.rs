@@ -40,7 +40,7 @@ use crate::{
     links::{build_routes_set, rewrite_links},
     list::{list, update_nav_items_with_auto_index},
     logo::resolve_logo,
-    nav_common::auto_generate_nav,
+    nav_common::{apply_labels, auto_generate_nav},
     search::{
         Breadcrumb, SearchEntry, SearchIndexBuilder, build_breadcrumbs_map,
         extract_entries_with_config, get_breadcrumbs,
@@ -330,6 +330,10 @@ where
     if !auto_index_routes_all.is_empty() {
         update_nav_items_with_auto_index(&mut nav_items, &auto_index_route_set);
     }
+
+    // Apply custom labels from site.labels to nav items
+    // Done once here so breadcrumbs, search indexing, and all nav components benefit
+    let nav_items = apply_labels(nav_items, &site_config.labels);
 
     // Build breadcrumbs map once for search indexing (after nav items are updated)
     let breadcrumbs_map = build_breadcrumbs_map(&nav_items);

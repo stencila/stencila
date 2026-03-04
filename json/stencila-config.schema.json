@@ -396,6 +396,16 @@
             "type": "string"
           }
         },
+        "labels": {
+          "description": "Custom labels for navigation items\n\nOverrides the auto-generated labels derived from route segments.\nUseful for acronyms (CLI, API) or custom display names.\nLabels specified directly on NavItem (via Link or Group) take precedence.\n\n**Key formats** (lookup order, most to least specific):\n1. Full route: `\"/docs/cli/\"` - exact match\n2. Without slashes: `\"docs/cli\"` - flexible path matching\n3. Bare segment: `cli` - matches last path segment (e.g., both `/docs/cli/` and `/api/cli/`)\n\nFor unambiguous matching of nested routes, use full routes or paths without leading slash, e.g.\n```toml\n# Override auto-generated labels\n[site.labels]\ncli = \"CLI\"\napi = \"API\"\n\"/docs/db/\" = \"Database\"\n```",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "descriptions": {
           "description": "Descriptions for navigation items\n\nUsed by nav components (e.g., `nav-menu`) to display descriptions.\nDescriptions specified directly on NavItem take precedence.\n\n**Key formats** (lookup order, most to least specific):\n1. Full route: `\"/docs/config/\"` - exact match\n2. Without slashes: `\"docs/config\"` - flexible path matching\n3. Label: `\"Features\"` - matches nav item labels\n4. Bare segment: `config` - matches last path segment\n\nFor unambiguous matching of nested routes, use full routes or paths without leading slash, e.g.\n```toml\n# Add short descriptions for nav items\n[site.descriptions]\n\"docs/getting-started\" = \"Quick start guide\"  # Specific\ndocs = \"Documentation and guides\"             # Any /docs/ route\n\"Features\" = \"Explore all capabilities\"       # By label\n```",
           "type": [
@@ -3007,9 +3017,45 @@
             "string",
             "null"
           ]
+        },
+        "commit_attribution": {
+          "description": "How Stencila should be attributed in git commits made by agents.\n\nSupported values:\n- `\"author\"`: Stencila is set as commit author.\n- `\"co-author\"`: Stencila is added as commit co-author (default).\n- `\"committer\"`: Stencila is set as commit committer.\n- `\"none\"`: Stencila is not mentioned in attribution.\n\n```toml\n[agents]\ncommit_attribution = \"co-author\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CommitAttribution"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
+    },
+    "CommitAttribution": {
+      "description": "How Stencila should be attributed in git commits made by agents.\nhttps://stencila.io/docs/config/commitattribution",
+      "oneOf": [
+        {
+          "description": "Set Stencila as the commit author (`GIT_AUTHOR_*`).",
+          "type": "string",
+          "const": "author"
+        },
+        {
+          "description": "Keep normal author/committer identity and add a Stencila co-author trailer.",
+          "type": "string",
+          "const": "co-author"
+        },
+        {
+          "description": "Set Stencila as the commit committer (`GIT_COMMITTER_*`).",
+          "type": "string",
+          "const": "committer"
+        },
+        {
+          "description": "Do not mention Stencila in commit attribution.",
+          "type": "string",
+          "const": "none"
+        }
+      ]
     },
     "McpConfig": {
       "description": "MCP (Model Context Protocol) server configuration.\nhttps://stencila.io/docs/config/mcpconfig",

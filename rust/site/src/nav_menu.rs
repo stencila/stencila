@@ -11,9 +11,9 @@ use stencila_config::{
 };
 
 use crate::nav_common::{
-    apply_depth_limit, apply_descriptions, apply_icons, filter_nav_items, label_to_segment,
-    normalize_icon_name, render_access_attr_if_more_restrictive, render_group_access_attr,
-    render_icon_span, route_to_label,
+    apply_depth_limit, apply_descriptions, apply_icons, apply_labels, filter_nav_items,
+    label_to_segment, normalize_icon_name, render_access_attr_if_more_restrictive,
+    render_group_access_attr, render_icon_span, route_to_label,
 };
 
 /// Context for rendering navigation components
@@ -45,6 +45,9 @@ pub(crate) fn render_nav_menu(
 
     // Clone nav items from context (already resolved from site.nav or auto-generated)
     let nav_items = context.nav_items.clone();
+
+    // Apply custom labels from site.labels
+    let nav_items = apply_labels(nav_items, &context.site_config.labels);
 
     // Apply icons from site.icons
     let nav_items = apply_icons(nav_items, &context.site_config.icons);

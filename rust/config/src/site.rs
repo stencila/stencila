@@ -460,6 +460,27 @@ pub struct SiteConfig {
     /// ```
     pub icons: Option<HashMap<String, String>>,
 
+    /// Custom labels for navigation items
+    ///
+    /// Overrides the auto-generated labels derived from route segments.
+    /// Useful for acronyms (CLI, API) or custom display names.
+    /// Labels specified directly on NavItem (via Link or Group) take precedence.
+    ///
+    /// **Key formats** (lookup order, most to least specific):
+    /// 1. Full route: `"/docs/cli/"` - exact match
+    /// 2. Without slashes: `"docs/cli"` - flexible path matching
+    /// 3. Bare segment: `cli` - matches last path segment (e.g., both `/docs/cli/` and `/api/cli/`)
+    ///
+    /// For unambiguous matching of nested routes, use full routes or paths without leading slash, e.g.
+    /// ```toml
+    /// # Override auto-generated labels
+    /// [site.labels]
+    /// cli = "CLI"
+    /// api = "API"
+    /// "/docs/db/" = "Database"
+    /// ```
+    pub labels: Option<HashMap<String, String>>,
+
     /// Descriptions for navigation items
     ///
     /// Used by nav components (e.g., `nav-menu`) to display descriptions.
