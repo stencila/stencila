@@ -8,12 +8,23 @@ use std::sync::LazyLock;
 
 use regex::RegexSet;
 
+pub mod bioinformatics;
+pub mod chemistry;
 pub mod cloud;
 pub mod containers;
 pub mod core;
 pub mod database;
+pub mod datasets;
+pub mod environments;
+pub mod geospatial;
+pub mod hpc;
+pub mod latex;
+pub mod ml;
+pub mod notebooks;
 pub mod packages;
+pub mod scientific;
 pub mod system;
+pub mod workflows;
 
 // ---------------------------------------------------------------------------
 // Helper macros
@@ -141,8 +152,6 @@ pub struct Pack {
     pub name: &'static str,
     /// Brief description of what the pack guards.
     pub description: &'static str,
-    /// Safe patterns that short-circuit to Allow in step 2.
-    pub safe_patterns: &'static [PatternRule],
     /// Destructive patterns checked in step 3.
     pub destructive_patterns: &'static [PatternRule],
 }
@@ -277,6 +286,100 @@ pub static SAFE_PATTERNS: &[PatternRule] = &[
     // Safe filesystem mutation
     safe_pattern!("mkdir", r"^mkdir\b[^|><]*$"),
     safe_pattern!("touch", r"^touch\b[^|><]*$"),
+    // Read-only bioinformatics (note: fastqc/multiqc create output report files
+    // but are non-destructive — they never modify input data)
+    safe_pattern!("samtools_view", r"^samtools\s+view\b[^|><]*$", samtools_view_safe_validator),
+    safe_pattern!("samtools_flagstat", r"^samtools\s+flagstat\b[^|><]*$"),
+    safe_pattern!("samtools_stats", r"^samtools\s+stats\b[^|><]*$"),
+    safe_pattern!("samtools_idxstats", r"^samtools\s+idxstats\b[^|><]*$"),
+    safe_pattern!("samtools_depth", r"^samtools\s+depth\b[^|><]*$"),
+    safe_pattern!("bcftools_view", r"^bcftools\s+view\b[^|><]*$"),
+    safe_pattern!("bcftools_query", r"^bcftools\s+query\b[^|><]*$"),
+    safe_pattern!("bcftools_stats", r"^bcftools\s+stats\b[^|><]*$"),
+    safe_pattern!("bedtools_intersect", r"^bedtools\s+intersect\b[^|><]*$"),
+    safe_pattern!("bedtools_coverage", r"^bedtools\s+coverage\b[^|><]*$"),
+    safe_pattern!("fastqc", r"^fastqc\b[^|><]*$"),
+    safe_pattern!("multiqc", r"^multiqc\b[^|><]*$"),
+    safe_pattern!("blastn", r"^blastn\b[^|><]*$"),
+    safe_pattern!("blastp", r"^blastp\b[^|><]*$"),
+    safe_pattern!("blastx", r"^blastx\b[^|><]*$"),
+    safe_pattern!("feature_counts", r"^featureCounts\b[^|><]*$"),
+    safe_pattern!("htseq_count", r"^htseq-count\b[^|><]*$"),
+    // Read-only environments / Python
+    safe_pattern!("python_version", r"^python[23]?\s+--version\b[^|><]*$"),
+    safe_pattern!("pip_list", r"^pip[3]?\s+list\b[^|><]*$"),
+    safe_pattern!("pip_show", r"^pip[3]?\s+show\b[^|><]*$"),
+    safe_pattern!("pip_freeze", r"^pip[3]?\s+freeze\b[^|><]*$"),
+    safe_pattern!("conda_list", r"^conda\s+list\b[^|><]*$"),
+    safe_pattern!("conda_env_list", r"^conda\s+env\s+list\b[^|><]*$"),
+    safe_pattern!("conda_env_export", r"^conda\s+env\s+export\b[^|><]*$"),
+    safe_pattern!("conda_info", r"^conda\s+info\b[^|><]*$"),
+    safe_pattern!("mamba_list", r"^mamba\s+list\b[^|><]*$"),
+    safe_pattern!("mamba_env_list", r"^mamba\s+env\s+list\b[^|><]*$"),
+    safe_pattern!("uv_pip_list", r"^uv\s+pip\s+list\b[^|><]*$"),
+    safe_pattern!("uv_pip_show", r"^uv\s+pip\s+show\b[^|><]*$"),
+    safe_pattern!("jupyter_kernelspec_list", r"^jupyter\s+kernelspec\s+list\b[^|><]*$"),
+    // Read-only R
+    safe_pattern!("r_version", r"^R\s+--version\b[^|><]*$"),
+    safe_pattern!("rscript_version", r"^Rscript\s+--version\b[^|><]*$"),
+    // Read-only HPC schedulers
+    safe_pattern!("squeue", r"^squeue\b[^|><]*$"),
+    safe_pattern!("sinfo", r"^sinfo\b[^|><]*$"),
+    safe_pattern!("sacct", r"^sacct\b[^|><]*$"),
+    safe_pattern!("qstat", r"^qstat\b[^|><]*$"),
+    safe_pattern!("bjobs", r"^bjobs\b[^|><]*$"),
+    safe_pattern!("bhist", r"^bhist\b[^|><]*$"),
+    safe_pattern!("bqueues", r"^bqueues\b[^|><]*$"),
+    // Read-only HPC environment modules
+    safe_pattern!("module_list", r"^module\s+list\b[^|><]*$"),
+    safe_pattern!("module_avail", r"^module\s+avail\b[^|><]*$"),
+    safe_pattern!("module_show", r"^module\s+show\b[^|><]*$"),
+    safe_pattern!("module_spider", r"^module\s+spider\b[^|><]*$"),
+    safe_pattern!("module_whatis", r"^module\s+whatis\b[^|><]*$"),
+    // Read-only workflow engines
+    safe_pattern!("nextflow_log", r"^nextflow\s+log\b[^|><]*$"),
+    safe_pattern!("nextflow_list", r"^nextflow\s+list\b[^|><]*$"),
+    safe_pattern!("snakemake_summary", r"^snakemake\s+--summary\b[^|><]*$"),
+    safe_pattern!("snakemake_dryrun", r"^snakemake\s+(?:--dryrun|-n|--dry-run)\b[^|><]*$"),
+    // Read-only data versioning
+    safe_pattern!("dvc_status", r"^dvc\s+status\b[^|><]*$"),
+    safe_pattern!("dvc_diff", r"^dvc\s+diff\b[^|><]*$"),
+    safe_pattern!("dvc_params_diff", r"^dvc\s+params\s+diff\b[^|><]*$"),
+    safe_pattern!("dvc_metrics_show", r"^dvc\s+metrics\s+show\b[^|><]*$"),
+    safe_pattern!("dvc_plots_show", r"^dvc\s+plots\s+show\b[^|><]*$"),
+    safe_pattern!("git_annex_whereis", r"^git\s+annex\s+whereis\b[^|><]*$"),
+    safe_pattern!("git_annex_info", r"^git\s+annex\s+info\b[^|><]*$"),
+    safe_pattern!("datalad_status", r"^datalad\s+status\b[^|><]*$"),
+    // Read-only Spack
+    safe_pattern!("spack_find", r"^spack\s+find\b[^|><]*$"),
+    safe_pattern!("spack_info", r"^spack\s+info\b[^|><]*$"),
+    safe_pattern!("spack_list", r"^spack\s+list\b[^|><]*$"),
+    // Read-only geospatial
+    safe_pattern!("gdalinfo", r"^gdalinfo\b[^|><]*$"),
+    safe_pattern!("ogrinfo", r"^ogrinfo\b[^|><]*$"),
+    safe_pattern!("ncdump", r"^ncdump\b[^|><]*$"),
+    safe_pattern!("cdo_info", r"^cdo\s+(?:info|sinfo|showname|showvar)\b[^|><]*$"),
+    // Read-only ML / GPU
+    safe_pattern!("nvidia_smi", r"^nvidia-smi\b[^|><]*$"),
+    safe_pattern!("gpustat", r"^gpustat\b[^|><]*$"),
+    safe_pattern!("wandb_status", r"^wandb\s+status\b[^|><]*$"),
+    safe_pattern!("mlflow_models_list", r"^mlflow\s+models\s+list\b[^|><]*$"),
+    // Read-only scientific computing
+    safe_pattern!("julia_version", r"^julia\s+--version\b[^|><]*$"),
+    safe_pattern!("matlab_ver", r"^matlab\b.*\bver\b[^|><]*$"),
+    // Read-only data transfer
+    safe_pattern!("globus_ls", r"^globus\s+ls\b[^|><]*$"),
+    safe_pattern!("globus_task_list", r"^globus\s+task\s+list\b[^|><]*$"),
+    safe_pattern!("rclone_ls", r"^rclone\s+(?:ls|lsd|lsl|lsf|size)\b[^|><]*$"),
+    safe_pattern!("ils", r"^ils\b[^|><]*$"),
+    safe_pattern!("iquest", r"^iquest\b[^|><]*$"),
+    // Read-only chemistry
+    safe_pattern!("obabel_list", r"^obabel\s+-L\b[^|><]*$"),
+    safe_pattern!("gmx_check", r"^gmx\s+check\b[^|><]*$"),
+    safe_pattern!("gmx_dump", r"^gmx\s+dump\b[^|><]*$"),
+    // Read-only LaTeX
+    safe_pattern!("latexmk_version", r"^latexmk\s+--version\b[^|><]*$"),
+    safe_pattern!("biber_version", r"^biber\s+--version\b[^|><]*$"),
     // Stencila read-only
     safe_pattern!(
         "stencila_secrets_list",
@@ -336,6 +439,13 @@ fn cargo_clippy_safe_validator(cmd: &str) -> bool {
     !tokens.iter().any(|t| t.value == "--fix")
 }
 
+/// Validator for `samtools view`: returns `false` if `-o` (output file) is
+/// present, since that writes to a file which could overwrite existing data.
+fn samtools_view_safe_validator(cmd: &str) -> bool {
+    let tokens = tokenize_or_bail!(cmd, false);
+    !tokens.iter().any(|t| t.value == "-o")
+}
+
 // ---------------------------------------------------------------------------
 // Compiled RegexSets
 // ---------------------------------------------------------------------------
@@ -349,20 +459,35 @@ pub fn all_packs() -> &'static [&'static Pack] {
             &core::GIT_PACK,
             &core::OBFUSCATION_PACK,
             &core::STENCILA_PACK,
-            // Extended packs
-            &database::POSTGRESQL_PACK,
-            &database::MYSQL_PACK,
-            &database::SQLITE_PACK,
+            // Extended packs (alphabetical by module)
+            &bioinformatics::SEQUENCE_TOOLS_PACK,
+            &chemistry::MOLECULAR_DYNAMICS_PACK,
+            &cloud::AWS_PACK,
+            &cloud::AZURE_PACK,
+            &cloud::GCP_PACK,
+            &cloud::IAC_PACK,
             &containers::DOCKER_PACK,
             &containers::KUBECTL_PACK,
-            &cloud::AWS_PACK,
-            &cloud::GCP_PACK,
-            &cloud::AZURE_PACK,
-            &cloud::IAC_PACK,
+            &database::MYSQL_PACK,
+            &database::POSTGRESQL_PACK,
+            &database::SQLITE_PACK,
+            &datasets::VERSIONING_PACK,
+            &datasets::TRANSFER_PACK,
+            &environments::MANAGERS_PACK,
+            &environments::R_PACK,
+            &geospatial::CLIMATE_DATA_PACK,
+            &geospatial::GDAL_PACK,
+            &hpc::APPTAINER_PACK,
+            &hpc::SCHEDULERS_PACK,
+            &latex::BUILD_TOOLS_PACK,
+            &ml::EXPERIMENT_TRACKING_PACK,
+            &notebooks::JUPYTER_PACK,
+            &packages::REGISTRIES_PACK,
+            &scientific::SCIENTIFIC_COMPUTING_PACK,
             &system::DISK_PACK,
             &system::NETWORK_PACK,
             &system::SERVICES_PACK,
-            &packages::REGISTRIES_PACK,
+            &workflows::WORKFLOW_ENGINES_PACK,
         ]
     });
     &PACKS
@@ -496,6 +621,16 @@ mod tests {
         assert!(cargo_clippy_safe_validator("cargo clippy"));
         assert!(cargo_clippy_safe_validator("cargo clippy -- -W warnings"));
         assert!(!cargo_clippy_safe_validator("cargo clippy --fix"));
+    }
+
+    #[test]
+    fn samtools_view_safe_validator_flags() {
+        assert!(samtools_view_safe_validator("samtools view input.bam"));
+        assert!(samtools_view_safe_validator("samtools view -h input.bam"));
+        assert!(samtools_view_safe_validator("samtools view -b input.sam"));
+        assert!(!samtools_view_safe_validator(
+            "samtools view -o output.bam input.bam"
+        ));
     }
 
     #[test]

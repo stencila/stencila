@@ -135,7 +135,6 @@ pub static FILESYSTEM_PACK: Pack = Pack {
     id: "core.filesystem",
     name: "Filesystem",
     description: "Guards against recursive/forced file deletion and dangerous moves/overwrites",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "recursive_delete_root",
@@ -324,7 +323,6 @@ pub static GIT_PACK: Pack = Pack {
     id: "core.git",
     name: "Git",
     description: "Guards against destructive git operations that lose history or modify remote state",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "reset_hard",
@@ -421,7 +419,6 @@ pub static OBFUSCATION_PACK: Pack = Pack {
     id: "core.obfuscation",
     name: "Obfuscation",
     description: "Guards against meta-execution patterns whose purpose is guard bypass",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "pipe_to_shell",
@@ -469,7 +466,6 @@ pub static STENCILA_PACK: Pack = Pack {
     id: "core.stencila",
     name: "Stencila",
     description: "Guards the agent's own runtime, credentials, and publishing operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "secrets_modify",

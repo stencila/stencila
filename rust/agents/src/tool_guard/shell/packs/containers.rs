@@ -10,7 +10,6 @@ pub static DOCKER_PACK: Pack = Pack {
     id: "containers.docker",
     name: "Docker",
     description: "Guards against destructive Docker operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "system_prune",
@@ -50,7 +49,6 @@ pub static KUBECTL_PACK: Pack = Pack {
     id: "containers.kubectl",
     name: "Kubernetes",
     description: "Guards against destructive Kubernetes operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "delete_namespace",

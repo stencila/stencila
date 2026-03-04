@@ -29,7 +29,6 @@ pub static POSTGRESQL_PACK: Pack = Pack {
     id: "database.postgresql",
     name: "PostgreSQL",
     description: "Guards against destructive PostgreSQL operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "drop_database",
@@ -67,7 +66,6 @@ pub static MYSQL_PACK: Pack = Pack {
     id: "database.mysql",
     name: "MySQL",
     description: "Guards against destructive MySQL operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "drop_database",
@@ -105,7 +103,6 @@ pub static SQLITE_PACK: Pack = Pack {
     id: "database.sqlite",
     name: "SQLite",
     description: "Guards against destructive SQLite operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "drop_table",

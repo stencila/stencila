@@ -15,7 +15,6 @@ pub static AWS_PACK: Pack = Pack {
     id: "cloud.aws",
     name: "AWS",
     description: "Guards against destructive AWS operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "terminate_instances",
@@ -53,7 +52,6 @@ pub static IAC_PACK: Pack = Pack {
     id: "cloud.iac",
     name: "Infrastructure as Code",
     description: "Guards against destructive IaC operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "terraform_destroy",
@@ -87,7 +85,6 @@ pub static GCP_PACK: Pack = Pack {
     id: "cloud.gcp",
     name: "Google Cloud",
     description: "Guards against destructive GCP operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "compute_delete",
@@ -118,7 +115,6 @@ pub static AZURE_PACK: Pack = Pack {
     id: "cloud.azure",
     name: "Azure",
     description: "Guards against destructive Azure operations",
-    safe_patterns: &[],
     destructive_patterns: &[
         destructive_pattern!(
             "vm_delete",
