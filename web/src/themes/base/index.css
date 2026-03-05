@@ -19,8 +19,9 @@
 @import url("./captions.css");
 @import url("./labels.css");
 
+@import url("./works.css");
+
 @import url("./admonitions.css");
-@import url("./articles.css");
 @import url("./breaks.css");
 @import url("./citations.css");
 @import url("./code.css");

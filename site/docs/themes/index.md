@@ -44,7 +44,7 @@ Primitive tokens live in `tokens-primitive.css`, while the public, stable API is
 These reference pages provide token lists and examples by Stencila node type:
 
 - [Admonitions](tokens/nodes/admonitions.smd)
-- [Articles](tokens/nodes/articles.smd)
+- [Creative Works](tokens/nodes/works.smd)
 - [Breaks](tokens/nodes/breaks.smd)
 - [Citations](tokens/nodes/citations.smd)
 - [Code](tokens/nodes/code.smd)

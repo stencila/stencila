@@ -285,16 +285,16 @@ impl Codec for DocxCodec {
                 options.tool_args.push("--number-sections".to_string());
             }
 
-            // Check theme for article-toc option and add --toc/--toc-depth/--toc-title
+            // Check theme for work-toc option and add --toc/--toc-depth/--toc-title
             // Handle both Bool (CSS `true` parsed as JSON) and String values
-            let toc_enabled = match theme.computed_variable("article-toc") {
+            let toc_enabled = match theme.computed_variable("work-toc") {
                 Some(serde_json::Value::Bool(true)) => Some(3u8), // true -> default depth 3
                 Some(serde_json::Value::String(s)) if s != "none" => {
                     // Parse as number or default to 3 for non-numeric strings
                     Some(s.parse::<u8>().unwrap_or(3))
                 }
                 Some(serde_json::Value::Number(n)) => {
-                    // Numeric value like `--article-toc: 2`
+                    // Numeric value like `--work-toc: 2`
                     n.as_u64().map(|n| n as u8)
                 }
                 _ => None,
@@ -316,7 +316,7 @@ impl Codec for DocxCodec {
 
                 // Add TOC title if specified (as metadata variable, not CLI option)
                 if let Some(serde_json::Value::String(toc_title)) =
-                    theme.computed_variable("article-toc-title")
+                    theme.computed_variable("work-toc-title")
                 {
                     let title_arg = format!("-M toc-title={toc_title}");
                     if !options.tool_args.iter().any(|a| a.contains("toc-title")) {

@@ -56,13 +56,13 @@ The email encoder focuses on typography and component-level styling that can be 
 | `--quote-background`, `--quote-border-width`, `--quote-border-color`, `--quote-font-style`, `--quote-padding`                  | Block quote styling                      |
 | `--table-border-color`, `--table-header-background`, `--table-header-font-weight`, `--table-cell-padding`                      | Table borders, headers, and cell padding |
 
-## Article Metadata
+## Work Metadata
 
 | Tokens                 | Email output                                      |
 | ---------------------- | ------------------------------------------------- |
-| `--article-title-*`    | Title font family, size, weight, color, alignment |
-| `--article-authors-*`  | Author font size, color, alignment, spacing       |
-| `--article-abstract-*` | Abstract font size, color, alignment, background  |
+| `--work-title-*`       | Title font family, size, weight, color, alignment |
+| `--work-authors-*`     | Author font size, color, alignment, spacing       |
+| `--work-abstract-*`    | Abstract font size, color, alignment, background  |
 
 ## Lists and Surfaces
 

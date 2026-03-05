@@ -1,3 +1,0 @@
-# Ignore everything except this file so the directory exists in the repo
-*
-!.gitignore

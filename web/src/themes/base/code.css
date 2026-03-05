@@ -38,8 +38,8 @@
 :root {
     /* Code block layout - fixed width slightly wider than content
      * Using equal min/max creates consistent vertical alignment */
-    --code-block-min-width: calc(var(--article-content-max-width) + 20ch);
-    --code-block-max-width: calc(var(--article-content-max-width) + 20ch);
+    --code-block-min-width: calc(var(--work-content-max-width) + 20ch);
+    --code-block-max-width: calc(var(--work-content-max-width) + 20ch);
     --code-block-min-width-mobile: 100%;
     --code-block-max-width-mobile: 100%;
     --code-block-max-width-print: 100%;
@@ -495,7 +495,7 @@ stencila-ui-node-code-static {
     }
 
     /* Constrain code blocks to viewport on mobile.
-     * Uses !important to override higher-specificity desktop rules in articles.css.
+     * Uses !important to override higher-specificity desktop rules in works.css.
      * width: 0 + min-width: 100% breaks the circular width dependency that
      * prevents overflow-x from working. */
     stencila-code-block,

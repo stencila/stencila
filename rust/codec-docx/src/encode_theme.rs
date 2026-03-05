@@ -112,7 +112,7 @@ use crate::encode_utils::{
 /// - ✓ `quotes.css` → [`build_block_text_style()`]
 /// - ✓/✗ `lists.css` → [`build_list_style()`] - Only spacing applied; markers/indent need numbering.xml (see function docs)
 /// - ✓ `tables.css` → [`build_table_style()`], [`build_table_caption_style()`]
-/// - ✓/✗ `articles.css` → [`build_title_style()`], [`build_author_style()`], [`build_abstract_style()`] - Title, Author, Abstract implemented; content-max-width is layout-only
+/// - ✓/✗ `works.css` → [`build_title_style()`], [`build_author_style()`], [`build_abstract_style()`] - Title, Author, Abstract implemented; content-max-width is layout-only
 ///
 /// **Partially Implemented** (some features work, others pending):
 /// - ✓/✗ `figures.css` → [`build_image_caption_style()`], [`build_captioned_figure_style()`] - Caption and centering implemented; figure container background/border not applicable to paragraph styles
@@ -788,20 +788,20 @@ fn build_list_style(vars: &BTreeMap<String, Value>) -> String {
 
 /// Build Title paragraph style
 ///
-/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+/// **CSS Tokens Source**: `web/src/themes/base/works.css`
 ///
 /// **Tokens Applied**:
-/// - `article-title-font-family` → w:rFonts
-/// - `article-title-font-size-print` (with fallback to `article-title-font-size`) → w:sz/w:szCs
-/// - `article-title-font-weight` → w:b/w:bCs (if >= 600)
-/// - `article-title-color` → w:color
-/// - `article-title-text-align` → w:jc
-/// - `article-title-letter-spacing` → w:spacing w:val
-/// - `article-title-margin-bottom` → w:spacing w:after
+/// - `work-title-font-family` → w:rFonts
+/// - `work-title-font-size-print` (with fallback to `work-title-font-size`) → w:sz/w:szCs
+/// - `work-title-font-weight` → w:b/w:bCs (if >= 600)
+/// - `work-title-color` → w:color
+/// - `work-title-text-align` → w:jc
+/// - `work-title-letter-spacing` → w:spacing w:val
+/// - `work-title-margin-bottom` → w:spacing w:after
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `article-title-line-height` - DOCX uses automatic line height
-/// - `article-title-max-width` - Layout constraint not applicable to paragraph styles
+/// - `work-title-line-height` - DOCX uses automatic line height
+/// - `work-title-max-width` - Layout constraint not applicable to paragraph styles
 ///
 /// **Design Note**:
 /// Title is linked to TitleChar character style and uses keep-with-next to prevent
@@ -823,35 +823,35 @@ fn build_title_style(vars: &BTreeMap<String, Value>) -> String {
     xml.push_str(KEEP_NEXT);
 
     // Spacing (margin-bottom)
-    let after = get_twips(vars, "article-title-margin-bottom");
+    let after = get_twips(vars, "work-title-margin-bottom");
     xml.push_str(&build_spacing_element(None, after.as_deref()));
 
     // Text alignment
-    let alignment = get_text_align(vars, "article-title-text-align");
+    let alignment = get_text_align(vars, "work-title-text-align");
     xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
 
     // Font family
-    xml.push_str(&build_font_element(vars, "article-title-font-family"));
+    xml.push_str(&build_font_element(vars, "work-title-font-family"));
 
     // Color
-    if let Some(color) = get_color_hex(vars, "article-title-color") {
+    if let Some(color) = get_color_hex(vars, "work-title-color") {
         xml.push_str(&build_color_element(&color));
     }
 
     // Font size - prefer print variant
-    let size = get_font_size_half_points(vars, "article-title-font-size-print")
-        .or_else(|| get_font_size_half_points(vars, "article-title-font-size"));
+    let size = get_font_size_half_points(vars, "work-title-font-size-print")
+        .or_else(|| get_font_size_half_points(vars, "work-title-font-size"));
     if let Some(size) = size {
         xml.push_str(&build_size_elements(&size));
     }
 
     // Bold if weight >= 600
-    if is_bold(vars, "article-title-font-weight") {
+    if is_bold(vars, "work-title-font-weight") {
         xml.push_str(r#"<w:b/><w:bCs/>"#);
     }
 
     // Letter spacing
-    if let Some(spacing) = get_twips(vars, "article-title-letter-spacing") {
+    if let Some(spacing) = get_twips(vars, "work-title-letter-spacing") {
         xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
     }
 
@@ -861,7 +861,7 @@ fn build_title_style(vars: &BTreeMap<String, Value>) -> String {
 
 /// Build TitleChar character style
 ///
-/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+/// **CSS Tokens Source**: `web/src/themes/base/works.css`
 ///
 /// Same tokens as `build_title_style()` but applied as character-level formatting.
 /// This linked character style allows title formatting to be applied to text runs
@@ -880,27 +880,27 @@ fn build_title_char_style(vars: &BTreeMap<String, Value>) -> String {
     );
 
     // Font family
-    xml.push_str(&build_font_element(vars, "article-title-font-family"));
+    xml.push_str(&build_font_element(vars, "work-title-font-family"));
 
     // Color
-    if let Some(color) = get_color_hex(vars, "article-title-color") {
+    if let Some(color) = get_color_hex(vars, "work-title-color") {
         xml.push_str(&build_color_element(&color));
     }
 
     // Font size - prefer print variant
-    let size = get_font_size_half_points(vars, "article-title-font-size-print")
-        .or_else(|| get_font_size_half_points(vars, "article-title-font-size"));
+    let size = get_font_size_half_points(vars, "work-title-font-size-print")
+        .or_else(|| get_font_size_half_points(vars, "work-title-font-size"));
     if let Some(size) = size {
         xml.push_str(&build_size_elements(&size));
     }
 
     // Bold if weight >= 600
-    if is_bold(vars, "article-title-font-weight") {
+    if is_bold(vars, "work-title-font-weight") {
         xml.push_str(r#"<w:b/><w:bCs/>"#);
     }
 
     // Letter spacing
-    if let Some(spacing) = get_twips(vars, "article-title-letter-spacing") {
+    if let Some(spacing) = get_twips(vars, "work-title-letter-spacing") {
         xml.push_str(&format!(r#"<w:spacing w:val="{spacing}"/>"#));
     }
 
@@ -910,13 +910,13 @@ fn build_title_char_style(vars: &BTreeMap<String, Value>) -> String {
 
 /// Build Author paragraph style
 ///
-/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+/// **CSS Tokens Source**: `web/src/themes/base/works.css`
 ///
 /// **Tokens Applied**:
-/// - `article-authors-font-size` → w:sz/w:szCs
-/// - `article-authors-color` → w:color
-/// - `article-authors-text-align` → w:jc
-/// - `article-authors-margin-bottom` → w:spacing w:after
+/// - `work-authors-font-size` → w:sz/w:szCs
+/// - `work-authors-color` → w:color
+/// - `work-authors-text-align` → w:jc
+/// - `work-authors-margin-bottom` → w:spacing w:after
 ///
 /// **Design Note**:
 /// Author style is based on Normal and flows to BodyText for the next paragraph.
@@ -934,20 +934,20 @@ fn build_author_style(vars: &BTreeMap<String, Value>) -> String {
     );
 
     // Spacing (margin-bottom)
-    let after = get_twips(vars, "article-authors-margin-bottom");
+    let after = get_twips(vars, "work-authors-margin-bottom");
     xml.push_str(&build_spacing_element(None, after.as_deref()));
 
     // Text alignment
-    let alignment = get_text_align(vars, "article-authors-text-align");
+    let alignment = get_text_align(vars, "work-authors-text-align");
     xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/></w:pPr><w:rPr>"#));
 
     // Color
-    if let Some(color) = get_color_hex(vars, "article-authors-color") {
+    if let Some(color) = get_color_hex(vars, "work-authors-color") {
         xml.push_str(&build_color_element(&color));
     }
 
     // Font size
-    if let Some(size) = get_font_size_half_points(vars, "article-authors-font-size") {
+    if let Some(size) = get_font_size_half_points(vars, "work-authors-font-size") {
         xml.push_str(&build_size_elements(&size));
     }
 
@@ -957,17 +957,17 @@ fn build_author_style(vars: &BTreeMap<String, Value>) -> String {
 
 /// Build Abstract paragraph style
 ///
-/// **CSS Tokens Source**: `web/src/themes/base/articles.css`
+/// **CSS Tokens Source**: `web/src/themes/base/works.css`
 ///
 /// **Tokens Applied**:
-/// - `article-abstract-font-size` → w:sz/w:szCs
-/// - `article-abstract-color` → w:color
-/// - `article-abstract-background` → w:shd (paragraph shading)
-/// - `article-abstract-text-align` → w:jc
-/// - `article-abstract-margin-bottom` → w:spacing w:after
+/// - `work-abstract-font-size` → w:sz/w:szCs
+/// - `work-abstract-color` → w:color
+/// - `work-abstract-background` → w:shd (paragraph shading)
+/// - `work-abstract-text-align` → w:jc
+/// - `work-abstract-margin-bottom` → w:spacing w:after
 ///
 /// **Tokens NOT Yet Applied**:
-/// - `article-abstract-max-width` - Layout constraint not applicable to paragraph styles
+/// - `work-abstract-max-width` - Layout constraint not applicable to paragraph styles
 ///
 /// **Design Note**:
 /// Abstract style is based on Normal and includes optional background shading.
@@ -985,16 +985,16 @@ fn build_abstract_style(vars: &BTreeMap<String, Value>) -> String {
     );
 
     // Spacing (margin-bottom)
-    let after = get_twips(vars, "article-abstract-margin-bottom");
+    let after = get_twips(vars, "work-abstract-margin-bottom");
     xml.push_str(&build_spacing_element(None, after.as_deref()));
 
     // Text alignment
-    let alignment = get_text_align(vars, "article-abstract-text-align");
+    let alignment = get_text_align(vars, "work-abstract-text-align");
     xml.push_str(&format!(r#"<w:jc w:val="{alignment}"/>"#));
 
     // Background shading
     // Skip if transparent (not a valid DOCX color value)
-    if let Some(bg_color) = get_color_hex(vars, "article-abstract-background")
+    if let Some(bg_color) = get_color_hex(vars, "work-abstract-background")
         && bg_color != "transparent"
         && !bg_color.is_empty()
     {
@@ -1004,12 +1004,12 @@ fn build_abstract_style(vars: &BTreeMap<String, Value>) -> String {
     xml.push_str("</w:pPr><w:rPr>");
 
     // Color
-    if let Some(color) = get_color_hex(vars, "article-abstract-color") {
+    if let Some(color) = get_color_hex(vars, "work-abstract-color") {
         xml.push_str(&build_color_element(&color));
     }
 
     // Font size
-    if let Some(size) = get_font_size_half_points(vars, "article-abstract-font-size") {
+    if let Some(size) = get_font_size_half_points(vars, "work-abstract-font-size") {
         xml.push_str(&build_size_elements(&size));
     }
 
@@ -1036,8 +1036,8 @@ fn build_abstract_style(vars: &BTreeMap<String, Value>) -> String {
 /// **Design Note**:
 /// This style currently reuses Heading1 formatting as there are no specific
 /// `abstract-title-*` design tokens defined in the theme system yet. In the future,
-/// if abstract-specific title tokens are added to `articles.css` (e.g.,
-/// `article-abstract-title-font-size`, `article-abstract-title-color`, etc.),
+/// if abstract-specific title tokens are added to `works.css` (e.g.,
+/// `work-abstract-title-font-size`, `work-abstract-title-color`, etc.),
 /// this function should be updated to use those tokens instead.
 ///
 /// AbstractTitle is used for the "Abstract" heading that appears before abstract content.
@@ -1570,7 +1570,7 @@ mod tests {
         );
         variables.insert("quote-background".to_string(), json!("transparent"));
         variables.insert(
-            "article-abstract-background".to_string(),
+            "work-abstract-background".to_string(),
             json!("transparent"),
         );
         variables.insert("table-header-background".to_string(), json!("transparent"));
@@ -1611,7 +1611,7 @@ mod tests {
         // Set backgrounds to valid hex colors
         variables.insert("heading-h1-background-color".to_string(), json!("#F0F0F0"));
         variables.insert("quote-background".to_string(), json!("#E8E8E8"));
-        variables.insert("article-abstract-background".to_string(), json!("#F5F5F5"));
+        variables.insert("work-abstract-background".to_string(), json!("#F5F5F5"));
         variables.insert("table-header-background".to_string(), json!("#D0D0D0"));
 
         // Generate styles

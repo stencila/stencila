@@ -29,7 +29,7 @@ The DOCX encoder maps specific theme modules into Word styles. This keeps the ma
 | `lists.css` | List paragraph spacing (markers via numbering.xml) | [`encode_theme.rs`](https://github.com/stencila/stencila/blob/main/rust/codec-docx/src/encode_theme.rs) |
 | `tables.css` | Table style + TableCaption | [`encode_theme.rs`](https://github.com/stencila/stencila/blob/main/rust/codec-docx/src/encode_theme.rs) |
 | `figures.css` | ImageCaption + CaptionedFigure | [`encode_theme.rs`](https://github.com/stencila/stencila/blob/main/rust/codec-docx/src/encode_theme.rs) |
-| `articles.css` | Title, Author, Abstract, AbstractTitle | [`encode_theme.rs`](https://github.com/stencila/stencila/blob/main/rust/codec-docx/src/encode_theme.rs) |
+| `works.css` | Title, Author, Abstract, AbstractTitle | [`encode_theme.rs`](https://github.com/stencila/stencila/blob/main/rust/codec-docx/src/encode_theme.rs) |
 | `pages.css` | Page size, margins, headers/footers | [`encode_page_layout.rs`](https://github.com/stencila/stencila/blob/main/rust/codec-docx/src/encode_page_layout.rs) |
 
 # Page Layout (Paged Media)

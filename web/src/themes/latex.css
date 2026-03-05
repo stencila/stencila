@@ -61,15 +61,15 @@
      * for the classic LaTeX appearance. */
     --content-spacing: var(--space-4);
 
-    /* Article Metadata
+    /* Work Metadata
      *
      * LaTeX article class centers the title, author, and abstract at the top
      * of the document. The abstract is narrower than the main content (75%
      * of content width) to visually distinguish it as introductory material
      * while remaining responsive on smaller screens. */
-    --article-authors-text-align: center;
-    --article-abstract-text-align: center;
-    --article-abstract-max-width: calc(var(--content-width) * 0.75);
+    --work-authors-text-align: center;
+    --work-abstract-text-align: center;
+    --work-abstract-max-width: calc(var(--content-width) * 0.75);
 
     /* Headings
      *

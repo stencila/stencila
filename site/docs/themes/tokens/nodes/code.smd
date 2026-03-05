@@ -25,8 +25,8 @@ Layout controls for breakout widths, spacing, and print behavior.
 
 | Token                         | Description                                   | Default Value                              |
 | ----------------------------- | --------------------------------------------- | ------------------------------------------ |
-| `--code-block-min-width`      | Minimum width for static code blocks          | `calc(var(--article-content-max-width) + 20ch)` |
-| `--code-block-max-width`      | Maximum width for static code blocks          | `calc(var(--article-content-max-width) + 20ch)` |
+| `--code-block-min-width`      | Minimum width for static code blocks          | `calc(var(--work-content-max-width) + 20ch)` |
+| `--code-block-max-width`      | Maximum width for static code blocks          | `calc(var(--work-content-max-width) + 20ch)` |
 | `--code-block-min-width-mobile` | Minimum width on mobile (640px)             | `100%`                                     |
 | `--code-block-max-width-mobile` | Maximum width on mobile (640px)             | `100%`                                     |
 | `--code-block-max-width-print`  | Maximum width for print                      | `100%`                                     |

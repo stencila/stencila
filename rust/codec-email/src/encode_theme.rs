@@ -135,41 +135,41 @@ pub fn encode_theme_styles(mjml: &mut String, theme_vars: Option<&BTreeMap<Strin
     let table_cell_padding =
         get_var(theme_vars, "table-cell-padding").unwrap_or_else(|| "8".to_string());
 
-    // Article title styles
-    let article_title_font_family =
-        get_var(theme_vars, "article-title-font-family").unwrap_or_else(|| heading_font.clone());
-    let article_title_font_weight =
-        get_var(theme_vars, "article-title-font-weight").unwrap_or_else(|| "700".to_string());
-    let article_title_color =
-        get_var(theme_vars, "article-title-color").unwrap_or_else(|| heading_color.clone());
-    let article_title_text_align =
-        get_var(theme_vars, "article-title-text-align").unwrap_or_else(|| "center".to_string());
-    let article_title_letter_spacing = get_var(theme_vars, "article-title-letter-spacing")
+    // Work title styles
+    let work_title_font_family =
+        get_var(theme_vars, "work-title-font-family").unwrap_or_else(|| heading_font.clone());
+    let work_title_font_weight =
+        get_var(theme_vars, "work-title-font-weight").unwrap_or_else(|| "700".to_string());
+    let work_title_color =
+        get_var(theme_vars, "work-title-color").unwrap_or_else(|| heading_color.clone());
+    let work_title_text_align =
+        get_var(theme_vars, "work-title-text-align").unwrap_or_else(|| "center".to_string());
+    let work_title_letter_spacing = get_var(theme_vars, "work-title-letter-spacing")
         .unwrap_or_else(|| "-0.02em".to_string());
-    let article_title_line_height =
-        get_var(theme_vars, "article-title-line-height").unwrap_or_else(|| "1.1".to_string());
+    let work_title_line_height =
+        get_var(theme_vars, "work-title-line-height").unwrap_or_else(|| "1.1".to_string());
 
-    // Article authors styles
-    let article_authors_font_size =
-        get_var(theme_vars, "article-authors-font-size").unwrap_or_else(|| "16".to_string());
-    let article_authors_color = get_var(theme_vars, "article-authors-color")
+    // Work authors styles
+    let work_authors_font_size =
+        get_var(theme_vars, "work-authors-font-size").unwrap_or_else(|| "16".to_string());
+    let work_authors_color = get_var(theme_vars, "work-authors-color")
         .unwrap_or_else(|| text_color_secondary.clone());
-    let article_authors_text_align =
-        get_var(theme_vars, "article-authors-text-align").unwrap_or_else(|| "left".to_string());
-    let article_authors_margin_bottom =
-        get_var(theme_vars, "article-authors-margin-bottom").unwrap_or_else(|| "24".to_string());
+    let work_authors_text_align =
+        get_var(theme_vars, "work-authors-text-align").unwrap_or_else(|| "left".to_string());
+    let work_authors_margin_bottom =
+        get_var(theme_vars, "work-authors-margin-bottom").unwrap_or_else(|| "24".to_string());
 
-    // Abstract styles
-    let article_abstract_font_size =
-        get_var(theme_vars, "article-abstract-font-size").unwrap_or_else(|| "16".to_string());
-    let article_abstract_background =
-        get_var(theme_vars, "article-abstract-background").unwrap_or_else(|| "#f9f9f9".to_string());
-    let article_abstract_color = get_var(theme_vars, "article-abstract-color")
+    // Work abstract styles
+    let work_abstract_font_size =
+        get_var(theme_vars, "work-abstract-font-size").unwrap_or_else(|| "16".to_string());
+    let work_abstract_background =
+        get_var(theme_vars, "work-abstract-background").unwrap_or_else(|| "#f9f9f9".to_string());
+    let work_abstract_color = get_var(theme_vars, "work-abstract-color")
         .unwrap_or_else(|| text_color_secondary.clone());
-    let article_abstract_text_align =
-        get_var(theme_vars, "article-abstract-text-align").unwrap_or_else(|| "left".to_string());
-    let article_abstract_margin_bottom =
-        get_var(theme_vars, "article-abstract-margin-bottom").unwrap_or_else(|| "24".to_string());
+    let work_abstract_text_align =
+        get_var(theme_vars, "work-abstract-text-align").unwrap_or_else(|| "left".to_string());
+    let work_abstract_margin_bottom =
+        get_var(theme_vars, "work-abstract-margin-bottom").unwrap_or_else(|| "24".to_string());
 
     // Border radius
     let border_radius_default =
@@ -220,12 +220,12 @@ pub fn encode_theme_styles(mjml: &mut String, theme_vars: Option<&BTreeMap<Strin
 
       /* Article title (h1 in title slot) - overrides heading h1 */
       .article-title h1 {{
-        font-family: {article_title_font_family};
-        font-weight: {article_title_font_weight};
-        color: {article_title_color};
-        text-align: {article_title_text_align};
-        letter-spacing: {article_title_letter_spacing};
-        line-height: {article_title_line_height};
+        font-family: {work_title_font_family};
+        font-weight: {work_title_font_weight};
+        color: {work_title_color};
+        text-align: {work_title_text_align};
+        letter-spacing: {work_title_letter_spacing};
+        line-height: {work_title_line_height};
       }}
 
       /* Links */
@@ -278,22 +278,22 @@ pub fn encode_theme_styles(mjml: &mut String, theme_vars: Option<&BTreeMap<Strin
         margin: 0;
       }}
 
-      /* Authors - using article author tokens */
+      /* Authors - using work author tokens */
       .authors {{
-        font-size: {article_authors_font_size}px;
-        color: {article_authors_color};
-        text-align: {article_authors_text_align};
-        margin-bottom: {article_authors_margin_bottom}px;
+        font-size: {work_authors_font_size}px;
+        color: {work_authors_color};
+        text-align: {work_authors_text_align};
+        margin-bottom: {work_authors_margin_bottom}px;
       }}
 
-      /* Abstract - using article abstract tokens */
+      /* Abstract - using work abstract tokens */
       .abstract {{
-        font-size: {article_abstract_font_size}px;
-        background-color: {article_abstract_background};
-        color: {article_abstract_color};
-        text-align: {article_abstract_text_align};
+        font-size: {work_abstract_font_size}px;
+        background-color: {work_abstract_background};
+        color: {work_abstract_color};
+        text-align: {work_abstract_text_align};
         padding: 16px;
-        margin: 0 0 {article_abstract_margin_bottom}px 0;
+        margin: 0 0 {work_abstract_margin_bottom}px 0;
         border-radius: {border_radius_default}px;
         border-left: 3px solid {border_color_default};
       }}
@@ -302,7 +302,7 @@ pub fn encode_theme_styles(mjml: &mut String, theme_vars: Option<&BTreeMap<Strin
         margin-bottom: 0.5em;
       }}
       .abstract p {{
-        text-align: {article_abstract_text_align};
+        text-align: {work_abstract_text_align};
       }}
 
       /* References */

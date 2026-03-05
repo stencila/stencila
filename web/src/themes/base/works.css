@@ -1,14 +1,15 @@
-/* Article styles
+/* Creative Work styles
  *
- * Schema: [Article](../../schema/Article.yaml)
- * Purpose: Document container for articles, including news and scholarly articles.
- * Provides structure for content, metadata, and document-level layout.
+ * Schema: [Article](../../schema/Article.yaml), [Skill](../../schema/Skill.yaml),
+ *         [Agent](../../schema/Agent.yaml), [Workflow](../../schema/Workflow.yaml)
+ * Purpose: Document container for creative works including articles, skills, agents,
+ * and workflows. Provides structure for content, metadata, and document-level layout.
  *
  * DOM Structure:
  * <stencila-article id=xxx depth=0 ancestors='' repository='...' path='...' commit=xxx root>
  *     <section slot=title>
  *         <h1>
- *             <stencila-text id=xxx depth=2 ancestors=Article>Article title...</stencila-text>
+ *             <stencila-text id=xxx depth=2 ancestors=Article>Work title...</stencila-text>
  *         </h1>
  *     </section>
  *     <section slot=authors>
@@ -20,7 +21,7 @@
  *     <section slot=content>
  *         <stencila-paragraph id=xxx depth=1 ancestors=Article>
  *             <p slot=content>
- *                 <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Article content...</stencila-text>
+ *                 <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Work content...</stencila-text>
  *             </p>
  *         </stencila-paragraph>
  *         <!-- More content blocks... -->
@@ -30,71 +31,77 @@
  *     </section>
  * </stencila-article>
  *
+ * Note: The above DOM structure uses Article as an example but applies to all
+ * creative work types (Article, Skill, Agent, Workflow).
+ *
  * Key Attributes:
  * - root: Boolean indicating if this is the root document element
  *
  * Slots:
- * - content: Required section containing all article content blocks
- * - title: Optional article title
+ * - content: Required section containing all work content blocks
+ * - title: Optional work title
  * - authors: Optional author information
- * - abstract: Optional article abstract
- * - references: Optional article references
+ * - abstract: Optional work abstract
+ * - references: Optional work references
  *
  * Notes:
- * - Articles serve as the main document container
+ * - Creative works serve as the main document container
  * - Content is wrapped in a section element for semantic structure
- * - Articles can contain any type of block content (paragraphs, headings, figures, etc.)
- * - When marked as root, articles receive document-level styling
+ * - Creative works can contain any type of block content (paragraphs, headings, figures, etc.)
+ * - When marked as root, creative works receive document-level styling
  *
  * Examples: examples/conversion/article/article.dom.html
  */
 
 :root {
-    /* Article Content */
-    --article-content-max-width: var(--content-width);
-    --article-content-max-width-mobile: var(--content-width-mobile);
+    /* Work Content */
+    --work-content-max-width: var(--content-width);
+    --work-content-max-width-mobile: var(--content-width-mobile);
 
-    /* Article Title - Typography optimized for large display text */
-    --article-title-font-family: var(--heading-font-family);
-    --article-title-font-size: calc(var(--text-font-size) * 2.5);
-    --article-title-font-size-mobile: calc(var(--text-font-size-print) * 2.0);
-    --article-title-font-size-print: calc(var(--text-font-size-print) * 2.0);
-    --article-title-font-weight: var(--font-weight-bold);
-    --article-title-color: var(--text-color-primary);
-    --article-title-text-align: center;
-    --article-title-margin-bottom: var(--space-8);
+    /* Work Title - Typography optimized for large display text */
+    --work-title-font-family: var(--heading-font-family);
+    --work-title-font-size: calc(var(--text-font-size) * 2.5);
+    --work-title-font-size-mobile: calc(var(--text-font-size-print) * 2.0);
+    --work-title-font-size-print: calc(var(--text-font-size-print) * 2.0);
+    --work-title-font-weight: var(--font-weight-bold);
+    --work-title-color: var(--text-color-primary);
+    --work-title-text-align: center;
+    --work-title-margin-bottom: var(--space-8);
 
-    /* Article Title - Line height (tighter than body text for large display typography) */
-    --article-title-line-height: var(--line-height-tight);
-    --article-title-line-height-mobile: var(--line-height-tight);
+    /* Work Title - Line height (tighter than body text for large display typography) */
+    --work-title-line-height: var(--line-height-tight);
+    --work-title-line-height-mobile: var(--line-height-tight);
 
-    /* Article Title - Layout */
-    --article-title-max-width: calc(var(--article-content-max-width) * 0.9);
+    /* Work Title - Layout */
+    --work-title-max-width: calc(var(--work-content-max-width) * 0.9);
 
-    /* Article Title - Fine-tuning (subtle negative tracking for large text) */
-    --article-title-letter-spacing: -0.02em;
+    /* Work Title - Fine-tuning (subtle negative tracking for large text) */
+    --work-title-letter-spacing: -0.02em;
 
-    /* Article Authors */
-    --article-authors-font-size: var(--text-font-size);
-    --article-authors-color: var(--text-color);
-    --article-authors-text-align: left;
-    --article-authors-margin-bottom: var(--space-6);
+    /* Work Authors */
+    --work-authors-font-size: var(--text-font-size);
+    --work-authors-color: var(--text-color);
+    --work-authors-text-align: left;
+    --work-authors-margin-bottom: var(--space-6);
 
-    /* Article Abstract */
-    --article-abstract-font-size: var(--text-font-size);
-    --article-abstract-color: var(--text-color);
-    --article-abstract-background: var(--surface-background);
-    --article-abstract-text-align: left;
-    --article-abstract-max-width: var(--article-content-max-width);
-    --article-abstract-margin-bottom: var(--space-6);
+    /* Work Abstract */
+    --work-abstract-font-size: var(--text-font-size);
+    --work-abstract-color: var(--text-color);
+    --work-abstract-background: var(--surface-background);
+    --work-abstract-text-align: left;
+    --work-abstract-max-width: var(--work-content-max-width);
+    --work-abstract-margin-bottom: var(--space-6);
 
-    /* Article Table of Contents */
+    /* Work Table of Contents */
     /* Values: none (default), true (enable with depth 3), or 1-6 (specific depth) */
-    --article-toc: none;
-    --article-toc-title: "Contents";
+    --work-toc: none;
+    --work-toc-title: "Contents";
 }
 
-stencila-article {
+stencila-article,
+stencila-skill,
+stencila-agent,
+stencila-workflow {
     display: block;
 
     /* Non-content slots get constrained width */
@@ -102,15 +109,15 @@ stencila-article {
     >[slot="authors"],
     >[slot="abstract"],
     >[slot="references"] {
-        max-width: var(--article-content-max-width);
+        max-width: var(--work-content-max-width);
         margin-left: auto;
         margin-right: auto;
     }
 
     >[slot="title"] {
         /* Layout */
-        max-width: var(--article-title-max-width);
-        margin-bottom: var(--article-title-margin-bottom);
+        max-width: var(--work-title-max-width);
+        margin-bottom: var(--work-title-margin-bottom);
 
         /* Target both <h1> and <p> for title. See `impl DomCodec for Article`
         for why <p> is included */
@@ -120,34 +127,34 @@ stencila-article {
             margin: 0;
 
             /* Typography - Optimized for large display text */
-            font-family: var(--article-title-font-family);
-            font-size: var(--article-title-font-size);
-            font-weight: var(--article-title-font-weight);
-            line-height: var(--article-title-line-height);
-            letter-spacing: var(--article-title-letter-spacing);
-            color: var(--article-title-color);
-            text-align: var(--article-title-text-align);
+            font-family: var(--work-title-font-family);
+            font-size: var(--work-title-font-size);
+            font-weight: var(--work-title-font-weight);
+            line-height: var(--work-title-line-height);
+            letter-spacing: var(--work-title-letter-spacing);
+            color: var(--work-title-color);
+            text-align: var(--work-title-text-align);
         }
     }
 
     >[slot="authors"] {
-        font-size: var(--article-authors-font-size);
-        color: var(--article-authors-color);
-        text-align: var(--article-authors-text-align);
-        margin-bottom: var(--article-authors-margin-bottom);
+        font-size: var(--work-authors-font-size);
+        color: var(--work-authors-color);
+        text-align: var(--work-authors-text-align);
+        margin-bottom: var(--work-authors-margin-bottom);
     }
 
     >[slot="abstract"] {
-        font-size: var(--article-abstract-font-size);
-        color: var(--article-abstract-color);
-        background: var(--article-abstract-background);
-        max-width: var(--article-abstract-max-width);
-        margin-bottom: var(--article-abstract-margin-bottom);
+        font-size: var(--work-abstract-font-size);
+        color: var(--work-abstract-color);
+        background: var(--work-abstract-background);
+        max-width: var(--work-abstract-max-width);
+        margin-bottom: var(--work-abstract-margin-bottom);
 
         /* Apply text-align to nested "Abstract" heading and paragraph content */
         stencila-heading h1,
         stencila-paragraph p {
-            text-align: var(--article-abstract-text-align);
+            text-align: var(--work-abstract-text-align);
         }
     }
 
@@ -162,7 +169,7 @@ stencila-article {
 
         /* Default max-width for all direct children */
         >* {
-            max-width: var(--article-content-max-width);
+            max-width: var(--work-content-max-width);
             margin-left: auto;
             margin-right: auto;
         }
@@ -180,7 +187,7 @@ stencila-article {
         /* Default constraints for children inside pass-through containers */
         stencila-section > *,
         stencila-styled-block [slot="content"] > * {
-            max-width: var(--article-content-max-width);
+            max-width: var(--work-content-max-width);
             margin-left: auto;
             margin-right: auto;
         }
@@ -246,12 +253,15 @@ stencila-article {
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {
-        --article-content-max-width: var(--article-content-max-width-mobile);
-        --article-title-font-size: var(--article-title-font-size-mobile);
-        --article-title-line-height: var(--article-title-line-height-mobile);
+        --work-content-max-width: var(--work-content-max-width-mobile);
+        --work-title-font-size: var(--work-title-font-size-mobile);
+        --work-title-line-height: var(--work-title-line-height-mobile);
     }
 
-    stencila-article {
+    stencila-article,
+    stencila-skill,
+    stencila-agent,
+    stencila-workflow {
         >[slot="content"] {
             /* Disable breakout on mobile - constrain all elements to viewport width */
             stencila-table,
@@ -271,11 +281,14 @@ stencila-article {
 
 @media print {
     :root {
-        --article-title-font-size: var(--article-title-font-size-print);
+        --work-title-font-size: var(--work-title-font-size-print);
     }
 
-    stencila-article {
-        /* Reset print margins for articles */
+    stencila-article,
+    stencila-skill,
+    stencila-agent,
+    stencila-workflow {
+        /* Reset print margins for creative works */
         max-width: none;
         padding: 0;
         margin: 0;
