@@ -297,17 +297,23 @@ impl Answer {
 pub struct Interview {
     /// Unique identifier for this interview instance.
     pub id: String,
-    
+
     /// Originating stage name (e.g., pipeline node ID, `"ask_user"`).
     pub stage: String,
-    
+
     /// The questions to present (one or more).
     pub questions: Vec<Question>,
-    
+
     /// Answers received (parallel to `questions`; empty until answered).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub answers: Vec<Answer>,
-    
+
+    /// Pipeline stage index, used to disambiguate multiple visits to
+    /// the same node during loops/retries. Set by the engine before
+    /// calling `conduct()`. `None` for non-pipeline contexts.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stage_index: Option<i64>,
+
     /// Interview-level metadata (pipeline name, urgency, etc.)
     #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
     pub metadata: IndexMap<String, serde_json::Value>,
@@ -323,6 +329,7 @@ impl Interview {
             questions: vec![question],
             answers: Vec::new(),
             stage,
+            stage_index: None,
             metadata: IndexMap::new(),
         }
     }
@@ -335,6 +342,7 @@ impl Interview {
             questions,
             answers: Vec::new(),
             stage: stage.into(),
+            stage_index: None,
             metadata: IndexMap::new(),
         }
     }
@@ -375,32 +383,28 @@ pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
                 .iter()
                 .find(|o| o.key.eq_ignore_ascii_case(trimmed))
             {
-                Answer::with_option(
-                    AnswerValue::Selected(opt.key.clone()),
-                    opt.clone(),
-                )
+                Answer::with_option(AnswerValue::Selected(opt.key.clone()), opt.clone())
             } else if let Some(opt) = question
                 .options
                 .iter()
                 .find(|o| o.label.eq_ignore_ascii_case(trimmed))
             {
-                Answer::with_option(
-                    AnswerValue::Selected(opt.key.clone()),
-                    opt.clone(),
-                )
+                Answer::with_option(AnswerValue::Selected(opt.key.clone()), opt.clone())
             } else {
                 Answer::new(AnswerValue::Text(trimmed.to_string()))
             }
         }
         QuestionType::MultiSelect => {
-            let parts: Vec<&str> = trimmed.split(',').map(str::trim).filter(|s| !s.is_empty()).collect();
+            let parts: Vec<&str> = trimmed
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .collect();
             let mut selected_keys = Vec::new();
             for part in &parts {
-                if let Some(opt) = question
-                    .options
-                    .iter()
-                    .find(|o| o.key.eq_ignore_ascii_case(part) || o.label.eq_ignore_ascii_case(part))
-                {
+                if let Some(opt) = question.options.iter().find(|o| {
+                    o.key.eq_ignore_ascii_case(part) || o.label.eq_ignore_ascii_case(part)
+                }) {
                     if !selected_keys.contains(&opt.key) {
                         selected_keys.push(opt.key.clone());
                     }
@@ -636,10 +640,7 @@ mod tests {
 
     #[test]
     fn answer_serde_roundtrip() {
-        let answer = Answer::new(AnswerValue::MultiSelected(vec![
-            "A".into(),
-            "B".into(),
-        ]));
+        let answer = Answer::new(AnswerValue::MultiSelected(vec!["A".into(), "B".into()]));
         let json = serde_json::to_string(&answer).unwrap();
         let answer2: Answer = serde_json::from_str(&json).unwrap();
         assert_eq!(answer2, answer);
@@ -656,7 +657,8 @@ mod tests {
         assert_eq!(json, r#"{"type":"SELECTED","value":"A"}"#);
 
         // Vec data: {"type":"MULTI_SELECTED","value":["A","B"]}
-        let json = serde_json::to_string(&AnswerValue::MultiSelected(vec!["A".into(), "B".into()])).unwrap();
+        let json = serde_json::to_string(&AnswerValue::MultiSelected(vec!["A".into(), "B".into()]))
+            .unwrap();
         assert_eq!(json, r#"{"type":"MULTI_SELECTED","value":["A","B"]}"#);
     }
 
@@ -699,10 +701,7 @@ mod tests {
 
     #[test]
     fn interview_batch_creates_uuid() {
-        let qs = vec![
-            Question::yes_no("Q1?", "s"),
-            Question::freeform("Q2?", "s"),
-        ];
+        let qs = vec![Question::yes_no("Q1?", "s"), Question::freeform("Q2?", "s")];
         let interview = Interview::batch(qs, "ask_user");
         assert!(!interview.id.is_empty());
         assert_eq!(interview.questions.len(), 2);
@@ -721,10 +720,9 @@ mod tests {
     fn interview_serde_roundtrip() {
         let mut interview = Interview::single(Question::yes_no("Continue?", "gate"));
         interview.answers.push(Answer::new(AnswerValue::Yes));
-        interview.metadata.insert(
-            "urgency".to_string(),
-            serde_json::json!("high"),
-        );
+        interview
+            .metadata
+            .insert("urgency".to_string(), serde_json::json!("high"));
 
         let json = serde_json::to_string(&interview).unwrap();
         let interview2: Interview = serde_json::from_str(&json).unwrap();

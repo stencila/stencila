@@ -355,10 +355,11 @@ impl SqliteBackend {
 
     /// Insert a completed interview record for this run.
     ///
-    /// Writes to the `interviews` table owned by the `stencila-interviews` crate.
-    /// The table uses `context_type` + `context_id` instead of a direct `run_id`
-    /// foreign key, so workflow interviews are stored with `context_type = 'workflow'`
-    /// and `context_id = run_id`.
+    /// Writes to the `interviews` and `interview_questions` tables owned by
+    /// the `stencila-interviews` crate. The tables use `context_type` +
+    /// `context_id` instead of a direct `run_id` foreign key, so workflow
+    /// interviews are stored with `context_type = 'workflow'` and
+    /// `context_id = run_id`.
     ///
     /// # Errors
     ///
@@ -381,26 +382,47 @@ impl SqliteBackend {
             .conn
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
+
+        let status = if answered_at.is_some() {
+            "answered"
+        } else {
+            "pending"
+        };
+
         conn.execute(
             "INSERT INTO interviews (
-                interview_id, context_type, context_id, node_id, question_text, question_type,
-                options, answer, selected_option, asked_at, answered_at, duration_ms
-             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                interview_id, context_type, context_id, node_id, status,
+                asked_at, answered_at, duration_ms
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             (
                 interview_id,
                 "workflow",
                 &self.run_id,
                 node_id,
-                question_text,
-                question_type,
-                options,
-                answer,
-                selected_option,
+                status,
                 asked_at,
                 answered_at,
                 duration_ms,
             ),
         )?;
+
+        let question_id = uuid::Uuid::now_v7().to_string();
+        conn.execute(
+            "INSERT INTO interview_questions (
+                question_id, interview_id, position, question_text,
+                question_type, options, answer, selected_option
+             ) VALUES (?1, ?2, 0, ?3, ?4, ?5, ?6, ?7)",
+            (
+                &question_id,
+                interview_id,
+                question_text,
+                question_type,
+                options,
+                answer,
+                selected_option,
+            ),
+        )?;
+
         Ok(())
     }
 
@@ -431,8 +453,16 @@ impl SqliteBackend {
             let sql = format!("DELETE FROM {table} WHERE run_id = ?1");
             tx.execute(&sql, (&self.run_id,))?;
         }
-        // The interviews table is owned by stencila-interviews and uses
+        // The interviews tables are owned by stencila-interviews and use
         // context_type/context_id instead of a direct run_id foreign key.
+        // Delete child rows explicitly in case PRAGMA foreign_keys is off.
+        tx.execute(
+            "DELETE FROM interview_questions WHERE interview_id IN (
+                SELECT interview_id FROM interviews
+                WHERE context_type = 'workflow' AND context_id = ?1
+            )",
+            (&self.run_id,),
+        )?;
         tx.execute(
             "DELETE FROM interviews WHERE context_type = 'workflow' AND context_id = ?1",
             (&self.run_id,),

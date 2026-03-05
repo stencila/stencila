@@ -15,7 +15,7 @@ use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
 use crate::interviewer::{
-    Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionOption,
+    Answer, AnswerValue, Interview, InterviewError, Interviewer, Question, QuestionOption,
 };
 use crate::types::Outcome;
 
@@ -23,9 +23,20 @@ use crate::types::Outcome;
 ///
 /// Choices are derived from the node's outgoing edges. The selected
 /// choice determines which edge to follow via `suggested_next_ids`.
+///
+/// When a `db_conn` is provided (via [`with_db`](Self::with_db)) and the
+/// handler detects a resume scenario, it queries for a pending interview
+/// from a previous run and reuses its ID so that external systems (web UI,
+/// Slack) that already have the question can still submit answers.
 pub struct WaitForHumanHandler {
     interviewer: Arc<dyn Interviewer>,
     emitter: Arc<dyn EventEmitter>,
+    #[cfg(feature = "sqlite")]
+    db_conn: Option<Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>>,
+    #[cfg(feature = "sqlite")]
+    context_type: String,
+    #[cfg(feature = "sqlite")]
+    context_id: String,
 }
 
 impl std::fmt::Debug for WaitForHumanHandler {
@@ -42,6 +53,12 @@ impl WaitForHumanHandler {
         Self {
             interviewer,
             emitter,
+            #[cfg(feature = "sqlite")]
+            db_conn: None,
+            #[cfg(feature = "sqlite")]
+            context_type: String::new(),
+            #[cfg(feature = "sqlite")]
+            context_id: String::new(),
         }
     }
 
@@ -51,7 +68,32 @@ impl WaitForHumanHandler {
         Self {
             interviewer,
             emitter: Arc::new(NoOpEmitter),
+            #[cfg(feature = "sqlite")]
+            db_conn: None,
+            #[cfg(feature = "sqlite")]
+            context_type: String::new(),
+            #[cfg(feature = "sqlite")]
+            context_id: String::new(),
         }
+    }
+
+    /// Set the DB connection and context for resume-aware pending interview recovery.
+    ///
+    /// When set, the handler queries for pending interviews from a previous
+    /// run before creating a new one, enabling crash recovery for in-flight
+    /// human gates.
+    #[cfg(feature = "sqlite")]
+    #[must_use]
+    pub fn with_db(
+        mut self,
+        db_conn: Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
+        context_type: impl Into<String>,
+        context_id: impl Into<String>,
+    ) -> Self {
+        self.db_conn = Some(db_conn);
+        self.context_type = context_type.into();
+        self.context_id = context_id.into();
+        self
     }
 }
 
@@ -110,7 +152,7 @@ impl Handler for WaitForHumanHandler {
     async fn execute(
         &self,
         node: &Node,
-        _context: &Context,
+        context: &Context,
         graph: &Graph,
     ) -> AttractorResult<Outcome> {
         // 1. Derive choices from outgoing edges
@@ -161,12 +203,61 @@ impl Handler for WaitForHumanHandler {
             question.timeout_seconds = secs;
         }
 
-        // 3. Present to interviewer and wait
+        // 3. Build an Interview and conduct it
+        let mut interview = Interview::single(question.clone());
+        interview.stage = node.id.clone();
+        interview.stage_index = context.get_i64("internal.stage_index");
+
+        // 3a. Resume recovery: if we have a DB connection, check for a
+        // pending interview from a previous run at this node/stage_index.
+        // If found, reuse its ID so external systems that already have
+        // the question can still submit answers.
+        #[cfg(feature = "sqlite")]
+        if let Some(ref db_conn) = self.db_conn {
+            match stencila_interviews::find_pending_interview(
+                db_conn,
+                &self.context_type,
+                &self.context_id,
+                &node.id,
+                interview.stage_index,
+            ) {
+                Ok(Some((recovered_id, recovered_qids))) => {
+                    tracing::debug!(
+                        interview_id = %recovered_id,
+                        node_id = %node.id,
+                        "recovered pending interview from previous run"
+                    );
+                    interview.id = recovered_id;
+                    // Propagate recovered question IDs so PersistentInterviewer's
+                    // answer updates target the existing DB rows.
+                    for (q, qid) in interview.questions.iter_mut().zip(recovered_qids) {
+                        q.id = Some(qid);
+                    }
+                }
+                Ok(None) => {}
+                Err(e) => {
+                    tracing::warn!(
+                        node_id = %node.id,
+                        error = %e,
+                        "failed to query for pending interview during resume; \
+                         proceeding with a new interview ID"
+                    );
+                }
+            }
+        }
+
+        // Use the interview's question (not the local `question`) because
+        // resume recovery above may have set `question.id` on the interview copy.
         self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
+            interview_id: interview.id.clone(),
             node_id: node.id.clone(),
+            question: interview.questions[0].clone(),
         });
-        let answer = self.interviewer.ask(&question).await.map_err(|e| {
-            match e {
+
+        self.interviewer
+            .conduct(&mut interview)
+            .await
+            .map_err(|e| match e {
                 InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
                     node_id: node.id.clone(),
                     reason: "interview channel closed".into(),
@@ -181,12 +272,19 @@ impl Handler for WaitForHumanHandler {
                     node_id: node.id.clone(),
                     reason: "interview cancelled".into(),
                 },
+            })?;
+
+        let answer = interview.answers.first().cloned().ok_or_else(|| {
+            crate::error::AttractorError::HandlerFailed {
+                node_id: node.id.clone(),
+                reason: "no answer after interview".into(),
             }
         })?;
 
         // 4. Handle timeout/skip
         if answer.is_timeout() {
             self.emitter.emit(PipelineEvent::InterviewTimedOut {
+                interview_id: interview.id.clone(),
                 node_id: node.id.clone(),
             });
 
@@ -205,6 +303,7 @@ impl Handler for WaitForHumanHandler {
         }
 
         self.emitter.emit(PipelineEvent::InterviewAnswerReceived {
+            interview_id: interview.id.clone(),
             node_id: node.id.clone(),
         });
 

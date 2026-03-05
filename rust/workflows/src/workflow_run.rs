@@ -522,10 +522,13 @@ fn build_engine_config(
         ),
     );
     if let Some(ref iv) = interviewer {
-        inner_registry.register(
-            "wait.human",
-            WaitForHumanHandler::with_emitter(iv.clone(), emitter.clone()),
-        );
+        let mut handler = WaitForHumanHandler::with_emitter(iv.clone(), emitter.clone());
+        if let Some(ref conn) = db_conn {
+            if let Some(ref rid) = run_id {
+                handler = handler.with_db(conn.clone(), "workflow", rid.clone());
+            }
+        }
+        inner_registry.register("wait.human", handler);
     }
     let inner_arc = Arc::new(inner_registry);
 
@@ -534,8 +537,8 @@ fn build_engine_config(
         "codergen",
         CodergenHandler::with_backend_and_emitter(
             Arc::new(AgentCodergenBackend {
-                db_conn,
-                run_id,
+                db_conn: db_conn.clone(),
+                run_id: run_id.clone(),
                 run_metrics,
                 agent_metadata,
                 artifacts_dir,
@@ -548,10 +551,13 @@ fn build_engine_config(
         .registry
         .register("parallel", ParallelHandler::new(inner_arc, emitter.clone()));
     if let Some(ref iv) = interviewer {
-        config.registry.register(
-            "wait.human",
-            WaitForHumanHandler::with_emitter(iv.clone(), emitter),
-        );
+        let mut handler = WaitForHumanHandler::with_emitter(iv.clone(), emitter);
+        if let Some(ref conn) = db_conn {
+            if let Some(ref rid) = run_id {
+                handler = handler.with_db(conn.clone(), "workflow", rid.clone());
+            }
+        }
+        config.registry.register("wait.human", handler);
     }
 
     config
@@ -743,14 +749,26 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
                     "[stage {stage_index}] Retrying: {node_id} (attempt {attempt}/{max_attempts})"
                 );
             }
-            PipelineEvent::InterviewQuestionAsked { node_id } => {
-                eprintln!("[interview] would present human question at node `{node_id}`");
+            PipelineEvent::InterviewQuestionAsked {
+                interview_id,
+                node_id,
+                ..
+            } => {
+                eprintln!(
+                    "[interview {interview_id}] would present human question at node `{node_id}`"
+                );
             }
-            PipelineEvent::InterviewAnswerReceived { node_id } => {
-                eprintln!("[interview] received answer at node `{node_id}`");
+            PipelineEvent::InterviewAnswerReceived {
+                interview_id,
+                node_id,
+            } => {
+                eprintln!("[interview {interview_id}] received answer at node `{node_id}`");
             }
-            PipelineEvent::InterviewTimedOut { node_id } => {
-                eprintln!("[interview] timed out at node `{node_id}`");
+            PipelineEvent::InterviewTimedOut {
+                interview_id,
+                node_id,
+            } => {
+                eprintln!("[interview {interview_id}] timed out at node `{node_id}`");
             }
             PipelineEvent::CheckpointSaved { node_id } => {
                 eprintln!("[checkpoint] Saved at: {node_id}");

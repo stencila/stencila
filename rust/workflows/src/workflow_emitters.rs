@@ -288,7 +288,7 @@ impl EventEmitter for ProgressEventEmitter {
                 );
             }
 
-            PipelineEvent::InterviewQuestionAsked { ref node_id } => {
+            PipelineEvent::InterviewQuestionAsked { ref node_id, .. } => {
                 // Stop the spinner so dialoguer gets a clean terminal.
                 if let Some(s) = state.get_mut(node_id)
                     && let Some(spinner) = s.spinner.take()
@@ -296,7 +296,7 @@ impl EventEmitter for ProgressEventEmitter {
                     spinner.clear();
                 }
             }
-            PipelineEvent::InterviewAnswerReceived { ref node_id } => {
+            PipelineEvent::InterviewAnswerReceived { ref node_id, .. } => {
                 // Print the ✅ completion line. The state entry is removed
                 // so the subsequent StageCompleted is a no-op.
                 if let Some(s) = state.remove(node_id) {
@@ -306,7 +306,7 @@ impl EventEmitter for ProgressEventEmitter {
                     eprintln!("✅ {label}  {time_str}");
                 }
             }
-            PipelineEvent::InterviewTimedOut { ref node_id } => {
+            PipelineEvent::InterviewTimedOut { ref node_id, .. } => {
                 if let Some(s) = state.remove(node_id) {
                     let elapsed = s.started_at.elapsed().as_secs_f64();
                     let time_str = color("2", &format!("{elapsed:.1}s"));
@@ -468,11 +468,11 @@ impl EventEmitter for VerboseEventEmitter {
                 eprintln!("│  ║ branch {branch_index} failed: {node_id}: {reason}");
             }
 
-            PipelineEvent::InterviewQuestionAsked { ref node_id } => {
+            PipelineEvent::InterviewQuestionAsked { ref node_id, .. } => {
                 eprintln!("│  ❔ waiting for human input at {node_id}…");
             }
             PipelineEvent::InterviewAnswerReceived { .. } => {}
-            PipelineEvent::InterviewTimedOut { ref node_id } => {
+            PipelineEvent::InterviewTimedOut { ref node_id, .. } => {
                 eprintln!("│  ⏱ timed out waiting for input at {node_id}");
             }
         }

@@ -63,9 +63,9 @@ impl Interviewer for CliInterviewer {
             .await
             {
                 Ok(Ok(answer)) => Ok(answer),
-                Ok(Err(join_error)) => Err(InterviewError::BackendFailure(
-                    format!("CLI prompt task failed: {join_error}"),
-                )),
+                Ok(Err(join_error)) => Err(InterviewError::BackendFailure(format!(
+                    "CLI prompt task failed: {join_error}"
+                ))),
                 Err(_timeout) => {
                     // The spawn_blocking task may still be waiting on stdin.
                     // There is no way to cancel a blocking read; the detached
@@ -80,9 +80,9 @@ impl Interviewer for CliInterviewer {
         } else {
             match tokio::task::spawn_blocking(move || Self::ask_blocking(&q)).await {
                 Ok(answer) => Ok(answer),
-                Err(join_error) => Err(InterviewError::BackendFailure(
-                    format!("CLI prompt task failed: {join_error}"),
-                )),
+                Err(join_error) => Err(InterviewError::BackendFailure(format!(
+                    "CLI prompt task failed: {join_error}"
+                ))),
             }
         }
     }
@@ -131,10 +131,7 @@ fn ask_select(question: &Question) -> Answer {
     match result {
         Ok(index) => {
             if let Some(opt) = question.options.get(index) {
-                Answer::with_option(
-                    AnswerValue::Selected(opt.key.clone()),
-                    opt.clone(),
-                )
+                Answer::with_option(AnswerValue::Selected(opt.key.clone()), opt.clone())
             } else {
                 Answer::new(AnswerValue::Skipped)
             }

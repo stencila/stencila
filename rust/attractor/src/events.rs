@@ -5,6 +5,9 @@
 //! and checkpoints. The [`EventEmitter`] trait provides a synchronous
 //! emission interface; [`NoOpEmitter`] is a default that discards events.
 
+use stencila_agents::types::SessionEvent;
+use stencila_interviews::interviewer::Question;
+
 use crate::types::Outcome;
 
 /// An event emitted during pipeline execution.
@@ -64,7 +67,7 @@ pub enum PipelineEvent {
         /// Zero-based index of this stage.
         stage_index: usize,
         /// The session event from the agent.
-        event: stencila_agents::types::SessionEvent,
+        event: SessionEvent,
     },
     /// The final complete output from a stage handler.
     StageOutput {
@@ -143,16 +146,24 @@ pub enum PipelineEvent {
     // -- Interview --
     /// A question has been asked to a human.
     InterviewQuestionAsked {
+        /// Unique interview identifier (from `Interview.id`).
+        interview_id: String,
         /// Node ID of the interview node.
         node_id: String,
+        /// The question being asked.
+        question: Question,
     },
     /// A human has answered a question.
     InterviewAnswerReceived {
+        /// Unique interview identifier (from `Interview.id`).
+        interview_id: String,
         /// Node ID of the interview node.
         node_id: String,
     },
     /// An interview timed out waiting for an answer.
     InterviewTimedOut {
+        /// Unique interview identifier (from `Interview.id`).
+        interview_id: String,
         /// Node ID of the interview node.
         node_id: String,
     },
