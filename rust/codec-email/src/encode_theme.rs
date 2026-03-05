@@ -144,16 +144,16 @@ pub fn encode_theme_styles(mjml: &mut String, theme_vars: Option<&BTreeMap<Strin
         get_var(theme_vars, "work-title-color").unwrap_or_else(|| heading_color.clone());
     let work_title_text_align =
         get_var(theme_vars, "work-title-text-align").unwrap_or_else(|| "center".to_string());
-    let work_title_letter_spacing = get_var(theme_vars, "work-title-letter-spacing")
-        .unwrap_or_else(|| "-0.02em".to_string());
+    let work_title_letter_spacing =
+        get_var(theme_vars, "work-title-letter-spacing").unwrap_or_else(|| "-0.02em".to_string());
     let work_title_line_height =
         get_var(theme_vars, "work-title-line-height").unwrap_or_else(|| "1.1".to_string());
 
     // Work authors styles
     let work_authors_font_size =
         get_var(theme_vars, "work-authors-font-size").unwrap_or_else(|| "16".to_string());
-    let work_authors_color = get_var(theme_vars, "work-authors-color")
-        .unwrap_or_else(|| text_color_secondary.clone());
+    let work_authors_color =
+        get_var(theme_vars, "work-authors-color").unwrap_or_else(|| text_color_secondary.clone());
     let work_authors_text_align =
         get_var(theme_vars, "work-authors-text-align").unwrap_or_else(|| "left".to_string());
     let work_authors_margin_bottom =
@@ -164,8 +164,8 @@ pub fn encode_theme_styles(mjml: &mut String, theme_vars: Option<&BTreeMap<Strin
         get_var(theme_vars, "work-abstract-font-size").unwrap_or_else(|| "16".to_string());
     let work_abstract_background =
         get_var(theme_vars, "work-abstract-background").unwrap_or_else(|| "#f9f9f9".to_string());
-    let work_abstract_color = get_var(theme_vars, "work-abstract-color")
-        .unwrap_or_else(|| text_color_secondary.clone());
+    let work_abstract_color =
+        get_var(theme_vars, "work-abstract-color").unwrap_or_else(|| text_color_secondary.clone());
     let work_abstract_text_align =
         get_var(theme_vars, "work-abstract-text-align").unwrap_or_else(|| "left".to_string());
     let work_abstract_margin_bottom =

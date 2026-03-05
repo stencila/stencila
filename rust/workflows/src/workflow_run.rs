@@ -24,8 +24,9 @@ use stencila_attractor::handler::HandlerRegistry;
 use stencila_attractor::handlers::{
     CodergenBackend, CodergenHandler, CodergenOutput, ParallelHandler, WaitForHumanHandler,
 };
-use stencila_attractor::interviewer::{AnswerValue, Interviewer, Question};
+use stencila_attractor::interviewer::Interviewer;
 use stencila_attractor::types::Outcome;
+use stencila_interviews::PersistentInterviewer;
 
 use crate::WorkflowInstance;
 
@@ -56,12 +57,6 @@ struct AgentMetadata {
 struct RunMetrics {
     input_tokens: i64,
     output_tokens: i64,
-}
-
-struct DbRecordingInterviewer {
-    inner: Arc<dyn Interviewer>,
-    db_conn: Arc<Mutex<Connection>>,
-    run_id: String,
 }
 
 /// Run a workflow pipeline to completion with the given [`RunOptions`].
@@ -149,11 +144,12 @@ pub async fn run_workflow_with_options(
     let db_conn = context.sqlite_connection().cloned();
     let interviewer = options.interviewer.map(|inner| {
         if let Some(conn) = &db_conn {
-            Arc::new(DbRecordingInterviewer {
+            Arc::new(PersistentInterviewer::new(
                 inner,
-                db_conn: conn.clone(),
-                run_id: run_id.clone(),
-            }) as Arc<dyn Interviewer>
+                conn.clone(),
+                "workflow",
+                run_id.clone(),
+            )) as Arc<dyn Interviewer>
         } else {
             inner
         }
@@ -667,62 +663,6 @@ fn aggregate_usage(session: &stencila_agents::agent_session::AgentSession) -> (i
 
 fn i64_from_u64(value: u64) -> i64 {
     i64::try_from(value).unwrap_or(i64::MAX)
-}
-
-#[async_trait]
-impl Interviewer for DbRecordingInterviewer {
-    async fn ask(&self, question: &Question) -> stencila_attractor::interviewer::Answer {
-        let started = chrono::Utc::now();
-        let answer = self.inner.ask(question).await;
-        let answered = chrono::Utc::now();
-        let duration_ms = (answered - started).num_milliseconds();
-
-        let answer_text = match &answer.value {
-            AnswerValue::Yes => Some("yes".to_string()),
-            AnswerValue::No => Some("no".to_string()),
-            AnswerValue::Skipped => Some("skipped".to_string()),
-            AnswerValue::Timeout => Some("timeout".to_string()),
-            AnswerValue::Selected(key) => Some(key.clone()),
-            AnswerValue::Text(text) => Some(text.clone()),
-        };
-
-        let selected_option = answer.selected_option.as_ref().map(|opt| opt.key.clone());
-        let options_json = if question.options.is_empty() {
-            None
-        } else {
-            let options = question
-                .options
-                .iter()
-                .map(|opt| serde_json::json!({"key": opt.key, "label": opt.label}))
-                .collect::<Vec<_>>();
-            Some(serde_json::Value::Array(options).to_string())
-        };
-        let interview_id = uuid::Uuid::now_v7().to_string();
-        let backend = stencila_attractor::sqlite_backend::SqliteBackend::from_shared(
-            self.db_conn.clone(),
-            self.run_id.clone(),
-        );
-        if let Err(error) = backend.insert_interview(
-            &interview_id,
-            &question.stage,
-            &question.text,
-            Some(&question.question_type.to_string()),
-            options_json.as_deref(),
-            answer_text.as_deref(),
-            selected_option.as_deref(),
-            &started.to_rfc3339(),
-            Some(&answered.to_rfc3339()),
-            Some(duration_ms),
-        ) {
-            tracing::warn!("Failed to persist interview record: {error}");
-        }
-
-        answer
-    }
-
-    fn inform(&self, message: &str, stage: &str) {
-        self.inner.inform(message, stage);
-    }
 }
 
 /// Create an `EventEmitter` that logs pipeline events to stderr.

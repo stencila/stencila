@@ -1,11 +1,5 @@
 //! Built-in interviewer implementations (§6.4).
+//!
+//! Re-exports from the [`stencila_interviews`] crate.
 
-mod auto_approve;
-mod callback;
-mod queue;
-mod recording;
-
-pub use auto_approve::AutoApproveInterviewer;
-pub use callback::CallbackInterviewer;
-pub use queue::QueueInterviewer;
-pub use recording::{Recording, RecordingInterviewer};
+pub use stencila_interviews::interviewers::*;

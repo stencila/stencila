@@ -195,9 +195,13 @@ Incremental JSON/JSONL output for streaming LLM responses is not implemented (no
 
 The built-in `type_known` lint rule checks a static list and cannot see runtime-registered custom handlers, so valid custom handler types can still be warned as unknown.
 
+### Interviewer types (§6.1–6.3)
+
+The `Interviewer` trait, question/answer types (`Question`, `QuestionType`, `QuestionOption`, `Answer`, `AnswerValue`), and stateless built-in implementations (`AutoApproveInterviewer`, `CallbackInterviewer`, `QueueInterviewer`, `RecordingInterviewer`) are implemented in the `stencila-interviews` crate (`rust/interviews/`) and re-exported by `attractor` for convenience. This separation allows both `attractor` and `agents` to share the same types without a circular dependency.
+
 ### Interviewer feature gaps (§6.2, §6.4)
 
-Auto-approve, callback, queue, and recording interviewers are implemented, but a terminal stdin/stdout `ConsoleInterviewer` is not implemented, and `Question.metadata` from the spec model is not represented in the current interviewer types.
+A terminal stdin/stdout `CliInterviewer` is not implemented, and `Question.metadata` from the spec model is not represented in the current interviewer types.
 
 ### Deferred conformance and integration tests (§11.12, §11.13)
 

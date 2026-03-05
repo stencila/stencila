@@ -92,21 +92,8 @@ CREATE TABLE IF NOT EXISTS workflow_artifacts (
     PRIMARY KEY (run_id, artifact_id)
 );
 
--- Human-in-the-loop interaction records.
-CREATE TABLE IF NOT EXISTS workflow_interviews (
-    interview_id    TEXT PRIMARY KEY,
-    run_id          TEXT NOT NULL REFERENCES workflow_runs(run_id),
-    node_id         TEXT NOT NULL,
-    question_text   TEXT NOT NULL,
-    question_type   TEXT,
-    options         TEXT,
-    answer          TEXT,
-    selected_option TEXT,
-    asked_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-    answered_at     TEXT,
-    duration_ms     INTEGER
-);
-CREATE INDEX IF NOT EXISTS idx_workflow_interviews_run ON workflow_interviews(run_id);
+-- Human-in-the-loop interaction records live in the `interviews` table,
+-- owned by the `stencila-interviews` crate (see rust/interviews/src/migrations/).
 
 -- Append-only run log.
 CREATE TABLE IF NOT EXISTS workflow_logs (

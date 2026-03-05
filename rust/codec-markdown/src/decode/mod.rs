@@ -13,8 +13,8 @@ use stencila_codec::{
     eyre::{Result, eyre},
     stencila_format::Format,
     stencila_schema::{
-        Agent, Article, Block, Chat, CodeBlock, CodeChunk, Inline, Node, NodeId, NodeType, Null, Prompt,
-        Skill, VisitorMut, WalkControl, Workflow,
+        Agent, Article, Block, Chat, CodeBlock, CodeChunk, Inline, Node, NodeId, NodeType, Null,
+        Prompt, Skill, VisitorMut, WalkControl, Workflow,
     },
 };
 

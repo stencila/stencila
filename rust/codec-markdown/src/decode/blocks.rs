@@ -33,9 +33,9 @@ use super::{
     Context, decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, block_node_type, execution_bounds, execution_mode,
-        instruction_type, is_executable_language, model_parameters, name, node_to_string,
-        primitive_node, prompt, relative_position,
+        attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
+        is_executable_language, model_parameters, name, node_to_string, primitive_node, prompt,
+        relative_position,
     },
 };
 

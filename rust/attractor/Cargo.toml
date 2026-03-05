@@ -5,7 +5,7 @@ version.workspace = true
 
 [features]
 default = []
-sqlite = ["dep:stencila-db", "dep:sha2", "dep:tar", "dep:zstd"]
+sqlite = ["dep:stencila-db", "dep:sha2", "dep:tar", "dep:zstd", "stencila-interviews/sqlite"]
 
 [dependencies]
 async-trait = { workspace = true }
@@ -20,6 +20,7 @@ tar = { workspace = true, optional = true }
 zstd = { workspace = true, optional = true }
 serde_json = { workspace = true }
 stencila-agents = { path = "../agents" }
+stencila-interviews = { path = "../interviews" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

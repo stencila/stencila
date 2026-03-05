@@ -1569,10 +1569,7 @@ mod tests {
             json!("transparent"),
         );
         variables.insert("quote-background".to_string(), json!("transparent"));
-        variables.insert(
-            "work-abstract-background".to_string(),
-            json!("transparent"),
-        );
+        variables.insert("work-abstract-background".to_string(), json!("transparent"));
         variables.insert("table-header-background".to_string(), json!("transparent"));
 
         // Generate styles

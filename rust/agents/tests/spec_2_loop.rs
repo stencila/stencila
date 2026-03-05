@@ -2240,8 +2240,7 @@ async fn proactive_compaction_emits_info_event() -> AgentResult<()> {
     let events = drain_events(&mut rx).await;
     let has_proactive = events.iter().any(|e| {
         e.kind == EventKind::Info
-            && e.data.get("code").and_then(serde_json::Value::as_str)
-                == Some("CONTEXT_COMPACTION")
+            && e.data.get("code").and_then(serde_json::Value::as_str) == Some("CONTEXT_COMPACTION")
             && e.data
                 .get("message")
                 .and_then(serde_json::Value::as_str)

@@ -9150,6 +9150,7 @@ dependencies = [
  "stencila-config",
  "stencila-db",
  "stencila-dirs",
+ "stencila-interviews",
  "stencila-mcp",
  "stencila-models3",
  "stencila-node-media",
@@ -9195,6 +9196,7 @@ dependencies = [
  "sha2 0.10.9",
  "stencila-agents",
  "stencila-db",
+ "stencila-interviews",
  "tar",
  "tempfile",
  "thiserror 2.0.18",
@@ -10497,6 +10499,20 @@ dependencies = [
  "mime_guess",
  "regex",
  "seahash",
+]
+
+[[package]]
+name = "stencila-interviews"
+version = "2.13.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "serde",
+ "serde_json",
+ "stencila-db",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -11959,6 +11975,7 @@ dependencies = [
  "stencila-codecs",
  "stencila-db",
  "stencila-dirs",
+ "stencila-interviews",
  "stencila-models3",
  "stencila-schema",
  "stencila-skills",

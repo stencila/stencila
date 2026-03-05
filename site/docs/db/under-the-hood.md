@@ -22,7 +22,7 @@ The tradeoff is that push must reconstruct the manifest head to compute the diff
 
 The database schema is designed to minimize conflicts when multiple contributors push changes. The key design choices are:
 
-**UUID primary keys.** Tables like `workflow_runs`, `workflow_interviews`, and `workflow_artifacts` use [UUIDv7](https://www.rfc-editor.org/rfc/rfc9562.html#name-uuid-version-7) primary keys (e.g. `run_id TEXT PRIMARY KEY`). UUIDv7 is time-ordered and globally unique, so two contributors generating rows independently will never collide on primary keys.
+**UUID primary keys.** Tables like `workflow_runs`, and `interviews` use [UUIDv7](https://www.rfc-editor.org/rfc/rfc9562.html#name-uuid-version-7) primary keys (e.g. `run_id TEXT PRIMARY KEY`). UUIDv7 is time-ordered and globally unique, so two contributors generating rows independently will never collide on primary keys.
 
 **Append-only access patterns.** Most tables are effectively append-only — new workflow runs insert new rows rather than updating existing ones. When updates do occur (e.g. setting `completed_at` on a run), they target rows that belong to the current contributor's run, avoiding cross-contributor conflicts.
 

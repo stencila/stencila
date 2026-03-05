@@ -56,9 +56,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                             if !prefix.is_empty() {
                                 let span = position
                                     .as_ref()
-                                    .map(|p| {
-                                        p.start.offset..(p.start.offset + prefix.len())
-                                    })
+                                    .map(|p| p.start.offset..(p.start.offset + prefix.len()))
                                     .unwrap_or_default();
                                 nodes.push((Inline::Text(Text::from(prefix)), span));
                             }
@@ -66,10 +64,9 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                             // Consume the following InlineCode
                             let code_node = iter.next().unwrap();
                             let (code_value, code_pos) = match code_node {
-                                mdast::Node::InlineCode(mdast::InlineCode {
-                                    value,
-                                    position,
-                                }) => (value, position),
+                                mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
+                                    (value, position)
+                                }
                                 _ => unreachable!(),
                             };
 
@@ -90,9 +87,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                     .map(|(inline, span)| {
                         let span = position
                             .as_ref()
-                            .map(|p| {
-                                (p.start.offset + span.start)..(p.start.offset + span.end)
-                            })
+                            .map(|p| (p.start.offset + span.start)..(p.start.offset + span.end))
                             .unwrap_or_default();
                         (inline, span)
                     })
@@ -128,11 +123,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                         let span = position
                             .as_ref()
                             .map(|p| p.start.offset..p.end.offset)
-                            .or_else(|| {
-                                text_pos
-                                    .as_ref()
-                                    .map(|p| p.start.offset..p.end.offset)
-                            })
+                            .or_else(|| text_pos.as_ref().map(|p| p.start.offset..p.end.offset))
                             .unwrap_or_default();
 
                         let inline = apply_code_attrs(&value, &attrs_str);
@@ -142,9 +133,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                         if !remaining_text.is_empty() {
                             let rem_span = text_pos
                                 .as_ref()
-                                .map(|p| {
-                                    (p.start.offset + attrs_str.len())..p.end.offset
-                                })
+                                .map(|p| (p.start.offset + attrs_str.len())..p.end.offset)
                                 .unwrap_or_default();
                             nodes.push((Inline::Text(Text::from(remaining_text)), rem_span));
                         }
@@ -156,10 +145,7 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                 let span = position
                     .map(|p| p.start.offset..p.end.offset)
                     .unwrap_or_default();
-                nodes.push((
-                    Inline::CodeInline(CodeInline::new(value.into())),
-                    span,
-                ));
+                nodes.push((Inline::CodeInline(CodeInline::new(value.into())), span));
             }
 
             other => {
@@ -248,9 +234,7 @@ fn extract_trailing_role(text: &str) -> Option<(&str, String)> {
 /// Produces a `CodeInline`, `CodeExpression`, or `MathInline` depending on the attributes.
 fn apply_code_attrs(code: &str, attrs_str: &str) -> Inline {
     // Parse the attrs string using the existing winnow `attrs` parser
-    let options = attrs
-        .parse(Located::new(attrs_str))
-        .unwrap_or_default();
+    let options = attrs.parse(Located::new(attrs_str)).unwrap_or_default();
 
     if options.is_empty() {
         return Inline::CodeInline(CodeInline {

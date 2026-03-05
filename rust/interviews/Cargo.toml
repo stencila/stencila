@@ -1,0 +1,23 @@
+[package]
+name = "stencila-interviews"
+edition = "2024"
+version.workspace = true
+
+[features]
+default = []
+sqlite = ["dep:stencila-db", "dep:chrono", "dep:uuid"]
+
+[dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+stencila-db = { path = "../db", optional = true }
+tracing = { workspace = true }
+uuid = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt"] }
+
+[lints]
+workspace = true

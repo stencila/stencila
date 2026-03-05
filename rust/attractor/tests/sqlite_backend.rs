@@ -145,14 +145,15 @@ fn migration_creates_tables() {
         .query_row(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN \
              ('workflow_runs', 'workflow_context', 'workflow_nodes', 'workflow_logs', \
-              'workflow_edges', 'workflow_artifacts', 'workflow_interviews', \
+              'workflow_edges', 'workflow_artifacts', \
               'workflow_node_outputs', 'workflow_definition_snapshots', \
               'workflow_run_definitions')",
             [],
             |row| row.get(0),
         )
         .expect("query");
-    assert_eq!(count, 10);
+    // 9 tables: workflow_interviews moved to the stencila-interviews crate as `interviews`
+    assert_eq!(count, 9);
 }
 
 #[test]

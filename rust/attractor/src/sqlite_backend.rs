@@ -83,6 +83,7 @@ impl SqliteBackend {
         run_id: &str,
     ) -> Result<Self, stencila_db::rusqlite::Error> {
         workspace_db.migrate("workflows", WORKFLOW_MIGRATIONS)?;
+        workspace_db.migrate("interviews", stencila_interviews::INTERVIEW_MIGRATIONS)?;
 
         Ok(Self {
             conn: workspace_db.connection().clone(),
@@ -354,6 +355,11 @@ impl SqliteBackend {
 
     /// Insert a completed interview record for this run.
     ///
+    /// Writes to the `interviews` table owned by the `stencila-interviews` crate.
+    /// The table uses `context_type` + `context_id` instead of a direct `run_id`
+    /// foreign key, so workflow interviews are stored with `context_type = 'workflow'`
+    /// and `context_id = run_id`.
+    ///
     /// # Errors
     ///
     /// Returns `rusqlite::Error` on database failure.
@@ -376,12 +382,13 @@ impl SqliteBackend {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         conn.execute(
-            "INSERT INTO workflow_interviews (
-                interview_id, run_id, node_id, question_text, question_type, options,
-                answer, selected_option, asked_at, answered_at, duration_ms
-             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+            "INSERT INTO interviews (
+                interview_id, context_type, context_id, node_id, question_text, question_type,
+                options, answer, selected_option, asked_at, answered_at, duration_ms
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
             (
                 interview_id,
+                "workflow",
                 &self.run_id,
                 node_id,
                 question_text,
@@ -419,12 +426,17 @@ impl SqliteBackend {
             "workflow_artifacts",
             "workflow_logs",
             "workflow_edges",
-            "workflow_interviews",
             "workflow_node_outputs",
         ] {
             let sql = format!("DELETE FROM {table} WHERE run_id = ?1");
             tx.execute(&sql, (&self.run_id,))?;
         }
+        // The interviews table is owned by stencila-interviews and uses
+        // context_type/context_id instead of a direct run_id foreign key.
+        tx.execute(
+            "DELETE FROM interviews WHERE context_type = 'workflow' AND context_id = ?1",
+            (&self.run_id,),
+        )?;
         tx.execute(
             "DELETE FROM workflow_runs WHERE run_id = ?1",
             (&self.run_id,),
