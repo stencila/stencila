@@ -6,7 +6,7 @@ use tokio::task::JoinHandle;
 
 use stencila_attractor::events::{EventEmitter, PipelineEvent};
 use stencila_attractor::interviewer::{
-    Answer, AnswerValue, Interviewer, Question, parse_answer_text,
+    Answer, InterviewError, Interviewer, Question, parse_answer_text,
 };
 use stencila_attractor::types::Outcome;
 
@@ -74,15 +74,17 @@ struct TuiInterviewer {
 
 #[async_trait]
 impl Interviewer for TuiInterviewer {
-    async fn ask(&self, question: &Question) -> Answer {
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
         let (answer_tx, answer_rx) = oneshot::channel();
-        let _ = self.event_tx.send(WorkflowEvent::InterviewQuestion {
-            question: question.clone(),
-            answer_tx,
-        });
+        self.event_tx
+            .send(WorkflowEvent::InterviewQuestion {
+                question: question.clone(),
+                answer_tx,
+            })
+            .map_err(|_| InterviewError::ChannelClosed)?;
         match answer_rx.await {
-            Ok(text) => parse_answer_text(&text, question),
-            Err(_) => Answer::new(AnswerValue::Skipped),
+            Ok(text) => Ok(parse_answer_text(&text, question)),
+            Err(_) => Err(InterviewError::ChannelClosed),
         }
     }
 }
@@ -150,6 +152,7 @@ fn compute_total_stages(name: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use stencila_attractor::interviewer::AnswerValue;
 
     fn freeform_question() -> Question {
         Question::freeform("What is your name?", "test-stage")
@@ -170,7 +173,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn tui_interviewer_sends_and_receives() {
+    async fn tui_interviewer_sends_and_receives() -> Result<(), Box<dyn std::error::Error>> {
         let (tx, mut rx) = mpsc::unbounded_channel();
         let interviewer = TuiInterviewer { event_tx: tx };
         let question = freeform_question();
@@ -180,7 +183,7 @@ mod tests {
             async move { interviewer.ask(&q).await }
         });
 
-        let event = rx.recv().await.expect("should receive interview event");
+        let event = rx.recv().await.ok_or("expected interview event")?;
         if let WorkflowEvent::InterviewQuestion {
             question: q,
             answer_tx,
@@ -189,12 +192,13 @@ mod tests {
             assert_eq!(q.text, "What is your name?");
             answer_tx
                 .send("Alice".to_string())
-                .expect("should send answer");
+                .map_err(|_| "failed to send answer")?;
         } else {
             panic!("Expected InterviewQuestion event");
         }
 
-        let answer = ask_handle.await.expect("task should complete");
+        let answer = ask_handle.await??;
         assert_eq!(answer.value, AnswerValue::Text("Alice".to_string()));
+        Ok(())
     }
 }

@@ -7,7 +7,7 @@ use std::sync::Mutex;
 
 use async_trait::async_trait;
 
-use crate::interviewer::{Answer, Interviewer, Question};
+use crate::interviewer::{Answer, InterviewError, Interviewer, Question};
 
 /// A recorded question-answer pair.
 #[derive(Debug, Clone)]
@@ -54,8 +54,8 @@ impl RecordingInterviewer {
 
 #[async_trait]
 impl Interviewer for RecordingInterviewer {
-    async fn ask(&self, question: &Question) -> Answer {
-        let answer = self.inner.ask(question).await;
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
+        let answer = self.inner.ask(question).await?;
         let mut recs = self
             .recordings
             .lock()
@@ -64,6 +64,6 @@ impl Interviewer for RecordingInterviewer {
             question_text: question.text.clone(),
             answer: answer.clone(),
         });
-        answer
+        Ok(answer)
     }
 }

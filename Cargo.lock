@@ -10512,6 +10512,7 @@ dependencies = [
  "serde",
  "serde_json",
  "stencila-db",
+ "thiserror 2.0.18",
  "tokio",
  "tracing",
  "uuid",

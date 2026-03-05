@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 
-use crate::interviewer::{Answer, AnswerValue, Interviewer, Question};
+use crate::interviewer::{Answer, AnswerValue, InterviewError, Interviewer, Question};
 
 /// An interviewer decorator that persists interview records to SQLite.
 ///
@@ -57,9 +57,9 @@ impl PersistentInterviewer {
 
 #[async_trait]
 impl Interviewer for PersistentInterviewer {
-    async fn ask(&self, question: &Question) -> Answer {
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
         let started = chrono::Utc::now();
-        let answer = self.inner.ask(question).await;
+        let answer = self.inner.ask(question).await?;
         let answered = chrono::Utc::now();
         let duration_ms = (answered - started).num_milliseconds();
 
@@ -88,35 +88,34 @@ impl Interviewer for PersistentInterviewer {
         let asked_at = started.to_rfc3339();
         let answered_at = answered.to_rfc3339();
 
-        if let Ok(conn) = self
-            .db_conn
-            .lock()
-            .map_err(|e| tracing::warn!("Poisoned DB lock: {e}"))
-            && let Err(error) = conn.execute(
-                "INSERT INTO interviews (
-                    interview_id, context_type, context_id, node_id, question_text, question_type,
-                    options, answer, selected_option, asked_at, answered_at, duration_ms
-                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
-                (
-                    &interview_id,
-                    &self.context_type,
-                    &self.context_id,
-                    &question.stage,
-                    &question.text,
-                    Some(question.question_type.to_string()),
-                    options_json.as_deref(),
-                    answer_text.as_deref(),
-                    selected_option.as_deref(),
-                    &asked_at,
-                    Some(&answered_at),
-                    Some(duration_ms),
-                ),
-            )
-        {
-            tracing::warn!("Failed to persist interview record: {error}");
-        }
+        let conn = self.db_conn.lock().map_err(|e| {
+            InterviewError::BackendFailure(format!("poisoned DB lock: {e}"))
+        })?;
+        conn.execute(
+            "INSERT INTO interviews (
+                interview_id, context_type, context_id, node_id, question_text, question_type,
+                options, answer, selected_option, asked_at, answered_at, duration_ms
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+            (
+                &interview_id,
+                &self.context_type,
+                &self.context_id,
+                &question.stage,
+                &question.text,
+                Some(question.question_type.to_string()),
+                options_json.as_deref(),
+                answer_text.as_deref(),
+                selected_option.as_deref(),
+                &asked_at,
+                Some(&answered_at),
+                Some(duration_ms),
+            ),
+        )
+        .map_err(|e| {
+            InterviewError::BackendFailure(format!("failed to persist interview record: {e}"))
+        })?;
 
-        answer
+        Ok(answer)
     }
 
     fn inform(&self, message: &str, stage: &str) {

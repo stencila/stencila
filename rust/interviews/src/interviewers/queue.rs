@@ -7,7 +7,7 @@ use std::sync::Mutex;
 
 use async_trait::async_trait;
 
-use crate::interviewer::{Answer, AnswerValue, Interviewer, Question};
+use crate::interviewer::{Answer, AnswerValue, InterviewError, Interviewer, Question};
 
 /// An interviewer that dequeues pre-filled answers.
 ///
@@ -48,13 +48,13 @@ impl QueueInterviewer {
 
 #[async_trait]
 impl Interviewer for QueueInterviewer {
-    async fn ask(&self, _question: &Question) -> Answer {
+    async fn ask(&self, _question: &Question) -> Result<Answer, InterviewError> {
         let mut queue = self
             .answers
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        queue
+        Ok(queue
             .pop()
-            .unwrap_or_else(|| Answer::new(AnswerValue::Skipped))
+            .unwrap_or_else(|| Answer::new(AnswerValue::Skipped)))
     }
 }

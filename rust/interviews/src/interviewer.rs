@@ -7,6 +7,28 @@
 use std::fmt;
 
 use async_trait::async_trait;
+use thiserror::Error;
+
+/// Errors that can occur during an interview interaction.
+///
+/// These represent infrastructure failures — the interviewer *could not
+/// complete* the interaction. This is distinct from [`AnswerValue::Timeout`]
+/// and [`AnswerValue::Skipped`], which are valid answer semantics (the
+/// interaction completed, but the human didn't provide a substantive answer).
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum InterviewError {
+    /// The answer channel was dropped (frontend disconnected).
+    #[error("interview channel closed")]
+    ChannelClosed,
+
+    /// A backend (DB, network, or other infrastructure) failure occurred.
+    #[error("interview backend failure: {0}")]
+    BackendFailure(String),
+
+    /// The interview was explicitly cancelled (e.g., pipeline abort).
+    #[error("interview cancelled")]
+    Cancelled,
+}
 
 /// The type of question being asked (§6.2).
 // TODO(spec-ambiguity): §6.2 defines YES_NO/MULTIPLE_CHOICE/FREEFORM/CONFIRMATION
@@ -259,17 +281,26 @@ pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
 #[async_trait]
 pub trait Interviewer: Send + Sync {
     /// Ask a single question and wait for an answer.
-    async fn ask(&self, question: &Question) -> Answer;
+    ///
+    /// Returns `Ok(answer)` on success, or `Err(InterviewError)` if the
+    /// interviewer could not complete the interaction (channel closed,
+    /// backend failure, cancelled). Note that timeouts and skips are
+    /// *not* errors — they are valid [`AnswerValue`] variants.
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError>;
 
     /// Ask multiple questions and return answers in order.
     ///
-    /// Default implementation calls [`ask`](Self::ask) for each question.
-    async fn ask_multiple(&self, questions: &[Question]) -> Vec<Answer> {
+    /// Default implementation calls [`ask`](Self::ask) for each question
+    /// sequentially, short-circuiting on the first error.
+    async fn ask_multiple(
+        &self,
+        questions: &[Question],
+    ) -> Result<Vec<Answer>, InterviewError> {
         let mut answers = Vec::with_capacity(questions.len());
         for q in questions {
-            answers.push(self.ask(q).await);
+            answers.push(self.ask(q).await?);
         }
-        answers
+        Ok(answers)
     }
 
     /// Send a one-way informational message (no response expected).

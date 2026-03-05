@@ -14,7 +14,9 @@ use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
-use crate::interviewer::{Answer, AnswerValue, Interviewer, Question, QuestionOption};
+use crate::interviewer::{
+    Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionOption,
+};
 use crate::types::Outcome;
 
 /// Handler for `wait.human` nodes that presents choices to a human.
@@ -162,7 +164,24 @@ impl Handler for WaitForHumanHandler {
         self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
             node_id: node.id.clone(),
         });
-        let answer = self.interviewer.ask(&question).await;
+        let answer = self.interviewer.ask(&question).await.map_err(|e| {
+            match e {
+                InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: "interview channel closed".into(),
+                },
+                InterviewError::BackendFailure(msg) => {
+                    crate::error::AttractorError::HandlerFailed {
+                        node_id: node.id.clone(),
+                        reason: format!("interview backend failure: {msg}"),
+                    }
+                }
+                InterviewError::Cancelled => crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: "interview cancelled".into(),
+                },
+            }
+        })?;
 
         // 4. Handle timeout/skip
         if answer.is_timeout() {

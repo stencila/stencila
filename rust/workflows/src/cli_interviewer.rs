@@ -8,7 +8,8 @@ use std::io::IsTerminal;
 use async_trait::async_trait;
 
 use stencila_interviews::interviewer::{
-    Answer, AnswerValue, Interviewer, Question, QuestionOption, QuestionType, parse_answer_text,
+    Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionOption, QuestionType,
+    parse_answer_text,
 };
 
 /// An interviewer that presents questions on the terminal using `dialoguer`.
@@ -44,7 +45,7 @@ impl CliInterviewer {
 
 #[async_trait]
 impl Interviewer for CliInterviewer {
-    async fn ask(&self, question: &Question) -> Answer {
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
         let q = question.clone();
 
         if let Some(secs) = question.timeout_seconds {
@@ -55,8 +56,10 @@ impl Interviewer for CliInterviewer {
             )
             .await
             {
-                Ok(Ok(answer)) => answer,
-                Ok(Err(_join_error)) => Answer::new(AnswerValue::Skipped),
+                Ok(Ok(answer)) => Ok(answer),
+                Ok(Err(join_error)) => Err(InterviewError::BackendFailure(
+                    format!("CLI prompt task failed: {join_error}"),
+                )),
                 Err(_timeout) => {
                     // The spawn_blocking task may still be waiting on stdin.
                     // There is no way to cancel a blocking read; the detached
@@ -65,13 +68,15 @@ impl Interviewer for CliInterviewer {
                         stage = %question.stage,
                         "CLI prompt timed out after {secs}s; blocking reader detached"
                     );
-                    Answer::new(AnswerValue::Timeout)
+                    Ok(Answer::new(AnswerValue::Timeout))
                 }
             }
         } else {
             match tokio::task::spawn_blocking(move || Self::ask_blocking(&q)).await {
-                Ok(answer) => answer,
-                Err(_join_error) => Answer::new(AnswerValue::Skipped),
+                Ok(answer) => Ok(answer),
+                Err(join_error) => Err(InterviewError::BackendFailure(
+                    format!("CLI prompt task failed: {join_error}"),
+                )),
             }
         }
     }
@@ -191,12 +196,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn timeout_returns_timeout_or_skipped() {
+    async fn timeout_returns_timeout_or_skipped() -> Result<(), InterviewError> {
         let mut q = Question::freeform("Enter something:", "test");
         q.timeout_seconds = Some(0.01); // 10ms
 
         let interviewer = CliInterviewer;
-        let answer = interviewer.ask(&q).await;
+        let answer = interviewer.ask(&q).await?;
         // In test env, the blocking task completes (with Skipped from dialoguer
         // error) before the timeout fires. Both outcomes are valid.
         assert!(
@@ -204,5 +209,6 @@ mod tests {
             "Expected Skipped or Timeout, got {:?}",
             answer.value
         );
+        Ok(())
     }
 }

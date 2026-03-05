@@ -5,7 +5,9 @@
 
 use async_trait::async_trait;
 
-use crate::interviewer::{Answer, AnswerValue, Interviewer, Question, QuestionType};
+use crate::interviewer::{
+    Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionType,
+};
 
 /// An interviewer that automatically approves all questions.
 ///
@@ -16,8 +18,8 @@ pub struct AutoApproveInterviewer;
 
 #[async_trait]
 impl Interviewer for AutoApproveInterviewer {
-    async fn ask(&self, question: &Question) -> Answer {
-        match question.question_type {
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
+        Ok(match question.question_type {
             QuestionType::YesNo | QuestionType::Confirmation => Answer::new(AnswerValue::Yes),
             QuestionType::MultipleChoice => {
                 if let Some(first) = question.options.first() {
@@ -27,6 +29,6 @@ impl Interviewer for AutoApproveInterviewer {
                 }
             }
             QuestionType::Freeform => Answer::new(AnswerValue::Text("auto-approved".into())),
-        }
+        })
     }
 }

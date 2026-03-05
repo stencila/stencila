@@ -5,7 +5,7 @@
 
 use async_trait::async_trait;
 
-use crate::interviewer::{Answer, Interviewer, Question};
+use crate::interviewer::{Answer, InterviewError, Interviewer, Question};
 
 /// An interviewer that delegates to a callback function.
 pub struct CallbackInterviewer {
@@ -30,7 +30,7 @@ impl CallbackInterviewer {
 
 #[async_trait]
 impl Interviewer for CallbackInterviewer {
-    async fn ask(&self, question: &Question) -> Answer {
-        (self.callback)(question)
+    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
+        Ok((self.callback)(question))
     }
 }
