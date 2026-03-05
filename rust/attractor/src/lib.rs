@@ -11,7 +11,6 @@ pub mod artifact;
 pub mod checkpoint;
 pub mod condition;
 pub mod context;
-#[cfg(feature = "sqlite")]
 pub mod definition_snapshot;
 pub mod edge_selection;
 pub mod engine;
@@ -26,7 +25,6 @@ pub mod interviewers;
 pub mod parser;
 pub mod resume;
 pub mod retry;
-#[cfg(feature = "sqlite")]
 pub mod sqlite_backend;
 pub mod stylesheet;
 pub mod stylesheet_parser;

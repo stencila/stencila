@@ -31,11 +31,8 @@ use crate::types::Outcome;
 pub struct WaitForHumanHandler {
     interviewer: Arc<dyn Interviewer>,
     emitter: Arc<dyn EventEmitter>,
-    #[cfg(feature = "sqlite")]
     db_conn: Option<Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>>,
-    #[cfg(feature = "sqlite")]
     context_type: String,
-    #[cfg(feature = "sqlite")]
     context_id: String,
 }
 
@@ -53,11 +50,8 @@ impl WaitForHumanHandler {
         Self {
             interviewer,
             emitter,
-            #[cfg(feature = "sqlite")]
             db_conn: None,
-            #[cfg(feature = "sqlite")]
             context_type: String::new(),
-            #[cfg(feature = "sqlite")]
             context_id: String::new(),
         }
     }
@@ -68,11 +62,8 @@ impl WaitForHumanHandler {
         Self {
             interviewer,
             emitter: Arc::new(NoOpEmitter),
-            #[cfg(feature = "sqlite")]
             db_conn: None,
-            #[cfg(feature = "sqlite")]
             context_type: String::new(),
-            #[cfg(feature = "sqlite")]
             context_id: String::new(),
         }
     }
@@ -82,7 +73,6 @@ impl WaitForHumanHandler {
     /// When set, the handler queries for pending interviews from a previous
     /// run before creating a new one, enabling crash recovery for in-flight
     /// human gates.
-    #[cfg(feature = "sqlite")]
     #[must_use]
     pub fn with_db(
         mut self,
@@ -212,7 +202,6 @@ impl Handler for WaitForHumanHandler {
         // pending interview from a previous run at this node/stage_index.
         // If found, reuse its ID so external systems that already have
         // the question can still submit answers.
-        #[cfg(feature = "sqlite")]
         if let Some(ref db_conn) = self.db_conn {
             match stencila_interviews::find_pending_interview(
                 db_conn,

@@ -18,8 +18,8 @@ serde_yaml = { workspace = true }
 stencila-agents = { path = "../agents", default-features = false }
 stencila-models3 = { path = "../models3" }
 stencila-skills = { path = "../skills" }
-stencila-attractor = { path = "../attractor", features = ["sqlite"] }
-stencila-interviews = { path = "../interviews", features = ["sqlite"] }
+stencila-attractor = { path = "../attractor" }
+stencila-interviews = { path = "../interviews" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-db = { path = "../db" }
 stencila-codecs = { path = "../codecs" }

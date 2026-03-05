@@ -17,7 +17,7 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 smart-default = { workspace = true }
-stencila-attractor = { path = "../attractor", features = ["sqlite"] }
+stencila-attractor = { path = "../attractor" }
 stencila-cloud = { path = "../cloud" }
 stencila-codec-dom = { path = "../codec-dom" }
 stencila-codec-text = { path = "../codec-text" }
@@ -27,7 +27,7 @@ stencila-db = { path = "../db" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
-stencila-interviews = { path = "../interviews", features = ["sqlite"] }
+stencila-interviews = { path = "../interviews" }
 stencila-site = { path = "../site" }
 stencila-themes = { path = "../themes" }
 stencila-version = { path = "../version" }

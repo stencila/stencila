@@ -3,17 +3,13 @@ name = "stencila-interviews"
 edition = "2024"
 version.workspace = true
 
-[features]
-default = []
-sqlite = ["dep:stencila-db", "dep:chrono"]
-
 [dependencies]
 async-trait = { workspace = true }
-chrono = { workspace = true, optional = true }
+chrono = { workspace = true }
 indexmap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-stencila-db = { path = "../db", optional = true }
+stencila-db = { path = "../db" }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 uuid = { workspace = true }

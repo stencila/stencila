@@ -31,7 +31,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-agents = { path = "../agents", features = ["cli"] }
 stencila-ask = { path = "../ask" }
-stencila-attractor = { path = "../attractor", features = ["sqlite"] }
+stencila-attractor = { path = "../attractor" }
 stencila-auth = { path = "../auth", features = ["cli"] }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
@@ -45,7 +45,7 @@ stencila-db = { path = "../db" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }
 stencila-format = { path = "../format" }
-stencila-interviews = { path = "../interviews", features = ["sqlite"] }
+stencila-interviews = { path = "../interviews" }
 stencila-kernels = { path = "../kernels" }
 stencila-linters = { path = "../linters" }
 stencila-lsp = { path = "../lsp" }

@@ -227,7 +227,6 @@ async fn execute_loop(
             let gate_result = check_goal_gates(graph, &state.node_outcomes);
             if !gate_result.satisfied {
                 if let Some(target) = resolve_gate_retry(graph, &gate_result) {
-                    #[cfg(feature = "sqlite")]
                     if let Some(backend) = context.sqlite_backend()
                         && let Err(e) = backend.insert_edge(
                             #[allow(clippy::cast_possible_wrap)]
@@ -331,7 +330,6 @@ async fn execute_loop(
         );
 
         // Persist edge traversal to SQLite when available.
-        #[cfg(feature = "sqlite")]
         if let (Some(next), Some(backend)) = (next_node_id.as_deref(), context.sqlite_backend())
             && let Err(e) = backend.insert_edge(
                 #[allow(clippy::cast_possible_wrap)]
@@ -457,7 +455,6 @@ fn record_and_checkpoint(
     }
 
     // Persist node record to SQLite when available.
-    #[cfg(feature = "sqlite")]
     if let Some(backend) = context.sqlite_backend() {
         let retry_count = i64::from(state.node_retries.get(&node.id).copied().unwrap_or(0));
         let failure_reason = if outcome.status == StageStatus::Fail {

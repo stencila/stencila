@@ -102,7 +102,6 @@ pub fn resume_from_checkpoint(
 ///
 /// Returns an error if `SQLite` queries fail or the graph structure
 /// doesn't match the stored run state.
-#[cfg(feature = "sqlite")]
 pub fn resume_from_sqlite(
     conn: &std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
     run_id: &str,
@@ -147,7 +146,6 @@ pub fn resume_from_sqlite(
     })
 }
 
-#[cfg(feature = "sqlite")]
 fn load_sqlite_run_state(
     conn: &std::sync::Arc<std::sync::Mutex<stencila_db::rusqlite::Connection>>,
     run_id: &str,

@@ -283,7 +283,6 @@ impl Context {
     /// # Errors
     ///
     /// Returns a `rusqlite::Error` if migrations fail.
-    #[cfg(feature = "sqlite")]
     pub fn with_sqlite(
         workspace_db: &stencila_db::WorkspaceDb,
         run_id: &str,
@@ -298,7 +297,6 @@ impl Context {
     ///
     /// Returns `None` for in-memory backends. Tool executors use this to get
     /// shared access to the database connection.
-    #[cfg(feature = "sqlite")]
     #[must_use]
     pub fn sqlite_connection(
         &self,
@@ -310,7 +308,6 @@ impl Context {
     }
 
     /// Get the run ID, if this context uses a `SQLite` backend.
-    #[cfg(feature = "sqlite")]
     #[must_use]
     pub fn sqlite_run_id(&self) -> Option<&str> {
         self.backend
@@ -320,7 +317,6 @@ impl Context {
     }
 
     /// Get a reference to the `SQLite` backend, if this context uses one.
-    #[cfg(feature = "sqlite")]
     #[must_use]
     pub fn sqlite_backend(&self) -> Option<&crate::sqlite_backend::SqliteBackend> {
         self.backend

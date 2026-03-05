@@ -56,7 +56,6 @@ struct PendingInterview {
 pub struct AwaitableInterviewer {
     pending: Arc<Mutex<HashMap<String, PendingInterview>>>,
     poll_interval: Duration,
-    #[cfg(feature = "sqlite")]
     db_conn: Option<Arc<Mutex<stencila_db::rusqlite::Connection>>>,
 }
 
@@ -83,7 +82,6 @@ impl AwaitableInterviewer {
         Self {
             pending: Arc::new(Mutex::new(HashMap::new())),
             poll_interval: Duration::from_secs(1),
-            #[cfg(feature = "sqlite")]
             db_conn: None,
         }
     }
@@ -96,7 +94,6 @@ impl AwaitableInterviewer {
     }
 
     /// Enable DB polling for cross-process completion detection.
-    #[cfg(feature = "sqlite")]
     #[must_use]
     pub fn with_db(mut self, db_conn: Arc<Mutex<stencila_db::rusqlite::Connection>>) -> Self {
         self.db_conn = Some(db_conn);
@@ -211,7 +208,6 @@ impl AwaitableInterviewer {
         Ok(())
     }
 
-    #[cfg(feature = "sqlite")]
     fn poll_db_answers(
         &self,
         interview_id: &str,
@@ -259,14 +255,7 @@ impl AwaitableInterviewer {
         Ok(Some(submitted))
     }
 
-    #[cfg(not(feature = "sqlite"))]
-    fn poll_db_answers(
-        &self,
-        _interview_id: &str,
-        _expected_question_count: usize,
-    ) -> Result<Option<Vec<SubmittedAnswer>>, InterviewError> {
-        Ok(None)
-    }
+
 }
 
 #[async_trait]
@@ -354,7 +343,6 @@ impl Interviewer for AwaitableInterviewer {
     }
 }
 
-#[cfg(feature = "sqlite")]
 fn read_question_answers_from_db(
     conn: &stencila_db::rusqlite::Connection,
     interview_id: &str,
@@ -618,7 +606,6 @@ mod tests {
         assert_eq!(completed.answers.len(), 2);
     }
 
-    #[cfg(feature = "sqlite")]
     #[tokio::test]
     async fn db_polling_reconstructs_answers() {
         let conn = stencila_db::rusqlite::Connection::open_in_memory().expect("open in-memory db");

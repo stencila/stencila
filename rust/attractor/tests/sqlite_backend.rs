@@ -2,9 +2,6 @@
 //!
 //! These tests exercise the `SqliteBackend` as a `ContextBackend`
 //! implementation and the run-lifecycle methods.
-//!
-//! Requires the `sqlite` feature.
-#![cfg(feature = "sqlite")]
 
 use indexmap::IndexMap;
 use serde_json::{Value, json};

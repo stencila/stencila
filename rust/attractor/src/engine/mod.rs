@@ -159,7 +159,6 @@ pub async fn resume(
 /// # Errors
 ///
 /// Same as [`run`], plus `SQLite` query errors when loading run state.
-#[cfg(feature = "sqlite")]
 pub async fn resume_with_sqlite(
     graph: &Graph,
     config: EngineConfig,
