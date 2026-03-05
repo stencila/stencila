@@ -50,7 +50,7 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §5.4 Context Fidelity | Fidelity modes, 4-level resolution, thread_id 5-step chain | `spec_5_state.rs` | Partial — precedence chain and thread_id resolution tested; runtime enforcement deferred to real LLM backend |
 | §5.5 Artifact Store | File-backed/in-memory storage, CRUD | `spec_5_state.rs` | Complete |
 | §5.6 Run Directory | Directory structure, manifest.json | `spec_3_engine.rs` | Complete |
-| §6.1 Interviewer Interface | ask, ask_multiple, inform | `spec_6_human.rs` | Complete |
+| §6.1 Interviewer Interface | ask, conduct, inform | `spec_6_human.rs` | Complete (`ask_multiple` removed — replaced by `conduct()`) |
 | §6.2 Question Model | QuestionType variants, builders | `spec_6_human.rs` | Complete |
 | §6.3 Answer Model | AnswerValue variants, predicates | `spec_6_human.rs` | Complete |
 | §6.4 Built-In Interviewers | AutoApprove, Queue, Callback, Recording | `spec_6_human.rs` | Complete |

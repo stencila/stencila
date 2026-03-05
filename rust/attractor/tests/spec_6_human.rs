@@ -333,17 +333,6 @@ async fn recording_delegates_to_inner() -> Result<(), InterviewError> {
 // Interviewer default methods
 // ===========================================================================
 
-#[tokio::test]
-async fn ask_multiple_default() -> Result<(), InterviewError> {
-    let interviewer = AutoApproveInterviewer;
-    let questions = vec![Question::yes_no("Q1?", "s"), Question::freeform("Q2?", "s")];
-    let answers = interviewer.ask_multiple(&questions).await?;
-    assert_eq!(answers.len(), 2);
-    assert_eq!(answers[0].value, AnswerValue::Yes);
-    assert_eq!(answers[1].value, AnswerValue::Text("auto-approved".into()));
-    Ok(())
-}
-
 #[test]
 fn inform_default_is_noop() {
     // Just verify it doesn't panic

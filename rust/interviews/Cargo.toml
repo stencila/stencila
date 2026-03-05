@@ -5,7 +5,7 @@ version.workspace = true
 
 [features]
 default = []
-sqlite = ["dep:stencila-db", "dep:chrono", "dep:uuid"]
+sqlite = ["dep:stencila-db", "dep:chrono"]
 
 [dependencies]
 async-trait = { workspace = true }
@@ -16,7 +16,7 @@ serde_json = { workspace = true }
 stencila-db = { path = "../db", optional = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
-uuid = { workspace = true, optional = true }
+uuid = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt"] }

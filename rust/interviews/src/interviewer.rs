@@ -287,6 +287,59 @@ impl Answer {
     }
 }
 
+/// A group of questions presented to a human as a single interaction.
+///
+/// Single-question interviews are the common case (pipeline gates via
+/// `WaitForHumanHandler`). Multi-question interviews are used by the
+/// `ask_user` agent tool and by frontends like email/Slack that prefer
+/// batched interactions.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Interview {
+    /// Unique identifier for this interview instance.
+    pub id: String,
+    
+    /// Originating stage name (e.g., pipeline node ID, `"ask_user"`).
+    pub stage: String,
+    
+    /// The questions to present (one or more).
+    pub questions: Vec<Question>,
+    
+    /// Answers received (parallel to `questions`; empty until answered).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub answers: Vec<Answer>,
+    
+    /// Interview-level metadata (pipeline name, urgency, etc.)
+    #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
+    pub metadata: IndexMap<String, serde_json::Value>,
+}
+
+impl Interview {
+    /// Create a single-question interview with a generated UUID v7 ID.
+    #[must_use]
+    pub fn single(question: Question) -> Self {
+        let stage = question.stage.clone();
+        Self {
+            id: uuid::Uuid::now_v7().to_string(),
+            questions: vec![question],
+            answers: Vec::new(),
+            stage,
+            metadata: IndexMap::new(),
+        }
+    }
+
+    /// Create a multi-question interview with a generated UUID v7 ID.
+    #[must_use]
+    pub fn batch(questions: Vec<Question>, stage: impl Into<String>) -> Self {
+        Self {
+            id: uuid::Uuid::now_v7().to_string(),
+            questions,
+            answers: Vec::new(),
+            stage: stage.into(),
+            metadata: IndexMap::new(),
+        }
+    }
+}
+
 /// Parse a raw text answer into a typed [`Answer`] based on the question type.
 ///
 /// This is useful for any text-based frontend (TUI, CLI, web form) that
@@ -377,19 +430,18 @@ pub trait Interviewer: Send + Sync {
     /// *not* errors — they are valid [`AnswerValue`] variants.
     async fn ask(&self, question: &Question) -> Result<Answer, InterviewError>;
 
-    /// Ask multiple questions and return answers in order.
+    /// Conduct an interview: present one or more questions and collect answers.
     ///
-    /// Default implementation calls [`ask`](Self::ask) for each question
-    /// sequentially, short-circuiting on the first error.
-    async fn ask_multiple(
-        &self,
-        questions: &[Question],
-    ) -> Result<Vec<Answer>, InterviewError> {
-        let mut answers = Vec::with_capacity(questions.len());
-        for q in questions {
-            answers.push(self.ask(q).await?);
+    /// This is the primary method for multi-question interviews. Frontends
+    /// that support batch presentation (web forms, email, Slack) override
+    /// this to render all questions together. The default calls `ask()`
+    /// sequentially.
+    async fn conduct(&self, interview: &mut Interview) -> Result<(), InterviewError> {
+        interview.answers.clear();
+        for q in &interview.questions {
+            interview.answers.push(self.ask(q).await?);
         }
-        Ok(answers)
+        Ok(())
     }
 
     /// Send a one-way informational message (no response expected).
@@ -632,5 +684,69 @@ mod tests {
         assert!(!json.contains("description"));
         let opt2: QuestionOption = serde_json::from_str(&json).unwrap();
         assert_eq!(opt2.description, None);
+    }
+
+    #[test]
+    fn interview_single_creates_uuid() {
+        let q = Question::yes_no("Proceed?", "gate-1");
+        let interview = Interview::single(q);
+        assert!(!interview.id.is_empty());
+        assert_eq!(interview.questions.len(), 1);
+        assert!(interview.answers.is_empty());
+        assert_eq!(interview.stage, "gate-1");
+        assert!(interview.metadata.is_empty());
+    }
+
+    #[test]
+    fn interview_batch_creates_uuid() {
+        let qs = vec![
+            Question::yes_no("Q1?", "s"),
+            Question::freeform("Q2?", "s"),
+        ];
+        let interview = Interview::batch(qs, "ask_user");
+        assert!(!interview.id.is_empty());
+        assert_eq!(interview.questions.len(), 2);
+        assert!(interview.answers.is_empty());
+        assert_eq!(interview.stage, "ask_user");
+    }
+
+    #[test]
+    fn interview_single_inherits_stage_from_question() {
+        let q = Question::freeform("Name?", "my-stage");
+        let interview = Interview::single(q);
+        assert_eq!(interview.stage, "my-stage");
+    }
+
+    #[test]
+    fn interview_serde_roundtrip() {
+        let mut interview = Interview::single(Question::yes_no("Continue?", "gate"));
+        interview.answers.push(Answer::new(AnswerValue::Yes));
+        interview.metadata.insert(
+            "urgency".to_string(),
+            serde_json::json!("high"),
+        );
+
+        let json = serde_json::to_string(&interview).unwrap();
+        let interview2: Interview = serde_json::from_str(&json).unwrap();
+        assert_eq!(interview2.id, interview.id);
+        assert_eq!(interview2.questions.len(), 1);
+        assert_eq!(interview2.answers.len(), 1);
+        assert_eq!(interview2.answers[0].value, AnswerValue::Yes);
+        assert_eq!(interview2.stage, "gate");
+        assert_eq!(interview2.metadata["urgency"], serde_json::json!("high"));
+    }
+
+    #[test]
+    fn interview_serde_empty_answers_omitted() {
+        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let json = serde_json::to_string(&interview).unwrap();
+        assert!(!json.contains("answers"));
+    }
+
+    #[test]
+    fn interview_serde_empty_metadata_omitted() {
+        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let json = serde_json::to_string(&interview).unwrap();
+        assert!(!json.contains("metadata"));
     }
 }
