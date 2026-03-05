@@ -128,4 +128,20 @@ impl WorkspaceDb {
 
         Ok(())
     }
+
+    /// Run pending migrations for multiple domains.
+    ///
+    /// Convenience wrapper around [`Self::migrate`] that applies each
+    /// `(domain, migrations)` pair in order. Use this at application
+    /// entry points to ensure every domain's schema is up to date.
+    ///
+    /// # Errors
+    ///
+    /// Returns on the first domain whose migrations fail.
+    pub fn migrate_all(&self, domains: &[(&str, &[Migration])]) -> Result<(), rusqlite::Error> {
+        for (domain, migrations) in domains {
+            self.migrate(domain, migrations)?;
+        }
+        Ok(())
+    }
 }

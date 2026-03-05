@@ -82,8 +82,10 @@ impl SqliteBackend {
         workspace_db: &WorkspaceDb,
         run_id: &str,
     ) -> Result<Self, stencila_db::rusqlite::Error> {
-        workspace_db.migrate("workflows", WORKFLOW_MIGRATIONS)?;
-        workspace_db.migrate("interviews", stencila_interviews::INTERVIEW_MIGRATIONS)?;
+        workspace_db.migrate_all(&[
+            ("workflows", WORKFLOW_MIGRATIONS),
+            ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+        ])?;
 
         Ok(Self {
             conn: workspace_db.connection().clone(),

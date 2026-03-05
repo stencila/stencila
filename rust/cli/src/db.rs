@@ -8,8 +8,24 @@ use stencila_ask::{Answer, AskOptions, ask_with};
 use stencila_cli_utils::color_print::cstr;
 use stencila_cli_utils::message;
 use stencila_cli_utils::progress::{new_bytes_bar, new_items_bar, new_spinner};
+use stencila_db::migration::Migration;
 use stencila_db::rusqlite;
 use stencila_db::sync;
+
+/// All known domain migrations.
+///
+/// This is the single canonical list of every migration domain in the
+/// application. When a new domain is added, append it here so that
+/// `db pull`, `db reset`, and `db verify` bring restored databases fully
+/// up to date before applying changesets.
+static ALL_MIGRATIONS: &[(&str, &[Migration])] = &[
+    (
+        "workflows",
+        stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
+    ),
+    ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+    ("agents", stencila_agents::migrations::AGENT_MIGRATIONS),
+];
 
 /// Manage the workspace database
 #[derive(Debug, Parser)]
@@ -449,7 +465,8 @@ impl Pull {
         {
             let tmp_db = stencila_db::WorkspaceDb::open(&tmp_path)
                 .map_err(|e| eyre::eyre!("Failed to open temp database for migration: {e}"))?;
-            stencila_workflows::run_migrations(&tmp_db)
+            tmp_db
+                .migrate_all(ALL_MIGRATIONS)
                 .map_err(|e| eyre::eyre!("Failed to run migrations on temp database: {e}"))?;
         }
 
@@ -734,7 +751,8 @@ impl Verify {
         {
             let ref_db = stencila_db::WorkspaceDb::open(&ref_path)
                 .map_err(|e| eyre::eyre!("Failed to open reference database: {e}"))?;
-            stencila_workflows::run_migrations(&ref_db)
+            ref_db
+                .migrate_all(ALL_MIGRATIONS)
                 .map_err(|e| eyre::eyre!("Failed to run migrations on reference database: {e}"))?;
         }
         spinner.finish_and_clear();
@@ -846,7 +864,8 @@ impl Reset {
         {
             let tmp_db = stencila_db::WorkspaceDb::open(&tmp_path)
                 .map_err(|e| eyre::eyre!("Failed to open temp database for migration: {e}"))?;
-            stencila_workflows::run_migrations(&tmp_db)
+            tmp_db
+                .migrate_all(ALL_MIGRATIONS)
                 .map_err(|e| eyre::eyre!("Failed to run migrations on temp database: {e}"))?;
         }
 

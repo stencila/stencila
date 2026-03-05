@@ -16,17 +16,3 @@ pub use workflow_run::*;
 mod tools;
 
 pub mod cli;
-
-/// Run all known domain migrations on a [`WorkspaceDb`].
-///
-/// This is used by `stencila db pull` to bring a restored database up to
-/// the schema version expected by the current code before applying
-/// changesets.
-pub fn run_migrations(db: &stencila_db::WorkspaceDb) -> Result<(), stencila_db::rusqlite::Error> {
-    db.migrate(
-        "workflows",
-        stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
-    )?;
-    db.migrate("interviews", stencila_interviews::INTERVIEW_MIGRATIONS)?;
-    Ok(())
-}

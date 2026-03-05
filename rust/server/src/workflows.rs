@@ -143,9 +143,8 @@ async fn list_pending_interviews(
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
 
-    let mut stmt = conn
-        .prepare(
-            "SELECT
+    let mut stmt = match conn.prepare(
+        "SELECT
                 i.interview_id,
                 i.context_type,
                 i.context_id,
@@ -164,8 +163,11 @@ async fn list_pending_interviews(
                AND i.context_id = ?1
                AND i.status = 'pending'
              ORDER BY i.asked_at, q.position",
-        )
-        .map_err(internal)?;
+    ) {
+        Ok(stmt) => stmt,
+        Err(ref e) if is_missing_table(e) => return Ok(Json(Vec::<PendingInterviewResponse>::new())),
+        Err(e) => return Err(internal(e)),
+    };
 
     let rows = stmt
         .query_map((run_id.as_str(),), |row| {
@@ -282,8 +284,11 @@ async fn submit_interview_answers(
             (&interview_id, &run_id),
             |row| row.get(0),
         )
-        .map_err(|error| match error {
+        .map_err(|error| match &error {
             stencila_db::rusqlite::Error::QueryReturnedNoRows => not_found(format!(
+                "interview `{interview_id}` not found for run `{run_id}`"
+            )),
+            e if is_missing_table(e) => not_found(format!(
                 "interview `{interview_id}` not found for run `{run_id}`"
             )),
             _ => internal(error),
@@ -494,16 +499,12 @@ async fn open_workspace_db(
         .map_err(internal)?;
     let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
 
-    let db = stencila_db::WorkspaceDb::open(&db_path).map_err(internal)?;
-    db.migrate(
-        "workflows",
-        stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
-    )
-    .map_err(internal)?;
-    db.migrate("interviews", stencila_interviews::INTERVIEW_MIGRATIONS)
-        .map_err(internal)?;
+    stencila_db::WorkspaceDb::open(&db_path).map_err(internal)
+}
 
-    Ok(db)
+/// Check whether a `rusqlite::Error` is caused by a missing table.
+fn is_missing_table(error: &stencila_db::rusqlite::Error) -> bool {
+    matches!(error, stencila_db::rusqlite::Error::SqliteFailure(_, Some(msg)) if msg.contains("no such table"))
 }
 
 fn bad_request(message: impl Into<String>) -> (StatusCode, String) {
