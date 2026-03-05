@@ -11,6 +11,23 @@ use async_trait::async_trait;
 
 use crate::interviewer::{Answer, AnswerValue, Interview, InterviewError, Interviewer, Question};
 
+/// A record containing all data needed to insert a pending interview into the database.
+///
+/// This struct groups the parameters that were previously passed as positional arguments
+/// to `insert_pending_interview()`, making call sites self-documenting and eliminating
+/// the risk of argument order bugs.
+pub struct PendingInterviewRecord<'a> {
+    pub interview_id: &'a str,
+    pub context_type: &'a str,
+    pub context_id: &'a str,
+    pub node_id: Option<&'a str>,
+    pub stage_index: Option<i64>,
+    pub asked_at: &'a str,
+    pub metadata: Option<&'a str>,
+    pub questions: &'a [Question],
+    pub question_ids: &'a [String],
+}
+
 /// An interviewer decorator that persists interview records to SQLite.
 ///
 /// Wraps an inner [`Interviewer`] and manages the full interview lifecycle
@@ -110,19 +127,21 @@ impl Interviewer for PersistentInterviewer {
         } else {
             serde_json::to_string(&interview.metadata).ok()
         };
+        let asked_at = started.to_rfc3339();
 
-        insert_pending_interview(
-            &self.db_conn,
-            &interview.id,
-            &self.context_type,
-            &self.context_id,
+        let record = PendingInterviewRecord {
+            interview_id: &interview.id,
+            context_type: &self.context_type,
+            context_id: &self.context_id,
             node_id,
-            interview.stage_index,
-            &started.to_rfc3339(),
-            metadata_json.as_deref(),
-            &interview.questions,
-            &question_ids,
-        )?;
+            stage_index: interview.stage_index,
+            asked_at: &asked_at,
+            metadata: metadata_json.as_deref(),
+            questions: &interview.questions,
+            question_ids: &question_ids,
+        };
+
+        insert_pending_interview(&self.db_conn, &record)?;
 
         // 4. Delegate to inner interviewer
         let result = self.inner.conduct(interview).await;
@@ -183,19 +202,18 @@ fn determine_status(answers: &[Answer]) -> &'static str {
 }
 
 /// Insert a pending interview and its questions into the database.
-#[allow(clippy::too_many_arguments)]
 pub fn insert_pending_interview(
     db_conn: &Arc<Mutex<stencila_db::rusqlite::Connection>>,
-    interview_id: &str,
-    context_type: &str,
-    context_id: &str,
-    node_id: Option<&str>,
-    stage_index: Option<i64>,
-    asked_at: &str,
-    metadata: Option<&str>,
-    questions: &[Question],
-    question_ids: &[String],
+    record: &PendingInterviewRecord,
 ) -> Result<(), InterviewError> {
+    if record.questions.len() != record.question_ids.len() {
+        return Err(InterviewError::BackendFailure(format!(
+            "questions/question_ids length mismatch: {} questions vs {} ids",
+            record.questions.len(),
+            record.question_ids.len()
+        )));
+    }
+
     let conn = db_conn
         .lock()
         .map_err(|e| InterviewError::BackendFailure(format!("poisoned DB lock: {e}")))?;
@@ -206,20 +224,20 @@ pub fn insert_pending_interview(
             status, asked_at, metadata
          ) VALUES (?1, ?2, ?3, ?4, ?5, 'pending', ?6, ?7)",
         (
-            interview_id,
-            context_type,
-            context_id,
-            node_id,
-            stage_index,
-            asked_at,
-            metadata,
+            record.interview_id,
+            record.context_type,
+            record.context_id,
+            record.node_id,
+            record.stage_index,
+            record.asked_at,
+            record.metadata,
         ),
     )
     .map_err(|e| {
         InterviewError::BackendFailure(format!("failed to insert pending interview: {e}"))
     })?;
 
-    for (i, (q, qid)) in questions.iter().zip(question_ids.iter()).enumerate() {
+    for (i, (q, qid)) in record.questions.iter().zip(record.question_ids.iter()).enumerate() {
         let options_json = if q.options.is_empty() {
             None
         } else {
@@ -232,7 +250,7 @@ pub fn insert_pending_interview(
              ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             (
                 qid,
-                interview_id,
+                record.interview_id,
                 i as i64,
                 &q.text,
                 q.header.as_deref(),
@@ -422,7 +440,7 @@ pub fn find_pending_interview(
 mod tests {
     use super::*;
     use crate::INTERVIEW_MIGRATIONS;
-    use crate::interviewer::{AnswerValue, QuestionOption, QuestionType};
+    use crate::interviewer::{AnswerValue, QuestionOption};
     use crate::interviewers::AutoApproveInterviewer;
 
     fn setup_db() -> Arc<Mutex<stencila_db::rusqlite::Connection>> {
@@ -669,19 +687,19 @@ mod tests {
         let db = setup_db();
         let question_ids = vec![uuid::Uuid::now_v7().to_string()];
         let q = Question::yes_no("Pending?", "gate-node");
-        insert_pending_interview(
-            &db,
-            "int-pending",
-            "workflow",
-            "run-pend",
-            Some("gate-node"),
-            Some(3),
-            "2024-01-01T00:00:00Z",
-            None,
-            &[q],
-            &question_ids,
-        )
-        .unwrap();
+        let record = PendingInterviewRecord {
+            interview_id: "int-pending",
+            context_type: "workflow",
+            context_id: "run-pend",
+            node_id: Some("gate-node"),
+            stage_index: Some(3),
+            asked_at: "2024-01-01T00:00:00Z",
+            metadata: None,
+            questions: &[q],
+            question_ids: &question_ids,
+        };
+
+        insert_pending_interview(&db, &record).unwrap();
 
         let result =
             find_pending_interview(&db, "workflow", "run-pend", "gate-node", Some(3)).unwrap();
@@ -780,7 +798,7 @@ mod tests {
     async fn stage_index_persisted_and_recoverable() {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
-        let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-si");
+        let _pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-si");
 
         let q = Question::yes_no("OK?", "gate");
         let mut interview = Interview::single(q);
@@ -789,19 +807,19 @@ mod tests {
         // Insert a pending row manually to simulate a crash-before-answer
         // scenario, then verify find_pending_interview can recover it.
         let qids = vec![uuid::Uuid::now_v7().to_string()];
-        insert_pending_interview(
-            &db,
-            &interview.id,
-            "workflow",
-            "run-si",
-            Some("gate"),
-            Some(7),
-            "2024-01-01T00:00:00Z",
-            None,
-            &interview.questions,
-            &qids,
-        )
-        .unwrap();
+        let record = PendingInterviewRecord {
+            interview_id: &interview.id,
+            context_type: "workflow",
+            context_id: "run-si",
+            node_id: Some("gate"),
+            stage_index: Some(7),
+            asked_at: "2024-01-01T00:00:00Z",
+            metadata: None,
+            questions: &interview.questions,
+            question_ids: &qids,
+        };
+
+        insert_pending_interview(&db, &record).unwrap();
 
         // Verify stage_index was persisted
         let conn = db.lock().unwrap();
@@ -854,19 +872,19 @@ mod tests {
         let old_interview_id = "recovered-int-1";
         let old_qid = "recovered-q-1".to_string();
         let q = Question::yes_no("Resume?", "gate");
-        insert_pending_interview(
-            &db,
-            old_interview_id,
-            "workflow",
-            "run-resume",
-            Some("gate"),
-            Some(5),
-            "2024-01-01T00:00:00Z",
-            None,
-            &[q.clone()],
-            &[old_qid.clone()],
-        )
-        .unwrap();
+        let record = PendingInterviewRecord {
+            interview_id: old_interview_id,
+            context_type: "workflow",
+            context_id: "run-resume",
+            node_id: Some("gate"),
+            stage_index: Some(5),
+            asked_at: "2024-01-01T00:00:00Z",
+            metadata: None,
+            questions: &[q.clone()],
+            question_ids: &[old_qid.clone()],
+        };
+
+        insert_pending_interview(&db, &record).unwrap();
 
         // 2. Now conduct with the same interview ID and pre-set question ID
         //    (simulating what WaitForHumanHandler does after recovery)

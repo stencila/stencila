@@ -16,8 +16,8 @@ mod persistent;
 
 #[cfg(feature = "sqlite")]
 pub use persistent::{
-    PersistentInterviewer, delete_interviews_for_context, find_pending_interview,
-    insert_pending_interview, update_interview_answer,
+    PersistentInterviewer, PendingInterviewRecord, delete_interviews_for_context,
+    find_pending_interview, insert_pending_interview, update_interview_answer,
 };
 
 // ---------------------------------------------------------------------------
