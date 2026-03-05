@@ -326,7 +326,7 @@ mod tests {
     async fn interview_event_resumes_workflow_mode() {
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
         use crate::workflow::WorkflowEvent;
-        use stencila_attractor::interviewer::{Question, QuestionType};
+        use stencila_attractor::interviewer::Question;
         use tokio::sync::{mpsc, oneshot};
 
         let mut app = App::new_for_test().await;
@@ -351,14 +351,7 @@ mod tests {
         // Send an interview question through the channel
         let (answer_tx, _answer_rx) = oneshot::channel();
         tx.send(WorkflowEvent::InterviewQuestion {
-            question: Question {
-                text: "Continue?".to_string(),
-                question_type: QuestionType::Freeform,
-                options: Vec::new(),
-                default: None,
-                timeout_seconds: None,
-                stage: "test".to_string(),
-            },
+            question: Question::freeform("Continue?", "test"),
             answer_tx,
         })
         .unwrap();

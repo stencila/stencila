@@ -142,6 +142,7 @@ impl Handler for WaitForHumanHandler {
             .map(|c| QuestionOption {
                 key: c.key.clone(),
                 label: c.label.clone(),
+                description: None,
             })
             .collect();
 

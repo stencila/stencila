@@ -69,6 +69,7 @@ impl Interviewer for PersistentInterviewer {
             AnswerValue::Skipped => Some("skipped".to_string()),
             AnswerValue::Timeout => Some("timeout".to_string()),
             AnswerValue::Selected(key) => Some(key.clone()),
+            AnswerValue::MultiSelected(keys) => Some(keys.join(",")),
             AnswerValue::Text(text) => Some(text.clone()),
         };
 
@@ -76,12 +77,7 @@ impl Interviewer for PersistentInterviewer {
         let options_json = if question.options.is_empty() {
             None
         } else {
-            let options = question
-                .options
-                .iter()
-                .map(|opt| serde_json::json!({"key": opt.key, "label": opt.label}))
-                .collect::<Vec<_>>();
-            Some(serde_json::Value::Array(options).to_string())
+            serde_json::to_string(&question.options).ok()
         };
 
         let interview_id = uuid::Uuid::now_v7().to_string();

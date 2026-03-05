@@ -7,6 +7,8 @@
 use std::fmt;
 
 use async_trait::async_trait;
+use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Errors that can occur during an interview interaction.
@@ -34,12 +36,15 @@ pub enum InterviewError {
 // TODO(spec-ambiguity): §6.2 defines YES_NO/MULTIPLE_CHOICE/FREEFORM/CONFIRMATION
 // but §11.8 uses SINGLE_SELECT/MULTI_SELECT/FREE_TEXT/CONFIRM. Using §6.2 names
 // (normative section). (spec: §6.2 vs §11.8)
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum QuestionType {
     /// A yes/no binary choice.
     YesNo,
     /// Select one from a list of options.
     MultipleChoice,
+    /// Select multiple options from a list (§11.8 `MULTI_SELECT`).
+    MultiSelect,
     /// Free-form text input.
     Freeform,
     /// A yes/no confirmation (semantically distinct from `YesNo`).
@@ -51,36 +56,64 @@ impl fmt::Display for QuestionType {
         match self {
             Self::YesNo => f.write_str("YES_NO"),
             Self::MultipleChoice => f.write_str("MULTIPLE_CHOICE"),
+            Self::MultiSelect => f.write_str("MULTI_SELECT"),
             Self::Freeform => f.write_str("FREEFORM"),
             Self::Confirmation => f.write_str("CONFIRMATION"),
         }
     }
 }
 
-/// A selectable option for multiple-choice questions (§6.2).
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// A selectable option for multiple-choice and multi-select questions (§6.2).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct QuestionOption {
     /// Accelerator key (e.g., `"Y"`, `"A"`).
     pub key: String,
     /// Display text (e.g., `"Yes, deploy to production"`).
     pub label: String,
+    /// Explanatory text displayed alongside the label (e.g., `"Brief overview"`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 /// A question presented to a human (§6.2).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Question {
+    /// Unique identifier for this question instance.
+    ///
+    /// Will be set by [`PersistentInterviewer`] to the `interview_id`
+    /// before delegating to the inner interviewer (Phase 4), so that
+    /// frontends and external systems can correlate questions with DB
+    /// rows. Currently `None` unless set manually.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
     /// The question text to present.
     pub text: String,
+    /// Short label displayed above the question text (e.g., `"Format"`, `"Sections"`).
+    ///
+    /// Distinct from `stage` (the originating pipeline node) and `text`
+    /// (the full question). Used by frontends to render grouped/headed
+    /// question forms.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub header: Option<String>,
     /// The question type, determining valid answers.
     pub question_type: QuestionType,
-    /// Options for `MultipleChoice` questions.
+    /// Options for `MultipleChoice` and `MultiSelect` questions.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub options: Vec<QuestionOption>,
     /// Default answer to use on timeout or skip, if any.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default: Option<Answer>,
     /// Maximum time (in seconds) to wait for a response.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timeout_seconds: Option<f64>,
     /// Originating stage name (for display).
     pub stage: String,
+    /// Arbitrary key-value metadata for remote interviewers.
+    ///
+    /// Useful for passing extra context (pipeline name, run ID, urgency
+    /// level, etc.) to web, email, or Slack frontends.
+    #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
+    pub metadata: IndexMap<String, serde_json::Value>,
 }
 
 impl Question {
@@ -88,12 +121,15 @@ impl Question {
     #[must_use]
     pub fn yes_no(text: impl Into<String>, stage: impl Into<String>) -> Self {
         Self {
+            id: None,
             text: text.into(),
+            header: None,
             question_type: QuestionType::YesNo,
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
             stage: stage.into(),
+            metadata: IndexMap::new(),
         }
     }
 
@@ -101,12 +137,15 @@ impl Question {
     #[must_use]
     pub fn confirmation(text: impl Into<String>, stage: impl Into<String>) -> Self {
         Self {
+            id: None,
             text: text.into(),
+            header: None,
             question_type: QuestionType::Confirmation,
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
             stage: stage.into(),
+            metadata: IndexMap::new(),
         }
     }
 
@@ -118,12 +157,35 @@ impl Question {
         stage: impl Into<String>,
     ) -> Self {
         Self {
+            id: None,
             text: text.into(),
+            header: None,
             question_type: QuestionType::MultipleChoice,
             options,
             default: None,
             timeout_seconds: None,
             stage: stage.into(),
+            metadata: IndexMap::new(),
+        }
+    }
+
+    /// Create a multi-select question (select multiple options from a list).
+    #[must_use]
+    pub fn multi_select(
+        text: impl Into<String>,
+        options: Vec<QuestionOption>,
+        stage: impl Into<String>,
+    ) -> Self {
+        Self {
+            id: None,
+            text: text.into(),
+            header: None,
+            question_type: QuestionType::MultiSelect,
+            options,
+            default: None,
+            timeout_seconds: None,
+            stage: stage.into(),
+            metadata: IndexMap::new(),
         }
     }
 
@@ -131,18 +193,27 @@ impl Question {
     #[must_use]
     pub fn freeform(text: impl Into<String>, stage: impl Into<String>) -> Self {
         Self {
+            id: None,
             text: text.into(),
+            header: None,
             question_type: QuestionType::Freeform,
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
             stage: stage.into(),
+            metadata: IndexMap::new(),
         }
     }
 }
 
 /// The semantic value of an answer (§6.3).
-#[derive(Debug, Clone, PartialEq, Eq)]
+///
+/// Uses adjacently tagged serde representation (`"type"` + `"value"`) for
+/// consistency with the codebase's enum tagging convention. Unit variants
+/// (e.g., `Yes`) serialize as `{"type":"YES"}`, data variants (e.g.,
+/// `Selected`) as `{"type":"SELECTED","value":"..."}`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "type", content = "value", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AnswerValue {
     /// Affirmative response.
     Yes,
@@ -152,8 +223,10 @@ pub enum AnswerValue {
     Skipped,
     /// No response within timeout.
     Timeout,
-    /// A selected option key (for multiple choice).
+    /// A selected option key (for single-select multiple choice).
     Selected(String),
+    /// Multiple selected option keys (for multi-select).
+    MultiSelected(Vec<String>),
     /// Free-form text response.
     Text(String),
 }
@@ -166,17 +239,19 @@ impl fmt::Display for AnswerValue {
             Self::Skipped => f.write_str("SKIPPED"),
             Self::Timeout => f.write_str("TIMEOUT"),
             Self::Selected(key) => write!(f, "SELECTED({key})"),
+            Self::MultiSelected(keys) => write!(f, "MULTI_SELECTED({})", keys.join(",")),
             Self::Text(text) => write!(f, "TEXT({text})"),
         }
     }
 }
 
 /// An answer to a question (§6.3).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Answer {
     /// The answer value.
     pub value: AnswerValue,
     /// The full selected option, if applicable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub selected_option: Option<QuestionOption>,
 }
 
@@ -249,10 +324,7 @@ pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
             {
                 Answer::with_option(
                     AnswerValue::Selected(opt.key.clone()),
-                    QuestionOption {
-                        key: opt.key.clone(),
-                        label: opt.label.clone(),
-                    },
+                    opt.clone(),
                 )
             } else if let Some(opt) = question
                 .options
@@ -261,13 +333,30 @@ pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
             {
                 Answer::with_option(
                     AnswerValue::Selected(opt.key.clone()),
-                    QuestionOption {
-                        key: opt.key.clone(),
-                        label: opt.label.clone(),
-                    },
+                    opt.clone(),
                 )
             } else {
                 Answer::new(AnswerValue::Text(trimmed.to_string()))
+            }
+        }
+        QuestionType::MultiSelect => {
+            let parts: Vec<&str> = trimmed.split(',').map(str::trim).filter(|s| !s.is_empty()).collect();
+            let mut selected_keys = Vec::new();
+            for part in &parts {
+                if let Some(opt) = question
+                    .options
+                    .iter()
+                    .find(|o| o.key.eq_ignore_ascii_case(part) || o.label.eq_ignore_ascii_case(part))
+                {
+                    if !selected_keys.contains(&opt.key) {
+                        selected_keys.push(opt.key.clone());
+                    }
+                }
+            }
+            if selected_keys.is_empty() {
+                Answer::new(AnswerValue::Text(trimmed.to_string()))
+            } else {
+                Answer::new(AnswerValue::MultiSelected(selected_keys))
             }
         }
         QuestionType::Freeform => Answer::new(AnswerValue::Text(trimmed.to_string())),
@@ -328,10 +417,36 @@ mod tests {
                 QuestionOption {
                     key: "A".to_string(),
                     label: "Option Alpha".to_string(),
+                    description: None,
                 },
                 QuestionOption {
                     key: "B".to_string(),
                     label: "Option Beta".to_string(),
+                    description: None,
+                },
+            ],
+            "test-stage",
+        )
+    }
+
+    fn multi_select_question() -> Question {
+        Question::multi_select(
+            "Select all that apply:",
+            vec![
+                QuestionOption {
+                    key: "X".to_string(),
+                    label: "Option X".to_string(),
+                    description: Some("First option".to_string()),
+                },
+                QuestionOption {
+                    key: "Y".to_string(),
+                    label: "Option Y".to_string(),
+                    description: None,
+                },
+                QuestionOption {
+                    key: "Z".to_string(),
+                    label: "Option Z".to_string(),
+                    description: Some("Third option".to_string()),
                 },
             ],
             "test-stage",
@@ -381,5 +496,141 @@ mod tests {
         let q = multiple_choice_question();
         let answer = parse_answer_text("unknown", &q);
         assert_eq!(answer.value, AnswerValue::Text("unknown".to_string()));
+    }
+
+    #[test]
+    fn parse_multi_select_by_keys() {
+        let q = multi_select_question();
+        let answer = parse_answer_text("X, Z", &q);
+        assert_eq!(
+            answer.value,
+            AnswerValue::MultiSelected(vec!["X".to_string(), "Z".to_string()])
+        );
+    }
+
+    #[test]
+    fn parse_multi_select_by_labels() {
+        let q = multi_select_question();
+        let answer = parse_answer_text("option x, option z", &q);
+        assert_eq!(
+            answer.value,
+            AnswerValue::MultiSelected(vec!["X".to_string(), "Z".to_string()])
+        );
+    }
+
+    #[test]
+    fn parse_multi_select_single_item() {
+        let q = multi_select_question();
+        let answer = parse_answer_text("Y", &q);
+        assert_eq!(
+            answer.value,
+            AnswerValue::MultiSelected(vec!["Y".to_string()])
+        );
+    }
+
+    #[test]
+    fn parse_multi_select_no_match() {
+        let q = multi_select_question();
+        let answer = parse_answer_text("unknown", &q);
+        assert_eq!(answer.value, AnswerValue::Text("unknown".to_string()));
+    }
+
+    #[test]
+    fn parse_multi_select_deduplicates() {
+        let q = multi_select_question();
+        let answer = parse_answer_text("X, X, option x", &q);
+        assert_eq!(
+            answer.value,
+            AnswerValue::MultiSelected(vec!["X".to_string()])
+        );
+    }
+
+    #[test]
+    fn question_type_display_multi_select() {
+        assert_eq!(QuestionType::MultiSelect.to_string(), "MULTI_SELECT");
+    }
+
+    #[test]
+    fn answer_value_display_multi_selected() {
+        let val = AnswerValue::MultiSelected(vec!["A".into(), "B".into()]);
+        assert_eq!(val.to_string(), "MULTI_SELECTED(A,B)");
+    }
+
+    #[test]
+    fn question_serde_roundtrip() {
+        let mut q = Question::freeform("What?", "stage");
+        q.id = Some("q-123".to_string());
+        q.header = Some("Header".to_string());
+        q.metadata
+            .insert("urgency".to_string(), serde_json::json!("high"));
+
+        let json = serde_json::to_string(&q).unwrap();
+        let q2: Question = serde_json::from_str(&json).unwrap();
+        assert_eq!(q2.id, Some("q-123".to_string()));
+        assert_eq!(q2.header, Some("Header".to_string()));
+        assert_eq!(q2.text, "What?");
+        assert_eq!(q2.question_type, QuestionType::Freeform);
+        assert_eq!(q2.metadata["urgency"], serde_json::json!("high"));
+    }
+
+    #[test]
+    fn question_type_serde_roundtrip() {
+        let qt = QuestionType::MultiSelect;
+        let json = serde_json::to_string(&qt).unwrap();
+        assert_eq!(json, "\"MULTI_SELECT\"");
+        let qt2: QuestionType = serde_json::from_str(&json).unwrap();
+        assert_eq!(qt2, QuestionType::MultiSelect);
+    }
+
+    #[test]
+    fn answer_serde_roundtrip() {
+        let answer = Answer::new(AnswerValue::MultiSelected(vec![
+            "A".into(),
+            "B".into(),
+        ]));
+        let json = serde_json::to_string(&answer).unwrap();
+        let answer2: Answer = serde_json::from_str(&json).unwrap();
+        assert_eq!(answer2, answer);
+    }
+
+    #[test]
+    fn answer_value_adjacently_tagged_format() {
+        // Unit variants: {"type":"YES"} — no "value" key
+        let json = serde_json::to_string(&AnswerValue::Yes).unwrap();
+        assert_eq!(json, r#"{"type":"YES"}"#);
+
+        // Data variants: {"type":"SELECTED","value":"A"}
+        let json = serde_json::to_string(&AnswerValue::Selected("A".into())).unwrap();
+        assert_eq!(json, r#"{"type":"SELECTED","value":"A"}"#);
+
+        // Vec data: {"type":"MULTI_SELECTED","value":["A","B"]}
+        let json = serde_json::to_string(&AnswerValue::MultiSelected(vec!["A".into(), "B".into()])).unwrap();
+        assert_eq!(json, r#"{"type":"MULTI_SELECTED","value":["A","B"]}"#);
+    }
+
+    #[test]
+    fn question_option_with_description_serde() {
+        let opt = QuestionOption {
+            key: "A".to_string(),
+            label: "Alpha".to_string(),
+            description: Some("The first letter".to_string()),
+        };
+        let json = serde_json::to_string(&opt).unwrap();
+        assert!(json.contains("description"));
+        let opt2: QuestionOption = serde_json::from_str(&json).unwrap();
+        assert_eq!(opt2.description, Some("The first letter".to_string()));
+    }
+
+    #[test]
+    fn question_option_without_description_serde() {
+        let opt = QuestionOption {
+            key: "B".to_string(),
+            label: "Beta".to_string(),
+            description: None,
+        };
+        let json = serde_json::to_string(&opt).unwrap();
+        assert!(!json.contains("description"));
+        let opt2: QuestionOption = serde_json::from_str(&json).unwrap();
+        assert_eq!(opt2.description, None);
     }
 }

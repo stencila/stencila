@@ -8,8 +8,7 @@ use std::io::IsTerminal;
 use async_trait::async_trait;
 
 use stencila_interviews::interviewer::{
-    Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionOption, QuestionType,
-    parse_answer_text,
+    Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionType, parse_answer_text,
 };
 
 /// An interviewer that presents questions on the terminal using `dialoguer`.
@@ -36,6 +35,13 @@ impl CliInterviewer {
                     ask_freeform(question)
                 } else {
                     ask_select(question)
+                }
+            }
+            QuestionType::MultiSelect => {
+                if question.options.is_empty() {
+                    ask_freeform(question)
+                } else {
+                    ask_multi_select(question)
                 }
             }
             QuestionType::Freeform => ask_freeform(question),
@@ -127,13 +133,38 @@ fn ask_select(question: &Question) -> Answer {
             if let Some(opt) = question.options.get(index) {
                 Answer::with_option(
                     AnswerValue::Selected(opt.key.clone()),
-                    QuestionOption {
-                        key: opt.key.clone(),
-                        label: opt.label.clone(),
-                    },
+                    opt.clone(),
                 )
             } else {
                 Answer::new(AnswerValue::Skipped)
+            }
+        }
+        Err(_) => Answer::new(AnswerValue::Skipped),
+    }
+}
+
+fn ask_multi_select(question: &Question) -> Answer {
+    let items: Vec<&str> = question
+        .options
+        .iter()
+        .map(|opt| opt.label.as_str())
+        .collect();
+
+    let result = dialoguer::MultiSelect::new()
+        .with_prompt(format!("❔ {}", &question.text))
+        .items(&items)
+        .interact();
+
+    match result {
+        Ok(indices) => {
+            let keys: Vec<String> = indices
+                .iter()
+                .filter_map(|&i| question.options.get(i).map(|o| o.key.clone()))
+                .collect();
+            if keys.is_empty() {
+                Answer::new(AnswerValue::Skipped)
+            } else {
+                Answer::new(AnswerValue::MultiSelected(keys))
             }
         }
         Err(_) => Answer::new(AnswerValue::Skipped),
@@ -158,6 +189,7 @@ fn ask_freeform(question: &Question) -> Answer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use stencila_interviews::interviewer::QuestionOption;
 
     #[test]
     fn ask_yes_no_returns_skipped_on_dialoguer_error() {
@@ -176,10 +208,12 @@ mod tests {
                 QuestionOption {
                     key: "A".into(),
                     label: "Option A".into(),
+                    description: None,
                 },
                 QuestionOption {
                     key: "B".into(),
                     label: "Option B".into(),
+                    description: None,
                 },
             ],
             "test",

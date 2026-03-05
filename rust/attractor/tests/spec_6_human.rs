@@ -29,6 +29,7 @@ use stencila_attractor::types::StageStatus;
 fn question_type_display() {
     assert_eq!(QuestionType::YesNo.to_string(), "YES_NO");
     assert_eq!(QuestionType::MultipleChoice.to_string(), "MULTIPLE_CHOICE");
+    assert_eq!(QuestionType::MultiSelect.to_string(), "MULTI_SELECT");
     assert_eq!(QuestionType::Freeform.to_string(), "FREEFORM");
     assert_eq!(QuestionType::Confirmation.to_string(), "CONFIRMATION");
 }
@@ -57,10 +58,12 @@ fn question_multiple_choice_builder() {
         QuestionOption {
             key: "A".into(),
             label: "Option A".into(),
+            description: None,
         },
         QuestionOption {
             key: "B".into(),
             label: "Option B".into(),
+            description: None,
         },
     ];
     let q = Question::multiple_choice("Choose:", opts.clone(), "choice_stage");
@@ -75,6 +78,29 @@ fn question_freeform_builder() {
     let q = Question::freeform("Enter a name:", "name_stage");
     assert_eq!(q.question_type, QuestionType::Freeform);
     assert_eq!(q.text, "Enter a name:");
+}
+
+#[test]
+fn question_multi_select_builder() {
+    let opts = vec![
+        QuestionOption {
+            key: "X".into(),
+            label: "Option X".into(),
+            description: Some("First".into()),
+        },
+        QuestionOption {
+            key: "Y".into(),
+            label: "Option Y".into(),
+            description: None,
+        },
+    ];
+    let q = Question::multi_select("Select all:", opts.clone(), "select_stage");
+    assert_eq!(q.question_type, QuestionType::MultiSelect);
+    assert_eq!(q.text, "Select all:");
+    assert_eq!(q.stage, "select_stage");
+    assert_eq!(q.options.len(), 2);
+    assert_eq!(q.options[0].description, Some("First".into()));
+    assert_eq!(q.options[1].description, None);
 }
 
 // ===========================================================================
@@ -111,6 +137,7 @@ fn answer_with_option() {
     let opt = QuestionOption {
         key: "X".into(),
         label: "Option X".into(),
+        description: None,
     };
     let answer = Answer::with_option(AnswerValue::Selected("X".into()), opt.clone());
     assert_eq!(answer.selected_option, Some(opt));
@@ -145,10 +172,12 @@ async fn auto_approve_multiple_choice_selects_first() -> Result<(), InterviewErr
         QuestionOption {
             key: "A".into(),
             label: "Alpha".into(),
+            description: None,
         },
         QuestionOption {
             key: "B".into(),
             label: "Beta".into(),
+            description: None,
         },
     ];
     let q = Question::multiple_choice("Pick:", opts, "stage");

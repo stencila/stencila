@@ -10,6 +10,7 @@ sqlite = ["dep:stencila-db", "dep:chrono", "dep:uuid"]
 [dependencies]
 async-trait = { workspace = true }
 chrono = { workspace = true, optional = true }
+indexmap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-db = { path = "../db", optional = true }

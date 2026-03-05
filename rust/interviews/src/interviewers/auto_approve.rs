@@ -28,6 +28,16 @@ impl Interviewer for AutoApproveInterviewer {
                     Answer::new(AnswerValue::Text("auto-approved".into()))
                 }
             }
+            // Selects *all* options (most permissive) — mirrors selecting
+            // the first option for single-select MultipleChoice.
+            QuestionType::MultiSelect => {
+                let keys: Vec<String> = question.options.iter().map(|o| o.key.clone()).collect();
+                if keys.is_empty() {
+                    Answer::new(AnswerValue::Text("auto-approved".into()))
+                } else {
+                    Answer::new(AnswerValue::MultiSelected(keys))
+                }
+            }
             QuestionType::Freeform => Answer::new(AnswerValue::Text("auto-approved".into())),
         })
     }
