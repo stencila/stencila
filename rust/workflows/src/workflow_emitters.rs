@@ -70,6 +70,18 @@ impl ProgressEventEmitter {
             state: Mutex::new(HashMap::new()),
         }
     }
+
+    fn new_spinner(&self, node_id: &str) -> ProgressBar {
+        let bar = self.multi.add(ProgressBar::new_spinner());
+        bar.set_style(
+            ProgressStyle::with_template("{spinner:.cyan} {msg}")
+                .expect("static spinner template should be valid")
+                .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ "),
+        );
+        bar.enable_steady_tick(std::time::Duration::from_millis(80));
+        bar.set_message(format!("   {node_id}"));
+        bar
+    }
 }
 
 impl EventEmitter for ProgressEventEmitter {
@@ -93,14 +105,7 @@ impl EventEmitter for ProgressEventEmitter {
                 if stage_index == 0 {
                     return;
                 }
-                let bar = self.multi.add(ProgressBar::new_spinner());
-                bar.set_style(
-                    ProgressStyle::with_template("{spinner:.cyan} {msg}")
-                        .expect("static spinner template should be valid")
-                        .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ "),
-                );
-                bar.enable_steady_tick(std::time::Duration::from_millis(80));
-                bar.set_message(format!("   {node_id}"));
+                let bar = self.new_spinner(node_id);
                 state.insert(
                     node_id.clone(),
                     StageState {
@@ -220,17 +225,42 @@ impl EventEmitter for ProgressEventEmitter {
             }
 
             PipelineEvent::InterviewQuestionAsked { ref node_id } => {
-                let _ = self.multi.println(format!("? question asked at {node_id}"));
+                // Blank line for visual breathing room before the prompt.
+                let _ = self.multi.println("");
+                // Suspend the spinner so dialoguer gets a clean terminal.
+                // finish_and_clear() stops the tick and erases the spinner
+                // line. We remove the state entry here; InterviewAnswerReceived
+                // (or InterviewTimedOut) will create a fresh bar so that the
+                // subsequent StageCompleted can finish it normally.
+                if let Some(s) = state.remove(node_id) {
+                    s.bar.finish_and_clear();
+                    // Stash the start time so elapsed is accurate across the
+                    // human wait.
+                    state.insert(
+                        node_id.clone(),
+                        StageState {
+                            bar: self.multi.add(ProgressBar::hidden()),
+                            started_at: s.started_at,
+                            agent_name: s.agent_name,
+                        },
+                    );
+                }
             }
-            PipelineEvent::InterviewAnswerReceived { ref node_id } => {
-                let _ = self
-                    .multi
-                    .println(format!("✓ answer received at {node_id}"));
-            }
-            PipelineEvent::InterviewTimedOut { ref node_id } => {
-                let _ = self
-                    .multi
-                    .println(format!("⏱ interview timed out at {node_id}"));
+            PipelineEvent::InterviewAnswerReceived { ref node_id }
+            | PipelineEvent::InterviewTimedOut { ref node_id } => {
+                // Replace the hidden placeholder with a visible spinner so
+                // StageCompleted sees a live bar it can finish.
+                if let Some(s) = state.remove(node_id) {
+                    let bar = self.new_spinner(node_id);
+                    state.insert(
+                        node_id.clone(),
+                        StageState {
+                            bar,
+                            started_at: s.started_at,
+                            agent_name: s.agent_name,
+                        },
+                    );
+                }
             }
         }
     }
@@ -387,13 +417,11 @@ impl EventEmitter for VerboseEventEmitter {
             }
 
             PipelineEvent::InterviewQuestionAsked { ref node_id } => {
-                eprintln!("│  question asked at {node_id}");
+                eprintln!("│  ❓ waiting for human input at {node_id}…");
             }
-            PipelineEvent::InterviewAnswerReceived { ref node_id } => {
-                eprintln!("│  answer received at {node_id}");
-            }
+            PipelineEvent::InterviewAnswerReceived { .. } => {}
             PipelineEvent::InterviewTimedOut { ref node_id } => {
-                eprintln!("│  interview timed out at {node_id}");
+                eprintln!("│  ⏱ timed out waiting for input at {node_id}");
             }
         }
     }

@@ -2811,6 +2811,8 @@ checksum = "25f104b501bf2364e78d0d3974cbc774f738f5865306ed128e1e0d7499c0ad96"
 dependencies = [
  "console 0.16.2",
  "shell-words",
+ "tempfile",
+ "zeroize",
 ]
 
 [[package]]
@@ -11962,6 +11964,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "clap",
+ "dialoguer",
  "eyre",
  "glob",
  "indicatif 0.18.4",

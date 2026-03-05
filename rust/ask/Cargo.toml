@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 async-trait = { workspace = true }
-dialoguer = { version = "0.12", default-features = false }
+dialoguer = { workspace = true }
 eyre = { workspace = true }
 lsp-types = { version = "0.95.1" }
 owo-colors = "4.2.3"

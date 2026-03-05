@@ -20,6 +20,7 @@ chrono = { version = "0.4.43", features = ["serde"] }
 chrono-humanize = "0.2.3"
 clap = { version = "4.5.60", features = ["derive", "color", "env", "wrap_help"] }
 darling = "0.23.0"
+dialoguer = { version = "0.12" }
 derive_more = { version = "2.1.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
 eyre = "0.6.12"

@@ -18,7 +18,7 @@ use stencila_cli_utils::{
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
-use crate::{workflow_def, workflow_validate};
+use crate::{CliInterviewer, workflow_def, workflow_validate};
 
 /// Manage workflow definitions
 #[derive(Debug, Parser)]
@@ -470,9 +470,11 @@ impl Run {
         };
 
         let started = Instant::now();
+        let interviewer: Arc<dyn stencila_attractor::interviewer::Interviewer> =
+            Arc::new(CliInterviewer);
         let options = crate::workflow_run::RunOptions {
             emitter,
-            interviewer: None,
+            interviewer: Some(interviewer),
         };
         let outcome = crate::workflow_run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
