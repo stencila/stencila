@@ -1021,13 +1021,11 @@ fn create_child_profile(
             model,
             max_command_timeout_ms,
         )?),
-        _ => {
-            return Err(AgentError::Sdk(
-                stencila_models3::error::SdkError::Configuration {
-                    message: format!("unsupported provider '{provider_id}' for subagent profile"),
-                },
-            ));
-        }
+        _ => Box::new(crate::profiles::DefaultProfile::new(
+            provider_id,
+            model,
+            max_command_timeout_ms,
+        )?),
     };
 
     Ok(profile)

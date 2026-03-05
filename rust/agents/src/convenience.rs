@@ -12,7 +12,7 @@ use crate::api_session::{ApiSession, ApiSessionInit, Models3Client};
 use crate::error::{AgentError, AgentResult};
 use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
-use crate::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
+use crate::profiles::{AnthropicProfile, DefaultProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts;
 use crate::routing::{self, RoutingDecision, SessionRoute};
 use crate::tool_guard::{GuardContext, ToolGuard, TrustLevel};
@@ -283,16 +283,7 @@ async fn create_api_session_inner(
         "anthropic" => Box::new(AnthropicProfile::new(model_name, max_timeout)?),
         "openai" => Box::new(OpenAiProfile::new(model_name, max_timeout)?),
         "gemini" | "google" => Box::new(GeminiProfile::new(model_name, max_timeout)?),
-        name => {
-            return Err(AgentError::Sdk(
-                stencila_models3::error::SdkError::Configuration {
-                    message: format!(
-                        "Provider '{name}' is not yet supported by the agents layer. \
-                         Supported providers: anthropic, openai, gemini."
-                    ),
-                },
-            ));
-        }
+        _ => Box::new(DefaultProfile::new(provider_name, model_name, max_timeout)?),
     };
 
     let env = Arc::new(LocalExecutionEnvironment::new("."));

@@ -5,9 +5,11 @@
 //! provider's native tool set and capability flags.
 
 pub mod anthropic;
+pub mod default;
 pub mod gemini;
 pub mod openai;
 
 pub use anthropic::AnthropicProfile;
+pub use default::DefaultProfile;
 pub use gemini::GeminiProfile;
 pub use openai::OpenAiProfile;

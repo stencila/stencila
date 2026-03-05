@@ -49,6 +49,7 @@ fn default_model(provider: &str) -> Option<&'static str> {
         "anthropic" => Some("claude"),
         "openai" => Some("gpt"),
         "gemini" | "google" => Some("gemini"),
+        "mistral" => Some("mistral-large-latest"),
         _ => None,
     }
 }
@@ -497,16 +498,28 @@ mod tests {
     }
 
     #[test]
-    fn provider_without_default_model_errors() {
+    fn mistral_provider_without_model_uses_default() {
         let client = empty_client();
         let result = route_session(Some("mistral"), None, &client);
+        // No API auth and no CLI mapping → error asking for API key
         assert!(result.is_err());
+        let msg = result.unwrap_err().to_string();
+        assert!(msg.contains("MISTRAL_API_KEY"));
     }
 
     #[test]
-    fn provider_without_cli_mapping_errors_when_no_auth() {
+    fn mistral_provider_with_model_no_auth_errors_with_hint() {
         let client = empty_client();
         let result = route_session(Some("mistral"), Some("mistral-large"), &client);
+        assert!(result.is_err());
+        let msg = result.unwrap_err().to_string();
+        assert!(msg.contains("MISTRAL_API_KEY"));
+    }
+
+    #[test]
+    fn provider_without_default_model_errors() {
+        let client = empty_client();
+        let result = route_session(Some("unknown-provider"), None, &client);
         assert!(result.is_err());
     }
 
@@ -658,6 +671,7 @@ mod tests {
         assert_eq!(default_model("openai"), Some("gpt"));
         assert_eq!(default_model("gemini"), Some("gemini"));
         assert_eq!(default_model("google"), Some("gemini"));
-        assert_eq!(default_model("mistral"), None);
+        assert_eq!(default_model("mistral"), Some("mistral-large-latest"));
+        assert_eq!(default_model("unknown"), None);
     }
 }
