@@ -6,7 +6,6 @@ version.workspace = true
 [features]
 default = []
 cli = ["dep:clap", "dep:eyre", "dep:serde_yaml", "dep:stencila-cli-utils"]
-secrets = ["dep:stencila-secrets"]
 
 [dependencies]
 base64 = { workspace = true }
@@ -24,7 +23,7 @@ serde_yaml = { workspace = true, optional = true }
 stencila-auth = { path = "../auth", default-features = false, features = ["login"] }
 stencila-cli-utils = { path = "../cli-utils", optional = true }
 stencila-config = { path = "../config" }
-stencila-secrets = { path = "../secrets", optional = true }
+stencila-secrets = { path = "../secrets" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
