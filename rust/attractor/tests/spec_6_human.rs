@@ -36,10 +36,9 @@ fn question_type_display() {
 
 #[test]
 fn question_yes_no_builder() {
-    let q = Question::yes_no("Deploy?", "deploy_stage");
+    let q = Question::yes_no("Deploy?");
     assert_eq!(q.question_type, QuestionType::YesNo);
     assert_eq!(q.text, "Deploy?");
-    assert_eq!(q.stage, "deploy_stage");
     assert!(q.options.is_empty());
     assert!(q.default.is_none());
     assert!(q.timeout_seconds.is_none());
@@ -47,7 +46,7 @@ fn question_yes_no_builder() {
 
 #[test]
 fn question_confirmation_builder() {
-    let q = Question::confirmation("Are you sure?", "confirm_stage");
+    let q = Question::confirmation("Are you sure?");
     assert_eq!(q.question_type, QuestionType::Confirmation);
     assert_eq!(q.text, "Are you sure?");
 }
@@ -66,7 +65,7 @@ fn question_multiple_choice_builder() {
             description: None,
         },
     ];
-    let q = Question::multiple_choice("Choose:", opts.clone(), "choice_stage");
+    let q = Question::multiple_choice("Choose:", opts.clone());
     assert_eq!(q.question_type, QuestionType::MultipleChoice);
     assert_eq!(q.options.len(), 2);
     assert_eq!(q.options[0].key, "A");
@@ -75,7 +74,7 @@ fn question_multiple_choice_builder() {
 
 #[test]
 fn question_freeform_builder() {
-    let q = Question::freeform("Enter a name:", "name_stage");
+    let q = Question::freeform("Enter a name:");
     assert_eq!(q.question_type, QuestionType::Freeform);
     assert_eq!(q.text, "Enter a name:");
 }
@@ -94,10 +93,9 @@ fn question_multi_select_builder() {
             description: None,
         },
     ];
-    let q = Question::multi_select("Select all:", opts.clone(), "select_stage");
+    let q = Question::multi_select("Select all:", opts.clone());
     assert_eq!(q.question_type, QuestionType::MultiSelect);
     assert_eq!(q.text, "Select all:");
-    assert_eq!(q.stage, "select_stage");
     assert_eq!(q.options.len(), 2);
     assert_eq!(q.options[0].description, Some("First".into()));
     assert_eq!(q.options[1].description, None);
@@ -150,7 +148,7 @@ fn answer_with_option() {
 #[tokio::test]
 async fn auto_approve_yes_no() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
-    let q = Question::yes_no("Proceed?", "stage");
+    let q = Question::yes_no("Proceed?");
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Yes);
     Ok(())
@@ -159,7 +157,7 @@ async fn auto_approve_yes_no() -> Result<(), InterviewError> {
 #[tokio::test]
 async fn auto_approve_confirmation() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
-    let q = Question::confirmation("Confirm?", "stage");
+    let q = Question::confirmation("Confirm?");
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Yes);
     Ok(())
@@ -180,7 +178,7 @@ async fn auto_approve_multiple_choice_selects_first() -> Result<(), InterviewErr
             description: None,
         },
     ];
-    let q = Question::multiple_choice("Pick:", opts, "stage");
+    let q = Question::multiple_choice("Pick:", opts);
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Selected("A".into()));
     assert!(answer.selected_option.is_some());
@@ -194,7 +192,7 @@ async fn auto_approve_multiple_choice_selects_first() -> Result<(), InterviewErr
 #[tokio::test]
 async fn auto_approve_multiple_choice_no_options() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
-    let q = Question::multiple_choice("Pick:", vec![], "stage");
+    let q = Question::multiple_choice("Pick:", vec![]);
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Text("auto-approved".into()));
     Ok(())
@@ -203,7 +201,7 @@ async fn auto_approve_multiple_choice_no_options() -> Result<(), InterviewError>
 #[tokio::test]
 async fn auto_approve_freeform() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
-    let q = Question::freeform("Name?", "stage");
+    let q = Question::freeform("Name?");
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Text("auto-approved".into()));
     Ok(())
@@ -222,7 +220,7 @@ async fn queue_fifo_order() -> Result<(), InterviewError> {
     let interviewer = QueueInterviewer::new(vec![q1, q2, q3]);
     assert_eq!(interviewer.remaining(), 3);
 
-    let q = Question::yes_no("Q1?", "s");
+    let q = Question::yes_no("Q1?");
     let a1 = interviewer.ask(&q).await?;
     assert_eq!(a1.value, AnswerValue::Yes);
 
@@ -239,7 +237,7 @@ async fn queue_fifo_order() -> Result<(), InterviewError> {
 #[tokio::test]
 async fn queue_returns_skipped_when_empty() -> Result<(), InterviewError> {
     let interviewer = QueueInterviewer::new(vec![]);
-    let q = Question::yes_no("Q?", "s");
+    let q = Question::yes_no("Q?");
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Skipped);
     Ok(())
@@ -248,7 +246,7 @@ async fn queue_returns_skipped_when_empty() -> Result<(), InterviewError> {
 #[tokio::test]
 async fn queue_exhaustion_returns_skipped() -> Result<(), InterviewError> {
     let interviewer = QueueInterviewer::new(vec![Answer::new(AnswerValue::Yes)]);
-    let q = Question::yes_no("Q?", "s");
+    let q = Question::yes_no("Q?");
 
     let _ = interviewer.ask(&q).await?; // consume the one answer
     let answer = interviewer.ask(&q).await?; // now empty
@@ -270,10 +268,10 @@ async fn callback_delegates_to_function() -> Result<(), InterviewError> {
         }
     });
 
-    let yes_no = Question::yes_no("Q?", "s");
+    let yes_no = Question::yes_no("Q?");
     assert_eq!(interviewer.ask(&yes_no).await?.value, AnswerValue::No);
 
-    let freeform = Question::freeform("Q?", "s");
+    let freeform = Question::freeform("Q?");
     assert_eq!(
         interviewer.ask(&freeform).await?.value,
         AnswerValue::Text("callback".into())
@@ -290,11 +288,11 @@ async fn recording_records_interactions() -> Result<(), InterviewError> {
     let inner = AutoApproveInterviewer;
     let recording = RecordingInterviewer::new(inner);
 
-    let q1 = Question::yes_no("Deploy?", "stage");
+    let q1 = Question::yes_no("Deploy?");
     let a1 = recording.ask(&q1).await?;
     assert_eq!(a1.value, AnswerValue::Yes);
 
-    let q2 = Question::freeform("Name?", "stage");
+    let q2 = Question::freeform("Name?");
     let a2 = recording.ask(&q2).await?;
     assert_eq!(a2.value, AnswerValue::Text("auto-approved".into()));
 
@@ -314,7 +312,7 @@ async fn recording_delegates_to_inner() -> Result<(), InterviewError> {
     ]);
     let recording = RecordingInterviewer::new(inner);
 
-    let q = Question::freeform("Q?", "s");
+    let q = Question::freeform("Q?");
     assert_eq!(
         recording.ask(&q).await?.value,
         AnswerValue::Text("first".into())

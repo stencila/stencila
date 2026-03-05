@@ -155,7 +155,7 @@ mod tests {
     use stencila_attractor::interviewer::AnswerValue;
 
     fn freeform_question() -> Question {
-        Question::freeform("What is your name?", "test-stage")
+        Question::freeform("What is your name?")
     }
 
     #[tokio::test]

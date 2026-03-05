@@ -122,7 +122,7 @@ impl WebhookInterviewer {
 #[async_trait]
 impl Interviewer for WebhookInterviewer {
     async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
-        let mut interview = Interview::single(question.clone());
+        let mut interview = Interview::single(question.clone(), "");
         self.conduct(&mut interview).await?;
         interview
             .answers
@@ -167,7 +167,7 @@ mod tests {
         let awaitable = Arc::new(AwaitableInterviewer::new());
         let wh = WebhookInterviewer::new(test_config(), awaitable);
 
-        let interview = Interview::single(Question::yes_no("Approve?", "gate-1"))
+        let interview = Interview::single(Question::yes_no("Approve?"), "gate-1")
             .with_preamble("Review the draft.");
 
         let envelope = wh.build_envelope(&interview);
@@ -193,7 +193,7 @@ mod tests {
         let config = test_config();
         let wh = WebhookInterviewer::new(config, awaitable.clone());
 
-        let mut interview = Interview::single(Question::yes_no("Proceed?", "gate"));
+        let mut interview = Interview::single(Question::yes_no("Proceed?"), "gate");
 
         let result = wh.conduct(&mut interview).await;
         assert!(result.is_err());

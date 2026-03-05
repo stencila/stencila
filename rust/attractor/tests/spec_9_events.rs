@@ -39,7 +39,7 @@ fn event_all_categories_exist() {
     let _interview = PipelineEvent::InterviewQuestionAsked {
         interview_id: "int-1".into(),
         node_id: "n".into(),
-        question: stencila_attractor::interviewer::Question::yes_no("Proceed?", "n"),
+        question: stencila_attractor::interviewer::Question::yes_no("Proceed?"),
     };
     let _checkpoint = PipelineEvent::CheckpointSaved {
         node_id: "n".into(),

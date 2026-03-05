@@ -83,7 +83,7 @@ impl PersistentInterviewer {
 #[async_trait]
 impl Interviewer for PersistentInterviewer {
     async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
-        let mut interview = Interview::single(question.clone());
+        let mut interview = Interview::single(question.clone(), "");
         self.conduct(&mut interview).await?;
         interview
             .answers
@@ -464,7 +464,7 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-1");
 
-        let q = Question::yes_no("Proceed?", "gate-1");
+        let q = Question::yes_no("Proceed?");
         let answer = pi.ask(&q).await.unwrap();
         assert_eq!(answer.value, AnswerValue::Yes);
 
@@ -546,8 +546,8 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-2");
 
-        let q = Question::yes_no("OK?", "gate");
-        let mut interview = Interview::single(q);
+        let q = Question::yes_no("OK?");
+        let mut interview = Interview::single(q, "gate");
         pi.conduct(&mut interview).await.unwrap();
 
         // Question should now have an ID set
@@ -572,8 +572,8 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-3");
 
-        let q = Question::yes_no("OK?", "gate");
-        let mut interview = Interview::single(q);
+        let q = Question::yes_no("OK?");
+        let mut interview = Interview::single(q, "gate");
         let original_id = interview.id.clone();
         pi.conduct(&mut interview).await.unwrap();
 
@@ -616,7 +616,7 @@ mod tests {
         }) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-4");
 
-        let q = Question::yes_no("Check?", "gate");
+        let q = Question::yes_no("Check?");
         pi.ask(&q).await.unwrap();
 
         assert!(
@@ -640,7 +640,7 @@ mod tests {
         let inner = Arc::new(FailingInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-err");
 
-        let q = Question::yes_no("Fail?", "gate");
+        let q = Question::yes_no("Fail?");
         let result = pi.ask(&q).await;
         assert!(result.is_err());
 
@@ -661,7 +661,7 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-del");
 
-        let q = Question::yes_no("OK?", "gate");
+        let q = Question::yes_no("OK?");
         pi.ask(&q).await.unwrap();
 
         let conn = db.lock().unwrap();
@@ -691,7 +691,7 @@ mod tests {
     async fn find_pending_interview_returns_ids() {
         let db = setup_db();
         let question_ids = vec![uuid::Uuid::now_v7().to_string()];
-        let q = Question::yes_no("Pending?", "gate-node");
+        let q = Question::yes_no("Pending?");
         let record = PendingInterviewRecord {
             interview_id: "int-pending",
             context_type: "workflow",
@@ -721,7 +721,7 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-done");
 
-        let q = Question::yes_no("Done?", "gate");
+        let q = Question::yes_no("Done?");
         pi.ask(&q).await.unwrap();
 
         let result = find_pending_interview(&db, "workflow", "run-done", "gate", None).unwrap();
@@ -805,8 +805,8 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let _pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-si");
 
-        let q = Question::yes_no("OK?", "gate");
-        let mut interview = Interview::single(q);
+        let q = Question::yes_no("OK?");
+        let mut interview = Interview::single(q, "gate");
         interview.stage_index = Some(7);
 
         // Insert a pending row manually to simulate a crash-before-answer
@@ -853,8 +853,8 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-si2");
 
-        let q = Question::yes_no("OK?", "gate");
-        let mut interview = Interview::single(q);
+        let q = Question::yes_no("OK?");
+        let mut interview = Interview::single(q, "gate");
         interview.stage_index = Some(42);
         pi.conduct(&mut interview).await.unwrap();
 
@@ -876,7 +876,7 @@ mod tests {
         // 1. Simulate a previously pending interview with known question IDs
         let old_interview_id = "recovered-int-1";
         let old_qid = "recovered-q-1".to_string();
-        let q = Question::yes_no("Resume?", "gate");
+        let q = Question::yes_no("Resume?");
         let record = PendingInterviewRecord {
             interview_id: old_interview_id,
             context_type: "workflow",
@@ -898,7 +898,7 @@ mod tests {
 
         let mut recovered_q = q;
         recovered_q.id = Some(old_qid.clone());
-        let mut interview = Interview::single(recovered_q);
+        let mut interview = Interview::single(recovered_q, "gate");
         interview.id = old_interview_id.to_string();
         interview.stage_index = Some(5);
         pi.conduct(&mut interview).await.unwrap();
@@ -942,9 +942,9 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-preset");
 
-        let mut q = Question::yes_no("OK?", "gate");
+        let mut q = Question::yes_no("OK?");
         q.id = Some("my-custom-qid".to_string());
-        let mut interview = Interview::single(q);
+        let mut interview = Interview::single(q, "gate");
         pi.conduct(&mut interview).await.unwrap();
 
         assert_eq!(

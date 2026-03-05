@@ -70,10 +70,7 @@ impl Interviewer for CliInterviewer {
                     // The spawn_blocking task may still be waiting on stdin.
                     // There is no way to cancel a blocking read; the detached
                     // task will be cleaned up when the process exits.
-                    tracing::warn!(
-                        stage = %question.stage,
-                        "CLI prompt timed out after {secs}s; blocking reader detached"
-                    );
+                    tracing::warn!("CLI prompt timed out after {secs}s; blocking reader detached");
                     Ok(Answer::new(AnswerValue::Timeout))
                 }
             }
@@ -192,7 +189,7 @@ mod tests {
     fn ask_yes_no_returns_skipped_on_dialoguer_error() {
         // dialoguer::Confirm::interact() will fail in a test environment
         // (no real terminal interaction possible), so ask_yes_no returns Skipped.
-        let q = Question::yes_no("Proceed?", "test");
+        let q = Question::yes_no("Proceed?");
         let answer = ask_yes_no(&q);
         assert_eq!(answer.value, AnswerValue::Skipped);
     }
@@ -221,14 +218,14 @@ mod tests {
 
     #[test]
     fn ask_freeform_returns_skipped_on_dialoguer_error() {
-        let q = Question::freeform("Enter something:", "test");
+        let q = Question::freeform("Enter something:");
         let answer = ask_freeform(&q);
         assert_eq!(answer.value, AnswerValue::Skipped);
     }
 
     #[tokio::test]
     async fn timeout_returns_timeout_or_skipped() -> Result<(), InterviewError> {
-        let mut q = Question::freeform("Enter something:", "test");
+        let mut q = Question::freeform("Enter something:");
         q.timeout_seconds = Some(0.01); // 10ms
 
         let interviewer = CliInterviewer;

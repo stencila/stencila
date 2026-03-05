@@ -105,7 +105,7 @@ mod tests {
             size_bytes: Some(1024),
             description: None,
         };
-        let interview = Interview::single(Question::yes_no("Approve?", "review-gate"))
+        let interview = Interview::single(Question::yes_no("Approve?"), "review-gate")
             .with_preamble("Please review the quarterly report.")
             .with_attachment(att.clone());
 
@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn envelope_with_callback_url() {
-        let interview = Interview::single(Question::yes_no("OK?", "gate"));
+        let interview = Interview::single(Question::yes_no("OK?"), "gate");
         let envelope = InterviewEnvelope::from_interview(&interview, "run-1", "pipe", "gate")
             .with_callback_url("https://api.example.com/answers");
         assert_eq!(
@@ -139,7 +139,7 @@ mod tests {
 
     #[test]
     fn interview_envelope_serde_roundtrip() {
-        let interview = Interview::single(Question::yes_no("Approve?", "gate"))
+        let interview = Interview::single(Question::yes_no("Approve?"), "review-gate")
             .with_preamble("Review this.");
         let envelope =
             InterviewEnvelope::from_interview(&interview, "run-1", "pipeline-a", "gate-1")
@@ -161,7 +161,7 @@ mod tests {
 
     #[test]
     fn interview_envelope_optional_fields_omitted() {
-        let interview = Interview::single(Question::yes_no("OK?", "gate"));
+        let interview = Interview::single(Question::yes_no("OK?"), "gate");
         let envelope = InterviewEnvelope::from_interview(&interview, "run-1", "pipe", "gate");
         let json = serde_json::to_string(&envelope).unwrap();
         assert!(!json.contains("preamble"));
@@ -230,8 +230,8 @@ mod tests {
             description: Some("Draft report".into()),
         };
         let qs = vec![
-            Question::yes_no("Formatting OK?", "review"),
-            Question::yes_no("Add TOC?", "review"),
+            Question::yes_no("Formatting OK?"),
+            Question::yes_no("Add TOC?"),
         ];
         let interview = Interview::batch(qs, "review")
             .with_preamble("Here's the report draft.")

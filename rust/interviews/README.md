@@ -35,9 +35,13 @@ The spec defines `ask_multiple(questions: List<Question>) -> List<Answer>` as a 
 
 The spec's §6.2 defines four question types (`YES_NO`, `MULTIPLE_CHOICE`, `FREEFORM`, `CONFIRMATION`). This implementation adds `MULTI_SELECT` (select multiple options from a list) and a corresponding `MultiSelected(Vec<String>)` answer value. This is motivated by §11.8's mention of `MULTI_SELECT` and by the multi-question interview pattern (e.g. Claude Code `AskUserQuestions` tool).
 
+### `stage` is interview-level, not question-level (§6.2)
+
+The spec's §6.2 places `stage` on `Question`. This implementation moves stage to `Interview` only. In practice, a question's origin stage is the same as its containing interview's stage, so duplicating it on every `Question` creates redundant data and allows inconsistent states. For single-question interactions, callers construct `Interview::single(question, stage)`; for batched interactions, they use `Interview::batch(questions, stage)`. If a frontend ever needs question-specific provenance beyond the shared interview stage, it should use `Question.metadata`.
+
 ### Additional fields on `Question` and `QuestionOption`
 
-The spec's §6.2 `Question` has `text`, `type`, `options`, `default`, `timeout_seconds`, `stage`, and `metadata`. This implementation adds `id: Option<String>` (for per-question correlation; maps to `interview_questions.question_id`) and `header: Option<String>` (for rendering grouped/headed question forms). `QuestionOption` gains `description: Option<String>` for explanatory text alongside the label. The interview-level identifier remains `Interview.id` (maps to `interviews.interview_id`).
+Beyond that stage deviation, this implementation adds `id: Option<String>` (for per-question correlation; maps to `interview_questions.question_id`) and `header: Option<String>` (for rendering grouped/headed question forms) to `Question`. `QuestionOption` gains `description: Option<String>` for explanatory text alongside the label. The interview-level identifier remains `Interview.id` (maps to `interviews.interview_id`).
 
 ### `Interview` struct and `Interviewer::conduct()`
 

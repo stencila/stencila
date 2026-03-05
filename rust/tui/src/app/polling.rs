@@ -351,7 +351,7 @@ mod tests {
         // Send an interview question through the channel
         let (answer_tx, _answer_rx) = oneshot::channel();
         tx.send(WorkflowEvent::InterviewQuestion {
-            question: Question::freeform("Continue?", "test"),
+            question: Question::freeform("Continue?"),
             answer_tx,
         })
         .unwrap();

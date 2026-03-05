@@ -202,7 +202,6 @@ async fn list_pending_interviews(
                 .map_err(|error| bad_request(format!("invalid options JSON: {error}")))?,
             default: None,
             timeout_seconds: None,
-            stage: row.node_id.clone().unwrap_or_default(),
             metadata: Default::default(),
         };
 

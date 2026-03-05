@@ -179,7 +179,7 @@ impl Handler for WaitForHumanHandler {
             .collect();
 
         let text = node.get_str_attr("label").unwrap_or("Select an option:");
-        let mut question = Question::multiple_choice(text, options, &node.id);
+        let mut question = Question::multiple_choice(text, options);
 
         // Set timeout from node attribute (§2.6)
         if let Some(v) = node.get_attr("timeout") {
@@ -194,8 +194,7 @@ impl Handler for WaitForHumanHandler {
         }
 
         // 3. Build an Interview and conduct it
-        let mut interview = Interview::single(question.clone());
-        interview.stage = node.id.clone();
+        let mut interview = Interview::single(question.clone(), &node.id);
         interview.stage_index = context.get_i64("internal.stage_index");
 
         // 3a. Resume recovery: if we have a DB connection, check for a

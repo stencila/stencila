@@ -107,8 +107,6 @@ pub struct Question {
     /// Maximum time (in seconds) to wait for a response.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timeout_seconds: Option<f64>,
-    /// Originating stage name (for display).
-    pub stage: String,
     /// Arbitrary key-value metadata for remote interviewers.
     ///
     /// Useful for passing extra context (pipeline name, run ID, urgency
@@ -120,7 +118,7 @@ pub struct Question {
 impl Question {
     /// Create a yes/no question.
     #[must_use]
-    pub fn yes_no(text: impl Into<String>, stage: impl Into<String>) -> Self {
+    pub fn yes_no(text: impl Into<String>) -> Self {
         Self {
             id: None,
             text: text.into(),
@@ -129,14 +127,13 @@ impl Question {
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
-            stage: stage.into(),
             metadata: IndexMap::new(),
         }
     }
 
     /// Create a confirmation question.
     #[must_use]
-    pub fn confirmation(text: impl Into<String>, stage: impl Into<String>) -> Self {
+    pub fn confirmation(text: impl Into<String>) -> Self {
         Self {
             id: None,
             text: text.into(),
@@ -145,7 +142,6 @@ impl Question {
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
-            stage: stage.into(),
             metadata: IndexMap::new(),
         }
     }
@@ -155,7 +151,6 @@ impl Question {
     pub fn multiple_choice(
         text: impl Into<String>,
         options: Vec<QuestionOption>,
-        stage: impl Into<String>,
     ) -> Self {
         Self {
             id: None,
@@ -165,7 +160,6 @@ impl Question {
             options,
             default: None,
             timeout_seconds: None,
-            stage: stage.into(),
             metadata: IndexMap::new(),
         }
     }
@@ -175,7 +169,6 @@ impl Question {
     pub fn multi_select(
         text: impl Into<String>,
         options: Vec<QuestionOption>,
-        stage: impl Into<String>,
     ) -> Self {
         Self {
             id: None,
@@ -185,14 +178,13 @@ impl Question {
             options,
             default: None,
             timeout_seconds: None,
-            stage: stage.into(),
             metadata: IndexMap::new(),
         }
     }
 
     /// Create a free-form text question.
     #[must_use]
-    pub fn freeform(text: impl Into<String>, stage: impl Into<String>) -> Self {
+    pub fn freeform(text: impl Into<String>) -> Self {
         Self {
             id: None,
             text: text.into(),
@@ -201,7 +193,6 @@ impl Question {
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
-            stage: stage.into(),
             metadata: IndexMap::new(),
         }
     }
@@ -368,13 +359,12 @@ pub struct Interview {
 impl Interview {
     /// Create a single-question interview with a generated UUID v7 ID.
     #[must_use]
-    pub fn single(question: Question) -> Self {
-        let stage = question.stage.clone();
+    pub fn single(question: Question, stage: impl Into<String>) -> Self {
         Self {
             id: uuid::Uuid::now_v7().to_string(),
             questions: vec![question],
             answers: Vec::new(),
-            stage,
+            stage: stage.into(),
             preamble: None,
             attachments: Vec::new(),
             stage_index: None,
@@ -530,11 +520,11 @@ mod tests {
     use super::*;
 
     fn freeform_question() -> Question {
-        Question::freeform("What is your name?", "test-stage")
+        Question::freeform("What is your name?")
     }
 
     fn yes_no_question() -> Question {
-        Question::yes_no("Do you agree?", "test-stage")
+        Question::yes_no("Do you agree?")
     }
 
     fn multiple_choice_question() -> Question {
@@ -552,7 +542,6 @@ mod tests {
                     description: None,
                 },
             ],
-            "test-stage",
         )
     }
 
@@ -576,7 +565,6 @@ mod tests {
                     description: Some("Third option".to_string()),
                 },
             ],
-            "test-stage",
         )
     }
 
@@ -685,7 +673,7 @@ mod tests {
 
     #[test]
     fn question_serde_roundtrip() {
-        let mut q = Question::freeform("What?", "stage");
+        let mut q = Question::freeform("What?");
         q.id = Some("q-123".to_string());
         q.header = Some("Header".to_string());
         q.metadata
@@ -761,8 +749,8 @@ mod tests {
 
     #[test]
     fn interview_single_creates_uuid() {
-        let q = Question::yes_no("Proceed?", "gate-1");
-        let interview = Interview::single(q);
+        let q = Question::yes_no("Proceed?");
+        let interview = Interview::single(q, "gate-1");
         assert!(!interview.id.is_empty());
         assert_eq!(interview.questions.len(), 1);
         assert!(interview.answers.is_empty());
@@ -772,7 +760,7 @@ mod tests {
 
     #[test]
     fn interview_batch_creates_uuid() {
-        let qs = vec![Question::yes_no("Q1?", "s"), Question::freeform("Q2?", "s")];
+        let qs = vec![Question::yes_no("Q1?"), Question::freeform("Q2?")];
         let interview = Interview::batch(qs, "ask_user");
         assert!(!interview.id.is_empty());
         assert_eq!(interview.questions.len(), 2);
@@ -781,15 +769,15 @@ mod tests {
     }
 
     #[test]
-    fn interview_single_inherits_stage_from_question() {
-        let q = Question::freeform("Name?", "my-stage");
-        let interview = Interview::single(q);
+    fn interview_single_sets_stage_explicitly() {
+        let q = Question::freeform("Name?");
+        let interview = Interview::single(q, "my-stage");
         assert_eq!(interview.stage, "my-stage");
     }
 
     #[test]
     fn interview_serde_roundtrip() {
-        let mut interview = Interview::single(Question::yes_no("Continue?", "gate"));
+        let mut interview = Interview::single(Question::yes_no("Continue?"), "gate");
         interview.answers.push(Answer::new(AnswerValue::Yes));
         interview
             .metadata
@@ -807,28 +795,28 @@ mod tests {
 
     #[test]
     fn interview_serde_empty_answers_omitted() {
-        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let interview = Interview::single(Question::yes_no("OK?"), "s");
         let json = serde_json::to_string(&interview).unwrap();
         assert!(!json.contains("answers"));
     }
 
     #[test]
     fn interview_serde_empty_metadata_omitted() {
-        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let interview = Interview::single(Question::yes_no("OK?"), "s");
         let json = serde_json::to_string(&interview).unwrap();
         assert!(!json.contains("metadata"));
     }
 
     #[test]
     fn interview_single_has_no_preamble_or_attachments() {
-        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let interview = Interview::single(Question::yes_no("OK?"), "s");
         assert!(interview.preamble.is_none());
         assert!(interview.attachments.is_empty());
     }
 
     #[test]
     fn interview_batch_has_no_preamble_or_attachments() {
-        let qs = vec![Question::yes_no("Q1?", "s")];
+        let qs = vec![Question::yes_no("Q1?")];
         let interview = Interview::batch(qs, "s");
         assert!(interview.preamble.is_none());
         assert!(interview.attachments.is_empty());
@@ -836,7 +824,7 @@ mod tests {
 
     #[test]
     fn interview_with_preamble_builder() {
-        let interview = Interview::single(Question::yes_no("OK?", "s"))
+        let interview = Interview::single(Question::yes_no("OK?"), "s")
             .with_preamble("Please review the attached draft.");
         assert_eq!(
             interview.preamble.as_deref(),
@@ -855,7 +843,7 @@ mod tests {
             description: Some("Q3 report".into()),
         };
         let interview =
-            Interview::single(Question::yes_no("OK?", "s")).with_attachments(vec![att.clone()]);
+            Interview::single(Question::yes_no("OK?"), "s").with_attachments(vec![att.clone()]);
         assert_eq!(interview.attachments.len(), 1);
         assert_eq!(interview.attachments[0], att);
     }
@@ -878,7 +866,7 @@ mod tests {
             size_bytes: Some(2048),
             description: Some("Screenshot".into()),
         };
-        let interview = Interview::single(Question::yes_no("OK?", "s"))
+        let interview = Interview::single(Question::yes_no("OK?"), "s")
             .with_attachment(att1)
             .with_attachment(att2);
         assert_eq!(interview.attachments.len(), 2);
@@ -888,14 +876,14 @@ mod tests {
 
     #[test]
     fn interview_serde_empty_preamble_omitted() {
-        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let interview = Interview::single(Question::yes_no("OK?"), "s");
         let json = serde_json::to_string(&interview).unwrap();
         assert!(!json.contains("preamble"));
     }
 
     #[test]
     fn interview_serde_empty_attachments_omitted() {
-        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let interview = Interview::single(Question::yes_no("OK?"), "s");
         let json = serde_json::to_string(&interview).unwrap();
         assert!(!json.contains("attachments"));
     }
@@ -911,7 +899,7 @@ mod tests {
             size_bytes: Some(51200),
             description: Some("Draft report v2".into()),
         };
-        let interview = Interview::single(Question::yes_no("OK?", "gate"))
+        let interview = Interview::single(Question::yes_no("OK?"), "gate")
             .with_preamble("Review the attached draft")
             .with_attachment(att.clone());
 

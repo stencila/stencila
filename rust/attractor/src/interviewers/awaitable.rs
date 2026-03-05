@@ -261,7 +261,7 @@ impl AwaitableInterviewer {
 #[async_trait]
 impl Interviewer for AwaitableInterviewer {
     async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
-        let mut interview = Interview::single(question.clone());
+        let mut interview = Interview::single(question.clone(), "");
         self.conduct(&mut interview).await?;
         interview
             .answers
@@ -502,9 +502,9 @@ mod tests {
         let interviewer =
             Arc::new(AwaitableInterviewer::new().with_poll_interval(Duration::from_millis(10)));
 
-        let mut question = Question::yes_no("Proceed?", "gate");
+        let mut question = Question::yes_no("Proceed?");
         question.id = Some("q-1".into());
-        let mut interview = Interview::single(question);
+        let mut interview = Interview::single(question, "gate");
         interview.id = "int-1".into();
 
         let interviewer_for_task = interviewer.clone();
@@ -547,9 +547,9 @@ mod tests {
         let interviewer =
             Arc::new(AwaitableInterviewer::new().with_poll_interval(Duration::from_millis(10)));
 
-        let mut q1 = Question::yes_no("Q1?", "gate");
+        let mut q1 = Question::yes_no("Q1?");
         q1.id = Some("q-1".into());
-        let mut q2 = Question::freeform("Q2?", "gate");
+        let mut q2 = Question::freeform("Q2?");
         q2.id = Some("q-2".into());
 
         let mut interview = Interview::batch(vec![q1, q2], "gate");
@@ -641,9 +641,9 @@ mod tests {
                 .with_poll_interval(Duration::from_millis(10)),
         );
 
-        let mut question = Question::yes_no("Proceed?", "gate");
+        let mut question = Question::yes_no("Proceed?");
         question.id = Some("q-db".into());
-        let mut interview = Interview::single(question);
+        let mut interview = Interview::single(question, "gate");
         interview.id = "int-db".into();
 
         let interviewer_for_task = interviewer.clone();
