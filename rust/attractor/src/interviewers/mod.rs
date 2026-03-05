@@ -4,6 +4,8 @@
 
 pub use stencila_interviews::interviewers::*;
 
-mod awaitable;
+pub mod awaitable;
+mod webhook;
 
 pub use awaitable::{AwaitableInterviewer, PendingInterviewSnapshot, SubmittedAnswer};
+pub use webhook::{WebhookConfig, WebhookInterviewer};

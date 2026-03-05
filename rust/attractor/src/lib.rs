@@ -14,6 +14,7 @@ pub mod context;
 pub mod definition_snapshot;
 pub mod edge_selection;
 pub mod engine;
+pub mod envelope;
 pub mod error;
 pub mod events;
 pub mod fidelity;

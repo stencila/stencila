@@ -288,6 +288,35 @@ impl Answer {
     }
 }
 
+/// An artifact attached to an interview for human review.
+///
+/// Attachments are lightweight references — they carry metadata (filename,
+/// media type, size) and an optional URL, but never embed file bytes. For
+/// local interviewers (TUI, CLI), the URL may use a `file://` scheme or be
+/// `None` (the file is accessed directly). For remote interviewers (webhook,
+/// email, Slack), the server/cloud layer populates `url` with an HTTP
+/// download link before posting the envelope.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Attachment {
+    /// Unique identifier for this attachment.
+    pub id: String,
+    /// Display filename (e.g., `"report-draft.docx"`).
+    pub filename: String,
+    /// MIME type (e.g., `"image/png"`, `"application/pdf"`).
+    pub media_type: String,
+    /// Download URL. Set by the server/cloud layer when the
+    /// attachment is served over HTTP; `None` for local-only
+    /// attachments (TUI, CLI) where the file is accessed directly.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    /// Size in bytes, if known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size_bytes: Option<u64>,
+    /// Human-readable description (e.g., `"Draft report v2"`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
+
 /// A group of questions presented to a human as a single interaction.
 ///
 /// Single-question interviews are the common case (pipeline gates via
@@ -301,6 +330,22 @@ pub struct Interview {
 
     /// Originating stage name (e.g., pipeline node ID, `"ask_user"`).
     pub stage: String,
+
+    /// Introductory text displayed before the questions.
+    ///
+    /// Provides framing context — e.g., "Here's the quarterly report draft.
+    /// Please review and answer the following questions."
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preamble: Option<String>,
+
+    /// Artifacts attached for the human to review alongside the questions.
+    ///
+    /// Attachments are interview-level: a single attachment (e.g., a docx
+    /// draft) often provides context for multiple questions. Individual
+    /// questions can reference relevant attachment IDs via their `metadata`
+    /// (e.g., `"attachment_ids": ["att-1"]`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub attachments: Vec<Attachment>,
 
     /// The questions to present (one or more).
     pub questions: Vec<Question>,
@@ -330,6 +375,8 @@ impl Interview {
             questions: vec![question],
             answers: Vec::new(),
             stage,
+            preamble: None,
+            attachments: Vec::new(),
             stage_index: None,
             metadata: IndexMap::new(),
         }
@@ -343,9 +390,32 @@ impl Interview {
             questions,
             answers: Vec::new(),
             stage: stage.into(),
+            preamble: None,
+            attachments: Vec::new(),
             stage_index: None,
             metadata: IndexMap::new(),
         }
+    }
+
+    /// Set the preamble text for this interview.
+    #[must_use]
+    pub fn with_preamble(mut self, preamble: impl Into<String>) -> Self {
+        self.preamble = Some(preamble.into());
+        self
+    }
+
+    /// Set the attachments for this interview.
+    #[must_use]
+    pub fn with_attachments(mut self, attachments: Vec<Attachment>) -> Self {
+        self.attachments = attachments;
+        self
+    }
+
+    /// Append a single attachment to this interview.
+    #[must_use]
+    pub fn with_attachment(mut self, attachment: Attachment) -> Self {
+        self.attachments.push(attachment);
+        self
     }
 }
 
@@ -747,5 +817,148 @@ mod tests {
         let interview = Interview::single(Question::yes_no("OK?", "s"));
         let json = serde_json::to_string(&interview).unwrap();
         assert!(!json.contains("metadata"));
+    }
+
+    #[test]
+    fn interview_single_has_no_preamble_or_attachments() {
+        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        assert!(interview.preamble.is_none());
+        assert!(interview.attachments.is_empty());
+    }
+
+    #[test]
+    fn interview_batch_has_no_preamble_or_attachments() {
+        let qs = vec![Question::yes_no("Q1?", "s")];
+        let interview = Interview::batch(qs, "s");
+        assert!(interview.preamble.is_none());
+        assert!(interview.attachments.is_empty());
+    }
+
+    #[test]
+    fn interview_with_preamble_builder() {
+        let interview = Interview::single(Question::yes_no("OK?", "s"))
+            .with_preamble("Please review the attached draft.");
+        assert_eq!(
+            interview.preamble.as_deref(),
+            Some("Please review the attached draft.")
+        );
+    }
+
+    #[test]
+    fn interview_with_attachments_builder() {
+        let att = Attachment {
+            id: "att-1".into(),
+            filename: "report.pdf".into(),
+            media_type: "application/pdf".into(),
+            url: None,
+            size_bytes: Some(1024),
+            description: Some("Q3 report".into()),
+        };
+        let interview =
+            Interview::single(Question::yes_no("OK?", "s")).with_attachments(vec![att.clone()]);
+        assert_eq!(interview.attachments.len(), 1);
+        assert_eq!(interview.attachments[0], att);
+    }
+
+    #[test]
+    fn interview_with_attachment_builder_appends() {
+        let att1 = Attachment {
+            id: "att-1".into(),
+            filename: "a.pdf".into(),
+            media_type: "application/pdf".into(),
+            url: None,
+            size_bytes: None,
+            description: None,
+        };
+        let att2 = Attachment {
+            id: "att-2".into(),
+            filename: "b.png".into(),
+            media_type: "image/png".into(),
+            url: Some("https://example.com/b.png".into()),
+            size_bytes: Some(2048),
+            description: Some("Screenshot".into()),
+        };
+        let interview = Interview::single(Question::yes_no("OK?", "s"))
+            .with_attachment(att1)
+            .with_attachment(att2);
+        assert_eq!(interview.attachments.len(), 2);
+        assert_eq!(interview.attachments[0].id, "att-1");
+        assert_eq!(interview.attachments[1].id, "att-2");
+    }
+
+    #[test]
+    fn interview_serde_empty_preamble_omitted() {
+        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let json = serde_json::to_string(&interview).unwrap();
+        assert!(!json.contains("preamble"));
+    }
+
+    #[test]
+    fn interview_serde_empty_attachments_omitted() {
+        let interview = Interview::single(Question::yes_no("OK?", "s"));
+        let json = serde_json::to_string(&interview).unwrap();
+        assert!(!json.contains("attachments"));
+    }
+
+    #[test]
+    fn interview_serde_roundtrip_with_preamble_and_attachments() {
+        let att = Attachment {
+            id: "att-1".into(),
+            filename: "draft.docx".into(),
+            media_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                .into(),
+            url: Some("https://cdn.example.com/draft.docx".into()),
+            size_bytes: Some(51200),
+            description: Some("Draft report v2".into()),
+        };
+        let interview = Interview::single(Question::yes_no("OK?", "gate"))
+            .with_preamble("Review the attached draft")
+            .with_attachment(att.clone());
+
+        let json = serde_json::to_string(&interview).unwrap();
+        assert!(json.contains("preamble"));
+        assert!(json.contains("attachments"));
+
+        let interview2: Interview = serde_json::from_str(&json).unwrap();
+        assert_eq!(
+            interview2.preamble.as_deref(),
+            Some("Review the attached draft")
+        );
+        assert_eq!(interview2.attachments.len(), 1);
+        assert_eq!(interview2.attachments[0], att);
+    }
+
+    #[test]
+    fn attachment_serde_roundtrip() {
+        let att = Attachment {
+            id: "att-1".into(),
+            filename: "report.pdf".into(),
+            media_type: "application/pdf".into(),
+            url: Some("https://example.com/report.pdf".into()),
+            size_bytes: Some(1024),
+            description: Some("Quarterly report".into()),
+        };
+        let json = serde_json::to_string(&att).unwrap();
+        let att2: Attachment = serde_json::from_str(&json).unwrap();
+        assert_eq!(att, att2);
+    }
+
+    #[test]
+    fn attachment_serde_optional_fields_omitted() {
+        let att = Attachment {
+            id: "att-1".into(),
+            filename: "file.txt".into(),
+            media_type: "text/plain".into(),
+            url: None,
+            size_bytes: None,
+            description: None,
+        };
+        let json = serde_json::to_string(&att).unwrap();
+        assert!(!json.contains("url"));
+        assert!(!json.contains("size_bytes"));
+        assert!(!json.contains("description"));
+
+        let att2: Attachment = serde_json::from_str(&json).unwrap();
+        assert_eq!(att, att2);
     }
 }
