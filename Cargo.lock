@@ -11967,7 +11967,6 @@ dependencies = [
  "dialoguer",
  "eyre",
  "glob",
- "indicatif 0.18.4",
  "regex",
  "serde",
  "serde_json",

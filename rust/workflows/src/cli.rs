@@ -480,7 +480,6 @@ impl Run {
         let elapsed = started.elapsed();
 
         eprintln!();
-        eprintln!();
         let time_str = format_elapsed(elapsed);
         if outcome.status.is_success() {
             message!("🎉 Workflow `{}` completed in {}", wf.name, time_str);

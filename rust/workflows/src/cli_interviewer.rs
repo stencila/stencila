@@ -47,11 +47,12 @@ impl Interviewer for CliInterviewer {
     async fn ask(&self, question: &Question) -> Answer {
         let q = question.clone();
 
-        let result = if let Some(secs) = question.timeout_seconds {
+        if let Some(secs) = question.timeout_seconds {
             let duration = std::time::Duration::from_secs_f64(secs);
-            match tokio::time::timeout(duration, tokio::task::spawn_blocking(move || {
-                Self::ask_blocking(&q)
-            }))
+            match tokio::time::timeout(
+                duration,
+                tokio::task::spawn_blocking(move || Self::ask_blocking(&q)),
+            )
             .await
             {
                 Ok(Ok(answer)) => answer,
@@ -72,11 +73,10 @@ impl Interviewer for CliInterviewer {
                 Ok(answer) => answer,
                 Err(_join_error) => Answer::new(AnswerValue::Skipped),
             }
-        };
-
-        result
+        }
     }
 
+    #[allow(clippy::print_stderr)]
     fn inform(&self, message: &str, stage: &str) {
         if stage.is_empty() {
             eprintln!("ℹ️  {message}");
@@ -87,10 +87,13 @@ impl Interviewer for CliInterviewer {
 }
 
 fn ask_yes_no(question: &Question) -> Answer {
-    let default_yes = question.default.as_ref().is_some_and(|a| a.value == AnswerValue::Yes);
+    let default_yes = question
+        .default
+        .as_ref()
+        .is_some_and(|a| a.value == AnswerValue::Yes);
 
     let result = dialoguer::Confirm::new()
-        .with_prompt(&question.text)
+        .with_prompt(format!("❔ {}", &question.text))
         .default(default_yes)
         .interact();
 
@@ -102,10 +105,14 @@ fn ask_yes_no(question: &Question) -> Answer {
 }
 
 fn ask_select(question: &Question) -> Answer {
-    let items: Vec<&str> = question.options.iter().map(|opt| opt.label.as_str()).collect();
+    let items: Vec<&str> = question
+        .options
+        .iter()
+        .map(|opt| opt.label.as_str())
+        .collect();
 
     let result = dialoguer::Select::new()
-        .with_prompt(&question.text)
+        .with_prompt(format!("❔ {}", &question.text))
         .items(&items)
         .default(0)
         .interact();
@@ -129,12 +136,12 @@ fn ask_select(question: &Question) -> Answer {
 }
 
 fn ask_freeform(question: &Question) -> Answer {
-    let mut input = dialoguer::Input::<String>::new().with_prompt(&question.text);
+    let mut input = dialoguer::Input::<String>::new().with_prompt(format!("❔ {}", &question.text));
 
-    if let Some(ref default) = question.default {
-        if let AnswerValue::Text(ref text) = default.value {
-            input = input.default(text.clone());
-        }
+    if let Some(ref default) = question.default
+        && let AnswerValue::Text(ref text) = default.value
+    {
+        input = input.default(text.clone());
     }
 
     match input.interact_text() {

@@ -1,10 +1,9 @@
 //! Event emitters for CLI workflow run presentation.
 
 use std::collections::HashMap;
+use std::io::Write;
 use std::sync::{LazyLock, Mutex};
 use std::time::Instant;
-
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
 use stencila_attractor::events::{EventEmitter, PipelineEvent};
 
@@ -42,17 +41,92 @@ fn single_line_preview(s: &str, max_chars: usize) -> String {
 }
 
 // ---------------------------------------------------------------------------
+// Spinner — minimal inline spinner that overwrites a single stderr line
+// ---------------------------------------------------------------------------
+
+const SPINNER_FRAMES: &[&str] = &["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+struct Spinner {
+    message: std::sync::Arc<Mutex<String>>,
+    handle: Option<std::thread::JoinHandle<()>>,
+    stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+
+impl Spinner {
+    fn new(message: &str) -> Self {
+        let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let msg = std::sync::Arc::new(Mutex::new(message.to_string()));
+        let stop2 = stop.clone();
+        let msg2 = msg.clone();
+        let handle = std::thread::spawn(move || {
+            let mut idx = 0usize;
+            while !stop2.load(std::sync::atomic::Ordering::Relaxed) {
+                let frame = color("36", SPINNER_FRAMES[idx % SPINNER_FRAMES.len()]);
+                let text = msg2.lock().unwrap_or_else(|e| e.into_inner()).clone();
+                // \r moves to column 0, \x1b[K clears to end of line
+                let _ = write!(std::io::stderr(), "\r{frame}  {text}\x1b[K");
+                let _ = std::io::stderr().flush();
+                idx += 1;
+                std::thread::sleep(std::time::Duration::from_millis(80));
+            }
+        });
+        Self {
+            message: msg,
+            handle: Some(handle),
+            stop,
+        }
+    }
+
+    fn set_message(&self, message: &str) {
+        *self.message.lock().unwrap_or_else(|e| e.into_inner()) = message.to_string();
+    }
+
+    fn finish(mut self, final_line: &str) {
+        self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        if let Some(h) = self.handle.take() {
+            let _ = h.join();
+        }
+        let _ = write!(std::io::stderr(), "\r{final_line}\x1b[K\n");
+        let _ = std::io::stderr().flush();
+    }
+
+    fn clear(mut self) {
+        self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        if let Some(h) = self.handle.take() {
+            let _ = h.join();
+        }
+        let _ = write!(std::io::stderr(), "\r\x1b[K");
+        let _ = std::io::stderr().flush();
+    }
+}
+
+impl Drop for Spinner {
+    fn drop(&mut self) {
+        self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        // Don't join here — just signal stop. If someone forgot to call
+        // finish/clear, the thread will notice on its next tick.
+    }
+}
+
+fn format_stage_label(node_id: &str, agent_name: &str) -> String {
+    if agent_name.is_empty() {
+        node_id.to_string()
+    } else {
+        format!("{node_id} ({agent_name})")
+    }
+}
+
+// ---------------------------------------------------------------------------
 // ProgressEventEmitter
 // ---------------------------------------------------------------------------
 
 struct StageState {
-    bar: ProgressBar,
+    spinner: Option<Spinner>,
     started_at: Instant,
     agent_name: String,
 }
 
 pub struct ProgressEventEmitter {
-    multi: MultiProgress,
     state: Mutex<HashMap<String, StageState>>,
 }
 
@@ -66,24 +140,12 @@ impl ProgressEventEmitter {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            multi: MultiProgress::new(),
             state: Mutex::new(HashMap::new()),
         }
     }
-
-    fn new_spinner(&self, node_id: &str) -> ProgressBar {
-        let bar = self.multi.add(ProgressBar::new_spinner());
-        bar.set_style(
-            ProgressStyle::with_template("{spinner:.cyan} {msg}")
-                .expect("static spinner template should be valid")
-                .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ "),
-        );
-        bar.enable_steady_tick(std::time::Duration::from_millis(80));
-        bar.set_message(format!("   {node_id}"));
-        bar
-    }
 }
 
+#[allow(clippy::print_stderr)]
 impl EventEmitter for ProgressEventEmitter {
     fn emit(&self, event: PipelineEvent) {
         let mut state = self
@@ -105,11 +167,11 @@ impl EventEmitter for ProgressEventEmitter {
                 if stage_index == 0 {
                     return;
                 }
-                let bar = self.new_spinner(node_id);
+                let spinner = Spinner::new(node_id);
                 state.insert(
                     node_id.clone(),
                     StageState {
-                        bar,
+                        spinner: Some(spinner),
                         started_at: Instant::now(),
                         agent_name: String::new(),
                     },
@@ -123,7 +185,9 @@ impl EventEmitter for ProgressEventEmitter {
             } => {
                 if let Some(s) = state.get_mut(node_id) {
                     s.agent_name = agent_name.clone();
-                    s.bar.set_message(format!("   {node_id} ({agent_name})"));
+                    if let Some(ref spinner) = s.spinner {
+                        spinner.set_message(&format_stage_label(node_id, agent_name));
+                    }
                 }
             }
 
@@ -133,16 +197,14 @@ impl EventEmitter for ProgressEventEmitter {
                 if let Some(s) = state.remove(node_id) {
                     let elapsed = s.started_at.elapsed().as_secs_f64();
                     let time_str = color("2", &format!("{elapsed:.1}s"));
+                    let label = format_stage_label(node_id, &s.agent_name);
+                    let line = format!("✅ {label}  {time_str}");
 
-                    let agent_part = if s.agent_name.is_empty() {
-                        node_id.clone()
+                    if let Some(spinner) = s.spinner {
+                        spinner.finish(&line);
                     } else {
-                        format!("{node_id} ({})", s.agent_name)
-                    };
-
-                    let line = format!("✅ {agent_part}  {time_str}");
-
-                    s.bar.finish_with_message(line);
+                        eprintln!("{line}");
+                    }
                 }
             }
 
@@ -154,16 +216,16 @@ impl EventEmitter for ProgressEventEmitter {
                 if let Some(s) = state.remove(node_id) {
                     let elapsed = s.started_at.elapsed().as_secs_f64();
                     let time_str = color("2", &format!("{elapsed:.1}s"));
-                    let x = color("31", "✗");
-                    let agent_part = if s.agent_name.is_empty() {
-                        node_id.clone()
+                    let label = format_stage_label(node_id, &s.agent_name);
+                    let line = format!("❌ {label}  {time_str}");
+
+                    if let Some(spinner) = s.spinner {
+                        spinner.finish(&line);
                     } else {
-                        format!("{node_id} ({})", s.agent_name)
-                    };
-                    s.bar
-                        .finish_with_message(format!("{x} {agent_part}  {time_str}"));
-                    let err_msg = color("31", &format!("  Error: {reason}"));
-                    let _ = self.multi.println(err_msg);
+                        eprintln!("{line}");
+                    }
+
+                    eprintln!("{}", color("31", &format!("   Error: {reason}")));
                 }
             }
 
@@ -174,92 +236,82 @@ impl EventEmitter for ProgressEventEmitter {
                 ..
             } => {
                 if let Some(s) = state.get(node_id) {
-                    let agent_part = if s.agent_name.is_empty() {
-                        node_id.clone()
-                    } else {
-                        format!("{node_id} ({})", s.agent_name)
-                    };
-                    s.bar.set_message(format!(
-                        "   {agent_part} retrying ({attempt}/{max_attempts})…"
-                    ));
+                    let label = format_stage_label(node_id, &s.agent_name);
+                    if let Some(ref spinner) = s.spinner {
+                        spinner
+                            .set_message(&format!("{label} retrying ({attempt}/{max_attempts})…"));
+                    }
                 }
             }
 
             PipelineEvent::ParallelStarted { ref node_id } => {
-                let _ = self
-                    .multi
-                    .println(color("2", &format!("║ parallel started: {node_id}")));
+                eprintln!("{}", color("2", &format!("║ parallel started: {node_id}")));
             }
             PipelineEvent::ParallelCompleted { ref node_id } => {
-                let _ = self
-                    .multi
-                    .println(color("2", &format!("║ parallel completed: {node_id}")));
+                eprintln!(
+                    "{}",
+                    color("2", &format!("║ parallel completed: {node_id}"))
+                );
             }
             PipelineEvent::ParallelBranchStarted {
                 ref node_id,
                 branch_index,
             } => {
-                let _ = self.multi.println(color(
-                    "2",
-                    &format!("║ branch {branch_index} started: {node_id}"),
-                ));
+                eprintln!(
+                    "{}",
+                    color("2", &format!("║ branch {branch_index} started: {node_id}"))
+                );
             }
             PipelineEvent::ParallelBranchCompleted {
                 ref node_id,
                 branch_index,
             } => {
-                let _ = self.multi.println(color(
-                    "2",
-                    &format!("║ branch {branch_index} completed: {node_id}"),
-                ));
+                eprintln!(
+                    "{}",
+                    color(
+                        "2",
+                        &format!("║ branch {branch_index} completed: {node_id}")
+                    )
+                );
             }
             PipelineEvent::ParallelBranchFailed {
                 ref node_id,
                 branch_index,
                 ref reason,
             } => {
-                let _ = self.multi.println(color(
-                    "2",
-                    &format!("║ branch {branch_index} failed: {node_id}: {reason}"),
-                ));
+                eprintln!(
+                    "{}",
+                    color(
+                        "2",
+                        &format!("║ branch {branch_index} failed: {node_id}: {reason}")
+                    )
+                );
             }
 
             PipelineEvent::InterviewQuestionAsked { ref node_id } => {
-                // Blank line for visual breathing room before the prompt.
-                let _ = self.multi.println("");
-                // Suspend the spinner so dialoguer gets a clean terminal.
-                // finish_and_clear() stops the tick and erases the spinner
-                // line. We remove the state entry here; InterviewAnswerReceived
-                // (or InterviewTimedOut) will create a fresh bar so that the
-                // subsequent StageCompleted can finish it normally.
-                if let Some(s) = state.remove(node_id) {
-                    s.bar.finish_and_clear();
-                    // Stash the start time so elapsed is accurate across the
-                    // human wait.
-                    state.insert(
-                        node_id.clone(),
-                        StageState {
-                            bar: self.multi.add(ProgressBar::hidden()),
-                            started_at: s.started_at,
-                            agent_name: s.agent_name,
-                        },
-                    );
+                // Stop the spinner so dialoguer gets a clean terminal.
+                if let Some(s) = state.get_mut(node_id)
+                    && let Some(spinner) = s.spinner.take()
+                {
+                    spinner.clear();
                 }
             }
-            PipelineEvent::InterviewAnswerReceived { ref node_id }
-            | PipelineEvent::InterviewTimedOut { ref node_id } => {
-                // Replace the hidden placeholder with a visible spinner so
-                // StageCompleted sees a live bar it can finish.
+            PipelineEvent::InterviewAnswerReceived { ref node_id } => {
+                // Print the ✅ completion line. The state entry is removed
+                // so the subsequent StageCompleted is a no-op.
                 if let Some(s) = state.remove(node_id) {
-                    let bar = self.new_spinner(node_id);
-                    state.insert(
-                        node_id.clone(),
-                        StageState {
-                            bar,
-                            started_at: s.started_at,
-                            agent_name: s.agent_name,
-                        },
-                    );
+                    let elapsed = s.started_at.elapsed().as_secs_f64();
+                    let time_str = color("2", &format!("{elapsed:.1}s"));
+                    let label = format_stage_label(node_id, &s.agent_name);
+                    eprintln!("✅ {label}  {time_str}");
+                }
+            }
+            PipelineEvent::InterviewTimedOut { ref node_id } => {
+                if let Some(s) = state.remove(node_id) {
+                    let elapsed = s.started_at.elapsed().as_secs_f64();
+                    let time_str = color("2", &format!("{elapsed:.1}s"));
+                    let label = format_stage_label(node_id, &s.agent_name);
+                    eprintln!("⏰ {label}  {time_str}");
                 }
             }
         }
@@ -417,7 +469,7 @@ impl EventEmitter for VerboseEventEmitter {
             }
 
             PipelineEvent::InterviewQuestionAsked { ref node_id } => {
-                eprintln!("│  ❓ waiting for human input at {node_id}…");
+                eprintln!("│  ❔ waiting for human input at {node_id}…");
             }
             PipelineEvent::InterviewAnswerReceived { .. } => {}
             PipelineEvent::InterviewTimedOut { ref node_id } => {
