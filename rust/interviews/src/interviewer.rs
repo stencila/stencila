@@ -190,6 +190,68 @@ impl Answer {
     }
 }
 
+/// Parse a raw text answer into a typed [`Answer`] based on the question type.
+///
+/// This is useful for any text-based frontend (TUI, CLI, web form) that
+/// receives user input as a string and needs to convert it to a typed answer.
+///
+/// For [`QuestionType::YesNo`] and [`QuestionType::Confirmation`], recognizes
+/// `y`, `yes`, `true`, `1` as [`AnswerValue::Yes`] and `n`, `no`, `false`, `0`
+/// as [`AnswerValue::No`] (case-insensitive). Unrecognized input falls back to
+/// [`AnswerValue::Text`].
+///
+/// For [`QuestionType::MultipleChoice`], matches against option keys first,
+/// then labels (case-insensitive). Unmatched input falls back to
+/// [`AnswerValue::Text`].
+///
+/// For [`QuestionType::Freeform`], always returns [`AnswerValue::Text`].
+#[must_use]
+pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
+    let trimmed = text.trim();
+    match question.question_type {
+        QuestionType::YesNo | QuestionType::Confirmation => {
+            let lower = trimmed.to_ascii_lowercase();
+            if matches!(lower.as_str(), "y" | "yes" | "true" | "1") {
+                Answer::new(AnswerValue::Yes)
+            } else if matches!(lower.as_str(), "n" | "no" | "false" | "0") {
+                Answer::new(AnswerValue::No)
+            } else {
+                Answer::new(AnswerValue::Text(trimmed.to_string()))
+            }
+        }
+        QuestionType::MultipleChoice => {
+            if let Some(opt) = question
+                .options
+                .iter()
+                .find(|o| o.key.eq_ignore_ascii_case(trimmed))
+            {
+                Answer::with_option(
+                    AnswerValue::Selected(opt.key.clone()),
+                    QuestionOption {
+                        key: opt.key.clone(),
+                        label: opt.label.clone(),
+                    },
+                )
+            } else if let Some(opt) = question
+                .options
+                .iter()
+                .find(|o| o.label.eq_ignore_ascii_case(trimmed))
+            {
+                Answer::with_option(
+                    AnswerValue::Selected(opt.key.clone()),
+                    QuestionOption {
+                        key: opt.key.clone(),
+                        label: opt.label.clone(),
+                    },
+                )
+            } else {
+                Answer::new(AnswerValue::Text(trimmed.to_string()))
+            }
+        }
+        QuestionType::Freeform => Answer::new(AnswerValue::Text(trimmed.to_string())),
+    }
+}
+
 /// Trait for human interaction frontends (§6.1).
 ///
 /// Implementations provide different ways of presenting questions
@@ -213,5 +275,80 @@ pub trait Interviewer: Send + Sync {
     /// Send a one-way informational message (no response expected).
     fn inform(&self, _message: &str, _stage: &str) {
         // Default: no-op
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn freeform_question() -> Question {
+        Question::freeform("What is your name?", "test-stage")
+    }
+
+    fn yes_no_question() -> Question {
+        Question::yes_no("Do you agree?", "test-stage")
+    }
+
+    fn multiple_choice_question() -> Question {
+        Question::multiple_choice(
+            "Pick one:",
+            vec![
+                QuestionOption {
+                    key: "A".to_string(),
+                    label: "Option Alpha".to_string(),
+                },
+                QuestionOption {
+                    key: "B".to_string(),
+                    label: "Option Beta".to_string(),
+                },
+            ],
+            "test-stage",
+        )
+    }
+
+    #[test]
+    fn parse_freeform_answer() {
+        let q = freeform_question();
+        let answer = parse_answer_text("hello world", &q);
+        assert_eq!(answer.value, AnswerValue::Text("hello world".to_string()));
+    }
+
+    #[test]
+    fn parse_yes_no_yes() {
+        let q = yes_no_question();
+        assert_eq!(parse_answer_text("y", &q).value, AnswerValue::Yes);
+        assert_eq!(parse_answer_text("YES", &q).value, AnswerValue::Yes);
+        assert_eq!(parse_answer_text("true", &q).value, AnswerValue::Yes);
+    }
+
+    #[test]
+    fn parse_yes_no_no() {
+        let q = yes_no_question();
+        assert_eq!(parse_answer_text("n", &q).value, AnswerValue::No);
+        assert_eq!(parse_answer_text("NO", &q).value, AnswerValue::No);
+        assert_eq!(parse_answer_text("false", &q).value, AnswerValue::No);
+    }
+
+    #[test]
+    fn parse_multiple_choice_by_key() {
+        let q = multiple_choice_question();
+        let answer = parse_answer_text("A", &q);
+        assert_eq!(answer.value, AnswerValue::Selected("A".to_string()));
+        assert!(answer.selected_option.is_some());
+    }
+
+    #[test]
+    fn parse_multiple_choice_by_label() {
+        let q = multiple_choice_question();
+        let answer = parse_answer_text("option beta", &q);
+        assert_eq!(answer.value, AnswerValue::Selected("B".to_string()));
+    }
+
+    #[test]
+    fn parse_multiple_choice_no_match() {
+        let q = multiple_choice_question();
+        let answer = parse_answer_text("unknown", &q);
+        assert_eq!(answer.value, AnswerValue::Text("unknown".to_string()));
     }
 }

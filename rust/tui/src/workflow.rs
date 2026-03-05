@@ -6,7 +6,7 @@ use tokio::task::JoinHandle;
 
 use stencila_attractor::events::{EventEmitter, PipelineEvent};
 use stencila_attractor::interviewer::{
-    Answer, AnswerValue, Interviewer, Question, QuestionOption, QuestionType,
+    Answer, AnswerValue, Interviewer, Question, parse_answer_text,
 };
 use stencila_attractor::types::Outcome;
 
@@ -52,12 +52,12 @@ impl WorkflowRunHandle {
     }
 }
 
-/// An `EventEmitter` that forwards events through a channel.
-struct ChannelEventEmitter {
+/// An `EventEmitter` that forwards pipeline events through a channel to the TUI.
+struct TuiEventEmitter {
     tx: mpsc::UnboundedSender<WorkflowEvent>,
 }
 
-impl EventEmitter for ChannelEventEmitter {
+impl EventEmitter for TuiEventEmitter {
     fn emit(&self, event: PipelineEvent) {
         let _ = self.tx.send(WorkflowEvent::Pipeline(event));
     }
@@ -65,12 +65,15 @@ impl EventEmitter for ChannelEventEmitter {
 
 /// An `Interviewer` that sends questions through the event channel
 /// and waits for answers via oneshot channels.
-struct ChannelInterviewer {
+///
+/// This is the TUI-specific interviewer implementation, coupled to
+/// [`WorkflowEvent`] for rendering questions in the terminal UI.
+struct TuiInterviewer {
     event_tx: mpsc::UnboundedSender<WorkflowEvent>,
 }
 
 #[async_trait]
-impl Interviewer for ChannelInterviewer {
+impl Interviewer for TuiInterviewer {
     async fn ask(&self, question: &Question) -> Answer {
         let (answer_tx, answer_rx) = oneshot::channel();
         let _ = self.event_tx.send(WorkflowEvent::InterviewQuestion {
@@ -84,53 +87,6 @@ impl Interviewer for ChannelInterviewer {
     }
 }
 
-/// Parse a raw text answer into a typed `Answer` based on the question type.
-fn parse_answer_text(text: &str, question: &Question) -> Answer {
-    let trimmed = text.trim();
-    match question.question_type {
-        QuestionType::YesNo | QuestionType::Confirmation => {
-            let lower = trimmed.to_ascii_lowercase();
-            if matches!(lower.as_str(), "y" | "yes" | "true" | "1") {
-                Answer::new(AnswerValue::Yes)
-            } else if matches!(lower.as_str(), "n" | "no" | "false" | "0") {
-                Answer::new(AnswerValue::No)
-            } else {
-                Answer::new(AnswerValue::Text(trimmed.to_string()))
-            }
-        }
-        QuestionType::MultipleChoice => {
-            if let Some(opt) = question
-                .options
-                .iter()
-                .find(|o| o.key.eq_ignore_ascii_case(trimmed))
-            {
-                Answer::with_option(
-                    AnswerValue::Selected(opt.key.clone()),
-                    QuestionOption {
-                        key: opt.key.clone(),
-                        label: opt.label.clone(),
-                    },
-                )
-            } else if let Some(opt) = question
-                .options
-                .iter()
-                .find(|o| o.label.eq_ignore_ascii_case(trimmed))
-            {
-                Answer::with_option(
-                    AnswerValue::Selected(opt.key.clone()),
-                    QuestionOption {
-                        key: opt.key.clone(),
-                        label: opt.label.clone(),
-                    },
-                )
-            } else {
-                Answer::new(AnswerValue::Text(trimmed.to_string()))
-            }
-        }
-        QuestionType::Freeform => Answer::new(AnswerValue::Text(trimmed.to_string())),
-    }
-}
-
 /// Spawn a workflow run on a background task.
 ///
 /// Returns the run handle and total number of pipeline stages (graph nodes).
@@ -141,10 +97,10 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
 
     let join_handle = tokio::spawn(async move {
         let completion_tx = event_tx.clone();
-        let emitter: Arc<dyn EventEmitter> = Arc::new(ChannelEventEmitter {
+        let emitter: Arc<dyn EventEmitter> = Arc::new(TuiEventEmitter {
             tx: event_tx.clone(),
         });
-        let interviewer: Arc<dyn Interviewer> = Arc::new(ChannelInterviewer { event_tx });
+        let interviewer: Arc<dyn Interviewer> = Arc::new(TuiInterviewer { event_tx });
 
         let cwd = std::env::current_dir().unwrap_or_default();
         let result = async {
@@ -194,82 +150,15 @@ fn compute_total_stages(name: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_attractor::interviewer::QuestionOption;
 
     fn freeform_question() -> Question {
         Question::freeform("What is your name?", "test-stage")
     }
 
-    fn yes_no_question() -> Question {
-        Question::yes_no("Do you agree?", "test-stage")
-    }
-
-    fn multiple_choice_question() -> Question {
-        Question::multiple_choice(
-            "Pick one:",
-            vec![
-                QuestionOption {
-                    key: "A".to_string(),
-                    label: "Option Alpha".to_string(),
-                },
-                QuestionOption {
-                    key: "B".to_string(),
-                    label: "Option Beta".to_string(),
-                },
-            ],
-            "test-stage",
-        )
-    }
-
-    #[test]
-    fn parse_freeform_answer() {
-        let q = freeform_question();
-        let answer = parse_answer_text("hello world", &q);
-        assert_eq!(answer.value, AnswerValue::Text("hello world".to_string()));
-    }
-
-    #[test]
-    fn parse_yes_no_yes() {
-        let q = yes_no_question();
-        assert_eq!(parse_answer_text("y", &q).value, AnswerValue::Yes);
-        assert_eq!(parse_answer_text("YES", &q).value, AnswerValue::Yes);
-        assert_eq!(parse_answer_text("true", &q).value, AnswerValue::Yes);
-    }
-
-    #[test]
-    fn parse_yes_no_no() {
-        let q = yes_no_question();
-        assert_eq!(parse_answer_text("n", &q).value, AnswerValue::No);
-        assert_eq!(parse_answer_text("NO", &q).value, AnswerValue::No);
-        assert_eq!(parse_answer_text("false", &q).value, AnswerValue::No);
-    }
-
-    #[test]
-    fn parse_multiple_choice_by_key() {
-        let q = multiple_choice_question();
-        let answer = parse_answer_text("A", &q);
-        assert_eq!(answer.value, AnswerValue::Selected("A".to_string()));
-        assert!(answer.selected_option.is_some());
-    }
-
-    #[test]
-    fn parse_multiple_choice_by_label() {
-        let q = multiple_choice_question();
-        let answer = parse_answer_text("option beta", &q);
-        assert_eq!(answer.value, AnswerValue::Selected("B".to_string()));
-    }
-
-    #[test]
-    fn parse_multiple_choice_no_match() {
-        let q = multiple_choice_question();
-        let answer = parse_answer_text("unknown", &q);
-        assert_eq!(answer.value, AnswerValue::Text("unknown".to_string()));
-    }
-
     #[tokio::test]
-    async fn channel_emitter_sends_events() {
+    async fn tui_emitter_sends_events() {
         let (tx, mut rx) = mpsc::unbounded_channel();
-        let emitter = ChannelEventEmitter { tx };
+        let emitter = TuiEventEmitter { tx };
         emitter.emit(PipelineEvent::PipelineStarted {
             pipeline_name: "test".to_string(),
         });
@@ -281,9 +170,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn channel_interviewer_sends_and_receives() {
+    async fn tui_interviewer_sends_and_receives() {
         let (tx, mut rx) = mpsc::unbounded_channel();
-        let interviewer = ChannelInterviewer { event_tx: tx };
+        let interviewer = TuiInterviewer { event_tx: tx };
         let question = freeform_question();
 
         let ask_handle = tokio::spawn({
