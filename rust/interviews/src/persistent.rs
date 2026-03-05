@@ -237,7 +237,12 @@ pub fn insert_pending_interview(
         InterviewError::BackendFailure(format!("failed to insert pending interview: {e}"))
     })?;
 
-    for (i, (q, qid)) in record.questions.iter().zip(record.question_ids.iter()).enumerate() {
+    for (i, (q, qid)) in record
+        .questions
+        .iter()
+        .zip(record.question_ids.iter())
+        .enumerate()
+    {
         let options_json = if q.options.is_empty() {
             None
         } else {

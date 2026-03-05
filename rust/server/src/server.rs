@@ -43,7 +43,7 @@ use crate::{
     documents::{self, Documents},
     login,
     site::{self, SiteMessage},
-    statics, themes,
+    statics, themes, workflows,
 };
 
 /// Server runtime information written to disk for discovery
@@ -124,6 +124,12 @@ pub(crate) struct ServerState {
     /// Broadcast sender for site notifications
     pub site_notify: Option<broadcast::Sender<SiteMessage>>,
 
+    /// Broadcast sender for workflow interview notifications.
+    pub workflow_notify: Option<broadcast::Sender<workflows::WorkflowInterviewEventEnvelope>>,
+
+    /// In-process awaitable interviewer used for same-process answer submission.
+    pub workflow_interviewer: Option<Arc<stencila_attractor::interviewers::AwaitableInterviewer>>,
+
     /// The `server_token` for the server
     pub server_token: Option<String>,
 
@@ -182,6 +188,14 @@ pub struct ServeOptions {
     /// on this channel after re-rendering completes.
     #[clap(skip)]
     pub site_notify: Option<broadcast::Sender<SiteMessage>>,
+
+    /// Broadcast sender for workflow interview notifications.
+    #[clap(skip)]
+    pub workflow_notify: Option<broadcast::Sender<workflows::WorkflowInterviewEventEnvelope>>,
+
+    /// In-process awaitable interviewer for same-process answer submission.
+    #[clap(skip)]
+    pub workflow_interviewer: Option<Arc<stencila_attractor::interviewers::AwaitableInterviewer>>,
 
     /// The address to serve on
     ///
@@ -264,6 +278,8 @@ pub async fn serve(
         dir,
         static_dir,
         site_notify,
+        workflow_notify,
+        workflow_interviewer,
         no_auth,
         raw,
         source,
@@ -331,6 +347,8 @@ pub async fn serve(
     let state = ServerState {
         dir,
         site_notify,
+        workflow_notify,
+        workflow_interviewer,
         server_token,
         raw,
         source,
@@ -355,6 +373,10 @@ pub async fn serve(
                 get(site::websocket_handler)
                     .route_layer(middleware_fn(state.clone(), auth_middleware)),
             )
+            .nest(
+                "/api/workflows",
+                workflows::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
             .fallback_service(ServeDir::new(&static_dir))
     } else {
         // Normal mode: dynamic document processing
@@ -375,6 +397,10 @@ pub async fn serve(
                 "/~site/websocket",
                 get(site::websocket_handler)
                     .route_layer(middleware_fn(state.clone(), auth_middleware)),
+            )
+            .nest(
+                "/api/workflows",
+                workflows::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
             )
             .route(
                 "/{*path}",

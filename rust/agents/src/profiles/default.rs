@@ -89,7 +89,9 @@ impl DefaultProfile {
             .flatten();
 
         let context_window = catalog_info.as_ref().map_or(128_000, |i| i.context_window);
-        let reasoning = catalog_info.as_ref().map_or(false, |i| i.supports_reasoning);
+        let reasoning = catalog_info
+            .as_ref()
+            .map_or(false, |i| i.supports_reasoning);
 
         let mut registry = ToolRegistry::new();
 

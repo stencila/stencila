@@ -3,3 +3,7 @@
 //! Re-exports from the [`stencila_interviews`] crate.
 
 pub use stencila_interviews::interviewers::*;
+
+mod awaitable;
+
+pub use awaitable::{AwaitableInterviewer, PendingInterviewSnapshot, SubmittedAnswer};

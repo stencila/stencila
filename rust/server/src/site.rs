@@ -27,6 +27,11 @@ pub enum SiteMessage {
         /// The error message
         message: String,
     },
+    /// Workflow interview lifecycle event forwarded from attractor `PipelineEvent`s.
+    WorkflowInterviewEvent {
+        /// JSON payload (serialized `WorkflowInterviewEventEnvelope`).
+        payload: String,
+    },
 }
 
 /// Handle WebSocket upgrade request for site watching

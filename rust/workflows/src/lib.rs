@@ -27,5 +27,6 @@ pub fn run_migrations(db: &stencila_db::WorkspaceDb) -> Result<(), stencila_db::
         "workflows",
         stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
     )?;
+    db.migrate("interviews", stencila_interviews::INTERVIEW_MIGRATIONS)?;
     Ok(())
 }

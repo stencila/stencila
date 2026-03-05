@@ -37,7 +37,7 @@ The spec's §6.2 defines four question types (`YES_NO`, `MULTIPLE_CHOICE`, `FREE
 
 ### Additional fields on `Question` and `QuestionOption`
 
-The spec's §6.2 `Question` has `text`, `type`, `options`, `default`, `timeout_seconds`, `stage`, and `metadata`. This implementation adds `id: Option<String>` (for correlating questions with DB rows) and `header: Option<String>` (for rendering grouped/headed question forms). `QuestionOption` gains `description: Option<String>` for explanatory text alongside the label.
+The spec's §6.2 `Question` has `text`, `type`, `options`, `default`, `timeout_seconds`, `stage`, and `metadata`. This implementation adds `id: Option<String>` (for per-question correlation; maps to `interview_questions.question_id`) and `header: Option<String>` (for rendering grouped/headed question forms). `QuestionOption` gains `description: Option<String>` for explanatory text alongside the label. The interview-level identifier remains `Interview.id` (maps to `interviews.interview_id`).
 
 ### `Interview` struct and `Interviewer::conduct()`
 

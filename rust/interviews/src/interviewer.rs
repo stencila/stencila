@@ -80,10 +80,11 @@ pub struct QuestionOption {
 pub struct Question {
     /// Unique identifier for this question instance.
     ///
-    /// Will be set by [`PersistentInterviewer`] to the `interview_id`
-    /// before delegating to the inner interviewer (Phase 4), so that
-    /// frontends and external systems can correlate questions with DB
-    /// rows. Currently `None` unless set manually.
+    /// Usually set by [`PersistentInterviewer`] to a per-question UUID
+    /// (`question_id`) before delegating to the inner interviewer, so
+    /// frontends and external systems can correlate submitted answers with
+    /// `interview_questions.question_id` rows. Currently `None` unless set
+    /// manually.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// The question text to present.
