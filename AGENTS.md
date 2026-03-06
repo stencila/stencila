@@ -82,6 +82,36 @@ For changes affecting generated code or derived docs, use the narrowest command 
 make generated
 ```
 
+# Commit Messages
+
+This repo uses [Conventional Commits](https://www.conventionalcommits.org/). Every commit message must follow the format:
+
+```
+<type>(<scope>): <description>
+```
+
+## Types
+
+- `feat` — a new feature or user-visible behavior
+- `fix` — a bug fix
+- `refactor` — code restructuring with no behavior change
+- `chore` — build, CI, dependency updates, or other housekeeping
+- `docs` — documentation-only changes
+- `test` — adding or updating tests
+- `perf` — performance improvements
+- `ci` — CI configuration changes
+
+## Scopes
+
+The scope is the crate or package name most affected by the change — use the short name, not the `stencila-` prefix (e.g., `agents`, `codec-markdown`, `tui`, `web`). For cross-cutting changes use a comma-separated list (e.g., `feat(agents,interviews,tui): ...`). For changes that don't map to a single crate, use a general scope like `rust`, `deps`, or `docs`. A scope is strongly preferred but may be omitted for truly global changes (e.g., `fix: resolve clippy warnings across crates`).
+
+## Description
+
+- Use the imperative mood ("add X", not "added X" or "adds X")
+- Start with a lowercase letter
+- Do not end with a period
+- Keep the first line under ~72 characters
+
 # CLI Development
 
 In `stencila-cli`, prefer `message!` and `message` from `stencila_cli_utils` over `eprintln!` for user-facing output. The `message!` macro provides formatting, text wrapping, and consistent styling. Use `eprint!` only for same-line prompts where user input follows immediately.
