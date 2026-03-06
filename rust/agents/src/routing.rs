@@ -502,8 +502,9 @@ mod tests {
         let client = empty_client();
         let result = route_session(Some("mistral"), None, &client);
         // No API auth and no CLI mapping → error asking for API key
-        assert!(result.is_err());
-        let msg = result.unwrap_err().to_string();
+        let msg = result
+            .expect_err("should error without API key")
+            .to_string();
         assert!(msg.contains("MISTRAL_API_KEY"));
     }
 
@@ -511,8 +512,9 @@ mod tests {
     fn mistral_provider_with_model_no_auth_errors_with_hint() {
         let client = empty_client();
         let result = route_session(Some("mistral"), Some("mistral-large"), &client);
-        assert!(result.is_err());
-        let msg = result.unwrap_err().to_string();
+        let msg = result
+            .expect_err("should error without API key")
+            .to_string();
         assert!(msg.contains("MISTRAL_API_KEY"));
     }
 

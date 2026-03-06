@@ -459,112 +459,106 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn single_question_lifecycle() {
+    async fn single_question_lifecycle() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-1");
 
         let q = Question::yes_no("Proceed?");
-        let answer = pi.ask(&q).await.unwrap();
+        let answer = pi.ask(&q).await?;
         assert_eq!(answer.value, AnswerValue::Yes);
 
         // Verify DB state
-        let conn = db.lock().unwrap();
-        let (status, answered_at): (String, Option<String>) = conn
-            .query_row(
-                "SELECT status, answered_at FROM interviews WHERE context_id = 'run-1'",
-                [],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let (status, answered_at): (String, Option<String>) = conn.query_row(
+            "SELECT status, answered_at FROM interviews WHERE context_id = 'run-1'",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
         assert_eq!(status, "answered");
         assert!(answered_at.is_some());
 
-        let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM interview_questions WHERE interview_id IN (
+        let count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM interview_questions WHERE interview_id IN (
                     SELECT interview_id FROM interviews WHERE context_id = 'run-1'
                 )",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(count, 1);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn conduct_multi_question() {
+    async fn conduct_multi_question() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "agent_session", "sess-1");
 
         let qs = vec![Question::yes_no("Q1?"), Question::freeform("Q2?")];
         let mut interview = Interview::batch(qs, "ask_user");
-        pi.conduct(&mut interview).await.unwrap();
+        pi.conduct(&mut interview).await?;
 
         assert_eq!(interview.answers.len(), 2);
 
         // Verify parent row
-        let conn = db.lock().unwrap();
-        let (status, node_id): (String, Option<String>) = conn
-            .query_row(
-                "SELECT status, node_id FROM interviews WHERE interview_id = ?1",
-                [&interview.id],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let (status, node_id): (String, Option<String>) = conn.query_row(
+            "SELECT status, node_id FROM interviews WHERE interview_id = ?1",
+            [&interview.id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
         assert_eq!(status, "answered");
         assert_eq!(node_id.as_deref(), Some("ask_user"));
 
         // Verify child rows
-        let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM interview_questions WHERE interview_id = ?1",
-                [&interview.id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM interview_questions WHERE interview_id = ?1",
+            [&interview.id],
+            |row| row.get(0),
+        )?;
         assert_eq!(count, 2);
 
         // Verify answers are persisted
-        let answer_json: Option<String> = conn
-            .query_row(
-                "SELECT answer FROM interview_questions WHERE interview_id = ?1 AND position = 0",
-                [&interview.id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let answer_json: Option<String> = conn.query_row(
+            "SELECT answer FROM interview_questions WHERE interview_id = ?1 AND position = 0",
+            [&interview.id],
+            |row| row.get(0),
+        )?;
         assert!(answer_json.is_some());
+        Ok(())
     }
 
     #[tokio::test]
-    async fn question_ids_are_set() {
+    async fn question_ids_are_set() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-2");
 
         let q = Question::yes_no("OK?");
         let mut interview = Interview::single(q, "gate");
-        pi.conduct(&mut interview).await.unwrap();
+        pi.conduct(&mut interview).await?;
 
         // Question should now have an ID set
         assert!(interview.questions[0].id.is_some());
-        let qid = interview.questions[0].id.as_ref().unwrap();
+        let qid = interview.questions[0]
+            .id
+            .as_ref()
+            .expect("question ID should be set");
 
         // ID should exist in DB
-        let conn = db.lock().unwrap();
-        let db_qid: String = conn
-            .query_row(
-                "SELECT question_id FROM interview_questions WHERE interview_id = ?1",
-                [&interview.id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let db_qid: String = conn.query_row(
+            "SELECT question_id FROM interview_questions WHERE interview_id = ?1",
+            [&interview.id],
+            |row| row.get(0),
+        )?;
         assert_eq!(&db_qid, qid);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn respects_existing_interview_id() {
+    async fn respects_existing_interview_id() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-3");
@@ -572,13 +566,14 @@ mod tests {
         let q = Question::yes_no("OK?");
         let mut interview = Interview::single(q, "gate");
         let original_id = interview.id.clone();
-        pi.conduct(&mut interview).await.unwrap();
+        pi.conduct(&mut interview).await?;
 
         assert_eq!(interview.id, original_id);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn pending_interview_visible_before_answer() {
+    async fn pending_interview_visible_before_answer() -> Result<(), Box<dyn std::error::Error>> {
         use crate::interviewer::InterviewError;
         use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -591,7 +586,7 @@ mod tests {
         impl Interviewer for BlockingInterviewer {
             async fn ask(&self, _question: &Question) -> Result<Answer, InterviewError> {
                 // While "blocked", check that the pending row exists
-                let conn = self.db.lock().unwrap();
+                let conn = self.db.lock().expect("lock db");
                 let status: String = conn
                     .query_row(
                         "SELECT status FROM interviews WHERE status = 'pending'",
@@ -614,16 +609,17 @@ mod tests {
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-4");
 
         let q = Question::yes_no("Check?");
-        pi.ask(&q).await.unwrap();
+        pi.ask(&q).await?;
 
         assert!(
             saw_pending.load(Ordering::Relaxed),
             "pending row should be visible while inner interviewer is executing"
         );
+        Ok(())
     }
 
     #[tokio::test]
-    async fn error_sets_error_status() {
+    async fn error_sets_error_status() -> Result<(), Box<dyn std::error::Error>> {
         struct FailingInterviewer;
 
         #[async_trait]
@@ -641,51 +637,45 @@ mod tests {
         let result = pi.ask(&q).await;
         assert!(result.is_err());
 
-        let conn = db.lock().unwrap();
-        let status: String = conn
-            .query_row(
-                "SELECT status FROM interviews WHERE context_id = 'run-err'",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let status: String = conn.query_row(
+            "SELECT status FROM interviews WHERE context_id = 'run-err'",
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(status, "error");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn delete_interviews_cascades() {
+    async fn delete_interviews_cascades() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-del");
 
         let q = Question::yes_no("OK?");
-        pi.ask(&q).await.unwrap();
+        pi.ask(&q).await?;
 
-        let conn = db.lock().unwrap();
+        let conn = db.lock().expect("lock db");
 
         // Verify rows exist
-        let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM interviews", [], |row| row.get(0))
-            .unwrap();
+        let count: i64 = conn.query_row("SELECT COUNT(*) FROM interviews", [], |row| row.get(0))?;
         assert_eq!(count, 1);
 
-        delete_interviews_for_context(&conn, "workflow", "run-del").unwrap();
+        delete_interviews_for_context(&conn, "workflow", "run-del")?;
 
-        let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM interviews", [], |row| row.get(0))
-            .unwrap();
+        let count: i64 = conn.query_row("SELECT COUNT(*) FROM interviews", [], |row| row.get(0))?;
         assert_eq!(count, 0);
 
-        let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM interview_questions", [], |row| {
-                row.get(0)
-            })
-            .unwrap();
+        let count: i64 = conn.query_row("SELECT COUNT(*) FROM interview_questions", [], |row| {
+            row.get(0)
+        })?;
         assert_eq!(count, 0);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn find_pending_interview_returns_ids() {
+    async fn find_pending_interview_returns_ids() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let question_ids = vec![uuid::Uuid::now_v7().to_string()];
         let q = Question::yes_no("Pending?");
@@ -701,28 +691,30 @@ mod tests {
             question_ids: &question_ids,
         };
 
-        insert_pending_interview(&db, &record).unwrap();
+        insert_pending_interview(&db, &record)?;
 
-        let result =
-            find_pending_interview(&db, "workflow", "run-pend", "gate-node", Some(3)).unwrap();
+        let result = find_pending_interview(&db, "workflow", "run-pend", "gate-node", Some(3))?;
         assert!(result.is_some());
-        let (iid, qids) = result.unwrap();
+        let (iid, qids) = result.expect("should find pending interview");
         assert_eq!(iid, "int-pending");
         assert_eq!(qids.len(), 1);
         assert_eq!(qids[0], question_ids[0]);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn find_pending_interview_returns_none_when_answered() {
+    async fn find_pending_interview_returns_none_when_answered()
+    -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-done");
 
         let q = Question::yes_no("Done?");
-        pi.ask(&q).await.unwrap();
+        pi.ask(&q).await?;
 
-        let result = find_pending_interview(&db, "workflow", "run-done", "gate", None).unwrap();
+        let result = find_pending_interview(&db, "workflow", "run-done", "gate", None)?;
         assert!(result.is_none(), "answered interviews should not be found");
+        Ok(())
     }
 
     #[test]
@@ -758,7 +750,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn multiple_choice_answer_persisted() {
+    async fn multiple_choice_answer_persisted() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-mc");
@@ -778,25 +770,24 @@ mod tests {
                 },
             ],
         );
-        let answer = pi.ask(&q).await.unwrap();
+        let answer = pi.ask(&q).await?;
         // AutoApproveInterviewer picks the first option
         assert_eq!(answer.value, AnswerValue::Selected("A".into()));
 
-        let conn = db.lock().unwrap();
-        let selected: Option<String> = conn
-            .query_row(
-                "SELECT selected_option FROM interview_questions WHERE interview_id IN (
+        let conn = db.lock().expect("lock db");
+        let selected: Option<String> = conn.query_row(
+            "SELECT selected_option FROM interview_questions WHERE interview_id IN (
                     SELECT interview_id FROM interviews WHERE context_id = 'run-mc'
                 )",
-                [],
-                |row| row.get(0),
-            )
-            .unwrap();
+            [],
+            |row| row.get(0),
+        )?;
         assert_eq!(selected.as_deref(), Some("A"));
+        Ok(())
     }
 
     #[tokio::test]
-    async fn stage_index_persisted_and_recoverable() {
+    async fn stage_index_persisted_and_recoverable() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let _pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-si");
@@ -820,31 +811,31 @@ mod tests {
             question_ids: &qids,
         };
 
-        insert_pending_interview(&db, &record).unwrap();
+        insert_pending_interview(&db, &record)?;
 
         // Verify stage_index was persisted
-        let conn = db.lock().unwrap();
-        let si: Option<i64> = conn
-            .query_row(
-                "SELECT stage_index FROM interviews WHERE interview_id = ?1",
-                [&interview.id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let si: Option<i64> = conn.query_row(
+            "SELECT stage_index FROM interviews WHERE interview_id = ?1",
+            [&interview.id],
+            |row| row.get(0),
+        )?;
         assert_eq!(si, Some(7));
         drop(conn);
 
         // Recovery with matching stage_index should find it
-        let result = find_pending_interview(&db, "workflow", "run-si", "gate", Some(7)).unwrap();
+        let result = find_pending_interview(&db, "workflow", "run-si", "gate", Some(7))?;
         assert!(result.is_some());
 
         // Recovery with wrong stage_index should NOT find it
-        let result = find_pending_interview(&db, "workflow", "run-si", "gate", Some(99)).unwrap();
+        let result = find_pending_interview(&db, "workflow", "run-si", "gate", Some(99))?;
         assert!(result.is_none());
+        Ok(())
     }
 
     #[tokio::test]
-    async fn conduct_persists_stage_index_from_interview() {
+    async fn conduct_persists_stage_index_from_interview() -> Result<(), Box<dyn std::error::Error>>
+    {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-si2");
@@ -852,21 +843,21 @@ mod tests {
         let q = Question::yes_no("OK?");
         let mut interview = Interview::single(q, "gate");
         interview.stage_index = Some(42);
-        pi.conduct(&mut interview).await.unwrap();
+        pi.conduct(&mut interview).await?;
 
-        let conn = db.lock().unwrap();
-        let si: Option<i64> = conn
-            .query_row(
-                "SELECT stage_index FROM interviews WHERE interview_id = ?1",
-                [&interview.id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let si: Option<i64> = conn.query_row(
+            "SELECT stage_index FROM interviews WHERE interview_id = ?1",
+            [&interview.id],
+            |row| row.get(0),
+        )?;
         assert_eq!(si, Some(42));
+        Ok(())
     }
 
     #[tokio::test]
-    async fn recovered_question_ids_used_for_answer_updates() {
+    async fn recovered_question_ids_used_for_answer_updates()
+    -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
 
         // 1. Simulate a previously pending interview with known question IDs
@@ -881,11 +872,11 @@ mod tests {
             stage_index: Some(5),
             asked_at: "2024-01-01T00:00:00Z",
             metadata: None,
-            questions: &[q.clone()],
-            question_ids: &[old_qid.clone()],
+            questions: std::slice::from_ref(&q),
+            question_ids: std::slice::from_ref(&old_qid),
         };
 
-        insert_pending_interview(&db, &record).unwrap();
+        insert_pending_interview(&db, &record)?;
 
         // 2. Now conduct with the same interview ID and pre-set question ID
         //    (simulating what WaitForHumanHandler does after recovery)
@@ -897,43 +888,38 @@ mod tests {
         let mut interview = Interview::single(recovered_q, "gate");
         interview.id = old_interview_id.to_string();
         interview.stage_index = Some(5);
-        pi.conduct(&mut interview).await.unwrap();
+        pi.conduct(&mut interview).await?;
 
         // 3. Verify: the existing child row should have its answer updated
-        let conn = db.lock().unwrap();
-        let (answer, qid): (Option<String>, String) = conn
-            .query_row(
-                "SELECT answer, question_id FROM interview_questions WHERE interview_id = ?1",
-                [old_interview_id],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let (answer, qid): (Option<String>, String) = conn.query_row(
+            "SELECT answer, question_id FROM interview_questions WHERE interview_id = ?1",
+            [old_interview_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
         assert_eq!(qid, old_qid, "should reuse the original question ID");
         assert!(answer.is_some(), "answer should be filled in");
 
         // 4. Verify: parent status should be 'answered'
-        let status: String = conn
-            .query_row(
-                "SELECT status FROM interviews WHERE interview_id = ?1",
-                [old_interview_id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let status: String = conn.query_row(
+            "SELECT status FROM interviews WHERE interview_id = ?1",
+            [old_interview_id],
+            |row| row.get(0),
+        )?;
         assert_eq!(status, "answered");
 
         // 5. Verify: only 1 child row (no duplicate from INSERT OR IGNORE)
-        let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM interview_questions WHERE interview_id = ?1",
-                [old_interview_id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM interview_questions WHERE interview_id = ?1",
+            [old_interview_id],
+            |row| row.get(0),
+        )?;
         assert_eq!(count, 1);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn respects_preset_question_ids() {
+    async fn respects_preset_question_ids() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-preset");
@@ -941,7 +927,7 @@ mod tests {
         let mut q = Question::yes_no("OK?");
         q.id = Some("my-custom-qid".to_string());
         let mut interview = Interview::single(q, "gate");
-        pi.conduct(&mut interview).await.unwrap();
+        pi.conduct(&mut interview).await?;
 
         assert_eq!(
             interview.questions[0].id.as_deref(),
@@ -949,14 +935,13 @@ mod tests {
             "pre-set question ID should be preserved"
         );
 
-        let conn = db.lock().unwrap();
-        let db_qid: String = conn
-            .query_row(
-                "SELECT question_id FROM interview_questions WHERE interview_id = ?1",
-                [&interview.id],
-                |row| row.get(0),
-            )
-            .unwrap();
+        let conn = db.lock().expect("lock db");
+        let db_qid: String = conn.query_row(
+            "SELECT question_id FROM interview_questions WHERE interview_id = ?1",
+            [&interview.id],
+            |row| row.get(0),
+        )?;
         assert_eq!(db_qid, "my-custom-qid");
+        Ok(())
     }
 }

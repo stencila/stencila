@@ -76,12 +76,12 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
         move |args: Value, _env: &dyn crate::execution::ExecutionEnvironment| {
             let interviewer = interviewer.clone();
             Box::pin(async move {
-                let questions_val = args
-                    .get("questions")
-                    .and_then(Value::as_array)
-                    .ok_or_else(|| AgentError::ValidationError {
-                        reason: "missing required array parameter: questions".into(),
-                    })?;
+                let questions_val =
+                    args.get("questions")
+                        .and_then(Value::as_array)
+                        .ok_or_else(|| AgentError::ValidationError {
+                            reason: "missing required array parameter: questions".into(),
+                        })?;
 
                 if questions_val.is_empty() {
                     return Err(AgentError::ValidationError {
@@ -133,17 +133,22 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                 }
 
                 let mut interview = if questions.len() == 1 {
-                    Interview::single(questions.into_iter().next().unwrap(), "ask_user")
+                    Interview::single(
+                        questions
+                            .into_iter()
+                            .next()
+                            .expect("length checked to be 1"),
+                        "ask_user",
+                    )
                 } else {
                     Interview::batch(questions, "ask_user")
                 };
 
-                interviewer
-                    .conduct(&mut interview)
-                    .await
-                    .map_err(|e| AgentError::InterviewFailed {
+                interviewer.conduct(&mut interview).await.map_err(|e| {
+                    AgentError::InterviewFailed {
                         message: e.to_string(),
-                    })?;
+                    }
+                })?;
 
                 let formatted = format_answers(&interview);
                 Ok(ToolOutput::Text(formatted))
@@ -162,13 +167,15 @@ fn parse_options(item: &Value) -> AgentResult<Vec<QuestionOption>> {
 
     let mut options = Vec::with_capacity(opts_val.len());
     for (i, opt) in opts_val.iter().enumerate() {
-        let label = opt
-            .get("label")
-            .and_then(Value::as_str)
-            .ok_or_else(|| AgentError::ValidationError {
+        let label = opt.get("label").and_then(Value::as_str).ok_or_else(|| {
+            AgentError::ValidationError {
                 reason: "each option must have a 'label' string field".into(),
-            })?;
-        let description = opt.get("description").and_then(Value::as_str).map(String::from);
+            }
+        })?;
+        let description = opt
+            .get("description")
+            .and_then(Value::as_str)
+            .map(String::from);
 
         let key = if i < 26 {
             String::from(char::from(b'A' + i as u8))
@@ -248,8 +255,8 @@ pub fn register_ask_user_tool(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_interviews::interviewers::{AutoApproveInterviewer, QueueInterviewer};
     use stencila_interviews::interviewer::{Answer, AnswerValue as AV};
+    use stencila_interviews::interviewers::{AutoApproveInterviewer, QueueInterviewer};
 
     use crate::execution::LocalExecutionEnvironment;
 
@@ -262,42 +269,43 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn single_freeform_question() {
-        let iv: Arc<dyn Interviewer> = Arc::new(
-            QueueInterviewer::new(vec![text_answer("Alice")]),
-        );
+    async fn single_freeform_question() -> AgentResult<()> {
+        let iv: Arc<dyn Interviewer> = Arc::new(QueueInterviewer::new(vec![text_answer("Alice")]));
         let exec = executor(iv);
         let args = json!({
             "questions": [{"question": "What is your name?"}]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Alice");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn single_yes_no_auto_approve() {
+    async fn single_yes_no_auto_approve() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
             "questions": [{"question": "Proceed?", "question_type": "yes_no"}]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Yes");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn single_confirmation_auto_approve() {
+    async fn single_confirmation_auto_approve() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
             "questions": [{"question": "Sure?", "question_type": "confirmation"}]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Yes");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn single_multiple_choice_auto_approve() {
+    async fn single_multiple_choice_auto_approve() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
@@ -311,13 +319,14 @@ mod tests {
                 ]
             }]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         // AutoApproveInterviewer picks the first option
         assert_eq!(result.as_text(), "Red");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn multiple_questions_batch() {
+    async fn multiple_questions_batch() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
@@ -327,16 +336,17 @@ mod tests {
                  "options": [{"label": "Staging"}, {"label": "Production"}]}
             ]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         let text = result.as_text();
         assert!(text.contains("## Deployment"), "text: {text}");
         assert!(text.contains("Yes"), "text: {text}");
         assert!(text.contains("## Environment"), "text: {text}");
         assert!(text.contains("Staging"), "text: {text}");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn options_get_sequential_keys() {
+    async fn options_get_sequential_keys() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
@@ -350,9 +360,10 @@ mod tests {
                 ]
             }]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         // AutoApproveInterviewer picks the first option (key "A", label "First")
         assert_eq!(result.as_text(), "First");
+        Ok(())
     }
 
     #[tokio::test]
@@ -361,8 +372,7 @@ mod tests {
         let exec = executor(iv);
         let args = json!({});
         let result = exec(args, &env()).await;
-        assert!(result.is_err());
-        let err = result.unwrap_err();
+        let err = result.expect_err("should be a validation error");
         assert!(matches!(err, AgentError::ValidationError { .. }));
     }
 
@@ -378,20 +388,19 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn default_question_type_is_freeform() {
-        let iv: Arc<dyn Interviewer> = Arc::new(
-            QueueInterviewer::new(vec![text_answer("hello")]),
-        );
+    async fn default_question_type_is_freeform() -> AgentResult<()> {
+        let iv: Arc<dyn Interviewer> = Arc::new(QueueInterviewer::new(vec![text_answer("hello")]));
         let exec = executor(iv);
         let args = json!({
             "questions": [{"question": "Say something:"}]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "hello");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn header_is_set_on_question() {
+    async fn header_is_set_on_question() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
@@ -400,23 +409,26 @@ mod tests {
                 {"question": "Q2?", "header": "Step 2", "question_type": "yes_no"}
             ]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         let text = result.as_text();
         assert!(text.contains("## Step 1"));
         assert!(text.contains("## Step 2"));
+        Ok(())
     }
 
     #[test]
-    fn definition_validates() {
-        definition().validate().unwrap();
+    fn definition_validates() -> AgentResult<()> {
+        definition().validate()?;
+        Ok(())
     }
 
     #[test]
-    fn register_ask_user_tool_works() {
+    fn register_ask_user_tool_works() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let mut registry = ToolRegistry::new();
-        register_ask_user_tool(&mut registry, iv).unwrap();
+        register_ask_user_tool(&mut registry, iv)?;
         assert!(registry.get("ask_user").is_some());
+        Ok(())
     }
 
     #[tokio::test]
@@ -425,8 +437,7 @@ mod tests {
         let exec = executor(iv);
         let args = json!({ "questions": [] });
         let result = exec(args, &env()).await;
-        assert!(result.is_err());
-        let err = result.unwrap_err();
+        let err = result.expect_err("should be a validation error");
         assert!(matches!(err, AgentError::ValidationError { .. }));
     }
 
@@ -438,16 +449,15 @@ mod tests {
             "questions": [{"question": "Hello?", "question_type": "bogus"}]
         });
         let result = exec(args, &env()).await;
-        assert!(result.is_err());
-        let err = result.unwrap_err();
+        let err = result.expect_err("should be a validation error");
         assert!(matches!(err, AgentError::ValidationError { .. }));
     }
 
     #[tokio::test]
-    async fn multi_select_formats_selected_labels() {
-        let iv: Arc<dyn Interviewer> = Arc::new(QueueInterviewer::new(vec![
-            Answer::new(AV::MultiSelected(vec!["A".into(), "C".into()])),
-        ]));
+    async fn multi_select_formats_selected_labels() -> AgentResult<()> {
+        let iv: Arc<dyn Interviewer> = Arc::new(QueueInterviewer::new(vec![Answer::new(
+            AV::MultiSelected(vec!["A".into(), "C".into()]),
+        )]));
         let exec = executor(iv);
         let args = json!({
             "questions": [{
@@ -460,12 +470,13 @@ mod tests {
                 ]
             }]
         });
-        let result = exec(args, &env()).await.unwrap();
+        let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Cheese, Mushrooms");
+        Ok(())
     }
 
     #[test]
-    fn option_keys_beyond_26_use_numeric() {
+    fn option_keys_beyond_26_use_numeric() -> AgentResult<()> {
         let mut opts_json = Vec::new();
         for i in 0..30 {
             opts_json.push(json!({"label": format!("Option {i}")}));
@@ -475,10 +486,11 @@ mod tests {
             "question_type": "multiple_choice",
             "options": opts_json
         });
-        let options = parse_options(&item).unwrap();
+        let options = parse_options(&item)?;
         assert_eq!(options[0].key, "A");
         assert_eq!(options[25].key, "Z");
         assert_eq!(options[26].key, "27");
         assert_eq!(options[29].key, "30");
+        Ok(())
     }
 }

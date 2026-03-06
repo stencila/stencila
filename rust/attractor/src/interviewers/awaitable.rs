@@ -254,8 +254,6 @@ impl AwaitableInterviewer {
 
         Ok(Some(submitted))
     }
-
-
 }
 
 #[async_trait]

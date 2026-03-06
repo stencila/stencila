@@ -344,11 +344,7 @@ impl CodergenBackend for AgentCodergenBackend {
                     &node.id,
                 ),
             );
-            stencila_agents::convenience::create_session_with_interviewer(
-                agent_name,
-                node_iv,
-            )
-            .await
+            stencila_agents::convenience::create_session_with_interviewer(agent_name, node_iv).await
         } else {
             stencila_agents::convenience::create_session(agent_name).await
         }
@@ -545,10 +541,10 @@ fn build_engine_config(
     );
     if let Some(ref iv) = interviewer {
         let mut handler = WaitForHumanHandler::with_emitter(iv.clone(), emitter.clone());
-        if let Some(ref conn) = db_conn {
-            if let Some(ref rid) = run_id {
-                handler = handler.with_db(conn.clone(), "workflow", rid.clone());
-            }
+        if let Some(ref conn) = db_conn
+            && let Some(ref rid) = run_id
+        {
+            handler = handler.with_db(conn.clone(), "workflow", rid.clone());
         }
         inner_registry.register("wait.human", handler);
     }
@@ -575,10 +571,10 @@ fn build_engine_config(
         .register("parallel", ParallelHandler::new(inner_arc, emitter.clone()));
     if let Some(ref iv) = interviewer {
         let mut handler = WaitForHumanHandler::with_emitter(iv.clone(), emitter);
-        if let Some(ref conn) = db_conn {
-            if let Some(ref rid) = run_id {
-                handler = handler.with_db(conn.clone(), "workflow", rid.clone());
-            }
+        if let Some(ref conn) = db_conn
+            && let Some(ref rid) = run_id
+        {
+            handler = handler.with_db(conn.clone(), "workflow", rid.clone());
         }
         config.registry.register("wait.human", handler);
     }

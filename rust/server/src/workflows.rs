@@ -52,6 +52,7 @@ pub fn router() -> Router<ServerState> {
 
 /// Create a workflow event emitter that forwards interview events to clients.
 #[must_use]
+#[allow(dead_code)]
 pub fn interview_event_emitter(
     sender: tokio::sync::broadcast::Sender<WorkflowInterviewEventEnvelope>,
 ) -> Arc<dyn EventEmitter> {
@@ -165,7 +166,9 @@ async fn list_pending_interviews(
              ORDER BY i.asked_at, q.position",
     ) {
         Ok(stmt) => stmt,
-        Err(ref e) if is_missing_table(e) => return Ok(Json(Vec::<PendingInterviewResponse>::new())),
+        Err(ref e) if is_missing_table(e) => {
+            return Ok(Json(Vec::<PendingInterviewResponse>::new()));
+        }
         Err(e) => return Err(internal(e)),
     };
 
@@ -410,6 +413,7 @@ struct DbPendingRow {
     options: Option<String>,
 }
 
+#[allow(dead_code)]
 fn pipeline_event_to_envelope(event: &PipelineEvent) -> Option<WorkflowInterviewEventEnvelope> {
     match event {
         PipelineEvent::InterviewQuestionAsked {

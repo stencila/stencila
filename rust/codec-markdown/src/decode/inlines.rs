@@ -49,35 +49,34 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
         match md {
             mdast::Node::Text(mdast::Text { value, position }) => {
                 // In MyST mode, check for a trailing role like `{eval}` before an InlineCode
-                if matches!(context.format, Format::Myst) {
-                    if let Some(mdast::Node::InlineCode(..)) = iter.peek() {
-                        if let Some((prefix, role_name)) = extract_trailing_role(&value) {
-                            // Push any text before the role
-                            if !prefix.is_empty() {
-                                let span = position
-                                    .as_ref()
-                                    .map(|p| p.start.offset..(p.start.offset + prefix.len()))
-                                    .unwrap_or_default();
-                                nodes.push((Inline::Text(Text::from(prefix)), span));
-                            }
-
-                            // Consume the following InlineCode
-                            let code_node = iter.next().unwrap();
-                            let (code_value, code_pos) = match code_node {
-                                mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
-                                    (value, position)
-                                }
-                                _ => unreachable!(),
-                            };
-
-                            let span = code_pos
-                                .map(|p| p.start.offset..p.end.offset)
-                                .unwrap_or_default();
-                            let inline = apply_myst_role(&role_name, &code_value);
-                            nodes.push((inline, span));
-                            continue;
-                        }
+                if matches!(context.format, Format::Myst)
+                    && let Some(mdast::Node::InlineCode(..)) = iter.peek()
+                    && let Some((prefix, role_name)) = extract_trailing_role(&value)
+                {
+                    // Push any text before the role
+                    if !prefix.is_empty() {
+                        let span = position
+                            .as_ref()
+                            .map(|p| p.start.offset..(p.start.offset + prefix.len()))
+                            .unwrap_or_default();
+                        nodes.push((Inline::Text(Text::from(prefix)), span));
                     }
+
+                    // Consume the following InlineCode
+                    let code_node = iter.next().expect("peeked node should exist");
+                    let (code_value, code_pos) = match code_node {
+                        mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
+                            (value, position)
+                        }
+                        _ => unreachable!(),
+                    };
+
+                    let span = code_pos
+                        .map(|p| p.start.offset..p.end.offset)
+                        .unwrap_or_default();
+                    let inline = apply_myst_role(&role_name, &code_value);
+                    nodes.push((inline, span));
+                    continue;
                 }
 
                 // Parse the text string for extensions not handled by the `markdown` crate e.g.
@@ -97,48 +96,47 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
 
             mdast::Node::InlineCode(mdast::InlineCode { value, position }) => {
                 // In QMD mode, check for code expression patterns like `{python} 1+1` or `r 1+1`
-                if matches!(context.format, Format::Qmd) {
-                    if let Some(inline) = try_parse_qmd_code_expression(&value) {
-                        let span = position
-                            .map(|p| p.start.offset..p.end.offset)
-                            .unwrap_or_default();
-                        nodes.push((inline, span));
-                        continue;
-                    }
+                if matches!(context.format, Format::Qmd)
+                    && let Some(inline) = try_parse_qmd_code_expression(&value)
+                {
+                    let span = position
+                        .map(|p| p.start.offset..p.end.offset)
+                        .unwrap_or_default();
+                    nodes.push((inline, span));
+                    continue;
                 }
 
                 // Check if next node is Text starting with `{...}` for attributes
                 if let Some(mdast::Node::Text(mdast::Text {
                     value: text_val, ..
                 })) = iter.peek()
+                    && let Some(attrs_str) = extract_leading_attrs(text_val)
                 {
-                    if let Some(attrs_str) = extract_leading_attrs(text_val) {
-                        let remaining_text = text_val[attrs_str.len()..].to_string();
-                        let text_node = iter.next().unwrap();
-                        let text_pos = match &text_node {
-                            mdast::Node::Text(t) => t.position.clone(),
-                            _ => unreachable!(),
-                        };
+                    let remaining_text = text_val[attrs_str.len()..].to_string();
+                    let text_node = iter.next().expect("peeked node should exist");
+                    let text_pos = match &text_node {
+                        mdast::Node::Text(t) => t.position.clone(),
+                        _ => unreachable!(),
+                    };
 
-                        let span = position
+                    let span = position
+                        .as_ref()
+                        .map(|p| p.start.offset..p.end.offset)
+                        .or_else(|| text_pos.as_ref().map(|p| p.start.offset..p.end.offset))
+                        .unwrap_or_default();
+
+                    let inline = apply_code_attrs(&value, &attrs_str);
+                    nodes.push((inline, span));
+
+                    // Push any remaining text after the attrs
+                    if !remaining_text.is_empty() {
+                        let rem_span = text_pos
                             .as_ref()
-                            .map(|p| p.start.offset..p.end.offset)
-                            .or_else(|| text_pos.as_ref().map(|p| p.start.offset..p.end.offset))
+                            .map(|p| (p.start.offset + attrs_str.len())..p.end.offset)
                             .unwrap_or_default();
-
-                        let inline = apply_code_attrs(&value, &attrs_str);
-                        nodes.push((inline, span));
-
-                        // Push any remaining text after the attrs
-                        if !remaining_text.is_empty() {
-                            let rem_span = text_pos
-                                .as_ref()
-                                .map(|p| (p.start.offset + attrs_str.len())..p.end.offset)
-                                .unwrap_or_default();
-                            nodes.push((Inline::Text(Text::from(remaining_text)), rem_span));
-                        }
-                        continue;
+                        nodes.push((Inline::Text(Text::from(remaining_text)), rem_span));
                     }
+                    continue;
                 }
 
                 // Plain inline code
@@ -287,19 +285,19 @@ fn apply_code_attrs(code: &str, attrs_str: &str) -> Inline {
 /// Matches patterns like `{python} 1 + 1` or `r 1 + 1`.
 fn try_parse_qmd_code_expression(value: &str) -> Option<Inline> {
     // Pattern: {lang} code
-    if value.starts_with('{') {
-        if let Some(close) = value.find('}') {
-            let lang = &value[1..close];
-            // Language must be word characters only
-            if !lang.is_empty() && lang.chars().all(|c| c.is_alphanumeric() || c == '_') {
-                let code = value[close + 1..].trim();
-                if !code.is_empty() {
-                    return Some(Inline::CodeExpression(CodeExpression {
-                        programming_language: Some(lang.to_string()),
-                        code: code.into(),
-                        ..Default::default()
-                    }));
-                }
+    if value.starts_with('{')
+        && let Some(close) = value.find('}')
+    {
+        let lang = &value[1..close];
+        // Language must be word characters only
+        if !lang.is_empty() && lang.chars().all(|c| c.is_alphanumeric() || c == '_') {
+            let code = value[close + 1..].trim();
+            if !code.is_empty() {
+                return Some(Inline::CodeExpression(CodeExpression {
+                    programming_language: Some(lang.to_string()),
+                    code: code.into(),
+                    ..Default::default()
+                }));
             }
         }
     }
@@ -1363,10 +1361,10 @@ mod tests {
             ..Default::default()
         };
         let (node, _) = super::super::decode(md, Some(options)).unwrap();
-        if let Node::Article(Article { content, .. }) = node {
-            if let Some(Block::Paragraph(para)) = content.first() {
-                return para.content.clone();
-            }
+        if let Node::Article(Article { content, .. }) = node
+            && let Some(Block::Paragraph(para)) = content.first()
+        {
+            return para.content.clone();
         }
         vec![]
     }

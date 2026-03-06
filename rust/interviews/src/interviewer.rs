@@ -148,10 +148,7 @@ impl Question {
 
     /// Create a multiple-choice question.
     #[must_use]
-    pub fn multiple_choice(
-        text: impl Into<String>,
-        options: Vec<QuestionOption>,
-    ) -> Self {
+    pub fn multiple_choice(text: impl Into<String>, options: Vec<QuestionOption>) -> Self {
         Self {
             id: None,
             text: text.into(),
@@ -166,10 +163,7 @@ impl Question {
 
     /// Create a multi-select question (select multiple options from a list).
     #[must_use]
-    pub fn multi_select(
-        text: impl Into<String>,
-        options: Vec<QuestionOption>,
-    ) -> Self {
+    pub fn multi_select(text: impl Into<String>, options: Vec<QuestionOption>) -> Self {
         Self {
             id: None,
             text: text.into(),
@@ -465,10 +459,9 @@ pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
             for part in &parts {
                 if let Some(opt) = question.options.iter().find(|o| {
                     o.key.eq_ignore_ascii_case(part) || o.label.eq_ignore_ascii_case(part)
-                }) {
-                    if !selected_keys.contains(&opt.key) {
-                        selected_keys.push(opt.key.clone());
-                    }
+                }) && !selected_keys.contains(&opt.key)
+                {
+                    selected_keys.push(opt.key.clone());
                 }
             }
             if selected_keys.is_empty() {
@@ -672,79 +665,85 @@ mod tests {
     }
 
     #[test]
-    fn question_serde_roundtrip() {
+    fn question_serde_roundtrip() -> serde_json::Result<()> {
         let mut q = Question::freeform("What?");
         q.id = Some("q-123".to_string());
         q.header = Some("Header".to_string());
         q.metadata
             .insert("urgency".to_string(), serde_json::json!("high"));
 
-        let json = serde_json::to_string(&q).unwrap();
-        let q2: Question = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&q)?;
+        let q2: Question = serde_json::from_str(&json)?;
         assert_eq!(q2.id, Some("q-123".to_string()));
         assert_eq!(q2.header, Some("Header".to_string()));
         assert_eq!(q2.text, "What?");
         assert_eq!(q2.question_type, QuestionType::Freeform);
         assert_eq!(q2.metadata["urgency"], serde_json::json!("high"));
+        Ok(())
     }
 
     #[test]
-    fn question_type_serde_roundtrip() {
+    fn question_type_serde_roundtrip() -> serde_json::Result<()> {
         let qt = QuestionType::MultiSelect;
-        let json = serde_json::to_string(&qt).unwrap();
+        let json = serde_json::to_string(&qt)?;
         assert_eq!(json, "\"MULTI_SELECT\"");
-        let qt2: QuestionType = serde_json::from_str(&json).unwrap();
+        let qt2: QuestionType = serde_json::from_str(&json)?;
         assert_eq!(qt2, QuestionType::MultiSelect);
+        Ok(())
     }
 
     #[test]
-    fn answer_serde_roundtrip() {
+    fn answer_serde_roundtrip() -> serde_json::Result<()> {
         let answer = Answer::new(AnswerValue::MultiSelected(vec!["A".into(), "B".into()]));
-        let json = serde_json::to_string(&answer).unwrap();
-        let answer2: Answer = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&answer)?;
+        let answer2: Answer = serde_json::from_str(&json)?;
         assert_eq!(answer2, answer);
+        Ok(())
     }
 
     #[test]
-    fn answer_value_adjacently_tagged_format() {
+    fn answer_value_adjacently_tagged_format() -> serde_json::Result<()> {
         // Unit variants: {"type":"YES"} — no "value" key
-        let json = serde_json::to_string(&AnswerValue::Yes).unwrap();
+        let json = serde_json::to_string(&AnswerValue::Yes)?;
         assert_eq!(json, r#"{"type":"YES"}"#);
 
         // Data variants: {"type":"SELECTED","value":"A"}
-        let json = serde_json::to_string(&AnswerValue::Selected("A".into())).unwrap();
+        let json = serde_json::to_string(&AnswerValue::Selected("A".into()))?;
         assert_eq!(json, r#"{"type":"SELECTED","value":"A"}"#);
 
         // Vec data: {"type":"MULTI_SELECTED","value":["A","B"]}
-        let json = serde_json::to_string(&AnswerValue::MultiSelected(vec!["A".into(), "B".into()]))
-            .unwrap();
+        let json =
+            serde_json::to_string(&AnswerValue::MultiSelected(vec!["A".into(), "B".into()]))?;
         assert_eq!(json, r#"{"type":"MULTI_SELECTED","value":["A","B"]}"#);
+        Ok(())
     }
 
     #[test]
-    fn question_option_with_description_serde() {
+    fn question_option_with_description_serde() -> serde_json::Result<()> {
         let opt = QuestionOption {
             key: "A".to_string(),
             label: "Alpha".to_string(),
             description: Some("The first letter".to_string()),
         };
-        let json = serde_json::to_string(&opt).unwrap();
+        let json = serde_json::to_string(&opt)?;
         assert!(json.contains("description"));
-        let opt2: QuestionOption = serde_json::from_str(&json).unwrap();
+        let opt2: QuestionOption = serde_json::from_str(&json)?;
         assert_eq!(opt2.description, Some("The first letter".to_string()));
+        Ok(())
     }
 
     #[test]
-    fn question_option_without_description_serde() {
+    fn question_option_without_description_serde() -> serde_json::Result<()> {
         let opt = QuestionOption {
             key: "B".to_string(),
             label: "Beta".to_string(),
             description: None,
         };
-        let json = serde_json::to_string(&opt).unwrap();
+        let json = serde_json::to_string(&opt)?;
         assert!(!json.contains("description"));
-        let opt2: QuestionOption = serde_json::from_str(&json).unwrap();
+        let opt2: QuestionOption = serde_json::from_str(&json)?;
         assert_eq!(opt2.description, None);
+        Ok(())
     }
 
     #[test]
@@ -776,35 +775,38 @@ mod tests {
     }
 
     #[test]
-    fn interview_serde_roundtrip() {
+    fn interview_serde_roundtrip() -> serde_json::Result<()> {
         let mut interview = Interview::single(Question::yes_no("Continue?"), "gate");
         interview.answers.push(Answer::new(AnswerValue::Yes));
         interview
             .metadata
             .insert("urgency".to_string(), serde_json::json!("high"));
 
-        let json = serde_json::to_string(&interview).unwrap();
-        let interview2: Interview = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&interview)?;
+        let interview2: Interview = serde_json::from_str(&json)?;
         assert_eq!(interview2.id, interview.id);
         assert_eq!(interview2.questions.len(), 1);
         assert_eq!(interview2.answers.len(), 1);
         assert_eq!(interview2.answers[0].value, AnswerValue::Yes);
         assert_eq!(interview2.stage, "gate");
         assert_eq!(interview2.metadata["urgency"], serde_json::json!("high"));
+        Ok(())
     }
 
     #[test]
-    fn interview_serde_empty_answers_omitted() {
+    fn interview_serde_empty_answers_omitted() -> serde_json::Result<()> {
         let interview = Interview::single(Question::yes_no("OK?"), "s");
-        let json = serde_json::to_string(&interview).unwrap();
+        let json = serde_json::to_string(&interview)?;
         assert!(!json.contains("answers"));
+        Ok(())
     }
 
     #[test]
-    fn interview_serde_empty_metadata_omitted() {
+    fn interview_serde_empty_metadata_omitted() -> serde_json::Result<()> {
         let interview = Interview::single(Question::yes_no("OK?"), "s");
-        let json = serde_json::to_string(&interview).unwrap();
+        let json = serde_json::to_string(&interview)?;
         assert!(!json.contains("metadata"));
+        Ok(())
     }
 
     #[test]
@@ -875,21 +877,23 @@ mod tests {
     }
 
     #[test]
-    fn interview_serde_empty_preamble_omitted() {
+    fn interview_serde_empty_preamble_omitted() -> serde_json::Result<()> {
         let interview = Interview::single(Question::yes_no("OK?"), "s");
-        let json = serde_json::to_string(&interview).unwrap();
+        let json = serde_json::to_string(&interview)?;
         assert!(!json.contains("preamble"));
+        Ok(())
     }
 
     #[test]
-    fn interview_serde_empty_attachments_omitted() {
+    fn interview_serde_empty_attachments_omitted() -> serde_json::Result<()> {
         let interview = Interview::single(Question::yes_no("OK?"), "s");
-        let json = serde_json::to_string(&interview).unwrap();
+        let json = serde_json::to_string(&interview)?;
         assert!(!json.contains("attachments"));
+        Ok(())
     }
 
     #[test]
-    fn interview_serde_roundtrip_with_preamble_and_attachments() {
+    fn interview_serde_roundtrip_with_preamble_and_attachments() -> serde_json::Result<()> {
         let att = Attachment {
             id: "att-1".into(),
             filename: "draft.docx".into(),
@@ -903,21 +907,22 @@ mod tests {
             .with_preamble("Review the attached draft")
             .with_attachment(att.clone());
 
-        let json = serde_json::to_string(&interview).unwrap();
+        let json = serde_json::to_string(&interview)?;
         assert!(json.contains("preamble"));
         assert!(json.contains("attachments"));
 
-        let interview2: Interview = serde_json::from_str(&json).unwrap();
+        let interview2: Interview = serde_json::from_str(&json)?;
         assert_eq!(
             interview2.preamble.as_deref(),
             Some("Review the attached draft")
         );
         assert_eq!(interview2.attachments.len(), 1);
         assert_eq!(interview2.attachments[0], att);
+        Ok(())
     }
 
     #[test]
-    fn attachment_serde_roundtrip() {
+    fn attachment_serde_roundtrip() -> serde_json::Result<()> {
         let att = Attachment {
             id: "att-1".into(),
             filename: "report.pdf".into(),
@@ -926,13 +931,14 @@ mod tests {
             size_bytes: Some(1024),
             description: Some("Quarterly report".into()),
         };
-        let json = serde_json::to_string(&att).unwrap();
-        let att2: Attachment = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&att)?;
+        let att2: Attachment = serde_json::from_str(&json)?;
         assert_eq!(att, att2);
+        Ok(())
     }
 
     #[test]
-    fn attachment_serde_optional_fields_omitted() {
+    fn attachment_serde_optional_fields_omitted() -> serde_json::Result<()> {
         let att = Attachment {
             id: "att-1".into(),
             filename: "file.txt".into(),
@@ -941,12 +947,13 @@ mod tests {
             size_bytes: None,
             description: None,
         };
-        let json = serde_json::to_string(&att).unwrap();
+        let json = serde_json::to_string(&att)?;
         assert!(!json.contains("url"));
         assert!(!json.contains("size_bytes"));
         assert!(!json.contains("description"));
 
-        let att2: Attachment = serde_json::from_str(&json).unwrap();
+        let att2: Attachment = serde_json::from_str(&json)?;
         assert_eq!(att, att2);
+        Ok(())
     }
 }

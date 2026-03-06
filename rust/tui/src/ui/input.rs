@@ -109,9 +109,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 " \u{2699} ".to_string()
             }
         } else if app.mode == AppMode::Agent
-            && app.sessions[app.active_session]
-                .pending_interview
-                .is_some()
+            && app.sessions[app.active_session].pending_interview.is_some()
         {
             " \u{2753} ".to_string()
         } else if app.mode == AppMode::Agent && app.active_session_is_running() {

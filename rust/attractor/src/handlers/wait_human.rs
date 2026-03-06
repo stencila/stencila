@@ -139,6 +139,7 @@ pub fn parse_accelerator_key(label: &str) -> String {
 
 #[async_trait]
 impl Handler for WaitForHumanHandler {
+    #[allow(clippy::too_many_lines)]
     async fn execute(
         &self,
         node: &Node,

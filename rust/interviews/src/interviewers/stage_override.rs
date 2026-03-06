@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::interviewer::{Answer, InterviewError, Interview, Interviewer, Question};
+use crate::interviewer::{Answer, Interview, InterviewError, Interviewer, Question};
 
 pub struct StageOverrideInterviewer {
     inner: Arc<dyn Interviewer>,

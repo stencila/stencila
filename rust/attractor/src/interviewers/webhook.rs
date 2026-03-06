@@ -7,7 +7,7 @@
 //!
 //! Two distinct URLs are involved:
 //!
-//! - **`webhook_url`** (outbound): where the envelope is POSTed. The cloud
+//! - **`webhook_url`** (outbound): where the envelope is `POSTed`. The cloud
 //!   API routes it to the appropriate channel (email, Slack, etc.).
 //! - **`answer_callback_url`** (inbound): serialized into the envelope so
 //!   the remote system knows where to POST the [`AnswerEnvelope`] back.
@@ -30,7 +30,7 @@ use async_trait::async_trait;
 
 use crate::{
     envelope::InterviewEnvelope,
-    interviewer::{Answer, InterviewError, Interview, Interviewer, Question},
+    interviewer::{Answer, Interview, InterviewError, Interviewer, Question},
     interviewers::AwaitableInterviewer,
 };
 
@@ -96,7 +96,7 @@ impl WebhookInterviewer {
     /// dependency (e.g., `reqwest`) is not yet in the workspace. When an
     /// HTTP client is added, this method will perform the actual POST
     /// and the error goes away.
-    async fn post_envelope(&self, envelope: &InterviewEnvelope) -> Result<(), InterviewError> {
+    fn post_envelope(&self, envelope: &InterviewEnvelope) -> Result<(), InterviewError> {
         // TODO: Replace with actual HTTP POST when reqwest or similar is available.
         // let response = client.post(&self.config.webhook_url)
         //     .json(envelope)
@@ -136,7 +136,7 @@ impl Interviewer for WebhookInterviewer {
     async fn conduct(&self, interview: &mut Interview) -> Result<(), InterviewError> {
         let envelope = self.build_envelope(interview);
 
-        self.post_envelope(&envelope).await?;
+        self.post_envelope(&envelope)?;
 
         self.awaitable.conduct(interview).await
     }
@@ -156,7 +156,8 @@ mod tests {
     fn test_config() -> WebhookConfig {
         WebhookConfig {
             webhook_url: "https://cloud.example.com/api/interviews".into(),
-            answer_callback_url: "https://server.example.com/api/workflows/run-1/interviews/INT/answers".into(),
+            answer_callback_url:
+                "https://server.example.com/api/workflows/run-1/interviews/INT/answers".into(),
             run_id: "run-1".into(),
             pipeline_name: "test-pipeline".into(),
         }
@@ -187,17 +188,15 @@ mod tests {
 
     #[tokio::test]
     async fn conduct_returns_error_while_stub() {
-        let awaitable = Arc::new(
-            AwaitableInterviewer::new().with_poll_interval(Duration::from_millis(10)),
-        );
+        let awaitable =
+            Arc::new(AwaitableInterviewer::new().with_poll_interval(Duration::from_millis(10)));
         let config = test_config();
         let wh = WebhookInterviewer::new(config, awaitable.clone());
 
         let mut interview = Interview::single(Question::yes_no("Proceed?"), "gate");
 
         let result = wh.conduct(&mut interview).await;
-        assert!(result.is_err());
-        let err = result.unwrap_err();
+        let err = result.expect_err("stub should return an error");
         assert!(
             err.to_string().contains("webhook POST not yet implemented"),
             "expected stub error, got: {err}"

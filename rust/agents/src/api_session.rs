@@ -314,12 +314,11 @@ impl ApiSession {
 
         // Register ask_user tool when an interviewer is provided,
         // enabling explicit human-in-the-loop via tool calls.
-        if let Some(iv) = interviewer {
-            if let Err(e) =
+        if let Some(iv) = interviewer
+            && let Err(e) =
                 crate::tools::ask_user::register_ask_user_tool(profile.tool_registry_mut(), iv)
-            {
-                tracing::warn!("failed to register ask_user tool: {e}");
-            }
+        {
+            tracing::warn!("failed to register ask_user tool: {e}");
         }
 
         #[allow(unused_mut)]

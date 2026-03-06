@@ -137,16 +137,18 @@ mod tests {
         );
     }
 
+    type TestResult = Result<(), Box<dyn std::error::Error>>;
+
     #[test]
-    fn interview_envelope_serde_roundtrip() {
+    fn interview_envelope_serde_roundtrip() -> TestResult {
         let interview = Interview::single(Question::yes_no("Approve?"), "review-gate")
             .with_preamble("Review this.");
         let envelope =
             InterviewEnvelope::from_interview(&interview, "run-1", "pipeline-a", "gate-1")
                 .with_callback_url("https://example.com/callback");
 
-        let json = serde_json::to_string(&envelope).unwrap();
-        let envelope2: InterviewEnvelope = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&envelope)?;
+        let envelope2: InterviewEnvelope = serde_json::from_str(&json)?;
         assert_eq!(envelope2.interview_id, envelope.interview_id);
         assert_eq!(envelope2.run_id, "run-1");
         assert_eq!(envelope2.pipeline_name, "pipeline-a");
@@ -157,20 +159,22 @@ mod tests {
             envelope2.callback_url.as_deref(),
             Some("https://example.com/callback")
         );
+        Ok(())
     }
 
     #[test]
-    fn interview_envelope_optional_fields_omitted() {
+    fn interview_envelope_optional_fields_omitted() -> TestResult {
         let interview = Interview::single(Question::yes_no("OK?"), "gate");
         let envelope = InterviewEnvelope::from_interview(&interview, "run-1", "pipe", "gate");
-        let json = serde_json::to_string(&envelope).unwrap();
+        let json = serde_json::to_string(&envelope)?;
         assert!(!json.contains("preamble"));
         assert!(!json.contains("attachments"));
         assert!(!json.contains("callback_url"));
+        Ok(())
     }
 
     #[test]
-    fn answer_envelope_serde_roundtrip() {
+    fn answer_envelope_serde_roundtrip() -> TestResult {
         let envelope = AnswerEnvelope {
             interview_id: "int-1".into(),
             answers: vec![SubmittedAnswer {
@@ -180,17 +184,18 @@ mod tests {
             responder: Some("user@example.com".into()),
         };
 
-        let json = serde_json::to_string(&envelope).unwrap();
-        let envelope2: AnswerEnvelope = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&envelope)?;
+        let envelope2: AnswerEnvelope = serde_json::from_str(&json)?;
         assert_eq!(envelope2.interview_id, "int-1");
         assert_eq!(envelope2.answers.len(), 1);
         assert_eq!(envelope2.answers[0].question_id, "q-1");
         assert_eq!(envelope2.answers[0].answer.value, AnswerValue::Yes);
         assert_eq!(envelope2.responder.as_deref(), Some("user@example.com"));
+        Ok(())
     }
 
     #[test]
-    fn answer_envelope_optional_responder_omitted() {
+    fn answer_envelope_optional_responder_omitted() -> TestResult {
         let envelope = AnswerEnvelope {
             interview_id: "int-1".into(),
             answers: vec![SubmittedAnswer {
@@ -199,27 +204,26 @@ mod tests {
             }],
             responder: None,
         };
-        let json = serde_json::to_string(&envelope).unwrap();
+        let json = serde_json::to_string(&envelope)?;
         assert!(!json.contains("responder"));
+        Ok(())
     }
 
     #[test]
-    fn submitted_answer_serde_roundtrip() {
+    fn submitted_answer_serde_roundtrip() -> TestResult {
         let sa = SubmittedAnswer {
             question_id: "q-42".into(),
             answer: Answer::new(AnswerValue::Text("Some feedback".into())),
         };
-        let json = serde_json::to_string(&sa).unwrap();
-        let sa2: SubmittedAnswer = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&sa)?;
+        let sa2: SubmittedAnswer = serde_json::from_str(&json)?;
         assert_eq!(sa2.question_id, "q-42");
-        assert_eq!(
-            sa2.answer.value,
-            AnswerValue::Text("Some feedback".into())
-        );
+        assert_eq!(sa2.answer.value, AnswerValue::Text("Some feedback".into()));
+        Ok(())
     }
 
     #[test]
-    fn envelope_multi_question_with_attachments() {
+    fn envelope_multi_question_with_attachments() -> TestResult {
         let att = Attachment {
             id: "att-1".into(),
             filename: "draft.docx".into(),
@@ -261,8 +265,9 @@ mod tests {
             responder: Some("reviewer@corp.com".into()),
         };
 
-        let json = serde_json::to_string(&answer_envelope).unwrap();
-        let decoded: AnswerEnvelope = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&answer_envelope)?;
+        let decoded: AnswerEnvelope = serde_json::from_str(&json)?;
         assert_eq!(decoded.answers.len(), 2);
+        Ok(())
     }
 }

@@ -48,7 +48,7 @@ fn module_title(module: &str) -> String {
 }
 
 fn pack_anchor(name: &str) -> String {
-    name.to_lowercase().replace(' ', "-").replace('/', "-")
+    name.to_lowercase().replace([' ', '/'], "-")
 }
 
 fn packs_by_module() -> BTreeMap<&'static str, Vec<&'static Pack>> {
@@ -223,7 +223,7 @@ fn join_names(names: &[&str]) -> String {
         1 => names[0].to_string(),
         2 => format!("**{}** and **{}**", names[0], names[1]),
         _ => {
-            let (last, rest) = names.split_last().unwrap();
+            let (last, rest) = names.split_last().expect("length checked to be >= 3");
             let parts: Vec<String> = rest.iter().map(|n| format!("**{n}**")).collect();
             format!("{}, and **{last}**", parts.join(", "))
         }

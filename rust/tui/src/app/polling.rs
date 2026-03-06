@@ -134,17 +134,17 @@ impl App {
             if session.pending_interview.is_some() {
                 continue;
             }
-            if let Some(agent) = &mut session.agent {
-                if let Ok(pending) = agent.interview_rx.try_recv() {
-                    let question_text = pending.question.text.clone();
-                    let header = pending.question.header.clone();
-                    session.pending_interview = Some(pending);
-                    let display = match header {
-                        Some(h) => format!("{h}: {question_text}"),
-                        None => question_text,
-                    };
-                    new_questions.push((idx, display));
-                }
+            if let Some(agent) = &mut session.agent
+                && let Ok(pending) = agent.interview_rx.try_recv()
+            {
+                let question_text = pending.question.text.clone();
+                let header = pending.question.header.clone();
+                session.pending_interview = Some(pending);
+                let display = match header {
+                    Some(h) => format!("{h}: {question_text}"),
+                    None => question_text,
+                };
+                new_questions.push((idx, display));
             }
         }
         for (session_idx, question_text) in new_questions {
