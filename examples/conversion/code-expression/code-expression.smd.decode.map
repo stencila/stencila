@@ -1,14 +1,14 @@
 start     end        offsets   node_type+property                   authorship
-    21     41       (21, 41)   CodeExpression
-     0     42       (-21, 1)   Paragraph
-    65     90       (65, 48)   CodeExpression
-    44     91       (-21, 1)   Paragraph
-   114    138       (70, 47)   CodeExpression
-    93    139       (-21, 1)   Paragraph
-   163    196       (70, 57)   CodeExpression
-   141    197       (-22, 1)   Paragraph
-   240    253       (99, 56)   CodeExpression
-   199    254       (-41, 1)   Paragraph
-   300    329      (101, 75)   CodeExpression
-   256    330       (-44, 1)   Paragraph
+    21     28       (21, 28)   CodeExpression
+     0     42      (-21, 14)   Paragraph
+    65     77       (65, 35)   CodeExpression
+    44     91      (-21, 14)   Paragraph
+   114    125       (70, 34)   CodeExpression
+    93    139      (-21, 14)   Paragraph
+   163    183       (70, 44)   CodeExpression
+   141    197      (-22, 14)   Paragraph
+   240    247       (99, 50)   CodeExpression
+   199    254       (-41, 7)   Paragraph
+   300    307      (101, 53)   CodeExpression
+   256    330      (-44, 23)   Paragraph
      0    331      (-256, 1)   Article

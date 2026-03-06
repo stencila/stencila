@@ -10,8 +10,8 @@ start     end        offsets   node_type+property                   authorship
    181    196       (28, 17)   Strong
    179    198        (-2, 2)   TableCell
    153    198       (-26, 0)   TableRow
-   201    224       (48, 26)   CodeExpression
-   199    225        (-2, 1)   TableCell
+   201    218       (48, 20)   CodeExpression
+   199    225        (-2, 7)   TableCell
    227    238       (28, 13)   CodeExpression
    225    244        (-2, 6)   TableCell
    199    244       (-26, 0)   TableRow
