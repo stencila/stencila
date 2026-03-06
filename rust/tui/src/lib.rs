@@ -83,6 +83,7 @@ impl Tui {
                 Some(event::AppEvent::Tick) => {
                     app.poll_running_commands();
                     app.poll_running_agent_exchanges();
+                    app.poll_agent_interviews();
                     app.poll_workflow_events();
                     app.poll_log_events();
                     app.poll_upgrade_check();

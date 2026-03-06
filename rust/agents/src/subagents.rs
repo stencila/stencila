@@ -529,6 +529,7 @@ impl SubAgentManager {
                 session_id: Some(child_session_id),
                 tool_guard: child_guard,
                 guard_context: child_guard_context,
+                interviewer: None,
             },
         );
 

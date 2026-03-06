@@ -144,6 +144,9 @@ pub struct AgentSession {
 
     /// Approximate context usage percentage (0–100+), updated from agent events.
     pub context_usage_percent: u32,
+
+    /// Interview question pending user response (from `ask_user` tool), if any.
+    pub pending_interview: Option<crate::agent::PendingAgentInterview>,
 }
 
 impl AgentSession {
@@ -155,6 +158,7 @@ impl AgentSession {
             definition: None,
             running_agent_exchanges: Vec::new(),
             context_usage_percent: 0,
+            pending_interview: None,
         }
     }
 }

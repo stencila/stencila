@@ -209,6 +209,26 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
 pub async fn create_session(
     name: &str,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
+    create_session_impl(name, None).await
+}
+
+/// Like [`create_session`], but additionally registers the `ask_user` tool
+/// so the model can explicitly request human input during the session.
+///
+/// When `interviewer` is `Some`, the `ask_user` tool is registered in API
+/// sessions. CLI-backed sessions ignore the interviewer (they don't
+/// support dynamic tool registration).
+pub async fn create_session_with_interviewer(
+    name: &str,
+    interviewer: Arc<dyn stencila_interviews::interviewer::Interviewer>,
+) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
+    create_session_impl(name, Some(interviewer)).await
+}
+
+async fn create_session_impl(
+    name: &str,
+    interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
+) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
     let (agent, config) = load_agent_and_config(name).await?;
 
     let client = stencila_models3::client::Client::from_env().ok();
@@ -261,7 +281,8 @@ pub async fn create_session(
                 })
             })?;
             let (session, event_receiver) =
-                create_api_session_inner(provider, model, api_client, config, &agent).await?;
+                create_api_session_inner(provider, model, api_client, config, &agent, interviewer)
+                    .await?;
             emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Api(session), event_receiver))
         }
@@ -276,6 +297,7 @@ async fn create_api_session_inner(
     client: stencila_models3::client::Client,
     config: SessionConfig,
     agent: &AgentInstance,
+    interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
 ) -> AgentResult<(ApiSession, EventReceiver)> {
     let max_timeout = config.max_command_timeout_ms;
 
@@ -320,6 +342,7 @@ async fn create_api_session_inner(
             session_id: Some(session_id),
             tool_guard: Some(tool_guard),
             guard_context: Some(guard_context),
+            interviewer,
         },
     );
 

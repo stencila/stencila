@@ -498,10 +498,7 @@ mod tests {
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "agent_session", "sess-1");
 
-        let qs = vec![
-            Question::yes_no("Q1?", "step"),
-            Question::freeform("Q2?", "step"),
-        ];
+        let qs = vec![Question::yes_no("Q1?"), Question::freeform("Q2?")];
         let mut interview = Interview::batch(qs, "ask_user");
         pi.conduct(&mut interview).await.unwrap();
 
@@ -780,7 +777,6 @@ mod tests {
                     description: None,
                 },
             ],
-            "gate",
         );
         let answer = pi.ask(&q).await.unwrap();
         // AutoApproveInterviewer picks the first option

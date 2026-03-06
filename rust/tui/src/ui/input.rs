@@ -108,6 +108,12 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } else {
                 " \u{2699} ".to_string()
             }
+        } else if app.mode == AppMode::Agent
+            && app.sessions[app.active_session]
+                .pending_interview
+                .is_some()
+        {
+            " \u{2753} ".to_string()
         } else if app.mode == AppMode::Agent && app.active_session_is_running() {
             let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
             format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
@@ -222,6 +228,22 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             visual_lines.clear();
             visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
         }
+    }
+
+    // Show placeholder text when agent session has a pending interview (ask_user)
+    if input_text.is_empty()
+        && app.mode == AppMode::Agent
+        && let Some(pending) = &app.sessions[app.active_session].pending_interview
+    {
+        let q = &pending.question;
+        let placeholder = if q.options.is_empty() {
+            "Type your answer...".to_string()
+        } else {
+            let opts: Vec<String> = q.options.iter().map(|o| o.key.to_string()).collect();
+            format!("Choose: {}", opts.join(" / "))
+        };
+        visual_lines.clear();
+        visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
     }
 
     // Append ghost text, wrapping it across visual lines and capping at 3 ghost lines.

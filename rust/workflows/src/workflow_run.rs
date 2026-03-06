@@ -154,6 +154,9 @@ pub async fn run_workflow_with_options(
             inner
         }
     });
+    // The same interviewer serves both pipeline gates (WaitForHumanHandler)
+    // and agent-level questions (ask_user tool) within the same run.
+    let agent_interviewer = interviewer.clone();
     let config = build_engine_config(
         options.emitter,
         interviewer,
@@ -163,6 +166,7 @@ pub async fn run_workflow_with_options(
         agent_metadata,
         Some(artifacts_dir),
         Some(workspace_root),
+        agent_interviewer,
     );
 
     let result = stencila_attractor::engine::run_with_context(&graph, config, context)
@@ -310,6 +314,8 @@ struct AgentCodergenBackend {
     artifacts_dir: Option<std::path::PathBuf>,
     /// Workspace root for storing portable artifact paths.
     workspace_root: Option<std::path::PathBuf>,
+    /// Interviewer for the `ask_user` tool in agent sessions.
+    interviewer: Option<Arc<dyn Interviewer>>,
 }
 
 #[async_trait]
@@ -329,13 +335,27 @@ impl CodergenBackend for AgentCodergenBackend {
             node.id
         );
 
-        let (_agent, mut session, mut event_rx) =
-            stencila_agents::convenience::create_session(agent_name)
-                .await
-                .map_err(|e| stencila_attractor::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: format!("Agent `{agent_name}` session creation failed: {e}"),
-                })?;
+        let (_agent, mut session, mut event_rx) = if let Some(ref iv) = self.interviewer {
+            // Wrap with StageOverrideInterviewer so ask_user interviews
+            // are attributed to this pipeline node, not generic "ask_user".
+            let node_iv: Arc<dyn Interviewer> = Arc::new(
+                stencila_interviews::interviewers::StageOverrideInterviewer::new(
+                    iv.clone(),
+                    &node.id,
+                ),
+            );
+            stencila_agents::convenience::create_session_with_interviewer(
+                agent_name,
+                node_iv,
+            )
+            .await
+        } else {
+            stencila_agents::convenience::create_session(agent_name).await
+        }
+        .map_err(|e| stencila_attractor::AttractorError::HandlerFailed {
+            node_id: node.id.clone(),
+            reason: format!("Agent `{agent_name}` session creation failed: {e}"),
+        })?;
 
         // Register workflow-context tools if we have a DB connection.
         if let (Some(conn), Some(run_id), Some(artifacts_dir), Some(workspace_root)) = (
@@ -500,6 +520,7 @@ fn build_engine_config(
     agent_metadata: HashMap<String, AgentMetadata>,
     artifacts_dir: Option<std::path::PathBuf>,
     workspace_root: Option<std::path::PathBuf>,
+    agent_interviewer: Option<Arc<dyn Interviewer>>,
 ) -> EngineConfig {
     let mut config = EngineConfig::new();
     config.emitter = emitter.clone();
@@ -517,6 +538,7 @@ fn build_engine_config(
                 agent_metadata: agent_metadata.clone(),
                 artifacts_dir: artifacts_dir.clone(),
                 workspace_root: workspace_root.clone(),
+                interviewer: agent_interviewer.clone(),
             }),
             emitter.clone(),
         ),
@@ -543,6 +565,7 @@ fn build_engine_config(
                 agent_metadata,
                 artifacts_dir,
                 workspace_root,
+                interviewer: agent_interviewer,
             }),
             emitter.clone(),
         ),

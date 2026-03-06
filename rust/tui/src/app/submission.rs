@@ -124,6 +124,22 @@ impl App {
             return;
         }
 
+        // Agent interview answer submission: when the active agent session
+        // has a pending `ask_user` question, send the answer through the
+        // oneshot channel instead of submitting a new chat message.
+        if self.mode == AppMode::Agent {
+            let session = &mut self.sessions[self.active_session];
+            if let Some(pending) = session.pending_interview.take() {
+                self.messages.push(AppMessage::System {
+                    content: format!("\u{1f4ac} {text}"),
+                });
+                let _ = pending.answer_tx.send(text);
+                self.scroll_pinned = true;
+                self.scroll_offset = 0;
+                return;
+            }
+        }
+
         // Expand paste and response references for the actual request text.
         // History stores the original (unexpanded) text so refs remain visible.
         let expanded = self.expand_paste_refs(&text);

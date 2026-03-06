@@ -22,6 +22,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use futures::StreamExt;
 use serde_json::Value;
+use stencila_interviews::interviewer::Interviewer;
 use stencila_models3::api::accumulator::StreamAccumulator;
 use stencila_models3::error::SdkError;
 use stencila_models3::types::content::ContentPart;
@@ -37,8 +38,10 @@ use crate::events::{self, EventEmitter, EventReceiver};
 use crate::execution::ExecutionEnvironment;
 use crate::loop_detection;
 use crate::profile::ProviderProfile;
+use crate::prompts::McpContext;
 use crate::registry::ToolOutput;
 use crate::subagents::SubAgentManager;
+use crate::tool_guard::{GuardContext, GuardVerdict, ToolGuard};
 use crate::truncation::{TruncationConfig, truncate_tool_output};
 use crate::types::{
     AbortKind, AbortSignal, EventKind, HistoryThinkingReplay, SessionConfig, SessionState, Turn,
@@ -197,9 +200,9 @@ pub struct ApiSession {
     image_attachments: HashMap<String, ImageAttachment>,
 
     /// Tool guard policy for this session. Shared via `Arc` with child sessions.
-    tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
+    tool_guard: Option<Arc<ToolGuard>>,
     /// Per-session guard context for audit attribution.
-    guard_context: Option<Arc<crate::tool_guard::GuardContext>>,
+    guard_context: Option<Arc<GuardContext>>,
 
     /// MCP connection pool for server lifecycle and subagent sharing.
     #[cfg(any(feature = "mcp", feature = "codemode"))]
@@ -229,10 +232,11 @@ impl std::fmt::Debug for ApiSession {
 /// session IDs.
 #[derive(Default)]
 pub struct ApiSessionInit {
-    pub mcp_context: Option<crate::prompts::McpContext>,
+    pub mcp_context: Option<McpContext>,
     pub session_id: Option<String>,
-    pub tool_guard: Option<Arc<crate::tool_guard::ToolGuard>>,
-    pub guard_context: Option<Arc<crate::tool_guard::GuardContext>>,
+    pub tool_guard: Option<Arc<ToolGuard>>,
+    pub guard_context: Option<Arc<GuardContext>>,
+    pub interviewer: Option<Arc<dyn Interviewer>>,
 }
 
 impl ApiSession {
@@ -270,6 +274,7 @@ impl ApiSession {
             session_id,
             tool_guard,
             guard_context,
+            interviewer,
         } = init;
         let (emitter, receiver) = match session_id {
             Some(id) => events::channel_with_id(id),
@@ -305,6 +310,16 @@ impl ApiSession {
             && let Err(e) = profile.register_subagent_tools()
         {
             tracing::warn!("failed to register subagent tools: {e}");
+        }
+
+        // Register ask_user tool when an interviewer is provided,
+        // enabling explicit human-in-the-loop via tool calls.
+        if let Some(iv) = interviewer {
+            if let Err(e) =
+                crate::tools::ask_user::register_ask_user_tool(profile.tool_registry_mut(), iv)
+            {
+                tracing::warn!("failed to register ask_user tool: {e}");
+            }
         }
 
         #[allow(unused_mut)]
@@ -525,13 +540,13 @@ impl ApiSession {
 
     /// The tool guard for this session, if set.
     #[must_use]
-    pub fn tool_guard(&self) -> Option<&Arc<crate::tool_guard::ToolGuard>> {
+    pub fn tool_guard(&self) -> Option<&Arc<ToolGuard>> {
         self.tool_guard.as_ref()
     }
 
     /// The guard context for this session, if set.
     #[must_use]
-    pub fn guard_context(&self) -> Option<&Arc<crate::tool_guard::GuardContext>> {
+    pub fn guard_context(&self) -> Option<&Arc<GuardContext>> {
         self.guard_context.as_ref()
     }
 
@@ -1893,8 +1908,8 @@ async fn execute_tool(
     env: &dyn ExecutionEnvironment,
     events: &EventEmitter,
     trunc_config: &TruncationConfig,
-    tool_guard: Option<&Arc<crate::tool_guard::ToolGuard>>,
-    guard_context: Option<&Arc<crate::tool_guard::GuardContext>>,
+    tool_guard: Option<&Arc<ToolGuard>>,
+    guard_context: Option<&Arc<GuardContext>>,
 ) -> (ToolResult, Option<(String, ImageAttachment)>) {
     events.emit_tool_call_start(&tool_call.name, &tool_call.id, &tool_call.arguments);
 
@@ -1937,13 +1952,13 @@ async fn execute_tool(
         let ctx = match guard_context {
             Some(c) => c.as_ref(),
             None => {
-                fallback = crate::tool_guard::GuardContext::fallback();
+                fallback = GuardContext::fallback();
                 &fallback
             }
         };
         let working_dir = std::path::Path::new(env.working_directory());
         match guard.evaluate(ctx, &tool_call.name, &tool_call.arguments, working_dir) {
-            crate::tool_guard::GuardVerdict::Deny {
+            GuardVerdict::Deny {
                 reason,
                 suggestion,
                 rule_id,
@@ -1960,14 +1975,14 @@ async fn execute_tool(
                     None,
                 );
             }
-            crate::tool_guard::GuardVerdict::Warn {
+            GuardVerdict::Warn {
                 reason,
                 suggestion,
                 rule_id,
             } => Some(format!(
                 "\n\n⚠️  [GUARD WARNING: {rule_id}] {reason}\nSuggestion: {suggestion}"
             )),
-            crate::tool_guard::GuardVerdict::Allow => None,
+            GuardVerdict::Allow => None,
         }
     } else {
         None

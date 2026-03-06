@@ -48,6 +48,10 @@ pub enum AgentError {
     #[error("i/o error: {message}")]
     Io { message: String },
 
+    /// An interview interaction failed (channel closed, cancelled, backend error).
+    #[error("interview failed: {message}")]
+    InterviewFailed { message: String },
+
     /// An MCP server error during tool execution.
     #[error("mcp error: {message}")]
     Mcp { message: String },
@@ -109,6 +113,7 @@ impl AgentError {
             | Self::ValidationError { .. }
             | Self::UnknownTool { .. }
             | Self::Io { .. }
+            | Self::InterviewFailed { .. }
             | Self::Mcp { .. } => true,
 
             Self::CliNotFound { .. }
@@ -164,6 +169,7 @@ impl AgentError {
             | Self::ValidationError { .. }
             | Self::UnknownTool { .. }
             | Self::Io { .. }
+            | Self::InterviewFailed { .. }
             | Self::Mcp { .. } => false,
         }
     }
@@ -211,6 +217,7 @@ impl AgentError {
             | Self::ValidationError { .. }
             | Self::UnknownTool { .. }
             | Self::Io { .. }
+            | Self::InterviewFailed { .. }
             | Self::Mcp { .. } => false,
         }
     }
@@ -227,6 +234,7 @@ impl AgentError {
             Self::ValidationError { .. } => "VALIDATION_ERROR",
             Self::UnknownTool { .. } => "UNKNOWN_TOOL",
             Self::Io { .. } => "IO_ERROR",
+            Self::InterviewFailed { .. } => "INTERVIEW_FAILED",
             Self::Mcp { .. } => "MCP_ERROR",
             Self::CliNotFound { .. } => "CLI_NOT_FOUND",
             Self::CliProcessFailed { .. } => "CLI_PROCESS_FAILED",

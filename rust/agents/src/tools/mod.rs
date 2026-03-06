@@ -6,6 +6,7 @@
 //! OpenAI-specific extensions.
 
 pub mod apply_patch;
+pub mod ask_user;
 pub mod edit_file;
 pub mod glob;
 pub mod grep;

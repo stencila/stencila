@@ -124,6 +124,38 @@ impl App {
         }
     }
 
+    /// Poll agent sessions for pending interview questions (from `ask_user` tool).
+    ///
+    /// Drains the `interview_rx` channel on each agent handle, storing the
+    /// first pending question so the UI can present it to the user.
+    pub fn poll_agent_interviews(&mut self) {
+        let mut new_questions: Vec<(usize, String)> = Vec::new();
+        for (idx, session) in self.sessions.iter_mut().enumerate() {
+            if session.pending_interview.is_some() {
+                continue;
+            }
+            if let Some(agent) = &mut session.agent {
+                if let Ok(pending) = agent.interview_rx.try_recv() {
+                    let question_text = pending.question.text.clone();
+                    let header = pending.question.header.clone();
+                    session.pending_interview = Some(pending);
+                    let display = match header {
+                        Some(h) => format!("{h}: {question_text}"),
+                        None => question_text,
+                    };
+                    new_questions.push((idx, display));
+                }
+            }
+        }
+        for (session_idx, question_text) in new_questions {
+            let agent_name = &self.sessions[session_idx].name;
+            self.messages.push(AppMessage::System {
+                content: format!("\u{2753} [{agent_name}] {question_text}"),
+            });
+            self.scroll_pinned = true;
+        }
+    }
+
     /// Poll the running workflow for events. Called on tick events.
     pub fn poll_workflow_events(&mut self) {
         // Drain events into a local vec to avoid borrow conflicts

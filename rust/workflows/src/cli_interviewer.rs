@@ -210,7 +210,6 @@ mod tests {
                     description: None,
                 },
             ],
-            "test",
         );
         let answer = ask_select(&q);
         assert_eq!(answer.value, AnswerValue::Skipped);

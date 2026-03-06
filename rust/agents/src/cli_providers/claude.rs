@@ -99,6 +99,7 @@ impl ClaudeCliProvider {
             | AgentError::ValidationError { .. }
             | AgentError::UnknownTool { .. }
             | AgentError::Io { .. }
+            | AgentError::InterviewFailed { .. }
             | AgentError::Mcp { .. }
             | AgentError::SessionClosed
             | AgentError::InvalidState { .. }
