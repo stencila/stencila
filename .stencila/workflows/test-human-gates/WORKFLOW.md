@@ -8,8 +8,7 @@ description: Test workflow with multiple human-in-the-loop gates for exercising 
 This workflow exercises various `wait.human` gate patterns via the `CliInterviewer`. It has no LLM calls — every non-structural node is a human gate — so it can run instantly and offline.
 
 ```dot
-digraph test_human_gates {
-
+digraph Workflow {
     Start -> Approve
 
     // --- Binary choice (yes / no style) ---------------------------------

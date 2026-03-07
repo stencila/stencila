@@ -1,14 +1,13 @@
 ---
 name: test-count-to-three
 description: Test workflow that counts from one to three
+goal: '3'
 ---
 
 A simple test of `$last_output` and `$goal` expansion.
 
 ```dot
 digraph Workflow {
-    graph [goal="3"]
-
     Start -> One -> Two -> Three -> Verify
 
     One    [prompt="Reply with just the number: 1"]

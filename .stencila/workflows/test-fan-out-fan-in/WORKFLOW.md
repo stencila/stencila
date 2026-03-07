@@ -1,14 +1,13 @@
 ---
 name: test-fan-out-fan-in
 description: Test workflow using parallel fan-out and fan-in
+goal: A string containing exactly three color names
 ---
 
 A simple test of parallel execution using `FanOut` node id for fan-out and a combine node for fan-in.
 
 ```dot
 digraph Workflow {
-    graph [goal="A string containing exactly three color names"]
-
     Start -> FanOut
     FanOut -> Red
     FanOut -> Green
