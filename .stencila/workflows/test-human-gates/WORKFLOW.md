@@ -15,17 +15,17 @@ digraph test_human_gates {
     // --- Binary choice (yes / no style) ---------------------------------
     // Two outgoing edges simulate a yes/no gate.
     Approve [ask="Deploy to production?"]
-    Approve -> Picked     [label="[Y] Yes, deploy"]
-    Approve -> Rejected   [label="[N] No, abort"]
+    Approve -> Picked     [label="Yes, deploy"]
+    Approve -> Rejected   [label="No, abort"]
 
     Rejected [shape=invtriangle]
 
     // --- Three-way choice ------------------------------------------------
     // Three edges test the dialoguer Select prompt with more options.
     Picked [ask="Pick an environment"]
-    Picked -> ReviewChanges  [label="[S] Staging"]
-    Picked -> ReviewChanges  [label="[P] Production"]
-    Picked -> ReviewChanges  [label="[D] Development"]
+    Picked -> ReviewChanges  [label="Staging"]
+    Picked -> ReviewChanges  [label="Production"]
+    Picked -> ReviewChanges  [label="Development"]
 
     // --- Edge labels without explicit accelerator keys -------------------
     // The engine derives keys from the first letter of each label.
@@ -37,6 +37,6 @@ digraph test_human_gates {
     // --- Single-choice gate (auto-continue) ------------------------------
     // Only one outgoing edge — the user must accept it.
     Confirm [ask="Press Enter to finish"]
-    Confirm -> End        [label="[OK] Continue"]
+    Confirm -> End        [label="Continue"]
 }
 ```
