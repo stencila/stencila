@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use inflector::Inflector;
@@ -30,6 +31,9 @@ impl App {
             current_stage_progress: None,
             workflow_status_msg_index: None,
             stage_status_msg_index: None,
+            in_parallel: false,
+            parallel_stages: HashMap::new(),
+            parallel_had_failure: false,
         });
         if let Some(goal) = default_goal {
             self.input.set_text(&goal);
@@ -68,6 +72,10 @@ impl App {
     }
 
     /// Minimal verbosity: a single in-place-updated status message for the entire pipeline.
+    ///
+    /// NOTE: parallel execution events are not handled here; parallel
+    /// stages are effectively invisible in minimal mode. Use detailed
+    /// verbosity for full parallel stage visibility.
     fn handle_pipeline_event_minimal(&mut self, event: &PipelineEvent) {
         match event {
             PipelineEvent::PipelineStarted { pipeline_name } => {
@@ -134,6 +142,11 @@ impl App {
     }
 
     /// Simple mode: progress messages including one in-place-updated status message per stage.
+    ///
+    /// NOTE: parallel execution events are not handled here; concurrent
+    /// stage updates may overwrite each other in the single status
+    /// message slot. Use detailed verbosity for full parallel stage
+    /// visibility.
     #[allow(clippy::too_many_lines)]
     fn handle_pipeline_event_simple(&mut self, event: &PipelineEvent) {
         match event {
@@ -241,6 +254,10 @@ impl App {
     }
 
     /// Detailed mode: full exchange per stage with prompt + streaming response.
+    ///
+    /// During parallel (fan-out) execution, each branch gets its own
+    /// `AppMessage::Exchange` so prompts and responses are grouped per
+    /// branch instead of interleaved into a single block.
     #[allow(clippy::too_many_lines)]
     fn handle_pipeline_event_detailed(&mut self, event: &PipelineEvent) {
         match event {
@@ -273,10 +290,35 @@ impl App {
                 }
             }
             PipelineEvent::StageInput {
-                agent_name, input, ..
+                node_id,
+                agent_name,
+                input,
+                ..
             } => {
                 self.color_registry.color_for(agent_name);
-                if let Some(msg_index) = self
+
+                // During parallel execution, route to the branch's own exchange.
+                let is_parallel = self.active_workflow.as_ref().is_some_and(|w| w.in_parallel);
+
+                if is_parallel {
+                    let msg_index = self.messages.len();
+                    self.messages.push(AppMessage::Exchange {
+                        kind: ExchangeKind::Workflow,
+                        status: ExchangeStatus::Running,
+                        request: format!("**{node_id}**\n\n{input}"),
+                        response: None,
+                        response_segments: None,
+                        exit_code: None,
+                        agent_index: None,
+                        agent_name: Some(agent_name.clone()),
+                    });
+                    let progress = Arc::new(Mutex::new(AgentProgress::default()));
+                    if let Some(workflow) = &mut self.active_workflow {
+                        workflow
+                            .parallel_stages
+                            .insert(node_id.clone(), (msg_index, progress));
+                    }
+                } else if let Some(msg_index) = self
                     .active_workflow
                     .as_ref()
                     .and_then(|w| w.current_exchange_msg_index)
@@ -291,10 +333,33 @@ impl App {
                     *workflow_agent_name = Some(agent_name.clone());
                 }
             }
-            PipelineEvent::StageSessionEvent { event: se, .. } => {
-                if let Some(workflow) = &self.active_workflow
+            PipelineEvent::StageSessionEvent {
+                node_id, event: se, ..
+            } => {
+                let stage_progress = self.active_workflow.as_ref().and_then(|w| {
+                    if w.in_parallel {
+                        w.parallel_stages.get(node_id).cloned()
+                    } else {
+                        None
+                    }
+                });
+
+                if let Some((msg_index, progress)) = stage_progress {
+                    // Parallel stage: route to per-stage progress
+                    crate::agent::process_event(se, &progress);
+                    if let Ok(g) = progress.lock() {
+                        let text = crate::agent::plain_text_from_segments(&g.segments);
+                        Self::update_exchange_streaming(
+                            &mut self.messages,
+                            msg_index,
+                            text,
+                            g.segments.clone(),
+                        );
+                    }
+                } else if let Some(workflow) = &self.active_workflow
                     && let Some(ref progress) = workflow.current_stage_progress
                 {
+                    // Normal (non-parallel) stage
                     crate::agent::process_event(se, progress);
                     if let Some(msg_index) = workflow.current_exchange_msg_index
                         && let Ok(g) = progress.lock()
@@ -309,18 +374,109 @@ impl App {
                     }
                 }
             }
-            // PipelineEvent::StageOutput: response already built incrementally from StageSessionEvent
-            PipelineEvent::StageCompleted { outcome, .. } => {
+            PipelineEvent::StageOutput {
+                node_id, output, ..
+            } => {
+                // During parallel execution, finalise the per-stage
+                // exchange: set the response text (if the stage didn't
+                // stream session events) and mark as succeeded.
+                if let Some(workflow) = &self.active_workflow
+                    && workflow.in_parallel
+                    && let Some((msg_index, _)) = workflow.parallel_stages.get(node_id)
+                {
+                    let msg_index = *msg_index;
+                    if let Some(AppMessage::Exchange {
+                        status, response, ..
+                    }) = self.messages.get_mut(msg_index)
+                    {
+                        if response.is_none() {
+                            *response = Some(output.clone());
+                        }
+                        *status = ExchangeStatus::Succeeded;
+                    }
+                }
+            }
+            PipelineEvent::ParallelStarted { .. } => {
                 if let Some(workflow) = &mut self.active_workflow {
-                    if let Some(msg_index) = workflow.current_exchange_msg_index.take()
+                    workflow.in_parallel = true;
+                    workflow.parallel_stages.clear();
+                    workflow.parallel_had_failure = false;
+                }
+            }
+            PipelineEvent::ParallelBranchFailed { reason, .. } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.parallel_had_failure = true;
+                }
+                // We cannot identify which specific stage exchanges
+                // belong to this branch (the event carries the parallel
+                // node id and branch index, not individual stage node
+                // ids). Emit a standalone failure message so the user
+                // sees the error.
+                self.messages.push(AppMessage::WorkflowProgress {
+                    kind: WorkflowProgressKind::Failed,
+                    label: "Parallel branch failed".to_string(),
+                    detail: Some(reason.clone()),
+                });
+            }
+            PipelineEvent::ParallelCompleted { .. } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    // Mark remaining running stage exchanges based on
+                    // whether any branch failed. If a failure occurred we
+                    // cannot tell which specific stages belonged to the
+                    // failed branch (the event model doesn't expose that),
+                    // so remaining running exchanges are marked Failed to
+                    // avoid displaying a misleading success state.
+                    let fallback_status = if workflow.parallel_had_failure {
+                        ExchangeStatus::Failed
+                    } else {
+                        ExchangeStatus::Succeeded
+                    };
+                    let indices: Vec<usize> = workflow
+                        .parallel_stages
+                        .values()
+                        .map(|(idx, _)| *idx)
+                        .collect();
+                    for idx in indices {
+                        if let Some(AppMessage::Exchange { status, .. }) =
+                            self.messages.get_mut(idx)
+                            && *status == ExchangeStatus::Running
+                        {
+                            *status = fallback_status;
+                        }
+                    }
+                    workflow.in_parallel = false;
+                    workflow.parallel_stages.clear();
+                    workflow.parallel_had_failure = false;
+                }
+            }
+            PipelineEvent::StageCompleted {
+                node_id, outcome, ..
+            } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    let completed_status = if outcome.status.is_success() {
+                        ExchangeStatus::Succeeded
+                    } else {
+                        ExchangeStatus::Failed
+                    };
+
+                    // Parallel stage path: look up the per-stage exchange.
+                    // (Currently branch subgraphs use NoOpEmitter for
+                    // lifecycle events so this won't fire, but it is here
+                    // for defensive correctness if that changes.)
+                    if workflow.in_parallel {
+                        if let Some((msg_index, _)) = workflow.parallel_stages.get(node_id) {
+                            let msg_index = *msg_index;
+                            if let Some(AppMessage::Exchange { status, .. }) =
+                                self.messages.get_mut(msg_index)
+                            {
+                                *status = completed_status;
+                            }
+                        }
+                    } else if let Some(msg_index) = workflow.current_exchange_msg_index.take()
                         && let Some(AppMessage::Exchange { status, .. }) =
                             self.messages.get_mut(msg_index)
                     {
-                        *status = if outcome.status.is_success() {
-                            ExchangeStatus::Succeeded
-                        } else {
-                            ExchangeStatus::Failed
-                        };
+                        *status = completed_status;
                     }
                     workflow.current_stage_progress = None;
                 }
@@ -375,7 +531,7 @@ impl App {
                     detail: Some(reason.to_string()),
                 });
             }
-            // Suppress parallel, interview, checkpoint, text delta, response end
+            // Suppress remaining events: ParallelBranchStarted, ParallelBranchCompleted, interview, checkpoint
             _ => {}
         }
     }

@@ -184,6 +184,29 @@ pub struct ActiveWorkflow {
 
     /// Message index of the current stage-level status message (Simple mode).
     pub stage_status_msg_index: Option<usize>,
+
+    /// Whether we are currently inside a parallel fan-out section.
+    /// Set on `ParallelStarted`, cleared on `ParallelCompleted`.
+    pub in_parallel: bool,
+
+    /// Per-stage state during parallel execution (detailed mode).
+    /// Maps stage `node_id` → `(message_index, progress)` for each
+    /// stage that emitted a `StageInput` inside the current parallel
+    /// section. Multiple stages within the same branch each get their
+    /// own entry.
+    ///
+    /// Keyed by `node_id` because graph node IDs are unique within a
+    /// pipeline and parallel branches traverse disjoint subgraphs.
+    /// (`stage_index` is NOT usable here: the engine sets it once before
+    /// the parallel node executes and branch subgraphs share the cloned
+    /// context value.)
+    pub parallel_stages: HashMap<String, (usize, Arc<Mutex<AgentProgress>>)>,
+
+    /// Whether any branch failed during the current parallel section.
+    /// Set on `ParallelBranchFailed`, cleared on `ParallelCompleted`.
+    /// Used to avoid marking orphaned running exchanges as succeeded
+    /// when the parallel section completes with failures.
+    pub parallel_had_failure: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
