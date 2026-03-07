@@ -27,7 +27,7 @@ proptest-derive = { workspace = true, optional = true }
 regex = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-serde_with = "3.14.0"
+serde_with = "3.17.0"
 serde_yaml = { workspace = true }
 similar = { workspace = true }
 smart-default = { workspace = true }

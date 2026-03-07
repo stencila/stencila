@@ -4,8 +4,8 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-jupyter-protocol = "1.0.0"
-nbformat = "1.0.0"
+jupyter-protocol = "1.4.0"
+nbformat = "1.2.1"
 serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom = { path = "../codec-dom" }

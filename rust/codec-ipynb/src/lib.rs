@@ -2,7 +2,7 @@ use std::{collections::HashMap, str::FromStr};
 
 use jupyter_protocol::{ExecutionCount, Media, MediaType};
 use nbformat::{
-    Notebook, parse_notebook, serialize_notebook, upgrade_legacy_notebook,
+    Notebook, parse_notebook, serialize_notebook, upgrade_legacy_notebook, upgrade_v3_notebook,
     v4::{
         Author as NotebookAuthor, Cell, CellId, CellMetadata, ErrorOutput, ExecuteResult, Metadata,
         MultilineString, Notebook as NotebookV4, Output,
@@ -92,6 +92,7 @@ impl Codec for IpynbCodec {
 fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
     let notebook = match notebook {
         Notebook::V4(nb) => nb,
+        Notebook::V3(nb) => upgrade_v3_notebook(nb).map_err(|error| eyre!(error))?,
         Notebook::Legacy(nb) => upgrade_legacy_notebook(nb).map_err(|error| eyre!(error))?,
     };
 

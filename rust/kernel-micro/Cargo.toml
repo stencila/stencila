@@ -19,7 +19,7 @@ tracing = { workspace = true }
 which = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.30.1", features = ["fs", "signal"] }
+nix = { version = "0.31.2", features = ["fs", "signal"] }
 
 [lints]
 workspace = true

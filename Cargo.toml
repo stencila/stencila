@@ -16,7 +16,7 @@ bytes = "1.11.1"
 brotli = "8.0.2"
 bs58 = "0.5.1"
 cached = { version = "0.56.0", features = ["async"] }
-chrono = { version = "0.4.43", features = ["serde"] }
+chrono = { version = "0.4.44", features = ["serde"] }
 chrono-humanize = "0.2.3"
 clap = { version = "4.5.60", features = ["derive", "color", "env", "wrap_help"] }
 darling = "0.23.0"
@@ -33,7 +33,7 @@ headless_chrome = { version = "1.0.21", features = ["rustls"] }
 http = "1.4.0"
 http-cache-semantics = { version = "3.0.0", features = ["reqwest", "serde"] }
 keyring = { version = "3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "vendored"] }
-jsonschema = "0.42.1"
+jsonschema = "0.44.1"
 indexmap = { version = "2.13.0", features = ["serde"] }
 image = { version = "0.25.9", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
 indicatif = "0.18.4"
@@ -65,17 +65,17 @@ seahash = "4.1.0"
 semver = { version = "1.0.27", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = { version = "1.0.149", features = ["preserve_order"] }
-serde_with = "3.16.1"
+serde_with = "3.17.0"
 serde_yaml = "0.9.34"
 sha2 = "0.10"
 similar = { version = "2.7.0", features = ["serde", "unicode"] }
 smart-default = "0.7.1"
 strsim = "0.11.1"
 smol_str = "0.3.5"
-strum = { version = "0.27.2", features = ["derive"] }
+strum = { version = "0.28.0", features = ["derive"] }
 syn = "2.0.117"
 tar = "0.4.44"
-tempfile = "3.25.0"
+tempfile = "3.26.0"
 test-log = { version = "0.2.19", default-features = false, features = ["trace"] }
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
 thiserror = "2.0.18"

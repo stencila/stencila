@@ -7,7 +7,7 @@ edition = "2024"
 chrono = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
-jsonwebtoken = { version = "10.2.0", default-features = false, features = ["rust_crypto"] }
+jsonwebtoken = { version = "10.3.0", default-features = false, features = ["rust_crypto"] }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

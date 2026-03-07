@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-async-lsp = { version = "0.2.2", features = ["tokio"] }
+async-lsp = { version = "0.2.3", features = ["tokio"] }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 eyre = { workspace = true }
