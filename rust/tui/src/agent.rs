@@ -3,16 +3,15 @@ use std::fmt::Write as _;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-use async_trait::async_trait;
 use inflector::Inflector;
 use serde_json::Value;
 use stencila_agents::convenience::create_session_with_interviewer;
 use stencila_agents::types::AbortController;
 use stencila_agents::types::EventKind;
-use stencila_attractor::interviewer::{
-    Answer, InterviewError, Interviewer, Question, parse_answer_text,
-};
+use stencila_attractor::interviewer::Interviewer;
 use tokio::sync::mpsc;
+
+use crate::interview::{PendingTuiInterview, TuiInterviewer};
 
 // ─── Structured response segments ───────────────────────────────────
 //
@@ -140,46 +139,6 @@ fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Op
     }
 }
 
-/// An interview question pending user response in a standalone agent session.
-pub struct PendingAgentInterview {
-    pub question: Question,
-    pub answer_tx: tokio::sync::oneshot::Sender<String>,
-}
-
-impl std::fmt::Debug for PendingAgentInterview {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("PendingAgentInterview")
-            .field("question", &self.question.text)
-            .finish_non_exhaustive()
-    }
-}
-
-/// An `Interviewer` for standalone TUI agent chat sessions.
-///
-/// Sends questions through an mpsc channel and waits for answers via
-/// oneshot channels, using the same pattern as `TuiInterviewer` in
-/// `workflow.rs` but decoupled from `WorkflowEvent`.
-struct ChatInterviewer {
-    interview_tx: mpsc::UnboundedSender<PendingAgentInterview>,
-}
-
-#[async_trait]
-impl Interviewer for ChatInterviewer {
-    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
-        let (answer_tx, answer_rx) = tokio::sync::oneshot::channel();
-        self.interview_tx
-            .send(PendingAgentInterview {
-                question: question.clone(),
-                answer_tx,
-            })
-            .map_err(|_| InterviewError::ChannelClosed)?;
-        match answer_rx.await {
-            Ok(text) => Ok(parse_answer_text(&text, question)),
-            Err(_) => Err(InterviewError::ChannelClosed),
-        }
-    }
-}
-
 /// Shared progress state for a running agent exchange, updated by the
 /// background event-draining task.
 #[derive(Debug, Default)]
@@ -284,7 +243,7 @@ enum AgentCommand {
 /// signals the background task to shut down.
 pub struct AgentHandle {
     tx: mpsc::UnboundedSender<AgentCommand>,
-    pub interview_rx: mpsc::UnboundedReceiver<PendingAgentInterview>,
+    pub interview_rx: mpsc::UnboundedReceiver<PendingTuiInterview>,
 }
 
 impl AgentHandle {
@@ -297,7 +256,7 @@ impl AgentHandle {
         // Check that a tokio runtime is available before spawning
         let _handle = tokio::runtime::Handle::try_current().ok()?;
         let (tx, rx) = mpsc::unbounded_channel();
-        let (interview_tx, interview_rx) = mpsc::unbounded_channel();
+        let (interview_tx, interview_rx) = mpsc::unbounded_channel::<PendingTuiInterview>();
         tokio::spawn(agent_task(rx, name.to_string(), interview_tx));
         Some(Self { tx, interview_rx })
     }
@@ -336,7 +295,7 @@ impl AgentHandle {
 async fn agent_task(
     mut rx: mpsc::UnboundedReceiver<AgentCommand>,
     name: String,
-    interview_tx: mpsc::UnboundedSender<PendingAgentInterview>,
+    interview_tx: mpsc::UnboundedSender<PendingTuiInterview>,
 ) {
     // Session and event receiver are created lazily on first submit.
     let mut session = None;
@@ -351,9 +310,8 @@ async fn agent_task(
     {
         // Lazy session init
         if session.is_none() {
-            let interviewer: Arc<dyn Interviewer> = Arc::new(ChatInterviewer {
-                interview_tx: interview_tx.clone(),
-            });
+            let interviewer: Arc<dyn Interviewer> =
+                Arc::new(TuiInterviewer::new(interview_tx.clone()));
             match create_session_with_interviewer(&name, interviewer).await {
                 Ok((.., s, er)) => {
                     session = Some(s);
@@ -707,13 +665,18 @@ fn handle_tool_call_start(
             .unwrap_or("");
         g.pending_tools
             .insert(call_id.to_string(), tool_name.clone());
-        let arguments = event.data.get("arguments").cloned().unwrap_or(Value::Null);
-        let label = format_tool_start(tool_name, &arguments);
-        g.segments.push(ResponseSegment::ToolCall {
-            call_id: call_id.to_string(),
-            label,
-            status: ToolCallStatus::Running,
-        });
+
+        // Don't show a tool-call spinner for ask_user — the interview
+        // block itself makes the pending state obvious.
+        if tool_name != "ask_user" {
+            let arguments = event.data.get("arguments").cloned().unwrap_or(Value::Null);
+            let label = format_tool_start(tool_name, &arguments);
+            g.segments.push(ResponseSegment::ToolCall {
+                call_id: call_id.to_string(),
+                label,
+                status: ToolCallStatus::Running,
+            });
+        }
         g.has_tool_calls = true;
         g.received_deltas = false;
     }

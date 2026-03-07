@@ -5,7 +5,8 @@ use stencila_server::preview::PreviewEvent;
 use crate::{
     agent::ResponseSegment,
     config::WorkflowVerbosity,
-    workflow::{PendingInterview, WorkflowEvent},
+    interview::{InterviewSource, InterviewState, InterviewStatus, PendingTuiInterview},
+    workflow::WorkflowEvent,
 };
 
 use super::{
@@ -126,33 +127,68 @@ impl App {
 
     /// Poll agent sessions for pending interview questions (from `ask_user` tool).
     ///
-    /// Drains the `interview_rx` channel on each agent handle, storing the
-    /// first pending question so the UI can present it to the user.
-    pub fn poll_agent_interviews(&mut self) {
-        let mut new_questions: Vec<(usize, String)> = Vec::new();
-        for (idx, session) in self.sessions.iter_mut().enumerate() {
-            if session.pending_interview.is_some() {
-                continue;
-            }
-            if let Some(agent) = &mut session.agent
-                && let Ok(pending) = agent.interview_rx.try_recv()
-            {
-                let question_text = pending.question.text.clone();
-                let header = pending.question.header.clone();
-                session.pending_interview = Some(pending);
-                let display = match header {
-                    Some(h) => format!("{h}: {question_text}"),
-                    None => question_text,
-                };
-                new_questions.push((idx, display));
-            }
+    /// First drains any previously buffered interviews from `pending_interviews`,
+    /// then skips polling while an interview is already active. New interviews
+    /// from agent channels are picked up on the next tick once the active one completes.
+    pub fn poll_interviews(&mut self) {
+        // First, try to start a previously buffered interview
+        if self.active_interview.is_none()
+            && let Some((pending, source, agent_name)) = self.pending_interviews.pop_front()
+        {
+            self.start_interview(pending, &source, &agent_name);
         }
-        for (session_idx, question_text) in new_questions {
-            let agent_name = &self.sessions[session_idx].name;
-            self.messages.push(AppMessage::System {
-                content: format!("\u{2753} [{agent_name}] {question_text}"),
-            });
-            self.scroll_pinned = true;
+
+        if self.active_interview.is_some() {
+            return;
+        }
+
+        // Check agent sessions for pending interviews
+        for idx in 0..self.sessions.len() {
+            let pending = {
+                let session = &mut self.sessions[idx];
+                let Some(agent) = &mut session.agent else {
+                    continue;
+                };
+                match agent.interview_rx.try_recv() {
+                    Ok(pending) => pending,
+                    Err(_) => continue,
+                }
+            };
+            let agent_name = self.sessions[idx].name.clone();
+            self.start_interview(pending, &InterviewSource::Agent, &agent_name);
+            return;
+        }
+    }
+
+    /// Start an interview: create the `AppMessage::Interview`, set up
+    /// `active_interview`, and pin scroll.
+    fn start_interview(
+        &mut self,
+        pending: PendingTuiInterview,
+        source: &InterviewSource,
+        agent_name: &str,
+    ) {
+        let id = pending.interview.id.clone();
+        self.messages.push(AppMessage::Interview {
+            id: id.clone(),
+            source: source.clone(),
+            agent_name: agent_name.to_string(),
+            status: InterviewStatus::Active,
+            interview: pending.interview.clone(),
+            answers: Vec::new(),
+        });
+        let msg_index = self.messages.len() - 1;
+        self.active_interview = Some(InterviewState::new(
+            &pending.interview,
+            msg_index,
+            pending.result_tx,
+        ));
+        self.scroll_pinned = true;
+
+        // If the source is a workflow and user detached to agent mode,
+        // switch back so they can answer the interview.
+        if matches!(source, InterviewSource::Workflow) {
+            self.mode = super::AppMode::Workflow;
         }
     }
 
@@ -181,18 +217,22 @@ impl App {
         for event in events {
             match event {
                 WorkflowEvent::Pipeline(pe) => self.handle_pipeline_event(&pe),
-                WorkflowEvent::InterviewQuestion {
-                    question,
-                    answer_tx,
-                } => {
-                    if let Some(workflow) = &mut self.active_workflow {
-                        workflow.pending_interview = Some(PendingInterview {
-                            question,
-                            answer_tx,
-                        });
-                        // If the user detached to agent mode, auto-switch back
-                        // so they can answer the interview prompt.
-                        self.mode = super::AppMode::Workflow;
+                WorkflowEvent::Interview(pending) => {
+                    let workflow_name = self
+                        .active_workflow
+                        .as_ref()
+                        .map(|w| w.info.name.clone())
+                        .unwrap_or_default();
+                    if self.active_interview.is_none() {
+                        self.start_interview(pending, &InterviewSource::Workflow, &workflow_name);
+                    } else {
+                        // Buffer the interview so it is started once the
+                        // current one completes (via poll_interviews).
+                        self.pending_interviews.push_back((
+                            pending,
+                            InterviewSource::Workflow,
+                            workflow_name,
+                        ));
                     }
                 }
                 WorkflowEvent::Completed(result) => {
@@ -357,8 +397,9 @@ mod tests {
     #[tokio::test]
     async fn interview_event_resumes_workflow_mode() {
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+        use crate::interview::PendingTuiInterview;
         use crate::workflow::WorkflowEvent;
-        use stencila_attractor::interviewer::Question;
+        use stencila_attractor::interviewer::{Interview, Question};
         use tokio::sync::{mpsc, oneshot};
 
         let mut app = App::new_for_test().await;
@@ -380,25 +421,20 @@ mod tests {
             wf.run_handle = Some(crate::workflow::WorkflowRunHandle::new_for_test(rx));
         }
 
-        // Send an interview question through the channel
-        let (answer_tx, _answer_rx) = oneshot::channel();
-        tx.send(WorkflowEvent::InterviewQuestion {
-            question: Question::freeform("Continue?"),
-            answer_tx,
-        })
+        // Send an interview through the channel
+        let (result_tx, _result_rx) = oneshot::channel();
+        let question = Question::freeform("Continue?");
+        tx.send(WorkflowEvent::Interview(PendingTuiInterview {
+            interview: Interview::single(question, "test"),
+            result_tx,
+        }))
         .unwrap();
 
         // Poll — should process the interview event and switch back to workflow mode
         app.poll_workflow_events();
 
         assert_eq!(app.mode, AppMode::Workflow);
-        assert!(
-            app.active_workflow
-                .as_ref()
-                .unwrap()
-                .pending_interview
-                .is_some()
-        );
+        assert!(app.active_interview.is_some());
     }
 
     #[tokio::test]

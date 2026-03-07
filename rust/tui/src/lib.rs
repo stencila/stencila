@@ -9,6 +9,7 @@ mod config;
 mod event;
 mod history;
 mod input;
+mod interview;
 mod logging;
 mod shell;
 mod site_preview;
@@ -83,7 +84,7 @@ impl Tui {
                 Some(event::AppEvent::Tick) => {
                     app.poll_running_commands();
                     app.poll_running_agent_exchanges();
-                    app.poll_agent_interviews();
+                    app.poll_interviews();
                     app.poll_workflow_events();
                     app.poll_log_events();
                     app.poll_upgrade_check();

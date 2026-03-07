@@ -26,6 +26,15 @@ pub(super) const THINKING_FRAMES: [char; 6] =
 pub(super) const BRAILLE_SPINNER_FRAMES: [char; 10] =
     ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
+/// Selected option (single-select radio).
+pub(super) const SYM_SELECTED: &str = "\u{25cf}"; // ●
+
+/// Unselected option (single-select radio).
+pub(super) const SYM_UNSELECTED: &str = "\u{25cb}"; // ○
+
+/// Cancelled interview indicator.
+pub(super) const SYM_CANCELLED: &str = "\u{2298}"; // ⊘
+
 /// Dim style used for hint descriptions.
 pub(super) const fn dim() -> Style {
     Style::new().fg(Color::DarkGray)

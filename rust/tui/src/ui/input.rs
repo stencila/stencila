@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Paragraph},
 };
 
-use crate::app::{ActiveWorkflow, ActiveWorkflowState, App, AppMode, ExchangeKind};
+use crate::app::{ActiveWorkflow, ActiveWorkflowState, App, AppMessage, AppMode, ExchangeKind};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, INPUT_BG, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
@@ -91,14 +91,10 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Mode indicator in the gutter (no dark bg)
     let gutter = NUM_GUTTER;
     if area.height > 0 {
-        let indicator = if app.mode == AppMode::Workflow {
+        let indicator = if app.active_interview.is_some() {
+            " ? ".to_string()
+        } else if app.mode == AppMode::Workflow {
             if app
-                .active_workflow
-                .as_ref()
-                .is_some_and(|w| w.pending_interview.is_some())
-            {
-                " \u{2753} ".to_string()
-            } else if app
                 .active_workflow
                 .as_ref()
                 .is_some_and(|w| w.run_handle.is_some())
@@ -108,10 +104,6 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } else {
                 " \u{2699} ".to_string()
             }
-        } else if app.mode == AppMode::Agent
-            && app.sessions[app.active_session].pending_interview.is_some()
-        {
-            " \u{2753} ".to_string()
         } else if app.mode == AppMode::Agent && app.active_session_is_running() {
             let frame_idx = (app.tick_count as usize / 2) % BRAILLE_SPINNER_FRAMES.len();
             format!(" {} ", BRAILLE_SPINNER_FRAMES[frame_idx])
@@ -193,52 +185,54 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
         }
     }
 
-    // Show placeholder text when in workflow mode with empty input
+    // Show placeholder text for active interview
     if input_text.is_empty()
+        && let Some(state) = &app.active_interview
+    {
+        let placeholder = if let Some(AppMessage::Interview { interview, .. }) =
+            app.messages.get(state.msg_index)
+        {
+            if let Some(q) = interview.questions.get(state.current_question) {
+                use stencila_attractor::interviewer::QuestionType;
+                match q.question_type {
+                    QuestionType::YesNo | QuestionType::Confirmation => {
+                        "Enter y or n...".to_string()
+                    }
+                    QuestionType::MultipleChoice => {
+                        let opts: Vec<String> = q.options.iter().map(|o| o.key.clone()).collect();
+                        format!("Choose key or label: {}", opts.join(" / "))
+                    }
+                    QuestionType::MultiSelect => {
+                        let opts: Vec<String> = q.options.iter().map(|o| o.key.clone()).collect();
+                        format!(
+                            "Select keys or labels (comma-separated): {}",
+                            opts.join(", ")
+                        )
+                    }
+                    QuestionType::Freeform => "Enter your answer...".to_string(),
+                }
+            } else {
+                "Enter your answer...".to_string()
+            }
+        } else {
+            "Enter your answer...".to_string()
+        };
+        visual_lines.clear();
+        visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
+    } else if input_text.is_empty()
         && app.mode == AppMode::Workflow
         && let Some(workflow) = &app.active_workflow
+        && workflow.run_handle.is_none()
     {
-        if workflow.pending_interview.is_some() {
-            let q = &workflow
-                .pending_interview
-                .as_ref()
-                .expect("checked is_some above")
-                .question;
-            let placeholder = if q.options.is_empty() {
-                "Type your answer...".to_string()
-            } else {
-                let opts: Vec<String> = q.options.iter().map(|o| o.key.to_string()).collect();
-                format!("Choose: {}", opts.join(" / "))
-            };
-            visual_lines.clear();
-            visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
-        } else if workflow.run_handle.is_none() {
-            let placeholder = if matches!(
-                workflow.state,
-                ActiveWorkflowState::Succeeded
-                    | ActiveWorkflowState::Failed
-                    | ActiveWorkflowState::Cancelled
-            ) {
-                "Enter a new goal to re-run, or Ctrl+D to exit".to_string()
-            } else {
-                format!("What's your goal for the {} workflow?", workflow.info.name)
-            };
-            visual_lines.clear();
-            visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
-        }
-    }
-
-    // Show placeholder text when agent session has a pending interview (ask_user)
-    if input_text.is_empty()
-        && app.mode == AppMode::Agent
-        && let Some(pending) = &app.sessions[app.active_session].pending_interview
-    {
-        let q = &pending.question;
-        let placeholder = if q.options.is_empty() {
-            "Type your answer...".to_string()
+        let placeholder = if matches!(
+            workflow.state,
+            ActiveWorkflowState::Succeeded
+                | ActiveWorkflowState::Failed
+                | ActiveWorkflowState::Cancelled
+        ) {
+            "Enter a new goal to re-run, or Ctrl+D to exit".to_string()
         } else {
-            let opts: Vec<String> = q.options.iter().map(|o| o.key.to_string()).collect();
-            format!("Choose: {}", opts.join(" / "))
+            format!("What's your goal for the {} workflow?", workflow.info.name)
         };
         visual_lines.clear();
         visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
@@ -310,7 +304,9 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     // Show inline send/run hint anchored to the bottom-right of the input area.
     // Hide when running or when the last visible line's text would overlap.
     if !is_running {
-        let hint_text = if shell_look {
+        let hint_text = if app.active_interview.is_some() {
+            " answer"
+        } else if shell_look {
             " run"
         } else if app.mode == AppMode::Workflow
             && app
@@ -363,11 +359,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
 /// Build label spans for an active workflow in the hints line.
 fn workflow_label_spans(workflow: &ActiveWorkflow) -> Vec<Span<'static>> {
     let name = &workflow.info.name;
-    let status = if workflow.pending_interview.is_some() {
-        "awaiting input".to_string()
-    } else {
-        workflow.state.to_string()
-    };
+    let status = workflow.state.to_string();
     vec![
         Span::styled(format!("   {name} "), Style::new().fg(WORKFLOW_COLOR)),
         Span::styled(
@@ -386,7 +378,23 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     // Mode label on the left, indented to align with sidebar bars.
     // When the input starts with `!` in agent mode, show "shell" in yellow.
     let shell_look = app.input_looks_like_shell();
-    let label_spans = if shell_look {
+    let label_spans = if let Some(state) = &app.active_interview {
+        // Show interview label with "awaiting input" status
+        if let Some(AppMessage::Interview { agent_name, source, .. }) = app.messages.get(state.msg_index) {
+            let color = match source {
+                crate::interview::InterviewSource::Agent => {
+                    app.color_registry.get(agent_name).unwrap_or(Color::Blue)
+                }
+                crate::interview::InterviewSource::Workflow => WORKFLOW_COLOR,
+            };
+            vec![
+                Span::styled(format!("   {agent_name} "), Style::new().fg(color)),
+                Span::styled("awaiting input", Style::new().fg(color).add_modifier(Modifier::DIM)),
+            ]
+        } else {
+            vec![Span::styled("   interview", Style::new().fg(Color::Blue))]
+        }
+    } else if shell_look {
         vec![Span::styled(format!("   {}", ExchangeKind::Shell), Style::new().fg(ExchangeKind::Shell.color()))]
     } else if app.mode == AppMode::Workflow
         && let Some(workflow) = &app.active_workflow
@@ -412,7 +420,26 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     let label = Line::from(label_spans);
 
     // Keyboard hints on the right
-    let hints = if is_running {
+    let hints = if let Some(state) = &app.active_interview {
+        // Interview-specific hints
+        if let Some(ref err) = state.validation_error {
+            Line::from(vec![Span::styled(err.clone(), Style::new().fg(Color::Red))])
+        } else {
+            let mut spans = vec![
+                Span::raw("\u{21b5} "),
+                Span::styled("answer", dim()),
+                Span::raw("  esc "),
+                Span::styled("cancel", dim()),
+            ];
+            if state.current_question > 0 {
+                spans.push(Span::raw("  ctrl+p "));
+                spans.push(Span::styled("back", dim()));
+            }
+            spans.push(Span::raw("  alt+\u{21b5} "));
+            spans.push(Span::styled("newline", dim()));
+            Line::from(spans)
+        }
+    } else if is_running {
         Line::from(vec![Span::raw("esc "), Span::styled("cancel", dim())])
     } else if has_ghost {
         Line::from(vec![

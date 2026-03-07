@@ -10,10 +10,12 @@ use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{
     App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind, WorkflowStatusState,
 };
+use crate::interview::{DraftAnswer, InterviewSource, InterviewStatus};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
-    THINKING_FRAMES, TOOL_CALL_FRAMES, dim, style_inline_markdown, wrap_content,
+    SYM_CANCELLED, SYM_SELECTED, SYM_UNSELECTED, THINKING_FRAMES, TOOL_CALL_FRAMES, dim,
+    style_inline_markdown, wrap_content,
 };
 use super::markdown::MdRenderCache;
 
@@ -125,6 +127,29 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                     detail.as_deref(),
                     tick_count,
                     content_width,
+                );
+            }
+            AppMessage::Interview {
+                id,
+                source,
+                agent_name,
+                status,
+                interview,
+                answers,
+            } => {
+                interview_lines(
+                    &mut lines,
+                    id,
+                    source,
+                    agent_name,
+                    *status,
+                    interview,
+                    answers,
+                    app.active_interview.as_ref(),
+                    &mut app.color_registry,
+                    content_width,
+                    msg_idx,
+                    md_cache,
                 );
             }
         }
@@ -795,6 +820,448 @@ fn workflow_progress_lines(
             }
         }
     }
+}
+
+// ─── Interview rendering ────────────────────────────────────────────
+
+/// Render a structured interview block inline in the message area.
+#[allow(clippy::too_many_arguments)]
+fn interview_lines(
+    lines: &mut Vec<Line>,
+    id: &str,
+    source: &InterviewSource,
+    agent_name: &str,
+    status: InterviewStatus,
+    interview: &stencila_attractor::interviewer::Interview,
+    answers: &[stencila_attractor::interviewer::Answer],
+    active_state: Option<&crate::interview::InterviewState>,
+    color_registry: &mut crate::app::AgentColorRegistry,
+    content_width: usize,
+    msg_idx: usize,
+    md_cache: &mut MdRenderCache,
+) {
+    // Determine accent color based on source
+    let accent_color = match source {
+        InterviewSource::Agent => color_registry.color_for(agent_name),
+        InterviewSource::Workflow => WORKFLOW_COLOR,
+    };
+
+    let dimmed = status != InterviewStatus::Active;
+    let sidebar_style = if dimmed {
+        Style::new().fg(accent_color).add_modifier(Modifier::DIM)
+    } else {
+        Style::new().fg(accent_color)
+    };
+
+    // Gutter indicator
+    let gutter_text = match status {
+        InterviewStatus::Active | InterviewStatus::Completed => " ? ".to_string(),
+        InterviewStatus::Cancelled => format!(" {SYM_CANCELLED} "),
+    };
+    let gutter_style = Style::new().fg(accent_color).add_modifier(Modifier::BOLD);
+    let num_padding = "   ";
+
+    // Deduct the gutter + sidebar + space prefix from content width for wrapping.
+    // Prefix is: num_padding (3) + SIDEBAR_CHAR (1) + space (1) = 5 chars.
+    let inner_width = content_width.saturating_sub(5);
+
+    // Header line: "agent-name asks" / "agent-name · completed" / "agent-name · cancelled"
+    let status_suffix = match status {
+        InterviewStatus::Active => " asks",
+        InterviewStatus::Completed => " \u{00b7} completed",
+        InterviewStatus::Cancelled => " \u{00b7} cancelled",
+    };
+    let header_spans = vec![
+        Span::styled(gutter_text.to_string(), gutter_style),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled(
+            agent_name.to_string(),
+            Style::new().fg(accent_color).add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(status_suffix.to_string(), dim()),
+    ];
+    lines.push(Line::from(header_spans));
+
+    // Determine which question is active (only if this interview is the active one)
+    let active_question = active_state
+        .filter(|s| s.interview_id == id)
+        .map(|s| s.current_question);
+
+    let questions = &interview.questions;
+
+    // Preamble (if present and non-empty)
+    if let Some(preamble) = &interview.preamble
+        && !preamble.is_empty()
+    {
+        // Render preamble through markdown cache
+        let preamble_spans = md_cache.get_or_render(msg_idx, usize::MAX, preamble, inner_width);
+        for line_spans in preamble_spans {
+            let mut spans = vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+            ];
+            spans.extend(line_spans.iter().map(|s| {
+                if dimmed {
+                    let mut s = s.clone();
+                    s.style = s.style.add_modifier(Modifier::DIM);
+                    s
+                } else {
+                    s.clone()
+                }
+            }));
+            lines.push(Line::from(spans));
+        }
+    }
+
+    // Blank line between header (or preamble) and questions
+    blank_sidebar_line(lines, sidebar_style);
+
+    // Render each question
+    for (q_idx, question) in questions.iter().enumerate() {
+        let is_active = active_question == Some(q_idx);
+        let is_answered = if status == InterviewStatus::Completed {
+            true
+        } else {
+            active_question.is_some_and(|aq| q_idx < aq)
+        };
+
+        if is_answered {
+            answered_question_line(
+                lines,
+                question,
+                status,
+                answers.get(q_idx),
+                active_state.and_then(|s| s.draft_answers.get(q_idx)),
+                sidebar_style,
+            );
+        } else if is_active {
+            // Horizontal rule above active question
+            rule_sidebar_line(lines, sidebar_style, inner_width);
+            active_question_lines(
+                lines,
+                question,
+                active_state.and_then(|s| s.draft_answers.get(q_idx)),
+                sidebar_style,
+                inner_width,
+                msg_idx,
+                q_idx,
+                md_cache,
+            );
+            // Horizontal rule below active question
+            rule_sidebar_line(lines, sidebar_style, inner_width);
+        } else {
+            future_question_line(lines, question, sidebar_style);
+        }
+    }
+}
+
+/// Push a blank sidebar continuation line.
+fn blank_sidebar_line(lines: &mut Vec<Line>, sidebar_style: Style) {
+    lines.push(Line::from(vec![
+        Span::raw("   "),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+    ]));
+}
+
+/// Push a dim horizontal rule within the sidebar continuation area.
+fn rule_sidebar_line(lines: &mut Vec<Line>, sidebar_style: Style, inner_width: usize) {
+    lines.push(Line::from(vec![
+        Span::raw("   "),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled(
+            "─".repeat(inner_width.max(1)),
+            Style::new().add_modifier(Modifier::DIM),
+        ),
+    ]));
+}
+
+/// Render the expanded active-question block: header/text, options, and yes/no toggles.
+#[allow(clippy::too_many_arguments)]
+fn active_question_lines(
+    lines: &mut Vec<Line>,
+    question: &stencila_attractor::interviewer::Question,
+    draft: Option<&DraftAnswer>,
+    sidebar_style: Style,
+    inner_width: usize,
+    msg_idx: usize,
+    q_idx: usize,
+    md_cache: &mut MdRenderCache,
+) {
+    use stencila_attractor::interviewer::QuestionType;
+
+    let num_padding = "   ";
+
+    // Active question symbol
+    let sym_span = Span::styled(format!("{SYM_UNSELECTED} "), Style::new().fg(Color::White));
+
+    let header_text = question
+        .header
+        .as_deref()
+        .unwrap_or(&question.text)
+        .to_string();
+
+    // Question header/text — render through markdown
+    let q_spans = md_cache.get_or_render(msg_idx, q_idx, &question.text, inner_width);
+    if question.header.is_some() {
+        // Show header in bold with ○ symbol, then question text below
+        let mut first = true;
+        for chunk in wrap_content(&header_text, inner_width) {
+            let mut line_spans = vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+            ];
+            if first {
+                line_spans.push(sym_span.clone());
+                first = false;
+            }
+            line_spans.push(Span::styled(
+                chunk,
+                Style::new().add_modifier(Modifier::BOLD),
+            ));
+            lines.push(Line::from(line_spans));
+        }
+        // Blank line after header
+        blank_sidebar_line(lines, sidebar_style);
+        for line_spans in q_spans {
+            let mut spans = vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+            ];
+            spans.extend(line_spans.iter().cloned());
+            lines.push(Line::from(spans));
+        }
+    } else {
+        // No header — render question text directly with ○ symbol
+        let mut first = true;
+        for line_spans in q_spans {
+            let mut spans = vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+            ];
+            if first {
+                spans.push(sym_span.clone());
+                first = false;
+            }
+            spans.extend(line_spans.iter().cloned());
+            lines.push(Line::from(spans));
+        }
+    }
+
+    // Blank line before options
+    let has_options = !question.options.is_empty()
+        || matches!(
+            question.question_type,
+            QuestionType::YesNo | QuestionType::Confirmation
+        );
+    if has_options {
+        blank_sidebar_line(lines, sidebar_style);
+    }
+
+    // Options (vertical layout)
+    option_lines(lines, question, draft, sidebar_style);
+
+    // Yes/No options
+    if matches!(
+        question.question_type,
+        QuestionType::YesNo | QuestionType::Confirmation
+    ) {
+        yes_no_option_lines(lines, draft, sidebar_style);
+    }
+}
+
+/// Render a collapsed answered-question line: `● Header: answer`.
+fn answered_question_line(
+    lines: &mut Vec<Line>,
+    question: &stencila_attractor::interviewer::Question,
+    status: InterviewStatus,
+    answer: Option<&stencila_attractor::interviewer::Answer>,
+    draft: Option<&DraftAnswer>,
+    sidebar_style: Style,
+) {
+    let num_padding = "   ";
+    let answer_value = if status == InterviewStatus::Completed {
+        answer.map(|a| &a.value)
+    } else {
+        None
+    };
+    let answer_text = answer_value.map_or_else(
+        || {
+            draft.map_or_else(String::new, |d| {
+                friendly_answer_text(&d.to_answer(question).value, question)
+            })
+        },
+        |v| friendly_answer_text(v, question),
+    );
+    let header = question.header.as_deref().unwrap_or(&question.text);
+    lines.push(Line::from(vec![
+        Span::raw(num_padding),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled(format!("{SYM_SELECTED} "), dim()),
+        Span::styled(format!("{header}: "), dim()),
+        Span::styled(answer_text, Style::new().fg(Color::Blue)),
+    ]));
+}
+
+/// Format an answer value as user-friendly text, using question context to
+/// resolve option keys to labels.
+fn friendly_answer_text(
+    value: &stencila_attractor::interviewer::AnswerValue,
+    question: &stencila_attractor::interviewer::Question,
+) -> String {
+    use stencila_attractor::interviewer::AnswerValue;
+
+    match value {
+        AnswerValue::Yes => "Yes".to_string(),
+        AnswerValue::No => "No".to_string(),
+        AnswerValue::Skipped => "Skipped".to_string(),
+        AnswerValue::Timeout => "Timed out".to_string(),
+        AnswerValue::Text(text) => text.clone(),
+        AnswerValue::Selected(key) => question
+            .options
+            .iter()
+            .find(|o| &o.key == key)
+            .map_or_else(|| key.clone(), |o| o.label.clone()),
+        AnswerValue::MultiSelected(keys) => {
+            let labels: Vec<&str> = keys
+                .iter()
+                .map(|k| {
+                    question
+                        .options
+                        .iter()
+                        .find(|o| &o.key == k)
+                        .map_or(k.as_str(), |o| o.label.as_str())
+                })
+                .collect();
+            labels.join(", ")
+        }
+    }
+}
+
+/// Render option lines for `MultiSelect` / `MultipleChoice` questions.
+fn option_lines(
+    lines: &mut Vec<Line>,
+    question: &stencila_attractor::interviewer::Question,
+    draft: Option<&DraftAnswer>,
+    sidebar_style: Style,
+) {
+    use stencila_attractor::interviewer::QuestionType;
+
+    let num_padding = "   ";
+    for (o_idx, option) in question.options.iter().enumerate() {
+        let is_selected = match question.question_type {
+            QuestionType::MultiSelect => draft
+                .and_then(|d| {
+                    if let DraftAnswer::MultiSelected(set) = d {
+                        Some(set.contains(&o_idx))
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or(false),
+            QuestionType::MultipleChoice => draft
+                .and_then(|d| {
+                    if let DraftAnswer::Selected(idx) = d {
+                        Some(*idx == Some(o_idx))
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or(false),
+            _ => false,
+        };
+
+        let key_style = if is_selected {
+            Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD)
+        } else {
+            Style::new().fg(Color::Cyan)
+        };
+        let label_style = if is_selected {
+            Style::new().add_modifier(Modifier::BOLD)
+        } else {
+            Style::new()
+        };
+
+        let mut opt_spans = vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, sidebar_style),
+            Span::raw(" "),
+            Span::styled(format!("{} ", option.key), key_style),
+            Span::styled(option.label.clone(), label_style),
+        ];
+        if let Some(desc) = &option.description {
+            opt_spans.push(Span::styled(format!(" — {desc}"), dim()));
+        }
+        lines.push(Line::from(opt_spans));
+    }
+}
+
+/// Render Yes / No toggle lines.
+fn yes_no_option_lines(lines: &mut Vec<Line>, draft: Option<&DraftAnswer>, sidebar_style: Style) {
+    let num_padding = "   ";
+    let selected = draft.and_then(|d| {
+        if let DraftAnswer::YesNo(v) = d {
+            *v
+        } else {
+            None
+        }
+    });
+    let (yes_key_style, yes_label_style) = if selected == Some(true) {
+        (
+            Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD),
+            Style::new().add_modifier(Modifier::BOLD),
+        )
+    } else {
+        (Style::new().fg(Color::Cyan), Style::new())
+    };
+    let (no_key_style, no_label_style) = if selected == Some(false) {
+        (
+            Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD),
+            Style::new().add_modifier(Modifier::BOLD),
+        )
+    } else {
+        (Style::new().fg(Color::Cyan), Style::new())
+    };
+    lines.push(Line::from(vec![
+        Span::raw(num_padding),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled("y ", yes_key_style),
+        Span::styled("Yes", yes_label_style),
+    ]));
+    lines.push(Line::from(vec![
+        Span::raw(num_padding),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled("n ", no_key_style),
+        Span::styled("No", no_label_style),
+    ]));
+}
+
+/// Render a dimmed future-question preview line with ○ symbol.
+fn future_question_line(
+    lines: &mut Vec<Line>,
+    question: &stencila_attractor::interviewer::Question,
+    sidebar_style: Style,
+) {
+    let num_padding = "   ";
+    let preview = question
+        .header
+        .as_deref()
+        .unwrap_or_else(|| question.text.lines().next().unwrap_or(&question.text));
+    lines.push(Line::from(vec![
+        Span::raw(num_padding),
+        Span::styled(SIDEBAR_CHAR, sidebar_style),
+        Span::raw(" "),
+        Span::styled(format!("{SYM_UNSELECTED} "), dim()),
+        Span::styled(preview.to_string(), dim()),
+    ]));
 }
 
 /// Render a prefixed annotation line: `"● label"` with symbol styling and dim content.

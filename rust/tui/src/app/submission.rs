@@ -1,6 +1,7 @@
 use crate::{
     agent::AgentHandle,
     commands::{ParsedCommand, parse_command},
+    interview::{InterviewResult, InterviewStatus},
 };
 
 use super::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
@@ -81,6 +82,13 @@ impl App {
             return;
         }
 
+        // Interview answer submission: when an interview is active, route
+        // input to the interview state machine.
+        if self.active_interview.is_some() {
+            self.submit_interview_answer(&text);
+            return;
+        }
+
         if self.mode == AppMode::Workflow {
             // Workflow goal submission: when in workflow mode and not yet running,
             // empty input uses the default goal (if available).
@@ -99,45 +107,11 @@ impl App {
                 // If no goal provided and no default, do nothing (keep waiting)
                 return;
             }
-
-            // Workflow interview answer submission: when a workflow is waiting
-            // for user input, send the answer through the oneshot channel.
-            if let Some(workflow) = &mut self.active_workflow
-                && let Some(pending) = workflow.pending_interview.take()
-            {
-                if text.trim().is_empty() {
-                    // Put the pending interview back if input was empty
-                    workflow.pending_interview = Some(pending);
-                    return;
-                }
-                self.messages.push(AppMessage::System {
-                    content: format!("\u{1f4ac} {text}"),
-                });
-                let _ = pending.answer_tx.send(text);
-                self.scroll_pinned = true;
-                self.scroll_offset = 0;
-                return;
-            }
         }
 
+        // Empty input (outside of interview/workflow contexts) is a no-op.
         if text.trim().is_empty() {
             return;
-        }
-
-        // Agent interview answer submission: when the active agent session
-        // has a pending `ask_user` question, send the answer through the
-        // oneshot channel instead of submitting a new chat message.
-        if self.mode == AppMode::Agent {
-            let session = &mut self.sessions[self.active_session];
-            if let Some(pending) = session.pending_interview.take() {
-                self.messages.push(AppMessage::System {
-                    content: format!("\u{1f4ac} {text}"),
-                });
-                let _ = pending.answer_tx.send(text);
-                self.scroll_pinned = true;
-                self.scroll_offset = 0;
-                return;
-            }
         }
 
         // Expand paste and response references for the actual request text.
@@ -264,6 +238,124 @@ impl App {
                 Some("Agent unavailable, will retry with a new session".to_string()),
                 None,
             );
+        }
+    }
+
+    /// Submit an answer to the active interview's current question.
+    fn submit_interview_answer(&mut self, text: &str) {
+        // Get the current question from the interview message
+        let question = {
+            let Some(state) = &self.active_interview else {
+                return;
+            };
+            let Some(AppMessage::Interview { id, interview, .. }) =
+                self.messages.get(state.msg_index)
+            else {
+                return;
+            };
+            debug_assert_eq!(id, &state.interview_id, "interview ID mismatch");
+            let Some(question) = interview.questions.get(state.current_question) else {
+                return;
+            };
+            question.clone()
+        };
+
+        // Try to set the answer on the state
+        let Some(state) = self.active_interview.as_mut() else {
+            return;
+        };
+        if !state.try_set_answer_from_input(text, &question) {
+            // Validation failed — the error is stored in state.validation_error
+            // and will be shown in the hints line. Don't clear input.
+            return;
+        }
+
+        // Advance to next question or complete the interview
+        let is_complete = state.advance();
+        if is_complete {
+            self.complete_interview();
+        }
+
+        self.input.clear();
+        self.input_scroll = 0;
+        self.scroll_pinned = true;
+    }
+
+    /// Complete the active interview, sending answers back through the channel.
+    pub(super) fn complete_interview(&mut self) {
+        if let Some(mut state) = self.active_interview.take() {
+            let msg_idx = state.msg_index;
+
+            // Get questions from the message to finalize answers
+            let questions = if let Some(AppMessage::Interview { id, interview, .. }) =
+                self.messages.get(msg_idx)
+            {
+                debug_assert_eq!(id, &state.interview_id, "interview ID mismatch");
+                interview.questions.clone()
+            } else {
+                return;
+            };
+
+            let answers = state.finalize_answers(&questions);
+
+            // Send answers back through the channel
+            if let Some(tx) = state.answer_tx.take() {
+                let _ = tx.send(InterviewResult::Completed(answers.clone()));
+            }
+
+            // Update the transcript message in-place
+            if let Some(AppMessage::Interview {
+                status,
+                answers: msg_answers,
+                ..
+            }) = self.messages.get_mut(msg_idx)
+            {
+                *status = InterviewStatus::Completed;
+                *msg_answers = answers;
+            }
+        }
+    }
+
+    /// Navigate back to the previous question in an active interview.
+    pub(super) fn interview_back(&mut self) {
+        if let Some(state) = &mut self.active_interview {
+            if !state.back() {
+                return; // Already on first question
+            }
+
+            // Restore the previous question's draft answer to the input area
+            let input_text = if let Some(AppMessage::Interview { interview, .. }) =
+                self.messages.get(state.msg_index)
+            {
+                if let Some(question) = interview.questions.get(state.current_question) {
+                    state.draft_answers[state.current_question].to_input_text(question)
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            };
+            self.input.set_text(&input_text);
+        }
+    }
+
+    /// Cancel the active interview.
+    pub(super) fn cancel_interview(&mut self) {
+        if let Some(mut state) = self.active_interview.take() {
+            let msg_idx = state.msg_index;
+
+            if let Some(tx) = state.answer_tx.take() {
+                let _ = tx.send(InterviewResult::Cancelled);
+            }
+
+            // Update the transcript message in-place
+            if let Some(AppMessage::Interview { id, status, .. }) = self.messages.get_mut(msg_idx) {
+                debug_assert_eq!(id, &state.interview_id, "interview ID mismatch");
+                *status = InterviewStatus::Cancelled;
+            }
+
+            self.input.clear();
+            self.input_scroll = 0;
         }
     }
 }

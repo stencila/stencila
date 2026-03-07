@@ -31,8 +31,14 @@ impl App {
         // Clear the command usage hint when input text changes (user typed
         // or deleted something), but preserve it across non-editing keys
         // like arrow navigation, Esc, etc.
-        if self.command_usage_hint.is_some() && self.input.text() != text_before {
-            self.command_usage_hint = None;
+        if self.input.text() != text_before {
+            if self.command_usage_hint.is_some() {
+                self.command_usage_hint = None;
+            }
+            // Clear interview validation error on any text change
+            if let Some(state) = &mut self.active_interview {
+                state.validation_error = None;
+            }
         }
 
         // Ghost suggestion always refreshes (input/cursor may have changed in either path).
@@ -216,7 +222,20 @@ impl App {
 
         match (key.modifiers, key.code) {
             (KeyModifiers::NONE, KeyCode::Esc) => {
-                if !self.scroll_pinned {
+                if self.active_interview.is_some() {
+                    if self.input.is_empty() {
+                        // Second Esc on empty input: cancel interview
+                        self.cancel_interview();
+                    } else {
+                        // First Esc: clear draft input
+                        self.input.clear();
+                        self.input_scroll = 0;
+                        // Clear validation error since input changed
+                        if let Some(state) = &mut self.active_interview {
+                            state.validation_error = None;
+                        }
+                    }
+                } else if !self.scroll_pinned {
                     self.scroll_to_bottom();
                 } else if self.has_running() {
                     self.cancel_most_recent_running();
@@ -263,6 +282,11 @@ impl App {
                 if self.sessions.len() > 1 {
                     let next = (self.active_session + 1) % self.sessions.len();
                     self.switch_to_session(next);
+                }
+            }
+            (KeyModifiers::CONTROL, KeyCode::Char('p')) => {
+                if self.active_interview.is_some() && self.input.is_empty() {
+                    self.interview_back();
                 }
             }
             (KeyModifiers::CONTROL, KeyCode::Char('u')) => self.input.delete_to_line_start(),

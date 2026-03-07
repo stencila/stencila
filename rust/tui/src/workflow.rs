@@ -1,34 +1,23 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
 
 use stencila_attractor::events::{EventEmitter, PipelineEvent};
-use stencila_attractor::interviewer::{
-    Answer, InterviewError, Interviewer, Question, parse_answer_text,
-};
+use stencila_attractor::interviewer::Interviewer;
 use stencila_attractor::types::Outcome;
 
 use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+use crate::interview::{PendingTuiInterview, TuiInterviewer};
 
 /// Events from the workflow runtime to the TUI.
 pub enum WorkflowEvent {
     /// A pipeline event forwarded directly from the attractor engine.
     Pipeline(PipelineEvent),
-    /// An interview question requiring user input.
-    InterviewQuestion {
-        question: Question,
-        answer_tx: oneshot::Sender<String>,
-    },
+    /// An interview delivered through the shared `TuiInterviewer`.
+    Interview(PendingTuiInterview),
     /// The workflow run completed (success or failure).
     Completed(eyre::Result<Outcome>),
-}
-
-/// An interview question pending user response.
-pub struct PendingInterview {
-    pub question: Question,
-    pub answer_tx: oneshot::Sender<String>,
 }
 
 /// Handle to a running workflow task.
@@ -63,30 +52,22 @@ impl EventEmitter for TuiEventEmitter {
     }
 }
 
-/// An `Interviewer` that sends questions through the event channel
-/// and waits for answers via oneshot channels.
-///
-/// This is the TUI-specific interviewer implementation, coupled to
-/// [`WorkflowEvent`] for rendering questions in the terminal UI.
-struct TuiInterviewer {
+/// Bridge that forwards pending interviews from `TuiInterviewer` through the
+/// workflow event channel so they can be picked up by `poll_workflow_events`.
+fn spawn_interview_forwarder(
     event_tx: mpsc::UnboundedSender<WorkflowEvent>,
-}
-
-#[async_trait]
-impl Interviewer for TuiInterviewer {
-    async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
-        let (answer_tx, answer_rx) = oneshot::channel();
-        self.event_tx
-            .send(WorkflowEvent::InterviewQuestion {
-                question: question.clone(),
-                answer_tx,
-            })
-            .map_err(|_| InterviewError::ChannelClosed)?;
-        match answer_rx.await {
-            Ok(text) => Ok(parse_answer_text(&text, question)),
-            Err(_) => Err(InterviewError::ChannelClosed),
+) -> Arc<dyn Interviewer> {
+    let (itx, mut irx) = mpsc::unbounded_channel::<PendingTuiInterview>();
+    let interviewer: Arc<dyn Interviewer> = Arc::new(TuiInterviewer::new(itx));
+    tokio::spawn(async move {
+        while let Some(pending) = irx.recv().await {
+            if event_tx.send(WorkflowEvent::Interview(pending)).is_err() {
+                break;
+            }
         }
-    }
+        tracing::trace!("interview forwarder task exited");
+    });
+    interviewer
 }
 
 /// Spawn a workflow run on a background task.
@@ -102,7 +83,8 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
         let emitter: Arc<dyn EventEmitter> = Arc::new(TuiEventEmitter {
             tx: event_tx.clone(),
         });
-        let interviewer: Arc<dyn Interviewer> = Arc::new(TuiInterviewer { event_tx });
+
+        let interviewer = spawn_interview_forwarder(event_tx);
 
         let cwd = std::env::current_dir().unwrap_or_default();
         let result = async {
@@ -152,11 +134,6 @@ fn compute_total_stages(name: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_attractor::interviewer::AnswerValue;
-
-    fn freeform_question() -> Question {
-        Question::freeform("What is your name?")
-    }
 
     #[tokio::test]
     async fn tui_emitter_sends_events() {
@@ -170,35 +147,5 @@ mod tests {
             event,
             WorkflowEvent::Pipeline(PipelineEvent::PipelineStarted { .. })
         ));
-    }
-
-    #[tokio::test]
-    async fn tui_interviewer_sends_and_receives() -> Result<(), Box<dyn std::error::Error>> {
-        let (tx, mut rx) = mpsc::unbounded_channel();
-        let interviewer = TuiInterviewer { event_tx: tx };
-        let question = freeform_question();
-
-        let ask_handle = tokio::spawn({
-            let q = question.clone();
-            async move { interviewer.ask(&q).await }
-        });
-
-        let event = rx.recv().await.ok_or("expected interview event")?;
-        if let WorkflowEvent::InterviewQuestion {
-            question: q,
-            answer_tx,
-        } = event
-        {
-            assert_eq!(q.text, "What is your name?");
-            answer_tx
-                .send("Alice".to_string())
-                .map_err(|_| "failed to send answer")?;
-        } else {
-            panic!("Expected InterviewQuestion event");
-        }
-
-        let answer = ask_handle.await??;
-        assert_eq!(answer.value, AnswerValue::Text("Alice".to_string()));
-        Ok(())
     }
 }

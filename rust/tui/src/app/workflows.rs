@@ -26,7 +26,6 @@ impl App {
             info,
             state: ActiveWorkflowState::Pending,
             run_handle: None,
-            pending_interview: None,
             current_exchange_msg_index: None,
             current_stage_progress: None,
             workflow_status_msg_index: None,

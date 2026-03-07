@@ -12,8 +12,10 @@ use ratatui::style::Color;
 use strum::Display;
 use tokio::{sync::mpsc, task::JoinHandle};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
+
+use stencila_attractor::interviewer::{Answer, Interview};
 
 use crate::{
     agent::{AgentHandle, AgentProgress, ResponseSegment, RunningAgentExchange},
@@ -26,8 +28,9 @@ use crate::{
     config::AppConfig,
     history::InputHistory,
     input::InputState,
+    interview::{InterviewSource, InterviewState, InterviewStatus, PendingTuiInterview},
     shell::RunningShellCommand,
-    workflow::{PendingInterview, WorkflowRunHandle},
+    workflow::WorkflowRunHandle,
 };
 
 /// The current input mode of the TUI.
@@ -144,9 +147,6 @@ pub struct AgentSession {
 
     /// Approximate context usage percentage (0–100+), updated from agent events.
     pub context_usage_percent: u32,
-
-    /// Interview question pending user response (from `ask_user` tool), if any.
-    pub pending_interview: Option<crate::agent::PendingAgentInterview>,
 }
 
 impl AgentSession {
@@ -158,7 +158,6 @@ impl AgentSession {
             definition: None,
             running_agent_exchanges: Vec::new(),
             context_usage_percent: 0,
-            pending_interview: None,
         }
     }
 }
@@ -173,9 +172,6 @@ pub struct ActiveWorkflow {
 
     /// Running workflow task handle, set once the goal is submitted.
     pub run_handle: Option<WorkflowRunHandle>,
-
-    /// Interview question pending user response, if any.
-    pub pending_interview: Option<PendingInterview>,
 
     /// Message index of the current stage exchange (for linking prompt → response).
     pub current_exchange_msg_index: Option<usize>,
@@ -257,6 +253,25 @@ pub enum AppMessage {
 
         /// Detail text.
         detail: Option<String>,
+    },
+
+    /// A structured interview block rendered inline in the message area.
+    Interview {
+        /// Unique interview ID (for linking to `active_interview`).
+        id: String,
+        /// Source context for accent color.
+        source: InterviewSource,
+        /// Agent or workflow name for the header.
+        agent_name: String,
+        /// Current status (active, completed, cancelled).
+        status: InterviewStatus,
+        /// The full interview content (preamble, questions, attachments).
+        /// NOTE: `interview.answers` is intentionally left empty — it is NOT
+        /// the source of truth for answer state. Finalized answers are stored
+        /// in the message-level `answers` field below.
+        interview: Interview,
+        /// Finalized answers (populated on completion, parallel to questions).
+        answers: Vec<Answer>,
     },
 }
 
@@ -392,6 +407,13 @@ pub struct App {
     /// The currently active workflow (if in workflow mode).
     pub active_workflow: Option<ActiveWorkflow>,
 
+    /// The currently active interview (from agent or workflow).
+    pub active_interview: Option<InterviewState>,
+
+    /// Interviews that arrived while another interview was already active.
+    /// Drained (FIFO) by `poll_interviews` before polling fresh sources.
+    pub pending_interviews: VecDeque<(PendingTuiInterview, InterviewSource, String)>,
+
     /// Tick counter for pulsating sidebar animation on running exchanges.
     pub tick_count: u32,
 
@@ -474,6 +496,8 @@ impl App {
             command_usage_hint: None,
             running_shell_commands: Vec::new(),
             active_workflow: None,
+            active_interview: None,
+            pending_interviews: VecDeque::new(),
             sessions: vec![default_session],
             active_session: 0,
             tick_count: 0,
