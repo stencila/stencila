@@ -45,6 +45,11 @@ pub enum ResponseSegment {
         label: String,
         status: ToolCallStatus,
     },
+    /// An inline interview marker rendered in-place within an exchange.
+    Interview {
+        /// Index of the corresponding `AppMessage::Interview` in the transcript.
+        interview_msg_index: usize,
+    },
     /// An informational annotation (e.g. routing decision, retry notification).
     Info(String),
     /// A warning annotation (e.g. turn limit, loop detection).
@@ -179,6 +184,15 @@ impl RunningAgentExchange {
             .lock()
             .map(|g| g.segments.clone())
             .unwrap_or_default()
+    }
+
+    /// Insert an inline interview marker at the current end of the segment stream.
+    pub fn push_interview_segment(&self, interview_msg_index: usize) {
+        if let Ok(mut progress) = self.progress.lock() {
+            progress.segments.push(ResponseSegment::Interview {
+                interview_msg_index,
+            });
+        }
     }
 
     /// Return the latest context usage percentage (0–100+).

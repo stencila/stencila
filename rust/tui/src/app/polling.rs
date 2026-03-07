@@ -131,11 +131,13 @@ impl App {
     /// then skips polling while an interview is already active. New interviews
     /// from agent channels are picked up on the next tick once the active one completes.
     pub fn poll_interviews(&mut self) {
-        // First, try to start a previously buffered interview
+        // First, try to start a previously buffered interview.
+        // Buffered interviews are always workflow-sourced (agent interviews
+        // are discovered per-session below and never buffered).
         if self.active_interview.is_none()
             && let Some((pending, source, agent_name)) = self.pending_interviews.pop_front()
         {
-            self.start_interview(pending, &source, &agent_name);
+            self.start_interview(pending, &source, &agent_name, None);
         }
 
         if self.active_interview.is_some() {
@@ -155,19 +157,27 @@ impl App {
                 }
             };
             let agent_name = self.sessions[idx].name.clone();
-            self.start_interview(pending, &InterviewSource::Agent, &agent_name);
+            self.start_interview(pending, &InterviewSource::Agent, &agent_name, Some(idx));
             return;
         }
     }
 
     /// Start an interview: create the `AppMessage::Interview`, set up
     /// `active_interview`, and pin scroll.
+    ///
+    /// `session_index` identifies the originating agent session (for
+    /// `InterviewSource::Agent`) so the correct running exchange is used as
+    /// the inline parent. `None` for workflow-sourced interviews.
     fn start_interview(
         &mut self,
         pending: PendingTuiInterview,
         source: &InterviewSource,
         agent_name: &str,
+        session_index: Option<usize>,
     ) {
+        // Find the parent message to embed the interview inline with.
+        let parent_msg_index = self.find_interview_parent(source, session_index);
+
         let id = pending.interview.id.clone();
         self.messages.push(AppMessage::Interview {
             id: id.clone(),
@@ -176,8 +186,17 @@ impl App {
             status: InterviewStatus::Active,
             interview: pending.interview.clone(),
             answers: Vec::new(),
+            parent_msg_index,
         });
         let msg_index = self.messages.len() - 1;
+
+        if matches!(source, InterviewSource::Agent)
+            && let Some(session_index) = session_index
+            && let Some((_, running)) = self.sessions[session_index].running_agent_exchanges.last()
+        {
+            running.push_interview_segment(msg_index);
+        }
+
         self.active_interview = Some(InterviewState::new(
             &pending.interview,
             msg_index,
@@ -194,6 +213,35 @@ impl App {
         // switch back so they can answer the interview.
         if matches!(source, InterviewSource::Workflow) {
             self.mode = super::AppMode::Workflow;
+        }
+    }
+
+    /// Find the parent message index for an interview so it can be rendered
+    /// inline as a continuation of that message rather than as a standalone block.
+    ///
+    /// `session_index` is the originating agent session (only for agent-sourced
+    /// interviews).
+    fn find_interview_parent(
+        &self,
+        source: &InterviewSource,
+        session_index: Option<usize>,
+    ) -> Option<usize> {
+        match source {
+            InterviewSource::Workflow => {
+                // Use the current stage's exchange (detailed mode) or stage
+                // status message (simple mode), falling back to the workflow
+                // status message (minimal mode).
+                self.active_workflow.as_ref().and_then(|wf| {
+                    wf.current_exchange_msg_index
+                        .or(wf.stage_status_msg_index)
+                        .or(wf.workflow_status_msg_index)
+                })
+            }
+            InterviewSource::Agent => {
+                // Find the most recent running exchange for the originating session.
+                let session = &self.sessions[session_index.unwrap_or(self.active_session)];
+                session.running_agent_exchanges.last().map(|(idx, _)| *idx)
+            }
         }
     }
 
@@ -229,7 +277,12 @@ impl App {
                         .map(|w| w.info.name.clone())
                         .unwrap_or_default();
                     if self.active_interview.is_none() {
-                        self.start_interview(pending, &InterviewSource::Workflow, &workflow_name);
+                        self.start_interview(
+                            pending,
+                            &InterviewSource::Workflow,
+                            &workflow_name,
+                            None,
+                        );
                     } else {
                         // Buffer the interview so it is started once the
                         // current one completes (via poll_interviews).

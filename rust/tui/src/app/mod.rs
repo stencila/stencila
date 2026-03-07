@@ -272,6 +272,10 @@ pub enum AppMessage {
         interview: Interview,
         /// Finalized answers (populated on completion, parallel to questions).
         answers: Vec<Answer>,
+        /// When set, the interview is rendered inline as a continuation of the
+        /// parent message (Exchange or WorkflowProgress) at this index, without
+        /// its own header or separator.
+        parent_msg_index: Option<usize>,
     },
 }
 

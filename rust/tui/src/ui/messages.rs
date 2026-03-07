@@ -30,10 +30,20 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
     let tick_count = app.tick_count;
     let mut exchange_num = 0usize;
 
-    let md_cache = &mut app.md_render_cache;
-    for (msg_idx, message) in app.messages.iter().enumerate() {
+    for msg_idx in 0..app.messages.len() {
+        let message = app.messages[msg_idx].clone();
+        // Inline interviews (with a parent message) skip the blank separator
+        // so they appear as a continuation of their parent.
+        let is_inline_interview = matches!(
+            &message,
+            AppMessage::Interview {
+                parent_msg_index: Some(_),
+                ..
+            }
+        );
+
         // Add a blank line separator between messages (except before the first)
-        if !lines.is_empty() {
+        if !lines.is_empty() && !is_inline_interview {
             lines.push(Line::raw(""));
         }
 
@@ -78,7 +88,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } => {
                 exchange_num += 1;
                 let agent_tag = if let Some(name) = workflow_agent_name {
-                    let color = app.color_registry.get(name).unwrap_or(Color::DarkGray);
+                    let color = app.color_registry.get(&name).unwrap_or(Color::DarkGray);
                     Some((name.clone(), color))
                 } else {
                     agent_index.and_then(|idx| {
@@ -91,17 +101,21 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 exchange_lines(
                     &mut lines,
                     exchange_num,
-                    *kind,
-                    *status,
-                    request,
+                    kind,
+                    status,
+                    &request,
                     response.as_deref(),
                     response_segments.as_deref(),
-                    *exit_code,
+                    exit_code,
                     tick_count,
                     content_width,
                     agent_tag.as_ref(),
                     msg_idx,
-                    md_cache,
+                    &app.messages,
+                    app.active_interview.as_ref(),
+                    &app.interview_preview_input,
+                    &mut app.color_registry,
+                    &mut app.md_render_cache,
                 );
             }
             AppMessage::WorkflowStatus {
@@ -111,8 +125,8 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } => {
                 workflow_status_lines(
                     &mut lines,
-                    *state,
-                    label,
+                    state,
+                    &label,
                     detail.as_deref(),
                     tick_count,
                     content_width,
@@ -125,8 +139,8 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
             } => {
                 workflow_progress_lines(
                     &mut lines,
-                    *kind,
-                    label,
+                    kind,
+                    &label,
                     detail.as_deref(),
                     tick_count,
                     content_width,
@@ -139,21 +153,48 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 status,
                 interview,
                 answers,
+                parent_msg_index,
             } => {
+                if matches!(source, InterviewSource::Agent) {
+                    continue;
+                }
+
+                // For inline workflow interviews, inherit the parent's color
+                // so interview sidebars match (e.g. grey for stages without
+                // an agent like human gates).
+                let parent_color = parent_msg_index.and_then(|pi| {
+                    if let AppMessage::Exchange {
+                        kind: ExchangeKind::Workflow,
+                        agent_name: wf_agent,
+                        ..
+                    } = app.messages.get(pi)?
+                    {
+                        let color = wf_agent
+                            .as_ref()
+                            .and_then(|n| app.color_registry.get(n))
+                            .unwrap_or(Color::DarkGray);
+                        Some(color)
+                    } else {
+                        None
+                    }
+                });
+
                 interview_lines(
                     &mut lines,
-                    id,
-                    source,
-                    agent_name,
-                    *status,
-                    interview,
-                    answers,
+                    &id,
+                    &source,
+                    &agent_name,
+                    status,
+                    &interview,
+                    &answers,
                     app.active_interview.as_ref(),
                     &app.interview_preview_input,
                     &mut app.color_registry,
                     content_width,
                     msg_idx,
-                    md_cache,
+                    &mut app.md_render_cache,
+                    parent_msg_index.is_some(),
+                    parent_color,
                 );
             }
         }
@@ -270,6 +311,10 @@ fn exchange_lines(
     content_width: usize,
     agent_tag: Option<&(String, Color)>,
     msg_idx: usize,
+    app_messages: &[AppMessage],
+    active_interview: Option<&crate::interview::InterviewState>,
+    interview_preview_input: &str,
+    color_registry: &mut crate::app::AgentColorRegistry,
     md_cache: &mut MdRenderCache,
 ) {
     let kind_color = agent_tag.map_or_else(|| kind.color(), |(_, color)| *color);
@@ -356,6 +401,10 @@ fn exchange_lines(
             annotation_tick,
             content_width,
             msg_idx,
+            app_messages,
+            active_interview,
+            interview_preview_input,
+            color_registry,
             md_cache,
         );
     } else if let Some(resp) = response {
@@ -432,6 +481,10 @@ fn response_segments_lines(
     annotation_tick: Option<u32>,
     content_width: usize,
     msg_idx: usize,
+    app_messages: &[AppMessage],
+    active_interview: Option<&crate::interview::InterviewState>,
+    interview_preview_input: &str,
+    color_registry: &mut crate::app::AgentColorRegistry,
     md_cache: &mut MdRenderCache,
 ) {
     let num_padding = "   ";
@@ -539,6 +592,43 @@ fn response_segments_lines(
                     content_width,
                 );
                 prev_was_annotation = true;
+            }
+            ResponseSegment::Interview {
+                interview_msg_index,
+            } => {
+                if let Some(AppMessage::Interview {
+                    id,
+                    source,
+                    agent_name,
+                    status,
+                    interview,
+                    answers,
+                    ..
+                }) = app_messages.get(*interview_msg_index)
+                {
+                    if !prev_was_annotation {
+                        lines.push(blank_line());
+                    }
+
+                    interview_lines(
+                        lines,
+                        id,
+                        source,
+                        agent_name,
+                        *status,
+                        interview,
+                        answers,
+                        active_interview,
+                        interview_preview_input,
+                        color_registry,
+                        content_width,
+                        *interview_msg_index,
+                        md_cache,
+                        true,
+                        Some(base_color),
+                    );
+                    prev_was_annotation = true;
+                }
             }
         }
     }
@@ -829,6 +919,13 @@ fn workflow_progress_lines(
 // ─── Interview rendering ────────────────────────────────────────────
 
 /// Render a structured interview block inline in the message area.
+///
+/// When `inline` is `true`, the interview is rendered as a continuation of its
+/// parent message (no header, no separator) — only questions and preamble are shown.
+///
+/// `parent_color` overrides the accent color when set, so inline interviews
+/// inherit their parent message's sidebar color (e.g. grey for workflow stages
+/// that have no agent).
 #[allow(clippy::too_many_arguments)]
 fn interview_lines(
     lines: &mut Vec<Line>,
@@ -844,64 +941,72 @@ fn interview_lines(
     content_width: usize,
     msg_idx: usize,
     md_cache: &mut MdRenderCache,
+    inline: bool,
+    parent_color: Option<Color>,
 ) {
-    // Determine accent color based on source
-    let accent_color = match source {
+    // Determine accent color: inherit from parent when available, otherwise
+    // derive from the interview source.
+    let accent_color = parent_color.unwrap_or_else(|| match source {
         InterviewSource::Agent => color_registry.color_for(agent_name),
         InterviewSource::Workflow => WORKFLOW_COLOR,
-    };
+    });
 
-    let dimmed = status != InterviewStatus::Active;
-    let sidebar_style = if dimmed {
-        Style::new().fg(accent_color).add_modifier(Modifier::DIM)
-    } else {
-        Style::new().fg(accent_color)
-    };
+    let sidebar_style = Style::new().fg(accent_color).add_modifier(Modifier::DIM);
 
-    // Gutter indicator
-    let gutter_text = match status {
-        InterviewStatus::Active | InterviewStatus::Completed => " ? ".to_string(),
-        InterviewStatus::Cancelled => format!(" {SYM_CANCELLED} "),
-    };
-    let gutter_style = Style::new().fg(accent_color).add_modifier(Modifier::BOLD);
     let num_padding = "   ";
 
     // Deduct the gutter + sidebar + space prefix from content width for wrapping.
     // Prefix is: num_padding (3) + SIDEBAR_CHAR (1) + space (1) = 5 chars.
     let inner_width = content_width.saturating_sub(5);
 
-    // Header line: "agent-name asks" / "agent-name · completed" / "agent-name · cancelled"
-    let active_state = active_state.filter(|state| state.interview_id == id);
-    let status_suffix = match status {
-        InterviewStatus::Active => " asks".to_string(),
-        InterviewStatus::Completed => " \u{00b7} completed".to_string(),
-        InterviewStatus::Cancelled => {
-            let answered = active_state.map_or(0, |state| {
-                state
-                    .draft_answers
-                    .iter()
-                    .filter(|draft| is_answered_draft(draft))
-                    .count()
-            });
-            format!(
-                " \u{00b7} cancelled ({answered}/{})",
-                interview.questions.len()
-            )
-        }
-    };
-    let header_spans = vec![
-        Span::styled(gutter_text.to_string(), gutter_style),
-        Span::styled(SIDEBAR_CHAR, sidebar_style),
-        Span::raw(" "),
-        Span::styled(
-            agent_name.to_string(),
-            Style::new().fg(accent_color).add_modifier(Modifier::BOLD),
-        ),
-        Span::styled(status_suffix, dim()),
-    ];
-    lines.push(Line::from(header_spans));
-
     // Determine which question is active (only if this interview is the active one)
+    let active_state = active_state.filter(|state| state.interview_id == id);
+
+    if inline {
+        // Inline mode: no header, just a blank sidebar line to separate from
+        // the parent message content, then questions directly.
+        blank_sidebar_line(lines, sidebar_style);
+    } else {
+        // Standalone mode: full header with gutter indicator and agent name.
+        let gutter_text = match status {
+            InterviewStatus::Active | InterviewStatus::Completed => " ? ".to_string(),
+            InterviewStatus::Cancelled => format!(" {SYM_CANCELLED} "),
+        };
+        let gutter_style = Style::new().fg(accent_color).add_modifier(Modifier::BOLD);
+
+        let status_suffix = match status {
+            InterviewStatus::Active => " asks".to_string(),
+            InterviewStatus::Completed => " \u{00b7} completed".to_string(),
+            InterviewStatus::Cancelled => {
+                let answered = active_state.map_or(0, |state| {
+                    state
+                        .draft_answers
+                        .iter()
+                        .filter(|draft| is_answered_draft(draft))
+                        .count()
+                });
+                format!(
+                    " \u{00b7} cancelled ({answered}/{})",
+                    interview.questions.len()
+                )
+            }
+        };
+        let header_spans = vec![
+            Span::styled(gutter_text.to_string(), gutter_style),
+            Span::styled(SIDEBAR_CHAR, sidebar_style),
+            Span::raw(" "),
+            Span::styled(
+                agent_name.to_string(),
+                Style::new().fg(accent_color).add_modifier(Modifier::BOLD),
+            ),
+            Span::styled(status_suffix, dim()),
+        ];
+        lines.push(Line::from(header_spans));
+
+        // Add a blank line between the interview header and preamble/questions.
+        blank_sidebar_line(lines, sidebar_style);
+    }
+
     let active_question = active_state.map(|s| s.current_question);
 
     let questions = &interview.questions;
@@ -910,9 +1015,6 @@ fn interview_lines(
         .preamble
         .as_ref()
         .is_some_and(|preamble| !preamble.is_empty());
-
-    // Add a blank line between the interview header and preamble/questions.
-    blank_sidebar_line(lines, sidebar_style);
 
     // Preamble (if present and non-empty) — deviation from plan: keep visible in all states.
     if let Some(preamble) = &interview.preamble

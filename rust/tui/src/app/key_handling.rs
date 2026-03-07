@@ -660,6 +660,7 @@ mod tests {
             status: crate::interview::InterviewStatus::Active,
             interview: interview.clone(),
             answers: Vec::new(),
+            parent_msg_index: None,
         });
 
         let (tx, _rx) = oneshot::channel();
