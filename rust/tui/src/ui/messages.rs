@@ -1058,8 +1058,10 @@ fn interview_lines(
                 sidebar_style,
             );
         } else if is_active {
-            // Horizontal rule above active question
-            rule_sidebar_line(lines, sidebar_style, inner_width);
+            if questions.len() > 1 {
+                // Horizontal rule above active question
+                rule_sidebar_line(lines, sidebar_style, inner_width);
+            }
             active_question_lines(
                 lines,
                 question,
@@ -1074,8 +1076,10 @@ fn interview_lines(
                 q_idx,
                 md_cache,
             );
-            // Horizontal rule below active question
-            rule_sidebar_line(lines, sidebar_style, inner_width);
+            if questions.len() > 1 {
+                // Horizontal rule below active question
+                rule_sidebar_line(lines, sidebar_style, inner_width);
+            }
         } else {
             if future_rendered < max_future {
                 future_question_line(lines, question, sidebar_style);
