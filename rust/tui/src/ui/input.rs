@@ -382,6 +382,7 @@ fn workflow_label_spans(workflow: &ActiveWorkflow) -> Vec<Span<'static>> {
 
 /// Render the hint line below the input area: mode label on left, keyboard hints on right.
 #[rustfmt::skip]
+#[allow(clippy::too_many_lines)]
 pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
     let is_running = app.has_running();
     let has_ghost = app.ghost_suggestion.is_some();

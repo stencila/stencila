@@ -926,7 +926,7 @@ fn workflow_progress_lines(
 /// `parent_color` overrides the accent color when set, so inline interviews
 /// inherit their parent message's sidebar color (e.g. grey for workflow stages
 /// that have no agent).
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
 fn interview_lines(
     lines: &mut Vec<Line>,
     id: &str,
@@ -1080,20 +1080,18 @@ fn interview_lines(
                 // Horizontal rule below active question
                 rule_sidebar_line(lines, sidebar_style, inner_width);
             }
-        } else {
-            if future_rendered < max_future {
-                future_question_line(lines, question, sidebar_style);
-                future_rendered += 1;
-            } else if future_rendered == max_future {
-                let remaining = questions.len().saturating_sub(q_idx);
-                lines.push(Line::from(vec![
-                    Span::raw("   "),
-                    Span::styled(SIDEBAR_CHAR, sidebar_style),
-                    Span::raw(" "),
-                    Span::styled(format!("… {remaining} more questions"), dim()),
-                ]));
-                break;
-            }
+        } else if future_rendered < max_future {
+            future_question_line(lines, question, sidebar_style);
+            future_rendered += 1;
+        } else if future_rendered == max_future {
+            let remaining = questions.len().saturating_sub(q_idx);
+            lines.push(Line::from(vec![
+                Span::raw("   "),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+                Span::styled(format!("… {remaining} more questions"), dim()),
+            ]));
+            break;
         }
     }
 }
@@ -1120,7 +1118,7 @@ fn rule_sidebar_line(lines: &mut Vec<Line>, sidebar_style: Style, inner_width: u
 }
 
 /// Render the expanded active-question block: header/text, options, and yes/no toggles.
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
 fn active_question_lines(
     lines: &mut Vec<Line>,
     question: &stencila_attractor::interviewer::Question,
@@ -1141,7 +1139,7 @@ fn active_question_lines(
 
     // Active question symbol
     let sym_span = Span::styled(
-        format!("{} ", SYM_QUESTION_OPEN),
+        format!("{SYM_QUESTION_OPEN} "),
         Style::new().fg(Color::White),
     );
 
@@ -1154,24 +1152,19 @@ fn active_question_lines(
     let q_lines = wrap_content(&question.text, inner_width);
     if question.header.is_some() {
         // Show header in bold with ○ symbol, then question text below
-        let mut first = true;
-        for chunk in wrap_content(&header_text, inner_width) {
+        if let Some(chunk) = wrap_content(&header_text, inner_width).into_iter().next() {
             let mut line_spans = vec![
                 Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            if first {
-                line_spans.push(sym_span.clone());
-                first = false;
-            }
+            line_spans.push(sym_span.clone());
             line_spans.push(Span::styled(
                 chunk,
                 Style::new().add_modifier(Modifier::BOLD),
             ));
             if let Some(progress) = progress
                 && total_questions > 1
-                && !first
             {
                 line_spans.push(Span::styled(
                     format!("  {progress}/{total_questions}"),
@@ -1179,7 +1172,6 @@ fn active_question_lines(
                 ));
             }
             lines.push(Line::from(line_spans));
-            break;
         }
         // Blank line after header
         blank_sidebar_line(lines, sidebar_style);
@@ -1198,17 +1190,13 @@ fn active_question_lines(
         }
     } else {
         // No header — render question text directly with ○ symbol
-        let mut first = true;
-        for chunk in q_lines {
+        if let Some(chunk) = q_lines.into_iter().next() {
             let mut spans = vec![
                 Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            if first {
-                spans.push(sym_span.clone());
-                first = false;
-            }
+            spans.push(sym_span.clone());
             spans.extend(style_inline_markdown(
                 &chunk,
                 InlineStyleMode::Normal,
@@ -1216,7 +1204,6 @@ fn active_question_lines(
             ));
             if let Some(progress) = progress
                 && total_questions > 1
-                && !first
             {
                 spans.push(Span::styled(
                     format!("  {progress}/{total_questions}"),
@@ -1224,7 +1211,6 @@ fn active_question_lines(
                 ));
             }
             lines.push(Line::from(spans));
-            break;
         }
     }
 
@@ -1292,7 +1278,7 @@ fn answered_question_line(
         Span::raw(num_padding),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
         Span::raw(" "),
-        Span::styled(format!("{} ", SYM_QUESTION_CLOSED), dim()),
+        Span::styled(format!("{SYM_QUESTION_CLOSED} "), dim()),
         Span::styled(format!("{header}: "), dim()),
         Span::styled(answer_text.clone(), Style::new().fg(Color::Blue)),
     ]));
@@ -1366,7 +1352,8 @@ fn option_lines(
     };
     let preview_single = preview_selection(current_input, question);
     let preview_multi = preview_multi_select(current_input, question);
-    let focused_option = active_state.and_then(|state| state.current_option_focus());
+    let focused_option =
+        active_state.and_then(crate::interview::InterviewState::current_option_focus);
 
     let num_padding = "   ";
     for (o_idx, option) in question.options.iter().enumerate() {
@@ -1454,7 +1441,8 @@ fn yes_no_option_lines(
     sidebar_style: Style,
 ) {
     let num_padding = "   ";
-    let focused_option = active_state.and_then(|state| state.current_option_focus());
+    let focused_option =
+        active_state.and_then(crate::interview::InterviewState::current_option_focus);
     let selected = draft.and_then(|d| {
         if let DraftAnswer::YesNo(v) = d {
             *v
@@ -1566,7 +1554,7 @@ fn future_question_line(
         Span::raw(num_padding),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
         Span::raw(" "),
-        Span::styled(format!("{} ", SYM_QUESTION_OPEN), dim()),
+        Span::styled(format!("{SYM_QUESTION_OPEN} "), dim()),
         Span::styled(preview.to_string(), dim()),
     ]));
 }

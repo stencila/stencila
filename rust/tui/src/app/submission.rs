@@ -349,10 +349,10 @@ impl App {
 
     /// Navigate back to the previous question in an active interview.
     pub(super) fn interview_back(&mut self) {
-        if let Some(state) = &mut self.active_interview {
-            if !state.back() {
-                return; // Already on first question
-            }
+        if let Some(state) = &mut self.active_interview
+            && !state.back()
+        {
+            return; // Already on first question
         }
 
         self.restore_interview_input_from_draft();

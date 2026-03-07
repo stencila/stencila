@@ -373,12 +373,10 @@ impl InterviewState {
         }
 
         let current = self.current_option_focus().unwrap_or(0);
-        let next = if delta < 0 {
-            current.saturating_sub(1)
-        } else if delta > 0 {
-            (current + 1).min(len.saturating_sub(1))
-        } else {
-            current
+        let next = match delta.cmp(&0) {
+            std::cmp::Ordering::Less => current.saturating_sub(1),
+            std::cmp::Ordering::Greater => (current + 1).min(len.saturating_sub(1)),
+            std::cmp::Ordering::Equal => current,
         };
 
         self.set_current_option_focus(Some(next));
@@ -424,6 +422,7 @@ impl InterviewState {
     ///
     /// Returns `true` if the input was valid for this question type,
     /// `false` if validation failed (with `validation_error` set).
+    #[allow(clippy::too_many_lines)]
     pub fn try_set_answer_from_input(&mut self, input: &str, question: &Question) -> bool {
         let trimmed = input.trim();
 

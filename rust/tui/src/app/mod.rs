@@ -273,7 +273,7 @@ pub enum AppMessage {
         /// Finalized answers (populated on completion, parallel to questions).
         answers: Vec<Answer>,
         /// When set, the interview is rendered inline as a continuation of the
-        /// parent message (Exchange or WorkflowProgress) at this index, without
+        /// parent message (Exchange or `WorkflowProgress`) at this index, without
         /// its own header or separator.
         parent_msg_index: Option<usize>,
     },
@@ -339,6 +339,7 @@ struct AgentMention {
 ///
 /// All mutable state lives here. The render function takes `&App` (immutable)
 /// while event handlers take `&mut App`.
+#[allow(clippy::struct_excessive_bools)]
 pub struct App {
     /// App config
     config: AppConfig,
