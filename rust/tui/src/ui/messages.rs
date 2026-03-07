@@ -1056,6 +1056,7 @@ fn interview_lines(
                 answers.get(q_idx),
                 active_state.and_then(|s| s.draft_answers.get(q_idx)),
                 sidebar_style,
+                inner_width,
             );
         } else if is_active {
             if questions.len() > 1 {
@@ -1190,19 +1191,24 @@ fn active_question_lines(
         }
     } else {
         // No header — render question text directly with ○ symbol
-        if let Some(chunk) = q_lines.into_iter().next() {
+        for (i, chunk) in q_lines.into_iter().enumerate() {
             let mut spans = vec![
                 Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            spans.push(sym_span.clone());
+            if i == 0 {
+                spans.push(sym_span.clone());
+            } else {
+                spans.push(Span::raw("  "));
+            }
             spans.extend(style_inline_markdown(
                 &chunk,
                 InlineStyleMode::Normal,
                 DelimiterDisplay::Hide,
             ));
-            if let Some(progress) = progress
+            if i == 0
+                && let Some(progress) = progress
                 && total_questions > 1
             {
                 spans.push(Span::styled(
@@ -1250,7 +1256,11 @@ fn active_question_lines(
     }
 }
 
-/// Render a collapsed answered-question line: `● Header: answer`.
+/// Render a collapsed answered-question line: `■ Header: Answer`.
+///
+/// The header text is word-wrapped to `content_width` so that long
+/// questions don't overflow the sidebar. The answer is appended in
+/// blue after the last header line.
 fn answered_question_line(
     lines: &mut Vec<Line>,
     question: &stencila_attractor::interviewer::Question,
@@ -1258,6 +1268,7 @@ fn answered_question_line(
     answer: Option<&stencila_attractor::interviewer::Answer>,
     draft: Option<&DraftAnswer>,
     sidebar_style: Style,
+    content_width: usize,
 ) {
     let num_padding = "   ";
     let answer_value = if status == InterviewStatus::Completed {
@@ -1274,28 +1285,31 @@ fn answered_question_line(
         |v| friendly_answer_text(v, question),
     );
     let header = question.header.as_deref().unwrap_or(&question.text);
-    lines.push(Line::from(vec![
-        Span::raw(num_padding),
-        Span::styled(SIDEBAR_CHAR, sidebar_style),
-        Span::raw(" "),
-        Span::styled(format!("{SYM_QUESTION_CLOSED} "), dim()),
-        Span::styled(format!("{header}: "), dim()),
-        Span::styled(answer_text.clone(), Style::new().fg(Color::Blue)),
-    ]));
-
-    if matches!(
-        answer_value,
-        Some(stencila_attractor::interviewer::AnswerValue::Text(_))
-    ) && answer_text.len() > 60
-    {
-        for chunk in wrap_content(&answer_text, 56).into_iter().skip(1) {
-            lines.push(Line::from(vec![
-                Span::raw(num_padding),
-                Span::styled(SIDEBAR_CHAR, sidebar_style),
-                Span::raw(" "),
-                Span::styled(chunk, dim()),
-            ]));
+    // "■ " prefix is 2 chars
+    let avail = content_width.saturating_sub(2);
+    let header_with_colon = format!("{header}: ");
+    let chunks = wrap_content(&header_with_colon, avail);
+    let last = chunks.len().saturating_sub(1);
+    for (i, chunk) in chunks.iter().enumerate() {
+        let prefix = if i == 0 {
+            Span::styled(format!("{SYM_QUESTION_CLOSED} "), dim())
+        } else {
+            Span::raw("  ")
+        };
+        let mut spans = vec![
+            Span::raw(num_padding),
+            Span::styled(SIDEBAR_CHAR, sidebar_style),
+            Span::raw(" "),
+            prefix,
+            Span::styled(chunk.clone(), dim()),
+        ];
+        if i == last {
+            spans.push(Span::styled(
+                answer_text.clone(),
+                Style::new().fg(Color::Blue),
+            ));
         }
+        lines.push(Line::from(spans));
     }
 }
 
