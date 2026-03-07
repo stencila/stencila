@@ -37,6 +37,9 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
+  <dim># Initialize the workspace database</dim>
+  <b>stencila db init</b>
+
   <dim># Show sync status</dim>
   <b>stencila db status</b>
 
@@ -68,6 +71,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    Init(Init),
     Push(Push),
     Pull(Pull),
     Status(Status),
@@ -82,6 +86,7 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         match self.command {
+            Command::Init(init) => init.run().await,
             Command::Push(push) => push.run().await,
             Command::Pull(pull) => pull.run().await,
             Command::Status(status) => status.run().await,
@@ -112,6 +117,56 @@ fn workspace_id() -> Result<String> {
         .ok_or_else(|| eyre::eyre!(
             "No workspace.id configured. Run `stencila init` first or set workspace.id in stencila.toml."
         ))
+}
+
+/// Initialize the workspace database
+///
+/// Creates the `.stencila/db.sqlite3` database file (if it does not already
+/// exist) and runs all pending schema migrations. This is a local-only,
+/// idempotent operation — no cloud credentials are required.
+///
+/// After initialization, use `stencila db push` to sync the database to
+/// Stencila Cloud.
+#[derive(Debug, Args)]
+pub struct Init {}
+
+impl Init {
+    pub async fn run(self) -> Result<()> {
+        let (stencila_dir, db_path) = resolve_paths().await?;
+
+        // Ensure the .stencila directory exists
+        std::fs::create_dir_all(&stencila_dir)?;
+
+        let already_existed = db_path.exists();
+
+        let db = stencila_db::WorkspaceDb::open(&db_path)
+            .map_err(|e| eyre::eyre!("Failed to open database: {e}"))?;
+
+        db.migrate_all(ALL_MIGRATIONS)
+            .map_err(|e| eyre::eyre!("Failed to run migrations: {e}"))?;
+
+        if already_existed {
+            message!("✅ Database already exists, migrations up to date");
+        } else {
+            message!(
+                "✅ Initialized workspace database at .stencila/{}",
+                stencila_dirs::DB_SQLITE_FILE
+            );
+        }
+
+        // Show domain versions
+        let conn = db
+            .connection()
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let versions = sync::schema_versions(&conn)?;
+        if !versions.is_empty() {
+            let domains: Vec<String> = versions.iter().map(|(d, v)| format!("{d}@{v}")).collect();
+            message!("   Domains: {}", domains.join(", "));
+        }
+
+        Ok(())
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -621,7 +676,7 @@ impl Status {
                 }
             }
         } else {
-            println!("Sync: no manifest (run `stencila db push` to initialize)");
+            println!("Sync: not synced (run `stencila db push` to sync to cloud)");
         }
 
         Ok(())
