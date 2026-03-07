@@ -184,8 +184,11 @@ impl App {
             pending.result_tx,
         ));
         self.interview_cancel_confirm = false;
-        self.interview_preview_input.clear();
         self.scroll_pinned = true;
+
+        // Populate the input area from the draft (which may be pre-populated
+        // from a question default) so the user sees the default value.
+        self.restore_interview_input_from_draft();
 
         // If the source is a workflow and user detached to agent mode,
         // switch back so they can answer the interview.

@@ -128,7 +128,48 @@ pub enum DraftAnswer {
 
 impl DraftAnswer {
     /// Create the appropriate initial draft for a question type.
+    ///
+    /// When the question has a default answer, the draft is pre-populated
+    /// so the user can press Enter to accept it.
     pub fn for_question(question: &Question) -> Self {
+        if let Some(default) = &question.default {
+            match (&question.question_type, &default.value) {
+                (QuestionType::YesNo | QuestionType::Confirmation, AnswerValue::Yes) => {
+                    return Self::YesNo(Some(true));
+                }
+                (QuestionType::YesNo | QuestionType::Confirmation, AnswerValue::No) => {
+                    return Self::YesNo(Some(false));
+                }
+                (QuestionType::MultipleChoice, AnswerValue::Selected(key)) => {
+                    if let Some(idx) = question
+                        .options
+                        .iter()
+                        .position(|o| o.key.eq_ignore_ascii_case(key))
+                    {
+                        return Self::Selected(Some(idx));
+                    }
+                }
+                (QuestionType::MultiSelect, AnswerValue::MultiSelected(keys)) => {
+                    let indices: HashSet<usize> = keys
+                        .iter()
+                        .filter_map(|key| {
+                            question
+                                .options
+                                .iter()
+                                .position(|o| o.key.eq_ignore_ascii_case(key))
+                        })
+                        .collect();
+                    if !indices.is_empty() {
+                        return Self::MultiSelected(indices);
+                    }
+                }
+                (QuestionType::Freeform, AnswerValue::Text(text)) => {
+                    return Self::Text(text.clone());
+                }
+                _ => {}
+            }
+        }
+
         match question.question_type {
             QuestionType::Freeform => Self::Pending,
             QuestionType::YesNo | QuestionType::Confirmation => Self::YesNo(None),
@@ -245,10 +286,14 @@ impl InterviewState {
             .questions
             .iter()
             .map(|question| {
-                if question.options.is_empty() {
-                    None
-                } else {
+                if matches!(
+                    question.question_type,
+                    QuestionType::YesNo | QuestionType::Confirmation
+                ) || !question.options.is_empty()
+                {
                     Some(0)
+                } else {
+                    None
                 }
             })
             .collect();
@@ -381,6 +426,28 @@ impl InterviewState {
     /// `false` if validation failed (with `validation_error` set).
     pub fn try_set_answer_from_input(&mut self, input: &str, question: &Question) -> bool {
         let trimmed = input.trim();
+
+        // When the input is empty and the draft already holds a value
+        // (pre-populated from a default or prior selection), accept it.
+        if trimmed.is_empty() && is_answered_draft(&self.draft_answers[self.current_question]) {
+            self.validation_error = None;
+            return true;
+        }
+
+        // For single-selection questions (yes/no, confirmation, multiple
+        // choice) with empty input, accept the currently focused option so
+        // the user can press Enter without typing. Multi-select is excluded
+        // because the user should explicitly toggle items before submitting.
+        if trimmed.is_empty()
+            && matches!(
+                question.question_type,
+                QuestionType::YesNo | QuestionType::Confirmation | QuestionType::MultipleChoice
+            )
+            && self.activate_focused_option(question)
+        {
+            self.validation_error = None;
+            return true;
+        }
 
         match question.question_type {
             QuestionType::Freeform => {
@@ -840,5 +907,209 @@ mod tests {
 
         let draft = DraftAnswer::Pending;
         assert_eq!(draft.to_input_text(&q), "");
+    }
+
+    #[test]
+    fn draft_answer_prepopulated_from_default_yes_no() {
+        let mut q = Question::yes_no("proceed?");
+        q.default = Some(Answer::new(AnswerValue::Yes));
+        assert!(matches!(
+            DraftAnswer::for_question(&q),
+            DraftAnswer::YesNo(Some(true))
+        ));
+
+        q.default = Some(Answer::new(AnswerValue::No));
+        assert!(matches!(
+            DraftAnswer::for_question(&q),
+            DraftAnswer::YesNo(Some(false))
+        ));
+    }
+
+    #[test]
+    fn draft_answer_prepopulated_from_default_multiple_choice() {
+        let mut q = Question::multiple_choice(
+            "pick",
+            vec![
+                QuestionOption {
+                    key: "a".to_string(),
+                    label: "Option A".to_string(),
+                    description: None,
+                },
+                QuestionOption {
+                    key: "b".to_string(),
+                    label: "Option B".to_string(),
+                    description: None,
+                },
+            ],
+        );
+        q.default = Some(Answer::new(AnswerValue::Selected("b".to_string())));
+        assert!(matches!(
+            DraftAnswer::for_question(&q),
+            DraftAnswer::Selected(Some(1))
+        ));
+    }
+
+    #[test]
+    fn draft_answer_prepopulated_from_default_multi_select() {
+        let mut q = Question::multi_select(
+            "pick",
+            vec![
+                QuestionOption {
+                    key: "a".to_string(),
+                    label: "Option A".to_string(),
+                    description: None,
+                },
+                QuestionOption {
+                    key: "b".to_string(),
+                    label: "Option B".to_string(),
+                    description: None,
+                },
+            ],
+        );
+        q.default = Some(Answer::new(AnswerValue::MultiSelected(vec![
+            "a".to_string(),
+            "b".to_string(),
+        ])));
+        if let DraftAnswer::MultiSelected(indices) = DraftAnswer::for_question(&q) {
+            assert!(indices.contains(&0));
+            assert!(indices.contains(&1));
+        } else {
+            panic!("Expected MultiSelected");
+        }
+    }
+
+    #[test]
+    fn draft_answer_prepopulated_from_default_freeform() {
+        let mut q = Question::freeform("name?");
+        q.default = Some(Answer::new(AnswerValue::Text("Alice".to_string())));
+        assert!(matches!(
+            DraftAnswer::for_question(&q),
+            DraftAnswer::Text(ref s) if s == "Alice"
+        ));
+    }
+
+    #[test]
+    fn try_set_empty_input_accepts_default_yes_no() {
+        let mut q = Question::yes_no("proceed?");
+        q.default = Some(Answer::new(AnswerValue::Yes));
+        let interview = Interview::single(q.clone(), "test");
+        let (tx, _rx) = oneshot::channel();
+        let mut state = InterviewState::new(&interview, 0, tx);
+
+        // Draft is pre-populated with the default
+        assert!(matches!(
+            state.draft_answers[0],
+            DraftAnswer::YesNo(Some(true))
+        ));
+
+        // Empty input accepts the pre-populated default
+        assert!(state.try_set_answer_from_input("", &q));
+        assert!(state.validation_error.is_none());
+    }
+
+    #[test]
+    fn try_set_empty_input_accepts_default_multiple_choice() {
+        let mut q = Question::multiple_choice(
+            "pick",
+            vec![
+                QuestionOption {
+                    key: "a".to_string(),
+                    label: "Option A".to_string(),
+                    description: None,
+                },
+                QuestionOption {
+                    key: "b".to_string(),
+                    label: "Option B".to_string(),
+                    description: None,
+                },
+            ],
+        );
+        q.default = Some(Answer::new(AnswerValue::Selected("b".to_string())));
+        let interview = Interview::single(q.clone(), "test");
+        let (tx, _rx) = oneshot::channel();
+        let mut state = InterviewState::new(&interview, 0, tx);
+
+        assert!(matches!(
+            state.draft_answers[0],
+            DraftAnswer::Selected(Some(1))
+        ));
+        assert!(state.try_set_answer_from_input("", &q));
+        assert!(state.validation_error.is_none());
+    }
+
+    #[test]
+    fn try_set_empty_input_accepts_focused_yes_no() {
+        let q = Question::yes_no("proceed?");
+        let interview = Interview::single(q.clone(), "test");
+        let (tx, _rx) = oneshot::channel();
+        let mut state = InterviewState::new(&interview, 0, tx);
+
+        // No default, but focused option (Yes at index 0) is accepted
+        assert!(state.try_set_answer_from_input("", &q));
+        assert!(state.validation_error.is_none());
+        assert!(matches!(
+            state.draft_answers[0],
+            DraftAnswer::YesNo(Some(true))
+        ));
+    }
+
+    #[test]
+    fn try_set_empty_input_accepts_focused_multiple_choice() {
+        let q = Question::multiple_choice(
+            "pick",
+            vec![
+                QuestionOption {
+                    key: "a".to_string(),
+                    label: "Option A".to_string(),
+                    description: None,
+                },
+                QuestionOption {
+                    key: "b".to_string(),
+                    label: "Option B".to_string(),
+                    description: None,
+                },
+            ],
+        );
+        let interview = Interview::single(q.clone(), "test");
+        let (tx, _rx) = oneshot::channel();
+        let mut state = InterviewState::new(&interview, 0, tx);
+
+        // Focus starts at 0, so Enter selects option "a"
+        assert!(state.try_set_answer_from_input("", &q));
+        assert!(matches!(
+            state.draft_answers[0],
+            DraftAnswer::Selected(Some(0))
+        ));
+    }
+
+    #[test]
+    fn try_set_empty_input_still_rejects_freeform() {
+        let q = Question::freeform("name?");
+        let interview = Interview::single(q.clone(), "test");
+        let (tx, _rx) = oneshot::channel();
+        let mut state = InterviewState::new(&interview, 0, tx);
+
+        // Freeform requires typed input
+        assert!(!state.try_set_answer_from_input("", &q));
+        assert!(state.validation_error.is_some());
+    }
+
+    #[test]
+    fn try_set_empty_input_still_rejects_multi_select_no_selection() {
+        let q = Question::multi_select(
+            "pick",
+            vec![QuestionOption {
+                key: "a".to_string(),
+                label: "Option A".to_string(),
+                description: None,
+            }],
+        );
+        let interview = Interview::single(q.clone(), "test");
+        let (tx, _rx) = oneshot::channel();
+        let mut state = InterviewState::new(&interview, 0, tx);
+
+        // Multi-select requires explicit selection before submitting
+        assert!(!state.try_set_answer_from_input("", &q));
+        assert!(state.validation_error.is_some());
     }
 }
