@@ -12,7 +12,7 @@ use stencila_attractor::context::Context;
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
 use stencila_attractor::handler::Handler;
-use stencila_attractor::handlers::{WaitForHumanHandler, parse_accelerator_key};
+use stencila_attractor::handlers::{WaitForHumanHandler, parse_accelerator_label};
 use stencila_attractor::interviewer::{
     Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionOption, QuestionType,
 };
@@ -339,43 +339,93 @@ fn inform_default_is_noop() {
 }
 
 // ===========================================================================
-// §4.6 — Accelerator key parsing
+// §4.6 — Accelerator label parsing
 // ===========================================================================
 
 #[test]
 fn accelerator_bracket_format() {
-    assert_eq!(parse_accelerator_key("[Y] Yes"), "Y");
-    assert_eq!(parse_accelerator_key("[n] No"), "N");
-    assert_eq!(parse_accelerator_key("[AB] Option AB"), "AB");
+    assert_eq!(
+        parse_accelerator_label("[Y] Yes"),
+        ("Y".into(), "Yes".into())
+    );
+    assert_eq!(parse_accelerator_label("[n] No"), ("N".into(), "No".into()));
+    assert_eq!(
+        parse_accelerator_label("[AB] Option AB"),
+        ("AB".into(), "Option AB".into())
+    );
+}
+
+#[test]
+fn accelerator_bracket_no_space() {
+    assert_eq!(
+        parse_accelerator_label("[Y]Yes"),
+        ("Y".into(), "Yes".into())
+    );
+    assert_eq!(
+        parse_accelerator_label("[OK]Continue"),
+        ("OK".into(), "Continue".into())
+    );
 }
 
 #[test]
 fn accelerator_paren_format() {
-    assert_eq!(parse_accelerator_key("A) Option A"), "A");
-    assert_eq!(parse_accelerator_key("b) option b"), "B");
+    assert_eq!(
+        parse_accelerator_label("A) Option A"),
+        ("A".into(), "Option A".into())
+    );
+    assert_eq!(
+        parse_accelerator_label("b) option b"),
+        ("B".into(), "option b".into())
+    );
+}
+
+#[test]
+fn accelerator_paren_no_space() {
+    assert_eq!(
+        parse_accelerator_label("A)Option"),
+        ("A".into(), "Option".into())
+    );
 }
 
 #[test]
 fn accelerator_dash_format() {
-    assert_eq!(parse_accelerator_key("X - Choice X"), "X");
-    assert_eq!(parse_accelerator_key("q - quit"), "Q");
+    assert_eq!(
+        parse_accelerator_label("X - Choice X"),
+        ("X".into(), "Choice X".into())
+    );
+    assert_eq!(
+        parse_accelerator_label("q - quit"),
+        ("Q".into(), "quit".into())
+    );
 }
 
 #[test]
 fn accelerator_fallback_first_char() {
-    assert_eq!(parse_accelerator_key("Deploy"), "D");
-    assert_eq!(parse_accelerator_key("review"), "R");
+    assert_eq!(
+        parse_accelerator_label("Deploy"),
+        ("D".into(), "Deploy".into())
+    );
+    assert_eq!(
+        parse_accelerator_label("review"),
+        ("R".into(), "review".into())
+    );
 }
 
 #[test]
 fn accelerator_empty_string() {
-    assert_eq!(parse_accelerator_key(""), "");
+    assert_eq!(parse_accelerator_label(""), ("".into(), "".into()));
 }
 
 #[test]
 fn accelerator_whitespace_trimmed() {
-    assert_eq!(parse_accelerator_key("  [Y] Yes  "), "Y");
-    assert_eq!(parse_accelerator_key("  Deploy  "), "D");
+    assert_eq!(
+        parse_accelerator_label("  [Y] Yes  "),
+        ("Y".into(), "Yes".into())
+    );
+    assert_eq!(
+        parse_accelerator_label("  Deploy  "),
+        ("D".into(), "Deploy".into())
+    );
 }
 
 // ===========================================================================

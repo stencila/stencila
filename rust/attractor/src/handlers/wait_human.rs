@@ -95,15 +95,18 @@ struct Choice {
     target: String,
 }
 
-/// Parse an accelerator key from an edge label (§4.6).
+/// Parse an accelerator key and display label from an edge label (§4.6).
+///
+/// Returns `(key, display_label)` where the key is the accelerator
+/// (uppercased) and the display label has the prefix stripped.
 ///
 /// Supported patterns:
-/// - `[K] Label` → `K`
-/// - `K) Label` → `K`
-/// - `K - Label` → `K`
-/// - `Label` → first character uppercased
+/// - `[K] Label` → `("K", "Label")`
+/// - `K) Label`  → `("K", "Label")`
+/// - `K - Label` → `("K", "Label")`
+/// - `Label`     → `("L", "Label")` (first character uppercased)
 #[must_use]
-pub fn parse_accelerator_key(label: &str) -> String {
+pub fn parse_accelerator_label(label: &str) -> (String, String) {
     let trimmed = label.trim();
 
     // Pattern: [K] Label
@@ -112,7 +115,8 @@ pub fn parse_accelerator_key(label: &str) -> String {
     {
         let key = &rest[..bracket_end];
         if !key.is_empty() {
-            return key.to_uppercase();
+            let display = rest[bracket_end + 1..].trim_start();
+            return (key.to_uppercase(), display.to_string());
         }
     }
 
@@ -120,21 +124,24 @@ pub fn parse_accelerator_key(label: &str) -> String {
     if trimmed.len() >= 2 {
         let bytes = trimmed.as_bytes();
         if bytes.get(1) == Some(&b')') {
-            return trimmed[..1].to_uppercase();
+            let display = trimmed[2..].trim_start();
+            return (trimmed[..1].to_uppercase(), display.to_string());
         }
     }
 
     // Pattern: K - Label
     if trimmed.len() >= 4 && trimmed.as_bytes().get(1..4) == Some(b" - ".as_slice()) {
-        return trimmed[..1].to_uppercase();
+        let display = trimmed[4..].trim_start();
+        return (trimmed[..1].to_uppercase(), display.to_string());
     }
 
-    // Fallback: first character
-    trimmed
+    // Fallback: first character as key, full label as display
+    let key = trimmed
         .chars()
         .next()
         .map(|c| c.to_uppercase().to_string())
-        .unwrap_or_default()
+        .unwrap_or_default();
+    (key, trimmed.to_string())
 }
 
 #[async_trait]
@@ -151,12 +158,12 @@ impl Handler for WaitForHumanHandler {
         let choices: Vec<Choice> = edges
             .iter()
             .map(|edge| {
-                let label = if edge.label().is_empty() {
+                let raw = if edge.label().is_empty() {
                     edge.to.clone()
                 } else {
                     edge.label().to_string()
                 };
-                let key = parse_accelerator_key(&label);
+                let (key, label) = parse_accelerator_label(&raw);
                 Choice {
                     key,
                     label,
@@ -366,4 +373,4 @@ fn find_matching_choice<'a>(answer: &Answer, choices: &'a [Choice]) -> Option<&'
 
 // Note: `wait.human` is not included in `HandlerRegistry::with_defaults()`
 // because it requires an `Interviewer` instance. Callers must register it
-// explicitly — see `parse_accelerator_key` which is public for testing.
+// explicitly — see `parse_accelerator_label` which is public for testing.

@@ -13,6 +13,7 @@
 use crate::condition::evaluate_condition;
 use crate::context::Context;
 use crate::graph::{Edge, Graph};
+use crate::handlers::parse_accelerator_label;
 use crate::types::Outcome;
 
 /// Select the best outgoing edge from `node_id` given the current
@@ -77,36 +78,13 @@ pub fn select_edge<'a>(
 }
 
 /// Normalize an edge label for comparison:
+/// - Strip accelerator prefixes via [`parse_accelerator_label`]
 /// - Lowercase
 /// - Trim whitespace
-/// - Strip accelerator prefixes: `[Y] `, `Y) `, `Y - `
 #[must_use]
 pub fn normalize_label(label: &str) -> String {
-    let trimmed = label.trim().to_lowercase();
-
-    // Strip accelerator prefix patterns:
-    // [X] prefix  (e.g., "[Y] Yes")
-    // X) prefix   (e.g., "Y) Yes")
-    // X - prefix  (e.g., "Y - Yes")
-    if let Some(rest) = trimmed
-        .strip_prefix('[')
-        .and_then(|s| s.get(1..))
-        .and_then(|s| s.strip_prefix("] "))
-    {
-        return rest.to_string();
-    }
-
-    if trimmed.len() >= 3 {
-        let bytes = trimmed.as_bytes();
-        if bytes.get(1) == Some(&b')') && bytes.get(2) == Some(&b' ') {
-            return trimmed[3..].to_string();
-        }
-        if trimmed.len() >= 4 && bytes.get(1..4) == Some(b" - ".as_slice()) {
-            return trimmed[4..].to_string();
-        }
-    }
-
-    trimmed
+    let (_key, display) = parse_accelerator_label(label);
+    display.to_lowercase()
 }
 
 /// Pick the best edge from a set by descending weight, then ascending

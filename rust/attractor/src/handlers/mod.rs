@@ -29,4 +29,4 @@ pub use fan_in::FanInHandler;
 pub use parallel::{DEFAULT_MAX_PARALLEL, ParallelHandler};
 pub use shell::ShellHandler;
 pub use start::StartHandler;
-pub use wait_human::{WaitForHumanHandler, parse_accelerator_key};
+pub use wait_human::{WaitForHumanHandler, parse_accelerator_label};

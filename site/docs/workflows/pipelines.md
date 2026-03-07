@@ -323,7 +323,47 @@ The human is presented with the choices derived from the outgoing edges:
 - **[A] Approve** — continues to publication
 - **[R] Revise** — loops back to re-analyze
 
-The letters in brackets (`[A]`, `[R]`) are accelerator keys for quick selection. You can also use `K) Label` or `K - Label` formats.
+### Accelerator keys
+
+Each outgoing edge from a human gate becomes a selectable option with an **accelerator key** — a short string the user can type or press to quickly select that option. The engine extracts the key from the edge label using these formats:
+
+| Format | Example | Parsed key |
+|--------|---------|------------|
+| `[K] Label` | `[Y] Yes, deploy` | `Y` |
+| `K) Label` | `A) Option A` | `A` |
+| `K - Label` | `X - Choice X` | `X` |
+| Plain label (fallback) | `Deploy` | `D` |
+
+The space after the delimiter (`]`, `)`) is optional — `[Y]Yes` works the same as `[Y] Yes`. Brackets support multi-character keys like `[OK] Continue` or `[AB] Option AB`. The parenthesis and dash formats are limited to a single character.
+
+**Explicit keys are optional.** When a label has no recognized prefix, the engine automatically derives the key from the first character of the label (uppercased). For example, these two blocks are functionally equivalent:
+
+```dot
+// Explicit keys
+Review -> Publish [label="[A] Approve"]
+Review -> Analyze [label="[R] Revise"]
+
+// Auto-derived keys (A from "Approve", R from "Revise")
+Review -> Publish [label="Approve"]
+Review -> Analyze [label="Revise"]
+```
+
+**When to use explicit keys:**
+
+- **Disambiguating collisions** — If two labels start with the same letter (e.g., `Staging` and `Send`), auto-derived keys would both be `S`. Use `[S] Staging` and `[X] Send` to assign distinct keys.
+- **Multi-character keys** — The bracket format supports keys like `[OK]` that can't be expressed with the single-character fallback.
+- **Choosing a more intuitive key** — e.g., `[N] No, abort deployment` assigns `N` instead of the auto-derived `N` from "No" — same result here, but explicit keys make intent clear when the first letter isn't the most natural accelerator.
+
+Here is an example with a three-way choice using auto-derived keys:
+
+```dot
+Picked [ask="Pick an environment"]
+Picked -> Deploy  [label="Staging"]
+Picked -> Deploy  [label="Production"]
+Picked -> Deploy  [label="Development"]
+```
+
+The engine derives keys `S`, `P`, `D` from the first letter of each label. No brackets are needed because the first letters are already unique.
 
 ## Parallel execution
 

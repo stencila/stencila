@@ -365,9 +365,19 @@ fn normalize_label_lowercases_and_trims() {
 
 #[test]
 fn normalize_label_strips_accelerator_prefixes() {
+    // With space after delimiter
     assert_eq!(normalize_label("[Y] Yes"), "yes");
     assert_eq!(normalize_label("Y) Yes"), "yes");
     assert_eq!(normalize_label("Y - Yes"), "yes");
+
+    // Without space after delimiter (also stripped)
+    assert_eq!(normalize_label("[Y]Yes"), "yes");
+    assert_eq!(normalize_label("Y)Yes"), "yes");
+
+    // Multi-char bracket key
+    assert_eq!(normalize_label("[AB] Option AB"), "option ab");
+    assert_eq!(normalize_label("[OK]Continue"), "continue");
+
     // Without accelerator
     assert_eq!(normalize_label("Continue"), "continue");
 }
