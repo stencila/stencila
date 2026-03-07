@@ -617,6 +617,122 @@ impl SubAgentManager {
         Ok(format_wait_result(&agent_id, agent.status, result))
     }
 
+    /// Wait for multiple subagents concurrently, returning results in order.
+    ///
+    /// This is an optimization for the common pattern where a model spawns
+    /// several subagents and then issues multiple `wait` calls in the same
+    /// tool-call batch. Rather than awaiting each sequentially, we extract
+    /// the oneshot receivers and `join_all` them so all waits proceed in
+    /// parallel and the TUI shows all spinners concurrently.
+    ///
+    /// Note: if `agent_ids` contains duplicates, the first occurrence will
+    /// consume the receiver and the second will get a "already consumed"
+    /// validation error. This is expected — a single agent cannot be waited
+    /// on twice concurrently.
+    pub async fn wait_agents_concurrent(
+        &mut self,
+        agent_ids: &[String],
+    ) -> Vec<AgentResult<String>> {
+        // Phase 1: Extract receivers (or cached results) synchronously.
+        // Each entry is either an immediate result string or a receiver to await.
+        let mut pending: Vec<(usize, String, Option<oneshot::Receiver<AgentStepResult>>)> =
+            Vec::new();
+        let mut results: Vec<Option<AgentResult<String>>> = vec![None; agent_ids.len()];
+
+        for (idx, agent_id) in agent_ids.iter().enumerate() {
+            let Some(agent) = self.agents.get_mut(agent_id) else {
+                results[idx] = Some(Err(AgentError::ValidationError {
+                    reason: format!("unknown agent_id: {agent_id}"),
+                }));
+                continue;
+            };
+
+            // Return cached result immediately
+            if let Some(ref result) = agent.cached_result {
+                results[idx] = Some(Ok(format_wait_result(agent_id, agent.status, result)));
+                continue;
+            }
+
+            // Take the receiver for concurrent awaiting
+            match agent.initial_result_rx.take() {
+                Some(rx) => {
+                    pending.push((idx, agent_id.clone(), Some(rx)));
+                }
+                None => {
+                    results[idx] = Some(Err(AgentError::ValidationError {
+                        reason: format!(
+                            "agent {agent_id} initial result already consumed and no cached result"
+                        ),
+                    }));
+                }
+            }
+        }
+
+        // Phase 2: Await all pending receivers concurrently.
+        if !pending.is_empty() {
+            let futures: Vec<_> = pending
+                .iter_mut()
+                .map(|(_, agent_id, rx)| {
+                    let rx = rx.take();
+                    let id = agent_id.clone();
+                    async move {
+                        let rx = rx.ok_or_else(|| AgentError::Io {
+                            message: format!("agent {id} receiver missing unexpectedly"),
+                        })?;
+                        rx.await.map_err(|_| AgentError::Io {
+                            message: format!("agent {id} task ended without sending result"),
+                        })
+                    }
+                })
+                .collect();
+
+            let awaited = futures::future::join_all(futures).await;
+
+            // Phase 3: Apply results back to agent handles.
+            for ((idx, agent_id, _), step_result) in pending.into_iter().zip(awaited.into_iter()) {
+                match step_result {
+                    Ok(step) => {
+                        if let Some(agent) = self.agents.get_mut(&agent_id) {
+                            agent.apply_step_result(&step);
+                            let result =
+                                agent.cached_result.as_ref().ok_or_else(|| AgentError::Io {
+                                    message: format!(
+                                        "agent {agent_id} cached_result missing after apply"
+                                    ),
+                                });
+                            results[idx] = Some(match result {
+                                Ok(r) => Ok(format_wait_result(&agent_id, agent.status, r)),
+                                Err(e) => Err(e),
+                            });
+                        } else {
+                            results[idx] = Some(Err(AgentError::Io {
+                                message: format!(
+                                    "agent {agent_id} disappeared while awaiting result"
+                                ),
+                            }));
+                        }
+                    }
+                    Err(e) => {
+                        results[idx] = Some(Err(e));
+                    }
+                }
+            }
+        }
+
+        // All slots should be filled
+        results
+            .into_iter()
+            .enumerate()
+            .map(|(i, slot)| {
+                slot.unwrap_or_else(|| {
+                    Err(AgentError::Io {
+                        message: format!("agent {} result was not produced", agent_ids[i]),
+                    })
+                })
+            })
+            .collect()
+    }
+
     /// Send a message to a subagent (spec 7.2).
     ///
     /// If the initial task has not yet completed, waits for it first.

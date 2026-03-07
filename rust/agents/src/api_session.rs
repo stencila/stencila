@@ -40,7 +40,7 @@ use crate::loop_detection;
 use crate::profile::ProviderProfile;
 use crate::prompts::McpContext;
 use crate::registry::ToolOutput;
-use crate::subagents::SubAgentManager;
+use crate::subagents::{SubAgentManager, TOOL_WAIT};
 use crate::tool_guard::{GuardContext, GuardVerdict, ToolGuard};
 use crate::truncation::{TruncationConfig, truncate_tool_output};
 use crate::types::{
@@ -1335,25 +1335,102 @@ impl ApiSession {
 
     /// Execute tool calls when subagent tools are present.
     ///
-    /// Runs all calls sequentially, routing subagent tools through the
-    /// [`SubAgentManager`] and regular tools through the normal executor.
+    /// Most calls run sequentially, but contiguous runs of `wait` calls are
+    /// executed concurrently so the TUI can show all spinners at once and
+    /// mark each as done as it finishes.
+    ///
+    /// Abort is checked at the top of each iteration. During a concurrent
+    /// `wait` batch, all in-flight waits will complete before abort is
+    /// noticed — this is acceptable since child sessions have their own
+    /// abort signals.
     async fn execute_tools_with_subagents(&mut self, tool_calls: &[ToolCall]) -> Vec<ToolResult> {
         let mut results = Vec::with_capacity(tool_calls.len());
-        for tc in tool_calls {
+        let mut i = 0;
+        while i < tool_calls.len() {
             if self.is_aborted() {
-                // Backfill remaining tool calls with [Aborted] so the
-                // result count matches tool_calls.len() (1:1 mapping).
-                for remaining in &tool_calls[results.len()..] {
+                for remaining in &tool_calls[i..] {
                     results.push(aborted_tool_result(&remaining.id));
                 }
                 break;
             }
-            if SubAgentManager::is_subagent_tool(&tc.name) {
-                results.push(self.execute_subagent_tool(tc).await);
+
+            // Detect a contiguous run of `wait` calls for concurrent execution.
+            if tool_calls[i].name == TOOL_WAIT {
+                let run_start = i;
+                while i < tool_calls.len() && tool_calls[i].name == TOOL_WAIT {
+                    i += 1;
+                }
+                let wait_calls = &tool_calls[run_start..i];
+
+                // Emit ToolCallStart for all waits before awaiting any.
+                for tc in wait_calls {
+                    self.events
+                        .emit_tool_call_start(&tc.name, &tc.id, &tc.arguments);
+                }
+
+                // Validate and extract agent IDs. Produce an error result
+                // immediately for any call missing the required argument.
+                let mut agent_ids: Vec<Option<String>> = Vec::with_capacity(wait_calls.len());
+                for tc in wait_calls {
+                    match tc.arguments.get("agent_id").and_then(Value::as_str) {
+                        Some(id) => agent_ids.push(Some(id.to_string())),
+                        None => {
+                            agent_ids.push(None);
+                        }
+                    }
+                }
+
+                // Collect the valid IDs for concurrent execution.
+                let valid_ids: Vec<String> = agent_ids.iter().filter_map(|id| id.clone()).collect();
+
+                let mut wait_results = self
+                    .subagent_manager
+                    .wait_agents_concurrent(&valid_ids)
+                    .await
+                    .into_iter();
+
+                for (tc, agent_id) in wait_calls.iter().zip(agent_ids) {
+                    let wait_result = match agent_id {
+                        Some(_) => wait_results.next().unwrap_or_else(|| {
+                            Err(AgentError::Io {
+                                message: "missing result from concurrent wait".into(),
+                            })
+                        }),
+                        None => Err(AgentError::ValidationError {
+                            reason: "missing required string parameter: agent_id".into(),
+                        }),
+                    };
+
+                    match wait_result {
+                        Ok(output) => {
+                            self.events.emit_tool_call_end(&tc.id, &output);
+                            let truncated =
+                                truncate_tool_output(&output, &tc.name, &self.truncation_config);
+                            results.push(ToolResult {
+                                tool_call_id: tc.id.clone(),
+                                content: Value::String(truncated),
+                                is_error: false,
+                            });
+                        }
+                        Err(e) => {
+                            let error_msg = e.to_string();
+                            self.events.emit_tool_call_end_error(&tc.id, &error_msg);
+                            results.push(ToolResult {
+                                tool_call_id: tc.id.clone(),
+                                content: Value::String(error_msg),
+                                is_error: true,
+                            });
+                        }
+                    }
+                }
+            } else if SubAgentManager::is_subagent_tool(&tool_calls[i].name) {
+                results.push(self.execute_subagent_tool(&tool_calls[i]).await);
+                i += 1;
             } else {
-                let (result, attachment) = self.execute_single_tool(tc).await;
+                let (result, attachment) = self.execute_single_tool(&tool_calls[i]).await;
                 self.store_attachment_if_supported(attachment);
                 results.push(result);
+                i += 1;
             }
         }
         results
