@@ -206,6 +206,10 @@ pub async fn run_workflow_with_options(
 /// type into the parsed `attractor::Graph`'s `graph_attrs` so that the
 /// attractor engine transforms and validators can see them.
 fn merge_workflow_attrs(workflow: &WorkflowInstance, graph: &mut Graph) {
+    // Override the DOT digraph name (typically "Workflow") with the actual
+    // workflow name so that pipeline events report a meaningful identifier.
+    graph.name.clone_from(&workflow.name);
+
     graph
         .graph_attrs
         .entry("label".to_string())

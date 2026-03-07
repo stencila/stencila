@@ -83,7 +83,7 @@ impl App {
 
                 self.messages.push(AppMessage::WorkflowStatus {
                     state: WorkflowStatusState::Running,
-                    label: format!("Workflow {pipeline_name}"),
+                    label: format!("Workflow `{pipeline_name}`"),
                     detail: None,
                 });
 
@@ -153,7 +153,7 @@ impl App {
             PipelineEvent::PipelineStarted { pipeline_name } => {
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Started,
-                    label: format!("Workflow {pipeline_name} started"),
+                    label: format!("Workflow `{pipeline_name}` started"),
                     detail: None,
                 });
             }
@@ -233,7 +233,7 @@ impl App {
             } => {
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Completed,
-                    label: format!("Workflow {pipeline_name} completed"),
+                    label: format!("Workflow `{pipeline_name}` completed"),
                     detail: Some(outcome.status.as_str().to_title_case()),
                 });
             }
@@ -244,7 +244,7 @@ impl App {
             } => {
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Failed,
-                    label: format!("Workflow {pipeline_name} failed"),
+                    label: format!("Workflow `{pipeline_name}` failed"),
                     detail: Some(reason.to_string()),
                 });
             }
@@ -264,7 +264,7 @@ impl App {
             PipelineEvent::PipelineStarted { pipeline_name } => {
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Started,
-                    label: format!("Workflow {pipeline_name} started"),
+                    label: format!("Workflow `{pipeline_name}` started"),
                     detail: None,
                 });
             }
@@ -516,7 +516,7 @@ impl App {
             } => {
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Completed,
-                    label: format!("Workflow {pipeline_name} completed"),
+                    label: format!("Workflow `{pipeline_name}` completed"),
                     detail: Some(outcome.status.as_str().to_title_case()),
                 });
             }
@@ -527,7 +527,7 @@ impl App {
             } => {
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Failed,
-                    label: format!("Workflow {pipeline_name} failed"),
+                    label: format!("Workflow `{pipeline_name}` failed"),
                     detail: Some(reason.to_string()),
                 });
             }
