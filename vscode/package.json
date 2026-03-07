@@ -1578,21 +1578,21 @@
     "package": "npx vsce package"
   },
   "dependencies": {
-    "@vscode/python-extension": "1.0.6",
-    "posthog-js": "1.353.1",
+    "@vscode/python-extension": "1.0.5",
+    "posthog-js": "1.359.1",
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/mocha": "10.0.10",
-    "@types/node": "25.3.0",
+    "@types/node": "25.3.5",
     "@types/vscode": "1.93.0",
     "@typescript-eslint/parser": "8.56.1",
     "@vscode/test-cli": "0.0.12",
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.7.1",
     "esbuild": "0.27.3",
-    "eslint": "10.0.2",
+    "eslint": "10.0.3",
     "js-yaml": "4.1.1",
     "ovsx": "0.10.9",
     "typescript-eslint": "8.56.1"
