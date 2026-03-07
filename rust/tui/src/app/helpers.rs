@@ -17,6 +17,20 @@ impl App {
 
     /// Re-filter all autocomplete states based on current input.
     pub(super) fn refresh_autocomplete(&mut self) {
+        if self.active_interview.is_some() {
+            self.history_state.dismiss();
+            self.files_state.dismiss();
+            self.responses_state.dismiss();
+            self.mentions_state.dismiss();
+
+            if self.input.text().starts_with('/') {
+                self.commands_state.update(self.input.text());
+            } else {
+                self.commands_state.dismiss();
+            }
+            return;
+        }
+
         self.history_state.update(self.input.text());
         self.commands_state.update(self.input.text());
         self.files_state
@@ -93,6 +107,12 @@ impl App {
     /// args) takes priority over history-based suggestions. It persists
     /// until the input text changes (see `handle_key`).
     pub(super) fn refresh_ghost_suggestion(&mut self) {
+        if self.active_interview.is_some() {
+            self.ghost_suggestion = None;
+            self.ghost_is_truncated = false;
+            return;
+        }
+
         let text = self.input.text();
         let at_end = self.input.cursor() == text.len();
 

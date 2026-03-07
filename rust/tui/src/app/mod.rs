@@ -410,6 +410,12 @@ pub struct App {
     /// The currently active interview (from agent or workflow).
     pub active_interview: Option<InterviewState>,
 
+    /// Whether interview cancellation is awaiting explicit y/n confirmation.
+    pub interview_cancel_confirm: bool,
+
+    /// Live input text mirrored for active interview preview rendering.
+    pub interview_preview_input: String,
+
     /// Interviews that arrived while another interview was already active.
     /// Drained (FIFO) by `poll_interviews` before polling fresh sources.
     pub pending_interviews: VecDeque<(PendingTuiInterview, InterviewSource, String)>,
@@ -497,6 +503,8 @@ impl App {
             running_shell_commands: Vec::new(),
             active_workflow: None,
             active_interview: None,
+            interview_cancel_confirm: false,
+            interview_preview_input: String::new(),
             pending_interviews: VecDeque::new(),
             sessions: vec![default_session],
             active_session: 0,

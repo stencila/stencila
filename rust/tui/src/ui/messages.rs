@@ -10,12 +10,15 @@ use crate::agent::{ResponseSegment, ToolCallStatus, truncate_for_display};
 use crate::app::{
     App, AppMessage, ExchangeKind, ExchangeStatus, WorkflowProgressKind, WorkflowStatusState,
 };
-use crate::interview::{DraftAnswer, InterviewSource, InterviewStatus};
+use crate::interview::{
+    DraftAnswer, InterviewSource, InterviewStatus, is_answered_draft, preview_multi_select,
+    preview_selection,
+};
 
 use super::common::{
     BRAILLE_SPINNER_FRAMES, DelimiterDisplay, InlineStyleMode, NUM_GUTTER, SIDEBAR_CHAR,
-    SYM_CANCELLED, SYM_SELECTED, SYM_UNSELECTED, THINKING_FRAMES, TOOL_CALL_FRAMES, dim,
-    style_inline_markdown, wrap_content,
+    SYM_CANCELLED, SYM_QUESTION_CLOSED, SYM_QUESTION_OPEN, SYM_SELECTED, SYM_UNSELECTED,
+    THINKING_FRAMES, TOOL_CALL_FRAMES, dim, style_inline_markdown, wrap_content,
 };
 use super::markdown::MdRenderCache;
 
@@ -146,6 +149,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                     interview,
                     answers,
                     app.active_interview.as_ref(),
+                    &app.interview_preview_input,
                     &mut app.color_registry,
                     content_width,
                     msg_idx,
@@ -835,6 +839,7 @@ fn interview_lines(
     interview: &stencila_attractor::interviewer::Interview,
     answers: &[stencila_attractor::interviewer::Answer],
     active_state: Option<&crate::interview::InterviewState>,
+    preview_input: &str,
     color_registry: &mut crate::app::AgentColorRegistry,
     content_width: usize,
     msg_idx: usize,
@@ -866,10 +871,23 @@ fn interview_lines(
     let inner_width = content_width.saturating_sub(5);
 
     // Header line: "agent-name asks" / "agent-name · completed" / "agent-name · cancelled"
+    let active_state = active_state.filter(|state| state.interview_id == id);
     let status_suffix = match status {
-        InterviewStatus::Active => " asks",
-        InterviewStatus::Completed => " \u{00b7} completed",
-        InterviewStatus::Cancelled => " \u{00b7} cancelled",
+        InterviewStatus::Active => " asks".to_string(),
+        InterviewStatus::Completed => " \u{00b7} completed".to_string(),
+        InterviewStatus::Cancelled => {
+            let answered = active_state.map_or(0, |state| {
+                state
+                    .draft_answers
+                    .iter()
+                    .filter(|draft| is_answered_draft(draft))
+                    .count()
+            });
+            format!(
+                " \u{00b7} cancelled ({answered}/{})",
+                interview.questions.len()
+            )
+        }
     };
     let header_spans = vec![
         Span::styled(gutter_text.to_string(), gutter_style),
@@ -879,14 +897,12 @@ fn interview_lines(
             agent_name.to_string(),
             Style::new().fg(accent_color).add_modifier(Modifier::BOLD),
         ),
-        Span::styled(status_suffix.to_string(), dim()),
+        Span::styled(status_suffix, dim()),
     ];
     lines.push(Line::from(header_spans));
 
     // Determine which question is active (only if this interview is the active one)
-    let active_question = active_state
-        .filter(|s| s.interview_id == id)
-        .map(|s| s.current_question);
+    let active_question = active_state.map(|s| s.current_question);
 
     let questions = &interview.questions;
 
@@ -898,7 +914,7 @@ fn interview_lines(
     // Add a blank line between the interview header and preamble/questions.
     blank_sidebar_line(lines, sidebar_style);
 
-    // Preamble (if present and non-empty)
+    // Preamble (if present and non-empty) — deviation from plan: keep visible in all states.
     if let Some(preamble) = &interview.preamble
         && !preamble.is_empty()
     {
@@ -920,7 +936,8 @@ fn interview_lines(
         blank_sidebar_line(lines, sidebar_style);
     }
 
-    // Render each question
+    let max_future = if questions.len() > 3 { 1 } else { usize::MAX };
+    let mut future_rendered = 0usize;
     for (q_idx, question) in questions.iter().enumerate() {
         let is_active = active_question == Some(q_idx);
         let is_answered = if status == InterviewStatus::Completed {
@@ -945,6 +962,10 @@ fn interview_lines(
                 lines,
                 question,
                 active_state.and_then(|s| s.draft_answers.get(q_idx)),
+                active_state.map(|_| q_idx + 1),
+                questions.len(),
+                active_state,
+                preview_input,
                 sidebar_style,
                 inner_width,
                 msg_idx,
@@ -954,7 +975,19 @@ fn interview_lines(
             // Horizontal rule below active question
             rule_sidebar_line(lines, sidebar_style, inner_width);
         } else {
-            future_question_line(lines, question, sidebar_style);
+            if future_rendered < max_future {
+                future_question_line(lines, question, sidebar_style);
+                future_rendered += 1;
+            } else if future_rendered == max_future {
+                let remaining = questions.len().saturating_sub(q_idx);
+                lines.push(Line::from(vec![
+                    Span::raw("   "),
+                    Span::styled(SIDEBAR_CHAR, sidebar_style),
+                    Span::raw(" "),
+                    Span::styled(format!("… {remaining} more questions"), dim()),
+                ]));
+                break;
+            }
         }
     }
 }
@@ -986,18 +1019,25 @@ fn active_question_lines(
     lines: &mut Vec<Line>,
     question: &stencila_attractor::interviewer::Question,
     draft: Option<&DraftAnswer>,
+    progress: Option<usize>,
+    total_questions: usize,
+    active_state: Option<&crate::interview::InterviewState>,
+    preview_input: &str,
     sidebar_style: Style,
     inner_width: usize,
-    msg_idx: usize,
-    q_idx: usize,
-    md_cache: &mut MdRenderCache,
+    _msg_idx: usize,
+    _q_idx: usize,
+    _md_cache: &mut MdRenderCache,
 ) {
     use stencila_attractor::interviewer::QuestionType;
 
     let num_padding = "   ";
 
     // Active question symbol
-    let sym_span = Span::styled(format!("{SYM_UNSELECTED} "), Style::new().fg(Color::White));
+    let sym_span = Span::styled(
+        format!("{} ", SYM_QUESTION_OPEN),
+        Style::new().fg(Color::White),
+    );
 
     let header_text = question
         .header
@@ -1005,8 +1045,7 @@ fn active_question_lines(
         .unwrap_or(&question.text)
         .to_string();
 
-    // Question header/text — render through markdown
-    let q_spans = md_cache.get_or_render(msg_idx, q_idx, &question.text, inner_width);
+    let q_lines = wrap_content(&question.text, inner_width);
     if question.header.is_some() {
         // Show header in bold with ○ symbol, then question text below
         let mut first = true;
@@ -1024,23 +1063,37 @@ fn active_question_lines(
                 chunk,
                 Style::new().add_modifier(Modifier::BOLD),
             ));
+            if let Some(progress) = progress
+                && total_questions > 1
+                && !first
+            {
+                line_spans.push(Span::styled(
+                    format!("  {progress}/{total_questions}"),
+                    dim(),
+                ));
+            }
             lines.push(Line::from(line_spans));
+            break;
         }
         // Blank line after header
         blank_sidebar_line(lines, sidebar_style);
-        for line_spans in q_spans {
+        for chunk in q_lines {
             let mut spans = vec![
                 Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            spans.extend(line_spans.iter().cloned());
+            spans.extend(style_inline_markdown(
+                &chunk,
+                InlineStyleMode::Normal,
+                DelimiterDisplay::Hide,
+            ));
             lines.push(Line::from(spans));
         }
     } else {
         // No header — render question text directly with ○ symbol
         let mut first = true;
-        for line_spans in q_spans {
+        for chunk in q_lines {
             let mut spans = vec![
                 Span::raw(num_padding),
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
@@ -1050,8 +1103,22 @@ fn active_question_lines(
                 spans.push(sym_span.clone());
                 first = false;
             }
-            spans.extend(line_spans.iter().cloned());
+            spans.extend(style_inline_markdown(
+                &chunk,
+                InlineStyleMode::Normal,
+                DelimiterDisplay::Hide,
+            ));
+            if let Some(progress) = progress
+                && total_questions > 1
+                && !first
+            {
+                spans.push(Span::styled(
+                    format!("  {progress}/{total_questions}"),
+                    dim(),
+                ));
+            }
             lines.push(Line::from(spans));
+            break;
         }
     }
 
@@ -1066,14 +1133,28 @@ fn active_question_lines(
     }
 
     // Options (vertical layout)
-    option_lines(lines, question, draft, sidebar_style);
+    option_lines(
+        lines,
+        question,
+        draft,
+        active_state,
+        preview_input,
+        sidebar_style,
+    );
 
     // Yes/No options
     if matches!(
         question.question_type,
         QuestionType::YesNo | QuestionType::Confirmation
     ) {
-        yes_no_option_lines(lines, draft, sidebar_style);
+        yes_no_option_lines(
+            lines,
+            question,
+            draft,
+            active_state,
+            preview_input,
+            sidebar_style,
+        );
     }
 }
 
@@ -1105,10 +1186,25 @@ fn answered_question_line(
         Span::raw(num_padding),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
         Span::raw(" "),
-        Span::styled(format!("{SYM_SELECTED} "), dim()),
+        Span::styled(format!("{} ", SYM_QUESTION_CLOSED), dim()),
         Span::styled(format!("{header}: "), dim()),
-        Span::styled(answer_text, Style::new().fg(Color::Blue)),
+        Span::styled(answer_text.clone(), Style::new().fg(Color::Blue)),
     ]));
+
+    if matches!(
+        answer_value,
+        Some(stencila_attractor::interviewer::AnswerValue::Text(_))
+    ) && answer_text.len() > 60
+    {
+        for chunk in wrap_content(&answer_text, 56).into_iter().skip(1) {
+            lines.push(Line::from(vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+                Span::styled(chunk, dim()),
+            ]));
+        }
+    }
 }
 
 /// Format an answer value as user-friendly text, using question context to
@@ -1151,9 +1247,19 @@ fn option_lines(
     lines: &mut Vec<Line>,
     question: &stencila_attractor::interviewer::Question,
     draft: Option<&DraftAnswer>,
+    active_state: Option<&crate::interview::InterviewState>,
+    preview_input: &str,
     sidebar_style: Style,
 ) {
     use stencila_attractor::interviewer::QuestionType;
+
+    let current_input = if active_state.is_some() {
+        preview_input
+    } else {
+        ""
+    };
+    let preview_single = preview_selection(current_input, question);
+    let preview_multi = preview_multi_select(current_input, question);
 
     let num_padding = "   ";
     for (o_idx, option) in question.options.iter().enumerate() {
@@ -1177,6 +1283,15 @@ fn option_lines(
                 })
                 .unwrap_or(false),
             _ => false,
+        } || matches!(question.question_type, QuestionType::MultiSelect)
+            && preview_multi.contains(&o_idx)
+            || matches!(question.question_type, QuestionType::MultipleChoice)
+                && preview_single.selected == Some(o_idx);
+
+        let symbol = if is_selected {
+            SYM_SELECTED
+        } else {
+            SYM_UNSELECTED
         };
 
         let key_style = if is_selected {
@@ -1190,22 +1305,41 @@ fn option_lines(
             Style::new()
         };
 
-        let mut opt_spans = vec![
+        let opt_spans = vec![
             Span::raw(num_padding),
             Span::styled(SIDEBAR_CHAR, sidebar_style),
             Span::raw(" "),
+            Span::styled(format!("{symbol} "), key_style),
             Span::styled(format!("{} ", option.key), key_style),
             Span::styled(option.label.clone(), label_style),
         ];
-        if let Some(desc) = &option.description {
-            opt_spans.push(Span::styled(format!(" — {desc}"), dim()));
-        }
         lines.push(Line::from(opt_spans));
+        if let Some(desc) = &option.description {
+            let mut desc_spans = vec![
+                Span::raw(num_padding),
+                Span::styled(SIDEBAR_CHAR, sidebar_style),
+                Span::raw(" "),
+                Span::raw("   "),
+            ];
+            desc_spans.extend(style_inline_markdown(
+                desc,
+                InlineStyleMode::Normal,
+                DelimiterDisplay::Hide,
+            ));
+            lines.push(Line::from(desc_spans).style(dim()));
+        }
     }
 }
 
 /// Render Yes / No toggle lines.
-fn yes_no_option_lines(lines: &mut Vec<Line>, draft: Option<&DraftAnswer>, sidebar_style: Style) {
+fn yes_no_option_lines(
+    lines: &mut Vec<Line>,
+    question: &stencila_attractor::interviewer::Question,
+    draft: Option<&DraftAnswer>,
+    active_state: Option<&crate::interview::InterviewState>,
+    preview_input: &str,
+    sidebar_style: Style,
+) {
     let num_padding = "   ";
     let selected = draft.and_then(|d| {
         if let DraftAnswer::YesNo(v) = d {
@@ -1214,7 +1348,18 @@ fn yes_no_option_lines(lines: &mut Vec<Line>, draft: Option<&DraftAnswer>, sideb
             None
         }
     });
-    let (yes_key_style, yes_label_style) = if selected == Some(true) {
+    let preview = preview_selection(
+        if active_state.is_some() {
+            preview_input
+        } else {
+            ""
+        },
+        question,
+    )
+    .yes_no;
+    let yes_selected = selected == Some(true) || preview == Some(true);
+    let no_selected = selected == Some(false) || preview == Some(false);
+    let (yes_key_style, yes_label_style) = if yes_selected {
         (
             Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD),
             Style::new().add_modifier(Modifier::BOLD),
@@ -1222,7 +1367,7 @@ fn yes_no_option_lines(lines: &mut Vec<Line>, draft: Option<&DraftAnswer>, sideb
     } else {
         (Style::new().fg(Color::Cyan), Style::new())
     };
-    let (no_key_style, no_label_style) = if selected == Some(false) {
+    let (no_key_style, no_label_style) = if no_selected {
         (
             Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD),
             Style::new().add_modifier(Modifier::BOLD),
@@ -1234,6 +1379,21 @@ fn yes_no_option_lines(lines: &mut Vec<Line>, draft: Option<&DraftAnswer>, sideb
         Span::raw(num_padding),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
         Span::raw(" "),
+        Span::styled(
+            format!(
+                "{} ",
+                if yes_selected {
+                    SYM_SELECTED
+                } else {
+                    SYM_UNSELECTED
+                }
+            ),
+            if yes_selected {
+                yes_key_style
+            } else {
+                Style::new().fg(Color::Cyan)
+            },
+        ),
         Span::styled("y ", yes_key_style),
         Span::styled("Yes", yes_label_style),
     ]));
@@ -1241,6 +1401,21 @@ fn yes_no_option_lines(lines: &mut Vec<Line>, draft: Option<&DraftAnswer>, sideb
         Span::raw(num_padding),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
         Span::raw(" "),
+        Span::styled(
+            format!(
+                "{} ",
+                if no_selected {
+                    SYM_SELECTED
+                } else {
+                    SYM_UNSELECTED
+                }
+            ),
+            if no_selected {
+                no_key_style
+            } else {
+                Style::new().fg(Color::Cyan)
+            },
+        ),
         Span::styled("n ", no_key_style),
         Span::styled("No", no_label_style),
     ]));
@@ -1261,7 +1436,7 @@ fn future_question_line(
         Span::raw(num_padding),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
         Span::raw(" "),
-        Span::styled(format!("{SYM_UNSELECTED} "), dim()),
+        Span::styled(format!("{} ", SYM_QUESTION_OPEN), dim()),
         Span::styled(preview.to_string(), dim()),
     ]));
 }

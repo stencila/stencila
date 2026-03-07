@@ -39,7 +39,14 @@ impl App {
             if let Some(state) = &mut self.active_interview {
                 state.validation_error = None;
             }
+            self.interview_cancel_confirm = false;
         }
+
+        self.interview_preview_input = if self.active_interview.is_some() {
+            self.input.text().to_string()
+        } else {
+            String::new()
+        };
 
         // Ghost suggestion always refreshes (input/cursor may have changed in either path).
         self.refresh_ghost_suggestion();
@@ -224,8 +231,11 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Esc) => {
                 if self.active_interview.is_some() {
                     if self.input.is_empty() {
-                        // Second Esc on empty input: cancel interview
-                        self.cancel_interview();
+                        if self.interview_cancel_confirm {
+                            self.cancel_interview();
+                        } else {
+                            self.interview_cancel_confirm = true;
+                        }
                     } else {
                         // First Esc: clear draft input
                         self.input.clear();
@@ -234,6 +244,7 @@ impl App {
                         if let Some(state) = &mut self.active_interview {
                             state.validation_error = None;
                         }
+                        self.interview_cancel_confirm = false;
                     }
                 } else if !self.scroll_pinned {
                     self.scroll_to_bottom();
@@ -302,7 +313,7 @@ impl App {
             }
 
             (KeyModifiers::NONE, KeyCode::Tab) => {
-                if self.ghost_suggestion.is_some() {
+                if self.active_interview.is_none() && self.ghost_suggestion.is_some() {
                     self.accept_ghost_word();
                 }
             }
@@ -311,7 +322,9 @@ impl App {
             (KeyModifiers::CONTROL, KeyCode::Right) => self.input.move_word_right(),
             (KeyModifiers::NONE, KeyCode::Left) => self.input.move_left(),
             (KeyModifiers::NONE, KeyCode::Right) => {
-                if self.input.cursor() == self.input.text().len() && self.ghost_suggestion.is_some()
+                if self.active_interview.is_none()
+                    && self.input.cursor() == self.input.text().len()
+                    && self.ghost_suggestion.is_some()
                 {
                     self.accept_ghost_all();
                 } else {
@@ -322,14 +335,26 @@ impl App {
             (KeyModifiers::NONE, KeyCode::End) => self.input.move_end(),
 
             (KeyModifiers::NONE, KeyCode::Up) => {
-                if self.input.is_on_first_line() {
+                if self.active_interview.is_some() {
+                    if self.input.is_single_line() {
+                        self.interview_cancel_confirm = false;
+                    } else {
+                        self.input.move_up();
+                    }
+                } else if self.input.is_on_first_line() {
                     self.navigate_history_up();
                 } else {
                     self.input.move_up();
                 }
             }
             (KeyModifiers::NONE, KeyCode::Down) => {
-                if self.input.is_on_last_line() {
+                if self.active_interview.is_some() {
+                    if self.input.is_single_line() {
+                        self.interview_cancel_confirm = false;
+                    } else {
+                        self.input.move_down();
+                    }
+                } else if self.input.is_on_last_line() {
                     self.navigate_history_down();
                 } else {
                     self.input.move_down();

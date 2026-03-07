@@ -30,6 +30,19 @@ fn last_visual_line_len(text: &str, wrap_width: usize) -> usize {
     })
 }
 
+fn join_keys(keys: &[String]) -> String {
+    match keys {
+        [] => String::new(),
+        [one] => one.clone(),
+        [first, second] => format!("{first} or {second}"),
+        _ => format!(
+            "{}, or {}",
+            keys[..keys.len() - 1].join(", "),
+            keys[keys.len() - 1]
+        ),
+    }
+}
+
 fn ghost_chunks(ghost: &str, remaining_on_last: usize, wrap_width: usize) -> (Vec<String>, bool) {
     let ghost_chars: Vec<char> = ghost.chars().collect();
     let mut chunks: Vec<String> = Vec::new();
@@ -196,26 +209,23 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 use stencila_attractor::interviewer::QuestionType;
                 match q.question_type {
                     QuestionType::YesNo | QuestionType::Confirmation => {
-                        "Enter y or n...".to_string()
+                        "Answer yes or no".to_string()
                     }
                     QuestionType::MultipleChoice => {
                         let opts: Vec<String> = q.options.iter().map(|o| o.key.clone()).collect();
-                        format!("Choose key or label: {}", opts.join(" / "))
+                        format!("Choose {}", join_keys(&opts))
                     }
                     QuestionType::MultiSelect => {
                         let opts: Vec<String> = q.options.iter().map(|o| o.key.clone()).collect();
-                        format!(
-                            "Select keys or labels (comma-separated): {}",
-                            opts.join(", ")
-                        )
+                        format!("Choose one or more: {}", opts.join(", "))
                     }
-                    QuestionType::Freeform => "Enter your answer...".to_string(),
+                    QuestionType::Freeform => "Enter your answer…".to_string(),
                 }
             } else {
-                "Enter your answer...".to_string()
+                "Enter your answer…".to_string()
             }
         } else {
-            "Enter your answer...".to_string()
+            "Enter your answer…".to_string()
         };
         visual_lines.clear();
         visual_lines.push(Line::from(Span::styled(placeholder, dim_style)));
@@ -424,6 +434,13 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
         // Interview-specific hints
         if let Some(ref err) = state.validation_error {
             Line::from(vec![Span::styled(err.clone(), Style::new().fg(Color::Red))])
+        } else if app.interview_cancel_confirm {
+            Line::from(vec![
+                Span::raw("cancel interview? "),
+                Span::styled("y", dim()),
+                Span::raw("/"),
+                Span::styled("n", dim()),
+            ])
         } else {
             let mut spans = vec![
                 Span::raw("\u{21b5} "),

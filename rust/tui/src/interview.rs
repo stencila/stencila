@@ -19,6 +19,85 @@ pub enum InterviewSource {
     Workflow,
 }
 
+fn join_keys(keys: &[&str]) -> String {
+    match keys {
+        [] => String::new(),
+        [one] => (*one).to_string(),
+        [first, second] => format!("{first} or {second}"),
+        _ => {
+            let mut joined = keys[..keys.len() - 1].join(", ");
+            joined.push_str(", or ");
+            joined.push_str(keys[keys.len() - 1]);
+            joined
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct PreviewSelection {
+    pub yes_no: Option<bool>,
+    pub selected: Option<usize>,
+}
+
+pub fn is_answered_draft(draft: &DraftAnswer) -> bool {
+    match draft {
+        DraftAnswer::Pending => false,
+        DraftAnswer::Text(text) => !text.trim().is_empty(),
+        DraftAnswer::YesNo(value) => value.is_some(),
+        DraftAnswer::Selected(value) => value.is_some(),
+        DraftAnswer::MultiSelected(values) => !values.is_empty(),
+    }
+}
+
+pub fn preview_selection(input: &str, question: &Question) -> PreviewSelection {
+    let trimmed = input.trim();
+    match question.question_type {
+        QuestionType::YesNo | QuestionType::Confirmation => {
+            let lower = trimmed.to_ascii_lowercase();
+            let yes = ["y", "ye", "yes", "t", "tr", "tru", "true", "1"];
+            let no = ["n", "no", "f", "fa", "fal", "fals", "false", "0"];
+            PreviewSelection {
+                yes_no: if yes.iter().any(|candidate| candidate == &lower) {
+                    Some(true)
+                } else if no.iter().any(|candidate| candidate == &lower) {
+                    Some(false)
+                } else {
+                    None
+                },
+                selected: None,
+            }
+        }
+        QuestionType::MultipleChoice => PreviewSelection {
+            yes_no: None,
+            selected: question.options.iter().position(|option| {
+                option.key.eq_ignore_ascii_case(trimmed)
+                    || option
+                        .label
+                        .to_ascii_lowercase()
+                        .starts_with(&trimmed.to_ascii_lowercase())
+            }),
+        },
+        _ => PreviewSelection::default(),
+    }
+}
+
+pub fn preview_multi_select(input: &str, question: &Question) -> HashSet<usize> {
+    input
+        .split(',')
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .filter_map(|part| {
+            question.options.iter().position(|option| {
+                option.key.eq_ignore_ascii_case(part)
+                    || option
+                        .label
+                        .to_ascii_lowercase()
+                        .starts_with(&part.to_ascii_lowercase())
+            })
+        })
+        .collect()
+}
+
 /// Status of an interview in the transcript.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InterviewStatus {
@@ -180,7 +259,7 @@ impl InterviewState {
         match question.question_type {
             QuestionType::Freeform => {
                 if trimmed.is_empty() {
-                    self.validation_error = Some("Enter your answer".to_string());
+                    self.validation_error = Some("invalid: enter your answer".to_string());
                     return false;
                 }
                 self.draft_answers[self.current_question] = DraftAnswer::Text(trimmed.to_string());
@@ -198,7 +277,7 @@ impl InterviewState {
                     self.validation_error = None;
                     true
                 } else {
-                    self.validation_error = Some("Enter y or n".to_string());
+                    self.validation_error = Some("invalid: answer yes or no".to_string());
                     false
                 }
             }
@@ -221,7 +300,7 @@ impl InterviewState {
                     true
                 } else {
                     let keys: Vec<&str> = question.options.iter().map(|o| o.key.as_str()).collect();
-                    self.validation_error = Some(format!("Choose: {}", keys.join(", ")));
+                    self.validation_error = Some(format!("invalid: choose {}", join_keys(&keys)));
                     false
                 }
             }
@@ -232,7 +311,9 @@ impl InterviewState {
                     .filter(|s| !s.is_empty())
                     .collect();
                 if parts.is_empty() {
-                    self.validation_error = Some("Select at least one option".to_string());
+                    let keys: Vec<&str> = question.options.iter().map(|o| o.key.as_str()).collect();
+                    self.validation_error =
+                        Some(format!("invalid: choose one or more: {}", keys.join(", ")));
                     return false;
                 }
                 let mut indices = HashSet::new();
@@ -252,10 +333,8 @@ impl InterviewState {
                     } else {
                         let keys: Vec<&str> =
                             question.options.iter().map(|o| o.key.as_str()).collect();
-                        self.validation_error = Some(format!(
-                            "Unknown option \"{part}\". Choose from: {}",
-                            keys.join(", ")
-                        ));
+                        self.validation_error =
+                            Some(format!("invalid: choose one or more: {}", keys.join(", ")));
                         return false;
                     }
                 }

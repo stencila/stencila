@@ -267,6 +267,7 @@ impl App {
         if !state.try_set_answer_from_input(text, &question) {
             // Validation failed — the error is stored in state.validation_error
             // and will be shown in the hints line. Don't clear input.
+            self.interview_cancel_confirm = false;
             return;
         }
 
@@ -279,6 +280,8 @@ impl App {
         self.input.clear();
         self.input_scroll = 0;
         self.scroll_pinned = true;
+        self.interview_cancel_confirm = false;
+        self.interview_preview_input.clear();
     }
 
     /// Complete the active interview, sending answers back through the channel.
@@ -313,6 +316,9 @@ impl App {
                 *status = InterviewStatus::Completed;
                 *msg_answers = answers;
             }
+
+            self.interview_cancel_confirm = false;
+            self.interview_preview_input.clear();
         }
     }
 
@@ -336,6 +342,8 @@ impl App {
                 String::new()
             };
             self.input.set_text(&input_text);
+            self.interview_cancel_confirm = false;
+            self.interview_preview_input = input_text;
         }
     }
 
@@ -356,6 +364,8 @@ impl App {
 
             self.input.clear();
             self.input_scroll = 0;
+            self.interview_cancel_confirm = false;
+            self.interview_preview_input.clear();
         }
     }
 }

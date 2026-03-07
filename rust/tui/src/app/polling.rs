@@ -183,6 +183,8 @@ impl App {
             msg_index,
             pending.result_tx,
         ));
+        self.interview_cancel_confirm = false;
+        self.interview_preview_input.clear();
         self.scroll_pinned = true;
 
         // If the source is a workflow and user detached to agent mode,

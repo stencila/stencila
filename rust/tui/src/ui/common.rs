@@ -27,10 +27,16 @@ pub(super) const BRAILLE_SPINNER_FRAMES: [char; 10] =
     ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
 /// Selected option (single-select radio).
-pub(super) const SYM_SELECTED: &str = "\u{25cf}"; // ●
+pub(super) const SYM_SELECTED: &str = "●";
 
 /// Unselected option (single-select radio).
-pub(super) const SYM_UNSELECTED: &str = "\u{25cb}"; // ○
+pub(super) const SYM_UNSELECTED: &str = "○";
+
+/// Expanded / active question indicator.
+pub(super) const SYM_QUESTION_OPEN: &str = "□";
+
+/// Answered question indicator.
+pub(super) const SYM_QUESTION_CLOSED: &str = "■";
 
 /// Cancelled interview indicator.
 pub(super) const SYM_CANCELLED: &str = "\u{2298}"; // ⊘
