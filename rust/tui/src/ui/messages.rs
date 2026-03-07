@@ -1260,6 +1260,7 @@ fn option_lines(
     };
     let preview_single = preview_selection(current_input, question);
     let preview_multi = preview_multi_select(current_input, question);
+    let focused_option = active_state.and_then(|state| state.current_option_focus());
 
     let num_padding = "   ";
     for (o_idx, option) in question.options.iter().enumerate() {
@@ -1294,12 +1295,18 @@ fn option_lines(
             SYM_UNSELECTED
         };
 
-        let key_style = if is_selected {
+        let is_focused = focused_option == Some(o_idx);
+
+        let key_style = if is_selected && is_focused {
             Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD)
+        } else if is_selected {
+            Style::new().fg(Color::Blue)
+        } else if is_focused {
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::BOLD)
         } else {
             Style::new().fg(Color::Cyan)
         };
-        let label_style = if is_selected {
+        let label_style = if is_focused {
             Style::new().add_modifier(Modifier::BOLD)
         } else {
             Style::new()
@@ -1341,6 +1348,7 @@ fn yes_no_option_lines(
     sidebar_style: Style,
 ) {
     let num_padding = "   ";
+    let focused_option = active_state.and_then(|state| state.current_option_focus());
     let selected = draft.and_then(|d| {
         if let DraftAnswer::YesNo(v) = d {
             *v
@@ -1359,17 +1367,33 @@ fn yes_no_option_lines(
     .yes_no;
     let yes_selected = selected == Some(true) || preview == Some(true);
     let no_selected = selected == Some(false) || preview == Some(false);
-    let (yes_key_style, yes_label_style) = if yes_selected {
+    let yes_focused = focused_option == Some(0);
+    let no_focused = focused_option == Some(1);
+    let (yes_key_style, yes_label_style) = if yes_selected && yes_focused {
         (
             Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD),
+            Style::new().add_modifier(Modifier::BOLD),
+        )
+    } else if yes_selected {
+        (Style::new().fg(Color::Blue), Style::new())
+    } else if yes_focused {
+        (
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::BOLD),
             Style::new().add_modifier(Modifier::BOLD),
         )
     } else {
         (Style::new().fg(Color::Cyan), Style::new())
     };
-    let (no_key_style, no_label_style) = if no_selected {
+    let (no_key_style, no_label_style) = if no_selected && no_focused {
         (
             Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD),
+            Style::new().add_modifier(Modifier::BOLD),
+        )
+    } else if no_selected {
+        (Style::new().fg(Color::Blue), Style::new())
+    } else if no_focused {
+        (
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::BOLD),
             Style::new().add_modifier(Modifier::BOLD),
         )
     } else {

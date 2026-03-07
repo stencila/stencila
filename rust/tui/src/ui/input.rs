@@ -5,6 +5,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, Paragraph},
 };
+use stencila_attractor::interviewer::QuestionType;
 
 use crate::app::{ActiveWorkflow, ActiveWorkflowState, App, AppMessage, AppMode, ExchangeKind};
 
@@ -442,18 +443,60 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
                 Span::styled("n", dim()),
             ])
         } else {
-            let mut spans = vec![
-                Span::raw("\u{21b5} "),
-                Span::styled("answer", dim()),
-                Span::raw("  esc "),
-                Span::styled("cancel", dim()),
-            ];
-            if state.current_question > 0 {
-                spans.push(Span::raw("  ctrl+p "));
-                spans.push(Span::styled("back", dim()));
-            }
-            spans.push(Span::raw("  alt+\u{21b5} "));
-            spans.push(Span::styled("newline", dim()));
+            let question_type = if let Some(crate::app::AppMessage::Interview { interview, .. }) =
+                app.messages.get(state.msg_index)
+            {
+                interview
+                    .questions
+                    .get(state.current_question)
+                    .map(|question| question.question_type)
+            } else {
+                None
+            };
+
+            let mut spans = match question_type {
+                Some(QuestionType::Freeform) => vec![
+                    Span::raw("\u{21b5} "),
+                    Span::styled("answer", dim()),
+                    Span::raw("  [ "),
+                    Span::styled("prev", dim()),
+                    Span::raw("  ] "),
+                    Span::styled("next", dim()),
+                    Span::raw("  alt+\u{21b5} "),
+                    Span::styled("newline", dim()),
+                ],
+                Some(QuestionType::MultiSelect) => vec![
+                    Span::raw("\u{2191}\u{2193} "),
+                    Span::styled("focus", dim()),
+                    Span::raw("  space "),
+                    Span::styled("toggle", dim()),
+                    Span::raw("  \u{2190} "),
+                    Span::styled("prev", dim()),
+                    Span::raw("  \u{2192} "),
+                    Span::styled("next", dim()),
+                    Span::raw("  \u{21b5} "),
+                    Span::styled("answer", dim()),
+                ],
+                Some(QuestionType::MultipleChoice | QuestionType::YesNo | QuestionType::Confirmation) => vec![
+                    Span::raw("\u{2191}\u{2193} "),
+                    Span::styled("focus", dim()),
+                    Span::raw("  space "),
+                    Span::styled("select", dim()),
+                    Span::raw("  \u{2190} "),
+                    Span::styled("prev", dim()),
+                    Span::raw("  \u{2192} "),
+                    Span::styled("next", dim()),
+                    Span::raw("  \u{21b5} "),
+                    Span::styled("answer", dim()),
+                ],
+                None => vec![
+                    Span::raw("\u{21b5} "),
+                    Span::styled("answer", dim()),
+                ],
+            };
+
+            spans.push(Span::raw("  esc "));
+            spans.push(Span::styled("cancel", dim()));
             Line::from(spans)
         }
     } else if is_running {

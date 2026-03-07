@@ -1,10 +1,63 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::autocomplete::agents::AgentSelection;
+use stencila_attractor::interviewer::QuestionType;
 
 use super::{App, AppMode};
 
 impl App {
+    fn interview_question(&self) -> Option<stencila_attractor::interviewer::Question> {
+        let state = self.active_interview.as_ref()?;
+        let crate::app::AppMessage::Interview { interview, .. } =
+            self.messages.get(state.msg_index)?
+        else {
+            return None;
+        };
+        interview.questions.get(state.current_question).cloned()
+    }
+
+    fn interview_move_question(&mut self, delta: isize) {
+        let Some(state) = &mut self.active_interview else {
+            return;
+        };
+
+        let moved = if delta < 0 {
+            state.back()
+        } else if delta > 0 {
+            state.advance()
+        } else {
+            false
+        };
+
+        if !moved {
+            return;
+        }
+
+        if state.current_question >= state.draft_answers.len() {
+            state.current_question = state.draft_answers.len().saturating_sub(1);
+            return;
+        }
+
+        self.restore_interview_input_from_draft();
+    }
+
+    fn interview_activate_focused_option(&mut self) {
+        let Some(question) = self.interview_question() else {
+            return;
+        };
+        let Some(state) = &mut self.active_interview else {
+            return;
+        };
+
+        if state.activate_focused_option(&question) {
+            let input_text = state.draft_answers[state.current_question].to_input_text(&question);
+            self.input.set_text(&input_text);
+            self.input_scroll = 0;
+            self.interview_preview_input = input_text;
+            self.interview_cancel_confirm = false;
+        }
+    }
+
     /// Dispatch a key event.
     pub(super) async fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
@@ -295,11 +348,6 @@ impl App {
                     self.switch_to_session(next);
                 }
             }
-            (KeyModifiers::CONTROL, KeyCode::Char('p')) => {
-                if self.active_interview.is_some() && self.input.is_empty() {
-                    self.interview_back();
-                }
-            }
             (KeyModifiers::CONTROL, KeyCode::Char('u')) => self.input.delete_to_line_start(),
             (KeyModifiers::CONTROL, KeyCode::Char('k')) => self.input.delete_to_line_end(),
 
@@ -320,10 +368,25 @@ impl App {
 
             (KeyModifiers::CONTROL, KeyCode::Left) => self.input.move_word_left(),
             (KeyModifiers::CONTROL, KeyCode::Right) => self.input.move_word_right(),
-            (KeyModifiers::NONE, KeyCode::Left) => self.input.move_left(),
+            (KeyModifiers::NONE, KeyCode::Left) => {
+                if let Some(question) = self.interview_question() {
+                    if matches!(question.question_type, QuestionType::Freeform) {
+                        self.input.move_left();
+                    } else {
+                        self.interview_back();
+                    }
+                } else {
+                    self.input.move_left();
+                }
+            }
             (KeyModifiers::NONE, KeyCode::Right) => {
-                if self.active_interview.is_none()
-                    && self.input.cursor() == self.input.text().len()
+                if let Some(question) = self.interview_question() {
+                    if matches!(question.question_type, QuestionType::Freeform) {
+                        self.input.move_right();
+                    } else {
+                        self.interview_move_question(1);
+                    }
+                } else if self.input.cursor() == self.input.text().len()
                     && self.ghost_suggestion.is_some()
                 {
                     self.accept_ghost_all();
@@ -336,10 +399,22 @@ impl App {
 
             (KeyModifiers::NONE, KeyCode::Up) => {
                 if self.active_interview.is_some() {
-                    if self.input.is_single_line() {
-                        self.interview_cancel_confirm = false;
-                    } else {
-                        self.input.move_up();
+                    if let Some(question) = self.interview_question() {
+                        match question.question_type {
+                            QuestionType::Freeform => {
+                                if self.input.is_single_line() {
+                                    self.interview_cancel_confirm = false;
+                                } else {
+                                    self.input.move_up();
+                                }
+                            }
+                            _ => {
+                                if let Some(state) = &mut self.active_interview {
+                                    let _ = state.move_option_focus(&question, -1);
+                                }
+                                self.interview_cancel_confirm = false;
+                            }
+                        }
                     }
                 } else if self.input.is_on_first_line() {
                     self.navigate_history_up();
@@ -349,10 +424,22 @@ impl App {
             }
             (KeyModifiers::NONE, KeyCode::Down) => {
                 if self.active_interview.is_some() {
-                    if self.input.is_single_line() {
-                        self.interview_cancel_confirm = false;
-                    } else {
-                        self.input.move_down();
+                    if let Some(question) = self.interview_question() {
+                        match question.question_type {
+                            QuestionType::Freeform => {
+                                if self.input.is_single_line() {
+                                    self.interview_cancel_confirm = false;
+                                } else {
+                                    self.input.move_down();
+                                }
+                            }
+                            _ => {
+                                if let Some(state) = &mut self.active_interview {
+                                    let _ = state.move_option_focus(&question, 1);
+                                }
+                                self.interview_cancel_confirm = false;
+                            }
+                        }
                     }
                 } else if self.input.is_on_last_line() {
                     self.navigate_history_down();
@@ -371,6 +458,40 @@ impl App {
             (KeyModifiers::NONE, KeyCode::PageUp) => self.scroll_up(10),
             (KeyModifiers::NONE, KeyCode::PageDown) => self.scroll_down(10),
             (KeyModifiers::CONTROL, KeyCode::End) => self.scroll_to_bottom(),
+
+            (KeyModifiers::NONE, KeyCode::Char(' ')) => {
+                if let Some(question) = self.interview_question() {
+                    if !matches!(question.question_type, QuestionType::Freeform) {
+                        self.interview_activate_focused_option();
+                    } else {
+                        self.input.insert_char(' ');
+                    }
+                } else {
+                    self.input.insert_char(' ');
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Char('[')) => {
+                if let Some(question) = self.interview_question() {
+                    if matches!(question.question_type, QuestionType::Freeform) {
+                        self.interview_back();
+                    } else {
+                        self.input.insert_char('[');
+                    }
+                } else {
+                    self.input.insert_char('[');
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Char(']')) => {
+                if let Some(question) = self.interview_question() {
+                    if matches!(question.question_type, QuestionType::Freeform) {
+                        self.interview_move_question(1);
+                    } else {
+                        self.input.insert_char(']');
+                    }
+                } else {
+                    self.input.insert_char(']');
+                }
+            }
 
             (modifier, KeyCode::Char(c))
                 if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
@@ -506,6 +627,9 @@ impl App {
 #[cfg(test)]
 mod tests {
     use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
+    use tokio::sync::oneshot;
+
+    use stencila_attractor::interviewer::{Interview, Question, QuestionOption};
 
     use super::super::{AgentSession, App, AppMessage, AppMode, ExchangeKind};
 
@@ -516,6 +640,33 @@ mod tests {
             kind: KeyEventKind::Press,
             state: KeyEventState::NONE,
         })
+    }
+
+    fn test_option(key: &str, label: &str) -> QuestionOption {
+        QuestionOption {
+            key: key.to_string(),
+            label: label.to_string(),
+            description: None,
+        }
+    }
+
+    fn set_active_interview(app: &mut App, interview: Interview) {
+        let msg_index = app.messages.len();
+        let interview_id = interview.id.clone();
+        app.messages.push(AppMessage::Interview {
+            id: interview_id,
+            source: crate::interview::InterviewSource::Agent,
+            agent_name: "test-agent".to_string(),
+            status: crate::interview::InterviewStatus::Active,
+            interview: interview.clone(),
+            answers: Vec::new(),
+        });
+
+        let (tx, _rx) = oneshot::channel();
+        app.active_interview = Some(crate::interview::InterviewState::new(
+            &interview, msg_index, tx,
+        ));
+        app.restore_interview_input_from_draft();
     }
 
     #[tokio::test]
@@ -936,6 +1087,196 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Char('s'), KeyModifiers::CONTROL))
             .await;
         assert_eq!(app.mode, AppMode::Shell);
+    }
+
+    #[tokio::test]
+    async fn space_selects_multiple_choice_option() {
+        let mut app = App::new_for_test().await;
+        let interview = Interview::single(
+            Question::multiple_choice(
+                "Pick one",
+                vec![test_option("a", "Alpha"), test_option("b", "Beta")],
+            ),
+            "test",
+        );
+        set_active_interview(&mut app, interview);
+
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Char(' '), KeyModifiers::NONE))
+            .await;
+
+        let state = app.active_interview.as_ref().expect("active interview");
+        assert_eq!(state.current_option_focus(), Some(1));
+        match &state.draft_answers[state.current_question] {
+            crate::interview::DraftAnswer::Selected(selected) => assert_eq!(*selected, Some(1)),
+            other => panic!("unexpected draft answer: {other:?}"),
+        }
+        assert_eq!(app.input.text(), "b");
+    }
+
+    #[tokio::test]
+    async fn space_toggles_multiselect_option() {
+        let mut app = App::new_for_test().await;
+        let interview = Interview::single(
+            Question::multi_select(
+                "Pick many",
+                vec![test_option("a", "Alpha"), test_option("b", "Beta")],
+            ),
+            "test",
+        );
+        set_active_interview(&mut app, interview);
+
+        app.handle_event(&key_event(KeyCode::Char(' '), KeyModifiers::NONE))
+            .await;
+        {
+            let state = app.active_interview.as_ref().expect("active interview");
+            match &state.draft_answers[state.current_question] {
+                crate::interview::DraftAnswer::MultiSelected(selected) => {
+                    assert!(selected.contains(&0));
+                }
+                other => panic!("unexpected draft answer: {other:?}"),
+            }
+            assert_eq!(app.input.text(), "a");
+        }
+
+        app.handle_event(&key_event(KeyCode::Char(' '), KeyModifiers::NONE))
+            .await;
+        let state = app.active_interview.as_ref().expect("active interview");
+        match &state.draft_answers[state.current_question] {
+            crate::interview::DraftAnswer::MultiSelected(selected) => {
+                assert!(selected.is_empty());
+            }
+            other => panic!("unexpected draft answer: {other:?}"),
+        }
+        assert_eq!(app.input.text(), "");
+    }
+
+    #[tokio::test]
+    async fn up_down_and_space_select_yes_no_option() {
+        let mut app = App::new_for_test().await;
+        let interview = Interview::single(Question::yes_no("Continue?"), "test");
+        set_active_interview(&mut app, interview);
+
+        let state = app.active_interview.as_ref().expect("active interview");
+        assert_eq!(state.current_option_focus(), Some(0));
+
+        app.handle_event(&key_event(KeyCode::Down, KeyModifiers::NONE))
+            .await;
+        app.handle_event(&key_event(KeyCode::Char(' '), KeyModifiers::NONE))
+            .await;
+
+        let state = app.active_interview.as_ref().expect("active interview");
+        assert_eq!(state.current_option_focus(), Some(1));
+        match &state.draft_answers[state.current_question] {
+            crate::interview::DraftAnswer::YesNo(value) => assert_eq!(*value, Some(false)),
+            other => panic!("unexpected draft answer: {other:?}"),
+        }
+        assert_eq!(app.input.text(), "n");
+    }
+
+    #[tokio::test]
+    async fn space_selects_confirmation_option() {
+        let mut app = App::new_for_test().await;
+        let interview = Interview::single(Question::confirmation("Proceed?"), "test");
+        set_active_interview(&mut app, interview);
+
+        app.handle_event(&key_event(KeyCode::Char(' '), KeyModifiers::NONE))
+            .await;
+
+        let state = app.active_interview.as_ref().expect("active interview");
+        assert_eq!(state.current_option_focus(), Some(0));
+        match &state.draft_answers[state.current_question] {
+            crate::interview::DraftAnswer::YesNo(value) => assert_eq!(*value, Some(true)),
+            other => panic!("unexpected draft answer: {other:?}"),
+        }
+        assert_eq!(app.input.text(), "y");
+    }
+
+    #[tokio::test]
+    async fn left_right_navigate_option_interview_questions_with_bounds() {
+        let mut app = App::new_for_test().await;
+        let interview = Interview::batch(
+            vec![
+                Question::multiple_choice("First", vec![test_option("a", "Alpha")]),
+                Question::multiple_choice("Second", vec![test_option("b", "Beta")]),
+            ],
+            "test",
+        );
+        set_active_interview(&mut app, interview);
+
+        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(0)
+        );
+
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(1)
+        );
+
+        app.handle_event(&key_event(KeyCode::Right, KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(1)
+        );
+
+        app.handle_event(&key_event(KeyCode::Left, KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(0)
+        );
+    }
+
+    #[tokio::test]
+    async fn brackets_navigate_freeform_interview_questions() {
+        let mut app = App::new_for_test().await;
+        let interview = Interview::batch(
+            vec![Question::freeform("First"), Question::freeform("Second")],
+            "test",
+        );
+        set_active_interview(&mut app, interview);
+
+        app.handle_event(&key_event(KeyCode::Char(']'), KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(1)
+        );
+
+        app.handle_event(&key_event(KeyCode::Char(']'), KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(1)
+        );
+
+        app.handle_event(&key_event(KeyCode::Char('['), KeyModifiers::NONE))
+            .await;
+        assert_eq!(
+            app.active_interview
+                .as_ref()
+                .map(|state| state.current_question),
+            Some(0)
+        );
     }
 
     // --- Autocomplete integration tests ---

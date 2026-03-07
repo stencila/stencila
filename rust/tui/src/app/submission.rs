@@ -284,6 +284,31 @@ impl App {
         self.interview_preview_input.clear();
     }
 
+    /// Restore the current question's draft answer into the input area.
+    pub(super) fn restore_interview_input_from_draft(&mut self) {
+        let Some(state) = &mut self.active_interview else {
+            return;
+        };
+
+        let input_text = if let Some(AppMessage::Interview { interview, .. }) =
+            self.messages.get(state.msg_index)
+        {
+            if let Some(question) = interview.questions.get(state.current_question) {
+                state.sync_focus_from_draft(question);
+                state.draft_answers[state.current_question].to_input_text(question)
+            } else {
+                String::new()
+            }
+        } else {
+            String::new()
+        };
+
+        self.input.set_text(&input_text);
+        self.input_scroll = 0;
+        self.interview_cancel_confirm = false;
+        self.interview_preview_input = input_text;
+    }
+
     /// Complete the active interview, sending answers back through the channel.
     pub(super) fn complete_interview(&mut self) {
         if let Some(mut state) = self.active_interview.take() {
@@ -328,23 +353,9 @@ impl App {
             if !state.back() {
                 return; // Already on first question
             }
-
-            // Restore the previous question's draft answer to the input area
-            let input_text = if let Some(AppMessage::Interview { interview, .. }) =
-                self.messages.get(state.msg_index)
-            {
-                if let Some(question) = interview.questions.get(state.current_question) {
-                    state.draft_answers[state.current_question].to_input_text(question)
-                } else {
-                    String::new()
-                }
-            } else {
-                String::new()
-            };
-            self.input.set_text(&input_text);
-            self.interview_cancel_confirm = false;
-            self.interview_preview_input = input_text;
         }
+
+        self.restore_interview_input_from_draft();
     }
 
     /// Cancel the active interview.

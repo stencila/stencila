@@ -216,6 +216,9 @@ pub struct InterviewState {
     /// Which question is currently focused (0-indexed).
     pub current_question: usize,
 
+    /// Which option is currently focused for each question (0-indexed).
+    pub option_focus: Vec<Option<usize>>,
+
     /// Draft answers for each question (parallel to interview.questions).
     pub draft_answers: Vec<DraftAnswer>,
 
@@ -238,14 +241,137 @@ impl InterviewState {
             .iter()
             .map(DraftAnswer::for_question)
             .collect();
+        let option_focus = interview
+            .questions
+            .iter()
+            .map(|question| {
+                if question.options.is_empty() {
+                    None
+                } else {
+                    Some(0)
+                }
+            })
+            .collect();
 
         Self {
             interview_id: interview.id.clone(),
             msg_index,
             current_question: 0,
+            option_focus,
             draft_answers,
             answer_tx: Some(answer_tx),
             validation_error: None,
+        }
+    }
+
+    /// Get the currently focused option for the current question.
+    pub fn current_option_focus(&self) -> Option<usize> {
+        self.option_focus
+            .get(self.current_question)
+            .copied()
+            .flatten()
+    }
+
+    /// Set the focused option for the current question.
+    pub fn set_current_option_focus(&mut self, focus: Option<usize>) {
+        if let Some(current) = self.option_focus.get_mut(self.current_question) {
+            *current = focus;
+        }
+    }
+
+    /// Sync option focus for the current question based on its draft answer.
+    pub fn sync_focus_from_draft(&mut self, question: &Question) {
+        let focus = match self.draft_answers.get(self.current_question) {
+            Some(DraftAnswer::YesNo(Some(true))) => Some(0),
+            Some(DraftAnswer::YesNo(Some(false))) => Some(1),
+            Some(DraftAnswer::Selected(Some(idx))) => Some(*idx),
+            Some(DraftAnswer::MultiSelected(indices)) => indices.iter().min().copied().or(
+                if matches!(
+                    question.question_type,
+                    QuestionType::YesNo | QuestionType::Confirmation
+                ) {
+                    Some(0)
+                } else if question.options.is_empty() {
+                    None
+                } else {
+                    Some(0)
+                },
+            ),
+            _ => {
+                if matches!(
+                    question.question_type,
+                    QuestionType::YesNo | QuestionType::Confirmation
+                ) {
+                    Some(0)
+                } else if question.options.is_empty() {
+                    None
+                } else {
+                    Some(0)
+                }
+            }
+        };
+        self.set_current_option_focus(focus);
+    }
+
+    /// Move option focus within the current question by one step.
+    pub fn move_option_focus(&mut self, question: &Question, delta: isize) -> bool {
+        let len = if matches!(
+            question.question_type,
+            QuestionType::YesNo | QuestionType::Confirmation
+        ) {
+            2
+        } else {
+            question.options.len()
+        };
+        if len == 0 {
+            return false;
+        }
+
+        let current = self.current_option_focus().unwrap_or(0);
+        let next = if delta < 0 {
+            current.saturating_sub(1)
+        } else if delta > 0 {
+            (current + 1).min(len.saturating_sub(1))
+        } else {
+            current
+        };
+
+        self.set_current_option_focus(Some(next));
+        self.validation_error = None;
+        true
+    }
+
+    /// Toggle or select the currently focused option for the current question.
+    pub fn activate_focused_option(&mut self, question: &Question) -> bool {
+        let Some(focus) = self.current_option_focus() else {
+            return false;
+        };
+
+        match question.question_type {
+            QuestionType::YesNo | QuestionType::Confirmation => {
+                self.draft_answers[self.current_question] = DraftAnswer::YesNo(Some(focus == 0));
+                self.validation_error = None;
+                true
+            }
+            QuestionType::MultipleChoice => {
+                self.draft_answers[self.current_question] = DraftAnswer::Selected(Some(focus));
+                self.validation_error = None;
+                true
+            }
+            QuestionType::MultiSelect => {
+                if let DraftAnswer::MultiSelected(indices) =
+                    &mut self.draft_answers[self.current_question]
+                {
+                    if !indices.insert(focus) {
+                        indices.remove(&focus);
+                    }
+                    self.validation_error = None;
+                    true
+                } else {
+                    false
+                }
+            }
+            QuestionType::Freeform => false,
         }
     }
 
