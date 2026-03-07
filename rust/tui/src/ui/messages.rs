@@ -890,6 +890,14 @@ fn interview_lines(
 
     let questions = &interview.questions;
 
+    let has_preamble = interview
+        .preamble
+        .as_ref()
+        .is_some_and(|preamble| !preamble.is_empty());
+
+    // Add a blank line between the interview header and preamble/questions.
+    blank_sidebar_line(lines, sidebar_style);
+
     // Preamble (if present and non-empty)
     if let Some(preamble) = &interview.preamble
         && !preamble.is_empty()
@@ -902,21 +910,15 @@ fn interview_lines(
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            spans.extend(line_spans.iter().map(|s| {
-                if dimmed {
-                    let mut s = s.clone();
-                    s.style = s.style.add_modifier(Modifier::DIM);
-                    s
-                } else {
-                    s.clone()
-                }
-            }));
+            spans.extend(line_spans.iter().cloned());
             lines.push(Line::from(spans));
         }
     }
 
-    // Blank line between header (or preamble) and questions
-    blank_sidebar_line(lines, sidebar_style);
+    // Blank line between preamble and questions.
+    if has_preamble {
+        blank_sidebar_line(lines, sidebar_style);
+    }
 
     // Render each question
     for (q_idx, question) in questions.iter().enumerate() {

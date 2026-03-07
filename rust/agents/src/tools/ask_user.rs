@@ -21,6 +21,10 @@ pub fn definition() -> ToolDefinition {
         parameters: json!({
             "type": "object",
             "properties": {
+                "preamble": {
+                    "type": "string",
+                    "description": "Optional Markdown content rendered before the questions as persistent interview context."
+                },
                 "questions": {
                     "type": "array",
                     "items": {
@@ -132,6 +136,13 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                     questions.push(q);
                 }
 
+                let preamble = args
+                    .get("preamble")
+                    .and_then(Value::as_str)
+                    .map(str::trim)
+                    .filter(|text| !text.is_empty())
+                    .map(str::to_string);
+
                 let mut interview = if questions.len() == 1 {
                     Interview::single(
                         questions
@@ -143,6 +154,10 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                 } else {
                     Interview::batch(questions, "ask_user")
                 };
+
+                if let Some(preamble) = preamble {
+                    interview = interview.with_preamble(preamble);
+                }
 
                 interviewer.conduct(&mut interview).await.map_err(|e| {
                     AgentError::InterviewFailed {
