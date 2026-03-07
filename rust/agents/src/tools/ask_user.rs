@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use serde_json::{Value, json};
 use stencila_interviews::interviewer::{
-    AnswerValue, Interview, Interviewer, Question, QuestionOption,
+    Answer, AnswerValue, Interview, Interviewer, Question, QuestionOption, QuestionType,
 };
 use stencila_models3::types::tool::ToolDefinition;
 
@@ -60,6 +60,15 @@ pub fn definition() -> ToolDefinition {
                                     "required": ["label"]
                                 },
                                 "description": "Choices for multiple_choice or multi_select questions."
+                            },
+                            "default": {
+                                "type": "string",
+                                "description": "Default answer used when the user skips or times out. \
+                                    For yes_no and confirmation: 'yes' or 'no'. \
+                                    For freeform: the default text. \
+                                    For multiple_choice: the label of the default option. \
+                                    For multi_select: comma-separated labels of default options \
+                                    (empty string for no defaults). Option labels must not contain commas."
                             }
                         },
                         "required": ["question"]
@@ -131,6 +140,14 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
 
                     if let Some(header) = item.get("header").and_then(Value::as_str) {
                         q.header = Some(header.to_string());
+                    }
+
+                    if let Some(default_str) = item.get("default").and_then(Value::as_str) {
+                        q.default = Some(Answer::new(parse_default(
+                            default_str,
+                            &q.question_type,
+                            &q.options,
+                        )?));
                     }
 
                     questions.push(q);
@@ -205,6 +222,53 @@ fn parse_options(item: &Value) -> AgentResult<Vec<QuestionOption>> {
         });
     }
     Ok(options)
+}
+
+fn parse_default(
+    default_str: &str,
+    question_type: &QuestionType,
+    options: &[QuestionOption],
+) -> AgentResult<AnswerValue> {
+    let trimmed = default_str.trim();
+    match question_type {
+        QuestionType::YesNo | QuestionType::Confirmation => match trimmed.to_lowercase().as_str() {
+            "yes" | "y" | "true" => Ok(AnswerValue::Yes),
+            "no" | "n" | "false" => Ok(AnswerValue::No),
+            _ => Err(AgentError::ValidationError {
+                reason: format!(
+                    "invalid default '{default_str}' for {question_type} question; \
+                     expected 'yes' or 'no'"
+                ),
+            }),
+        },
+        QuestionType::Freeform => Ok(AnswerValue::Text(default_str.to_string())),
+        QuestionType::MultipleChoice => {
+            let opt = options
+                .iter()
+                .find(|o| o.label.trim() == trimmed)
+                .ok_or_else(|| AgentError::ValidationError {
+                    reason: format!("default '{default_str}' does not match any option label"),
+                })?;
+            Ok(AnswerValue::Selected(opt.key.clone()))
+        }
+        QuestionType::MultiSelect => {
+            if trimmed.is_empty() {
+                return Ok(AnswerValue::MultiSelected(vec![]));
+            }
+            let labels: Vec<&str> = trimmed.split(',').map(str::trim).collect();
+            let mut keys = Vec::with_capacity(labels.len());
+            for label in &labels {
+                let opt = options
+                    .iter()
+                    .find(|o| o.label.trim() == *label)
+                    .ok_or_else(|| AgentError::ValidationError {
+                        reason: format!("default label '{label}' does not match any option label"),
+                    })?;
+                keys.push(opt.key.clone());
+            }
+            Ok(AnswerValue::MultiSelected(keys))
+        }
+    }
 }
 
 fn format_answers(interview: &Interview) -> String {
@@ -487,6 +551,115 @@ mod tests {
         });
         let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Cheese, Mushrooms");
+        Ok(())
+    }
+
+    #[test]
+    fn parse_default_yes_no() -> AgentResult<()> {
+        let av = parse_default("yes", &QuestionType::YesNo, &[])?;
+        assert_eq!(av, AV::Yes);
+        let av = parse_default("no", &QuestionType::YesNo, &[])?;
+        assert_eq!(av, AV::No);
+        let av = parse_default("Y", &QuestionType::Confirmation, &[])?;
+        assert_eq!(av, AV::Yes);
+        assert!(parse_default("maybe", &QuestionType::YesNo, &[]).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn parse_default_freeform() -> AgentResult<()> {
+        let av = parse_default("hello world", &QuestionType::Freeform, &[])?;
+        assert_eq!(av, AV::Text("hello world".to_string()));
+        Ok(())
+    }
+
+    #[test]
+    fn parse_default_multiple_choice() -> AgentResult<()> {
+        let options = vec![
+            QuestionOption {
+                key: "A".into(),
+                label: "Red".into(),
+                description: None,
+            },
+            QuestionOption {
+                key: "B".into(),
+                label: "Blue".into(),
+                description: None,
+            },
+        ];
+        let av = parse_default("Blue", &QuestionType::MultipleChoice, &options)?;
+        assert_eq!(av, AV::Selected("B".into()));
+        assert!(parse_default("Green", &QuestionType::MultipleChoice, &options).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn parse_default_multi_select() -> AgentResult<()> {
+        let options = vec![
+            QuestionOption {
+                key: "A".into(),
+                label: "Lint".into(),
+                description: None,
+            },
+            QuestionOption {
+                key: "B".into(),
+                label: "Test".into(),
+                description: None,
+            },
+            QuestionOption {
+                key: "C".into(),
+                label: "Build".into(),
+                description: None,
+            },
+        ];
+        let av = parse_default("Lint, Build", &QuestionType::MultiSelect, &options)?;
+        assert_eq!(av, AV::MultiSelected(vec!["A".into(), "C".into()]));
+        Ok(())
+    }
+
+    #[test]
+    fn parse_default_multi_select_empty() -> AgentResult<()> {
+        let av = parse_default("", &QuestionType::MultiSelect, &[])?;
+        assert_eq!(av, AV::MultiSelected(vec![]));
+        let av = parse_default("  ", &QuestionType::MultiSelect, &[])?;
+        assert_eq!(av, AV::MultiSelected(vec![]));
+        Ok(())
+    }
+
+    #[test]
+    fn parse_default_trims_whitespace() -> AgentResult<()> {
+        let options = vec![
+            QuestionOption {
+                key: "A".into(),
+                label: "Red".into(),
+                description: None,
+            },
+            QuestionOption {
+                key: "B".into(),
+                label: "Blue".into(),
+                description: None,
+            },
+        ];
+        let av = parse_default("  Blue  ", &QuestionType::MultipleChoice, &options)?;
+        assert_eq!(av, AV::Selected("B".into()));
+        let av = parse_default(" yes ", &QuestionType::YesNo, &[])?;
+        assert_eq!(av, AV::Yes);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn default_is_set_on_question() -> AgentResult<()> {
+        let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
+        let exec = executor(iv);
+        let args = json!({
+            "questions": [{
+                "question": "Proceed?",
+                "question_type": "yes_no",
+                "default": "yes"
+            }]
+        });
+        let result = exec(args, &env()).await?;
+        assert_eq!(result.as_text(), "Yes");
         Ok(())
     }
 
