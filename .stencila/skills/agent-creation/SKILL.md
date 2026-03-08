@@ -108,7 +108,9 @@ You are a code reviewer. When asked to review code:
 
 ### Single-skill agent
 
-When an agent should follow exactly one workflow, set `allowed-skills` to that skill name. Stencila preloads the skill's full instructions into the system prompt automatically, so the model doesn't spend a turn calling `use_skill`.
+When an agent should follow exactly one skill, set `allowed-skills` to that skill name. Stencila preloads the skill's full instructions into the system prompt automatically, so the model doesn't spend a turn calling `use_skill`.
+
+Add a short Markdown body (one or two sentences) that frames the agent's identity and specialization. The preloaded skill instructions are appended after this preamble, so the body should set context rather than repeat the skill.
 
 ```markdown
 ---
@@ -122,6 +124,8 @@ allowed-tools:
   - glob
   - shell
 ---
+
+You are an assistant that specializes in reviewing code for correctness, style, and security issues.
 ```
 
 ### Full-featured agent
