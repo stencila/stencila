@@ -1,0 +1,214 @@
+---
+name: agent-creation
+description: Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an AGENT.md file or agent directory. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
+allowed-tools: read_file write_file glob grep shell ask_user
+---
+
+## Overview
+
+Create a new agent directory and `AGENT.md` file for Stencila. An agent is a directory containing an `AGENT.md` file with YAML frontmatter (configuration) and an optional Markdown body (system instructions). Agents live under `.stencila/agents/` (workspace) or `~/.config/stencila/agents/` (user).
+
+## Steps
+
+1. Determine the agent name and description from the user's request
+2. Validate the name against the naming rules below
+3. Decide the target location:
+   - **Workspace agent** (default): resolve the closest workspace by walking up from the current directory to find the nearest `.stencila/` directory. If none exists, create `.stencila/agents/<name>/` at the repository root (or the current working directory if not in a repository). Create the agent under `<workspace>/.stencila/agents/<name>/`
+   - **User agent** (when the user says "user-level", "global", or "shared across workspaces"): create under `~/.config/stencila/agents/<name>/`
+4. Ask the user about model/provider preferences if not specified, or use the defaults from the Choosing Configuration section below
+5. Write the `AGENT.md` file with frontmatter and optional system instructions
+6. Replace all placeholders such as `TODO` before considering the agent complete
+7. Validate the finished agent with `stencila agents validate <name>`, the agent directory path, or the `AGENT.md` path
+
+## Naming Rules
+
+Agent names must be **lowercase kebab-case**:
+
+- 1–64 characters
+- Only lowercase alphanumeric characters and hyphens (`a-z`, `0-9`, `-`)
+- Must not start or end with a hyphen
+- Must not contain consecutive hyphens (`--`)
+- Must match the parent directory name
+- Pattern: `^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`
+
+By convention, names follow a `thing-role` pattern describing the agent's domain and function (e.g., `code-engineer`, `code-reviewer`, `data-analyst`, `site-designer`).
+
+Common corrections: `codeReviewer` → `code-reviewer`, `data_analyst` → `data-analyst`, `Code-Engineer` → `code-engineer`.
+
+## AGENT.md Format
+
+The file has two parts:
+
+1. **YAML frontmatter** between `---` delimiters — configuration
+2. **Markdown body** (optional) — system instructions appended to the agent's prompt
+
+Use kebab-case for all frontmatter property names.
+
+### Required frontmatter fields
+
+- `name` — the agent name (must match directory name)
+- `description` — what the agent does (max 1,024 characters)
+
+### Optional frontmatter fields
+
+These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`).
+
+- `model` — model identifier. When omitted, the provider's default model is used.
+- `provider` — provider identifier. For CLI-backed sessions, use the CLI variant (e.g., `claude-cli`). When omitted, inferred from the model name or first available provider.
+- `reasoning-effort` — `low`, `medium`, or `high`. Controls model reasoning depth.
+- `trust-level` — `low`, `medium` (default), or `high`. Controls tool call guard strictness.
+- `allowed-tools` — list of tool names the agent may use. Use a YAML list (one item per line) to avoid confusion. When omitted, all provider tools are available.
+- `allowed-skills` — list of skill names the agent may use. When omitted, all discovered skills are available. Set to `[]` to disable skills.
+- `allowed-domains` — domain allowlist for `web_fetch`. Supports `*.example.com` wildcards.
+- `disallowed-domains` — domain denylist for `web_fetch`.
+- `max-turns` — maximum conversation turns (0 = unlimited, default: 0).
+- `max-tool-rounds` — maximum tool-call rounds per user input.
+- `tool-timeout` — default tool timeout in seconds.
+- `max-subagent-depth` — maximum subagent nesting depth (default: 1).
+- `enable-mcp` — register MCP tools directly (default: false).
+- `enable-mcp-codemode` — register the `mcp_codemode` orchestration tool (default: true).
+- `allowed-mcp-servers` — list of MCP server IDs the agent may use.
+- `history-thinking-replay` — `none` (default) or `full`. Controls chain-of-thought replay in history.
+- `truncation-preset` — `strict`, `balanced` (default), or `verbose`. Controls tool output truncation.
+- `compaction-trigger-percent` — context usage percentage that triggers history compaction (default: 70).
+- `compatibility` — environment requirements (max 500 characters).
+
+## Common Agent Patterns
+
+### Minimal agent (configuration only)
+
+```markdown
+---
+name: fast-coder
+description: Quick coding tasks with a fast model
+max-turns: 5
+---
+```
+
+### Read-only agent (restricted tools)
+
+```markdown
+---
+name: code-reviewer
+description: Reviews code for correctness, style, and security issues
+allowed-tools:
+  - read_file
+  - grep
+  - glob
+  - shell
+---
+
+You are a code reviewer. When asked to review code:
+
+1. Read the files and understand the change
+2. Check for correctness, security issues, and style problems
+3. Suggest concrete improvements with code examples
+4. Do not modify files — only read and analyze
+```
+
+### Full-featured agent
+
+```markdown
+---
+name: code-engineer
+description: A general-purpose coding agent for software engineering tasks
+trust-level: medium
+allowed-tools:
+  - read_file
+  - write_file
+  - edit_file
+  - grep
+  - glob
+  - shell
+  - web_fetch
+max-turns: 0
+max-tool-rounds: 25
+tool-timeout: 120
+---
+
+You are a software engineer. Follow these principles:
+
+- Write clean, readable code that follows the project's existing conventions
+- Prefer simple, focused changes over large refactors
+- Handle errors appropriately
+- Do not introduce security vulnerabilities
+```
+
+## Example Walkthrough
+
+Input: "Create an agent for reviewing pull requests that only reads files"
+
+Process:
+
+1. Derive name: `pr-reviewer` (thing-role pattern, kebab-case)
+2. Resolve workspace: find nearest `.stencila/` directory, e.g., at the repository root
+3. Target path: `.stencila/agents/pr-reviewer/AGENT.md`
+4. Select read-only tools, high reasoning effort, no model/provider (use defaults)
+5. Write the file, then validate
+
+Output:
+
+```markdown
+---
+name: pr-reviewer
+description: Reviews pull requests for correctness, security, and style issues
+reasoning-effort: high
+allowed-tools:
+  - read_file
+  - grep
+  - glob
+  - shell
+---
+
+You are a pull request reviewer. For each review:
+
+1. Read the changed files and understand the intent
+2. Check for bugs, security issues, and style problems
+3. Provide specific, actionable feedback with code examples
+4. Do not modify any files
+```
+
+Validated with: `stencila agents validate pr-reviewer`
+
+## Choosing Configuration
+
+Do not hard-code specific model names or providers in agent definitions unless the user explicitly requests one. Models and providers change frequently, and users may not have API keys for a given provider. Omitting `model` and `provider` lets Stencila resolve the best available option at runtime. Do not guess or invent model/provider identifiers — use only values the user explicitly provides, or omit the fields entirely. Invalid identifiers are not caught by validation and will fail at runtime.
+
+Guide the user with these defaults when they don't specify preferences:
+
+| Use case | Trust | Reasoning | Key tools |
+| -------- | ----- | --------- | --------- |
+| General coding | `medium` | `medium` | all (omit `allowed-tools`) |
+| Code review | `low` or `medium` | `high` | `read_file`, `grep`, `glob`, `shell` |
+| Quick tasks | `medium` | `low` | all |
+| Data analysis | `medium` | `high` | all |
+| Documentation | `low` | `medium` | `read_file`, `write_file`, `edit_file`, `grep`, `glob` |
+
+When in doubt, omit optional fields — Stencila uses sensible defaults.
+
+## Edge Cases
+
+- **Agent directory already exists**: Ask the user whether to overwrite, merge, or abort before modifying an existing agent. Never silently overwrite.
+- **Name mismatch**: If the user provides a name that doesn't match kebab-case rules, suggest a corrected version rather than failing silently.
+- **Nested workspaces**: If multiple `.stencila/` directories exist in the ancestor chain, use the nearest one. Do not create a duplicate `.stencila/agents/` tree.
+- **Empty or placeholder content**: Do not consider the agent complete if any `TODO`, `<placeholder>`, or empty `description` remains in the final `AGENT.md`.
+- **User vs workspace confusion**: Confirm with the user if the intent is ambiguous. Default to workspace-level agents.
+- **CLI-backed agents**: When the user wants to use a CLI tool, set the provider to the corresponding CLI variant (e.g., `claude-cli`, `codex-cli`, `gemini-cli`).
+- **Body is optional**: A frontmatter-only `AGENT.md` is valid. Only add a Markdown body when the user provides custom instructions or the agent needs behavioral guidance beyond what project docs supply.
+
+## Validation
+
+Before finishing, validate the agent:
+
+```sh
+# By agent name
+stencila agents validate <agent-name>
+
+# By directory path
+stencila agents validate .stencila/agents/<agent-name>
+
+# By AGENT.md path
+stencila agents validate .stencila/agents/<agent-name>/AGENT.md
+```
+
+Validation checks for errors (name format, name–directory match, description present and not placeholder, numeric ranges, compatibility length) and warnings (skill tool coverage mismatches). Validation should pass before you report the agent as complete.
