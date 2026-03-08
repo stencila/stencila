@@ -532,6 +532,49 @@ fn parse_and_apply_non_string_stylesheet_errors() {
 }
 
 // ===========================================================================
+// `overrides` graph attribute key (fallback from `model_stylesheet`)
+// ===========================================================================
+
+#[test]
+fn parse_and_apply_overrides_key() -> AttractorResult<()> {
+    let mut g = stylesheet_pipeline();
+    g.graph_attrs.insert(
+        "overrides".into(),
+        AttrValue::from("* { llm_model: via-overrides; }"),
+    );
+
+    parse_and_apply_stylesheet(&mut g)?;
+
+    assert_eq!(
+        g.get_node("plan").and_then(|n| n.get_str_attr("llm_model")),
+        Some("via-overrides")
+    );
+    Ok(())
+}
+
+#[test]
+fn model_stylesheet_takes_precedence_over_overrides() -> AttractorResult<()> {
+    let mut g = stylesheet_pipeline();
+    g.graph_attrs.insert(
+        "model_stylesheet".into(),
+        AttrValue::from("* { llm_model: from-stylesheet; }"),
+    );
+    g.graph_attrs.insert(
+        "overrides".into(),
+        AttrValue::from("* { llm_model: from-overrides; }"),
+    );
+
+    parse_and_apply_stylesheet(&mut g)?;
+
+    // model_stylesheet wins when both are present
+    assert_eq!(
+        g.get_node("plan").and_then(|n| n.get_str_attr("llm_model")),
+        Some("from-stylesheet")
+    );
+    Ok(())
+}
+
+// ===========================================================================
 // No model_stylesheet attr → no-op
 // ===========================================================================
 

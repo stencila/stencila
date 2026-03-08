@@ -388,6 +388,31 @@ fn rule_stylesheet_syntax_non_string_is_error() {
     );
 }
 
+#[test]
+fn rule_stylesheet_syntax_overrides_key_valid() {
+    let mut g = valid_pipeline();
+    g.graph_attrs.insert(
+        "overrides".into(),
+        AttrValue::from("* { llm_model: gpt-4; }"),
+    );
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "stylesheet_syntax");
+    assert!(hits.is_empty());
+}
+
+#[test]
+fn rule_stylesheet_syntax_overrides_key_invalid() {
+    let mut g = valid_pipeline();
+    g.graph_attrs
+        .insert("overrides".into(), AttrValue::from("{ broken }"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "stylesheet_syntax");
+    assert_eq!(hits.len(), 1);
+    assert_eq!(hits[0].severity, Severity::Error);
+}
+
 // ===========================================================================
 // 9. type_known (WARNING)
 // ===========================================================================

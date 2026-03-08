@@ -1159,6 +1159,22 @@ fn kebab_graph_attr_key_normalized() -> TestResult {
 }
 
 #[test]
+fn overrides_graph_attr_key() -> TestResult {
+    // `overrides` is accepted as a graph attribute key (preferred name)
+    let dot = r#"digraph G {
+        graph [overrides="* { llm_model: gpt-4; }"]
+        A -> B
+    }"#;
+    let g = parse_dot(dot)?;
+    assert!(g.get_graph_attr("overrides").is_some());
+    assert_eq!(
+        g.get_graph_attr("overrides").and_then(AttrValue::as_str),
+        Some("* { llm_model: gpt-4; }")
+    );
+    Ok(())
+}
+
+#[test]
 fn edge_attr_key_normalized() -> TestResult {
     // Edge attribute keys are also normalized via the same attr_pair path
     let dot = r#"digraph G {
