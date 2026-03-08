@@ -41,6 +41,8 @@ impl App {
         self.responses_state.update(&input, cursor, &exchanges);
         let agents = self.mention_candidates();
         self.mentions_state.update(&input, cursor, &agents);
+        let workflows = App::workflow_candidates();
+        self.workflows_state.update(&input, cursor, &workflows);
     }
 
     /// Navigate to the previous (older) history entry, filtered by current mode.

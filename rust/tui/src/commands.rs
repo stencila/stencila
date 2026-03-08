@@ -415,7 +415,8 @@ fn execute_help(app: &mut App) {
     help.push_str("  !command       Run a shell command from chat mode\n");
     help.push_str("  #agent prompt  Send prompt to agent (switches back after)\n");
     help.push_str("  #agent prompt& Send prompt to agent (stays on agent)\n");
-    help.push_str("  #agent         Switch to agent session");
+    help.push_str("  #agent         Switch to agent session\n");
+    help.push_str("  ~workflow      Browse and filter workflows");
     app.messages.push(AppMessage::System { content: help });
 }
 

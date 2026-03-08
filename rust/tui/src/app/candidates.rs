@@ -1,11 +1,17 @@
 use ratatui::style::Color;
 
 use crate::autocomplete::{
-    agents::AgentDefinitionInfo, cancel::CancelCandidate, mentions::MentionCandidate,
+    agents::AgentDefinitionInfo,
+    cancel::CancelCandidate,
+    mentions::MentionCandidate,
     responses::ResponseCandidate,
+    workflows::{WorkflowCandidate, WorkflowDefinitionInfo},
 };
 
-use super::{App, AppMessage, ExchangeKind, ExchangeStatus, discover_agents, truncate_preview};
+use super::{
+    App, AppMessage, ExchangeKind, ExchangeStatus, discover_agents, discover_workflows,
+    truncate_preview,
+};
 
 impl App {
     /// Build response candidates from existing exchanges.
@@ -101,6 +107,21 @@ impl App {
         }
 
         candidates
+    }
+
+    /// Build workflow candidates from discovered workflow definitions.
+    pub fn workflow_candidates() -> Vec<WorkflowCandidate> {
+        discover_workflows()
+            .into_iter()
+            .map(|def| WorkflowCandidate {
+                name: def.name.clone(),
+                info: WorkflowDefinitionInfo {
+                    name: def.name.clone(),
+                    description: def.description.clone(),
+                    goal: def.goal.clone(),
+                },
+            })
+            .collect()
     }
 
     /// Build cancel candidates from running exchanges.

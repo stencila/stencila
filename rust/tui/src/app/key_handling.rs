@@ -530,17 +530,39 @@ impl App {
 
     /// Handle a key event when the workflow picker popup is visible.
     ///
-    /// Returns `true` if the key was consumed.
+    /// In tilde mode (`~`), character and backspace keys are handled inline
+    /// (like the `#` mentions popup) to update the filter. In `/workflow`
+    /// command mode, only navigation and accept keys are consumed.
     fn handle_workflows_autocomplete(&mut self, key: &KeyEvent) -> bool {
         match (key.modifiers, key.code) {
             (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
-                if let Some(info) = self.workflows_state.accept() {
-                    self.activate_workflow(info);
+                if let Some(result) = self.workflows_state.accept() {
+                    if result.range.start != result.range.end {
+                        self.input.replace_range(result.range, "");
+                    }
+                    self.activate_workflow(result.info);
                 }
             }
             (KeyModifiers::NONE, KeyCode::Esc) => self.workflows_state.dismiss(),
             (KeyModifiers::NONE, KeyCode::Up) => self.workflows_state.select_prev(),
             (KeyModifiers::NONE, KeyCode::Down) => self.workflows_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Backspace) if self.workflows_state.is_tilde_mode() => {
+                self.input.delete_char_before();
+                let input = self.input.text().to_string();
+                let cursor = self.input.cursor();
+                let workflows = App::workflow_candidates();
+                self.workflows_state.update(&input, cursor, &workflows);
+            }
+            (modifier, KeyCode::Char(c))
+                if self.workflows_state.is_tilde_mode()
+                    && (modifier.is_empty() || modifier == KeyModifiers::SHIFT) =>
+            {
+                self.input.insert_char(c);
+                let input = self.input.text().to_string();
+                let cursor = self.input.cursor();
+                let workflows = App::workflow_candidates();
+                self.workflows_state.update(&input, cursor, &workflows);
+            }
             _ => return false,
         }
         true

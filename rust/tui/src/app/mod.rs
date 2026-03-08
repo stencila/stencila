@@ -348,6 +348,21 @@ fn discover_agents() -> Vec<stencila_agents::agent_def::AgentInstance> {
     .unwrap_or_default()
 }
 
+/// Discover workflow definitions, returning an empty vec if no runtime is available.
+fn discover_workflows() -> Vec<stencila_workflows::WorkflowInstance> {
+    let Ok(handle) = tokio::runtime::Handle::try_current() else {
+        return Vec::new();
+    };
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        tokio::task::block_in_place(|| {
+            handle.block_on(stencila_workflows::discover(
+                &std::env::current_dir().unwrap_or_default(),
+            ))
+        })
+    }))
+    .unwrap_or_default()
+}
+
 /// Parsed result of an `#agent-name prompt` mention in the input.
 struct AgentMention {
     /// Name of the agent to target.
