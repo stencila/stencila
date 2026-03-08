@@ -242,6 +242,7 @@ async fn execute_loop(
                         );
                     }
                     state.current_node_id = target;
+                    state.stage_index += 1;
                     continue;
                 }
                 let reason = format!(
