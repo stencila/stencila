@@ -20,35 +20,25 @@ stencila models
 # List models as JSON
 stencila models list --as json
 
-# Test a model with a prompt
+# Filter models by provider or ID prefix
+stencila models list anthropic
+
+# Run a prompt with automatic model selection
 stencila models run "Explain photosynthesis"
 
-# Test a specific model
+# Run with a specific model
 stencila models run "Write a poem" --model gpt-4o
-
-# Run with multiple text arguments
-stencila models run "Analyze this:" "Some data here"
 
 # Mix text and file arguments
 stencila models run "Summarize this file:" document.txt
 
-# Multiple files and text
-stencila models run "Compare these files:" file1.txt file2.txt
-
-# Dry run to see task construction
+# Dry run to see prompt construction
 stencila models run "Hello" --dry-run
-
-Model Types
-• builtin - Built into Stencila
-• local - Running locally (e.g. Ollama)
-• remote - Cloud-based APIs
-• router - Routes to other models
-• proxied - Proxied through another service
 ```
 
 # Subcommands
 
-| Command           | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| [`list`](list.md) | List available models with their status and capabilities |
-| [`run`](run.md)   | Execute a task using a generative AI model               |
+| Command           | Description                                               |
+| ----------------- | --------------------------------------------------------- |
+| [`list`](list.md) | List available models with their capabilities and pricing |
+| [`run`](run.md)   | Execute a prompt using a generative AI model              |

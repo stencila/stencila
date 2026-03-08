@@ -7,15 +7,16 @@ description: An island of content in a document.
 
 The `Island` type has these properties:
 
-| Name                 | Description                                        | Type                           | Inherited from          |
-| -------------------- | -------------------------------------------------- | ------------------------------ | ----------------------- |
-| `id`                 | The identifier for this item.                      | [`String`](./string.md)        | [`Entity`](./entity.md) |
-| `content`            | The content within the section.                    | [`Block`](./block.md)*         | -                       |
-| `isAutomatic`        | Whether the island is automatically generated.     | [`Boolean`](./boolean.md)      | -                       |
-| `labelType`          | The type of the label for the island.              | [`LabelType`](./label-type.md) | -                       |
-| `label`              | A short label for the chunk.                       | [`String`](./string.md)        | -                       |
-| `labelAutomatically` | Whether the label should be automatically updated. | [`Boolean`](./boolean.md)      | -                       |
-| `style`              | The style to apply to the island.                  | [`String`](./string.md)        | -                       |
+| Name                 | Description                                                | Type                           | Inherited from          |
+| -------------------- | ---------------------------------------------------------- | ------------------------------ | ----------------------- |
+| `id`                 | The identifier for this item.                              | [`String`](./string.md)        | [`Entity`](./entity.md) |
+| `content`            | The content within the section.                            | [`Block`](./block.md)*         | -                       |
+| `isAutomatic`        | Whether the island is automatically generated.             | [`Boolean`](./boolean.md)      | -                       |
+| `labelType`          | The type of the label for the island.                      | [`LabelType`](./label-type.md) | -                       |
+| `label`              | A short label for the chunk.                               | [`String`](./string.md)        | -                       |
+| `labelAutomatically` | Whether the label should be automatically updated.         | [`Boolean`](./boolean.md)      | -                       |
+| `otherIds`           | Other IDs for the island, in addition to the primary `id`. | [`String`](./string.md)*       | -                       |
+| `style`              | The style to apply to the island.                          | [`String`](./string.md)        | -                       |
 
 # Related
 

@@ -15,6 +15,7 @@ The `Node` type has these members:
 - [`String`](./string.md)
 - [`Array`](./array.md)
 - [`Admonition`](./admonition.md)
+- [`Agent`](./agent.md)
 - [`Annotation`](./annotation.md)
 - [`AppendixBreak`](./appendix-break.md)
 - [`ArrayHint`](./array-hint.md)
@@ -115,6 +116,7 @@ The `Node` type has these members:
 - [`Review`](./review.md)
 - [`Section`](./section.md)
 - [`Sentence`](./sentence.md)
+- [`Skill`](./skill.md)
 - [`SoftwareApplication`](./software-application.md)
 - [`SoftwareSourceCode`](./software-source-code.md)
 - [`Strikeout`](./strikeout.md)
@@ -145,6 +147,7 @@ The `Node` type has these members:
 - [`VideoObject`](./video-object.md)
 - [`Walkthrough`](./walkthrough.md)
 - [`WalkthroughStep`](./walkthrough-step.md)
+- [`Workflow`](./workflow.md)
 - [`Cord`](./cord.md)
 - [`Object`](./object.md)
 

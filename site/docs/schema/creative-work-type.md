@@ -12,6 +12,7 @@ DataCite's list of resource type (https://datacite-metadata-schema.readthedocs.i
 
 The `CreativeWorkType` type has these members:
 
+- `Agent`
 - `Article`
 - `AudioObject`
 - `Blog`
@@ -40,6 +41,7 @@ The `CreativeWorkType` type has these members:
 - `PublicationVolume`
 - `Report`
 - `Review`
+- `Skill`
 - `SoftwareApplication`
 - `SoftwareRepository`
 - `SoftwareSourceCode`

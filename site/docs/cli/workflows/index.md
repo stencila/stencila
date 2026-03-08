@@ -1,0 +1,44 @@
+---
+title: "`stencila workflows`"
+description: Manage workflow definitions
+---
+
+Manage workflow definitions
+
+# Usage
+
+```sh
+stencila workflows [COMMAND]
+```
+
+# Examples
+
+```bash
+# List all workflows
+stencila workflows
+
+# Show details about a specific workflow
+stencila workflows show data-pipeline
+
+# Validate a workflow by name, directory, or file path
+stencila workflows validate data-pipeline
+
+# Create a new workflow in the workspace
+stencila workflows create my-workflow "A multi-stage data pipeline"
+
+# Run a workflow
+stencila workflows run code-review
+
+# Run a workflow with a goal override
+stencila workflows run code-review --goal "Implement login feature"
+```
+
+# Subcommands
+
+| Command                   | Description              |
+| ------------------------- | ------------------------ |
+| [`list`](list.md)         | List available workflows |
+| [`show`](show.md)         | Show a workflow          |
+| [`validate`](validate.md) | Validate a workflow      |
+| [`create`](create.md)     | Create a new workflow    |
+| [`run`](run.md)           | Run a workflow           |

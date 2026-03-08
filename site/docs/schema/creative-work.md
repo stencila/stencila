@@ -58,7 +58,7 @@ The `CreativeWork` type has these properties:
 The `CreativeWork` type is related to these types:
 
 - Parents: [`Thing`](./thing.md)
-- Children: [`Article`](./article.md), [`Chat`](./chat.md), [`Claim`](./claim.md), [`Collection`](./collection.md), [`Comment`](./comment.md), [`Datatable`](./datatable.md), [`Figure`](./figure.md), [`File`](./file.md), [`MediaObject`](./media-object.md), [`Periodical`](./periodical.md), [`Prompt`](./prompt.md), [`PublicationIssue`](./publication-issue.md), [`PublicationVolume`](./publication-volume.md), [`Review`](./review.md), [`SoftwareApplication`](./software-application.md), [`SoftwareSourceCode`](./software-source-code.md), [`Table`](./table.md)
+- Children: [`Agent`](./agent.md), [`Article`](./article.md), [`Chat`](./chat.md), [`Claim`](./claim.md), [`Collection`](./collection.md), [`Comment`](./comment.md), [`Datatable`](./datatable.md), [`Figure`](./figure.md), [`File`](./file.md), [`MediaObject`](./media-object.md), [`Periodical`](./periodical.md), [`Prompt`](./prompt.md), [`PublicationIssue`](./publication-issue.md), [`PublicationVolume`](./publication-volume.md), [`Review`](./review.md), [`Skill`](./skill.md), [`SoftwareApplication`](./software-application.md), [`SoftwareSourceCode`](./software-source-code.md), [`Table`](./table.md), [`Workflow`](./workflow.md)
 
 # Bindings
 

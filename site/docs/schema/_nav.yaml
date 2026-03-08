@@ -4,6 +4,7 @@
 items:
   - label: "Works"
     children:
+      - "agent"
       - "article"
       - "audio-object"
       - "author"
@@ -35,6 +36,7 @@ items:
       - "publication-volume"
       - "reference"
       - "review"
+      - "skill"
       - "software-application"
       - "software-source-code"
       - "supplement"
@@ -45,6 +47,7 @@ items:
       - "table-row-type"
       - "vertical-alignment"
       - "video-object"
+      - "workflow"
 
   - label: "Prose"
     children:

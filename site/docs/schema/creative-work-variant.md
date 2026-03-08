@@ -7,6 +7,7 @@ description: Union type for all types that are descended from `CreativeWork`
 
 The `CreativeWorkVariant` type has these members:
 
+- [`Agent`](./agent.md)
 - [`Article`](./article.md)
 - [`AudioObject`](./audio-object.md)
 - [`Chat`](./chat.md)
@@ -23,10 +24,12 @@ The `CreativeWorkVariant` type has these members:
 - [`PublicationIssue`](./publication-issue.md)
 - [`PublicationVolume`](./publication-volume.md)
 - [`Review`](./review.md)
+- [`Skill`](./skill.md)
 - [`SoftwareApplication`](./software-application.md)
 - [`SoftwareSourceCode`](./software-source-code.md)
 - [`Table`](./table.md)
 - [`VideoObject`](./video-object.md)
+- [`Workflow`](./workflow.md)
 
 # Bindings
 

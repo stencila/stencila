@@ -61,6 +61,7 @@ includes the full set of properties and constraints.
 
 # Works
 
+- [`Agent`](./agent.md) - An agent definition specifying model, tools, and behavioral configuration.
 - [`Article`](./article.md) - An article, including news and scholarly articles.
 - [`AudioObject`](./audio-object.md) - An audio file.
 - [`Author`](./author.md) - Union type for things that can be an author of a `CreativeWork` or other type.
@@ -92,6 +93,7 @@ includes the full set of properties and constraints.
 - [`PublicationVolume`](./publication-volume.md) - A part of a successively published publication such as a periodical or multi-volume work.
 - [`Reference`](./reference.md) - A reference to a creative work, including books, movies, photographs, software programs, etc.
 - [`Review`](./review.md) - A review of an item, e.g of an `Article` or `SoftwareApplication`.
+- [`Skill`](./skill.md) - An agent skill providing instructions for AI agents.
 - [`SoftwareApplication`](./software-application.md) - A software application.
 - [`SoftwareSourceCode`](./software-source-code.md) - Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 - [`Supplement`](./supplement.md) - A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
@@ -102,6 +104,7 @@ includes the full set of properties and constraints.
 - [`TableRowType`](./table-row-type.md) - Indicates whether the row is in the header, body or footer of the table.
 - [`VerticalAlignment`](./vertical-alignment.md) - The vertical alignment of content.
 - [`VideoObject`](./video-object.md) - A video file.
+- [`Workflow`](./workflow.md) - A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
 
 # Prose
 

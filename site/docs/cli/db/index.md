@@ -1,9 +1,9 @@
 ---
 title: "`stencila db`"
-description: Manage the workspace and other document databases
+description: Manage the workspace database
 ---
 
-Manage the workspace and other document databases
+Manage the workspace database
 
 # Usage
 
@@ -14,26 +14,48 @@ stencila db <COMMAND>
 # Examples
 
 ```bash
-# Run pending migrations on workspace database
-stencila db migrate
+# Initialize the workspace database
+stencila db init
 
-# Check migration status
-stencila db migrations status
+# Show sync status
+stencila db status
 
-# Validate migrations without applying
-stencila db migrate --dry-run
+# Push database state to cloud
+stencila db push
 
-# Work with a specific database
-stencila db migrate /path/to/database.db
+# Pull database state from cloud
+stencila db pull
+
+# Show changeset history
+stencila db log
+
+# Verify local db matches manifest
+stencila db verify
+
+# Rebuild database from manifest
+stencila db reset
+
+# Create a new baseline snapshot
+stencila db snapshot
+
+# Clean local blob cache
+stencila db clean
+
+# Remove orphaned remote blobs
+stencila db gc
 ```
 
 # Subcommands
 
-| Command                       | Description                                  |
-| ----------------------------- | -------------------------------------------- |
-| [`new`](new.md)               | Create a new document database               |
-| [`add`](add.md)               | Add documents to the workspace database      |
-| [`remove`](remove.md)         | Remove documents from the workspace database |
-| [`query`](query.md)           | Query a workspace database                   |
-| [`migrate`](migrate.md)       | Run pending database migrations              |
-| [`migrations`](migrations.md) | Show applied and pending migrations          |
+| Command                   | Description                                      |
+| ------------------------- | ------------------------------------------------ |
+| [`init`](init.md)         | Initialize the workspace database                |
+| [`push`](push.md)         | Push database state to Stencila Cloud            |
+| [`pull`](pull.md)         | Pull database state from Stencila Cloud          |
+| [`status`](status.md)     | Show database sync status                        |
+| [`log`](log.md)           | Show changeset history from the manifest         |
+| [`verify`](verify.md)     | Verify local database matches the manifest state |
+| [`reset`](reset.md)       | Rebuild local database from the manifest         |
+| [`snapshot`](snapshot.md) | Create a new baseline snapshot                   |
+| [`clean`](clean.md)       | Clean up the local blob cache                    |
+| [`gc`](gc.md)             | Remove orphaned remote blobs                     |

@@ -1,9 +1,9 @@
 ---
 title: "`stencila models list`"
-description: List available models with their status and capabilities
+description: List available models with their capabilities and pricing
 ---
 
-List available models with their status and capabilities
+List available models with their capabilities and pricing
 
 # Usage
 
@@ -17,8 +17,14 @@ stencila models list [OPTIONS] [PREFIX]
 # List all models in table format
 stencila models list
 
+# Filter models by provider
+stencila models list anthropic
+
 # Filter models by ID prefix
-stencila models list google/gemini
+stencila models list gpt-4
+
+# Output models as JSON
+stencila models list --as json
 
 # Output models as YAML
 stencila models list --as yaml
@@ -26,9 +32,9 @@ stencila models list --as yaml
 
 # Arguments
 
-| Name       | Description                                        |
-| ---------- | -------------------------------------------------- |
-| `[PREFIX]` | Filter models by ID prefix (e.g., "ollama/gemma"). |
+| Name       | Description                                                         |
+| ---------- | ------------------------------------------------------------------- |
+| `[PREFIX]` | Filter models by provider or ID prefix (e.g. "anthropic", "gpt-4"). |
 
 # Options
 
