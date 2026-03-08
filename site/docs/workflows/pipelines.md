@@ -7,6 +7,8 @@ Pipelines let you define multi-stage AI workflows as directed graphs using [Grap
 
 Pipelines are declarative: you describe _what_ the workflow looks like, and the execution engine decides _how_ and _when_ to run each stage.
 
+> Node and graph attribute names can be written in kebab-case, snake_case, or camelCase. We recommend **kebab-case** for readability, and this page uses that casing.
+
 # Quick start
 
 A pipeline is a `digraph` block in a workflow file. Here is a minimal pipeline that searches for literature, summarizes findings, and drafts a report:
@@ -120,8 +122,8 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 | `agent.reasoning-effort` | String   | Override reasoning effort (`"low"`, `"medium"`, `"high"`). |
 | `agent.trust-level`      | String   | Override the agent's trust level (`"low"`, `"medium"`, `"high"`). |
 | `agent.max-turns`        | Integer  | Override maximum conversation turns (0 = unlimited). |
-| `max_retries`            | Integer  | Additional retry attempts beyond the initial execution. |
-| `goal_gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit. |
+| `max-retries`            | Integer  | Additional retry attempts beyond the initial execution. |
+| `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit. |
 | `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`). |
 | `class`                  | String   | Comma-separated class names for model stylesheet targeting. |
 
@@ -140,7 +142,7 @@ This lets you use a shared agent definition while customizing its behavior per-n
 The override precedence order (highest to lowest):
 
 1. **`agent.*` node attributes** — explicit overrides on the node
-2. **Model stylesheet rules** — from `model_stylesheet` selectors
+2. **Model stylesheet rules** — from `model-stylesheet` selectors
 3. **Agent definition** — from the named agent's `AGENT.md`
 4. **System defaults**
 
@@ -274,7 +276,7 @@ The `diamond` shape creates a conditional routing point. The engine evaluates ed
 
 ## Retry loops
 
-Nodes can retry automatically on failure using `max_retries`:
+Nodes can retry automatically on failure using `max-retries`:
 
 ```dot
 digraph FetchData {
@@ -282,12 +284,12 @@ digraph FetchData {
 
     Start -> Fetch -> Process -> End
 
-    Fetch   [prompt="Download the dataset from the repository", max_retries=3]
-    Process [prompt="Parse and validate the downloaded data", max_retries=2]
+    Fetch   [prompt="Download the dataset from the repository", max-retries=3]
+    Process [prompt="Parse and validate the downloaded data", max-retries=2]
 }
 ```
 
-`max_retries=2` means up to 3 total executions (1 initial + 2 retries).
+`max-retries=2` means up to 3 total executions (1 initial + 2 retries).
 
 For more control, use edge-based retry loops that route back to an earlier stage on failure:
 
@@ -308,7 +310,7 @@ digraph IterativeAnalysis {
 
 ## Goal gates
 
-Mark critical stages with `goal_gate=true` to prevent the pipeline from exiting until they succeed:
+Mark critical stages with `goal-gate=true` to prevent the pipeline from exiting until they succeed:
 
 ```dot
 digraph Submission {
@@ -316,13 +318,13 @@ digraph Submission {
 
     Start -> Draft -> CheckRefs -> Format -> End
 
-    Draft     [prompt="Draft the manuscript sections", goal_gate=true]
-    CheckRefs [prompt="Verify all references are complete and correctly cited", goal_gate=true]
+    Draft     [prompt="Draft the manuscript sections", goal-gate=true]
+    CheckRefs [prompt="Verify all references are complete and correctly cited", goal-gate=true]
     Format    [prompt="Format according to journal guidelines"]
 }
 ```
 
-If the pipeline reaches the exit node and any goal gate node has not succeeded, the engine looks for a `retry_target` to jump back to instead of exiting.
+If the pipeline reaches the exit node and any goal gate node has not succeeded, the engine looks for a `retry-target` to jump back to instead of exiting.
 
 ## Human-in-the-loop
 
@@ -418,13 +420,13 @@ Branches execute concurrently. The fan-in node waits for all branches to complet
 
 ## Model stylesheet
 
-Centralize LLM model selection with a CSS-like stylesheet instead of setting `llm_model` on every node:
+Centralize LLM model selection with a CSS-like stylesheet instead of setting `llm-model` on every node:
 
 ```dot
 digraph StyledWorkflow {
     graph [
         goal="Analyze and report on experimental results",
-        model_stylesheet="
+        model-stylesheet="
             * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
             .analysis { llm_model: claude-opus-4; }
             #statistical_review { llm_model: o3; llm_provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
@@ -450,6 +452,8 @@ Selectors and specificity:
 
 Explicit attributes on a node always override stylesheet values.
 
+> **Note:** Property names _inside_ the stylesheet string (e.g. `llm_model`, `reasoning_effort`) use `snake_case` because they follow CSS-like syntax, which is separate from the DOT attribute key normalization described at the top of this page.
+
 ## Combined example
 
 Here is a more complete pipeline combining several patterns:
@@ -458,7 +462,7 @@ Here is a more complete pipeline combining several patterns:
 digraph ResearchWorkflow {
     graph [
         goal="Systematic review of renewable energy storage technologies",
-        model_stylesheet="
+        model-stylesheet="
             * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
             .deep_analysis { llm_model: claude-opus-4; }
         "
@@ -472,8 +476,8 @@ digraph ResearchWorkflow {
     Publish -> End
 
     Search       [prompt="Search databases for recent papers on: $goal"]
-    Screen       [prompt="Screen papers for relevance and quality", max_retries=2]
-    Analyze      [prompt="Extract and synthesize key findings", class="deep_analysis", goal_gate=true]
+    Screen       [prompt="Screen papers for relevance and quality", max-retries=2]
+    Analyze      [prompt="Extract and synthesize key findings", class="deep_analysis", goal-gate=true]
     CheckQuality [shape=diamond, label="Analysis meets quality criteria?"]
     Review       [shape=human, label="Review the systematic review draft"]
     Publish      [prompt="Format the final review for publication"]
@@ -495,10 +499,10 @@ This pipeline:
 |-----------------------|---------|---------|-------------|
 | `goal`                | String  | `""`    | Pipeline-level goal. Expanded as `$goal` in prompts. |
 | `label`               | String  | `""`    | Display name for the pipeline. |
-| `model_stylesheet`    | String  | `""`    | CSS-like LLM model/provider stylesheet. |
-| `default_max_retry`   | Integer | `0`     | Global retry ceiling for nodes that omit `max_retries`. |
-| `default_fidelity`    | String  | `""`    | Default context fidelity mode. |
-| `retry_target`        | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
+| `model-stylesheet`    | String  | `""`    | CSS-like LLM model/provider stylesheet. |
+| `default-max-retry`   | Integer | `0`     | Global retry ceiling for nodes that omit `max-retries`. |
+| `default-fidelity`    | String  | `""`    | Default context fidelity mode. |
+| `retry-target`        | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
 
 # Context and state
 

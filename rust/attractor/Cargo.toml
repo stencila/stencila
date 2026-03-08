@@ -4,6 +4,7 @@ edition = "2024"
 version.workspace = true
 
 [dependencies]
+Inflector = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 futures = { workspace = true }

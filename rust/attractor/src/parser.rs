@@ -308,9 +308,43 @@ fn kebab_qualified_id<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
         .parse_next(input)
 }
 
-/// Parse an attribute key — qualified or simple identifier.
+/// Parse a kebab bare identifier: `[A-Za-z_][A-Za-z0-9_-]*` (allows hyphens).
+///
+/// Used for attribute keys like `max-retries` or `goal-gate` where users
+/// write kebab-case without a dot-qualified prefix.
+fn kebab_bare_identifier<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
+    (
+        take_while(1, |c: char| c.is_ascii_alphabetic() || c == '_'),
+        take_while(0.., |c: char| {
+            c.is_ascii_alphanumeric() || c == '_' || c == '-'
+        }),
+    )
+        .take()
+        .parse_next(input)
+}
+
+/// Parse an attribute key — qualified (dotted) or bare identifier (with optional hyphens).
 fn attr_key<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
-    alt((kebab_qualified_id, bare_identifier)).parse_next(input)
+    alt((kebab_qualified_id, kebab_bare_identifier)).parse_next(input)
+}
+
+/// Normalize an attribute key to canonical `snake_case`.
+///
+/// Attribute keys in DOT node/graph/edge blocks can be written in
+/// kebab-case (`max-retries`), `snake_case` (`max_retries`), or camelCase
+/// (`maxRetries`). This function converts all forms to `snake_case` so
+/// that lookup code only needs to check one canonical name.
+///
+/// Dotted keys (e.g. `agent.reasoning-effort`) have each segment
+/// normalized independently, preserving the dot separator.
+///
+/// Uses Inflector for robust conversion that correctly handles acronyms
+/// (e.g. `LLMModel` → `llm_model`, `threadID` → `thread_id`).
+fn normalize_attr_key(key: &str) -> String {
+    key.split('.')
+        .map(inflector::Inflector::to_snake_case)
+        .collect::<Vec<_>>()
+        .join(".")
 }
 
 // ---------------------------------------------------------------------------
@@ -470,13 +504,17 @@ fn attr_value(input: &mut &str) -> ModalResult<AttrValue> {
 // ---------------------------------------------------------------------------
 
 /// Parse a single `key = value` pair.
+///
+/// The key is normalized to `snake_case` so that kebab-case (`max-retries`),
+/// `snake_case` (`max_retries`), and camelCase (`maxRetries`) all resolve to
+/// the same canonical key.
 fn attr_pair(input: &mut &str) -> ModalResult<(String, AttrValue)> {
     let key = attr_key.parse_next(input)?;
     ws.parse_next(input)?;
     '='.parse_next(input)?;
     ws.parse_next(input)?;
     let value = attr_value.parse_next(input)?;
-    Ok((key.to_string(), value))
+    Ok((normalize_attr_key(key), value))
 }
 
 /// Separator between attribute pairs: comma with surrounding whitespace per §2.3.

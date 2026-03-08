@@ -12,6 +12,6 @@ digraph Workflow {
     Attempt -> End [condition="outcome=fail"]
 
     Setup   [cmd="echo 0 > /tmp/stencila-test-goal-gate.txt"]
-    Attempt [cmd="COUNT=$(cat /tmp/stencila-test-goal-gate.txt); COUNT=$((COUNT+1)); echo $COUNT > /tmp/stencila-test-goal-gate.txt; test $COUNT -ge 2", goal_gate=true]
+    Attempt [cmd="COUNT=$(cat /tmp/stencila-test-goal-gate.txt); COUNT=$((COUNT+1)); echo $COUNT > /tmp/stencila-test-goal-gate.txt; test $COUNT -ge 2", goal-gate=true]
 }
 ```

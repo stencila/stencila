@@ -14,7 +14,7 @@ digraph Workflow {
     StepB -> End   [condition="outcome=fail"]
 
     Setup [cmd="echo 0 > /tmp/stencila-test-max-retries-a.txt; echo 0 > /tmp/stencila-test-max-retries-b.txt"]
-    StepA [cmd="N=$(cat /tmp/stencila-test-max-retries-a.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max-retries-a.txt; test $N -ge 2", goal_gate=true]
-    StepB [cmd="N=$(cat /tmp/stencila-test-max-retries-b.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max-retries-b.txt; test $N -ge 3", max_retries=3, goal_gate=true]
+    StepA [cmd="N=$(cat /tmp/stencila-test-max-retries-a.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max-retries-a.txt; test $N -ge 2", goal-gate=true]
+    StepB [cmd="N=$(cat /tmp/stencila-test-max-retries-b.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max-retries-b.txt; test $N -ge 3", max-retries=3, goal-gate=true]
 }
 ```

@@ -350,6 +350,10 @@ impl CodergenBackend for AgentCodergenBackend {
         //      attractor stylesheet transform.
         //
         // `agent.*` attributes take precedence over stylesheet attributes.
+        //
+        // All attribute keys are normalized to snake_case by the parser,
+        // so only one lookup is needed per attribute regardless of the
+        // casing the user wrote (kebab-case, snake_case, or camelCase).
         let overrides = stencila_agents::convenience::SessionOverrides {
             model: node
                 .get_str_attr("agent.model")
@@ -360,18 +364,15 @@ impl CodergenBackend for AgentCodergenBackend {
                 .or(node.get_str_attr("llm_provider"))
                 .map(String::from),
             reasoning_effort: node
-                .get_str_attr("agent.reasoning-effort")
-                .or(node.get_str_attr("agent.reasoning_effort"))
+                .get_str_attr("agent.reasoning_effort")
                 .or(node.get_str_attr("reasoning_effort"))
                 .map(String::from),
             trust_level: node
-                .get_str_attr("agent.trust-level")
-                .or(node.get_str_attr("agent.trust_level"))
+                .get_str_attr("agent.trust_level")
                 .or(node.get_str_attr("trust_level"))
                 .map(String::from),
             max_turns: node
-                .get_str_attr("agent.max-turns")
-                .or(node.get_str_attr("agent.max_turns"))
+                .get_str_attr("agent.max_turns")
                 .or(node.get_str_attr("max_turns"))
                 .and_then(|v| v.parse::<u32>().ok()),
         };

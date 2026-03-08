@@ -39,6 +39,27 @@ The parser accepts several syntax forms beyond the strict spec grammar:
 - Qualified keys in top-level graph attr declarations (e.g., `tool_hooks.pre="..."`).
 - Unquoted stylesheet values with `/` (e.g., provider/model IDs) in addition to identifier-like characters.
 
+### Attribute key case normalization
+
+Attribute keys in node, edge, and graph attribute blocks are normalized to `snake_case` at parse time. Users can write keys in kebab-case (`max-retries`), `snake_case` (`max_retries`), or camelCase (`maxRetries`) — all three resolve to the same canonical `snake_case` key in the parsed graph.
+
+This applies to both bare keys and dotted qualified keys:
+
+```dot
+// All equivalent after parsing:
+A [max-retries=3, goal-gate=true]
+A [max_retries=3, goal_gate=true]
+A [maxRetries=3, goalGate=true]
+
+// Dotted keys normalize each segment independently:
+A [agent.reasoning-effort="high"]   // → agent.reasoning_effort
+A [agent.trustLevel="high"]         // → agent.trust_level
+```
+
+Kebab-case is the recommended convention for consistency with Stencila skill, agent, and workflow configuration. All documentation examples use kebab-case.
+
+Internal lookup code uses the spec canonical `snake_case` form exclusively, so adding support for a new attribute only requires a single `get_attr("snake_case")` call.
+
 ### Nested subgraph class inheritance
 
 For nested subgraphs, if an inner subgraph has no label-derived class, nodes inherit the nearest parent subgraph class. This inheritance behavior for unlabeled nested subgraphs is implemented explicitly.
@@ -89,7 +110,7 @@ These take precedence over stylesheet-derived values (`llm_model`, `llm_provider
 Build [agent="code-engineer", agent.provider="openai", agent.model="o3"]
 ```
 
-The kebab-case form (`agent.reasoning-effort`) is preferred for consistency with agent definition property naming, but snake_case (`agent.reasoning_effort`) is also accepted.
+All casing variants are accepted thanks to attribute key normalization (see above). Kebab-case is recommended for consistency with agent configuration.
 
 ### Human shape alias
 

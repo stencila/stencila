@@ -25,7 +25,7 @@ digraph Workflow {
 
     RunSetup      [cmd="echo setup-complete"]
     BranchA       [prompt="Reply with ONLY the word: alpha", class="analysis"]
-    BranchB       [prompt="Reply with ONLY the word: beta", class="analysis", max_retries=1]
+    BranchB       [prompt="Reply with ONLY the word: beta", class="analysis", max-retries=1]
     Merge         [prompt="Combine the words from parallel branches into a comma-separated list. Reply with ONLY the list."]
     ReviewResult  [ask="Approve the merged result?"]
     Summarize     [prompt="Reply with ONLY the word: done"]

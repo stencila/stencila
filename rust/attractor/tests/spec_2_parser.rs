@@ -1069,6 +1069,7 @@ fn qualified_attr_key() -> TestResult {
 
 #[test]
 fn kebab_qualified_attr_key() -> TestResult {
+    // Kebab-case dotted keys are normalized to snake_case by the parser
     let dot = r#"digraph G {
         A [agent="coder", agent.model="o3", agent.provider="openai", agent.reasoning-effort="high"]
     }"#;
@@ -1076,29 +1077,150 @@ fn kebab_qualified_attr_key() -> TestResult {
     assert_eq!(a.get_str_attr("agent"), Some("coder"));
     assert_eq!(a.get_str_attr("agent.model"), Some("o3"));
     assert_eq!(a.get_str_attr("agent.provider"), Some("openai"));
-    assert_eq!(a.get_str_attr("agent.reasoning-effort"), Some("high"));
+    assert_eq!(a.get_str_attr("agent.reasoning_effort"), Some("high"));
     Ok(())
 }
 
 #[test]
 fn kebab_qualified_attr_key_trust_and_turns() -> TestResult {
+    // Kebab-case dotted keys are normalized to snake_case by the parser
     let dot = r#"digraph G {
         A [agent="coder", agent.trust-level="high", agent.max-turns="20"]
     }"#;
     let (_, a) = parse_and_get_node(dot, "A")?;
     assert_eq!(a.get_str_attr("agent"), Some("coder"));
-    assert_eq!(a.get_str_attr("agent.trust-level"), Some("high"));
-    assert_eq!(a.get_str_attr("agent.max-turns"), Some("20"));
+    assert_eq!(a.get_str_attr("agent.trust_level"), Some("high"));
+    assert_eq!(a.get_str_attr("agent.max_turns"), Some("20"));
     Ok(())
 }
 
 #[test]
 fn kebab_qualified_attr_key_snake_case_also_works() -> TestResult {
+    // Snake_case is already canonical, no normalization needed
     let dot = r#"digraph G {
         A [agent.reasoning_effort="medium"]
     }"#;
     let (_, a) = parse_and_get_node(dot, "A")?;
     assert_eq!(a.get_str_attr("agent.reasoning_effort"), Some("medium"));
+    Ok(())
+}
+
+#[test]
+fn kebab_bare_attr_key_normalized() -> TestResult {
+    // Bare kebab-case keys (no dot) are normalized to snake_case
+    let dot = r#"digraph G {
+        A [max-retries=3, goal-gate=true]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(
+        a.get_attr("max_retries").and_then(AttrValue::as_i64),
+        Some(3)
+    );
+    assert_eq!(
+        a.get_attr("goal_gate").and_then(AttrValue::as_bool),
+        Some(true)
+    );
+    Ok(())
+}
+
+#[test]
+fn camel_case_attr_key_normalized() -> TestResult {
+    // camelCase keys are normalized to snake_case
+    let dot = r#"digraph G {
+        A [maxRetries=3, goalGate=true]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(
+        a.get_attr("max_retries").and_then(AttrValue::as_i64),
+        Some(3)
+    );
+    assert_eq!(
+        a.get_attr("goal_gate").and_then(AttrValue::as_bool),
+        Some(true)
+    );
+    Ok(())
+}
+
+#[test]
+fn kebab_graph_attr_key_normalized() -> TestResult {
+    // Graph-level attribute keys are also normalized
+    let dot = r#"digraph G {
+        graph [model-stylesheet="* { llm_model: gpt-4; }", default-max-retry=3]
+        A -> B
+    }"#;
+    let g = parse_dot(dot)?;
+    assert!(g.get_graph_attr("model_stylesheet").is_some());
+    assert_eq!(
+        g.get_graph_attr("default_max_retry")
+            .and_then(AttrValue::as_i64),
+        Some(3)
+    );
+    Ok(())
+}
+
+#[test]
+fn edge_attr_key_normalized() -> TestResult {
+    // Edge attribute keys are also normalized via the same attr_pair path
+    let dot = r#"digraph G {
+        A -> B [retry-delay="5s", conditionType="outcome"]
+    }"#;
+    let g = parse_dot(dot)?;
+    assert_eq!(g.edges.len(), 1);
+    assert_eq!(
+        g.edges[0]
+            .get_attr("retry_delay")
+            .and_then(AttrValue::as_str),
+        Some("5s")
+    );
+    assert_eq!(
+        g.edges[0]
+            .get_attr("condition_type")
+            .and_then(AttrValue::as_str),
+        Some("outcome")
+    );
+    Ok(())
+}
+
+#[test]
+fn snake_case_attr_key_unchanged() -> TestResult {
+    // Existing snake_case keys pass through normalization unchanged
+    let dot = r#"digraph G {
+        A [max_retries=3, goal_gate=true, llm_model="gpt-4"]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(
+        a.get_attr("max_retries").and_then(AttrValue::as_i64),
+        Some(3)
+    );
+    assert_eq!(
+        a.get_attr("goal_gate").and_then(AttrValue::as_bool),
+        Some(true)
+    );
+    assert_eq!(a.get_str_attr("llm_model"), Some("gpt-4"));
+    Ok(())
+}
+
+#[test]
+fn camel_case_acronym_attr_key_normalized() -> TestResult {
+    // Acronym-heavy camelCase keys are correctly handled by Inflector
+    let dot = r#"digraph G {
+        A [llmModel="gpt-4", threadID="abc"]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(a.get_str_attr("llm_model"), Some("gpt-4"));
+    assert_eq!(a.get_str_attr("thread_id"), Some("abc"));
+    Ok(())
+}
+
+#[test]
+fn dotted_camel_case_attr_key_normalized() -> TestResult {
+    // Dotted keys with camelCase segments normalize each segment independently
+    let dot = r#"digraph G {
+        A [agent.reasoningEffort="high", agent.trustLevel="medium"]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(a.get_str_attr("agent.reasoning_effort"), Some("high"));
+    assert_eq!(a.get_str_attr("agent.trust_level"), Some("medium"));
     Ok(())
 }
 
