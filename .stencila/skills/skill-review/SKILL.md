@@ -1,0 +1,140 @@
+---
+name: skill-review
+description: Critically review a workspace skill and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a SKILL.md file or skill directory. Covers frontmatter validation, instruction clarity, completeness, and adherence to the Agent Skills Specification.
+allowed-tools: read_file glob grep shell
+---
+
+## Overview
+
+Review an existing workspace skill for quality, correctness, and completeness. Produce a structured report with specific, actionable suggestions for improvement. The review covers frontmatter fields, instruction clarity, step structure, examples, edge cases, and adherence to the [Agent Skills Specification](https://agentskills.io/specification).
+
+## Steps
+
+1. Identify the skill to review from the user's request — accept a skill name, a directory path, or a `SKILL.md` file path
+2. Resolve the skill file: if given a name, look for `.stencila/skills/<name>/SKILL.md` walking up from the current directory; if given a path, use it directly
+3. Read the full `SKILL.md` file and any supporting files in the skill directory (`scripts/`, `references/`, `assets/`)
+4. Evaluate the skill against each criterion in the Review Checklist below
+5. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
+6. If the user asks you to apply the improvements, make the changes and validate the result with `stencila skills validate <skill-name>`
+
+## Review Checklist
+
+### Frontmatter
+
+- **name**: present, matches directory name, valid kebab-case (`^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`)
+- **description**: present, under 1,024 characters, specific (not vague), includes keywords that help agents match the skill to user requests
+- **Optional fields**: `license`, `compatibility`, `allowed-tools`, `metadata` — check for correctness if present (e.g., valid SPDX identifier, `compatibility` under 500 characters, `allowed-tools` is space-delimited)
+
+### Structure and Clarity
+
+- Uses step-by-step numbered lists that are easy for a model to follow
+- Steps are in a logical order with no missing or circular dependencies
+- Language is imperative and unambiguous (e.g., "Read the file" not "You might want to read the file")
+- No orphaned sections or dangling references to files that don't exist
+
+### Completeness
+
+- Includes concrete input/output examples
+- Covers edge cases and common pitfalls
+- No placeholder content (`TODO`, `<placeholder>`, or empty sections)
+- References to external files (`scripts/`, `references/`, `assets/`) point to files that actually exist in the skill directory
+
+### Size and Focus
+
+- Body is under 500 lines / 5,000 tokens
+- Skill has a single clear purpose — not trying to do too many things
+- Detailed reference material is moved to `references/` files rather than inlined
+
+### Consistency
+
+- Formatting is consistent (heading levels, list styles, code block languages)
+- Terminology is used consistently throughout
+- Conventions match other skills in the same workspace
+
+## Report Format
+
+Structure the review as follows:
+
+### Summary
+
+One to three sentences giving an overall assessment and the most important finding.
+
+### Findings
+
+For each checklist area, report one of:
+
+- ✅ **Pass** — criterion fully met
+- ⚠️ **Warning** — minor issue or room for improvement
+- ❌ **Fail** — significant problem that should be fixed
+
+Include a brief explanation for warnings and failures.
+
+### Suggestions
+
+A numbered list of specific, actionable improvements ordered by priority (most impactful first). Each suggestion should explain *what* to change and *why*.
+
+Use heading level 3 (`###`) for each section in your output.
+
+## Examples
+
+Input: "Review the skill-creation skill"
+
+Process:
+
+1. Resolve to `.stencila/skills/skill-creation/SKILL.md`
+2. Read the file and check for supporting files in the directory (`scripts/`, `references/`, `assets/`)
+3. Evaluate frontmatter: `name` is `skill-creation`, matches directory, valid kebab-case; `description` is specific and under 1,024 characters
+4. Evaluate structure, completeness, size, and consistency against the checklist
+5. Run `stencila skills validate skill-creation` to confirm the skill is valid
+6. Produce the report below
+
+Output (use `###` headings in the report):
+
+> ### Summary
+>
+> The skill-creation skill is well-structured with comprehensive coverage of naming rules, file format, and validation. Two minor improvements are possible.
+>
+> ### Findings
+>
+> | Area | Status | Notes |
+> |------|--------|-------|
+> | Frontmatter | ✅ Pass | Name and description are valid and specific |
+> | Structure | ✅ Pass | Clear numbered steps in logical order |
+> | Completeness | ⚠️ Warning | Template section serves as an example but a concrete before/after example would be clearer |
+> | Size and Focus | ✅ Pass | Well within size limits, single purpose |
+> | Consistency | ✅ Pass | Consistent formatting throughout |
+>
+> ### Suggestions
+>
+> 1. Add a concrete example showing a complete user request and the resulting `SKILL.md` file, beyond the generic template
+> 2. Consider adding an `allowed-tools` field to pre-approve `write_file`, `shell`, and `read_file`
+
+## Edge Cases
+
+- **Skill not found**: If the skill cannot be located, report the error clearly and suggest checking the name or path. List available skills if possible using `stencila skills list` or by listing `.stencila/skills/` directories.
+- **Multiple skills requested**: Review each skill separately with its own report section. Ask the user to confirm if reviewing all skills is intended.
+- **Skill has no body content**: Flag this as a failure — a skill with only frontmatter is incomplete.
+- **Supporting files are large**: For files in `scripts/`, `references/`, or `assets/`, check that they exist and are referenced from `SKILL.md`, but do not reproduce their full content in the report.
+- **User asks to fix issues**: If the user asks you to apply suggestions, make the changes, then validate with `stencila skills validate <skill-name>` before reporting completion.
+
+## Validation
+
+When applying suggested improvements, validate the skill before reporting completion:
+
+```sh
+# By skill name
+stencila skills validate <skill-name>
+
+# By directory path
+stencila skills validate .stencila/skills/<skill-name>
+
+# By SKILL.md path
+stencila skills validate .stencila/skills/<skill-name>/SKILL.md
+```
+
+Validation should pass before you report the changes as complete.
+
+## Limitations
+
+- This skill reviews the *structure and quality* of a skill definition. It does not review the correctness or security of code in `scripts/` files — only that they exist and are referenced from `SKILL.md`.
+- The review does not execute the skill or test it against real inputs.
