@@ -18,6 +18,20 @@ use crate::routing::{self, RoutingDecision, SessionRoute};
 use crate::tool_guard::{GuardContext, ToolGuard, TrustLevel};
 use crate::types::SessionConfig;
 
+/// Overrides applied on top of the agent definition when creating a session.
+///
+/// Used by the workflow engine to apply `model_stylesheet` values (set on
+/// graph nodes by the attractor stylesheet transform) to the agent session.
+#[derive(Clone, Debug, Default)]
+pub struct SessionOverrides {
+    /// Override the model (e.g. from `llm_model` node attribute).
+    pub model: Option<String>,
+    /// Override the provider (e.g. from `llm_provider` node attribute).
+    pub provider: Option<String>,
+    /// Override the reasoning effort (e.g. from `reasoning_effort` node attribute).
+    pub reasoning_effort: Option<String>,
+}
+
 /// Options for [`create_agent`].
 #[derive(Default)]
 pub struct CreateAgentOptions<'a> {
@@ -225,11 +239,53 @@ pub async fn create_session_with_interviewer(
     create_session_impl(name, Some(interviewer)).await
 }
 
+/// Like [`create_session_with_interviewer`], but additionally applies
+/// model/provider/reasoning_effort overrides from [`SessionOverrides`].
+///
+/// The overrides take precedence over the agent definition's values but are
+/// themselves overridden by explicit node attributes in the attractor graph
+/// (which are handled separately by the stylesheet transform).
+pub async fn create_session_with_overrides(
+    name: &str,
+    interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
+    overrides: &SessionOverrides,
+) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
+    create_session_full(name, interviewer, Some(overrides)).await
+}
+
 async fn create_session_impl(
     name: &str,
     interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
-    let (agent, config) = load_agent_and_config(name).await?;
+    create_session_full(name, interviewer, None).await
+}
+
+async fn create_session_full(
+    name: &str,
+    interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
+    overrides: Option<&SessionOverrides>,
+) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
+    let (agent, mut config) = load_agent_and_config(name).await?;
+
+    // Apply reasoning_effort override from stylesheet before routing.
+    if let Some(ovr) = overrides
+        && let Some(ref effort) = ovr.reasoning_effort
+    {
+        config.reasoning_effort = Some(match effort.as_str() {
+            "low" => crate::types::ReasoningEffort::Low,
+            "medium" => crate::types::ReasoningEffort::Medium,
+            "high" => crate::types::ReasoningEffort::High,
+            other => crate::types::ReasoningEffort::Custom(other.to_string()),
+        });
+    }
+
+    // Compute effective model/provider: override > agent definition.
+    let effective_provider = overrides
+        .and_then(|o| o.provider.as_deref())
+        .or(agent.provider.as_deref());
+    let effective_model = overrides
+        .and_then(|o| o.model.as_deref())
+        .or(agent.model.as_deref());
 
     let client = stencila_models3::client::Client::from_env().ok();
 
@@ -246,11 +302,8 @@ async fn create_session_impl(
         }
     };
 
-    let decision = routing::route_session_explained(
-        agent.provider.as_deref(),
-        agent.model.as_deref(),
-        client_ref,
-    )?;
+    let decision =
+        routing::route_session_explained(effective_provider, effective_model, client_ref)?;
 
     // Capture credential source for the selected provider before the
     // client is potentially consumed by the API path.

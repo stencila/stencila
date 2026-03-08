@@ -339,16 +339,36 @@ impl CodergenBackend for AgentCodergenBackend {
             node.id
         );
 
-        let (_agent, mut session, mut event_rx) = if let Some(ref iv) = self.interviewer {
+        // Build overrides from stylesheet-derived node attributes (llm_model,
+        // llm_provider, reasoning_effort). These are set by the attractor
+        // stylesheet transform from the workflow's modelStylesheet.
+        let overrides = stencila_agents::convenience::SessionOverrides {
+            model: node.get_str_attr("llm_model").map(String::from),
+            provider: node.get_str_attr("llm_provider").map(String::from),
+            reasoning_effort: node.get_str_attr("reasoning_effort").map(String::from),
+        };
+        let has_overrides = overrides.model.is_some()
+            || overrides.provider.is_some()
+            || overrides.reasoning_effort.is_some();
+
+        let node_iv: Option<Arc<dyn Interviewer>> = self.interviewer.as_ref().map(|iv| {
             // Wrap with StageOverrideInterviewer so ask_user interviews
             // are attributed to this pipeline node, not generic "ask_user".
-            let node_iv: Arc<dyn Interviewer> = Arc::new(
+            Arc::new(
                 stencila_interviews::interviewers::StageOverrideInterviewer::new(
                     iv.clone(),
                     &node.id,
                 ),
-            );
-            stencila_agents::convenience::create_session_with_interviewer(agent_name, node_iv).await
+            ) as Arc<dyn Interviewer>
+        });
+
+        let (_agent, mut session, mut event_rx) = if has_overrides {
+            stencila_agents::convenience::create_session_with_overrides(
+                agent_name, node_iv, &overrides,
+            )
+            .await
+        } else if let Some(iv) = node_iv {
+            stencila_agents::convenience::create_session_with_interviewer(agent_name, iv).await
         } else {
             stencila_agents::convenience::create_session(agent_name).await
         }
