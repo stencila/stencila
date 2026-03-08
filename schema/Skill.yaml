@@ -57,15 +57,17 @@ properties:
     "@id": stencila:compatibility
     description: Environment requirements for the skill.
     $comment: |
-      Max 500 characters per the spec. Indicates intended product, required system packages,
+      Max 500 characters per the SKILL.md spec. Indicates intended product, required system packages,
       network access needs, etc. Most skills do not need this field.
     type: string
   allowedTools:
     "@id": stencila:allowedTools
     description: Pre-approved tools for the skill.
     $comment: |
-      Experimental per the spec. In the spec this is a space-delimited string named
-      `allowed-tools`; we parse it into an array of strings for easier programmatic use.
+      In the SKILL.md spec this is a space-delimited string. For consistency with the rest of this schema
+      we also allow for comma-delimited tool names, and deserialize either into an array of strings.
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: option_csv_or_ssv_or_array

@@ -74,7 +74,7 @@ pub struct Skill {
 
     /// Pre-approved tools for the skill.
     #[serde(alias = "allowed-tools", alias = "allowed_tools", alias = "allowedTool", alias = "allowed-tool", alias = "allowed_tool")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_csv_or_ssv_or_array")]
     pub allowed_tools: Option<Vec<String>>,
 
     /// Non-core optional fields

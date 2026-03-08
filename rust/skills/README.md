@@ -47,7 +47,7 @@ let metadata_xml = stencila_skills::metadata_to_xml(&skills);
 
 The following extensions to the spec are implemented for better interoperability with Stencila:
 
-- **`allowed-tools` as array**: The spec's space-delimited `allowed-tools` string is parsed into a `Vec<String>` for easier programmatic use.
+- **`allowed-tools` as array**: The spec's space-delimited `allowed-tools` string is parsed into a `Vec<String>` for easier programmatic use. Both space-delimited (per the spec) and comma-delimited tool names are accepted.
 
 - **`license` maps to `licenses`**: The spec's singular `license` field maps to the inherited `licenses` array from `CreativeWork` (the `license` alias is handled by serde).
 

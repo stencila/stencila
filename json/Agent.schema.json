@@ -793,7 +793,6 @@
     "allowedTools": {
       "@id": "stencila:allowedTools",
       "description": "Tool names available to the agent.",
-      "$comment": "Experimental per the spec. In the spec this is a space-delimited string named\n`allowed-tools`; we parse it into an array of strings for easier programmatic use.\n",
       "aliases": [
         "allowed-tools",
         "allowed_tools",
@@ -801,6 +800,9 @@
         "allowed-tool",
         "allowed_tool"
       ],
+      "serde": {
+        "deserializeWith": "option_csv_or_ssv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -817,6 +819,9 @@
         "allowed-domain",
         "allowed_domain"
       ],
+      "serde": {
+        "deserializeWith": "option_csv_or_ssv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -833,6 +838,9 @@
         "disallowed-domain",
         "disallowed_domain"
       ],
+      "serde": {
+        "deserializeWith": "option_csv_or_ssv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -867,6 +875,9 @@
         "allowed-mcp-server",
         "allowed_mcp_server"
       ],
+      "serde": {
+        "deserializeWith": "option_csv_or_ssv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"

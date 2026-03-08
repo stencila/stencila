@@ -126,12 +126,11 @@ properties:
   allowedTools:
     "@id": stencila:allowedTools
     description: Tool names available to the agent.
-    $comment: |
-      Experimental per the spec. In the spec this is a space-delimited string named
-      `allowed-tools`; we parse it into an array of strings for easier programmatic use.
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: option_csv_or_ssv_or_array
   allowedDomains:
     "@id": stencila:allowedDomains
     description: Domain allowlist for web_fetch.
@@ -142,6 +141,8 @@ properties:
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: option_csv_or_ssv_or_array
   disallowedDomains:
     "@id": stencila:disallowedDomains
     description: Domain denylist for web_fetch.
@@ -152,6 +153,8 @@ properties:
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: option_csv_or_ssv_or_array
   enableMcp:
     "@id": stencila:enableMcp
     description: Whether to enable MCP tools.
@@ -172,6 +175,8 @@ properties:
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: option_csv_or_ssv_or_array
   maxTurns:
     "@id": stencila:maxTurns
     description: Maximum conversation turns (0 = unlimited).

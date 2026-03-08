@@ -95,6 +95,29 @@ where
     )
 }
 
+/// Deserialize a vector from a string of comma or whitespace separated values, or from an array
+///
+/// If the string contains a comma, splits by comma; otherwise splits by whitespace.
+pub fn option_csv_or_ssv_or_array<'de, T, D>(deserializer: D) -> Result<Option<Vec<T>>, D::Error>
+where
+    T: DeserializeOwned + FromStr,
+    D: Deserializer<'de>,
+{
+    Ok(
+        match Option::<StringOrArray<T>>::deserialize(deserializer)? {
+            Some(StringOrArray::<T>::String(string)) => {
+                if string.contains(',') {
+                    Some(split_by::<T, D>(string, ",")?)
+                } else {
+                    Some(split_whitespace::<T, D>(string)?)
+                }
+            }
+            Some(StringOrArray::<T>::Array(array)) => Some(array),
+            None => None,
+        },
+    )
+}
+
 /// Deserialize a vector from one or many of the items
 pub fn one_or_many<'de, T, D>(deserializer: D) -> Result<Vec<T>, D::Error>
 where

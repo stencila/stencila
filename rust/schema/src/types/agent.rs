@@ -93,7 +93,7 @@ pub struct Agent {
 
     /// Tool names available to the agent.
     #[serde(alias = "allowed-tools", alias = "allowed_tools", alias = "allowedTool", alias = "allowed-tool", alias = "allowed_tool")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_csv_or_ssv_or_array")]
     pub allowed_tools: Option<Vec<String>>,
 
     /// Non-core optional fields
@@ -327,12 +327,12 @@ pub struct AgentOptions {
 
     /// Domain allowlist for web_fetch.
     #[serde(alias = "allowed-domains", alias = "allowed_domains", alias = "allowedDomain", alias = "allowed-domain", alias = "allowed_domain")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_csv_or_ssv_or_array")]
     pub allowed_domains: Option<Vec<String>>,
 
     /// Domain denylist for web_fetch.
     #[serde(alias = "disallowed-domains", alias = "disallowed_domains", alias = "disallowedDomain", alias = "disallowed-domain", alias = "disallowed_domain")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_csv_or_ssv_or_array")]
     pub disallowed_domains: Option<Vec<String>>,
 
     /// Whether to enable MCP tools.
@@ -345,7 +345,7 @@ pub struct AgentOptions {
 
     /// MCP server IDs this agent is allowed to use.
     #[serde(alias = "allowed-mcp-servers", alias = "allowed_mcp_servers", alias = "allowedMcpServer", alias = "allowed-mcp-server", alias = "allowed_mcp_server")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_csv_or_ssv_or_array")]
     pub allowed_mcp_servers: Option<Vec<String>>,
 
     /// Maximum conversation turns (0 = unlimited).

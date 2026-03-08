@@ -52,7 +52,7 @@ The file has two parts:
 
 - `license` — SPDX identifier or reference to a license file
 - `compatibility` — environment requirements (max 500 characters)
-- `allowed-tools` — space-delimited list of pre-approved tools (e.g., `read_file grep shell`)
+- `allowed-tools` — space-delimited or comma-delimited list of pre-approved tools (e.g., `read_file grep shell` or `read_file, grep, shell`)
 - `metadata` — arbitrary key-value pairs (e.g., `author`, `version`)
 
 ## Template

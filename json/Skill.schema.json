@@ -711,13 +711,13 @@
     "compatibility": {
       "@id": "stencila:compatibility",
       "description": "Environment requirements for the skill.",
-      "$comment": "Max 500 characters per the spec. Indicates intended product, required system packages,\nnetwork access needs, etc. Most skills do not need this field.\n",
+      "$comment": "Max 500 characters per the SKILL.md spec. Indicates intended product, required system packages,\nnetwork access needs, etc. Most skills do not need this field.\n",
       "type": "string"
     },
     "allowedTools": {
       "@id": "stencila:allowedTools",
       "description": "Pre-approved tools for the skill.",
-      "$comment": "Experimental per the spec. In the spec this is a space-delimited string named\n`allowed-tools`; we parse it into an array of strings for easier programmatic use.\n",
+      "$comment": "In the SKILL.md spec this is a space-delimited string. For consistency with the rest of this schema\nwe also allow for comma-delimited tool names, and deserialize either into an array of strings.\n",
       "aliases": [
         "allowed-tools",
         "allowed_tools",
@@ -725,6 +725,9 @@
         "allowed-tool",
         "allowed_tool"
       ],
+      "serde": {
+        "deserializeWith": "option_csv_or_ssv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
