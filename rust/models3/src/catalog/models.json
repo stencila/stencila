@@ -120,6 +120,18 @@
     "output_cost_per_million": 1.25
   },
   {
+    "id": "claude-sonnet-4-6",
+    "provider": "anthropic",
+    "display_name": "Claude Sonnet 4.6",
+    "context_window": 200000,
+    "max_output": 64000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 3.0,
+    "output_cost_per_million": 15.0
+  },
+  {
     "id": "gemini-2.5-flash",
     "provider": "gemini",
     "display_name": "Gemini 2.5 Flash",
@@ -1192,6 +1204,69 @@
     "supports_reasoning": false,
     "input_cost_per_million": 3.0,
     "output_cost_per_million": 4.0
+  },
+  {
+    "id": "gpt-5.4",
+    "provider": "openai",
+    "display_name": "gpt-5.4",
+    "context_window": 1050000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 2.5,
+    "output_cost_per_million": 15.0
+  },
+  {
+    "id": "gpt-5.3-chat-latest",
+    "provider": "openai",
+    "display_name": "gpt-5.3-chat-latest",
+    "context_window": 0,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.4-2026-03-05",
+    "provider": "openai",
+    "display_name": "gpt-5.4-2026-03-05",
+    "context_window": 0,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.4-pro",
+    "provider": "openai",
+    "display_name": "gpt-5.4-pro",
+    "context_window": 1050000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 30.0,
+    "output_cost_per_million": 180.0
+  },
+  {
+    "id": "gpt-5.4-pro-2026-03-05",
+    "provider": "openai",
+    "display_name": "gpt-5.4-pro-2026-03-05",
+    "context_window": 0,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.3-codex",
+    "provider": "openai",
+    "display_name": "gpt-5.3-codex",
+    "context_window": 400000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 1.75,
+    "output_cost_per_million": 14.0
   },
   {
     "id": "mistral-medium-2505",
