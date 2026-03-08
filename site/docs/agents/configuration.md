@@ -124,7 +124,7 @@ disallowedDomains:
 
 **Type:** `string[]`
 
-Skill names this agent can use. When unset, all discovered skills are available. When set to a non-empty array, only the listed skills are available. When set to an empty array, skills are disabled entirely.
+Skill names this agent can use. When unset, all discovered skills are available. When set to a non-empty array, only the listed skills are available. When set to an empty array, skills are disabled entirely. See the [skills documentation](../skills/) for more on creating and using skills.
 
 ```yaml
 allowedSkills:

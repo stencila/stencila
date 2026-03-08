@@ -3,7 +3,7 @@ title: "`stencila skills`"
 description: Manage agent skills
 ---
 
-Manage agent skills
+Manage agent skills. See the [skills documentation](../../skills/) for conceptual overview, creating skills, and configuration reference.
 
 # Usage
 

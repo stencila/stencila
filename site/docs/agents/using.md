@@ -135,9 +135,9 @@ This means existing `CLAUDE.md` or `.codex/instructions.md` files work automatic
 
 ## Workspace Skills
 
-Agents can use workspace skills — reusable instruction sets stored in `.stencila/skills/`. Skills are discovered at session start, and their metadata (name and description) is included in the system prompt. The model can then load full skill content on demand using the `use_skill` tool.
+Agents can use [workspace skills](../skills/) — reusable instruction sets stored in `.stencila/skills/`. Skills are discovered at session start, and their metadata (name and description) is included in the system prompt. The model can then load full skill content on demand using the `use_skill` tool.
 
-Skills are also discovered from provider-specific directories (e.g. `.claude/skills/` for Anthropic agents). On name conflicts, the provider-specific source wins.
+Skills are also discovered from provider-specific directories (e.g. `.claude/skills/` for Anthropic agents). On name conflicts, the provider-specific source wins. See [Creating Skills](../skills/creating) for how to write skills and [Using Skills](../skills/using) for how agents load them at runtime.
 
 Disable skills for an agent by setting `allowedSkills` to an empty array in the agent definition:
 

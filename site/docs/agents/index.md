@@ -17,7 +17,7 @@ Each agent session automatically receives:
 
 - **Environment context** — working directory, git branch, recent commits, platform info
 - **Project docs** — `AGENTS.md`, `CLAUDE.md`, `.codex/instructions.md`, or `GEMINI.md` files discovered in the project tree
-- **Workspace skills** — reusable instructions from `.stencila/skills/` loaded on demand
+- **[Workspace skills](../skills/)** — reusable instructions from `.stencila/skills/` loaded on demand
 - **Provider-aligned tools** — file, shell, web, and editing tools matched to the model's provider
 
 ## Agent Discovery
