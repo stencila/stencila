@@ -333,6 +333,11 @@ impl App {
                         }
                         workflow.run_handle = None;
                     }
+
+                    // Drop back to agent chat now that the workflow has finished
+                    self.mode = super::AppMode::Agent;
+                    self.input.clear();
+                    self.input_scroll = 0;
                 }
             }
             self.scroll_pinned = true;
@@ -493,6 +498,37 @@ mod tests {
 
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_interview.is_some());
+    }
+
+    #[tokio::test]
+    async fn workflow_completed_returns_to_agent_mode() {
+        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+        use crate::workflow::WorkflowEvent;
+        use stencila_attractor::types::Outcome;
+        use tokio::sync::mpsc;
+
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: Some("goal".to_string()),
+        });
+        assert_eq!(app.mode, AppMode::Workflow);
+
+        // Set up a channel and inject a run_handle
+        let (tx, rx) = mpsc::unbounded_channel();
+        if let Some(wf) = &mut app.active_workflow {
+            wf.run_handle = Some(crate::workflow::WorkflowRunHandle::new_for_test(rx));
+        }
+
+        // Send a completion event
+        tx.send(WorkflowEvent::Completed(Ok(Outcome::success())))
+            .unwrap();
+
+        app.poll_workflow_events();
+
+        assert_eq!(app.mode, AppMode::Agent);
+        assert!(app.input.is_empty());
     }
 
     #[tokio::test]
