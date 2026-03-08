@@ -19,12 +19,13 @@ Test files are named `spec_N_<topic>.rs` where `N` maps to the primary spec sect
 | `spec_9_events.rs`         | §9.6               | Observability events                                  |
 | `spec_10_conditions.rs`    | §10                 | Condition expression language                         |
 
+## Integration Test Workflows
+
+End-to-end integration tests live in `.stencila/workflows/test-*/WORKFLOW.md` at the repository root. These exercise cross-feature interactions (§11.12 parity matrix) and real LLM execution paths (§11.13 smoke test) that unit tests cannot cover. See the [README](../README.md#integration-test-workflows) for the full list.
+
 ## Deferred Coverage
 
-The following spec sections are not yet covered by tests:
-
-- **§11.12 Parity Matrix** — 21 cross-feature integration test cases requiring end-to-end pipeline execution with multiple interacting features (parallel + retry, resume + fidelity, etc.).
-- **§11.13 Integration Smoke** — End-to-end smoke test with a real LLM callback handler, gated on API key availability.
+- **§11.13 Integration Smoke (automated)** — Running the integration test workflows in CI is deferred pending API key availability. They can be run manually with `cargo run -- workflows run <name>`.
 
 See `spec-traceability.md` for the full status of each section.
 

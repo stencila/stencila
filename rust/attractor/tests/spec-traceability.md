@@ -71,5 +71,5 @@ Maps each spec section to the test file(s) and specific test functions that vali
 | §9.6 Events | Pipeline/Stage/Parallel/Interview/Checkpoint events, emitters | `spec_9_events.rs` | Partial — callback/collect/broadcast emitters complete; async stream adapter deferred |
 | §10.1–10.5 Conditions | Grammar, semantics, evaluation | `spec_10_conditions.rs` | Complete |
 | §10.6 Condition Examples | 5 verbatim examples | `spec_10_conditions.rs` | Complete |
-| §11.12 Parity Matrix | 21 cross-feature test cases | — | Deferred |
-| §11.13 Integration Smoke | End-to-end with LLM callback | — | Deferred |
+| §11.12 Parity Matrix | 21 cross-feature test cases | `.stencila/workflows/test-*` | Partial — integration test workflows cover most items; see README "Integration test workflows" table |
+| §11.13 Integration Smoke | End-to-end with LLM callback | `.stencila/workflows/test-*` | Partial — workflows exercise real LLM paths when run; deferred for automated CI gating on API keys |

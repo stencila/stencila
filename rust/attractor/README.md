@@ -205,7 +205,7 @@ A terminal stdin/stdout `CliInterviewer` is not implemented, and `Question.metad
 
 ### Deferred conformance and integration tests (§11.12, §11.13)
 
-The 21 cross-feature integration test cases from the parity matrix are deferred, and the end-to-end smoke test with a real LLM callback handler is deferred pending integration with a real LLM backend.
+Many of the §11.12 parity matrix items are exercised by integration test workflows in `.stencila/workflows/test-*` (see below). The end-to-end smoke test with a real LLM callback handler (§11.13) is deferred pending API key availability.
 
 ## Development
 
@@ -281,6 +281,34 @@ Use the crate check recipe:
 
 ```sh
 make check
+```
+
+### Integration test workflows
+
+End-to-end integration tests live in `.stencila/workflows/test-*/WORKFLOW.md` at the repository root. Each workflow exercises a specific combination of pipeline features with a real LLM backend:
+
+| Workflow                      | Concepts Exercised |
+| ----------------------------- | --------------------------------------------------- |
+| `test-no-op`                  | Minimal `Start → End` graph |
+| `test-count-to-three`         | Linear chain, `$last_output`, `$goal` expansion, `Fail` node |
+| `test-count-to-goal`          | Looping (self-edge), conditional branching via `context.last_output` |
+| `test-human-gates`            | `wait.human` via `ask=` sugar, binary/three-way/single-choice gates |
+| `test-fan-out-fan-in`         | Parallel fan-out via `FanOut` ID, fan-in convergence |
+| `test-conditional-branching`  | `Check*` ID → diamond shape, `outcome=` conditions, edge retry loop |
+| `test-model-stylesheet`       | `modelStylesheet` frontmatter, `*` / `.class` / `#id` selectors |
+| `test-goal-gates`             | `goal_gate=true`, `retryTarget` loopback |
+| `test-max-retries`            | `max_retries=N` node attribute |
+| `test-shell-nodes`            | `cmd=` / `shell=` sugar → `shell` handler, no LLM calls |
+| `test-edge-weights`           | Edge `weight=` routing priority |
+| `test-subgraph-defaults`      | `subgraph` blocks, scoped `node [...]` defaults |
+| `test-agent-reference`        | `agent=` node attribute, agent resolution |
+| `test-kitchen-sink`           | All patterns combined (shell, parallel, conditional, human, retry, stylesheet) |
+| `test-context-conditions`     | Multi-way `context.*` edge conditions, fallback edge |
+
+Run a specific workflow with:
+
+```sh
+cargo run -- workflows run <name>
 ```
 
 ### Documentation
