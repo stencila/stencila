@@ -1201,11 +1201,12 @@ fn active_question_lines(
                 Span::styled(SIDEBAR_CHAR, sidebar_style),
                 Span::raw(" "),
             ];
-            spans.extend(style_inline_markdown(
-                &chunk,
-                InlineStyleMode::Normal,
-                DelimiterDisplay::Hide,
-            ));
+            for mut span in
+                style_inline_markdown(&chunk, InlineStyleMode::Normal, DelimiterDisplay::Hide)
+            {
+                span.style = Style::new().add_modifier(Modifier::BOLD).patch(span.style);
+                spans.push(span);
+            }
             lines.push(Line::from(spans));
         }
     } else {
@@ -1221,11 +1222,12 @@ fn active_question_lines(
             } else {
                 spans.push(Span::raw("  "));
             }
-            spans.extend(style_inline_markdown(
-                &chunk,
-                InlineStyleMode::Normal,
-                DelimiterDisplay::Hide,
-            ));
+            for mut span in
+                style_inline_markdown(&chunk, InlineStyleMode::Normal, DelimiterDisplay::Hide)
+            {
+                span.style = Style::new().add_modifier(Modifier::BOLD).patch(span.style);
+                spans.push(span);
+            }
             if i == 0
                 && let Some(progress) = progress
                 && total_questions > 1
