@@ -370,11 +370,16 @@ pub async fn build_system_prompt(
     // Gated at both compile time (feature) and runtime (config flag).
     #[cfg(feature = "skills")]
     if config.enable_skills {
-        let skills_metadata =
-            crate::skills::discover_and_register_skills(profile, working_dir).await;
-        if !skills_metadata.is_empty() {
+        let allowed_skills = config.allowed_skills.as_deref();
+        let skills =
+            crate::skills::discover_and_register_skills(profile, working_dir, allowed_skills).await;
+        if !skills.metadata.is_empty() {
             prompt.push_str("\n\n");
-            prompt.push_str(&skills_metadata);
+            prompt.push_str(&skills.metadata);
+        }
+        if let Some(preloaded_skill) = skills.preloaded_skill {
+            prompt.push_str("\n\n");
+            prompt.push_str(&preloaded_skill);
         }
     }
 

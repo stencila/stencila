@@ -139,16 +139,18 @@ Agents can use [workspace skills](../skills/) — reusable instruction sets stor
 
 Skills are also discovered from provider-specific directories (e.g. `.claude/skills/` for Anthropic agents). On name conflicts, the provider-specific source wins. See [Creating Skills](../skills/creating) for how to write skills and [Using Skills](../skills/using) for how agents load them at runtime.
 
-Disable skills for an agent by setting `allowedSkills` to an empty array in the agent definition:
+When an agent's `allowed-skills` contains exactly one skill, Stencila also preloads that skill's full instructions into the initial system prompt in addition to making it available via `use_skill`. This avoids spending an extra model turn just to load the only permitted skill.
+
+Disable skills for an agent by setting `allowed-skills` to an empty array in the agent definition:
 
 ```yaml
-allowedSkills: []
+allowed-skills: []
 ```
 
 Or restrict to specific skills:
 
 ```yaml
-allowedSkills:
+allowed-skills:
   - testing
   - documentation
 ```

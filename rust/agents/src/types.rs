@@ -171,6 +171,15 @@ pub struct SessionConfig {
     #[default(true)]
     pub enable_skills: bool,
 
+    /// Skill names this agent is allowed to use.
+    ///
+    /// When `None`, all discovered skills are available. When `Some`, only the
+    /// listed skills are exposed in the prompt metadata and can be loaded via
+    /// `use_skill`. When exactly one skill is allowed, its full content is also
+    /// preloaded into the system prompt as a single-skill optimization.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_skills: Option<Vec<String>>,
+
     /// Whether to register MCP tools directly in the agent's tool registry.
     ///
     /// When enabled and the `mcp` feature is active, each tool from every
@@ -355,6 +364,8 @@ impl SessionConfig {
         {
             config.enable_skills = false;
         }
+
+        config.allowed_skills = agent.allowed_skills.clone();
 
         if let Some(val) = agent.options.enable_mcp {
             config.enable_mcp = val;

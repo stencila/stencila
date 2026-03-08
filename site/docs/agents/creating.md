@@ -124,6 +124,19 @@ allowed-tools:
 
 This is useful for agents that should only read (not write) files, or agents that should not have shell access.
 
+## Building Single-Skill Agents
+
+If you want an agent to focus on one workflow only, set `allowed-skills` to a single skill name:
+
+```yaml
+allowed-skills:
+  - code-review
+```
+
+When an agent has exactly one allowed skill, Stencila automatically preloads that skill's full instructions into the initial system prompt in addition to making it available via `use_skill`. This avoids spending an extra model turn to load the only permitted skill and makes single-skill agents more reliable.
+
+If you list multiple skills, only their metadata is included initially and the model can load the full content of a skill on demand with `use_skill`.
+
 ## Trust Levels
 
 The `trust-level` field controls how strictly the agent's tool calls are guarded:

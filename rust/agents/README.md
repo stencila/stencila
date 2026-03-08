@@ -91,13 +91,15 @@ Advantages over direct MCP registration:
 - **Sandboxed.** Code runs in QuickJS with configurable timeouts, memory limits, and tool-call caps. No filesystem or network access beyond the MCP servers.
 - **Observable.** The response includes structured diagnostics, console logs, and a redacted tool-call trace for debugging.
 
-Controlled by `SessionConfig::enable_codemode` (default `false`). Both modes can be enabled simultaneously --- direct MCP tools for simple one-shot calls, codemode for complex orchestration.
+Controlled by `SessionConfig::enable_mcp_codemode` (default `false`). Both modes can be enabled simultaneously --- direct MCP tools for simple one-shot calls, codemode for complex orchestration.
 
 When MCP and/or codemode are enabled in a parent session, spawned subagents inherit the parent's shared MCP connection pool (and codemode dirty-server tracker when enabled) instead of rediscovering/reconnecting servers. This keeps tool availability consistent across parent/child sessions and avoids duplicated server startup overhead.
 
 ### Workspace skills (`feature = "skills"`)
 
-The spec identifies skills as a natural extension point for reusable prompts. This implementation discovers skill files (markdown with YAML frontmatter) from `.stencila/skills/` and provider-specific directories (e.g. `.claude/skills/` for Anthropic). Compact metadata for all discovered skills is included in the system prompt, and a `use_skill` tool is registered so the LLM can load a skill's full instructions on demand. This progressive-disclosure approach keeps the system prompt small while making the complete skill library accessible. Controlled by `SessionConfig::enable_skills` (default `true`).
+The spec identifies skills as a natural extension point for reusable prompts. This implementation discovers skill files (markdown with YAML frontmatter) from `.stencila/skills/` and provider-specific directories (e.g. `.claude/skills/` for Anthropic). Compact metadata for discovered skills is included in the system prompt, and a `use_skill` tool is registered so the LLM can load a skill's full instructions on demand. This progressive-disclosure approach keeps the system prompt small while making the complete skill library accessible. Controlled by `SessionConfig::enable_skills` (default `true`).
+
+As a Stencila extension, agent `allowedSkills` are also applied at prompt-build time. When `allowedSkills` is set, only those skills are exposed in the metadata. When `allowedSkills` contains exactly one skill, that skill's full content is automatically preloaded into the initial system prompt as well as being available via `use_skill`. This improves reliability for single-skill agents and avoids spending an extra model turn just to load the only permitted skill.
 
 ### `CONTEXT_USAGE` event for continuous context tracking (`§5.5`)
 

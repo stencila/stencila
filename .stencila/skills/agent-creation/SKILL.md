@@ -58,7 +58,7 @@ These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`
 - `reasoning-effort` — `low`, `medium`, or `high`. Controls model reasoning depth.
 - `trust-level` — `low`, `medium` (default), or `high`. Controls tool call guard strictness.
 - `allowed-tools` — list of tool names the agent may use. Use a YAML list (one item per line) to avoid confusion. When omitted, all provider tools are available.
-- `allowed-skills` — list of skill names the agent may use. When omitted, all discovered skills are available. Set to `[]` to disable skills.
+- `allowed-skills` — list of skill names the agent may use. When omitted, all discovered skills are available. Set to `[]` to disable skills. When set to exactly one skill, that skill's full content is automatically preloaded into the system prompt in addition to being available via `use_skill`.
 - `allowed-domains` — domain allowlist for `web_fetch`. Supports `*.example.com` wildcards.
 - `disallowed-domains` — domain denylist for `web_fetch`.
 - `max-turns` — maximum conversation turns (0 = unlimited, default: 0).
@@ -104,6 +104,24 @@ You are a code reviewer. When asked to review code:
 2. Check for correctness, security issues, and style problems
 3. Suggest concrete improvements with code examples
 4. Do not modify files — only read and analyze
+```
+
+### Single-skill agent
+
+When an agent should follow exactly one workflow, set `allowed-skills` to that skill name. Stencila preloads the skill's full instructions into the system prompt automatically, so the model doesn't spend a turn calling `use_skill`.
+
+```markdown
+---
+name: code-reviewer
+description: Reviews code using the code-review skill
+allowed-skills:
+  - code-review
+allowed-tools:
+  - read_file
+  - grep
+  - glob
+  - shell
+---
 ```
 
 ### Full-featured agent

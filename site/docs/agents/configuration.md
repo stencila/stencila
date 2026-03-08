@@ -128,7 +128,7 @@ disallowed-domains:
 
 **Type:** `string[]`
 
-Skill names this agent can use. When unset, all discovered skills are available. When set to a non-empty array, only the listed skills are available. When set to an empty array, skills are disabled entirely. See the [skills documentation](../skills/) for more on creating and using skills.
+Skill names this agent can use. When unset, all discovered skills are available. When set to a non-empty array, only the listed skills are available. When set to an empty array, skills are disabled entirely. If the array contains exactly one skill, Stencila automatically preloads that skill's full instructions into the initial system prompt in addition to exposing it via `use_skill`. See the [skills documentation](../skills/) for more on creating and using skills.
 
 ```yaml
 allowed-skills:
