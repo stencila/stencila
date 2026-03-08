@@ -23,7 +23,11 @@ pub fn definition() -> ToolDefinition {
             "properties": {
                 "preamble": {
                     "type": "string",
-                    "description": "Optional Markdown content rendered before the questions as persistent interview context."
+                    "description": "Markdown content rendered before the questions as persistent \
+                        interview context. Use this for any explanatory content that includes \
+                        block-level formatting such as numbered lists, bullet lists, headings, \
+                        or multiple paragraphs. The question text field only supports plain text \
+                        and inline formatting, so longer structured content must go here."
                 },
                 "questions": {
                     "type": "array",
@@ -32,7 +36,10 @@ pub fn definition() -> ToolDefinition {
                         "properties": {
                             "question": {
                                 "type": "string",
-                                "description": "The question text to present."
+                                "description": "The question text to present. Keep this concise \
+                                    (one or two plain-text sentences). If you need to provide \
+                                    longer context with lists, headings, or multiple paragraphs, \
+                                    put that content in the top-level preamble field instead."
                             },
                             "header": {
                                 "type": "string",
@@ -159,6 +166,21 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                     .map(str::trim)
                     .filter(|text| !text.is_empty())
                     .map(str::to_string);
+
+                // When there is no explicit preamble and a single question
+                // contains block-level markdown, auto-split the question text
+                // into preamble + short trailing question so the rich content
+                // renders correctly in the TUI.
+                let preamble = if preamble.is_none()
+                    && questions.len() == 1
+                    && let Some((extracted_preamble, short_question)) =
+                        extract_block_preamble(&questions[0].text)
+                {
+                    questions[0].text = short_question;
+                    Some(extracted_preamble)
+                } else {
+                    preamble
+                };
 
                 let mut interview = if questions.len() == 1 {
                     Interview::single(
@@ -318,6 +340,91 @@ fn format_answers(interview: &Interview) -> String {
 
     output.truncate(output.trim_end().len());
     output
+}
+
+/// Minimum question text length before we consider auto-splitting.
+const BLOCK_SPLIT_MIN_LEN: usize = 120;
+
+/// Maximum length for the extracted trailing question. If the tail is longer
+/// than this it's probably still structured content, not a concise question.
+const BLOCK_SPLIT_MAX_QUESTION_LEN: usize = 200;
+
+/// Check whether `text` contains block-level markdown indicators
+/// (numbered lists, bullet lists, headings, or multi-paragraph breaks).
+fn has_block_markdown(text: &str) -> bool {
+    // Multiple paragraphs
+    if text.contains("\n\n") {
+        return true;
+    }
+    for line in text.lines() {
+        let trimmed = line.trim_start();
+        // Headings (levels 1–6)
+        if let Some(after_hashes) = trimmed.strip_prefix('#') {
+            let after_hashes = after_hashes.trim_start_matches('#');
+            // Must be 1–6 `#` chars total, followed by a space
+            let hash_count = trimmed.len() - after_hashes.len();
+            if hash_count <= 6 && after_hashes.starts_with(' ') {
+                return true;
+            }
+        }
+        // Bullet lists
+        if trimmed.starts_with("- ") || trimmed.starts_with("* ") {
+            return true;
+        }
+        // Numbered lists: digit(s) followed by `. ` or `) `
+        if let Some(rest) = trimmed.strip_prefix(|c: char| c.is_ascii_digit()) {
+            let rest = rest.trim_start_matches(|c: char| c.is_ascii_digit());
+            if rest.starts_with(". ") || rest.starts_with(") ") {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// When a question's text is long and contains block-level markdown, split it
+/// into a preamble (the body) and a short trailing question (the last
+/// sentence that ends with `?`). Returns `Some((preamble, question))` on
+/// success, or `None` if the text doesn't qualify.
+fn extract_block_preamble(text: &str) -> Option<(String, String)> {
+    if text.len() < BLOCK_SPLIT_MIN_LEN || !has_block_markdown(text) {
+        return None;
+    }
+
+    // Find the last `?` — the trailing question should be the sentence
+    // ending at (or near) that position.
+    let q_mark = text.rfind('?')?;
+
+    // Walk backwards from the `?` to find the start of the trailing question
+    // sentence. We look for the nearest sentence boundary: a newline, or a
+    // period/exclamation followed by whitespace.
+    let before = &text[..q_mark];
+    let split_pos = before
+        .rfind('\n')
+        .map(|p| p + 1) // start of last line
+        .or_else(|| {
+            // Look for ". " or "! " sentence boundary
+            before.rfind(". ").map(|p| p + 2)
+        })
+        .or_else(|| before.rfind("! ").map(|p| p + 2))
+        .unwrap_or(0);
+
+    let preamble = text[..split_pos].trim();
+    let question = text[split_pos..].trim();
+
+    // Reject if either part is empty, the preamble is too short to be
+    // meaningful, the trailing question is too long (probably still structured
+    // content), or the trailing question contains embedded newlines.
+    if preamble.is_empty()
+        || question.is_empty()
+        || preamble.len() < 20
+        || question.len() > BLOCK_SPLIT_MAX_QUESTION_LEN
+        || question.contains('\n')
+    {
+        return None;
+    }
+
+    Some((preamble.to_string(), question.to_string()))
 }
 
 pub fn registered_tool(interviewer: Arc<dyn Interviewer>) -> RegisteredTool {
@@ -679,6 +786,207 @@ mod tests {
         assert_eq!(options[25].key, "Z");
         assert_eq!(options[26].key, "27");
         assert_eq!(options[29].key, "30");
+        Ok(())
+    }
+
+    #[test]
+    fn has_block_markdown_detects_numbered_lists() {
+        assert!(has_block_markdown(
+            "Here are items:\n1. First item\n2. Second item\nWhich do you want?"
+        ));
+        assert!(has_block_markdown("I found:\n10. A big item\nOK?"));
+    }
+
+    #[test]
+    fn has_block_markdown_detects_bullet_lists() {
+        assert!(has_block_markdown("Options:\n- alpha\n- beta\nPick one?"));
+        assert!(has_block_markdown("Options:\n* alpha\n* beta\nPick one?"));
+    }
+
+    #[test]
+    fn has_block_markdown_detects_headings() {
+        assert!(has_block_markdown("# Summary\nSome text here, pick one?"));
+        assert!(has_block_markdown("Intro\n## Details\nMore text, agree?"));
+        assert!(has_block_markdown("#### Level 4 heading\nContent here?"));
+        assert!(has_block_markdown("###### Level 6 heading\nContent?"));
+        // Seven hashes is not a valid markdown heading
+        assert!(!has_block_markdown("####### Not a heading"));
+    }
+
+    #[test]
+    fn has_block_markdown_detects_paragraphs() {
+        assert!(has_block_markdown(
+            "First paragraph.\n\nSecond paragraph. OK?"
+        ));
+    }
+
+    #[test]
+    fn has_block_markdown_rejects_plain_text() {
+        assert!(!has_block_markdown(
+            "Should I convert all three, or would you prefer to pick a subset?"
+        ));
+        assert!(!has_block_markdown("Simple **bold** and *italic* text?"));
+    }
+
+    #[test]
+    fn extract_block_preamble_splits_numbered_list() {
+        let text = "I identified three workflows:\n\
+                     1. `test-edge-weights` — Uses LLM prompts but edge-weight routing is purely an engine decision.\n\
+                     2. `test-context-conditions` — Uses LLM prompts but context routing can be fully tested.\n\
+                     3. `test-human-gates` — Already says no LLM calls.\n\
+                     Should I convert all three, or would you prefer to pick a subset?";
+        let (preamble, question) = extract_block_preamble(text).expect("should split");
+        assert!(preamble.contains("1. `test-edge-weights`"));
+        assert!(preamble.contains("3. `test-human-gates`"));
+        assert_eq!(
+            question,
+            "Should I convert all three, or would you prefer to pick a subset?"
+        );
+    }
+
+    #[test]
+    fn extract_block_preamble_returns_none_for_short_text() {
+        assert!(extract_block_preamble("Pick one?\n- a\n- b").is_none());
+    }
+
+    #[test]
+    fn extract_block_preamble_returns_none_for_plain_text() {
+        let text = "Should I convert all three workflows, or would you prefer to pick a subset of them to work on first? Let me know.";
+        // Long enough but no block markdown
+        assert!(extract_block_preamble(text).is_none());
+    }
+
+    #[test]
+    fn extract_block_preamble_returns_none_without_question_mark() {
+        let text = "I found these items:\n1. First\n2. Second\n3. Third\nPlease choose one from the list above.";
+        // No trailing `?` — we need a question mark to identify the question sentence
+        // This is >= 120 chars with block markdown but no `?`
+        let padded = format!(
+            "{text} Some extra padding to make it long enough for the threshold to apply here."
+        );
+        assert!(extract_block_preamble(&padded).is_none());
+    }
+
+    #[test]
+    fn extract_block_preamble_rejects_long_trailing_question() {
+        // When the trailing part after the last newline is very long (>200
+        // chars), the split should be rejected because it's not a concise
+        // question.
+        let text = "Summary of findings:\n\
+                     - Widget A has performance issues\n\
+                     - Widget B has memory leaks\n\
+                     Given these findings and considering the timeline, what should we prioritize? Also, should we consider refactoring Widget C which is deprecated and has several known vulnerabilities that need to be addressed before the next release cycle?";
+        assert!(
+            extract_block_preamble(text).is_none(),
+            "should not split when trailing question exceeds max length"
+        );
+    }
+
+    /// An `Interviewer` that captures the `Interview` it receives and
+    /// auto-approves all questions, for asserting preamble promotion.
+    struct CapturingInterviewer {
+        captured: tokio::sync::Mutex<Option<Interview>>,
+    }
+
+    impl CapturingInterviewer {
+        fn new() -> Self {
+            Self {
+                captured: tokio::sync::Mutex::new(None),
+            }
+        }
+    }
+
+    #[async_trait::async_trait]
+    impl Interviewer for CapturingInterviewer {
+        async fn ask(
+            &self,
+            _question: &Question,
+        ) -> Result<Answer, stencila_interviews::interviewer::InterviewError> {
+            Ok(Answer::new(AV::Text("captured".to_string())))
+        }
+
+        async fn conduct(
+            &self,
+            interview: &mut Interview,
+        ) -> Result<(), stencila_interviews::interviewer::InterviewError> {
+            *self.captured.lock().await = Some(interview.clone());
+            // Fill answers so format_answers works
+            interview.answers = interview
+                .questions
+                .iter()
+                .map(|_| Answer::new(AV::Text("captured".to_string())))
+                .collect();
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn auto_split_promotes_block_markdown_to_preamble() -> AgentResult<()> {
+        let capturing = Arc::new(CapturingInterviewer::new());
+        let iv: Arc<dyn Interviewer> = capturing.clone();
+        let exec = executor(iv);
+        let long_question = "I identified three workflows:\n\
+                              1. `test-edge-weights` — Uses LLM prompts but edge-weight routing is purely an engine decision.\n\
+                              2. `test-context-conditions` — Uses LLM prompts but context routing can be fully tested.\n\
+                              3. `test-human-gates` — Already says no LLM calls.\n\
+                              Should I convert all three, or would you prefer to pick a subset?";
+        let args = json!({
+            "questions": [{"question": long_question}]
+        });
+        exec(args, &env()).await?;
+
+        let captured = capturing.captured.lock().await;
+        let interview = captured
+            .as_ref()
+            .expect("interview should have been captured");
+
+        assert!(
+            interview.preamble.is_some(),
+            "preamble should have been set by auto-split"
+        );
+        let preamble = interview.preamble.as_ref().expect("checked above");
+        assert!(
+            preamble.contains("1. `test-edge-weights`"),
+            "preamble should contain the list items"
+        );
+
+        assert_eq!(interview.questions.len(), 1);
+        assert_eq!(
+            interview.questions[0].text,
+            "Should I convert all three, or would you prefer to pick a subset?"
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn explicit_preamble_prevents_auto_split() -> AgentResult<()> {
+        let capturing = Arc::new(CapturingInterviewer::new());
+        let iv: Arc<dyn Interviewer> = capturing.clone();
+        let exec = executor(iv);
+        let long_question = "I identified three workflows:\n\
+                              1. `test-edge-weights` — Uses LLM prompts.\n\
+                              2. `test-context-conditions` — Uses LLM prompts.\n\
+                              3. `test-human-gates` — Already says no LLM calls.\n\
+                              Should I convert all three?";
+        let args = json!({
+            "preamble": "Here is my analysis:",
+            "questions": [{"question": long_question}]
+        });
+        exec(args, &env()).await?;
+
+        let captured = capturing.captured.lock().await;
+        let interview = captured
+            .as_ref()
+            .expect("interview should have been captured");
+
+        // When explicit preamble is provided, it should be used as-is
+        assert_eq!(interview.preamble.as_deref(), Some("Here is my analysis:"));
+        // Question text should NOT be modified
+        assert!(
+            interview.questions[0]
+                .text
+                .contains("1. `test-edge-weights`")
+        );
         Ok(())
     }
 }
