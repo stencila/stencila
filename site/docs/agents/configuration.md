@@ -94,6 +94,8 @@ allowedTools:
   - web_fetch
 ```
 
+When validating an agent (via `stencila agents validate`), the validator cross-references this list against the `allowedTools` declared by the agent's skills. If a skill needs a tool not in the agent's `allowedTools`, a warning is shown. See [Creating Agents — Validation](creating#validation) for details.
+
 ### `allowedDomains`
 
 **Type:** `string[]`

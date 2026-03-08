@@ -1,12 +1,29 @@
 //! Agent validation.
 //!
 //! Validates agent definitions against naming rules (same as skills) and
-//! property constraints.
+//! property constraints. Optionally cross-references the agent's
+//! `allowedTools` with skills' `allowedTools` to surface mismatches.
+
+use std::collections::BTreeSet;
 
 use regex::Regex;
 use thiserror::Error;
 
 use stencila_schema::Agent;
+
+/// Validation warnings for an agent definition
+///
+/// Warnings are advisory and do not prevent the agent from being used.
+#[derive(Debug, Error, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ValidationWarning {
+    #[error(
+        "skill `{skill_name}` needs tool `{tool_name}` which is not in the agent's allowedTools"
+    )]
+    SkillToolNotAllowed {
+        skill_name: String,
+        tool_name: String,
+    },
+}
 
 /// Validation errors for an agent definition
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -53,7 +70,7 @@ pub enum ValidationError {
     #[error("maxTurns must not be negative, got {0}")]
     MaxTurnsNegative(i64),
 
-    #[error("maxToolRounds must be greater than 0, got {0}")]
+    #[error("maxToolRounds must not be negative, got {0}")]
     MaxToolRoundsInvalid(i64),
 
     #[error("maxSubagentDepth must not be negative, got {0}")]
@@ -161,6 +178,59 @@ pub fn validate_agent(agent: &Agent, dir_name: Option<&str>) -> Vec<ValidationEr
     }
 
     errors
+}
+
+/// Cross-validate the agent's `allowedTools` against its skills' `allowedTools`.
+///
+/// When the agent has an explicit `allowedTools` list, discovers workspace
+/// skills (respecting `allowedSkills` if set) and checks that each skill's
+/// `allowedTools` entries are present in the agent's list.
+///
+/// Returns an empty vec when:
+/// - The agent has no `allowedTools` (all tools permitted)
+/// - Skills are disabled (`allowedSkills` is an empty array)
+/// - No skills declare `allowedTools`
+#[cfg(feature = "skills")]
+pub async fn validate_agent_skills(
+    agent: &Agent,
+    working_dir: &std::path::Path,
+) -> Vec<ValidationWarning> {
+    let mut warnings = BTreeSet::new();
+
+    let agent_tools = match &agent.allowed_tools {
+        Some(tools) => tools,
+        None => return Vec::new(),
+    };
+
+    if let Some(ref skills_list) = agent.allowed_skills
+        && skills_list.is_empty()
+    {
+        return Vec::new();
+    }
+
+    let sources = stencila_skills::SkillSource::all();
+    let skills = stencila_skills::discover(working_dir, &sources).await;
+
+    for skill in &skills {
+        if let Some(ref allowed_skill_names) = agent.allowed_skills
+            && !allowed_skill_names.iter().any(|s| s == &skill.name)
+        {
+            continue;
+        }
+
+        if let Some(ref skill_tools) = skill.allowed_tools {
+            for tool in skill_tools {
+                if !agent_tools.iter().any(|a| a == tool) {
+                    warnings.insert(ValidationWarning::SkillToolNotAllowed {
+                        skill_name: skill.name.clone(),
+                        tool_name: tool.clone(),
+                    });
+                }
+            }
+        }
+    }
+
+    warnings.into_iter().collect()
 }
 
 #[cfg(test)]
@@ -280,5 +350,163 @@ mod tests {
         );
 
         Ok(())
+    }
+
+    // -- validate_agent_skills tests --
+
+    #[cfg(feature = "skills")]
+    mod skill_cross_validation {
+        use super::*;
+
+        fn create_skill_with_tools(
+            base: &std::path::Path,
+            name: &str,
+            tools: &[&str],
+        ) -> eyre::Result<()> {
+            let skill_dir = base.join(".stencila").join("skills").join(name);
+            std::fs::create_dir_all(&skill_dir)?;
+            let tools_section = if tools.is_empty() {
+                String::new()
+            } else {
+                let items: String = tools.iter().map(|t| format!("\n  - {t}")).collect();
+                format!("allowed-tools:{items}\n")
+            };
+            let content = format!(
+                "---\nname: {name}\ndescription: A test skill\n{tools_section}---\n\nInstructions.\n"
+            );
+            std::fs::write(skill_dir.join("SKILL.md"), content)?;
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn no_warnings_when_agent_has_no_allowed_tools() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "my-skill", &["Read", "Write"])?;
+
+            let agent = Agent::new("A test agent".into(), "test".into());
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert!(warnings.is_empty());
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn no_warnings_when_skills_disabled() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "my-skill", &["Read"])?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Write".into()]);
+            agent.allowed_skills = Some(vec![]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert!(warnings.is_empty());
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn no_warnings_when_all_skill_tools_allowed() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "my-skill", &["Read", "Write"])?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Read".into(), "Write".into(), "Bash".into()]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert!(warnings.is_empty());
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn warns_when_skill_tool_not_in_agent_list() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "my-skill", &["Read", "Bash(python:*)"])?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Read".into()]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert_eq!(warnings.len(), 1);
+            assert!(matches!(
+                &warnings[0],
+                ValidationWarning::SkillToolNotAllowed { skill_name, tool_name }
+                    if skill_name == "my-skill" && tool_name == "Bash(python:*)"
+            ));
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn warns_for_multiple_skills() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "alpha", &["Read", "Write"])?;
+            create_skill_with_tools(tmp.path(), "beta", &["Bash"])?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Read".into()]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert_eq!(warnings.len(), 2);
+            let tool_names: Vec<&str> = warnings
+                .iter()
+                .map(|w| match w {
+                    ValidationWarning::SkillToolNotAllowed { tool_name, .. } => tool_name.as_str(),
+                })
+                .collect();
+            assert!(tool_names.contains(&"Write"));
+            assert!(tool_names.contains(&"Bash"));
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn respects_allowed_skills_filter() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "included", &["Read"])?;
+            create_skill_with_tools(tmp.path(), "excluded", &["Bash"])?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Write".into()]);
+            agent.allowed_skills = Some(vec!["included".into()]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert_eq!(warnings.len(), 1);
+            assert!(matches!(
+                &warnings[0],
+                ValidationWarning::SkillToolNotAllowed { skill_name, tool_name }
+                    if skill_name == "included" && tool_name == "Read"
+            ));
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn no_warnings_when_skill_has_no_allowed_tools() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+            create_skill_with_tools(tmp.path(), "my-skill", &[])?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Read".into()]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert!(warnings.is_empty());
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn no_warnings_when_no_skills_exist() -> eyre::Result<()> {
+            let tmp = tempfile::tempdir()?;
+
+            let mut agent = Agent::new("A test agent".into(), "test".into());
+            agent.allowed_tools = Some(vec!["Read".into()]);
+
+            let warnings = validate_agent_skills(&agent, tmp.path()).await;
+
+            assert!(warnings.is_empty());
+            Ok(())
+        }
     }
 }

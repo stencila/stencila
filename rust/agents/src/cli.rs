@@ -41,6 +41,7 @@ enum ResolvedValidationTarget {
     },
     Agent {
         agent: stencila_schema::Agent,
+        agent_path: PathBuf,
         dir_name: Option<String>,
     },
 }
@@ -415,6 +416,35 @@ pub static VALIDATE_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Validate {
+    async fn skill_discovery_root_for_target(target: &ResolvedValidationTarget) -> Result<PathBuf> {
+        match target {
+            ResolvedValidationTarget::Path { path, .. } => {
+                let base = path
+                    .parent()
+                    .filter(|p| !p.as_os_str().is_empty())
+                    .unwrap_or(path);
+                match stencila_dirs::closest_workspace_dir(base, false).await {
+                    Ok(workspace_dir) => Ok(workspace_dir),
+                    Err(_) => Ok(base.to_path_buf()),
+                }
+            }
+            ResolvedValidationTarget::Agent { agent_path, .. } => {
+                if agent_path.as_os_str().is_empty() {
+                    std::env::current_dir().map_err(Into::into)
+                } else {
+                    let base = agent_path
+                        .parent()
+                        .filter(|p| !p.as_os_str().is_empty())
+                        .unwrap_or(&agent_path);
+                    match stencila_dirs::closest_workspace_dir(base, false).await {
+                        Ok(workspace_dir) => Ok(workspace_dir),
+                        Err(_) => Ok(base.to_path_buf()),
+                    }
+                }
+            }
+        }
+    }
+
     /// Resolve the target to either an AGENT.md path or an in-memory agent,
     /// plus optional directory name for name-vs-directory validation.
     async fn resolve_target(&self) -> Result<ResolvedValidationTarget> {
@@ -463,8 +493,11 @@ impl Validate {
                 .map(String::from)
         };
 
+        let agent_path = agent.path().to_path_buf();
+
         Ok(ResolvedValidationTarget::Agent {
             agent: agent.inner,
+            agent_path,
             dir_name,
         })
     }
@@ -489,25 +522,58 @@ impl Validate {
     }
 
     async fn run(self) -> Result<()> {
-        let (agent, dir_name) = match self.resolve_target().await? {
+        let target = self.resolve_target().await?;
+        #[cfg(feature = "skills")]
+        let skill_discovery_root = Self::skill_discovery_root_for_target(&target).await?;
+
+        let (agent, dir_name) = match target {
             ResolvedValidationTarget::Path { path, dir_name } => {
                 let agent = Self::parse_agent(&path).await?;
                 (agent, dir_name)
             }
-            ResolvedValidationTarget::Agent { agent, dir_name } => (agent, dir_name),
+            ResolvedValidationTarget::Agent {
+                agent, dir_name, ..
+            } => (agent, dir_name),
         };
 
         let errors = agent_validate::validate_agent(&agent, dir_name.as_deref());
 
+        #[cfg(feature = "skills")]
+        let warnings =
+            { agent_validate::validate_agent_skills(&agent, &skill_discovery_root).await };
+        #[cfg(not(feature = "skills"))]
+        let warnings: Vec<agent_validate::ValidationWarning> = Vec::new();
+
+        if !warnings.is_empty() {
+            message!(
+                "⚠️  Agent `{}` has {} warning{}:",
+                agent.name,
+                warnings.len(),
+                plural(warnings.len())
+            );
+            for warning in &warnings {
+                message!("  - {}", warning);
+            }
+        }
+
         if errors.is_empty() {
-            message!("🎉 Agent `{}` is valid", agent.name);
+            if warnings.is_empty() {
+                message!("🎉 Agent `{}` is valid", agent.name);
+            } else {
+                message!(
+                    "🎉 Agent `{}` is valid with {} warning{}",
+                    agent.name,
+                    warnings.len(),
+                    plural(warnings.len())
+                );
+            }
             Ok(())
         } else {
             message!(
-                "⚠️  Agent `{}` has {} error{}:",
+                "❌ Agent `{}` has {} error{}:",
                 agent.name,
                 errors.len(),
-                if errors.len() > 1 { "s" } else { "" }
+                plural(errors.len())
             );
             for error in &errors {
                 message!("  - {}", error);
@@ -830,6 +896,10 @@ impl Run {
 // ---------------------------------------------------------------------------
 // Helper functions
 // ---------------------------------------------------------------------------
+
+fn plural(n: usize) -> &'static str {
+    if n == 1 { "" } else { "s" }
+}
 
 /// Build a prompt string from CLI arguments, reading file content for paths
 /// that exist on disk.

@@ -214,13 +214,17 @@ stencila agents validate .stencila/agents/code-reviewer/
 stencila agents validate .stencila/agents/code-reviewer/AGENT.md
 ```
 
-Validation checks:
+Validation checks for **errors** (the agent cannot be used):
 
 - Name format (kebab-case, 1–64 characters)
 - Name matches directory name
 - Description is non-empty and not a placeholder
 - Numeric fields are within valid ranges
 - Compatibility string length (max 500 characters) — see [Configuration Reference](configuration#compatibility)
+
+Validation also checks for **warnings** (advisory, the agent can still be used):
+
+- **Skill tool coverage** — when the agent has an `allowedTools` list, the validator cross-references it against skills' `allowedTools` declarations. If a skill needs a tool that the agent doesn't allow, a warning is shown. This helps catch configuration mismatches where a skill would be unable to use a tool it expects.
 
 ## Configuration-Only Agents
 
