@@ -339,17 +339,47 @@ impl CodergenBackend for AgentCodergenBackend {
             node.id
         );
 
-        // Build overrides from stylesheet-derived node attributes (llm_model,
-        // llm_provider, reasoning_effort). These are set by the attractor
-        // stylesheet transform from the workflow's modelStylesheet.
+        // Build overrides from node attributes. Two sources are merged:
+        //
+        //   1. `agent.*` dotted-key attributes set directly on the node
+        //      (e.g. `agent.model="gpt-4o"`, `agent.provider="openai"`).
+        //      These are the preferred user-facing syntax.
+        //
+        //   2. Stylesheet-derived attributes (`llm_model`, `llm_provider`,
+        //      `reasoning_effort`, `trust_level`, `max_turns`) set by the
+        //      attractor stylesheet transform.
+        //
+        // `agent.*` attributes take precedence over stylesheet attributes.
         let overrides = stencila_agents::convenience::SessionOverrides {
-            model: node.get_str_attr("llm_model").map(String::from),
-            provider: node.get_str_attr("llm_provider").map(String::from),
-            reasoning_effort: node.get_str_attr("reasoning_effort").map(String::from),
+            model: node
+                .get_str_attr("agent.model")
+                .or(node.get_str_attr("llm_model"))
+                .map(String::from),
+            provider: node
+                .get_str_attr("agent.provider")
+                .or(node.get_str_attr("llm_provider"))
+                .map(String::from),
+            reasoning_effort: node
+                .get_str_attr("agent.reasoning-effort")
+                .or(node.get_str_attr("agent.reasoning_effort"))
+                .or(node.get_str_attr("reasoning_effort"))
+                .map(String::from),
+            trust_level: node
+                .get_str_attr("agent.trust-level")
+                .or(node.get_str_attr("agent.trust_level"))
+                .or(node.get_str_attr("trust_level"))
+                .map(String::from),
+            max_turns: node
+                .get_str_attr("agent.max-turns")
+                .or(node.get_str_attr("agent.max_turns"))
+                .or(node.get_str_attr("max_turns"))
+                .and_then(|v| v.parse::<u32>().ok()),
         };
         let has_overrides = overrides.model.is_some()
             || overrides.provider.is_some()
-            || overrides.reasoning_effort.is_some();
+            || overrides.reasoning_effort.is_some()
+            || overrides.trust_level.is_some()
+            || overrides.max_turns.is_some();
 
         let node_iv: Option<Arc<dyn Interviewer>> = self.interviewer.as_ref().map(|iv| {
             // Wrap with StageOverrideInterviewer so ask_user interviews
@@ -488,26 +518,35 @@ impl CodergenBackend for AgentCodergenBackend {
                 tracing::warn!("SQLite save_node_output({node_id}) failed: {e}");
             }
 
-            let metadata = self.agent_metadata.get(agent_name);
-            if let Some(meta) = metadata {
-                if let Some(model) = &meta.model {
-                    context.set(
-                        format!("internal.model.{}", node.id),
-                        serde_json::json!(model),
-                    );
-                }
-                if let Some(provider) = &meta.provider {
-                    context.set(
-                        format!("internal.provider.{}", node.id),
-                        serde_json::json!(provider),
-                    );
-                }
+            // Compute effective model/provider using the same precedence as
+            // session creation: agent.* overrides > stylesheet > base agent metadata.
+            let base_metadata = self.agent_metadata.get(agent_name);
+            let effective_model = overrides
+                .model
+                .as_deref()
+                .or(base_metadata.and_then(|m| m.model.as_deref()));
+            let effective_provider = overrides
+                .provider
+                .as_deref()
+                .or(base_metadata.and_then(|m| m.provider.as_deref()));
+
+            if let Some(model) = effective_model {
+                context.set(
+                    format!("internal.model.{}", node.id),
+                    serde_json::json!(model),
+                );
+            }
+            if let Some(provider) = effective_provider {
+                context.set(
+                    format!("internal.provider.{}", node.id),
+                    serde_json::json!(provider),
+                );
             }
             let record = stencila_attractor::sqlite_backend::NodeRecord {
                 node_id: &node_id,
                 status: "running",
-                model: metadata.and_then(|meta| meta.model.as_deref()),
-                provider: metadata.and_then(|meta| meta.provider.as_deref()),
+                model: effective_model,
+                provider: effective_provider,
                 duration_ms: None,
                 input_tokens: Some(node_input_tokens),
                 output_tokens: Some(node_output_tokens),

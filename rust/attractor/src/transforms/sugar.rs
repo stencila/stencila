@@ -126,7 +126,10 @@ impl Transform for NodeSugarTransform {
             // resolution will treat a box-shaped Start as a start handler
             // anyway. Setting the structural shape keeps everything
             // consistent and avoids surprises in validation/find_start_node.
-            if node.attrs.contains_key("prompt") || node.attrs.contains_key("agent") {
+            if node.attrs.contains_key("prompt")
+                || node.attrs.contains_key("agent")
+                || node.attrs.keys().any(|k| k.starts_with("agent."))
+            {
                 let id = &node.id;
                 if Graph::START_IDS.contains(&id.as_str()) {
                     node.attrs.insert(

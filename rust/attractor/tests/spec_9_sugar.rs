@@ -673,6 +673,36 @@ fn agent_on_fanout_id_keeps_codergen() -> AttractorResult<()> {
 }
 
 #[test]
+fn agent_dotted_key_on_review_id_keeps_codergen() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> ReviewCode -> End
+            ReviewCode [agent.model="o3", agent.provider="openai"]
+        }
+        "#,
+    )?;
+    assert_eq!(node_shape(&g, "ReviewCode"), "box");
+    assert_eq!(g.get_node("ReviewCode").unwrap().handler_type(), "codergen");
+    Ok(())
+}
+
+#[test]
+fn agent_trust_level_on_node_keeps_codergen() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Risky -> End
+            Risky [agent.trust-level="high", agent.max-turns="20"]
+        }
+        "#,
+    )?;
+    assert_eq!(node_shape(&g, "Risky"), "box");
+    assert_eq!(g.get_node("Risky").unwrap().handler_type(), "codergen");
+    Ok(())
+}
+
+#[test]
 fn prompt_on_shell_id_keeps_codergen() -> AttractorResult<()> {
     let g = apply_sugar(
         r#"

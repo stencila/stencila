@@ -124,6 +124,15 @@ The engine resolves agent names using the standard agent discovery order (worksp
 
 When a node has no `agent` attribute, the engine uses a default agent. Explicit node attributes (like `llm_model` or `llm_provider`) override the agent's defaults.
 
+You can also override specific agent properties inline using `agent.*` dotted-key attributes:
+
+```dot
+Build [agent="code-engineer", agent.provider="openai", agent.model="o3"]
+Test  [agent="code-tester", agent.reasoning-effort="high"]
+```
+
+See [Pipelines — Agent property overrides](pipelines#agent-property-overrides) for details.
+
 ## Setting a Goal
 
 The `goal` field provides a high-level objective for the pipeline. It is expanded as `$goal` in node prompts:

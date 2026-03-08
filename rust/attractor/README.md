@@ -73,6 +73,24 @@ These are expanded per-stage during the engine loop, not at graph parse time.
 
 The `agent` node attribute specifies which Stencila agent should execute the node (e.g., `agent="code-engineer"`). This is not part of the attractor spec; the spec uses the `codergen` handler with a pluggable `CodergenBackend`. The `agent` attribute is a Stencila-specific extension that maps nodes to named agents in the Stencila agent registry.
 
+Agent properties can be overridden per-node using `agent.*` dotted-key attributes:
+
+| Attribute                 | Description                                       |
+|---------------------------|---------------------------------------------------|
+| `agent.model`             | Override the model (e.g. `"gpt-4o"`)              |
+| `agent.provider`          | Override the provider (e.g. `"openai"`)           |
+| `agent.reasoning-effort`  | Override reasoning effort (`"low"`, `"medium"`, `"high"`) |
+| `agent.trust-level`       | Override trust level (`"low"`, `"medium"`, `"high"`)      |
+| `agent.max-turns`         | Override maximum conversation turns (e.g. `"10"`)         |
+
+These take precedence over stylesheet-derived values (`llm_model`, `llm_provider`, `reasoning_effort`, `trust_level`, `max_turns`). When not specified, the agent definition's own values are used as defaults. Example:
+
+```dot
+Build [agent="code-engineer", agent.provider="openai", agent.model="o3"]
+```
+
+The kebab-case form (`agent.reasoning-effort`) is preferred for consistency with agent definition property naming, but snake_case (`agent.reasoning_effort`) is also accepted.
+
 ### Human shape alias
 
 `shape=human` is accepted as an alias for `shape=hexagon`, mapping to the `wait.human` handler type. This provides a more intuitive way to declare human-in-the-loop nodes (e.g., `Review [shape=human]`).

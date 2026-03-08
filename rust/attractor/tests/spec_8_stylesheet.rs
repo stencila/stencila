@@ -164,6 +164,44 @@ fn parse_accepts_all_valid_reasoning_effort_values() -> AttractorResult<()> {
 }
 
 #[test]
+fn parse_accepts_all_valid_trust_level_values() -> AttractorResult<()> {
+    for val in &["low", "medium", "high"] {
+        let input = format!("* {{ trust_level: {val}; }}");
+        let s = parse_stylesheet(&input)?;
+        assert_eq!(s.rules[0].declarations[0].property, "trust_level");
+        assert_eq!(s.rules[0].declarations[0].value, *val);
+    }
+    Ok(())
+}
+
+#[test]
+fn parse_rejects_invalid_trust_level_value() {
+    let result = parse_stylesheet("* { trust_level: extreme; }");
+    assert!(result.is_err(), "trust_level: extreme should be rejected");
+    let err = result.expect_err("should reject invalid trust_level");
+    assert!(
+        err.to_string().contains("invalid trust_level value"),
+        "{err}"
+    );
+}
+
+#[test]
+fn parse_accepts_valid_max_turns_value() -> AttractorResult<()> {
+    let s = parse_stylesheet("* { max_turns: 10; }")?;
+    assert_eq!(s.rules[0].declarations[0].property, "max_turns");
+    assert_eq!(s.rules[0].declarations[0].value, "10");
+    Ok(())
+}
+
+#[test]
+fn parse_rejects_non_integer_max_turns_value() {
+    let result = parse_stylesheet("* { max_turns: abc; }");
+    assert!(result.is_err(), "max_turns: abc should be rejected");
+    let err = result.expect_err("should reject non-integer max_turns");
+    assert!(err.to_string().contains("invalid max_turns value"), "{err}");
+}
+
+#[test]
 fn parse_rejects_unquoted_value_with_spaces() {
     let result = parse_stylesheet("* { llm_model: has spaces; }");
     assert!(

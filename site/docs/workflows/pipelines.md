@@ -110,15 +110,39 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 
 ## Common attributes
 
-| Attribute         | Type     | Description |
-|-------------------|----------|-------------|
-| `label`           | String   | Display name for the node. Used as the prompt fallback if `prompt` is empty. |
-| `prompt`          | String   | Instruction for the LLM. Supports variable expansion (see below). |
-| `agent`           | String   | Stencila agent to execute this node (e.g., `"code-engineer"`). |
-| `max_retries`     | Integer  | Additional retry attempts beyond the initial execution. |
-| `goal_gate`       | Boolean  | If `true`, this node must succeed before the pipeline can exit. |
-| `timeout`         | Duration | Maximum execution time (e.g., `900s`, `15m`). |
-| `class`           | String   | Comma-separated class names for model stylesheet targeting. |
+| Attribute                | Type     | Description |
+|--------------------------|----------|-------------|
+| `label`                  | String   | Display name for the node. Used as the prompt fallback if `prompt` is empty. |
+| `prompt`                 | String   | Instruction for the LLM. Supports variable expansion (see below). |
+| `agent`                  | String   | Stencila agent to execute this node (e.g., `"code-engineer"`). |
+| `agent.model`            | String   | Override the agent's model (e.g., `"gpt-4o"`, `"o3"`). |
+| `agent.provider`         | String   | Override the agent's provider (e.g., `"openai"`, `"anthropic"`). |
+| `agent.reasoning-effort` | String   | Override reasoning effort (`"low"`, `"medium"`, `"high"`). |
+| `agent.trust-level`      | String   | Override the agent's trust level (`"low"`, `"medium"`, `"high"`). |
+| `agent.max-turns`        | Integer  | Override maximum conversation turns (0 = unlimited). |
+| `max_retries`            | Integer  | Additional retry attempts beyond the initial execution. |
+| `goal_gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit. |
+| `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`). |
+| `class`                  | String   | Comma-separated class names for model stylesheet targeting. |
+
+## Agent property overrides
+
+When a node references an agent via `agent="name"`, you can override specific agent properties inline using `agent.*` dotted-key attributes:
+
+```dot
+Build [agent="code-engineer", agent.provider="openai", agent.model="o3"]
+Test  [agent="code-tester", agent.reasoning-effort="high"]
+Risky [agent="code-engineer", agent.trust-level="high", agent.max-turns="20"]
+```
+
+This lets you use a shared agent definition while customizing its behavior per-node — for example, running a particular stage with a more capable model or a different provider.
+
+The override precedence order (highest to lowest):
+
+1. **`agent.*` node attributes** — explicit overrides on the node
+2. **Model stylesheet rules** — from `model_stylesheet` selectors
+3. **Agent definition** — from the named agent's `AGENT.md`
+4. **System defaults**
 
 ## Prompt variables
 
@@ -402,8 +426,8 @@ digraph StyledWorkflow {
         goal="Analyze and report on experimental results",
         model_stylesheet="
             * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
-            .analysis { llm_model: claude-opus-4-6; }
-            #statistical_review { llm_model: o3; llm_provider: openai; reasoning_effort: high; }
+            .analysis { llm_model: claude-opus-4; }
+            #statistical_review { llm_model: o3; llm_provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
         "
     ]
 
@@ -436,7 +460,7 @@ digraph ResearchWorkflow {
         goal="Systematic review of renewable energy storage technologies",
         model_stylesheet="
             * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
-            .deep_analysis { llm_model: claude-opus-4-6; }
+            .deep_analysis { llm_model: claude-opus-4; }
         "
     ]
 

@@ -1068,6 +1068,41 @@ fn qualified_attr_key() -> TestResult {
 }
 
 #[test]
+fn kebab_qualified_attr_key() -> TestResult {
+    let dot = r#"digraph G {
+        A [agent="coder", agent.model="o3", agent.provider="openai", agent.reasoning-effort="high"]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(a.get_str_attr("agent"), Some("coder"));
+    assert_eq!(a.get_str_attr("agent.model"), Some("o3"));
+    assert_eq!(a.get_str_attr("agent.provider"), Some("openai"));
+    assert_eq!(a.get_str_attr("agent.reasoning-effort"), Some("high"));
+    Ok(())
+}
+
+#[test]
+fn kebab_qualified_attr_key_trust_and_turns() -> TestResult {
+    let dot = r#"digraph G {
+        A [agent="coder", agent.trust-level="high", agent.max-turns="20"]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(a.get_str_attr("agent"), Some("coder"));
+    assert_eq!(a.get_str_attr("agent.trust-level"), Some("high"));
+    assert_eq!(a.get_str_attr("agent.max-turns"), Some("20"));
+    Ok(())
+}
+
+#[test]
+fn kebab_qualified_attr_key_snake_case_also_works() -> TestResult {
+    let dot = r#"digraph G {
+        A [agent.reasoning_effort="medium"]
+    }"#;
+    let (_, a) = parse_and_get_node(dot, "A")?;
+    assert_eq!(a.get_str_attr("agent.reasoning_effort"), Some("medium"));
+    Ok(())
+}
+
+#[test]
 fn semicolons_optional() -> TestResult {
     let dot = r#"
         digraph G {

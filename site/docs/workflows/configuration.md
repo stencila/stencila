@@ -120,7 +120,7 @@ graph [default_fidelity="compact"]
 
 ## Node Attributes
 
-Node attributes are set on individual nodes in the DOT pipeline. See [Pipelines — Common attributes](pipelines#common-attributes) for the full reference, including `prompt`, `agent`, `shape`, `max_retries`, `goal_gate`, `timeout`, and `class`.
+Node attributes are set on individual nodes in the DOT pipeline. See [Pipelines — Common attributes](pipelines#common-attributes) for the full reference, including `prompt`, `agent`, `agent.model`, `agent.provider`, `agent.reasoning-effort`, `agent.trust-level`, `agent.max-turns`, `shape`, `max_retries`, `goal_gate`, `timeout`, and `class`.
 
 ## Edge Attributes
 

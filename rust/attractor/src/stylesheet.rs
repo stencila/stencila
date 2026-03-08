@@ -1,7 +1,8 @@
 //! Model stylesheet application (§8).
 //!
 //! Applies CSS-like rules to pipeline nodes, setting default LLM
-//! configuration (`llm_model`, `llm_provider`, `reasoning_effort`).
+//! configuration (`llm_model`, `llm_provider`, `reasoning_effort`,
+//! `trust_level`, `max_turns`).
 //!
 //! # Application order (§8.5)
 //!

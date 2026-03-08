@@ -13,6 +13,7 @@
 //! ClassName     ::= [a-z0-9-]+
 //! Declaration   ::= Property ':' PropertyValue
 //! Property      ::= 'llm_model' | 'llm_provider' | 'reasoning_effort'
+//!                 | 'trust_level' | 'max_turns'
 //! PropertyValue ::= QuotedString | Identifier
 //! ```
 
@@ -21,10 +22,19 @@ use crate::error::{AttractorError, AttractorResult};
 /// The set of property names allowed by the §8.2 grammar.
 ///
 /// Shared by the parser (for syntax validation) and `stylesheet.rs` (for application).
-pub const ALLOWED_PROPERTIES: &[&str] = &["llm_model", "llm_provider", "reasoning_effort"];
+pub const ALLOWED_PROPERTIES: &[&str] = &[
+    "llm_model",
+    "llm_provider",
+    "reasoning_effort",
+    "trust_level",
+    "max_turns",
+];
 
 /// Valid values for `reasoning_effort` per §8.4.
 const REASONING_EFFORT_VALUES: &[&str] = &["low", "medium", "high"];
+
+/// Valid values for `trust_level`.
+const TRUST_LEVEL_VALUES: &[&str] = &["low", "medium", "high"];
 
 /// A parsed selector from the stylesheet grammar.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -283,6 +293,25 @@ fn parse_declaration(input: &str, pos: usize) -> AttractorResult<(Declaration, u
                 "invalid reasoning_effort value `{value}` (allowed: {})",
                 REASONING_EFFORT_VALUES.join(", ")
             ),
+        ));
+    }
+
+    if property == "trust_level" && !TRUST_LEVEL_VALUES.contains(&value.as_str()) {
+        return Err(stylesheet_error(
+            input,
+            value_start,
+            &format!(
+                "invalid trust_level value `{value}` (allowed: {})",
+                TRUST_LEVEL_VALUES.join(", ")
+            ),
+        ));
+    }
+
+    if property == "max_turns" && value.parse::<u32>().is_err() {
+        return Err(stylesheet_error(
+            input,
+            value_start,
+            &format!("invalid max_turns value `{value}` (expected a non-negative integer)"),
         ));
     }
 

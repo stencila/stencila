@@ -13,7 +13,7 @@ use crate::transform::Transform;
 /// Applies the model stylesheet to graph nodes.
 ///
 /// Reads the `model_stylesheet` graph attribute, parses the CSS-like
-/// rules, and sets `llm_model`, `llm_provider`, and `reasoning_effort`
+/// rules, and sets `llm_model`, `llm_provider`, `reasoning_effort`, `trust_level`, and `max_turns`
 /// attributes on matching nodes (unless already explicitly set).
 pub struct StylesheetTransform;
 

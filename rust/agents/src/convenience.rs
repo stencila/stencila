@@ -30,6 +30,10 @@ pub struct SessionOverrides {
     pub provider: Option<String>,
     /// Override the reasoning effort (e.g. from `reasoning_effort` node attribute).
     pub reasoning_effort: Option<String>,
+    /// Override the trust level (e.g. from `trust_level` node attribute).
+    pub trust_level: Option<String>,
+    /// Override the maximum turns (e.g. from `max_turns` node attribute).
+    pub max_turns: Option<u32>,
 }
 
 /// Options for [`create_agent`].
@@ -267,16 +271,19 @@ async fn create_session_full(
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
     let (agent, mut config) = load_agent_and_config(name).await?;
 
-    // Apply reasoning_effort override from stylesheet before routing.
-    if let Some(ovr) = overrides
-        && let Some(ref effort) = ovr.reasoning_effort
-    {
-        config.reasoning_effort = Some(match effort.as_str() {
-            "low" => crate::types::ReasoningEffort::Low,
-            "medium" => crate::types::ReasoningEffort::Medium,
-            "high" => crate::types::ReasoningEffort::High,
-            other => crate::types::ReasoningEffort::Custom(other.to_string()),
-        });
+    // Apply overrides from stylesheet / agent.* node attributes before routing.
+    if let Some(ovr) = overrides {
+        if let Some(ref effort) = ovr.reasoning_effort {
+            config.reasoning_effort = Some(match effort.as_str() {
+                "low" => crate::types::ReasoningEffort::Low,
+                "medium" => crate::types::ReasoningEffort::Medium,
+                "high" => crate::types::ReasoningEffort::High,
+                other => crate::types::ReasoningEffort::Custom(other.to_string()),
+            });
+        }
+        if let Some(turns) = ovr.max_turns {
+            config.max_turns = turns;
+        }
     }
 
     // Compute effective model/provider: override > agent definition.
@@ -333,9 +340,16 @@ async fn create_session_full(
                     message: "No API client available".to_string(),
                 })
             })?;
-            let (session, event_receiver) =
-                create_api_session_inner(provider, model, api_client, config, &agent, interviewer)
-                    .await?;
+            let (session, event_receiver) = create_api_session_inner(
+                provider,
+                model,
+                api_client,
+                config,
+                &agent,
+                interviewer,
+                overrides,
+            )
+            .await?;
             emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Api(session), event_receiver))
         }
@@ -351,6 +365,7 @@ async fn create_api_session_inner(
     config: SessionConfig,
     agent: &AgentInstance,
     interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
+    overrides: Option<&SessionOverrides>,
 ) -> AgentResult<(ApiSession, EventReceiver)> {
     let max_timeout = config.max_command_timeout_ms;
 
@@ -364,9 +379,12 @@ async fn create_api_session_inner(
     let env = Arc::new(LocalExecutionEnvironment::new("."));
     let llm_client = Arc::new(Models3Client::new(client));
 
-    // Build tool guard from agent definition
+    // Build tool guard: override trust_level > agent definition > default (medium).
     let workspace_root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    let trust_level = TrustLevel::from_schema(agent.trust_level.as_deref());
+    let trust_level = overrides
+        .and_then(|o| o.trust_level.as_deref())
+        .or(agent.trust_level.as_deref());
+    let trust_level = TrustLevel::from_schema(trust_level);
     let allowed_domains = agent.options.allowed_domains.clone();
     let disallowed_domains = agent.options.disallowed_domains.clone();
     let tool_guard = Arc::new(ToolGuard::new(

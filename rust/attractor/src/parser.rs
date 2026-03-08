@@ -285,11 +285,24 @@ fn node_id(input: &mut &str) -> ModalResult<String> {
     identifier.map(String::from).parse_next(input)
 }
 
-/// Parse a qualified identifier: `identifier ('.' identifier)+` for dotted keys.
-fn qualified_id<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
+/// Parse a kebab-qualified identifier: `identifier ('.' kebab_segment)+`
+/// where kebab segments allow hyphens (e.g. `agent.reasoning-effort`).
+fn kebab_qualified_id<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
     (
         bare_identifier,
-        repeat(1.., ('.', bare_identifier)).fold(|| (), |(), _| ()),
+        repeat(
+            1..,
+            (
+                '.',
+                (
+                    take_while(1, |c: char| c.is_ascii_alphabetic() || c == '_'),
+                    take_while(0.., |c: char| {
+                        c.is_ascii_alphanumeric() || c == '_' || c == '-'
+                    }),
+                ),
+            ),
+        )
+        .fold(|| (), |(), _| ()),
     )
         .take()
         .parse_next(input)
@@ -297,7 +310,7 @@ fn qualified_id<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
 
 /// Parse an attribute key — qualified or simple identifier.
 fn attr_key<'s>(input: &mut &'s str) -> ModalResult<&'s str> {
-    alt((qualified_id, bare_identifier)).parse_next(input)
+    alt((kebab_qualified_id, bare_identifier)).parse_next(input)
 }
 
 // ---------------------------------------------------------------------------
