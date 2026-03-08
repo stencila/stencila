@@ -1,0 +1,240 @@
+---
+title: Creating Agents
+description: How to create and configure custom agents with AGENT.md files.
+---
+
+## Quick Start
+
+Create a new agent with the CLI:
+
+```sh
+stencila agents create my-agent "A helpful coding assistant"
+```
+
+This creates `.stencila/agents/my-agent/AGENT.md` in your workspace with a template you can edit. To create a user-level agent (shared across all workspaces), add `--user`:
+
+```sh
+stencila agents create my-agent "A helpful coding assistant" --user
+```
+
+## The AGENT.md File
+
+An agent is a directory containing an `AGENT.md` file. The file has two parts:
+
+1. **YAML frontmatter** — configuration (name, model, provider, tools, etc.)
+2. **Markdown body** (optional) — system instructions appended to the prompt
+
+Here is a minimal example:
+
+```markdown
+---
+name: code-engineer
+description: A general-purpose coding agent
+---
+```
+
+And a fully configured example:
+
+```markdown
+---
+name: code-reviewer
+description: Reviews code for correctness, style, and security issues
+model: claude-sonnet-4-5
+provider: anthropic
+reasoningEffort: high
+trustLevel: medium
+allowedTools:
+  - read_file
+  - grep
+  - glob
+  - shell
+---
+
+You are a code reviewer. When asked to review code:
+
+1. Read the files and understand the change
+2. Check for correctness, security issues, and style problems
+3. Suggest concrete improvements with code examples
+4. Do not modify files — only read and analyze
+```
+
+## Agent Names
+
+Agent names must be **lowercase kebab-case**:
+
+- 1–64 characters
+- Only lowercase alphanumeric characters and hyphens
+- No leading, trailing, or consecutive hyphens
+
+By convention, names follow a `thing-role` pattern describing the agent's domain and function:
+
+| Name | Domain | Role |
+| ---- | ------ | ---- |
+| `code-engineer` | code | engineer |
+| `code-reviewer` | code | reviewer |
+| `data-analyst` | data | analyst |
+| `site-designer` | site | designer |
+
+The agent's directory name must match the `name` field in the frontmatter. Validation will flag mismatches.
+
+## Directory Structure
+
+Agent definitions live in an `agents/` directory under `.stencila/` (workspace) or `~/.config/stencila/` (user). Each agent gets its own subdirectory:
+
+```
+.stencila/
+  agents/
+    code-engineer/
+      AGENT.md
+    code-reviewer/
+      AGENT.md
+    data-analyst/
+      AGENT.md
+```
+
+## Choosing a Model and Provider
+
+The `model` and `provider` fields control which LLM the agent uses. Both are optional:
+
+```yaml
+model: claude-sonnet-4-5
+provider: anthropic
+```
+
+- If only `model` is set, the provider is inferred from the model name.
+- If only `provider` is set, the default model for that provider is used.
+- If neither is set, the first available provider with valid credentials is used.
+
+Supported providers: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `deepseek`.
+
+For CLI-backed sessions, set the provider to the CLI variant: `claude-cli`, `codex-cli`, or `gemini-cli`.
+
+## Restricting Tools
+
+By default, agents have access to all tools registered for their provider. Use `allowedTools` to restrict an agent to specific tools:
+
+```yaml
+allowedTools:
+  - read_file
+  - grep
+  - glob
+```
+
+This is useful for agents that should only read (not write) files, or agents that should not have shell access.
+
+## Trust Levels
+
+The `trustLevel` field controls how strictly the agent's tool calls are guarded:
+
+| Level | Behavior |
+| ----- | -------- |
+| `low` | Shell commands default to deny unless they match a known-safe pattern. Strictest file and web rules. |
+| `medium` (default) | Default-allow with destructive behavior blocking. |
+| `high` | Default-allow with relaxed blocking. |
+
+```yaml
+trustLevel: low
+```
+
+## Reasoning Effort
+
+Control how much the model reasons before responding with the `reasoningEffort` field:
+
+```yaml
+reasoningEffort: high
+```
+
+Valid values: `low`, `medium`, `high`. When not set, the provider's default is used. Higher reasoning effort uses more tokens but can improve quality on complex tasks.
+
+## Limiting Turns and Tool Rounds
+
+Control how long an agent can run:
+
+```yaml
+maxTurns: 20           # Maximum conversation turns (0 = unlimited)
+maxToolRounds: 10      # Maximum tool-call rounds per user input
+toolTimeout: 60        # Default tool timeout in seconds
+maxSubagentDepth: 2    # Maximum subagent nesting depth
+```
+
+## MCP Server Integration
+
+Agents can use tools from [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) servers. Two modes are available:
+
+**Codemode** (default, token-efficient): A single `mcp_codemode` tool lets the model write JavaScript to orchestrate MCP calls in a sandboxed environment.
+
+```yaml
+enableMcpCodemode: true    # default
+```
+
+**Direct registration**: Each MCP server tool is registered individually. Simpler but uses more tokens.
+
+```yaml
+enableMcp: true
+enableMcpCodemode: false
+```
+
+Restrict which MCP servers an agent can access:
+
+```yaml
+allowedMcpServers:
+  - context7
+  - my-database
+```
+
+## Domain Restrictions
+
+Control which domains the agent can access with `web_fetch`:
+
+```yaml
+# Allow only specific domains
+allowedDomains:
+  - docs.rs
+  - "*.github.com"
+
+# Or deny specific domains
+disallowedDomains:
+  - internal.corp.example.com
+```
+
+Wildcard subdomains (`*.example.com`) are supported. When both lists are set, the allowlist takes precedence.
+
+## Validation
+
+Validate an agent definition before using it:
+
+```sh
+# Validate by name
+stencila agents validate code-reviewer
+
+# Validate by path
+stencila agents validate .stencila/agents/code-reviewer/
+
+# Validate an AGENT.md file directly
+stencila agents validate .stencila/agents/code-reviewer/AGENT.md
+```
+
+Validation checks:
+
+- Name format (kebab-case, 1–64 characters)
+- Name matches directory name
+- Description is non-empty and not a placeholder
+- Numeric fields are within valid ranges
+- Compatibility string length (max 500 characters) — see [Configuration Reference](configuration#compatibility)
+
+## Configuration-Only Agents
+
+An agent does not need a Markdown body. A frontmatter-only `AGENT.md` is valid and simply configures which model, provider, and settings to use without adding custom system instructions:
+
+```markdown
+---
+name: fast-coder
+description: Quick coding tasks with a fast model
+model: claude-haiku-3-5
+provider: anthropic
+reasoningEffort: low
+maxTurns: 5
+---
+```
+
+This is useful for creating model/provider shortcuts or for agents where the project docs (`AGENTS.md`, `CLAUDE.md`, etc.) already provide sufficient instructions.
