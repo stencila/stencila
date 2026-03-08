@@ -72,12 +72,12 @@ impl Cli {
     /// Returns an error if the subcommand fails.
     pub async fn run_with_auth(self, auth: &AuthOptions) -> Result<()> {
         let Some(command) = self.command else {
-            List::default().run(auth)?;
+            List::default().run(auth).await?;
             return Ok(());
         };
 
         match command {
-            Command::List(list) => list.run(auth)?,
+            Command::List(list) => list.run(auth).await?,
             Command::Run(run) => run.run(auth).await?,
         }
 
@@ -91,6 +91,10 @@ impl Cli {
 struct List {
     /// Filter models by provider or ID prefix (e.g. "anthropic", "gpt-4")
     prefix: Option<String>,
+
+    /// Fetch current model listings from configured providers before listing
+    #[arg(long)]
+    live: bool,
 
     /// Output the list as JSON or YAML
     #[arg(long, short)]
@@ -108,16 +112,58 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
   <dim># Filter models by ID prefix</dim>
   <b>stencila models list</b> <g>gpt-4</g>
 
+  <dim># Refresh from provider APIs before listing</dim>
+  <b>stencila models list</b> <c>--live</c>
+
   <dim># Output models as JSON</dim>
   <b>stencila models list</b> <c>--as</c> <g>json</g>
 
   <dim># Output models as YAML</dim>
   <b>stencila models list</b> <c>--as</c> <g>yaml</g>
+
+<bold><b>Notes</b></bold>
+  By default, model listings come from Stencila's embedded catalog.
+  Use <c>--live</c> to also query configured provider APIs and include newly discovered models.
+  Live listing only works for providers you have credentials for.
 "
 );
 
 impl List {
-    fn run(self, auth: &AuthOptions) -> Result<()> {
+    async fn run(self, auth: &AuthOptions) -> Result<()> {
+        if self.live {
+            let client = if auth.overrides.is_empty() {
+                crate::client::Client::from_env()
+            } else {
+                crate::client::Client::from_env_with_auth(auth)
+            }
+            .map_err(|e| eyre::eyre!("{e}"))?;
+
+            let refresh = catalog::refresh(&client)
+                .await
+                .map_err(|e| eyre::eyre!("{e}"))?;
+
+            if !refresh.new_models.is_empty() {
+                message!(
+                    "Added {} new model(s) from live provider listings",
+                    refresh.new_models.len()
+                );
+            }
+
+            if !refresh.provider_errors.is_empty() {
+                let providers = refresh
+                    .provider_errors
+                    .iter()
+                    .map(|(provider, _)| provider.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                message!(
+                    "Live listing failed for {} provider(s): {}",
+                    refresh.provider_errors.len(),
+                    providers
+                );
+            }
+        }
+
         let mut models = catalog::list_models(None).map_err(|e| eyre::eyre!("{e}"))?;
 
         if let Some(prefix) = &self.prefix {
