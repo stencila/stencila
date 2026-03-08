@@ -42,9 +42,9 @@ export class Workflow extends CreativeWork {
   goal?: string;
 
   /**
-   * CSS-like stylesheet for supplementary per-node LLM model and provider overrides.
+   * CSS-like rules for per-node agent overrides across the pipeline.
    */
-  modelStylesheet?: string;
+  overrides?: string;
 
   /**
    * Global retry ceiling for nodes that omit max_retries.

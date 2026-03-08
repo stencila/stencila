@@ -3495,8 +3495,8 @@ class Workflow(CreativeWork):
     goal: str | None = None
     """The high-level goal for the pipeline."""
 
-    model_stylesheet: str | None = None
-    """CSS-like stylesheet for supplementary per-node LLM model and provider overrides."""
+    overrides: str | None = None
+    """CSS-like rules for per-node agent overrides across the pipeline."""
 
     default_max_retry: int | None = None
     """Global retry ceiling for nodes that omit max_retries."""

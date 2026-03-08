@@ -720,14 +720,10 @@
       "$comment": "Exposed as `$goal` in node prompt templates and mirrored into the run context as\n`graph.goal`. Maps to the `goal` graph-level attribute in the Attractor specification.\n",
       "type": "string"
     },
-    "modelStylesheet": {
-      "@id": "stencila:modelStylesheet",
-      "description": "CSS-like stylesheet for supplementary per-node LLM model and provider overrides.",
-      "$comment": "The primary way to configure model, provider, reasoning effort, and tools for workflow\nnodes is through agent definitions referenced via the `agent` attribute on each node.\nThe model stylesheet provides a supplementary mechanism for bulk overrides across nodes\nby shape, class, or ID — useful when you want to adjust model selection across many\nnodes without modifying individual agent definitions. For example:\n\n  box { model = \"claude-sonnet-4-5\" }\n  .critical { reasoning_effort = \"high\" }\n  #review { model = \"gpt-5.2\" }\n\nSpecificity order: universal < shape < class < ID. Stylesheet values override agent\ndefaults but are themselves overridden by explicit node attributes. Maps to the\n`model_stylesheet` graph-level attribute in the Attractor specification.\n",
-      "aliases": [
-        "model-stylesheet",
-        "model_stylesheet"
-      ],
+    "overrides": {
+      "@id": "stencila:overrides",
+      "description": "CSS-like rules for per-node agent overrides across the pipeline.",
+      "$comment": "The main mechanism for configuring agent behavior is through agent definitions\nreferenced via the `agent` attribute on each node. The overrides property provides\na supplementary mechanism for bulk per-node agent overrides by class or ID — useful\nwhen you want to adjust model, provider, or other agent settings across many nodes\nwithout modifying individual agent definitions or adding `agent.*` attributes to\nevery node. For example:\n\n  overrides: |\n    * { model: claude-sonnet-4-5 }\n    .critical { reasoning_effort: high }\n    #review { model: gpt-5.2; provider: openai }\n\nSpecificity order: `*` (universal) < `.class` < `#id`. Override values are\noverridden by explicit `agent.*` node attributes. Maps to the `model_stylesheet`\ngraph-level attribute in the Attractor specification.\n",
       "type": "string"
     },
     "defaultMaxRetry": {

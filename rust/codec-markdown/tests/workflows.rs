@@ -35,9 +35,9 @@ async fn decode_full_workflow() -> Result<()> {
 name: code-review
 description: Implements, tests, and reviews code changes
 goal: "Implement and validate a feature"
-modelStylesheet: |
-  box { model = "claude-sonnet-4-5" }
-  .critical { reasoning_effort = "high" }
+overrides: |
+  * { model: claude-sonnet-4-5; }
+  .critical { reasoning_effort: high; }
 ---
 
 # Code Review Pipeline
@@ -96,12 +96,12 @@ The pipeline uses a human gate at the review stage.
     let content = workflow.content.as_ref().expect("content should be Some");
     assert!(!content.is_empty());
 
-    // modelStylesheet should be parsed from frontmatter
+    // overrides should be parsed from frontmatter
     let stylesheet = workflow
         .options
-        .model_stylesheet
+        .overrides
         .as_deref()
-        .expect("modelStylesheet should be Some");
+        .expect("overrides should be Some");
     assert!(stylesheet.contains("claude-sonnet-4-5"));
     assert!(stylesheet.contains("reasoning_effort"));
 

@@ -20,8 +20,8 @@ use crate::types::SessionConfig;
 
 /// Overrides applied on top of the agent definition when creating a session.
 ///
-/// Used by the workflow engine to apply `model_stylesheet` values (set on
-/// graph nodes by the attractor stylesheet transform) to the agent session.
+/// Used by the workflow engine to apply overrides and `agent.*` attributes
+/// (set on graph nodes by the attractor overrides transform) to the agent session.
 #[derive(Clone, Debug, Default)]
 pub struct SessionOverrides {
     /// Override the model (e.g. from `llm_model` node attribute).

@@ -4,6 +4,10 @@
 //! Extracted into its own module so the `stylesheet_syntax` lint rule (§7.2)
 //! can validate stylesheets before the full stylesheet application module exists.
 //!
+//! `model` is accepted as an alias for `llm_model`, and `provider` as an
+//! alias for `llm_provider`. The aliases are normalized to the canonical
+//! names during parsing so downstream code only sees `llm_model`/`llm_provider`.
+//!
 //! # Grammar (EBNF from §8.2)
 //!
 //! ```text
@@ -12,19 +16,33 @@
 //! Selector      ::= '*' | '#' Identifier | '.' ClassName
 //! ClassName     ::= [a-z0-9-]+
 //! Declaration   ::= Property ':' PropertyValue
-//! Property      ::= 'llm_model' | 'llm_provider' | 'reasoning_effort'
-//!                 | 'trust_level' | 'max_turns'
+//! Property      ::= 'llm_model' | 'model' | 'llm_provider' | 'provider'
+//!                 | 'reasoning_effort' | 'trust_level' | 'max_turns'
 //! PropertyValue ::= QuotedString | Identifier
 //! ```
 
 use crate::error::{AttractorError, AttractorResult};
 
-/// The set of property names allowed by the §8.2 grammar.
+/// The canonical property names used after parsing.
 ///
-/// Shared by the parser (for syntax validation) and `stylesheet.rs` (for application).
-pub const ALLOWED_PROPERTIES: &[&str] = &[
+/// Used by `stylesheet.rs` for application — iterates only these names.
+/// During parsing, aliases (`model`, `provider`) are normalized to the
+/// canonical forms (`llm_model`, `llm_provider`), so declarations always
+/// use names from this list.
+pub const CANONICAL_PROPERTIES: &[&str] = &[
     "llm_model",
     "llm_provider",
+    "reasoning_effort",
+    "trust_level",
+    "max_turns",
+];
+
+/// All property names accepted during parsing (canonical + aliases).
+const ACCEPTED_PROPERTIES: &[&str] = &[
+    "llm_model",
+    "model",
+    "llm_provider",
+    "provider",
     "reasoning_effort",
     "trust_level",
     "max_turns",
@@ -255,16 +273,24 @@ fn parse_declaration(input: &str, pos: usize) -> AttractorResult<(Declaration, u
     let property = input[prop_start..prop_end].to_string();
 
     // Validate property name against §8.2 grammar
-    if !ALLOWED_PROPERTIES.contains(&property.as_str()) {
+    if !ACCEPTED_PROPERTIES.contains(&property.as_str()) {
         return Err(stylesheet_error(
             input,
             prop_start,
             &format!(
                 "unknown property `{property}` (allowed: {})",
-                ALLOWED_PROPERTIES.join(", ")
+                ACCEPTED_PROPERTIES.join(", ")
             ),
         ));
     }
+
+    // Normalize aliases to canonical names so downstream code only sees
+    // `llm_model` / `llm_provider`.
+    let property = match property.as_str() {
+        "model" => "llm_model".to_string(),
+        "provider" => "llm_provider".to_string(),
+        _ => property,
+    };
 
     // Skip whitespace, expect ':'
     let colon_pos = skip_whitespace(input, prop_end);
@@ -497,6 +523,37 @@ mod tests {
         assert_eq!(s.rules.len(), 2);
         assert_eq!(s.rules[0].declarations.len(), 2);
         assert_eq!(s.rules[1].declarations.len(), 1);
+        Ok(())
+    }
+
+    #[test]
+    fn parse_model_alias_normalized_to_llm_model() -> AttractorResult<()> {
+        let s = parse_stylesheet("* { model: gpt-4o; }")?;
+        assert_eq!(s.rules[0].declarations[0].property, "llm_model");
+        assert_eq!(s.rules[0].declarations[0].value, "gpt-4o");
+        Ok(())
+    }
+
+    #[test]
+    fn parse_provider_alias_normalized_to_llm_provider() -> AttractorResult<()> {
+        let s = parse_stylesheet(".code { provider: openai; }")?;
+        assert_eq!(s.rules[0].declarations[0].property, "llm_provider");
+        assert_eq!(s.rules[0].declarations[0].value, "openai");
+        Ok(())
+    }
+
+    #[test]
+    fn parse_mixed_canonical_and_alias_properties() -> AttractorResult<()> {
+        // Intentionally uses both `llm_provider` and its alias `provider` in
+        // the same rule to verify that both forms parse and normalize. This
+        // does not assert last-wins semantics for duplicate properties.
+        let s = parse_stylesheet(
+            "* { model: claude-sonnet-4-5; llm_provider: anthropic; provider: deepseek; }",
+        )?;
+        assert_eq!(s.rules[0].declarations.len(), 3);
+        assert_eq!(s.rules[0].declarations[0].property, "llm_model");
+        assert_eq!(s.rules[0].declarations[1].property, "llm_provider");
+        assert_eq!(s.rules[0].declarations[2].property, "llm_provider");
         Ok(())
     }
 }

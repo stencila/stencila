@@ -1,7 +1,7 @@
 //! Workflow execution integration.
 //!
 //! Bridges `Workflow` + `attractor::engine::run()` + agent resolution.
-//! Converts workflow-level attributes (goal, modelStylesheet, etc.) into
+//! Converts workflow-level attributes (goal, overrides, etc.) into
 //! graph attributes, resolves agent references, sets up a codergen backend
 //! that delegates to Stencila's agent session system, and runs the pipeline.
 
@@ -62,7 +62,7 @@ struct RunMetrics {
 /// Run a workflow pipeline to completion with the given [`RunOptions`].
 ///
 /// 1. Parses `Workflow.pipeline` → `attractor::Graph`
-/// 2. Merges workflow-level attributes (goal, modelStylesheet, etc.) into graph attrs
+/// 2. Merges workflow-level attributes (goal, overrides, etc.) into graph attrs
 /// 3. Resolves `agent=` references against workspace/user agent definitions
 /// 4. Opens (or creates) the workspace SQLite database for persistent state
 /// 5. Sets up the `AgentCodergenBackend` that delegates to Stencila's agent sessions
@@ -201,7 +201,7 @@ pub async fn run_workflow_with_options(
 
 /// Merge workflow-level metadata into attractor graph attributes.
 ///
-/// Copies `goal`, `model_stylesheet`, `default_max_retry`, `retry_target`,
+/// Copies `goal`, `overrides`, `default_max_retry`, `retry_target`,
 /// `fallback_retry_target`, and `default_fidelity` from the `Workflow` schema
 /// type into the parsed `attractor::Graph`'s `graph_attrs` so that the
 /// attractor engine transforms and validators can see them.
@@ -222,7 +222,8 @@ fn merge_workflow_attrs(workflow: &WorkflowInstance, graph: &mut Graph) {
             .or_insert_with(|| AttrValue::String(goal.clone()));
     }
 
-    if let Some(ref stylesheet) = workflow.options.model_stylesheet {
+    // Inserted as "model_stylesheet" to match the Attractor spec's graph attribute name
+    if let Some(ref stylesheet) = workflow.options.overrides {
         graph
             .graph_attrs
             .entry("model_stylesheet".to_string())
@@ -345,9 +346,9 @@ impl CodergenBackend for AgentCodergenBackend {
         //      (e.g. `agent.model="gpt-4o"`, `agent.provider="openai"`).
         //      These are the preferred user-facing syntax.
         //
-        //   2. Stylesheet-derived attributes (`llm_model`, `llm_provider`,
+        //   2. Overrides-derived attributes (`llm_model`, `llm_provider`,
         //      `reasoning_effort`, `trust_level`, `max_turns`) set by the
-        //      attractor stylesheet transform.
+        //      attractor overrides transform.
         //
         // `agent.*` attributes take precedence over stylesheet attributes.
         //

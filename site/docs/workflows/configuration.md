@@ -47,7 +47,7 @@ These attributes are set on the `graph` declaration inside the DOT pipeline:
 digraph my_workflow {
     graph [
         goal="Analyze experimental results",
-        model_stylesheet="* { llm_model: claude-sonnet-4-5; }",
+        overrides="* { model: claude-sonnet-4-5; }",
         default_max_retry=3
     ]
     ...
@@ -64,21 +64,23 @@ Pipeline-level goal. Expanded as `$goal` in node prompts.
 graph [goal="Systematic review of renewable energy storage"]
 ```
 
-### `model_stylesheet`
+### `overrides`
 
 **Type:** `string` — Default: `""`
 
-CSS-like stylesheet for per-node LLM model and provider overrides. The primary way to configure models is through [agent definitions](../agents/configuration) referenced via the `agent` attribute on each node. The model stylesheet provides a supplementary mechanism for bulk overrides.
+CSS-like rules for per-node agent overrides. The primary way to configure models is through [agent definitions](../agents/configuration) referenced via the `agent` attribute on each node. The overrides mechanism provides a supplementary way to bulk-override agent properties across many nodes at once.
+
+Supported properties: `model`, `provider`, `reasoning_effort`, `trust_level`, `max_turns`.
 
 ```dot
-graph [model_stylesheet="
-    * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
-    .analysis { llm_model: claude-opus-4-6; }
-    #review { llm_model: o3; llm_provider: openai; reasoning_effort: high; }
+graph [overrides="
+    * { model: claude-sonnet-4-5; provider: anthropic; }
+    .analysis { model: claude-opus-4-6; }
+    #review { model: o3; provider: openai; reasoning_effort: high; }
 "]
 ```
 
-Specificity order: `*` (universal) < `.class` < `#node_id`. Stylesheet values override agent defaults but are themselves overridden by explicit node attributes. See [Pipelines — Model stylesheet](pipelines#model-stylesheet) for details.
+Specificity order: `*` (universal) < `.class` < `#node_id`. Override values take precedence over agent defaults but are themselves overridden by explicit `agent.*` node attributes. See [Pipelines — Overrides](pipelines#overrides) for details.
 
 ### `default_max_retry`
 
@@ -120,7 +122,7 @@ graph [default_fidelity="compact"]
 
 ## Node Attributes
 
-Node attributes are set on individual nodes in the DOT pipeline. See [Pipelines — Common attributes](pipelines#common-attributes) for the full reference, including `prompt`, `agent`, `agent.model`, `agent.provider`, `agent.reasoning-effort`, `agent.trust-level`, `agent.max-turns`, `shape`, `max_retries`, `goal_gate`, `timeout`, and `class`.
+Node attributes are set on individual nodes in the DOT pipeline. See [Pipelines — Common attributes](pipelines#common-attributes) for the full reference, including `prompt`, `agent`, `agent.model`, `agent.provider`, `agent.reasoning-effort`, `agent.trust-level`, `agent.max-turns`, `shape`, `max_retries`, `goal_gate`, `timeout`, and `class`. The `overrides` graph attribute provides bulk overrides that target nodes by ID or class.
 
 ## Edge Attributes
 

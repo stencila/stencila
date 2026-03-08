@@ -2,8 +2,8 @@
 name: test-kitchen-sink
 description: Combined test exercising linear, conditional, parallel, human, shell, and retry patterns
 goal: Verify integrated pipeline execution
-modelStylesheet: |
-  * { llm_model: claude-sonnet-4-5; }
+overrides: |
+  * { model: claude-sonnet-4-5; }
   .analysis { reasoning_effort: high; }
 ---
 

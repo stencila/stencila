@@ -889,10 +889,10 @@
       }
     },
     {
-      "@id": "stencila:modelStylesheet",
+      "@id": "stencila:overrides",
       "@type": "rdfs:Property",
-      "rdfs:label": "modelStylesheet",
-      "rdfs:comment": "CSS-like stylesheet for supplementary per-node LLM model and provider overrides.",
+      "rdfs:label": "overrides",
+      "rdfs:comment": "CSS-like rules for per-node agent overrides across the pipeline.",
       "schema:domainIncludes": {
         "@id": "stencila:Workflow"
       },

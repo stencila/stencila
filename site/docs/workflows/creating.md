@@ -122,7 +122,7 @@ The engine resolves agent names using the standard agent discovery order (worksp
 - **Personal agents** (in `~/.config/stencila/agents/`) let each user configure their preferred model, provider, and API keys
 - The same `code-engineer` node runs with different backing models depending on who runs the workflow
 
-When a node has no `agent` attribute, the engine uses a default agent. Explicit node attributes (like `llm_model` or `llm_provider`) override the agent's defaults.
+When a node has no `agent` attribute, the engine uses a default agent. Explicit node attributes (like `agent.model` or `agent.provider`) override the agent's defaults.
 
 You can also override specific agent properties inline using `agent.*` dotted-key attributes:
 

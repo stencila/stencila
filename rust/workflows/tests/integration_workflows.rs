@@ -168,11 +168,11 @@ async fn test_conditional_branching() {
     run_and_assert_success("test-conditional-branching").await;
 }
 
-/// modelStylesheet frontmatter with *, .class, and #id selectors.
+/// overrides frontmatter with *, .class, and #id selectors.
 #[tokio::test]
 #[ignore]
-async fn test_model_stylesheet() {
-    run_and_assert_success("test-model-stylesheet").await;
+async fn test_overrides() {
+    run_and_assert_success("test-overrides").await;
 }
 
 /// Subgraph scoping of node defaults.

@@ -293,9 +293,8 @@ pub struct WorkflowOptions {
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
 
-    /// CSS-like stylesheet for supplementary per-node LLM model and provider overrides.
-    #[serde(alias = "model-stylesheet", alias = "model_stylesheet")]
-    pub model_stylesheet: Option<String>,
+    /// CSS-like rules for per-node agent overrides across the pipeline.
+    pub overrides: Option<String>,
 
     /// Global retry ceiling for nodes that omit max_retries.
     #[serde(alias = "default-max-retry", alias = "default_max_retry")]

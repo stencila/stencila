@@ -19,7 +19,9 @@
 
 use crate::error::AttractorResult;
 use crate::graph::{AttrValue, Graph, Node};
-use crate::stylesheet_parser::{ALLOWED_PROPERTIES, ParsedStylesheet, Selector, parse_stylesheet};
+use crate::stylesheet_parser::{
+    CANONICAL_PROPERTIES, ParsedStylesheet, Selector, parse_stylesheet,
+};
 
 /// Apply a parsed stylesheet to a graph, setting node attributes per §8.5.
 ///
@@ -37,7 +39,7 @@ pub fn apply_stylesheet(graph: &mut Graph, stylesheet: &ParsedStylesheet) -> Att
 
     for node_id in &node_ids {
         // Resolve each property: find the highest-specificity rule that declares it
-        for &prop in ALLOWED_PROPERTIES {
+        for &prop in CANONICAL_PROPERTIES {
             // Skip if the node already has this attribute explicitly set
             if graph
                 .nodes
@@ -120,22 +122,25 @@ fn node_has_class(node: &Node, class_name: &str) -> bool {
 
 /// Parse a stylesheet string from a graph attribute and apply it.
 ///
-/// Reads the `model_stylesheet` graph attribute, parses it, and applies
-/// the resulting rules to all nodes. Even if the stylesheet is empty or
-/// absent, graph-level default attributes are still applied per §8.5.
+/// Reads the `model_stylesheet` graph attribute (falling back to `overrides`
+/// if `model_stylesheet` is absent), parses it, and applies the resulting
+/// rules to all nodes. Even if the stylesheet is empty or absent,
+/// graph-level default attributes are still applied per §8.5.
 ///
 /// # Errors
 ///
 /// Returns an error if the stylesheet cannot be parsed.
 pub fn parse_and_apply_stylesheet(graph: &mut Graph) -> AttractorResult<()> {
-    // Check for non-string model_stylesheet (e.g. numeric) — treat as absent
-    // with an error if the attribute exists but is not a string.
-    let stylesheet_str = match graph.get_graph_attr("model_stylesheet") {
+    // Try `model_stylesheet` first, then fall back to `overrides`.
+    let stylesheet_str = match graph
+        .get_graph_attr("model_stylesheet")
+        .or_else(|| graph.get_graph_attr("overrides"))
+    {
         Some(v) => match v.as_str() {
             Some(s) => s.to_string(),
             None => {
                 return Err(crate::error::AttractorError::InvalidPipeline {
-                    reason: format!("model_stylesheet must be a string, got {}", v.type_name()),
+                    reason: format!("overrides must be a string, got {}", v.type_name()),
                 });
             }
         },

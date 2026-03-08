@@ -446,9 +446,9 @@ impl Run {
                 message!("Pipeline: (none)");
             }
 
-            if let Some(ref stylesheet) = wf.options.model_stylesheet {
-                message!("\nModel Stylesheet:");
-                Code::new(stencila_codecs::Format::Unknown, stylesheet).to_stdout();
+            if let Some(ref overrides) = wf.options.overrides {
+                message!("\nOverrides:");
+                Code::new(stencila_codecs::Format::Unknown, overrides).to_stdout();
             }
 
             return Ok(());

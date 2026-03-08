@@ -62,7 +62,7 @@ Preview the workflow configuration and pipeline without executing it:
 stencila workflows run code-review --dry-run
 ```
 
-This shows the workflow name, description, goal, referenced agents, pipeline DOT source, and model stylesheet — useful for verifying the workflow is configured correctly before a real run.
+This shows the workflow name, description, goal, referenced agents, pipeline DOT source, and overrides — useful for verifying the workflow is configured correctly before a real run.
 
 ## Human-in-the-Loop
 

@@ -334,7 +334,7 @@ End-to-end integration tests live in `.stencila/workflows/test-*/WORKFLOW.md` at
 | `test-human-gates`            | `wait.human` via `ask=` sugar, binary/three-way/single-choice gates |
 | `test-fan-out-fan-in`         | Parallel fan-out via `FanOut` ID, fan-in convergence |
 | `test-conditional-branching`  | `Check*` ID → diamond shape, `outcome=` conditions, edge retry loop |
-| `test-model-stylesheet`       | `modelStylesheet` frontmatter, `*` / `.class` / `#id` selectors |
+| `test-overrides`              | `overrides` frontmatter, `*` / `.class` / `#id` selectors |
 | `test-goal-gates`             | `goal_gate=true`, `retryTarget` loopback |
 | `test-max-retries`            | `max_retries=N` node attribute |
 | `test-shell-nodes`            | `cmd=` / `shell=` sugar → `shell` handler, no LLM calls |

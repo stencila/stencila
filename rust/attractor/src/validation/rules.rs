@@ -309,7 +309,7 @@ impl LintRule for ConditionSyntaxRule {
 }
 
 // ---------------------------------------------------------------------------
-// 8. stylesheet_syntax (ERROR) — model_stylesheet must parse
+// 8. stylesheet_syntax (ERROR) — model_stylesheet (or overrides) must parse
 // ---------------------------------------------------------------------------
 
 struct StylesheetSyntaxRule;
@@ -320,7 +320,11 @@ impl LintRule for StylesheetSyntaxRule {
     }
 
     fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
-        let Some(attr_value) = graph.get_graph_attr("model_stylesheet") else {
+        // Try `model_stylesheet` first, then fall back to `overrides`.
+        let Some(attr_value) = graph
+            .get_graph_attr("model_stylesheet")
+            .or_else(|| graph.get_graph_attr("overrides"))
+        else {
             return vec![];
         };
 
@@ -329,13 +333,10 @@ impl LintRule for StylesheetSyntaxRule {
             return vec![Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Error,
-                message: format!(
-                    "model_stylesheet must be a string, got {}",
-                    attr_value.type_name()
-                ),
+                message: format!("overrides must be a string, got {}", attr_value.type_name()),
                 node_id: None,
                 edge: None,
-                fix: Some("use a quoted string value for model_stylesheet".into()),
+                fix: Some("use a quoted string value for overrides".into()),
             }];
         };
 
@@ -344,7 +345,7 @@ impl LintRule for StylesheetSyntaxRule {
             Err(err) => vec![Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Error,
-                message: format!("model_stylesheet is invalid: {err}"),
+                message: format!("overrides is invalid: {err}"),
                 node_id: None,
                 edge: None,
                 fix: None,

@@ -125,7 +125,7 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 | `max-retries`            | Integer  | Additional retry attempts beyond the initial execution. |
 | `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit. |
 | `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`). |
-| `class`                  | String   | Comma-separated class names for model stylesheet targeting. |
+| `class`                  | String   | Comma-separated class names for overrides targeting. |
 
 ## Agent property overrides
 
@@ -142,7 +142,7 @@ This lets you use a shared agent definition while customizing its behavior per-n
 The override precedence order (highest to lowest):
 
 1. **`agent.*` node attributes** — explicit overrides on the node
-2. **Model stylesheet rules** — from `model-stylesheet` selectors
+2. **Overrides rules** — from `overrides` selectors
 3. **Agent definition** — from the named agent's `AGENT.md`
 4. **System defaults**
 
@@ -418,18 +418,18 @@ digraph ParallelReview {
 
 Branches execute concurrently. The fan-in node waits for all branches to complete before proceeding.
 
-## Model stylesheet
+## Overrides
 
-Centralize LLM model selection with a CSS-like stylesheet instead of setting `llm-model` on every node:
+Centralize agent property overrides with CSS-like rules instead of setting `agent.model` on every node:
 
 ```dot
 digraph StyledWorkflow {
     graph [
         goal="Analyze and report on experimental results",
-        model-stylesheet="
-            * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
-            .analysis { llm_model: claude-opus-4; }
-            #statistical_review { llm_model: o3; llm_provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
+        overrides="
+            * { model: claude-sonnet-4-5; provider: anthropic; }
+            .analysis { model: claude-opus-4; }
+            #statistical_review { model: o3; provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
         "
     ]
 
@@ -450,9 +450,7 @@ Selectors and specificity:
 | `.class_name` | Nodes with that class | Medium      |
 | `#node_id`    | Specific node by ID   | Highest     |
 
-Explicit attributes on a node always override stylesheet values.
-
-> **Note:** Property names _inside_ the stylesheet string (e.g. `llm_model`, `reasoning_effort`) use `snake_case` because they follow CSS-like syntax, which is separate from the DOT attribute key normalization described at the top of this page.
+Explicit `agent.*` attributes on a node always override values from the `overrides` rules.
 
 ## Combined example
 
@@ -462,9 +460,9 @@ Here is a more complete pipeline combining several patterns:
 digraph ResearchWorkflow {
     graph [
         goal="Systematic review of renewable energy storage technologies",
-        model-stylesheet="
-            * { llm_model: claude-sonnet-4-5; llm_provider: anthropic; }
-            .deep_analysis { llm_model: claude-opus-4; }
+        overrides="
+            * { model: claude-sonnet-4-5; provider: anthropic; }
+            .deep_analysis { model: claude-opus-4; }
         "
     ]
 
@@ -499,7 +497,7 @@ This pipeline:
 |-----------------------|---------|---------|-------------|
 | `goal`                | String  | `""`    | Pipeline-level goal. Expanded as `$goal` in prompts. |
 | `label`               | String  | `""`    | Display name for the pipeline. |
-| `model-stylesheet`    | String  | `""`    | CSS-like LLM model/provider stylesheet. |
+| `overrides`           | String  | `""`    | CSS-like per-node agent override rules. |
 | `default-max-retry`   | Integer | `0`     | Global retry ceiling for nodes that omit `max-retries`. |
 | `default-fidelity`    | String  | `""`    | Default context fidelity mode. |
 | `retry-target`        | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
