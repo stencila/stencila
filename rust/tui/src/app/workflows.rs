@@ -160,6 +160,7 @@ impl App {
             PipelineEvent::StageStarted {
                 node_id,
                 stage_index,
+                ..
             } if *stage_index > 0 => {
                 let msg_index = self.messages.len();
                 self.messages.push(AppMessage::WorkflowProgress {
@@ -271,6 +272,7 @@ impl App {
             PipelineEvent::StageStarted {
                 node_id,
                 stage_index,
+                handler_type,
             } if *stage_index > 0 => {
                 let msg_index = self.messages.len();
                 self.messages.push(AppMessage::Exchange {
@@ -282,6 +284,7 @@ impl App {
                     exit_code: None,
                     agent_index: None,
                     agent_name: None,
+                    handler_type: Some(handler_type.clone()),
                 });
                 if let Some(workflow) = &mut self.active_workflow {
                     workflow.current_exchange_msg_index = Some(msg_index);
@@ -311,6 +314,10 @@ impl App {
                         exit_code: None,
                         agent_index: None,
                         agent_name: Some(agent_name.clone()),
+                        // `StageInput` is currently emitted only for
+                        // agent-backed stages, so the agent color will be
+                        // used and no handler-type fallback is needed here.
+                        handler_type: None,
                     });
                     let progress = Arc::new(Mutex::new(AgentProgress::default()));
                     if let Some(workflow) = &mut self.active_workflow {

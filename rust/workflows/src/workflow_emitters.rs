@@ -163,6 +163,7 @@ impl EventEmitter for ProgressEventEmitter {
             PipelineEvent::StageStarted {
                 ref node_id,
                 stage_index,
+                ..
             } => {
                 if stage_index == 0 {
                     return;
@@ -367,6 +368,7 @@ impl EventEmitter for VerboseEventEmitter {
             PipelineEvent::StageStarted {
                 stage_index,
                 ref node_id,
+                ..
             } => {
                 if stage_index == 0 {
                     return;

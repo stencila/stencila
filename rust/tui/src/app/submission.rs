@@ -183,6 +183,7 @@ impl App {
             exit_code: None,
             agent_index: None,
             agent_name: None,
+            handler_type: None,
         });
         let msg_index = self.messages.len() - 1;
         self.running_shell_commands.push((msg_index, running));
@@ -214,6 +215,7 @@ impl App {
             exit_code: None,
             agent_index: Some(session_idx),
             agent_name: None,
+            handler_type: None,
         });
         let msg_index = self.messages.len() - 1;
 

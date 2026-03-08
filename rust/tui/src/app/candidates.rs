@@ -276,6 +276,7 @@ mod tests {
             exit_code: Some(0),
             agent_index: None,
             agent_name: None,
+            handler_type: None,
         });
         // Exchange 2: no response yet
         app.messages.push(AppMessage::Exchange {
@@ -287,6 +288,7 @@ mod tests {
             exit_code: None,
             agent_index: Some(0),
             agent_name: None,
+            handler_type: None,
         });
         // Exchange 3: has response
         app.messages.push(AppMessage::Exchange {
@@ -298,6 +300,7 @@ mod tests {
             exit_code: Some(0),
             agent_index: None,
             agent_name: None,
+            handler_type: None,
         });
         app
     }

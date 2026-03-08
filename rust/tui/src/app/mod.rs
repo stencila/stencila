@@ -252,6 +252,9 @@ pub enum AppMessage {
 
         /// Agent name for workflow exchanges (not backed by a session).
         agent_name: Option<String>,
+
+        /// Handler type for workflow stages (e.g. `"shell"`, `"wait.human"`).
+        handler_type: Option<String>,
     },
 
     /// Singleton message for a workflow's status used for [`WorkflowVerbosity::Minimal`].

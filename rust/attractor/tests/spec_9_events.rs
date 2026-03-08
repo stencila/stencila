@@ -32,6 +32,7 @@ fn event_all_categories_exist() {
     let _stage = PipelineEvent::StageStarted {
         node_id: "n".into(),
         stage_index: 0,
+        handler_type: "codergen".into(),
     };
     let _parallel = PipelineEvent::ParallelStarted {
         node_id: "n".into(),
@@ -106,6 +107,7 @@ fn noop_emitter_discards() {
     emitter.emit(PipelineEvent::StageStarted {
         node_id: "n".into(),
         stage_index: 0,
+        handler_type: "codergen".into(),
     });
 }
 
@@ -124,6 +126,7 @@ fn collecting_emitter_captures_events() {
     emitter.emit(PipelineEvent::StageStarted {
         node_id: "n1".into(),
         stage_index: 0,
+        handler_type: "codergen".into(),
     });
     emitter.emit(PipelineEvent::StageCompleted {
         node_id: "n1".into(),
@@ -201,10 +204,12 @@ fn observer_emitter_receives_event_data() {
     emitter.emit(PipelineEvent::StageStarted {
         node_id: "task1".into(),
         stage_index: 0,
+        handler_type: "codergen".into(),
     });
     emitter.emit(PipelineEvent::StageStarted {
         node_id: "task2".into(),
         stage_index: 1,
+        handler_type: "shell".into(),
     });
 
     let captured = names

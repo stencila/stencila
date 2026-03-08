@@ -276,6 +276,7 @@ async fn execute_loop(
         config.emitter.emit(PipelineEvent::StageStarted {
             node_id: node.id.clone(),
             stage_index: state.stage_index,
+            handler_type: node.handler_type().to_string(),
         });
 
         let outcome = execute_node(node, graph, &config, &context, state.stage_index).await?;

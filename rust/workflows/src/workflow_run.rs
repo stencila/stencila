@@ -740,6 +740,7 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
             PipelineEvent::StageStarted {
                 node_id,
                 stage_index,
+                ..
             } => {
                 eprintln!("[stage {stage_index}] Started: {node_id}");
             }

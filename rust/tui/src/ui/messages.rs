@@ -85,6 +85,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 exit_code,
                 agent_index,
                 agent_name: workflow_agent_name,
+                handler_type,
             } => {
                 exchange_num += 1;
                 let agent_tag = if let Some(name) = workflow_agent_name {
@@ -110,6 +111,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                     tick_count,
                     content_width,
                     agent_tag.as_ref(),
+                    handler_type.as_deref(),
                     msg_idx,
                     &app.messages,
                     app.active_interview.as_ref(),
@@ -160,19 +162,20 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 }
 
                 // For inline workflow interviews, inherit the parent's color
-                // so interview sidebars match (e.g. grey for stages without
-                // an agent like human gates).
+                // so interview sidebars match the stage's handler type
+                // (e.g. teal for wait.human gates, yellow for shell stages).
                 let parent_color = parent_msg_index.and_then(|pi| {
                     if let AppMessage::Exchange {
                         kind: ExchangeKind::Workflow,
                         agent_name: wf_agent,
+                        handler_type,
                         ..
                     } = app.messages.get(pi)?
                     {
                         let color = wf_agent
                             .as_ref()
                             .and_then(|n| app.color_registry.get(n))
-                            .unwrap_or(Color::DarkGray);
+                            .unwrap_or_else(|| handler_type_color(handler_type.as_deref()));
                         Some(color)
                     } else {
                         None
@@ -310,6 +313,7 @@ fn exchange_lines(
     tick_count: u32,
     content_width: usize,
     agent_tag: Option<&(String, Color)>,
+    handler_type: Option<&str>,
     msg_idx: usize,
     app_messages: &[AppMessage],
     active_interview: Option<&crate::interview::InterviewState>,
@@ -321,9 +325,11 @@ fn exchange_lines(
     let base_color = if kind == ExchangeKind::Workflow {
         // Workflow exchanges start grey (agent unknown) and adopt the
         // agent's registered color once StageInput has been received.
+        // Shell stages use yellow and interview (wait.human) stages use
+        // workflow teal even without an agent.
         match status {
             ExchangeStatus::Running | ExchangeStatus::Succeeded => {
-                agent_tag.map_or(Color::DarkGray, |(_, color)| *color)
+                agent_tag.map_or_else(|| handler_type_color(handler_type), |(_, color)| *color)
             }
             ExchangeStatus::Failed => Color::Red,
             ExchangeStatus::Cancelled => Color::DarkGray,
@@ -818,6 +824,19 @@ fn response_text(lines: &mut Vec<Line>, resp: &str, base_color: Color, content_w
 /// Workflow-specific color palette.
 const WORKFLOW_COLOR: Color = Color::Rgb(0, 180, 160);
 
+/// Map a workflow stage handler type to a sidebar color.
+///
+/// Shell stages use yellow (matching shell mode), interview/wait.human
+/// stages use workflow teal, and all other agentless stages fall back
+/// to dark grey.
+fn handler_type_color(handler_type: Option<&str>) -> Color {
+    match handler_type {
+        Some("shell") => Color::Yellow,
+        Some("wait.human") => WORKFLOW_COLOR,
+        _ => Color::DarkGray,
+    }
+}
+
 /// Render an in-place-updatable workflow status line styled like an exchange.
 #[allow(clippy::too_many_arguments)]
 fn workflow_status_lines(
@@ -924,8 +943,8 @@ fn workflow_progress_lines(
 /// parent message (no header, no separator) — only questions and preamble are shown.
 ///
 /// `parent_color` overrides the accent color when set, so inline interviews
-/// inherit their parent message's sidebar color (e.g. grey for workflow stages
-/// that have no agent).
+/// inherit their parent message's sidebar color, including handler-based
+/// fallback colors for agentless workflow stages.
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
 fn interview_lines(
     lines: &mut Vec<Line>,

@@ -48,6 +48,8 @@ pub enum PipelineEvent {
         node_id: String,
         /// Zero-based index of this stage in the traversal.
         stage_index: usize,
+        /// The handler type for this stage (e.g. `"codergen"`, `"shell"`, `"wait.human"`).
+        handler_type: String,
     },
     /// The input for a stage has been resolved and is about to be sent.
     StageInput {
