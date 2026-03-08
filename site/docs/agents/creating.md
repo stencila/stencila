@@ -24,6 +24,8 @@ An agent is a directory containing an `AGENT.md` file. The file has two parts:
 1. **YAML frontmatter** — configuration (name, model, provider, tools, etc.)
 2. **Markdown body** (optional) — system instructions appended to the prompt
 
+Frontmatter property names can be written in camelCase, snake_case, or kebab-case. We recommend **kebab-case** for readability.
+
 Here is a minimal example:
 
 ```markdown
@@ -41,9 +43,9 @@ name: code-reviewer
 description: Reviews code for correctness, style, and security issues
 model: claude-sonnet-4-5
 provider: anthropic
-reasoningEffort: high
-trustLevel: medium
-allowedTools:
+reasoning-effort: high
+trust-level: medium
+allowed-tools:
   - read_file
   - grep
   - glob
@@ -111,10 +113,10 @@ For CLI-backed sessions, set the provider to the CLI variant: `claude-cli`, `cod
 
 ## Restricting Tools
 
-By default, agents have access to all tools registered for their provider. Use `allowedTools` to restrict an agent to specific tools:
+By default, agents have access to all tools registered for their provider. Use `allowed-tools` to restrict an agent to specific tools:
 
 ```yaml
-allowedTools:
+allowed-tools:
   - read_file
   - grep
   - glob
@@ -124,7 +126,7 @@ This is useful for agents that should only read (not write) files, or agents tha
 
 ## Trust Levels
 
-The `trustLevel` field controls how strictly the agent's tool calls are guarded:
+The `trust-level` field controls how strictly the agent's tool calls are guarded:
 
 | Level | Behavior |
 | ----- | -------- |
@@ -133,15 +135,15 @@ The `trustLevel` field controls how strictly the agent's tool calls are guarded:
 | `high` | Default-allow with relaxed blocking. |
 
 ```yaml
-trustLevel: low
+trust-level: low
 ```
 
 ## Reasoning Effort
 
-Control how much the model reasons before responding with the `reasoningEffort` field:
+Control how much the model reasons before responding with the `reasoning-effort` field:
 
 ```yaml
-reasoningEffort: high
+reasoning-effort: high
 ```
 
 Valid values: `low`, `medium`, `high`. When not set, the provider's default is used. Higher reasoning effort uses more tokens but can improve quality on complex tasks.
@@ -151,10 +153,10 @@ Valid values: `low`, `medium`, `high`. When not set, the provider's default is u
 Control how long an agent can run:
 
 ```yaml
-maxTurns: 20           # Maximum conversation turns (0 = unlimited)
-maxToolRounds: 10      # Maximum tool-call rounds per user input
-toolTimeout: 60        # Default tool timeout in seconds
-maxSubagentDepth: 2    # Maximum subagent nesting depth
+max-turns: 20           # Maximum conversation turns (0 = unlimited)
+max-tool-rounds: 10    # Maximum tool-call rounds per user input
+tool-timeout: 60       # Default tool timeout in seconds
+max-subagent-depth: 2  # Maximum subagent nesting depth
 ```
 
 ## MCP Server Integration
@@ -164,20 +166,20 @@ Agents can use tools from [MCP (Model Context Protocol)](https://modelcontextpro
 **Codemode** (default, token-efficient): A single `mcp_codemode` tool lets the model write JavaScript to orchestrate MCP calls in a sandboxed environment.
 
 ```yaml
-enableMcpCodemode: true    # default
+enable-mcp-codemode: true  # default
 ```
 
 **Direct registration**: Each MCP server tool is registered individually. Simpler but uses more tokens.
 
 ```yaml
-enableMcp: true
-enableMcpCodemode: false
+enable-mcp: true
+enable-mcp-codemode: false
 ```
 
 Restrict which MCP servers an agent can access:
 
 ```yaml
-allowedMcpServers:
+allowed-mcp-servers:
   - context7
   - my-database
 ```
@@ -188,12 +190,12 @@ Control which domains the agent can access with `web_fetch`:
 
 ```yaml
 # Allow only specific domains
-allowedDomains:
+allowed-domains:
   - docs.rs
   - "*.github.com"
 
 # Or deny specific domains
-disallowedDomains:
+disallowed-domains:
   - internal.corp.example.com
 ```
 
@@ -224,7 +226,7 @@ Validation checks for **errors** (the agent cannot be used):
 
 Validation also checks for **warnings** (advisory, the agent can still be used):
 
-- **Skill tool coverage** — when the agent has an `allowedTools` list, the validator cross-references it against skills' `allowedTools` declarations. If a skill needs a tool that the agent doesn't allow, a warning is shown. This helps catch configuration mismatches where a skill would be unable to use a tool it expects.
+- **Skill tool coverage** — when the agent has an `allowed-tools` list, the validator cross-references it against skills' `allowed-tools` declarations. If a skill needs a tool that the agent doesn't allow, a warning is shown. This helps catch configuration mismatches where a skill would be unable to use a tool it expects.
 
 ## Configuration-Only Agents
 
@@ -236,8 +238,8 @@ name: fast-coder
 description: Quick coding tasks with a fast model
 model: claude-haiku-3-5
 provider: anthropic
-reasoningEffort: low
-maxTurns: 5
+reasoning-effort: low
+max-turns: 5
 ---
 ```
 

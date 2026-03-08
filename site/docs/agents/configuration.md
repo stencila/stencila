@@ -5,6 +5,8 @@ description: Full reference for AGENT.md frontmatter properties.
 
 This page documents all properties available in the YAML frontmatter of an `AGENT.md` file.
 
+Frontmatter property names can be written in camelCase, snake_case, or kebab-case. We recommend **kebab-case** for readability. All examples on this page use kebab-case.
+
 ## Required Properties
 
 ### `name`
@@ -49,19 +51,19 @@ Provider identifier: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `
 provider: anthropic
 ```
 
-### `reasoningEffort`
+### `reasoning-effort`
 
 **Type:** `string`
 
 Reasoning effort level: `low`, `medium`, `high`, or a custom provider-specific value. Controls how much the model reasons before responding. Higher effort uses more tokens but can improve quality. When not specified, the provider's default is used.
 
 ```yaml
-reasoningEffort: high
+reasoning-effort: high
 ```
 
 ## Safety and Access Control
 
-### `trustLevel`
+### `trust-level`
 
 **Type:** `string`
 
@@ -74,17 +76,17 @@ Trust level controlling how strictly the agent's tool calls are guarded. See [To
 | `high` | Default-allow with relaxed blocking |
 
 ```yaml
-trustLevel: low
+trust-level: low
 ```
 
-### `allowedTools`
+### `allowed-tools`
 
 **Type:** `string[]`
 
 Tool names this agent is allowed to use. When set, only the listed tools are sent to the model and allowed to execute. When unset, all tools registered for the provider are available.
 
 ```yaml
-allowedTools:
+allowed-tools:
   - read_file
   - write_file
   - edit_file
@@ -94,125 +96,125 @@ allowedTools:
   - web_fetch
 ```
 
-When validating an agent (via `stencila agents validate`), the validator cross-references this list against the `allowedTools` declared by the agent's skills. If a skill needs a tool not in the agent's `allowedTools`, a warning is shown. See [Creating Agents — Validation](creating#validation) for details.
+When validating an agent (via `stencila agents validate`), the validator cross-references this list against the `allowed-tools` declared by the agent's skills. If a skill needs a tool not in the agent's `allowed-tools`, a warning is shown. See [Creating Agents — Validation](creating#validation) for details.
 
-### `allowedDomains`
+### `allowed-domains`
 
 **Type:** `string[]`
 
 Domain allowlist for `web_fetch`. Supports exact hosts and `*.` wildcard subdomain entries. When set, domains not in this list are denied.
 
 ```yaml
-allowedDomains:
+allowed-domains:
   - docs.rs
   - "*.github.com"
   - crates.io
 ```
 
-### `disallowedDomains`
+### `disallowed-domains`
 
 **Type:** `string[]`
 
-Domain denylist for `web_fetch`. Supports exact hosts and `*.` wildcard subdomain entries. When both `allowedDomains` and `disallowedDomains` are set, the allowlist takes precedence.
+Domain denylist for `web_fetch`. Supports exact hosts and `*.` wildcard subdomain entries. When both `allowed-domains` and `disallowed-domains` are set, the allowlist takes precedence.
 
 ```yaml
-disallowedDomains:
+disallowed-domains:
   - internal.corp.example.com
 ```
 
 ## Skills
 
-### `allowedSkills`
+### `allowed-skills`
 
 **Type:** `string[]`
 
 Skill names this agent can use. When unset, all discovered skills are available. When set to a non-empty array, only the listed skills are available. When set to an empty array, skills are disabled entirely. See the [skills documentation](../skills/) for more on creating and using skills.
 
 ```yaml
-allowedSkills:
+allowed-skills:
   - testing
   - documentation
 ```
 
 ## MCP Integration
 
-### `enableMcp`
+### `enable-mcp`
 
 **Type:** `boolean` — Default: `false`
 
-Whether to register MCP server tools directly in the agent's tool registry. Each tool from every connected MCP server is registered individually. This is simple but token-expensive — prefer `enableMcpCodemode` for most agents.
+Whether to register MCP server tools directly in the agent's tool registry. Each tool from every connected MCP server is registered individually. This is simple but token-expensive — prefer `enable-mcp-codemode` for most agents.
 
 ```yaml
-enableMcp: true
+enable-mcp: true
 ```
 
-### `enableMcpCodemode`
+### `enable-mcp-codemode`
 
 **Type:** `boolean` — Default: `true`
 
 Whether to register a single `mcp_codemode` tool for MCP orchestration. The model writes JavaScript to orchestrate MCP calls in a sandboxed environment. TypeScript declarations are included in the system prompt. Much more token-efficient than direct MCP tool registration.
 
 ```yaml
-enableMcpCodemode: true
+enable-mcp-codemode: true
 ```
 
-### `allowedMcpServers`
+### `allowed-mcp-servers`
 
 **Type:** `string[]`
 
 MCP server IDs this agent is allowed to use. When unset, all discovered and connected MCP servers are available. When set, only the listed server IDs are used.
 
 ```yaml
-allowedMcpServers:
+allowed-mcp-servers:
   - context7
   - my-database
 ```
 
 ## Session Limits
 
-### `maxTurns`
+### `max-turns`
 
 **Type:** `integer` — Default: `0` (unlimited)
 
 Maximum total conversation turns. When reached, the session ends.
 
 ```yaml
-maxTurns: 20
+max-turns: 20
 ```
 
-### `maxToolRounds`
+### `max-tool-rounds`
 
 **Type:** `integer`
 
 Maximum tool-call rounds per user input. Limits how many times the model can call tools before it must respond to the user.
 
 ```yaml
-maxToolRounds: 10
+max-tool-rounds: 10
 ```
 
-### `toolTimeout`
+### `tool-timeout`
 
 **Type:** `integer`
 
 Default timeout for tool execution, in seconds. Must be greater than 0.
 
 ```yaml
-toolTimeout: 60
+tool-timeout: 60
 ```
 
-### `maxSubagentDepth`
+### `max-subagent-depth`
 
 **Type:** `integer` — Default: `1`
 
 Maximum nesting depth for subagents. Controls how many levels deep subagents can spawn their own subagents.
 
 ```yaml
-maxSubagentDepth: 2
+max-subagent-depth: 2
 ```
 
 ## Context Management
 
-### `historyThinkingReplay`
+### `history-thinking-replay`
 
 **Type:** `string` — Default: `none`
 
@@ -224,10 +226,10 @@ Controls whether chain-of-thought content is included when replaying assistant t
 | `full` | Replay thinking and reasoning content as-is |
 
 ```yaml
-historyThinkingReplay: full
+history-thinking-replay: full
 ```
 
-### `truncationPreset`
+### `truncation-preset`
 
 **Type:** `string` — Default: `balanced`
 
@@ -240,17 +242,17 @@ Named preset for tool output truncation limits. Controls how aggressively tool o
 | `verbose` | No additional truncation beyond spec defaults |
 
 ```yaml
-truncationPreset: strict
+truncation-preset: strict
 ```
 
-### `compactionTriggerPercent`
+### `compaction-trigger-percent`
 
 **Type:** `integer` — Default: `70`
 
 Context usage percentage that triggers proactive history compaction. When estimated context usage exceeds this percentage of the model's context window, the agent proactively compacts conversation history. Set to `0` to disable proactive compaction.
 
 ```yaml
-compactionTriggerPercent: 80
+compaction-trigger-percent: 80
 ```
 
 ## Metadata
