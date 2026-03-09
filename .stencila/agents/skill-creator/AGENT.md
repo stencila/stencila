@@ -6,6 +6,8 @@ allowed-skills:
 allowed-tools:
   - read_file
   - write_file
+  - edit_file
+  - apply_patch
   - glob
   - grep
   - shell

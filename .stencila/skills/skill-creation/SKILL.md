@@ -1,7 +1,7 @@
 ---
 name: skill-creation
 description: Create a new Stencila workspace skill. Use when asked to create, write, or scaffold a SKILL.md file or skill directory.
-allowed-tools: read_file write_file glob grep shell
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell
 ---
 
 ## Overview

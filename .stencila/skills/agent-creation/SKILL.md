@@ -1,7 +1,7 @@
 ---
 name: agent-creation
 description: Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an AGENT.md file or agent directory. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
-allowed-tools: read_file write_file glob grep shell ask_user
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
 ---
 
 ## Overview
