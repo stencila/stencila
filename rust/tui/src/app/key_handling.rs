@@ -1407,7 +1407,7 @@ mod tests {
         // Open the agents picker and select the second session
         app.agents_state.open(vec![
             AgentCandidate {
-                name: "default".to_string(),
+                name: stencila_agents::DEFAULT_AGENT_NAME.to_string(),
                 kind: AgentCandidateKind::Session {
                     index: 0,
                     is_active: true,
@@ -1455,7 +1455,7 @@ mod tests {
 
         app.agents_state.open(vec![
             AgentCandidate {
-                name: "default".to_string(),
+                name: stencila_agents::DEFAULT_AGENT_NAME.to_string(),
                 kind: AgentCandidateKind::Session {
                     index: 0,
                     is_active: true,

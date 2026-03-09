@@ -148,7 +148,7 @@ mod tests {
                 },
             },
             AgentCandidate {
-                name: "default".to_string(),
+                name: stencila_agents::DEFAULT_AGENT_NAME.to_string(),
                 kind: AgentCandidateKind::Session {
                     index: 0,
                     is_active: true,

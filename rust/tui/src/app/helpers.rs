@@ -247,6 +247,7 @@ impl App {
 
     /// Reset everything: cancel all running work, drop all sessions, create a
     /// fresh default session, and clear all messages. Equivalent to restarting.
+    #[allow(clippy::unused_async)]
     pub async fn reset_all(&mut self) {
         self.cancel_all_running();
         self.active_workflow = None;
@@ -256,8 +257,7 @@ impl App {
         // Drop all sessions (and their agent handles)
         self.sessions.clear();
         self.color_registry = AgentColorRegistry::new();
-        let default_name =
-            stencila_agents::convenience::resolve_default_agent_name("default").await;
+        let default_name = stencila_agents::convenience::resolve_default_agent_name();
         self.color_registry.color_for(&default_name);
         self.sessions.push(AgentSession::new(default_name));
         self.active_session = 0;

@@ -168,7 +168,7 @@ mod tests {
     async fn default_session_exists() {
         let app = App::new_for_test().await;
         assert_eq!(app.sessions.len(), 1);
-        let expected = stencila_agents::convenience::resolve_default_agent_name("default").await;
+        let expected = stencila_agents::convenience::resolve_default_agent_name();
         assert_eq!(app.sessions[0].name, expected);
         assert_eq!(app.active_session, 0);
     }

@@ -614,7 +614,11 @@ impl Resolve {
     async fn run(self) -> Result<()> {
         use crate::routing;
 
-        let resolved_name = crate::convenience::resolve_default_agent_name(&self.name).await;
+        let resolved_name = if self.name == crate::DEFAULT_AGENT_NAME {
+            crate::convenience::resolve_default_agent_name()
+        } else {
+            self.name.clone()
+        };
         let cwd = std::env::current_dir()?;
         let agent = agent_def::get_by_name(&cwd, &resolved_name).await?;
 

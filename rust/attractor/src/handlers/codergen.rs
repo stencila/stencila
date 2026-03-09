@@ -131,7 +131,9 @@ impl Handler for CodergenHandler {
         let prompt = expand_runtime_variables(raw_prompt, context);
 
         // Read agent name from node attributes.
-        let agent_name = node.get_str_attr("agent").unwrap_or("default");
+        let agent_name = node
+            .get_str_attr("agent")
+            .unwrap_or(stencila_agents::DEFAULT_AGENT_NAME);
 
         // Read stage_index from context (set by the engine loop).
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]

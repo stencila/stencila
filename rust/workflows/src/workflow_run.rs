@@ -303,9 +303,10 @@ async fn resolve_agent_references(
 /// streams `StageSessionEvent` events back through the emitter while accumulating
 /// the full response text.
 ///
-/// Nodes without an `agent` attribute fall back to the `"default"` agent
-/// (which resolves via `[agents].default` in `stencila.toml` or the agent
-/// literally named `"default"`).
+/// Nodes without an `agent` attribute fall back to
+/// [`DEFAULT_AGENT_NAME`](stencila_agents::DEFAULT_AGENT_NAME) (which
+/// resolves via `[agents].default` in `stencila.toml` or the agent
+/// literally named that way).
 struct AgentCodergenBackend {
     /// SQLite connection shared with tool executors (None if no DB).
     db_conn: Option<Arc<Mutex<Connection>>>,
@@ -333,7 +334,9 @@ impl CodergenBackend for AgentCodergenBackend {
         emitter: Arc<dyn EventEmitter>,
         stage_index: usize,
     ) -> stencila_attractor::AttractorResult<CodergenOutput> {
-        let agent_name = node.get_str_attr("agent").unwrap_or("default");
+        let agent_name = node
+            .get_str_attr("agent")
+            .unwrap_or(stencila_agents::DEFAULT_AGENT_NAME);
 
         tracing::debug!(
             "Running agent `{agent_name}` for pipeline node `{}`",

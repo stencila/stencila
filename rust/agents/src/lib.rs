@@ -21,6 +21,13 @@
 // trade-off matching models3 — errors are not on the hot path.
 #![allow(clippy::result_large_err)]
 
+/// The name used when no agent is explicitly specified.
+///
+/// Callers that need "the default agent" should reference this constant
+/// rather than hard-coding a string so the value can be changed in one
+/// place.
+pub const DEFAULT_AGENT_NAME: &str = "manager";
+
 /// Agent definition loading and discovery.
 pub mod agent_def;
 

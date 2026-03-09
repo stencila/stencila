@@ -29,8 +29,8 @@ pub enum CommitAttribution {
 pub struct AgentsConfig {
     /// The name of the default agent to use when no agent is specified.
     ///
-    /// When set, the TUI and other callers that request the "default" agent
-    /// will use this agent instead.
+    /// When set, the TUI and other callers that request the default agent
+    /// (named "manager") will use this agent instead.
     ///
     /// ```toml
     /// [agents]

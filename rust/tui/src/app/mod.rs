@@ -514,13 +514,13 @@ pub struct App {
 impl App {
     /// Create a new App with a welcome banner.
     ///
+    #[allow(clippy::unused_async)]
     pub async fn new(
         log_receiver: mpsc::UnboundedReceiver<String>,
         upgrade_handle: Option<JoinHandle<Option<String>>>,
         cli_tree: Option<Arc<Vec<CliCommandNode>>>,
     ) -> Self {
-        let default_name =
-            stencila_agents::convenience::resolve_default_agent_name("default").await;
+        let default_name = stencila_agents::convenience::resolve_default_agent_name();
         let default_session = AgentSession::new(&default_name);
 
         let mut color_registry = AgentColorRegistry::new();

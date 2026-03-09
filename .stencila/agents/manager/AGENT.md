@@ -7,8 +7,9 @@ allowedTools:
   - ask_user
   - list_workflows
   - list_agents
-  - create_workflow
   - delegate
+allowedSkills:
+  - workflow-creation
 enableMcp: false
 enableMcpCodemode: false
 ---
@@ -34,7 +35,7 @@ Follow this priority order:
 ## Rules
 
 - Start by calling `list_workflows` and `list_agents` to see what is available
-- Use `create_workflow` when the task would benefit from a workflow and no suitable existing workflow exists
+- Use the `workflow-creation` skill via `use_skill` when the task would benefit from a workflow and no suitable existing workflow exists
 - If multiple delegatees are equally appropriate, ask the user to choose
 - When delegating, provide a clear `instruction` describing what the delegatee should accomplish — phrase it as a task for agents, or as a goal for workflows
 - Always include a `reason` explaining your routing decision

@@ -196,13 +196,13 @@ mod tests {
         vec![
             ResponseCandidate {
                 number: 3,
-                label: "default".to_string(),
+                label: stencila_agents::DEFAULT_AGENT_NAME.to_string(),
                 preview: "latest response...".to_string(),
                 color: Color::Blue,
             },
             ResponseCandidate {
                 number: 2,
-                label: "default".to_string(),
+                label: stencila_agents::DEFAULT_AGENT_NAME.to_string(),
                 preview: "middle response...".to_string(),
                 color: Color::Blue,
             },
@@ -319,7 +319,10 @@ mod tests {
     fn candidate_has_label() {
         let mut state = ResponsesState::new();
         state.update("$", 1, &sample_exchanges());
-        assert_eq!(state.candidates()[0].label, "default");
+        assert_eq!(
+            state.candidates()[0].label,
+            stencila_agents::DEFAULT_AGENT_NAME
+        );
         assert_eq!(state.candidates()[2].label, "shell");
     }
 

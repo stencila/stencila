@@ -122,19 +122,11 @@ pub async fn create_agent(
     agent_def::get_by_name(&cwd, name).await
 }
 
-/// If `name` is `"default"`, resolve it to the configured default agent name
-/// from `[agents].default` in `stencila.toml`. Returns the name unchanged
-/// if it is not `"default"`.
+/// Return the effective default agent name.
 ///
-/// When no config is set, falls back to the first discovered agent sorted
-/// by source (workspace first) then name. Returns `"default"` only when
-/// discovery also finds nothing.
-pub async fn resolve_default_agent_name(name: &str) -> String {
-    if name != "default" {
-        return name.to_string();
-    }
-
-    // Check config first
+/// Checks `[agents].default` in `stencila.toml` first; if unset, falls
+/// back to [`DEFAULT_AGENT_NAME`](crate::DEFAULT_AGENT_NAME).
+pub fn resolve_default_agent_name() -> String {
     if let Some(configured) = stencila_config::get()
         .ok()
         .and_then(|config| config.agents.as_ref()?.default.clone())
@@ -142,15 +134,7 @@ pub async fn resolve_default_agent_name(name: &str) -> String {
         return configured;
     }
 
-    // Fall back to the first discovered agent (sorted by source then name)
-    if let Ok(cwd) = std::env::current_dir() {
-        let agents = agent_def::discover(&cwd).await;
-        if let Some(first) = agents.first() {
-            return first.name.clone();
-        }
-    }
-
-    name.to_string()
+    crate::DEFAULT_AGENT_NAME.to_string()
 }
 
 /// Resolve commit attribution policy from configuration.
@@ -168,7 +152,11 @@ fn resolve_commit_attribution() -> stencila_config::CommitAttribution {
 
 /// Shared preamble: resolve name, load agent definition, build session config.
 async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, SessionConfig)> {
-    let resolved_name = resolve_default_agent_name(name).await;
+    let resolved_name = if name == crate::DEFAULT_AGENT_NAME {
+        resolve_default_agent_name()
+    } else {
+        name.to_string()
+    };
 
     let cwd = std::env::current_dir().map_err(|e| {
         AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
@@ -212,9 +200,10 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
 /// 5. If no CLI mapping exists (e.g. `mistral`, `deepseek`), returns an error
 ///    asking the user to set the appropriate API key.
 ///
-/// If `name` is `"default"`, it is resolved via [`resolve_default_agent_name`]:
-/// first from `[agents].default` in `stencila.toml`, then from the first
-/// discovered agent, and finally `"default"` if nothing else is found.
+/// If `name` is [`DEFAULT_AGENT_NAME`](crate::DEFAULT_AGENT_NAME), it is
+/// resolved via [`resolve_default_agent_name`]: first from `[agents].default`
+/// in `stencila.toml`, then falling back to
+/// [`DEFAULT_AGENT_NAME`](crate::DEFAULT_AGENT_NAME).
 ///
 /// Returns the discovered [`AgentInstance`] alongside the unified
 /// [`AgentSession`] and event receiver so callers can inspect agent metadata
