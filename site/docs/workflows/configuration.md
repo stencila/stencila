@@ -127,3 +127,17 @@ Node attributes are set on individual nodes in the DOT pipeline. See [Pipelines 
 ## Edge Attributes
 
 Edge attributes control transitions between nodes. See [Pipelines — Edge attributes](pipelines#attributes) for the full reference, including `label`, `condition`, and `weight`.
+
+## Ephemeral Status
+
+Ephemeral status is **not** configured in `WORKFLOW.md` frontmatter or DOT attributes. Instead, it is derived from the workflow directory on disk.
+
+A workflow is considered ephemeral when its directory contains a `.gitignore` sentinel file with the content:
+
+```text
+*
+```
+
+This marker is typically added automatically when a workflow is created by an agent or other temporary workflow creation flow. Remove the marker by running:
+
+See [Using Workflows](using#managing-ephemeral-workflows) for how to save or discard ephemeral workflows.

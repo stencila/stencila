@@ -13,6 +13,20 @@ stencila workflows create my-workflow "A multi-stage data pipeline"
 
 This creates `.stencila/workflows/my-workflow/WORKFLOW.md` in your workspace with a template pipeline you can edit.
 
+## Permanent vs Ephemeral Workflows
+
+Most hand-authored workflows are **permanent** workflows that remain in `.stencila/workflows/` until you edit or delete them.
+
+Stencila also supports **ephemeral** workflows for temporary or agent-created pipelines. An ephemeral workflow is stored in the same location as any other workflow, but its directory is marked with a `.gitignore` file containing `*`. This makes it easy to create a workflow, run it immediately, and either keep or discard it later.
+
+Use ephemeral workflows when:
+
+- an agent creates a workflow on your behalf
+- you want to try a short-lived workflow before deciding to keep it
+- you want a workflow that should not be committed or retained by default
+
+See [Using Workflows](using#managing-ephemeral-workflows) for how to save or discard ephemeral workflows.
+
 ## The WORKFLOW.md File
 
 A workflow is a directory containing a `WORKFLOW.md` file. The file has two parts:
@@ -104,6 +118,16 @@ Workflow definitions live in `.stencila/workflows/` in the workspace. Each workf
     test-and-deploy/
       WORKFLOW.md
     lit-review/
+      WORKFLOW.md
+```
+
+An ephemeral workflow has the same structure, plus the temporary marker file:
+
+```
+.stencila/
+  workflows/
+    draft-review/
+      .gitignore    # contains: *
       WORKFLOW.md
 ```
 

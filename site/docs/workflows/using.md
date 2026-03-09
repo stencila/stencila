@@ -13,6 +13,8 @@ stencila workflows
 
 This shows workflows from `.stencila/workflows/` with their names, descriptions, and goals.
 
+Some workflows may also be marked as **ephemeral**, meaning they were created as temporary workflows and can later be either saved or discarded.
+
 Output as JSON or YAML:
 
 ```sh
@@ -85,3 +87,21 @@ A typical workflow lifecycle:
 4. **Dry run** — `stencila workflows run my-workflow --dry-run`
 5. **Run** — `stencila workflows run my-workflow`
 6. **Iterate** — adjust the pipeline, agents, or goal and re-run
+
+## Managing Ephemeral Workflows
+
+Ephemeral workflows behave like normal workflows when listing, showing, validating, and running them. The difference is lifecycle management: they are intended to be temporary until you explicitly save them.
+
+Save an ephemeral workflow to keep it:
+
+```sh
+stencila workflows save my-workflow
+```
+
+Discard an ephemeral workflow to remove it entirely:
+
+```sh
+stencila workflows discard my-workflow
+```
+
+If a workflow is not ephemeral, these commands will fail rather than changing or deleting a permanent workflow.
