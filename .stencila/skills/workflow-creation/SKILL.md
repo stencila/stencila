@@ -1,7 +1,7 @@
 ---
 name: workflow-creation
 description: Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a WORKFLOW.md file or workflow directory. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, and validation.
-allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user list_agents
 ---
 
 ## Overview
@@ -29,9 +29,10 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
    - Optional surrounding Markdown documentation that explains the workflow to humans
 9. If ephemeral, create the `.gitignore` sentinel file with exactly `*` on its own line; if permanent, do not add that sentinel
 10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, or agent overrides only when the user asks for them or the workflow clearly needs them
-11. Reference existing agents by name with the `agent` attribute when appropriate, but do not invent agent names unless the user requests them or they are already clear project conventions
-12. Replace placeholders such as `TODO` before considering the workflow complete
-13. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path and report that validation result back to the user when possible
+11. Use `list_agents` when agent selection matters so you can choose from available specialized agents instead of guessing names
+12. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when they fit the node's role; do not invent agent names unless the user requests them or they are already clear project conventions
+13. Replace placeholders such as `TODO` before considering the workflow complete
+14. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path and report that validation result back to the user when possible
 
 When working from a nested directory in a repository, create the workflow in the closest workspace's `.stencila/workflows/` directory rather than creating a new `.stencila/` tree under the current subdirectory.
 
@@ -167,7 +168,8 @@ digraph code_review {
 
 - Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish
 - Use `Start` and `End` nodes for readability unless the workflow format or user request suggests a different style
-- Use `agent="name"` to reference existing agents by name; Stencila resolves workspace agents first, then user-level agents, then CLI-detected agents
+- Use `list_agents` before assigning non-obvious agents so the workflow can reference real available agents rather than guessed names
+- Use `agent="name"` to reference existing agents by name; when available, prefer specialized agents whose descriptions match the node's task. Stencila resolves workspace agents first, then user-level agents, then CLI-detected agents
 - When a node has no `agent` attribute, the engine uses a default agent; this fallback is unlikely to be optimal for a well-designed workflow, so prefer explicit agent selection unless the user wants a minimal draft
 - Use inline `agent.*` dotted attributes only when the user explicitly wants node-specific overrides such as `agent.model`, `agent.provider`, or `agent.reasoning-effort`
 - Use `shape=human` for explicit human approval or review steps
