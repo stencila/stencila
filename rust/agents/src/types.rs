@@ -625,6 +625,8 @@ pub enum EventKind {
     LoopDetection,
     /// Context usage update (approximate percentage of context window used).
     ContextUsage,
+    /// A task was delegated to another agent or workflow.
+    Delegation,
     /// Informational message (e.g. recovery retry).
     Info,
     /// A warning that deserves user attention but is not an error

@@ -144,6 +144,26 @@ fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Op
     }
 }
 
+/// Whether to delegate to an agent or a workflow.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DelegationKind {
+    Agent,
+    Workflow,
+}
+
+/// A delegation request detected from a `Delegation` event.
+#[derive(Debug, Clone)]
+pub struct DelegationRequest {
+    /// Whether to delegate to an agent or a workflow.
+    pub kind: DelegationKind,
+    /// Name of the agent or workflow to delegate to.
+    pub name: String,
+    /// Brief explanation of why this delegatee was chosen.
+    pub reason: String,
+    /// Instruction for the delegated agent or workflow.
+    pub instruction: String,
+}
+
 /// Shared progress state for a running agent exchange, updated by the
 /// background event-draining task.
 #[derive(Debug, Default)]
@@ -165,6 +185,8 @@ pub(crate) struct AgentProgress {
     error: Option<String>,
     /// Approximate context usage percentage (0–100+).
     context_usage_percent: u32,
+    /// Delegation request detected from a `Delegation` event.
+    pub(crate) delegation: Option<DelegationRequest>,
 }
 
 /// A running agent exchange, analogous to [`crate::shell::RunningCommand`].
@@ -216,6 +238,7 @@ impl RunningAgentExchange {
                 text: plain_text_from_segments(&guard.segments),
                 segments: guard.segments.clone(),
                 error: guard.error.clone(),
+                delegation: guard.delegation.clone(),
             })
         } else {
             None
@@ -239,6 +262,8 @@ pub struct AgentExchangeResult {
     pub segments: Vec<ResponseSegment>,
     /// Error message, if any.
     pub error: Option<String>,
+    /// Delegation request, if the agent called the `delegate` tool.
+    pub delegation: Option<DelegationRequest>,
 }
 
 /// Commands sent to the background agent task.
@@ -530,6 +555,13 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             } else {
                 format!("MCP Codemode: {code}")
             }
+        }
+        "list_agents" => "List agents".to_string(),
+        "list_workflows" => "List workflows".to_string(),
+        "delegate" => {
+            let kind = str_arg("kind").unwrap_or_default();
+            let name = str_arg("name").unwrap_or_default();
+            format!("Delegate to {kind} `{name}`")
         }
         _ => {
             let label = tool_name.to_sentence_case();
@@ -836,6 +868,44 @@ pub(crate) fn process_event(
                     g.segments.push(ResponseSegment::Error(message.to_string()));
                     g.error = Some(message.to_string());
                 }
+            }
+        }
+        EventKind::Delegation => {
+            if let Ok(mut g) = progress.lock() {
+                let kind_str = event.data.get("kind").and_then(Value::as_str).unwrap_or("");
+                let kind = match kind_str {
+                    "agent" => DelegationKind::Agent,
+                    "workflow" => DelegationKind::Workflow,
+                    other => {
+                        tracing::warn!("Unknown delegation kind: {other}");
+                        return;
+                    }
+                };
+                let name = event
+                    .data
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let reason = event
+                    .data
+                    .get("reason")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let instruction = event
+                    .data
+                    .get("instruction")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+
+                g.delegation = Some(DelegationRequest {
+                    kind,
+                    name,
+                    reason,
+                    instruction,
+                });
             }
         }
         // SessionStart/End, UserInput, SteeringInjected, ToolCallOutputDelta,

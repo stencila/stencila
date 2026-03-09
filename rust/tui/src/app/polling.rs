@@ -10,7 +10,8 @@ use crate::{
 };
 
 use super::{
-    ActiveWorkflowState, App, AppMessage, ExchangeStatus, WorkflowProgressKind, WorkflowStatusState,
+    ActiveWorkflowState, App, AppMessage, ExchangeStatus, WorkflowProgressKind,
+    WorkflowStatusState, discover_agents, discover_workflows,
 };
 
 impl App {
@@ -62,6 +63,8 @@ impl App {
     /// Iterates ALL sessions (not just active) since background agents may
     /// still be streaming.
     pub fn poll_running_agent_exchanges(&mut self) {
+        let mut pending_delegations = Vec::new();
+
         for session in &mut self.sessions {
             let mut completed = Vec::new();
             for (i, (msg_index, exchange)) in session.running_agent_exchanges.iter().enumerate() {
@@ -91,6 +94,21 @@ impl App {
             // Process completions in reverse order to safely remove by index
             for (i, msg_index, result) in completed.into_iter().rev() {
                 session.running_agent_exchanges.remove(i);
+
+                // Check for delegation before processing as a normal completion
+                if let Some(delegation) = result.delegation.clone() {
+                    // Mark the exchange as succeeded, then queue the delegation
+                    Self::update_exchange_complete(
+                        &mut self.messages,
+                        msg_index,
+                        ExchangeStatus::Succeeded,
+                        Some(result.text),
+                        Some(result.segments),
+                    );
+                    pending_delegations.push(delegation);
+                    continue;
+                }
+
                 let status = if result.error.is_some() {
                     ExchangeStatus::Failed
                 } else {
@@ -122,6 +140,11 @@ impl App {
                     segments,
                 );
             }
+        }
+
+        // Process queued delegations after all sessions have been polled
+        for delegation in pending_delegations {
+            self.handle_delegation(delegation);
         }
     }
 
@@ -449,6 +472,106 @@ impl App {
             *response_segments = segments;
             *exit_code = None;
         }
+    }
+
+    /// Handle a delegation request from a completed manager agent exchange.
+    ///
+    /// Depending on the delegation kind:
+    /// - **agent**: creates or switches to the target agent session and auto-submits
+    ///   the delegated task as the first message.
+    /// - **workflow**: activates workflow mode and submits the delegated goal.
+    fn handle_delegation(&mut self, delegation: crate::agent::DelegationRequest) {
+        match delegation.kind {
+            crate::agent::DelegationKind::Agent => {
+                self.messages.push(AppMessage::System {
+                    content: format!(
+                        "Delegating to agent `{}`: {}",
+                        delegation.name, delegation.reason
+                    ),
+                });
+
+                // Find or create the target agent session
+                let name_lower = delegation.name.to_ascii_lowercase();
+                let target_idx = self
+                    .sessions
+                    .iter()
+                    .position(|s| s.name.to_ascii_lowercase() == name_lower);
+
+                if let Some(idx) = target_idx {
+                    self.switch_to_session(idx);
+                } else {
+                    // Create a new session from the discovered agent definition
+                    let agents = discover_agents();
+                    if let Some(def) = agents
+                        .iter()
+                        .find(|d| d.name.to_ascii_lowercase() == name_lower)
+                    {
+                        let info = crate::autocomplete::agents::AgentDefinitionInfo {
+                            name: def.name.clone(),
+                            description: def.description.clone(),
+                            model: def.model.clone(),
+                            provider: def.provider.clone(),
+                            source: def.source().map(|s| s.to_string()).unwrap_or_default(),
+                        };
+                        self.create_session_from_definition(&info);
+                    } else {
+                        self.messages.push(AppMessage::System {
+                            content: format!(
+                                "Agent `{}` not found. Delegation aborted.",
+                                delegation.name
+                            ),
+                        });
+                        self.scroll_pinned = true;
+                        self.scroll_offset = 0;
+                        return;
+                    }
+                }
+
+                // Auto-submit the delegated instruction
+                if !delegation.instruction.is_empty() {
+                    self.submit_agent_message(delegation.instruction);
+                }
+            }
+            crate::agent::DelegationKind::Workflow => {
+                self.messages.push(AppMessage::System {
+                    content: format!(
+                        "Delegating to workflow `{}`: {}",
+                        delegation.name, delegation.reason
+                    ),
+                });
+
+                // Find the workflow definition
+                let workflows = discover_workflows();
+                if let Some(wf) = workflows.iter().find(|w| w.name == delegation.name) {
+                    let info = crate::autocomplete::workflows::WorkflowDefinitionInfo {
+                        name: wf.name.clone(),
+                        description: wf.description.clone(),
+                        goal: wf.goal.clone(),
+                    };
+                    self.activate_workflow(info);
+
+                    // Auto-submit the delegated instruction (or the workflow's own goal)
+                    let goal = if delegation.instruction.is_empty() {
+                        wf.goal.clone().unwrap_or_default()
+                    } else {
+                        delegation.instruction
+                    };
+                    if !goal.is_empty() {
+                        self.submit_workflow_goal(goal);
+                    }
+                } else {
+                    self.messages.push(AppMessage::System {
+                        content: format!(
+                            "Workflow `{}` not found. Falling back to agent mode.",
+                            delegation.name
+                        ),
+                    });
+                }
+            }
+        }
+
+        self.scroll_pinned = true;
+        self.scroll_offset = 0;
     }
 }
 

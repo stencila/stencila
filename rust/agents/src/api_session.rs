@@ -321,6 +321,22 @@ impl ApiSession {
             tracing::warn!("failed to register ask_user tool: {e}");
         }
 
+        // Register delegation tools (list_agents, list_workflows, delegate)
+        // when the agent's allowedTools includes any of them. These are kept
+        // separate from core tools so they only appear for routing agents.
+        {
+            let needs_delegation = config.allowed_tools.as_ref().is_some_and(|tools| {
+                tools
+                    .iter()
+                    .any(|t| t == "list_agents" || t == "list_workflows" || t == "delegate")
+            });
+            if needs_delegation
+                && let Err(e) = crate::tools::register_delegation_tools(profile.tool_registry_mut())
+            {
+                tracing::warn!("failed to register delegation tools: {e}");
+            }
+        }
+
         #[allow(unused_mut)]
         let mut subagent_manager = SubAgentManager::new(
             Arc::clone(&execution_env),
@@ -2081,6 +2097,34 @@ async fn execute_tool(
             let text = output.as_text();
             // Full output in event (spec 2.9: TOOL_CALL_END has untruncated output)
             events.emit_tool_call_end(&tool_call.id, text);
+
+            // Emit a typed delegation event when the delegate tool succeeds,
+            // so the TUI can react to it without parsing tool arguments.
+            if tool_call.name == "delegate"
+                && let Some(args) = tool_call.arguments.as_object()
+            {
+                let kind = args
+                    .get("kind")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let name = args
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let reason = args
+                    .get("reason")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let instruction = args
+                    .get("instruction")
+                    .and_then(Value::as_str)
+                    .map(String::from);
+                events.emit_delegation(kind, name, reason, instruction);
+            }
+
             // Truncated version for LLM
             let truncated = truncate_tool_output(text, &tool_call.name, trunc_config);
 

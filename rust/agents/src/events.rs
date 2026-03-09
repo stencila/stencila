@@ -210,6 +210,24 @@ impl EventEmitter {
         self.emit(EventKind::LoopDetection, data);
     }
 
+    /// Emit a `DELEGATION` event with delegation details.
+    pub fn emit_delegation(
+        &self,
+        kind: impl Into<String>,
+        name: impl Into<String>,
+        reason: impl Into<String>,
+        instruction: Option<String>,
+    ) {
+        let mut data = serde_json::Map::new();
+        data.insert("kind".into(), Value::String(kind.into()));
+        data.insert("name".into(), Value::String(name.into()));
+        data.insert("reason".into(), Value::String(reason.into()));
+        if let Some(instr) = instruction {
+            data.insert("instruction".into(), Value::String(instr));
+        }
+        self.emit(EventKind::Delegation, data);
+    }
+
     /// Emit an `INFO` event with a code and message.
     pub fn emit_info(&self, code: impl Into<String>, message: impl Into<String>) {
         let mut data = serde_json::Map::new();

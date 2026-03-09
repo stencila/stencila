@@ -985,6 +985,19 @@ fn register_core_tools_adds_seven() -> AgentResult<()> {
 }
 
 #[test]
+fn register_delegation_tools_adds_three() -> AgentResult<()> {
+    let mut registry = ToolRegistry::new();
+    tools::register_delegation_tools(&mut registry)?;
+
+    assert_eq!(registry.len(), 3);
+    let names = registry.names();
+    assert!(names.contains(&"list_agents"));
+    assert!(names.contains(&"list_workflows"));
+    assert!(names.contains(&"delegate"));
+    Ok(())
+}
+
+#[test]
 fn register_gemini_tools_adds_two_more() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_core_tools(&mut registry)?;
@@ -1047,4 +1060,70 @@ fn required_str_missing_returns_error() {
     let result = tools::required_str(&args, "name");
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+// =========================================================================
+// Delegation tool tests
+// =========================================================================
+
+#[tokio::test]
+async fn delegate_rejects_invalid_kind() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::delegate::executor();
+    let result = exec(
+        json!({
+            "kind": "invalid",
+            "name": "test",
+            "reason": "testing",
+            "instruction": "do something"
+        }),
+        &env,
+    )
+    .await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn delegate_rejects_missing_instruction() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::delegate::executor();
+    let result = exec(
+        json!({
+            "kind": "agent",
+            "name": "test",
+            "reason": "testing"
+        }),
+        &env,
+    )
+    .await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn list_agents_returns_json_array() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::list_agents::executor();
+    let result = exec(json!({}), &env).await;
+
+    assert!(result.is_ok());
+    if let Ok(ToolOutput::Text(text)) = result {
+        let parsed: serde_json::Value = serde_json::from_str(&text).expect("should be valid JSON");
+        assert!(parsed.is_array());
+    }
+}
+
+#[tokio::test]
+async fn list_workflows_returns_empty_when_no_workflows() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::list_workflows::executor();
+    let result = exec(json!({}), &env).await;
+
+    assert!(result.is_ok());
+    if let Ok(ToolOutput::Text(text)) = result {
+        let parsed: serde_json::Value = serde_json::from_str(&text).expect("should be valid JSON");
+        assert!(parsed.is_array());
+        assert!(parsed.as_array().expect("is array").is_empty());
+    }
 }
