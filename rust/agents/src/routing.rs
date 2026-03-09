@@ -127,6 +127,8 @@ pub enum ModelSource {
     DefaultAlias,
     /// CLI tool's own default (no model passed).
     CliDefault,
+    /// Auto-selected fallback replacing an incompatible model.
+    Fallback,
 }
 
 impl fmt::Display for ModelSource {
@@ -135,6 +137,7 @@ impl fmt::Display for ModelSource {
             Self::AgentExplicit => write!(f, "from agent definition"),
             Self::DefaultAlias => write!(f, "default alias for provider"),
             Self::CliDefault => write!(f, "CLI default"),
+            Self::Fallback => write!(f, "auto-selected fallback"),
         }
     }
 }
@@ -190,10 +193,14 @@ impl RoutingDecision {
             .fallback_reason
             .as_deref()
             .unwrap_or("no API credentials");
-        let SessionRoute::Cli { provider, .. } = &self.route else {
-            return None;
-        };
-        Some(format!("Falling back to {provider} — {reason}"))
+        match &self.route {
+            SessionRoute::Cli { provider, .. } => {
+                Some(format!("Falling back to {provider} — {reason}"))
+            }
+            SessionRoute::Api { model, .. } => {
+                Some(format!("Using fallback model {model} — {reason}"))
+            }
+        }
     }
 }
 
@@ -341,8 +348,53 @@ pub fn route_session_explained(
 
     let alias_resolution = resolve_alias_preview(&model);
 
+    // Resolve the alias to get the actual model ID for compatibility checking
+    let actual_model = if let Some((_, concrete_id)) = alias_resolution.as_ref() {
+        concrete_id.clone()
+    } else {
+        model.to_string()
+    };
+
     // 3. API auth available — use API
     if client.has_provider(&api_provider) {
+        // Check if the selected model is compatible with the current auth type
+        let auth_type = client.auth_type(&api_provider);
+        if !model_supports_auth_type(&actual_model, &auth_type) {
+            // Try to find a compatible fallback model
+            if let Some(fallback_model) =
+                find_compatible_fallback_model(&api_provider, &actual_model, &auth_type)
+            {
+                let fallback_reason = format!(
+                    "Model {actual_model} is not compatible with the current auth type; \
+                     using {fallback_model} instead"
+                );
+                return Ok(RoutingDecision {
+                    route: SessionRoute::Api {
+                        provider: api_provider,
+                        model: fallback_model,
+                    },
+                    provider_source,
+                    model_source: ModelSource::Fallback,
+                    alias_resolution: None,
+                    fallback_used: true,
+                    fallback_reason: Some(fallback_reason),
+                });
+            }
+
+            // No compatible fallback — return an actionable error
+            return Err(AgentError::Sdk(
+                stencila_models3::error::SdkError::Configuration {
+                    message: format!(
+                        "Model '{actual_model}' requires {auth_type:?} authentication, \
+                         but the current credentials for '{api_provider}' use a different \
+                         auth type and no compatible fallback model was found. \
+                         Set {} to use this model.",
+                        api_key_env_hint(&api_provider)
+                    ),
+                },
+            ));
+        }
+
         return Ok(RoutingDecision {
             route: SessionRoute::Api {
                 provider: api_provider,
@@ -423,6 +475,89 @@ fn detect_cli_provider() -> Option<String> {
     }
 
     None
+}
+
+/// Check if a model supports the given authentication type.
+fn model_supports_auth_type(
+    model_id: &str,
+    auth_type: &stencila_models3::client::AuthType,
+) -> bool {
+    use stencila_models3::catalog;
+    use stencila_models3::client::AuthType;
+
+    // Unknown auth type — be permissive
+    if *auth_type == AuthType::Unknown {
+        return true;
+    }
+
+    let model_info = match catalog::get_model_info(model_id) {
+        Ok(Some(info)) => info,
+        _ => return true, // If we can't get model info, assume it's compatible
+    };
+
+    // If model doesn't specify auth_types, assume it's compatible with all
+    if model_info.auth_types.is_empty() {
+        return true;
+    }
+
+    model_info.auth_types.contains(auth_type)
+}
+
+/// Find a compatible fallback model for the given provider and auth type.
+fn find_compatible_fallback_model(
+    provider: &str,
+    original_model: &str,
+    auth_type: &stencila_models3::client::AuthType,
+) -> Option<String> {
+    use stencila_models3::catalog;
+
+    let models = match catalog::list_models(Some(provider)) {
+        Ok(models) => models,
+        Err(_) => return None,
+    };
+
+    let original_family_prefix = model_family_prefix(original_model);
+
+    // Find models that support the current auth type, excluding the original model.
+    // Prefer staying within the same family (e.g. gpt-* should fall back to gpt-*).
+    let compatible_models: Vec<String> = models
+        .iter()
+        .filter(|m| m.id != original_model && model_supports_auth_type(&m.id, auth_type))
+        .filter(|m| {
+            original_family_prefix
+                .as_ref()
+                .is_none_or(|prefix| m.id.starts_with(prefix))
+        })
+        .map(|m| m.id.clone())
+        .collect();
+
+    if compatible_models.is_empty() {
+        return None;
+    }
+
+    // The catalog is already ordered best-first within each provider, so the
+    // first compatible model in the filtered list is the preferred fallback.
+    compatible_models.into_iter().next()
+}
+
+fn model_family_prefix(model_id: &str) -> Option<&'static str> {
+    if model_id.starts_with("gpt-") {
+        Some("gpt-")
+    } else if model_id.starts_with("o1") {
+        Some("o1")
+    } else if model_id.starts_with("o3") {
+        Some("o3")
+    } else if model_id.starts_with("o4") {
+        Some("o4")
+    } else if model_id.starts_with("claude-") {
+        Some("claude-")
+    } else if model_id.starts_with("gemini") {
+        Some("gemini")
+    } else if model_id.starts_with("mistral") {
+        Some("mistral")
+    } else {
+        None
+    }
 }
 
 #[cfg(test)]

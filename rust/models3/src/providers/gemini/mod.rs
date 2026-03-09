@@ -266,11 +266,7 @@ impl ProviderAdapter for GeminiAdapter {
                                 display_name,
                                 context_window,
                                 max_output,
-                                supports_tools: false,
-                                supports_vision: false,
-                                supports_reasoning: false,
-                                input_cost_per_million: None,
-                                output_cost_per_million: None,
+                                ..Default::default()
                             })
                         })
                         .collect()

@@ -192,13 +192,7 @@ impl ProviderAdapter for OpenAIChatCompletionsAdapter {
                                 id: id.clone(),
                                 provider: "openai_chat_completions".into(),
                                 display_name: id,
-                                context_window: 0,
-                                max_output: None,
-                                supports_tools: false,
-                                supports_vision: false,
-                                supports_reasoning: false,
-                                input_cost_per_million: None,
-                                output_cost_per_million: None,
+                                ..Default::default()
                             })
                         })
                         .collect()

@@ -84,6 +84,19 @@ impl std::fmt::Display for CredentialSource {
     }
 }
 
+/// Authentication type used for model compatibility checking.
+#[derive(Debug, Default, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AuthType {
+    /// Standard API key authentication.
+    ApiKey,
+    /// OAuth authentication (e.g., Codex CLI, Claude Code).
+    OAuth,
+    /// Unknown or auto-detected authentication type.
+    #[default]
+    Unknown,
+}
+
 /// The main orchestration layer.
 ///
 /// Holds registered provider adapters, routes requests by provider
@@ -500,6 +513,22 @@ impl Client {
     #[must_use]
     pub fn default_provider(&self) -> Option<&str> {
         self.select_provider()
+    }
+
+    /// Get the authentication type for a registered provider.
+    #[must_use]
+    pub fn auth_type(&self, provider: &str) -> AuthType {
+        match self.credential_sources.get(provider) {
+            Some(CredentialSource::EnvApiKey(_) | CredentialSource::GoogleApiKeyFallback) => {
+                AuthType::ApiKey
+            }
+            Some(
+                CredentialSource::CodexCliOAuth
+                | CredentialSource::ClaudeCodeOAuth
+                | CredentialSource::AuthOverride,
+            ) => AuthType::OAuth,
+            Some(CredentialSource::AutoDetected) | None => AuthType::Unknown,
+        }
     }
 
     /// Select a provider when no explicit provider is specified.

@@ -200,12 +200,9 @@ impl ProviderAdapter for MistralAdapter {
                                 provider: "mistral".into(),
                                 display_name: id,
                                 context_window,
-                                max_output: None,
                                 supports_tools,
                                 supports_vision,
-                                supports_reasoning: false,
-                                input_cost_per_million: None,
-                                output_cost_per_million: None,
+                                ..Default::default()
                             })
                         })
                         .collect()

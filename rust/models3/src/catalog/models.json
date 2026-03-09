@@ -770,6 +770,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 150.0,
     "output_cost_per_million": 600.0
   },
@@ -782,6 +783,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 150.0,
     "output_cost_per_million": 600.0
   },
@@ -914,6 +916,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 20.0,
     "output_cost_per_million": 80.0
   },
@@ -926,6 +929,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 20.0,
     "output_cost_per_million": 80.0
   },
@@ -1046,6 +1050,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 15.0,
     "output_cost_per_million": 120.0
   },
@@ -1058,6 +1063,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 15.0,
     "output_cost_per_million": 120.0
   },
@@ -1166,6 +1172,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 21.0,
     "output_cost_per_million": 168.0
   },
@@ -1178,6 +1185,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 21.0,
     "output_cost_per_million": 168.0
   },
@@ -1221,7 +1229,7 @@
     "id": "gpt-5.3-chat-latest",
     "provider": "openai",
     "display_name": "gpt-5.3-chat-latest",
-    "context_window": 0,
+    "context_window": 128000,
     "supports_tools": false,
     "supports_vision": false,
     "supports_reasoning": false
@@ -1230,7 +1238,7 @@
     "id": "gpt-5.4-2026-03-05",
     "provider": "openai",
     "display_name": "gpt-5.4-2026-03-05",
-    "context_window": 0,
+    "context_window": 1050000,
     "supports_tools": false,
     "supports_vision": false,
     "supports_reasoning": false
@@ -1244,6 +1252,7 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
+    "auth_types": ["api_key"],
     "input_cost_per_million": 30.0,
     "output_cost_per_million": 180.0
   },
@@ -1251,10 +1260,11 @@
     "id": "gpt-5.4-pro-2026-03-05",
     "provider": "openai",
     "display_name": "gpt-5.4-pro-2026-03-05",
-    "context_window": 0,
+    "context_window": 1050000,
     "supports_tools": false,
     "supports_vision": false,
-    "supports_reasoning": false
+    "supports_reasoning": false,
+    "auth_types": ["api_key"]
   },
   {
     "id": "gpt-5.3-codex",

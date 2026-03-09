@@ -10,8 +10,9 @@ use futures::stream::BoxStream;
 
 use stencila_agents::error::AgentResult;
 use stencila_agents::routing::{
-    SessionRoute, api_to_cli, cli_to_api, is_cli_provider, route_session,
+    SessionRoute, api_to_cli, cli_to_api, is_cli_provider, route_session, route_session_explained,
 };
+use stencila_models3::client::AuthType;
 use stencila_models3::error::SdkError;
 use stencila_models3::provider::ProviderAdapter;
 use stencila_models3::types::request::Request;
@@ -65,6 +66,26 @@ fn client_with_providers(names: &[&str]) -> stencila_models3::client::Client {
     builder.build().expect("builder should succeed")
 }
 
+fn client_with_providers_and_auth(
+    names: &[&str],
+    auth_type: AuthType,
+) -> stencila_models3::client::Client {
+    let mut builder = stencila_models3::client::Client::builder();
+    for &name in names {
+        let credential_source = match auth_type {
+            AuthType::ApiKey => {
+                stencila_models3::client::CredentialSource::EnvApiKey("TEST_API_KEY")
+            }
+            AuthType::OAuth => stencila_models3::client::CredentialSource::CodexCliOAuth,
+            AuthType::Unknown => stencila_models3::client::CredentialSource::AutoDetected,
+        };
+        builder = builder
+            .add_provider_as(name, StubAdapter::new(name))
+            .credential_source(name, credential_source);
+    }
+    builder.build().expect("builder should succeed")
+}
+
 /// Build an empty client (no providers, no keys).
 fn empty_client() -> stencila_models3::client::Client {
     stencila_models3::client::Client::builder()
@@ -89,6 +110,39 @@ fn cli_provider_mapping_roundtrip() -> AgentResult<()> {
     assert_eq!(cli_to_api("codex-cli"), Some("openai"));
     assert_eq!(cli_to_api("gemini-cli"), Some("gemini"));
     assert_eq!(cli_to_api("anthropic"), None);
+
+    Ok(())
+}
+
+#[test]
+fn openai_oauth_falls_back_to_compatible_gpt_family_model() -> AgentResult<()> {
+    let client = client_with_providers_and_auth(&["openai"], AuthType::OAuth);
+
+    let decision = route_session_explained(Some("openai"), Some("gpt"), &client)?;
+
+    // Should fall back from the api-key-only gpt-5.4-pro to gpt-5.4
+    assert_eq!(
+        decision.route,
+        SessionRoute::Api {
+            provider: "openai".into(),
+            model: "gpt-5.4".into(),
+        }
+    );
+    assert!(decision.fallback_used);
+    assert_eq!(
+        decision.model_source,
+        stencila_agents::routing::ModelSource::Fallback,
+    );
+    // Alias resolution should be cleared since we replaced the model
+    assert_eq!(decision.alias_resolution, None);
+    assert!(
+        decision
+            .fallback_reason
+            .as_deref()
+            .is_some_and(|reason| reason.contains("gpt-5.4-pro") && reason.contains("gpt-5.4"))
+    );
+    // fallback_warning should produce a message for API-route fallbacks too
+    assert!(decision.fallback_warning().is_some());
 
     Ok(())
 }

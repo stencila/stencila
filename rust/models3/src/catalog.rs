@@ -6,7 +6,7 @@ use std::sync::{LazyLock, RwLock};
 use serde::{Deserialize, Serialize};
 use stencila_auth::{AuthOverrides, claude_code, codex_cli};
 
-use crate::client::Client;
+use crate::client::{AuthType, Client};
 use crate::error::{SdkError, SdkResult};
 use crate::secret::get_secret;
 
@@ -55,34 +55,47 @@ fn write_catalog() -> SdkResult<std::sync::RwLockWriteGuard<'static, CatalogData
 }
 
 /// Information about a known model.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ModelInfo {
     /// Model's API identifier (e.g. `claude-opus-4-6`).
     pub id: String,
+
     /// Which provider serves this model (e.g. `anthropic`).
     pub provider: String,
+
     /// Human-readable display name.
     pub display_name: String,
+
     /// Maximum total tokens (input + output).
     pub context_window: u64,
+
     /// Maximum output tokens, if known.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output: Option<u64>,
+
     /// Whether the model supports tool calling.
     #[serde(default)]
     pub supports_tools: bool,
+
     /// Whether the model accepts image inputs.
     #[serde(default)]
     pub supports_vision: bool,
+
     /// Whether the model produces reasoning tokens.
     #[serde(default)]
     pub supports_reasoning: bool,
+
     /// Cost per 1M input tokens (USD).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub input_cost_per_million: Option<f64>,
+
     /// Cost per 1M output tokens (USD).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output_cost_per_million: Option<f64>,
+
+    /// Authentication types supported by this model (e.g., `[AuthType::ApiKey]`).
+    #[serde(default)]
+    pub auth_types: Vec<AuthType>,
 }
 
 /// Sort each provider group in the catalog so the best model comes first.
@@ -691,12 +704,7 @@ mod tests {
             provider: provider.into(),
             display_name: id.into(),
             context_window: 4096,
-            max_output: None,
-            supports_tools: false,
-            supports_vision: false,
-            supports_reasoning: false,
-            input_cost_per_million: None,
-            output_cost_per_million: None,
+            ..Default::default()
         }
     }
 

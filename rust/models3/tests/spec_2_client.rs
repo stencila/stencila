@@ -157,10 +157,7 @@ fn catalog_merge_adds_new_model() -> Result<(), Box<dyn std::error::Error>> {
         context_window: 2048,
         max_output: Some(512),
         supports_tools: true,
-        supports_vision: false,
-        supports_reasoning: false,
-        input_cost_per_million: None,
-        output_cost_per_million: None,
+        ..Default::default()
     }])?;
 
     let info = get_model_info("spec2-merge-add-test")?.ok_or("merged model not found by ID")?;
@@ -178,12 +175,7 @@ fn catalog_merge_updates_existing_model() -> Result<(), Box<dyn std::error::Erro
         provider: "test_provider".into(),
         display_name: "Original".into(),
         context_window: 1024,
-        max_output: None,
-        supports_tools: false,
-        supports_vision: false,
-        supports_reasoning: false,
-        input_cost_per_million: None,
-        output_cost_per_million: None,
+        ..Default::default()
     }])?;
 
     merge_models(vec![ModelInfo {
@@ -193,10 +185,7 @@ fn catalog_merge_updates_existing_model() -> Result<(), Box<dyn std::error::Erro
         context_window: 4096,
         max_output: Some(1024),
         supports_tools: true,
-        supports_vision: false,
-        supports_reasoning: false,
-        input_cost_per_million: None,
-        output_cost_per_million: None,
+        ..Default::default()
     }])?;
 
     let info = get_model_info("spec2-merge-update-test")?.ok_or("updated model not found")?;
@@ -219,8 +208,7 @@ fn catalog_merge_inserts_into_provider_group() -> Result<(), Box<dyn std::error:
         supports_tools: true,
         supports_vision: true,
         supports_reasoning: true,
-        input_cost_per_million: None,
-        output_cost_per_million: None,
+        ..Default::default()
     }])?;
 
     let found = get_model_info("spec2-merge-insert-test")?;
@@ -239,13 +227,7 @@ async fn catalog_refresh_adds_discovered_models() -> Result<(), Box<dyn std::err
                 id: "refresh-discovered-model".into(),
                 provider: "refresh_test_provider".into(),
                 display_name: "Discovered Model".into(),
-                context_window: 0,
-                max_output: None,
-                supports_tools: false,
-                supports_vision: false,
-                supports_reasoning: false,
-                input_cost_per_million: None,
-                output_cost_per_million: None,
+                ..Default::default()
             }],
         ))
         .build()?;
@@ -277,6 +259,7 @@ async fn catalog_refresh_appends_after_curated_entries() -> Result<(), Box<dyn s
         supports_reasoning: false,
         input_cost_per_million: Some(3.0),
         output_cost_per_million: Some(15.0),
+        ..Default::default()
     }])?;
 
     // Now refresh discovers a new model for the same provider
@@ -287,13 +270,7 @@ async fn catalog_refresh_appends_after_curated_entries() -> Result<(), Box<dyn s
                 id: "discovered-placeholder-model".into(),
                 provider: provider.into(),
                 display_name: "discovered-placeholder-model".into(),
-                context_window: 0,
-                max_output: None,
-                supports_tools: false,
-                supports_vision: false,
-                supports_reasoning: false,
-                input_cost_per_million: None,
-                output_cost_per_million: None,
+                ..Default::default()
             }],
         ))
         .build()?;
@@ -321,12 +298,8 @@ async fn catalog_refresh_skips_already_known_models() -> Result<(), Box<dyn std:
         provider: provider.into(),
         display_name: "Already Known".into(),
         context_window: 100_000,
-        max_output: None,
         supports_tools: true,
-        supports_vision: false,
-        supports_reasoning: false,
-        input_cost_per_million: None,
-        output_cost_per_million: None,
+        ..Default::default()
     }])?;
 
     let client = Client::builder()
@@ -336,13 +309,7 @@ async fn catalog_refresh_skips_already_known_models() -> Result<(), Box<dyn std:
                 id: "already-known-model".into(),
                 provider: provider.into(),
                 display_name: "Placeholder".into(),
-                context_window: 0,
-                max_output: None,
-                supports_tools: false,
-                supports_vision: false,
-                supports_reasoning: false,
-                input_cost_per_million: None,
-                output_cost_per_million: None,
+                ..Default::default()
             }],
         ))
         .build()?;
@@ -375,13 +342,7 @@ async fn catalog_refresh_reports_provider_errors() -> Result<(), Box<dyn std::er
                 id: "from-working-provider".into(),
                 provider: "working_provider".into(),
                 display_name: "Working Model".into(),
-                context_window: 0,
-                max_output: None,
-                supports_tools: false,
-                supports_vision: false,
-                supports_reasoning: false,
-                input_cost_per_million: None,
-                output_cost_per_million: None,
+                ..Default::default()
             }],
         ))
         .build()?;
