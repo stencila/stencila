@@ -15,6 +15,14 @@ use super::{
 };
 
 impl App {
+    fn prompt_to_save_ephemeral_workflow(&mut self, workflow_name: &str) {
+        self.messages.push(AppMessage::System {
+            content: format!(
+                "Workflow `{workflow_name}` is ephemeral. Use `/workflows save {workflow_name}` to keep it or `/workflows discard {workflow_name}` to remove it."
+            ),
+        });
+    }
+
     /// Poll all running commands for completion. Called on tick events.
     pub fn poll_running_commands(&mut self) {
         self.tick_count = self.tick_count.wrapping_add(1);
@@ -317,6 +325,7 @@ impl App {
                     }
                 }
                 WorkflowEvent::Completed(result) => {
+                    let mut prompt_ephemeral = None;
                     if let Some(workflow) = &mut self.active_workflow {
                         workflow.state = match &result {
                             Ok(outcome) if outcome.status.is_success() => {
@@ -355,6 +364,15 @@ impl App {
                             }
                         }
                         workflow.run_handle = None;
+
+                        if workflow.is_ephemeral && !workflow.save_prompt_pending {
+                            workflow.save_prompt_pending = true;
+                            prompt_ephemeral = Some(workflow.info.name.clone());
+                        }
+                    }
+
+                    if let Some(name) = prompt_ephemeral {
+                        self.prompt_to_save_ephemeral_workflow(&name);
                     }
 
                     // Drop back to agent chat now that the workflow has finished
@@ -540,7 +558,8 @@ impl App {
                     ),
                 });
 
-                // Find the workflow definition
+                // Find the workflow definition, including newly created ephemeral workflows
+                // that have been written to disk.
                 let workflows = discover_workflows();
                 if let Some(wf) = workflows.iter().find(|w| w.name == delegation.name) {
                     let info = crate::autocomplete::workflows::WorkflowDefinitionInfo {
@@ -625,10 +644,22 @@ mod tests {
 
     #[tokio::test]
     async fn workflow_completed_returns_to_agent_mode() {
+        use crate::app::AppMessage;
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
         use crate::workflow::WorkflowEvent;
+        use std::fs;
         use stencila_attractor::types::Outcome;
         use tokio::sync::mpsc;
+
+        let dir = tempfile::tempdir().expect("tempdir");
+        let previous = std::env::current_dir().expect("cwd");
+        std::env::set_current_dir(dir.path()).expect("set cwd");
+        fs::create_dir_all(dir.path().join(".stencila/workflows/test-wf")).expect("create wf dir");
+        fs::write(
+            dir.path().join(".stencila/workflows/test-wf/.gitignore"),
+            "*\n",
+        )
+        .expect("write sentinel");
 
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
@@ -652,6 +683,12 @@ mod tests {
 
         assert_eq!(app.mode, AppMode::Agent);
         assert!(app.input.is_empty());
+        assert!(app.messages.iter().any(|message| matches!(
+            message,
+            AppMessage::System { content } if content.contains("/workflows save test-wf")
+        )));
+
+        std::env::set_current_dir(previous).expect("restore cwd");
     }
 
     #[tokio::test]

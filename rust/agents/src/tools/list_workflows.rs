@@ -11,7 +11,7 @@ pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "list_workflows".into(),
         description: "List available Stencila Workflows from the workspace. Returns workflow \
-            names, descriptions, and goals to help decide which workflow to delegate to."
+            names, descriptions, goals, and ephemeral status to help decide which workflow to delegate to."
             .into(),
         parameters: json!({
             "type": "object",
@@ -38,6 +38,7 @@ pub fn executor() -> ToolExecutorFn {
                             "description": wf.description,
                             "goal": wf.goal,
                             "path": wf.path,
+                            "ephemeral": wf.ephemeral,
                         })
                     })
                     .collect();
@@ -55,6 +56,7 @@ struct WorkflowSummary {
     description: String,
     goal: Option<String>,
     path: String,
+    ephemeral: bool,
 }
 
 async fn discover_workflows(cwd: &Path) -> Vec<WorkflowSummary> {
@@ -102,11 +104,23 @@ async fn load_workflow_summary(path: &Path) -> Option<WorkflowSummary> {
     .ok()?;
 
     if let Node::Workflow(wf) = node {
+        let ephemeral = path
+            .parent()
+            .map(|dir| {
+                let sentinel = dir.join(".gitignore");
+                sentinel
+                    .is_file()
+                    .then(|| std::fs::read_to_string(&sentinel).ok())
+                    .flatten()
+                    .is_some_and(|content| content.trim() == "*")
+            })
+            .unwrap_or(false);
         Some(WorkflowSummary {
             name: wf.name.clone(),
             description: wf.description.clone(),
             goal: wf.goal.clone(),
             path: path.display().to_string(),
+            ephemeral,
         })
     } else {
         None

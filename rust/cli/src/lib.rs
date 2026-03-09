@@ -124,6 +124,8 @@ mod tests {
             ("workflows::show", stencila_workflows::cli::SHOW_AFTER_LONG_HELP),
             ("workflows::validate", stencila_workflows::cli::VALIDATE_AFTER_LONG_HELP),
             ("workflows::create", stencila_workflows::cli::CREATE_AFTER_LONG_HELP),
+            ("workflows::save", stencila_workflows::cli::SAVE_AFTER_LONG_HELP),
+            ("workflows::discard", stencila_workflows::cli::DISCARD_AFTER_LONG_HELP),
             // Agents module help strings
             ("agents::cli", stencila_agents::cli::CLI_AFTER_LONG_HELP),
             ("agents::list", stencila_agents::cli::LIST_AFTER_LONG_HELP),

@@ -70,13 +70,14 @@ impl Serialize for WorkflowInstance {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("WorkflowInstance", 6)?;
+        let mut state = serializer.serialize_struct("WorkflowInstance", 7)?;
 
         state.serialize_field("name", &self.inner.name)?;
         state.serialize_field("description", &self.inner.description)?;
         state.serialize_field("goal", &self.inner.goal)?;
         state.serialize_field("source", &self.source.map(|s| s.to_string()))?;
         state.serialize_field("path", &self.path)?;
+        state.serialize_field("ephemeral", &self.is_ephemeral())?;
         state.serialize_field("pipeline", &self.inner.pipeline)?;
 
         state.end()
@@ -129,6 +130,15 @@ impl WorkflowInstance {
             .ok_or_else(|| eyre::eyre!("Workflow `{}` has no pipeline defined", self.name))?;
         stencila_attractor::parse_dot(pipeline)
             .map_err(|e| eyre::eyre!("Failed to parse pipeline for workflow `{}`: {e}", self.name))
+    }
+
+    /// Whether this workflow directory is marked ephemeral.
+    ///
+    /// Ephemeral workflows have a `.gitignore` file containing `*` in their
+    /// directory, indicating they were created by an agent for one-time use
+    /// and can be discarded later.
+    pub fn is_ephemeral(&self) -> bool {
+        is_ephemeral_dir(&self.home)
     }
 
     /// Return the agent names referenced in the pipeline DOT.
@@ -242,6 +252,73 @@ pub(crate) async fn load_workflow(path: &Path) -> Result<WorkflowInstance> {
             node.to_string()
         )
     }
+}
+
+/// The sentinel file used to mark a workflow directory as ephemeral.
+const EPHEMERAL_SENTINEL: &str = ".gitignore";
+
+/// The content written to the ephemeral sentinel file.
+const EPHEMERAL_SENTINEL_CONTENT: &str = "*\n";
+
+/// Check whether a workflow directory is marked as ephemeral.
+fn is_ephemeral_dir(dir: &Path) -> bool {
+    let sentinel = dir.join(EPHEMERAL_SENTINEL);
+    sentinel
+        .is_file()
+        .then(|| std::fs::read_to_string(&sentinel).ok())
+        .flatten()
+        .is_some_and(|content| content.trim() == "*")
+}
+
+/// Get the workflow directory for a given name relative to the current working directory.
+fn workflow_dir(cwd: &Path) -> Option<PathBuf> {
+    let stencila_dir = stencila_dirs::closest_dot_dir(cwd, ".stencila")?;
+    Some(stencila_dir.join("workflows"))
+}
+
+/// Check if a named workflow is ephemeral.
+pub fn is_ephemeral(cwd: &Path, name: &str) -> bool {
+    workflow_dir(cwd)
+        .map(|dir| dir.join(name))
+        .is_some_and(|dir| is_ephemeral_dir(&dir))
+}
+
+/// Save an ephemeral workflow by removing its ephemeral sentinel.
+///
+/// Returns `Ok(true)` if the workflow was ephemeral and is now saved,
+/// `Ok(false)` if it was not ephemeral or doesn't exist.
+pub fn save_ephemeral(cwd: &Path, name: &str) -> Result<bool> {
+    let Some(workflows_dir) = workflow_dir(cwd) else {
+        return Ok(false);
+    };
+    let dir = workflows_dir.join(name);
+    if !is_ephemeral_dir(&dir) {
+        return Ok(false);
+    }
+    std::fs::remove_file(dir.join(EPHEMERAL_SENTINEL))?;
+    Ok(true)
+}
+
+/// Discard an ephemeral workflow by removing its entire directory.
+///
+/// Returns `Ok(true)` if the workflow was ephemeral and has been removed,
+/// `Ok(false)` if it was not ephemeral or doesn't exist.
+pub fn discard_ephemeral(cwd: &Path, name: &str) -> Result<bool> {
+    let Some(workflows_dir) = workflow_dir(cwd) else {
+        return Ok(false);
+    };
+    let dir = workflows_dir.join(name);
+    if !is_ephemeral_dir(&dir) {
+        return Ok(false);
+    }
+    std::fs::remove_dir_all(dir)?;
+    Ok(true)
+}
+
+/// Create the ephemeral sentinel file (`.gitignore` with `*`) in a directory.
+pub fn mark_ephemeral(dir: &Path) -> Result<()> {
+    std::fs::write(dir.join(EPHEMERAL_SENTINEL), EPHEMERAL_SENTINEL_CONTENT)?;
+    Ok(())
 }
 
 #[cfg(test)]

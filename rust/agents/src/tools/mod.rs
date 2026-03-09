@@ -7,6 +7,7 @@
 
 pub mod apply_patch;
 pub mod ask_user;
+pub mod create_workflow;
 pub mod delegate;
 pub mod edit_file;
 pub mod glob;
@@ -46,7 +47,7 @@ pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
     Ok(())
 }
 
-/// Register the delegation tools: `list_agents`, `list_workflows`, `delegate`.
+/// Register the delegation tools: `list_agents`, `list_workflows`, `create_workflow`, `delegate`.
 ///
 /// These are used by the manager agent for routing and handoff. They are
 /// registered separately from core tools so that only agents whose
@@ -55,6 +56,7 @@ pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()>
     let tools: Vec<RegisteredTool> = vec![
         RegisteredTool::new(list_agents::definition(), list_agents::executor()),
         RegisteredTool::new(list_workflows::definition(), list_workflows::executor()),
+        RegisteredTool::new(create_workflow::definition(), create_workflow::executor()),
         RegisteredTool::new(delegate::definition(), delegate::executor()),
     ];
     for tool in tools {

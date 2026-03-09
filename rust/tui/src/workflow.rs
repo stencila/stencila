@@ -20,6 +20,18 @@ pub enum WorkflowEvent {
     Completed(eyre::Result<Outcome>),
 }
 
+async fn load_workflow_instance(
+    info: &WorkflowDefinitionInfo,
+) -> eyre::Result<stencila_workflows::WorkflowInstance> {
+    let cwd = std::env::current_dir().unwrap_or_default();
+    stencila_workflows::get_by_name(&cwd, &info.name).await
+}
+
+pub fn is_ephemeral_workflow(name: &str) -> bool {
+    let cwd = std::env::current_dir().unwrap_or_default();
+    stencila_workflows::is_ephemeral(&cwd, name)
+}
+
 /// Handle to a running workflow task.
 pub struct WorkflowRunHandle {
     pub event_rx: mpsc::UnboundedReceiver<WorkflowEvent>,
@@ -75,8 +87,8 @@ fn spawn_interview_forwarder(
 /// Returns the run handle and total number of pipeline stages (graph nodes).
 pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowRunHandle, usize) {
     let (event_tx, event_rx) = mpsc::unbounded_channel();
-    let name = info.name.clone();
-    let total_stages = compute_total_stages(&name);
+    let info = info.clone();
+    let total_stages = compute_total_stages(&info);
 
     let join_handle = tokio::spawn(async move {
         let completion_tx = event_tx.clone();
@@ -86,9 +98,8 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
 
         let interviewer = spawn_interview_forwarder(event_tx);
 
-        let cwd = std::env::current_dir().unwrap_or_default();
         let result = async {
-            let mut workflow = stencila_workflows::get_by_name(&cwd, &name).await?;
+            let mut workflow = load_workflow_instance(&info).await?;
             workflow.inner.goal = Some(goal);
 
             let options = stencila_workflows::RunOptions {
@@ -113,15 +124,14 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
 /// Compute total stages (graph node count) for a workflow by name.
 ///
 /// Best-effort: returns 0 if the workflow can't be loaded or parsed.
-fn compute_total_stages(name: &str) -> usize {
+fn compute_total_stages(info: &WorkflowDefinitionInfo) -> usize {
     let Ok(handle) = tokio::runtime::Handle::try_current() else {
         return 0;
     };
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         tokio::task::block_in_place(|| {
             handle.block_on(async {
-                let cwd = std::env::current_dir().unwrap_or_default();
-                match stencila_workflows::get_by_name(&cwd, name).await {
+                match load_workflow_instance(info).await {
                     Ok(wf) => wf.graph().map(|g| g.nodes.len()).unwrap_or(0),
                     Err(_) => 0,
                 }

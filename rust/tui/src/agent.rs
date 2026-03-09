@@ -899,7 +899,6 @@ pub(crate) fn process_event(
                     .and_then(Value::as_str)
                     .unwrap_or("")
                     .to_string();
-
                 g.delegation = Some(DelegationRequest {
                     kind,
                     name,

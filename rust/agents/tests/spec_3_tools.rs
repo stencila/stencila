@@ -985,14 +985,15 @@ fn register_core_tools_adds_seven() -> AgentResult<()> {
 }
 
 #[test]
-fn register_delegation_tools_adds_three() -> AgentResult<()> {
+fn register_delegation_tools_adds_four() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_delegation_tools(&mut registry)?;
 
-    assert_eq!(registry.len(), 3);
+    assert_eq!(registry.len(), 4);
     let names = registry.names();
     assert!(names.contains(&"list_agents"));
     assert!(names.contains(&"list_workflows"));
+    assert!(names.contains(&"create_workflow"));
     assert!(names.contains(&"delegate"));
     Ok(())
 }

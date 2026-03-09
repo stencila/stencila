@@ -207,6 +207,13 @@ pub struct ActiveWorkflow {
     /// Used to avoid marking orphaned running exchanges as succeeded
     /// when the parallel section completes with failures.
     pub parallel_had_failure: bool,
+
+    /// Whether this workflow directory is marked ephemeral via a `.gitignore`
+    /// sentinel and may be offered for save/discard after execution.
+    pub is_ephemeral: bool,
+
+    /// Whether save/discard actions are pending for this ephemeral workflow.
+    pub save_prompt_pending: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]

@@ -24,6 +24,8 @@ impl App {
         self.mode = super::AppMode::Workflow;
         let default_goal = info.goal.clone();
         self.active_workflow = Some(ActiveWorkflow {
+            is_ephemeral: crate::workflow::is_ephemeral_workflow(&info.name),
+            save_prompt_pending: false,
             info,
             state: ActiveWorkflowState::Pending,
             run_handle: None,

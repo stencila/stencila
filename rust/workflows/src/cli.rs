@@ -1,6 +1,6 @@
 //! CLI for managing workflow definitions.
 //!
-//! Provides `stencila workflows` subcommands: list, show, validate, create.
+//! Provides `stencila workflows` subcommands: list, show, validate, create, save, discard.
 
 use std::{io::IsTerminal, path::PathBuf, process::exit, sync::Arc, time::Instant};
 
@@ -47,6 +47,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Run a workflow with a goal override</dim>
   <b>stencila workflows run</> <g>code-review</> <c>--goal</> <y>\"Implement login feature\"</>
+
+  <dim># Save an ephemeral workflow</dim>
+  <b>stencila workflows save</> <g>my-workflow</>
+
+  <dim># Discard an ephemeral workflow</dim>
+  <b>stencila workflows discard</> <g>my-workflow</>
 "
 );
 
@@ -57,6 +63,8 @@ enum Command {
     Validate(Validate),
     Create(Create),
     Run(Run),
+    Save(Save),
+    Discard(Discard),
 }
 
 impl Cli {
@@ -72,6 +80,8 @@ impl Cli {
             Command::Validate(validate) => validate.run().await?,
             Command::Create(create) => create.run().await?,
             Command::Run(run) => run.run().await?,
+            Command::Save(save) => save.run().await?,
+            Command::Discard(discard) => discard.run().await?,
         }
 
         Ok(())
@@ -115,11 +125,13 @@ impl List {
         for wf in list {
             let goal = wf.goal.as_deref().unwrap_or("-");
 
-            table.add_row([
-                Cell::new(&wf.name).add_attribute(Attribute::Bold),
-                Cell::new(&wf.description),
-                Cell::new(goal),
-            ]);
+            let name_cell = if wf.is_ephemeral() {
+                Cell::new(&wf.name).add_attribute(Attribute::Dim)
+            } else {
+                Cell::new(&wf.name).add_attribute(Attribute::Bold)
+            };
+
+            table.add_row([name_cell, Cell::new(&wf.description), Cell::new(goal)]);
         }
 
         table.to_stdout();
@@ -499,6 +511,79 @@ impl Run {
         }
 
         Ok(())
+    }
+}
+
+/// Save an ephemeral workflow
+///
+/// Removes the ephemeral marker from a workflow that was created by an
+/// agent, converting it into a permanent workspace workflow.
+#[derive(Debug, Args)]
+#[command(after_long_help = SAVE_AFTER_LONG_HELP)]
+struct Save {
+    /// The name of the workflow to save
+    name: String,
+}
+
+pub static SAVE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Save an ephemeral workflow</dim>
+  <b>stencila workflows save</> <g>my-workflow</>
+"
+);
+
+impl Save {
+    async fn run(self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+        match workflow_def::save_ephemeral(&cwd, &self.name)? {
+            true => {
+                message!("Saved workflow `{}`", self.name);
+                Ok(())
+            }
+            false => {
+                bail!(
+                    "Workflow `{}` is not ephemeral or does not exist",
+                    self.name
+                );
+            }
+        }
+    }
+}
+
+/// Discard an ephemeral workflow
+///
+/// Removes an ephemeral workflow directory that was created by an agent.
+/// Only ephemeral workflows can be discarded; permanent workflows must be
+/// deleted manually.
+#[derive(Debug, Args)]
+#[command(after_long_help = DISCARD_AFTER_LONG_HELP)]
+struct Discard {
+    /// The name of the workflow to discard
+    name: String,
+}
+
+pub static DISCARD_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Discard an ephemeral workflow</dim>
+  <b>stencila workflows discard</> <g>my-workflow</>
+"
+);
+
+impl Discard {
+    async fn run(self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+        match workflow_def::discard_ephemeral(&cwd, &self.name)? {
+            true => {
+                message!("Discarded workflow `{}`", self.name);
+                Ok(())
+            }
+            false => {
+                bail!(
+                    "Workflow `{}` is not ephemeral or does not exist",
+                    self.name
+                );
+            }
+        }
     }
 }
 
