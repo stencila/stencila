@@ -7,6 +7,7 @@
 use crate::error::AgentResult;
 use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
+use crate::tools::{build_pre_run_tool_context, register_delegation_tools};
 use crate::types::SessionConfig;
 
 const STENCILA_GIT_NAME: &str = "Stencila";
@@ -324,15 +325,24 @@ pub struct McpContext {
 // Full prompt assembly (spec 6.1)
 // ---------------------------------------------------------------------------
 
-/// Build the system prompt for a session.
+/// Build the complete system prompt for a session.
 ///
-/// Gathers environment context, project docs, workspace skills, and
-/// MCP/codemode tools (when the respective features and config flags are
-/// active). Returns the assembled prompt string and an optional
-/// [`McpContext`] for session lifecycle management.
+/// Assembles all prompt layers in order:
+/// 1. Provider-specific base instructions
+/// 2. Environment context
+/// 3. Project docs
+/// 4. Workspace skills (when enabled)
+/// 5. MCP/codemode tools (when the respective features and config flags are active)
+/// 6. Pre-run tool context
+/// 7. Commit instructions
+/// 8. User instructions (spec layer 5, always last)
 ///
-/// This is the single entry point for prompt assembly — callers do not
-/// need to handle MCP setup separately.
+/// Returns the assembled prompt string and an optional [`McpContext`]
+/// for session lifecycle management.
+///
+/// This is the single entry point for prompt assembly — callers should
+/// pass the returned prompt directly to [`ApiSession::new()`] without
+/// appending additional layers.
 pub async fn build_system_prompt(
     profile: &mut dyn ProviderProfile,
     env: &dyn ExecutionEnvironment,
@@ -390,6 +400,44 @@ pub async fn build_system_prompt(
     // When neither MCP feature is compiled in, no context to return.
     #[cfg(not(any(feature = "mcp", feature = "codemode")))]
     let mcp_context: Option<McpContext> = None;
+
+    // Register delegation tools (list_agents, list_workflows, delegate) early
+    // so they are available for pre-run execution below. These are registered
+    // conditionally — only when the agent's `allowed_tools` includes them.
+    {
+        let needs_delegation = config.allowed_tools.as_ref().is_some_and(|tools| {
+            tools
+                .iter()
+                .any(|t| t == "list_agents" || t == "list_workflows" || t == "delegate")
+        });
+        if needs_delegation && let Err(e) = register_delegation_tools(profile.tool_registry_mut()) {
+            tracing::warn!("failed to register delegation tools: {e}");
+        }
+    }
+
+    // Pre-run tool calls layer
+    let pre_run_context = build_pre_run_tool_context(
+        profile.tool_registry(),
+        env,
+        config.allowed_tools.as_deref(),
+    )
+    .await;
+    if !pre_run_context.is_empty() {
+        prompt.push_str("\n\n");
+        prompt.push_str(&pre_run_context);
+    }
+
+    // Commit instructions layer (between skills/MCP and user instructions)
+    if let Some(ref ci) = config.commit_instructions {
+        prompt.push_str("\n\n");
+        prompt.push_str(ci);
+    }
+
+    // Layer 5: append user instruction override if present (spec 6.1)
+    if let Some(ref user_instr) = config.user_instructions {
+        prompt.push_str("\n\n");
+        prompt.push_str(user_instr);
+    }
 
     Ok((prompt, mcp_context))
 }

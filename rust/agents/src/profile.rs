@@ -41,7 +41,7 @@ pub trait ProviderProfile: fmt::Debug + Send + Sync {
     /// guidance, and coding best practices for this provider's model family.
     fn base_instructions(&self) -> &str;
 
-    /// Build the system prompt for this profile (spec 6.1).
+    /// Build the base system prompt layers for this profile (spec 6.1).
     ///
     /// Assembles layers 1-4 of the system prompt:
     /// 1. Provider-specific base instructions (from [`base_instructions()`])
@@ -52,12 +52,13 @@ pub trait ProviderProfile: fmt::Debug + Send + Sync {
     ///    LLM APIs handle tool schemas separately from the system prompt.
     /// 4. Project-specific instructions (pre-built by [`project_docs::discover_project_docs()`])
     ///
-    /// Layer 5 (user instructions override) is appended by the session layer
-    /// via [`SessionConfig::user_instructions`].
+    /// Additional layers (skills, MCP/codemode, commit instructions, user
+    /// instructions) are appended by [`prompts::build_system_prompt()`],
+    /// which is the single entry point for full prompt assembly.
     ///
+    /// [`prompts::build_system_prompt()`]: crate::prompts::build_system_prompt
     /// [`prompts::build_environment_context()`]: crate::prompts::build_environment_context
     /// [`project_docs::discover_project_docs()`]: crate::project_docs::discover_project_docs
-    /// [`SessionConfig::user_instructions`]: crate::types::SessionConfig
     fn build_system_prompt(&self, environment_context: &str, project_docs: &str) -> String {
         let mut prompt = self.base_instructions().to_string();
 

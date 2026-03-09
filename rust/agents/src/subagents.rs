@@ -30,6 +30,7 @@ use crate::api_session::{ApiSession, LlmClient};
 use crate::error::{AgentError, AgentResult};
 use crate::execution::{ExecutionEnvironment, ScopedExecutionEnvironment};
 use crate::profile::ProviderProfile;
+use crate::prompts::build_system_prompt;
 use crate::registry::{RegisteredTool, ToolRegistry};
 use crate::types::{AbortController, AbortSignal, SessionConfig};
 
@@ -424,12 +425,8 @@ impl SubAgentManager {
             c.enable_mcp_codemode = false;
             c
         };
-        let (mut system_prompt, _) = crate::prompts::build_system_prompt(
-            &mut *child_profile,
-            &*child_env,
-            &child_prompt_config,
-        )
-        .await?;
+        let (mut system_prompt, _) =
+            build_system_prompt(&mut *child_profile, &*child_env, &child_prompt_config).await?;
 
         // Register MCP/codemode tools on child profile using parent's pool
         #[cfg(any(feature = "mcp", feature = "codemode"))]

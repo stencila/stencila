@@ -13,7 +13,7 @@ use crate::error::{AgentError, AgentResult};
 use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
 use crate::profiles::{AnthropicProfile, DefaultProfile, GeminiProfile, OpenAiProfile};
-use crate::prompts;
+use crate::prompts::{build_commit_instructions, build_system_prompt};
 use crate::routing::{self, RoutingDecision, SessionRoute};
 use crate::tool_guard::{GuardContext, ToolGuard, TrustLevel};
 use crate::types::SessionConfig;
@@ -179,7 +179,7 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
     })?;
 
     let commit_attribution = resolve_commit_attribution();
-    config.commit_instructions = Some(prompts::build_commit_instructions(commit_attribution));
+    config.commit_instructions = Some(build_commit_instructions(commit_attribution));
 
     Ok((agent, config))
 }
@@ -387,8 +387,7 @@ async fn create_api_session_inner(
     let session_id = uuid::Uuid::new_v4().to_string();
     let guard_context = Arc::new(GuardContext::new(session_id.as_str(), agent.name.as_str()));
 
-    let (system_prompt, mcp_context) =
-        prompts::build_system_prompt(&mut *profile, &*env, &config).await?;
+    let (system_prompt, mcp_context) = build_system_prompt(&mut *profile, &*env, &config).await?;
 
     let (session, event_receiver) = ApiSession::new(
         profile,

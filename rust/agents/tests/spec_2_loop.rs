@@ -12,6 +12,7 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use serde_json::json;
+use stencila_agents::prompts::build_system_prompt;
 use stencila_models3::error::{ProviderDetails, SdkError};
 use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::finish_reason::{FinishReason, Reason};
@@ -2265,7 +2266,7 @@ async fn end_to_end_prompt_has_base_instructions_and_env_context() -> AgentResul
         enable_skills: false,
         ..SessionConfig::default()
     };
-    let (prompt, _) = stencila_agents::api_session::build_system_prompt(
+    let (prompt, _) = build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
         &no_skills_config,
@@ -2317,7 +2318,7 @@ async fn end_to_end_prompt_in_request_matches_build_system_prompt() -> AgentResu
         enable_skills: false,
         ..SessionConfig::default()
     };
-    let (prompt, _) = stencila_agents::api_session::build_system_prompt(
+    let (prompt, _) = build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
         &no_skills_config,
@@ -2443,7 +2444,7 @@ async fn end_to_end_prompt_includes_project_docs_layer() -> AgentResult<()> {
         enable_skills: false,
         ..SessionConfig::default()
     };
-    let (prompt, _) = stencila_agents::api_session::build_system_prompt(
+    let (prompt, _) = build_system_prompt(
         &mut *profile as &mut dyn ProviderProfile,
         &*env,
         &no_skills_config,

@@ -48,7 +48,7 @@ Choose an agent only when the task is genuinely simple enough that a one-shot re
 
 ## Rules
 
-- Start by calling `list_workflows` and `list_agents` to see what is available
+- Use the `list_workflows` and `list_agents` tools to see what is available
 - Strongly prefer `delegate` with `kind: workflow` over `kind: agent`
 - Use the `workflow-creation` skill when the task would benefit from a workflow and no suitable existing workflow exists. By default, create an ephemeral workflow and then `delegate` to it.
 - Only delegate to the `workflow-creator` agent when it is clear that the user wants to create a permanent workflow

@@ -15,8 +15,8 @@ use stencila_agents::profile::ProviderProfile;
 use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
 use stencila_agents::project_docs::{discover_project_docs, discover_project_docs_with_budget};
 use stencila_agents::prompts::{
-    GitContext, build_environment_context, format_git_summary, gather_git_context,
-    gather_git_context_with_options,
+    GitContext, build_environment_context, build_system_prompt, format_git_summary,
+    gather_git_context, gather_git_context_with_options,
 };
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
 
@@ -31,6 +31,35 @@ struct MockEnv {
     os_version: String,
     files: Arc<Mutex<HashMap<String, String>>>,
     commands: Arc<Mutex<HashMap<String, ExecResult>>>,
+}
+
+#[tokio::test]
+async fn build_system_prompt_includes_pre_run_tool_context() -> AgentResult<()> {
+    let env = MockEnv::new("/project").with_command(
+        "git rev-parse --abbrev-ref HEAD",
+        ExecResult {
+            stdout: String::new(),
+            stderr: String::new(),
+            exit_code: 1,
+            timed_out: false,
+            duration_ms: 5,
+        },
+    );
+    let mut profile = AnthropicProfile::new("test-model", 600_000)?;
+    stencila_agents::tools::register_delegation_tools(profile.tool_registry_mut())?;
+
+    let config = stencila_agents::types::SessionConfig {
+        allowed_tools: Some(vec!["list_agents".into()]),
+        ..Default::default()
+    };
+
+    let (prompt, _mcp) = build_system_prompt(&mut profile, &env, &config).await?;
+
+    assert!(prompt.contains("<pre_run_tools>"));
+    assert!(prompt.contains("<rationale>"));
+    assert!(prompt.contains("Tool: list_agents"));
+
+    Ok(())
 }
 
 impl MockEnv {

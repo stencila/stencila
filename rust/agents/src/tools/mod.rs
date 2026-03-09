@@ -20,11 +20,70 @@ pub mod shell;
 pub mod web_fetch;
 pub mod write_file;
 
-use serde_json::Value;
+use serde_json::{Value, json};
 
 use crate::error::{AgentError, AgentResult};
 use crate::execution::{ExecutionEnvironment, FileContent};
 use crate::registry::{RegisteredTool, ToolRegistry};
+
+/// Static allowlist of tools that can be pre-run before the first LLM call.
+///
+/// Keep this list intentionally small and side-effect free. Tools listed here
+/// should be inexpensive, deterministic enough for prompt context, and safe to
+/// execute without explicit model initiation.
+const PRE_RUN_TOOLS: &[&str] = &["list_agents", "list_workflows"];
+
+/// Execute eligible pre-run tools and format their text output for prompt injection.
+pub async fn build_pre_run_tool_context(
+    registry: &ToolRegistry,
+    env: &dyn ExecutionEnvironment,
+    allowed_tools: Option<&[String]>,
+) -> String {
+    let mut lines = Vec::new();
+
+    for tool in PRE_RUN_TOOLS
+        .iter()
+        .copied()
+        .filter(|tool| allowed_tools.is_none_or(|allowed| allowed.iter().any(|name| name == tool)))
+    {
+        let Some(registered) = registry.get(tool) else {
+            continue;
+        };
+
+        match registered.execute(json!({}), env).await {
+            Ok(output) => {
+                if lines.is_empty() {
+                    lines.push("<pre_run_tools>".to_string());
+                    lines.push(
+                        "<rationale>Selected tools were pre-run and their results are included \
+                         here to reduce latency by avoiding an extra model-tool round trip. \
+                         You do not need to re-run these tools unless you suspect their results \
+                         may have changed due to your own actions or the user's (e.g. after \
+                         creating, renaming, or deleting agents or workflows).</rationale>"
+                            .to_string(),
+                    );
+                }
+
+                lines.push(format!("Tool: {tool}"));
+                lines.push("Result:".to_string());
+                lines.push(output.as_text().to_string());
+                lines.push(String::new());
+            }
+            Err(error) => tracing::warn!(tool, "failed to pre-run tool: {error}"),
+        }
+    }
+
+    if lines.is_empty() {
+        return String::new();
+    }
+
+    while lines.last().is_some_and(String::is_empty) {
+        lines.pop();
+    }
+
+    lines.push("</pre_run_tools>".to_string());
+    lines.join("\n")
+}
 
 /// Register the shared core tools (spec 3.3).
 ///

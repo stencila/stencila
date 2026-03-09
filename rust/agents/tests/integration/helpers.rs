@@ -14,7 +14,7 @@ use stencila_agents::execution::LocalExecutionEnvironment;
 use stencila_agents::profiles::AnthropicProfile;
 use stencila_agents::profiles::GeminiProfile;
 use stencila_agents::profiles::OpenAiProfile;
-use stencila_agents::prompts;
+use stencila_agents::prompts::build_system_prompt;
 use stencila_agents::types::{EventKind, SessionConfig, SessionEvent};
 use stencila_models3::error::SdkError;
 
@@ -113,7 +113,7 @@ pub async fn live_session(
 
     // Build system prompt
     let (system_prompt, mcp_context) =
-        prompts::build_system_prompt(&mut *profile, &*exec_env, &config).await?;
+        build_system_prompt(&mut *profile, &*exec_env, &config).await?;
 
     // Create session (depth 0 = top-level)
     let (session, receiver) = ApiSession::new(

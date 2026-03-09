@@ -42,6 +42,7 @@ use crate::prompts::McpContext;
 use crate::registry::ToolOutput;
 use crate::subagents::{SubAgentManager, TOOL_WAIT};
 use crate::tool_guard::{GuardContext, GuardVerdict, ToolGuard};
+use crate::tools::ask_user::register_ask_user_tool;
 use crate::truncation::{TruncationConfig, truncate_tool_output};
 use crate::types::{
     AbortKind, AbortSignal, EventKind, HistoryThinkingReplay, SessionConfig, SessionState, Turn,
@@ -243,8 +244,9 @@ impl ApiSession {
     /// Create a new session.
     ///
     /// Returns the session and an [`EventReceiver`] for consuming events.
-    /// The caller is responsible for building the system prompt (see
-    /// [`build_system_prompt()`] helper) and passing the resulting
+    /// The caller is responsible for building the **complete** system prompt
+    /// via [`build_system_prompt()`] (which handles all layers including
+    /// commit instructions and user instructions) and passing the resulting
     /// [`McpContext`] so the session can manage pool lifecycle and
     /// propagate MCP/codemode capabilities to subagents.
     ///
@@ -288,20 +290,6 @@ impl ApiSession {
             tool_line_limits: config.tool_line_limits.clone(),
         };
 
-        // Commit instructions layer (between skills/MCP and user instructions)
-        let system_prompt = if let Some(ref ci) = config.commit_instructions {
-            format!("{system_prompt}\n\n{ci}")
-        } else {
-            system_prompt
-        };
-
-        // Layer 5: append user instruction override if present (spec 6.1)
-        let system_prompt = if let Some(ref user_instr) = config.user_instructions {
-            format!("{system_prompt}\n\n{user_instr}")
-        } else {
-            system_prompt
-        };
-
         let max_depth = config.max_subagent_depth;
 
         // Auto-register subagent tools when this session is allowed to spawn
@@ -315,26 +303,9 @@ impl ApiSession {
         // Register ask_user tool when an interviewer is provided,
         // enabling explicit human-in-the-loop via tool calls.
         if let Some(iv) = interviewer
-            && let Err(e) =
-                crate::tools::ask_user::register_ask_user_tool(profile.tool_registry_mut(), iv)
+            && let Err(e) = register_ask_user_tool(profile.tool_registry_mut(), iv)
         {
             tracing::warn!("failed to register ask_user tool: {e}");
-        }
-
-        // Register delegation tools (list_agents, list_workflows, delegate)
-        // when the agent's allowedTools includes any of them. These are kept
-        // separate from core tools so they only appear for routing agents.
-        {
-            let needs_delegation = config.allowed_tools.as_ref().is_some_and(|tools| {
-                tools
-                    .iter()
-                    .any(|t| t == "list_agents" || t == "list_workflows" || t == "delegate")
-            });
-            if needs_delegation
-                && let Err(e) = crate::tools::register_delegation_tools(profile.tool_registry_mut())
-            {
-                tracing::warn!("failed to register delegation tools: {e}");
-            }
         }
 
         #[allow(unused_mut)]
@@ -2180,10 +2151,6 @@ fn append_guard_warning(output: ToolOutput, warning_text: &str) -> ToolOutput {
         }
     }
 }
-
-// Re-export for backward compatibility — the function lives in `prompts`
-// where it belongs alongside the other prompt-building helpers.
-pub use crate::prompts::build_system_prompt;
 
 #[cfg(test)]
 mod guard_wiring_tests {
