@@ -53,6 +53,7 @@ Note: `Agent` extends `CreativeWork` in the schema, so agents may have additiona
 ### System Instructions (Markdown Body)
 
 - A missing body is valid — a frontmatter-only `AGENT.md` is a legitimate configuration-only agent. However, a body that exists but contains only empty sections or placeholder content should be flagged
+- If `allowed-skills` contains exactly one skill, recognize that Stencila automatically preloads that skill's full instructions into the system prompt. In this case, a short body that acts as a preamble or identity-setting introduction is sufficient and should not be criticized as too sparse merely for brevity
 - If present, instructions are clear, imperative, and unambiguous
 - Instructions align with the agent's described purpose — a code reviewer's instructions should not describe code generation
 - No contradictions between frontmatter configuration and body instructions (e.g., body says "modify files" but `allowed-tools` excludes `write_file` and `edit_file`)
@@ -132,6 +133,37 @@ Output (use `###` headings in the report):
 >
 > 1. Add `reasoning-effort: high` — code review benefits from deeper analysis, and this matches the defaults in the agent-creation skill's configuration guide
 
+Input: "Review the code-reviewer agent that delegates to one skill"
+
+Process:
+
+1. Resolve to `.stencila/agents/code-reviewer/AGENT.md`
+2. Read the file — frontmatter includes `allowed-skills:` with exactly one entry, `code-review`
+3. Note from the agent configuration pattern that a single allowed skill is preloaded into the system prompt automatically
+4. Evaluate the body as a short preamble that frames the agent's identity, rather than expecting the full workflow to be repeated there
+5. Check that the body is not placeholder text and does not contradict the preloaded skill or tool restrictions
+6. Produce the report without flagging the short preamble as too sparse
+
+Output (use `###` headings in the report):
+
+> ### Summary
+>
+> The code-reviewer agent is appropriately concise for a single-skill setup. Its short body works as a preamble, and the substantive workflow is supplied by the preloaded `code-review` skill.
+>
+> ### Findings
+>
+> | Area | Status | Notes |
+> |------|--------|-------|
+> | Required fields | ✅ Pass | Name and description are valid and specific |
+> | Optional fields | ✅ Pass | `allowed-skills` has one valid skill name, which indicates a preloaded single-skill configuration |
+> | System instructions | ✅ Pass | The body is brief but appropriate because it frames the agent and the detailed instructions come from the preloaded skill |
+> | Security | ✅ Pass | Tool access matches the review-only role |
+> | Consistency | ✅ Pass | The configuration and preamble are internally consistent |
+>
+> ### Suggestions
+>
+> 1. Optionally expand the preamble by one sentence if you want a stronger agent identity, but do not duplicate the preloaded skill instructions
+
 Input: "Review the quick-helper agent"
 
 Process:
@@ -171,6 +203,7 @@ Output (use `###` headings in the report):
 - **Agent not found**: Report the error clearly and suggest checking the name or path. List available agents if possible using `stencila agents list` or by listing `.stencila/agents/` directories.
 - **Multiple agents requested**: Review each agent separately with its own report section. Ask the user to confirm if reviewing all agents is intended.
 - **Frontmatter-only agent (no body)**: This is valid — do not flag it as a failure. A frontmatter-only `AGENT.md` is a legitimate configuration-only agent.
+- **Single allowed skill with brief body**: Do not flag a short one- or two-sentence body as too sparse when `allowed-skills` contains exactly one skill. Treat it as a preamble, because the skill content is preloaded automatically.
 - **User-level agent**: Check `~/.config/stencila/agents/` if the agent is not found in the workspace.
 - **Hard-coded model or provider**: Flag as a warning, not a failure. Hard-coding reduces portability but may be intentional.
 - **Unknown frontmatter fields**: Flag any fields not in the Agent schema as warnings — they may be typos or unsupported properties that will be silently ignored.
