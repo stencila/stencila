@@ -1,0 +1,275 @@
+---
+name: workflow-review
+description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a WORKFLOW.md file or workflow directory. Covers frontmatter validation, DOT pipeline quality, workflow structure, ephemeral workflow conventions, and adherence to Stencila workflow patterns.
+allowed-tools: read_file glob grep shell
+---
+
+## Overview
+
+Review an existing Stencila workflow for quality, correctness, and completeness. Produce a structured report with specific, actionable suggestions for improvement. The review covers frontmatter fields, DOT pipeline structure, workflow design quality, branching and approval logic, agent references, ephemeral workflow conventions, and adherence to the workflow patterns used in this workspace.
+
+## Steps
+
+1. Identify the workflow to review from the user's request — accept a workflow name, a directory path, or a `WORKFLOW.md` file path
+2. Resolve the workflow file: if given a name, look for `.stencila/workflows/<name>/WORKFLOW.md` walking up from the current directory; if given a path, use it directly
+3. Read the full `WORKFLOW.md` file and inspect the workflow directory for supporting files such as `.gitignore`, `scripts/`, `references/`, and `assets/`
+4. When supporting files are present, check that files referenced from `WORKFLOW.md` actually exist and that existing supporting files are meaningfully referenced where appropriate; for large files, verify existence and relevance without reproducing their full contents in the review
+5. When evaluating workspace conventions, compare the workflow against one or two existing workflows in `.stencila/workflows/` or the nearest related workflow skills when available
+6. Evaluate the workflow against each criterion in the Review Checklist below
+7. If the workflow is explicitly intended to be ephemeral, check whether the directory contains a `.gitignore` sentinel file with exactly `*`; if the sentinel is missing or has different contents, treat that as a failure. If the workflow only seems temporary from context, treat a missing sentinel as a warning unless the workflow clearly claims ephemeral status
+8. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
+9. If the user asks you to apply the improvements, make the changes and validate the result using the most specific path available first, such as `stencila workflows validate <workflow-dir>` or `stencila workflows validate <workflow-file>`, and use name-based validation only when the name is clearly resolved
+
+## Review Checklist
+
+### Frontmatter
+
+- **name**: present, matches directory name, valid kebab-case (`^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`)
+- **description**: present, concise, specific, and not placeholder text (`TODO`, `<placeholder>`)
+- **goal**: optional, but if present it should express a stable high-level objective and be meaningfully distinct from `description`
+- **Optional fields**: `license`, `compatibility`, `metadata` — check for correctness if present (e.g., `compatibility` under 500 characters)
+- **Unknown fields**: flag frontmatter fields that do not match the workflow conventions in this workspace as warnings, especially custom fields that appear to duplicate executable configuration already represented in the DOT graph
+
+### DOT Pipeline Structure
+
+- The first fenced code block in the body uses the `dot` language
+- The first `dot` block contains a valid-looking directed graph such as `digraph name { ... }`
+- The workflow has a clear executable path from start to finish
+- Node and edge names are readable and internally consistent
+- Prompts, `agent` attributes, conditions, and labels are attached to the correct nodes or edges
+- The graph is not missing obvious terminal or branching connections
+- Only the first `dot` block is relied on for execution; additional DOT blocks, if any, are treated as documentation and should not create ambiguity
+
+### Workflow Design Quality
+
+- The sequence of steps makes progress toward the stated goal rather than repeating generic prompting
+- The workflow breaks non-trivial tasks into meaningful stages with clear outputs or decision points
+- Branches, loops, and approval gates are used only where they add value
+- Revision loops have a plausible feedback path rather than a vague cycle
+- Human review (`shape=human`) is used appropriately for approval, oversight, or trust-boundary decisions
+- The workflow is no more complex than necessary for the task
+
+### Agents and Prompts
+
+- Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; if actual existence cannot be confirmed from the workspace or user configuration, report that uncertainty explicitly
+- Prompts are specific enough to guide each node's local task
+- If frontmatter `goal` is present, prompts use `$goal` consistently where it improves reuse
+- The workflow does not overuse node-specific `agent.*` overrides when a simple `agent` reference would do
+- A workflow with no `agent` attributes may be valid, but note when explicit agent selection would materially improve clarity or control
+
+### Ephemeral Workflow Conventions
+
+- If the workflow is explicitly intended to be ephemeral, the directory contains a `.gitignore` file with exactly `*`
+- If the workflow is permanent, it should not use custom frontmatter like `ephemeral: true` or other non-standard markers to indicate temporary status
+- Report whether the ephemeral/permanent status is clear from the directory contents and workflow context
+- If the workflow only appears temporary by context but does not explicitly claim ephemeral status, a missing sentinel is usually a warning rather than a failure
+
+### Completeness and Clarity
+
+- The file has no placeholder content (`TODO`, `<placeholder>`, empty sections)
+- Any Markdown documentation outside the first DOT block supports the workflow and does not contradict it
+- References to supporting files in `scripts/`, `references/`, or `assets/` point to files that actually exist
+- When supporting files are large, check existence and relevance without reproducing their full contents in the report
+- The workflow is understandable to both the execution engine and a human reader
+
+### Consistency
+
+- Formatting is consistent (heading levels, list styles, code block languages)
+- Terminology is used consistently throughout
+- Conventions match other workflows and workflow-related skills in the same workspace; compare against one or two nearby examples when available
+- The workflow's frontmatter, Markdown explanation, and DOT graph do not contradict each other
+
+## Report Format
+
+Structure the review as follows:
+
+### Summary
+
+One to three sentences giving an overall assessment and the most important finding.
+
+### Findings
+
+For each checklist area, report one of:
+
+- ✅ **Pass** — criterion fully met
+- ⚠️ **Warning** — minor issue or room for improvement
+- ❌ **Fail** — significant problem that should be fixed
+
+Include a brief explanation for warnings and failures.
+
+### Suggestions
+
+A numbered list of specific, actionable improvements ordered by priority (most impactful first). Each suggestion should explain *what* to change and *why*.
+
+Use heading level 3 (`###`) for each section in your output.
+
+## Examples
+
+Input: "Review the code-review workflow"
+
+Process:
+
+1. Resolve to `.stencila/workflows/code-review/WORKFLOW.md`
+2. Read the file and inspect the workflow directory for `.gitignore` and any supporting files
+3. Evaluate frontmatter: `name` is `code-review`, matches the directory, valid kebab-case; `description` and `goal` are specific
+4. Check the first `dot` block: it defines a directed graph with a clear path through design, build, test, and review
+5. Evaluate design quality: the test step gates progression and the review step provides a meaningful approval decision
+6. Run `stencila workflows validate .stencila/workflows/code-review` if applying fixes
+7. Produce the report below
+
+Output (use `###` headings in the report):
+
+> ### Summary
+>
+> The code-review workflow is well-structured and easy to follow, with a sensible test-and-review gate before completion. One small improvement would make its intent even clearer.
+>
+> ### Findings
+>
+> | Area | Status | Notes |
+> |------|--------|-------|
+> | Frontmatter | ✅ Pass | Name, description, and goal are valid and specific |
+> | DOT pipeline structure | ✅ Pass | First code block is a clear directed graph with readable nodes and branches |
+> | Workflow design quality | ✅ Pass | The test and review gates provide meaningful evaluation steps |
+> | Agents and prompts | ⚠️ Warning | Some nodes rely on generic prompts and could be more specific |
+> | Ephemeral conventions | ✅ Pass | Workflow is permanent and does not use non-standard temporary markers |
+> | Completeness and clarity | ✅ Pass | No placeholders; documentation matches the graph |
+> | Consistency | ✅ Pass | Formatting and terminology are consistent |
+>
+> ### Suggestions
+>
+> 1. Make the `Test` node prompt more specific about what to validate and how to report failure, so the revision loop gets more actionable feedback
+
+Input: "Review the temporary note-summary workflow"
+
+Process:
+
+1. Resolve to `.stencila/workflows/note-summary/WORKFLOW.md`
+2. Inspect the directory and detect `.gitignore` containing exactly `*`, indicating an ephemeral workflow
+3. Evaluate frontmatter and the first `dot` block
+4. Check that the workflow does not try to encode ephemeral status in frontmatter
+5. Produce the report
+
+Output (use `###` headings in the report):
+
+> ### Summary
+>
+> The note-summary workflow is a good minimal ephemeral workflow. Its temporary status is correctly indicated by the `.gitignore` sentinel rather than custom frontmatter.
+>
+> ### Findings
+>
+> | Area | Status | Notes |
+> |------|--------|-------|
+> | Frontmatter | ✅ Pass | Required fields are present and specific |
+> | DOT pipeline structure | ✅ Pass | Simple linear graph is appropriate for the task |
+> | Workflow design quality | ✅ Pass | Minimal but sufficient for a one-step summary workflow |
+> | Agents and prompts | ✅ Pass | Prompt is concise and aligned with the goal |
+> | Ephemeral conventions | ✅ Pass | `.gitignore` sentinel contains exactly `*` |
+> | Completeness and clarity | ✅ Pass | No placeholders or contradictory documentation |
+> | Consistency | ✅ Pass | Matches workspace workflow conventions |
+>
+> ### Suggestions
+>
+> 1. Optionally add one sentence of Markdown documentation for human readers describing when to save versus discard this temporary workflow
+
+Input: "Review the deploy-helper workflow"
+
+Process:
+
+1. Resolve to `.stencila/workflows/deploy-helper/WORKFLOW.md`
+2. Read the file — frontmatter includes `ephemeral: true`; the first code block is Markdown or plain text instead of `dot`; the graph has a `Review -> Review` self-loop with no feedback node, and prompts are vague
+3. Inspect the directory and note there is no `.gitignore` sentinel file
+4. Evaluate the workflow against the checklist
+5. Produce the report
+
+Output (use `###` headings in the report):
+
+> ### Summary
+>
+> The deploy-helper workflow has several structural problems: it does not encode its executable pipeline in the required first `dot` block, uses a non-standard ephemeral marker, and includes an unhelpful revision loop.
+>
+> ### Findings
+>
+> | Area | Status | Notes |
+> |------|--------|-------|
+> | Frontmatter | ⚠️ Warning | `ephemeral: true` is a non-standard field; temporary status should be represented by the `.gitignore` sentinel instead |
+> | DOT pipeline structure | ❌ Fail | The first executable block is not a `dot` graph, so the workflow is incomplete for execution |
+> | Workflow design quality | ❌ Fail | `Review -> Review` is a vague self-loop with no improving feedback path |
+> | Agents and prompts | ⚠️ Warning | Prompts are too generic to guide meaningful execution |
+> | Ephemeral conventions | ❌ Fail | Workflow appears intended to be temporary, but the required `.gitignore` sentinel is missing |
+> | Completeness and clarity | ⚠️ Warning | The prose explains intent, but the executable structure is incomplete |
+> | Consistency | ⚠️ Warning | Frontmatter, directory state, and body conventions do not align with workspace style |
+>
+> ### Suggestions
+>
+> 1. Move the executable pipeline into the first fenced `dot` block so the workflow can be validated and run
+> 2. Remove `ephemeral: true` from frontmatter and, if the workflow is truly temporary, add a `.gitignore` file containing exactly `*`
+> 3. Replace the `Review -> Review` self-loop with a feedback path to a revisable node such as `Build` or `Draft`, so the loop can improve output quality
+> 4. Rewrite node prompts to describe each step's local task and expected output more concretely
+
+Input: "Review the paper-draft workflow with references"
+
+Process:
+
+1. Resolve to `.stencila/workflows/paper-draft/WORKFLOW.md`
+2. Read the file and inspect the directory contents, including `references/brief.md` and `assets/template.md`
+3. Confirm that the supporting files mentioned in the Markdown documentation actually exist and are relevant to the workflow
+4. For the supporting files, verify existence and intended use without reproducing their full contents in the report
+5. Compare the workflow's structure and documentation style against one or two existing workflows in `.stencila/workflows/`
+6. Produce the report
+
+Output (use `###` headings in the report):
+
+> ### Summary
+>
+> The paper-draft workflow is well-documented and makes sensible use of supporting reference files. One improvement would make its supporting materials easier to understand and maintain.
+>
+> ### Findings
+>
+> | Area | Status | Notes |
+> |------|--------|-------|
+> | Frontmatter | ✅ Pass | Name, description, and goal are specific and aligned with the workflow |
+> | DOT pipeline structure | ✅ Pass | The first `dot` block defines a clear research-to-draft pipeline |
+> | Workflow design quality | ✅ Pass | Each stage has a distinct role and visible output |
+> | Agents and prompts | ✅ Pass | Agent references look plausible, though existence is not fully verified in this review |
+> | Ephemeral conventions | ✅ Pass | Workflow is permanent and does not use temporary markers |
+> | Completeness and clarity | ⚠️ Warning | Supporting files exist and are referenced, but the documentation could explain more clearly how `template.md` influences the draft step |
+> | Consistency | ✅ Pass | The workflow matches the style of other documentation-heavy workflows in the workspace |
+>
+> ### Suggestions
+>
+> 1. Add one sentence near the workflow documentation explaining when `assets/template.md` is used, so future reviewers and editors can understand its role without opening every supporting file
+
+## Edge Cases
+
+- **Workflow not found**: Report the error clearly and suggest checking the name or path. Prefer listing `.stencila/workflows/` directories directly; mention `stencila workflows list` only if that command is available in the current environment.
+- **Multiple workflows requested**: Review each workflow separately with its own report section. Ask the user to confirm if reviewing all workflows is intended.
+- **No body content**: Flag this as a failure — a workflow without a DOT pipeline is incomplete for execution unless the user explicitly asked for documentation only.
+- **No `dot` block**: Flag this as a failure for an executable workflow. The first `dot` block is the executable pipeline source of truth.
+- **Additional DOT blocks**: Treat only the first `dot` block as executable. If later DOT blocks could confuse the intended pipeline, flag that as a warning.
+- **Unknown agents**: Flag likely placeholder or non-existent agent references as warnings, but note that existence cannot always be confirmed without inspecting available agents or user-level agent directories.
+- **Ephemeral status unclear**: If the workflow seems temporary but lacks the `.gitignore` sentinel, flag that as a warning or failure depending on how strongly the workflow claims to be ephemeral.
+- **Supporting files are large**: For files in `scripts/`, `references/`, or `assets/`, check that they exist and are referenced where appropriate, but do not reproduce their full contents in the report.
+- **User asks to fix issues**: If the user asks you to apply suggestions, make the changes, then validate using the workflow directory path or `WORKFLOW.md` path before reporting completion; use name-based validation only when the name is unambiguous.
+
+## Validation
+
+When applying suggested improvements, validate the workflow before reporting completion:
+
+```sh
+# By directory path
+stencila workflows validate .stencila/workflows/<workflow-name>
+
+# By WORKFLOW.md path
+stencila workflows validate .stencila/workflows/<workflow-name>/WORKFLOW.md
+
+# By workflow name
+stencila workflows validate <workflow-name>
+```
+
+Validation should pass before you report the changes as complete.
+
+## Limitations
+
+- This skill reviews the *structure, quality, and conventions* of a workflow definition. It does not execute the workflow or verify the runtime behavior of referenced agents.
+- The review can assess whether agent references look plausible, but it may not be able to prove that every referenced agent exists unless those agents are also inspected.
+- DOT graph assessment is based on static review of the workflow definition, not full execution semantics.
