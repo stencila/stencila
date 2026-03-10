@@ -1,6 +1,6 @@
 ---
 name: agent-creation
-description: Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an AGENT.md file or agent directory. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
+description: Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an agent directory or AGENT.md file. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
 keywords:
   - agent
   - create
@@ -80,8 +80,8 @@ These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`
 - `truncation-preset` — `strict`, `balanced` (default), or `verbose`. Controls tool output truncation.
 - `compaction-trigger-percent` — context usage percentage that triggers history compaction (default: 70).
 - `compatibility` — environment requirements (max 500 characters).
-- `keywords` — list of keywords or tags for discovery and routing. Use terms that reflect likely user intents, artifacts, and domains.
-- `when-to-use` (positive selection signals) and `when-not-to-use` (negative selection signals). Helps managers choose the right resource.
+- `keywords` — list of keywords or tags for discovery and routing; use terms that reflect likely user intents, artifacts, and domains
+- `when-to-use` (positive selection signals) and `when-not-to-use` (negative selection signals); help managers choose the right resource
 
 ## Common Agent Patterns
 
@@ -254,3 +254,8 @@ stencila agents validate .stencila/agents/<agent-name>/AGENT.md
 ```
 
 Validation checks for errors (name format, name–directory match, description present and not placeholder, numeric ranges, compatibility length) and warnings (skill tool coverage mismatches). Validation should pass before you report the agent as complete.
+
+## Limitations
+
+- This skill covers agent structure, configuration, and authoring conventions. It does not verify that chosen models, providers, MCP servers, or external services are available at runtime.
+- Validation checks structure and known constraints, but some configuration mistakes may still surface only during execution.

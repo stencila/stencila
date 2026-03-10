@@ -1,6 +1,6 @@
 ---
 name: agent-review
-description: Critically review a Stencila agent and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve an AGENT.md file or agent directory. Covers frontmatter validation, system instruction quality, configuration correctness, and adherence to the Agent schema.
+description: Critically review a Stencila agent and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve an agent directory or AGENT.md file. Covers frontmatter validation, system instruction quality, configuration correctness, and adherence to the Agent schema.
 keywords:
   - agent
   - review
@@ -14,7 +14,7 @@ allowed-tools: read_file glob grep shell ask_user
 
 ## Overview
 
-Review an existing Stencila agent for quality, correctness, and completeness. Produce a structured report with specific, actionable suggestions for improvement. The review covers frontmatter fields, system instruction quality, configuration correctness, security posture, and adherence to the agent schema defined in `schema/Agent.yaml`.
+Review an existing Stencila agent for quality, correctness, and completeness. Produce a structured report with specific, actionable suggestions. The review covers frontmatter fields, system instruction quality, configuration correctness, security posture, and adherence to the agent schema defined in `schema/Agent.yaml`.
 
 ## Steps
 
@@ -24,16 +24,16 @@ Review an existing Stencila agent for quality, correctness, and completeness. Pr
 4. Read `schema/Agent.yaml` to verify the checklist covers current agent schema fields and to identify any unknown frontmatter properties
 5. Evaluate the agent against each criterion in the Review Checklist below
 6. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
-7. If the user asks you to apply the improvements, make the changes and validate the result with `stencila agents validate <agent-name>`
+7. If the user asks you to apply improvements, make the changes and validate the result with `stencila agents validate <agent-name>`
 
 ## Review Checklist
 
-### Frontmatter — Required Fields
+### Frontmatter
 
 - **name**: present, matches directory name, valid kebab-case (`^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`), follows the `thing-role` naming convention (e.g., `code-reviewer`, `data-analyst`)
 - **description**: present, not empty, not a placeholder (`TODO`, `<placeholder>`), recommended to be concise (under ~1,024 characters), specific enough to convey the agent's purpose
 
-### Frontmatter — Optional Fields
+### Optional Fields
 
 Check each present field for validity:
 
@@ -61,10 +61,10 @@ Note: `Agent` extends `CreativeWork` in the schema, so agents may have additiona
 ### Discovery and Delegation Metadata
 
 - **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words, artifact types, and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
-- if present, check that `when-to-use` and `when-not-to-use` are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals like "when appropriate" or "when needed". If absent, recommend adding to improve manager delegation accuracy
+- **when-to-use / when-not-to-use**: if present, check that entries are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals like "when appropriate" or "when needed". If absent, recommend adding them to improve manager delegation accuracy
 - **Coherence check**: verify that `description`, `keywords`, and `when-to-use`/`when-not-to-use` work together — they should be complementary, not redundant. Flag cases where the same text appears verbatim in multiple fields
 
-### System Instructions (Markdown Body)
+### System Instructions and Body
 
 - A missing body is valid — a frontmatter-only `AGENT.md` is a legitimate configuration-only agent. However, a body that exists but contains only empty sections or placeholder content should be flagged
 - If `allowed-skills` contains exactly one skill, recognize that Stencila automatically preloads that skill's full instructions into the system prompt. In this case, a short body that acts as a preamble or identity-setting introduction is sufficient and should not be criticized as too sparse merely for brevity
@@ -73,14 +73,14 @@ Note: `Agent` extends `CreativeWork` in the schema, so agents may have additiona
 - No contradictions between frontmatter configuration and body instructions (e.g., body says "modify files" but `allowed-tools` excludes `write_file` and `edit_file`)
 - No placeholder content (`TODO`, `<placeholder>`, or empty sections)
 
-### Security and Least Privilege
+### Security
 
 - **Tool scope**: agent only has access to tools it needs; flag overly broad tool access for specialized agents (e.g., a documentation agent with `shell` access)
 - **Trust level**: appropriate for the agent's role; flag `high` trust on agents that do not need it
 - **Domain restrictions**: if the agent uses `web_fetch`, consider whether domain restrictions are appropriate
 - **MCP access**: if MCP is enabled, check whether `allowed-mcp-servers` restricts access to only needed servers
 
-### Consistency and Conventions
+### Consistency
 
 - Frontmatter property names use kebab-case (not camelCase or snake_case)
 - Formatting is consistent (heading levels, list styles, code block languages)

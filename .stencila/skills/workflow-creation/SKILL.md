@@ -1,6 +1,6 @@
 ---
 name: workflow-creation
-description: Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a WORKFLOW.md file or workflow directory. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, and validation.
+description: Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a workflow directory or WORKFLOW.md file. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, and validation.
 keywords:
   - workflow
   - pipeline
@@ -13,7 +13,7 @@ allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_us
 
 ## Overview
 
-Create a new workflow directory and `WORKFLOW.md` file for Stencila. A workflow is a directory under `.stencila/workflows/` containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown body. The body usually includes a first `dot` fenced code block defining the pipeline, plus optional human-readable documentation.
+Create a new workflow directory and `WORKFLOW.md` file for Stencila. A workflow is a directory under `.stencila/workflows/` containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown body. The body usually begins with a `dot` fenced code block that defines the pipeline, followed by optional human-readable documentation.
 
 Use this skill when the user wants to define a multi-stage AI workflow, orchestrate several agent or human steps, or scaffold a reusable pipeline that can be validated and run with Stencila.
 
@@ -31,16 +31,17 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
 7. Create the directory `<closest-workspace>/.stencila/workflows/<name>/`
 8. Write `WORKFLOW.md` with:
    - YAML frontmatter containing at least `name` and `description`
-   - Prefer `goal` in frontmatter when the user provides a stable high-level objective; only duplicate it in graph attributes when required by execution semantics or existing project conventions
-   - Include `keywords` with domain-relevant terms and `when-to-use`/`when-not-to-use` entries to improve discoverability and delegation accuracy
-   - A Markdown body with the first `dot` fenced code block containing the workflow pipeline
+   - `goal` in frontmatter when the user provides a stable high-level objective; duplicate it in graph attributes only when required by execution semantics or existing project conventions
+   - `keywords` with domain-relevant terms and `when-to-use`/`when-not-to-use` entries to improve discoverability and delegation accuracy
+   - A Markdown body whose first `dot` fenced code block contains the workflow pipeline
    - Optional surrounding Markdown documentation that explains the workflow to humans
 9. If ephemeral, create the `.gitignore` sentinel file with exactly `*` on its own line; if permanent, do not add that sentinel
 10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, or agent overrides only when the user asks for them or the workflow clearly needs them
 11. Use `list_agents` when agent selection matters so you can choose from available specialized agents instead of guessing names
-12. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when they fit the node's role; do not invent agent names unless the user requests them or they are already clear project conventions
-13. Replace placeholders such as `TODO` before considering the workflow complete
-14. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path and report that validation result back to the user when possible
+12. When using `list_agents`, prefer agents whose metadata supports the node's role: use `description` to check the agent's core capability, `keywords` to match domain terms and user intent, `when-to-use` for positive fit signals, and `when-not-to-use` to avoid poor matches
+13. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when their metadata indicates a good fit; do not invent agent names unless the user requests them or they are already clear project conventions
+14. Replace placeholders such as `TODO` before considering the workflow complete
+15. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path, and report the result to the user when possible
 
 When working from a nested directory in a repository, create the workflow in the closest workspace's `.stencila/workflows/` directory rather than creating a new `.stencila/` tree under the current subdirectory.
 
@@ -74,9 +75,9 @@ The file has two parts:
 ### Optional frontmatter fields
 
 - `goal` — a high-level objective for the workflow; prefer this location for stable intent that prompts interpolate as `$goal`
-- `keywords` — list of keywords or tags for discovery and routing. Use terms that reflect the workflow's domain and purpose.
-- `when-to-use` — list of positive selection signals describing when this workflow should be used. Helps managers choose the right workflow.
-- `when-not-to-use` — list of negative selection signals describing when this workflow should not be used.
+- `keywords` — list of keywords or tags for discovery and routing; use terms that reflect the workflow's domain and purpose
+- `when-to-use` — list of positive selection signals describing when this workflow should be used; helps managers choose the right workflow
+- `when-not-to-use` — list of negative selection signals describing when this workflow should not be used
 - `license` — SPDX identifier or reference to a license file if needed
 - `compatibility` — environment requirements (max 500 characters)
 - `metadata` — arbitrary key-value pairs if the workflow needs extra structured metadata
@@ -180,7 +181,8 @@ digraph code_review {
 - Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish
 - Use `Start` and `End` nodes for readability unless the workflow format or user request suggests a different style
 - Use `list_agents` before assigning non-obvious agents so the workflow can reference real available agents rather than guessed names
-- Use `agent="name"` to reference existing agents by name; when available, prefer specialized agents whose descriptions match the node's task. Stencila resolves workspace agents first, then user-level agents, then CLI-detected agents
+- When reviewing `list_agents` results, choose agents by metadata rather than by name alone: match `description` to the node's responsibility, use `keywords` for domain and task terms, treat `when-to-use` as positive routing guidance, and use `when-not-to-use` to avoid agents that are a poor fit
+- Use `agent="name"` to reference existing agents by name; when available, prefer specialized agents whose metadata indicates they match the node's task. Stencila resolves workspace agents first, then user-level agents, then CLI-detected agents
 - When a node has no `agent` attribute, the engine uses a default agent; this fallback is unlikely to be optimal for a well-designed workflow, so prefer explicit agent selection unless the user wants a minimal draft
 - Use inline `agent.*` dotted attributes only when the user explicitly wants node-specific overrides such as `agent.model`, `agent.provider`, or `agent.reasoning-effort`
 - Use `shape=human` for explicit human approval or review steps
@@ -205,7 +207,7 @@ Design the workflow so that each stage makes visible progress toward the goal in
 
 ## Workflow Design Heuristics by Objective Type
 
-Use patterns like these as a starting point, then simplify or extend them to fit the request.
+Use patterns like these as a starting point, then simplify or extend them to fit the request:
 
 | Objective type | Convergence-oriented shape |
 |---|---|
@@ -334,3 +336,8 @@ stencila workflows validate .stencila/workflows/<workflow-name>/WORKFLOW.md
 ```
 
 Validation should pass before you report the workflow as complete.
+
+## Limitations
+
+- This skill covers workflow structure, metadata, and authoring conventions. It does not execute the workflow or verify the runtime behavior of referenced agents.
+- Validation checks structure and known conventions, but some design issues may only become apparent during execution or real use.

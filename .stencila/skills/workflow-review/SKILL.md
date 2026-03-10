@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a WORKFLOW.md file or workflow directory. Covers frontmatter validation, DOT pipeline quality, workflow structure, ephemeral workflow conventions, and adherence to Stencila workflow patterns.
+description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a workflow directory or WORKFLOW.md file. Covers frontmatter validation, DOT pipeline quality, workflow structure, agent selection quality, discovery metadata, ephemeral workflow conventions, and adherence to Stencila workflow patterns.
 keywords:
   - workflow
   - review
@@ -9,24 +9,25 @@ keywords:
   - evaluate
   - improve
   - WORKFLOW.md
-allowed-tools: read_file glob grep shell
+allowed-tools: read_file glob grep shell list_agents
 ---
 
 ## Overview
 
-Review an existing Stencila workflow for quality, correctness, and completeness. Produce a structured report with specific, actionable suggestions for improvement. The review covers frontmatter fields, DOT pipeline structure, workflow design quality, branching and approval logic, agent references, ephemeral workflow conventions, and adherence to the workflow patterns used in this workspace.
+Review an existing Stencila workflow for quality, correctness, and completeness. Produce a structured report with specific, actionable suggestions. The review covers frontmatter fields, DOT pipeline structure, workflow design quality, branching and approval logic, agent references and agent-fit quality, discovery metadata, ephemeral workflow conventions, and adherence to the workflow patterns used in this workspace.
 
 ## Steps
 
 1. Identify the workflow to review from the user's request — accept a workflow name, a directory path, or a `WORKFLOW.md` file path
 2. Resolve the workflow file: if given a name, look for `.stencila/workflows/<name>/WORKFLOW.md` walking up from the current directory; if given a path, use it directly
 3. Read the full `WORKFLOW.md` file and inspect the workflow directory for supporting files such as `.gitignore`, `scripts/`, `references/`, and `assets/`
-4. When supporting files are present, check that files referenced from `WORKFLOW.md` actually exist and that existing supporting files are meaningfully referenced where appropriate; for large files, verify existence and relevance without reproducing their full contents in the review
-5. When evaluating workspace conventions, compare the workflow against one or two existing workflows in `.stencila/workflows/` or the nearest related workflow skills when available
-6. Evaluate the workflow against each criterion in the Review Checklist below
-7. If the workflow is explicitly intended to be ephemeral, check whether the directory contains a `.gitignore` sentinel file with exactly `*`; if the sentinel is missing or has different contents, treat that as a failure. If the workflow only seems temporary from context, treat a missing sentinel as a warning unless the workflow clearly claims ephemeral status
-8. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
-9. If the user asks you to apply the improvements, make the changes and validate the result using the most specific path available first, such as `stencila workflows validate <workflow-dir>` or `stencila workflows validate <workflow-file>`, and use name-based validation only when the name is clearly resolved
+4. When supporting files are present, check that files referenced from `WORKFLOW.md` exist and that existing supporting files are meaningfully referenced where appropriate; for large files, verify existence and relevance without reproducing their full contents in the review
+5. When evaluating workspace conventions, compare the workflow against one or two existing workflows in `.stencila/workflows/` or related workflow skills when available
+6. When the workflow uses specialized `agent` attributes or agent fit is unclear, use `list_agents` to compare referenced agents against available agents and their metadata rather than guessing from names alone
+7. Evaluate the workflow against each criterion in the Review Checklist below
+8. If the workflow is explicitly intended to be ephemeral, check whether the directory contains a `.gitignore` sentinel file with exactly `*`; if the sentinel is missing or has different contents, treat that as a failure. If the workflow only seems temporary from context, treat a missing sentinel as a warning unless the workflow clearly claims ephemeral status
+9. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
+10. If the user asks you to apply improvements, make the changes and validate the result using the most specific path available first, such as `stencila workflows validate <workflow-dir>` or `stencila workflows validate <workflow-file>`; use name-based validation only when the name is clearly resolved
 
 ## Review Checklist
 
@@ -59,7 +60,8 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 
 ### Agents and Prompts
 
-- Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; if actual existence cannot be confirmed from the workspace or user configuration, report that uncertainty explicitly
+- Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; when agent choice matters or fit is uncertain, use `list_agents` to confirm availability and compare actual agent metadata; if actual existence still cannot be confirmed, report that uncertainty explicitly
+- Specialized agent selection is justified by metadata rather than name alone: `description` should match the node's core task, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
 - Prompts are specific enough to guide each node's local task
 - If frontmatter `goal` is present, prompts use `$goal` consistently where it improves reuse
 - The workflow does not overuse node-specific `agent.*` overrides when a simple `agent` reference would do
@@ -74,9 +76,10 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 
 ### Discovery and Delegation Metadata
 
-- **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
+- **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user-intent words and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
 - **when-to-use / when-not-to-use**: if present, check that entries are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals. If absent, recommend adding them to improve manager delegation accuracy
 - **Coherence check**: verify that `description`, `keywords`, `when-to-use`, and `when-not-to-use` work together — they should be complementary, not redundant
+- **Agent-selection metadata use**: when the workflow assigns specialized agents, check whether the workflow author appears to have selected them in a way consistent with available agent metadata. Flag cases where the chosen agent's `description`, `keywords`, `when-to-use`, or `when-not-to-use` suggest a mismatch with the node's task
 
 ### Completeness and Clarity
 
@@ -260,7 +263,7 @@ Output (use `###` headings in the report):
 - **No body content**: Flag this as a failure — a workflow without a DOT pipeline is incomplete for execution unless the user explicitly asked for documentation only.
 - **No `dot` block**: Flag this as a failure for an executable workflow. The first `dot` block is the executable pipeline source of truth.
 - **Additional DOT blocks**: Treat only the first `dot` block as executable. If later DOT blocks could confuse the intended pipeline, flag that as a warning.
-- **Unknown agents**: Flag likely placeholder or non-existent agent references as warnings, but note that existence cannot always be confirmed without inspecting available agents or user-level agent directories.
+- **Unknown agents**: Flag likely placeholder or non-existent agent references as warnings. Use `list_agents` when agent selection matters so you can assess availability and metadata fit instead of relying on names alone, but note that existence still cannot always be confirmed for every environment.
 - **Ephemeral status unclear**: If the workflow seems temporary but lacks the `.gitignore` sentinel, flag that as a warning or failure depending on how strongly the workflow claims to be ephemeral.
 - **Supporting files are large**: For files in `scripts/`, `references/`, or `assets/`, check that they exist and are referenced where appropriate, but do not reproduce their full contents in the report.
 - **User asks to fix issues**: If the user asks you to apply suggestions, make the changes, then validate using the workflow directory path or `WORKFLOW.md` path before reporting completion; use name-based validation only when the name is unambiguous.
@@ -284,6 +287,5 @@ Validation should pass before you report the changes as complete.
 
 ## Limitations
 
-- This skill reviews the *structure, quality, and conventions* of a workflow definition. It does not execute the workflow or verify the runtime behavior of referenced agents.
-- The review can assess whether agent references look plausible, but it may not be able to prove that every referenced agent exists unless those agents are also inspected.
-- DOT graph assessment is based on static review of the workflow definition, not full execution semantics.
+- This skill reviews the *structure, quality, and conventions* of a workflow definition. It does not execute the workflow or verify the runtime behavior of referenced agents
+- DOT graph assessment is based on static review of the workflow definition, not full execution semantics
