@@ -146,8 +146,6 @@ Stencila injects metadata variables into the document `<head>` that can be used 
 ## Basic Page Numbers
 
 ```css
-@import url("./base.css");
-
 :root {
   --page-bottom-right-content: counter(page);
 }
@@ -156,8 +154,6 @@ Stencila injects metadata variables into the document `<head>` that can be used 
 ## Academic Article Headers
 
 ```css
-@import url("./base.css");
-
 :root {
   --page-top-left-content: var(--document-authors);
   --page-top-right-content: var(--document-title);

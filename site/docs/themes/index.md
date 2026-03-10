@@ -145,46 +145,29 @@ The base theme entry point imports a collection of focused, self-contained modul
 
 Print and PDF output are handled through `pages.css` (paged media tokens and margin boxes) and print variants embedded in component modules (e.g., tables, figures, code). There is no separate print entry point; print behavior is applied via `@media print` inside each module.
 
-# Import Patterns
+# Base Theme Loading
 
-## Monolithic
+Stencila automatically loads `base.css` before any theme CSS. The base theme is an embedded asset that provides foundational styles, token layers, and component modules — it is not a file in your workspace.
 
-For themes that want everything included automatically:
+- In HTML output, `base.css` is injected as a separate `<link>` tag before your theme stylesheet.
+- For variable computation, base variables are parsed and merged before theme-specific variables, so all base tokens are always available to your theme.
+
+Because of this, **do not include `@import url("./base.css")` in your theme file**. A workspace `theme.css` or named user theme should start directly with `:root` overrides:
 
 ```css
-@import url("./base.css");
-
 :root {
   --text-font-family: "Your Font", serif;
 }
 ```
 
-The `base.css` file imports `index.css` and includes print support via module-level `@media print` rules.
-
-## Selective Imports (Advanced)
-
-For advanced users who need fine-grained control, individual modules can be imported selectively:
+If your theme needs custom web fonts, add an `@import` for the font provider before the `:root` block:
 
 ```css
-/* Import only what you need */
-@import url("./base/tokens-primitive.css");
-@import url("./base/tokens-semantic.css");
-@import url("./base/root.css");
-@import url("./base/browsers.css");
-@import url("./base/pages.css");
-@import url("./base/headings.css");
-@import url("./base/paragraphs.css");
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
 :root {
-  --text-font-family: "Your Font", serif;
+  --heading-font-family: "Inter", sans-serif;
 }
 ```
 
-This approach allows you to:
-
-- Minimize CSS payload for specific use cases
-- Override individual modules with custom implementations
-- Build specialized themes that only style certain elements
-- Debug styling issues by isolating specific modules
-
-**Note**: Each module is self-contained with its own reset, styling, and mobile adjustments co-located for maintainability.
+The builtin themes (`stencila`, `tufte`, `latex`) follow this same pattern — none of them import `base.css`.
