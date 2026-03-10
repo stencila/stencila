@@ -163,6 +163,7 @@ impl AgentSession {
 }
 
 /// State for an active workflow (workflow mode).
+#[allow(clippy::struct_excessive_bools)]
 pub struct ActiveWorkflow {
     /// The workflow definition info from the picker.
     pub info: WorkflowDefinitionInfo,

@@ -435,7 +435,7 @@ impl Validate {
                     let base = agent_path
                         .parent()
                         .filter(|p| !p.as_os_str().is_empty())
-                        .unwrap_or(&agent_path);
+                        .unwrap_or(agent_path);
                     match stencila_dirs::closest_workspace_dir(base, false).await {
                         Ok(workspace_dir) => Ok(workspace_dir),
                         Err(_) => Ok(base.to_path_buf()),
