@@ -56,7 +56,28 @@ Workflow names must be **lowercase kebab-case**:
 - Must match the parent directory name
 - Pattern: `^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`
 
-By convention, names describe the workflow's purpose (e.g., `code-review`, `test-and-deploy`, `lit-review`, `plan-implement-validate`).
+By convention, workflow names should describe the **end-to-end process** the workflow accomplishes, not the exact sequence of steps in the graph.
+
+Use these naming patterns:
+
+- `thing-process` for the default case
+- `thing-process-approach` when you need to distinguish multiple workflows for the same process
+
+Where:
+
+- `thing` is the artifact or domain the workflow acts on, such as `code`, `blog`, `agent`, or `schema`
+- `process` is the broad lifecycle stage or end-to-end goal, such as `generation`, `refinement`, `publication`, `review`, or `creation`
+- `approach` is an optional qualifier for strategy or tradeoffs, such as `quick`, `iterative`, `consensus`, `thorough`, or `guided`
+
+Prefer names that communicate purpose rather than pipeline shape. Avoid brittle names that list every step, such as `create-review-refine-test-deploy` or `plan-implement-validate`, because they become outdated as the workflow evolves.
+
+Good examples:
+
+- `code-review`
+- `code-generation-iterative`
+- `blog-generation-quick`
+- `architecture-design-consensus`
+- `agent-creation-guided`
 
 Common corrections: `workflowBuilder` → `workflow-builder`, `test_deploy` → `test-deploy`, `Code-Review` → `code-review`.
 
@@ -191,6 +212,7 @@ digraph code_review {
 - Prefer explicit edge labels and conditions when a branch depends on success, failure, approval, or revision
 - Do not try to encode ephemeral status in frontmatter or the DOT graph; use the `.gitignore` sentinel instead when needed
 - Do not overcomplicate the first draft; a shorter valid workflow is better than an elaborate but unclear one
+- Do not encode every node or branch in the workflow name; keep naming focused on the process and, if needed, a broad approach modifier
 
 ## Practical Workflow Design Guidance
 
@@ -225,10 +247,10 @@ Input: "Create a workflow that designs, implements, tests, and then asks for hum
 
 Process:
 
-1. Derive name: `plan-implement-validate` or a similarly specific kebab-case name that matches the user's stated purpose
+1. Derive name: prefer a process-oriented name such as `code-generation-iterative` rather than a step-by-step name such as `plan-implement-validate`
 2. Resolve workspace: find the nearest `.stencila/` directory, for example at the repository root
-3. Target path: `.stencila/workflows/plan-implement-validate/WORKFLOW.md`
-4. Check whether `.stencila/workflows/plan-implement-validate/` already exists; if it does, ask whether to overwrite, merge, or abort
+3. Target path: `.stencila/workflows/code-generation-iterative/WORKFLOW.md`
+4. Check whether `.stencila/workflows/code-generation-iterative/` already exists; if it does, ask whether to overwrite, merge, or abort
 5. Capture the goal and choose a pipeline with design, build, test, and human review steps
 6. Use a DOT graph with clear edges, simple branch labels, and prompts or agents for each non-human node
 7. Write the file, then validate it
@@ -237,13 +259,13 @@ Output:
 
 ````markdown
 ---
-name: plan-implement-validate
-description: Design, build, test, and review a requested software change
+name: code-generation-iterative
+description: Generate and refine a requested software change through design, implementation, testing, and review
 goal: Implement and validate the requested feature
 ---
 
 ```dot
-digraph plan_implement_validate {
+digraph code_generation_iterative {
     Start -> Design -> Build -> Test
     Test -> Review   [label="Pass", condition="outcome=success"]
     Test -> Build    [label="Fail", condition="outcome!=success"]

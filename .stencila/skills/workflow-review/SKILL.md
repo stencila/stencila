@@ -34,10 +34,18 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 ### Frontmatter
 
 - **name**: present, matches directory name, valid kebab-case (`^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`)
+- **name convention**: the name should describe the workflow's end-to-end purpose using `thing-process` or `thing-process-approach`; flag names that overfit the exact graph shape or enumerate too many steps
 - **description**: present, concise, specific, and not placeholder text (`TODO`, `<placeholder>`)
 - **goal**: optional, but if present it should express a stable high-level objective and be meaningfully distinct from `description`
 - **Optional fields**: `license`, `compatibility`, `metadata` — check for correctness if present (e.g., `compatibility` under 500 characters)
 - **Unknown fields**: flag frontmatter fields that do not match the workflow conventions in this workspace as warnings, especially custom fields that appear to duplicate executable configuration already represented in the DOT graph
+
+When reviewing names, apply these conventions:
+
+- prefer `thing-process` for the default case, for example `code-review` or `blog-generation`
+- prefer `thing-process-approach` when different workflows for the same process need different tradeoff signals, for example `code-generation-iterative` or `agent-creation-guided`
+- treat `approach` as a broad strategy or cost/quality tradeoff, not as a literal summary of the graph
+- warn on names that try to encode the entire pipeline shape, such as `create-review-refine-test-deploy`, unless there is a strong workspace-specific reason for that style
 
 ### DOT Pipeline Structure
 
@@ -95,6 +103,7 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 - Terminology is used consistently throughout
 - Conventions match other workflows and workflow-related skills in the same workspace; compare against one or two nearby examples when available
 - The workflow's frontmatter, Markdown explanation, and DOT graph do not contradict each other
+- The workflow name aligns with current workspace naming guidance and, when present, any approach modifier is used consistently with similar workflows
 
 ## Report Format
 
@@ -128,7 +137,7 @@ Process:
 
 1. Resolve to `.stencila/workflows/code-review/WORKFLOW.md`
 2. Read the file and inspect the workflow directory for `.gitignore` and any supporting files
-3. Evaluate frontmatter: `name` is `code-review`, matches the directory, valid kebab-case; `description` and `goal` are specific
+3. Evaluate frontmatter: `name` is `code-review`, matches the directory, valid kebab-case, and follows the recommended `thing-process` convention; `description` and `goal` are specific
 4. Check the first `dot` block: it defines a directed graph with a clear path through design, build, test, and review
 5. Evaluate design quality: the test step gates progression and the review step provides a meaningful approval decision
 6. Run `stencila workflows validate .stencila/workflows/code-review` if applying fixes
@@ -144,7 +153,7 @@ Output (use `###` headings in the report):
 >
 > | Area | Status | Notes |
 > |------|--------|-------|
-> | Frontmatter | ✅ Pass | Name, description, and goal are valid and specific |
+> | Frontmatter | ✅ Pass | Name, description, and goal are valid and specific; the name follows the `thing-process` convention |
 > | DOT pipeline structure | ✅ Pass | First code block is a clear directed graph with readable nodes and branches |
 > | Workflow design quality | ✅ Pass | The test and review gates provide meaningful evaluation steps |
 > | Agents and prompts | ⚠️ Warning | Some nodes rely on generic prompts and could be more specific |
@@ -193,7 +202,7 @@ Input: "Review the deploy-helper workflow"
 Process:
 
 1. Resolve to `.stencila/workflows/deploy-helper/WORKFLOW.md`
-2. Read the file — frontmatter includes `ephemeral: true`; the first code block is Markdown or plain text instead of `dot`; the graph has a `Review -> Review` self-loop with no feedback node, and prompts are vague
+2. Read the file — frontmatter includes `ephemeral: true`; the first code block is Markdown or plain text instead of `dot`; the graph has a `Review -> Review` self-loop with no feedback node, prompts are vague, and the name is generic rather than process-oriented
 3. Inspect the directory and note there is no `.gitignore` sentinel file
 4. Evaluate the workflow against the checklist
 5. Produce the report
@@ -208,7 +217,7 @@ Output (use `###` headings in the report):
 >
 > | Area | Status | Notes |
 > |------|--------|-------|
-> | Frontmatter | ⚠️ Warning | `ephemeral: true` is a non-standard field; temporary status should be represented by the `.gitignore` sentinel instead |
+> | Frontmatter | ⚠️ Warning | `ephemeral: true` is a non-standard field; temporary status should be represented by the `.gitignore` sentinel instead, and `deploy-helper` does not clearly follow the recommended `thing-process[-approach]` naming convention |
 > | DOT pipeline structure | ❌ Fail | The first executable block is not a `dot` graph, so the workflow is incomplete for execution |
 > | Workflow design quality | ❌ Fail | `Review -> Review` is a vague self-loop with no improving feedback path |
 > | Agents and prompts | ⚠️ Warning | Prompts are too generic to guide meaningful execution |
@@ -220,8 +229,9 @@ Output (use `###` headings in the report):
 >
 > 1. Move the executable pipeline into the first fenced `dot` block so the workflow can be validated and run
 > 2. Remove `ephemeral: true` from frontmatter and, if the workflow is truly temporary, add a `.gitignore` file containing exactly `*`
-> 3. Replace the `Review -> Review` self-loop with a feedback path to a revisable node such as `Build` or `Draft`, so the loop can improve output quality
-> 4. Rewrite node prompts to describe each step's local task and expected output more concretely
+> 3. Rename the workflow to something more process-oriented, such as `deployment-preparation` or `deployment-check-guided`, so the name communicates its end-to-end purpose rather than acting as a vague helper label
+> 4. Replace the `Review -> Review` self-loop with a feedback path to a revisable node such as `Build` or `Draft`, so the loop can improve output quality
+> 5. Rewrite node prompts to describe each step's local task and expected output more concretely
 
 Input: "Review the paper-draft workflow with references"
 

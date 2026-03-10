@@ -27,6 +27,92 @@ Use ephemeral workflows when:
 
 See [Using Workflows](using#managing-ephemeral-workflows) for how to save or discard ephemeral workflows.
 
+## Workflow Names
+
+Workflow names follow the same rules as [agent names](../agents/creating#agent-names) — **lowercase kebab-case**:
+
+- 1–64 characters
+- Only lowercase alphanumeric characters and hyphens
+- No leading, trailing, or consecutive hyphens
+
+By convention, workflow names should describe the **end-to-end process** the workflow accomplishes, not the literal sequence of nodes in the pipeline.
+
+For skills, the recommended naming convention is `thing-activity` (for example, `code-review`). For agents, it is `thing-role` (for example, `code-reviewer`). For workflows, use:
+
+- **`thing-process`** for the default case
+- **`thing-process-approach`** when you need to distinguish multiple workflows for the same broad process
+
+Where:
+
+- **thing** is the artifact or domain the workflow acts on, such as `code`, `blog`, `agent`, or `schema`
+- **process** is the broad lifecycle stage or end-to-end goal, such as `generation`, `refinement`, `publication`, or `review`
+- **approach** is an optional qualifier for the workflow's strategy, cost, or tradeoffs, such as `quick`, `iterative`, `consensus`, `thorough`, or `guided`
+
+Starting with the `thing` helps related skills, agents, and workflows group together alphabetically in listings and directories.
+
+### Prefer purpose over pipeline shape
+
+Avoid encoding the exact pipeline structure in the name. Names like `create-review-refine-test-deploy` or `draft-review-edit-publish` quickly become too long, hard to scan, and brittle as the workflow evolves.
+
+Use the name to communicate **what the workflow is for**, not every internal step it currently contains. This keeps names stable even if you later add another review loop, a lint step, a human checkpoint, or a parallel branch.
+
+### Recommended patterns
+
+| Pattern | Use when | Examples |
+| ------- | -------- | -------- |
+| `thing-process` | A single clear workflow exists for that process, or the strategy is not important to the name | `code-review`, `documentation-generation`, `agent-refinement`, `schema-publication` |
+| `thing-process-approach` | You have multiple workflows for the same process with different tradeoffs or shapes | `documentation-generation-quick`, `code-generation-iterative`, `architecture-design-consensus`, `agent-creation-guided` |
+
+### Common approach modifiers
+
+These modifiers are optional, but can be useful when you want the name to signal the workflow's broad shape or tradeoff without spelling out the whole graph:
+
+- **`quick`** or **`linear`** — a simple, low-cost, usually single-pass workflow
+- **`iterative`** or **`agile`** — a workflow with review and refinement loops
+- **`consensus`** or **`ensemble`** — multiple parallel branches whose outputs are compared or combined
+- **`thorough`** or **`exhaustive`** — a deeper, more expensive workflow with extra checks or specialist stages
+- **`guided`** or **`interactive`** — a workflow that pauses for user input at important decision points
+
+Choose approach words sparingly and consistently. They should express a meaningful difference in how the workflow operates, not just add detail for its own sake.
+
+### Examples
+
+| Name | Purpose |
+| ---- | ------- |
+| `code-review` | Review code changes |
+| `code-generation-iterative` | Generate code using a creation-review-refinement loop |
+| `documentation-generation-quick` | Produce a fast first draft with minimal iteration |
+| `architecture-design-consensus` | Compare multiple parallel designs and combine the best parts |
+| `agent-creation-guided` | Create an agent while pausing for user decisions |
+
+The workflow's directory name must match the `name` field in the frontmatter.
+
+## Directory Structure
+
+Workflow definitions live in `.stencila/workflows/` in the workspace. Each workflow gets its own subdirectory:
+
+```
+.stencila/
+  workflows/
+    code-review/
+      WORKFLOW.md
+    test-and-deploy/
+      WORKFLOW.md
+    lit-review/
+      WORKFLOW.md
+```
+
+An ephemeral workflow has the same structure, plus the temporary marker file:
+
+```
+.stencila/
+  workflows/
+    draft-review/
+      .gitignore    # contains: *
+      WORKFLOW.md
+```
+
+
 ## The WORKFLOW.md File
 
 A workflow is a directory containing a `WORKFLOW.md` file. The file has two parts:
@@ -87,49 +173,6 @@ digraph code_review {
 
 Markdown content outside the `` ```dot `` block serves as human-readable documentation for the workflow. Only the first `` ```dot `` block is extracted as the pipeline definition.
 
-## Workflow Names
-
-Workflow names follow the same rules as [agent names](../agents/creating#agent-names) — **lowercase kebab-case**:
-
-- 1–64 characters
-- Only lowercase alphanumeric characters and hyphens
-- No leading, trailing, or consecutive hyphens
-
-By convention, names describe the workflow's purpose:
-
-| Name | Purpose |
-| ---- | ------- |
-| `code-review` | Review code changes |
-| `test-and-deploy` | Run tests then deploy |
-| `lit-review` | Literature search and review |
-| `plan-implement-validate` | Design, build, and validate |
-
-The workflow's directory name must match the `name` field in the frontmatter.
-
-## Directory Structure
-
-Workflow definitions live in `.stencila/workflows/` in the workspace. Each workflow gets its own subdirectory:
-
-```
-.stencila/
-  workflows/
-    code-review/
-      WORKFLOW.md
-    test-and-deploy/
-      WORKFLOW.md
-    lit-review/
-      WORKFLOW.md
-```
-
-An ephemeral workflow has the same structure, plus the temporary marker file:
-
-```
-.stencila/
-  workflows/
-    draft-review/
-      .gitignore    # contains: *
-      WORKFLOW.md
-```
 
 ## Improving Discoverability and Delegation
 
