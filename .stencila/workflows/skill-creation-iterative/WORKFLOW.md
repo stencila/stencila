@@ -25,9 +25,9 @@ digraph skill_creation_iterative {
     HumanReview -> HumanFeedback  [label="Revise"]
     HumanFeedback -> Create
 
-    Create      [agent="skill-creator", prompt="Create or update a Stencila skill that helps users accomplish this underlying task: $goal\n\nInterpret that as the end-user objective the skill should support, not as an instruction to create another skill. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.\n\nIf reviewer feedback is present, use it to revise the existing draft instead of starting over:\n$last_output\n\nIf human feedback is present, incorporate it as well:\n$human.feedback"]
+    Create      [agent="skill-creator", prompt-ref="#creator-prompt"]
 
-    Review      [agent="skill-reviewer", prompt="Review the current skill draft for the goal '$goal'. Ensure the skill addresses the underlying user task rather than accidentally becoming a meta-skill about creating skills.\n\nIf the draft is acceptable, reply with ONLY yes in lowercase.\nIf the draft is not acceptable, reply with concrete revision feedback that the creator can use on the next pass."]
+    Review      [agent="skill-reviewer", prompt-ref="#reviewer-prompt"]
 
     HumanReview [ask="Is the skill acceptable after reviewer approval?"]
 
@@ -37,6 +37,25 @@ digraph skill_creation_iterative {
         store="human.feedback"
     ]
 }
+```
+
+```text #creator-prompt
+Create or update a Stencila skill that helps users accomplish this underlying task: $goal
+
+Interpret that as the end-user objective the skill should support, not as an instruction to create another skill. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.
+
+If reviewer feedback is present, use it to revise the existing draft instead of starting over:
+$last_output
+
+If human feedback is present, incorporate it as well:
+$human.feedback
+```
+
+```text #reviewer-prompt
+Review the current skill draft for the goal '$goal'. Ensure the skill addresses the underlying user task rather than accidentally becoming a meta-skill about creating skills.
+
+If the draft is acceptable, reply with ONLY yes in lowercase.
+If the draft is not acceptable, reply with concrete revision feedback that the creator can use on the next pass.
 ```
 
 The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a human review gate: the human can accept the skill to finish the workflow or choose revise, which leads to a freeform `HumanFeedback` step that stores concrete revision guidance in `human.feedback` before looping back to `Create`.

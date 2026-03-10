@@ -4,6 +4,7 @@
 //! DOT pipeline) from workspace `.stencila/workflows/<name>/WORKFLOW.md`
 //! and provides a public API mirroring the agents crate pattern.
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use eyre::{Result, bail};
@@ -12,7 +13,7 @@ use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use tokio::fs::read_to_string;
 
 use stencila_codecs::{DecodeOptions, Format};
-use stencila_schema::{Node, NodeType, Workflow};
+use stencila_schema::{Block, Node, NodeType, Workflow};
 
 /// Where a workflow was discovered from.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, clap::ValueEnum)]
@@ -128,8 +129,11 @@ impl WorkflowInstance {
             .pipeline
             .as_deref()
             .ok_or_else(|| eyre::eyre!("Workflow `{}` has no pipeline defined", self.name))?;
-        stencila_attractor::parse_dot(pipeline)
-            .map_err(|e| eyre::eyre!("Failed to parse pipeline for workflow `{}`: {e}", self.name))
+        let mut graph = stencila_attractor::parse_dot(pipeline).map_err(|e| {
+            eyre::eyre!("Failed to parse pipeline for workflow `{}`: {e}", self.name)
+        })?;
+        self.resolve_content_references(&mut graph)?;
+        Ok(graph)
     }
 
     /// Whether this workflow directory is marked ephemeral.
@@ -155,6 +159,73 @@ impl WorkflowInstance {
             }
         }
         agents
+    }
+
+    fn resolve_content_references(&self, graph: &mut stencila_attractor::Graph) -> Result<()> {
+        const REF_ATTRS: &[(&str, &[&str])] = &[
+            ("prompt", &["prompt_ref", "prompt-ref"]),
+            ("shell", &["shell_ref", "shell-ref"]),
+            ("ask", &["ask_ref", "ask-ref"]),
+        ];
+
+        let defs = self.content_blocks_by_id()?;
+
+        for node in graph.nodes.values_mut() {
+            for &(attr, ref_attrs) in REF_ATTRS {
+                if let Some((ref_attr, reference)) = ref_attrs.iter().find_map(|ref_attr| {
+                    node.get_str_attr(ref_attr)
+                        .map(|v| (*ref_attr, v.to_string()))
+                }) {
+                    if node.attrs.contains_key(attr) {
+                        bail!(
+                            "Workflow `{}` node `{}` can not set both `{attr}` and `{ref_attr}`",
+                            self.name,
+                            node.id
+                        );
+                    }
+
+                    let id = reference.trim_start_matches('#');
+                    let value = defs.get(id).ok_or_else(|| {
+                        eyre::eyre!(
+                            "Workflow `{}` node `{}` references missing content block `#{id}` via `{ref_attr}`",
+                            self.name,
+                            node.id
+                        )
+                    })?;
+
+                    node.attrs.insert(attr.to_string(), value.clone().into());
+                }
+
+                for ref_attr in ref_attrs {
+                    node.attrs.shift_remove(*ref_attr);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn content_blocks_by_id(&self) -> Result<BTreeMap<String, String>> {
+        let mut defs = BTreeMap::new();
+
+        for block in self.content.iter().flatten() {
+            let (id, code) = match block {
+                Block::CodeBlock(cb) => (&cb.id, &cb.code),
+                Block::CodeChunk(cc) => (&cc.id, &cc.code),
+                _ => continue,
+            };
+
+            let Some(id) = id else { continue };
+
+            if defs.insert(id.clone(), code.to_string()).is_some() {
+                bail!(
+                    "Workflow `{}` has duplicate content block id `#{id}`",
+                    self.name
+                );
+            }
+        }
+
+        Ok(defs)
     }
 }
 
@@ -474,5 +545,125 @@ mod tests {
         assert!(agents.contains(&"code-reviewer".to_string()));
         assert!(agents.contains(&"code-engineer".to_string()));
         assert_eq!(agents.len(), 2);
+    }
+
+    async fn load_inline_workflow(
+        name: &str,
+        content: &str,
+    ) -> (tempfile::TempDir, WorkflowInstance) {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let wf_dir = tmp.path().join(format!(".stencila/workflows/{name}"));
+        std::fs::create_dir_all(&wf_dir).expect("create workflow dir");
+        std::fs::write(wf_dir.join("WORKFLOW.md"), content).expect("write WORKFLOW.md");
+        let instance = load_workflow(&wf_dir.join("WORKFLOW.md"))
+            .await
+            .expect("load");
+        (tmp, instance)
+    }
+
+    #[tokio::test]
+    async fn graph_resolves_prompt_shell_and_ask_refs() {
+        let (_tmp, instance) = load_inline_workflow(
+            "refs-content",
+            r##"---
+name: refs-content
+description: Test refs
+---
+
+```text #creator-prompt
+Create or revise the draft using:
+$goal
+```
+
+```sh #run-script
+echo hello
+echo world
+```
+
+```text #human-question
+What should change next?
+```
+
+```dot
+digraph refs_content {
+    Start -> Create -> Run -> Ask -> End
+
+    Create [agent="writer", prompt-ref="#creator-prompt"]
+    Run    [shell-ref="#run-script"]
+    Ask    [ask-ref="#human-question", question-type="freeform"]
+}
+```
+"##,
+        )
+        .await;
+        let graph = instance.graph().expect("graph");
+
+        let create = graph.nodes.get("Create").expect("Create node");
+        assert_eq!(
+            create.get_str_attr("prompt"),
+            Some("Create or revise the draft using:\n$goal")
+        );
+        assert_eq!(create.shape(), stencila_attractor::Graph::CODERGEN_SHAPE);
+
+        let run = graph.nodes.get("Run").expect("Run node");
+        assert_eq!(run.get_str_attr("shell"), Some("echo hello\necho world"));
+
+        let ask = graph.nodes.get("Ask").expect("Ask node");
+        assert_eq!(ask.get_str_attr("ask"), Some("What should change next?"));
+    }
+
+    #[tokio::test]
+    async fn graph_errors_on_missing_ref_target() {
+        let (_tmp, instance) = load_inline_workflow(
+            "missing-ref",
+            r##"---
+name: missing-ref
+description: Test missing ref
+---
+
+```dot
+digraph missing_ref {
+    Start -> Create -> End
+    Create [agent="writer", prompt-ref="#missing-prompt"]
+}
+```
+"##,
+        )
+        .await;
+        let error = instance.graph().expect_err("missing ref should error");
+        assert!(
+            error
+                .to_string()
+                .contains("missing content block `#missing-prompt`")
+        );
+    }
+
+    #[tokio::test]
+    async fn graph_errors_when_literal_and_ref_both_present() {
+        let (_tmp, instance) = load_inline_workflow(
+            "conflicting-ref",
+            r##"---
+name: conflicting-ref
+description: Test conflicting literal and ref attrs
+---
+
+```text #creator-prompt
+Create a draft.
+```
+
+```dot
+digraph conflicting_ref {
+    Start -> Create -> End
+    Create [prompt="literal prompt", prompt-ref="#creator-prompt"]
+}
+```
+"##,
+        )
+        .await;
+        let error = instance
+            .graph()
+            .expect_err("conflicting attrs should error");
+        let message = error.to_string();
+        assert!(message.contains("can not set both `prompt`"), "{message}");
     }
 }

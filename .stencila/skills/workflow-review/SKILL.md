@@ -71,8 +71,10 @@ When reviewing names, apply these conventions:
 - Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; when agent choice matters or fit is uncertain, use `list_agents` to confirm availability and compare actual agent metadata; if actual existence still cannot be confirmed, report that uncertainty explicitly
 - Specialized agent selection is justified by metadata rather than name alone: `description` should match the node's core task, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
 - Prompts are specific enough to guide each node's local task
+- When the workflow uses `prompt-ref`, `shell-ref`, or `ask-ref`, referenced ids exist in code blocks or code chunks in the same `WORKFLOW.md`, are unique, and are used where they improve readability, typically for long or multiline content rather than short single-line values
 - If frontmatter `goal` is present, prompts use `$goal` consistently where it improves reuse
 - The workflow does not overuse node-specific `agent.*` overrides when a simple `agent` reference would do
+- The workflow does not overuse content refs for short single-line prompts or questions when inline DOT attributes would be clearer
 - A workflow with no `agent` attributes may be valid, but note when explicit agent selection would materially improve clarity or control
 
 ### Ephemeral Workflow Conventions
@@ -94,6 +96,7 @@ When reviewing names, apply these conventions:
 - The file has no placeholder content (`TODO`, `<placeholder>`, empty sections)
 - Any Markdown documentation outside the first DOT block supports the workflow and does not contradict it
 - References to supporting files in `scripts/`, `references/`, or `assets/` point to files that actually exist
+- References from DOT to reusable fenced code blocks via `prompt-ref`, `shell-ref`, and `ask-ref` point to ids that actually exist in the same file
 - When supporting files are large, check existence and relevance without reproducing their full contents in the report
 - The workflow is understandable to both the execution engine and a human reader
 

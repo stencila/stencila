@@ -173,6 +173,47 @@ digraph code_review {
 
 Markdown content outside the `` ```dot `` block serves as human-readable documentation for the workflow. Only the first `` ```dot `` block is extracted as the pipeline definition.
 
+## Reusing multiline prompts, shell scripts, and questions
+
+When prompts, shell commands, or human questions get long or multiline, write the DOT node first and then define the referenced fenced code blocks after it. Use kebab-case reference attributes: `prompt-ref`, `shell-ref`, and `ask-ref`.
+
+Use refs where they improve readability. For short single-line values, inline DOT attributes are usually clearer.
+
+````markdown
+---
+name: skill-creation
+description: Create and review a skill using referenced multiline content
+---
+
+```dot
+digraph skill_creation {
+    Start -> Create -> Check -> HumanFeedback -> End
+
+    Create        [agent="skill-creator", prompt-ref="#creator-prompt"]
+    Check         [shell-ref="#run-checks"]
+    HumanFeedback [ask-ref="#human-question", question-type="freeform"]
+}
+```
+
+```text #creator-prompt
+Create or update a Stencila skill for this goal: $goal
+
+If reviewer feedback is present, revise the current draft:
+$last_output
+```
+
+```sh #run-checks
+cargo fmt -p workflows
+cargo test -p workflows
+```
+
+```text #human-question
+What should be improved before the next revision?
+```
+````
+
+References resolve against code blocks and code chunks in the same `WORKFLOW.md`. Ids must be unique within the document.
+
 
 ## Improving Discoverability and Delegation
 

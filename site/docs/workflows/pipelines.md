@@ -194,6 +194,57 @@ Context values can come from several sources:
 - **LLM tool calls** that write to the context (stored under the `llm.` namespace)
 - **Handler outputs** like `human.gate.selected` and `human.gate.label`
 
+## Referencing multiline content from Markdown
+
+Instead of escaping long prompts, shell scripts, or human questions inside DOT strings, you can define them in fenced code blocks or code chunks with ids and reference them from node attributes.
+
+Recommended style:
+
+- put the executable DOT block first for easier scanning
+- define the referenced code blocks after the DOT block
+- use kebab-case attribute names in examples and authored workflows
+- use refs mainly for long or multiline content; keep short single-line values inline when that is clearer
+
+Supported reference attributes:
+
+| Reference attribute | Resolves to |
+| --- | --- |
+| `prompt-ref="#id"` | `prompt` |
+| `shell-ref="#id"` | `shell_command` |
+| `ask-ref="#id"` | human question label |
+
+Example:
+
+````markdown
+```dot
+digraph Example {
+    Start -> Create -> Check -> Ask -> End
+
+    Create [agent="writer", prompt-ref="#creator-prompt"]
+    Check  [shell-ref="#run-checks"]
+    Ask    [ask-ref="#human-question", question-type="freeform"]
+}
+```
+
+```text #creator-prompt
+Create or update the draft for this goal: $goal
+
+Use reviewer feedback when present:
+$last_output
+```
+
+```sh #run-checks
+cargo fmt -p workflows
+cargo test -p workflows
+```
+
+```text #human-question
+What should change before the next revision?
+```
+````
+
+References resolve only against code blocks and code chunks in the same `WORKFLOW.md`. It is an error if a referenced id does not exist, if ids are duplicated, or if a node sets both a literal attribute and its corresponding `*_ref` attribute.
+
 # Edges
 
 Edges define transitions between nodes. They can carry labels, conditions, and weights to control routing.

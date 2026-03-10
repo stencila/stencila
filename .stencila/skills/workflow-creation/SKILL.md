@@ -111,11 +111,48 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - Use a directed graph such as `digraph code_review { ... }`
 - Prefer frontmatter `goal` for the workflow objective when it is known and stable
 - Add a graph attribute like `graph [goal="..."]` only when required by execution semantics or to match an existing project style
-- Use node attributes such as `prompt`, `agent`, and `shape=human` where needed
+- Use node attributes such as `prompt`, `agent`, and `ask` where needed
+- When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, and `ask-ref` instead of embedding long escaped strings directly in DOT
+- Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
 - Use edges to express sequencing, branching, retry loops, and approval paths
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
 
 Markdown content outside the first DOT block is documentation for humans. Only the first DOT block is extracted as the pipeline definition.
+
+Reusable content references resolve against code blocks or code chunks with ids in the same `WORKFLOW.md`. Use them mainly for longer content, for example:
+
+````markdown
+```dot
+digraph example {
+    Create [agent="writer", prompt-ref="#creator-prompt"]
+    Check  [shell-ref="#run-checks"]
+    Ask    [ask-ref="#human-question", question-type="freeform"]
+}
+```
+
+```text #creator-prompt
+Create or revise the draft for this goal: $goal
+
+...
+
+Incorporate reviewer feedback when present:
+$last_output
+```
+
+```sh #run-checks
+cargo fmt -p workflows
+...
+cargo test -p workflows
+```
+
+```text #human-question
+What should change before the next revision?
+
+Be specific about missing sections, unclear instructions, or structural issues.
+```
+````
+
+Ids must be unique within the document.
 
 ## Ephemeral Workflows
 
