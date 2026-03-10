@@ -386,22 +386,33 @@ impl App {
             PipelineEvent::StageOutput {
                 node_id, output, ..
             } => {
-                // During parallel execution, finalise the per-stage
-                // exchange: set the response text (if the stage didn't
-                // stream session events) and mark as succeeded.
-                if let Some(workflow) = &self.active_workflow
-                    && workflow.in_parallel
-                    && let Some((msg_index, _)) = workflow.parallel_stages.get(node_id)
-                {
-                    let msg_index = *msg_index;
-                    if let Some(AppMessage::Exchange {
-                        status, response, ..
-                    }) = self.messages.get_mut(msg_index)
-                    {
-                        if response.is_none() {
+                if let Some(workflow) = &self.active_workflow {
+                    if workflow.in_parallel {
+                        // During parallel execution, finalise the per-stage
+                        // exchange: set the response text (if the stage didn't
+                        // stream session events) and mark as succeeded.
+                        if let Some((msg_index, _)) = workflow.parallel_stages.get(node_id) {
+                            let msg_index = *msg_index;
+                            if let Some(AppMessage::Exchange {
+                                status, response, ..
+                            }) = self.messages.get_mut(msg_index)
+                            {
+                                if response.is_none() {
+                                    *response = Some(output.clone());
+                                }
+                                *status = ExchangeStatus::Succeeded;
+                            }
+                        }
+                    } else if let Some(msg_index) = workflow.current_exchange_msg_index {
+                        // Non-parallel stage: set the response if it hasn't
+                        // been populated by streaming session events (e.g.
+                        // shell handler output).
+                        if let Some(AppMessage::Exchange { response, .. }) =
+                            self.messages.get_mut(msg_index)
+                            && response.is_none()
+                        {
                             *response = Some(output.clone());
                         }
-                        *status = ExchangeStatus::Succeeded;
                     }
                 }
             }
