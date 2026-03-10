@@ -48,6 +48,15 @@ pub enum ValidationError {
     PipelineValidationError(String),
 }
 
+/// Validation warnings for a workflow definition
+///
+/// Warnings are advisory and do not prevent the workflow from being used.
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum ValidationWarning {
+    #[error("pipeline warning: {0}")]
+    PipelineValidationWarning(String),
+}
+
 /// Validate a workflow name.
 ///
 /// Names must be lowercase kebab-case:
@@ -93,8 +102,16 @@ pub fn validate_name(name: &str) -> Vec<ValidationError> {
 ///
 /// Optionally checks that the name matches the parent directory name.
 /// If a pipeline is present, attempts to parse and validate it.
-pub fn validate_workflow(workflow: &Workflow, dir_name: Option<&str>) -> Vec<ValidationError> {
+///
+/// Returns a tuple of `(errors, warnings)`. Errors indicate the workflow
+/// is invalid; warnings are advisory but may indicate issues that will
+/// surface at runtime.
+pub fn validate_workflow(
+    workflow: &Workflow,
+    dir_name: Option<&str>,
+) -> (Vec<ValidationError>, Vec<ValidationWarning>) {
     let mut errors = validate_name(&workflow.name);
+    let mut warnings = Vec::new();
 
     if let Some(dir_name) = dir_name
         && workflow.name != dir_name
@@ -119,14 +136,20 @@ pub fn validate_workflow(workflow: &Workflow, dir_name: Option<&str>) -> Vec<Val
         match stencila_attractor::parse_dot(pipeline) {
             Ok(graph) => {
                 let diagnostics = stencila_attractor::validation::validate(&graph, &[]);
-                let error_diagnostics: Vec<_> = diagnostics
-                    .iter()
-                    .filter(|d| d.severity == stencila_attractor::validation::Severity::Error)
-                    .collect();
-                for diag in error_diagnostics {
-                    errors.push(ValidationError::PipelineValidationError(
-                        diag.message.clone(),
-                    ));
+                for diag in &diagnostics {
+                    match diag.severity {
+                        stencila_attractor::validation::Severity::Error => {
+                            errors.push(ValidationError::PipelineValidationError(
+                                diag.message.clone(),
+                            ));
+                        }
+                        stencila_attractor::validation::Severity::Warning => {
+                            warnings.push(ValidationWarning::PipelineValidationWarning(
+                                diag.message.clone(),
+                            ));
+                        }
+                        stencila_attractor::validation::Severity::Info => {}
+                    }
                 }
             }
             Err(e) => {
@@ -135,7 +158,7 @@ pub fn validate_workflow(workflow: &Workflow, dir_name: Option<&str>) -> Vec<Val
         }
     }
 
-    errors
+    (errors, warnings)
 }
 
 #[cfg(test)]
@@ -171,10 +194,13 @@ mod tests {
     fn validate_workflow_checks() -> eyre::Result<()> {
         let workflow = Workflow::new("A test workflow".into(), "test-workflow".into());
 
-        assert!(validate_workflow(&workflow, None).is_empty());
-        assert!(validate_workflow(&workflow, Some("test-workflow")).is_empty());
+        let (errors, _) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty());
 
-        let errors = validate_workflow(&workflow, Some("other-dir"));
+        let (errors, _) = validate_workflow(&workflow, Some("test-workflow"));
+        assert!(errors.is_empty());
+
+        let (errors, _) = validate_workflow(&workflow, Some("other-dir"));
         assert!(
             errors
                 .iter()
@@ -182,19 +208,20 @@ mod tests {
         );
 
         let empty_desc = Workflow::new(String::new(), "test".into());
-        assert!(validate_workflow(&empty_desc, None).contains(&ValidationError::DescriptionEmpty));
+        let (errors, _) = validate_workflow(&empty_desc, None);
+        assert!(errors.contains(&ValidationError::DescriptionEmpty));
 
         let long_desc = Workflow::new("x".repeat(1025), "test".into());
+        let (errors, _) = validate_workflow(&long_desc, None);
         assert!(
-            validate_workflow(&long_desc, None)
+            errors
                 .iter()
                 .any(|e| matches!(e, ValidationError::DescriptionTooLong(1025)))
         );
 
         let todo_desc = Workflow::new("TODO".into(), "test".into());
-        assert!(
-            validate_workflow(&todo_desc, None).contains(&ValidationError::DescriptionPlaceholder)
-        );
+        let (errors, _) = validate_workflow(&todo_desc, None);
+        assert!(errors.contains(&ValidationError::DescriptionPlaceholder));
 
         Ok(())
     }
@@ -213,8 +240,7 @@ mod tests {
             .to_string(),
         );
 
-        let errors = validate_workflow(&workflow, None);
-        // Should have no pipeline parse or validation errors
+        let (errors, _) = validate_workflow(&workflow, None);
         assert!(
             !errors
                 .iter()
@@ -228,11 +254,36 @@ mod tests {
         let mut workflow = Workflow::new("A test workflow".into(), "test".into());
         workflow.pipeline = Some("this is not valid DOT".to_string());
 
-        let errors = validate_workflow(&workflow, None);
+        let (errors, _) = validate_workflow(&workflow, None);
         assert!(
             errors
                 .iter()
                 .any(|e| matches!(e, ValidationError::PipelineParseError(_)))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_surfaces_pipeline_warnings() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "test".into());
+        // The codergen node "work" has no prompt or label → prompt_on_llm_nodes warning
+        workflow.pipeline = Some(
+            r#"digraph test {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    work  [shape=box]
+    start -> work -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::PipelineValidationWarning(msg) if msg.contains("no input or label"))),
+            "should warn about missing prompt: {warnings:?}"
         );
         Ok(())
     }

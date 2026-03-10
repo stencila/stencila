@@ -268,14 +268,36 @@ impl Validate {
             bail!("Failed to parse `{}` as a Workflow", workflow_md.display());
         };
 
-        let errors = workflow_validate::validate_workflow(&workflow, dir_name.as_deref());
+        let (errors, warnings) =
+            workflow_validate::validate_workflow(&workflow, dir_name.as_deref());
+
+        if !warnings.is_empty() {
+            message!(
+                "⚠️  Workflow `{}` has {} warning{}:",
+                workflow.name,
+                warnings.len(),
+                if warnings.len() > 1 { "s" } else { "" }
+            );
+            for warning in &warnings {
+                message!("  - {}", warning);
+            }
+        }
 
         if errors.is_empty() {
-            message!("🎉 Workflow `{}` is valid", workflow.name);
+            if warnings.is_empty() {
+                message!("🎉 Workflow `{}` is valid", workflow.name);
+            } else {
+                message!(
+                    "🎉 Workflow `{}` is valid with {} warning{}",
+                    workflow.name,
+                    warnings.len(),
+                    if warnings.len() > 1 { "s" } else { "" }
+                );
+            }
             Ok(())
         } else {
             message!(
-                "⚠️  Workflow `{}` has {} error{}:",
+                "❌ Workflow `{}` has {} error{}:",
                 workflow.name,
                 errors.len(),
                 if errors.len() > 1 { "s" } else { "" }

@@ -637,6 +637,49 @@ fn rule_prompt_present_on_codergen() {
 }
 
 // ===========================================================================
+// 14. shell_command_present (WARNING)
+// ===========================================================================
+
+#[test]
+fn rule_shell_command_missing() {
+    let mut g = valid_pipeline();
+    let mut shell_node = Node::new("runner");
+    shell_node
+        .attrs
+        .insert("shape".into(), AttrValue::from("parallelogram"));
+    g.add_node(shell_node);
+    g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
+    g.add_edge(Edge::new("task", "runner"));
+    g.add_edge(Edge::new("runner", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "shell_command_present");
+    assert_eq!(hits.len(), 1);
+    assert_eq!(hits[0].severity, Severity::Warning);
+    assert!(hits[0].message.contains("runner"));
+}
+
+#[test]
+fn rule_shell_command_present_ok() {
+    let mut g = valid_pipeline();
+    let mut shell_node = Node::new("runner");
+    shell_node
+        .attrs
+        .insert("shape".into(), AttrValue::from("parallelogram"));
+    shell_node
+        .attrs
+        .insert("shell_command".into(), AttrValue::from("echo hello"));
+    g.add_node(shell_node);
+    g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
+    g.add_edge(Edge::new("task", "runner"));
+    g.add_edge(Edge::new("runner", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "shell_command_present");
+    assert!(hits.is_empty());
+}
+
+// ===========================================================================
 // validate_or_raise
 // ===========================================================================
 

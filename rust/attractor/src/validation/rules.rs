@@ -1,6 +1,6 @@
 //! Built-in lint rules (§7.2).
 //!
-//! Provides all 13 built-in validation rules covering structural integrity,
+//! Provides all built-in validation rules covering structural integrity,
 //! condition syntax, stylesheet syntax, and best-practice warnings.
 
 use std::collections::HashSet;
@@ -9,7 +9,7 @@ use super::{Diagnostic, LintRule, Severity};
 use crate::graph::Graph;
 use crate::types::HandlerType;
 
-/// Return all 13 built-in lint rules.
+/// Return all built-in lint rules.
 #[must_use]
 pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
     vec![
@@ -26,6 +26,7 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(RetryTargetExistsRule),
         Box::new(GoalGateHasRetryRule),
         Box::new(PromptOnLlmNodesRule),
+        Box::new(ShellCommandPresentRule),
     ]
 }
 
@@ -606,6 +607,35 @@ impl LintRule for PromptOnLlmNodesRule {
                 node_id: Some(n.id.clone()),
                 edge: None,
                 fix: Some("add an input or label attribute".into()),
+            })
+            .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 14. shell_command_present (WARNING) — shell nodes should have shell_command
+// ---------------------------------------------------------------------------
+
+struct ShellCommandPresentRule;
+
+impl LintRule for ShellCommandPresentRule {
+    fn name(&self) -> &'static str {
+        "shell_command_present"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        graph
+            .nodes
+            .values()
+            .filter(|n| n.handler_type() == HandlerType::Shell)
+            .filter(|n| n.get_str_attr("shell_command").is_none())
+            .map(|n| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Warning,
+                message: format!("shell node `{}` has no shell_command attribute", n.id),
+                node_id: Some(n.id.clone()),
+                edge: None,
+                fix: Some("add shell_command=\"...\" or use the cmd/shell sugar attribute".into()),
             })
             .collect()
     }
