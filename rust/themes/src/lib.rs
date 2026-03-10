@@ -1,12 +1,14 @@
 use std::{
     collections::BTreeMap,
     env::current_dir,
+    fmt::{Display, Formatter},
     path::{Path, PathBuf},
     sync::{Arc, LazyLock, OnceLock},
     time::Duration,
 };
 
 use cached::proc_macro::cached;
+use clap::ValueEnum;
 use eyre::{Result, bail, eyre};
 use lightningcss::{
     printer::Printer,
@@ -19,6 +21,7 @@ use lightningcss::{
 use notify::{Event, RecursiveMode, Watcher, event::EventKind};
 use pathdiff::diff_paths;
 use regex::Regex;
+use serde::Serialize;
 use serde_json::{Value, json};
 use tokio::{
     fs::{read_to_string, remove_file, write},
@@ -31,6 +34,38 @@ use stencila_dirs::{DirType, get_app_dir};
 use stencila_web_dist::Web;
 
 pub mod cli;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, ValueEnum)]
+#[serde(rename_all = "kebab-case")]
+pub enum TokenScope {
+    Semantic,
+    Node,
+    Site,
+    Plot,
+    Print,
+}
+
+impl Display for TokenScope {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let value = match self {
+            Self::Semantic => "semantic",
+            Self::Node => "node",
+            Self::Site => "site",
+            Self::Plot => "plot",
+            Self::Print => "print",
+        };
+
+        f.write_str(value)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+pub struct ThemeToken {
+    pub name: String,
+    pub scope: TokenScope,
+    pub family: String,
+    pub default_value: String,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ThemeType {
@@ -133,6 +168,55 @@ pub struct Theme {
 }
 
 impl Theme {
+    /// Parse CSS and extract all top-level :root custom properties
+    ///
+    /// Returns variable names without the `--` prefix and keeps declaration order
+    /// from the CSS source. Only collects top-level `:root` declarations, not those
+    /// nested in `@media`, `@supports`, or other at-rules.
+    fn parse_css_variables_in_order(css: &str) -> Vec<(String, String)> {
+        let mut vars = Vec::new();
+
+        let Ok(sheet) = StyleSheet::parse(css, ParserOptions::default()) else {
+            return vars;
+        };
+
+        for rule in &sheet.rules.0 {
+            if let CssRule::Style(style) = rule {
+                let Ok(selector_list) = style.selectors.to_css_string(PrinterOptions::default())
+                else {
+                    continue;
+                };
+
+                if !selector_list.split(',').any(|s| s.trim() == ":root") {
+                    continue;
+                }
+
+                for (property, _) in style.declarations.iter() {
+                    if let Property::Custom(custom_prop) = property
+                        && let CustomPropertyName::Custom(dashed_ident) = &custom_prop.name
+                    {
+                        let name = dashed_ident.0.as_ref().trim_start_matches("--").to_string();
+
+                        let mut prop_string = String::new();
+                        if property
+                            .to_css(
+                                &mut Printer::new(&mut prop_string, PrinterOptions::default()),
+                                false,
+                            )
+                            .is_ok()
+                            && let Some(colon_pos) = prop_string.find(':')
+                        {
+                            let value = prop_string[colon_pos + 1..].trim().to_string();
+                            vars.push((name, value));
+                        }
+                    }
+                }
+            }
+        }
+
+        vars
+    }
+
     /// Create a new theme from CSS content
     ///
     /// # Arguments
@@ -766,60 +850,9 @@ impl Theme {
     /// in @media, @supports, or other at-rules.
     /// Variable names have the `--` prefix stripped.
     fn parse_css_variables(css: &str) -> BTreeMap<String, String> {
-        let mut map = BTreeMap::new();
-
-        let parser_opts = ParserOptions::default();
-
-        let Ok(sheet) = StyleSheet::parse(css, parser_opts) else {
-            return map;
-        };
-
-        for rule in &sheet.rules.0 {
-            if let CssRule::Style(style) = rule {
-                // Only consider top-level style rules that include a bare `:root`
-                let Ok(selector_list) = style.selectors.to_css_string(PrinterOptions::default())
-                else {
-                    continue;
-                };
-
-                // Check if any comma-separated selector is exactly ":root"
-                if !selector_list.split(',').any(|s| s.trim() == ":root") {
-                    continue;
-                }
-
-                // Iterate over all declarations in the rule
-                for (property, _) in style.declarations.iter() {
-                    if let Property::Custom(custom_prop) = property {
-                        // Only handle custom properties (starting with --), not unknown properties
-                        if let CustomPropertyName::Custom(dashed_ident) = &custom_prop.name {
-                            // Get the name and strip the -- prefix
-                            let name = dashed_ident.0.as_ref().trim_start_matches("--").to_string();
-
-                            // Convert the entire property to CSS, then extract the value
-                            let mut prop_string = String::new();
-                            if property
-                                .to_css(
-                                    &mut Printer::new(&mut prop_string, PrinterOptions::default()),
-                                    false,
-                                )
-                                .is_ok()
-                            {
-                                // The property will be in format "--name: value"
-                                // Extract just the value after the colon
-                                if let Some(colon_pos) = prop_string.find(':') {
-                                    let value = prop_string[colon_pos + 1..].trim().to_string();
-                                    // "last one wins" if :root declares the same var multiple times
-                                    map.insert(name, value);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // All other rule kinds (including @media/@supports/@layer blocks) are skipped
-        }
-
-        map
+        Self::parse_css_variables_in_order(css)
+            .into_iter()
+            .collect()
     }
 
     /// Merge base theme variables with theme-specific CSS variables
@@ -848,6 +881,55 @@ static BASE_THEME_VARS: LazyLock<BTreeMap<String, String>> = LazyLock::new(|| {
         BTreeMap::new()
     }
 });
+
+/// Builtin theme tokens generated at build time from `web/src/themes/base/*.css`.
+///
+/// The generated registry is embedded into this crate as Rust source, so listing
+/// tokens at runtime does not depend on filesystem access or on the web
+/// distribution embedding individual base CSS modules.
+static BUILTIN_THEME_TOKENS: LazyLock<Vec<ThemeToken>> =
+    LazyLock::new(|| include!(concat!(env!("OUT_DIR"), "/builtin_tokens.rs")));
+
+/// List builtin theme tokens derived from the base theme CSS.
+///
+/// This returns tokens defined by Stencila's builtin base theme, filtered by the
+/// optional scope and/or family. It does not inspect the currently resolved theme,
+/// any workspace `theme.css`, or user-installed themes.
+pub fn list_builtin_tokens(scope: Option<TokenScope>, family: Option<&str>) -> Vec<ThemeToken> {
+    let family = family.map(
+        |family: &str| match family.trim().to_ascii_lowercase().as_str() {
+            "admonitions" => "admonition".into(),
+            "breaks" => "break".into(),
+            "captions" => "caption".into(),
+            "citations" => "citation".into(),
+            "codes" => "code".into(),
+            "datatables" => "datatable".into(),
+            "diagrams" => "diagram".into(),
+            "figures" => "figure".into(),
+            "headings" => "heading".into(),
+            "images" => "image".into(),
+            "labels" => "label".into(),
+            "links" => "link".into(),
+            "lists" => "list".into(),
+            "maths" => "math".into(),
+            "paragraphs" => "paragraph".into(),
+            "plots" => "plot".into(),
+            "quotes" => "quote".into(),
+            "references" => "reference".into(),
+            "styleds" => "styled".into(),
+            "tables" => "table".into(),
+            "works" => "work".into(),
+            value => value.to_string(),
+        },
+    );
+
+    BUILTIN_THEME_TOKENS
+        .iter()
+        .filter(|token| scope.is_none_or(|scope| token.scope == scope))
+        .filter(|token| family.as_ref().is_none_or(|family| &token.family == family))
+        .cloned()
+        .collect()
+}
 
 /// Get a list of available themes
 ///
@@ -1456,6 +1538,26 @@ mod tests {
         let computed = theme.computed_variables(LengthConversion::KeepUnits);
         let color = computed.get("plot-color-1").and_then(|v| v.as_str());
         assert_eq!(color.unwrap_or_default(), "#3c83f6");
+    }
+
+    #[test]
+    fn test_list_builtin_tokens_for_family() {
+        let tokens = list_builtin_tokens(None, Some("admonitions"));
+
+        assert!(
+            tokens
+                .iter()
+                .any(|token| token.name == "admonition-spacing")
+        );
+        assert!(tokens.iter().all(|token| token.family == "admonition"));
+    }
+
+    #[test]
+    fn test_list_builtin_tokens_for_scope() {
+        let tokens = list_builtin_tokens(Some(TokenScope::Print), None);
+
+        assert!(tokens.iter().any(|token| token.name == "page-width"));
+        assert!(tokens.iter().all(|token| token.scope == TokenScope::Print));
     }
 
     #[test]

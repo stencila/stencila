@@ -2,6 +2,7 @@
 name = "stencila-themes"
 version = "0.0.0"
 edition = "2024"
+build = "build.rs"
 
 [dependencies]
 cached = { workspace = true }
@@ -11,12 +12,16 @@ lightningcss = { workspace = true }
 notify = { workspace = true }
 pathdiff = { workspace = true }
 regex = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-web-dist = { path = "../web-dist" }
 tokio = { workspace = true }
+
+[build-dependencies]
+lightningcss = { workspace = true }
 
 [lints]
 workspace = true

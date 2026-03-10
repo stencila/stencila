@@ -11823,6 +11823,7 @@ dependencies = [
  "notify",
  "pathdiff",
  "regex",
+ "serde",
  "serde_json",
  "stencila-ask",
  "stencila-cli-utils",

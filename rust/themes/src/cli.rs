@@ -1,14 +1,14 @@
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
 use stencila_cli_utils::{
-    Code, ToStdout,
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     message,
     stencila_format::Format,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
 
-use crate::{ThemeType, get, list, new, remove};
+use crate::{ThemeType, TokenScope, get, list, list_builtin_tokens, new, remove};
 
 /// Manage themes
 #[derive(Debug, Parser)]
@@ -37,6 +37,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Remove a user theme</dim>
   <b>stencila themes remove</b> <g>my-theme</g>
+
+  <dim># List design tokens available to use in themes</dim>
+  <b>stencila themes tokens</b>
 "
 );
 
@@ -46,6 +49,7 @@ enum Command {
     Show(Show),
     New(New),
     Remove(Remove),
+    Tokens(Tokens),
 }
 
 impl Cli {
@@ -57,6 +61,7 @@ impl Cli {
         match command {
             Command::List(list) => list.run().await,
             Command::Show(show) => show.run().await,
+            Command::Tokens(tokens) => tokens.run().await,
             Command::New(new) => new.run().await,
             Command::Remove(remove) => remove.run().await,
         }
@@ -229,5 +234,66 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Use the rm alias</dim>
   <b>stencila themes rm</b> <g>my-theme</g>
+"
+);
+
+/// List builtin theme tokens
+#[derive(Debug, Default, Args)]
+#[command(after_long_help = TOKENS_LIST_AFTER_LONG_HELP)]
+struct Tokens {
+    /// Filter by token scope
+    #[arg(long)]
+    scope: Option<TokenScope>,
+
+    /// Filter by token family
+    #[arg(long)]
+    family: Option<String>,
+
+    /// Output as a machine-readable format
+    #[arg(long, value_name = "FORMAT")]
+    r#as: Option<AsFormat>,
+}
+
+impl Tokens {
+    async fn run(self) -> Result<()> {
+        let scope = self.scope.map(Into::into);
+        let tokens = list_builtin_tokens(scope, self.family.as_deref());
+
+        if let Some(format) = self.r#as {
+            Code::new_from(format.into(), &tokens)?.to_stdout();
+            return Ok(());
+        }
+
+        let mut table = Tabulated::new();
+        table.set_header(["Name", "Scope", "Family", "Default"]);
+
+        for token in tokens {
+            table.add_row([
+                Cell::new(format!("--{}", token.name)).add_attribute(Attribute::Bold),
+                Cell::new(token.scope.to_string()).fg(Color::Cyan),
+                Cell::new(&token.family).fg(Color::Green),
+                Cell::new(&token.default_value),
+            ]);
+        }
+
+        table.to_stdout();
+
+        Ok(())
+    }
+}
+
+pub static TOKENS_LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># List all builtin theme tokens</dim>
+  <b>stencila themes tokens list</b>
+
+  <dim># List tokens for a family</dim>
+  <b>stencila themes tokens list</b> <c>--family</c> <g>admonition</g>
+
+  <dim># List tokens for a scope</dim>
+  <b>stencila themes tokens list</b> <c>--scope</c> <g>site</g>
+
+  <dim># Output JSON for scripts and agents</dim>
+  <b>stencila themes tokens list</b> <c>--family</c> <g>plot</g> <c>--as</c> <g>json</g>
 "
 );
