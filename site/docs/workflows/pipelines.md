@@ -39,13 +39,13 @@ Every node represents a task in the pipeline. The node's `shape` determines what
 
 ## Shapes
 
-| Shape           | Purpose                        | Example |
-|-----------------|--------------------------------|---------|
-| `box` (default) | LLM task                       | `Analyze [prompt="Analyze the data"]` |
-| `hexagon`       | Human review gate              | `Review [shape=hexagon]` |
-| `diamond`       | Conditional routing            | `Check [shape=diamond]` |
-| `component`     | Parallel fan-out               | `FanOut [shape=component]` |
-| `invtriangle`   | Explicit failure               | `Fail [shape=invtriangle]` |
+| Shape           | Purpose             | Example                               |
+| --------------- | ------------------- | ------------------------------------- |
+| `box` (default) | LLM task            | `Analyze [prompt="Analyze the data"]` |
+| `hexagon`       | Human review gate   | `Review [shape=hexagon]`              |
+| `diamond`       | Conditional routing | `Check [shape=diamond]`               |
+| `component`     | Parallel fan-out    | `FanOut [shape=component]`            |
+| `invtriangle`   | Explicit failure    | `Fail [shape=invtriangle]`            |
 
 You can also write `shape=human` as a shorthand for `shape=hexagon`.
 
@@ -55,15 +55,15 @@ To reduce boilerplate, the pipeline engine recognizes certain node IDs and attri
 
 ### Node IDs
 
-| Node ID              | Implied shape     | Handler type     |
-|----------------------|-------------------|------------------|
-| `Start`, `start`     | `Mdiamond`        | Entry point      |
-| `End`, `end`, `Exit`, `exit` | `Msquare` | Exit point       |
-| `Fail`, `fail`       | `invtriangle`     | Failure          |
-| `FanOut…`            | `component`       | Parallel fan-out |
-| `Review…`, `Approve…`| `hexagon`         | Human review     |
-| `Check…`, `Branch…`  | `diamond`         | Conditional      |
-| `Shell…`, `Run…`     | `parallelogram`   | Shell command    |
+| Node ID                      | Implied shape   | Handler type     |
+| ---------------------------- | --------------- | ---------------- |
+| `Start`, `start`             | `Mdiamond`      | Entry point      |
+| `End`, `end`, `Exit`, `exit` | `Msquare`       | Exit point       |
+| `Fail`, `fail`               | `invtriangle`   | Failure          |
+| `FanOut…`                    | `component`     | Parallel fan-out |
+| `Review…`, `Approve…`        | `hexagon`       | Human review     |
+| `Check…`, `Branch…`          | `diamond`       | Conditional      |
+| `Shell…`, `Run…`             | `parallelogram` | Shell command    |
 
 The first three are exact ID matches; the rest are prefix matches (e.g. `FanOutSearch`, `ReviewDraft`, `CheckQuality`).
 
@@ -71,12 +71,12 @@ An explicit `shape` attribute always takes precedence over ID-based inference. I
 
 ### Property shortcuts
 
-| Shorthand                  | Expands to                                          |
-|----------------------------|-----------------------------------------------------|
-| `ask="Do you approve?"`    | `shape=hexagon, label="Do you approve?"`            |
-| `cmd="make build"`         | `shape=parallelogram, shell_command="make build"`   |
-| `shell="cargo test"`       | `shape=parallelogram, shell_command="cargo test"`   |
-| `branch="Quality OK?"`    | `shape=diamond, label="Quality OK?"`                |
+| Shorthand               | Expands to                                        |
+| ----------------------- | ------------------------------------------------- |
+| `ask="Do you approve?"` | `shape=hexagon, label="Do you approve?"`          |
+| `cmd="make build"`      | `shape=parallelogram, shell_command="make build"` |
+| `shell="cargo test"`    | `shape=parallelogram, shell_command="cargo test"` |
+| `branch="Quality OK?"`  | `shape=diamond, label="Quality OK?"`              |
 
 Property shortcuts never override an explicitly set `shape`, `label`, or `shell_command`. All sugar keys (`ask`, `cmd`, `shell`, `branch`) are always removed from the node, even when a higher-precedence shortcut wins.
 
@@ -112,20 +112,22 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 
 ## Common attributes
 
-| Attribute                | Type     | Description |
-|--------------------------|----------|-------------|
-| `label`                  | String   | Display name for the node. Used as the prompt fallback if `prompt` is empty. |
-| `prompt`                 | String   | Instruction for the LLM. Supports variable expansion (see below). |
-| `agent`                  | String   | Stencila agent to execute this node (e.g., `"code-engineer"`). |
-| `agent.model`            | String   | Override the agent's model (e.g., `"gpt-4o"`, `"o3"`). |
-| `agent.provider`         | String   | Override the agent's provider (e.g., `"openai"`, `"anthropic"`). |
-| `agent.reasoning-effort` | String   | Override reasoning effort (`"low"`, `"medium"`, `"high"`). |
-| `agent.trust-level`      | String   | Override the agent's trust level (`"low"`, `"medium"`, `"high"`). |
-| `agent.max-turns`        | Integer  | Override maximum conversation turns (0 = unlimited). |
-| `max-retries`            | Integer  | Additional retry attempts beyond the initial execution. |
-| `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit. |
-| `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`). |
-| `class`                  | String   | Comma-separated class names for overrides targeting. |
+| Attribute                | Type     | Description                                                                                                |
+| ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
+| `label`                  | String   | Display name for the node. Used as the prompt fallback if `prompt` is empty.                               |
+| `prompt`                 | String   | Instruction for the LLM. Supports variable expansion (see below).                                          |
+| `agent`                  | String   | Stencila agent to execute this node (e.g., `"code-engineer"`).                                             |
+| `agent.model`            | String   | Override the agent's model (e.g., `"gpt-4o"`, `"o3"`).                                                     |
+| `agent.provider`         | String   | Override the agent's provider (e.g., `"openai"`, `"anthropic"`).                                           |
+| `agent.reasoning-effort` | String   | Override reasoning effort (`"low"`, `"medium"`, `"high"`).                                                 |
+| `agent.trust-level`      | String   | Override the agent's trust level (`"low"`, `"medium"`, `"high"`).                                          |
+| `agent.max-turns`        | Integer  | Override maximum conversation turns (0 = unlimited).                                                       |
+| `max-retries`            | Integer  | Additional retry attempts beyond the initial execution.                                                    |
+| `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit.                                            |
+| `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`).                                                              |
+| `class`                  | String   | Comma-separated class names for overrides targeting.                                                       |
+| `question-type`          | String   | Human node question type: `"freeform"`, `"yes-no"`, `"confirmation"`. Default: multiple choice from edges. |
+| `store`                  | String   | Human node context key to store the answer in (e.g., `"human.feedback"`).                                  |
 
 ## Agent property overrides
 
@@ -150,14 +152,17 @@ The override precedence order (highest to lowest):
 
 Use `$`-prefixed variables in `prompt` attributes to inject dynamic values:
 
-| Variable         | Description                                              | When expanded |
-|------------------|----------------------------------------------------------|---------------|
-| `$goal`          | The pipeline-level goal from `graph [goal="..."]`        | Before the pipeline runs |
-| `$last_output`   | Full text of the previous stage's LLM response           | At each stage |
-| `$last_stage`    | Node ID of the previous completed stage                  | At each stage |
-| `$last_outcome`  | Outcome status of the previous stage (`success`, `fail`) | At each stage |
+| Variable        | Description                                              | When expanded            |
+| --------------- | -------------------------------------------------------- | ------------------------ |
+| `$goal`         | The pipeline-level goal from `graph [goal="..."]`        | Before the pipeline runs |
+| `$last_output`  | Full text of the previous stage's agent response         | At each stage            |
+| `$last_outcome` | Outcome status of the previous stage (`success`, `fail`) | At each stage            |
+| `$last_stage`   | Node ID of the previous completed stage                  | At each stage            |
+| `$KEY`          | Any value from the pipeline context (see below)          | At each stage            |
 
 `$goal` is expanded once before the pipeline starts. The other variables are expanded at execution time, so each stage sees the outputs of the stage that ran before it.
+
+### Built-in variables
 
 Example using runtime variables:
 
@@ -173,17 +178,33 @@ digraph CountToThree {
 }
 ```
 
+### Context variables (`$KEY`)
+
+Use `$KEY` to reference any value stored in the pipeline context. The key can contain letters, digits, underscores, and dots. Missing keys resolve to an empty string.
+
+This is especially useful for incorporating human feedback into later stages (see [Collecting human feedback](#collecting-human-feedback) below):
+
+```dot
+Create [prompt="Create a skill for: $goal\n\nHuman feedback: $human.feedback"]
+```
+
+Context values can come from several sources:
+
+- **Human answers** stored via the `store` attribute on human nodes
+- **LLM tool calls** that write to the context (stored under the `llm.` namespace)
+- **Handler outputs** like `human.gate.selected` and `human.gate.label`
+
 # Edges
 
 Edges define transitions between nodes. They can carry labels, conditions, and weights to control routing.
 
 ## Attributes
 
-| Attribute    | Type     | Description |
-|--------------|----------|-------------|
-| `label`      | String   | Display caption. Also used for preferred-label matching. |
-| `condition`  | String   | Boolean guard expression (e.g., `"outcome=success"`). |
-| `weight`     | Integer  | Priority for edge selection. Higher weight wins among equally eligible edges. |
+| Attribute   | Type    | Description                                                                   |
+| ----------- | ------- | ----------------------------------------------------------------------------- |
+| `label`     | String  | Display caption. Also used for preferred-label matching.                      |
+| `condition` | String  | Boolean guard expression (e.g., `"outcome=success"`).                         |
+| `weight`    | Integer | Priority for edge selection. Higher weight wins among equally eligible edges. |
 
 ## Edge selection
 
@@ -215,10 +236,10 @@ Validate -> Revise     [condition="outcome!=success"]
 
 Supported syntax:
 
-| Operator | Meaning     | Example |
-|----------|-------------|---------|
-| `=`      | Equals      | `outcome=success` |
-| `!=`     | Not equals  | `outcome!=success` |
+| Operator | Meaning     | Example                                           |
+| -------- | ----------- | ------------------------------------------------- |
+| `=`      | Equals      | `outcome=success`                                 |
+| `!=`     | Not equals  | `outcome!=success`                                |
 | `&&`     | Logical AND | `outcome=success && context.citations_valid=true` |
 
 Available variables:
@@ -346,6 +367,7 @@ digraph PeerReview {
 ```
 
 The human is presented with the choices derived from the outgoing edges:
+
 - **[A] Approve** — continues to publication
 - **[R] Revise** — loops back to re-analyze
 
@@ -353,12 +375,12 @@ The human is presented with the choices derived from the outgoing edges:
 
 Each outgoing edge from a human gate becomes a selectable option with an **accelerator key** — a short string the user can type or press to quickly select that option. The engine extracts the key from the edge label using these formats:
 
-| Format | Example | Parsed key |
-|--------|---------|------------|
-| `[K] Label` | `[Y] Yes, deploy` | `Y` |
-| `K) Label` | `A) Option A` | `A` |
-| `K - Label` | `X - Choice X` | `X` |
-| Plain label (fallback) | `Deploy` | `D` |
+| Format                 | Example           | Parsed key |
+| ---------------------- | ----------------- | ---------- |
+| `[K] Label`            | `[Y] Yes, deploy` | `Y`        |
+| `K) Label`             | `A) Option A`     | `A`        |
+| `K - Label`            | `X - Choice X`    | `X`        |
+| Plain label (fallback) | `Deploy`          | `D`        |
 
 The space after the delimiter (`]`, `)`) is optional — `[Y]Yes` works the same as `[Y] Yes`. Brackets support multi-character keys like `[OK] Continue` or `[AB] Option AB`. The parenthesis and dash formats are limited to a single character.
 
@@ -390,6 +412,87 @@ Picked -> Deploy  [label="Development"]
 ```
 
 The engine derives keys `S`, `P`, `D` from the first letter of each label. No brackets are needed because the first letters are already unique.
+
+### Question types
+
+By default, human nodes derive a multiple-choice question from their outgoing edge labels. You can override this by setting the `question-type` attribute:
+
+| `question-type`  | Description                      | Routing                     |
+| ---------------- | -------------------------------- | --------------------------- |
+| _(default)_      | Multiple choice from edge labels | Routes to the selected edge |
+| `"freeform"`     | Free-form text input             | Follows first outgoing edge |
+| `"yes-no"`       | Yes/no binary choice             | Follows first outgoing edge |
+| `"confirmation"` | Confirmation prompt              | Follows first outgoing edge |
+
+For non-choice types, the node always follows its first outgoing edge — there is no choice-matching step. The node still needs at least one outgoing edge for routing.
+
+### Storing answers (`store`)
+
+The `store` attribute writes the human's answer into the pipeline context under a named key. Later nodes can reference this value using [`$KEY`](#context-variables-key) in their prompts:
+
+```dot
+HumanFeedback [
+    ask="Describe what must be improved",
+    question-type="freeform",
+    store="human.feedback"
+]
+```
+
+When the human provides an answer, it is stored as a string:
+
+- **Freeform text** — the entered text
+- **Multiple choice** — the selected accelerator key
+- **Yes/no** — `"yes"` or `"no"`
+- **Timeout or skip** — key is not set (resolves to `""` when referenced)
+
+### Collecting human feedback
+
+Combining `question-type`, `store`, and `$KEY` enables iterative workflows where a human can provide specific feedback that guides subsequent stages.
+
+Here is a complete example of a create–review–revise workflow:
+
+```dot
+digraph SkillCreation {
+    graph [goal="Create a code-review skill"]
+
+    Start -> Create -> Review
+    Review -> HumanDecision   [label="Accept", condition="outcome=success"]
+    Review -> Create          [label="Revise", condition="outcome!=success"]
+
+    HumanDecision -> End            [label="Accept"]
+    HumanDecision -> HumanFeedback  [label="Revise"]
+    HumanFeedback -> Create
+
+    Create [
+        agent="skill-creator",
+        prompt="Create or update a Stencila skill that achieves: $goal\n\nHuman feedback: $human.feedback"
+    ]
+
+    Review [
+        agent="skill-reviewer",
+        prompt="Review the current skill draft for the goal '$goal'."
+    ]
+
+    HumanDecision [shape=human, label="Is the skill acceptable?"]
+
+    HumanFeedback [
+        ask="Describe what must be improved before the next revision",
+        question-type="freeform",
+        store="human.feedback"
+    ]
+}
+```
+
+This pipeline:
+
+1. **Creates** the initial skill draft (or revises it based on feedback)
+2. **Reviews** the draft automatically with a reviewer agent
+3. **Routes** to human review on success, or loops back to revise on failure
+4. **Asks the human** whether to accept or revise
+5. If revising, **collects freeform feedback** that describes what to change
+6. The feedback is stored as `human.feedback` and interpolated into the `Create` prompt on the next iteration via `$human.feedback`
+
+On the first iteration, `$human.feedback` resolves to an empty string (the key doesn't exist yet), so the prompt naturally adapts.
 
 ## Parallel execution
 
@@ -445,7 +548,7 @@ digraph StyledWorkflow {
 Selectors and specificity:
 
 | Selector      | Matches               | Specificity |
-|---------------|-----------------------|-------------|
+| ------------- | --------------------- | ----------- |
 | `*`           | All nodes             | Lowest      |
 | `.class_name` | Nodes with that class | Medium      |
 | `#node_id`    | Specific node by ID   | Highest     |
@@ -493,18 +596,25 @@ This pipeline:
 
 # Graph attributes
 
-| Attribute             | Type    | Default | Description |
-|-----------------------|---------|---------|-------------|
-| `goal`                | String  | `""`    | Pipeline-level goal. Expanded as `$goal` in prompts. |
-| `label`               | String  | `""`    | Display name for the pipeline. |
-| `overrides`           | String  | `""`    | CSS-like per-node agent override rules. |
-| `default-max-retry`   | Integer | `0`     | Global retry ceiling for nodes that omit `max-retries`. |
-| `default-fidelity`    | String  | `""`    | Default context fidelity mode. |
-| `retry-target`        | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
+| Attribute           | Type    | Default | Description                                              |
+| ------------------- | ------- | ------- | -------------------------------------------------------- |
+| `goal`              | String  | `""`    | Pipeline-level goal. Expanded as `$goal` in prompts.     |
+| `label`             | String  | `""`    | Display name for the pipeline.                           |
+| `overrides`         | String  | `""`    | CSS-like per-node agent override rules.                  |
+| `default-max-retry` | Integer | `0`     | Global retry ceiling for nodes that omit `max-retries`.  |
+| `default-fidelity`  | String  | `""`    | Default context fidelity mode.                           |
+| `retry-target`      | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
 
 # Context and state
 
-Nodes communicate through a shared key-value **context**. After each node executes, its outcome and any `context_updates` are merged into the context. Subsequent nodes can reference these values in edge conditions (e.g., `context.citations_valid=true`).
+Nodes communicate through a shared key-value **context**. After each node executes, its outcome and any `context_updates` are merged into the context. Subsequent nodes can reference these values in edge conditions (e.g., `context.citations_valid=true`) and in prompt variables (e.g., `$human.feedback`).
+
+Context values come from several sources:
+
+- **Human node `store`** — the `store` attribute on human nodes writes the answer into a named key (e.g., `store="human.feedback"`)
+- **LLM tool calls** — when an LLM writes context via the `set_workflow_context` tool, keys are stored under the `llm.` namespace
+- **Handler outputs** — built-in keys like `human.gate.selected`, `human.gate.label`, `last_output`, `last_stage`
+- **Graph attributes** — `graph.*` keys are mirrored into context at pipeline start
 
 The engine also saves a **checkpoint** after each node completes. If the pipeline crashes, it can resume from the last checkpoint.
 
@@ -524,13 +634,13 @@ The engine also saves a **checkpoint** after each node completes. If the pipelin
 
 Duration attributes like `timeout` use an integer with a unit suffix:
 
-| Unit | Example | Meaning |
-|------|---------|---------|
+| Unit | Example | Meaning      |
+| ---- | ------- | ------------ |
 | `ms` | `250ms` | Milliseconds |
-| `s`  | `900s`  | Seconds |
-| `m`  | `15m`   | Minutes |
-| `h`  | `2h`    | Hours |
-| `d`  | `1d`    | Days |
+| `s`  | `900s`  | Seconds      |
+| `m`  | `15m`   | Minutes      |
+| `h`  | `2h`    | Hours        |
+| `d`  | `1d`    | Days         |
 
 ## Subgraphs
 

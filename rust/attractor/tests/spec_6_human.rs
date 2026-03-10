@@ -771,3 +771,300 @@ async fn wait_human_edge_label_fallback_to_target() -> AttractorResult<()> {
     assert_eq!(selected, Some("D"));
     Ok(())
 }
+
+// ===========================================================================
+// §4.6 — Extended question types (question_type attribute)
+// ===========================================================================
+
+/// Build a human node with a specific question_type and optional store key.
+fn human_node_with_type(
+    question_type: &str,
+    label: &str,
+    store: Option<&str>,
+    targets: &[&str],
+) -> Graph {
+    let mut g = Graph::new("test");
+
+    let mut gate = Node::new("gate");
+    gate.attrs
+        .insert("shape".into(), AttrValue::from("hexagon"));
+    gate.attrs.insert("label".into(), AttrValue::from(label));
+    gate.attrs
+        .insert("question_type".into(), AttrValue::from(question_type));
+    if let Some(key) = store {
+        gate.attrs.insert("store".into(), AttrValue::from(key));
+    }
+    g.add_node(gate);
+
+    for target in targets {
+        g.add_node(Node::new(*target));
+        g.add_edge(Edge::new("gate", *target));
+    }
+
+    g
+}
+
+fn get_gate_node(g: &Graph) -> AttractorResult<&Node> {
+    g.get_node("gate")
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        })
+}
+
+#[tokio::test]
+async fn wait_human_freeform_follows_first_edge() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(AnswerValue::Text(
+        "Fix the formatting".into(),
+    ))]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type("freeform", "What should change?", None, &["next"]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"next".to_string()));
+    // Freeform should NOT set human.gate.selected (no choice matching)
+    assert!(outcome.context_updates.get("human.gate.selected").is_none());
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_freeform_with_store() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(AnswerValue::Text(
+        "Add error handling".into(),
+    ))]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type(
+        "freeform",
+        "Describe what must be improved",
+        Some("human.feedback"),
+        &["create"],
+    );
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"create".to_string()));
+
+    let stored = outcome
+        .context_updates
+        .get("human.feedback")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("Add error handling"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_yes_no_with_store() -> AttractorResult<()> {
+    let interviewer = Arc::new(AutoApproveInterviewer);
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type("yes_no", "Continue?", Some("human.decision"), &["next"]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome
+        .context_updates
+        .get("human.decision")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("yes"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_yes_no_no_answer() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(AnswerValue::No)]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type("yes_no", "Continue?", Some("human.decision"), &["next"]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome
+        .context_updates
+        .get("human.decision")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("no"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_confirmation_with_store() -> AttractorResult<()> {
+    let interviewer = Arc::new(AutoApproveInterviewer);
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type(
+        "confirmation",
+        "Are you sure?",
+        Some("human.confirmed"),
+        &["next"],
+    );
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome
+        .context_updates
+        .get("human.confirmed")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("yes"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_multiple_choice_with_store() -> AttractorResult<()> {
+    // Auto-approve selects first option
+    let interviewer = Arc::new(AutoApproveInterviewer);
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let mut g = Graph::new("test");
+    let mut gate = Node::new("gate");
+    gate.attrs
+        .insert("shape".into(), AttrValue::from("hexagon"));
+    gate.attrs
+        .insert("label".into(), AttrValue::from("Pick action:"));
+    gate.attrs
+        .insert("store".into(), AttrValue::from("human.choice"));
+    g.add_node(gate);
+
+    for (target, label) in &[("accept", "[A] Accept"), ("revise", "[R] Revise")] {
+        g.add_node(Node::new(*target));
+        let mut edge = Edge::new("gate", *target);
+        edge.attrs.insert("label".into(), AttrValue::from(*label));
+        g.add_edge(edge);
+    }
+
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // Should have both the traditional gate keys AND the store key
+    assert!(outcome.context_updates.get("human.gate.selected").is_some());
+    assert!(outcome.context_updates.get("human.gate.label").is_some());
+
+    let stored = outcome
+        .context_updates
+        .get("human.choice")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("A"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_freeform_timeout_no_store() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Timeout,
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type(
+        "freeform",
+        "What should change?",
+        Some("human.feedback"),
+        &["next"],
+    );
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    // Timeout should retry, not store anything
+    assert_eq!(outcome.status, StageStatus::Retry);
+    assert!(outcome.context_updates.get("human.feedback").is_none());
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_freeform_skipped_fails() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Skipped,
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_node_with_type(
+        "freeform",
+        "What should change?",
+        Some("human.feedback"),
+        &["next"],
+    );
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Fail);
+    assert!(outcome.context_updates.get("human.feedback").is_none());
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_no_store_attr_omits_key() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(AnswerValue::Text(
+        "some feedback".into(),
+    ))]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    // Freeform without store attribute
+    let g = human_node_with_type("freeform", "What should change?", None, &["next"]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // No store key → context_updates should be empty
+    assert!(outcome.context_updates.is_empty());
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_unknown_question_type_falls_back_to_choice() -> AttractorResult<()> {
+    let interviewer = Arc::new(AutoApproveInterviewer);
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    // Unknown question_type should be treated as default (multiple_choice)
+    let mut g = Graph::new("test");
+    let mut gate = Node::new("gate");
+    gate.attrs
+        .insert("shape".into(), AttrValue::from("hexagon"));
+    gate.attrs
+        .insert("label".into(), AttrValue::from("Choose:"));
+    gate.attrs
+        .insert("question_type".into(), AttrValue::from("bogus"));
+    g.add_node(gate);
+
+    g.add_node(Node::new("next"));
+    let mut edge = Edge::new("gate", "next");
+    edge.attrs
+        .insert("label".into(), AttrValue::from("[N] Next"));
+    g.add_edge(edge);
+
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // Should behave like multiple_choice
+    assert!(outcome.context_updates.get("human.gate.selected").is_some());
+    Ok(())
+}

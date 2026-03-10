@@ -225,14 +225,25 @@ fn build_text_outcome(node_id: &str, text: &str, context: &Context) -> Outcome {
 
 /// Expand runtime variables in an input string from context values.
 ///
-/// Replaces `$last_output` with the full text of the last stage's output,
-/// `$last_stage` with the ID of the last completed stage, and `$last_outcome`
-/// with the outcome status (e.g. "success", "fail") of the last stage. These
-/// are expanded at execution time (not parse time) so each stage sees the
-/// outputs of previously completed stages.
+/// Expands variables in two phases:
+///
+/// 1. **Built-in aliases** — `$last_output`, `$last_stage`, and
+///    `$last.outcome` are replaced first via simple string substitution.
+///    These map to context keys that differ from the variable name
+///    (e.g. `$last_output` → `last_output_full`, `$last_outcome` →
+///    `outcome`), so they must be handled before the generic expansion.
+/// 2. **Context variables** — any remaining `$KEY` references (where KEY
+///    starts with a letter or underscore and may contain letters, digits,
+///    underscores, and dots) are resolved against the pipeline context.
+///
+/// Both phases run at execution time so each stage sees the outputs of
+/// previously completed stages. The parse-time `$goal` expansion
+/// (in [`VariableExpansionTransform`]) runs earlier, so `$goal` is
+/// never present at this point.
 fn expand_runtime_variables(prompt: &str, context: &Context) -> String {
     let mut result = prompt.to_string();
 
+    // Phase 1: built-in aliases
     if result.contains("$last_stage") {
         let value = context.get_string("last_stage");
         result = result.replace("$last_stage", &value);
@@ -248,5 +259,58 @@ fn expand_runtime_variables(prompt: &str, context: &Context) -> String {
         result = result.replace("$last_output", &value);
     }
 
+    // Phase 2: generic context variable expansion ($KEY → context value)
+    if result.contains('$') {
+        result = expand_context_variables(&result, context);
+    }
+
+    result
+}
+
+/// Replace all remaining `$KEY` references with the corresponding context value.
+///
+/// A variable reference starts with `$` followed by a letter or
+/// underscore, then any combination of letters, digits, underscores,
+/// and dots (e.g. `$human.feedback`, `$step_1.result`). The matched
+/// key is looked up directly in the pipeline context.
+///
+/// A `$` not followed by a valid identifier start character (letter or
+/// underscore) passes through literally, so `$50` or `$` at end-of-string
+/// are preserved.
+///
+/// Missing keys resolve to an empty string, consistent with
+/// [`Context::get_string`] behavior.
+fn expand_context_variables(input: &str, context: &Context) -> String {
+    let mut result = String::with_capacity(input.len());
+    let mut rest = input;
+
+    while let Some(pos) = rest.find('$') {
+        result.push_str(&rest[..pos]);
+        let after_dollar = &rest[pos + 1..]; // skip "$"
+
+        // The key must start with a letter or underscore
+        let starts_ident = after_dollar
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_alphabetic() || c == '_');
+
+        if !starts_ident {
+            // Not a variable reference — emit the "$" literally
+            result.push('$');
+            rest = after_dollar;
+            continue;
+        }
+
+        // Consume the key: letters, digits, underscores, dots
+        let key_len = after_dollar
+            .find(|c: char| !c.is_alphanumeric() && c != '_' && c != '.')
+            .unwrap_or(after_dollar.len());
+
+        let key = &after_dollar[..key_len];
+        result.push_str(&context.get_string(key));
+        rest = &after_dollar[key_len..];
+    }
+
+    result.push_str(rest);
     result
 }

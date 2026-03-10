@@ -289,6 +289,178 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
 }
 
 // ===========================================================================
+// $KEY context variable expansion tests
+// ===========================================================================
+
+/// A backend that captures the expanded prompt for verification.
+struct CapturingBackend {
+    captured: std::sync::Mutex<Vec<String>>,
+}
+
+impl CapturingBackend {
+    fn new() -> Self {
+        Self {
+            captured: std::sync::Mutex::new(Vec::new()),
+        }
+    }
+
+    fn captured(&self) -> Vec<String> {
+        self.captured
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
+    }
+}
+
+#[async_trait]
+impl CodergenBackend for CapturingBackend {
+    async fn run(
+        &self,
+        _node: &Node,
+        prompt: &str,
+        _context: &Context,
+        _emitter: std::sync::Arc<dyn stencila_attractor::events::EventEmitter>,
+        _stage_index: usize,
+    ) -> AttractorResult<CodergenOutput> {
+        self.captured
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .push(prompt.to_string());
+        Ok(CodergenOutput::Text("ok".to_string()))
+    }
+}
+
+#[tokio::test]
+async fn context_variable_expansion_basic() -> AttractorResult<()> {
+    let backend = Arc::new(CapturingBackend::new());
+    let handler = CodergenHandler::with_backend(backend.clone());
+
+    let mut node = Node::new("task1");
+    node.attrs.insert(
+        "prompt".into(),
+        AttrValue::from("Fix this: $human.feedback"),
+    );
+    let ctx = Context::new();
+    ctx.set(
+        "human.feedback",
+        serde_json::Value::String("Add error handling".into()),
+    );
+    let g = Graph::new("test");
+
+    handler.execute(&node, &ctx, &g).await?;
+
+    let prompts = backend.captured();
+    assert_eq!(prompts.len(), 1);
+    assert_eq!(prompts[0], "Fix this: Add error handling");
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_variable_expansion_missing_key() -> AttractorResult<()> {
+    let backend = Arc::new(CapturingBackend::new());
+    let handler = CodergenHandler::with_backend(backend.clone());
+
+    let mut node = Node::new("task1");
+    node.attrs.insert(
+        "prompt".into(),
+        AttrValue::from("Feedback: $human.feedback"),
+    );
+    let ctx = Context::new();
+    // Do not set human.feedback — should resolve to ""
+    let g = Graph::new("test");
+
+    handler.execute(&node, &ctx, &g).await?;
+
+    let prompts = backend.captured();
+    assert_eq!(prompts[0], "Feedback: ");
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_variable_expansion_multiple() -> AttractorResult<()> {
+    let backend = Arc::new(CapturingBackend::new());
+    let handler = CodergenHandler::with_backend(backend.clone());
+
+    let mut node = Node::new("task1");
+    node.attrs.insert(
+        "prompt".into(),
+        AttrValue::from("Goal: $goal_text, Feedback: $human.feedback"),
+    );
+    let ctx = Context::new();
+    ctx.set(
+        "goal_text",
+        serde_json::Value::String("build a widget".into()),
+    );
+    ctx.set(
+        "human.feedback",
+        serde_json::Value::String("make it blue".into()),
+    );
+    let g = Graph::new("test");
+
+    handler.execute(&node, &ctx, &g).await?;
+
+    let prompts = backend.captured();
+    assert_eq!(prompts[0], "Goal: build a widget, Feedback: make it blue");
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_variable_expansion_no_dollar_passthrough() -> AttractorResult<()> {
+    let backend = Arc::new(CapturingBackend::new());
+    let handler = CodergenHandler::with_backend(backend.clone());
+
+    let mut node = Node::new("task1");
+    node.attrs
+        .insert("prompt".into(), AttrValue::from("Just a normal prompt"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    handler.execute(&node, &ctx, &g).await?;
+
+    let prompts = backend.captured();
+    assert_eq!(prompts[0], "Just a normal prompt");
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_variable_expansion_non_ident_dollar_passthrough() -> AttractorResult<()> {
+    let backend = Arc::new(CapturingBackend::new());
+    let handler = CodergenHandler::with_backend(backend.clone());
+
+    let mut node = Node::new("task1");
+    // "$50" and trailing "$" should pass through literally
+    node.attrs
+        .insert("prompt".into(), AttrValue::from("costs $50 and $"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    handler.execute(&node, &ctx, &g).await?;
+
+    let prompts = backend.captured();
+    assert_eq!(prompts[0], "costs $50 and $");
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_variable_expansion_underscore_key() -> AttractorResult<()> {
+    let backend = Arc::new(CapturingBackend::new());
+    let handler = CodergenHandler::with_backend(backend.clone());
+
+    let mut node = Node::new("task1");
+    node.attrs
+        .insert("prompt".into(), AttrValue::from("val: $_my_key"));
+    let ctx = Context::new();
+    ctx.set("_my_key", serde_json::Value::String("works".into()));
+    let g = Graph::new("test");
+
+    handler.execute(&node, &ctx, &g).await?;
+
+    let prompts = backend.captured();
+    assert_eq!(prompts[0], "val: works");
+    Ok(())
+}
+
+// ===========================================================================
 // Shell handler tests
 // ===========================================================================
 

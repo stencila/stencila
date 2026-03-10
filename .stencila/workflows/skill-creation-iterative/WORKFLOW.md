@@ -21,15 +21,22 @@ digraph skill_creation_iterative {
     Start -> Create -> Review
     Review -> HumanReview  [label="Accept", condition="context.last_output=yes"]
     Review -> Create       [label="Revise", condition="context.last_output!=yes"]
-    HumanReview -> End     [label="Accept"]
-    HumanReview -> Create  [label="Revise"]
+    HumanReview -> End            [label="Accept"]
+    HumanReview -> HumanFeedback  [label="Revise"]
+    HumanFeedback -> Create
 
-    Create      [agent="skill-creator", prompt="Create or update a Stencila skill that helps users accomplish this underlying task: $goal\n\nInterpret that as the end-user objective the skill should support, not as an instruction to create another skill. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.\n\nIf the previous step provided review feedback, use it to revise the existing draft instead of starting over. Reviewer or human feedback to address:\n$last_output"]
+    Create      [agent="skill-creator", prompt="Create or update a Stencila skill that helps users accomplish this underlying task: $goal\n\nInterpret that as the end-user objective the skill should support, not as an instruction to create another skill. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.\n\nIf reviewer feedback is present, use it to revise the existing draft instead of starting over:\n$last_output\n\nIf human feedback is present, incorporate it as well:\n$human.feedback"]
 
     Review      [agent="skill-reviewer", prompt="Review the current skill draft for the goal '$goal'. Ensure the skill addresses the underlying user task rather than accidentally becoming a meta-skill about creating skills.\n\nIf the draft is acceptable, reply with ONLY yes in lowercase.\nIf the draft is not acceptable, reply with concrete revision feedback that the creator can use on the next pass."]
 
     HumanReview [ask="Is the skill acceptable after reviewer approval?"]
+
+    HumanFeedback [
+        ask="Describe what must be improved before the next revision",
+        question-type="freeform",
+        store="human.feedback"
+    ]
 }
 ```
 
-The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node also consumes `$last_output`, so reviewer or human feedback from the previous step is available to the creator on iterative passes. After the reviewer approves, the workflow enters a binary human review gate: the human can either accept the skill to finish the workflow or send it back to `Create` for another agent-assisted revision cycle.
+The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a human review gate: the human can accept the skill to finish the workflow or choose revise, which leads to a freeform `HumanFeedback` step that stores concrete revision guidance in `human.feedback` before looping back to `Create`.

@@ -116,6 +116,58 @@ All casing variants are accepted thanks to attribute key normalization (see abov
 
 `shape=human` is accepted as an alias for `shape=hexagon`, mapping to the `wait.human` handler type. This provides a more intuitive way to declare human-in-the-loop nodes (e.g., `Review [shape=human]`).
 
+### Extended human question types (`question_type` attribute)
+
+The attractor spec's `wait.human` handler (§4.6) only supports multiple-choice questions derived from outgoing edge labels. This extension adds a `question_type` node attribute that overrides the default question type:
+
+| `question_type` value | Question presented | Routing behavior |
+|---|---|---|
+| _(absent)_ | Multiple choice from edge labels | Selected edge (original behavior) |
+| `"multiple_choice"` / `"multiple-choice"` | Multiple choice from edge labels | Selected edge |
+| `"multi_select"` / `"multi-select"` | Multi-select from edge labels | Selected edge |
+| `"freeform"` | Free-form text input | First outgoing edge |
+| `"yes_no"` / `"yes-no"` | Yes/no binary choice | First outgoing edge |
+| `"confirmation"` | Confirmation prompt | First outgoing edge |
+
+Both `snake_case` and `kebab-case` forms are accepted for values that contain separators. The attribute key itself is normalized to `snake_case` at parse time as usual (so `question-type` in DOT becomes `question_type` internally).
+
+For non-choice types (freeform, yes_no, confirmation), the handler follows the first outgoing edge unconditionally — there is no choice-matching step. The node still requires at least one outgoing edge for routing.
+
+Unknown `question_type` values are silently treated as the default (multiple-choice from edges).
+
+### Human answer storage (`store` attribute)
+
+The `store` node attribute on a `wait.human` node writes the human's answer into the pipeline context under the specified key. This enables later nodes to reference the answer via `$KEY` expansion (see below).
+
+```dot
+Feedback [ask="What should be improved?", question_type="freeform", store="human.feedback"]
+```
+
+Answer values are stored as strings:
+
+| Answer type | Stored value |
+|---|---|
+| `Text("...")` | The text content |
+| `Selected("K")` | The selected key |
+| `MultiSelected(["A","B"])` | Comma-separated keys (`"A,B"`) |
+| `Yes` | `"yes"` |
+| `No` | `"no"` |
+| `Timeout` / `Skipped` | _(key not set — resolves to `""` via `Context::get_string`)_ |
+
+When `store` is absent, no additional context key is written (the existing `human.gate.selected` and `human.gate.label` keys are still set for choice-based questions).
+
+### Generic context variable expansion (`$KEY`)
+
+In addition to the built-in `$last_output`, `$last_stage`, and `$last_outcome` runtime variables, the codergen handler expands `$KEY` references against the pipeline context at execution time:
+
+```dot
+Create [prompt="Create a skill for: $goal\n\nHuman feedback: $human.feedback"]
+```
+
+KEY may contain letters, digits, underscores, and dots (e.g., `$human.feedback`, `$step_1.result`). Missing keys resolve to an empty string, consistent with `Context::get_string` behavior.
+
+This enables the end-to-end human feedback pattern: a freeform `wait.human` node stores feedback with `store="human.feedback"`, and a subsequent codergen node interpolates it with `$human.feedback`.
+
 ### Outcome status-file compatibility alias
 
 Outcome deserialization accepts both `preferred_next_label` (spec field name) and `preferred_label` as input keys for compatibility with legacy/external status producers.
@@ -306,10 +358,10 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `tests/spec_1_types.rs`     | §2.4, §5.1–5.3, App D | Core types, context, checkpoint                       |
 | `tests/spec_2_parser.rs`    | §2.1–2.13, App A–B | DOT parser and graph model                            |
 | `tests/spec_3_engine.rs`    | §3.1–3.8, §4.1–4.4 | Edge selection, engine core, retry, basic handlers    |
-| `tests/spec_4_handlers.rs`  | §4.5, §4.10        | Codergen and shell handlers                           |
+| `tests/spec_4_handlers.rs`  | §4.5, §4.10        | Codergen handler, shell handler, `$KEY` expansion |
 | `tests/spec_4_parallel.rs`  | §4.8–4.9           | Parallel fan-out, fan-in, join/error policies         |
 | `tests/spec_5_state.rs`     | §5.3–5.5           | Artifacts, fidelity, thread IDs, checkpoint resume    |
-| `tests/spec_6_human.rs`     | §4.6, §6           | Interviewers, WaitForHuman handler, accelerator keys  |
+| `tests/spec_6_human.rs`     | §4.6, §6           | Interviewers, WaitForHuman handler, accelerator keys, `question_type`, `store` |
 | `tests/spec_7_validation.rs`| §7                  | Validation and lint rules                             |
 | `tests/spec_8_stylesheet.rs`| §8                  | Model stylesheet parsing and application              |
 | `tests/spec_9_transforms.rs`| §9.1–9.4           | Transform trait and built-in transforms               |
@@ -331,7 +383,7 @@ End-to-end integration tests live in `.stencila/workflows/test-*/WORKFLOW.md` at
 | `test-no-op`                  | Minimal `Start → End` graph |
 | `test-count-to-three`         | Linear chain, `$last_output`, `$goal` expansion, `Fail` node |
 | `test-count-to-goal`          | Looping (self-edge), conditional branching via `context.last_output` |
-| `test-human-gates`            | `wait.human` via `ask=` sugar, binary/three-way/single-choice gates |
+| `test-human-gates`            | `wait.human` via `ask=` sugar, binary/three-way/single-choice gates, `question_type`, `store` |
 | `test-fan-out-fan-in`         | Parallel fan-out via `FanOut` ID, fan-in convergence |
 | `test-conditional-branching`  | `Check*` ID → diamond shape, `outcome=` conditions, edge retry loop |
 | `test-overrides`              | `overrides` frontmatter, `*` / `.class` / `#id` selectors |

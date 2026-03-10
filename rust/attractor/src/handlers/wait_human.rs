@@ -3,6 +3,28 @@
 //! Blocks pipeline execution until a human selects an option derived
 //! from the node's outgoing edges. Implements the human-in-the-loop
 //! pattern using the [`Interviewer`] trait.
+//!
+//! ## Extended question types
+//!
+//! Nodes can specify `question_type` to override the default
+//! multiple-choice behavior:
+//!
+//! - `question_type="freeform"` — presents a free-form text prompt
+//! - `question_type="yes_no"` — presents a yes/no question
+//! - `question_type="confirmation"` — presents a confirmation prompt
+//!
+//! When omitted, the handler derives a multiple-choice question from
+//! outgoing edge labels (the original behavior).
+//!
+//! ## Storing answers in context
+//!
+//! The `store` attribute writes the human's answer into a named
+//! context key so that later workflow nodes can reference it via
+//! `$KEY` in their prompts:
+//!
+//! ```dot
+//! Feedback [ask="What should change?", question_type="freeform", store="human.feedback"]
+//! ```
 
 use std::sync::Arc;
 
@@ -16,13 +38,17 @@ use crate::graph::{Graph, Node};
 use crate::handler::Handler;
 use crate::interviewer::{
     Answer, AnswerValue, Interview, InterviewError, Interviewer, Question, QuestionOption,
+    QuestionType,
 };
 use crate::types::Outcome;
 
-/// Handler for `wait.human` nodes that presents choices to a human.
+/// Handler for `wait.human` nodes that presents questions to a human.
 ///
-/// Choices are derived from the node's outgoing edges. The selected
-/// choice determines which edge to follow via `suggested_next_ids`.
+/// By default, choices are derived from the node's outgoing edges and
+/// presented as a multiple-choice question. The `question_type`
+/// attribute overrides this to support freeform text, yes/no, and
+/// confirmation prompts. The `store` attribute writes the answer into
+/// the pipeline context so later nodes can interpolate it.
 ///
 /// When a `db_conn` is provided (via [`with_db`](Self::with_db)) and the
 /// handler detects a resume scenario, it queries for a pending interview
@@ -144,6 +170,33 @@ pub fn parse_accelerator_label(label: &str) -> (String, String) {
     (key, trimmed.to_string())
 }
 
+/// Determine the question type from a node's `question_type` attribute.
+///
+/// Returns `None` when the attribute is absent (caller should use the
+/// default multiple-choice-from-edges behavior).
+fn parse_question_type(node: &Node) -> Option<QuestionType> {
+    node.get_str_attr("question_type").and_then(|s| match s {
+        "freeform" => Some(QuestionType::Freeform),
+        "yes_no" | "yes-no" => Some(QuestionType::YesNo),
+        "confirmation" => Some(QuestionType::Confirmation),
+        "multiple_choice" | "multiple-choice" => Some(QuestionType::MultipleChoice),
+        "multi_select" | "multi-select" => Some(QuestionType::MultiSelect),
+        _ => None,
+    })
+}
+
+/// Extract a string representation of an answer for context storage.
+fn answer_to_store_value(answer: &Answer) -> String {
+    match &answer.value {
+        AnswerValue::Text(t) => t.clone(),
+        AnswerValue::Selected(k) => k.clone(),
+        AnswerValue::MultiSelected(keys) => keys.join(","),
+        AnswerValue::Yes => "yes".to_string(),
+        AnswerValue::No => "no".to_string(),
+        AnswerValue::Skipped | AnswerValue::Timeout => String::new(),
+    }
+}
+
 #[async_trait]
 impl Handler for WaitForHumanHandler {
     #[allow(clippy::too_many_lines)]
@@ -153,7 +206,11 @@ impl Handler for WaitForHumanHandler {
         context: &Context,
         graph: &Graph,
     ) -> AttractorResult<Outcome> {
-        // 1. Derive choices from outgoing edges
+        let store_key = node.get_str_attr("store").map(ToString::to_string);
+        let question_type = parse_question_type(node);
+
+        // 1. Derive choices from outgoing edges (used for routing and
+        //    for multiple-choice question building)
         let edges = graph.outgoing_edges(&node.id);
         let choices: Vec<Choice> = edges
             .iter()
@@ -172,22 +229,49 @@ impl Handler for WaitForHumanHandler {
             })
             .collect();
 
+        // For multiple-choice (the default), we need at least one edge.
+        // For other question types, we need at least one edge for routing
+        // but don't derive question options from them.
         if choices.is_empty() {
             return Ok(Outcome::fail("No outgoing edges for human gate"));
         }
 
-        // 2. Build question from choices
-        let options: Vec<QuestionOption> = choices
-            .iter()
-            .map(|c| QuestionOption {
-                key: c.key.clone(),
-                label: c.label.clone(),
-                description: None,
-            })
-            .collect();
-
+        // 2. Build question based on question_type
         let text = node.get_str_attr("label").unwrap_or("Select an option:");
-        let mut question = Question::multiple_choice(text, options);
+        let is_choice_based = question_type.is_none()
+            || matches!(
+                question_type,
+                Some(QuestionType::MultipleChoice | QuestionType::MultiSelect)
+            );
+
+        let mut question = match question_type {
+            Some(QuestionType::Freeform) => Question::freeform(text),
+            Some(QuestionType::YesNo) => Question::yes_no(text),
+            Some(QuestionType::Confirmation) => Question::confirmation(text),
+            Some(QuestionType::MultiSelect) => {
+                let options: Vec<QuestionOption> = choices
+                    .iter()
+                    .map(|c| QuestionOption {
+                        key: c.key.clone(),
+                        label: c.label.clone(),
+                        description: None,
+                    })
+                    .collect();
+                Question::multi_select(text, options)
+            }
+            // Default: MultipleChoice (original behavior)
+            None | Some(QuestionType::MultipleChoice) => {
+                let options: Vec<QuestionOption> = choices
+                    .iter()
+                    .map(|c| QuestionOption {
+                        key: c.key.clone(),
+                        label: c.label.clone(),
+                        description: None,
+                    })
+                    .collect();
+                Question::multiple_choice(text, options)
+            }
+        };
 
         // Set timeout from node attribute (§2.6)
         if let Some(v) = node.get_attr("timeout") {
@@ -284,7 +368,8 @@ impl Handler for WaitForHumanHandler {
                 node_id: node.id.clone(),
             });
 
-            if let Some(default_target) = node.get_str_attr("human.default_choice")
+            if is_choice_based
+                && let Some(default_target) = node.get_str_attr("human.default_choice")
                 && let Some(choice) = find_choice_by_str(default_target, &choices)
             {
                 return Ok(build_human_outcome(choice));
@@ -303,14 +388,43 @@ impl Handler for WaitForHumanHandler {
             node_id: node.id.clone(),
         });
 
-        // 5. Find matching choice — no silent fallback to choices[0] so
-        //    invalid answers don't silently route to an unintended branch.
-        let Some(selected) = find_matching_choice(&answer, &choices) else {
-            return Ok(Outcome::fail("answer did not match any available choice"));
-        };
+        // 5. Build outcome based on question type
+        if is_choice_based {
+            // Choice-based: find matching choice for routing
+            let Some(selected) = find_matching_choice(&answer, &choices) else {
+                return Ok(Outcome::fail("answer did not match any available choice"));
+            };
 
-        // 6. Build outcome
-        Ok(build_human_outcome(selected))
+            let mut outcome = build_human_outcome(selected);
+
+            // For choice-based questions with a store key, store the
+            // selected label (the key/label are already in human.gate.*)
+            if let Some(ref key) = store_key {
+                outcome.context_updates.insert(
+                    key.clone(),
+                    serde_json::Value::String(answer_to_store_value(&answer)),
+                );
+            }
+
+            Ok(outcome)
+        } else {
+            // Non-choice (freeform, yes_no, confirmation): follow the
+            // first outgoing edge unconditionally.
+            let mut updates = IndexMap::new();
+            if let Some(ref key) = store_key {
+                updates.insert(
+                    key.clone(),
+                    serde_json::Value::String(answer_to_store_value(&answer)),
+                );
+            }
+
+            Ok(Outcome {
+                status: crate::types::StageStatus::Success,
+                suggested_next_ids: vec![choices[0].target.clone()],
+                context_updates: updates,
+                ..Outcome::success()
+            })
+        }
     }
 }
 
