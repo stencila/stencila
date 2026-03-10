@@ -323,8 +323,13 @@ impl EventEmitter for ProgressEventEmitter {
 // VerboseEventEmitter
 // ---------------------------------------------------------------------------
 
+struct VerboseStageState {
+    started_at: Instant,
+    is_shell: bool,
+}
+
 struct VerboseState {
-    stages: HashMap<String, Instant>,
+    stages: HashMap<String, VerboseStageState>,
     pipeline_started: Option<Instant>,
 }
 
@@ -368,12 +373,18 @@ impl EventEmitter for VerboseEventEmitter {
             PipelineEvent::StageStarted {
                 stage_index,
                 ref node_id,
-                ..
+                ref handler_type,
             } => {
                 if stage_index == 0 {
                     return;
                 }
-                state.stages.insert(node_id.clone(), Instant::now());
+                state.stages.insert(
+                    node_id.clone(),
+                    VerboseStageState {
+                        started_at: Instant::now(),
+                        is_shell: handler_type == "shell",
+                    },
+                );
                 let bold_name = color("1", node_id);
                 eprintln!("├─ {bold_name}");
             }
@@ -385,18 +396,32 @@ impl EventEmitter for VerboseEventEmitter {
                 ..
             } => {
                 let preview = truncate_to(input, 100);
-                let label_agent = color("2", "Agent:");
-                eprintln!("│  {label_agent} {agent_name}");
                 let _ = node_id;
-                let label_prompt = color("2", "Prompt:");
-                eprintln!("│  {label_prompt} {preview}");
+                if agent_name.is_empty() {
+                    let label_cmd = color("2", "Command:");
+                    eprintln!("│  {label_cmd} {preview}");
+                } else {
+                    let label_agent = color("2", "Agent:");
+                    eprintln!("│  {label_agent} {agent_name}");
+                    let label_prompt = color("2", "Prompt:");
+                    eprintln!("│  {label_prompt} {preview}");
+                }
             }
 
             PipelineEvent::StageSessionEvent { .. } => {}
 
-            PipelineEvent::StageOutput { ref output, .. } => {
+            PipelineEvent::StageOutput {
+                ref node_id,
+                ref output,
+                ..
+            } => {
                 let preview = truncate_to(output, 100);
-                let label = color("2", "Response:");
+                let is_shell = state.stages.get(node_id).is_some_and(|s| s.is_shell);
+                let label = if is_shell {
+                    color("2", "Output:")
+                } else {
+                    color("2", "Response:")
+                };
                 eprintln!("│  {label} {preview}");
             }
 
@@ -413,7 +438,7 @@ impl EventEmitter for VerboseEventEmitter {
                 let elapsed = state
                     .stages
                     .remove(node_id)
-                    .map(|t| t.elapsed().as_secs_f64())
+                    .map(|s| s.started_at.elapsed().as_secs_f64())
                     .unwrap_or(0.0);
                 let label = color("2", "Outcome:");
                 let tick = color("32", "✔");

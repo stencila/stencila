@@ -6,11 +6,14 @@
 //! command string before execution, and stores the trimmed stdout as
 //! `last_output` so downstream conditions and stages can reference it.
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use super::shared::{build_output_outcome, expand_runtime_variables};
 use crate::context::Context;
 use crate::error::AttractorResult;
+use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
 use crate::types::Outcome;
@@ -23,7 +26,31 @@ use crate::types::Outcome;
 /// execution time. On success the trimmed stdout is stored as
 /// `last_output` (and `last_output_full`) so subsequent pipeline stages
 /// and condition expressions can reference the shell output.
-pub struct ShellHandler;
+pub struct ShellHandler {
+    emitter: Arc<dyn EventEmitter>,
+}
+
+impl Default for ShellHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ShellHandler {
+    /// Create a handler with no event emitter (events are discarded).
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            emitter: Arc::new(NoOpEmitter),
+        }
+    }
+
+    /// Create a handler with the given event emitter.
+    #[must_use]
+    pub fn with_emitter(emitter: Arc<dyn EventEmitter>) -> Self {
+        Self { emitter }
+    }
+}
 
 #[async_trait]
 impl Handler for ShellHandler {
@@ -42,6 +69,16 @@ impl Handler for ShellHandler {
 
         let command = expand_runtime_variables(raw_command, context);
 
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let stage_index = context.get_i64("internal.stage_index").unwrap_or(0) as usize;
+
+        self.emitter.emit(PipelineEvent::StageInput {
+            node_id: node.id.clone(),
+            stage_index,
+            input: command.clone(),
+            agent_name: String::new(),
+        });
+
         let timeout = node.get_attr("timeout").and_then(|v| match v {
             crate::graph::AttrValue::Duration(d) => Some(d.inner()),
             crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
@@ -56,6 +93,13 @@ impl Handler for ShellHandler {
             Ok(output) => {
                 if output.success {
                     let stdout = output.stdout.trim().to_string();
+
+                    self.emitter.emit(PipelineEvent::StageOutput {
+                        node_id: node.id.clone(),
+                        stage_index,
+                        output: stdout.clone(),
+                    });
+
                     let mut outcome = build_output_outcome(&node.id, &stdout, context);
                     outcome.context_updates.insert(
                         "shell.output".to_string(),

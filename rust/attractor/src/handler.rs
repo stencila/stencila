@@ -92,7 +92,7 @@ impl HandlerRegistry {
             HandlerType::Codergen,
             handlers::CodergenHandler::simulation(),
         );
-        registry.register(HandlerType::Shell, handlers::ShellHandler);
+        registry.register(HandlerType::Shell, handlers::ShellHandler::new());
         registry.register(HandlerType::ParallelFanIn, handlers::FanInHandler);
         registry
     }

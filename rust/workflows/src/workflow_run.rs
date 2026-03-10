@@ -22,7 +22,8 @@ use stencila_attractor::events::{EventEmitter, ObserverEmitter, PipelineEvent};
 use stencila_attractor::graph::{AttrValue, Graph};
 use stencila_attractor::handler::HandlerRegistry;
 use stencila_attractor::handlers::{
-    CodergenBackend, CodergenHandler, CodergenOutput, ParallelHandler, WaitForHumanHandler,
+    CodergenBackend, CodergenHandler, CodergenOutput, ParallelHandler, ShellHandler,
+    WaitForHumanHandler,
 };
 use stencila_attractor::interviewer::Interviewer;
 use stencila_attractor::types::Outcome;
@@ -592,6 +593,7 @@ fn build_engine_config(
     // Inner registry: used by ParallelHandler for branch execution.
     // Does not need `parallel` itself (branches don't recurse into parallel).
     let mut inner_registry = HandlerRegistry::with_defaults();
+    inner_registry.register("shell", ShellHandler::with_emitter(emitter.clone()));
     inner_registry.register(
         "codergen",
         CodergenHandler::with_backend_and_emitter(
@@ -619,6 +621,9 @@ fn build_engine_config(
     let inner_arc = Arc::new(inner_registry);
 
     // Outer registry: used by the main engine loop.
+    config
+        .registry
+        .register("shell", ShellHandler::with_emitter(emitter.clone()));
     config.registry.register(
         "codergen",
         CodergenHandler::with_backend_and_emitter(

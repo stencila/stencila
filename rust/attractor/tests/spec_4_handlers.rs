@@ -466,7 +466,7 @@ async fn context_variable_expansion_underscore_key() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_executes_command() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let mut node = Node::new("tool1");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("echo hello"));
@@ -480,7 +480,7 @@ async fn shell_executes_command() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_captures_stdout() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let mut node = Node::new("tool1");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("echo hello"));
@@ -524,7 +524,7 @@ async fn shell_captures_stdout() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_expands_context_variables() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let mut node = Node::new("tool1");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("echo $last_output"));
@@ -549,7 +549,7 @@ async fn shell_expands_context_variables() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_missing_command() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let node = Node::new("tool1"); // No shell_command
     let ctx = Context::new();
     let g = Graph::new("test");
@@ -562,7 +562,7 @@ async fn shell_missing_command() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_nonzero_exit() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let mut node = Node::new("tool1");
     node.attrs.insert(
         "shell_command".into(),
@@ -579,7 +579,7 @@ async fn shell_nonzero_exit() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_timeout_expires() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let g = Graph::new("test");
 
     // Duration variant (unquoted in DOT: timeout=100ms)
@@ -609,7 +609,7 @@ async fn shell_timeout_expires() -> AttractorResult<()> {
 
 #[tokio::test]
 async fn shell_empty_stdout() -> AttractorResult<()> {
-    let handler = ShellHandler;
+    let handler = ShellHandler::new();
     let mut node = Node::new("tool1");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("true"));
