@@ -13,7 +13,9 @@ allowed-tools: read_file write_file edit_file apply_patch glob grep shell
 
 ## Overview
 
-Create a new workspace skill directory and `SKILL.md` file following the [Agent Skills Specification](https://agentskills.io/specification). A skill is a directory under `.stencila/skills/` containing a `SKILL.md` file with YAML frontmatter and a Markdown body. Skills are reusable instruction sets for AI agents.
+Create a new workspace skill directory and `SKILL.md` file following the Agent Skills Specification. A skill is a directory under `.stencila/skills/` containing a `SKILL.md` file with YAML frontmatter and a Markdown body. Skills are reusable instruction sets for AI agents.
+
+Skills should be self-contained. Do not rely on documentation or other content outside the skill directory. If the skill needs supporting material from elsewhere in the repository or from another source, copy it, summarize it, or excerpt it into files inside the skill's own `references/` directory, then link to those local files from `SKILL.md`.
 
 ## Steps
 
@@ -24,8 +26,9 @@ Create a new workspace skill directory and `SKILL.md` file following the [Agent 
 5. Write the `SKILL.md` file with frontmatter and instructions — include activation keywords in the `description` so agents can match the skill to user requests
 6. Add `keywords` to the frontmatter to improve discoverability and delegation accuracy — include terms reflecting likely user intents, artifacts, and domains
 7. Replace placeholders such as `TODO` before considering the skill complete
-8. Optionally create `scripts/`, `references/`, or `assets/` subdirectories if the skill needs them
-9. Validate the finished skill with `stencila skills validate <name>`, the skill directory path, or the `SKILL.md` path
+8. If the skill depends on supporting guidance, examples, or specifications, create focused files in `references/` and put that material there rather than referring to files elsewhere in the repo
+9. Optionally create `scripts/`, `references/`, or `assets/` subdirectories if the skill needs them
+10. Validate the finished skill with `stencila skills validate <name>`, the skill directory path, or the `SKILL.md` path
 
 When working from a nested directory in a repository, create the skill in the closest workspace's `.stencila/skills/` directory rather than creating a new `.stencila/` tree under the current subdirectory.
 
@@ -114,6 +117,8 @@ Each skill gets its own subdirectory. Only `SKILL.md` is required:
 
 Use `scripts/` for executable code, `references/` for detailed docs loaded on demand, and `assets/` for templates and data files. Reference them from `SKILL.md` using relative paths.
 
+Do not point `SKILL.md` at repository documentation, specifications, or other files outside the skill directory. When outside material is necessary, prefer adding a concise summary or excerpt under `references/` instead of copying a large document verbatim. Keep individual reference files focused so agents can load only the minimum context needed.
+
 ## Writing Guidelines
 
 - Keep the body under 500 lines / 5,000 tokens
@@ -121,6 +126,8 @@ Use `scripts/` for executable code, `references/` for detailed docs loaded on de
 - Include input/output examples
 - Cover edge cases and common pitfalls
 - Move detailed reference material to `references/` files
+- Keep the skill self-contained: avoid links or instructions that depend on files outside the skill directory
+- If external or repo-local guidance is needed, summarize or excerpt it into focused files under `references/`
 - Do not leave placeholder frontmatter or body content such as `TODO`
 - Write a description that is specific, not vague (e.g., "Analyze datasets and generate summary statistics. Use when working with CSV, Parquet, or database query results." not "Helps with data.")
 - Keep `description` under 1,024 characters and `compatibility` under 500 characters
@@ -131,6 +138,7 @@ Use `scripts/` for executable code, `references/` for detailed docs loaded on de
 - **Name mismatch**: If the user provides a name that doesn't match kebab-case rules, suggest a corrected version rather than failing silently.
 - **Nested workspaces**: If multiple `.stencila/` directories exist in the ancestor chain, use the nearest one. Do not create a duplicate `.stencila/skills/` tree.
 - **Empty or placeholder content**: Do not consider the skill complete if any `TODO`, `<placeholder>`, or empty sections remain in the final `SKILL.md`.
+- **External dependencies in documentation**: If instructions refer to docs or files outside the skill directory, move the required content into focused files under `references/` and update `SKILL.md` to point only to those local copies, summaries, or excerpts.
 
 ## Validation
 
