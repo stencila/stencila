@@ -2,7 +2,7 @@ use insta::assert_snapshot;
 use stencila_codec::{
     Codec,
     eyre::Result,
-    stencila_schema::{CodeBlock, Node},
+    stencila_schema::{CodeBlock, CodeChunk, Node},
 };
 use stencila_codec_markdown::MarkdownCodec;
 
@@ -77,6 +77,42 @@ async fn backticks() -> Result<()> {
     ````
       ```
     ````
+    ");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn preserve_code_block_id_on_encoding() -> Result<()> {
+    let codec = MarkdownCodec {};
+
+    let mut block = CodeBlock::new("echo hello".into());
+    block.programming_language = Some("sh".into());
+    block.id = Some("script-ref".into());
+
+    let (md, ..) = codec.to_string(&Node::CodeBlock(block), None).await?;
+    assert_snapshot!(md, @r"
+    ```sh #script-ref
+    echo hello
+    ```
+    ");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn preserve_code_chunk_id_on_encoding() -> Result<()> {
+    let codec = MarkdownCodec {};
+
+    let mut chunk = CodeChunk::default();
+    chunk.code = "print('hello')".into();
+    chunk.id = Some("chunk-ref".into());
+
+    let (md, ..) = codec.to_string(&Node::CodeChunk(chunk), None).await?;
+    assert_snapshot!(md, @r"
+    ```exec #chunk-ref
+    print('hello')
+    ```
     ");
 
     Ok(())

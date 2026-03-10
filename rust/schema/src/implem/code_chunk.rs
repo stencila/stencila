@@ -587,6 +587,10 @@ impl MarkdownCodec for CodeChunk {
 
                 context.push_str("exec");
 
+                if let Some(id) = &self.id {
+                    context.push_str(" #").push_prop_str(NodeProperty::Id, id);
+                }
+
                 if let Some(mode) = &self.execution_mode
                     && !matches!(mode, ExecutionMode::Need)
                 {

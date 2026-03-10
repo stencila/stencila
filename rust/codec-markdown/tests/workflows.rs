@@ -111,6 +111,39 @@ The pipeline uses a human gate at the review stage.
     Ok(())
 }
 
+#[tokio::test]
+async fn workflow_roundtrip_preserves_referenced_code_block_ids() -> Result<()> {
+    let original = r##"---
+name: refs-roundtrip
+description: Test round-trip of referenced content ids
+---
+
+```text #creator-prompt
+Create something helpful.
+```
+
+```sh #run-script
+echo hello
+```
+
+```dot
+digraph refs_roundtrip {
+    Start -> Create -> Run -> End
+    Create [prompt-ref="#creator-prompt"]
+    Run [shell-ref="#run-script"]
+}
+```
+"##;
+
+    let node = decode_workflow(original).await?;
+    let encoded = encode_node(&node).await?;
+
+    assert!(encoded.contains("```text #creator-prompt"));
+    assert!(encoded.contains("```sh #run-script"));
+
+    Ok(())
+}
+
 /// Encode a Workflow back to markdown and verify frontmatter + content are emitted
 #[tokio::test]
 async fn encode_workflow_roundtrip() -> Result<()> {

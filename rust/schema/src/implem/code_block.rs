@@ -78,6 +78,10 @@ impl MarkdownCodec for CodeBlock {
             context.push_prop_str(NodeProperty::ProgrammingLanguage, lang);
         }
 
+        if let Some(id) = &self.id {
+            context.push_str(" #").push_prop_str(NodeProperty::Id, id);
+        }
+
         context
             .newline()
             .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));

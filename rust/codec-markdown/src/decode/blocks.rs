@@ -1717,6 +1717,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
     } = code;
 
     let meta = meta.unwrap_or_default();
+    let code_id = parse_code_id(&meta);
     let is_exec = meta.starts_with("exec")
         || lang.as_deref() == Some("exec")
         || lang.as_deref().is_some_and(is_executable_language)
@@ -1803,6 +1804,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
         }
 
         Block::CodeChunk(CodeChunk {
+            id: code_id,
             code: value.into(),
             programming_language: if lang.as_deref() == Some("exec") {
                 None
@@ -1840,11 +1842,27 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
         })
     } else {
         Block::CodeBlock(CodeBlock {
+            id: code_id,
             code: value.into(),
             programming_language: lang,
             ..Default::default()
         })
     }
+}
+
+fn parse_code_id(meta: &str) -> Option<String> {
+    meta.split_whitespace().find_map(|token| {
+        token
+            .strip_prefix('#')
+            .filter(|id| !id.is_empty())
+            .map(ToString::to_string)
+            .or_else(|| {
+                token
+                    .strip_prefix("id=")
+                    .filter(|id| !id.is_empty())
+                    .map(|id| id.trim_matches(['"', '\'']).to_string())
+            })
+    })
 }
 
 fn mds_to_quote_block_or_admonition(mut mds: Vec<mdast::Node>, context: &mut Context) -> Block {
@@ -2511,6 +2529,40 @@ mod tests {
         if let Block::CodeChunk(chunk) = block {
             assert_eq!(chunk.programming_language, Some("dot".to_string()));
             assert_eq!(chunk.code.to_string(), "digraph { A -> B }");
+        }
+    }
+
+    #[test]
+    fn test_code_block_id_from_meta() {
+        let code = mdast::Code {
+            lang: Some("text".to_string()),
+            meta: Some("#creator-prompt".to_string()),
+            value: "Create something".to_string(),
+            position: None,
+        };
+        let block = code_to_block(code, &mut Context::new(Format::Markdown));
+
+        assert!(matches!(block, Block::CodeBlock(CodeBlock { .. })));
+
+        if let Block::CodeBlock(block) = block {
+            assert_eq!(block.id.as_deref(), Some("creator-prompt"));
+        }
+    }
+
+    #[test]
+    fn test_code_chunk_id_from_meta() {
+        let code = mdast::Code {
+            lang: Some("exec".to_string()),
+            meta: Some("exec id=run-script".to_string()),
+            value: "print('hello')".to_string(),
+            position: None,
+        };
+        let block = code_to_block(code, &mut Context::new(Format::Markdown));
+
+        assert!(matches!(block, Block::CodeChunk(CodeChunk { .. })));
+
+        if let Block::CodeChunk(chunk) = block {
+            assert_eq!(chunk.id.as_deref(), Some("run-script"));
         }
     }
 }
