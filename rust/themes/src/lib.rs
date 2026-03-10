@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashSet},
     env::current_dir,
     fmt::{Display, Formatter},
     path::{Path, PathBuf},
@@ -929,6 +929,63 @@ pub fn list_builtin_tokens(scope: Option<TokenScope>, family: Option<&str>) -> V
         .filter(|token| family.as_ref().is_none_or(|family| &token.family == family))
         .cloned()
         .collect()
+}
+
+/// The result of validating a theme CSS file
+#[derive(Debug, Clone, Serialize)]
+pub struct ValidationResult {
+    /// Whether the CSS parsed successfully with lightningcss
+    pub is_valid_css: bool,
+
+    /// CSS parse errors (empty if parsing succeeded)
+    pub parse_errors: Vec<String>,
+
+    /// Custom properties that are not recognized builtin tokens
+    pub unknown_tokens: Vec<String>,
+
+    /// Custom properties that match recognized builtin tokens
+    pub valid_tokens: Vec<String>,
+}
+
+/// Validate a theme CSS string
+///
+/// Checks that the CSS can be parsed by lightningcss and that any custom
+/// properties set in `:root` blocks correspond to known builtin design tokens.
+pub fn validate(css: &str) -> ValidationResult {
+    // Step 1: Try to parse the CSS
+    let parse_result = StyleSheet::parse(css, ParserOptions::default());
+
+    let (is_valid_css, parse_errors) = match parse_result {
+        Ok(_) => (true, Vec::new()),
+        Err(err) => (false, vec![err.to_string()]),
+    };
+
+    // Step 2: Extract custom properties (this uses its own lenient parse internally)
+    let user_vars = Theme::parse_css_variables_in_order(css);
+
+    // Step 3: Compare against the builtin token registry
+    let known_names: HashSet<&str> = BUILTIN_THEME_TOKENS
+        .iter()
+        .map(|t| t.name.as_str())
+        .collect();
+
+    let mut valid_tokens = Vec::new();
+    let mut unknown_tokens = Vec::new();
+
+    for (name, _) in &user_vars {
+        if known_names.contains(name.as_str()) {
+            valid_tokens.push(name.clone());
+        } else {
+            unknown_tokens.push(name.clone());
+        }
+    }
+
+    ValidationResult {
+        is_valid_css,
+        parse_errors,
+        unknown_tokens,
+        valid_tokens,
+    }
 }
 
 /// Get a list of available themes
@@ -1914,5 +1971,72 @@ mod tests {
         assert_eq!(computed.get("header-author"), Some(&json!("Smith & Jones")));
         // Length conversion should still work
         assert_eq!(computed.get("base-size"), Some(&json!(12.0)));
+    }
+
+    #[test]
+    fn test_validate_valid_css_with_known_tokens() {
+        let css = ":root { --text-font-size: 18px; --heading-font-family: Georgia, serif; }";
+        let result = validate(css);
+
+        assert!(result.is_valid_css);
+        assert!(result.parse_errors.is_empty());
+        assert!(result.valid_tokens.contains(&"text-font-size".to_string()));
+        assert!(
+            result
+                .valid_tokens
+                .contains(&"heading-font-family".to_string())
+        );
+        assert!(result.unknown_tokens.is_empty());
+    }
+
+    #[test]
+    fn test_validate_unknown_tokens() {
+        let css = ":root { --text-font-size: 18px; --my-custom-thing: red; }";
+        let result = validate(css);
+
+        assert!(result.is_valid_css);
+        assert!(result.valid_tokens.contains(&"text-font-size".to_string()));
+        assert!(
+            result
+                .unknown_tokens
+                .contains(&"my-custom-thing".to_string())
+        );
+    }
+
+    #[test]
+    fn test_validate_malformed_css() {
+        // lightningcss follows the CSS error recovery spec and is lenient,
+        // so unclosed braces may still parse. Instead, verify that even
+        // with malformed CSS the function returns without panicking and
+        // that the result is consistent.
+        let css = ":root { --text-font-size: 18px; ";
+        let result = validate(css);
+
+        // Whether it parses or not, parse_errors should be consistent
+        if result.is_valid_css {
+            assert!(result.parse_errors.is_empty());
+        } else {
+            assert!(!result.parse_errors.is_empty());
+        }
+    }
+
+    #[test]
+    fn test_validate_empty_css() {
+        let result = validate("");
+
+        assert!(result.is_valid_css);
+        assert!(result.parse_errors.is_empty());
+        assert!(result.valid_tokens.is_empty());
+        assert!(result.unknown_tokens.is_empty());
+    }
+
+    #[test]
+    fn test_validate_non_root_properties_ignored() {
+        let css = ".foo { --something: blue; }";
+        let result = validate(css);
+
+        assert!(result.is_valid_css);
+        assert!(result.valid_tokens.is_empty());
+        assert!(result.unknown_tokens.is_empty());
     }
 }

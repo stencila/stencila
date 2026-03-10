@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
 use stencila_cli_utils::{
@@ -8,7 +10,7 @@ use stencila_cli_utils::{
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
 
-use crate::{ThemeType, TokenScope, get, list, list_builtin_tokens, new, remove};
+use crate::{ThemeType, TokenScope, get, list, list_builtin_tokens, new, remove, validate};
 
 /// Manage themes
 #[derive(Debug, Parser)]
@@ -38,6 +40,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Remove a user theme</dim>
   <b>stencila themes remove</b> <g>my-theme</g>
 
+  <dim># Validate a custom theme file</dim>
+  <b>stencila themes validate</b> <g>theme.css</g>
+
   <dim># List design tokens available to use in themes</dim>
   <b>stencila themes tokens</b>
 "
@@ -49,6 +54,7 @@ enum Command {
     Show(Show),
     New(New),
     Remove(Remove),
+    Validate(Validate),
     Tokens(Tokens),
 }
 
@@ -61,9 +67,10 @@ impl Cli {
         match command {
             Command::List(list) => list.run().await,
             Command::Show(show) => show.run().await,
-            Command::Tokens(tokens) => tokens.run().await,
             Command::New(new) => new.run().await,
             Command::Remove(remove) => remove.run().await,
+            Command::Validate(validate) => validate.run().await,
+            Command::Tokens(tokens) => tokens.run().await,
         }
     }
 }
@@ -237,6 +244,116 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 "
 );
 
+/// Validate a theme file
+///
+/// Checks that the CSS can be parsed and that custom properties correspond
+/// to known builtin design tokens (see `stencila themes tokens`).
+#[derive(Debug, Args)]
+#[command(after_long_help = VALIDATE_AFTER_LONG_HELP)]
+struct Validate {
+    /// Path to the CSS file to validate
+    file: PathBuf,
+
+    /// Treat unknown tokens as errors (non-zero exit code)
+    #[arg(long)]
+    strict: bool,
+
+    /// Output as a machine-readable format
+    #[arg(long, value_name = "FORMAT")]
+    r#as: Option<AsFormat>,
+}
+
+impl Validate {
+    async fn run(self) -> Result<()> {
+        let css = tokio::fs::read_to_string(&self.file).await?;
+        let result = validate(&css);
+
+        if let Some(format) = self.r#as {
+            Code::new_from(format.into(), &result)?.to_stdout();
+
+            if !result.is_valid_css || (self.strict && !result.unknown_tokens.is_empty()) {
+                std::process::exit(1);
+            }
+
+            return Ok(());
+        }
+
+        // CSS parse result
+        if result.is_valid_css {
+            message!("✅ CSS is valid");
+        } else {
+            message!("❌ CSS parse errors:");
+            for error in &result.parse_errors {
+                message!("   {}", error);
+            }
+        }
+
+        // Valid token overrides
+        if !result.valid_tokens.is_empty() {
+            message!(
+                "✅ {} known token override{}",
+                result.valid_tokens.len(),
+                if result.valid_tokens.len() == 1 {
+                    ""
+                } else {
+                    "s"
+                }
+            );
+        }
+
+        // Unknown tokens
+        if result.unknown_tokens.is_empty() {
+            if result.valid_tokens.is_empty() {
+                message!("ℹ️  No custom properties found");
+            }
+        } else {
+            let label = if self.strict { "❌" } else { "⚠️ " };
+            message!(
+                "{} {} unknown token{}:",
+                label,
+                result.unknown_tokens.len(),
+                if result.unknown_tokens.len() == 1 {
+                    ""
+                } else {
+                    "s"
+                }
+            );
+
+            let mut table = Tabulated::new();
+            table.set_header(["Token"]);
+            for name in &result.unknown_tokens {
+                table.add_row([Cell::new(format!("--{name}"))
+                    .fg(if self.strict {
+                        Color::Red
+                    } else {
+                        Color::Yellow
+                    })
+                    .add_attribute(Attribute::Bold)]);
+            }
+            table.to_stdout();
+        }
+
+        if !result.is_valid_css || (self.strict && !result.unknown_tokens.is_empty()) {
+            std::process::exit(1);
+        }
+
+        Ok(())
+    }
+}
+
+pub static VALIDATE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Validate a workspace theme</dim>
+  <b>stencila themes validate</b> <g>theme.css</g>
+
+  <dim># Treat unknown tokens as errors</dim>
+  <b>stencila themes validate</b> <g>theme.css</g> <c>--strict</c>
+
+  <dim># Output validation result as JSON</dim>
+  <b>stencila themes validate</b> <g>theme.css</g> <c>--as</c> <g>json</g>
+"
+);
+
 /// List builtin theme tokens
 #[derive(Debug, Default, Args)]
 #[command(after_long_help = TOKENS_LIST_AFTER_LONG_HELP)]
@@ -256,7 +373,7 @@ struct Tokens {
 
 impl Tokens {
     async fn run(self) -> Result<()> {
-        let scope = self.scope.map(Into::into);
+        let scope = self.scope;
         let tokens = list_builtin_tokens(scope, self.family.as_deref());
 
         if let Some(format) = self.r#as {
