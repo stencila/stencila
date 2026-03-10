@@ -22,6 +22,8 @@
     "id",
     "workType",
     "doi",
+    "whenToUse",
+    "whenNotToUse",
     "frontmatter",
     "model",
     "provider",
@@ -682,6 +684,42 @@
           "type": "number"
         }
       ]
+    },
+    "whenToUse": {
+      "@id": "stencila:whenToUse",
+      "description": "Positive selection signals describing when this agent should be used.",
+      "aliases": [
+        "when-to-use",
+        "when_to_use"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "whenNotToUse": {
+      "@id": "stencila:whenNotToUse",
+      "description": "Negative selection signals describing when this agent should not be used.",
+      "aliases": [
+        "when-not-to-use",
+        "when_not_to_use"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "frontmatter": {
       "@id": "stencila:frontmatter",

@@ -34,6 +34,17 @@ pub fn to_xml(skill: &Skill) -> String {
         ));
     }
 
+    if let Some(keywords) = &skill.options.keywords
+        && !keywords.is_empty()
+    {
+        let kw_str = keywords
+            .iter()
+            .map(|k| escape_xml(k))
+            .collect::<Vec<_>>()
+            .join(", ");
+        xml.push_str(&format!("  <keywords>{kw_str}</keywords>\n"));
+    }
+
     if let Some(tools) = &skill.allowed_tools {
         let tools_str = tools
             .iter()
@@ -55,11 +66,34 @@ pub fn metadata_to_xml(skills: &[SkillInstance]) -> String {
     let mut xml = String::from("<skills>\n");
 
     for skill in skills {
-        xml.push_str(&format!(
-            "  <skill name=\"{}\" description=\"{}\" />\n",
-            escape_xml_attr(&skill.name),
-            escape_xml_attr(&skill.description)
-        ));
+        let has_extra = skill.inner.options.keywords.is_some();
+
+        if has_extra {
+            xml.push_str(&format!(
+                "  <skill name=\"{}\" description=\"{}\">\n",
+                escape_xml_attr(&skill.name),
+                escape_xml_attr(&skill.description)
+            ));
+
+            if let Some(ref keywords) = skill.inner.options.keywords
+                && !keywords.is_empty()
+            {
+                let kw_str = keywords
+                    .iter()
+                    .map(|k| escape_xml(k))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                xml.push_str(&format!("    <keywords>{kw_str}</keywords>\n"));
+            }
+
+            xml.push_str("  </skill>\n");
+        } else {
+            xml.push_str(&format!(
+                "  <skill name=\"{}\" description=\"{}\" />\n",
+                escape_xml_attr(&skill.name),
+                escape_xml_attr(&skill.description)
+            ));
+        }
     }
 
     xml.push_str("</skills>");

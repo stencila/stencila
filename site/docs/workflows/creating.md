@@ -131,6 +131,30 @@ An ephemeral workflow has the same structure, plus the temporary marker file:
       WORKFLOW.md
 ```
 
+## Improving Discoverability and Delegation
+
+When a manager agent decides which workflow to delegate to, it uses the workflow's `description`, `keywords`, `when-to-use`, and `when-not-to-use` fields. Adding these fields improves delegation accuracy.
+
+```yaml
+---
+name: code-review
+description: Automated code review with human approval gate
+keywords:
+  - code
+  - review
+  - testing
+  - approval
+when-to-use:
+  - when the user wants an automated code review pipeline
+  - when changes need testing and human approval before merging
+when-not-to-use:
+  - when the user wants a quick one-shot code review without a pipeline
+  - when the task is about writing new code rather than reviewing it
+---
+```
+
+Each `when-to-use` and `when-not-to-use` entry should be a short, specific sentence. Avoid vague signals like "when appropriate" — be concrete about the scenarios that match or don't match.
+
 ## Referencing Agents
 
 Pipeline nodes reference [agents](../agents/) by name using the `agent` attribute:

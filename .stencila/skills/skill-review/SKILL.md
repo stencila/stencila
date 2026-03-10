@@ -1,6 +1,14 @@
 ---
 name: skill-review
 description: Critically review a workspace skill and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a SKILL.md file or skill directory. Covers frontmatter validation, instruction clarity, completeness, and adherence to the Agent Skills Specification.
+keywords:
+  - skill
+  - review
+  - audit
+  - critique
+  - evaluate
+  - improve
+  - SKILL.md
 allowed-tools: read_file glob grep shell
 ---
 
@@ -24,6 +32,11 @@ Review an existing workspace skill for quality, correctness, and completeness. P
 - **name**: present, matches directory name, valid kebab-case (`^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`)
 - **description**: present, under 1,024 characters, specific (not vague), includes keywords that help agents match the skill to user requests
 - **Optional fields**: `license`, `compatibility`, `allowed-tools`, `metadata` — check for correctness if present (e.g., valid SPDX identifier, `compatibility` under 500 characters, `allowed-tools` is space-delimited)
+
+### Discovery and Delegation Metadata
+
+- **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words, artifact types, and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
+- **Coherence check**: verify that `description` and `keywords` work together — they should be complementary, not redundant. Flag cases where the same text appears verbatim in multiple fields
 
 ### Structure and Clarity
 

@@ -41,6 +41,17 @@ And a fully configured example:
 ---
 name: code-reviewer
 description: Reviews code for correctness, style, and security issues
+keywords:
+  - code
+  - review
+  - audit
+  - security
+when-to-use:
+  - when the user asks to review, audit, or critique code changes
+  - when a pull request needs automated review before merging
+when-not-to-use:
+  - when the user wants to write or generate new code
+  - when the task is about refactoring rather than review
 model: claude-sonnet-4-5
 provider: anthropic
 reasoning-effort: high
@@ -110,6 +121,37 @@ provider: anthropic
 Supported providers: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `deepseek`.
 
 For CLI-backed sessions, set the provider to the CLI variant: `claude-cli`, `codex-cli`, or `gemini-cli`.
+
+## Improving Discoverability and Delegation
+
+When a manager agent decides which agent to delegate to, it uses the agent's `description`, `keywords`, `when-to-use`, and `when-not-to-use` fields to make its choice. Adding these fields improves delegation accuracy.
+
+### Keywords
+
+The `keywords` field helps managers find and rank agents. Include terms that reflect the agent's domain, capabilities, and likely user intents:
+
+```yaml
+keywords:
+  - code
+  - review
+  - security
+  - audit
+```
+
+### When to Use / When Not to Use
+
+The `when-to-use` and `when-not-to-use` fields provide explicit selection signals that help managers choose between agents with overlapping descriptions:
+
+```yaml
+when-to-use:
+  - when the user asks to review or audit code
+  - when a pull request needs automated review
+when-not-to-use:
+  - when the user wants to write or generate new code
+  - when the task is refactoring rather than review
+```
+
+Each entry should be a short, specific sentence describing a scenario. Avoid vague signals like "when appropriate" — be concrete about the situations that match or don't match.
 
 ## Restricting Tools
 

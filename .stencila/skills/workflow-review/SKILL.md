@@ -1,6 +1,14 @@
 ---
 name: workflow-review
 description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a WORKFLOW.md file or workflow directory. Covers frontmatter validation, DOT pipeline quality, workflow structure, ephemeral workflow conventions, and adherence to Stencila workflow patterns.
+keywords:
+  - workflow
+  - review
+  - audit
+  - critique
+  - evaluate
+  - improve
+  - WORKFLOW.md
 allowed-tools: read_file glob grep shell
 ---
 
@@ -63,6 +71,12 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 - If the workflow is permanent, it should not use custom frontmatter like `ephemeral: true` or other non-standard markers to indicate temporary status
 - Report whether the ephemeral/permanent status is clear from the directory contents and workflow context
 - If the workflow only appears temporary by context but does not explicitly claim ephemeral status, a missing sentinel is usually a warning rather than a failure
+
+### Discovery and Delegation Metadata
+
+- **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
+- **when-to-use / when-not-to-use**: if present, check that entries are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals. If absent, recommend adding them to improve manager delegation accuracy
+- **Coherence check**: verify that `description`, `keywords`, `when-to-use`, and `when-not-to-use` work together — they should be complementary, not redundant
 
 ### Completeness and Clarity
 

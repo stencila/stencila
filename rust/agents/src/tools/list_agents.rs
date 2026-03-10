@@ -34,11 +34,25 @@ pub fn executor() -> ToolExecutorFn {
                 let entries: Vec<Value> = agents
                     .into_iter()
                     .map(|agent| {
-                        json!({
+                        let mut entry = json!({
                             "name": agent.name,
                             "description": agent.description,
                             "source": agent.source().map(|s| s.to_string()),
-                        })
+                        });
+
+                        if let Some(ref keywords) = agent.inner.options.keywords {
+                            entry["keywords"] = json!(keywords);
+                        }
+
+                        if let Some(ref when_to_use) = agent.inner.when_to_use {
+                            entry["whenToUse"] = json!(when_to_use);
+                        }
+
+                        if let Some(ref when_not_to_use) = agent.inner.when_not_to_use {
+                            entry["whenNotToUse"] = json!(when_not_to_use);
+                        }
+
+                        entry
                     })
                     .collect();
 

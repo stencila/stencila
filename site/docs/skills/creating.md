@@ -50,6 +50,13 @@ And a fully configured example:
 ---
 name: data-analysis
 description: Analyze datasets and generate summary statistics. Use when working with CSV, Parquet, or database query results.
+keywords:
+  - data
+  - analysis
+  - statistics
+  - pandas
+  - CSV
+  - Parquet
 license: Apache-2.0
 compatibility: Requires Python 3.10+ with pandas and matplotlib
 allowed-tools: Bash(python:*) Read
@@ -130,6 +137,22 @@ See [the reference guide](references/REFERENCE.md) for detailed API docs.
 Run the extraction script:
 scripts/extract.py
 ```
+
+## Improving Discoverability with Keywords
+
+The `keywords` field helps agents find and rank skills during selection. Include terms that reflect likely user intents, artifact types, and domain concepts:
+
+```yaml
+keywords:
+  - data
+  - analysis
+  - statistics
+  - pandas
+  - CSV
+  - Parquet
+```
+
+Good keywords are specific and complementary to the description — they cover synonyms, related tools, and file formats that a user might mention. Avoid generic terms like "help" or "code" that don't narrow the match.
 
 ## Writing Effective Instructions
 

@@ -53,6 +53,18 @@ The following extensions to the spec are implemented for better interoperability
 
 - **`metadata` translation**: Stencila stores `CreativeWork` properties like `authors`, `version`, and `licenses` as flat, top-level fields on the `Skill` struct. The spec nests these under a `metadata:` object in frontmatter. Translation happens in both directions: on decode, entries under `metadata:` are hoisted to the top level so they populate CreativeWork fields; on encode, non-spec top-level fields are nested back under `metadata:` so the output conforms to the spec.
 
+- **`keywords`**: Stencila supports a `keywords` list in SKILL.md frontmatter (inherited from `CreativeWork`). Keywords provide compact lexical hints for discovery, retrieval, and routing. They should reflect likely user intents, artifact types, and domain terms. Example:
+
+  ```yaml
+  keywords:
+    - data
+    - analysis
+    - statistics
+    - pandas
+  ```
+
+  `keywords` are surfaced via `to_xml()` and `metadata_to_xml()` for context injection and progressive disclosure. Managers use these fields alongside `name` and `description` when selecting between candidate skills.
+
 ## Deviations
 
 These are intentional deviations from the spec:

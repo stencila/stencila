@@ -1,6 +1,13 @@
 ---
 name: agent-creation
 description: Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an AGENT.md file or agent directory. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
+keywords:
+  - agent
+  - create
+  - scaffold
+  - write
+  - set up
+  - AGENT.md
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
 ---
 
@@ -16,9 +23,10 @@ Create a new agent directory and `AGENT.md` file for Stencila. An agent is a dir
    - **Workspace agent** (default): resolve the closest workspace by walking up from the current directory to find the nearest `.stencila/` directory. If none exists, create `.stencila/agents/<name>/` at the repository root (or the current working directory if not in a repository). Create the agent under `<workspace>/.stencila/agents/<name>/`
    - **User agent** (when the user says "user-level", "global", or "shared across workspaces"): create under `~/.config/stencila/agents/<name>/`
 4. Ask the user about model/provider preferences if not specified, or use the defaults from the Choosing Configuration section below
-5. Write the `AGENT.md` file with frontmatter and optional system instructions
-6. Replace all placeholders such as `TODO` before considering the agent complete
-7. Validate the finished agent with `stencila agents validate <name>`, the agent directory path, or the `AGENT.md` path
+5. Add `keywords`, `when-to-use`, and `when-not-to-use` to help managers select this agent — include terms from the user's request and relevant domain words in `keywords`, and add `when-to-use`/`when-not-to-use` signals describing when this agent should or should not be chosen
+6. Write the `AGENT.md` file with frontmatter and optional system instructions
+7. Replace all placeholders such as `TODO` before considering the agent complete
+8. Validate the finished agent with `stencila agents validate <name>`, the agent directory path, or the `AGENT.md` path
 
 ## Naming Rules
 
@@ -72,6 +80,8 @@ These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`
 - `truncation-preset` — `strict`, `balanced` (default), or `verbose`. Controls tool output truncation.
 - `compaction-trigger-percent` — context usage percentage that triggers history compaction (default: 70).
 - `compatibility` — environment requirements (max 500 characters).
+- `keywords` — list of keywords or tags for discovery and routing. Use terms that reflect likely user intents, artifacts, and domains.
+- `when-to-use` (positive selection signals) and `when-not-to-use` (negative selection signals). Helps managers choose the right resource.
 
 ## Common Agent Patterns
 
@@ -134,6 +144,16 @@ You are an assistant that specializes in reviewing code for correctness, style, 
 ---
 name: code-engineer
 description: A general-purpose coding agent for software engineering tasks
+keywords:
+  - code
+  - implement
+  - debug
+  - refactor
+when-to-use:
+  - when the user asks to write, implement, debug, or refactor code
+  - when the task involves software engineering work
+when-not-to-use:
+  - when the user only wants a code review without modifications
 trust-level: medium
 allowed-tools:
   - read_file

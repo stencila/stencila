@@ -702,6 +702,40 @@
       ]
     },
     {
+      "@id": "stencila:whenToUse",
+      "@type": "rdfs:Property",
+      "rdfs:label": "whenToUse",
+      "rdfs:comment": "Positive selection signals describing when this agent should be used.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Workflow"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:whenNotToUse",
+      "@type": "rdfs:Property",
+      "rdfs:label": "whenNotToUse",
+      "rdfs:comment": "Negative selection signals describing when this agent should not be used.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Workflow"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:frontmatter",
       "@type": "rdfs:Property",
       "rdfs:label": "frontmatter",

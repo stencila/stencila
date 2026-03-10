@@ -22,6 +22,16 @@ export class Workflow extends CreativeWork {
   declare name: string;
 
   /**
+   * Positive selection signals describing when this workflow should be used.
+   */
+  whenToUse?: string[];
+
+  /**
+   * Negative selection signals describing when this workflow should not be used.
+   */
+  whenNotToUse?: string[];
+
+  /**
    * Frontmatter containing workflow metadata.
    */
   frontmatter?: string;

@@ -307,6 +307,8 @@ pub enum NodeProperty {
     Version,
     VerticalAlignment,
     VolumeNumber,
+    WhenNotToUse,
+    WhenToUse,
     Work,
     WorkType,
 }

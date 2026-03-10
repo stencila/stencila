@@ -14,6 +14,8 @@ required:
   - name
   - description
 core:
+  - whenToUse
+  - whenNotToUse
   - frontmatter
   - model
   - provider
@@ -35,6 +37,24 @@ properties:
     pattern: '^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$'
     patch:
       formats: [md, myst, qmd, smd]
+  whenToUse:
+    '@id': stencila:whenToUse
+    description: Positive selection signals describing when this agent should be used.
+    type: array
+    items:
+      type: string
+    strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many
+  whenNotToUse:
+    '@id': stencila:whenNotToUse
+    description: Negative selection signals describing when this agent should not be used.
+    type: array
+    items:
+      type: string
+    strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many
   frontmatter:
     "@id": stencila:frontmatter
     description: Frontmatter containing agent metadata.

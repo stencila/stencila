@@ -1,6 +1,17 @@
 ---
 name: agent-reviewer
 description: Reviews Stencila agents for quality, correctness, and completeness
+keywords:
+  - agent
+  - review
+  - audit
+  - AGENT.md
+when-to-use:
+  - when the user asks to review, audit, or critique a Stencila agent
+  - when an AGENT.md file needs evaluation for correctness, clarity, or completeness
+when-not-to-use:
+  - when the user wants to create a new agent rather than review one
+  - when the task concerns a skill or workflow instead of an agent definition
 allowed-skills:
   - agent-review
 allowed-tools:

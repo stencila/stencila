@@ -1,6 +1,13 @@
 ---
 name: workflow-creation
 description: Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a WORKFLOW.md file or workflow directory. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, and validation.
+keywords:
+  - workflow
+  - pipeline
+  - create
+  - scaffold
+  - write
+  - WORKFLOW.md
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user list_agents
 ---
 
@@ -25,6 +32,7 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
 8. Write `WORKFLOW.md` with:
    - YAML frontmatter containing at least `name` and `description`
    - Prefer `goal` in frontmatter when the user provides a stable high-level objective; only duplicate it in graph attributes when required by execution semantics or existing project conventions
+   - Include `keywords` with domain-relevant terms and `when-to-use`/`when-not-to-use` entries to improve discoverability and delegation accuracy
    - A Markdown body with the first `dot` fenced code block containing the workflow pipeline
    - Optional surrounding Markdown documentation that explains the workflow to humans
 9. If ephemeral, create the `.gitignore` sentinel file with exactly `*` on its own line; if permanent, do not add that sentinel
@@ -66,6 +74,9 @@ The file has two parts:
 ### Optional frontmatter fields
 
 - `goal` — a high-level objective for the workflow; prefer this location for stable intent that prompts interpolate as `$goal`
+- `keywords` — list of keywords or tags for discovery and routing. Use terms that reflect the workflow's domain and purpose.
+- `when-to-use` — list of positive selection signals describing when this workflow should be used. Helps managers choose the right workflow.
+- `when-not-to-use` — list of negative selection signals describing when this workflow should not be used.
 - `license` — SPDX identifier or reference to a license file if needed
 - `compatibility` — environment requirements (max 500 characters)
 - `metadata` — arbitrary key-value pairs if the workflow needs extra structured metadata

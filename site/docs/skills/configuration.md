@@ -41,6 +41,23 @@ description: Helps with data.
 
 ## Optional Properties
 
+### `keywords`
+
+**Type:** `string[]`
+
+Keywords or tags for discovery and routing. Helps agents and managers find and rank this skill when deciding which skill to activate. Include terms that reflect likely user intents, artifact types, domain concepts, and tool names.
+
+```yaml
+keywords:
+  - data
+  - analysis
+  - statistics
+  - pandas
+  - CSV
+```
+
+Good keywords are specific and complementary to the description — they add synonyms and related terms the user might mention. Avoid generic terms like "help" or "code" that don't narrow the match.
+
 ### `license`
 
 **Type:** `string`

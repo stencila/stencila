@@ -60,6 +60,18 @@ pub struct Agent {
     /// The work's Digital Object Identifier (https://doi.org/).
     pub doi: Option<String>,
 
+    /// Positive selection signals describing when this agent should be used.
+    #[serde(alias = "when-to-use", alias = "when_to_use")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(metadata)]
+    pub when_to_use: Option<Vec<String>>,
+
+    /// Negative selection signals describing when this agent should not be used.
+    #[serde(alias = "when-not-to-use", alias = "when_not_to_use")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(metadata)]
+    pub when_not_to_use: Option<Vec<String>>,
+
     /// Frontmatter containing agent metadata.
     #[strip(metadata)]
     #[patch(format = "md", format = "myst", format = "qmd", format = "smd")]

@@ -27,6 +27,44 @@ A brief description of the workflow. Must be non-empty.
 description: Automated code review with human approval gate
 ```
 
+### `keywords`
+
+**Type:** `string[]`
+
+Keywords or tags for discovery and routing. Helps managers find and rank this workflow when deciding which workflow to delegate to.
+
+```yaml
+keywords:
+  - code
+  - review
+  - testing
+  - approval
+```
+
+### `when-to-use`
+
+**Type:** `string[]`
+
+Positive selection signals describing when this workflow should be used. Each entry is a short sentence describing a scenario where this workflow is the right choice.
+
+```yaml
+when-to-use:
+  - when the user wants an automated code review pipeline
+  - when changes need testing and human approval before merging
+```
+
+### `when-not-to-use`
+
+**Type:** `string[]`
+
+Negative selection signals describing when this workflow should not be used. Helps managers avoid delegating to the wrong workflow.
+
+```yaml
+when-not-to-use:
+  - when the user wants a quick one-shot review without a pipeline
+  - when the task is about writing new code rather than reviewing it
+```
+
 ### `goal`
 
 **Type:** `string`

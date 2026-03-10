@@ -29,6 +29,45 @@ A brief description of the agent. Must be non-empty and at most 1024 characters.
 description: A general-purpose coding agent for software engineering tasks
 ```
 
+## Discovery and Delegation
+
+### `keywords`
+
+**Type:** `string[]`
+
+Keywords or tags for discovery and routing. Helps managers find and rank this agent when deciding which agent to delegate to.
+
+```yaml
+keywords:
+  - code
+  - review
+  - security
+```
+
+### `when-to-use`
+
+**Type:** `string[]`
+
+Positive selection signals describing when this agent should be used. Each entry is a short sentence describing a scenario where this agent is the right choice.
+
+```yaml
+when-to-use:
+  - when the user asks to review or audit code
+  - when a pull request needs automated review
+```
+
+### `when-not-to-use`
+
+**Type:** `string[]`
+
+Negative selection signals describing when this agent should not be used. Helps managers avoid delegating to the wrong agent.
+
+```yaml
+when-not-to-use:
+  - when the user wants to write or generate new code
+  - when the task is refactoring rather than review
+```
+
 ## Model and Provider
 
 ### `model`

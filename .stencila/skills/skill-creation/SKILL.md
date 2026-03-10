@@ -1,6 +1,13 @@
 ---
 name: skill-creation
 description: Create a new Stencila workspace skill. Use when asked to create, write, or scaffold a SKILL.md file or skill directory.
+keywords:
+  - skill
+  - create
+  - scaffold
+  - create
+  - write
+  - SKILL.md
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell
 ---
 
@@ -15,9 +22,10 @@ Create a new workspace skill directory and `SKILL.md` file following the [Agent 
 3. Resolve the closest workspace skill directory: walk up from the current directory to find the nearest directory containing `.stencila/`, or use the repository root if none exists
 4. Create the directory `<closest-workspace>/.stencila/skills/<name>/`
 5. Write the `SKILL.md` file with frontmatter and instructions — include activation keywords in the `description` so agents can match the skill to user requests
-6. Replace placeholders such as `TODO` before considering the skill complete
-7. Optionally create `scripts/`, `references/`, or `assets/` subdirectories if the skill needs them
-8. Validate the finished skill with `stencila skills validate <name>`, the skill directory path, or the `SKILL.md` path
+6. Add `keywords` to the frontmatter to improve discoverability and delegation accuracy — include terms reflecting likely user intents, artifacts, and domains
+7. Replace placeholders such as `TODO` before considering the skill complete
+8. Optionally create `scripts/`, `references/`, or `assets/` subdirectories if the skill needs them
+9. Validate the finished skill with `stencila skills validate <name>`, the skill directory path, or the `SKILL.md` path
 
 When working from a nested directory in a repository, create the skill in the closest workspace's `.stencila/skills/` directory rather than creating a new `.stencila/` tree under the current subdirectory.
 
@@ -53,6 +61,7 @@ The file has two parts:
 - `license` — SPDX identifier or reference to a license file
 - `compatibility` — environment requirements (max 500 characters)
 - `allowed-tools` — space-delimited or comma-delimited list of pre-approved tools (e.g., `read_file grep shell` or `read_file, grep, shell`)
+- `keywords` — (Stencila extension) list of keywords or tags for discovery and routing. Use terms that reflect likely user intents, artifacts, and domains. Helps managers and selection systems find and rank this skill. Include both positive signals (what this skill does) and negative signals (what it doesn't do) as keywords.
 - `metadata` — arbitrary key-value pairs (e.g., `author`, `version`)
 
 ## Template
@@ -63,6 +72,9 @@ Use this as a starting point:
 ---
 name: <skill-name>
 description: <Clear description including keywords that help agents match this skill to user requests. Do not leave placeholders such as TODO. Max 1,024 characters.>
+keywords:
+  - <keyword1>
+  - <keyword2>
 # license: MIT
 # allowed-tools: read_file grep shell
 # metadata:

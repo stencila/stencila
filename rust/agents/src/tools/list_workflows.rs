@@ -33,13 +33,26 @@ pub fn executor() -> ToolExecutorFn {
                 let entries: Vec<Value> = workflows
                     .into_iter()
                     .map(|wf| {
-                        json!({
+                        let mut entry = json!({
                             "name": wf.name,
                             "description": wf.description,
                             "goal": wf.goal,
                             "path": wf.path,
                             "ephemeral": wf.ephemeral,
-                        })
+                        });
+
+                        if let Some(ref keywords) = wf.keywords {
+                            entry["keywords"] = json!(keywords);
+                        }
+
+                        if let Some(ref when_to_use) = wf.when_to_use {
+                            entry["whenToUse"] = json!(when_to_use);
+                        }
+                        if let Some(ref when_not_to_use) = wf.when_not_to_use {
+                            entry["whenNotToUse"] = json!(when_not_to_use);
+                        }
+
+                        entry
                     })
                     .collect();
 
@@ -55,6 +68,9 @@ struct WorkflowSummary {
     name: String,
     description: String,
     goal: Option<String>,
+    keywords: Option<Vec<String>>,
+    when_to_use: Option<Vec<String>>,
+    when_not_to_use: Option<Vec<String>>,
     path: String,
     ephemeral: bool,
 }
@@ -119,6 +135,9 @@ async fn load_workflow_summary(path: &Path) -> Option<WorkflowSummary> {
             name: wf.name.clone(),
             description: wf.description.clone(),
             goal: wf.goal.clone(),
+            keywords: wf.options.keywords.clone(),
+            when_to_use: wf.when_to_use.clone(),
+            when_not_to_use: wf.when_not_to_use.clone(),
             path: path.display().to_string(),
             ephemeral,
         })

@@ -498,6 +498,8 @@
     "version": "schema:version",
     "verticalAlignment": "stencila:verticalAlignment",
     "volumeNumber": "schema:volumeNumber",
+    "whenNotToUse": "stencila:whenNotToUse",
+    "whenToUse": "stencila:whenToUse",
     "work": "stencila:work",
     "workType": "stencila:workType"
   }

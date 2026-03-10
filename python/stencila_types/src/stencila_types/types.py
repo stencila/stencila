@@ -1122,6 +1122,12 @@ class Agent(CreativeWork):
     name: str
     """The name of the agent."""
 
+    when_to_use: list[str] | None = None
+    """Positive selection signals describing when this agent should be used."""
+
+    when_not_to_use: list[str] | None = None
+    """Negative selection signals describing when this agent should not be used."""
+
     frontmatter: str | None = None
     """Frontmatter containing agent metadata."""
 
@@ -3482,6 +3488,12 @@ class Workflow(CreativeWork):
 
     name: str
     """The name of the workflow."""
+
+    when_to_use: list[str] | None = None
+    """Positive selection signals describing when this workflow should be used."""
+
+    when_not_to_use: list[str] | None = None
+    """Negative selection signals describing when this workflow should not be used."""
 
     frontmatter: str | None = None
     """Frontmatter containing workflow metadata."""

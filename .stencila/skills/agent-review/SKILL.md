@@ -1,6 +1,14 @@
 ---
 name: agent-review
 description: Critically review a Stencila agent and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve an AGENT.md file or agent directory. Covers frontmatter validation, system instruction quality, configuration correctness, and adherence to the Agent schema.
+keywords:
+  - agent
+  - review
+  - audit
+  - critique
+  - evaluate
+  - improve
+  - AGENT.md
 allowed-tools: read_file glob grep shell ask_user
 ---
 
@@ -49,6 +57,12 @@ Check each present field for validity:
 - **unknown fields**: flag any frontmatter fields not defined in `schema/Agent.yaml` (or inherited from `CreativeWork`) as warnings — they may be typos or unsupported properties that will be silently ignored
 
 Note: `Agent` extends `CreativeWork` in the schema, so agents may have additional valid fields such as `license`. Verify against the schema before flagging inherited properties as unknown.
+
+### Discovery and Delegation Metadata
+
+- **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words, artifact types, and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
+- if present, check that `when-to-use` and `when-not-to-use` are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals like "when appropriate" or "when needed". If absent, recommend adding to improve manager delegation accuracy
+- **Coherence check**: verify that `description`, `keywords`, and `when-to-use`/`when-not-to-use` work together — they should be complementary, not redundant. Flag cases where the same text appears verbatim in multiple fields
 
 ### System Instructions (Markdown Body)
 

@@ -23,6 +23,16 @@ export class Agent extends CreativeWork {
   declare name: string;
 
   /**
+   * Positive selection signals describing when this agent should be used.
+   */
+  whenToUse?: string[];
+
+  /**
+   * Negative selection signals describing when this agent should not be used.
+   */
+  whenNotToUse?: string[];
+
+  /**
    * Frontmatter containing agent metadata.
    */
   frontmatter?: string;
