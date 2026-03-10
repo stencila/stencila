@@ -76,7 +76,7 @@ impl Transform for NodeSugarTransform {
                 if !has_shape {
                     node.attrs.insert(
                         "shape".to_string(),
-                        AttrValue::String("hexagon".to_string()),
+                        AttrValue::String(Graph::HUMAN_SHAPE.into()),
                     );
                 }
                 if !node.attrs.contains_key("label") {
@@ -90,7 +90,7 @@ impl Transform for NodeSugarTransform {
                 if !has_shape {
                     node.attrs.insert(
                         "shape".to_string(),
-                        AttrValue::String("parallelogram".to_string()),
+                        AttrValue::String(Graph::SHELL_SHAPE.into()),
                     );
                 }
                 if !node.attrs.contains_key("shell_command") {
@@ -104,7 +104,7 @@ impl Transform for NodeSugarTransform {
                 if !has_shape {
                     node.attrs.insert(
                         "shape".to_string(),
-                        AttrValue::String("diamond".to_string()),
+                        AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
                     );
                 }
                 if !node.attrs.contains_key("label") {
@@ -165,13 +165,13 @@ impl Transform for NodeSugarTransform {
             }
             // Handler nodes: prefix match
             else if id.starts_with("FanOut") || id.starts_with("Fanout") {
-                Some("component")
+                Some(Graph::PARALLEL_SHAPE)
             } else if id.starts_with("Review") || id.starts_with("Approve") {
-                Some("hexagon")
+                Some(Graph::HUMAN_SHAPE)
             } else if id.starts_with("Check") || id.starts_with("Branch") {
-                Some("diamond")
+                Some(Graph::CONDITIONAL_SHAPE)
             } else if id.starts_with("Shell") || id.starts_with("Run") {
-                Some("parallelogram")
+                Some(Graph::SHELL_SHAPE)
             } else {
                 None
             };

@@ -192,10 +192,10 @@ impl Node {
             .unwrap_or(false)
     }
 
-    /// Return the node's shape, defaulting to `"box"`.
+    /// Return the node's shape, defaulting to [`Graph::CODERGEN_SHAPE`].
     #[must_use]
     pub fn shape(&self) -> &str {
-        self.get_str_attr("shape").unwrap_or("box")
+        self.get_str_attr("shape").unwrap_or(Graph::CODERGEN_SHAPE)
     }
 
     /// Return the node's label, falling back to the node ID.
@@ -215,13 +215,13 @@ impl Node {
         if let Some(explicit) = self.get_str_attr("type") {
             return explicit;
         }
-        if Graph::START_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
+        if Graph::START_IDS.contains(&self.id.as_str()) && self.shape() == Graph::CODERGEN_SHAPE {
             return HandlerType::Start.as_str();
         }
-        if Graph::EXIT_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
+        if Graph::EXIT_IDS.contains(&self.id.as_str()) && self.shape() == Graph::CODERGEN_SHAPE {
             return HandlerType::Exit.as_str();
         }
-        if Graph::FAIL_IDS.contains(&self.id.as_str()) && self.shape() == "box" {
+        if Graph::FAIL_IDS.contains(&self.id.as_str()) && self.shape() == Graph::CODERGEN_SHAPE {
             return HandlerType::Fail.as_str();
         }
         HandlerType::from_shape(self.shape()).as_str()
@@ -369,6 +369,27 @@ impl Graph {
     /// Fallback IDs identifying a fail node.
     pub const FAIL_IDS: &'static [&'static str] = &["fail", "Fail"];
 
+    /// Shape identifying a codergen node.
+    pub const CODERGEN_SHAPE: &'static str = "box";
+
+    /// Shape identifying a human gate node.
+    pub const HUMAN_SHAPE: &'static str = "hexagon";
+
+    /// Shape identifying a conditional node.
+    pub const CONDITIONAL_SHAPE: &'static str = "diamond";
+
+    /// Shape identifying a shell node.
+    pub const SHELL_SHAPE: &'static str = "parallelogram";
+
+    /// Shape identifying a parallel fan-out node.
+    pub const PARALLEL_SHAPE: &'static str = "component";
+
+    /// Shape identifying a parallel fan-in node.
+    pub const PARALLEL_FAN_IN_SHAPE: &'static str = "tripleoctagon";
+
+    /// Shape identifying a stack manager loop node.
+    pub const STACK_MANAGER_LOOP_SHAPE: &'static str = "house";
+
     /// Check whether a node is a start node (by shape or ID).
     #[must_use]
     pub fn is_start_node(node: &Node) -> bool {
@@ -437,8 +458,10 @@ mod tests {
     #[test]
     fn handler_type_by_shape() {
         let mut node = Node::new("n1");
-        node.attrs
-            .insert("shape".into(), AttrValue::String("diamond".into()));
+        node.attrs.insert(
+            "shape".into(),
+            AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
+        );
         assert_eq!(node.handler_type(), "conditional");
     }
 
@@ -467,8 +490,10 @@ mod tests {
     #[test]
     fn handler_type_id_match_does_not_override_explicit_shape() {
         let mut node = Node::new("Start");
-        node.attrs
-            .insert("shape".into(), AttrValue::String("diamond".into()));
+        node.attrs.insert(
+            "shape".into(),
+            AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
+        );
         assert_eq!(node.handler_type(), "conditional");
     }
 

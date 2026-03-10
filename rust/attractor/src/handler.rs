@@ -123,19 +123,19 @@ impl HandlerRegistry {
             return Some(handler.clone());
         }
 
-        // Step 2: well-known start/exit/fail IDs (only for default "box" shape)
-        if node.shape() == "box" {
-            if crate::Graph::START_IDS.contains(&node.id.as_str())
+        // Step 2: well-known start/exit/fail IDs (only for default box shape)
+        if node.shape() == Graph::CODERGEN_SHAPE {
+            if Graph::START_IDS.contains(&node.id.as_str())
                 && let Some(handler) = self.handlers.get(HandlerType::Start.as_str())
             {
                 return Some(handler.clone());
             }
-            if crate::Graph::EXIT_IDS.contains(&node.id.as_str())
+            if Graph::EXIT_IDS.contains(&node.id.as_str())
                 && let Some(handler) = self.handlers.get(HandlerType::Exit.as_str())
             {
                 return Some(handler.clone());
             }
-            if crate::Graph::FAIL_IDS.contains(&node.id.as_str())
+            if Graph::FAIL_IDS.contains(&node.id.as_str())
                 && let Some(handler) = self.handlers.get(HandlerType::Fail.as_str())
             {
                 return Some(handler.clone());

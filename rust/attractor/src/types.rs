@@ -4,7 +4,10 @@ use std::str::FromStr;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-use crate::error::{AttractorError, AttractorResult};
+use crate::{
+    Graph,
+    error::{AttractorError, AttractorResult},
+};
 
 /// Byte-wise string equality usable in `const fn` contexts.
 const fn const_str_eq(a: &str, b: &str) -> bool {
@@ -28,7 +31,7 @@ const fn const_str_eq(a: &str, b: &str) -> bool {
 /// [`HandlerRegistry`](crate::handler::HandlerRegistry). The `Display`
 /// implementation produces the canonical dot-separated string (e.g.
 /// `"parallel.fan_in"`), and `PartialEq<str>` allows ergonomic
-/// comparison with the string returned by [`Node::handler_type()`](crate::graph::Node::handler_type):
+/// comparison with the string returned by [`Node::handler_type()`](graph::Node::handler_type):
 ///
 /// ```ignore
 /// if node.handler_type() == HandlerType::ParallelFanIn {
@@ -83,7 +86,7 @@ impl HandlerType {
 
     /// Map a DOT shape name to the corresponding handler type per §2.8.
     ///
-    /// Unknown shapes (including `"box"`) default to [`Codergen`](Self::Codergen).
+    /// Unknown shapes (including [`Graph::CODERGEN_SHAPE`]) default to [`Codergen`](Self::Codergen).
     #[must_use]
     pub const fn from_shape(shape: &str) -> Self {
         if const_str_eq(shape, "Mdiamond") {
@@ -92,20 +95,20 @@ impl HandlerType {
             Self::Exit
         } else if const_str_eq(shape, "invtriangle") {
             Self::Fail
-        } else if const_str_eq(shape, "hexagon") || const_str_eq(shape, "human") {
+        } else if const_str_eq(shape, Graph::HUMAN_SHAPE) || const_str_eq(shape, "human") {
             Self::WaitHuman
-        } else if const_str_eq(shape, "diamond") {
+        } else if const_str_eq(shape, Graph::CONDITIONAL_SHAPE) {
             Self::Conditional
-        } else if const_str_eq(shape, "component") {
+        } else if const_str_eq(shape, Graph::PARALLEL_SHAPE) {
             Self::Parallel
-        } else if const_str_eq(shape, "tripleoctagon") {
+        } else if const_str_eq(shape, Graph::PARALLEL_FAN_IN_SHAPE) {
             Self::ParallelFanIn
-        } else if const_str_eq(shape, "parallelogram") {
+        } else if const_str_eq(shape, Graph::SHELL_SHAPE) {
             Self::Shell
-        } else if const_str_eq(shape, "house") {
+        } else if const_str_eq(shape, Graph::STACK_MANAGER_LOOP_SHAPE) {
             Self::StackManagerLoop
         } else {
-            // "box" and all unknown shapes default to codergen
+            // Default box shape and all unknown shapes default to codergen
             Self::Codergen
         }
     }
