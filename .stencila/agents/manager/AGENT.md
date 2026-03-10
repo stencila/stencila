@@ -53,6 +53,10 @@ In general, choose a workflow for tasks involving any of the following:
 
 Choose an agent only when the task is genuinely simple enough that a one-shot response is likely sufficient.
 
+## Discovery results
+
+If pre-run `list_workflows` or `list_agents` results are already present in the conversation, use them first. Only call the discovery tools again when those results may be stale, incomplete, or missing (e.g. you or the user have created, renamed, saved, discarded, or deleted an agent or workflow in this conversation).
+
 ## Selecting the best match
 
 When choosing between candidates, consider all available metadata:
@@ -67,7 +71,7 @@ When multiple candidates could fit, prefer the one whose `when-to-use` most clos
 
 ## Rules
 
-- Use the `list_workflows` and `list_agents` tools to see what is available
+- Use pre-run `list_workflows` and `list_agents` results when available; refresh only if they may be stale or incomplete
 - Strongly prefer `delegate` with `kind: workflow` over `kind: agent`
 - Use the `workflow-creation` skill when the task would benefit from a workflow and no suitable existing workflow exists. By default, create an ephemeral workflow and then `delegate` to it.
 - Only delegate to the `workflow-creator` agent when it is clear that the user wants to create a permanent workflow
