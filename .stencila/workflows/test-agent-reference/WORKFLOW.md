@@ -8,14 +8,13 @@ Tests the `agent=` node attribute, which references a named agent from the works
 
 ```dot
 digraph Workflow {
-    Start -> Greet -> Verify
+    Start -> Greet
 
     Greet [agent="default", prompt="Reply with ONLY the word: hello"]
+    Greet -> Verify
 
     Verify [prompt="Does '$last_output' equal 'hello'? Reply with ONLY yes or no in lowercase, nothing else."]
     Verify -> End  [condition="context.last_output=yes"]
     Verify -> Fail
-
-    Fail
 }
 ```

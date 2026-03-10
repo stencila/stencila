@@ -11,23 +11,33 @@ A "kitchen sink" integration test that combines multiple pipeline concepts in on
 
 ```dot
 digraph Workflow {
-    Start -> RunSetup -> FanOut
+    Start -> RunSetup
+
+    RunSetup [cmd="echo setup-complete"]
+    RunSetup -> FanOut
+
+    FanOut [label="Fan out"]
     FanOut -> BranchA
     FanOut -> BranchB
+
+    BranchA [prompt="Reply with ONLY the word: alpha", class="analysis"]
     BranchA -> Merge
+
+    BranchB [prompt="Reply with ONLY the word: beta", class="analysis", max_retries=1]
     BranchB -> Merge
+
+    Merge [prompt="Combine the words from parallel branches into a comma-separated list. Reply with ONLY the list."]
     Merge -> CheckQuality
+
+    CheckQuality [label="Check quality"]
     CheckQuality -> ReviewResult  [label="Pass", condition="outcome=success"]
     CheckQuality -> BranchA       [label="Retry", condition="outcome!=success"]
+
+    ReviewResult [ask="Approve the merged result?"]
     ReviewResult -> Summarize     [label="[A] Approve"]
     ReviewResult -> BranchA       [label="[R] Redo"]
-    Summarize -> End
 
-    RunSetup      [cmd="echo setup-complete"]
-    BranchA       [prompt="Reply with ONLY the word: alpha", class="analysis"]
-    BranchB       [prompt="Reply with ONLY the word: beta", class="analysis", max-retries=1]
-    Merge         [prompt="Combine the words from parallel branches into a comma-separated list. Reply with ONLY the list."]
-    ReviewResult  [ask="Approve the merged result?"]
-    Summarize     [prompt="Reply with ONLY the word: done"]
+    Summarize [prompt="Reply with ONLY the word: done"]
+    Summarize -> End
 }
 ```

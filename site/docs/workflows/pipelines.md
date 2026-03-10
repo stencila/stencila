@@ -15,13 +15,16 @@ A pipeline is a `digraph` block in a workflow file. Here is a minimal pipeline t
 
 ```dot
 digraph LitReview {
-    graph [goal="Review recent literature on CRISPR gene editing"]
-
-    Start -> Search -> Summarize -> Draft -> End
+    Start -> Search
 
     Search    [prompt="Search for recent papers on: $goal"]
+    Search -> Summarize
+
     Summarize [prompt="Summarize the key findings across the papers"]
+    Summarize -> Draft
+
     Draft     [prompt="Draft a literature review from the summaries"]
+    Draft -> End
 }
 ```
 
@@ -94,17 +97,27 @@ When a node has no explicit `shape`, the engine applies the first matching rule:
 digraph ResearchWorkflow {
     graph [goal="Systematic review of renewable energy storage technologies"]
 
-    Start -> Search -> Screen -> Analyze -> CheckQuality
+    Start -> Search
+
+    Search [prompt="Search databases for recent papers on: $goal"]
+    Search -> Screen
+
+    Screen [prompt="Screen papers for relevance and quality"]
+    Screen -> Analyze
+    
+    Analyze [prompt="Extract and synthesize key findings"]
+    Analyze -> CheckQuality
+
+    CheckQuality [label="Check quality"]
     CheckQuality -> Review    [label="Pass", condition="outcome=success"]
     CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
+
+    Review [label="Review"]
     Review -> Publish         [label="[A] Approve"]
     Review -> Search          [label="[R] Revise"]
-    Publish -> End
 
-    Search       [prompt="Search databases for recent papers on: $goal"]
-    Screen       [prompt="Screen papers for relevance and quality"]
-    Analyze      [prompt="Extract and synthesize key findings"]
     Publish      [prompt="Format the final review for publication"]
+    Publish -> End
 }
 ```
 
@@ -249,6 +262,8 @@ References resolve only against code blocks and code chunks in the same `WORKFLO
 
 Edges define transitions between nodes. They can carry labels, conditions, and weights to control routing.
 
+For authored workflows, the recommended style is to keep outgoing edges close to their source node: define the node, then place its outgoing edge or edges immediately after it. A small exception is the initial `Start -> …` entry edge, which is often kept near the top of the graph.
+
 ## Attributes
 
 | Attribute   | Type    | Description                                                                   |
@@ -311,13 +326,22 @@ The simplest pattern: stages execute one after another.
 digraph DataAnalysis {
     graph [goal="Analyze climate data from 2020-2024"]
 
-    Start -> Load -> Clean -> Analyze -> Visualize -> Report -> End
+    Start -> Load
 
-    Load      [prompt="Load the climate dataset for: $goal"]
-    Clean     [prompt="Clean the data: handle missing values and outliers"]
-    Analyze   [prompt="Perform statistical analysis on the cleaned data"]
+    Load [prompt="Load the climate dataset for: $goal"]
+    Load -> Clean
+
+    Clean [prompt="Clean the data: handle missing values and outliers"]
+    Clean -> Analyze
+
+    Analyze [prompt="Perform statistical analysis on the cleaned data"]
+    Analyze -> Visualize
+
     Visualize [prompt="Create visualizations of the key trends"]
-    Report    [prompt="Write a summary report of the analysis and findings"]
+    Visualize -> Report
+
+    Report [prompt="Write a summary report of the analysis and findings"]
+    Report -> End
 }
 ```
 
@@ -328,18 +352,22 @@ Use conditions on edges to route based on outcomes.
 ```dot
 digraph CitationCheck {
     graph [goal="Verify citations in the manuscript"]
+    Start -> Extract
 
-    Start -> Extract -> Verify -> Check
+    Extract [prompt="Extract all citations from the manuscript"]
+    Extract -> Verify
+
+    Verify [prompt="Verify each citation against its source"]
+    Verify -> Check
+    
+    Check [shape=diamond, label="All citations valid?"]
     Check -> Finalize [label="Valid",   condition="outcome=success"]
     Check -> Fix      [label="Invalid", condition="outcome!=success"]
+
+    Fix [prompt="Fix invalid citations and find correct references"]
     Fix -> Verify
 
-    Extract  [prompt="Extract all citations from the manuscript"]
-    Verify   [prompt="Verify each citation against its source"]
-    Check    [shape=diamond, label="All citations valid?"]
-    Fix      [prompt="Fix invalid citations and find correct references"]
     Finalize [prompt="Format the verified reference list"]
-
     Finalize -> End
 }
 ```
@@ -354,10 +382,13 @@ Nodes can retry automatically on failure using `max-retries`:
 digraph FetchData {
     graph [goal="Retrieve datasets from remote repositories"]
 
-    Start -> Fetch -> Process -> End
+    Start -> Fetch
+     
+    Fetch [prompt="Download the dataset from the repository", max-retries=3]
+    Fetch -> Process
 
-    Fetch   [prompt="Download the dataset from the repository", max-retries=3]
     Process [prompt="Parse and validate the downloaded data", max-retries=2]
+    Process -> End
 }
 ```
 
@@ -369,14 +400,17 @@ For more control, use edge-based retry loops that route back to an earlier stage
 digraph IterativeAnalysis {
     graph [goal="Produce a statistically sound analysis"]
 
-    Start -> Analyze -> Validate
-    Validate -> Report  [condition="outcome=success"]
-    Validate -> Analyze [condition="outcome!=success", label="Refine"]
-    Report -> End
+    Start -> Analyze
 
     Analyze  [prompt="Analyze the experimental data"]
+    Analyze -> Validate
+
     Validate [prompt="Check statistical significance and validate assumptions"]
+    Validate -> Report  [condition="outcome=success"]
+    Validate -> Analyze [condition="outcome!=success", label="Refine"]
+
     Report   [prompt="Write up the validated results"]
+    Report -> End
 }
 ```
 
@@ -387,12 +421,16 @@ Mark critical stages with `goal-gate=true` to prevent the pipeline from exiting 
 ```dot
 digraph Submission {
     graph [goal="Prepare manuscript for journal submission"]
+    Start -> Draft
 
-    Start -> Draft -> CheckRefs -> Format -> End
+    Draft [prompt="Draft the manuscript sections", goal-gate=true]
+    Draft -> CheckRefs
 
-    Draft     [prompt="Draft the manuscript sections", goal-gate=true]
     CheckRefs [prompt="Verify all references are complete and correctly cited", goal-gate=true]
-    Format    [prompt="Format according to journal guidelines"]
+    CheckRefs -> Format
+
+    Format [prompt="Format according to journal guidelines"]
+    Format -> End
 }
 ```
 
@@ -406,14 +444,17 @@ Use `shape=human` to create a gate that pauses for human input. The choices are 
 digraph PeerReview {
     graph [goal="Analyze experimental results"]
 
-    Start -> Analyze -> Review
-    Review -> Publish [label="[A] Approve"]
-    Review -> Analyze [label="[R] Revise"]
-    Publish -> End
+    Start -> Analyze
 
     Analyze [prompt="Analyze the experimental data and summarize results"]
-    Review  [shape=human, label="Review the analysis"]
+    Analyze -> Review
+
+    Review [shape=human, label="Review the analysis"]
+    Review -> Publish [label="[A] Approve"]
+    Review -> Analyze [label="[R] Revise"]
+
     Publish [prompt="Format the approved results for publication"]
+    Publish -> End
 }
 ```
 
@@ -506,31 +547,31 @@ Here is a complete example of a create–review–revise workflow:
 digraph SkillCreation {
     graph [goal="Create a code-review skill"]
 
-    Start -> Create -> Review
-    Review -> HumanDecision   [label="Accept", condition="outcome=success"]
-    Review -> Create          [label="Revise", condition="outcome!=success"]
-
-    HumanDecision -> End            [label="Accept"]
-    HumanDecision -> HumanFeedback  [label="Revise"]
-    HumanFeedback -> Create
-
+    Start -> Create
+    
     Create [
         agent="skill-creator",
         prompt="Create or update a Stencila skill that achieves: $goal\n\nHuman feedback: $human.feedback"
     ]
+    Create -> Review
 
     Review [
         agent="skill-reviewer",
         prompt="Review the current skill draft for the goal '$goal'."
     ]
+    Review -> HumanDecision   [label="Accept", condition="outcome=success"]
+    Review -> Create          [label="Revise", condition="outcome!=success"]
 
     HumanDecision [shape=human, label="Is the skill acceptable?"]
+    HumanDecision -> End            [label="Accept"]
+    HumanDecision -> HumanFeedback  [label="Revise"]
 
     HumanFeedback [
         ask="Describe what must be improved before the next revision",
         question-type="freeform",
         store="human.feedback"
     ]
+    HumanFeedback -> Create
 }
 ```
 
@@ -554,19 +595,23 @@ digraph ParallelReview {
     graph [goal="Comprehensive literature review on machine learning in genomics"]
 
     Start -> FanOut
+
+    FanOut     [shape=component, label="Search in parallel"]
     FanOut -> Databases
     FanOut -> Preprints
     FanOut -> Reviews
-    Databases -> Synthesize
-    Preprints -> Synthesize
-    Reviews -> Synthesize
-    Synthesize -> End
 
-    FanOut     [shape=component, label="Search in parallel"]
     Databases  [prompt="Search published databases (PubMed, Scopus) for: $goal"]
+    Databases -> Synthesize
+
     Preprints  [prompt="Search preprint servers (bioRxiv, arXiv) for: $goal"]
+    Preprints -> Synthesize
+
     Reviews    [prompt="Search existing review articles for: $goal"]
+    Reviews -> Synthesize
+
     Synthesize [prompt="Synthesize findings across all sources into a unified review"]
+    Synthesize -> End
 }
 ```
 
@@ -581,18 +626,24 @@ digraph StyledWorkflow {
     graph [
         goal="Analyze and report on experimental results",
         overrides="
-            * { model: claude-sonnet-4-5; provider: anthropic; }
+            * { model: claude-sonnet-4; provider: anthropic; }
             .analysis { model: claude-opus-4; }
-            #statistical_review { model: o3; provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
+            #Review { model: gpt-5.4; provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
         "
     ]
+    Start -> Collect
 
-    Start -> Collect -> Analyze -> statistical_review -> Report -> End
+    Collect [prompt="Collect experimental data"]
+    Collect -> Analyze
 
-    Collect             [prompt="Collect experimental data"]
-    Analyze             [prompt="Perform data analysis", class="analysis"]
-    statistical_review  [prompt="Review statistical methods and validity", class="analysis"]
-    Report              [prompt="Draft the results section"]
+    Analyze [prompt="Perform data analysis", class="analysis"]
+    Analyze -> Review
+
+    Review [prompt="Review statistical methods and validity", class="analysis"]
+    Review -> Report
+
+    Report [prompt="Draft the results section"]
+    Report -> End
 }
 ```
 
@@ -620,19 +671,27 @@ digraph ResearchWorkflow {
         "
     ]
 
-    Start -> Search -> Screen -> Analyze -> CheckQuality
+    Start -> Search
+    
+    Search       [prompt="Search databases for recent papers on: $goal"]
+    Search -> Screen
+
+    Screen       [prompt="Screen papers for relevance and quality", max-retries=2]
+    Screen -> Analyze
+
+    Analyze      [prompt="Extract and synthesize key findings", class="deep_analysis", goal-gate=true]
+    Analyze -> CheckQuality
+
+    CheckQuality [shape=diamond, label="Analysis meets quality criteria?"]
     CheckQuality -> Review    [label="Pass", condition="outcome=success"]
     CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
-    Review -> Publish         [label="[A] Approve"]
-    Review -> Search          [label="[R] Revise"]
-    Publish -> End
 
-    Search       [prompt="Search databases for recent papers on: $goal"]
-    Screen       [prompt="Screen papers for relevance and quality", max-retries=2]
-    Analyze      [prompt="Extract and synthesize key findings", class="deep_analysis", goal-gate=true]
-    CheckQuality [shape=diamond, label="Analysis meets quality criteria?"]
     Review       [shape=human, label="Review the systematic review draft"]
+    Review -> Publish         [label="Approve"]
+    Review -> Search          [label="Revise"]
+
     Publish      [prompt="Format the final review for publication"]
+    Publish -> End
 }
 ```
 

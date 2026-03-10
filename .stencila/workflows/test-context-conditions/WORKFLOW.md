@@ -7,18 +7,23 @@ Tests multi-way conditional routing using `context.*` keys in edge conditions. T
 
 ```dot
 digraph Workflow {
-    Start -> Classify -> CheckType
+    Start -> Classify
+
+    Classify [cmd="printf type-a"]
+    Classify -> CheckType
+
+    CheckType [label="Check type"]
     CheckType -> HandleA       [condition="context.shell.output=type-a"]
     CheckType -> HandleB       [condition="context.shell.output=type-b"]
     CheckType -> HandleDefault
 
-    Classify      [cmd="printf type-a"]
-    HandleA       [cmd="printf handled-a"]
-    HandleB       [cmd="printf handled-b"]
-    HandleDefault [cmd="printf handled-default"]
-
+    HandleA [cmd="printf handled-a"]
     HandleA -> End
+
+    HandleB [cmd="printf handled-b"]
     HandleB -> Fail
+
+    HandleDefault [cmd="printf handled-default"]
     HandleDefault -> Fail
 
     Fail

@@ -36,6 +36,6 @@ digraph Workflow {
     // --- Single-choice gate (auto-continue) ------------------------------
     // Only one outgoing edge — the user must accept it.
     Confirm [ask="Press Enter to finish"]
-    Confirm -> End        [label="Continue"]
+    Confirm -> End [label="Continue"]
 }
 ```

@@ -8,7 +8,7 @@ Tests that `subgraph` blocks scope `node [...]` default attributes (such as `cla
 
 ```dot
 digraph Workflow {
-    Start -> Alpha -> Beta -> Combine -> Verify
+    Start -> Alpha
 
     subgraph cluster_phase1 {
         label = "Phase 1"
@@ -16,6 +16,7 @@ digraph Workflow {
 
         Alpha [prompt="Reply with ONLY the word: alpha"]
     }
+    Alpha -> Beta
 
     subgraph cluster_phase2 {
         label = "Phase 2"
@@ -23,8 +24,10 @@ digraph Workflow {
 
         Beta [prompt="Reply with ONLY the word: beta"]
     }
+    Beta -> Combine
 
     Combine [prompt="List the two words from previous stages separated by a comma. Reply with ONLY the list."]
+    Combine -> Verify
 
     Verify [prompt="Does '$last_output' contain both 'alpha' and 'beta'? Reply with ONLY yes or no in lowercase, nothing else."]
     Verify -> End  [condition="context.last_output=yes"]

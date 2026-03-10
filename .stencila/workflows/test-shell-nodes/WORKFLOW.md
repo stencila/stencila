@@ -7,15 +7,20 @@ Tests the `cmd=` and `shell=` property shortcuts, which expand to `shape=paralle
 
 ```dot
 digraph Workflow {
-    Start -> CreateFile -> ReadFile -> Verify -> Cleanup -> End
+    Start -> CreateFile
 
     CreateFile [cmd="echo hello > /tmp/stencila-test-shell-nodes.txt"]
-    ReadFile   [shell="cat /tmp/stencila-test-shell-nodes.txt"]
-    Cleanup    [cmd="rm -f /tmp/stencila-test-shell-nodes.txt"]
+    CreateFile -> ReadFile
+
+    ReadFile [shell="cat /tmp/stencila-test-shell-nodes.txt"]
+    ReadFile -> Verify
 
     Verify [shell="echo '$last_output' | grep -qx hello && echo yes || echo no"]
     Verify -> Cleanup  [condition="context.last_output=yes"]
     Verify -> CleanupFail
+
+    Cleanup [cmd="rm -f /tmp/stencila-test-shell-nodes.txt"]
+    Cleanup -> End
 
     CleanupFail [cmd="rm -f /tmp/stencila-test-shell-nodes.txt"]
     CleanupFail -> Fail

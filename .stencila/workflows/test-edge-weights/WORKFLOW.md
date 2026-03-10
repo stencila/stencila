@@ -14,11 +14,9 @@ digraph Workflow {
     Gate -> PathB [weight=1]
 
     PathA [cmd="echo alpha"]
-    PathB [cmd="echo beta"]
-
     PathA -> End
-    PathB -> Fail
 
-    Fail
+    PathB [cmd="echo beta"]
+    PathB -> Fail
 }
 ```

@@ -18,24 +18,25 @@ when-not-to-use:
 
 ```dot
 digraph skill_creation_iterative {
-    Start -> Create -> Review
+    Start -> Create
+
+    Create [agent="skill-creator", prompt-ref="#creator-prompt"]
+    Create -> Review
+
+    Review [agent="skill-reviewer", prompt-ref="#reviewer-prompt"]
     Review -> HumanReview  [label="Accept", condition="context.last_output=yes"]
     Review -> Create       [label="Revise", condition="context.last_output!=yes"]
-    HumanReview -> End            [label="Accept"]
-    HumanReview -> HumanFeedback  [label="Revise"]
-    HumanFeedback -> Create
-
-    Create      [agent="skill-creator", prompt-ref="#creator-prompt"]
-
-    Review      [agent="skill-reviewer", prompt-ref="#reviewer-prompt"]
 
     HumanReview [ask="Is the skill acceptable after reviewer approval?"]
+    HumanReview -> End            [label="Accept"]
+    HumanReview -> HumanFeedback  [label="Revise"]
 
     HumanFeedback [
         ask="Describe what must be improved before the next revision",
         question-type="freeform",
         store="human.feedback"
     ]
+    HumanFeedback -> Create
 }
 ```
 

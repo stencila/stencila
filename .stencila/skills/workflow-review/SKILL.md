@@ -54,6 +54,7 @@ When reviewing names, apply these conventions:
 - The workflow has a clear executable path from start to finish
 - Node and edge names are readable and internally consistent
 - Prompts, `agent` attributes, conditions, and labels are attached to the correct nodes or edges
+- The DOT source follows the workspace house style: keep the `Start -> ...` entry edge near the top, then colocate each node definition with its outgoing edge or edges where practical
 - The graph is not missing obvious terminal or branching connections
 - Only the first `dot` block is relied on for execution; additional DOT blocks, if any, are treated as documentation and should not create ambiguity
 
@@ -105,6 +106,7 @@ When reviewing names, apply these conventions:
 - Formatting is consistent (heading levels, list styles, code block languages)
 - Terminology is used consistently throughout
 - Conventions match other workflows and workflow-related skills in the same workspace; compare against one or two nearby examples when available
+- DOT organization is easy to scan: entry edge first, then node-local blocks instead of a large separated edges section and nodes section
 - The workflow's frontmatter, Markdown explanation, and DOT graph do not contradict each other
 - The workflow name aligns with current workspace naming guidance and, when present, any approach modifier is used consistently with similar workflows
 

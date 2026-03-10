@@ -71,6 +71,7 @@ This shows the workflow name, description, goal, referenced agents, pipeline DOT
 When a pipeline reaches a human review gate (`shape=human` or `shape=hexagon`), it pauses and presents choices derived from the node's outgoing edge labels. For example:
 
 ```dot
+Review [shape=human, label="Review the release candidate"]
 Review -> Publish [label="[A] Approve"]
 Review -> Design  [label="[R] Revise"]
 ```

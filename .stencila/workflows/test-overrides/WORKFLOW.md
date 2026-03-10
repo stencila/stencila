@@ -12,12 +12,15 @@ Tests that `overrides` frontmatter is merged into graph attributes and that univ
 
 ```dot
 digraph Workflow {
-    Start -> CountA -> CountB -> Verify
+    Start -> CountA
 
     CountA [prompt="Reply with ONLY the number: 1", class="precise"]
-    CountB [prompt="Reply with ONLY the number: 2", class="precise"]
-    Verify [prompt="Are the outputs from the previous stages numbers 1 and 2? Reply with ONLY yes or no in lowercase."]
+    CountA -> CountB
 
+    CountB [prompt="Reply with ONLY the number: 2", class="precise"]
+    CountB -> Verify
+
+    Verify [prompt="Are the outputs from the previous stages numbers 1 and 2? Reply with ONLY yes or no in lowercase."]
     Verify -> End  [condition="context.last_output=yes"]
     Verify -> Fail
 

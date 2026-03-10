@@ -130,18 +130,21 @@ description: Search and summarize recent literature
 
 ```dot
 digraph lit_review {
-    graph [goal="Review recent literature on CRISPR gene editing"]
-
-    Start -> Search -> Summarize -> Draft -> End
+    Start -> Search
 
     Search    [prompt="Search for recent papers on: $goal"]
+    Search -> Summarize
+
     Summarize [prompt="Summarize the key findings across the papers"]
+    Summarize -> Draft
+
     Draft     [prompt="Draft a literature review from the summaries"]
+    Draft -> End
 }
 ```
 ````
 
-And a fully configured example with agents, branching, and human review:
+And a more complex example with agents, branching, and human review:
 
 ````markdown
 ---
@@ -155,23 +158,60 @@ This workflow implements, tests, and reviews code changes.
 
 ```dot
 digraph code_review {
-    graph [goal="Implement and review the feature"]
-
-    Start -> Design -> Build -> Test
-    Test -> Review       [label="Pass", condition="outcome=success"]
-    Test -> Build        [label="Fail", condition="outcome!=success"]
-    Review -> End        [label="[A] Approve"]
-    Review -> Design     [label="[R] Revise"]
+    Start -> Design
 
     Design [agent="code-planner", prompt="Design the solution for: $goal"]
+    Design -> Build
+
     Build  [agent="code-engineer", prompt="Implement the design"]
+    Build -> Test
+
     Test   [agent="code-tester", prompt="Run tests and validate"]
+    Test -> Review       [label="Pass", condition="outcome=success"]
+    Test -> Build        [label="Fail", condition="outcome!=success"]
+
     Review [shape=human]
+    Review -> End        [label="[A] Approve"]
+    Review -> Design     [label="[R] Revise"]
 }
 ```
 ````
 
 Markdown content outside the `` ```dot `` block serves as human-readable documentation for the workflow. Only the first `` ```dot `` block is extracted as the pipeline definition.
+
+## Recommended DOT organization
+
+Prefer organizing the DOT block as:
+
+1. any graph-level attributes first
+2. the entry edge (`Start -> FirstNode`) near the top
+3. then, for each node, the node definition followed immediately by that node's outgoing edge or edges
+
+This keeps each node's configuration and routing logic together, which is usually easier to scan and maintain than listing all edges first and all node details afterward.
+
+```dot
+digraph thing_creation_iterative {
+    Start -> Create
+
+    Create [agent="thing-creator", prompt-ref="#creator-prompt"]
+    Create -> Review
+
+    Review [agent="thing-reviewer", prompt-ref="#reviewer-prompt"]
+    Review -> HumanReview [label="Accept", condition="context.last_output=yes"]
+    Review -> Create      [label="Revise", condition="context.last_output!=yes"]
+
+    HumanReview [ask="Is the thing acceptable after reviewer approval?"]
+    HumanReview -> End           [label="Accept"]
+    HumanReview -> HumanFeedback [label="Revise"]
+
+    HumanFeedback [
+        ask="Describe what must be improved before the next revision",
+        question-type="freeform",
+        store="human.feedback"
+    ]
+    HumanFeedback -> Create
+}
+```
 
 ## Reusing multiline prompts, shell scripts, and questions
 
@@ -181,30 +221,36 @@ Use refs where they improve readability. For short single-line values, inline DO
 
 ````markdown
 ---
-name: skill-creation
-description: Create and review a skill using referenced multiline content
+name: thing-creation
+description: Create and review a thing using referenced multiline content
 ---
 
 ```dot
-digraph skill_creation {
-    Start -> Create -> Check -> HumanFeedback -> End
+digraph thing_creation {
+    Start -> Create
+    
+    Create [agent="thing-creator", prompt-ref="#creator-prompt"]
+    Create -> Check
 
-    Create        [agent="skill-creator", prompt-ref="#creator-prompt"]
-    Check         [shell-ref="#run-checks"]
+    Check [shell-ref="#run-checks"]
+    Check -> HumanFeedback
+
     HumanFeedback [ask-ref="#human-question", question-type="freeform"]
+    HumanFeedback -> End
 }
 ```
 
 ```text #creator-prompt
-Create or update a Stencila skill for this goal: $goal
+Create or update a Stencila thing for this goal: $goal
 
 If reviewer feedback is present, revise the current draft:
 $last_output
 ```
 
 ```sh #run-checks
-cargo fmt -p workflows
-cargo test -p workflows
+make lint
+uv test
+./integration-tests.sh
 ```
 
 ```text #human-question

@@ -5,6 +5,8 @@ description: Full reference for WORKFLOW.md frontmatter and graph-level properti
 
 This page documents all properties available in the YAML frontmatter of a `WORKFLOW.md` file and the graph-level attributes of the DOT pipeline.
 
+For recommended DOT layout and example organization, see [Creating Workflows](creating#recommended-dot-organization) and [Pipelines — Edges](pipelines#edges). The short version is: keep the entry edge near the top, then colocate each node definition with its outgoing edge or edges where practical.
+
 ## Frontmatter Properties
 
 ### `name`

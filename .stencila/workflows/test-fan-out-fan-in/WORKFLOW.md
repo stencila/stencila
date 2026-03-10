@@ -9,25 +9,26 @@ A simple test of parallel execution using `FanOut` node id for fan-out and a com
 ```dot
 digraph Workflow {
     Start -> FanOut
+
+    FanOut  [label="Describe colors in parallel"]
     FanOut -> Red
     FanOut -> Green
     FanOut -> Blue
-    Red -> Combine
-    Green -> Combine
-    Blue -> Combine
-    Combine -> Verify
 
-    FanOut  [label="Describe colors in parallel"]
     Red     [prompt="Reply with ONLY one word: the name of the color with hex code #FF0000"]
+    Red -> Combine
+
     Green   [prompt="Reply with ONLY one word: the name of the color with hex code #00FF00"]
+    Green -> Combine
+
     Blue    [prompt="Reply with ONLY one word: the name of the color with hex code #0000FF"]
+    Blue -> Combine
 
     Combine [prompt="List the three colors from the previous stages as a comma-separated list, e.g. pink, brown, orange. Reply with ONLY the list, nothing else."]
+    Combine -> Verify
 
     Verify  [prompt="Does '$last_output' achieve the goal '$goal'? Reply with ONLY yes or no in lowercase, nothing else."]
     Verify -> End  [condition="context.last_output=yes"]
     Verify -> Fail
-
-    Fail
 }
 ```

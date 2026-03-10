@@ -8,18 +8,20 @@ Tests conditional routing via a `Check*` node ID (sugar for `shape=diamond`). Th
 
 ```dot
 digraph Workflow {
-    Start -> Generate -> CheckValid
-    CheckValid -> Accept  [label="Valid",   condition="outcome=success"]
-    CheckValid -> Generate [label="Invalid", condition="outcome!=success"]
+    Start -> Generate
 
     Generate [prompt="Reply with ONLY a single three-letter English word in lowercase, nothing else."]
-    Accept   [prompt="Reply with ONLY the word: $last_output"]
+    Generate -> CheckValid
 
+    CheckValid [label="Check valid"]
+    CheckValid -> Accept   [label="Valid", condition="outcome=success"]
+    CheckValid -> Generate [label="Invalid", condition="outcome!=success"]
+
+    Accept   [prompt="Reply with ONLY the word: $last_output"]
     Accept -> Verify
+
     Verify [prompt="Is '$last_output' a single three-letter English word in lowercase? Reply with ONLY yes or no in lowercase, nothing else."]
     Verify -> End  [condition="context.last_output=yes"]
     Verify -> Fail
-
-    Fail
 }
 ```

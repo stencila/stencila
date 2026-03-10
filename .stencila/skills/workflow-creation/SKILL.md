@@ -115,6 +115,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, and `ask-ref` instead of embedding long escaped strings directly in DOT
 - Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
 - Use edges to express sequencing, branching, retry loops, and approval paths
+- Prefer the house style of placing the entry edge near the top, then organizing each node as a block: node definition followed immediately by its outgoing edge or edges
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
 
 Markdown content outside the first DOT block is documentation for humans. Only the first DOT block is extracted as the pipeline definition.
@@ -185,7 +186,7 @@ House style for examples in this skill:
 - use frontmatter with `name`, `description`, and `goal` when the objective is stable
 - omit extra Markdown headings unless they add important human-facing documentation
 - use `Start` and `End` nodes for readability
-- place node definitions after edge definitions
+- place the `Start -> ...` entry edge near the top, then for each node place the node definition before its outgoing edge or edges
 - use simple edge labels such as `Pass`, `Fail`, `Approve`, and `Revise`
 - use `$goal` in prompts when the workflow has a frontmatter `goal`
 
@@ -200,11 +201,16 @@ goal: Review recent literature on CRISPR gene editing
 
 ```dot
 digraph lit_review {
-    Start -> Search -> Summarize -> Draft -> End
-
+    Start -> Search
+    
     Search    [prompt="Search for recent papers on: $goal"]
+    Search -> Summarize
+
     Summarize [prompt="Summarize the key findings across the papers"]
+    Summarize -> Draft
+
     Draft     [prompt="Draft a literature review from the summaries"]
+    Draft -> End
 }
 ```
 ````
@@ -220,16 +226,21 @@ goal: Implement and review the feature
 
 ```dot
 digraph code_review {
-    Start -> Design -> Build -> Test
-    Test -> Review       [label="Pass", condition="outcome=success"]
-    Test -> Build        [label="Fail", condition="outcome!=success"]
-    Review -> End        [label="Approve"]
-    Review -> Design     [label="Revise"]
+    Start -> Design
 
     Design [agent="code-planner", prompt="Design the solution for: $goal"]
+    Design -> Build
+
     Build  [agent="code-engineer", prompt="Implement the design"]
+    Build -> Test
+
     Test   [agent="code-tester", prompt="Run tests and validate"]
+    Test -> Review       [label="Pass", condition="outcome=success"]
+    Test -> Build        [label="Fail", condition="outcome!=success"]
+
     Review [shape=human]
+    Review -> End        [label="Approve"]
+    Review -> Design     [label="Revise"]
 }
 ```
 ````
@@ -247,6 +258,7 @@ digraph code_review {
 - Put reusable high-level intent in frontmatter `goal` and refer to it in prompts with `$goal`
 - Prefer frontmatter `goal` over repeating the same objective in both frontmatter and graph attributes
 - Prefer explicit edge labels and conditions when a branch depends on success, failure, approval, or revision
+- Keep each node's outgoing routing close to that node in the DOT source instead of separating all edges from all node definitions
 - Do not try to encode ephemeral status in frontmatter or the DOT graph; use the `.gitignore` sentinel instead when needed
 - Do not overcomplicate the first draft; a shorter valid workflow is better than an elaborate but unclear one
 - Do not encode every node or branch in the workflow name; keep naming focused on the process and, if needed, a broad approach modifier
@@ -303,16 +315,21 @@ goal: Implement and validate the requested feature
 
 ```dot
 digraph code_generation_iterative {
-    Start -> Design -> Build -> Test
-    Test -> Review   [label="Pass", condition="outcome=success"]
-    Test -> Build    [label="Fail", condition="outcome!=success"]
-    Review -> End    [label="Approve"]
-    Review -> Design [label="Revise"]
+    Start -> Design
 
     Design [prompt="Design an implementation plan for: $goal"]
+    Design -> Build
+
     Build  [prompt="Implement the approved design"]
+    Build -> Test
+
     Test   [prompt="Run or describe validation steps and report the outcome"]
+    Test -> Review   [label="Pass", condition="outcome=success"]
+    Test -> Build    [label="Fail", condition="outcome!=success"]
+
     Review [shape=human]
+    Review -> End    [label="Approve"]
+    Review -> Design [label="Revise"]
 }
 ```
 ````
