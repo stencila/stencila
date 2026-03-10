@@ -24,9 +24,9 @@ digraph skill_creation_iterative {
     HumanReview -> End     [label="Accept"]
     HumanReview -> Create  [label="Revise"]
 
-    Create      [agent="skill-creator", prompt="Create or update a Stencila skill that helps users accomplish this underlying task: $goal\n\nInterpret `$goal` as the end-user objective the skill should support, not as an instruction to create another skill. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.\n\nIf the previous step provided review feedback, use it to revise the existing draft instead of starting over. Reviewer or human feedback to address:\n$last_output"]
+    Create      [agent="skill-creator", prompt="Create or update a Stencila skill that helps users accomplish this underlying task: $goal\n\nInterpret that as the end-user objective the skill should support, not as an instruction to create another skill. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.\n\nIf the previous step provided review feedback, use it to revise the existing draft instead of starting over. Reviewer or human feedback to address:\n$last_output"]
 
-    Review      [agent="skill-reviewer", prompt="Review the current skill draft for the goal '$goal'. Ensure the skill addresses the underlying user task rather than accidentally becoming a meta-skill about creating skills, unless that is explicitly intended.\n\nIf the draft is acceptable, reply with ONLY yes in lowercase.\nIf the draft is not acceptable, reply with concrete revision feedback that the creator can use on the next pass."]
+    Review      [agent="skill-reviewer", prompt="Review the current skill draft for the goal '$goal'. Ensure the skill addresses the underlying user task rather than accidentally becoming a meta-skill about creating skills.\n\nIf the draft is acceptable, reply with ONLY yes in lowercase.\nIf the draft is not acceptable, reply with concrete revision feedback that the creator can use on the next pass."]
 
     HumanReview [ask="Is the skill acceptable after reviewer approval?"]
 }
