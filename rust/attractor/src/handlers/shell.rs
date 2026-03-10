@@ -1,11 +1,14 @@
 //! Shell handler (§4.10).
 //!
 //! Executes shell commands specified in node attributes. Captures
-//! stdout and stderr, with optional timeout support.
+//! stdout and stderr, with optional timeout support. Expands pipeline
+//! context variables (`$last_output`, `$last_stage`, etc.) in the
+//! command string before execution, and stores the trimmed stdout as
+//! `last_output` so downstream conditions and stages can reference it.
 
 use async_trait::async_trait;
-use indexmap::IndexMap;
 
+use super::shared::{build_output_outcome, expand_runtime_variables};
 use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::graph::{Graph, Node};
@@ -15,8 +18,11 @@ use crate::types::Outcome;
 /// Handler for shell command nodes.
 ///
 /// Reads the `shell_command` attribute from the node and executes it
-/// via `sh -c`. An optional `timeout` attribute (duration) limits
-/// execution time.
+/// via `sh -c`. Pipeline context variables are expanded in the command
+/// before execution. An optional `timeout` attribute (duration) limits
+/// execution time. On success the trimmed stdout is stored as
+/// `last_output` (and `last_output_full`) so subsequent pipeline stages
+/// and condition expressions can reference the shell output.
 pub struct ShellHandler;
 
 #[async_trait]
@@ -24,15 +30,17 @@ impl Handler for ShellHandler {
     async fn execute(
         &self,
         node: &Node,
-        _context: &Context,
+        context: &Context,
         _graph: &Graph,
     ) -> AttractorResult<Outcome> {
-        let Some(command) = node.get_str_attr("shell_command") else {
+        let Some(raw_command) = node.get_str_attr("shell_command") else {
             return Ok(Outcome::fail(format!(
                 "node '{}' has type 'shell' but no 'shell_command' attribute",
                 node.id
             )));
         };
+
+        let command = expand_runtime_variables(raw_command, context);
 
         let timeout = node.get_attr("timeout").and_then(|v| match v {
             crate::graph::AttrValue::Duration(d) => Some(d.inner()),
@@ -42,16 +50,16 @@ impl Handler for ShellHandler {
             _ => None,
         });
 
-        let result = run_command(command, timeout).await;
+        let result = run_command(&command, timeout).await;
 
         match result {
             Ok(output) => {
                 if output.success {
-                    let mut outcome = Outcome::success();
-                    outcome.context_updates = IndexMap::new();
+                    let stdout = output.stdout.trim().to_string();
+                    let mut outcome = build_output_outcome(&node.id, &stdout, context);
                     outcome.context_updates.insert(
                         "shell.output".to_string(),
-                        serde_json::Value::String(output.stdout),
+                        serde_json::Value::String(stdout),
                     );
                     Ok(outcome)
                 } else {

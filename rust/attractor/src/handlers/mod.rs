@@ -17,6 +17,7 @@ mod exit;
 mod fail;
 mod fan_in;
 mod parallel;
+mod shared;
 mod shell;
 mod start;
 mod wait_human;

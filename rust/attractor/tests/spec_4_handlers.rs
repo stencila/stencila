@@ -494,7 +494,56 @@ async fn shell_captures_stdout() -> AttractorResult<()> {
         .get("shell.output")
         .and_then(|v| v.as_str())
         .unwrap_or("");
-    assert_eq!(output.trim(), "hello");
+    assert_eq!(output, "hello");
+
+    // last_output and last_output_full should also be set
+    let last_output = outcome
+        .context_updates
+        .get("last_output")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(last_output, "hello");
+
+    let last_output_full = outcome
+        .context_updates
+        .get("last_output_full")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(last_output_full, "hello");
+
+    // last_stage should be the node id
+    let last_stage = outcome
+        .context_updates
+        .get("last_stage")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(last_stage, "tool1");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_expands_context_variables() -> AttractorResult<()> {
+    let handler = ShellHandler;
+    let mut node = Node::new("tool1");
+    node.attrs
+        .insert("shell_command".into(), AttrValue::from("echo $last_output"));
+    let ctx = Context::new();
+    ctx.set(
+        "last_output_full",
+        serde_json::Value::String("world".into()),
+    );
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let output = outcome
+        .context_updates
+        .get("last_output")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(output, "world");
     Ok(())
 }
 
