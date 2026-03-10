@@ -451,7 +451,7 @@ fn cmp_display_name(a: &str, b: &str) -> std::cmp::Ordering {
 
 /// Scan the current directory for attachable files and directories using `ignore::WalkBuilder`.
 ///
-/// Respects `.gitignore`, skips hidden files, limits depth and count.
+/// Respects `.gitignore`, includes dotted paths, limits depth and count.
 /// Includes both files (filtered by `is_attachable`) and directories.
 fn scan_attachable_files() -> Vec<FileCandidate> {
     let Ok(cwd) = std::env::current_dir() else {
@@ -460,7 +460,7 @@ fn scan_attachable_files() -> Vec<FileCandidate> {
 
     let walker = ignore::WalkBuilder::new(&cwd)
         .max_depth(Some(MAX_WALK_DEPTH))
-        .hidden(true) // skip hidden
+        .hidden(false) // keep dotted paths visible
         .git_ignore(true)
         .build();
 
@@ -527,7 +527,7 @@ fn scan_attachable_files() -> Vec<FileCandidate> {
 
 /// Scan a directory's immediate contents.
 ///
-/// Skips hidden entries. Directories get a trailing `/` in their display/path.
+/// Includes dotted entries. Directories get a trailing `/` in their display/path.
 /// Sorted: directories first, then alphabetically.
 fn scan_directory(dir: &Path) -> Vec<FileCandidate> {
     let Ok(entries) = std::fs::read_dir(dir) else {
@@ -539,11 +539,6 @@ fn scan_directory(dir: &Path) -> Vec<FileCandidate> {
     for entry in entries {
         let Ok(entry) = entry else { continue };
         let name = entry.file_name().to_string_lossy().into_owned();
-
-        // Skip hidden entries
-        if name.starts_with('.') {
-            continue;
-        }
 
         let is_dir = entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false);
 
@@ -1184,5 +1179,48 @@ mod tests {
         assert!(state.is_visible());
         assert_eq!(state.candidates.len(), 1);
         assert_eq!(state.candidates[0].display(), "main.rs");
+    }
+
+    #[test]
+    fn path_mode_includes_dotted_entries() {
+        let dir = tempfile::tempdir().expect("should create tempdir");
+        std::fs::create_dir(dir.path().join(".git")).expect("should create dotted dir");
+        std::fs::write(dir.path().join(".env"), "KEY=value\n").expect("should create dotted file");
+        std::fs::create_dir(dir.path().join("src")).expect("should create normal dir");
+
+        let entries = scan_directory(dir.path());
+        let names: Vec<&str> = entries.iter().map(FileCandidate::display).collect();
+
+        assert!(names.contains(&".git/"));
+        assert!(names.contains(&".env"));
+        assert!(names.contains(&"src/"));
+    }
+
+    #[test]
+    fn at_mode_can_match_dotted_directory_children() {
+        let mut state = FilesState::new();
+        state.cached_files = Some(vec![
+            FileCandidate {
+                display: ".github/".to_string(),
+                path: ".github/".to_string(),
+                is_dir: true,
+            },
+            FileCandidate {
+                display: "workflows/".to_string(),
+                path: ".github/workflows/".to_string(),
+                is_dir: true,
+            },
+            FileCandidate {
+                display: "ci.yml".to_string(),
+                path: ".github/workflows/ci.yml".to_string(),
+                is_dir: false,
+            },
+        ]);
+
+        state.update_at_mode("@.github/", 0, ".github/", 9);
+
+        assert!(state.is_visible());
+        assert_eq!(state.candidates.len(), 1);
+        assert_eq!(state.candidates[0].display(), "workflows/");
     }
 }
