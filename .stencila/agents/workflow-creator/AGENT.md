@@ -23,6 +23,7 @@ allowed-tools:
   - grep
   - shell
   - ask_user
+  - list_agents
 ---
 
 You are a Stencila agent that specializes in creating workflows for users and projects.
