@@ -219,6 +219,19 @@ impl App {
                 }
             }
             PipelineEvent::StageFailed { reason, .. } => {
+                let will_retry = self.messages.last().is_some_and(|message| {
+                    matches!(
+                        message,
+                        AppMessage::WorkflowProgress {
+                            kind: WorkflowProgressKind::Retrying,
+                            ..
+                        }
+                    )
+                });
+                if will_retry {
+                    return;
+                }
+
                 if let Some(idx) = self
                     .active_workflow
                     .as_ref()

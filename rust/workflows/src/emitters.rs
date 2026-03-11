@@ -126,8 +126,15 @@ struct StageState {
     agent_name: String,
 }
 
+struct StageAttemptState {
+    agent_name: String,
+    last_failure_reason: String,
+    last_failure_at: Instant,
+}
+
 pub struct ProgressEventEmitter {
     state: Mutex<HashMap<String, StageState>>,
+    attempts: Mutex<HashMap<String, StageAttemptState>>,
 }
 
 impl Default for ProgressEventEmitter {
@@ -141,6 +148,7 @@ impl ProgressEventEmitter {
     pub fn new() -> Self {
         Self {
             state: Mutex::new(HashMap::new()),
+            attempts: Mutex::new(HashMap::new()),
         }
     }
 }
@@ -150,6 +158,10 @@ impl EventEmitter for ProgressEventEmitter {
     fn emit(&self, event: PipelineEvent) {
         let mut state = self
             .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut attempts = self
+            .attempts
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
 
@@ -177,6 +189,19 @@ impl EventEmitter for ProgressEventEmitter {
                         agent_name: String::new(),
                     },
                 );
+
+                if let Some(previous) = attempts.get(node_id)
+                    && previous.last_failure_at.elapsed().as_secs_f64() < 1.0
+                {
+                    let label = format_stage_label(node_id, &previous.agent_name);
+                    eprintln!(
+                        "{}",
+                        color(
+                            "2",
+                            &format!("↻ {label} retrying after: {}", previous.last_failure_reason)
+                        )
+                    );
+                }
             }
 
             PipelineEvent::StageInput {
@@ -186,6 +211,9 @@ impl EventEmitter for ProgressEventEmitter {
             } => {
                 if let Some(s) = state.get_mut(node_id) {
                     s.agent_name = agent_name.clone();
+                    if let Some(previous) = attempts.get_mut(node_id) {
+                        previous.agent_name = agent_name.clone();
+                    }
                     if let Some(ref spinner) = s.spinner {
                         spinner.set_message(&format_stage_label(node_id, agent_name));
                     }
@@ -196,6 +224,7 @@ impl EventEmitter for ProgressEventEmitter {
 
             PipelineEvent::StageCompleted { ref node_id, .. } => {
                 if let Some(s) = state.remove(node_id) {
+                    attempts.remove(node_id);
                     let elapsed = s.started_at.elapsed().as_secs_f64();
                     let time_str = color("2", &format!("{elapsed:.1}s"));
                     let label = format_stage_label(node_id, &s.agent_name);
@@ -215,6 +244,15 @@ impl EventEmitter for ProgressEventEmitter {
                 ..
             } => {
                 if let Some(s) = state.remove(node_id) {
+                    attempts.insert(
+                        node_id.clone(),
+                        StageAttemptState {
+                            agent_name: s.agent_name.clone(),
+                            last_failure_reason: reason.clone(),
+                            last_failure_at: Instant::now(),
+                        },
+                    );
+
                     let elapsed = s.started_at.elapsed().as_secs_f64();
                     let time_str = color("2", &format!("{elapsed:.1}s"));
                     let label = format_stage_label(node_id, &s.agent_name);
@@ -236,11 +274,19 @@ impl EventEmitter for ProgressEventEmitter {
                 max_attempts,
                 ..
             } => {
-                if let Some(s) = state.get(node_id) {
+                if let Some(s) = state.get_mut(node_id) {
                     let label = format_stage_label(node_id, &s.agent_name);
                     if let Some(ref spinner) = s.spinner {
                         spinner
                             .set_message(&format!("{label} retrying ({attempt}/{max_attempts})…"));
+                    } else {
+                        eprintln!(
+                            "{}",
+                            color(
+                                "2",
+                                &format!("↻ {label} retrying ({attempt}/{max_attempts})")
+                            )
+                        );
                     }
                 }
             }
@@ -561,6 +607,7 @@ struct PlainStageState {
 
 pub struct PlainEventEmitter {
     state: Mutex<HashMap<String, PlainStageState>>,
+    attempts: Mutex<HashMap<String, StageAttemptState>>,
 }
 
 impl Default for PlainEventEmitter {
@@ -574,6 +621,7 @@ impl PlainEventEmitter {
     pub fn new() -> Self {
         Self {
             state: Mutex::new(HashMap::new()),
+            attempts: Mutex::new(HashMap::new()),
         }
     }
 }
@@ -583,6 +631,10 @@ impl EventEmitter for PlainEventEmitter {
     fn emit(&self, event: PipelineEvent) {
         let mut state = self
             .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut attempts = self
+            .attempts
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
 
@@ -596,6 +648,26 @@ impl EventEmitter for PlainEventEmitter {
                         response_preview: String::new(),
                     },
                 );
+
+                if let Some(previous) = attempts.get(node_id)
+                    && previous.last_failure_at.elapsed().as_secs_f64() < 1.0
+                {
+                    let agent_part = if previous.agent_name.is_empty() {
+                        node_id.clone()
+                    } else {
+                        format!("{node_id} ({})", previous.agent_name)
+                    };
+                    eprintln!(
+                        "{}",
+                        color(
+                            "2",
+                            &format!(
+                                "  ↻ {agent_part} retrying after: {}",
+                                previous.last_failure_reason
+                            )
+                        )
+                    );
+                }
             }
 
             PipelineEvent::StageInput {
@@ -605,6 +677,9 @@ impl EventEmitter for PlainEventEmitter {
             } => {
                 if let Some(s) = state.get_mut(node_id) {
                     s.agent_name = agent_name.clone();
+                    if let Some(previous) = attempts.get_mut(node_id) {
+                        previous.agent_name = agent_name.clone();
+                    }
                 }
             }
 
@@ -620,6 +695,7 @@ impl EventEmitter for PlainEventEmitter {
 
             PipelineEvent::StageCompleted { ref node_id, .. } => {
                 if let Some(s) = state.remove(node_id) {
+                    attempts.remove(node_id);
                     let elapsed = s.started_at.elapsed().as_secs_f64();
                     let agent_part = if s.agent_name.is_empty() {
                         node_id.clone()
@@ -641,6 +717,15 @@ impl EventEmitter for PlainEventEmitter {
                 ..
             } => {
                 if let Some(s) = state.remove(node_id) {
+                    attempts.insert(
+                        node_id.clone(),
+                        StageAttemptState {
+                            agent_name: s.agent_name.clone(),
+                            last_failure_reason: reason.clone(),
+                            last_failure_at: Instant::now(),
+                        },
+                    );
+
                     let agent_part = if s.agent_name.is_empty() {
                         node_id.clone()
                     } else {
@@ -650,11 +735,32 @@ impl EventEmitter for PlainEventEmitter {
                 }
             }
 
+            PipelineEvent::StageRetrying {
+                ref node_id,
+                attempt,
+                max_attempts,
+                ..
+            } => {
+                if let Some(s) = state.get(node_id) {
+                    let agent_part = if s.agent_name.is_empty() {
+                        node_id.clone()
+                    } else {
+                        format!("{node_id} ({})", s.agent_name)
+                    };
+                    eprintln!(
+                        "{}",
+                        color(
+                            "2",
+                            &format!("  ↻ {agent_part} retrying ({attempt}/{max_attempts})")
+                        )
+                    );
+                }
+            }
+
             PipelineEvent::PipelineStarted { .. }
             | PipelineEvent::PipelineCompleted { .. }
             | PipelineEvent::PipelineFailed { .. }
             | PipelineEvent::StageSessionEvent { .. }
-            | PipelineEvent::StageRetrying { .. }
             | PipelineEvent::CheckpointSaved { .. }
             | PipelineEvent::ParallelStarted { .. }
             | PipelineEvent::ParallelCompleted { .. }
