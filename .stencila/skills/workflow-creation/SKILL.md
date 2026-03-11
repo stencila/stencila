@@ -131,10 +131,10 @@ Reusable content references resolve against code blocks or code chunks with ids 
 ````markdown
 ```dot
 digraph example {
-    Create [agent="writer", prompt-ref="#creator-prompt"]
-    Check  [shell-ref="#run-checks"]
-    Ask    [ask-ref="#human-question", question-type="freeform"]
-    Review [interview-ref="#review-interview"]
+  Create [agent="writer", prompt-ref="#creator-prompt"]
+  Check  [shell-ref="#run-checks"]
+  Ask    [ask-ref="#human-question", question-type="freeform"]
+  Review [interview-ref="#review-interview"]
 }
 ```
 
@@ -164,17 +164,17 @@ preamble: |
   Please review the draft and provide structured feedback.
 
 questions:
-  - question: "Is the draft ready to publish?"
-    header: Decision
-    question_type: multiple_choice
+  - header: Decision
+    question: Is the draft ready to publish?
+    question-type: multiple_choice
     options:
       - label: Approve
       - label: Revise
     store: review.decision
 
-  - question: "What specific changes should be made?"
-    header: Feedback
-    question_type: freeform
+  - header: Feedback
+    question: What specific changes should be made?
+    question-type: freeform
     store: review.feedback
 ```
 ````
@@ -227,16 +227,16 @@ goal: Review recent literature on CRISPR gene editing
 
 ```dot
 digraph lit_review {
-    Start -> Search
-    
-    Search    [prompt="Search for recent papers on: $goal"]
-    Search -> Summarize
+  Start -> Search
+  
+  Search    [prompt="Search for recent papers on: $goal"]
+  Search -> Summarize
 
-    Summarize [prompt="Summarize the key findings across the papers"]
-    Summarize -> Draft
+  Summarize [prompt="Summarize the key findings across the papers"]
+  Summarize -> Draft
 
-    Draft     [prompt="Draft a literature review from the summaries"]
-    Draft -> End
+  Draft     [prompt="Draft a literature review from the summaries"]
+  Draft -> End
 }
 ```
 ````
@@ -252,21 +252,21 @@ goal: Implement and review the feature
 
 ```dot
 digraph code_review {
-    Start -> Design
+  Start -> Design
 
-    Design [agent="code-planner", prompt="Design the solution for: $goal"]
-    Design -> Build
+  Design [agent="code-planner", prompt="Design the solution for: $goal"]
+  Design -> Build
 
-    Build  [agent="code-engineer", prompt="Implement the design"]
-    Build -> Test
+  Build [agent="code-engineer", prompt="Implement the design"]
+  Build -> Test
 
-    Test   [agent="code-tester", prompt="Run tests and validate"]
-    Test -> Review       [label="Pass", condition="outcome=success"]
-    Test -> Build        [label="Fail", condition="outcome!=success"]
+  Test [agent="code-tester", prompt="Run tests and validate"]
+  Test -> Review       [label="Pass", condition="outcome=success"]
+  Test -> Build        [label="Fail", condition="outcome!=success"]
 
-    Review [shape=human]
-    Review -> End        [label="Approve"]
-    Review -> Design     [label="Revise"]
+  Review [shape=human]
+  Review -> End        [label="Approve"]
+  Review -> Design     [label="Revise"]
 }
 ```
 ````
@@ -282,17 +282,17 @@ goal: Implement and review the feature with detailed feedback
 
 ```dot
 digraph code_review_guided {
-    Start -> Design
+  Start -> Design
 
-    Design [agent="code-planner", prompt="Design the solution for: $goal"]
-    Design -> Build
+  Design [agent="code-planner", prompt="Design the solution for: $goal"]
+  Design -> Build
 
-    Build  [agent="code-engineer", prompt="Implement the design"]
-    Build -> Review
+  Build [agent="code-engineer", prompt="Implement the design"]
+  Build -> Review
 
-    Review [interview-ref="#review-interview"]
-    Review -> End        [label="Approve"]
-    Review -> Design     [label="Revise"]
+  Review [interview-ref="#review-interview"]
+  Review -> End        [label="Approve"]
+  Review -> Design     [label="Revise"]
 }
 ```
 
@@ -301,25 +301,19 @@ preamble: |
   Please review the implementation and provide structured feedback.
 
 questions:
-  - question: "Is the implementation ready to merge?"
-    header: Decision
-    question_type: multiple_choice
+  - header: Decision
+    question: Is the implementation ready to merge?
+    question-type: multiple_choice
     options:
       - label: Approve
       - label: Revise
     store: review.decision
+    finish-if: "yes"
 
-  - question: "What specific changes should be made?"
-    header: Revision Notes
-    question_type: freeform
+  - header: Revision Notes
+    question: What specific changes should be made?
+    question-type: freeform
     store: review.feedback
-    show_if: "review.decision == Revise"
-
-  - question: "Any final comments for the changelog?"
-    header: Changelog
-    question_type: freeform
-    store: review.changelog
-    show_if: "review.decision == Approve"
 ```
 ````
 
@@ -401,21 +395,21 @@ goal: Implement and validate the requested feature
 
 ```dot
 digraph code_generation_iterative {
-    Start -> Design
+  Start -> Design
 
-    Design [prompt="Design an implementation plan for: $goal"]
-    Design -> Build
+  Design [prompt="Design an implementation plan for: $goal"]
+  Design -> Build
 
-    Build  [prompt="Implement the approved design"]
-    Build -> Test
+  Build  [prompt="Implement the approved design"]
+  Build -> Test
 
-    Test   [prompt="Run or describe validation steps and report the outcome"]
-    Test -> Review   [label="Pass", condition="outcome=success"]
-    Test -> Build    [label="Fail", condition="outcome!=success"]
+  Test   [prompt="Run or describe validation steps and report the outcome"]
+  Test -> Review   [label="Pass", condition="outcome=success"]
+  Test -> Build    [label="Fail", condition="outcome!=success"]
 
-    Review [shape=human]
-    Review -> End    [label="Approve"]
-    Review -> Design [label="Revise"]
+  Review [shape=human]
+  Review -> End    [label="Approve"]
+  Review -> Design [label="Revise"]
 }
 ```
 ````
@@ -455,9 +449,9 @@ goal: Summarize the provided notes into a concise brief
 
 ```dot
 digraph note_summary {
-    Start -> Summarize -> End
+  Start -> Summarize -> End
 
-    Summarize [prompt="Summarize the notes for: $goal"]
+  Summarize [prompt="Summarize the notes for: $goal"]
 }
 ```
 ````
