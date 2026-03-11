@@ -7,16 +7,16 @@ Tests that the engine selects the higher-weight edge when multiple unconditional
 
 ```dot
 digraph Workflow {
-    Start -> Gate
+  Start -> Gate
 
-    Gate [cmd="echo gate"]
-    Gate -> PathA [weight=10]
-    Gate -> PathB [weight=1]
+  Gate [cmd="echo gate"]
+  Gate -> PathA [weight=10]
+  Gate -> PathB [weight=1]
 
-    PathA [cmd="echo alpha"]
-    PathA -> End
+  PathA [cmd="echo alpha"]
+  PathA -> End
 
-    PathB [cmd="echo beta"]
-    PathB -> Fail
+  PathB [cmd="echo beta"]
+  PathB -> Fail
 }
 ```

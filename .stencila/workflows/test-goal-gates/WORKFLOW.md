@@ -8,13 +8,13 @@ Tests that `goal_gate=true` prevents the pipeline from exiting until the gated n
 
 ```dot
 digraph Workflow {
-    Start -> Setup
+  Start -> Setup
 
-    Setup   [cmd="echo 0 > /tmp/stencila-test-goal_gate.txt"]
-    Setup -> Attempt
+  Setup   [cmd="echo 0 > /tmp/stencila-test-goal_gate.txt"]
+  Setup -> Attempt
 
-    Attempt [cmd="COUNT=$(cat /tmp/stencila-test-goal_gate.txt); COUNT=$((COUNT+1)); echo $COUNT > /tmp/stencila-test-goal_gate.txt; test $COUNT -ge 2", goal_gate=true]
-    Attempt -> End
-    Attempt -> End [condition="outcome=fail"]
+  Attempt [cmd="COUNT=$(cat /tmp/stencila-test-goal_gate.txt); COUNT=$((COUNT+1)); echo $COUNT > /tmp/stencila-test-goal_gate.txt; test $COUNT -ge 2", goal_gate=true]
+  Attempt -> End
+  Attempt -> End [condition="outcome=fail"]
 }
 ```

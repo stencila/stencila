@@ -8,20 +8,20 @@ This workflow tests reusable multiline prompt, shell, and ask content stored in 
 
 ```dot
 digraph test_refs {
-    Start -> Create
+  Start -> Create
 
-    Create [agent="coder-a", prompt-ref="#creator-prompt"]
-    Create -> Verify
+  Create [agent="coder-a", prompt-ref="#creator-prompt"]
+  Create -> Verify
 
-    Verify [shell-ref="#verify-shell"]
-    Verify -> HumanReview [label="Pass", condition="context.last_output=ok"]
-    Verify -> Fail        [label="Fail", condition="context.last_output!=ok"]
+  Verify [shell-ref="#verify-shell"]
+  Verify -> HumanReview [label="Pass", condition="context.last_output=ok"]
+  Verify -> Fail        [label="Fail", condition="context.last_output!=ok"]
 
-    HumanReview [ask-ref="#human-question", question-type="confirmation"]
-    HumanReview -> End    [label="Accept"]
-    HumanReview -> Fail   [label="Reject"]
+  HumanReview [ask-ref="#human-question", question-type="confirmation"]
+  HumanReview -> End    [label="Accept"]
+  HumanReview -> Fail   [label="Reject"]
 
-    Fail
+  Fail
 }
 ```
 
