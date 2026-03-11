@@ -65,11 +65,12 @@ questions:
       - label: Accept
       - label: Revise
     store: human.decision
+    finish_if: "Accept"
 
   - question: "What specific changes or improvements should be made?"
-    header: Feedback
+    header: Revision Notes
     question_type: freeform
     store: human.feedback
 ```
 
-The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview that collects both a decision (Accept or Revise) and freeform feedback in a single step. Routing is driven by the first multiple-choice question: Accept finishes the workflow, while Revise stores the feedback in `human.feedback` and loops back to `Create`.
+The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview. The decision question uses `finish_if: "Accept"` to end the interview immediately when the skill is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.
