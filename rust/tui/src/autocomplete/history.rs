@@ -5,6 +5,27 @@ pub struct HistoryCandidate {
     pub preview: String,
     /// Full text of the history entry.
     pub full_text: String,
+    /// Character ranges within `preview` that match the current filter.
+    pub match_indices: Vec<(usize, usize)>,
+}
+
+fn find_match_indices(text: &str, filter_chars: &[char]) -> Option<Vec<(usize, usize)>> {
+    if filter_chars.is_empty() {
+        return Some(Vec::new());
+    }
+
+    let text_chars: Vec<char> = text.chars().collect();
+    let text_lower: Vec<char> = text_chars.iter().flat_map(|c| c.to_lowercase()).collect();
+
+    if filter_chars.len() > text_lower.len() {
+        return None;
+    }
+
+    let start = text_lower
+        .windows(filter_chars.len())
+        .position(|window| window == filter_chars)?;
+
+    Some(vec![(start, start + filter_chars.len())])
 }
 
 /// State for the history autocomplete popup triggered by `/history`.
@@ -51,7 +72,11 @@ impl HistoryState {
     pub fn open(&mut self, entries: Vec<(String, String)>) {
         self.all_entries = entries
             .into_iter()
-            .map(|(preview, full_text)| HistoryCandidate { preview, full_text })
+            .map(|(preview, full_text)| HistoryCandidate {
+                preview,
+                full_text,
+                match_indices: Vec::new(),
+            })
             .collect();
         self.candidates = self.all_entries.clone();
         self.selected = 0;
@@ -68,13 +93,23 @@ impl HistoryState {
             return;
         }
 
-        let filter_lower = filter.to_lowercase();
-        self.candidates = self
-            .all_entries
-            .iter()
-            .filter(|c| c.preview.to_lowercase().contains(&filter_lower))
-            .cloned()
-            .collect();
+        if filter.is_empty() {
+            self.candidates = self.all_entries.clone();
+        } else {
+            let filter_chars: Vec<char> = filter.chars().flat_map(char::to_lowercase).collect();
+
+            self.candidates = self
+                .all_entries
+                .iter()
+                .filter_map(|candidate| {
+                    find_match_indices(&candidate.preview, &filter_chars).map(|match_indices| {
+                        let mut candidate = candidate.clone();
+                        candidate.match_indices = match_indices;
+                        candidate
+                    })
+                })
+                .collect();
+        }
 
         self.visible = !self.candidates.is_empty();
 
@@ -183,6 +218,7 @@ mod tests {
         state.update("echo");
         assert_eq!(state.candidates().len(), 1);
         assert_eq!(state.candidates()[0].preview, "echo hello");
+        assert_eq!(state.candidates()[0].match_indices, vec![(0, 4)]);
     }
 
     #[test]
@@ -193,6 +229,24 @@ mod tests {
         state.update("ECHO");
         assert_eq!(state.candidates().len(), 1);
         assert_eq!(state.candidates()[0].preview, "echo hello");
+        assert_eq!(state.candidates()[0].match_indices, vec![(0, 4)]);
+    }
+
+    #[test]
+    fn empty_filter_clears_match_indices() {
+        let mut state = HistoryState::new();
+        state.open(sample_entries());
+
+        state.update("echo");
+        assert_eq!(state.candidates()[0].match_indices, vec![(0, 4)]);
+
+        state.update("");
+        assert!(
+            state
+                .candidates()
+                .iter()
+                .all(|candidate| candidate.match_indices.is_empty())
+        );
     }
 
     #[test]

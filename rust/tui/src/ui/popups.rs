@@ -1,7 +1,7 @@
 use ratatui::{
     Frame,
     layout::Rect,
-    style::{Modifier, Style},
+    style::{Color, Modifier, Style},
     text::{Line, Span},
 };
 
@@ -59,12 +59,45 @@ pub(super) fn history(frame: &mut Frame, app: &App, input_area: Rect) {
         .iter()
         .enumerate()
         .map(|(i, candidate)| {
-            let display = format!(" {}", candidate.preview);
-            if i == selected {
-                Line::from(Span::styled(display, selected_style()))
+            let base_style = if i == selected {
+                Style::new().fg(Color::White).add_modifier(Modifier::BOLD)
             } else {
-                Line::from(Span::styled(display, unselected_style()))
+                dim()
+            };
+            let match_style = Style::new().fg(Color::Blue);
+
+            let mut spans = vec![Span::styled(" • ", base_style)];
+            let chars: Vec<char> = candidate.preview.chars().collect();
+            let mut last = 0;
+
+            for (start, end) in &candidate.match_indices {
+                if *start > last {
+                    spans.push(Span::styled(
+                        chars[last..*start].iter().collect::<String>(),
+                        base_style,
+                    ));
+                }
+
+                let mut style = match_style;
+                if i == selected {
+                    style = style.add_modifier(Modifier::BOLD);
+                }
+
+                spans.push(Span::styled(
+                    chars[*start..*end].iter().collect::<String>(),
+                    style,
+                ));
+                last = *end;
             }
+
+            if last < chars.len() {
+                spans.push(Span::styled(
+                    chars[last..].iter().collect::<String>(),
+                    base_style,
+                ));
+            }
+
+            Line::from(spans)
         })
         .collect();
 
