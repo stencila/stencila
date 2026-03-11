@@ -82,7 +82,10 @@ fn validate_workflow_handler_node(
         ))),
     }
 
-    if node.get_str_attr("goal").is_some_and(|goal| goal.trim().is_empty()) {
+    if node
+        .get_str_attr("goal")
+        .is_some_and(|goal| goal.trim().is_empty())
+    {
         errors.push(ValidationError::PipelineValidationError(format!(
             "workflow node `{}` has an empty `goal` attribute",
             node.id
@@ -359,7 +362,7 @@ mod tests {
     child [type="workflow", workflow="other-workflow", goal="   "]
     start -> child -> exit
 }"#
-                .to_string(),
+            .to_string(),
         );
 
         let (errors, _) = validate_workflow(&workflow, None);

@@ -588,6 +588,25 @@ impl LintRule for GoalGateHasRetryRule {
 /// Handler types considered LLM-backed (need a prompt or label).
 const LLM_HANDLER_TYPES: &[&str] = &[HandlerType::Codergen.as_str()];
 
+/// Attributes that count as valid input for an agent node.
+/// Includes both direct attributes and their `-ref` variants (resolved at
+/// workflow level before execution).
+const AGENT_INPUT_ATTRS: &[&str] = &[
+    "prompt",
+    "prompt-ref",
+    "prompt_ref",
+    "interview",
+    "interview-ref",
+    "interview_ref",
+    "shell",
+    "shell-ref",
+    "shell_ref",
+    "ask",
+    "ask-ref",
+    "ask_ref",
+    "label",
+];
+
 struct PromptOnLlmNodesRule;
 
 impl LintRule for PromptOnLlmNodesRule {
@@ -600,11 +619,15 @@ impl LintRule for PromptOnLlmNodesRule {
             .nodes
             .values()
             .filter(|n| LLM_HANDLER_TYPES.contains(&n.handler_type()))
-            .filter(|n| n.get_str_attr("prompt").is_none() && n.get_str_attr("label").is_none())
+            .filter(|n| {
+                !AGENT_INPUT_ATTRS
+                    .iter()
+                    .any(|attr| n.get_str_attr(attr).is_some())
+            })
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Warning,
-                message: format!("LLM node `{}` has no input or label attribute", n.id),
+                message: format!("agent node `{}` has no input or label attribute", n.id),
                 node_id: Some(n.id.clone()),
                 edge: None,
                 fix: Some("add an input or label attribute".into()),
