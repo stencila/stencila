@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS workflow_definition_snapshots (
 CREATE TABLE IF NOT EXISTS workflow_runs (
     run_id          TEXT PRIMARY KEY,
     workflow_name   TEXT NOT NULL,
+    parent_run_id   TEXT REFERENCES workflow_runs(run_id),
+    parent_node_id  TEXT,
     stencila_version TEXT NOT NULL DEFAULT '',
     goal            TEXT NOT NULL DEFAULT '',
     started_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),

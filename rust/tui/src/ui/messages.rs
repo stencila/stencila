@@ -138,6 +138,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 kind,
                 label,
                 detail,
+                depth,
             } => {
                 workflow_progress_lines(
                     &mut lines,
@@ -146,6 +147,7 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                     detail.as_deref(),
                     tick_count,
                     content_width,
+                    depth,
                 );
             }
             AppMessage::Interview {
@@ -824,11 +826,6 @@ fn response_text(lines: &mut Vec<Line>, resp: &str, base_color: Color, content_w
 /// Workflow-specific color palette.
 const WORKFLOW_COLOR: Color = Color::Rgb(0, 180, 160);
 
-/// Map a workflow stage handler type to a sidebar color.
-///
-/// Shell stages use yellow (matching shell mode), interview/wait.human
-/// stages use workflow teal, and all other agentless stages fall back
-/// to dark grey.
 fn handler_type_color(handler_type: Option<&str>) -> Color {
     match handler_type {
         Some("shell") => Color::Yellow,
@@ -894,6 +891,7 @@ fn workflow_progress_lines(
     detail: Option<&str>,
     tick_count: u32,
     content_width: usize,
+    depth: usize,
 ) {
     let gutter_text = match kind {
         WorkflowProgressKind::Running => {
@@ -910,12 +908,32 @@ fn workflow_progress_lines(
     let sidebar_style = Style::new().fg(WORKFLOW_COLOR);
     let dim_sidebar_style = Style::new().fg(WORKFLOW_COLOR).add_modifier(Modifier::DIM);
 
-    lines.push(Line::from(vec![
+    let (prefix_spans, continuation_pad) = if depth == 0 {
+        (vec![Span::raw(" ")], " ".to_string())
+    } else {
+        // "─" per level, then a trailing space before the label
+        let mut spans = Vec::with_capacity(depth + 1);
+        for _ in 0..depth {
+            spans.push(Span::styled(" ❯", sidebar_style));
+        }
+        spans.push(Span::raw(" "));
+
+        // depth + 1 trailing space
+        let width = depth * 2 + 1;
+        let padding = " ".repeat(width);
+        (spans, padding)
+    };
+
+    let mut header = vec![
         Span::styled(gutter_text.clone(), gutter_style),
         Span::styled(SIDEBAR_CHAR, sidebar_style),
-        Span::raw(" "),
-        Span::styled(label.to_string(), Style::new().fg(Color::White)),
-    ]));
+    ];
+    header.extend(prefix_spans);
+    header.push(Span::styled(
+        label.to_string(),
+        Style::new().fg(Color::White),
+    ));
+    lines.push(Line::from(header));
 
     if let Some(detail_text) = detail {
         let detail_style = match kind {
@@ -927,7 +945,7 @@ fn workflow_progress_lines(
                 lines.push(Line::from(vec![
                     Span::raw("   "),
                     Span::styled(SIDEBAR_CHAR, dim_sidebar_style),
-                    Span::raw(" "),
+                    Span::raw(continuation_pad.clone()),
                     Span::styled(chunk, detail_style),
                 ]));
             }

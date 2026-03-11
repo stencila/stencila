@@ -325,12 +325,15 @@ impl EventEmitter for ProgressEventEmitter {
 
 struct VerboseStageState {
     started_at: Instant,
-    is_shell: bool,
+    handler_type: String,
 }
 
 struct VerboseState {
     stages: HashMap<String, VerboseStageState>,
     pipeline_started: Option<Instant>,
+    /// Nesting depth: 0 for the root pipeline, incremented for each child
+    /// workflow. Used to indent output so child workflow nodes appear nested.
+    depth: usize,
 }
 
 pub struct VerboseEventEmitter {
@@ -350,8 +353,17 @@ impl VerboseEventEmitter {
             state: Mutex::new(VerboseState {
                 stages: HashMap::new(),
                 pipeline_started: None,
+                depth: 0,
             }),
         }
+    }
+}
+
+fn indent_prefix(depth: usize) -> String {
+    if depth <= 1 {
+        String::new()
+    } else {
+        "│  ".repeat(depth - 1)
     }
 }
 
@@ -365,10 +377,15 @@ impl EventEmitter for VerboseEventEmitter {
 
         match event {
             PipelineEvent::PipelineStarted { .. } => {
-                state.pipeline_started = Some(Instant::now());
+                state.depth += 1;
+                if state.depth == 1 {
+                    state.pipeline_started = Some(Instant::now());
+                }
             }
 
-            PipelineEvent::PipelineCompleted { .. } | PipelineEvent::PipelineFailed { .. } => {}
+            PipelineEvent::PipelineCompleted { .. } | PipelineEvent::PipelineFailed { .. } => {
+                state.depth = state.depth.saturating_sub(1);
+            }
 
             PipelineEvent::StageStarted {
                 stage_index,
@@ -382,11 +399,12 @@ impl EventEmitter for VerboseEventEmitter {
                     node_id.clone(),
                     VerboseStageState {
                         started_at: Instant::now(),
-                        is_shell: handler_type == "shell",
+                        handler_type: handler_type.clone(),
                     },
                 );
+                let indent = indent_prefix(state.depth);
                 let bold_name = color("1", node_id);
-                eprintln!("├─ {bold_name}");
+                eprintln!("{indent}├─ {bold_name}");
             }
 
             PipelineEvent::StageInput {
@@ -395,16 +413,24 @@ impl EventEmitter for VerboseEventEmitter {
                 ref agent_name,
                 ..
             } => {
+                let indent = indent_prefix(state.depth);
                 let preview = truncate_to(input, 100);
-                let _ = node_id;
-                if agent_name.is_empty() {
-                    let label_cmd = color("2", "Command:");
-                    eprintln!("│  {label_cmd} {preview}");
-                } else {
+                let handler_type = state
+                    .stages
+                    .get(node_id)
+                    .map(|s| s.handler_type.as_str())
+                    .unwrap_or("");
+                if !agent_name.is_empty() {
                     let label_agent = color("2", "Agent:");
-                    eprintln!("│  {label_agent} {agent_name}");
+                    eprintln!("{indent}│  {label_agent} {agent_name}");
                     let label_prompt = color("2", "Prompt:");
-                    eprintln!("│  {label_prompt} {preview}");
+                    eprintln!("{indent}│  {label_prompt} {preview}");
+                } else if handler_type == "workflow" {
+                    let label = color("2", "Workflow:");
+                    eprintln!("{indent}│  {label} {preview}");
+                } else {
+                    let label_cmd = color("2", "Command:");
+                    eprintln!("{indent}│  {label_cmd} {preview}");
                 }
             }
 
@@ -415,14 +441,18 @@ impl EventEmitter for VerboseEventEmitter {
                 ref output,
                 ..
             } => {
+                let indent = indent_prefix(state.depth);
                 let preview = truncate_to(output, 100);
-                let is_shell = state.stages.get(node_id).is_some_and(|s| s.is_shell);
+                let is_shell = state
+                    .stages
+                    .get(node_id)
+                    .is_some_and(|s| s.handler_type == "shell");
                 let label = if is_shell {
                     color("2", "Output:")
                 } else {
                     color("2", "Response:")
                 };
-                eprintln!("│  {label} {preview}");
+                eprintln!("{indent}│  {label} {preview}");
             }
 
             PipelineEvent::StageCompleted {
@@ -435,6 +465,7 @@ impl EventEmitter for VerboseEventEmitter {
                     return;
                 }
 
+                let indent = indent_prefix(state.depth);
                 let elapsed = state
                     .stages
                     .remove(node_id)
@@ -443,8 +474,11 @@ impl EventEmitter for VerboseEventEmitter {
                 let label = color("2", "Outcome:");
                 let tick = color("32", "✔");
                 let time_str = color("2", &format!("({elapsed:.1}s)"));
-                eprintln!("│  {label} {tick} {} {time_str}", outcome.status.as_str());
-                eprintln!("│");
+                eprintln!(
+                    "{indent}│  {label} {tick} {} {time_str}",
+                    outcome.status.as_str()
+                );
+                eprintln!("{indent}│");
             }
 
             PipelineEvent::StageFailed {
@@ -452,11 +486,12 @@ impl EventEmitter for VerboseEventEmitter {
                 ref reason,
                 ..
             } => {
+                let indent = indent_prefix(state.depth);
                 state.stages.remove(node_id);
                 let label = color("2", "Outcome:");
                 let x = color("31", "✗");
-                eprintln!("│  {label} {x} failed: {reason}");
-                eprintln!("│");
+                eprintln!("{indent}│  {label} {x} failed: {reason}");
+                eprintln!("{indent}│");
             }
 
             PipelineEvent::StageRetrying {
@@ -464,43 +499,51 @@ impl EventEmitter for VerboseEventEmitter {
                 max_attempts,
                 ..
             } => {
-                eprintln!("│  ⟳ retrying ({attempt}/{max_attempts})");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ⟳ retrying ({attempt}/{max_attempts})");
             }
 
             PipelineEvent::CheckpointSaved { .. } => {}
 
             PipelineEvent::ParallelStarted { ref node_id } => {
-                eprintln!("│  ║ parallel started: {node_id}");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ║ parallel started: {node_id}");
             }
             PipelineEvent::ParallelCompleted { ref node_id } => {
-                eprintln!("│  ║ parallel completed: {node_id}");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ║ parallel completed: {node_id}");
             }
             PipelineEvent::ParallelBranchStarted {
                 ref node_id,
                 branch_index,
             } => {
-                eprintln!("│  ║ branch {branch_index} started: {node_id}");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ║ branch {branch_index} started: {node_id}");
             }
             PipelineEvent::ParallelBranchCompleted {
                 ref node_id,
                 branch_index,
             } => {
-                eprintln!("│  ║ branch {branch_index} completed: {node_id}");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ║ branch {branch_index} completed: {node_id}");
             }
             PipelineEvent::ParallelBranchFailed {
                 ref node_id,
                 branch_index,
                 ref reason,
             } => {
-                eprintln!("│  ║ branch {branch_index} failed: {node_id}: {reason}");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ║ branch {branch_index} failed: {node_id}: {reason}");
             }
 
             PipelineEvent::InterviewQuestionAsked { ref node_id, .. } => {
-                eprintln!("│  ❔ waiting for human input at {node_id}…");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ❔ waiting for human input at {node_id}…");
             }
             PipelineEvent::InterviewAnswerReceived { .. } => {}
             PipelineEvent::InterviewTimedOut { ref node_id, .. } => {
-                eprintln!("│  ⏱ timed out waiting for input at {node_id}");
+                let indent = indent_prefix(state.depth);
+                eprintln!("{indent}│  ⏱ timed out waiting for input at {node_id}");
             }
         }
     }

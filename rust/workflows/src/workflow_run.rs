@@ -12,6 +12,7 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use eyre::Result;
+use indexmap::IndexMap;
 use stencila_agents::types::Turn;
 use stencila_db::rusqlite::Connection;
 
@@ -30,6 +31,7 @@ use stencila_attractor::types::Outcome;
 use stencila_interviews::PersistentInterviewer;
 
 use crate::WorkflowInstance;
+use crate::workflow_handler::WorkflowHandler;
 
 /// Run a workflow pipeline to completion using a stderr event emitter.
 ///
@@ -46,6 +48,12 @@ pub async fn run_workflow(workflow: &WorkflowInstance) -> Result<Outcome> {
 pub struct RunOptions {
     pub emitter: Arc<dyn EventEmitter>,
     pub interviewer: Option<Arc<dyn Interviewer>>,
+}
+
+#[derive(Clone, Default)]
+pub(crate) struct ParentRun {
+    pub run_id: String,
+    pub node_id: String,
 }
 
 #[derive(Clone, Default)]
@@ -75,9 +83,19 @@ pub async fn run_workflow_with_options(
     workflow: &WorkflowInstance,
     options: RunOptions,
 ) -> Result<Outcome> {
+    run_workflow_with_options_and_parent(workflow, options, None, None).await
+}
+
+pub(crate) async fn run_workflow_with_options_and_parent(
+    workflow: &WorkflowInstance,
+    options: RunOptions,
+    parent_run: Option<ParentRun>,
+    initial_context: Option<IndexMap<String, serde_json::Value>>,
+) -> Result<Outcome> {
     let mut graph = workflow.graph()?;
 
     merge_workflow_attrs(workflow, &mut graph);
+    insert_execution_context(&mut graph, workflow, parent_run.clone(), initial_context)?;
 
     let resolved = resolve_agent_references(workflow).await;
     let total_refs = workflow.agent_references().len();
@@ -112,6 +130,29 @@ pub async fn run_workflow_with_options(
 
     let workspace_db = stencila_db::WorkspaceDb::open(&effective_db_path)
         .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+    let db_conn_for_parent = workspace_db.connection().clone();
+    if let Some(parent) = &parent_run {
+        let conn = db_conn_for_parent
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let exists: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM workflow_runs WHERE run_id = ?1",
+                (&parent.run_id,),
+                |row| row.get(0),
+            )
+            .unwrap_or(0);
+        if exists == 0 {
+            drop(conn);
+            stencila_attractor::sqlite_backend::SqliteBackend::from_shared(
+                db_conn_for_parent.clone(),
+                parent.run_id.clone(),
+            )
+            .insert_run("parent-workflow", "", env!("CARGO_PKG_VERSION"))
+            .map_err(|e| eyre::eyre!("Failed to insert parent run placeholder: {e}"))?;
+        }
+    }
+
     let context = Context::with_sqlite(&workspace_db, &run_id)
         .map_err(|e| eyre::eyre!("Failed to initialize workflow context: {e}"))?;
 
@@ -119,11 +160,21 @@ pub async fn run_workflow_with_options(
         let goal = workflow.goal.as_deref().unwrap_or("");
         let workflow_name = &workflow.name;
         backend
-            .insert_run(workflow_name, goal, env!("CARGO_PKG_VERSION"))
+            .insert_run_with_parent(
+                workflow_name,
+                goal,
+                env!("CARGO_PKG_VERSION"),
+                parent_run.as_ref().map(|parent| parent.run_id.as_str()),
+                parent_run.as_ref().map(|parent| parent.node_id.as_str()),
+            )
             .map_err(|e| eyre::eyre!("Failed to insert run record: {e}"))?;
 
         capture_definition_snapshots(workflow, &resolved, backend).await;
     }
+
+    // Set the run_id in context *after* the workflow_runs row exists so
+    // the INSERT into workflow_context doesn't violate the FK constraint.
+    context.set("internal.run_id", serde_json::json!(run_id.clone()));
 
     let agent_metadata = resolved
         .iter()
@@ -159,6 +210,7 @@ pub async fn run_workflow_with_options(
     // and agent-level questions (ask_user tool) within the same run.
     let agent_interviewer = interviewer.clone();
     let config = build_engine_config(
+        workflow.home().to_path_buf(),
         options.emitter,
         interviewer,
         db_conn.clone(),
@@ -258,6 +310,79 @@ fn merge_workflow_attrs(workflow: &WorkflowInstance, graph: &mut Graph) {
             .entry("default_fidelity".to_string())
             .or_insert_with(|| AttrValue::String(fidelity.clone()));
     }
+}
+
+fn insert_execution_context(
+    graph: &mut Graph,
+    workflow: &WorkflowInstance,
+    parent_run: Option<ParentRun>,
+    initial_context: Option<IndexMap<String, serde_json::Value>>,
+) -> Result<()> {
+    if let Some(existing_stack) = graph
+        .graph_attrs
+        .get("internal.workflow_stack")
+        .and_then(AttrValue::as_str)
+        && existing_stack.split('/').any(|name| name == workflow.name)
+    {
+        eyre::bail!(
+            "Workflow composition cycle detected for `{}`",
+            workflow.name
+        );
+    }
+
+    graph.graph_attrs.insert(
+        "internal.workflow_name".to_string(),
+        AttrValue::String(workflow.name.clone()),
+    );
+
+    if let Some(parent) = parent_run {
+        let mut stack = graph
+            .graph_attrs
+            .get("internal.workflow_stack")
+            .and_then(AttrValue::as_str)
+            .map(str::to_string)
+            .unwrap_or_default();
+
+        if stack.split('/').any(|name| name == workflow.name) {
+            eyre::bail!(
+                "Workflow composition cycle detected for `{}`",
+                workflow.name
+            );
+        }
+
+        if !stack.is_empty() {
+            stack.push('/');
+        }
+        stack.push_str(&workflow.name);
+
+        graph.graph_attrs.insert(
+            "internal.workflow_stack".to_string(),
+            AttrValue::String(stack),
+        );
+        graph.graph_attrs.insert(
+            "internal.parent_node_id".to_string(),
+            AttrValue::String(parent.node_id),
+        );
+        graph.graph_attrs.insert(
+            "internal.parent_run_id".to_string(),
+            AttrValue::String(parent.run_id),
+        );
+    } else {
+        graph.graph_attrs.insert(
+            "internal.workflow_stack".to_string(),
+            AttrValue::String(workflow.name.clone()),
+        );
+    }
+
+    if let Some(initial_context) = initial_context {
+        for (key, value) in initial_context {
+            graph
+                .graph_attrs
+                .insert(key, AttrValue::String(value.to_string()));
+        }
+    }
+
+    Ok(())
 }
 
 /// Resolve `agent=` references in the graph against discovered agents.
@@ -577,6 +702,7 @@ impl CodergenBackend for AgentCodergenBackend {
 /// `interviewer` is provided, both registries also get `wait.human`.
 #[allow(clippy::too_many_arguments)]
 fn build_engine_config(
+    workflow_home: std::path::PathBuf,
     emitter: Arc<dyn EventEmitter>,
     interviewer: Option<Arc<dyn Interviewer>>,
     db_conn: Option<Arc<Mutex<Connection>>>,
@@ -594,6 +720,10 @@ fn build_engine_config(
     // Does not need `parallel` itself (branches don't recurse into parallel).
     let mut inner_registry = HandlerRegistry::with_defaults();
     inner_registry.register("shell", ShellHandler::with_emitter(emitter.clone()));
+    inner_registry.register(
+        "workflow",
+        WorkflowHandler::new(workflow_home.clone(), emitter.clone(), interviewer.clone()),
+    );
     inner_registry.register(
         "codergen",
         CodergenHandler::with_backend_and_emitter(
@@ -624,6 +754,10 @@ fn build_engine_config(
     config
         .registry
         .register("shell", ShellHandler::with_emitter(emitter.clone()));
+    config.registry.register(
+        "workflow",
+        WorkflowHandler::new(workflow_home, emitter.clone(), interviewer.clone()),
+    );
     config.registry.register(
         "codergen",
         CodergenHandler::with_backend_and_emitter(
@@ -893,4 +1027,8 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
             }
         }
     }))
+}
+
+pub fn stderr_event_emitter_for_testing() -> Arc<dyn EventEmitter> {
+    stderr_event_emitter()
 }

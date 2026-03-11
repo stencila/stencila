@@ -23,6 +23,36 @@ fn temp_db() -> (TempDir, SqliteBackend) {
     (dir, backend)
 }
 
+#[test]
+fn insert_run_with_parent() {
+    let (_dir, backend) = temp_db();
+    let parent = SqliteBackend::from_shared(backend.connection().clone(), "parent-run".into());
+    parent
+        .insert_run("parent-workflow", "", "0.1.0")
+        .expect("insert parent run");
+
+    backend
+        .insert_run_with_parent(
+            "child-workflow",
+            "",
+            "0.1.0",
+            Some("parent-run"),
+            Some("Compose"),
+        )
+        .expect("insert run");
+
+    let conn = backend.connection().lock().expect("lock");
+    let (parent_run_id, parent_node_id): (Option<String>, Option<String>) = conn
+        .query_row(
+            "SELECT parent_run_id, parent_node_id FROM workflow_runs WHERE run_id = ?1",
+            ("run-1",),
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .expect("query");
+    assert_eq!(parent_run_id.as_deref(), Some("parent-run"));
+    assert_eq!(parent_node_id.as_deref(), Some("Compose"));
+}
+
 fn temp_context() -> (TempDir, Context) {
     let dir = TempDir::new().expect("temp dir");
     let db_path = dir.path().join("test.db");
@@ -170,14 +200,14 @@ fn migration_is_tracked() {
     let conn = backend.connection().lock().expect("lock");
     let (domain, version, name): (String, i32, String) = conn
         .query_row(
-            "SELECT domain, version, name FROM _migrations WHERE domain = 'workflows'",
+            "SELECT domain, version, name FROM _migrations WHERE domain = 'workflows' ORDER BY version DESC LIMIT 1",
             [],
             |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
         .expect("query");
     assert_eq!(domain, "workflows");
-    assert_eq!(version, 1);
-    assert_eq!(name, "initial");
+    assert_eq!(version, 2);
+    assert_eq!(name, "workflow_run_parent");
 }
 
 // ---------------------------------------------------------------------------

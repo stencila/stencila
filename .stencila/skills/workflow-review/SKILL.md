@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a workflow directory or WORKFLOW.md file. Covers frontmatter validation, DOT pipeline quality, workflow structure, agent selection quality, discovery metadata, ephemeral workflow conventions, and adherence to Stencila workflow patterns.
+description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a workflow directory or WORKFLOW.md file. Covers frontmatter validation, DOT pipeline quality, workflow structure, agent selection quality, discovery metadata, ephemeral workflow conventions, workflow composition, and adherence to Stencila workflow patterns.
 keywords:
   - workflow
   - review
@@ -57,6 +57,7 @@ When reviewing names, apply these conventions:
 - The DOT source follows the workspace house style: keep the `Start -> ...` entry edge near the top, then colocate each node definition with its outgoing edge or edges where practical
 - The graph is not missing obvious terminal or branching connections
 - Only the first `dot` block is relied on for execution; additional DOT blocks, if any, are treated as documentation and should not create ambiguity
+- When a node uses `workflow="name"`, treat it as a composed child workflow node and check that the composition boundary is clear and justified; this attribute is normalized to workflow-handler semantics rather than acting like a normal LLM, shell, or branch node
 
 ### Workflow Design Quality
 
@@ -66,11 +67,15 @@ When reviewing names, apply these conventions:
 - Revision loops have a plausible feedback path rather than a vague cycle
 - Human review (`shape=human`) is used appropriately for approval, oversight, or trust-boundary decisions
 - Multi-question interviews via `interview-ref` are used appropriately — combining a routing decision with structured feedback in a single review pause, not overloading a single interview with unrelated questions that would be clearer as separate human nodes
+- Workflow composition is used appropriately — child workflows should encapsulate meaningful reusable subprocesses, not obscure simple local steps without a readability or reuse benefit
+- Parent workflows should focus on orchestration, while child workflows should own detailed internal execution where that split improves clarity
 - The workflow is no more complex than necessary for the task
 
 ### Agents and Prompts
 
 - Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; when agent choice matters or fit is uncertain, use `list_agents` to confirm availability and compare actual agent metadata; if actual existence still cannot be confirmed, report that uncertainty explicitly
+- When a node references `workflow="name"`, check that the child workflow name is plausible and, if reviewing within a workspace, that the referenced workflow can be found
+- When a node references `workflow="name"`, check whether the child workflow's goal is being passed clearly: use `goal="..."` when an explicit child objective is needed, otherwise confirm that the node's resolved input (`prompt` or `label`) is a sensible default child goal
 - Specialized agent selection is justified by metadata rather than name alone: `description` should match the node's core task, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
 - Prompts are specific enough to guide each node's local task
 - When the workflow uses `prompt-ref`, `shell-ref`, `ask-ref`, or `interview-ref`, referenced ids exist in code blocks or code chunks in the same `WORKFLOW.md`, are unique, and are used where they improve readability, typically for long or multiline content rather than short single-line values
@@ -96,6 +101,7 @@ When reviewing names, apply these conventions:
 - **when-to-use / when-not-to-use**: if present, check that entries are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals. If absent, recommend adding them to improve manager delegation accuracy
 - **Coherence check**: verify that `description`, `keywords`, `when-to-use`, and `when-not-to-use` work together — they should be complementary, not redundant
 - **Agent-selection metadata use**: when the workflow assigns specialized agents, check whether the workflow author appears to have selected them in a way consistent with available agent metadata. Flag cases where the chosen agent's `description`, `keywords`, `when-to-use`, or `when-not-to-use` suggest a mismatch with the node's task
+- **Composition coherence**: when a workflow composes child workflows, check that the parent description, node names, and child workflow purposes fit together coherently and that the decomposition helps discoverability rather than hiding the real process behind vague node names
 
 ### Completeness and Clarity
 
@@ -103,6 +109,7 @@ When reviewing names, apply these conventions:
 - Any Markdown documentation outside the first DOT block supports the workflow and does not contradict it
 - References to supporting files in `scripts/`, `references/`, or `assets/` point to files that actually exist
 - References from DOT to reusable fenced code blocks via `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` point to ids that actually exist in the same file
+- References from DOT to composed child workflows via `workflow="name"` point to workflows that exist when the review scope allows that to be checked
 - When supporting files are large, check existence and relevance without reproducing their full contents in the report
 - The workflow is understandable to both the execution engine and a human reader
 
@@ -114,6 +121,7 @@ When reviewing names, apply these conventions:
 - DOT organization is easy to scan: entry edge first, then node-local blocks instead of a large separated edges section and nodes section
 - The workflow's frontmatter, Markdown explanation, and DOT graph do not contradict each other
 - The workflow name aligns with current workspace naming guidance and, when present, any approach modifier is used consistently with similar workflows
+- If the workflow uses composition, parent and child workflows use consistent terminology for the subprocess being delegated
 
 ## Report Format
 

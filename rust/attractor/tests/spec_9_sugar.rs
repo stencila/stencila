@@ -16,6 +16,28 @@ fn apply_sugar(dot: &str) -> AttractorResult<stencila_attractor::graph::Graph> {
     Ok(graph)
 }
 
+#[test]
+fn workflow_attribute_implies_workflow_type() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [workflow="software-implement-iterative", goal="$last_output"]
+        }
+        "#,
+    )?;
+    assert_eq!(
+        g.get_node("Implement").and_then(|n| n.get_str_attr("type")),
+        Some("workflow")
+    );
+    assert_eq!(
+        g.get_node("Implement")
+            .and_then(|n| n.get_str_attr("workflow")),
+        Some("software-implement-iterative")
+    );
+    Ok(())
+}
+
 fn node_shape<'a>(graph: &'a stencila_attractor::graph::Graph, id: &str) -> &'a str {
     graph.get_node(id).map(|n| n.shape()).unwrap_or("MISSING")
 }

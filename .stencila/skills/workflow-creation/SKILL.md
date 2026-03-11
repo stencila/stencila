@@ -1,6 +1,6 @@
 ---
 name: workflow-creation
-description: Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a workflow directory or WORKFLOW.md file. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, and validation.
+description: Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a workflow directory or WORKFLOW.md file. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, composition, and validation.
 keywords:
   - workflow
   - pipeline
@@ -22,7 +22,7 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
 1. Determine the workflow name, description, and intended goal from the user's request
 2. Validate the name against the naming rules below
 3. Resolve the closest workspace by walking up from the current directory to find the nearest `.stencila/` directory; if none exists, use the repository root or current working directory and create `.stencila/workflows/<name>/`
-4. Ask clarifying questions if the workflow's stages, branching behavior, agents, or goal are unclear
+4. Ask clarifying questions if the workflow's stages, branching behavior, composition boundaries, agents, or goal are unclear
 5. Check whether a workflow with the same name already exists in the target workspace; if it does, ask whether to overwrite, merge, or abort before changing anything
 6. Decide whether the workflow should be permanent or ephemeral:
    - default to a normal permanent workflow unless the user asks for a temporary workflow or the creating tool explicitly uses ephemeral creation
@@ -36,7 +36,7 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
    - A Markdown body whose first `dot` fenced code block contains the workflow pipeline
    - Optional surrounding Markdown documentation that explains the workflow to humans
 9. If ephemeral, create the `.gitignore` sentinel file with exactly `*` on its own line; if permanent, do not add that sentinel
-10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, or agent overrides only when the user asks for them or the workflow clearly needs them
+10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, workflow composition, or agent overrides only when the user asks for them or the workflow clearly needs them
 11. Use `list_agents` when agent selection matters so you can choose from available specialized agents instead of guessing names
 12. When using `list_agents`, prefer agents whose metadata supports the node's role: use `description` to check the agent's core capability, `keywords` to match domain terms and user intent, `when-to-use` for positive fit signals, and `when-not-to-use` to avoid poor matches
 13. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when their metadata indicates a good fit; do not invent agent names unless the user requests them or they are already clear project conventions
@@ -116,6 +116,10 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
 - When a human review step needs to collect multiple pieces of information (e.g., a decision and freeform feedback), use `interview-ref` pointing to a YAML code block that defines the full interview with preamble, multiple typed questions, and per-question `store` keys; continue to use `ask` or `ask-ref` for single-question human gates
 - Use edges to express sequencing, branching, retry loops, and approval paths
+- Use `workflow="child-name"` on a node when a stage should run another workflow as a reusable composed subprocess; this is normalized as a workflow-handler node rather than a normal LLM, shell, or branch node. Prefer it when a subprocess is complex, reusable, or would otherwise make the parent graph hard to read
+- On composed workflow nodes, use `goal="..."` when the child workflow needs an explicit goal. If omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`), so child workflows can usually keep using `$goal`
+- When composing workflows, keep the parent focused on orchestration and the child focused on detailed execution; avoid creating child workflows for trivial one-step tasks unless reuse is likely
+- Do not create direct or indirect composition cycles; workflow nesting should remain acyclic. Current validation rejects direct self-reference, and indirect cycles should also be avoided even if they are not yet detected statically
 - Prefer the house style of placing the entry edge near the top, then organizing each node as a block: node definition followed immediately by its outgoing edge or edges
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
 
@@ -321,6 +325,7 @@ questions:
 - When a node has no `agent` attribute, the engine uses a default agent; this fallback is unlikely to be optimal for a well-designed workflow, so prefer explicit agent selection unless the user wants a minimal draft
 - Use inline `agent.*` dotted attributes only when the user explicitly wants node-specific overrides such as `agent.model`, `agent.provider`, or `agent.reasoning-effort`
 - Use `shape=human` for explicit human approval or review steps
+- Use workflow composition to encapsulate reusable or internally complex subprocesses, but prefer ordinary nodes when a stage is simple and local to one workflow
 - Put reusable high-level intent in frontmatter `goal` and refer to it in prompts with `$goal`
 - Prefer frontmatter `goal` over repeating the same objective in both frontmatter and graph attributes
 - Prefer explicit edge labels and conditions when a branch depends on success, failure, approval, or revision
@@ -330,6 +335,9 @@ questions:
 - Do not encode every node or branch in the workflow name; keep naming focused on the process and, if needed, a broad approach modifier
 - Use `interview-ref` when a human review step needs to collect both a routing decision and structured feedback in a single pause; ensure every freeform question has a `store` key so answers are not silently lost
 - Routing in multi-question interviews is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — keep routing edges visible in the DOT graph, not hidden in the YAML spec
+- When authoring a composed node, use `workflow="name"` and assume the child workflow's final output will become the parent node's output; design downstream parent prompts and branches accordingly
+- If the child workflow should receive a specific high-level objective, pass it with `goal="..."`; otherwise the child goal will default from the composed node's resolved input
+- If a child workflow needs parent context, prefer passing stable intent through shared context such as `$goal` rather than duplicating the same long prompt logic in both parent and child
 
 ## Practical Workflow Design Guidance
 

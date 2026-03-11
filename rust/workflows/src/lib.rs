@@ -10,6 +10,8 @@ pub use workflow_validate::*;
 mod workflow_emitters;
 pub use workflow_emitters::*;
 
+mod workflow_handler;
+
 mod workflow_run;
 pub use workflow_run::*;
 

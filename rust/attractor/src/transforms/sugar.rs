@@ -12,7 +12,7 @@
 //! For each node without an explicit `shape`, the transform applies the
 //! first matching rule:
 //!
-//! 1. **Property shortcuts** — `ask`, `cmd`/`shell`, `branch` attributes
+//! 1. **Property shortcuts** — `ask`, `cmd`/`shell`, `branch`, `workflow`
 //!    imply a specific handler type. All sugar keys are always removed
 //!    regardless of which one wins, so they never leak into the graph.
 //! 2. **`interview`** — if the `interview` attribute is present, the node
@@ -33,6 +33,7 @@
 //! | `ask="..."`            | `shape=hexagon`, `label="..."`               |
 //! | `cmd="…"` / `shell="…"`| `shape=parallelogram`, `shell_command="…"`   |
 //! | `branch="..."`         | `shape=diamond`, `label="..."`               |
+//! | `workflow="..."`       | `type="workflow"`                            |
 //!
 //! ## Node ID aliases
 //!
@@ -70,6 +71,7 @@ impl Transform for NodeSugarTransform {
             let cmd_val = node.attrs.shift_remove("cmd");
             let shell_val = node.attrs.shift_remove("shell");
             let branch_val = node.attrs.shift_remove("branch");
+            let workflow_val = node.attrs.shift_remove("workflow");
 
             // --- Property shortcuts (highest priority) ---
 
@@ -84,6 +86,16 @@ impl Transform for NodeSugarTransform {
                 if !node.attrs.contains_key("label") {
                     node.attrs.insert("label".to_string(), val);
                 }
+                continue;
+            }
+
+            // `workflow` implies a workflow composition node
+            if let Some(val) = workflow_val {
+                if !node.attrs.contains_key("type") {
+                    node.attrs
+                        .insert("type".to_string(), AttrValue::String("workflow".into()));
+                }
+                node.attrs.insert("workflow".to_string(), val);
                 continue;
             }
 

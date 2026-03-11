@@ -57,6 +57,41 @@ pub enum ValidationWarning {
     PipelineValidationWarning(String),
 }
 
+fn validate_workflow_handler_node(
+    workflow_name: &str,
+    node: &stencila_attractor::graph::Node,
+) -> Vec<ValidationError> {
+    if node.handler_type() != "workflow" {
+        return Vec::new();
+    }
+
+    let mut errors = Vec::new();
+
+    match node.get_str_attr("workflow") {
+        Some(name) if !name.trim().is_empty() => {
+            if name == workflow_name {
+                errors.push(ValidationError::PipelineValidationError(format!(
+                    "workflow node `{}` references workflow `{name}` recursively",
+                    node.id
+                )));
+            }
+        }
+        _ => errors.push(ValidationError::PipelineValidationError(format!(
+            "workflow node `{}` must have a non-empty `workflow` attribute",
+            node.id
+        ))),
+    }
+
+    if node.get_str_attr("goal").is_some_and(|goal| goal.trim().is_empty()) {
+        errors.push(ValidationError::PipelineValidationError(format!(
+            "workflow node `{}` has an empty `goal` attribute",
+            node.id
+        )));
+    }
+
+    errors
+}
+
 /// Validate a workflow name.
 ///
 /// Names must be lowercase kebab-case:
@@ -135,6 +170,10 @@ pub fn validate_workflow(
     if let Some(ref pipeline) = workflow.pipeline {
         match stencila_attractor::parse_dot(pipeline) {
             Ok(graph) => {
+                for node in graph.nodes.values() {
+                    errors.extend(validate_workflow_handler_node(&workflow.name, node));
+                }
+
                 let diagnostics = stencila_attractor::validation::validate(&graph, &[]);
                 for diag in &diagnostics {
                     match diag.severity {
@@ -285,6 +324,50 @@ mod tests {
                 .any(|w| matches!(w, ValidationWarning::PipelineValidationWarning(msg) if msg.contains("no input or label"))),
             "should warn about missing prompt: {warnings:?}"
         );
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_handler_requires_workflow_attribute() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "test".into());
+        workflow.pipeline = Some(
+            r#"digraph test {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    child [type="workflow"]
+    start -> child -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, _) = validate_workflow(&workflow, None);
+        assert!(errors.iter().any(|e| matches!(
+            e,
+            ValidationError::PipelineValidationError(msg)
+            if msg.contains("must have a non-empty `workflow` attribute")
+        )));
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_handler_rejects_empty_goal_attribute() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "test".into());
+        workflow.pipeline = Some(
+            r#"digraph test {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    child [type="workflow", workflow="other-workflow", goal="   "]
+    start -> child -> exit
+}"#
+                .to_string(),
+        );
+
+        let (errors, _) = validate_workflow(&workflow, None);
+        assert!(errors.iter().any(|e| matches!(
+            e,
+            ValidationError::PipelineValidationError(msg)
+            if msg.contains("empty `goal` attribute")
+        )));
         Ok(())
     }
 }

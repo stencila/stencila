@@ -77,19 +77,21 @@ An explicit `shape` attribute always takes precedence over ID-based inference. I
 | Shorthand               | Expands to                                        |
 | ----------------------- | ------------------------------------------------- |
 | `ask="Do you approve?"` | `shape=hexagon, label="Do you approve?"`          |
+| `workflow="child"`      | `type="workflow"`                                 |
 | `cmd="make build"`      | `shape=parallelogram, shell_command="make build"` |
 | `shell="cargo test"`    | `shape=parallelogram, shell_command="cargo test"` |
 | `branch="Quality OK?"`  | `shape=diamond, label="Quality OK?"`              |
 
 Additionally, a node with an `interview` attribute (typically set via `interview-ref`) is inferred as `shape=hexagon` (a human gate).
 
-Property shortcuts never override an explicitly set `shape`, `label`, or `shell_command`. All sugar keys (`ask`, `cmd`, `shell`, `branch`) are always removed from the node, even when a higher-precedence shortcut wins.
+Property shortcuts never override an explicitly set `shape`, `label`, `type`, or `shell_command`. All sugar keys (`ask`, `workflow`, `cmd`, `shell`, `branch`) are always normalized on the node, even when a higher-precedence shortcut wins.
 
 ### Resolution order
 
 When a node has no explicit `shape`, the engine applies the first matching rule:
 
 1. **Property shortcuts** — `ask` > `cmd`/`shell` > `branch` (all consumed regardless of which wins)
+   - `workflow` is also treated as a property shortcut and normalized to a workflow handler node
 2. **`interview`** — node has an `interview` attribute (typically from `interview-ref`), inferred as human gate
 3. **`prompt` or `agent`** — node is an LLM task, prefix-based ID inference is skipped (structural IDs exempt)
 4. **Node ID** — exact or prefix match from the table above
@@ -107,7 +109,7 @@ digraph ResearchWorkflow {
 
     Screen [prompt="Screen papers for relevance and quality"]
     Screen -> Analyze
-    
+
     Analyze [prompt="Extract and synthesize key findings"]
     Analyze -> CheckQuality
 
@@ -128,23 +130,25 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 
 ## Common attributes
 
-| Attribute                | Type     | Description                                                                                                |
-| ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `label`                  | String   | Display name for the node. Used as the prompt fallback if `prompt` is empty.                               |
-| `prompt`                 | String   | Instruction for the LLM. Supports variable expansion (see below).                                          |
-| `agent`                  | String   | Stencila agent to execute this node (e.g., `"code-engineer"`).                                             |
-| `agent.model`            | String   | Override the agent's model (e.g., `"gpt-4o"`, `"o3"`).                                                     |
-| `agent.provider`         | String   | Override the agent's provider (e.g., `"openai"`, `"anthropic"`).                                           |
-| `agent.reasoning-effort` | String   | Override reasoning effort (`"low"`, `"medium"`, `"high"`).                                                 |
-| `agent.trust-level`      | String   | Override the agent's trust level (`"low"`, `"medium"`, `"high"`).                                          |
-| `agent.max-turns`        | Integer  | Override maximum conversation turns (0 = unlimited).                                                       |
-| `max-retries`            | Integer  | Additional retry attempts beyond the initial execution.                                                    |
-| `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit.                                            |
-| `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`).                                                              |
-| `class`                  | String   | Comma-separated class names for overrides targeting.                                                       |
-| `question-type`          | String   | Human node question type: `"freeform"`, `"yes-no"`, `"confirmation"`. Default: multiple choice from edges. |
-| `store`                  | String   | Human node context key to store the answer in (e.g., `"human.feedback"`).                                  |
-| `interview-ref`          | String   | Reference to a YAML code block defining a multi-question interview (e.g., `"#review-interview"`).          |
+| Attribute                | Type     | Description                                                                                                                                          |
+| ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`                  | String   | Display name for the node. Used as the prompt fallback if `prompt` is empty.                                                                         |
+| `prompt`                 | String   | Instruction for the LLM. Supports variable expansion (see below).                                                                                    |
+| `agent`                  | String   | Stencila agent to execute this node (e.g., `"code-engineer"`).                                                                                       |
+| `agent.model`            | String   | Override the agent's model (e.g., `"gpt-4o"`, `"o3"`).                                                                                               |
+| `agent.provider`         | String   | Override the agent's provider (e.g., `"openai"`, `"anthropic"`).                                                                                     |
+| `agent.reasoning-effort` | String   | Override reasoning effort (`"low"`, `"medium"`, `"high"`).                                                                                           |
+| `agent.trust-level`      | String   | Override the agent's trust level (`"low"`, `"medium"`, `"high"`).                                                                                    |
+| `agent.max-turns`        | Integer  | Override maximum conversation turns (0 = unlimited).                                                                                                 |
+| `workflow`               | String   | Run another workflow as a composed child workflow (e.g., `"code-implementation"`).                                                                   |
+| `goal`                   | String   | For `workflow` nodes, override the child workflow's goal. If omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`). |
+| `max-retries`            | Integer  | Additional retry attempts beyond the initial execution.                                                                                              |
+| `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit.                                                                                      |
+| `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`).                                                                                                        |
+| `class`                  | String   | Comma-separated class names for overrides targeting.                                                                                                 |
+| `question-type`          | String   | Human node question type: `"freeform"`, `"yes-no"`, `"confirmation"`. Default: multiple choice from edges.                                           |
+| `store`                  | String   | Human node context key to store the answer in (e.g., `"human.feedback"`).                                                                            |
+| `interview-ref`          | String   | Reference to a YAML code block defining a multi-question interview (e.g., `"#review-interview"`).                                                    |
 
 ## Agent property overrides
 
@@ -164,6 +168,71 @@ The override precedence order (highest to lowest):
 2. **Overrides rules** — from `overrides` selectors
 3. **Agent definition** — from the named agent's `AGENT.md`
 4. **System defaults**
+
+## Workflow composition
+
+Use the `workflow` node attribute to run another workflow as a child workflow.
+
+```dot
+digraph ParentWorkflow {
+    Start -> Implement
+
+    Implement [workflow="code-implementation"]
+    Implement -> Review
+
+    Review [shape=human]
+    Review -> End       [label="Approve"]
+    Review -> Implement [label="Revise"]
+}
+```
+
+In this example, `Implement` does not execute a prompt directly. Instead, it resolves and runs the `code-implementation` workflow and maps the child workflow's result back into the parent pipeline.
+
+### When to use composition
+
+Composition is most useful when:
+
+- a stage is complex enough to deserve its own internal graph
+- the same subprocess should be reused by multiple parent workflows
+- the parent workflow should stay readable by delegating detail to a child workflow
+
+Prefer a normal node with `prompt`, `agent`, or `shell` when the stage is simple and unlikely to be reused.
+
+### Input, parent context, and output mapping
+
+When a child workflow runs:
+
+- the parent run id and parent node id are tracked as parent metadata
+- the child receives context values identifying its parent workflow and parent node
+- any node input is passed to the child under `input`
+- the child workflow's `goal` is set from the node's explicit `goal` attribute when present; otherwise it defaults to the node's resolved input (`prompt`, then `label`)
+- the child workflow's final output is mapped back to the parent as that node's output
+
+So, after a composed node completes, downstream parent nodes can continue using normal variables such as `$last_output`.
+
+This means child workflows can usually keep using `$goal` whether they run standalone or as a composed subprocess.
+
+```dot
+digraph ParentWorkflow {
+    Start -> Implement
+
+    Implement [workflow="code-implementation", goal="$last_output"]
+    Implement -> End
+}
+```
+
+If `goal` is omitted, the child goal falls back to the composed node's resolved input.
+
+The parent also receives workflow-scoped context updates including:
+
+- `workflow.output.<node-id>` — the child workflow's final output for that composed node
+- `workflow.outcome.<node-id>` — the child workflow's full outcome object
+
+### Composition should be acyclic
+
+Workflow composition should remain acyclic. A workflow should not compose itself directly or indirectly through another workflow.
+
+Current validation rejects direct self-reference within the same workflow definition. Avoid indirect composition cycles as well, even if they are not yet detected statically.
 
 ## Prompt variables
 
@@ -224,11 +293,11 @@ Recommended style:
 
 Supported reference attributes:
 
-| Reference attribute | Resolves to |
-| --- | --- |
-| `prompt-ref="#id"` | `prompt` |
-| `shell-ref="#id"` | `shell_command` |
-| `ask-ref="#id"` | human question label |
+| Reference attribute   | Resolves to                                 |
+| --------------------- | ------------------------------------------- |
+| `prompt-ref="#id"`    | `prompt`                                    |
+| `shell-ref="#id"`     | `shell_command`                             |
+| `ask-ref="#id"`       | human question label                        |
 | `interview-ref="#id"` | `interview` (multi-question interview spec) |
 
 Example:
@@ -364,7 +433,7 @@ digraph CitationCheck {
 
     Verify [prompt="Verify each citation against its source"]
     Verify -> Check
-    
+
     Check [shape=diamond, label="All citations valid?"]
     Check -> Finalize [label="Valid",   condition="outcome=success"]
     Check -> Fix      [label="Invalid", condition="outcome!=success"]
@@ -388,7 +457,7 @@ digraph FetchData {
     graph [goal="Retrieve datasets from remote repositories"]
 
     Start -> Fetch
-     
+
     Fetch [prompt="Download the dataset from the repository", max-retries=3]
     Fetch -> Process
 
@@ -553,7 +622,7 @@ digraph SkillCreation {
     graph [goal="Create a code-review skill"]
 
     Start -> Create
-    
+
     Create [
         agent="skill-creator",
         prompt="Create or update a Stencila skill that achieves: $goal\n\nHuman feedback: $human.feedback"
@@ -661,6 +730,28 @@ digraph ParallelReview {
 
 Branches execute concurrently. The fan-in node waits for all branches to complete before proceeding.
 
+## Composed subprocess
+
+Use this pattern when a single stage in the parent workflow should expand into a reusable internal process:
+
+```dot
+digraph PublicationWorkflow {
+    Start -> Draft
+
+    Draft [workflow="paper-drafting"]
+    Draft -> Review
+
+    Review [shape=human]
+    Review -> Publish [label="Approve"]
+    Review -> Draft   [label="Revise"]
+
+    Publish [prompt="Prepare the approved paper for publication"]
+    Publish -> End
+}
+```
+
+The parent graph stays focused on orchestration, while `paper-drafting` can own the internal research, outlining, drafting, and checking stages.
+
 ## Overrides
 
 Centralize agent property overrides with CSS-like rules instead of setting `agent.model` on every node:
@@ -716,7 +807,7 @@ digraph ResearchWorkflow {
     ]
 
     Start -> Search
-    
+
     Search       [prompt="Search databases for recent papers on: $goal"]
     Search -> Screen
 

@@ -209,6 +209,11 @@ pub struct ActiveWorkflow {
     /// when the parallel section completes with failures.
     pub parallel_had_failure: bool,
 
+    /// Workflow nesting depth: 0 before the root workflow starts, 1 for the
+    /// root, 2 for a child workflow, etc. Used to indent child workflow
+    /// stages visually in detailed and simple modes.
+    pub pipeline_depth: usize,
+
     /// Whether this workflow directory is marked ephemeral via a `.gitignore`
     /// sentinel and may be offered for save/discard after execution.
     pub is_ephemeral: bool,
@@ -287,6 +292,9 @@ pub enum AppMessage {
 
         /// Detail text.
         detail: Option<String>,
+
+        /// Workflow nesting depth (0 = root, 1 = child workflow, etc.).
+        depth: usize,
     },
 
     /// A structured interview block rendered inline in the message area.

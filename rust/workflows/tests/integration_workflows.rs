@@ -64,9 +64,15 @@ fn run_options() -> RunOptions {
 /// Run a workflow and assert it succeeds.
 async fn run_and_assert_success(name: &str) {
     let wf = load_workflow(name).await;
-    let outcome = run_workflow_with_options(&wf, run_options())
-        .await
-        .unwrap_or_else(|e| panic!("Workflow `{name}` execution error: {e}"));
+    let outcome = run_workflow_with_options(
+        &wf,
+        RunOptions {
+            emitter: stencila_workflows::stderr_event_emitter_for_testing(),
+            interviewer: run_options().interviewer,
+        },
+    )
+    .await
+    .unwrap_or_else(|e| panic!("Workflow `{name}` execution error: {e}"));
     assert!(
         outcome.status.is_success(),
         "Workflow `{name}` failed: status={}, reason={}",
@@ -89,6 +95,12 @@ async fn test_no_op() {
 #[tokio::test]
 async fn test_shell_nodes() {
     run_and_assert_success("test-shell-nodes").await;
+}
+
+/// Parent workflow composing a child workflow via `workflow=` sugar.
+#[tokio::test]
+async fn test_workflow_composition() {
+    run_and_assert_success("test-compose").await;
 }
 
 /// goal_gate=true with retryTarget loopback, shell only.

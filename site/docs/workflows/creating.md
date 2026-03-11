@@ -389,6 +389,112 @@ Use separate `ask` / `ask-ref` nodes when:
 - simpler single-question nodes make the graph easier to read
 
 
+## Workflow composition and nesting
+
+Workflows can call other workflows as reusable sub-workflows. The main reason to do this is reuse: if you already have a workflow that does one part well, another workflow can include it instead of re-creating the same steps again.
+
+This is especially helpful when you have a process such as implementation, review, publication, or data preparation that shows up in more than one place. Instead of copying that logic into several parent workflows, you can keep it in one child workflow and reuse it.
+
+Use composition when:
+
+- the child process is useful in more than one parent workflow
+- a parent workflow is easier to read if a complex stage is collapsed into a single node
+- you want to standardize a repeated process behind a reusable workflow boundary
+
+Prefer keeping the parent workflow focused on the bigger picture and moving repeated or detailed steps into the child workflow.
+
+### Authoring a child workflow node
+
+To run another workflow from a node, set the node's `workflow` attribute to the child workflow name:
+
+```dot
+digraph code_generation {
+    Start -> Implement
+
+    Implement [workflow="code-implementation"]
+    Implement -> Review
+
+    Review [shape=human]
+    Review -> End      [label="Approve"]
+    Review -> Implement [label="Revise"]
+}
+```
+
+This treats `Implement` as “run the `code-implementation` workflow here”.
+
+### Example: parent and child workflows
+
+Parent workflow:
+
+````markdown
+---
+name: code-review-composed
+description: Orchestrate implementation through a reusable child workflow and final human review
+goal: Implement and approve the requested change
+---
+
+```dot
+digraph code_review_composed {
+    Start -> Implement
+
+    Implement [workflow="code-implementation"]
+    Implement -> Review
+
+    Review [shape=human]
+    Review -> End       [label="Approve"]
+    Review -> Implement [label="Revise"]
+}
+```
+````
+
+Child workflow:
+
+````markdown
+---
+name: code-implementation
+description: Design, implement, and test a requested software change
+---
+
+```dot
+digraph code_implementation {
+    Start -> Design
+
+    Design [agent="code-planner", prompt="Design an implementation for: $goal"]
+    Design -> Build
+
+    Build [agent="code-engineer", prompt="Implement the approved design"]
+    Build -> Test
+
+    Test [agent="code-tester", prompt="Run tests and report any failures"]
+    Test -> End
+}
+```
+````
+
+### What happens when a workflow calls another workflow
+
+When a parent workflow runs a child workflow:
+
+- the child still gets the normal workflow context, including values such as `$goal`
+- it knows which parent workflow and parent node called it
+- when it finishes, its final output becomes the output of that parent node
+
+In practice, this means the parent workflow can treat the child workflow much like any other step: it runs, produces an output, and the parent continues.
+
+### Design guidance
+
+When creating composed workflows:
+
+- keep child workflows independently meaningful and reusable
+- give child workflows names that describe the subprocess they perform, not just that they are children
+- avoid splitting a simple two-step flow into separate workflows unless reuse or clarity genuinely benefits
+- let the parent workflow show the overall process, and let the child workflow hold the repeated or detailed steps
+
+### Avoid cyclic composition
+
+A workflow must not compose itself, directly or indirectly. For example, `A -> B -> A` is invalid. Keep composition hierarchies acyclic.
+
+
 ## Improving Discoverability and Delegation
 
 When a manager agent decides which workflow to delegate to, it uses the workflow's `description`, `keywords`, `when-to-use`, and `when-not-to-use` fields. Adding these fields improves delegation accuracy.

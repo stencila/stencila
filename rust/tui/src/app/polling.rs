@@ -359,6 +359,7 @@ impl App {
                                         kind: WorkflowProgressKind::Failed,
                                         label: format!("Workflow {} failed", workflow.info.name),
                                         detail: Some(error_text),
+                                        depth: 0,
                                     });
                                 }
                             }

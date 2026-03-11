@@ -129,14 +129,34 @@ impl SqliteBackend {
         goal: &str,
         stencila_version: &str,
     ) -> Result<(), stencila_db::rusqlite::Error> {
+        self.insert_run_with_parent(workflow_name, goal, stencila_version, None, None)
+    }
+
+    /// Insert a new run record with optional parent workflow linkage.
+    pub fn insert_run_with_parent(
+        &self,
+        workflow_name: &str,
+        goal: &str,
+        stencila_version: &str,
+        parent_run_id: Option<&str>,
+        parent_node_id: Option<&str>,
+    ) -> Result<(), stencila_db::rusqlite::Error> {
         let conn = self
             .conn
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         conn.execute(
-            "INSERT INTO workflow_runs (run_id, workflow_name, goal, stencila_version)
-             VALUES (?1, ?2, ?3, ?4)",
-            (&self.run_id, workflow_name, goal, stencila_version),
+            "INSERT INTO workflow_runs (
+                run_id, workflow_name, parent_run_id, parent_node_id, goal, stencila_version
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            (
+                &self.run_id,
+                workflow_name,
+                parent_run_id,
+                parent_node_id,
+                goal,
+                stencila_version,
+            ),
         )?;
         Ok(())
     }

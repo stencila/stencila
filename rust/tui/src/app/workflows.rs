@@ -36,6 +36,7 @@ impl App {
             in_parallel: false,
             parallel_stages: HashMap::new(),
             parallel_had_failure: false,
+            pipeline_depth: 0,
         });
         if let Some(goal) = default_goal {
             self.input.set_text(&goal);
@@ -151,12 +152,25 @@ impl App {
     /// visibility.
     #[allow(clippy::too_many_lines)]
     fn handle_pipeline_event_simple(&mut self, event: &PipelineEvent) {
+        let depth = self
+            .active_workflow
+            .as_ref()
+            .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
+
         match event {
             PipelineEvent::PipelineStarted { pipeline_name } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.pipeline_depth += 1;
+                }
+                let depth = self
+                    .active_workflow
+                    .as_ref()
+                    .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Started,
                     label: format!("Workflow `{pipeline_name}` started"),
                     detail: None,
+                    depth,
                 });
             }
             PipelineEvent::StageStarted {
@@ -169,6 +183,7 @@ impl App {
                     kind: WorkflowProgressKind::Running,
                     label: format!("Workflow stage {stage_index}: {node_id}"),
                     detail: None,
+                    depth,
                 });
                 if let Some(workflow) = &mut self.active_workflow {
                     workflow.stage_status_msg_index = Some(msg_index);
@@ -227,6 +242,7 @@ impl App {
                         "Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})",
                     ),
                     detail: None,
+                    depth,
                 });
             }
             PipelineEvent::PipelineCompleted {
@@ -238,7 +254,11 @@ impl App {
                     kind: WorkflowProgressKind::Completed,
                     label: format!("Workflow `{pipeline_name}` completed"),
                     detail: Some(outcome.status.as_str().to_title_case()),
+                    depth,
                 });
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
+                }
             }
             PipelineEvent::PipelineFailed {
                 pipeline_name,
@@ -249,7 +269,11 @@ impl App {
                     kind: WorkflowProgressKind::Failed,
                     label: format!("Workflow `{pipeline_name}` failed"),
                     detail: Some(reason.to_string()),
+                    depth,
                 });
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
+                }
             }
             // Suppress parallel, interview, checkpoint, text delta, response end
             _ => {}
@@ -263,12 +287,25 @@ impl App {
     /// branch instead of interleaved into a single block.
     #[allow(clippy::too_many_lines)]
     fn handle_pipeline_event_detailed(&mut self, event: &PipelineEvent) {
+        let depth = self
+            .active_workflow
+            .as_ref()
+            .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
+
         match event {
             PipelineEvent::PipelineStarted { pipeline_name } => {
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.pipeline_depth += 1;
+                }
+                let depth = self
+                    .active_workflow
+                    .as_ref()
+                    .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
                 self.messages.push(AppMessage::WorkflowProgress {
                     kind: WorkflowProgressKind::Started,
                     label: format!("Workflow `{pipeline_name}` started"),
                     detail: None,
+                    depth,
                 });
             }
             PipelineEvent::StageStarted {
@@ -436,6 +473,7 @@ impl App {
                     kind: WorkflowProgressKind::Failed,
                     label: "Parallel branch failed".to_string(),
                     detail: Some(reason.clone()),
+                    depth,
                 });
             }
             PipelineEvent::ParallelCompleted { .. } => {
@@ -527,6 +565,7 @@ impl App {
                         "Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})",
                     ),
                     detail: None,
+                    depth,
                 });
             }
             PipelineEvent::PipelineCompleted {
@@ -538,7 +577,11 @@ impl App {
                     kind: WorkflowProgressKind::Completed,
                     label: format!("Workflow `{pipeline_name}` completed"),
                     detail: Some(outcome.status.as_str().to_title_case()),
+                    depth,
                 });
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
+                }
             }
             PipelineEvent::PipelineFailed {
                 pipeline_name,
@@ -549,7 +592,11 @@ impl App {
                     kind: WorkflowProgressKind::Failed,
                     label: format!("Workflow `{pipeline_name}` failed"),
                     detail: Some(reason.to_string()),
+                    depth,
                 });
+                if let Some(workflow) = &mut self.active_workflow {
+                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
+                }
             }
             // Suppress remaining events: ParallelBranchStarted, ParallelBranchCompleted, interview, checkpoint
             _ => {}

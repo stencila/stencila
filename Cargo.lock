@@ -11923,6 +11923,7 @@ dependencies = [
  "dialoguer",
  "eyre",
  "glob",
+ "indexmap 2.13.0",
  "regex",
  "serde",
  "serde_json",
