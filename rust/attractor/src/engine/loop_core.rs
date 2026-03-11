@@ -69,7 +69,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
     let start_node = graph.find_start_node()?;
     graph.find_exit_node()?;
 
-    let context = init_run(graph);
+    let context = init_run(graph, None);
 
     config.emitter.emit(PipelineEvent::PipelineStarted {
         pipeline_name: graph.name.clone(),
@@ -179,9 +179,46 @@ pub(crate) async fn resume_loop(
 /// Creates a new context populated with the graph's `goal` and other
 /// graph-level attributes. Used for fresh runs and loop restarts
 /// (§2.7/§3.2).
-fn init_run(graph: &Graph) -> Context {
-    let context = Context::new();
+fn init_run(graph: &Graph, previous: Option<&Context>) -> Context {
+    let context = previous.map_or_else(Context::new, clone_runtime_context_for_restart);
     populate_context(graph, &context);
+    context
+}
+
+/// Clear transient execution keys that should not survive a loop restart.
+fn clear_restart_transients(context: &Context) {
+    context.set("current_node", Value::Null);
+    context.set("outcome", Value::Null);
+    context.set("preferred_label", Value::Null);
+
+    for key in context.snapshot().keys() {
+        if key.starts_with("internal.") {
+            context.set(key.clone(), Value::Null);
+        }
+    }
+}
+
+/// Clone only restart-safe runtime context into a fresh in-memory backend.
+///
+/// Loop restarts should preserve user-visible/runtime variables from prior
+/// iterations (e.g. handler context updates) while dropping transient
+/// execution bookkeeping such as `internal.*`, `current_node`, `outcome`,
+/// and `preferred_label` so the next iteration starts cleanly.
+fn clone_runtime_context_for_restart(previous: &Context) -> Context {
+    let context = Context::new();
+
+    for (key, value) in previous.snapshot() {
+        if key == "current_node"
+            || key == "outcome"
+            || key == "preferred_label"
+            || key.starts_with("internal.")
+        {
+            continue;
+        }
+
+        context.set(key, value);
+    }
+
     context
 }
 
@@ -378,8 +415,10 @@ async fn execute_loop(
                 state.stage_index += 1;
             }
             Some(AdvanceResult::LoopRestart(target)) => {
-                // §2.7/§3.2: create fresh context
-                let new_context = init_run(graph);
+                // §2.7/§3.2: preserve runtime context across loop restarts,
+                // while clearing transient execution bookkeeping.
+                let new_context = init_run(graph, Some(&context));
+                clear_restart_transients(&new_context);
                 context = new_context;
                 state.completed_nodes.clear();
                 state.node_outcomes.clear();

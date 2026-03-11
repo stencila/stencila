@@ -47,6 +47,98 @@ fn linear_graph() -> Graph {
     g
 }
 
+#[tokio::test]
+async fn engine_goal_gate_restart_preserves_runtime_context_but_clears_internal_keys()
+-> AttractorResult<()> {
+    let mut g = Graph::new("gate_restart_context_test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut gate = Node::new("gate_task");
+    gate.attrs
+        .insert("goal_gate".into(), AttrValue::Boolean(true));
+    gate.attrs
+        .insert("retry_target".into(), AttrValue::from("gate_task"));
+    g.add_node(gate);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "gate_task"));
+    g.add_edge(Edge::new("gate_task", "exit"));
+
+    struct RestartContextHandler {
+        calls: Mutex<u32>,
+    }
+
+    #[async_trait]
+    impl Handler for RestartContextHandler {
+        async fn execute(
+            &self,
+            _node: &Node,
+            context: &Context,
+            _graph: &Graph,
+        ) -> AttractorResult<Outcome> {
+            let mut calls = self
+                .calls
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            *calls += 1;
+
+            let mut outcome = if *calls == 1 {
+                Outcome {
+                    status: StageStatus::Skipped,
+                    ..Outcome::success()
+                }
+            } else {
+                Outcome::success()
+            };
+
+            if *calls == 1 {
+                outcome.context_updates.insert(
+                    "user.counter".into(),
+                    serde_json::json!(context.get_i64("user.counter").unwrap_or(0) + 1),
+                );
+                outcome.context_updates.insert(
+                    "internal.retry_count.gate_task".into(),
+                    serde_json::json!(99),
+                );
+            } else if *calls == 2 {
+                assert_eq!(context.get_i64("user.counter"), Some(1));
+                assert_eq!(
+                    context.get("internal.retry_count.gate_task"),
+                    Some(serde_json::Value::Null)
+                );
+                assert_eq!(context.get("outcome"), Some(serde_json::Value::Null));
+                assert_eq!(
+                    context.get("preferred_label"),
+                    Some(serde_json::Value::Null)
+                );
+            }
+
+            Ok(outcome)
+        }
+    }
+
+    let mut config = EngineConfig::new();
+    config.registry.register(
+        "codergen",
+        RestartContextHandler {
+            calls: Mutex::new(0),
+        },
+    );
+
+    let outcome = engine::run(&g, config).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+    Ok(())
+}
+
 /// Build a start→middle→exit graph.
 fn three_node_graph() -> Graph {
     let mut g = Graph::new("three_node");
