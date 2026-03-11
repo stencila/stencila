@@ -88,7 +88,8 @@ impl CodergenHandler {
     }
 }
 
-use super::shared::{build_output_outcome, expand_runtime_variables};
+use super::shared::build_output_outcome;
+use crate::interpolation::expand_runtime_variables;
 
 #[async_trait]
 impl Handler for CodergenHandler {

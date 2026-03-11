@@ -21,6 +21,7 @@ pub mod fidelity;
 pub mod graph;
 pub mod handler;
 pub mod handlers;
+pub mod interpolation;
 pub mod interviewer;
 pub mod interviewers;
 pub mod parser;

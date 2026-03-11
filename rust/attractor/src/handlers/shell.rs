@@ -10,12 +10,13 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use super::shared::{build_output_outcome, expand_runtime_variables};
+use super::shared::build_output_outcome;
 use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
+use crate::interpolation::expand_runtime_variables;
 use crate::types::Outcome;
 
 /// Handler for shell command nodes.

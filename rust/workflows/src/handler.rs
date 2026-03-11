@@ -8,6 +8,7 @@ use stencila_attractor::{
     events::{EventEmitter, PipelineEvent},
     graph::{Graph, Node},
     handler::Handler,
+    interpolation::expand_runtime_variables,
     interviewer::Interviewer,
     types::Outcome,
 };
@@ -22,24 +23,6 @@ pub struct WorkflowHandler {
     workflow_home: PathBuf,
     emitter: Arc<dyn EventEmitter>,
     interviewer: Option<Arc<dyn Interviewer>>,
-}
-
-fn expand_runtime_variables(input: &str, context: &Context) -> String {
-    let mut result = input.to_string();
-
-    if result.contains("$last_stage") {
-        result = result.replace("$last_stage", &context.get_string("last_stage"));
-    }
-
-    if result.contains("$last_outcome") {
-        result = result.replace("$last_outcome", &context.get_string("outcome"));
-    }
-
-    if result.contains("$last_output") {
-        result = result.replace("$last_output", &context.get_string("last_output_full"));
-    }
-
-    result
 }
 
 impl WorkflowHandler {
@@ -219,13 +202,27 @@ mod tests {
     }
 
     #[test]
-    fn expand_runtime_variables_substitutes_last_output() {
+    fn workflow_handler_uses_shared_runtime_variable_expansion() {
         let context = Context::new();
         context.set("last_output_full", serde_json::json!("child goal"));
 
         assert_eq!(
             expand_runtime_variables("Use this: $last_output", &context),
             "Use this: child goal"
+        );
+    }
+
+    #[test]
+    fn workflow_handler_preserves_unknown_variables() {
+        let context = Context::new();
+
+        assert_eq!(
+            expand_runtime_variables("COUNT=$COUNT; test $COUNT -ge 2", &context),
+            "COUNT=$COUNT; test $COUNT -ge 2"
+        );
+        assert_eq!(
+            expand_runtime_variables("Previous stage: $last_stage", &context),
+            "Previous stage: $last_stage"
         );
     }
 }

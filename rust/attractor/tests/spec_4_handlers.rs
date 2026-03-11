@@ -356,7 +356,7 @@ async fn context_variable_expansion_basic() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn context_variable_expansion_missing_key() -> AttractorResult<()> {
+async fn context_variable_expansion_missing_key_is_preserved() -> AttractorResult<()> {
     let backend = Arc::new(CapturingBackend::new());
     let handler = CodergenHandler::with_backend(backend.clone());
 
@@ -366,13 +366,37 @@ async fn context_variable_expansion_missing_key() -> AttractorResult<()> {
         AttrValue::from("Feedback: $human.feedback"),
     );
     let ctx = Context::new();
-    // Do not set human.feedback — should resolve to ""
+    // Do not set human.feedback — should remain unchanged
     let g = Graph::new("test");
 
     handler.execute(&node, &ctx, &g).await?;
 
     let prompts = backend.captured();
-    assert_eq!(prompts[0], "Feedback: ");
+    assert_eq!(prompts[0], "Feedback: $human.feedback");
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_preserves_unknown_shell_variables() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("tool1");
+    node.attrs.insert(
+        "shell_command".into(),
+        AttrValue::from("COUNT=1; echo $COUNT"),
+    );
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let output = outcome
+        .context_updates
+        .get("last_output")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(output, "1");
+
     Ok(())
 }
 
