@@ -18,18 +18,18 @@ when-not-to-use:
 
 ```dot
 digraph skill_creation_iterative {
-    Start -> Create
+  Start -> Create
 
-    Create [agent="skill-creator", prompt-ref="#creator-prompt"]
-    Create -> Review
+  Create [agent="skill-creator", prompt-ref="#creator-prompt"]
+  Create -> Review
 
-    Review [agent="skill-reviewer", prompt-ref="#reviewer-prompt"]
-    Review -> HumanReview  [label="Accept", condition="context.last_output=yes"]
-    Review -> Create       [label="Revise", condition="context.last_output!=yes"]
+  Review [agent="skill-reviewer", prompt-ref="#reviewer-prompt"]
+  Review -> HumanReview  [label="Accept", condition="context.last_output=yes"]
+  Review -> Create       [label="Revise", condition="context.last_output!=yes"]
 
-    HumanReview [interview-ref="#human-review-interview"]
-    HumanReview -> End     [label="Accept"]
-    HumanReview -> Create  [label="Revise"]
+  HumanReview [interview-ref="#human-review-interview"]
+  HumanReview -> End     [label="Accept"]
+  HumanReview -> Create  [label="Revise"]
 }
 ```
 
@@ -58,19 +58,19 @@ preamble: |
   Please review the skill and decide whether to accept it or send it back for revision.
 
 questions:
-  - question: "Is the skill acceptable?"
+  - question: Is the skill acceptable?
     header: Decision
     question_type: multiple_choice
     options:
       - label: Accept
       - label: Revise
     store: human.decision
-    finish_if: "Accept"
+    finish_if: Accept
 
-  - question: "What specific changes or improvements should be made?"
+  - question: What specific changes or improvements should be made?
     header: Revision Notes
     question_type: freeform
     store: human.feedback
 ```
 
-The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview. The decision question uses `finish_if: "Accept"` to end the interview immediately when the skill is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.
+The workflow first uses the `skill-creator` agent to draft or revise the skill, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview. The decision question uses `finish_if: Accept` to end the interview immediately when the skill is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.
