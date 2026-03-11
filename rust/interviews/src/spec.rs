@@ -1,7 +1,10 @@
+use std::collections::HashSet;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 
+use crate::condition::Condition;
 use crate::interviewer::{Answer, AnswerValue, Interview, Question, QuestionOption, QuestionType};
 
 /// Declarative specification for an interview, typically deserialized from
@@ -53,11 +56,44 @@ pub struct QuestionSpec {
     /// answers that downstream nodes need to reference via `$KEY` expansion.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub store: Option<String>,
+
+    /// End the interview immediately if the answer matches this value.
+    ///
+    /// For `yes_no` and `confirmation` questions: `"yes"` or `"no"`.
+    /// For `multiple_choice` questions: an option label.
+    /// Not supported for `freeform` or `multi_select` questions.
+    ///
+    /// When triggered, remaining questions are not presented and the
+    /// interview completes successfully with the answers collected so far.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub finish_if: Option<String>,
+
+    /// Only present this question when the condition is true.
+    ///
+    /// Syntax: `"store_key == value"` or `"store_key != value"`, where
+    /// `store_key` is the `store` name of an earlier question. Comparisons
+    /// are case-insensitive. If the referenced key has not been answered
+    /// (because its question was itself skipped), `==` evaluates to false
+    /// and `!=` evaluates to true.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub show_if: Option<String>,
 }
 
 /// The type of question in a spec, using lowercase snake_case naming.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    SmartDefault,
+    Deserialize,
+    Serialize,
+    JsonSchema,
+    strum::Display,
+)]
 #[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum QuestionTypeSpec {
     #[default]
     Freeform,
@@ -92,6 +128,118 @@ impl InterviewSpec {
         serde_yaml::from_str(spec)
             .or_else(|yaml_err| serde_json::from_str(spec).map_err(|_| yaml_err))
             .map_err(|e| format!("failed to parse interview spec: {e}"))
+    }
+
+    /// Returns `true` if any question uses conditional features
+    /// (`finish_if` or `show_if`), meaning the interview must be
+    /// conducted progressively (one question at a time) rather than
+    /// as a flat batch.
+    #[must_use]
+    pub fn is_conditional(&self) -> bool {
+        self.questions
+            .iter()
+            .any(|q| q.finish_if.is_some() || q.show_if.is_some())
+    }
+
+    /// Validate the semantic correctness of this spec.
+    ///
+    /// Checks that:
+    /// - `show_if` conditions parse correctly
+    /// - `show_if` references only `store` keys defined by earlier questions
+    /// - `finish_if` is only used with compatible question types
+    ///   (`yes_no`, `confirmation`, `multiple_choice`)
+    /// - There are no duplicate `store` keys
+    ///
+    /// Returns `Ok(())` if valid, or `Err` with a list of all problems found.
+    pub fn validate(&self) -> Result<(), Vec<String>> {
+        let mut errors = Vec::new();
+        let mut seen_stores = HashSet::new();
+        let mut available_stores = HashSet::<&str>::new();
+
+        for (i, q) in self.questions.iter().enumerate() {
+            let label = q.header.as_deref().unwrap_or(q.question.as_str());
+
+            // Check for duplicate store keys
+            if let Some(ref store) = q.store
+                && !seen_stores.insert(store.as_str())
+            {
+                errors.push(format!(
+                    "question {i} ({label}): duplicate store key '{store}'"
+                ));
+            }
+
+            // Validate show_if
+            if let Some(ref show_if) = q.show_if {
+                match Condition::parse(show_if) {
+                    Ok(cond) => {
+                        let key = cond.referenced_key();
+                        if !available_stores.contains(key) {
+                            errors.push(format!(
+                                "question {i} ({label}): show_if references \
+                                 '{key}' which is not a store key from an \
+                                 earlier question"
+                            ));
+                        }
+                    }
+                    Err(e) => {
+                        errors.push(format!("question {i} ({label}): invalid show_if: {e}"));
+                    }
+                }
+            }
+
+            // Validate finish_if
+            if let Some(ref finish_if) = q.finish_if {
+                match q.question_type {
+                    QuestionTypeSpec::Freeform => {
+                        errors.push(format!(
+                            "question {i} ({label}): finish_if is not \
+                             supported for freeform questions"
+                        ));
+                    }
+                    QuestionTypeSpec::MultiSelect => {
+                        errors.push(format!(
+                            "question {i} ({label}): finish_if is not \
+                             supported for multi_select questions"
+                        ));
+                    }
+                    QuestionTypeSpec::YesNo | QuestionTypeSpec::Confirmation => {
+                        let lower = finish_if.trim().to_lowercase();
+                        if !matches!(lower.as_str(), "yes" | "no") {
+                            errors.push(format!(
+                                "question {i} ({label}): finish_if for \
+                                 {} must be 'yes' or 'no', got '{finish_if}'",
+                                q.question_type
+                            ));
+                        }
+                    }
+                    QuestionTypeSpec::MultipleChoice => {
+                        let trimmed = finish_if.trim();
+                        if !q
+                            .options
+                            .iter()
+                            .any(|o| o.label.trim().eq_ignore_ascii_case(trimmed))
+                        {
+                            errors.push(format!(
+                                "question {i} ({label}): finish_if value \
+                                 '{finish_if}' does not match any option label"
+                            ));
+                        }
+                    }
+                }
+            }
+
+            // Add this question's store to available set for subsequent
+            // questions' show_if references.
+            if let Some(ref store) = q.store {
+                available_stores.insert(store.as_str());
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
 
     /// Convert this spec into a runtime [`Interview`].
@@ -325,6 +473,8 @@ questions:
                     options: vec![],
                     default: None,
                     store: None,
+                    finish_if: None,
+                    show_if: None,
                 },
                 QuestionSpec {
                     question: "Pick one".into(),
@@ -342,6 +492,8 @@ questions:
                     ],
                     default: Some("Beta".into()),
                     store: None,
+                    finish_if: None,
+                    show_if: None,
                 },
             ],
         };
@@ -392,6 +544,8 @@ questions:
             options: vec![],
             default: None,
             store: None,
+            finish_if: None,
+            show_if: None,
         };
         let err = qs
             .to_question()
@@ -408,6 +562,8 @@ questions:
             options: vec![],
             default: None,
             store: None,
+            finish_if: None,
+            show_if: None,
         };
         let err = qs
             .to_question()
@@ -459,6 +615,8 @@ questions:
                 options: vec![],
                 default: None,
                 store: None,
+                finish_if: None,
+                show_if: None,
             }],
         };
         let interview = spec.to_interview("s")?;
@@ -482,6 +640,8 @@ questions:
                     options: vec![],
                     default: None,
                     store: None,
+                    finish_if: None,
+                    show_if: None,
                 },
                 QuestionSpec {
                     question: "Q2?".into(),
@@ -490,6 +650,8 @@ questions:
                     options: vec![],
                     default: None,
                     store: None,
+                    finish_if: None,
+                    show_if: None,
                 },
             ],
         };
@@ -513,6 +675,8 @@ questions:
                 options: vec![],
                 default: None,
                 store: None,
+                finish_if: None,
+                show_if: None,
             }],
         };
         let interview = spec.to_interview("s")?;
@@ -552,6 +716,8 @@ questions:
             options,
             default: None,
             store: None,
+            finish_if: None,
+            show_if: None,
         };
         let q = qs.to_question()?;
         assert_eq!(q.options[0].key, "A");
@@ -717,6 +883,8 @@ questions:
             options: vec![],
             default: None,
             store: Some("user_name".into()),
+            finish_if: None,
+            show_if: None,
         };
         let json = serde_json::to_string(&spec)?;
         assert!(json.contains("user_name"));
@@ -735,6 +903,8 @@ questions:
             options: vec![],
             default: None,
             store: None,
+            finish_if: None,
+            show_if: None,
         };
         let json = serde_json::to_string(&spec)?;
         assert!(!json.contains("store"));
@@ -824,6 +994,349 @@ questions:
             Some(&AnswerValue::Text("No comments".into()))
         );
 
+        Ok(())
+    }
+
+    // -----------------------------------------------------------------------
+    // is_conditional()
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn is_conditional_false_for_plain_spec() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::Freeform,
+                options: vec![],
+                default: None,
+                store: None,
+                finish_if: None,
+                show_if: None,
+            }],
+        };
+        assert!(!spec.is_conditional());
+    }
+
+    #[test]
+    fn is_conditional_true_with_finish_if() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::YesNo,
+                options: vec![],
+                default: None,
+                store: None,
+                finish_if: Some("no".into()),
+                show_if: None,
+            }],
+        };
+        assert!(spec.is_conditional());
+    }
+
+    #[test]
+    fn is_conditional_true_with_show_if() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "Q1?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::YesNo,
+                    options: vec![],
+                    default: None,
+                    store: Some("q1".into()),
+                    finish_if: None,
+                    show_if: None,
+                },
+                QuestionSpec {
+                    question: "Q2?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::Freeform,
+                    options: vec![],
+                    default: None,
+                    store: None,
+                    finish_if: None,
+                    show_if: Some("q1 == yes".into()),
+                },
+            ],
+        };
+        assert!(spec.is_conditional());
+    }
+
+    // -----------------------------------------------------------------------
+    // validate()
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn validate_valid_conditional_spec() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "Approve?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::YesNo,
+                    options: vec![],
+                    default: None,
+                    store: Some("approved".into()),
+                    finish_if: Some("no".into()),
+                    show_if: None,
+                },
+                QuestionSpec {
+                    question: "Target?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::Freeform,
+                    options: vec![],
+                    default: None,
+                    store: Some("target".into()),
+                    finish_if: None,
+                    show_if: Some("approved == yes".into()),
+                },
+            ],
+        };
+        assert!(spec.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_show_if_references_future_store() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "Q1?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::Freeform,
+                    options: vec![],
+                    default: None,
+                    store: None,
+                    finish_if: None,
+                    show_if: Some("future_key == yes".into()),
+                },
+                QuestionSpec {
+                    question: "Q2?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::YesNo,
+                    options: vec![],
+                    default: None,
+                    store: Some("future_key".into()),
+                    finish_if: None,
+                    show_if: None,
+                },
+            ],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors.iter().any(|e| e.contains("future_key")),
+            "errors: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn validate_show_if_bad_syntax() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::Freeform,
+                options: vec![],
+                default: None,
+                store: None,
+                finish_if: None,
+                show_if: Some("no operator".into()),
+            }],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors.iter().any(|e| e.contains("invalid show_if")),
+            "errors: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn validate_finish_if_freeform_rejected() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::Freeform,
+                options: vec![],
+                default: None,
+                store: None,
+                finish_if: Some("anything".into()),
+                show_if: None,
+            }],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("not supported for freeform")),
+            "errors: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn validate_finish_if_multi_select_rejected() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::MultiSelect,
+                options: vec![OptionSpec {
+                    label: "A".into(),
+                    description: None,
+                }],
+                default: None,
+                store: None,
+                finish_if: Some("A".into()),
+                show_if: None,
+            }],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("not supported for multi_select")),
+            "errors: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn validate_finish_if_yes_no_bad_value() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::YesNo,
+                options: vec![],
+                default: None,
+                store: None,
+                finish_if: Some("maybe".into()),
+                show_if: None,
+            }],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors.iter().any(|e| e.contains("must be 'yes' or 'no'")),
+            "errors: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn validate_finish_if_mc_unknown_label() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "Q?".into(),
+                header: None,
+                question_type: QuestionTypeSpec::MultipleChoice,
+                options: vec![OptionSpec {
+                    label: "Alpha".into(),
+                    description: None,
+                }],
+                default: None,
+                store: None,
+                finish_if: Some("Beta".into()),
+                show_if: None,
+            }],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("does not match any option label")),
+            "errors: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn validate_duplicate_store_keys() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "Q1?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::Freeform,
+                    options: vec![],
+                    default: None,
+                    store: Some("dup".into()),
+                    finish_if: None,
+                    show_if: None,
+                },
+                QuestionSpec {
+                    question: "Q2?".into(),
+                    header: None,
+                    question_type: QuestionTypeSpec::Freeform,
+                    options: vec![],
+                    default: None,
+                    store: Some("dup".into()),
+                    finish_if: None,
+                    show_if: None,
+                },
+            ],
+        };
+        let errors = spec.validate().expect_err("should fail validation");
+        assert!(
+            errors.iter().any(|e| e.contains("duplicate store key")),
+            "errors: {errors:?}"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // Conditional fields serde roundtrip
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn conditional_fields_yaml_roundtrip() -> Result<(), Box<dyn std::error::Error>> {
+        let yaml = r#"
+questions:
+  - question: "Approve?"
+    question_type: yes_no
+    store: approved
+    finish_if: "no"
+  - question: "Why not?"
+    question_type: freeform
+    show_if: "approved == no"
+"#;
+        let spec: InterviewSpec = serde_yaml::from_str(yaml)?;
+        assert_eq!(spec.questions[0].finish_if.as_deref(), Some("no"));
+        assert_eq!(spec.questions[1].show_if.as_deref(), Some("approved == no"));
+        assert!(spec.is_conditional());
+
+        let yaml_out = serde_yaml::to_string(&spec)?;
+        let spec2: InterviewSpec = serde_yaml::from_str(&yaml_out)?;
+        assert_eq!(spec2.questions[0].finish_if.as_deref(), Some("no"));
+        assert_eq!(
+            spec2.questions[1].show_if.as_deref(),
+            Some("approved == no")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn conditional_fields_omitted_when_none() -> Result<(), Box<dyn std::error::Error>> {
+        let spec = QuestionSpec {
+            question: "Q?".into(),
+            header: None,
+            question_type: QuestionTypeSpec::Freeform,
+            options: vec![],
+            default: None,
+            store: None,
+            finish_if: None,
+            show_if: None,
+        };
+        let json = serde_json::to_string(&spec)?;
+        assert!(!json.contains("finish_if"));
+        assert!(!json.contains("show_if"));
         Ok(())
     }
 }

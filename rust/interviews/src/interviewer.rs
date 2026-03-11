@@ -273,6 +273,48 @@ impl Answer {
     }
 }
 
+/// Produce a canonical string representation of an answer value.
+///
+/// This is the single source of truth for how answer values are
+/// represented as strings, used by:
+/// - `show_if` / `finish_if` condition evaluation
+/// - context storage in pipeline handlers
+/// - answer formatting in agent tools
+///
+/// For [`AnswerValue::Selected`], the option **label** is returned
+/// (resolved via the question's options), falling back to the raw key
+/// if no matching option is found. This means condition authors write
+/// human-readable values (e.g., `show_if: "target == Production"`)
+/// rather than internal keys.
+#[must_use]
+pub fn canonical_answer_string(value: &AnswerValue, question: &Question) -> String {
+    match value {
+        AnswerValue::Yes => "yes".to_string(),
+        AnswerValue::No => "no".to_string(),
+        AnswerValue::Skipped => "skipped".to_string(),
+        AnswerValue::Timeout => "timeout".to_string(),
+        AnswerValue::Text(text) => text.clone(),
+        AnswerValue::Selected(key) => question
+            .options
+            .iter()
+            .find(|o| o.key == *key)
+            .map(|o| o.label.clone())
+            .unwrap_or_else(|| key.clone()),
+        AnswerValue::MultiSelected(keys) => keys
+            .iter()
+            .map(|key| {
+                question
+                    .options
+                    .iter()
+                    .find(|o| o.key == *key)
+                    .map(|o| o.label.clone())
+                    .unwrap_or_else(|| key.clone())
+            })
+            .collect::<Vec<_>>()
+            .join(", "),
+    }
+}
+
 /// An artifact attached to an interview for human review.
 ///
 /// Attachments are lightweight references — they carry metadata (filename,

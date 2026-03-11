@@ -695,9 +695,11 @@ questions:
 
 **Storing answers** — each question with a `store` key writes its answer to the pipeline context. Downstream nodes reference these values using `$KEY` expansion (e.g., `$review.feedback` in a prompt). Freeform questions without a `store` key will trigger a validation warning, since the answer would be collected but never stored.
 
+**Conditional questions** — use `show_if` to display a question only when a previous answer matches a condition (e.g., `show_if: "decision == Revise"`), and `finish_if` to end the interview early when an answer matches a value (e.g., `finish_if: "no"` on a `yes_no` gate question). These can be combined to build branching interviews with early-exit gates.
+
 Use `interview-ref` when a review step naturally combines routing with structured feedback. Use separate `ask` / `ask-ref` nodes when the questions are independent or belong to different pipeline stages.
 
-See [Creating Workflows — Multi-question interviews](creating#multi-question-interviews) for the full spec format, more examples, and guidance.
+See [Creating Workflows — Multi-question interviews](creating#multi-question-interviews) for the full spec format, conditional question examples, and guidance.
 
 ## Parallel execution
 

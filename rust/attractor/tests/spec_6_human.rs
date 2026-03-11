@@ -965,7 +965,7 @@ async fn wait_human_multiple_choice_with_store() -> AttractorResult<()> {
         .context_updates
         .get("human.choice")
         .and_then(|v| v.as_str());
-    assert_eq!(stored, Some("A"));
+    assert_eq!(stored, Some("Accept"));
     Ok(())
 }
 

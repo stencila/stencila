@@ -115,6 +115,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` instead of embedding long escaped strings directly in DOT
 - Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
 - When a human review step needs to collect multiple pieces of information (e.g., a decision and freeform feedback), use `interview-ref` pointing to a YAML code block that defines the full interview with preamble, multiple typed questions, and per-question `store` keys; continue to use `ask` or `ask-ref` for single-question human gates
+- Use `show_if` on interview questions to conditionally display them based on a previous answer (e.g., `show_if: "decision == Revise"` to ask for revision notes only when the reviewer chose to revise); use `finish_if` on `yes_no`, `confirmation`, or `multiple_choice` questions to end the interview early when the answer matches a value (e.g., `finish_if: "no"` to skip remaining questions when the user declines to continue)
 - Use edges to express sequencing, branching, retry loops, and approval paths
 - Use `workflow="child-name"` on a node when a stage should run another workflow as a reusable composed subprocess; this is normalized as a workflow-handler node rather than a normal LLM, shell, or branch node. Prefer it when a subprocess is complex, reusable, or would otherwise make the parent graph hard to read
 - On composed workflow nodes, use `goal="..."` when the child workflow needs an explicit goal. If omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`), so child workflows can usually keep using `$goal`
@@ -309,9 +310,16 @@ questions:
     store: review.decision
 
   - question: "What specific changes should be made?"
-    header: Feedback
+    header: Revision Notes
     question_type: freeform
     store: review.feedback
+    show_if: "review.decision == Revise"
+
+  - question: "Any final comments for the changelog?"
+    header: Changelog
+    question_type: freeform
+    store: review.changelog
+    show_if: "review.decision == Approve"
 ```
 ````
 
@@ -335,6 +343,8 @@ questions:
 - Do not encode every node or branch in the workflow name; keep naming focused on the process and, if needed, a broad approach modifier
 - Use `interview-ref` when a human review step needs to collect both a routing decision and structured feedback in a single pause; ensure every freeform question has a `store` key so answers are not silently lost
 - Routing in multi-question interviews is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — keep routing edges visible in the DOT graph, not hidden in the YAML spec
+- Use `show_if` to conditionally display follow-up questions based on earlier answers (e.g., `show_if: "decision == Revise"` shows revision notes only when the reviewer chose to revise); the syntax is `"store_key == value"` or `"store_key != value"` with case-insensitive comparison
+- Use `finish_if` on gate questions to end the interview early when the answer matches a value (e.g., `finish_if: "no"` on a `yes_no` question to skip the remaining questions); `finish_if` is supported on `yes_no`, `confirmation`, and `multiple_choice` questions but not on `freeform` or `multi_select`
 - When authoring a composed node, use `workflow="name"` and assume the child workflow's final output will become the parent node's output; design downstream parent prompts and branches accordingly
 - If the child workflow should receive a specific high-level objective, pass it with `goal="..."`; otherwise the child goal will default from the composed node's resolved input
 - If a child workflow needs parent context, prefer passing stable intent through shared context such as `$goal` rather than duplicating the same long prompt logic in both parent and child

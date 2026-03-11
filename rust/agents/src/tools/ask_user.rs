@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use serde_json::Value;
+use stencila_interviews::conduct::conduct_conditional;
 use stencila_interviews::interviewer::{AnswerValue, Interview, Interviewer};
 use stencila_interviews::spec::InterviewSpec;
 use stencila_models3::types::tool::ToolDefinition;
@@ -41,6 +42,28 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                     });
                 }
 
+                // Validate conditional features (show_if, finish_if)
+                if let Err(errors) = spec.validate() {
+                    return Err(AgentError::ValidationError {
+                        reason: errors.join("; "),
+                    });
+                }
+
+                // Conditional specs are conducted progressively (one
+                // question at a time) so that show_if / finish_if can
+                // be evaluated between questions.
+                if spec.is_conditional() {
+                    let result = conduct_conditional(&spec, interviewer.as_ref(), "ask_user")
+                        .await
+                        .map_err(|e| AgentError::InterviewFailed {
+                            message: e.to_string(),
+                        })?;
+
+                    let formatted = format_answers(&result.interview);
+                    return Ok(ToolOutput::Text(formatted));
+                }
+
+                // Non-conditional: batch all questions together.
                 let mut interview = spec
                     .to_interview("ask_user")
                     .map_err(|reason| AgentError::ValidationError { reason })?;

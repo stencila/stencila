@@ -724,6 +724,20 @@ impl LintRule for InterviewSpecRule {
                 }
             };
 
+            // Surface errors from semantic validation (show_if, finish_if, etc.)
+            if let Err(errors) = spec.validate() {
+                for error in errors {
+                    diagnostics.push(Diagnostic {
+                        rule: self.name().to_string(),
+                        severity: Severity::Warning,
+                        message: format!("node `{}`: {error}", node.id),
+                        node_id: Some(node.id.clone()),
+                        edge: None,
+                        fix: None,
+                    });
+                }
+            }
+
             // Warn on freeform questions without a store key
             for (i, q) in spec.questions.iter().enumerate() {
                 if q.question_type == QuestionTypeSpec::Freeform && q.store.is_none() {
@@ -739,30 +753,6 @@ impl LintRule for InterviewSpecRule {
                         node_id: Some(node.id.clone()),
                         edge: None,
                         fix: Some("add a `store` key to the question".into()),
-                    });
-                }
-            }
-
-            // Warn on duplicate store keys
-            let store_keys: Vec<&str> = spec
-                .questions
-                .iter()
-                .filter_map(|q| q.store.as_deref())
-                .collect();
-            let mut seen = HashSet::new();
-            for key in &store_keys {
-                if !seen.insert(*key) {
-                    diagnostics.push(Diagnostic {
-                        rule: self.name().to_string(),
-                        severity: Severity::Warning,
-                        message: format!(
-                            "node `{}` interview has duplicate store key `{key}`; \
-                             later answers will overwrite earlier ones",
-                            node.id
-                        ),
-                        node_id: Some(node.id.clone()),
-                        edge: None,
-                        fix: Some("use unique store keys for each question".into()),
                     });
                 }
             }

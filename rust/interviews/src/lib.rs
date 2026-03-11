@@ -8,6 +8,8 @@
 //! (pipeline engine) and `agents` crates can use the same interview types
 //! without creating a circular dependency.
 
+pub mod condition;
+pub mod conduct;
 pub mod interviewer;
 pub mod interviewers;
 pub mod spec;

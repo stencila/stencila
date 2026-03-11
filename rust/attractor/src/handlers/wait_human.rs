@@ -31,6 +31,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use indexmap::IndexMap;
 
+use stencila_interviews::conduct::conduct_conditional;
 use stencila_interviews::spec::InterviewSpec;
 
 use crate::context::Context;
@@ -139,7 +140,24 @@ impl WaitForHumanHandler {
             }
         })?;
 
-        // 2. Convert spec to Interview
+        // 2. Validate semantic correctness (show_if, finish_if, duplicates)
+        if let Err(errors) = spec.validate() {
+            return Err(crate::error::AttractorError::HandlerFailed {
+                node_id: node.id.clone(),
+                reason: format!("invalid interview spec: {}", errors.join("; ")),
+            });
+        }
+
+        // 3. Conditional specs are conducted progressively (one question
+        //    at a time) so that show_if / finish_if can be evaluated.
+        //    Resume recovery is not supported for conditional interviews.
+        if spec.is_conditional() {
+            return self
+                .execute_conditional_interview_spec(node, graph, &spec, store_key.as_deref())
+                .await;
+        }
+
+        // 4. Convert spec to Interview (non-conditional batch path)
         let mut interview = spec.to_interview(&node.id).map_err(|reason| {
             crate::error::AttractorError::HandlerFailed {
                 node_id: node.id.clone(),
@@ -148,7 +166,7 @@ impl WaitForHumanHandler {
         })?;
         interview.stage_index = context.get_i64("internal.stage_index");
 
-        // 3. Resume recovery
+        // 5. Resume recovery
         if let Some(ref db_conn) = self.db_conn {
             match stencila_interviews::find_pending_interview(
                 db_conn,
@@ -180,7 +198,7 @@ impl WaitForHumanHandler {
             }
         }
 
-        // 4. Emit events for each question
+        // 6. Emit events for each question
         for question in &interview.questions {
             self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
                 interview_id: interview.id.clone(),
@@ -189,7 +207,7 @@ impl WaitForHumanHandler {
             });
         }
 
-        // 5. Conduct the interview
+        // 7. Conduct the interview
         self.interviewer
             .conduct(&mut interview)
             .await
@@ -210,7 +228,8 @@ impl WaitForHumanHandler {
                 },
             })?;
 
-        // 6. Store answers and find routing answer
+        // 8. Store answers and find routing answer.
+        //    For non-conditional specs, spec index == interview index.
         let mut context_updates = IndexMap::new();
         let mut routing_answer: Option<Answer> = None;
 
@@ -222,22 +241,21 @@ impl WaitForHumanHandler {
                 }
             })?;
 
+            // Store the canonical (human-readable) value so that stored
+            // values match what show_if / finish_if conditions compare.
+            let canonical =
+                stencila_interviews::interviewer::canonical_answer_string(&answer.value, question);
+
             // Store under per-question `store` key
             if let Some(ref store) = spec.questions.get(i).and_then(|q| q.store.clone()) {
-                context_updates.insert(
-                    store.clone(),
-                    serde_json::Value::String(answer_to_store_value(&answer)),
-                );
+                context_updates.insert(store.clone(), serde_json::Value::String(canonical.clone()));
             }
 
             // Also store under node-level `store` for the first answer (compatibility)
             if i == 0
                 && let Some(ref key) = store_key
             {
-                context_updates.insert(
-                    key.clone(),
-                    serde_json::Value::String(answer_to_store_value(&answer)),
-                );
+                context_updates.insert(key.clone(), serde_json::Value::String(canonical));
             }
 
             // Track the first multiple_choice question's answer for routing
@@ -251,7 +269,7 @@ impl WaitForHumanHandler {
             node_id: node.id.clone(),
         });
 
-        // 7. Routing: derive choices from outgoing edges
+        // 9. Routing: derive choices from outgoing edges
         let choices = choices_from_edges(graph, &node.id);
 
         if let Some(routing_ans) = routing_answer {
@@ -300,6 +318,160 @@ impl WaitForHumanHandler {
             })
         } else {
             // No routing question — follow first outgoing edge
+            Ok(Outcome {
+                status: crate::types::StageStatus::Success,
+                suggested_next_ids: vec![choices[0].target.clone()],
+                context_updates,
+                ..Outcome::success()
+            })
+        }
+    }
+
+    /// Execute a conditional interview spec progressively.
+    ///
+    /// Uses [`conduct_conditional`] which asks questions one at a time,
+    /// evaluating `show_if` / `finish_if` between questions. The returned
+    /// [`ConductedInterview`] maps each asked question back to its spec
+    /// index, so store keys are resolved correctly even when questions are
+    /// skipped.
+    ///
+    /// Resume recovery is not supported for conditional interviews — if
+    /// the process crashes mid-interview, it restarts from the first
+    /// question.
+    #[allow(clippy::too_many_lines)]
+    async fn execute_conditional_interview_spec(
+        &self,
+        node: &Node,
+        graph: &Graph,
+        spec: &InterviewSpec,
+        store_key: Option<&str>,
+    ) -> AttractorResult<Outcome> {
+        let result = conduct_conditional(spec, self.interviewer.as_ref(), &node.id)
+            .await
+            .map_err(|e| match e {
+                InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: "interview channel closed".into(),
+                },
+                InterviewError::BackendFailure(msg) => {
+                    crate::error::AttractorError::HandlerFailed {
+                        node_id: node.id.clone(),
+                        reason: format!("interview backend failure: {msg}"),
+                    }
+                }
+                InterviewError::Cancelled => crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: "interview cancelled".into(),
+                },
+            })?;
+
+        let interview = &result.interview;
+
+        // Emit per-question events for parity with the batch path
+        for question in &interview.questions {
+            self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
+                interview_id: interview.id.clone(),
+                node_id: node.id.clone(),
+                question: question.clone(),
+            });
+        }
+
+        // Store answers using spec_indices for correct mapping
+        let mut context_updates = IndexMap::new();
+        let mut routing_answer: Option<Answer> = None;
+
+        for (i, question) in interview.questions.iter().enumerate() {
+            let answer = interview.answers.get(i).cloned().ok_or_else(|| {
+                crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: format!("no answer for question {i} after conditional interview"),
+                }
+            })?;
+
+            // Use spec_indices to find the original spec question and
+            // store the canonical (human-readable) value so that stored
+            // values match what show_if / finish_if conditions compare.
+            let spec_idx = result.spec_indices[i];
+            if let Some(ref store) = spec.questions.get(spec_idx).and_then(|q| q.store.clone()) {
+                context_updates.insert(
+                    store.clone(),
+                    serde_json::Value::String(
+                        stencila_interviews::interviewer::canonical_answer_string(
+                            &answer.value,
+                            question,
+                        ),
+                    ),
+                );
+            }
+
+            if i == 0
+                && let Some(key) = store_key
+            {
+                context_updates.insert(
+                    key.to_string(),
+                    serde_json::Value::String(
+                        stencila_interviews::interviewer::canonical_answer_string(
+                            &answer.value,
+                            question,
+                        ),
+                    ),
+                );
+            }
+
+            if routing_answer.is_none() && question.question_type == QuestionType::MultipleChoice {
+                routing_answer = Some(answer);
+            }
+        }
+
+        self.emitter.emit(PipelineEvent::InterviewAnswerReceived {
+            interview_id: interview.id.clone(),
+            node_id: node.id.clone(),
+        });
+
+        // Routing mirrors the non-conditional path, including timeout
+        // and default-choice handling.
+        let choices = choices_from_edges(graph, &node.id);
+
+        if let Some(routing_ans) = routing_answer {
+            if choices.is_empty() {
+                return Ok(Outcome::fail(
+                    "interview has a routing question but no outgoing edges",
+                ));
+            }
+
+            if routing_ans.is_timeout() {
+                self.emitter.emit(PipelineEvent::InterviewTimedOut {
+                    interview_id: interview.id.clone(),
+                    node_id: node.id.clone(),
+                });
+
+                if let Some(default_target) = node.get_str_attr("human.default_choice")
+                    && let Some(choice) = find_choice_by_str(default_target, &choices)
+                {
+                    let mut outcome = build_human_outcome(choice);
+                    outcome.context_updates.extend(context_updates);
+                    return Ok(outcome);
+                }
+                return Ok(Outcome::retry("human gate timeout, no default"));
+            }
+
+            if routing_ans.is_skipped() {
+                return Ok(Outcome::fail("human skipped interaction"));
+            }
+
+            let Some(selected) = find_matching_choice(&routing_ans, &choices) else {
+                return Ok(Outcome::fail("answer did not match any available choice"));
+            };
+
+            let mut outcome = build_human_outcome(selected);
+            outcome.context_updates.extend(context_updates);
+            Ok(outcome)
+        } else if choices.is_empty() {
+            Ok(Outcome {
+                context_updates,
+                ..Outcome::success()
+            })
+        } else {
             Ok(Outcome {
                 status: crate::types::StageStatus::Success,
                 suggested_next_ids: vec![choices[0].target.clone()],
@@ -401,18 +573,6 @@ fn parse_question_type(node: &Node) -> Option<QuestionType> {
         "multi_select" | "multi-select" => Some(QuestionType::MultiSelect),
         _ => None,
     })
-}
-
-/// Extract a string representation of an answer for context storage.
-fn answer_to_store_value(answer: &Answer) -> String {
-    match &answer.value {
-        AnswerValue::Text(t) => t.clone(),
-        AnswerValue::Selected(k) => k.clone(),
-        AnswerValue::MultiSelected(keys) => keys.join(","),
-        AnswerValue::Yes => "yes".to_string(),
-        AnswerValue::No => "no".to_string(),
-        AnswerValue::Skipped | AnswerValue::Timeout => String::new(),
-    }
 }
 
 #[async_trait]
@@ -608,11 +768,17 @@ impl Handler for WaitForHumanHandler {
             let mut outcome = build_human_outcome(selected);
 
             // For choice-based questions with a store key, store the
-            // selected label (the key/label are already in human.gate.*)
+            // canonical (human-readable) value for consistency with
+            // condition evaluation.
             if let Some(ref key) = store_key {
                 outcome.context_updates.insert(
                     key.clone(),
-                    serde_json::Value::String(answer_to_store_value(&answer)),
+                    serde_json::Value::String(
+                        stencila_interviews::interviewer::canonical_answer_string(
+                            &answer.value,
+                            &question,
+                        ),
+                    ),
                 );
             }
 
@@ -624,7 +790,12 @@ impl Handler for WaitForHumanHandler {
             if let Some(ref key) = store_key {
                 updates.insert(
                     key.clone(),
-                    serde_json::Value::String(answer_to_store_value(&answer)),
+                    serde_json::Value::String(
+                        stencila_interviews::interviewer::canonical_answer_string(
+                            &answer.value,
+                            &question,
+                        ),
+                    ),
                 );
             }
 

@@ -12,6 +12,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 smart-default = { workspace = true }
+strum = { workspace = true }
 stencila-db = { path = "../db" }
 thiserror = { workspace = true }
 tracing = { workspace = true }

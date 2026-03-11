@@ -67,6 +67,8 @@ When reviewing names, apply these conventions:
 - Revision loops have a plausible feedback path rather than a vague cycle
 - Human review (`shape=human`) is used appropriately for approval, oversight, or trust-boundary decisions
 - Multi-question interviews via `interview-ref` are used appropriately — combining a routing decision with structured feedback in a single review pause, not overloading a single interview with unrelated questions that would be clearer as separate human nodes
+- When an interview uses `show_if`, check that the referenced `store` key belongs to an earlier question and the condition syntax is valid (`"store_key == value"` or `"store_key != value"`); flag `show_if` conditions that reference a `store` key from the same or a later question
+- When an interview uses `finish_if`, check that it is on a `yes_no`, `confirmation`, or `multiple_choice` question — `finish_if` is not supported on `freeform` or `multi_select` questions; verify that the early exit value makes sense for the interview flow and that questions after the gate are ones the user would genuinely want to skip
 - Workflow composition is used appropriately — child workflows should encapsulate meaningful reusable subprocesses, not obscure simple local steps without a readability or reuse benefit
 - Parent workflows should focus on orchestration, while child workflows should own detailed internal execution where that split improves clarity
 - The workflow is no more complex than necessary for the task
@@ -85,6 +87,8 @@ When reviewing names, apply these conventions:
 - When a workflow uses `interview-ref`, check that the referenced YAML block is valid interview spec YAML (has a `questions` array with at least one entry, each question has `question` text and a recognized `question_type`)
 - Check that freeform questions in the interview spec have `store` keys — a freeform question without `store` collects an answer that is never stored, which is almost certainly a mistake
 - Check that the routing question (first `multiple_choice`) has option labels matching the outgoing edge labels from the human node
+- Check that `show_if` conditions reference valid `store` keys from earlier questions and use the correct syntax; flag conditions that would always be true, always be false, or reference non-existent keys
+- Check that `finish_if` is only used on supported question types (`yes_no`, `confirmation`, `multiple_choice`) and that the early-exit value is a valid answer for that question type (e.g., `"yes"` or `"no"` for `yes_no`, an option label for `multiple_choice`)
 - Flag `interview-ref` used for a single simple question where `ask` or `ask-ref` would be simpler
 - A workflow with no `agent` attributes may be valid, but note when explicit agent selection would materially improve clarity or control
 
