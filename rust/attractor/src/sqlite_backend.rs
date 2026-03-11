@@ -133,6 +133,10 @@ impl SqliteBackend {
     }
 
     /// Insert a new run record with optional parent workflow linkage.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the database insert fails.
     pub fn insert_run_with_parent(
         &self,
         workflow_name: &str,

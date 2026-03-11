@@ -104,9 +104,11 @@ async fn preserve_code_block_id_on_encoding() -> Result<()> {
 async fn preserve_code_chunk_id_on_encoding() -> Result<()> {
     let codec = MarkdownCodec {};
 
-    let mut chunk = CodeChunk::default();
-    chunk.code = "print('hello')".into();
-    chunk.id = Some("chunk-ref".into());
+    let chunk = CodeChunk {
+        code: "print('hello')".into(),
+        id: Some("chunk-ref".into()),
+        ..Default::default()
+    };
 
     let (md, ..) = codec.to_string(&Node::CodeChunk(chunk), None).await?;
     assert_snapshot!(md, @r"

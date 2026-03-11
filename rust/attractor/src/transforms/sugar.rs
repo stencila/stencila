@@ -56,6 +56,37 @@ use crate::transform::Transform;
 
 pub struct NodeSugarTransform;
 
+/// Infer the shape for a structural node ID, returning `Some` only for
+/// reserved start/exit/fail IDs.
+fn structural_shape(id: &str) -> Option<&'static str> {
+    if Graph::START_IDS.contains(&id) {
+        Some(Graph::START_SHAPE)
+    } else if Graph::EXIT_IDS.contains(&id) {
+        Some(Graph::EXIT_SHAPE)
+    } else if Graph::FAIL_IDS.contains(&id) {
+        Some(Graph::FAIL_SHAPE)
+    } else {
+        None
+    }
+}
+
+/// Infer the shape from a node's ID using both exact and prefix matching.
+fn infer_shape_from_id(id: &str) -> Option<&'static str> {
+    structural_shape(id).or_else(|| {
+        if id.starts_with("FanOut") || id.starts_with("Fanout") {
+            Some(Graph::PARALLEL_SHAPE)
+        } else if id.starts_with("Review") || id.starts_with("Approve") {
+            Some(Graph::HUMAN_SHAPE)
+        } else if id.starts_with("Check") || id.starts_with("Branch") {
+            Some(Graph::CONDITIONAL_SHAPE)
+        } else if id.starts_with("Shell") || id.starts_with("Run") {
+            Some(Graph::SHELL_SHAPE)
+        } else {
+            None
+        }
+    })
+}
+
 impl Transform for NodeSugarTransform {
     fn name(&self) -> &'static str {
         "node_sugar"
@@ -143,63 +174,20 @@ impl Transform for NodeSugarTransform {
 
             // `prompt` or `agent` means this is an LLM node — skip prefix-
             // based ID inference so e.g. `ReviewData [prompt="..."]` stays
-            // codergen. Structural IDs (Start/End/Fail) are exempt: they
-            // still get their canonical shape here, because even if someone
-            // writes `Start [prompt="..."]` the engine's handler_type()
-            // resolution will treat a box-shaped Start as a start handler
-            // anyway. Setting the structural shape keeps everything
-            // consistent and avoids surprises in validation/find_start_node.
+            // codergen. Structural IDs (Start/End/Fail) are exempt.
             if node.attrs.contains_key("prompt")
                 || node.attrs.contains_key("agent")
                 || node.attrs.keys().any(|k| k.starts_with("agent."))
             {
-                let id = &node.id;
-                if Graph::START_IDS.contains(&id.as_str()) {
-                    node.attrs.insert(
-                        "shape".to_string(),
-                        AttrValue::String(Graph::START_SHAPE.to_string()),
-                    );
-                } else if Graph::EXIT_IDS.contains(&id.as_str()) {
-                    node.attrs.insert(
-                        "shape".to_string(),
-                        AttrValue::String(Graph::EXIT_SHAPE.to_string()),
-                    );
-                } else if Graph::FAIL_IDS.contains(&id.as_str()) {
-                    node.attrs.insert(
-                        "shape".to_string(),
-                        AttrValue::String(Graph::FAIL_SHAPE.to_string()),
-                    );
+                if let Some(shape) = structural_shape(&node.id) {
+                    node.attrs
+                        .insert("shape".to_string(), AttrValue::String(shape.to_string()));
                 }
-                // For all other IDs, shape stays "box" (default = codergen)
                 continue;
             }
 
             // --- Node ID-based shape inference ---
-
-            let id = &node.id;
-
-            // Structural nodes: exact ID match
-            let implied_shape = if Graph::START_IDS.contains(&id.as_str()) {
-                Some(Graph::START_SHAPE)
-            } else if Graph::EXIT_IDS.contains(&id.as_str()) {
-                Some(Graph::EXIT_SHAPE)
-            } else if Graph::FAIL_IDS.contains(&id.as_str()) {
-                Some(Graph::FAIL_SHAPE)
-            }
-            // Handler nodes: prefix match
-            else if id.starts_with("FanOut") || id.starts_with("Fanout") {
-                Some(Graph::PARALLEL_SHAPE)
-            } else if id.starts_with("Review") || id.starts_with("Approve") {
-                Some(Graph::HUMAN_SHAPE)
-            } else if id.starts_with("Check") || id.starts_with("Branch") {
-                Some(Graph::CONDITIONAL_SHAPE)
-            } else if id.starts_with("Shell") || id.starts_with("Run") {
-                Some(Graph::SHELL_SHAPE)
-            } else {
-                None
-            };
-
-            if let Some(shape) = implied_shape {
+            if let Some(shape) = infer_shape_from_id(&node.id) {
                 node.attrs
                     .insert("shape".to_string(), AttrValue::String(shape.to_string()));
             }
