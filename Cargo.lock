@@ -9286,7 +9286,7 @@ dependencies = [
  "syntect",
  "terminal_size",
  "textwrap",
- "toml 1.0.3+spec-1.1.0",
+ "toml 1.0.6+spec-1.1.0",
  "unicode-width 0.2.2",
  "url",
 ]
@@ -10293,7 +10293,7 @@ dependencies = [
  "syn 2.0.117",
  "tempfile",
  "tokio",
- "toml 1.0.3+spec-1.1.0",
+ "toml 1.0.6+spec-1.1.0",
  "toml_edit 0.25.3+spec-1.1.0",
  "tracing",
  "url",
@@ -10906,7 +10906,7 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
- "toml 1.0.3+spec-1.1.0",
+ "toml 1.0.6+spec-1.1.0",
  "tracing",
 ]
 
@@ -11756,7 +11756,7 @@ dependencies = [
  "stencila-web-dist",
  "tempfile",
  "tokio",
- "toml 1.0.3+spec-1.1.0",
+ "toml 1.0.6+spec-1.1.0",
  "tracing",
  "unicode-normalization",
  "url",
@@ -12527,9 +12527,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "1.0.3+spec-1.1.0"
+version = "1.0.6+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7614eaf19ad818347db24addfa201729cf2a9b6fdfd9eb0ab870fcacc606c0c"
+checksum = "399b1124a3c9e16766831c6bba21e50192572cdd98706ea114f9502509686ffc"
 dependencies = [
  "indexmap 2.13.0",
  "serde_core",
