@@ -130,16 +130,16 @@ description: Search and summarize recent literature
 
 ```dot
 digraph lit_review {
-    Start -> Search
+  Start -> Search
 
-    Search    [prompt="Search for recent papers on: $goal"]
-    Search -> Summarize
+  Search [prompt="Search for recent papers on: $goal"]
+  Search -> Summarize
 
-    Summarize [prompt="Summarize the key findings across the papers"]
-    Summarize -> Draft
+  Summarize [prompt="Summarize the key findings across the papers"]
+  Summarize -> Draft
 
-    Draft     [prompt="Draft a literature review from the summaries"]
-    Draft -> End
+  Draft [prompt="Draft a literature review from the summaries"]
+  Draft -> End
 }
 ```
 ````
@@ -156,21 +156,21 @@ This workflow implements, tests, and reviews code changes.
 
 ```dot
 digraph code_review {
-    Start -> Design
+  Start -> Design
 
-    Design [agent="code-planner", prompt="Design the solution for: $goal"]
-    Design -> Build
+  Design [agent="code-planner", prompt="Design the solution for: $goal"]
+  Design -> Build
 
-    Build  [agent="code-engineer", prompt="Implement the design"]
-    Build -> Test
+  Build [agent="code-engineer", prompt="Implement the design"]
+  Build -> Test
 
-    Test   [agent="code-tester", prompt="Run tests and validate"]
-    Test -> Review       [label="Pass", condition="outcome=success"]
-    Test -> Build        [label="Fail", condition="outcome!=success"]
+  Test [agent="code-tester", prompt="Run tests and validate"]
+  Test -> Review [label="Pass", condition="outcome=success"]
+  Test -> Build  [label="Fail", condition="outcome!=success"]
 
-    Review [shape=human]
-    Review -> End        [label="[A] Approve"]
-    Review -> Design     [label="[R] Revise"]
+  Review [shape=human]
+  Review -> End    [label="[A] Approve"]
+  Review -> Design [label="[R] Revise"]
 }
 ```
 ````
@@ -189,25 +189,25 @@ This keeps each node's configuration and routing logic together, which is usuall
 
 ```dot
 digraph thing_creation_iterative {
-    Start -> Create
+  Start -> Create
 
-    Create [agent="thing-creator", prompt-ref="#creator-prompt"]
-    Create -> Review
+  Create [agent="thing-creator", prompt-ref="#creator-prompt"]
+  Create -> Review
 
-    Review [agent="thing-reviewer", prompt-ref="#reviewer-prompt"]
-    Review -> HumanReview [label="Accept", condition="context.last_output=yes"]
-    Review -> Create      [label="Revise", condition="context.last_output!=yes"]
+  Review [agent="thing-reviewer", prompt-ref="#reviewer-prompt"]
+  Review -> HumanReview [label="Accept", condition="context.last_output=yes"]
+  Review -> Create      [label="Revise", condition="context.last_output!=yes"]
 
-    HumanReview [ask="Is the thing acceptable after reviewer approval?"]
-    HumanReview -> End           [label="Accept"]
-    HumanReview -> HumanFeedback [label="Revise"]
+  HumanReview [ask="Is the thing acceptable after reviewer approval?"]
+  HumanReview -> End           [label="Accept"]
+  HumanReview -> HumanFeedback [label="Revise"]
 
-    HumanFeedback [
-        ask="Describe what must be improved before the next revision",
-        question-type="freeform",
-        store="human.feedback"
-    ]
-    HumanFeedback -> Create
+  HumanFeedback [
+    ask="Describe what must be improved before the next revision",
+    question-type="freeform",
+    store="human.feedback"
+  ]
+  HumanFeedback -> Create
 }
 ```
 
@@ -225,16 +225,16 @@ description: Create and review a thing using referenced multiline content
 
 ```dot
 digraph thing_creation {
-    Start -> Create
-    
-    Create [agent="thing-creator", prompt-ref="#creator-prompt"]
-    Create -> Check
+  Start -> Create
+  
+  Create [agent="thing-creator", prompt-ref="#creator-prompt"]
+  Create -> Check
 
-    Check [shell-ref="#run-checks"]
-    Check -> HumanFeedback
+  Check [shell-ref="#run-checks"]
+  Check -> HumanFeedback
 
-    HumanFeedback [ask-ref="#human-question", question-type="freeform"]
-    HumanFeedback -> End
+  HumanFeedback [ask-ref="#human-question", question-type="freeform"]
+  HumanFeedback -> End
 }
 ```
 
@@ -385,14 +385,14 @@ goal: Implement the feature and get approval
 
 ```dot
 digraph code_review_guided {
-    Start -> Build
+  Start -> Build
 
-    Build [agent="code-engineer", prompt="Implement: $goal"]
-    Build -> Review
+  Build [agent="code-engineer", prompt="Implement: $goal"]
+  Build -> Review
 
-    Review [interview-ref="#review-interview"]
-    Review -> End     [label="Approve"]
-    Review -> Build   [label="Revise"]
+  Review [interview-ref="#review-interview"]
+  Review -> End     [label="Approve"]
+  Review -> Build   [label="Revise"]
 }
 ```
 
@@ -430,12 +430,12 @@ An interview node with no outgoing edges serves as a terminal feedback collector
 
 ```dot
 digraph survey {
-    Start -> Generate
+  Start -> Generate
 
-    Generate [prompt="Generate the report for: $goal"]
-    Generate -> Collect
+  Generate [prompt="Generate the report for: $goal"]
+  Generate -> Collect
 
-    Collect [interview-ref="#final-survey"]
+  Collect [interview-ref="#final-survey"]
 }
 ```
 
@@ -494,14 +494,14 @@ To run another workflow from a node, set the node's `workflow` attribute to the 
 
 ```dot
 digraph code_generation {
-    Start -> Implement
+  Start -> Implement
 
-    Implement [workflow="code-implementation"]
-    Implement -> Review
+  Implement [workflow="code-implementation"]
+  Implement -> Review
 
-    Review [shape=human]
-    Review -> End      [label="Approve"]
-    Review -> Implement [label="Revise"]
+  Review [shape=human]
+  Review -> End      [label="Approve"]
+  Review -> Implement [label="Revise"]
 }
 ```
 
@@ -520,14 +520,14 @@ goal: Implement and approve the requested change
 
 ```dot
 digraph code_review_composed {
-    Start -> Implement
+  Start -> Implement
 
-    Implement [workflow="code-implementation"]
-    Implement -> Review
+  Implement [workflow="code-implementation"]
+  Implement -> Review
 
-    Review [shape=human]
-    Review -> End       [label="Approve"]
-    Review -> Implement [label="Revise"]
+  Review [shape=human]
+  Review -> End       [label="Approve"]
+  Review -> Implement [label="Revise"]
 }
 ```
 ````
@@ -542,16 +542,16 @@ description: Design, implement, and test a requested software change
 
 ```dot
 digraph code_implementation {
-    Start -> Design
+  Start -> Design
 
-    Design [agent="code-planner", prompt="Design an implementation for: $goal"]
-    Design -> Build
+  Design [agent="code-planner", prompt="Design an implementation for: $goal"]
+  Design -> Build
 
-    Build [agent="code-engineer", prompt="Implement the approved design"]
-    Build -> Test
+  Build [agent="code-engineer", prompt="Implement the approved design"]
+  Build -> Test
 
-    Test [agent="code-tester", prompt="Run tests and report any failures"]
-    Test -> End
+  Test [agent="code-tester", prompt="Run tests and report any failures"]
+  Test -> End
 }
 ```
 ````
@@ -646,8 +646,8 @@ The goal can also be set as a graph-level attribute in the DOT source:
 
 ```dot
 digraph analysis {
-    graph [goal="Analyze climate data from 2020-2024"]
-    ...
+  graph [goal="Analyze climate data from 2020-2024"]
+  ...
 }
 ```
 

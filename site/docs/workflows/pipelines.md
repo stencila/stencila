@@ -15,16 +15,16 @@ A pipeline is a `digraph` block in a workflow file. Here is a minimal pipeline t
 
 ```dot
 digraph LitReview {
-    Start -> Search
+  Start -> Search
 
-    Search    [prompt="Search for recent papers on: $goal"]
-    Search -> Summarize
+  Search [prompt="Search for recent papers on: $goal"]
+  Search -> Summarize
 
-    Summarize [prompt="Summarize the key findings across the papers"]
-    Summarize -> Draft
+  Summarize [prompt="Summarize the key findings across the papers"]
+  Summarize -> Draft
 
-    Draft     [prompt="Draft a literature review from the summaries"]
-    Draft -> End
+  Draft [prompt="Draft a literature review from the summaries"]
+  Draft -> End
 }
 ```
 
@@ -100,29 +100,29 @@ When a node has no explicit `shape`, the engine applies the first matching rule:
 
 ```dot
 digraph ResearchWorkflow {
-    graph [goal="Systematic review of renewable energy storage technologies"]
+  graph [goal="Systematic review of renewable energy storage technologies"]
 
-    Start -> Search
+  Start -> Search
 
-    Search [prompt="Search databases for recent papers on: $goal"]
-    Search -> Screen
+  Search [prompt="Search databases for recent papers on: $goal"]
+  Search -> Screen
 
-    Screen [prompt="Screen papers for relevance and quality"]
-    Screen -> Analyze
+  Screen [prompt="Screen papers for relevance and quality"]
+  Screen -> Analyze
 
-    Analyze [prompt="Extract and synthesize key findings"]
-    Analyze -> CheckQuality
+  Analyze [prompt="Extract and synthesize key findings"]
+  Analyze -> CheckQuality
 
-    CheckQuality [label="Check quality"]
-    CheckQuality -> Review    [label="Pass", condition="outcome=success"]
-    CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
+  CheckQuality [label="Check quality"]
+  CheckQuality -> Review    [label="Pass", condition="outcome=success"]
+  CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
 
-    Review [label="Review"]
-    Review -> Publish         [label="[A] Approve"]
-    Review -> Search          [label="[R] Revise"]
+  Review [label="Review"]
+  Review -> Publish         [label="[A] Approve"]
+  Review -> Search          [label="[R] Revise"]
 
-    Publish      [prompt="Format the final review for publication"]
-    Publish -> End
+  Publish [prompt="Format the final review for publication"]
+  Publish -> End
 }
 ```
 
@@ -175,14 +175,14 @@ Use the `workflow` node attribute to run another workflow as a child workflow.
 
 ```dot
 digraph ParentWorkflow {
-    Start -> Implement
+  Start -> Implement
 
-    Implement [workflow="code-implementation"]
-    Implement -> Review
+  Implement [workflow="code-implementation"]
+  Implement -> Review
 
-    Review [shape=human]
-    Review -> End       [label="Approve"]
-    Review -> Implement [label="Revise"]
+  Review [shape=human]
+  Review -> End       [label="Approve"]
+  Review -> Implement [label="Revise"]
 }
 ```
 
@@ -214,10 +214,10 @@ This means child workflows can usually keep using `$goal` whether they run stand
 
 ```dot
 digraph ParentWorkflow {
-    Start -> Implement
+  Start -> Implement
 
-    Implement [workflow="code-implementation", goal="$last_output"]
-    Implement -> End
+  Implement [workflow="code-implementation", goal="$last_output"]
+  Implement -> End
 }
 ```
 
@@ -254,13 +254,13 @@ Example using runtime variables:
 
 ```dot
 digraph CountToThree {
-    graph [goal="Count from one to three"]
+  graph [goal="Count from one to three"]
 
-    Start -> One -> Two -> Three -> End
+  Start -> One -> Two -> Three -> End
 
-    One    [prompt="Reply with just the number: 1"]
-    Two    [prompt="Add one to $last_output and reply with just the result."]
-    Three  [prompt="Add one to $last_output and reply with just the result."]
+  One    [prompt="Reply with just the number: 1"]
+  Two    [prompt="Add one to $last_output and reply with just the result."]
+  Three  [prompt="Add one to $last_output and reply with just the result."]
 }
 ```
 
@@ -305,11 +305,11 @@ Example:
 ````markdown
 ```dot
 digraph Example {
-    Start -> Create -> Check -> Ask -> End
+  Start -> Create -> Check -> Ask -> End
 
-    Create [agent="writer", prompt-ref="#creator-prompt"]
-    Check  [shell-ref="#run-checks"]
-    Ask    [ask-ref="#human-question", question-type="freeform"]
+  Create [agent="writer", prompt-ref="#creator-prompt"]
+  Check  [shell-ref="#run-checks"]
+  Ask    [ask-ref="#human-question", question-type="freeform"]
 }
 ```
 
@@ -398,24 +398,24 @@ The simplest pattern: stages execute one after another.
 
 ```dot
 digraph DataAnalysis {
-    graph [goal="Analyze climate data from 2020-2024"]
+  graph [goal="Analyze climate data from 2020-2024"]
 
-    Start -> Load
+  Start -> Load
 
-    Load [prompt="Load the climate dataset for: $goal"]
-    Load -> Clean
+  Load [prompt="Load the climate dataset for: $goal"]
+  Load -> Clean
 
-    Clean [prompt="Clean the data: handle missing values and outliers"]
-    Clean -> Analyze
+  Clean [prompt="Clean the data: handle missing values and outliers"]
+  Clean -> Analyze
 
-    Analyze [prompt="Perform statistical analysis on the cleaned data"]
-    Analyze -> Visualize
+  Analyze [prompt="Perform statistical analysis on the cleaned data"]
+  Analyze -> Visualize
 
-    Visualize [prompt="Create visualizations of the key trends"]
-    Visualize -> Report
+  Visualize [prompt="Create visualizations of the key trends"]
+  Visualize -> Report
 
-    Report [prompt="Write a summary report of the analysis and findings"]
-    Report -> End
+  Report [prompt="Write a summary report of the analysis and findings"]
+  Report -> End
 }
 ```
 
@@ -425,24 +425,24 @@ Use conditions on edges to route based on outcomes.
 
 ```dot
 digraph CitationCheck {
-    graph [goal="Verify citations in the manuscript"]
-    Start -> Extract
+  graph [goal="Verify citations in the manuscript"]
+  Start -> Extract
 
-    Extract [prompt="Extract all citations from the manuscript"]
-    Extract -> Verify
+  Extract [prompt="Extract all citations from the manuscript"]
+  Extract -> Verify
 
-    Verify [prompt="Verify each citation against its source"]
-    Verify -> Check
+  Verify [prompt="Verify each citation against its source"]
+  Verify -> Check
 
-    Check [shape=diamond, label="All citations valid?"]
-    Check -> Finalize [label="Valid",   condition="outcome=success"]
-    Check -> Fix      [label="Invalid", condition="outcome!=success"]
+  Check [shape=diamond, label="All citations valid?"]
+  Check -> Finalize [label="Valid",   condition="outcome=success"]
+  Check -> Fix      [label="Invalid", condition="outcome!=success"]
 
-    Fix [prompt="Fix invalid citations and find correct references"]
-    Fix -> Verify
+  Fix [prompt="Fix invalid citations and find correct references"]
+  Fix -> Verify
 
-    Finalize [prompt="Format the verified reference list"]
-    Finalize -> End
+  Finalize [prompt="Format the verified reference list"]
+  Finalize -> End
 }
 ```
 
@@ -454,15 +454,15 @@ Nodes can retry automatically on failure using `max-retries`:
 
 ```dot
 digraph FetchData {
-    graph [goal="Retrieve datasets from remote repositories"]
+  graph [goal="Retrieve datasets from remote repositories"]
 
-    Start -> Fetch
+  Start -> Fetch
 
-    Fetch [prompt="Download the dataset from the repository", max-retries=3]
-    Fetch -> Process
+  Fetch [prompt="Download the dataset from the repository", max-retries=3]
+  Fetch -> Process
 
-    Process [prompt="Parse and validate the downloaded data", max-retries=2]
-    Process -> End
+  Process [prompt="Parse and validate the downloaded data", max-retries=2]
+  Process -> End
 }
 ```
 
@@ -472,19 +472,19 @@ For more control, use edge-based retry loops that route back to an earlier stage
 
 ```dot
 digraph IterativeAnalysis {
-    graph [goal="Produce a statistically sound analysis"]
+  graph [goal="Produce a statistically sound analysis"]
 
-    Start -> Analyze
+  Start -> Analyze
 
-    Analyze  [prompt="Analyze the experimental data"]
-    Analyze -> Validate
+  Analyze  [prompt="Analyze the experimental data"]
+  Analyze -> Validate
 
-    Validate [prompt="Check statistical significance and validate assumptions"]
-    Validate -> Report  [condition="outcome=success"]
-    Validate -> Analyze [condition="outcome!=success", label="Refine"]
+  Validate [prompt="Check statistical significance and validate assumptions"]
+  Validate -> Report  [condition="outcome=success"]
+  Validate -> Analyze [condition="outcome!=success", label="Refine"]
 
-    Report   [prompt="Write up the validated results"]
-    Report -> End
+  Report   [prompt="Write up the validated results"]
+  Report -> End
 }
 ```
 
@@ -494,17 +494,17 @@ Mark critical stages with `goal-gate=true` to prevent the pipeline from exiting 
 
 ```dot
 digraph Submission {
-    graph [goal="Prepare manuscript for journal submission"]
-    Start -> Draft
+  graph [goal="Prepare manuscript for journal submission"]
+  Start -> Draft
 
-    Draft [prompt="Draft the manuscript sections", goal-gate=true]
-    Draft -> CheckRefs
+  Draft [prompt="Draft the manuscript sections", goal-gate=true]
+  Draft -> CheckRefs
 
-    CheckRefs [prompt="Verify all references are complete and correctly cited", goal-gate=true]
-    CheckRefs -> Format
+  CheckRefs [prompt="Verify all references are complete and correctly cited", goal-gate=true]
+  CheckRefs -> Format
 
-    Format [prompt="Format according to journal guidelines"]
-    Format -> End
+  Format [prompt="Format according to journal guidelines"]
+  Format -> End
 }
 ```
 
@@ -516,19 +516,19 @@ Use `shape=human` to create a gate that pauses for human input. The choices are 
 
 ```dot
 digraph PeerReview {
-    graph [goal="Analyze experimental results"]
+  graph [goal="Analyze experimental results"]
 
-    Start -> Analyze
+  Start -> Analyze
 
-    Analyze [prompt="Analyze the experimental data and summarize results"]
-    Analyze -> Review
+  Analyze [prompt="Analyze the experimental data and summarize results"]
+  Analyze -> Review
 
-    Review [shape=human, label="Review the analysis"]
-    Review -> Publish [label="[A] Approve"]
-    Review -> Analyze [label="[R] Revise"]
+  Review [shape=human, label="Review the analysis"]
+  Review -> Publish [label="[A] Approve"]
+  Review -> Analyze [label="[R] Revise"]
 
-    Publish [prompt="Format the approved results for publication"]
-    Publish -> End
+  Publish [prompt="Format the approved results for publication"]
+  Publish -> End
 }
 ```
 
@@ -598,9 +598,9 @@ The `store` attribute writes the human's answer into the pipeline context under 
 
 ```dot
 HumanFeedback [
-    ask="Describe what must be improved",
-    question-type="freeform",
-    store="human.feedback"
+  ask="Describe what must be improved",
+  question-type="freeform",
+  store="human.feedback"
 ]
 ```
 
@@ -619,33 +619,33 @@ Here is a complete example of a create–review–revise workflow:
 
 ```dot
 digraph SkillCreation {
-    graph [goal="Create a code-review skill"]
+  graph [goal="Create a code-review skill"]
 
-    Start -> Create
+  Start -> Create
 
-    Create [
-        agent="skill-creator",
-        prompt="Create or update a Stencila skill that achieves: $goal\n\nHuman feedback: $human.feedback"
-    ]
-    Create -> Review
+  Create [
+    agent="skill-creator",
+    prompt="Create or update a Stencila skill that achieves: $goal\n\nHuman feedback: $human.feedback"
+  ]
+  Create -> Review
 
-    Review [
-        agent="skill-reviewer",
-        prompt="Review the current skill draft for the goal '$goal'."
-    ]
-    Review -> HumanDecision   [label="Accept", condition="outcome=success"]
-    Review -> Create          [label="Revise", condition="outcome!=success"]
+  Review [
+    agent="skill-reviewer",
+    prompt="Review the current skill draft for the goal '$goal'."
+  ]
+  Review -> HumanDecision   [label="Accept", condition="outcome=success"]
+  Review -> Create          [label="Revise", condition="outcome!=success"]
 
-    HumanDecision [shape=human, label="Is the skill acceptable?"]
-    HumanDecision -> End            [label="Accept"]
-    HumanDecision -> HumanFeedback  [label="Revise"]
+  HumanDecision [shape=human, label="Is the skill acceptable?"]
+  HumanDecision -> End            [label="Accept"]
+  HumanDecision -> HumanFeedback  [label="Revise"]
 
-    HumanFeedback [
-        ask="Describe what must be improved before the next revision",
-        question-type="freeform",
-        store="human.feedback"
-    ]
-    HumanFeedback -> Create
+  HumanFeedback [
+    ask="Describe what must be improved before the next revision",
+    question-type="freeform",
+    store="human.feedback"
+  ]
+  HumanFeedback -> Create
 }
 ```
 
@@ -707,26 +707,26 @@ Fan out to multiple branches using `shape=component` and collect results with a 
 
 ```dot
 digraph ParallelReview {
-    graph [goal="Comprehensive literature review on machine learning in genomics"]
+  graph [goal="Comprehensive literature review on machine learning in genomics"]
 
-    Start -> FanOut
+  Start -> FanOut
 
-    FanOut     [shape=component, label="Search in parallel"]
-    FanOut -> Databases
-    FanOut -> Preprints
-    FanOut -> Reviews
+  FanOut [shape=component, label="Search in parallel"]
+  FanOut -> Databases
+  FanOut -> Preprints
+  FanOut -> Reviews
 
-    Databases  [prompt="Search published databases (PubMed, Scopus) for: $goal"]
-    Databases -> Synthesize
+  Databases [prompt="Search published databases (PubMed, Scopus) for: $goal"]
+  Databases -> Synthesize
 
-    Preprints  [prompt="Search preprint servers (bioRxiv, arXiv) for: $goal"]
-    Preprints -> Synthesize
+  Preprints [prompt="Search preprint servers (bioRxiv, arXiv) for: $goal"]
+  Preprints -> Synthesize
 
-    Reviews    [prompt="Search existing review articles for: $goal"]
-    Reviews -> Synthesize
+  Reviews [prompt="Search existing review articles for: $goal"]
+  Reviews -> Synthesize
 
-    Synthesize [prompt="Synthesize findings across all sources into a unified review"]
-    Synthesize -> End
+  Synthesize [prompt="Synthesize findings across all sources into a unified review"]
+  Synthesize -> End
 }
 ```
 
@@ -738,17 +738,17 @@ Use this pattern when a single stage in the parent workflow should expand into a
 
 ```dot
 digraph PublicationWorkflow {
-    Start -> Draft
+  Start -> Draft
 
-    Draft [workflow="paper-drafting"]
-    Draft -> Review
+  Draft [workflow="paper-drafting"]
+  Draft -> Review
 
-    Review [shape=human]
-    Review -> Publish [label="Approve"]
-    Review -> Draft   [label="Revise"]
+  Review [shape=human]
+  Review -> Publish [label="Approve"]
+  Review -> Draft   [label="Revise"]
 
-    Publish [prompt="Prepare the approved paper for publication"]
-    Publish -> End
+  Publish [prompt="Prepare the approved paper for publication"]
+  Publish -> End
 }
 ```
 
@@ -760,27 +760,27 @@ Centralize agent property overrides with CSS-like rules instead of setting `agen
 
 ```dot
 digraph StyledWorkflow {
-    graph [
-        goal="Analyze and report on experimental results",
-        overrides="
-            * { model: claude-sonnet-4; provider: anthropic; }
-            .analysis { model: claude-opus-4; }
-            #Review { model: gpt-5.4; provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
-        "
-    ]
-    Start -> Collect
+  graph [
+    goal="Analyze and report on experimental results",
+    overrides="
+      * { model: claude-sonnet-4; provider: anthropic; }
+      .analysis { model: claude-opus-4; }
+      #Review { model: gpt-5.4; provider: openai; reasoning_effort: high; trust_level: high; max_turns: 15; }
+    "
+  ]
+  Start -> Collect
 
-    Collect [prompt="Collect experimental data"]
-    Collect -> Analyze
+  Collect [prompt="Collect experimental data"]
+  Collect -> Analyze
 
-    Analyze [prompt="Perform data analysis", class="analysis"]
-    Analyze -> Review
+  Analyze [prompt="Perform data analysis", class="analysis"]
+  Analyze -> Review
 
-    Review [prompt="Review statistical methods and validity", class="analysis"]
-    Review -> Report
+  Review [prompt="Review statistical methods and validity", class="analysis"]
+  Review -> Report
 
-    Report [prompt="Draft the results section"]
-    Report -> End
+  Report [prompt="Draft the results section"]
+  Report -> End
 }
 ```
 
@@ -800,35 +800,35 @@ Here is a more complete pipeline combining several patterns:
 
 ```dot
 digraph ResearchWorkflow {
-    graph [
-        goal="Systematic review of renewable energy storage technologies",
-        overrides="
-            * { model: claude-sonnet-4-5; provider: anthropic; }
-            .deep_analysis { model: claude-opus-4; }
-        "
-    ]
+  graph [
+    goal="Systematic review of renewable energy storage technologies",
+    overrides="
+      * { model: claude-sonnet-4-5; provider: anthropic; }
+      .deep_analysis { model: claude-opus-4; }
+    "
+  ]
 
-    Start -> Search
+  Start -> Search
 
-    Search       [prompt="Search databases for recent papers on: $goal"]
-    Search -> Screen
+  Search [prompt="Search databases for recent papers on: $goal"]
+  Search -> Screen
 
-    Screen       [prompt="Screen papers for relevance and quality", max-retries=2]
-    Screen -> Analyze
+  Screen [prompt="Screen papers for relevance and quality", max-retries=2]
+  Screen -> Analyze
 
-    Analyze      [prompt="Extract and synthesize key findings", class="deep_analysis", goal-gate=true]
-    Analyze -> CheckQuality
+  Analyze [prompt="Extract and synthesize key findings", class="deep_analysis", goal-gate=true]
+  Analyze -> CheckQuality
 
-    CheckQuality [shape=diamond, label="Analysis meets quality criteria?"]
-    CheckQuality -> Review    [label="Pass", condition="outcome=success"]
-    CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
+  CheckQuality [shape=diamond, label="Analysis meets quality criteria?"]
+  CheckQuality -> Review    [label="Pass", condition="outcome=success"]
+  CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
 
-    Review       [shape=human, label="Review the systematic review draft"]
-    Review -> Publish         [label="Approve"]
-    Review -> Search          [label="Revise"]
+  Review [ask="Review the systematic review draft"]
+  Review -> Publish [label="Approve"]
+  Review -> Search  [label="Revise"]
 
-    Publish      [prompt="Format the final review for publication"]
-    Publish -> End
+  Publish [prompt="Format the final review for publication"]
+  Publish -> End
 }
 ```
 
@@ -895,11 +895,11 @@ Subgraphs scope default attributes for a group of nodes:
 
 ```dot
 subgraph cluster_analysis {
-    label = "Analysis Phase"
-    node [timeout="900s"]
+  label = "Analysis Phase"
+  node [timeout="900s"]
 
-    Analyze   [prompt="Analyze the dataset"]
-    Visualize [prompt="Create visualizations", timeout="1800s"]
+  Analyze   [prompt="Analyze the dataset"]
+  Visualize [prompt="Create visualizations", timeout="1800s"]
 }
 ```
 

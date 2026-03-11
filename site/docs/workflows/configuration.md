@@ -85,12 +85,12 @@ These attributes are set on the `graph` declaration inside the DOT pipeline:
 
 ```dot
 digraph my_workflow {
-    graph [
-        goal="Analyze experimental results",
-        overrides="* { model: claude-sonnet-4-5; }",
-        default_max_retry=3
-    ]
-    ...
+  graph [
+    goal="Analyze experimental results",
+    overrides="* { model: claude-sonnet-4-5; }",
+    default_max_retry=3
+  ]
+  ...
 }
 ```
 
@@ -110,13 +110,13 @@ graph [goal="Systematic review of renewable energy storage"]
 
 CSS-like rules for per-node agent overrides. The primary way to configure models is through [agent definitions](../agents/configuration) referenced via the `agent` attribute on each node. The overrides mechanism provides a supplementary way to bulk-override agent properties across many nodes at once.
 
-Supported properties: `model`, `provider`, `reasoning_effort`, `trust_level`, `max_turns`.
+Supported properties: `model`, `provider`, `reasoning-effort`, `trust-level`, `max-turns`.
 
 ```dot
 graph [overrides="
-    * { model: claude-sonnet-4-5; provider: anthropic; }
-    .analysis { model: claude-opus-4-6; }
-    #review { model: o3; provider: openai; reasoning_effort: high; }
+  * { model: claude-sonnet-4-5; provider: anthropic; }
+  .analysis { model: claude-opus-4-6; }
+  #review { model: o3; provider: openai; reasoning-effort: high; }
 "]
 ```
 
