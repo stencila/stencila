@@ -64,7 +64,7 @@ pub fn executor() -> ToolExecutorFn {
 
                 match kind {
                     "agent" => {
-                        let agents = crate::agent_def::discover(cwd).await;
+                        let agents = crate::definition::discover(cwd).await;
                         if !agents.iter().any(|a| a.name == name) {
                             return Err(AgentError::ValidationError {
                                 reason: format!("agent '{name}' not found"),

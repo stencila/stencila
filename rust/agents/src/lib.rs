@@ -29,10 +29,10 @@
 pub const DEFAULT_AGENT_NAME: &str = "manager";
 
 /// Agent definition loading and discovery.
-pub mod agent_def;
+pub mod definition;
 
 /// Agent validation.
-pub mod agent_validate;
+pub mod validate;
 
 /// CLI for managing agent definitions.
 #[cfg(feature = "cli")]
@@ -96,7 +96,7 @@ pub mod api_session;
 pub mod cli_providers;
 
 /// Unified agent session type wrapping API and CLI backends.
-pub mod agent_session;
+pub mod session;
 
 /// Session routing: API vs CLI backend decision logic.
 pub mod routing;

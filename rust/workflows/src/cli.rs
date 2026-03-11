@@ -18,7 +18,7 @@ use stencila_cli_utils::{
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
-use crate::{CliInterviewer, workflow_def, workflow_validate};
+use crate::{CliInterviewer, definition, validate};
 
 /// Manage workflow definitions
 #[derive(Debug, Parser)]
@@ -112,7 +112,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 impl List {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let list = workflow_def::discover(&cwd).await;
+        let list = definition::discover(&cwd).await;
 
         if let Some(format) = self.r#as {
             Code::new_from(format.into(), &list)?.to_stdout();
@@ -167,7 +167,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let wf = workflow_def::get_by_name(&cwd, &self.name).await?;
+        let wf = definition::get_by_name(&cwd, &self.name).await?;
 
         let content = stencila_codecs::to_string(
             &Node::Workflow(wf.inner),
@@ -240,7 +240,7 @@ impl Validate {
 
         // Otherwise, treat as a workflow name — look up
         let cwd = std::env::current_dir()?;
-        let wf = workflow_def::get_by_name(&cwd, &self.target).await?;
+        let wf = definition::get_by_name(&cwd, &self.target).await?;
         let wf_path = wf.path().to_path_buf();
         let dir_name = wf_path
             .parent()
@@ -268,8 +268,7 @@ impl Validate {
             bail!("Failed to parse `{}` as a Workflow", workflow_md.display());
         };
 
-        let (errors, warnings) =
-            workflow_validate::validate_workflow(&workflow, dir_name.as_deref());
+        let (errors, warnings) = validate::validate_workflow(&workflow, dir_name.as_deref());
 
         if !warnings.is_empty() {
             message!(
@@ -336,7 +335,7 @@ pub static CREATE_AFTER_LONG_HELP: &str = cstr!(
 
 impl Create {
     async fn run(self) -> Result<()> {
-        let name_errors = workflow_validate::validate_name(&self.name);
+        let name_errors = validate::validate_name(&self.name);
         if !name_errors.is_empty() {
             for error in &name_errors {
                 message!("  - {}", error);
@@ -345,7 +344,7 @@ impl Create {
         }
 
         let cwd = std::env::current_dir()?;
-        let workflows_dir = workflow_def::closest_workflows_dir(&cwd, true).await?;
+        let workflows_dir = definition::closest_workflows_dir(&cwd, true).await?;
         let wf_dir = workflows_dir.join(&self.name);
 
         if wf_dir.exists() {
@@ -452,7 +451,7 @@ impl Run {
     #[allow(clippy::print_stdout, clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let mut wf = workflow_def::get_by_name(&cwd, &self.name).await?;
+        let mut wf = definition::get_by_name(&cwd, &self.name).await?;
 
         // Apply goal override if provided
         if let Some(ref goal) = self.goal {
@@ -496,21 +495,21 @@ impl Run {
 
         let is_tty = std::io::stderr().is_terminal();
         let emitter: Arc<dyn stencila_attractor::events::EventEmitter> = if self.verbose {
-            Arc::new(crate::workflow_emitters::VerboseEventEmitter::new())
+            Arc::new(crate::emitters::VerboseEventEmitter::new())
         } else if is_tty {
-            Arc::new(crate::workflow_emitters::ProgressEventEmitter::new())
+            Arc::new(crate::emitters::ProgressEventEmitter::new())
         } else {
-            Arc::new(crate::workflow_emitters::PlainEventEmitter::new())
+            Arc::new(crate::emitters::PlainEventEmitter::new())
         };
 
         let started = Instant::now();
         let interviewer: Arc<dyn stencila_attractor::interviewer::Interviewer> =
             Arc::new(CliInterviewer);
-        let options = crate::workflow_run::RunOptions {
+        let options = crate::run::RunOptions {
             emitter,
             interviewer: Some(interviewer),
         };
-        let outcome = crate::workflow_run::run_workflow_with_options(&wf, options).await?;
+        let outcome = crate::run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
 
         eprintln!();
@@ -557,7 +556,7 @@ pub static SAVE_AFTER_LONG_HELP: &str = cstr!(
 impl Save {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        match workflow_def::save_ephemeral(&cwd, &self.name)? {
+        match definition::save_ephemeral(&cwd, &self.name)? {
             true => {
                 message!("Saved workflow `{}`", self.name);
                 Ok(())
@@ -594,7 +593,7 @@ pub static DISCARD_AFTER_LONG_HELP: &str = cstr!(
 impl Discard {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        match workflow_def::discard_ephemeral(&cwd, &self.name)? {
+        match definition::discard_ephemeral(&cwd, &self.name)? {
             true => {
                 message!("Discarded workflow `{}`", self.name);
                 Ok(())

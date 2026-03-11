@@ -6,15 +6,15 @@ use std::sync::Arc;
 
 use eyre::Result;
 
-use crate::agent_def::{self, AgentInstance};
-use crate::agent_session::AgentSession;
 use crate::api_session::{ApiSession, ApiSessionInit, Models3Client};
+use crate::definition::{self, AgentInstance};
 use crate::error::{AgentError, AgentResult};
 use crate::events::EventReceiver;
 use crate::execution::LocalExecutionEnvironment;
 use crate::profiles::{AnthropicProfile, DefaultProfile, GeminiProfile, OpenAiProfile};
 use crate::prompts::{build_commit_instructions, build_system_prompt};
 use crate::routing::{self, RoutingDecision, SessionRoute};
+use crate::session::AgentSession;
 use crate::tool_guard::{GuardContext, ToolGuard, TrustLevel};
 use crate::types::SessionConfig;
 
@@ -73,7 +73,7 @@ pub async fn create_agent(
     description: &str,
     options: &CreateAgentOptions<'_>,
 ) -> Result<AgentInstance> {
-    let name_errors = crate::agent_validate::validate_name(name);
+    let name_errors = crate::validate::validate_name(name);
     if !name_errors.is_empty() {
         let msgs: Vec<String> = name_errors.iter().map(|e| e.to_string()).collect();
         eyre::bail!("Invalid agent name `{name}`: {}", msgs.join("; "));
@@ -84,7 +84,7 @@ pub async fn create_agent(
     let agents_dir = if options.user {
         stencila_dirs::get_app_dir(stencila_dirs::DirType::Agents, true)?
     } else {
-        agent_def::closest_agents_dir(&cwd, true).await?
+        definition::closest_agents_dir(&cwd, true).await?
     };
 
     let agent_dir = agents_dir.join(name);
@@ -119,7 +119,7 @@ pub async fn create_agent(
     let agent_md = agent_dir.join("AGENT.md");
     tokio::fs::write(&agent_md, content).await?;
 
-    agent_def::get_by_name(&cwd, name).await
+    definition::get_by_name(&cwd, name).await
 }
 
 /// Return the effective default agent name.
@@ -164,7 +164,7 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
         })
     })?;
 
-    let agent = agent_def::get_by_name(&cwd, &resolved_name)
+    let agent = definition::get_by_name(&cwd, &resolved_name)
         .await
         .map_err(|e| {
             AgentError::Sdk(stencila_models3::error::SdkError::Configuration {

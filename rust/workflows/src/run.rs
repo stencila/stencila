@@ -31,7 +31,7 @@ use stencila_attractor::types::Outcome;
 use stencila_interviews::PersistentInterviewer;
 
 use crate::WorkflowInstance;
-use crate::workflow_handler::WorkflowHandler;
+use crate::handler::WorkflowHandler;
 
 /// Run a workflow pipeline to completion using a stderr event emitter.
 ///
@@ -392,7 +392,7 @@ fn insert_execution_context(
 /// Logs warnings for agents that could not be resolved.
 async fn resolve_agent_references(
     workflow: &WorkflowInstance,
-) -> HashMap<String, stencila_agents::agent_def::AgentInstance> {
+) -> HashMap<String, stencila_agents::definition::AgentInstance> {
     let agent_names = workflow.agent_references();
     let mut resolved = HashMap::new();
 
@@ -403,7 +403,7 @@ async fn resolve_agent_references(
     let cwd = std::env::current_dir().unwrap_or_default();
 
     for name in &agent_names {
-        match stencila_agents::agent_def::get_by_name(&cwd, name).await {
+        match stencila_agents::definition::get_by_name(&cwd, name).await {
             Ok(agent) => {
                 tracing::debug!("Resolved agent `{name}` for workflow `{}`", workflow.name);
                 resolved.insert(name.clone(), agent);
@@ -791,7 +791,7 @@ fn build_engine_config(
 
 async fn capture_definition_snapshots(
     workflow: &WorkflowInstance,
-    resolved_agents: &HashMap<String, stencila_agents::agent_def::AgentInstance>,
+    resolved_agents: &HashMap<String, stencila_agents::definition::AgentInstance>,
     backend: &stencila_attractor::sqlite_backend::SqliteBackend,
 ) {
     save_snapshot_for_dir(
@@ -879,7 +879,7 @@ fn save_snapshot_for_dir(
     }
 }
 
-fn aggregate_usage(session: &stencila_agents::agent_session::AgentSession) -> (i64, i64) {
+fn aggregate_usage(session: &stencila_agents::session::AgentSession) -> (i64, i64) {
     let mut input = 0_i64;
     let mut output = 0_i64;
 

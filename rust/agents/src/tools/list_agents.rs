@@ -29,7 +29,7 @@ pub fn executor() -> ToolExecutorFn {
         |_args: Value, env: &dyn crate::execution::ExecutionEnvironment| {
             Box::pin(async move {
                 let cwd = Path::new(env.working_directory());
-                let agents = crate::agent_def::discover(cwd).await;
+                let agents = crate::definition::discover(cwd).await;
 
                 let entries: Vec<Value> = agents
                     .into_iter()

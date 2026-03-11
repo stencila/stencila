@@ -20,10 +20,10 @@ use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
 use crate::{
-    agent_def::{self, AgentSource},
-    agent_validate,
     convenience::{CreateAgentOptions, create_agent, create_session},
+    definition::{self, AgentSource},
     types::{EventKind, SessionConfig},
+    validate,
 };
 
 /// Manage agent definitions
@@ -251,7 +251,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 impl List {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let all = agent_def::discover(&cwd).await;
+        let all = definition::discover(&cwd).await;
 
         let list: Vec<_> = if self.source.is_empty() {
             all
@@ -374,7 +374,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let agent = agent_def::get_by_name(&cwd, &self.name).await?;
+        let agent = definition::get_by_name(&cwd, &self.name).await?;
 
         let content = stencila_codecs::to_string(
             &Node::Agent(agent.inner),
@@ -479,7 +479,7 @@ impl Validate {
 
         // Otherwise, treat as an agent name — look up across all sources
         let cwd = std::env::current_dir()?;
-        let agent = agent_def::get_by_name(&cwd, &self.target).await?;
+        let agent = definition::get_by_name(&cwd, &self.target).await?;
 
         // CLI-detected agents are in-memory and have no AGENT.md path.
         let dir_name = if agent.path().as_os_str().is_empty() {
@@ -536,13 +536,12 @@ impl Validate {
             } => (agent, dir_name),
         };
 
-        let errors = agent_validate::validate_agent(&agent, dir_name.as_deref());
+        let errors = validate::validate_agent(&agent, dir_name.as_deref());
 
         #[cfg(feature = "skills")]
-        let warnings =
-            { agent_validate::validate_agent_skills(&agent, &skill_discovery_root).await };
+        let warnings = { validate::validate_agent_skills(&agent, &skill_discovery_root).await };
         #[cfg(not(feature = "skills"))]
-        let warnings: Vec<agent_validate::ValidationWarning> = Vec::new();
+        let warnings: Vec<validate::ValidationWarning> = Vec::new();
 
         if !warnings.is_empty() {
             message!(
@@ -620,7 +619,7 @@ impl Resolve {
             self.name.clone()
         };
         let cwd = std::env::current_dir()?;
-        let agent = agent_def::get_by_name(&cwd, &resolved_name).await?;
+        let agent = definition::get_by_name(&cwd, &resolved_name).await?;
 
         let client = stencila_models3::client::Client::from_env().ok();
         let no_api_client = client.is_none();
@@ -771,7 +770,7 @@ impl Run {
         // Dry run: resolve the agent and show config without creating a session
         if self.dry_run {
             let cwd = std::env::current_dir()?;
-            let agent = agent_def::get_by_name(&cwd, &self.name).await?;
+            let agent = definition::get_by_name(&cwd, &self.name).await?;
             let config = SessionConfig::from_agent(&agent).await?;
 
             Code::new(Format::Markdown, "# Agent\n").to_stdout();

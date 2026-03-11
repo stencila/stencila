@@ -274,7 +274,7 @@ fn split_args(args: &str) -> Vec<String> {
 async fn execute_agents(app: &mut App) {
     // Discovered agent definitions (from .stencila/agents/ and ~/.config/stencila/agents/)
     let definitions: Vec<_> =
-        stencila_agents::agent_def::discover(&std::env::current_dir().unwrap_or_default()).await;
+        stencila_agents::definition::discover(&std::env::current_dir().unwrap_or_default()).await;
 
     // Existing TUI sessions
     let mut candidates: Vec<AgentCandidate> = app

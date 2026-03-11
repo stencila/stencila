@@ -352,14 +352,14 @@ pub enum WorkflowProgressKind {
 }
 
 /// Discover agent definitions, returning an empty vec if no runtime is available.
-fn discover_agents() -> Vec<stencila_agents::agent_def::AgentInstance> {
+fn discover_agents() -> Vec<stencila_agents::definition::AgentInstance> {
     let Ok(handle) = tokio::runtime::Handle::try_current() else {
         return Vec::new();
     };
     // block_in_place panics on current_thread runtime; catch that gracefully.
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         tokio::task::block_in_place(|| {
-            handle.block_on(stencila_agents::agent_def::discover(
+            handle.block_on(stencila_agents::definition::discover(
                 &std::env::current_dir().unwrap_or_default(),
             ))
         })

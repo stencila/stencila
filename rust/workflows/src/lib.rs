@@ -1,19 +1,19 @@
 mod cli_interviewer;
 pub use cli_interviewer::CliInterviewer;
 
-mod workflow_def;
-pub use workflow_def::*;
+mod definition;
+pub use definition::*;
 
-mod workflow_validate;
-pub use workflow_validate::*;
+mod validate;
+pub use validate::*;
 
-mod workflow_emitters;
-pub use workflow_emitters::*;
+mod emitters;
+pub use emitters::*;
 
-mod workflow_handler;
+mod handler;
 
-mod workflow_run;
-pub use workflow_run::*;
+mod run;
+pub use run::*;
 
 mod tools;
 

@@ -14,7 +14,7 @@ use stencila_attractor::{
 
 use crate::{
     get_by_name,
-    workflow_run::{ParentRun, RunOptions, run_workflow_with_options_and_parent},
+    run::{ParentRun, RunOptions, run_workflow_with_options_and_parent},
 };
 
 #[derive(Clone)]

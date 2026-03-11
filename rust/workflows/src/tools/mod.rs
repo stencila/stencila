@@ -25,14 +25,14 @@ use stencila_db::rusqlite::Connection;
 /// Returns an error if tool registration fails on an API session.
 #[allow(clippy::result_large_err)]
 pub fn register_workflow_tools(
-    session: &mut stencila_agents::agent_session::AgentSession,
+    session: &mut stencila_agents::session::AgentSession,
     conn: Arc<Mutex<Connection>>,
     run_id: String,
     context_writable: bool,
     artifacts_dir: PathBuf,
     workspace_root: PathBuf,
 ) -> stencila_agents::error::AgentResult<()> {
-    let stencila_agents::agent_session::AgentSession::Api(api_session) = session else {
+    let stencila_agents::session::AgentSession::Api(api_session) = session else {
         // CLI sessions don't support tool registration
         return Ok(());
     };
