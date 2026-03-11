@@ -206,8 +206,8 @@ fn migration_is_tracked() {
         )
         .expect("query");
     assert_eq!(domain, "workflows");
-    assert_eq!(version, 2);
-    assert_eq!(name, "workflow_run_parent");
+    assert_eq!(version, 1);
+    assert_eq!(name, "initial");
 }
 
 // ---------------------------------------------------------------------------
