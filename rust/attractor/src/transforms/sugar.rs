@@ -15,12 +15,14 @@
 //! 1. **Property shortcuts** — `ask`, `cmd`/`shell`, `branch` attributes
 //!    imply a specific handler type. All sugar keys are always removed
 //!    regardless of which one wins, so they never leak into the graph.
-//! 2. **`prompt` / `agent`** — if either is present the node is an LLM
+//! 2. **`interview`** — if the `interview` attribute is present, the node
+//!    is a human gate (`hexagon`), supporting multi-question interviews.
+//! 3. **`prompt` / `agent`** — if either is present the node is an LLM
 //!    task (`box`), overriding prefix-based ID inference. Reserved
 //!    structural IDs (`Start`/`End`/`Fail`) are exempt — they always
 //!    get their structural shape because `Node::handler_type()` treats
 //!    them specially even when shape is `box`.
-//! 3. **Node ID** — exact or prefix match maps to a shape.
+//! 4. **Node ID** — exact or prefix match maps to a shape.
 //!
 //! An explicit `shape` attribute always wins over all of the above.
 //!
@@ -110,6 +112,15 @@ impl Transform for NodeSugarTransform {
                 if !node.attrs.contains_key("label") {
                     node.attrs.insert("label".to_string(), val);
                 }
+                continue;
+            }
+
+            // `interview` implies human gate (multi-question interview)
+            if node.attrs.contains_key("interview") && !has_shape {
+                node.attrs.insert(
+                    "shape".to_string(),
+                    AttrValue::String(Graph::HUMAN_SHAPE.into()),
+                );
                 continue;
             }
 

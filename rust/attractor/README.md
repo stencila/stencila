@@ -156,6 +156,35 @@ Answer values are stored as strings:
 
 When `store` is absent, no additional context key is written (the existing `human.gate.selected` and `human.gate.label` keys are still set for choice-based questions).
 
+### Multi-question interviews (`interview` attribute)
+
+The `interview` attribute specifies a multi-question interview as a YAML or JSON string. In workflows, this is typically populated via `interview-ref` pointing to a YAML code block:
+
+```yaml #review-interview
+preamble: |
+  Please review the draft.
+
+questions:
+  - question: "Ready to publish?"
+    question_type: multiple_choice
+    options:
+      - label: Approve
+      - label: Revise
+    store: review.decision
+
+  - question: "What should change?"
+    question_type: freeform
+    store: review.feedback
+```
+
+```dot
+Review [interview-ref="#review-interview"]
+```
+
+Each question's answer is stored under its `store` key. Routing is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels. `multi_select` questions do not drive routing. After storing answers and setting compatibility context keys, the handler uses the same route-selection behavior as existing single-question human nodes.
+
+When an interview has no `multiple_choice` question, the handler follows the first outgoing edge (same as `question_type="freeform"` for single-question nodes).
+
 ### Generic context variable expansion (`$KEY`)
 
 In addition to the built-in `$last_output`, `$last_stage`, and `$last_outcome` runtime variables, the codergen handler expands `$KEY` references against the pipeline context at execution time:

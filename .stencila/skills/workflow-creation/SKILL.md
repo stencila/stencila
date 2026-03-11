@@ -112,8 +112,9 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - Prefer frontmatter `goal` for the workflow objective when it is known and stable
 - Add a graph attribute like `graph [goal="..."]` only when required by execution semantics or to match an existing project style
 - Use node attributes such as `prompt`, `agent`, and `ask` where needed
-- When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, and `ask-ref` instead of embedding long escaped strings directly in DOT
+- When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` instead of embedding long escaped strings directly in DOT
 - Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
+- When a human review step needs to collect multiple pieces of information (e.g., a decision and freeform feedback), use `interview-ref` pointing to a YAML code block that defines the full interview with preamble, multiple typed questions, and per-question `store` keys; continue to use `ask` or `ask-ref` for single-question human gates
 - Use edges to express sequencing, branching, retry loops, and approval paths
 - Prefer the house style of placing the entry edge near the top, then organizing each node as a block: node definition followed immediately by its outgoing edge or edges
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
@@ -128,6 +129,7 @@ digraph example {
     Create [agent="writer", prompt-ref="#creator-prompt"]
     Check  [shell-ref="#run-checks"]
     Ask    [ask-ref="#human-question", question-type="freeform"]
+    Review [interview-ref="#review-interview"]
 }
 ```
 
@@ -150,6 +152,25 @@ cargo test -p workflows
 What should change before the next revision?
 
 Be specific about missing sections, unclear instructions, or structural issues.
+```
+
+```yaml #review-interview
+preamble: |
+  Please review the draft and provide structured feedback.
+
+questions:
+  - question: "Is the draft ready to publish?"
+    header: Decision
+    question_type: multiple_choice
+    options:
+      - label: Approve
+      - label: Revise
+    store: review.decision
+
+  - question: "What specific changes should be made?"
+    header: Feedback
+    question_type: freeform
+    store: review.feedback
 ```
 ````
 
@@ -245,6 +266,51 @@ digraph code_review {
 ```
 ````
 
+### Agent-driven workflow with structured review interview
+
+````markdown
+---
+name: code-review-guided
+description: Automated code review with structured human feedback
+goal: Implement and review the feature with detailed feedback
+---
+
+```dot
+digraph code_review_guided {
+    Start -> Design
+
+    Design [agent="code-planner", prompt="Design the solution for: $goal"]
+    Design -> Build
+
+    Build  [agent="code-engineer", prompt="Implement the design"]
+    Build -> Review
+
+    Review [interview-ref="#review-interview"]
+    Review -> End        [label="Approve"]
+    Review -> Design     [label="Revise"]
+}
+```
+
+```yaml #review-interview
+preamble: |
+  Please review the implementation and provide structured feedback.
+
+questions:
+  - question: "Is the implementation ready to merge?"
+    header: Decision
+    question_type: multiple_choice
+    options:
+      - label: Approve
+      - label: Revise
+    store: review.decision
+
+  - question: "What specific changes should be made?"
+    header: Feedback
+    question_type: freeform
+    store: review.feedback
+```
+````
+
 ## Authoring Guidance
 
 - Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish
@@ -262,6 +328,8 @@ digraph code_review {
 - Do not try to encode ephemeral status in frontmatter or the DOT graph; use the `.gitignore` sentinel instead when needed
 - Do not overcomplicate the first draft; a shorter valid workflow is better than an elaborate but unclear one
 - Do not encode every node or branch in the workflow name; keep naming focused on the process and, if needed, a broad approach modifier
+- Use `interview-ref` when a human review step needs to collect both a routing decision and structured feedback in a single pause; ensure every freeform question has a `store` key so answers are not silently lost
+- Routing in multi-question interviews is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — keep routing edges visible in the DOT graph, not hidden in the YAML spec
 
 ## Practical Workflow Design Guidance
 

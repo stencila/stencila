@@ -27,6 +27,7 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(GoalGateHasRetryRule),
         Box::new(PromptOnLlmNodesRule),
         Box::new(ShellCommandPresentRule),
+        Box::new(InterviewSpecRule),
     ]
 }
 
@@ -638,5 +639,176 @@ impl LintRule for ShellCommandPresentRule {
                 fix: Some("add shell_command=\"...\" or use the cmd/shell sugar attribute".into()),
             })
             .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 15. interview_spec (WARNING) — interview spec validation
+// ---------------------------------------------------------------------------
+
+struct InterviewSpecRule;
+
+impl LintRule for InterviewSpecRule {
+    fn name(&self) -> &'static str {
+        "interview_spec"
+    }
+
+    #[allow(clippy::too_many_lines)]
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        use stencila_interviews::spec::{InterviewSpec, QuestionTypeSpec};
+
+        let mut diagnostics = Vec::new();
+
+        for node in graph.nodes.values() {
+            let Some(spec_str) = node.get_str_attr("interview") else {
+                continue;
+            };
+
+            // Warn when node-level `store` is combined with `interview`;
+            // per-question `store` keys are the intended mechanism.
+            if node.attrs.contains_key("store") {
+                diagnostics.push(Diagnostic {
+                    rule: self.name().to_string(),
+                    severity: Severity::Warning,
+                    message: format!(
+                        "node `{}` combines node-level `store` with `interview`; \
+                         only the first question's answer is stored under the \
+                         node-level key — use per-question `store` keys instead",
+                        node.id
+                    ),
+                    node_id: Some(node.id.clone()),
+                    edge: None,
+                    fix: Some(
+                        "remove the node-level `store` attribute and add `store` \
+                         keys to individual questions in the interview spec"
+                            .into(),
+                    ),
+                });
+            }
+
+            let spec = match InterviewSpec::parse(spec_str) {
+                Ok(s) => s,
+                Err(e) => {
+                    diagnostics.push(Diagnostic {
+                        rule: self.name().to_string(),
+                        severity: Severity::Warning,
+                        message: format!("node `{}`: {e}", node.id),
+                        node_id: Some(node.id.clone()),
+                        edge: None,
+                        fix: Some("check the interview YAML/JSON syntax".into()),
+                    });
+                    continue;
+                }
+            };
+
+            // Warn on freeform questions without a store key
+            for (i, q) in spec.questions.iter().enumerate() {
+                if q.question_type == QuestionTypeSpec::Freeform && q.store.is_none() {
+                    diagnostics.push(Diagnostic {
+                        rule: self.name().to_string(),
+                        severity: Severity::Warning,
+                        message: format!(
+                            "node `{}` interview question {} is freeform but has no `store` key; \
+                             the answer will be collected but never stored",
+                            node.id,
+                            i + 1
+                        ),
+                        node_id: Some(node.id.clone()),
+                        edge: None,
+                        fix: Some("add a `store` key to the question".into()),
+                    });
+                }
+            }
+
+            // Warn on duplicate store keys
+            let store_keys: Vec<&str> = spec
+                .questions
+                .iter()
+                .filter_map(|q| q.store.as_deref())
+                .collect();
+            let mut seen = HashSet::new();
+            for key in &store_keys {
+                if !seen.insert(*key) {
+                    diagnostics.push(Diagnostic {
+                        rule: self.name().to_string(),
+                        severity: Severity::Warning,
+                        message: format!(
+                            "node `{}` interview has duplicate store key `{key}`; \
+                             later answers will overwrite earlier ones",
+                            node.id
+                        ),
+                        node_id: Some(node.id.clone()),
+                        edge: None,
+                        fix: Some("use unique store keys for each question".into()),
+                    });
+                }
+            }
+
+            // Warn when the first multiple_choice question's option labels
+            // do not match any outgoing edge labels
+            if let Some(routing_q) = spec
+                .questions
+                .iter()
+                .find(|q| q.question_type == QuestionTypeSpec::MultipleChoice)
+            {
+                let edge_labels: HashSet<String> = graph
+                    .outgoing_edges(&node.id)
+                    .iter()
+                    .map(|e| {
+                        if e.label().is_empty() {
+                            e.to.clone()
+                        } else {
+                            e.label().to_string()
+                        }
+                    })
+                    .collect();
+
+                if !edge_labels.is_empty() {
+                    for opt in &routing_q.options {
+                        if !edge_labels.contains(&opt.label) {
+                            diagnostics.push(Diagnostic {
+                                rule: self.name().to_string(),
+                                severity: Severity::Warning,
+                                message: format!(
+                                    "node `{}` interview routing option `{}` does not match \
+                                     any outgoing edge label",
+                                    node.id, opt.label
+                                ),
+                                node_id: Some(node.id.clone()),
+                                edge: None,
+                                fix: Some(
+                                    "ensure routing option labels match outgoing edge labels"
+                                        .into(),
+                                ),
+                            });
+                        }
+                    }
+                }
+            } else {
+                // No routing question — warn if there are multiple outgoing edges
+                let outgoing_count = graph.outgoing_edges(&node.id).len();
+                if outgoing_count > 1 {
+                    diagnostics.push(Diagnostic {
+                        rule: self.name().to_string(),
+                        severity: Severity::Warning,
+                        message: format!(
+                            "node `{}` interview has no multiple_choice routing question \
+                             but has {outgoing_count} outgoing edges; the first edge will \
+                             always be followed",
+                            node.id
+                        ),
+                        node_id: Some(node.id.clone()),
+                        edge: None,
+                        fix: Some(
+                            "add a multiple_choice question for routing, or reduce to one \
+                             outgoing edge"
+                                .into(),
+                        ),
+                    });
+                }
+            }
+        }
+
+        diagnostics
     }
 }

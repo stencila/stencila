@@ -31,6 +31,8 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use indexmap::IndexMap;
 
+use stencila_interviews::spec::InterviewSpec;
+
 use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
@@ -113,12 +115,228 @@ impl WaitForHumanHandler {
     }
 }
 
+impl WaitForHumanHandler {
+    /// Execute a multi-question interview defined by an `InterviewSpec`.
+    ///
+    /// Parses the spec from YAML (with JSON fallback), conducts the
+    /// interview, stores per-question answers in context, and routes
+    /// based on the first `multiple_choice` question's answer.
+    #[allow(clippy::too_many_lines)]
+    async fn execute_interview_spec(
+        &self,
+        node: &Node,
+        context: &Context,
+        graph: &Graph,
+        spec_str: &str,
+    ) -> AttractorResult<Outcome> {
+        let store_key = node.get_str_attr("store").map(ToString::to_string);
+
+        // 1. Parse the spec from YAML (fall back to JSON)
+        let spec = InterviewSpec::parse(spec_str).map_err(|reason| {
+            crate::error::AttractorError::HandlerFailed {
+                node_id: node.id.clone(),
+                reason,
+            }
+        })?;
+
+        // 2. Convert spec to Interview
+        let mut interview = spec.to_interview(&node.id).map_err(|reason| {
+            crate::error::AttractorError::HandlerFailed {
+                node_id: node.id.clone(),
+                reason,
+            }
+        })?;
+        interview.stage_index = context.get_i64("internal.stage_index");
+
+        // 3. Resume recovery
+        if let Some(ref db_conn) = self.db_conn {
+            match stencila_interviews::find_pending_interview(
+                db_conn,
+                &self.context_type,
+                &self.context_id,
+                &node.id,
+                interview.stage_index,
+            ) {
+                Ok(Some((recovered_id, recovered_qids))) => {
+                    tracing::debug!(
+                        interview_id = %recovered_id,
+                        node_id = %node.id,
+                        "recovered pending interview from previous run"
+                    );
+                    interview.id = recovered_id;
+                    for (q, qid) in interview.questions.iter_mut().zip(recovered_qids) {
+                        q.id = Some(qid);
+                    }
+                }
+                Ok(None) => {}
+                Err(e) => {
+                    tracing::warn!(
+                        node_id = %node.id,
+                        error = %e,
+                        "failed to query for pending interview during resume; \
+                         proceeding with a new interview ID"
+                    );
+                }
+            }
+        }
+
+        // 4. Emit events for each question
+        for question in &interview.questions {
+            self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
+                interview_id: interview.id.clone(),
+                node_id: node.id.clone(),
+                question: question.clone(),
+            });
+        }
+
+        // 5. Conduct the interview
+        self.interviewer
+            .conduct(&mut interview)
+            .await
+            .map_err(|e| match e {
+                InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: "interview channel closed".into(),
+                },
+                InterviewError::BackendFailure(msg) => {
+                    crate::error::AttractorError::HandlerFailed {
+                        node_id: node.id.clone(),
+                        reason: format!("interview backend failure: {msg}"),
+                    }
+                }
+                InterviewError::Cancelled => crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: "interview cancelled".into(),
+                },
+            })?;
+
+        // 6. Store answers and find routing answer
+        let mut context_updates = IndexMap::new();
+        let mut routing_answer: Option<Answer> = None;
+
+        for (i, question) in interview.questions.iter().enumerate() {
+            let answer = interview.answers.get(i).cloned().ok_or_else(|| {
+                crate::error::AttractorError::HandlerFailed {
+                    node_id: node.id.clone(),
+                    reason: format!("no answer for question {i} after interview"),
+                }
+            })?;
+
+            // Store under per-question `store` key
+            if let Some(ref store) = spec.questions.get(i).and_then(|q| q.store.clone()) {
+                context_updates.insert(
+                    store.clone(),
+                    serde_json::Value::String(answer_to_store_value(&answer)),
+                );
+            }
+
+            // Also store under node-level `store` for the first answer (compatibility)
+            if i == 0
+                && let Some(ref key) = store_key
+            {
+                context_updates.insert(
+                    key.clone(),
+                    serde_json::Value::String(answer_to_store_value(&answer)),
+                );
+            }
+
+            // Track the first multiple_choice question's answer for routing
+            if routing_answer.is_none() && question.question_type == QuestionType::MultipleChoice {
+                routing_answer = Some(answer);
+            }
+        }
+
+        self.emitter.emit(PipelineEvent::InterviewAnswerReceived {
+            interview_id: interview.id.clone(),
+            node_id: node.id.clone(),
+        });
+
+        // 7. Routing: derive choices from outgoing edges
+        let choices = choices_from_edges(graph, &node.id);
+
+        if let Some(routing_ans) = routing_answer {
+            // Routing requires at least one outgoing edge
+            if choices.is_empty() {
+                return Ok(Outcome::fail(
+                    "interview has a routing question but no outgoing edges",
+                ));
+            }
+
+            // Handle timeout/skip for routing answer
+            if routing_ans.is_timeout() {
+                self.emitter.emit(PipelineEvent::InterviewTimedOut {
+                    interview_id: interview.id.clone(),
+                    node_id: node.id.clone(),
+                });
+
+                if let Some(default_target) = node.get_str_attr("human.default_choice")
+                    && let Some(choice) = find_choice_by_str(default_target, &choices)
+                {
+                    let mut outcome = build_human_outcome(choice);
+                    outcome.context_updates.extend(context_updates);
+                    return Ok(outcome);
+                }
+                return Ok(Outcome::retry("human gate timeout, no default"));
+            }
+
+            if routing_ans.is_skipped() {
+                return Ok(Outcome::fail("human skipped interaction"));
+            }
+
+            // Choice-based routing using first multiple_choice answer
+            let Some(selected) = find_matching_choice(&routing_ans, &choices) else {
+                return Ok(Outcome::fail("answer did not match any available choice"));
+            };
+
+            let mut outcome = build_human_outcome(selected);
+            outcome.context_updates.extend(context_updates);
+            Ok(outcome)
+        } else if choices.is_empty() {
+            // Terminal interview node — no routing question, no outgoing
+            // edges. Succeed with just the stored context updates.
+            Ok(Outcome {
+                context_updates,
+                ..Outcome::success()
+            })
+        } else {
+            // No routing question — follow first outgoing edge
+            Ok(Outcome {
+                status: crate::types::StageStatus::Success,
+                suggested_next_ids: vec![choices[0].target.clone()],
+                context_updates,
+                ..Outcome::success()
+            })
+        }
+    }
+}
+
 /// A choice derived from an outgoing edge.
 #[derive(Debug, Clone)]
 struct Choice {
     key: String,
     label: String,
     target: String,
+}
+
+/// Derive choices from a node's outgoing edges.
+fn choices_from_edges(graph: &Graph, node_id: &str) -> Vec<Choice> {
+    graph
+        .outgoing_edges(node_id)
+        .iter()
+        .map(|edge| {
+            let raw = if edge.label().is_empty() {
+                edge.to.clone()
+            } else {
+                edge.label().to_string()
+            };
+            let (key, label) = parse_accelerator_label(&raw);
+            Choice {
+                key,
+                label,
+                target: edge.to.clone(),
+            }
+        })
+        .collect()
 }
 
 /// Parse an accelerator key and display label from an edge label (§4.6).
@@ -206,28 +424,20 @@ impl Handler for WaitForHumanHandler {
         context: &Context,
         graph: &Graph,
     ) -> AttractorResult<Outcome> {
+        // Multi-question interview path: if the node has an `interview`
+        // attribute, parse and execute the full interview spec.
+        if let Some(interview_spec_str) = node.get_str_attr("interview") {
+            return self
+                .execute_interview_spec(node, context, graph, interview_spec_str)
+                .await;
+        }
+
         let store_key = node.get_str_attr("store").map(ToString::to_string);
         let question_type = parse_question_type(node);
 
         // 1. Derive choices from outgoing edges (used for routing and
         //    for multiple-choice question building)
-        let edges = graph.outgoing_edges(&node.id);
-        let choices: Vec<Choice> = edges
-            .iter()
-            .map(|edge| {
-                let raw = if edge.label().is_empty() {
-                    edge.to.clone()
-                } else {
-                    edge.label().to_string()
-                };
-                let (key, label) = parse_accelerator_label(&raw);
-                Choice {
-                    key,
-                    label,
-                    target: edge.to.clone(),
-                }
-            })
-            .collect();
+        let choices = choices_from_edges(graph, &node.id);
 
         // For multiple-choice (the default), we need at least one edge.
         // For other question types, we need at least one edge for routing

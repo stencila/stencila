@@ -152,8 +152,6 @@ name: code-review
 description: Automated code review with human approval gate
 ---
 
-# Code Review Workflow
-
 This workflow implements, tests, and reviews code changes.
 
 ```dot
@@ -215,7 +213,7 @@ digraph thing_creation_iterative {
 
 ## Reusing multiline prompts, shell scripts, and questions
 
-When prompts, shell commands, or human questions get long or multiline, write the DOT node first and then define the referenced fenced code blocks after it. Use kebab-case reference attributes: `prompt-ref`, `shell-ref`, and `ask-ref`.
+When prompts, shell commands, or human questions get long or multiline, write the DOT node first and then define the referenced fenced code blocks after it. Use kebab-case reference attributes: `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref`.
 
 Use refs where they improve readability. For short single-line values, inline DOT attributes are usually clearer.
 
@@ -259,6 +257,136 @@ What should be improved before the next revision?
 ````
 
 References resolve against code blocks and code chunks in the same `WORKFLOW.md`. Ids must be unique within the document.
+
+## Multi-question interviews
+
+When a human review step needs to collect multiple pieces of information — such as a routing decision and freeform feedback — use `interview-ref` pointing to a YAML code block that defines a structured interview.
+
+Continue to use `ask` or `ask-ref` for single-question human gates. Use `interview-ref` when you need to combine two or more questions in a single human pause.
+
+### Interview spec format
+
+An interview spec is a YAML block with an optional `preamble` and a required `questions` array. Each question has:
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `question` | yes | The question text (keep concise — one or two sentences) |
+| `question_type` | no | `freeform` (default), `yes_no`, `confirmation`, `multiple_choice`, or `multi_select` |
+| `header` | no | Short label displayed above the question |
+| `options` | for choice types | Array of `{label, description?}` objects |
+| `default` | no | Default answer when the user skips or times out |
+| `store` | no | Context key to store the answer under (e.g., `review.feedback`) |
+
+### Routing
+
+Routing in multi-question interviews is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — the same mechanism used by single-question human nodes. Keep routing edges visible in the DOT graph, not hidden in the YAML spec.
+
+When an interview has no `multiple_choice` question, the handler follows the first outgoing edge (same as `question_type="freeform"` for single-question nodes). An interview node with no outgoing edges is treated as a terminal node — it succeeds after collecting answers.
+
+### Storing answers
+
+Every question that downstream nodes need to reference should have a `store` key. Answers are stored as strings in the pipeline context and can be referenced later with `$KEY` expansion (e.g., `$review.feedback`).
+
+A freeform question without a `store` key will collect an answer that is never stored — workflow validation warns about this.
+
+### Example: review with decision and feedback
+
+````markdown
+---
+name: code-review-guided
+description: Implement and review with structured human feedback
+goal: Implement the feature and get approval
+---
+
+```dot
+digraph code_review_guided {
+    Start -> Build
+
+    Build [agent="code-engineer", prompt="Implement: $goal"]
+    Build -> Review
+
+    Review [interview-ref="#review-interview"]
+    Review -> End     [label="Approve"]
+    Review -> Build   [label="Revise"]
+}
+```
+
+```yaml #review-interview
+preamble: |
+  Please review the implementation and provide structured feedback.
+
+questions:
+  - question: "Is the implementation ready to merge?"
+    header: Decision
+    question_type: multiple_choice
+    options:
+      - label: Approve
+      - label: Revise
+    store: review.decision
+
+  - question: "What specific changes should be made?"
+    header: Feedback
+    question_type: freeform
+    store: review.feedback
+```
+````
+
+In this workflow:
+
+1. The `Build` node implements the feature
+2. The `Review` node pauses and presents both questions as a single form
+3. The first `multiple_choice` question ("Decision") determines routing — its option labels match the outgoing edge labels `Approve` and `Revise`
+4. The freeform question ("Feedback") stores the human's detailed feedback as `review.feedback`
+5. If the human selects "Revise", the pipeline loops back to `Build` where the prompt can reference `$review.feedback`
+
+### Example: terminal feedback collection
+
+An interview node with no outgoing edges serves as a terminal feedback collector:
+
+```dot
+digraph survey {
+    Start -> Generate
+
+    Generate [prompt="Generate the report for: $goal"]
+    Generate -> Collect
+
+    Collect [interview-ref="#final-survey"]
+}
+```
+
+```yaml #final-survey
+preamble: |
+  The report has been generated. Please provide your assessment.
+
+questions:
+  - question: "How would you rate the quality?"
+    question_type: multiple_choice
+    options:
+      - label: Excellent
+      - label: Good
+      - label: Needs improvement
+    store: survey.quality
+
+  - question: "Any additional comments?"
+    question_type: freeform
+    store: survey.comments
+```
+
+Since `Collect` has no outgoing edges and no routing question drives edge selection, the pipeline succeeds after storing the answers.
+
+### When to use interviews vs separate human nodes
+
+Use `interview-ref` when:
+
+- a review step naturally combines a routing decision with structured feedback
+- you want to collect multiple related answers in a single human pause
+- reducing the number of separate human pauses improves the reviewer experience
+
+Use separate `ask` / `ask-ref` nodes when:
+
+- the questions are independent and belong to different stages of the pipeline
+- the answers drive different routing decisions at different points in the graph
+- simpler single-question nodes make the graph easier to read
 
 
 ## Improving Discoverability and Delegation

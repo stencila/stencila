@@ -10,6 +10,7 @@
 
 pub mod interviewer;
 pub mod interviewers;
+pub mod spec;
 
 mod persistent;
 

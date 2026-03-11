@@ -81,6 +81,8 @@ An explicit `shape` attribute always takes precedence over ID-based inference. I
 | `shell="cargo test"`    | `shape=parallelogram, shell_command="cargo test"` |
 | `branch="Quality OK?"`  | `shape=diamond, label="Quality OK?"`              |
 
+Additionally, a node with an `interview` attribute (typically set via `interview-ref`) is inferred as `shape=hexagon` (a human gate).
+
 Property shortcuts never override an explicitly set `shape`, `label`, or `shell_command`. All sugar keys (`ask`, `cmd`, `shell`, `branch`) are always removed from the node, even when a higher-precedence shortcut wins.
 
 ### Resolution order
@@ -88,8 +90,9 @@ Property shortcuts never override an explicitly set `shape`, `label`, or `shell_
 When a node has no explicit `shape`, the engine applies the first matching rule:
 
 1. **Property shortcuts** — `ask` > `cmd`/`shell` > `branch` (all consumed regardless of which wins)
-2. **`prompt` or `agent`** — node is an LLM task, prefix-based ID inference is skipped (structural IDs exempt)
-3. **Node ID** — exact or prefix match from the table above
+2. **`interview`** — node has an `interview` attribute (typically from `interview-ref`), inferred as human gate
+3. **`prompt` or `agent`** — node is an LLM task, prefix-based ID inference is skipped (structural IDs exempt)
+4. **Node ID** — exact or prefix match from the table above
 
 **Example** — the combined example from below can be written more concisely:
 
@@ -141,6 +144,7 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 | `class`                  | String   | Comma-separated class names for overrides targeting.                                                       |
 | `question-type`          | String   | Human node question type: `"freeform"`, `"yes-no"`, `"confirmation"`. Default: multiple choice from edges. |
 | `store`                  | String   | Human node context key to store the answer in (e.g., `"human.feedback"`).                                  |
+| `interview-ref`          | String   | Reference to a YAML code block defining a multi-question interview (e.g., `"#review-interview"`).          |
 
 ## Agent property overrides
 
@@ -225,6 +229,7 @@ Supported reference attributes:
 | `prompt-ref="#id"` | `prompt` |
 | `shell-ref="#id"` | `shell_command` |
 | `ask-ref="#id"` | human question label |
+| `interview-ref="#id"` | `interview` (multi-question interview spec) |
 
 Example:
 
@@ -585,6 +590,45 @@ This pipeline:
 6. The feedback is stored as `human.feedback` and interpolated into the `Create` prompt on the next iteration via `$human.feedback`
 
 On the first iteration, `$human.feedback` resolves to an empty string (the key doesn't exist yet), so the prompt naturally adapts.
+
+### Multi-question interviews
+
+When a single human pause needs to collect multiple pieces of information — such as a routing decision and detailed feedback — use `interview-ref` to reference a YAML code block that defines a structured interview.
+
+The YAML block specifies a `preamble` (optional context shown before the questions) and a `questions` array. Each question can have a `question_type`, `options` (for choice types), a `default`, and a `store` key for saving the answer to the pipeline context.
+
+```dot
+Review [interview-ref="#review-interview"]
+Review -> End     [label="Approve"]
+Review -> Build   [label="Revise"]
+```
+
+```yaml #review-interview
+preamble: |
+  Please review the implementation.
+
+questions:
+  - question: "Is the implementation ready to merge?"
+    header: Decision
+    question_type: multiple_choice
+    options:
+      - label: Approve
+      - label: Revise
+    store: review.decision
+
+  - question: "What specific changes should be made?"
+    header: Feedback
+    question_type: freeform
+    store: review.feedback
+```
+
+**Routing** is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — the same mechanism as single-question human nodes. When an interview has no `multiple_choice` question, the node follows its first outgoing edge. An interview node with no outgoing edges succeeds as a terminal node after collecting answers.
+
+**Storing answers** — each question with a `store` key writes its answer to the pipeline context. Downstream nodes reference these values using `$KEY` expansion (e.g., `$review.feedback` in a prompt). Freeform questions without a `store` key will trigger a validation warning, since the answer would be collected but never stored.
+
+Use `interview-ref` when a review step naturally combines routing with structured feedback. Use separate `ask` / `ask-ref` nodes when the questions are independent or belong to different pipeline stages.
+
+See [Creating Workflows — Multi-question interviews](creating#multi-question-interviews) for the full spec format, more examples, and guidance.
 
 ## Parallel execution
 

@@ -166,6 +166,7 @@ impl WorkflowInstance {
             ("prompt", &["prompt_ref", "prompt-ref"]),
             ("shell", &["shell_ref", "shell-ref"]),
             ("ask", &["ask_ref", "ask-ref"]),
+            ("interview", &["interview_ref", "interview-ref"]),
         ];
 
         let defs = self.content_blocks_by_id()?;
@@ -665,5 +666,76 @@ digraph conflicting_ref {
             .expect_err("conflicting attrs should error");
         let message = error.to_string();
         assert!(message.contains("can not set both `prompt`"), "{message}");
+    }
+
+    #[tokio::test]
+    async fn graph_resolves_interview_ref() {
+        let (_tmp, instance) = load_inline_workflow(
+            "interview-ref",
+            r##"---
+name: interview-ref
+description: Test interview ref
+---
+
+```yaml #review-interview
+questions:
+  - question: "What areas need improvement?"
+    question_type: freeform
+    store: review.improvements
+  - question: "Are there any blocking issues?"
+    question_type: yes_no
+```
+
+```dot
+digraph interview_ref {
+    Start -> Review -> End
+    Review [interview-ref="#review-interview"]
+}
+```
+"##,
+        )
+        .await;
+        let graph = instance.graph().expect("graph");
+
+        let review = graph.nodes.get("Review").expect("Review node");
+        assert_eq!(
+            review.get_str_attr("interview"),
+            Some(
+                "questions:\n  - question: \"What areas need improvement?\"\n    question_type: freeform\n    store: review.improvements\n  - question: \"Are there any blocking issues?\"\n    question_type: yes_no"
+            )
+        );
+    }
+
+    #[tokio::test]
+    async fn graph_errors_on_interview_and_interview_ref_conflict() {
+        let (_tmp, instance) = load_inline_workflow(
+            "interview-conflict",
+            r##"---
+name: interview-conflict
+description: Test conflicting interview attrs
+---
+
+```yaml #review-interview
+questions:
+  - question: "What areas need improvement?"
+```
+
+```dot
+digraph interview_conflict {
+    Start -> Review -> End
+    Review [interview="inline interview", interview-ref="#review-interview"]
+}
+```
+"##,
+        )
+        .await;
+        let error = instance
+            .graph()
+            .expect_err("conflicting attrs should error");
+        let message = error.to_string();
+        assert!(
+            message.contains("can not set both `interview`"),
+            "{message}"
+        );
     }
 }
