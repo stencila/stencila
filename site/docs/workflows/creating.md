@@ -271,19 +271,19 @@ An interview spec is a YAML block with an optional `preamble` and a required `qu
 | Field | Required | Description |
 | --- | --- | --- |
 | `question` | yes | The question text (keep concise — one or two sentences) |
-| `question_type` | no | `freeform` (default), `yes_no`, `confirmation`, `multiple_choice`, or `multi_select` |
+| `type` | no | `freeform` (default), `yes-no`, `confirm`, `single-select`, or `multi-select` |
 | `header` | no | Short label displayed above the question |
 | `options` | for choice types | Array of `{label, description?}` objects |
 | `default` | no | Default answer when the user skips or times out |
 | `store` | no | Context key to store the answer under (e.g., `review.feedback`) |
-| `show_if` | no | Only show this question when a condition is true (e.g., `"decision == Revise"`) |
-| `finish_if` | no | End the interview early if the answer matches this value (e.g., `"no"`) |
+| `show-if` | no | Only show this question when a condition is true (e.g., `"decision == Revise"`) |
+| `finish-if` | no | End the interview early if the answer matches this value (e.g., `"no"`) |
 
 ### Routing
 
-Routing in multi-question interviews is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — the same mechanism used by single-question human nodes. Keep routing edges visible in the DOT graph, not hidden in the YAML spec.
+Routing in multi-question interviews is driven by the first `single-select` question's answer, matched against outgoing edge labels — the same mechanism used by single-question human nodes. Keep routing edges visible in the DOT graph, not hidden in the YAML spec.
 
-When an interview has no `multiple_choice` question, the handler follows the first outgoing edge (same as `question_type="freeform"` for single-question nodes). An interview node with no outgoing edges is treated as a terminal node — it succeeds after collecting answers.
+When an interview has no `single-select` question, the handler follows the first outgoing edge (same as `question-type="freeform"` for single-question nodes). An interview node with no outgoing edges is treated as a terminal node — it succeeds after collecting answers.
 
 ### Storing answers
 
@@ -291,87 +291,81 @@ Every question that downstream nodes need to reference should have a `store` key
 
 A freeform question without a `store` key will collect an answer that is never stored — workflow validation warns about this.
 
-### Conditional questions with `show_if`
+### Conditional questions with `show-if`
 
-Use `show_if` to display a question only when a previous answer matches a condition. The syntax is `"store_key == value"` or `"store_key != value"`, where `store_key` is the `store` name of an earlier question. Comparisons are case-insensitive.
+Use `show-if` to display a question only when a previous answer matches a condition. The syntax is `"store_key == value"` or `"store_key != value"`, where `store_key` is the `store` name of an earlier question. Comparisons are case-insensitive.
 
 This is useful when follow-up questions only make sense for certain answers — for example, asking for revision notes only when the reviewer chose to revise:
 
 ```yaml
 questions:
   - question: "Is the implementation acceptable?"
-    question_type: multiple_choice
+    type: single-select
     store: decision
     options:
       - label: Accepted
       - label: Revise
 
   - question: "What specific changes are needed?"
-    question_type: freeform
     store: revision_notes
-    show_if: "decision == Revise"
+    show-if: "decision == Revise"
 
   - question: "Any final comments for the changelog?"
-    question_type: freeform
     store: changelog_notes
-    show_if: "decision == Accepted"
+    show-if: "decision == Accepted"
 ```
 
 If the reviewer selects "Revise", only the revision notes question appears. If they select "Accepted", only the changelog question appears.
 
-When a question is skipped because its `show_if` condition is false, its `store` key is never written. Any downstream `show_if` referencing that skipped key treats `==` as false and `!=` as true.
+When a question is skipped because its `show_-if` condition is false, its `store` key is never written. Any downstream `show-if` referencing that skipped key treats `==` as false and `!=` as true.
 
-### Early exit with `finish_if`
+### Early exit with `finish-if`
 
-Use `finish_if` to end the interview immediately when a question's answer matches a specific value. Remaining questions are not presented and the interview completes successfully with the answers collected so far.
+Use `finish-if` to end the interview immediately when a question's answer matches a specific value. Remaining questions are not presented and the interview completes successfully with the answers collected so far.
 
-`finish_if` is supported on `yes_no`, `confirmation`, and `multiple_choice` questions. It is not supported on `freeform` or `multi_select` questions.
+`finish-if` is supported on `yes-no`, `confirm`, and `single-select` questions. It is not supported on `freeform` or `multi-select` questions.
 
 This is useful for gate questions — for example, ending the interview if the user declines to continue:
 
 ```yaml
 questions:
   - question: "Would you like to provide detailed feedback?"
-    question_type: yes_no
+    type: yes-no
     store: wants_feedback
-    finish_if: "no"
+    finish-if: "no"
 
   - question: "What went well?"
-    question_type: freeform
     store: feedback.positive
 
   - question: "What could be improved?"
-    question_type: freeform
     store: feedback.negative
 ```
 
 If the user answers "no", the interview ends immediately and only `wants_feedback` is stored. If they answer "yes", all three questions are presented.
 
-You can combine `show_if` and `finish_if` in the same interview. For example, a gate question with `finish_if` can control whether the interview continues, while `show_if` on later questions branches based on a routing choice:
+You can combine `show-if` and `finish-if` in the same interview. For example, a gate question with `finish-if` can control whether the interview continues, while `show-if` on later questions branches based on a routing choice:
 
 ```yaml
 questions:
   - question: "Do you want to proceed with the review?"
-    question_type: yes_no
+    type: yes-no
     store: proceed
-    finish_if: "no"
+    finish-if: "no"
 
   - question: "What type of review?"
-    question_type: multiple_choice
+    type: single-select
     store: review_type
     options:
       - label: Code
       - label: Design
 
   - question: "Which code areas need attention?"
-    question_type: freeform
     store: code_areas
-    show_if: "review_type == Code"
+    show-if: "review_type == Code"
 
   - question: "Which design aspects need attention?"
-    question_type: freeform
     store: design_areas
-    show_if: "review_type == Design"
+    show-if: "review_type == Design"
 ```
 
 ### Example: review with decision and feedback
@@ -403,7 +397,7 @@ preamble: |
 questions:
   - question: "Is the implementation ready to merge?"
     header: Decision
-    question_type: multiple_choice
+    type: single-select
     options:
       - label: Approve
       - label: Revise
@@ -411,7 +405,6 @@ questions:
 
   - question: "What specific changes should be made?"
     header: Feedback
-    question_type: freeform
     store: review.feedback
 ```
 ````
@@ -420,7 +413,7 @@ In this workflow:
 
 1. The `Build` node implements the feature
 2. The `Review` node pauses and presents both questions as a single form
-3. The first `multiple_choice` question ("Decision") determines routing — its option labels match the outgoing edge labels `Approve` and `Revise`
+3. The first `single-select` question ("Decision") determines routing — its option labels match the outgoing edge labels `Approve` and `Revise`
 4. The freeform question ("Feedback") stores the human's detailed feedback as `review.feedback`
 5. If the human selects "Revise", the pipeline loops back to `Build` where the prompt can reference `$review.feedback`
 
@@ -445,7 +438,7 @@ preamble: |
 
 questions:
   - question: "How would you rate the quality?"
-    question_type: multiple_choice
+    type: single-select
     options:
       - label: Excellent
       - label: Good
@@ -453,7 +446,6 @@ questions:
     store: survey.quality
 
   - question: "Any additional comments?"
-    question_type: freeform
     store: survey.comments
 ```
 

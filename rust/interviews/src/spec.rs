@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use smart_default::SmartDefault;
 
 use crate::condition::Condition;
@@ -9,14 +10,14 @@ use crate::interviewer::{Answer, AnswerValue, Interview, Question, QuestionOptio
 
 /// Declarative specification for an interview, typically deserialized from
 /// YAML or JSON configuration (e.g., inside an `AGENT.md` frontmatter).
-#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct InterviewSpec {
     /// Markdown content rendered before the questions as persistent interview
     /// context. Use this for any explanatory content that includes block-level
     /// formatting such as numbered lists, bullet lists, headings, or multiple
     /// paragraphs. The question text field only supports plain text and inline
     /// formatting, so longer structured content must go here.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub preamble: Option<String>,
 
     /// One or more questions to present to the user.
@@ -24,7 +25,8 @@ pub struct InterviewSpec {
 }
 
 /// Specification for a single question within an [`InterviewSpec`].
-#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct QuestionSpec {
     /// The question text to present. Keep this concise (one or two plain-text
     /// sentences). If you need to provide longer context with lists, headings,
@@ -33,39 +35,36 @@ pub struct QuestionSpec {
     pub question: String,
 
     /// Short label displayed above the question.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub header: Option<String>,
 
     /// The type of question. Defaults to 'freeform'.
     #[serde(default)]
-    pub question_type: QuestionTypeSpec,
+    pub r#type: QuestionTypeSpec,
 
-    /// Choices for multiple_choice or multi_select questions.
+    /// Choices for single-select or multi_select questions.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub options: Vec<OptionSpec>,
 
-    /// Default answer used when the user skips or times out. For yes_no and
-    /// confirmation: 'yes' or 'no'. For freeform: the default text. For
-    /// multiple_choice: the label of the default option. For multi_select:
+    /// Default answer used when the user skips or times out. For yes-no and
+    /// confirm: 'yes' or 'no'. For freeform: the default text. For
+    /// single-select: the label of the default option. For multi_select:
     /// comma-separated labels of default options (empty string for no
     /// defaults). Option labels must not contain commas.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default: Option<String>,
 
     /// Context key under which this question's answer is stored. Required for
     /// answers that downstream nodes need to reference via `$KEY` expansion.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub store: Option<String>,
 
     /// End the interview immediately if the answer matches this value.
     ///
-    /// For `yes_no` and `confirmation` questions: `"yes"` or `"no"`.
-    /// For `multiple_choice` questions: an option label.
+    /// For `yes-no` and `confirm` questions: `"yes"` or `"no"`.
+    /// For `single-select` questions: an option label.
     /// Not supported for `freeform` or `multi_select` questions.
     ///
     /// When triggered, remaining questions are not presented and the
     /// interview completes successfully with the answers collected so far.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "finish-if")]
     pub finish_if: Option<String>,
 
     /// Only present this question when the condition is true.
@@ -75,11 +74,11 @@ pub struct QuestionSpec {
     /// are case-insensitive. If the referenced key has not been answered
     /// (because its question was itself skipped), `==` evaluates to false
     /// and `!=` evaluates to true.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "show-if")]
     pub show_if: Option<String>,
 }
 
-/// The type of question in a spec, using lowercase snake_case naming.
+/// The type of question in a spec, using kebab-case naming with alias for other casing.
 #[derive(
     Debug,
     Clone,
@@ -92,15 +91,34 @@ pub struct QuestionSpec {
     JsonSchema,
     strum::Display,
 )]
-#[serde(rename_all = "snake_case")]
-#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
 pub enum QuestionTypeSpec {
-    #[default]
-    Freeform,
+    #[serde(alias = "yes_no")]
     YesNo,
-    Confirmation,
-    MultipleChoice,
+
+    #[serde(alias = "confirmation")]
+    Confirm,
+
+    #[serde(
+        alias = "single_select",
+        alias = "multi_choice",
+        alias = "multi-choice",
+        alias = "multiple_choice",
+        alias = "multiple-choice"
+    )]
+    SingleSelect,
+
+    #[serde(
+        alias = "multi_select",
+        alias = "multiple_select",
+        alias = "multiple-select"
+    )]
     MultiSelect,
+
+    #[default]
+    #[serde(alias = "free", alias = "free-form", alias = "free-text")]
+    Freeform,
 }
 
 /// A selectable option for multiple-choice / multi-select spec questions.
@@ -131,7 +149,7 @@ impl InterviewSpec {
     }
 
     /// Returns `true` if any question uses conditional features
-    /// (`finish_if` or `show_if`), meaning the interview must be
+    /// (`finish-if` or `show_if`), meaning the interview must be
     /// conducted progressively (one question at a time) rather than
     /// as a flat batch.
     #[must_use]
@@ -146,8 +164,8 @@ impl InterviewSpec {
     /// Checks that:
     /// - `show_if` conditions parse correctly
     /// - `show_if` references only `store` keys defined by earlier questions
-    /// - `finish_if` is only used with compatible question types
-    ///   (`yes_no`, `confirmation`, `multiple_choice`)
+    /// - `finish-if` is only used with compatible question types
+    ///   (`yes-no`, `confirm`, `single-select`)
     /// - There are no duplicate `store` keys
     ///
     /// Returns `Ok(())` if valid, or `Err` with a list of all problems found.
@@ -175,21 +193,21 @@ impl InterviewSpec {
                         let key = cond.referenced_key();
                         if !available_stores.contains(key) {
                             errors.push(format!(
-                                "question {i} ({label}): show_if references \
+                                "question {i} ({label}): show-if references \
                                  '{key}' which is not a store key from an \
                                  earlier question"
                             ));
                         }
                     }
                     Err(e) => {
-                        errors.push(format!("question {i} ({label}): invalid show_if: {e}"));
+                        errors.push(format!("question {i} ({label}): invalid show-if: {e}"));
                     }
                 }
             }
 
             // Validate finish_if
             if let Some(ref finish_if) = q.finish_if {
-                match q.question_type {
+                match q.r#type {
                     QuestionTypeSpec::Freeform => {
                         errors.push(format!(
                             "question {i} ({label}): finish_if is not \
@@ -202,17 +220,17 @@ impl InterviewSpec {
                              supported for multi_select questions"
                         ));
                     }
-                    QuestionTypeSpec::YesNo | QuestionTypeSpec::Confirmation => {
+                    QuestionTypeSpec::YesNo | QuestionTypeSpec::Confirm => {
                         let lower = finish_if.trim().to_lowercase();
                         if !matches!(lower.as_str(), "yes" | "no") {
                             errors.push(format!(
-                                "question {i} ({label}): finish_if for \
+                                "question {i} ({label}): finish-if for \
                                  {} must be 'yes' or 'no', got '{finish_if}'",
-                                q.question_type
+                                q.r#type
                             ));
                         }
                     }
-                    QuestionTypeSpec::MultipleChoice => {
+                    QuestionTypeSpec::SingleSelect => {
                         let trimmed = finish_if.trim();
                         if !q
                             .options
@@ -220,7 +238,7 @@ impl InterviewSpec {
                             .any(|o| o.label.trim().eq_ignore_ascii_case(trimmed))
                         {
                             errors.push(format!(
-                                "question {i} ({label}): finish_if value \
+                                "question {i} ({label}): finish-if value \
                                  '{finish_if}' does not match any option label"
                             ));
                         }
@@ -229,7 +247,7 @@ impl InterviewSpec {
             }
 
             // Add this question's store to available set for subsequent
-            // questions' show_if references.
+            // questions' show-if references.
             if let Some(ref store) = q.store {
                 available_stores.insert(store.as_str());
             }
@@ -274,11 +292,11 @@ fn option_key(index: usize) -> String {
 impl QuestionSpec {
     /// Convert this spec into a runtime [`Question`].
     pub fn to_question(&self) -> Result<Question, String> {
-        let question_type = match self.question_type {
+        let question_type = match self.r#type {
             QuestionTypeSpec::Freeform => QuestionType::Freeform,
             QuestionTypeSpec::YesNo => QuestionType::YesNo,
-            QuestionTypeSpec::Confirmation => QuestionType::Confirmation,
-            QuestionTypeSpec::MultipleChoice => QuestionType::MultipleChoice,
+            QuestionTypeSpec::Confirm => QuestionType::Confirm,
+            QuestionTypeSpec::SingleSelect => QuestionType::SingleSelect,
             QuestionTypeSpec::MultiSelect => QuestionType::MultiSelect,
         };
 
@@ -297,7 +315,7 @@ impl QuestionSpec {
         // Validate that choice-based questions have at least one option.
         if matches!(
             question_type,
-            QuestionType::MultipleChoice | QuestionType::MultiSelect
+            QuestionType::SingleSelect | QuestionType::MultiSelect
         ) && options.is_empty()
         {
             return Err(format!(
@@ -316,11 +334,9 @@ impl QuestionSpec {
 
         let mut q = match question_type {
             QuestionType::YesNo => Question::yes_no(&self.question),
-            QuestionType::Confirmation => Question::confirmation(&self.question),
+            QuestionType::Confirm => Question::confirm(&self.question),
             QuestionType::Freeform => Question::freeform(&self.question),
-            QuestionType::MultipleChoice => {
-                Question::multiple_choice(&self.question, options.clone())
-            }
+            QuestionType::SingleSelect => Question::single_select(&self.question, options.clone()),
             QuestionType::MultiSelect => Question::multi_select(&self.question, options.clone()),
         };
 
@@ -339,7 +355,7 @@ fn parse_default(
 ) -> Result<AnswerValue, String> {
     let trimmed = default_str.trim();
     match question_type {
-        QuestionType::YesNo | QuestionType::Confirmation => match trimmed.to_lowercase().as_str() {
+        QuestionType::YesNo | QuestionType::Confirm => match trimmed.to_lowercase().as_str() {
             "yes" | "y" | "true" => Ok(AnswerValue::Yes),
             "no" | "n" | "false" => Ok(AnswerValue::No),
             _ => Err(format!(
@@ -348,7 +364,7 @@ fn parse_default(
             )),
         },
         QuestionType::Freeform => Ok(AnswerValue::Text(default_str.to_string())),
-        QuestionType::MultipleChoice => {
+        QuestionType::SingleSelect => {
             let opt = options
                 .iter()
                 .find(|o| o.label.trim() == trimmed)
@@ -392,10 +408,9 @@ preamble: "Please answer these questions"
 questions:
   - question: "What is your name?"
     header: "Name"
-    question_type: freeform
     store: user_name
   - question: "Continue?"
-    question_type: yes_no
+    type: yes-no
     default: "yes"
 "#;
         let spec: InterviewSpec = serde_yaml::from_str(yaml)?;
@@ -406,9 +421,9 @@ questions:
         assert_eq!(spec.questions.len(), 2);
         assert_eq!(spec.questions[0].question, "What is your name?");
         assert_eq!(spec.questions[0].header.as_deref(), Some("Name"));
-        assert_eq!(spec.questions[0].question_type, QuestionTypeSpec::Freeform);
+        assert_eq!(spec.questions[0].r#type, QuestionTypeSpec::Freeform);
         assert_eq!(spec.questions[0].store.as_deref(), Some("user_name"));
-        assert_eq!(spec.questions[1].question_type, QuestionTypeSpec::YesNo);
+        assert_eq!(spec.questions[1].r#type, QuestionTypeSpec::YesNo);
         assert_eq!(spec.questions[1].default.as_deref(), Some("yes"));
 
         // Roundtrip: serialize back to YAML and re-parse.
@@ -429,7 +444,7 @@ questions:
             "questions": [
                 {
                     "question": "Pick a color",
-                    "question_type": "multiple_choice",
+                    "type": "single-select",
                     "options": [
                         {"label": "Red"},
                         {"label": "Blue", "description": "Like the sky"}
@@ -441,10 +456,7 @@ questions:
         let spec: InterviewSpec = serde_json::from_str(json)?;
         assert!(spec.preamble.is_none());
         assert_eq!(spec.questions.len(), 1);
-        assert_eq!(
-            spec.questions[0].question_type,
-            QuestionTypeSpec::MultipleChoice
-        );
+        assert_eq!(spec.questions[0].r#type, QuestionTypeSpec::SingleSelect);
         assert_eq!(spec.questions[0].options.len(), 2);
         assert_eq!(
             spec.questions[0].options[1].description.as_deref(),
@@ -469,7 +481,7 @@ questions:
                 QuestionSpec {
                     question: "Continue?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: None,
@@ -479,7 +491,7 @@ questions:
                 QuestionSpec {
                     question: "Pick one".into(),
                     header: Some("Choice".into()),
-                    question_type: QuestionTypeSpec::MultipleChoice,
+                    r#type: QuestionTypeSpec::SingleSelect,
                     options: vec![
                         OptionSpec {
                             label: "Alpha".into(),
@@ -502,15 +514,12 @@ questions:
         assert_eq!(interview.questions.len(), 2);
 
         // First question
-        assert_eq!(interview.questions[0].question_type, QuestionType::YesNo);
+        assert_eq!(interview.questions[0].r#type, QuestionType::YesNo);
         assert_eq!(interview.questions[0].text, "Continue?");
         assert!(interview.questions[0].default.is_none());
 
         // Second question
-        assert_eq!(
-            interview.questions[1].question_type,
-            QuestionType::MultipleChoice
-        );
+        assert_eq!(interview.questions[1].r#type, QuestionType::SingleSelect);
         assert_eq!(interview.questions[1].header.as_deref(), Some("Choice"));
         assert_eq!(interview.questions[1].options.len(), 2);
         assert_eq!(interview.questions[1].options[0].key, "A");
@@ -532,15 +541,15 @@ questions:
     }
 
     // -----------------------------------------------------------------------
-    // to_question() error: missing options for multiple_choice
+    // to_question() error: missing options for multi_choice
     // -----------------------------------------------------------------------
 
     #[test]
-    fn to_question_error_missing_options_multiple_choice() {
+    fn to_question_error_missing_options_multi_choice() {
         let qs = QuestionSpec {
             question: "Pick one".into(),
             header: None,
-            question_type: QuestionTypeSpec::MultipleChoice,
+            r#type: QuestionTypeSpec::SingleSelect,
             options: vec![],
             default: None,
             store: None,
@@ -549,7 +558,7 @@ questions:
         };
         let err = qs
             .to_question()
-            .expect_err("multiple_choice with no options should fail");
+            .expect_err("single-select with no options should fail");
         assert!(err.contains("no options"), "error was: {err}");
     }
 
@@ -558,7 +567,7 @@ questions:
         let qs = QuestionSpec {
             question: "Pick some".into(),
             header: None,
-            question_type: QuestionTypeSpec::MultiSelect,
+            r#type: QuestionTypeSpec::MultiSelect,
             options: vec![],
             default: None,
             store: None,
@@ -577,7 +586,7 @@ questions:
 
     #[test]
     fn deser_error_unknown_question_type() {
-        let json = r#"{"question":"Q?","question_type":"radio_button"}"#;
+        let json = r#"{"question":"Q?","type":"radio_button"}"#;
         let result = serde_json::from_str::<QuestionSpec>(json);
         assert!(result.is_err());
     }
@@ -611,7 +620,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Proceed?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::Confirmation,
+                r#type: QuestionTypeSpec::Confirm,
                 options: vec![],
                 default: None,
                 store: None,
@@ -621,10 +630,7 @@ questions:
         };
         let interview = spec.to_interview("s")?;
         assert_eq!(interview.questions.len(), 1);
-        assert_eq!(
-            interview.questions[0].question_type,
-            QuestionType::Confirmation
-        );
+        assert_eq!(interview.questions[0].r#type, QuestionType::Confirm);
         Ok(())
     }
 
@@ -636,7 +642,7 @@ questions:
                 QuestionSpec {
                     question: "Q1?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -646,7 +652,7 @@ questions:
                 QuestionSpec {
                     question: "Q2?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: None,
@@ -671,7 +677,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "OK?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::Confirmation,
+                r#type: QuestionTypeSpec::Confirm,
                 options: vec![],
                 default: None,
                 store: None,
@@ -712,7 +718,7 @@ questions:
         let qs = QuestionSpec {
             question: "Pick".into(),
             header: None,
-            question_type: QuestionTypeSpec::MultipleChoice,
+            r#type: QuestionTypeSpec::SingleSelect,
             options,
             default: None,
             store: None,
@@ -756,10 +762,10 @@ questions:
     }
 
     #[test]
-    fn default_confirmation() -> Result<(), String> {
-        let result = parse_default("yes", &QuestionType::Confirmation, &[])?;
+    fn default_confirm() -> Result<(), String> {
+        let result = parse_default("yes", &QuestionType::Confirm, &[])?;
         assert_eq!(result, AnswerValue::Yes);
-        let result = parse_default("no", &QuestionType::Confirmation, &[])?;
+        let result = parse_default("no", &QuestionType::Confirm, &[])?;
         assert_eq!(result, AnswerValue::No);
         Ok(())
     }
@@ -779,7 +785,7 @@ questions:
     }
 
     #[test]
-    fn default_multiple_choice() -> Result<(), String> {
+    fn default_multi_choice() -> Result<(), String> {
         let options = vec![
             QuestionOption {
                 key: "A".into(),
@@ -792,19 +798,19 @@ questions:
                 description: None,
             },
         ];
-        let result = parse_default("Blue", &QuestionType::MultipleChoice, &options)?;
+        let result = parse_default("Blue", &QuestionType::SingleSelect, &options)?;
         assert_eq!(result, AnswerValue::Selected("B".into()));
         Ok(())
     }
 
     #[test]
-    fn default_multiple_choice_no_match() {
+    fn default_multi_choice_no_match() {
         let options = vec![QuestionOption {
             key: "A".into(),
             label: "Red".into(),
             description: None,
         }];
-        let result = parse_default("Green", &QuestionType::MultipleChoice, &options);
+        let result = parse_default("Green", &QuestionType::SingleSelect, &options);
         assert!(result.is_err());
     }
 
@@ -865,7 +871,7 @@ questions:
             label: "Blue".into(),
             description: None,
         }];
-        let result = parse_default("  Blue  ", &QuestionType::MultipleChoice, &options)?;
+        let result = parse_default("  Blue  ", &QuestionType::SingleSelect, &options)?;
         assert_eq!(result, AnswerValue::Selected("A".into()));
         Ok(())
     }
@@ -879,7 +885,7 @@ questions:
         let spec = QuestionSpec {
             question: "Name?".into(),
             header: None,
-            question_type: QuestionTypeSpec::Freeform,
+            r#type: QuestionTypeSpec::Freeform,
             options: vec![],
             default: None,
             store: Some("user_name".into()),
@@ -899,7 +905,7 @@ questions:
         let spec = QuestionSpec {
             question: "Name?".into(),
             header: None,
-            question_type: QuestionTypeSpec::Freeform,
+            r#type: QuestionTypeSpec::Freeform,
             options: vec![],
             default: None,
             store: None,
@@ -930,25 +936,24 @@ questions:
 preamble: "Review configuration"
 questions:
   - question: "Enable debug mode?"
-    question_type: yes_no
+    type: yes-no
     default: "yes"
   - question: "Select format"
     header: "Format"
-    question_type: multiple_choice
+    type: single-select
     options:
       - label: "JSON"
       - label: "YAML"
         description: "Human-readable"
     default: "YAML"
   - question: "Select steps"
-    question_type: multi_select
+    type: multi-select
     options:
       - label: "Lint"
       - label: "Build"
       - label: "Test"
     default: "Lint, Test"
   - question: "Any comments?"
-    question_type: freeform
     default: "No comments"
     store: comments
 "#;
@@ -960,17 +965,14 @@ questions:
         assert_eq!(interview.questions.len(), 4);
 
         // Q0: yes_no with default Yes
-        assert_eq!(interview.questions[0].question_type, QuestionType::YesNo);
+        assert_eq!(interview.questions[0].r#type, QuestionType::YesNo);
         assert_eq!(
             interview.questions[0].default.as_ref().map(|a| &a.value),
             Some(&AnswerValue::Yes)
         );
 
-        // Q1: multiple_choice with default "B" (YAML)
-        assert_eq!(
-            interview.questions[1].question_type,
-            QuestionType::MultipleChoice
-        );
+        // Q1: single-select with default "B" (YAML)
+        assert_eq!(interview.questions[1].r#type, QuestionType::SingleSelect);
         assert_eq!(interview.questions[1].header.as_deref(), Some("Format"));
         assert_eq!(
             interview.questions[1].default.as_ref().map(|a| &a.value),
@@ -978,17 +980,14 @@ questions:
         );
 
         // Q2: multi_select with default ["A", "C"] (Lint, Test)
-        assert_eq!(
-            interview.questions[2].question_type,
-            QuestionType::MultiSelect
-        );
+        assert_eq!(interview.questions[2].r#type, QuestionType::MultiSelect);
         assert_eq!(
             interview.questions[2].default.as_ref().map(|a| &a.value),
             Some(&AnswerValue::MultiSelected(vec!["A".into(), "C".into()]))
         );
 
         // Q3: freeform with default text
-        assert_eq!(interview.questions[3].question_type, QuestionType::Freeform);
+        assert_eq!(interview.questions[3].r#type, QuestionType::Freeform);
         assert_eq!(
             interview.questions[3].default.as_ref().map(|a| &a.value),
             Some(&AnswerValue::Text("No comments".into()))
@@ -1008,7 +1007,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::Freeform,
+                r#type: QuestionTypeSpec::Freeform,
                 options: vec![],
                 default: None,
                 store: None,
@@ -1026,7 +1025,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::YesNo,
+                r#type: QuestionTypeSpec::YesNo,
                 options: vec![],
                 default: None,
                 store: None,
@@ -1045,7 +1044,7 @@ questions:
                 QuestionSpec {
                     question: "Q1?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("q1".into()),
@@ -1055,7 +1054,7 @@ questions:
                 QuestionSpec {
                     question: "Q2?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -1079,7 +1078,7 @@ questions:
                 QuestionSpec {
                     question: "Approve?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("approved".into()),
@@ -1089,7 +1088,7 @@ questions:
                 QuestionSpec {
                     question: "Target?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("target".into()),
@@ -1109,7 +1108,7 @@ questions:
                 QuestionSpec {
                     question: "Q1?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -1119,7 +1118,7 @@ questions:
                 QuestionSpec {
                     question: "Q2?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("future_key".into()),
@@ -1142,7 +1141,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::Freeform,
+                r#type: QuestionTypeSpec::Freeform,
                 options: vec![],
                 default: None,
                 store: None,
@@ -1152,7 +1151,7 @@ questions:
         };
         let errors = spec.validate().expect_err("should fail validation");
         assert!(
-            errors.iter().any(|e| e.contains("invalid show_if")),
+            errors.iter().any(|e| e.contains("invalid show-if")),
             "errors: {errors:?}"
         );
     }
@@ -1164,7 +1163,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::Freeform,
+                r#type: QuestionTypeSpec::Freeform,
                 options: vec![],
                 default: None,
                 store: None,
@@ -1188,7 +1187,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::MultiSelect,
+                r#type: QuestionTypeSpec::MultiSelect,
                 options: vec![OptionSpec {
                     label: "A".into(),
                     description: None,
@@ -1215,7 +1214,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::YesNo,
+                r#type: QuestionTypeSpec::YesNo,
                 options: vec![],
                 default: None,
                 store: None,
@@ -1237,7 +1236,7 @@ questions:
             questions: vec![QuestionSpec {
                 question: "Q?".into(),
                 header: None,
-                question_type: QuestionTypeSpec::MultipleChoice,
+                r#type: QuestionTypeSpec::SingleSelect,
                 options: vec![OptionSpec {
                     label: "Alpha".into(),
                     description: None,
@@ -1265,7 +1264,7 @@ questions:
                 QuestionSpec {
                     question: "Q1?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("dup".into()),
@@ -1275,7 +1274,7 @@ questions:
                 QuestionSpec {
                     question: "Q2?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("dup".into()),
@@ -1327,7 +1326,7 @@ questions:
         let spec = QuestionSpec {
             question: "Q?".into(),
             header: None,
-            question_type: QuestionTypeSpec::Freeform,
+            r#type: QuestionTypeSpec::Freeform,
             options: vec![],
             default: None,
             store: None,
@@ -1335,8 +1334,8 @@ questions:
             show_if: None,
         };
         let json = serde_json::to_string(&spec)?;
-        assert!(!json.contains("finish_if"));
-        assert!(!json.contains("show_if"));
+        assert!(!json.contains("finish-if"));
+        assert!(!json.contains("show-if"));
         Ok(())
     }
 }

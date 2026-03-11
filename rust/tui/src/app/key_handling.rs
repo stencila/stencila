@@ -368,7 +368,7 @@ impl App {
             (KeyModifiers::CONTROL, KeyCode::Right) => self.input.move_word_right(),
             (KeyModifiers::NONE, KeyCode::Left) => {
                 if let Some(question) = self.interview_question() {
-                    if matches!(question.question_type, QuestionType::Freeform) {
+                    if matches!(question.r#type, QuestionType::Freeform) {
                         self.input.move_left();
                     } else {
                         self.interview_back();
@@ -379,7 +379,7 @@ impl App {
             }
             (KeyModifiers::NONE, KeyCode::Right) => {
                 if let Some(question) = self.interview_question() {
-                    if matches!(question.question_type, QuestionType::Freeform) {
+                    if matches!(question.r#type, QuestionType::Freeform) {
                         self.input.move_right();
                     } else {
                         self.interview_move_question(1);
@@ -398,7 +398,7 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Up) => {
                 if self.active_interview.is_some() {
                     if let Some(question) = self.interview_question() {
-                        if question.question_type == QuestionType::Freeform {
+                        if question.r#type == QuestionType::Freeform {
                             if self.input.is_single_line() {
                                 self.interview_cancel_confirm = false;
                             } else {
@@ -420,7 +420,7 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Down) => {
                 if self.active_interview.is_some() {
                     if let Some(question) = self.interview_question() {
-                        if question.question_type == QuestionType::Freeform {
+                        if question.r#type == QuestionType::Freeform {
                             if self.input.is_single_line() {
                                 self.interview_cancel_confirm = false;
                             } else {
@@ -453,7 +453,7 @@ impl App {
 
             (KeyModifiers::NONE, KeyCode::Char(' ')) => {
                 if let Some(question) = self.interview_question() {
-                    if matches!(question.question_type, QuestionType::Freeform) {
+                    if matches!(question.r#type, QuestionType::Freeform) {
                         self.input.insert_char(' ');
                     } else {
                         self.interview_activate_focused_option();
@@ -464,7 +464,7 @@ impl App {
             }
             (KeyModifiers::NONE, KeyCode::Char('[')) => {
                 if let Some(question) = self.interview_question() {
-                    if matches!(question.question_type, QuestionType::Freeform) {
+                    if matches!(question.r#type, QuestionType::Freeform) {
                         self.interview_back();
                     } else {
                         self.input.insert_char('[');
@@ -475,7 +475,7 @@ impl App {
             }
             (KeyModifiers::NONE, KeyCode::Char(']')) => {
                 if let Some(question) = self.interview_question() {
-                    if matches!(question.question_type, QuestionType::Freeform) {
+                    if matches!(question.r#type, QuestionType::Freeform) {
                         self.interview_move_question(1);
                     } else {
                         self.input.insert_char(']');
@@ -1105,10 +1105,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn space_selects_multiple_choice_option() {
+    async fn space_selects_multi_choice_option() {
         let mut app = App::new_for_test().await;
         let interview = Interview::single(
-            Question::multiple_choice(
+            Question::single_select(
                 "Pick one",
                 vec![test_option("a", "Alpha"), test_option("b", "Beta")],
             ),
@@ -1191,9 +1191,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn space_selects_confirmation_option() {
+    async fn space_selects_confirm_option() {
         let mut app = App::new_for_test().await;
-        let interview = Interview::single(Question::confirmation("Proceed?"), "test");
+        let interview = Interview::single(Question::confirm("Proceed?"), "test");
         set_active_interview(&mut app, &interview);
 
         app.handle_event(&key_event(KeyCode::Char(' '), KeyModifiers::NONE))
@@ -1213,8 +1213,8 @@ mod tests {
         let mut app = App::new_for_test().await;
         let interview = Interview::batch(
             vec![
-                Question::multiple_choice("First", vec![test_option("a", "Alpha")]),
-                Question::multiple_choice("Second", vec![test_option("b", "Beta")]),
+                Question::single_select("First", vec![test_option("a", "Alpha")]),
+                Question::single_select("Second", vec![test_option("b", "Beta")]),
             ],
             "test",
         );

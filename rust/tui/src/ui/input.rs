@@ -208,11 +208,9 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
         {
             if let Some(q) = interview.questions.get(state.current_question) {
                 use stencila_attractor::interviewer::QuestionType;
-                match q.question_type {
-                    QuestionType::YesNo | QuestionType::Confirmation => {
-                        "Answer yes or no".to_string()
-                    }
-                    QuestionType::MultipleChoice => {
+                match q.r#type {
+                    QuestionType::YesNo | QuestionType::Confirm => "Answer yes or no".to_string(),
+                    QuestionType::SingleSelect => {
                         let opts: Vec<String> = q.options.iter().map(|o| o.key.clone()).collect();
                         format!("Choose {}", join_keys(&opts))
                     }
@@ -450,7 +448,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
                 interview
                     .questions
                     .get(state.current_question)
-                    .map(|question| question.question_type)
+                    .map(|question| question.r#type)
             } else {
                 None
             };
@@ -478,7 +476,7 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
                     Span::raw("  \u{21b5} "),
                     Span::styled("answer", dim()),
                 ],
-                Some(QuestionType::MultipleChoice | QuestionType::YesNo | QuestionType::Confirmation) => vec![
+                Some(QuestionType::SingleSelect | QuestionType::YesNo | QuestionType::Confirm) => vec![
                     Span::raw("\u{2191}\u{2193} "),
                     Span::styled("focus", dim()),
                     Span::raw("  space "),

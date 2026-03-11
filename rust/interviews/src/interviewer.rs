@@ -9,6 +9,7 @@ use std::fmt;
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use strum::{Display, EnumString};
 use thiserror::Error;
 
 /// Errors that can occur during an interview interaction.
@@ -34,33 +35,29 @@ pub enum InterviewError {
 
 /// The type of question being asked (§6.2).
 // TODO(spec-ambiguity): §6.2 defines YES_NO/MULTIPLE_CHOICE/FREEFORM/CONFIRMATION
-// but §11.8 uses SINGLE_SELECT/MULTI_SELECT/FREE_TEXT/CONFIRM. Using §6.2 names
-// (normative section). (spec: §6.2 vs §11.8)
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+// but §11.8 uses SINGLE_SELECT/MULTI_SELECT/FREE_TEXT/CONFIRM. Using §11.8 names
+// which are more precise and internally consistent
+#[derive(
+    Debug, Display, Default, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumString,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum QuestionType {
     /// A yes/no binary choice.
     YesNo,
-    /// Select one from a list of options.
-    MultipleChoice,
-    /// Select multiple options from a list (§11.8 `MULTI_SELECT`).
-    MultiSelect,
-    /// Free-form text input.
-    Freeform,
-    /// A yes/no confirmation (semantically distinct from `YesNo`).
-    Confirmation,
-}
 
-impl fmt::Display for QuestionType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::YesNo => f.write_str("YES_NO"),
-            Self::MultipleChoice => f.write_str("MULTIPLE_CHOICE"),
-            Self::MultiSelect => f.write_str("MULTI_SELECT"),
-            Self::Freeform => f.write_str("FREEFORM"),
-            Self::Confirmation => f.write_str("CONFIRMATION"),
-        }
-    }
+    /// A yes/no confirmation (semantically distinct from `YesNo`).
+    Confirm,
+
+    /// Select one option from a list.
+    SingleSelect,
+
+    /// Select multiple options from a list.
+    MultiSelect,
+
+    /// Freeform text input.
+    #[default]
+    Freeform,
 }
 
 /// A selectable option for multiple-choice and multi-select questions (§6.2).
@@ -68,8 +65,10 @@ impl fmt::Display for QuestionType {
 pub struct QuestionOption {
     /// Accelerator key (e.g., `"Y"`, `"A"`).
     pub key: String,
+
     /// Display text (e.g., `"Yes, deploy to production"`).
     pub label: String,
+
     /// Explanatory text displayed alongside the label (e.g., `"Brief overview"`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -87,8 +86,10 @@ pub struct Question {
     /// manually.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+
     /// The question text to present.
     pub text: String,
+
     /// Short label displayed above the question text (e.g., `"Format"`, `"Sections"`).
     ///
     /// Distinct from `stage` (the originating pipeline node) and `text`
@@ -96,17 +97,22 @@ pub struct Question {
     /// question forms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub header: Option<String>,
+
     /// The question type, determining valid answers.
-    pub question_type: QuestionType,
+    pub r#type: QuestionType,
+
     /// Options for `MultipleChoice` and `MultiSelect` questions.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub options: Vec<QuestionOption>,
+
     /// Default answer to use on timeout or skip, if any.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default: Option<Answer>,
+
     /// Maximum time (in seconds) to wait for a response.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timeout_seconds: Option<f64>,
+
     /// Arbitrary key-value metadata for remote interviewers.
     ///
     /// Useful for passing extra context (pipeline name, run ID, urgency
@@ -123,7 +129,7 @@ impl Question {
             id: None,
             text: text.into(),
             header: None,
-            question_type: QuestionType::YesNo,
+            r#type: QuestionType::YesNo,
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
@@ -131,14 +137,14 @@ impl Question {
         }
     }
 
-    /// Create a confirmation question.
+    /// Create a confirm question.
     #[must_use]
-    pub fn confirmation(text: impl Into<String>) -> Self {
+    pub fn confirm(text: impl Into<String>) -> Self {
         Self {
             id: None,
             text: text.into(),
             header: None,
-            question_type: QuestionType::Confirmation,
+            r#type: QuestionType::Confirm,
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
@@ -146,14 +152,14 @@ impl Question {
         }
     }
 
-    /// Create a multiple-choice question.
+    /// Create a single-select question (select single option from a list).
     #[must_use]
-    pub fn multiple_choice(text: impl Into<String>, options: Vec<QuestionOption>) -> Self {
+    pub fn single_select(text: impl Into<String>, options: Vec<QuestionOption>) -> Self {
         Self {
             id: None,
             text: text.into(),
             header: None,
-            question_type: QuestionType::MultipleChoice,
+            r#type: QuestionType::SingleSelect,
             options,
             default: None,
             timeout_seconds: None,
@@ -168,7 +174,7 @@ impl Question {
             id: None,
             text: text.into(),
             header: None,
-            question_type: QuestionType::MultiSelect,
+            r#type: QuestionType::MultiSelect,
             options,
             default: None,
             timeout_seconds: None,
@@ -176,14 +182,14 @@ impl Question {
         }
     }
 
-    /// Create a free-form text question.
+    /// Create a freeform text question.
     #[must_use]
     pub fn freeform(text: impl Into<String>) -> Self {
         Self {
             id: None,
             text: text.into(),
             header: None,
-            question_type: QuestionType::Freeform,
+            r#type: QuestionType::Freeform,
             options: Vec::new(),
             default: None,
             timeout_seconds: None,
@@ -213,7 +219,7 @@ pub enum AnswerValue {
     Selected(String),
     /// Multiple selected option keys (for multi-select).
     MultiSelected(Vec<String>),
-    /// Free-form text response.
+    /// Freeform text response.
     Text(String),
 }
 
@@ -277,14 +283,14 @@ impl Answer {
 ///
 /// This is the single source of truth for how answer values are
 /// represented as strings, used by:
-/// - `show_if` / `finish_if` condition evaluation
+/// - `show-if` / `finish-if` condition evaluation
 /// - context storage in pipeline handlers
 /// - answer formatting in agent tools
 ///
 /// For [`AnswerValue::Selected`], the option **label** is returned
 /// (resolved via the question's options), falling back to the raw key
 /// if no matching option is found. This means condition authors write
-/// human-readable values (e.g., `show_if: "target == Production"`)
+/// human-readable values (e.g., `show-if: "target == Production"`)
 /// rather than internal keys.
 #[must_use]
 pub fn canonical_answer_string(value: &AnswerValue, question: &Question) -> String {
@@ -463,8 +469,8 @@ impl Interview {
 #[must_use]
 pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
     let trimmed = text.trim();
-    match question.question_type {
-        QuestionType::YesNo | QuestionType::Confirmation => {
+    match question.r#type {
+        QuestionType::YesNo | QuestionType::Confirm => {
             let lower = trimmed.to_ascii_lowercase();
             if matches!(lower.as_str(), "y" | "yes" | "true" | "1") {
                 Answer::new(AnswerValue::Yes)
@@ -474,7 +480,7 @@ pub fn parse_answer_text(text: &str, question: &Question) -> Answer {
                 Answer::new(AnswerValue::Text(trimmed.to_string()))
             }
         }
-        QuestionType::MultipleChoice => {
+        QuestionType::SingleSelect => {
             if let Some(opt) = question
                 .options
                 .iter()
@@ -562,8 +568,8 @@ mod tests {
         Question::yes_no("Do you agree?")
     }
 
-    fn multiple_choice_question() -> Question {
-        Question::multiple_choice(
+    fn single_select_question() -> Question {
+        Question::single_select(
             "Pick one:",
             vec![
                 QuestionOption {
@@ -627,23 +633,23 @@ mod tests {
     }
 
     #[test]
-    fn parse_multiple_choice_by_key() {
-        let q = multiple_choice_question();
+    fn parse_single_select_by_key() {
+        let q = single_select_question();
         let answer = parse_answer_text("A", &q);
         assert_eq!(answer.value, AnswerValue::Selected("A".to_string()));
         assert!(answer.selected_option.is_some());
     }
 
     #[test]
-    fn parse_multiple_choice_by_label() {
-        let q = multiple_choice_question();
+    fn parse_single_select_by_label() {
+        let q = single_select_question();
         let answer = parse_answer_text("option beta", &q);
         assert_eq!(answer.value, AnswerValue::Selected("B".to_string()));
     }
 
     #[test]
-    fn parse_multiple_choice_no_match() {
-        let q = multiple_choice_question();
+    fn parse_single_select_no_match() {
+        let q = single_select_question();
         let answer = parse_answer_text("unknown", &q);
         assert_eq!(answer.value, AnswerValue::Text("unknown".to_string()));
     }
@@ -719,7 +725,7 @@ mod tests {
         assert_eq!(q2.id, Some("q-123".to_string()));
         assert_eq!(q2.header, Some("Header".to_string()));
         assert_eq!(q2.text, "What?");
-        assert_eq!(q2.question_type, QuestionType::Freeform);
+        assert_eq!(q2.r#type, QuestionType::Freeform);
         assert_eq!(q2.metadata["urgency"], serde_json::json!("high"));
         Ok(())
     }

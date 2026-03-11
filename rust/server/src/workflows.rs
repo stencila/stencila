@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, str::FromStr, sync::Arc};
 
 use axum::{
     Json, Router,
@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 
 use stencila_attractor::{
     events::{EventEmitter, ObserverEmitter, PipelineEvent},
+    interviewer::QuestionType,
     interviewers::SubmittedAnswer,
 };
 use stencila_interviews::interviewer::{Answer, AnswerValue, Question, QuestionOption};
@@ -156,7 +157,7 @@ async fn list_pending_interviews(
                 q.position,
                 q.question_text,
                 q.header,
-                q.question_type,
+                q.type,
                 q.options
              FROM interviews i
              JOIN interview_questions q ON q.interview_id = i.interview_id
@@ -196,13 +197,21 @@ async fn list_pending_interviews(
     for row in rows {
         let row = row.map_err(internal)?;
 
+        let r#type = row
+            .question_type
+            .as_ref()
+            .and_then(|s| QuestionType::from_str(s).ok())
+            .unwrap_or_default();
+
+        let options = parse_options(row.options.as_deref())
+            .map_err(|error| bad_request(format!("invalid options JSON: {error}")))?;
+
         let question = Question {
             id: Some(row.question_id.clone()),
             text: row.question_text,
             header: row.header,
-            question_type: parse_question_type(row.question_type.as_deref()),
-            options: parse_options(row.options.as_deref())
-                .map_err(|error| bad_request(format!("invalid options JSON: {error}")))?,
+            r#type,
+            options,
             default: None,
             timeout_seconds: None,
             metadata: Default::default(),
@@ -440,19 +449,6 @@ fn pipeline_event_to_envelope(event: &PipelineEvent) -> Option<WorkflowInterview
             node_id: node_id.clone(),
         }),
         _ => None,
-    }
-}
-
-fn parse_question_type(value: Option<&str>) -> stencila_interviews::interviewer::QuestionType {
-    use stencila_interviews::interviewer::QuestionType;
-
-    match value {
-        Some("YES_NO") => QuestionType::YesNo,
-        Some("MULTIPLE_CHOICE") => QuestionType::MultipleChoice,
-        Some("MULTI_SELECT") => QuestionType::MultiSelect,
-        Some("CONFIRMATION") => QuestionType::Confirmation,
-        Some("FREEFORM") | Some("FREE_TEXT") => QuestionType::Freeform,
-        _ => QuestionType::Freeform,
     }
 }
 

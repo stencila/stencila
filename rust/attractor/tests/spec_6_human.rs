@@ -26,18 +26,9 @@ use stencila_attractor::types::StageStatus;
 // ===========================================================================
 
 #[test]
-fn question_type_display() {
-    assert_eq!(QuestionType::YesNo.to_string(), "YES_NO");
-    assert_eq!(QuestionType::MultipleChoice.to_string(), "MULTIPLE_CHOICE");
-    assert_eq!(QuestionType::MultiSelect.to_string(), "MULTI_SELECT");
-    assert_eq!(QuestionType::Freeform.to_string(), "FREEFORM");
-    assert_eq!(QuestionType::Confirmation.to_string(), "CONFIRMATION");
-}
-
-#[test]
 fn question_yes_no_builder() {
     let q = Question::yes_no("Deploy?");
-    assert_eq!(q.question_type, QuestionType::YesNo);
+    assert_eq!(q.r#type, QuestionType::YesNo);
     assert_eq!(q.text, "Deploy?");
     assert!(q.options.is_empty());
     assert!(q.default.is_none());
@@ -45,14 +36,14 @@ fn question_yes_no_builder() {
 }
 
 #[test]
-fn question_confirmation_builder() {
-    let q = Question::confirmation("Are you sure?");
-    assert_eq!(q.question_type, QuestionType::Confirmation);
+fn question_confirm_builder() {
+    let q = Question::confirm("Are you sure?");
+    assert_eq!(q.r#type, QuestionType::Confirm);
     assert_eq!(q.text, "Are you sure?");
 }
 
 #[test]
-fn question_multiple_choice_builder() {
+fn question_single_select_builder() {
     let opts = vec![
         QuestionOption {
             key: "A".into(),
@@ -65,8 +56,8 @@ fn question_multiple_choice_builder() {
             description: None,
         },
     ];
-    let q = Question::multiple_choice("Choose:", opts.clone());
-    assert_eq!(q.question_type, QuestionType::MultipleChoice);
+    let q = Question::single_select("Choose:", opts.clone());
+    assert_eq!(q.r#type, QuestionType::SingleSelect);
     assert_eq!(q.options.len(), 2);
     assert_eq!(q.options[0].key, "A");
     assert_eq!(q.options[1].label, "Option B");
@@ -75,7 +66,7 @@ fn question_multiple_choice_builder() {
 #[test]
 fn question_freeform_builder() {
     let q = Question::freeform("Enter a name:");
-    assert_eq!(q.question_type, QuestionType::Freeform);
+    assert_eq!(q.r#type, QuestionType::Freeform);
     assert_eq!(q.text, "Enter a name:");
 }
 
@@ -94,7 +85,7 @@ fn question_multi_select_builder() {
         },
     ];
     let q = Question::multi_select("Select all:", opts.clone());
-    assert_eq!(q.question_type, QuestionType::MultiSelect);
+    assert_eq!(q.r#type, QuestionType::MultiSelect);
     assert_eq!(q.text, "Select all:");
     assert_eq!(q.options.len(), 2);
     assert_eq!(q.options[0].description, Some("First".into()));
@@ -155,16 +146,16 @@ async fn auto_approve_yes_no() -> Result<(), InterviewError> {
 }
 
 #[tokio::test]
-async fn auto_approve_confirmation() -> Result<(), InterviewError> {
+async fn auto_approve_confirm() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
-    let q = Question::confirmation("Confirm?");
+    let q = Question::confirm("Confirm?");
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Yes);
     Ok(())
 }
 
 #[tokio::test]
-async fn auto_approve_multiple_choice_selects_first() -> Result<(), InterviewError> {
+async fn auto_approve_single_select_selects_first() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
     let opts = vec![
         QuestionOption {
@@ -178,7 +169,7 @@ async fn auto_approve_multiple_choice_selects_first() -> Result<(), InterviewErr
             description: None,
         },
     ];
-    let q = Question::multiple_choice("Pick:", opts);
+    let q = Question::single_select("Pick:", opts);
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Selected("A".into()));
     assert!(answer.selected_option.is_some());
@@ -190,9 +181,9 @@ async fn auto_approve_multiple_choice_selects_first() -> Result<(), InterviewErr
 }
 
 #[tokio::test]
-async fn auto_approve_multiple_choice_no_options() -> Result<(), InterviewError> {
+async fn auto_approve_single_select_no_options() -> Result<(), InterviewError> {
     let interviewer = AutoApproveInterviewer;
-    let q = Question::multiple_choice("Pick:", vec![]);
+    let q = Question::single_select("Pick:", vec![]);
     let answer = interviewer.ask(&q).await?;
     assert_eq!(answer.value, AnswerValue::Text("auto-approved".into()));
     Ok(())
@@ -261,7 +252,7 @@ async fn queue_exhaustion_returns_skipped() -> Result<(), InterviewError> {
 #[tokio::test]
 async fn callback_delegates_to_function() -> Result<(), InterviewError> {
     let interviewer = CallbackInterviewer::new(|q: &Question| {
-        if q.question_type == QuestionType::YesNo {
+        if q.r#type == QuestionType::YesNo {
             Answer::new(AnswerValue::No)
         } else {
             Answer::new(AnswerValue::Text("callback".into()))
@@ -903,12 +894,12 @@ async fn wait_human_yes_no_no_answer() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn wait_human_confirmation_with_store() -> AttractorResult<()> {
+async fn wait_human_confirm_with_store() -> AttractorResult<()> {
     let interviewer = Arc::new(AutoApproveInterviewer);
     let handler = WaitForHumanHandler::new(interviewer);
 
     let g = human_node_with_type(
-        "confirmation",
+        "confirm",
         "Are you sure?",
         Some("human.confirmed"),
         &["next"],
@@ -929,7 +920,7 @@ async fn wait_human_confirmation_with_store() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn wait_human_multiple_choice_with_store() -> AttractorResult<()> {
+async fn wait_human_single_select_with_store() -> AttractorResult<()> {
     // Auto-approve selects first option
     let interviewer = Arc::new(AutoApproveInterviewer);
     let handler = WaitForHumanHandler::new(interviewer);
@@ -1041,7 +1032,7 @@ async fn wait_human_unknown_question_type_falls_back_to_choice() -> AttractorRes
     let interviewer = Arc::new(AutoApproveInterviewer);
     let handler = WaitForHumanHandler::new(interviewer);
 
-    // Unknown question_type should be treated as default (multiple_choice)
+    // Unknown question_type should be treated as default (single_select)
     let mut g = Graph::new("test");
     let mut gate = Node::new("gate");
     gate.attrs
@@ -1064,7 +1055,7 @@ async fn wait_human_unknown_question_type_falls_back_to_choice() -> AttractorRes
     let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
-    // Should behave like multiple_choice
+    // Should behave like single_select
     assert!(outcome.context_updates.get("human.gate.selected").is_some());
     Ok(())
 }

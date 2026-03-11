@@ -116,24 +116,24 @@ All casing variants are accepted thanks to attribute key normalization (see abov
 
 `shape=human` is accepted as an alias for `shape=hexagon`, mapping to the `wait.human` handler type. This provides a more intuitive way to declare human-in-the-loop nodes (e.g., `Review [shape=human]`).
 
-### Extended human question types (`question_type` attribute)
+### Extended human question types (`question-type` attribute)
 
-The attractor spec's `wait.human` handler (§4.6) only supports multiple-choice questions derived from outgoing edge labels. This extension adds a `question_type` node attribute that overrides the default question type:
+The attractor spec's `wait.human` handler (§4.6) only supports multiple-choice questions derived from outgoing edge labels. This extension adds a `question-type` node attribute that overrides the default question type:
 
-| `question_type` value | Question presented | Routing behavior |
+| `question-type` value | Question presented | Routing behavior |
 |---|---|---|
-| _(absent)_ | Multiple choice from edge labels | Selected edge (original behavior) |
-| `"multiple_choice"` / `"multiple-choice"` | Multiple choice from edge labels | Selected edge |
-| `"multi_select"` / `"multi-select"` | Multi-select from edge labels | Selected edge |
+| _(absent)_ | Single-select from edge labels | Selected edge (original behavior) |
+| `"single-select"` | Single-select from edge labels | Selected edge |
+| `"multi-select"` | Multi-select from edge labels | Selected edge |
 | `"freeform"` | Free-form text input | First outgoing edge |
-| `"yes_no"` / `"yes-no"` | Yes/no binary choice | First outgoing edge |
-| `"confirmation"` | Confirmation prompt | First outgoing edge |
+| `"yes-no"` | Yes/no binary choice | First outgoing edge |
+| `"confirm"` | Confirmation prompt | First outgoing edge |
 
-Both `snake_case` and `kebab-case` forms are accepted for values that contain separators. The attribute key itself is normalized to `snake_case` at parse time as usual (so `question-type` in DOT becomes `question_type` internally).
+Both `kebab-case` (recommended) and `snake_case` forms are accepted for values that contain separators. The attribute key itself is normalized to `snake_case` at parse time as usual (so `question-type` in DOT becomes `question_type` internally).
 
-For non-choice types (freeform, yes_no, confirmation), the handler follows the first outgoing edge unconditionally — there is no choice-matching step. The node still requires at least one outgoing edge for routing.
+For non-choice types (freeform, yes-no, confirm), the handler follows the first outgoing edge unconditionally — there is no choice-matching step. The node still requires at least one outgoing edge for routing.
 
-Unknown `question_type` values are silently treated as the default (multiple-choice from edges).
+Unknown `question-type` values are silently treated as the default (single select from edges).
 
 ### Human answer storage (`store` attribute)
 
@@ -166,14 +166,13 @@ preamble: |
 
 questions:
   - question: "Ready to publish?"
-    question_type: multiple_choice
+    type: single-select
     options:
       - label: Approve
       - label: Revise
     store: review.decision
 
   - question: "What should change?"
-    question_type: freeform
     store: review.feedback
 ```
 
@@ -181,9 +180,9 @@ questions:
 Review [interview-ref="#review-interview"]
 ```
 
-Each question's answer is stored under its `store` key. Routing is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels. `multi_select` questions do not drive routing. After storing answers and setting compatibility context keys, the handler uses the same route-selection behavior as existing single-question human nodes.
+Each question's answer is stored under its `store` key. Routing is driven by the first `single-select` question's answer, matched against outgoing edge labels. `multi-select` questions do not drive routing. After storing answers and setting compatibility context keys, the handler uses the same route-selection behavior as existing single-question human nodes.
 
-When an interview has no `multiple_choice` question, the handler follows the first outgoing edge (same as `question_type="freeform"` for single-question nodes).
+When an interview has no `single-select` question, the handler follows the first outgoing edge (same as `question_type="freeform"` for single-question nodes).
 
 ### Generic context variable expansion (`$KEY`)
 
@@ -250,10 +249,6 @@ The engine executes the exit handler after goal-gate checks, while §3.2 pseudoc
 ### Retry default source-of-truth ambiguity (§2.5/Appendix A vs §3.5)
 
 The implementation follows §3.5 behavior and defaults to `0` retries when neither `max_retries` nor `default_max_retry` is set, instead of the `default_max_retry=50` default shown in §2.5 and Appendix A.
-
-### Question type naming ambiguity (§6.2 vs §11.8)
-
-The interviewer model uses the §6.2 enum names (`YES_NO`, `MULTIPLE_CHOICE`, `FREEFORM`, `CONFIRMATION`) rather than the alternate naming shown in §11.8 (`SINGLE_SELECT`, `MULTI_SELECT`, `FREE_TEXT`, `CONFIRM`).
 
 ## Limitations
 

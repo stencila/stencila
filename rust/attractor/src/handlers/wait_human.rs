@@ -6,12 +6,12 @@
 //!
 //! ## Extended question types
 //!
-//! Nodes can specify `question_type` to override the default
+//! Nodes can specify `question-type` to override the default
 //! multiple-choice behavior:
 //!
-//! - `question_type="freeform"` — presents a free-form text prompt
-//! - `question_type="yes_no"` — presents a yes/no question
-//! - `question_type="confirmation"` — presents a confirmation prompt
+//! - `question-type="freeform"` — presents a free-form text prompt
+//! - `question-type="yes-no"` — presents a yes/no question
+//! - `question-type="confirm"` — presents a confirmation prompt
 //!
 //! When omitted, the handler derives a multiple-choice question from
 //! outgoing edge labels (the original behavior).
@@ -23,7 +23,7 @@
 //! `$KEY` in their prompts:
 //!
 //! ```dot
-//! Feedback [ask="What should change?", question_type="freeform", store="human.feedback"]
+//! Feedback [ask="What should change?", question-type="freeform", store="human.feedback"]
 //! ```
 
 use std::sync::Arc;
@@ -48,7 +48,7 @@ use crate::types::Outcome;
 /// Handler for `wait.human` nodes that presents questions to a human.
 ///
 /// By default, choices are derived from the node's outgoing edges and
-/// presented as a multiple-choice question. The `question_type`
+/// presented as a multiple-choice question. The `question-type`
 /// attribute overrides this to support freeform text, yes/no, and
 /// confirmation prompts. The `store` attribute writes the answer into
 /// the pipeline context so later nodes can interpolate it.
@@ -121,7 +121,7 @@ impl WaitForHumanHandler {
     ///
     /// Parses the spec from YAML (with JSON fallback), conducts the
     /// interview, stores per-question answers in context, and routes
-    /// based on the first `multiple_choice` question's answer.
+    /// based on the first `single-select` question's answer.
     #[allow(clippy::too_many_lines)]
     async fn execute_interview_spec(
         &self,
@@ -140,7 +140,7 @@ impl WaitForHumanHandler {
             }
         })?;
 
-        // 2. Validate semantic correctness (show_if, finish_if, duplicates)
+        // 2. Validate semantic correctness (show-if, finish-if, duplicates)
         if let Err(errors) = spec.validate() {
             return Err(crate::error::AttractorError::HandlerFailed {
                 node_id: node.id.clone(),
@@ -149,7 +149,7 @@ impl WaitForHumanHandler {
         }
 
         // 3. Conditional specs are conducted progressively (one question
-        //    at a time) so that show_if / finish_if can be evaluated.
+        //    at a time) so that show-if / finish-if can be evaluated.
         //    Resume recovery is not supported for conditional interviews.
         if spec.is_conditional() {
             return self
@@ -242,7 +242,7 @@ impl WaitForHumanHandler {
             })?;
 
             // Store the canonical (human-readable) value so that stored
-            // values match what show_if / finish_if conditions compare.
+            // values match what show-if / finish-if conditions compare.
             let canonical =
                 stencila_interviews::interviewer::canonical_answer_string(&answer.value, question);
 
@@ -258,8 +258,8 @@ impl WaitForHumanHandler {
                 context_updates.insert(key.clone(), serde_json::Value::String(canonical));
             }
 
-            // Track the first multiple_choice question's answer for routing
-            if routing_answer.is_none() && question.question_type == QuestionType::MultipleChoice {
+            // Track the first single-select question's answer for routing
+            if routing_answer.is_none() && question.r#type == QuestionType::SingleSelect {
                 routing_answer = Some(answer);
             }
         }
@@ -301,7 +301,7 @@ impl WaitForHumanHandler {
                 return Ok(Outcome::fail("human skipped interaction"));
             }
 
-            // Choice-based routing using first multiple_choice answer
+            // Choice-based routing using first single-select answer
             let Some(selected) = find_matching_choice(&routing_ans, &choices) else {
                 return Ok(Outcome::fail("answer did not match any available choice"));
             };
@@ -330,7 +330,7 @@ impl WaitForHumanHandler {
     /// Execute a conditional interview spec progressively.
     ///
     /// Uses [`conduct_conditional`] which asks questions one at a time,
-    /// evaluating `show_if` / `finish_if` between questions. The returned
+    /// evaluating `show-if` / `finish-if` between questions. The returned
     /// [`ConductedInterview`] maps each asked question back to its spec
     /// index, so store keys are resolved correctly even when questions are
     /// skipped.
@@ -390,7 +390,7 @@ impl WaitForHumanHandler {
 
             // Use spec_indices to find the original spec question and
             // store the canonical (human-readable) value so that stored
-            // values match what show_if / finish_if conditions compare.
+            // values match what show-if / finish-if conditions compare.
             let spec_idx = result.spec_indices[i];
             if let Some(ref store) = spec.questions.get(spec_idx).and_then(|q| q.store.clone()) {
                 context_updates.insert(
@@ -418,7 +418,7 @@ impl WaitForHumanHandler {
                 );
             }
 
-            if routing_answer.is_none() && question.question_type == QuestionType::MultipleChoice {
+            if routing_answer.is_none() && question.r#type == QuestionType::SingleSelect {
                 routing_answer = Some(answer);
             }
         }
@@ -568,9 +568,12 @@ fn parse_question_type(node: &Node) -> Option<QuestionType> {
     node.get_str_attr("question_type").and_then(|s| match s {
         "freeform" => Some(QuestionType::Freeform),
         "yes_no" | "yes-no" => Some(QuestionType::YesNo),
-        "confirmation" => Some(QuestionType::Confirmation),
-        "multiple_choice" | "multiple-choice" => Some(QuestionType::MultipleChoice),
-        "multi_select" | "multi-select" => Some(QuestionType::MultiSelect),
+        "confirm" => Some(QuestionType::Confirm),
+        "single_select" | "single-select" | "multi_choice" | "multi-choice" | "multiple_choice"
+        | "multiple-choice" => Some(QuestionType::SingleSelect),
+        "multi_select" | "multi-select" | "multiple_select" | "multiple-select" => {
+            Some(QuestionType::MultiSelect)
+        }
         _ => None,
     })
 }
@@ -611,13 +614,13 @@ impl Handler for WaitForHumanHandler {
         let is_choice_based = question_type.is_none()
             || matches!(
                 question_type,
-                Some(QuestionType::MultipleChoice | QuestionType::MultiSelect)
+                Some(QuestionType::SingleSelect | QuestionType::MultiSelect)
             );
 
         let mut question = match question_type {
             Some(QuestionType::Freeform) => Question::freeform(text),
             Some(QuestionType::YesNo) => Question::yes_no(text),
-            Some(QuestionType::Confirmation) => Question::confirmation(text),
+            Some(QuestionType::Confirm) => Question::confirm(text),
             Some(QuestionType::MultiSelect) => {
                 let options: Vec<QuestionOption> = choices
                     .iter()
@@ -630,7 +633,7 @@ impl Handler for WaitForHumanHandler {
                 Question::multi_select(text, options)
             }
             // Default: MultipleChoice (original behavior)
-            None | Some(QuestionType::MultipleChoice) => {
+            None | Some(QuestionType::SingleSelect) => {
                 let options: Vec<QuestionOption> = choices
                     .iter()
                     .map(|c| QuestionOption {
@@ -639,7 +642,7 @@ impl Handler for WaitForHumanHandler {
                         description: None,
                     })
                     .collect();
-                Question::multiple_choice(text, options)
+                Question::single_select(text, options)
             }
         };
 
@@ -784,7 +787,7 @@ impl Handler for WaitForHumanHandler {
 
             Ok(outcome)
         } else {
-            // Non-choice (freeform, yes_no, confirmation): follow the
+            // Non-choice (freeform, yes_no, confirm): follow the
             // first outgoing edge unconditionally.
             let mut updates = IndexMap::new();
             if let Some(ref key) = store_key {

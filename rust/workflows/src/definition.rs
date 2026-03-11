@@ -680,10 +680,10 @@ description: Test interview ref
 ```yaml #review-interview
 questions:
   - question: "What areas need improvement?"
-    question_type: freeform
+    type: freeform
     store: review.improvements
   - question: "Are there any blocking issues?"
-    question_type: yes_no
+    type: yes-no
 ```
 
 ```dot
@@ -701,7 +701,7 @@ digraph interview_ref {
         assert_eq!(
             review.get_str_attr("interview"),
             Some(
-                "questions:\n  - question: \"What areas need improvement?\"\n    question_type: freeform\n    store: review.improvements\n  - question: \"Are there any blocking issues?\"\n    question_type: yes_no"
+                "questions:\n  - question: \"What areas need improvement?\"\n    type: freeform\n    store: review.improvements\n  - question: \"Are there any blocking issues?\"\n    type: yes-no"
             )
         );
     }

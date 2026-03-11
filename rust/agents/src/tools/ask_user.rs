@@ -42,7 +42,7 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                     });
                 }
 
-                // Validate conditional features (show_if, finish_if)
+                // Validate conditional features (show-if, finish-if)
                 if let Err(errors) = spec.validate() {
                     return Err(AgentError::ValidationError {
                         reason: errors.join("; "),
@@ -50,7 +50,7 @@ pub fn executor(interviewer: Arc<dyn Interviewer>) -> ToolExecutorFn {
                 }
 
                 // Conditional specs are conducted progressively (one
-                // question at a time) so that show_if / finish_if can
+                // question at a time) so that show-if / finish-if can
                 // be evaluated between questions.
                 if spec.is_conditional() {
                     let result = conduct_conditional(&spec, interviewer.as_ref(), "ask_user")
@@ -275,7 +275,7 @@ mod tests {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
-            "questions": [{"question": "Proceed?", "question_type": "yes_no"}]
+            "questions": [{"question": "Proceed?", "type": "yes-no"}]
         });
         let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Yes");
@@ -283,11 +283,11 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn single_confirmation_auto_approve() -> AgentResult<()> {
+    async fn single_confirm_auto_approve() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
-            "questions": [{"question": "Sure?", "question_type": "confirmation"}]
+            "questions": [{"question": "Sure?", "type": "confirm"}]
         });
         let result = exec(args, &env()).await?;
         assert_eq!(result.as_text(), "Yes");
@@ -295,13 +295,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn single_multiple_choice_auto_approve() -> AgentResult<()> {
+    async fn single_single_select_auto_approve() -> AgentResult<()> {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
             "questions": [{
                 "question": "Pick a color:",
-                "question_type": "multiple_choice",
+                "type": "single-select",
                 "options": [
                     {"label": "Red"},
                     {"label": "Blue"},
@@ -321,8 +321,8 @@ mod tests {
         let exec = executor(iv);
         let args = json!({
             "questions": [
-                {"question": "Deploy?", "question_type": "yes_no", "header": "Deployment"},
-                {"question": "Which env?", "question_type": "multiple_choice", "header": "Environment",
+                {"question": "Deploy?", "type": "yes-no", "header": "Deployment"},
+                {"question": "Which env?", "type": "single-select", "header": "Environment",
                  "options": [{"label": "Staging"}, {"label": "Production"}]}
             ]
         });
@@ -342,7 +342,7 @@ mod tests {
         let args = json!({
             "questions": [{
                 "question": "Pick:",
-                "question_type": "multiple_choice",
+                "type": "single-select",
                 "options": [
                     {"label": "First", "description": "The first one"},
                     {"label": "Second"},
@@ -371,7 +371,7 @@ mod tests {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
-            "questions": [{"question_type": "freeform"}]
+            "questions": [{"type": "freeform"}]
         });
         let result = exec(args, &env()).await;
         assert!(result.is_err());
@@ -395,8 +395,8 @@ mod tests {
         let exec = executor(iv);
         let args = json!({
             "questions": [
-                {"question": "Q1?", "header": "Step 1", "question_type": "yes_no"},
-                {"question": "Q2?", "header": "Step 2", "question_type": "yes_no"}
+                {"question": "Q1?", "header": "Step 1", "type": "yes-no"},
+                {"question": "Q2?", "header": "Step 2", "type": "yes-no"}
             ]
         });
         let result = exec(args, &env()).await?;
@@ -436,7 +436,7 @@ mod tests {
         let iv: Arc<dyn Interviewer> = Arc::new(AutoApproveInterviewer);
         let exec = executor(iv);
         let args = json!({
-            "questions": [{"question": "Hello?", "question_type": "bogus"}]
+            "questions": [{"question": "Hello?", "type": "bogus"}]
         });
         let result = exec(args, &env()).await;
         let err = result.expect_err("should be a validation error");
@@ -452,7 +452,7 @@ mod tests {
         let args = json!({
             "questions": [{
                 "question": "Pick toppings:",
-                "question_type": "multi_select",
+                "type": "multi-select",
                 "options": [
                     {"label": "Cheese"},
                     {"label": "Pepperoni"},
@@ -472,7 +472,7 @@ mod tests {
         let args = json!({
             "questions": [{
                 "question": "Proceed?",
-                "question_type": "yes_no",
+                "type": "yes-no",
                 "default": "yes"
             }]
         });

@@ -1,10 +1,10 @@
 //! # Cross-Platform Confirmation Prompts
 //!
 //! This crate provides a unified abstraction for prompting users for
-//! confirmation across different interfaces.
+//! confirm across different interfaces.
 //!
 //! The primary goal is to enable library authors to write interface-agnostic
-//! code. For example, a file manipulation library can ask for user confirmation
+//! code. For example, a file manipulation library can ask for user confirm
 //! before destructive operations without needing to know whether it's being
 //! used in a CLI tool or within a code editor via LSP.
 
@@ -215,8 +215,8 @@ pub async fn wait_for_enter(prompt: &str) -> Result<()> {
     }
 }
 
-/// Core trait that all confirmation providers must implement.
-/// This abstraction allows different UI backends to provide user confirmation dialogs.
+/// Core trait that all confirm providers must implement.
+/// This abstraction allows different UI backends to provide user confirm dialogs.
 #[async_trait]
 trait Ask: Send + Sync {
     /// Ask a question with additional customization options like custom button text,
@@ -250,7 +250,7 @@ trait Ask: Send + Sync {
     async fn wait_for_enter(&self, prompt: &str) -> Result<()>;
 }
 
-/// Configuration options for customizing confirmation dialogs.
+/// Configuration options for customizing confirm dialogs.
 /// All fields are optional and providers should use sensible defaults when not specified.
 #[derive(Default)]
 pub struct AskOptions {
@@ -418,7 +418,7 @@ impl AskContext {
 /// Global context
 static GLOBAL_CONTEXT: LazyLock<Mutex<Option<AskContext>>> = LazyLock::new(|| Mutex::new(None));
 
-/// Setup the global confirmation context
+/// Setup the global confirm context
 async fn global_context(context: AskContext) -> Result<()> {
     *GLOBAL_CONTEXT.lock().await = Some(context);
     Ok(())

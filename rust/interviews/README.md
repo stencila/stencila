@@ -21,6 +21,10 @@ The `interviews` table is context-agnostic: it records human-in-the-loop interac
 
 ## Spec deviations
 
+### Question type naming (§6.2 vs §11.8)
+
+This implementation uses question type names `YES_NO`, `CONFIRM`, `SINGLE_SELECT`, `MULTI_SELECT`, `FREEFORM`, rather than the spec's §6.2 enum names (`YES_NO`, `MULTIPLE_CHOICE`, `FREEFORM`, `CONFIRMATION`) or §11.8 alternate names (`SINGLE_SELECT`, `MULTI_SELECT`, `FREE_TEXT`, `CONFIRM`).
+
 ### `AnswerValue` wire format (§6.3)
 
 The spec defines `AnswerValue` as a flat set of unit constants (`YES`, `NO`, `SKIPPED`, `TIMEOUT`) with selected values and free text carried in separate `Answer` fields (`value: String or AnswerValue`, `text: String`). This implementation unifies all answer semantics into `AnswerValue` enum variants, including `Selected(String)`, `MultiSelected(Vec<String>)`, and `Text(String)`. The enum uses adjacently tagged serde representation (`#[serde(tag = "type", content = "value")]`) for consistency with the codebase's enum tagging convention. Unit variants serialize as `{"type":"YES"}`, data variants as `{"type":"SELECTED","value":"A"}`.

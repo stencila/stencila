@@ -17,7 +17,7 @@ digraph test_refs {
   Verify -> HumanReview [label="Pass", condition="context.last_output=ok"]
   Verify -> Fail        [label="Fail", condition="context.last_output!=ok"]
 
-  HumanReview [ask-ref="#human-question", question-type="confirmation"]
+  HumanReview [ask-ref="#human-question", question-type="confirm"]
   HumanReview -> End    [label="Accept"]
   HumanReview -> Fail   [label="Reject"]
 

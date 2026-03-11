@@ -13,7 +13,7 @@ use stencila_interviews::interviewer::{
 
 /// An interviewer that presents questions on the terminal using `dialoguer`.
 ///
-/// Supports yes/no, confirmation, multiple-choice (with accelerator keys),
+/// Supports yes/no, confirm, multiple-choice (with accelerator keys),
 /// and freeform text prompts. When `timeout_seconds` is set on a question,
 /// the blocking stdin read is wrapped in a `tokio::time::timeout`.
 ///
@@ -28,9 +28,9 @@ impl CliInterviewer {
             return Answer::new(AnswerValue::Skipped);
         }
 
-        match question.question_type {
-            QuestionType::YesNo | QuestionType::Confirmation => ask_yes_no(question),
-            QuestionType::MultipleChoice => {
+        match question.r#type {
+            QuestionType::YesNo | QuestionType::Confirm => ask_yes_no(question),
+            QuestionType::SingleSelect => {
                 if question.options.is_empty() {
                     ask_freeform(question)
                 } else {

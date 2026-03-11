@@ -146,7 +146,7 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 | `goal-gate`              | Boolean  | If `true`, this node must succeed before the pipeline can exit.                                                                                      |
 | `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`).                                                                                                        |
 | `class`                  | String   | Comma-separated class names for overrides targeting.                                                                                                 |
-| `question-type`          | String   | Human node question type: `"freeform"`, `"yes-no"`, `"confirmation"`. Default: multiple choice from edges.                                           |
+| `question-type`          | String   | Human node question type: `"yes-no"`, `"confirm"`. `"single-select'`, `"freeform"`, Default: single select from edges.                               |
 | `store`                  | String   | Human node context key to store the answer in (e.g., `"human.feedback"`).                                                                            |
 | `interview-ref`          | String   | Reference to a YAML code block defining a multi-question interview (e.g., `"#review-interview"`).                                                    |
 
@@ -583,12 +583,12 @@ The engine derives keys `S`, `P`, `D` from the first letter of each label. No br
 
 By default, human nodes derive a multiple-choice question from their outgoing edge labels. You can override this by setting the `question-type` attribute:
 
-| `question-type`  | Description                      | Routing                     |
-| ---------------- | -------------------------------- | --------------------------- |
-| _(default)_      | Multiple choice from edge labels | Routes to the selected edge |
-| `"freeform"`     | Free-form text input             | Follows first outgoing edge |
-| `"yes-no"`       | Yes/no binary choice             | Follows first outgoing edge |
-| `"confirmation"` | Confirmation prompt              | Follows first outgoing edge |
+| `question-type` | Description                                      | Routing                     |
+| --------------- | ------------------------------------------------ | --------------------------- |
+| _(default)_     | Single-select (multiple choice) from edge labels | Routes to the selected edge |
+| `"freeform"`    | Free-form text input                             | Follows first outgoing edge |
+| `"yes-no"`      | Yes/no binary choice                             | Follows first outgoing edge |
+| `"confirm"`     | Confirmation prompt                              | Follows first outgoing edge |
 
 For non-choice types, the node always follows its first outgoing edge — there is no choice-matching step. The node still needs at least one outgoing edge for routing.
 
@@ -607,7 +607,7 @@ HumanFeedback [
 When the human provides an answer, it is stored as a string:
 
 - **Freeform text** — the entered text
-- **Multiple choice** — the selected accelerator key
+- **Single-select** — the selected accelerator key
 - **Yes/no** — `"yes"` or `"no"`
 - **Timeout or skip** — key is not set (resolves to `""` when referenced)
 
@@ -664,7 +664,7 @@ On the first iteration, `$human.feedback` resolves to an empty string (the key d
 
 When a single human pause needs to collect multiple pieces of information — such as a routing decision and detailed feedback — use `interview-ref` to reference a YAML code block that defines a structured interview.
 
-The YAML block specifies a `preamble` (optional context shown before the questions) and a `questions` array. Each question can have a `question_type`, `options` (for choice types), a `default`, and a `store` key for saving the answer to the pipeline context.
+The YAML block specifies a `preamble` (optional context shown before the questions) and a `questions` array. Each question can have a `type` (defaults to `freeform`), `options` (for `single-select` and `multi-select` types), a `default`, and a `store` key for saving the answer to the pipeline context.
 
 ```dot
 Review [interview-ref="#review-interview"]
@@ -679,7 +679,7 @@ preamble: |
 questions:
   - question: "Is the implementation ready to merge?"
     header: Decision
-    question_type: multiple_choice
+    type: single-select
     options:
       - label: Approve
       - label: Revise
@@ -687,15 +687,14 @@ questions:
 
   - question: "What specific changes should be made?"
     header: Feedback
-    question_type: freeform
     store: review.feedback
 ```
 
-**Routing** is driven by the first `multiple_choice` question's answer, matched against outgoing edge labels — the same mechanism as single-question human nodes. When an interview has no `multiple_choice` question, the node follows its first outgoing edge. An interview node with no outgoing edges succeeds as a terminal node after collecting answers.
+**Routing** is driven by the first `single-select` question's answer, matched against outgoing edge labels — the same mechanism as single-question human nodes. When an interview has no `single-select` question, the node follows its first outgoing edge. An interview node with no outgoing edges succeeds as a terminal node after collecting answers.
 
 **Storing answers** — each question with a `store` key writes its answer to the pipeline context. Downstream nodes reference these values using `$KEY` expansion (e.g., `$review.feedback` in a prompt). Freeform questions without a `store` key will trigger a validation warning, since the answer would be collected but never stored.
 
-**Conditional questions** — use `show_if` to display a question only when a previous answer matches a condition (e.g., `show_if: "decision == Revise"`), and `finish_if` to end the interview early when an answer matches a value (e.g., `finish_if: "no"` on a `yes_no` gate question). These can be combined to build branching interviews with early-exit gates.
+**Conditional questions** — use `show-if` to display a question only when a previous answer matches a condition (e.g., `show-if: "decision == Revise"`), and `finish-if` to end the interview early when an answer matches a value (e.g., `finish-if: "no"` on a `yes-no` gate question). These can be combined to build branching interviews with early-exit gates.
 
 Use `interview-ref` when a review step naturally combines routing with structured feedback. Use separate `ask` / `ask-ref` nodes when the questions are independent or belong to different pipeline stages.
 

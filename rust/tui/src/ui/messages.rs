@@ -1261,10 +1261,7 @@ fn active_question_lines(
 
     // Blank line before options
     let has_options = !question.options.is_empty()
-        || matches!(
-            question.question_type,
-            QuestionType::YesNo | QuestionType::Confirmation
-        );
+        || matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm);
     if has_options {
         blank_sidebar_line(lines, sidebar_style);
     }
@@ -1280,10 +1277,7 @@ fn active_question_lines(
     );
 
     // Yes/No options
-    if matches!(
-        question.question_type,
-        QuestionType::YesNo | QuestionType::Confirmation
-    ) {
+    if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm) {
         yes_no_option_lines(
             lines,
             question,
@@ -1410,7 +1404,7 @@ fn option_lines(
 
     let num_padding = "   ";
     for (o_idx, option) in question.options.iter().enumerate() {
-        let is_selected = match question.question_type {
+        let is_selected = match question.r#type {
             QuestionType::MultiSelect => draft
                 .and_then(|d| {
                     if let DraftAnswer::MultiSelected(set) = d {
@@ -1420,7 +1414,7 @@ fn option_lines(
                     }
                 })
                 .unwrap_or(false),
-            QuestionType::MultipleChoice => draft
+            QuestionType::SingleSelect => draft
                 .and_then(|d| {
                     if let DraftAnswer::Selected(idx) = d {
                         Some(*idx == Some(o_idx))
@@ -1430,9 +1424,9 @@ fn option_lines(
                 })
                 .unwrap_or(false),
             _ => false,
-        } || matches!(question.question_type, QuestionType::MultiSelect)
+        } || matches!(question.r#type, QuestionType::MultiSelect)
             && preview_multi.contains(&o_idx)
-            || matches!(question.question_type, QuestionType::MultipleChoice)
+            || matches!(question.r#type, QuestionType::SingleSelect)
                 && preview_single.selected == Some(o_idx);
 
         let symbol = if is_selected {

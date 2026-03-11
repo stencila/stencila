@@ -51,8 +51,8 @@ pub fn is_answered_draft(draft: &DraftAnswer) -> bool {
 
 pub fn preview_selection(input: &str, question: &Question) -> PreviewSelection {
     let trimmed = input.trim();
-    match question.question_type {
-        QuestionType::YesNo | QuestionType::Confirmation => {
+    match question.r#type {
+        QuestionType::YesNo | QuestionType::Confirm => {
             let lower = trimmed.to_ascii_lowercase();
             let yes = ["y", "ye", "yes", "t", "tr", "tru", "true", "1"];
             let no = ["n", "no", "f", "fa", "fal", "fals", "false", "0"];
@@ -67,7 +67,7 @@ pub fn preview_selection(input: &str, question: &Question) -> PreviewSelection {
                 selected: None,
             }
         }
-        QuestionType::MultipleChoice => PreviewSelection {
+        QuestionType::SingleSelect => PreviewSelection {
             yes_no: None,
             selected: question.options.iter().position(|option| {
                 option.key.eq_ignore_ascii_case(trimmed)
@@ -133,14 +133,14 @@ impl DraftAnswer {
     /// so the user can press Enter to accept it.
     pub fn for_question(question: &Question) -> Self {
         if let Some(default) = &question.default {
-            match (&question.question_type, &default.value) {
-                (QuestionType::YesNo | QuestionType::Confirmation, AnswerValue::Yes) => {
+            match (&question.r#type, &default.value) {
+                (QuestionType::YesNo | QuestionType::Confirm, AnswerValue::Yes) => {
                     return Self::YesNo(Some(true));
                 }
-                (QuestionType::YesNo | QuestionType::Confirmation, AnswerValue::No) => {
+                (QuestionType::YesNo | QuestionType::Confirm, AnswerValue::No) => {
                     return Self::YesNo(Some(false));
                 }
-                (QuestionType::MultipleChoice, AnswerValue::Selected(key)) => {
+                (QuestionType::SingleSelect, AnswerValue::Selected(key)) => {
                     if let Some(idx) = question
                         .options
                         .iter()
@@ -170,10 +170,10 @@ impl DraftAnswer {
             }
         }
 
-        match question.question_type {
+        match question.r#type {
             QuestionType::Freeform => Self::Pending,
-            QuestionType::YesNo | QuestionType::Confirmation => Self::YesNo(None),
-            QuestionType::MultipleChoice => Self::Selected(None),
+            QuestionType::YesNo | QuestionType::Confirm => Self::YesNo(None),
+            QuestionType::SingleSelect => Self::Selected(None),
             QuestionType::MultiSelect => Self::MultiSelected(HashSet::new()),
         }
     }
@@ -286,10 +286,8 @@ impl InterviewState {
             .questions
             .iter()
             .map(|question| {
-                if matches!(
-                    question.question_type,
-                    QuestionType::YesNo | QuestionType::Confirmation
-                ) || !question.options.is_empty()
+                if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm)
+                    || !question.options.is_empty()
                 {
                     Some(0)
                 } else {
@@ -331,10 +329,7 @@ impl InterviewState {
             Some(DraftAnswer::YesNo(Some(false))) => Some(1),
             Some(DraftAnswer::Selected(Some(idx))) => Some(*idx),
             Some(DraftAnswer::MultiSelected(indices)) => indices.iter().min().copied().or(
-                if matches!(
-                    question.question_type,
-                    QuestionType::YesNo | QuestionType::Confirmation
-                ) {
+                if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm) {
                     Some(0)
                 } else if question.options.is_empty() {
                     None
@@ -343,10 +338,7 @@ impl InterviewState {
                 },
             ),
             _ => {
-                if matches!(
-                    question.question_type,
-                    QuestionType::YesNo | QuestionType::Confirmation
-                ) {
+                if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm) {
                     Some(0)
                 } else if question.options.is_empty() {
                     None
@@ -360,10 +352,7 @@ impl InterviewState {
 
     /// Move option focus within the current question by one step.
     pub fn move_option_focus(&mut self, question: &Question, delta: isize) -> bool {
-        let len = if matches!(
-            question.question_type,
-            QuestionType::YesNo | QuestionType::Confirmation
-        ) {
+        let len = if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm) {
             2
         } else {
             question.options.len()
@@ -390,13 +379,13 @@ impl InterviewState {
             return false;
         };
 
-        match question.question_type {
-            QuestionType::YesNo | QuestionType::Confirmation => {
+        match question.r#type {
+            QuestionType::YesNo | QuestionType::Confirm => {
                 self.draft_answers[self.current_question] = DraftAnswer::YesNo(Some(focus == 0));
                 self.validation_error = None;
                 true
             }
-            QuestionType::MultipleChoice => {
+            QuestionType::SingleSelect => {
                 self.draft_answers[self.current_question] = DraftAnswer::Selected(Some(focus));
                 self.validation_error = None;
                 true
@@ -433,14 +422,14 @@ impl InterviewState {
             return true;
         }
 
-        // For single-selection questions (yes/no, confirmation, multiple
+        // For single-selection questions (yes/no, confirm, multiple
         // choice) with empty input, accept the currently focused option so
         // the user can press Enter without typing. Multi-select is excluded
         // because the user should explicitly toggle items before submitting.
         if trimmed.is_empty()
             && matches!(
-                question.question_type,
-                QuestionType::YesNo | QuestionType::Confirmation | QuestionType::MultipleChoice
+                question.r#type,
+                QuestionType::YesNo | QuestionType::Confirm | QuestionType::SingleSelect
             )
             && self.activate_focused_option(question)
         {
@@ -448,7 +437,7 @@ impl InterviewState {
             return true;
         }
 
-        match question.question_type {
+        match question.r#type {
             QuestionType::Freeform => {
                 if trimmed.is_empty() {
                     self.validation_error = Some("invalid: enter your answer".to_string());
@@ -458,7 +447,7 @@ impl InterviewState {
                 self.validation_error = None;
                 true
             }
-            QuestionType::YesNo | QuestionType::Confirmation => {
+            QuestionType::YesNo | QuestionType::Confirm => {
                 let lower = trimmed.to_ascii_lowercase();
                 if matches!(lower.as_str(), "y" | "yes" | "true" | "1") {
                     self.draft_answers[self.current_question] = DraftAnswer::YesNo(Some(true));
@@ -473,7 +462,7 @@ impl InterviewState {
                     false
                 }
             }
-            QuestionType::MultipleChoice => {
+            QuestionType::SingleSelect => {
                 if let Some(idx) = question
                     .options
                     .iter()
@@ -645,13 +634,13 @@ mod tests {
             DraftAnswer::YesNo(None)
         ));
 
-        let q = Question::confirmation("test");
+        let q = Question::confirm("test");
         assert!(matches!(
             DraftAnswer::for_question(&q),
             DraftAnswer::YesNo(None)
         ));
 
-        let q = Question::multiple_choice(
+        let q = Question::single_select(
             "test",
             vec![QuestionOption {
                 key: "a".to_string(),
@@ -716,8 +705,8 @@ mod tests {
     }
 
     #[test]
-    fn try_set_multiple_choice_answer() {
-        let q = Question::multiple_choice(
+    fn try_set_multi_choice_answer() {
+        let q = Question::single_select(
             "test",
             vec![
                 QuestionOption {
@@ -879,7 +868,7 @@ mod tests {
 
     #[test]
     fn to_input_text_roundtrips() {
-        let q = Question::multiple_choice(
+        let q = Question::single_select(
             "test",
             vec![
                 QuestionOption {
@@ -925,8 +914,8 @@ mod tests {
     }
 
     #[test]
-    fn draft_answer_prepopulated_from_default_multiple_choice() {
-        let mut q = Question::multiple_choice(
+    fn draft_answer_prepopulated_from_default_multi_choice() {
+        let mut q = Question::single_select(
             "pick",
             vec![
                 QuestionOption {
@@ -1007,8 +996,8 @@ mod tests {
     }
 
     #[test]
-    fn try_set_empty_input_accepts_default_multiple_choice() {
-        let mut q = Question::multiple_choice(
+    fn try_set_empty_input_accepts_default_multi_choice() {
+        let mut q = Question::single_select(
             "pick",
             vec![
                 QuestionOption {
@@ -1053,8 +1042,8 @@ mod tests {
     }
 
     #[test]
-    fn try_set_empty_input_accepts_focused_multiple_choice() {
-        let q = Question::multiple_choice(
+    fn try_set_empty_input_accepts_focused_multi_choice() {
+        let q = Question::single_select(
             "pick",
             vec![
                 QuestionOption {

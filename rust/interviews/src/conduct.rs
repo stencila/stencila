@@ -1,6 +1,6 @@
 //! Progressive interview conductor for conditional specs.
 //!
-//! When an [`InterviewSpec`] uses `show_if` or `finish_if`, the interview
+//! When an [`InterviewSpec`] uses `show-if` or `finish-if`, the interview
 //! cannot be presented as a flat batch — questions must be evaluated and
 //! presented one at a time based on prior answers. This module provides
 //! [`conduct_conditional`], which drives that loop.
@@ -28,9 +28,9 @@ pub struct ConductedInterview {
 
 /// Conduct a conditional interview progressively, one question at a time.
 ///
-/// Iterates through the spec's questions in order, evaluating `show_if`
+/// Iterates through the spec's questions in order, evaluating `show-if`
 /// conditions against previously collected answers. Questions whose
-/// conditions are false are skipped. After each answer, `finish_if` is
+/// conditions are false are skipped. After each answer, `finish-if` is
 /// checked — if the answer matches, remaining questions are not presented.
 ///
 /// The returned [`ConductedInterview`] contains only the questions that
@@ -53,7 +53,7 @@ pub async fn conduct_conditional(
     let mut stored_answers: IndexMap<String, String> = IndexMap::new();
 
     for (spec_idx, question_spec) in spec.questions.iter().enumerate() {
-        // Evaluate show_if: skip this question if the condition is false.
+        // Evaluate show-if: skip this question if the condition is false.
         if let Some(ref show_if_str) = question_spec.show_if {
             match Condition::parse(show_if_str) {
                 Ok(cond) => {
@@ -66,7 +66,7 @@ pub async fn conduct_conditional(
                         question = spec_idx,
                         show_if = show_if_str.as_str(),
                         error = %e,
-                        "show_if condition failed to parse; presenting question unconditionally"
+                        "show-if condition failed to parse; presenting question unconditionally"
                     );
                 }
             }
@@ -93,7 +93,7 @@ pub async fn conduct_conditional(
         interview.answers.push(answer);
         spec_indices.push(spec_idx);
 
-        // Check finish_if: if the canonical answer matches, end the interview.
+        // Check finish-if: if the canonical answer matches, end the interview.
         if let Some(ref finish_if_str) = question_spec.finish_if
             && finish_if_str.trim().eq_ignore_ascii_case(canonical.trim())
         {
@@ -154,7 +154,7 @@ mod tests {
                 QuestionSpec {
                     question: "Name?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("name".into()),
@@ -164,7 +164,7 @@ mod tests {
                 QuestionSpec {
                     question: "Age?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("age".into()),
@@ -187,7 +187,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // finish_if: interview ends early
+    // finish-if: interview ends early
     // -----------------------------------------------------------------------
 
     #[tokio::test]
@@ -198,7 +198,7 @@ mod tests {
                 QuestionSpec {
                     question: "Approve?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("approved".into()),
@@ -208,7 +208,7 @@ mod tests {
                 QuestionSpec {
                     question: "Deploy where?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -218,7 +218,7 @@ mod tests {
             ],
         };
 
-        // Answer "No" → should trigger finish_if, Q2 never asked
+        // Answer "No" → should trigger finish-if, Q2 never asked
         let interviewer = ScriptedInterviewer::new(vec![Answer::new(AnswerValue::No)]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
@@ -236,7 +236,7 @@ mod tests {
                 QuestionSpec {
                     question: "Approve?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("approved".into()),
@@ -246,7 +246,7 @@ mod tests {
                 QuestionSpec {
                     question: "Notes?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -256,7 +256,7 @@ mod tests {
             ],
         };
 
-        // Answer "Yes" → finish_if("no") doesn't match, Q2 is asked
+        // Answer "Yes" → finish-if("no") doesn't match, Q2 is asked
         let interviewer = ScriptedInterviewer::new(vec![
             Answer::new(AnswerValue::Yes),
             Answer::new(AnswerValue::Text("looks good".into())),
@@ -269,7 +269,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // show_if: conditional visibility
+    // show-if: conditional visibility
     // -----------------------------------------------------------------------
 
     #[tokio::test]
@@ -280,7 +280,7 @@ mod tests {
                 QuestionSpec {
                     question: "Approve?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("approved".into()),
@@ -290,7 +290,7 @@ mod tests {
                 QuestionSpec {
                     question: "Why not?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("reason".into()),
@@ -300,7 +300,7 @@ mod tests {
                 QuestionSpec {
                     question: "Deploy target?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("target".into()),
@@ -334,7 +334,7 @@ mod tests {
                 QuestionSpec {
                     question: "Approve?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("approved".into()),
@@ -344,7 +344,7 @@ mod tests {
                 QuestionSpec {
                     question: "Why not?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("reason".into()),
@@ -367,7 +367,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // Combined: show_if + finish_if
+    // Combined: show-if + finish-if
     // -----------------------------------------------------------------------
 
     #[tokio::test]
@@ -378,7 +378,7 @@ mod tests {
                 QuestionSpec {
                     question: "Approve?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("approved".into()),
@@ -388,7 +388,7 @@ mod tests {
                 QuestionSpec {
                     question: "Why not?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("reason".into()),
@@ -398,7 +398,7 @@ mod tests {
                 QuestionSpec {
                     question: "Deploy?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::YesNo,
+                    r#type: QuestionTypeSpec::YesNo,
                     options: vec![],
                     default: None,
                     store: Some("deploy".into()),
@@ -408,7 +408,7 @@ mod tests {
                 QuestionSpec {
                     question: "Target?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("target".into()),
@@ -421,7 +421,7 @@ mod tests {
         // Approve=Yes → skip "Why not?", Deploy=No → finish early, skip "Target?"
         let interviewer = ScriptedInterviewer::new(vec![
             Answer::new(AnswerValue::Yes), // Approve
-            Answer::new(AnswerValue::No),  // Deploy → triggers finish_if
+            Answer::new(AnswerValue::No),  // Deploy → triggers finish-if
         ]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
@@ -432,18 +432,18 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // finish_if with multiple_choice
+    // finish-if with multi_choice
     // -----------------------------------------------------------------------
 
     #[tokio::test]
-    async fn finish_if_multiple_choice_by_label() -> Result<(), InterviewError> {
+    async fn finish_if_multi_choice_by_label() -> Result<(), InterviewError> {
         let spec = InterviewSpec {
             preamble: None,
             questions: vec![
                 QuestionSpec {
                     question: "Action?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::MultipleChoice,
+                    r#type: QuestionTypeSpec::SingleSelect,
                     options: vec![
                         OptionSpec {
                             label: "Approve".into(),
@@ -462,7 +462,7 @@ mod tests {
                 QuestionSpec {
                     question: "Notes?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -472,7 +472,7 @@ mod tests {
             ],
         };
 
-        // Select "Reject" (key "B") → finish_if triggers
+        // Select "Reject" (key "B") → finish-if triggers
         let interviewer =
             ScriptedInterviewer::new(vec![Answer::new(AnswerValue::Selected("B".into()))]);
 
@@ -494,7 +494,7 @@ mod tests {
                 QuestionSpec {
                     question: "Role?".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: Some("role".into()),
@@ -504,7 +504,7 @@ mod tests {
                 QuestionSpec {
                     question: "Explain admin request".into(),
                     header: None,
-                    question_type: QuestionTypeSpec::Freeform,
+                    r#type: QuestionTypeSpec::Freeform,
                     options: vec![],
                     default: None,
                     store: None,
@@ -525,7 +525,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // canonical_answer_string used for finish_if comparison
+    // canonical_answer_string used for finish-if comparison
     // -----------------------------------------------------------------------
 
     #[test]
@@ -543,7 +543,7 @@ mod tests {
     #[test]
     fn canonical_selected_resolves_to_label() {
         use crate::interviewer::QuestionOption;
-        let q = Question::multiple_choice(
+        let q = Question::single_select(
             "Q",
             vec![
                 QuestionOption {

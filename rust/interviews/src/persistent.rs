@@ -259,7 +259,7 @@ pub fn insert_pending_interview(
                 i as i64,
                 &q.text,
                 q.header.as_deref(),
-                Some(q.question_type.to_string()),
+                Some(q.r#type.to_string()),
                 options_json.as_deref(),
             ),
         )
@@ -750,12 +750,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn multiple_choice_answer_persisted() -> Result<(), Box<dyn std::error::Error>> {
+    async fn single_select_answer_persisted() -> Result<(), Box<dyn std::error::Error>> {
         let db = setup_db();
         let inner = Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>;
         let pi = PersistentInterviewer::new(inner, db.clone(), "workflow", "run-mc");
 
-        let q = Question::multiple_choice(
+        let q = Question::single_select(
             "Pick one:",
             vec![
                 QuestionOption {

@@ -1,7 +1,7 @@
 //! Auto-approve interviewer (§6.4).
 //!
-//! Always selects YES for yes/no and confirmation questions,
-//! the first option for multiple choice, and `"auto-approved"` for freeform.
+//! Always selects YES for yes/no and confirm questions,
+//! the first option for single select, and `"auto-approved"` for freeform.
 
 use async_trait::async_trait;
 
@@ -19,9 +19,9 @@ pub struct AutoApproveInterviewer;
 #[async_trait]
 impl Interviewer for AutoApproveInterviewer {
     async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
-        Ok(match question.question_type {
-            QuestionType::YesNo | QuestionType::Confirmation => Answer::new(AnswerValue::Yes),
-            QuestionType::MultipleChoice => {
+        Ok(match question.r#type {
+            QuestionType::YesNo | QuestionType::Confirm => Answer::new(AnswerValue::Yes),
+            QuestionType::SingleSelect => {
                 if let Some(first) = question.options.first() {
                     Answer::with_option(AnswerValue::Selected(first.key.clone()), first.clone())
                 } else {

@@ -724,7 +724,7 @@ impl LintRule for InterviewSpecRule {
                 }
             };
 
-            // Surface errors from semantic validation (show_if, finish_if, etc.)
+            // Surface errors from semantic validation (show-if, finish-if, etc.)
             if let Err(errors) = spec.validate() {
                 for error in errors {
                     diagnostics.push(Diagnostic {
@@ -740,7 +740,7 @@ impl LintRule for InterviewSpecRule {
 
             // Warn on freeform questions without a store key
             for (i, q) in spec.questions.iter().enumerate() {
-                if q.question_type == QuestionTypeSpec::Freeform && q.store.is_none() {
+                if q.r#type == QuestionTypeSpec::Freeform && q.store.is_none() {
                     diagnostics.push(Diagnostic {
                         rule: self.name().to_string(),
                         severity: Severity::Warning,
@@ -757,12 +757,12 @@ impl LintRule for InterviewSpecRule {
                 }
             }
 
-            // Warn when the first multiple_choice question's option labels
+            // Warn when the first single-select question's option labels
             // do not match any outgoing edge labels
             if let Some(routing_q) = spec
                 .questions
                 .iter()
-                .find(|q| q.question_type == QuestionTypeSpec::MultipleChoice)
+                .find(|q| q.r#type == QuestionTypeSpec::SingleSelect)
             {
                 let edge_labels: HashSet<String> = graph
                     .outgoing_edges(&node.id)
@@ -805,7 +805,7 @@ impl LintRule for InterviewSpecRule {
                         rule: self.name().to_string(),
                         severity: Severity::Warning,
                         message: format!(
-                            "node `{}` interview has no multiple_choice routing question \
+                            "node `{}` interview has no single-select routing question \
                              but has {outgoing_count} outgoing edges; the first edge will \
                              always be followed",
                             node.id
@@ -813,7 +813,7 @@ impl LintRule for InterviewSpecRule {
                         node_id: Some(node.id.clone()),
                         edge: None,
                         fix: Some(
-                            "add a multiple_choice question for routing, or reduce to one \
+                            "add a single-select question for routing, or reduce to one \
                              outgoing edge"
                                 .into(),
                         ),

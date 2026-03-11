@@ -58,19 +58,18 @@ preamble: |
   Please review the agent and decide whether to accept it or send it back for revision.
 
 questions:
-  - question: Is the agent acceptable?
-    header: Decision
-    question_type: multiple_choice
+  - header: Decision
+    question: Is the agent acceptable?
+    type: multiple-choice
     options:
       - label: Accept
       - label: Revise
     store: human.decision
-    finish_if: Accept
+    finish-if: Accept
 
-  - question: What specific changes or improvements should be made?
-    header: Revision Notes
-    question_type: freeform
+  - header: Revision Notes
+    question: What specific changes or improvements should be made?
     store: human.feedback
 ```
 
-The workflow first uses the `agent-creator` agent to draft or revise the agent, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview. Routing from `HumanReview` is driven by the first multiple-choice question's option labels, which intentionally match the outgoing edge labels `Accept` and `Revise`. The decision question uses `finish_if: Accept` to end the interview immediately when the agent is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass); on later iterations, `$human.feedback` is expected to contain the latest stored revision notes unless a subsequent run replaces them.
+The workflow first uses the `agent-creator` agent to draft or revise the agent, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview. Routing from `HumanReview` is driven by the first multiple-choice question's option labels, which intentionally match the outgoing edge labels `Accept` and `Revise`. The decision question uses `finish-if: Accept` to end the interview immediately when the agent is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass); on later iterations, `$human.feedback` is expected to contain the latest stored revision notes unless a subsequent run replaces them.
