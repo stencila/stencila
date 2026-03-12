@@ -20,6 +20,7 @@ allowed-tools:
   - glob
   - shell
   - list_agents
+  - list_workflows
 ---
 
 You are an assistant that specializes in reviewing workflows.

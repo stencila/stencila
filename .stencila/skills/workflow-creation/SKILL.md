@@ -8,7 +8,7 @@ keywords:
   - scaffold
   - write
   - WORKFLOW.md
-allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user list_agents
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user list_agents list_workflows
 ---
 
 ## Overview
@@ -39,9 +39,12 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
 10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, workflow composition, or agent overrides only when the user asks for them or the workflow clearly needs them
 11. Use `list_agents` when agent selection matters so you can choose from available specialized agents instead of guessing names
 12. When using `list_agents`, prefer agents whose metadata supports the node's role: use `description` to check the agent's core capability, `keywords` to match domain terms and user intent, `when-to-use` for positive fit signals, and `when-not-to-use` to avoid poor matches
-13. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when their metadata indicates a good fit; do not invent agent names unless the user requests them or they are already clear project conventions
-14. Replace placeholders such as `TODO` before considering the workflow complete
-15. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path, and report the result to the user when possible
+13. Use `list_workflows` when workflow composition is relevant so you can choose from available child workflows instead of guessing names or nesting ad hoc subprocesses
+14. When using `list_workflows`, prefer child workflows whose metadata supports the composition boundary: use `description` to check the child workflow's end-to-end purpose, `keywords` to match domain and task terms, `when-to-use` for positive fit signals, and `when-not-to-use` to avoid poor matches or overbroad reuse
+15. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when their metadata indicates a good fit; do not invent agent names unless the user requests them or they are already clear project conventions
+16. Reference existing child workflows by name with the `workflow` attribute when appropriate, preferring workflows returned by `list_workflows` when their metadata indicates a good fit; do not invent child workflow names unless the user requests them or they are already clear project conventions
+17. Replace placeholders such as `TODO` before considering the workflow complete
+18. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path, and report the result to the user when possible
 
 When working from a nested directory in a repository, create the workflow in the closest workspace's `.stencila/workflows/` directory rather than creating a new `.stencila/` tree under the current subdirectory.
 
@@ -396,6 +399,10 @@ Note the difference from label routing: edge conditions (`condition="outcome=suc
 - Use `list_agents` before assigning non-obvious agents so the workflow can reference real available agents rather than guessed names
 - When reviewing `list_agents` results, choose agents by metadata rather than by name alone: match `description` to the node's responsibility, use `keywords` for domain and task terms, treat `when-to-use` as positive routing guidance, and use `when-not-to-use` to avoid agents that are a poor fit
 - Use `agent="name"` to reference existing agents by name; when available, prefer specialized agents whose metadata indicates they match the node's task. Stencila resolves workspace agents first, then user-level agents, then CLI-detected agents
+- Use `list_workflows` before adding a composed `workflow="child-name"` node so the parent can reuse real available workflows rather than guessed or redundant child names
+- When reviewing `list_workflows` results, choose child workflows by metadata rather than by name alone: match `description` to the subprocess purpose, use `keywords` for domain and task terms, treat `when-to-use` as positive composition guidance, and use `when-not-to-use` to avoid nesting workflows that are too broad, too narrow, or mismatched
+- Prefer nesting a child workflow only when it encapsulates a meaningful reusable subprocess, improves readability of the parent graph, or separates orchestration from detailed execution; keep trivial one-step tasks inline unless reuse is likely
+- Use `workflow="name"` to reference existing child workflows by name; when available, prefer workflows whose metadata indicates they fit the subprocess being delegated. Avoid inventing child workflow names when `list_workflows` shows better existing options
 - When a node has no `agent` attribute, the engine uses a default agent; this fallback is unlikely to be optimal for a well-designed workflow, so prefer explicit agent selection unless the user wants a minimal draft
 - Use inline `agent.*` dotted attributes only when the user explicitly wants node-specific overrides such as `agent.model`, `agent.provider`, or `agent.reasoning-effort`
 - Use `shape=human` for explicit human approval or review steps

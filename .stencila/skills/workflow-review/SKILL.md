@@ -9,7 +9,7 @@ keywords:
   - evaluate
   - improve
   - WORKFLOW.md
-allowed-tools: read_file glob grep shell list_agents
+allowed-tools: read_file glob grep shell list_agents list_workflows
 ---
 
 ## Overview
@@ -24,10 +24,11 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 4. When supporting files are present, check that files referenced from `WORKFLOW.md` exist and that existing supporting files are meaningfully referenced where appropriate; for large files, verify existence and relevance without reproducing their full contents in the review
 5. When evaluating workspace conventions, compare the workflow against one or two existing workflows in `.stencila/workflows/` or related workflow skills when available
 6. When the workflow uses specialized `agent` attributes or agent fit is unclear, use `list_agents` to compare referenced agents against available agents and their metadata rather than guessing from names alone
-7. Evaluate the workflow against each criterion in the Review Checklist below
-8. If the workflow is explicitly intended to be ephemeral, check whether the directory contains a `.gitignore` sentinel file with exactly `*`; if the sentinel is missing or has different contents, treat that as a failure. If the workflow only seems temporary from context, treat a missing sentinel as a warning unless the workflow clearly claims ephemeral status
-9. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
-10. If the user asks you to apply improvements, make the changes and validate the result using the most specific path available first, such as `stencila workflows validate <workflow-dir>` or `stencila workflows validate <workflow-file>`; use name-based validation only when the name is clearly resolved
+7. When the workflow composes child workflows with `workflow="name"` or the choice of nested workflows seems questionable, use `list_workflows` to compare referenced child workflows against available workflows and their metadata rather than guessing from names alone
+8. Evaluate the workflow against each criterion in the Review Checklist below
+9. If the workflow is explicitly intended to be ephemeral, check whether the directory contains a `.gitignore` sentinel file with exactly `*`; if the sentinel is missing or has different contents, treat that as a failure. If the workflow only seems temporary from context, treat a missing sentinel as a warning unless the workflow clearly claims ephemeral status
+10. Produce a structured review report with a summary, per-criterion findings, and a prioritized list of suggestions
+11. If the user asks you to apply improvements, make the changes and validate the result using the most specific path available first, such as `stencila workflows validate <workflow-dir>` or `stencila workflows validate <workflow-file>`; use name-based validation only when the name is clearly resolved
 
 ## Review Checklist
 
@@ -78,6 +79,9 @@ When reviewing names, apply these conventions:
 - Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; when agent choice matters or fit is uncertain, use `list_agents` to confirm availability and compare actual agent metadata; if actual existence still cannot be confirmed, report that uncertainty explicitly
 - When a node references `workflow="name"`, check that the child workflow name is plausible and, if reviewing within a workspace, that the referenced workflow can be found
 - When a node references `workflow="name"`, check whether the child workflow's goal is being passed clearly: use `goal="..."` when an explicit child objective is needed, otherwise confirm that the node's resolved input (`prompt` or `label`) is a sensible default child goal
+- When workflow composition matters, use `list_workflows` to compare the chosen child workflow against available workflows and their metadata rather than relying on the name alone
+- Specialized child workflow selection should be justified by metadata rather than name alone: `description` should match the delegated subprocess, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
+- Recommend nesting a child workflow only when it encapsulates a meaningful reusable subprocess, improves readability of the parent graph, or cleanly separates orchestration from detailed execution; flag trivial or over-engineered nesting where an inline node would be clearer
 - Specialized agent selection is justified by metadata rather than name alone: `description` should match the node's core task, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
 - Prompts are specific enough to guide each node's local task
 - When the workflow uses `prompt-ref`, `shell-ref`, `ask-ref`, or `interview-ref`, referenced ids exist in code blocks or code chunks in the same `WORKFLOW.md`, are unique, and are used where they improve readability, typically for long or multiline content rather than short single-line values
@@ -105,7 +109,7 @@ When reviewing names, apply these conventions:
 - **when-to-use / when-not-to-use**: if present, check that entries are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals. If absent, recommend adding them to improve manager delegation accuracy
 - **Coherence check**: verify that `description`, `keywords`, `when-to-use`, and `when-not-to-use` work together — they should be complementary, not redundant
 - **Agent-selection metadata use**: when the workflow assigns specialized agents, check whether the workflow author appears to have selected them in a way consistent with available agent metadata. Flag cases where the chosen agent's `description`, `keywords`, `when-to-use`, or `when-not-to-use` suggest a mismatch with the node's task
-- **Composition coherence**: when a workflow composes child workflows, check that the parent description, node names, and child workflow purposes fit together coherently and that the decomposition helps discoverability rather than hiding the real process behind vague node names
+- **Composition coherence**: when a workflow composes child workflows, check that the parent description, node names, and child workflow purposes fit together coherently and that the decomposition helps discoverability rather than hiding the real process behind vague node names; use `list_workflows` when needed to compare whether a better existing child workflow would fit the subprocess
 
 ### Completeness and Clarity
 
@@ -296,6 +300,7 @@ Output (use `###` headings in the report):
 - **No `dot` block**: Flag this as a failure for an executable workflow. The first `dot` block is the executable pipeline source of truth.
 - **Additional DOT blocks**: Treat only the first `dot` block as executable. If later DOT blocks could confuse the intended pipeline, flag that as a warning.
 - **Unknown agents**: Flag likely placeholder or non-existent agent references as warnings. Use `list_agents` when agent selection matters so you can assess availability and metadata fit instead of relying on names alone, but note that existence still cannot always be confirmed for every environment.
+- **Unknown child workflows**: Flag likely placeholder or non-existent `workflow="name"` references as warnings. Use `list_workflows` when workflow composition matters so you can assess availability and metadata fit instead of relying on names alone, but note that existence still cannot always be confirmed for every environment.
 - **Ephemeral status unclear**: If the workflow seems temporary but lacks the `.gitignore` sentinel, flag that as a warning or failure depending on how strongly the workflow claims to be ephemeral.
 - **Supporting files are large**: For files in `scripts/`, `references/`, or `assets/`, check that they exist and are referenced where appropriate, but do not reproduce their full contents in the report.
 - **User asks to fix issues**: If the user asks you to apply suggestions, make the changes, then validate using the workflow directory path or `WORKFLOW.md` path before reporting completion; use name-based validation only when the name is unambiguous.
