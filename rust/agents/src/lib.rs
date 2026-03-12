@@ -21,12 +21,22 @@
 // trade-off matching models3 — errors are not on the hot path.
 #![allow(clippy::result_large_err)]
 
-/// The name used when no agent is explicitly specified.
+/// The name used when no agent is explicitly specified in interactive
+/// contexts (TUI, CLI).
 ///
 /// Callers that need "the default agent" should reference this constant
 /// rather than hard-coding a string so the value can be changed in one
 /// place.
 pub const DEFAULT_AGENT_NAME: &str = "manager";
+
+/// The name used when no agent is explicitly specified on a workflow
+/// pipeline node.
+///
+/// This is separate from [`DEFAULT_AGENT_NAME`] because the manager agent
+/// always delegates rather than performing work itself, which is not
+/// appropriate for workflow nodes that need an agent to execute a task
+/// directly.
+pub const DEFAULT_WORKFLOW_AGENT_NAME: &str = "general";
 
 /// Agent definition loading and discovery.
 pub mod definition;

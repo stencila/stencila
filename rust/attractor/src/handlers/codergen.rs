@@ -133,7 +133,7 @@ impl Handler for CodergenHandler {
         // Read agent name from node attributes.
         let agent_name = node
             .get_str_attr("agent")
-            .unwrap_or(stencila_agents::DEFAULT_AGENT_NAME);
+            .unwrap_or(stencila_agents::DEFAULT_WORKFLOW_AGENT_NAME);
 
         // Read stage_index from context (set by the engine loop).
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]

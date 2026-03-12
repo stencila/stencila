@@ -430,9 +430,9 @@ async fn resolve_agent_references(
 /// the full response text.
 ///
 /// Nodes without an `agent` attribute fall back to
-/// [`DEFAULT_AGENT_NAME`](stencila_agents::DEFAULT_AGENT_NAME) (which
-/// resolves via `[agents].default` in `stencila.toml` or the agent
-/// literally named that way).
+/// [`DEFAULT_WORKFLOW_AGENT_NAME`](stencila_agents::DEFAULT_WORKFLOW_AGENT_NAME)
+/// (the general-purpose agent that performs work directly, rather than the
+/// manager agent which always delegates).
 struct AgentCodergenBackend {
     /// SQLite connection shared with tool executors (None if no DB).
     db_conn: Option<Arc<Mutex<Connection>>>,
@@ -462,7 +462,7 @@ impl CodergenBackend for AgentCodergenBackend {
     ) -> stencila_attractor::AttractorResult<CodergenOutput> {
         let agent_name = node
             .get_str_attr("agent")
-            .unwrap_or(stencila_agents::DEFAULT_AGENT_NAME);
+            .unwrap_or(stencila_agents::DEFAULT_WORKFLOW_AGENT_NAME);
 
         tracing::debug!(
             "Running agent `{agent_name}` for pipeline node `{}`",
