@@ -31,7 +31,7 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
 7. Create the directory `<closest-workspace>/.stencila/workflows/<name>/`
 8. Write `WORKFLOW.md` with:
    - YAML frontmatter containing at least `name` and `description`
-   - `goal` in frontmatter when the user provides a stable high-level objective; duplicate it in graph attributes only when required by execution semantics or existing project conventions
+   - `goal-hint` in frontmatter to hint what kind of goal the user should provide at run time; most workflows should include this because most workflows expect the user to supply their own goal. Use `goal` in frontmatter only when the workflow has a stable, fixed objective; duplicate it in graph attributes only when required by execution semantics or existing project conventions
    - `keywords` with domain-relevant terms and `when-to-use`/`when-not-to-use` entries to improve discoverability and delegation accuracy
    - A Markdown body whose first `dot` fenced code block contains the workflow pipeline
    - Optional surrounding Markdown documentation that explains the workflow to humans
@@ -98,7 +98,8 @@ The file has two parts:
 
 ### Optional frontmatter fields
 
-- `goal` — a high-level objective for the workflow; prefer this location for stable intent that prompts interpolate as `$goal`
+- `goal-hint` — hint text displayed across user interfaces (TUI, web, email, Slack, etc.) when the workflow is activated, guiding the user to provide a specific goal (e.g., "What kind of analysis do you want to perform?"). Most workflows should include this because most workflows expect the user to supply their own objective at run time. The user's response becomes `$goal` at runtime. This field is a UI hint and is never substituted into prompts directly
+- `goal` — a fixed high-level objective for the workflow; use only when the workflow has a stable, predetermined intent that prompts interpolate as `$goal`. Omit generic goals that merely restate the workflow's purpose (e.g., "Produce an acceptable X for the requested purpose") — they add no value and clutter the user interface with unhelpful pre-filled text
 - `keywords` — list of keywords or tags for discovery and routing; use terms that reflect the workflow's domain and purpose
 - `when-to-use` — list of positive selection signals describing when this workflow should be used; helps managers choose the right workflow
 - `when-not-to-use` — list of negative selection signals describing when this workflow should not be used
@@ -112,8 +113,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 
 - Put the executable pipeline in the first `dot` fenced code block in the Markdown body
 - Use a directed graph such as `digraph code_review { ... }`
-- Prefer frontmatter `goal` for the workflow objective when it is known and stable
-- Add a graph attribute like `graph [goal="..."]` only when required by execution semantics or to match an existing project style
+- Add a graph attributes in `graph [...]` only when required by execution semantics or to match an existing project style
 - Use node attributes such as `prompt`, `agent`, and `ask` where needed
 - When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` instead of embedding long escaped strings directly in DOT
 - Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
@@ -407,7 +407,8 @@ Note the difference from label routing: edge conditions (`condition="outcome=suc
 - Use inline `agent.*` dotted attributes only when the user explicitly wants node-specific overrides such as `agent.model`, `agent.provider`, or `agent.reasoning-effort`
 - Use `shape=human` for explicit human approval or review steps
 - Use workflow composition to encapsulate reusable or internally complex subprocesses, but prefer ordinary nodes when a stage is simple and local to one workflow
-- Put reusable high-level intent in frontmatter `goal` and refer to it in prompts with `$goal`
+- Most workflows should include `goal-hint` with a clear, actionable hint that guides the user to provide a specific goal; the user's response becomes `$goal` at runtime. This hint is shown across all user interfaces (TUI, web, email, Slack, etc.)
+- Use frontmatter `goal` only for workflows with a fixed, predetermined objective, and refer to it in prompts with `$goal`; omit `goal` when it would just be a generic restatement of the description — such goals provide no runtime value and clutter the user interface with unhelpful pre-filled text
 - Prefer frontmatter `goal` over repeating the same objective in both frontmatter and graph attributes
 - Prefer explicit edge labels for LLM-driven branching; the engine provides structured routing (via tool call or XML tag fallback) so the agent can signal its branch choice. Do not prompt agents to "reply with ONLY yes" for routing — use labeled edges instead
 - Use edge conditions (`condition="outcome=success"`) for deterministic routing based on handler status; use labeled edges without conditions for agent-driven decisions where the agent chooses the path
@@ -551,7 +552,7 @@ Validated with: `stencila workflows validate note-summary`
 - **Nested workspaces**: If multiple `.stencila/` directories exist in the ancestor chain, use the nearest one. Do not create a duplicate `.stencila/workflows/` tree.
 - **Empty or placeholder content**: Do not consider the workflow complete if any `TODO`, `<placeholder>`, or empty `description` remains in the final `WORKFLOW.md`.
 - **No DOT block**: A workflow without a DOT block may still be partially drafted, but it is incomplete for execution; add a valid first `dot` block before reporting completion unless the user explicitly asks for documentation only.
-- **Missing goal**: `goal` is optional. Omit it if the user has not provided a stable overarching objective.
+- **Missing goal**: `goal` is optional. Omit it if the user has not provided a stable overarching objective. When the workflow expects a user-supplied goal (the common case), include `goal-hint` with a clear hint so user interfaces can guide the user to provide one.
 - **Unknown agents**: If the workflow references agent names that may not exist, tell the user they need corresponding agents or remove the `agent` attributes in the initial scaffold.
 - **Overriding agent properties**: Use inline `agent.*` attributes sparingly; prefer reusable agent definitions unless the user clearly needs a node-specific override.
 - **Ephemeral status**: Do not add custom frontmatter like `ephemeral: true`; ephemeral workflows are identified solely by the `.gitignore` sentinel file containing `*`.

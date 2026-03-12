@@ -914,7 +914,19 @@
       "@id": "stencila:goal",
       "@type": "rdfs:Property",
       "rdfs:label": "goal",
-      "rdfs:comment": "The high-level goal for the pipeline.",
+      "rdfs:comment": "A fixed, predetermined high-level goal for the pipeline.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Workflow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:goalHint",
+      "@type": "rdfs:Property",
+      "rdfs:label": "goalHint",
+      "rdfs:comment": "Hint text displayed in user interfaces to guide the user to provide a specific goal.",
       "schema:domainIncludes": {
         "@id": "stencila:Workflow"
       },

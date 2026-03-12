@@ -240,6 +240,8 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 | ActiveWorkflowState::Cancelled
         ) {
             "Enter a new goal to re-run, or Ctrl+D to exit".to_string()
+        } else if let Some(ref ph) = workflow.info.goal_hint {
+            ph.clone()
         } else {
             format!("What's your goal for the {} workflow?", workflow.info.name)
         };

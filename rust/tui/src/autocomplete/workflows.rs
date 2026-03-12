@@ -1,11 +1,12 @@
 use std::ops::Range;
 
 /// Information about a discovered workflow definition.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct WorkflowDefinitionInfo {
     pub name: String,
     pub description: String,
     pub goal: Option<String>,
+    pub goal_hint: Option<String>,
 }
 
 /// A candidate in the workflow picker popup.
@@ -222,6 +223,7 @@ mod tests {
                     name: "code-review".to_string(),
                     description: "Review code changes".to_string(),
                     goal: Some("Review the latest PR".to_string()),
+                    ..Default::default()
                 },
             },
             WorkflowCandidate {
@@ -230,6 +232,7 @@ mod tests {
                     name: "deploy".to_string(),
                     description: "Deploy to production".to_string(),
                     goal: None,
+                    ..Default::default()
                 },
             },
             WorkflowCandidate {
@@ -238,6 +241,7 @@ mod tests {
                     name: "test-suite".to_string(),
                     description: "Run the test suite".to_string(),
                     goal: Some("Run all tests".to_string()),
+                    ..Default::default()
                 },
             },
         ]
@@ -312,7 +316,7 @@ mod tests {
             WorkflowDefinitionInfo {
                 name: "deploy".to_string(),
                 description: "Deploy to production".to_string(),
-                goal: None,
+                ..Default::default()
             }
         );
         assert!(!state.is_visible());

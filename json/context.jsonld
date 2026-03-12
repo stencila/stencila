@@ -325,6 +325,7 @@
     "genre": "schema:genre",
     "givenNames": "schema:givenName",
     "goal": "stencila:goal",
+    "goalHint": "stencila:goalHint",
     "headings": "stencila:headings",
     "hint": "stencila:hint",
     "historyThinkingReplay": "stencila:historyThinkingReplay",

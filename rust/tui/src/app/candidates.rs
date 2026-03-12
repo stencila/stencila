@@ -119,6 +119,7 @@ impl App {
                     name: def.name.clone(),
                     description: def.description.clone(),
                     goal: def.goal.clone(),
+                    goal_hint: def.goal_hint.clone(),
                 },
             })
             .collect()

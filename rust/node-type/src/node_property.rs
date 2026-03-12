@@ -133,6 +133,7 @@ pub enum NodeProperty {
     Genre,
     GivenNames,
     Goal,
+    GoalHint,
     Headings,
     Hint,
     HistoryThinkingReplay,

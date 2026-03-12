@@ -47,9 +47,14 @@ export class Workflow extends CreativeWork {
   pipeline?: string;
 
   /**
-   * The high-level goal for the pipeline.
+   * A fixed, predetermined high-level goal for the pipeline.
    */
   goal?: string;
+
+  /**
+   * Hint text displayed in user interfaces to guide the user to provide a specific goal.
+   */
+  goalHint?: string;
 
   /**
    * CSS-like rules for per-node agent overrides across the pipeline.

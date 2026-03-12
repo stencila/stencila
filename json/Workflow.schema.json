@@ -27,7 +27,8 @@
     "frontmatter",
     "content",
     "pipeline",
-    "goal"
+    "goal",
+    "goalHint"
   ],
   "properties": {
     "type": {
@@ -754,8 +755,18 @@
     },
     "goal": {
       "@id": "stencila:goal",
-      "description": "The high-level goal for the pipeline.",
-      "$comment": "Exposed as `$goal` in node prompt templates and mirrored into the run context as\n`graph.goal`. Maps to the `goal` graph-level attribute in the Attractor specification.\n",
+      "description": "A fixed, predetermined high-level goal for the pipeline.",
+      "$comment": "Use only when the workflow has a stable objective that does not change between runs.\nExposed as `$goal` in node prompt templates and mirrored into the run context as\n`graph.goal`. Maps to the `goal` graph-level attribute in the Attractor specification.\nMost workflows expect the user to supply their own goal at run time; for those\nworkflows, use `goalHint` instead.\n",
+      "type": "string"
+    },
+    "goalHint": {
+      "@id": "stencila:goalHint",
+      "description": "Hint text displayed in user interfaces to guide the user to provide a specific goal.",
+      "$comment": "Most workflows should include this because most workflows expect the user to supply\ntheir own objective at run time. The text is shown as a prompt or hint across user\ninterfaces (TUI, web, email, Slack, etc.) when the workflow is activated. The user's\nresponse becomes `$goal` at runtime. This field is a UI hint only and is never\nsubstituted into prompts directly.\n",
+      "aliases": [
+        "goal-hint",
+        "goal_hint"
+      ],
       "type": "string"
     },
     "overrides": {

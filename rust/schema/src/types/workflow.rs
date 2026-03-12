@@ -85,8 +85,12 @@ pub struct Workflow {
     /// The raw DOT source defining the pipeline digraph.
     pub pipeline: Option<String>,
 
-    /// The high-level goal for the pipeline.
+    /// A fixed, predetermined high-level goal for the pipeline.
     pub goal: Option<String>,
+
+    /// Hint text displayed in user interfaces to guide the user to provide a specific goal.
+    #[serde(alias = "goal-hint", alias = "goal_hint")]
+    pub goal_hint: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]

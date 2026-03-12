@@ -37,7 +37,8 @@ Review an existing Stencila workflow for quality, correctness, and completeness.
 - **name**: present, matches directory name, valid kebab-case (`^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$`)
 - **name convention**: the name should describe the workflow's end-to-end purpose using `thing-process` or `thing-process-approach`; flag names that overfit the exact graph shape or enumerate too many steps
 - **description**: present, concise, specific, and not placeholder text (`TODO`, `<placeholder>`)
-- **goal**: optional, but if present it should express a stable high-level objective and be meaningfully distinct from `description`
+- **goal-hint**: hint text displayed across user interfaces (TUI, web, email, Slack, etc.) when the workflow is activated, guiding the user to provide a specific goal. Most workflows should include this because most workflows expect the user to supply their own objective. If present, it should be a concise, actionable question (e.g., "What kind of data analysis do you want to perform?"). Flag hint text that is generic or unhelpful. If absent on a workflow that clearly expects user-supplied goals, recommend adding it
+- **goal**: optional, but if present it should express a stable, fixed objective and be meaningfully distinct from `description`. Flag generic goals that merely restate the workflow's purpose (e.g., "Produce an acceptable X for the requested purpose") — they provide no runtime value and clutter the user interface. Recommend replacing them with `goal-hint` or removing them entirely
 - **Optional fields**: `license`, `compatibility`, `metadata` — check for correctness if present (e.g., `compatibility` under 500 characters)
 - **Unknown fields**: flag frontmatter fields that do not match the workflow conventions in this workspace as warnings, especially custom fields that appear to duplicate executable configuration already represented in the DOT graph
 
@@ -85,7 +86,7 @@ When reviewing names, apply these conventions:
 - Specialized agent selection is justified by metadata rather than name alone: `description` should match the node's core task, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
 - Prompts are specific enough to guide each node's local task
 - When the workflow uses `prompt-ref`, `shell-ref`, `ask-ref`, or `interview-ref`, referenced ids exist in code blocks or code chunks in the same `WORKFLOW.md`, are unique, and are used where they improve readability, typically for long or multiline content rather than short single-line values
-- If frontmatter `goal` is present, prompts use `$goal` consistently where it improves reuse
+- If frontmatter `goal` is present, prompts use `$goal` consistently where it improves reuse. If `goal` is absent but prompts reference `$goal`, check whether the workflow uses `goal-hint` to collect the goal from the user at run time (the user-supplied text becomes `$goal` at runtime)
 - The workflow does not overuse node-specific `agent.*` overrides when a simple `agent` reference would do
 - The workflow does not overuse content refs for short single-line prompts or questions when inline DOT attributes would be clearer
 - When a workflow uses `interview-ref`, check that the referenced YAML block is valid interview spec YAML (has a `questions` array with at least one entry, each question has `question` text and a recognized `type`)

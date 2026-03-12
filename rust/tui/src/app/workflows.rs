@@ -22,6 +22,7 @@ impl App {
     pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
         self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
+        let has_hint = info.goal_hint.is_some();
         let default_goal = info.goal.clone();
         self.active_workflow = Some(ActiveWorkflow {
             is_ephemeral: crate::workflow::is_ephemeral_workflow(&info.name),
@@ -38,7 +39,11 @@ impl App {
             parallel_had_failure: false,
             pipeline_depth: 0,
         });
-        if let Some(goal) = default_goal {
+        // When a has_hint is set, leave the input empty so the
+        // placeholder text is shown instead of pre-filling with a generic goal.
+        if has_hint {
+            self.input.clear();
+        } else if let Some(goal) = default_goal {
             self.input.set_text(&goal);
         } else {
             self.input.clear();
@@ -638,8 +643,7 @@ mod tests {
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
+            ..Default::default()
         });
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
@@ -655,8 +659,7 @@ mod tests {
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
+            ..Default::default()
         });
 
         for c in "some text".chars() {
@@ -679,9 +682,26 @@ mod tests {
             name: "test-wf".to_string(),
             description: String::new(),
             goal: Some("Review the latest pull request".to_string()),
+            goal_hint: None,
         });
 
         assert_eq!(app.mode, AppMode::Workflow);
         assert_eq!(app.input.text(), "Review the latest pull request");
+    }
+
+    #[tokio::test]
+    async fn workflow_with_goal_placeholder_leaves_input_empty() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: Some("Generic pipeline goal".to_string()),
+            goal_hint: Some("What do you want to build?".to_string()),
+        });
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        // Input should be empty — the placeholder is shown as dimmed hint text,
+        // not pre-filled into the editable input.
+        assert!(app.input.is_empty());
     }
 }

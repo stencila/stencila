@@ -1,7 +1,7 @@
 ---
 name: skill-creation-iterative
 description: Create and iteratively refine a Stencila skill using the skill-creator and skill-reviewer agents, then continue through human review until accepted
-goal: Produce an acceptable Stencila skill definition for the requested purpose
+goal-hint: What kind of skill do you want to create?
 keywords:
   - skill
   - creation

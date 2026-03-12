@@ -215,8 +215,7 @@ mod tests {
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
+            ..Default::default()
         });
         // Manually set state to Running to simulate an active workflow
         if let Some(wf) = &mut app.active_workflow {

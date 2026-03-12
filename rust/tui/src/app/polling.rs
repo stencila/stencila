@@ -567,6 +567,7 @@ impl App {
                         name: wf.name.clone(),
                         description: wf.description.clone(),
                         goal: wf.goal.clone(),
+                        goal_hint: wf.goal_hint.clone(),
                     };
                     self.activate_workflow(info);
 
@@ -611,8 +612,8 @@ mod tests {
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
             goal: Some("goal".to_string()),
+            ..Default::default()
         });
         assert_eq!(app.mode, AppMode::Workflow);
 
@@ -665,8 +666,8 @@ mod tests {
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
             goal: Some("goal".to_string()),
+            ..Default::default()
         });
         assert_eq!(app.mode, AppMode::Workflow);
 

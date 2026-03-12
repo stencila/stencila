@@ -91,12 +91,18 @@ impl App {
 
         if self.mode == AppMode::Workflow {
             // Workflow goal submission: when in workflow mode and not yet running,
-            // empty input uses the default goal (if available).
+            // empty input uses the default goal (if available), but only when
+            // no goal_hint is set (a placeholder means the user should
+            // provide their own goal rather than accepting a generic default).
             if let Some(workflow) = &self.active_workflow
                 && workflow.run_handle.is_none()
             {
                 let goal = if text.trim().is_empty() {
-                    workflow.info.goal.clone()
+                    if workflow.info.goal_hint.is_some() {
+                        None
+                    } else {
+                        workflow.info.goal.clone()
+                    }
                 } else {
                     Some(text.clone())
                 };
@@ -542,8 +548,8 @@ mod tests {
         // Activate a workflow then detach back to agent mode
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
             goal: Some("goal".to_string()),
+            ..Default::default()
         });
         app.exit_workflow_mode();
         assert_eq!(app.mode, AppMode::Agent);
@@ -573,8 +579,7 @@ mod tests {
         let mut app = App::new_for_test().await;
         app.activate_workflow(WorkflowDefinitionInfo {
             name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
+            ..Default::default()
         });
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());

@@ -1,7 +1,7 @@
 ---
 name: software-design-iterative
 description: Create and iteratively refine a software design specification using the software-design-creator and software-design-reviewer agents, then continue through human review until accepted
-goal: Produce a software design specification for the requested purpose
+goal-hint: What feature or system do you want to design?
 keywords:
   - software-design
   - design-specification

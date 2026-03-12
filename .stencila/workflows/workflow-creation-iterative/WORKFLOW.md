@@ -1,7 +1,7 @@
 ---
 name: workflow-creation-iterative
 description: Create and iteratively refine a Stencila workflow using the workflow-creator and workflow-reviewer agents, route approved drafts through human review, and loop on requested revisions
-goal: Produce an acceptable Stencila workflow definition for the requested purpose
+goal-hint: What kind of workflow do you want to create?
 keywords:
   - workflow
   - creation

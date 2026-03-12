@@ -3505,7 +3505,10 @@ class Workflow(CreativeWork):
     """The raw DOT source defining the pipeline digraph."""
 
     goal: str | None = None
-    """The high-level goal for the pipeline."""
+    """A fixed, predetermined high-level goal for the pipeline."""
+
+    goal_hint: str | None = None
+    """Hint text displayed in user interfaces to guide the user to provide a specific goal."""
 
     overrides: str | None = None
     """CSS-like rules for per-node agent overrides across the pipeline."""
