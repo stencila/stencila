@@ -1059,3 +1059,224 @@ async fn wait_human_unknown_question_type_falls_back_to_choice() -> AttractorRes
     assert!(outcome.context_updates.get("human.gate.selected").is_some());
     Ok(())
 }
+
+// ===========================================================================
+// Interview-spec routing: option key ↔ edge key mismatch regression tests
+// ===========================================================================
+
+/// Build a graph with a human gate node carrying an `interview` YAML spec
+/// and outgoing edges with the given labels.
+fn interview_spec_graph(spec_yaml: &str, edges: &[(&str, &str)]) -> Graph {
+    let mut g = Graph::new("test");
+
+    let mut gate = Node::new("gate");
+    gate.attrs
+        .insert("shape".into(), AttrValue::from("hexagon"));
+    gate.attrs
+        .insert("interview".into(), AttrValue::from(spec_yaml));
+    g.add_node(gate);
+
+    for &(target, label) in edges {
+        g.add_node(Node::new(target));
+        let mut edge = Edge::new("gate", target);
+        edge.attrs.insert("label".into(), AttrValue::from(label));
+        g.add_edge(edge);
+    }
+
+    g
+}
+
+/// Regression: selecting the second option ("Revise", key B) must route
+/// correctly even though the edge-derived key is "R" (first letter of
+/// "Revise"), not "B".
+#[tokio::test]
+async fn interview_spec_routes_second_option_by_label_fallback() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+"#;
+    // Edge labels produce keys A (Accept) and R (Revise).
+    // The interview spec auto-assigns keys A and B.
+    // Selecting "Revise" yields Selected("B") — must still route to "create".
+    let g = interview_spec_graph(spec, &[("end", "Accept"), ("create", "Revise")]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Selected("B".into()),
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"create".to_string()));
+    let stored = outcome
+        .context_updates
+        .get("human.decision")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("Revise"));
+    Ok(())
+}
+
+/// Selecting the first option still works when keys happen to match (A = A).
+#[tokio::test]
+async fn interview_spec_routes_first_option_by_direct_key_match() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+"#;
+    let g = interview_spec_graph(spec, &[("end", "Accept"), ("create", "Revise")]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Selected("A".into()),
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"end".to_string()));
+    let stored = outcome
+        .context_updates
+        .get("human.decision")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("Accept"));
+    Ok(())
+}
+
+/// Conditional interview (finish-if) with second-option selection still
+/// routes correctly — mirrors the real workflow pattern with Accept/Revise.
+#[tokio::test]
+async fn interview_spec_conditional_routes_second_option() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+    finish-if: Accept
+  - question: What should change?
+    type: freeform
+    store: human.feedback
+"#;
+    let g = interview_spec_graph(spec, &[("end", "Accept"), ("create", "Revise")]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    // User picks "Revise" (key B), then enters feedback.
+    let interviewer = Arc::new(QueueInterviewer::new(vec![
+        Answer::new(AnswerValue::Selected("B".into())),
+        Answer::new(AnswerValue::Text("Needs better error handling".into())),
+    ]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"create".to_string()));
+    let decision = outcome
+        .context_updates
+        .get("human.decision")
+        .and_then(|v| v.as_str());
+    assert_eq!(decision, Some("Revise"));
+    let feedback = outcome
+        .context_updates
+        .get("human.feedback")
+        .and_then(|v| v.as_str());
+    assert_eq!(feedback, Some("Needs better error handling"));
+    Ok(())
+}
+
+/// Conditional interview where finish-if triggers (Accept) — interview
+/// ends after the first question and routes to the Accept edge.
+#[tokio::test]
+async fn interview_spec_conditional_finish_if_routes_first_option() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+    finish-if: Accept
+  - question: What should change?
+    type: freeform
+    store: human.feedback
+"#;
+    let g = interview_spec_graph(spec, &[("end", "Accept"), ("create", "Revise")]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    // User picks "Accept" (key A) — finish-if triggers, feedback question skipped.
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Selected("A".into()),
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"end".to_string()));
+    let decision = outcome
+        .context_updates
+        .get("human.decision")
+        .and_then(|v| v.as_str());
+    assert_eq!(decision, Some("Accept"));
+    // Feedback should not be stored since the interview ended early.
+    assert!(outcome.context_updates.get("human.feedback").is_none());
+    Ok(())
+}
+
+/// Label fallback works when edge labels use accelerator syntax like
+/// `[Y] Approve` — the key is "Y" but the option label "Approve"
+/// should still match the choice label "Approve".
+#[tokio::test]
+async fn interview_spec_routes_via_label_when_edge_has_accelerator() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Pick action
+    type: single-select
+    options:
+      - label: Approve
+      - label: Rollback
+    store: human.action
+"#;
+    // Edge accelerators: [Y] Approve → key "Y", [N] Rollback → key "N".
+    // Spec auto-assigns keys A and B.
+    let g = interview_spec_graph(spec, &[("deploy", "[Y] Approve"), ("undo", "[N] Rollback")]);
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+
+    // Select "Rollback" (spec key B, edge key N) — label fallback needed.
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Selected("B".into()),
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"undo".to_string()));
+    let stored = outcome
+        .context_updates
+        .get("human.action")
+        .and_then(|v| v.as_str());
+    assert_eq!(stored, Some("Rollback"));
+    Ok(())
+}

@@ -232,6 +232,7 @@ impl WaitForHumanHandler {
         //    For non-conditional specs, spec index == interview index.
         let mut context_updates = IndexMap::new();
         let mut routing_answer: Option<Answer> = None;
+        let mut routing_question_options: Vec<QuestionOption> = Vec::new();
 
         for (i, question) in interview.questions.iter().enumerate() {
             let answer = interview.answers.get(i).cloned().ok_or_else(|| {
@@ -261,6 +262,7 @@ impl WaitForHumanHandler {
             // Track the first single-select question's answer for routing
             if routing_answer.is_none() && question.r#type == QuestionType::SingleSelect {
                 routing_answer = Some(answer);
+                routing_question_options.clone_from(&question.options);
             }
         }
 
@@ -302,7 +304,9 @@ impl WaitForHumanHandler {
             }
 
             // Choice-based routing using first single-select answer
-            let Some(selected) = find_matching_choice(&routing_ans, &choices) else {
+            let Some(selected) =
+                find_matching_choice(&routing_ans, &choices, &routing_question_options)
+            else {
                 return Ok(Outcome::fail("answer did not match any available choice"));
             };
 
@@ -379,6 +383,7 @@ impl WaitForHumanHandler {
         // Store answers using spec_indices for correct mapping
         let mut context_updates = IndexMap::new();
         let mut routing_answer: Option<Answer> = None;
+        let mut routing_question_options: Vec<QuestionOption> = Vec::new();
 
         for (i, question) in interview.questions.iter().enumerate() {
             let answer = interview.answers.get(i).cloned().ok_or_else(|| {
@@ -420,6 +425,7 @@ impl WaitForHumanHandler {
 
             if routing_answer.is_none() && question.r#type == QuestionType::SingleSelect {
                 routing_answer = Some(answer);
+                routing_question_options.clone_from(&question.options);
             }
         }
 
@@ -459,7 +465,9 @@ impl WaitForHumanHandler {
                 return Ok(Outcome::fail("human skipped interaction"));
             }
 
-            let Some(selected) = find_matching_choice(&routing_ans, &choices) else {
+            let Some(selected) =
+                find_matching_choice(&routing_ans, &choices, &routing_question_options)
+            else {
                 return Ok(Outcome::fail("answer did not match any available choice"));
             };
 
@@ -764,7 +772,7 @@ impl Handler for WaitForHumanHandler {
         // 5. Build outcome based on question type
         if is_choice_based {
             // Choice-based: find matching choice for routing
-            let Some(selected) = find_matching_choice(&answer, &choices) else {
+            let Some(selected) = find_matching_choice(&answer, &choices, &question.options) else {
                 return Ok(Outcome::fail("answer did not match any available choice"));
             };
 
@@ -847,16 +855,49 @@ fn find_choice_by_str<'a>(text: &str, choices: &'a [Choice]) -> Option<&'a Choic
 /// Find the choice matching an answer.
 ///
 /// Matching strategy (deviation from §4.6 pseudocode):
-/// - `Selected(key)` → exact key match
+/// - `Selected(key)` → case-insensitive key match against edge-derived
+///   choice keys, then label-based fallback: resolve the selected key to
+///   its option label (via `answer.selected_option` or `question_options`)
+///   and match that label against edge choice labels
 /// - `Text(text)` → case-insensitive match by key, then by label
 /// - `Yes` → first choice (convenience for single-choice gates)
 /// - All other variants → no match (returns `None`)
 ///
-/// The spec pseudocode matches only by key. We extend with label
-/// matching to improve UX when humans type full labels.
-fn find_matching_choice<'a>(answer: &Answer, choices: &'a [Choice]) -> Option<&'a Choice> {
+/// The label-based fallback for `Selected` answers handles the case where
+/// interview-spec option keys (auto-assigned A, B, C…) differ from
+/// edge-derived keys (first letter of each label). The spec pseudocode
+/// matches only by key; we extend with label matching to improve UX when
+/// humans type full labels.
+fn find_matching_choice<'a>(
+    answer: &Answer,
+    choices: &'a [Choice],
+    question_options: &[QuestionOption],
+) -> Option<&'a Choice> {
     match &answer.value {
-        AnswerValue::Selected(key) => choices.iter().find(|c| c.key.eq_ignore_ascii_case(key)),
+        AnswerValue::Selected(key) => {
+            // Try matching the selected key directly against edge-derived keys.
+            choices
+                .iter()
+                .find(|c| c.key.eq_ignore_ascii_case(key))
+                .or_else(|| {
+                    // When the question comes from an interview spec, its
+                    // auto-assigned option keys (A, B, C…) may differ from
+                    // the edge-derived keys (first letter of each label).
+                    // Resolve the selected key to the option label, then
+                    // match that label against edge labels.
+                    let label = answer
+                        .selected_option
+                        .as_ref()
+                        .map(|o| o.label.as_str())
+                        .or_else(|| {
+                            question_options
+                                .iter()
+                                .find(|o| o.key.eq_ignore_ascii_case(key))
+                                .map(|o| o.label.as_str())
+                        })?;
+                    choices.iter().find(|c| c.label.eq_ignore_ascii_case(label))
+                })
+        }
         AnswerValue::Text(text) => {
             // Try matching by key first, then by label
             choices
