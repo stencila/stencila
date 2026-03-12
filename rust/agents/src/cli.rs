@@ -271,8 +271,9 @@ impl List {
 
         for agent in list {
             let source_cell = match agent.source() {
-                Some(AgentSource::Workspace) => Cell::new("workspace").fg(Color::Blue),
+                Some(AgentSource::Workspace) => Cell::new("workspace").fg(Color::Magenta),
                 Some(AgentSource::User) => Cell::new("user").fg(Color::Green),
+                Some(AgentSource::Builtin) => Cell::new("builtin").fg(Color::Blue),
                 Some(AgentSource::CliDetected) => Cell::new("cli").fg(Color::Cyan),
                 None => Cell::new("-").fg(Color::DarkGrey),
             };

@@ -24,6 +24,7 @@ indexmap = { workspace = true }
 jsonschema = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
+rust-embed = { workspace = true }
 schemars = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }

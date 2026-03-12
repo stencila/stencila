@@ -3,11 +3,13 @@ use std::path::{Path, PathBuf};
 
 use eyre::{OptionExt, Result, bail};
 use glob::glob;
+use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use tokio::fs::read_to_string;
 
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Node, NodeType, Skill};
+use stencila_version::STENCILA_VERSION;
 
 #[cfg(feature = "cli")]
 pub mod cli;
@@ -183,10 +185,20 @@ pub(crate) async fn closest_skills_dir(cwd: &Path, ensure: bool) -> Result<PathB
 
 /// Discover skills from multiple source directories with dedup (last wins).
 ///
-/// Walks from `cwd` upward for each source, collecting skills. When the same
-/// skill name appears in multiple sources, the later source wins.
+/// Skills are discovered from (lowest to highest precedence):
+/// 1. Builtin skills embedded in the binary
+/// 2. Workspace and provider-specific dot-directories
+///
+/// When the same skill name appears in multiple sources, the later source wins.
 pub async fn discover(cwd: &Path, sources: &[SkillSource]) -> Vec<SkillInstance> {
     let mut by_name: HashMap<String, SkillInstance> = HashMap::new();
+
+    // Builtin skills first (lowest precedence)
+    for skill in list_builtin().await {
+        by_name.insert(skill.name.clone(), skill);
+    }
+
+    // Workspace and provider sources (overwrite builtins)
     for &source in sources {
         if let Some(dot_dir) = stencila_dirs::closest_dot_dir(cwd, source.dir_name()) {
             let skills_dir = dot_dir.join(SKILLS_SUBDIR);
@@ -200,9 +212,16 @@ pub async fn discover(cwd: &Path, sources: &[SkillSource]) -> Vec<SkillInstance>
     skills
 }
 
-/// Find a skill by name across multiple sources (last wins).
+/// Find a skill by name across builtin and workspace sources (last wins).
 pub async fn get_from(cwd: &Path, name: &str, sources: &[SkillSource]) -> Result<SkillInstance> {
     let mut found: Option<SkillInstance> = None;
+
+    // Check builtins first (lowest precedence)
+    if let Some(skill) = list_builtin().await.into_iter().find(|s| s.name == name) {
+        found = Some(skill);
+    }
+
+    // Check workspace and provider sources (overwrite builtins)
     for &source in sources {
         if let Some(dot_dir) = stencila_dirs::closest_dot_dir(cwd, source.dir_name()) {
             let skills_dir = dot_dir.join(SKILLS_SUBDIR);
@@ -300,6 +319,54 @@ async fn load_skill(path: &Path) -> Result<SkillInstance> {
     }
 }
 
+/// Builtin skills embedded from the repo's `.stencila/skills/` directory.
+///
+/// During development these are loaded directly from the source directory
+/// but are embedded into the binary on release builds.
+#[derive(RustEmbed)]
+#[folder = "$CARGO_MANIFEST_DIR/../../.stencila/skills"]
+#[exclude = "test-*"]
+struct BuiltinSkills;
+
+/// List the builtin skills.
+///
+/// Writes embedded files to a cache directory and loads them using the
+/// standard `list_dir` logic so that file-based operations (e.g. loading
+/// skill content from disk) work correctly.
+pub async fn list_builtin() -> Vec<SkillInstance> {
+    // In debug mode, load directly from the repo
+    if cfg!(debug_assertions) {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.stencila/skills");
+        return list(&dir).await;
+    }
+
+    match initialize_builtin().await {
+        Ok(dir) => list(&dir).await,
+        Err(error) => {
+            tracing::error!("While initializing builtin skills: {error}");
+            Vec::new()
+        }
+    }
+}
+
+/// Initialize the builtin skills directory by writing embedded files to disk.
+async fn initialize_builtin() -> Result<PathBuf> {
+    let dir = stencila_dirs::get_versioned_app_dir(
+        stencila_dirs::DirType::BuiltinSkills,
+        STENCILA_VERSION,
+        cfg!(debug_assertions),
+        true,
+    )?;
+
+    let files = BuiltinSkills::iter().filter_map(|filename| {
+        BuiltinSkills::get(&filename)
+            .map(|file| (PathBuf::from(filename.as_ref()), file.data.to_vec()))
+    });
+    stencila_dirs::ensure_embedded_dir(&dir, files)?;
+
+    Ok(dir)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -369,13 +436,12 @@ mod tests {
 
         let skills = discover(tmp.path(), &[SkillSource::Stencila, SkillSource::Claude]).await;
 
-        assert_eq!(skills.len(), 1);
-        assert_eq!(skills[0].name, "shared");
+        let shared = skills.iter().find(|s| s.name == "shared").expect("found");
         assert_eq!(
-            skills[0].inner.description, "from claude",
+            shared.inner.description, "from claude",
             "claude source should override stencila"
         );
-        assert_eq!(skills[0].source(), Some(SkillSource::Claude));
+        assert_eq!(shared.source(), Some(SkillSource::Claude));
     }
 
     #[tokio::test]
@@ -386,19 +452,18 @@ mod tests {
 
         let skills = discover(tmp.path(), &[SkillSource::Stencila, SkillSource::Claude]).await;
 
-        assert_eq!(skills.len(), 2);
-        // Sorted alphabetically
-        assert_eq!(skills[0].name, "alpha");
-        assert_eq!(skills[0].source(), Some(SkillSource::Stencila));
-        assert_eq!(skills[1].name, "beta");
-        assert_eq!(skills[1].source(), Some(SkillSource::Claude));
+        let alpha = skills.iter().find(|s| s.name == "alpha").expect("alpha");
+        assert_eq!(alpha.source(), Some(SkillSource::Stencila));
+        let beta = skills.iter().find(|s| s.name == "beta").expect("beta");
+        assert_eq!(beta.source(), Some(SkillSource::Claude));
     }
 
     #[tokio::test]
-    async fn discover_empty_when_no_sources_exist() {
+    async fn discover_includes_builtins_when_no_local_sources_exist() {
         let tmp = tempfile::tempdir().expect("tempdir");
         let skills = discover(tmp.path(), &SkillSource::all()).await;
-        assert!(skills.is_empty());
+        // Should include builtin skills even when no workspace sources exist
+        assert!(!skills.is_empty(), "should include builtin skills");
     }
 
     // -- get_from() tests --

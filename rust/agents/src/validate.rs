@@ -412,6 +412,7 @@ mod tests {
 
             let mut agent = Agent::new("A test agent".into(), "test".into());
             agent.allowed_tools = Some(vec!["Read".into(), "Write".into(), "Bash".into()]);
+            agent.allowed_skills = Some(vec!["my-skill".into()]);
 
             let warnings = validate_agent_skills(&agent, tmp.path()).await;
 
@@ -426,6 +427,7 @@ mod tests {
 
             let mut agent = Agent::new("A test agent".into(), "test".into());
             agent.allowed_tools = Some(vec!["Read".into()]);
+            agent.allowed_skills = Some(vec!["my-skill".into()]);
 
             let warnings = validate_agent_skills(&agent, tmp.path()).await;
 
@@ -446,6 +448,7 @@ mod tests {
 
             let mut agent = Agent::new("A test agent".into(), "test".into());
             agent.allowed_tools = Some(vec!["Read".into()]);
+            agent.allowed_skills = Some(vec!["alpha".into(), "beta".into()]);
 
             let warnings = validate_agent_skills(&agent, tmp.path()).await;
 
@@ -489,6 +492,7 @@ mod tests {
 
             let mut agent = Agent::new("A test agent".into(), "test".into());
             agent.allowed_tools = Some(vec!["Read".into()]);
+            agent.allowed_skills = Some(vec!["my-skill".into()]);
 
             let warnings = validate_agent_skills(&agent, tmp.path()).await;
 
@@ -502,6 +506,8 @@ mod tests {
 
             let mut agent = Agent::new("A test agent".into(), "test".into());
             agent.allowed_tools = Some(vec!["Read".into()]);
+            // Restrict to a non-existent skill name so builtins are excluded
+            agent.allowed_skills = Some(vec!["nonexistent-test-skill".into()]);
 
             let warnings = validate_agent_skills(&agent, tmp.path()).await;
 

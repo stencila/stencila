@@ -10,6 +10,7 @@ cli = ["clap", "stencila-cli-utils"]
 eyre = { workspace = true }
 glob = { workspace = true }
 regex = { workspace = true }
+rust-embed = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -20,6 +21,7 @@ stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-schema = { path = "../schema" }
+stencila-version = { path = "../version" }
 
 # Optional CLI dependencies
 clap = { workspace = true, optional = true }

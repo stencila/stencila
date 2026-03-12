@@ -13,16 +13,18 @@ use std::path::{Path, PathBuf};
 
 use eyre::{Result, bail};
 use glob::glob;
+use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use tokio::fs::read_to_string;
 
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Agent, Node, NodeType};
+use stencila_version::STENCILA_VERSION;
 
 /// Where an agent was discovered from.
 ///
 /// Variant order determines sort priority: workspace agents sort first,
-/// then user, then CLI-detected.
+/// then user, then builtin, then CLI-detected.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 pub enum AgentSource {
@@ -30,6 +32,8 @@ pub enum AgentSource {
     Workspace,
     /// `~/.config/stencila/agents/` (user-level)
     User,
+    /// Embedded in the binary
+    Builtin,
     /// Auto-detected from a CLI tool found on PATH
     #[cfg_attr(feature = "cli", clap(name = "cli"))]
     CliDetected,
@@ -40,6 +44,7 @@ impl std::fmt::Display for AgentSource {
         match self {
             Self::Workspace => f.write_str("workspace"),
             Self::User => f.write_str("user"),
+            Self::Builtin => f.write_str("builtin"),
             Self::CliDetected => f.write_str("cli"),
         }
     }
@@ -235,8 +240,9 @@ fn detect_cli_agents() -> Vec<AgentInstance> {
 ///
 /// Agents are discovered from (lowest to highest precedence):
 /// 1. CLI tools detected on PATH (`claude`, `codex`, `gemini`)
-/// 2. User config `~/.config/stencila/agents/`
-/// 3. Workspace `.stencila/agents/` (via closest `.stencila` dir)
+/// 2. Builtin agents embedded in the binary
+/// 3. User config `~/.config/stencila/agents/`
+/// 4. Workspace `.stencila/agents/` (via closest `.stencila` dir)
 ///
 /// When the same agent name appears in multiple locations, the higher-precedence
 /// version wins.
@@ -249,14 +255,19 @@ pub async fn discover(cwd: &Path) -> Vec<AgentInstance> {
         by_name.insert(agent.name.clone(), agent);
     }
 
-    // User agents second (overwrites CLI-detected)
+    // Builtin agents second (overwrites CLI-detected)
+    for agent in list_builtin().await {
+        by_name.insert(agent.name.clone(), agent);
+    }
+
+    // User agents third (overwrites builtins and CLI-detected)
     if let Some(user_dir) = user_agents_dir() {
         for agent in list(&user_dir).await {
             by_name.insert(agent.name.clone(), agent.with_source(AgentSource::User));
         }
     }
 
-    // Workspace agents last (highest precedence, overwrites user and CLI)
+    // Workspace agents last (highest precedence, overwrites all others)
     if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
         let agents_dir = stencila_dir.join("agents");
         for agent in list(&agents_dir).await {
@@ -272,7 +283,7 @@ pub async fn discover(cwd: &Path) -> Vec<AgentInstance> {
     agents
 }
 
-/// Find an agent by name across CLI-detected, user config, and workspace agents.
+/// Find an agent by name across CLI-detected, builtin, user config, and workspace agents.
 pub async fn get_by_name(cwd: &Path, name: &str) -> Result<AgentInstance> {
     let mut found: Option<AgentInstance> = None;
 
@@ -281,14 +292,19 @@ pub async fn get_by_name(cwd: &Path, name: &str) -> Result<AgentInstance> {
         found = Some(agent);
     }
 
-    // Check user agents (overwrites CLI-detected if found)
+    // Check builtin agents (overwrites CLI-detected if found)
+    if let Some(agent) = list_builtin().await.into_iter().find(|a| a.name == name) {
+        found = Some(agent);
+    }
+
+    // Check user agents (overwrites builtins and CLI-detected if found)
     if let Some(user_dir) = user_agents_dir()
         && let Ok(agent) = get(&user_dir, name).await
     {
         found = Some(agent.with_source(AgentSource::User));
     }
 
-    // Check workspace agents (highest precedence, overwrites user if found)
+    // Check workspace agents (highest precedence, overwrites all others)
     if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
         let agents_dir = stencila_dir.join("agents");
         if let Ok(agent) = get(&agents_dir, name).await {
@@ -343,6 +359,62 @@ async fn list_dir(agents_dir: &Path) -> Result<Vec<AgentInstance>> {
     }
 
     Ok(agents)
+}
+
+/// Builtin agents embedded from the repo's `.stencila/agents/` directory.
+///
+/// During development these are loaded directly from the source directory
+/// but are embedded into the binary on release builds.
+#[derive(RustEmbed)]
+#[folder = "$CARGO_MANIFEST_DIR/../../.stencila/agents"]
+#[exclude = "test-*"]
+struct BuiltinAgents;
+
+/// List the builtin agents.
+///
+/// Writes embedded files to a cache directory and loads them using the
+/// standard `list_dir` logic so that file-based operations (e.g. reading
+/// instructions from the AGENT.md body) work correctly.
+pub async fn list_builtin() -> Vec<AgentInstance> {
+    // In debug mode, load directly from the repo
+    if cfg!(debug_assertions) {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.stencila/agents");
+        return list(&dir)
+            .await
+            .into_iter()
+            .map(|a| a.with_source(AgentSource::Builtin))
+            .collect();
+    }
+
+    match initialize_builtin().await {
+        Ok(dir) => list(&dir)
+            .await
+            .into_iter()
+            .map(|a| a.with_source(AgentSource::Builtin))
+            .collect(),
+        Err(error) => {
+            tracing::error!("While initializing builtin agents: {error}");
+            Vec::new()
+        }
+    }
+}
+
+/// Initialize the builtin agents directory by writing embedded files to disk.
+async fn initialize_builtin() -> Result<PathBuf> {
+    let dir = stencila_dirs::get_versioned_app_dir(
+        stencila_dirs::DirType::BuiltinAgents,
+        STENCILA_VERSION,
+        cfg!(debug_assertions),
+        true,
+    )?;
+
+    let files = BuiltinAgents::iter().filter_map(|filename| {
+        BuiltinAgents::get(&filename)
+            .map(|file| (PathBuf::from(filename.as_ref()), file.data.to_vec()))
+    });
+    stencila_dirs::ensure_embedded_dir(&dir, files)?;
+
+    Ok(dir)
 }
 
 /// Load a single agent from an AGENT.md path
@@ -406,12 +478,11 @@ mod tests {
     async fn discover_no_workspace_or_user_agents() {
         let tmp = tempfile::tempdir().expect("tempdir");
         let agents = discover(tmp.path()).await;
-        // Only CLI-detected agents (if any CLIs are on PATH)
-        assert!(
-            agents
-                .iter()
-                .all(|a| a.source() == Some(AgentSource::CliDetected))
-        );
+        // Should contain builtin and/or CLI-detected agents
+        assert!(agents.iter().all(|a| matches!(
+            a.source(),
+            Some(AgentSource::CliDetected) | Some(AgentSource::Builtin)
+        )));
     }
 
     #[tokio::test]

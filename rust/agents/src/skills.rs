@@ -206,7 +206,7 @@ mod tests {
     // -- discover_and_register_skills tests --
 
     #[tokio::test]
-    async fn discover_empty_when_no_skills_dir() {
+    async fn discover_includes_builtins_when_no_skills_dir() {
         let tmp = tempfile::tempdir().expect("tempdir");
         let mut profile = OpenAiProfile::new("gpt-5.2-codex", 600_000).expect("profile");
 
@@ -214,13 +214,14 @@ mod tests {
             discover_and_register_skills(&mut profile, tmp.path().to_str().expect("path"), None)
                 .await;
 
+        // Builtin skills are always available
         assert!(
-            result.metadata.is_empty(),
-            "should return empty string with no skills dir"
+            result.metadata.contains("<skills>"),
+            "should include builtin skills metadata"
         );
         assert!(
-            profile.tool_registry().get(TOOL_USE_SKILL).is_none(),
-            "use_skill should not be registered when no skills found"
+            profile.tool_registry().get(TOOL_USE_SKILL).is_some(),
+            "use_skill should be registered when builtin skills are available"
         );
     }
 

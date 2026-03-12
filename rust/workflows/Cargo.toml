@@ -13,6 +13,7 @@ eyre = { workspace = true }
 glob = { workspace = true }
 indexmap = { workspace = true }
 regex = { workspace = true }
+rust-embed = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
@@ -26,6 +27,7 @@ stencila-db = { path = "../db" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-schema = { path = "../schema" }
+stencila-version = { path = "../version" }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

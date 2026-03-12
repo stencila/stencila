@@ -9,23 +9,28 @@ use std::path::{Path, PathBuf};
 
 use eyre::{Result, bail};
 use glob::glob;
+use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use tokio::fs::read_to_string;
 
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Block, Node, NodeType, Workflow};
+use stencila_version::STENCILA_VERSION;
 
 /// Where a workflow was discovered from.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, clap::ValueEnum)]
 pub enum WorkflowSource {
     /// `.stencila/workflows/` in the workspace
     Workspace,
+    /// Embedded in the binary
+    Builtin,
 }
 
 impl std::fmt::Display for WorkflowSource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Workspace => f.write_str("workspace"),
+            Self::Builtin => f.write_str("builtin"),
         }
     }
 }
@@ -236,25 +241,58 @@ pub(crate) async fn closest_workflows_dir(cwd: &Path, ensure: bool) -> Result<Pa
     stencila_dirs::stencila_workflows_dir(&stencila_dir, ensure).await
 }
 
-/// Discover workflows from the workspace.
+/// Discover workflows from builtin and workspace sources.
 ///
-/// Workflows are discovered from `.stencila/workflows/*/WORKFLOW.md`.
+/// Workflows are discovered from (lowest to highest precedence):
+/// 1. Builtin workflows embedded in the binary
+/// 2. Workspace `.stencila/workflows/*/WORKFLOW.md`
+///
+/// When the same workflow name appears in both sources, the workspace
+/// version wins.
 pub async fn discover(cwd: &Path) -> Vec<WorkflowInstance> {
+    let mut by_name: std::collections::HashMap<String, WorkflowInstance> =
+        std::collections::HashMap::new();
+
+    // Builtin workflows first (lowest precedence)
+    for wf in list_builtin().await {
+        by_name.insert(wf.name.clone(), wf);
+    }
+
+    // Workspace workflows (highest precedence, overwrites builtins)
     if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
         let workflows_dir = stencila_dir.join("workflows");
-        list(&workflows_dir).await
-    } else {
-        Vec::new()
+        for wf in list(&workflows_dir).await {
+            by_name.insert(wf.name.clone(), wf);
+        }
     }
+
+    let mut workflows: Vec<WorkflowInstance> = by_name.into_values().collect();
+    workflows.sort_by(|a, b| a.name.cmp(&b.name));
+    workflows
 }
 
-/// Find a workflow by name.
+/// Find a workflow by name across builtin and workspace sources.
 pub async fn get_by_name(cwd: &Path, name: &str) -> Result<WorkflowInstance> {
-    let workflows = discover(cwd).await;
-    workflows
-        .into_iter()
-        .find(|wf| wf.name == name)
-        .ok_or_else(|| eyre::eyre!("Unable to find workflow with name `{name}`"))
+    let mut found: Option<WorkflowInstance> = None;
+
+    // Check builtins first (lowest precedence)
+    if let Some(wf) = list_builtin().await.into_iter().find(|wf| wf.name == name) {
+        found = Some(wf);
+    }
+
+    // Check workspace (highest precedence, overwrites builtin)
+    if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
+        let workflows_dir = stencila_dir.join("workflows");
+        if let Some(wf) = list(&workflows_dir)
+            .await
+            .into_iter()
+            .find(|wf| wf.name == name)
+        {
+            found = Some(wf);
+        }
+    }
+
+    found.ok_or_else(|| eyre::eyre!("Unable to find workflow with name `{name}`"))
 }
 
 /// List all workflows found in a workflows directory
@@ -298,6 +336,63 @@ async fn list_dir(workflows_dir: &Path) -> Result<Vec<WorkflowInstance>> {
     }
 
     Ok(workflows)
+}
+
+/// Builtin workflows embedded from the repo's `.stencila/workflows/` directory.
+///
+/// Test workflows (prefixed with `test-`) are excluded from the binary.
+/// During development these are loaded directly from the source directory
+/// but are embedded into the binary on release builds.
+#[derive(RustEmbed)]
+#[folder = "$CARGO_MANIFEST_DIR/../../.stencila/workflows"]
+#[exclude = "test-*"]
+struct BuiltinWorkflows;
+
+/// List the builtin workflows.
+///
+/// Writes embedded files to a cache directory and loads them using the
+/// standard `list_dir` logic so that file-based operations work correctly.
+pub async fn list_builtin() -> Vec<WorkflowInstance> {
+    // In debug mode, load directly from the repo (excluding test- prefixed)
+    if cfg!(debug_assertions) {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.stencila/workflows");
+        return list(&dir)
+            .await
+            .into_iter()
+            .filter(|wf| !wf.name.starts_with("test-"))
+            .map(|wf| wf.with_source(WorkflowSource::Builtin))
+            .collect();
+    }
+
+    match initialize_builtin().await {
+        Ok(dir) => list(&dir)
+            .await
+            .into_iter()
+            .map(|wf| wf.with_source(WorkflowSource::Builtin))
+            .collect(),
+        Err(error) => {
+            tracing::error!("While initializing builtin workflows: {error}");
+            Vec::new()
+        }
+    }
+}
+
+/// Initialize the builtin workflows directory by writing embedded files to disk.
+async fn initialize_builtin() -> Result<PathBuf> {
+    let dir = stencila_dirs::get_versioned_app_dir(
+        stencila_dirs::DirType::BuiltinWorkflows,
+        STENCILA_VERSION,
+        cfg!(debug_assertions),
+        true,
+    )?;
+
+    let files = BuiltinWorkflows::iter().filter_map(|filename| {
+        BuiltinWorkflows::get(&filename)
+            .map(|file| (PathBuf::from(filename.as_ref()), file.data.to_vec()))
+    });
+    stencila_dirs::ensure_embedded_dir(&dir, files)?;
+
+    Ok(dir)
 }
 
 /// Load a single workflow from a WORKFLOW.md path.
@@ -421,16 +516,32 @@ mod tests {
 
         let workflows = discover(tmp.path()).await;
 
-        assert_eq!(workflows.len(), 2);
-        assert_eq!(workflows[0].name, "alpha-wf");
-        assert_eq!(workflows[1].name, "beta-wf");
+        let alpha = workflows.iter().find(|wf| wf.name == "alpha-wf");
+        let beta = workflows.iter().find(|wf| wf.name == "beta-wf");
+        assert!(alpha.is_some(), "alpha-wf should be discovered");
+        assert!(beta.is_some(), "beta-wf should be discovered");
+
+        // Verify sorting: alpha-wf should appear before beta-wf
+        let alpha_pos = workflows.iter().position(|wf| wf.name == "alpha-wf");
+        let beta_pos = workflows.iter().position(|wf| wf.name == "beta-wf");
+        assert!(
+            alpha_pos < beta_pos,
+            "alpha-wf should be sorted before beta-wf"
+        );
     }
 
     #[tokio::test]
-    async fn discover_empty_when_no_workflows_exist() {
+    async fn discover_includes_builtins_when_no_workspace_workflows() {
         let tmp = tempfile::tempdir().expect("tempdir");
         let workflows = discover(tmp.path()).await;
-        assert!(workflows.is_empty());
+        // Should include builtin workflows even without a workspace
+        assert!(!workflows.is_empty(), "should include builtin workflows");
+        assert!(
+            workflows
+                .iter()
+                .all(|wf| wf.source() == Some(WorkflowSource::Builtin)),
+            "all workflows should be builtin when no workspace exists"
+        );
     }
 
     // -- get_by_name() tests --
