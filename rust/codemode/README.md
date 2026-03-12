@@ -70,7 +70,7 @@ let servers = vec![Arc::new(MyServer) as Arc<dyn McpServer>];
 
 let request = RunRequest {
     code: r#"
-        import { greet } from "@codemode/servers/my-server";
+        import { greet } from "@stencila/mcp/servers/my-server";
         export default await greet({ name: "Alice" });
     "#.into(),
     limits: Some(Limits {
@@ -96,8 +96,8 @@ Generate `.d.ts` content for injection into the agent's system prompt:
 use stencila_codemode::generate_declarations;
 
 let declarations = generate_declarations(&servers).await?;
-// Contains typed declarations for @codemode/discovery,
-// @codemode/errors, and @codemode/servers/my-server
+// Contains typed declarations for @stencila/mcp/discovery,
+// @stencila/mcp/errors, and @stencila/mcp/servers/my-server
 ```
 
 ## Specification

@@ -147,7 +147,7 @@ impl Sandbox {
             .collect();
         let server_map = Arc::new(server_map);
 
-        // Register module resolver/loader for @codemode/* imports
+        // Register module resolver/loader for @stencila/mcp/* imports
         let resolver = CodemodeResolver::new(&snapshot);
         let loader = CodemodeLoader::new(&snapshot);
         runtime.set_loader(resolver, loader).await;
@@ -430,7 +430,7 @@ fn error_hint(code: DiagnosticCode) -> Option<String> {
             Some("Check your JavaScript syntax and ensure valid ES module code.".into())
         }
         DiagnosticCode::ImportFailure => Some(
-            "Check that the module specifier is correct. Available modules: @codemode/discovery, @codemode/errors, @codemode/servers/<id>.".into(),
+            "Check that the module specifier is correct. Available modules: @stencila/mcp/discovery, @stencila/mcp/errors, @stencila/mcp/servers/<id>.".into(),
         ),
         DiagnosticCode::SandboxLimit => {
             Some("Reduce code complexity or increase the execution limits.".into())

@@ -998,10 +998,10 @@ mod tests {
     #[test]
     fn format_mcp_codemode() {
         let args =
-            serde_json::json!({"code": "import { listServers } from \"@codemode/discovery\";"});
+            serde_json::json!({"code": "import { listServers } from \"@stencila/mcp/discovery\";"});
         assert_eq!(
             format_tool_start("mcp_codemode", &args),
-            "MCP Codemode: import { listServers } from \"@codemode/discovery\";"
+            "MCP Codemode: import { listServers } from \"@stencila/mcp/discovery\";"
         );
     }
 

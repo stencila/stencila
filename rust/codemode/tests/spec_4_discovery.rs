@@ -41,7 +41,7 @@ async fn spec_version_is_semver_string() {
     let response = sandbox
         .execute(
             r#"
-        import { specVersion } from "@codemode/discovery";
+        import { specVersion } from "@stencila/mcp/discovery";
         globalThis.__codemode_result__ = specVersion;
     "#,
         )
@@ -74,7 +74,7 @@ async fn list_servers_returns_all_servers() {
     let response = sandbox
         .execute(
             r#"
-        import { listServers } from "@codemode/discovery";
+        import { listServers } from "@stencila/mcp/discovery";
         const servers = await listServers();
         globalThis.__codemode_result__ = servers;
     "#,
@@ -106,7 +106,7 @@ async fn list_servers_empty_when_no_servers() {
     let response = sandbox
         .execute(
             r#"
-        import { listServers } from "@codemode/discovery";
+        import { listServers } from "@stencila/mcp/discovery";
         const servers = await listServers();
         globalThis.__codemode_result__ = servers.length;
     "#,
@@ -132,7 +132,7 @@ async fn describe_server_returns_full_info() {
     let response = sandbox
         .execute(
             r#"
-        import { describeServer } from "@codemode/discovery";
+        import { describeServer } from "@stencila/mcp/discovery";
         const desc = await describeServer("files");
         globalThis.__codemode_result__ = desc;
     "#,
@@ -158,8 +158,8 @@ async fn describe_server_unknown_throws() {
     let response = sandbox
         .execute(
             r#"
-        import { describeServer } from "@codemode/discovery";
-        import { ServerNotFoundError, CodemodeError } from "@codemode/errors";
+        import { describeServer } from "@stencila/mcp/discovery";
+        import { ServerNotFoundError, CodemodeError } from "@stencila/mcp/errors";
         try {
             await describeServer("nonexistent");
             globalThis.__codemode_result__ = "should not reach";
@@ -206,7 +206,7 @@ async fn list_tools_description_detail() {
     let response = sandbox
         .execute(
             r#"
-        import { listTools } from "@codemode/discovery";
+        import { listTools } from "@stencila/mcp/discovery";
         const tools = await listTools("files");
         globalThis.__codemode_result__ = tools;
     "#,
@@ -236,7 +236,7 @@ async fn list_tools_name_detail() {
     let response = sandbox
         .execute(
             r#"
-        import { listTools } from "@codemode/discovery";
+        import { listTools } from "@stencila/mcp/discovery";
         const tools = await listTools("files", { detail: "name" });
         globalThis.__codemode_result__ = tools;
     "#,
@@ -262,7 +262,7 @@ async fn list_tools_full_detail() {
     let response = sandbox
         .execute(
             r#"
-        import { listTools } from "@codemode/discovery";
+        import { listTools } from "@stencila/mcp/discovery";
         const tools = await listTools("files", { detail: "full" });
         globalThis.__codemode_result__ = tools;
     "#,
@@ -298,8 +298,8 @@ async fn list_tools_unknown_server_throws() {
     let response = sandbox
         .execute(
             r#"
-        import { listTools } from "@codemode/discovery";
-        import { ServerNotFoundError } from "@codemode/errors";
+        import { listTools } from "@stencila/mcp/discovery";
+        import { ServerNotFoundError } from "@stencila/mcp/errors";
         try {
             await listTools("nonexistent");
             globalThis.__codemode_result__ = "should not reach";
@@ -336,7 +336,7 @@ async fn get_tool_returns_full_definition() {
     let response = sandbox
         .execute(
             r#"
-        import { getTool } from "@codemode/discovery";
+        import { getTool } from "@stencila/mcp/discovery";
         const tool = await getTool("files", "search");
         globalThis.__codemode_result__ = tool;
     "#,
@@ -362,8 +362,8 @@ async fn get_tool_unknown_throws() {
     let response = sandbox
         .execute(
             r#"
-        import { getTool } from "@codemode/discovery";
-        import { ToolNotFoundError } from "@codemode/errors";
+        import { getTool } from "@stencila/mcp/discovery";
+        import { ToolNotFoundError } from "@stencila/mcp/errors";
         try {
             await getTool("files", "nonexistent");
             globalThis.__codemode_result__ = "should not reach";
@@ -400,8 +400,8 @@ async fn get_tool_unknown_server_throws_server_not_found() {
     let response = sandbox
         .execute(
             r#"
-        import { getTool } from "@codemode/discovery";
-        import { ServerNotFoundError } from "@codemode/errors";
+        import { getTool } from "@stencila/mcp/discovery";
+        import { ServerNotFoundError } from "@stencila/mcp/errors";
         try {
             await getTool("nonexistent", "ping");
             globalThis.__codemode_result__ = "should not reach";
@@ -438,7 +438,7 @@ async fn search_tools_substring_match() {
     let response = sandbox
         .execute(
             r#"
-        import { searchTools } from "@codemode/discovery";
+        import { searchTools } from "@stencila/mcp/discovery";
         const results = await searchTools("read");
         globalThis.__codemode_result__ = results;
     "#,
@@ -468,7 +468,7 @@ async fn search_tools_no_match() {
     let response = sandbox
         .execute(
             r#"
-        import { searchTools } from "@codemode/discovery";
+        import { searchTools } from "@stencila/mcp/discovery";
         const results = await searchTools("zzzznonexistent");
         globalThis.__codemode_result__ = results.results.length;
     "#,
@@ -490,7 +490,7 @@ async fn search_tools_filtered_by_server() {
     let response = sandbox
         .execute(
             r#"
-        import { searchTools } from "@codemode/discovery";
+        import { searchTools } from "@stencila/mcp/discovery";
         const results = await searchTools("query", { serverId: "database" });
         globalThis.__codemode_result__ = results;
     "#,
@@ -518,7 +518,7 @@ async fn search_tools_with_name_detail() {
     let response = sandbox
         .execute(
             r#"
-        import { searchTools } from "@codemode/discovery";
+        import { searchTools } from "@stencila/mcp/discovery";
         const results = await searchTools("search", { detail: "name" });
         globalThis.__codemode_result__ = results.results;
     "#,
@@ -549,7 +549,7 @@ async fn search_tools_with_full_detail() {
     let response = sandbox
         .execute(
             r#"
-        import { searchTools } from "@codemode/discovery";
+        import { searchTools } from "@stencila/mcp/discovery";
         const results = await searchTools("search", { detail: "full" });
         globalThis.__codemode_result__ = results.results;
     "#,

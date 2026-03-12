@@ -113,7 +113,7 @@ pub struct Diagnostic {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub path: Option<String>,
 
-    /// The `@codemode/errors` class name (e.g. `SchemaValidationError`).
+    /// The `@stencila/mcp/errors` class name (e.g. `SchemaValidationError`).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error_class: Option<String>,
 }

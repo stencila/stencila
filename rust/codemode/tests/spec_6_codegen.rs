@@ -282,7 +282,7 @@ fn gen_decls(servers: Vec<Arc<dyn McpServer>>) -> String {
 #[test]
 fn declarations_include_discovery_module() {
     let decls = gen_decls(vec![]);
-    assert!(decls.contains(r#"declare module "@codemode/discovery""#));
+    assert!(decls.contains(r#"declare module "@stencila/mcp/discovery""#));
     assert!(decls.contains("export const specVersion: string"));
     assert!(decls.contains("export function listServers"));
     assert!(decls.contains("export function describeServer"));
@@ -294,7 +294,7 @@ fn declarations_include_discovery_module() {
 #[test]
 fn declarations_include_errors_module() {
     let decls = gen_decls(vec![]);
-    assert!(decls.contains(r#"declare module "@codemode/errors""#));
+    assert!(decls.contains(r#"declare module "@stencila/mcp/errors""#));
     assert!(decls.contains("class CodemodeError extends Error"));
     assert!(decls.contains("class SchemaValidationError"));
     assert!(decls.contains("class ToolNotFoundError"));
@@ -312,7 +312,7 @@ fn declarations_for_server_with_no_schema_tools() {
         vec![common::simple_tool("ping", "Ping the server")],
     ));
     let decls = gen_decls(vec![server]);
-    assert!(decls.contains(r#"declare module "@codemode/servers/test-server""#));
+    assert!(decls.contains(r#"declare module "@stencila/mcp/servers/test-server""#));
     assert!(decls.contains("export function ping(): Promise<unknown>"));
     assert!(decls.contains("* Ping the server"));
 }
@@ -667,8 +667,8 @@ fn declarations_multiple_servers() {
         vec![common::simple_tool("bar", "Bar tool")],
     ));
     let decls = gen_decls(vec![server_a, server_b]);
-    assert!(decls.contains(r#"declare module "@codemode/servers/alpha""#));
-    assert!(decls.contains(r#"declare module "@codemode/servers/beta""#));
+    assert!(decls.contains(r#"declare module "@stencila/mcp/servers/alpha""#));
+    assert!(decls.contains(r#"declare module "@stencila/mcp/servers/beta""#));
     assert!(decls.contains("export function foo()"));
     assert!(decls.contains("export function bar()"));
 }

@@ -233,15 +233,15 @@ fn resolve_tool_exports(tools: &[McpToolInfo]) -> Vec<SnapshotTool> {
 }
 
 // ============================================================
-// Module resolver and loader for `@codemode/*` imports
+// Module resolver and loader for `@stencila/mcp/*` imports
 // ============================================================
 
-/// Resolves `@codemode/*` module specifiers.
+/// Resolves `@stencila/mcp/*` module specifiers.
 ///
 /// Recognized modules:
-/// - `@codemode/discovery`
-/// - `@codemode/errors`
-/// - `@codemode/servers/<normalized-id>` (for known servers)
+/// - `@stencila/mcp/discovery`
+/// - `@stencila/mcp/errors`
+/// - `@stencila/mcp/servers/<normalized-id>` (for known servers)
 pub(crate) struct CodemodeResolver {
     known_servers: HashSet<String>,
 }
@@ -257,9 +257,9 @@ impl CodemodeResolver {
 impl loader::Resolver for CodemodeResolver {
     fn resolve(&mut self, _ctx: &Ctx<'_>, base: &str, name: &str) -> rquickjs::Result<String> {
         match name {
-            "@codemode/discovery" | "@codemode/errors" => Ok(name.to_string()),
-            _ if name.starts_with("@codemode/servers/") => {
-                let id = &name["@codemode/servers/".len()..];
+            "@stencila/mcp/discovery" | "@stencila/mcp/errors" => Ok(name.to_string()),
+            _ if name.starts_with("@stencila/mcp/servers/") => {
+                let id = &name["@stencila/mcp/servers/".len()..];
                 if self.known_servers.contains(id) {
                     Ok(name.to_string())
                 } else {
@@ -271,11 +271,11 @@ impl loader::Resolver for CodemodeResolver {
     }
 }
 
-/// Loads `@codemode/*` modules by generating JS source.
+/// Loads `@stencila/mcp/*` modules by generating JS source.
 ///
-/// - `@codemode/discovery` → static JS calling host bridge functions
-/// - `@codemode/errors` → static JS defining error class hierarchy
-/// - `@codemode/servers/<id>` → generated JS per-server module with tool bindings
+/// - `@stencila/mcp/discovery` → static JS calling host bridge functions
+/// - `@stencila/mcp/errors` → static JS defining error class hierarchy
+/// - `@stencila/mcp/servers/<id>` → generated JS per-server module with tool bindings
 pub(crate) struct CodemodeLoader {
     snapshot: Arc<ToolSnapshot>,
 }
@@ -295,10 +295,10 @@ impl loader::Loader for CodemodeLoader {
         name: &str,
     ) -> rquickjs::Result<Module<'js, rquickjs::module::Declared>> {
         let source = match name {
-            "@codemode/discovery" => discovery::JS_SOURCE.to_string(),
-            "@codemode/errors" => errors::JS_SOURCE.to_string(),
-            _ if name.starts_with("@codemode/servers/") => {
-                let id = &name["@codemode/servers/".len()..];
+            "@stencila/mcp/discovery" => discovery::JS_SOURCE.to_string(),
+            "@stencila/mcp/errors" => errors::JS_SOURCE.to_string(),
+            _ if name.starts_with("@stencila/mcp/servers/") => {
+                let id = &name["@stencila/mcp/servers/".len()..];
                 let toolset = self
                     .snapshot
                     .servers

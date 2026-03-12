@@ -108,7 +108,7 @@ At the end of execution, the host MUST set the `result` field in the response us
 Agent-authored code SHOULD prefer `export default` for returning structured results:
 
 ```js
-import { readFile } from "@codemode/servers/fs";
+import { readFile } from "@stencila/mcp/servers/fs";
 const data = await readFile({ path: "config.json" });
 export default JSON.parse(data);
 ```
@@ -193,7 +193,7 @@ Each diagnostic entry MUST be an object with the following fields:
 * `message` (string, REQUIRED): human-readable description
 * `hint` (string, OPTIONAL): a single recommended corrective action
 * `path` (string, OPTIONAL): source location or JSON Pointer relevant to the error
-* `errorClass` (string, OPTIONAL): the `@codemode/errors` class name, if applicable (e.g., `"SchemaValidationError"`)
+* `errorClass` (string, OPTIONAL): the `@stencila/mcp/errors` class name, if applicable (e.g., `"SchemaValidationError"`)
 
 #### 3.3.4 Fatal script errors
 
@@ -235,9 +235,9 @@ A host MUST document any deviations from this list in its system prompt.
 
 ## 4. In-sandbox standard library
 
-The sandbox MUST provide a stable set of built-in modules under `@codemode/*`.
+The sandbox MUST provide a stable set of built-in modules under `@stencila/mcp/*`.
 
-### 4.1 `@codemode/discovery`
+### 4.1 `@stencila/mcp/discovery`
 
 To optimize for agent ergonomics, discovery APIs MUST be available through a single module.
 
@@ -317,16 +317,16 @@ A host MAY defer injection until a server is first referenced in a `requestedCap
 
 ### 4.5 Errors
 
-The sandbox MUST provide `@codemode/errors` defining standardized error classes (see §7).
+The sandbox MUST provide `@stencila/mcp/errors` defining standardized error classes (see §7).
 
 ---
 
 ## 5. Generated per-server modules
 
-For each connected MCP server, the sandbox MUST expose an importable module under `@codemode/servers/`:
+For each connected MCP server, the sandbox MUST expose an importable module under `@stencila/mcp/servers/`:
 
 ```js
-import * as gdrive from "@codemode/servers/google-drive";
+import * as gdrive from "@stencila/mcp/servers/google-drive";
 ```
 
 #### 5.0.1 Module path mapping
@@ -438,7 +438,7 @@ Errors MUST be structured and optimized for agent self-correction.
 
 ### 7.1 Error classes
 
-`@codemode/errors` MUST define:
+`@stencila/mcp/errors` MUST define:
 
 * `SchemaValidationError` — input failed schema validation.
 * `ToolNotFoundError` — the requested tool does not exist on the server.
@@ -519,7 +519,7 @@ Log truncation MUST be signaled (see §3.3.1).
 
 A conforming host MUST allow a single `codemode.run` execution to:
 
-* Import multiple `@codemode/servers/*` modules.
+* Import multiple `@stencila/mcp/servers/*` modules.
 * Compose tool calls across servers.
 
 Failures in one server call MUST surface as a `ToolCallError` (or a subclass) thrown as a normal JS exception.
@@ -545,7 +545,7 @@ A conforming host is responsible for:
 * Preventing resource exhaustion (timeouts, memory limits, tool call caps).
 * Preventing prototype pollution and unsafe host-object exposure.
 * Treating MCP server responses as untrusted input.
-* Preventing agent-authored code from subverting the binding layer (e.g., tampering with `@codemode/*` module exports).
+* Preventing agent-authored code from subverting the binding layer (e.g., tampering with `@stencila/mcp/*` module exports).
 * Preventing code generation from strings (`eval`, `new Function(string)` MUST NOT be available; see §3.5).
 
 ---
@@ -557,7 +557,7 @@ A conforming host is responsible for:
 A host MUST expose a version identifier inside the sandbox:
 
 ```js
-import { specVersion } from "@codemode/discovery";
+import { specVersion } from "@stencila/mcp/discovery";
 ```
 
 `specVersion` MUST be a [semver](https://semver.org/) string (e.g., `"1.0.0"`).

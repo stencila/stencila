@@ -1,4 +1,4 @@
-/// JavaScript source for the `@codemode/discovery` module.
+/// JavaScript source for the `@stencila/mcp/discovery` module.
 ///
 /// Exports per spec §4.1:
 /// - `specVersion` — semver string (§12.1)
@@ -15,7 +15,7 @@ pub(crate) const JS_SOURCE: &str = r#"
 import {
     ServerNotFoundError,
     ToolNotFoundError,
-} from "@codemode/errors";
+} from "@stencila/mcp/errors";
 
 const __internal__ = globalThis.__codemode_internal__;
 

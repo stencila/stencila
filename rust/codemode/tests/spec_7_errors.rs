@@ -12,7 +12,7 @@ async fn codemode_error_extends_error() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError } from "@codemode/errors";
+        import { CodemodeError } from "@stencila/mcp/errors";
         const e = new CodemodeError("test error", "try again");
         globalThis.__codemode_result__ = {
             isError: e instanceof Error,
@@ -41,7 +41,7 @@ async fn schema_validation_error_hierarchy() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, SchemaValidationError } from "@codemode/errors";
+        import { CodemodeError, SchemaValidationError } from "@stencila/mcp/errors";
         const e = new SchemaValidationError("invalid input", {
             toolName: "search",
             exportName: "search",
@@ -85,7 +85,7 @@ async fn tool_not_found_error_hierarchy() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, ToolNotFoundError } from "@codemode/errors";
+        import { CodemodeError, ToolNotFoundError } from "@stencila/mcp/errors";
         const e = new ToolNotFoundError("tool not found", {
             serverId: "server-a",
             toolName: "missing",
@@ -123,7 +123,7 @@ async fn server_not_found_error_hierarchy() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, ServerNotFoundError } from "@codemode/errors";
+        import { CodemodeError, ServerNotFoundError } from "@stencila/mcp/errors";
         const e = new ServerNotFoundError("server gone", {
             serverId: "ghost",
             hint: "Use listServers() to find available servers"
@@ -153,7 +153,7 @@ async fn tool_call_error_hierarchy() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, ToolCallError } from "@codemode/errors";
+        import { CodemodeError, ToolCallError } from "@stencila/mcp/errors";
         const e = new ToolCallError("call failed", {
             serverId: "s1",
             toolName: "boom",
@@ -184,7 +184,7 @@ async fn authentication_error_hierarchy() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, AuthenticationError } from "@codemode/errors";
+        import { CodemodeError, AuthenticationError } from "@stencila/mcp/errors";
         const e = new AuthenticationError("bad creds", {
             serverId: "secure-server",
             hint: "Check your API key"
@@ -215,7 +215,7 @@ async fn sandbox_limit_error_hierarchy() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, SandboxLimitError } from "@codemode/errors";
+        import { CodemodeError, SandboxLimitError } from "@stencila/mcp/errors";
         const e = new SandboxLimitError("timeout exceeded", {
             kind: "timeout",
             hint: "Increase timeoutMs or simplify the code"
@@ -252,7 +252,7 @@ async fn error_hint_is_null_when_omitted() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError } from "@codemode/errors";
+        import { CodemodeError } from "@stencila/mcp/errors";
         const e = new CodemodeError("no hint given");
         globalThis.__codemode_result__ = e.hint;
     "#,
@@ -285,7 +285,7 @@ async fn all_error_classes_extend_codemode_error() {
             ToolCallError,
             AuthenticationError,
             SandboxLimitError,
-        } from "@codemode/errors";
+        } from "@stencila/mcp/errors";
 
         const classes = [
             SchemaValidationError,

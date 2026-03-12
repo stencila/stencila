@@ -42,7 +42,7 @@ async fn import_and_call_tool_returns_result() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile({ path: "/foo" });
         globalThis.__codemode_result__ = result;
     "#,
@@ -64,7 +64,7 @@ async fn call_tool_with_no_args_sends_empty_object() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile();
         globalThis.__codemode_result__ = result;
     "#,
@@ -85,7 +85,7 @@ async fn call_tool_with_undefined_sends_empty_object() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile(undefined);
         globalThis.__codemode_result__ = result;
     "#,
@@ -124,7 +124,7 @@ async fn call_tool_with_null_sends_null() {
     let response = sandbox
         .execute(
             r#"
-        import { echoInput } from "@codemode/servers/echo";
+        import { echoInput } from "@stencila/mcp/servers/echo";
         const result = await echoInput(null);
         globalThis.__codemode_result__ = result;
     "#,
@@ -146,7 +146,7 @@ async fn call_tool_with_empty_object_succeeds() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile({});
         globalThis.__codemode_result__ = result;
     "#,
@@ -167,7 +167,7 @@ async fn call_tool_with_valid_schema_input() {
     let response = sandbox
         .execute(
             r#"
-        import { search } from "@codemode/servers/files";
+        import { search } from "@stencila/mcp/servers/files";
         const result = await search({ query: "hello" });
         globalThis.__codemode_result__ = result;
     "#,
@@ -192,7 +192,7 @@ async fn meta_has_correct_shape() {
     let response = sandbox
         .execute(
             r#"
-        import { __meta__ } from "@codemode/servers/files";
+        import { __meta__ } from "@stencila/mcp/servers/files";
         globalThis.__codemode_result__ = {
             serverId: __meta__.serverId,
             serverName: __meta__.serverName,
@@ -220,7 +220,7 @@ async fn meta_tools_have_correct_entries() {
     let response = sandbox
         .execute(
             r#"
-        import { __meta__ } from "@codemode/servers/files";
+        import { __meta__ } from "@stencila/mcp/servers/files";
         globalThis.__codemode_result__ = __meta__.tools.map(t => ({
             toolName: t.toolName,
             exportName: t.exportName,
@@ -248,7 +248,7 @@ async fn meta_is_frozen() {
     let response = sandbox
         .execute(
             r#"
-        import { __meta__ } from "@codemode/servers/files";
+        import { __meta__ } from "@stencila/mcp/servers/files";
         globalThis.__codemode_result__ = {
             metaFrozen: Object.isFrozen(__meta__),
             toolsFrozen: Object.isFrozen(__meta__.tools),
@@ -274,7 +274,7 @@ async fn meta_server_version_empty_when_absent() {
     let response = sandbox
         .execute(
             r#"
-        import { __meta__ } from "@codemode/servers/database";
+        import { __meta__ } from "@stencila/mcp/servers/database";
         globalThis.__codemode_result__ = __meta__.serverVersion;
     "#,
         )
@@ -306,7 +306,7 @@ async fn structured_content_takes_priority() {
     let response = sandbox
         .execute(
             r#"
-        import { getData } from "@codemode/servers/test";
+        import { getData } from "@stencila/mcp/servers/test";
         const result = await getData();
         globalThis.__codemode_result__ = result;
     "#,
@@ -329,7 +329,7 @@ async fn single_text_unwraps_to_string() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile({});
         globalThis.__codemode_result__ = {
             value: result,
@@ -361,7 +361,7 @@ async fn image_content_returns_full_array() {
     let response = sandbox
         .execute(
             r#"
-        import { getImage } from "@codemode/servers/test";
+        import { getImage } from "@stencila/mcp/servers/test";
         const result = await getImage();
         globalThis.__codemode_result__ = result;
     "#,
@@ -393,7 +393,7 @@ async fn audio_content_returns_full_array() {
     let response = sandbox
         .execute(
             r#"
-        import { getAudio } from "@codemode/servers/test";
+        import { getAudio } from "@stencila/mcp/servers/test";
         const result = await getAudio();
         globalThis.__codemode_result__ = result;
     "#,
@@ -428,7 +428,7 @@ async fn multiple_text_returns_full_array() {
     let response = sandbox
         .execute(
             r#"
-        import { getMulti } from "@codemode/servers/test";
+        import { getMulti } from "@stencila/mcp/servers/test";
         const result = await getMulti();
         globalThis.__codemode_result__ = result;
     "#,
@@ -457,7 +457,7 @@ async fn empty_content_returns_empty_array() {
     let response = sandbox
         .execute(
             r#"
-        import { empty } from "@codemode/servers/test";
+        import { empty } from "@stencila/mcp/servers/test";
         const result = await empty();
         globalThis.__codemode_result__ = result;
     "#,
@@ -483,8 +483,8 @@ async fn schema_validation_missing_required_field() {
     let response = sandbox
         .execute(
             r#"
-        import { SchemaValidationError } from "@codemode/errors";
-        import { search } from "@codemode/servers/files";
+        import { SchemaValidationError } from "@stencila/mcp/errors";
+        import { search } from "@stencila/mcp/servers/files";
         let caught = null;
         try {
             await search({});  // missing required "query"
@@ -538,8 +538,8 @@ async fn schema_validation_wrong_type() {
     let response = sandbox
         .execute(
             r#"
-        import { SchemaValidationError } from "@codemode/errors";
-        import { typedTool } from "@codemode/servers/test";
+        import { SchemaValidationError } from "@stencila/mcp/errors";
+        import { typedTool } from "@stencila/mcp/servers/test";
         let caught = null;
         try {
             await typedTool({ count: "not a number" });
@@ -573,7 +573,7 @@ async fn schema_validation_hint_present() {
     let response = sandbox
         .execute(
             r#"
-        import { search } from "@codemode/servers/files";
+        import { search } from "@stencila/mcp/servers/files";
         let hint = null;
         try {
             await search({});
@@ -603,8 +603,8 @@ async fn schema_validation_instanceof_checks() {
     let response = sandbox
         .execute(
             r#"
-        import { CodemodeError, SchemaValidationError } from "@codemode/errors";
-        import { search } from "@codemode/servers/files";
+        import { CodemodeError, SchemaValidationError } from "@stencila/mcp/errors";
+        import { search } from "@stencila/mcp/servers/files";
         let checks = null;
         try {
             await search({});
@@ -648,7 +648,7 @@ async fn invalid_schema_gracefully_skipped() {
     let response = sandbox
         .execute(
             r#"
-        import { badSchema } from "@codemode/servers/test";
+        import { badSchema } from "@stencila/mcp/servers/test";
         const result = await badSchema({ anything: "goes" });
         globalThis.__codemode_result__ = result;
     "#,
@@ -671,7 +671,7 @@ async fn no_schema_allows_any_input() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile({ whatever: true, nested: { deep: 42 } });
         globalThis.__codemode_result__ = result;
     "#,
@@ -696,7 +696,7 @@ async fn tool_trace_recorded_on_success() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         await readFile({});
         globalThis.__codemode_result__ = "done";
     "#,
@@ -725,7 +725,7 @@ async fn tool_trace_has_duration() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         await readFile({});
         globalThis.__codemode_result__ = "done";
     "#,
@@ -751,7 +751,7 @@ async fn tool_trace_recorded_on_error() {
     let response = sandbox
         .execute(
             r#"
-        import { fail } from "@codemode/servers/test";
+        import { fail } from "@stencila/mcp/servers/test";
         try {
             await fail({});
         } catch (e) {
@@ -779,7 +779,7 @@ async fn tool_trace_multiple_calls() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile, search } from "@codemode/servers/files";
+        import { readFile, search } from "@stencila/mcp/servers/files";
         await readFile({});
         await search({ query: "test" });
         await readFile({});
@@ -806,7 +806,7 @@ async fn tool_trace_absent_when_no_calls() {
     let response = sandbox
         .execute(
             r#"
-        import { __meta__ } from "@codemode/servers/files";
+        import { __meta__ } from "@stencila/mcp/servers/files";
         globalThis.__codemode_result__ = __meta__.serverId;
     "#,
         )
@@ -836,8 +836,8 @@ async fn max_tool_calls_enforced() {
     let response = sandbox
         .execute(
             r#"
-        import { SandboxLimitError } from "@codemode/errors";
-        import { readFile } from "@codemode/servers/files";
+        import { SandboxLimitError } from "@stencila/mcp/errors";
+        import { readFile } from "@stencila/mcp/servers/files";
         const results = [];
         for (let i = 0; i < 3; i++) {
             try {
@@ -882,8 +882,8 @@ async fn max_tool_calls_exact_boundary() {
     let response = sandbox
         .execute(
             r#"
-        import { SandboxLimitError } from "@codemode/errors";
-        import { readFile } from "@codemode/servers/files";
+        import { SandboxLimitError } from "@stencila/mcp/errors";
+        import { readFile } from "@stencila/mcp/servers/files";
         const first = await readFile({});
         let secondFailed = false;
         try {
@@ -919,8 +919,8 @@ async fn is_error_true_throws_tool_call_error() {
     let response = sandbox
         .execute(
             r#"
-        import { ToolCallError } from "@codemode/errors";
-        import { errorTool } from "@codemode/servers/test";
+        import { ToolCallError } from "@stencila/mcp/errors";
+        import { errorTool } from "@stencila/mcp/servers/test";
         let caught = null;
         try {
             await errorTool({});
@@ -965,8 +965,8 @@ async fn rust_error_throws_tool_call_error() {
     let response = sandbox
         .execute(
             r#"
-        import { ToolCallError } from "@codemode/errors";
-        import { crashTool } from "@codemode/servers/test";
+        import { ToolCallError } from "@stencila/mcp/errors";
+        import { crashTool } from "@stencila/mcp/servers/test";
         let caught = null;
         try {
             await crashTool({});
@@ -1005,7 +1005,7 @@ async fn rust_error_records_trace() {
     let response = sandbox
         .execute(
             r#"
-        import { crashTool } from "@codemode/servers/test";
+        import { crashTool } from "@stencila/mcp/servers/test";
         try { await crashTool({}); } catch (e) {}
         globalThis.__codemode_result__ = "done";
     "#,
@@ -1029,7 +1029,7 @@ async fn unknown_tool_via_bridge_throws_tool_not_found_error() {
     let response = sandbox
         .execute(
             r#"
-        import { ToolNotFoundError } from "@codemode/errors";
+        import { ToolNotFoundError } from "@stencila/mcp/errors";
         // Call the bridge directly with a tool name that doesn't exist
         const json = await globalThis.__codemode_internal__.callTool("files", "nonExistent", "{}");
         const r = JSON.parse(json);
@@ -1071,7 +1071,7 @@ async fn unknown_tool_via_generated_handler_throws_tool_not_found() {
     let response = sandbox
         .execute(
             r#"
-        import { ToolNotFoundError } from "@codemode/errors";
+        import { ToolNotFoundError } from "@stencila/mcp/errors";
         // Import a real module to get access to the __handleResult__ flow,
         // then call the bridge directly with a bad tool name and let the
         // module's error handling convert the envelope.
@@ -1124,8 +1124,8 @@ async fn cross_server_orchestration() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        import { query } from "@codemode/servers/database";
+        import { readFile } from "@stencila/mcp/servers/files";
+        import { query } from "@stencila/mcp/servers/database";
         const fileResult = await readFile({});
         const dbResult = await query({});
         globalThis.__codemode_result__ = { fileResult, dbResult };
@@ -1148,8 +1148,8 @@ async fn cross_server_tool_trace() {
     let response = sandbox
         .execute(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        import { query } from "@codemode/servers/database";
+        import { readFile } from "@stencila/mcp/servers/files";
+        import { query } from "@stencila/mcp/servers/database";
         await readFile({});
         await query({});
         globalThis.__codemode_result__ = "done";
@@ -1171,8 +1171,8 @@ async fn discovery_and_server_modules_coexist() {
     let response = sandbox
         .execute(
             r#"
-        import { listServers } from "@codemode/discovery";
-        import { readFile, __meta__ } from "@codemode/servers/files";
+        import { listServers } from "@stencila/mcp/discovery";
+        import { readFile, __meta__ } from "@stencila/mcp/servers/files";
 
         const servers = await listServers();
         const result = await readFile({});
@@ -1215,7 +1215,7 @@ async fn input_json_passed_to_server() {
     let response = sandbox
         .execute(
             r#"
-        import { echo } from "@codemode/servers/test";
+        import { echo } from "@stencila/mcp/servers/test";
         const result = await echo({ key: "value", num: 42 });
         globalThis.__codemode_result__ = JSON.parse(result);
     "#,

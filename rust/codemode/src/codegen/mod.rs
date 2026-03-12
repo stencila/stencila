@@ -15,9 +15,9 @@ use ts_declarations::{convert_schema, generate_doc_comment, to_pascal_case};
 /// The host is responsible for injection (system prompt, file, etc.) per §4.4.
 ///
 /// The generated declarations cover:
-/// - `@codemode/discovery` module (static type declarations)
-/// - `@codemode/errors` module (error class hierarchy)
-/// - `@codemode/servers/<id>` modules (one per server, with typed tool bindings)
+/// - `@stencila/mcp/discovery` module (static type declarations)
+/// - `@stencila/mcp/errors` module (error class hierarchy)
+/// - `@stencila/mcp/servers/<id>` modules (one per server, with typed tool bindings)
 ///
 /// # Errors
 ///
@@ -53,9 +53,9 @@ pub(crate) fn declarations_from_snapshot(snapshot: &ToolSnapshot) -> String {
     output
 }
 
-/// Static declarations for the `@codemode/discovery` module.
+/// Static declarations for the `@stencila/mcp/discovery` module.
 fn discovery_declarations() -> String {
-    r#"declare module "@codemode/discovery" {
+    r#"declare module "@stencila/mcp/discovery" {
   export const specVersion: string;
 
   export interface ServerInfo {
@@ -106,9 +106,9 @@ fn discovery_declarations() -> String {
     .to_string()
 }
 
-/// Static declarations for the `@codemode/errors` module.
+/// Static declarations for the `@stencila/mcp/errors` module.
 fn errors_declarations() -> String {
-    r#"declare module "@codemode/errors" {
+    r#"declare module "@stencila/mcp/errors" {
   export class CodemodeError extends Error {
     hint: string | null;
   }
@@ -147,10 +147,10 @@ fn errors_declarations() -> String {
     .to_string()
 }
 
-/// Generate declarations for a single server's `@codemode/servers/<id>` module.
+/// Generate declarations for a single server's `@stencila/mcp/servers/<id>` module.
 fn server_declarations(server: &ServerToolset) -> String {
     let mut output = String::new();
-    let module_path = format!("@codemode/servers/{}", server.normalized_id);
+    let module_path = format!("@stencila/mcp/servers/{}", server.normalized_id);
 
     let _ = writeln!(output, "declare module \"{module_path}\" {{");
 
@@ -295,8 +295,8 @@ mod tests {
     fn empty_snapshot_has_discovery_and_errors() {
         let snapshot = make_snapshot(vec![]);
         let decls = declarations_from_snapshot(&snapshot);
-        assert!(decls.contains(r#"declare module "@codemode/discovery""#));
-        assert!(decls.contains(r#"declare module "@codemode/errors""#));
+        assert!(decls.contains(r#"declare module "@stencila/mcp/discovery""#));
+        assert!(decls.contains(r#"declare module "@stencila/mcp/errors""#));
     }
 
     #[test]
@@ -307,7 +307,7 @@ mod tests {
             vec![make_tool("readFile", "readFile")],
         )]);
         let decls = declarations_from_snapshot(&snapshot);
-        assert!(decls.contains(r#"declare module "@codemode/servers/files""#));
+        assert!(decls.contains(r#"declare module "@stencila/mcp/servers/files""#));
         assert!(decls.contains("export function readFile(): Promise<unknown>"));
     }
 

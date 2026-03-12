@@ -54,7 +54,7 @@ fn definition() -> ToolDefinition {
         description: "Execute JavaScript code in a sandboxed environment with access to \
                        MCP server tools. Use the TypeScript declarations in the system \
                        prompt to discover available functions. Import tools from \
-                       `@codemode/servers/<server_id>` modules."
+                       `@stencila/mcp/servers/<server_id>` modules."
             .into(),
         parameters: json!({
             "type": "object",
@@ -212,7 +212,7 @@ pub async fn build_codemode_prompt(
         Ok(_) | Err(_) => {
             prompt.push_str(
                 "\nThe full TypeScript declarations are too large for the system prompt. \
-                 Use `import { listServers, listTools } from '@codemode/discovery'` \
+                 Use `import { listServers, listTools } from '@stencila/mcp/discovery'` \
                  to explore available tools at runtime.\n",
             );
         }

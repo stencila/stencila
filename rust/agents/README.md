@@ -82,12 +82,12 @@ The spec mentions MCP as a natural extension for registering tools from external
 
 ### Codemode: sandboxed MCP orchestration (`feature = "codemode"`)
 
-Instead of exposing every MCP tool individually, codemode registers a single `codemode` tool. The LLM writes JavaScript (ES module syntax) that imports typed functions from `@codemode/servers/<server_id>` modules and orchestrates multiple MCP calls in a sandboxed QuickJS environment. TypeScript declarations describing every available server and tool are included in the system prompt (budget-capped at 4000 characters, falling back to a summary with runtime discovery via `@codemode/discovery`).
+Instead of exposing every MCP tool individually, codemode registers a single `mcp_codemode` tool. The LLM writes JavaScript (ES module syntax) that imports typed functions from `@stencila/mcp/servers/<server_id>` modules and orchestrates multiple MCP calls in a sandboxed QuickJS environment. TypeScript declarations describing every available server and tool are included in the system prompt (budget-capped at 4000 characters, falling back to a summary with runtime discovery via `@stencila/mcp/discovery`).
 
 Advantages over direct MCP registration:
 
 - **Scales to many tools.** The LLM sees one tool regardless of how many MCP servers and tools are available, avoiding tool-selection confusion.
-- **Composable.** A single `codemode` call can chain multiple MCP calls, filter results, transform data, and return a structured answer --- work that would otherwise require many sequential tool-call rounds.
+- **Composable.** A single `mcp_codemode` call can chain multiple MCP calls, filter results, transform data, and return a structured answer --- work that would otherwise require many sequential tool-call rounds.
 - **Sandboxed.** Code runs in QuickJS with configurable timeouts, memory limits, and tool-call caps. No filesystem or network access beyond the MCP servers.
 - **Observable.** The response includes structured diagnostics, console logs, and a redacted tool-call trace for debugging.
 

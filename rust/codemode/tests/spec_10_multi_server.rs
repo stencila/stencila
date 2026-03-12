@@ -68,8 +68,8 @@ async fn multi_server_import_and_compose() {
     let resp = codemode_run(
         &run_request(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        import { query } from "@codemode/servers/database";
+        import { readFile } from "@stencila/mcp/servers/files";
+        import { query } from "@stencila/mcp/servers/database";
         const fileResult = await readFile();
         const dbResult = await query();
         globalThis.__codemode_result__ = { file: fileResult, db: dbResult };
@@ -92,8 +92,8 @@ async fn promise_all_concurrent_tool_calls() {
     let resp = codemode_run(
         &run_request(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        import { query } from "@codemode/servers/database";
+        import { readFile } from "@stencila/mcp/servers/files";
+        import { query } from "@stencila/mcp/servers/database";
         const [fileResult, dbResult] = await Promise.all([readFile(), query()]);
         globalThis.__codemode_result__ = { file: fileResult, db: dbResult };
     "#,
@@ -115,7 +115,7 @@ async fn promise_all_same_server_concurrent() {
     let resp = codemode_run(
         &run_request(
             r#"
-        import { readFile, search } from "@codemode/servers/files";
+        import { readFile, search } from "@stencila/mcp/servers/files";
         const [r1, r2] = await Promise.all([readFile(), search({ query: "*.rs" })]);
         globalThis.__codemode_result__ = [r1, r2];
     "#,
@@ -137,8 +137,8 @@ async fn multi_server_tool_trace() {
     let resp = codemode_run(
         &run_request(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        import { query } from "@codemode/servers/database";
+        import { readFile } from "@stencila/mcp/servers/files";
+        import { query } from "@stencila/mcp/servers/database";
         await readFile();
         await query();
         await readFile();
@@ -178,8 +178,8 @@ async fn server_error_does_not_abort_script() {
     let resp = codemode_run(
         &run_request(
             r#"
-        import { readFile } from "@codemode/servers/files";
-        import { fail_tool } from "@codemode/servers/failing";
+        import { readFile } from "@stencila/mcp/servers/files";
+        import { fail_tool } from "@stencila/mcp/servers/failing";
         let errorCaught = false;
         try {
             await fail_tool();
@@ -248,7 +248,7 @@ async fn codemode_run_end_to_end_with_tool_call() {
     let resp = codemode_run(
         &run_request(
             r#"
-        import { readFile } from "@codemode/servers/files";
+        import { readFile } from "@stencila/mcp/servers/files";
         const result = await readFile();
         globalThis.__codemode_result__ = result;
     "#,
@@ -478,7 +478,7 @@ async fn codemode_run_refreshes_dirty_server() {
     let resp = codemode_run(
         &run_request(
             r#"
-            import { pong } from "@codemode/servers/dynamic";
+            import { pong } from "@stencila/mcp/servers/dynamic";
             globalThis.__codemode_result__ = await pong();
         "#,
         ),

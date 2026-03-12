@@ -108,7 +108,7 @@ impl McpServer for DynamicMockServer {
 fn list_tool_names_js(server_id: &str) -> String {
     format!(
         r#"
-        import {{ listTools }} from "@codemode/discovery";
+        import {{ listTools }} from "@stencila/mcp/discovery";
         const tools = await listTools("{server_id}", {{ detail: "name" }});
         globalThis.__codemode_result__ = tools.map(t => t.toolName);
     "#
@@ -292,7 +292,7 @@ async fn refreshed_tool_is_callable() -> Result<(), Box<dyn std::error::Error>> 
     let resp = sandbox
         .execute(
             r#"
-        import { beta } from "@codemode/servers/dynamic";
+        import { beta } from "@stencila/mcp/servers/dynamic";
         const result = await beta();
         globalThis.__codemode_result__ = result;
     "#,

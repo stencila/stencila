@@ -1,4 +1,4 @@
-/// JavaScript source for the `@codemode/errors` module.
+/// JavaScript source for the `@stencila/mcp/errors` module.
 ///
 /// Defines the error class hierarchy per spec §7.1:
 /// - `CodemodeError` — base class (extends Error)

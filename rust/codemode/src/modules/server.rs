@@ -1,16 +1,16 @@
 use super::ServerToolset;
 use super::SnapshotTool;
 
-/// Generate the complete JS module source for a `@codemode/servers/<id>` module.
+/// Generate the complete JS module source for a `@stencila/mcp/servers/<id>` module.
 ///
-/// The generated module imports error classes from `@codemode/errors`,
+/// The generated module imports error classes from `@stencila/mcp/errors`,
 /// exposes one `async function` per tool, and a frozen `__meta__` export.
 pub(crate) fn generate_module(server: &ServerToolset) -> String {
     let mut parts = Vec::new();
 
     // Imports
     parts.push(
-        "import { SchemaValidationError, ToolCallError, SandboxLimitError, ToolNotFoundError, AuthenticationError } from \"@codemode/errors\";\n\
+        "import { SchemaValidationError, ToolCallError, SandboxLimitError, ToolNotFoundError, AuthenticationError } from \"@stencila/mcp/errors\";\n\
          const __internal__ = globalThis.__codemode_internal__;\n"
             .to_string(),
     );
