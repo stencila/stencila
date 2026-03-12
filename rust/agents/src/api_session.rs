@@ -521,7 +521,21 @@ impl ApiSession {
         &mut self,
         tool: crate::registry::RegisteredTool,
     ) -> crate::error::AgentResult<()> {
-        self.profile.tool_registry_mut().register(tool)
+        let tool_name = tool.definition().name.clone();
+        self.profile.tool_registry_mut().register(tool)?;
+
+        // Runtime-registered tools (e.g. workflow routing/context tools) must
+        // also be reflected in `allowed_tools`. Otherwise request building and
+        // tool-call prechecks can filter out or reject a tool that was just
+        // registered on the session, making instructions like
+        // `set_preferred_label` impossible to follow for allowlisted agents.
+        if let Some(allowed_tools) = &mut self.config.allowed_tools
+            && !allowed_tools.iter().any(|allowed| allowed == &tool_name)
+        {
+            allowed_tools.push(tool_name);
+        }
+
+        Ok(())
     }
 
     /// The tool guard for this session, if set.
@@ -2156,6 +2170,184 @@ fn append_guard_warning(output: ToolOutput, warning_text: &str) -> ToolOutput {
 mod guard_wiring_tests {
     use super::*;
     use crate::registry::ToolOutput;
+    use serde_json::json;
+    use stencila_models3::types::finish_reason::{FinishReason, Reason};
+    use stencila_models3::types::message::Message;
+    use stencila_models3::types::request::Request;
+    use stencila_models3::types::response::Response;
+    use stencila_models3::types::tool::ToolDefinition;
+
+    struct CapturingClient {
+        requests: std::sync::Mutex<Vec<Request>>,
+    }
+
+    #[async_trait]
+    impl LlmClient for CapturingClient {
+        async fn complete(&self, request: Request) -> Result<Response, SdkError> {
+            self.requests
+                .lock()
+                .map_err(|e| SdkError::Configuration {
+                    message: format!("mock lock: {e}"),
+                })?
+                .push(request);
+
+            Ok(Response {
+                id: "resp-1".into(),
+                model: "test-model".into(),
+                provider: "test".into(),
+                message: Message::assistant("done"),
+                finish_reason: FinishReason::new(Reason::Stop, None),
+                usage: stencila_models3::types::usage::Usage::default(),
+                raw: None,
+                warnings: None,
+                rate_limit: None,
+            })
+        }
+    }
+
+    struct NoopEnv;
+
+    #[async_trait]
+    impl ExecutionEnvironment for NoopEnv {
+        async fn read_file(
+            &self,
+            _path: &str,
+            _offset: Option<usize>,
+            _limit: Option<usize>,
+        ) -> AgentResult<crate::execution::FileContent> {
+            Err(AgentError::Io {
+                message: "not implemented".into(),
+            })
+        }
+
+        async fn write_file(&self, _path: &str, _content: &str) -> AgentResult<()> {
+            Err(AgentError::Io {
+                message: "not implemented".into(),
+            })
+        }
+
+        async fn file_exists(&self, _path: &str) -> bool {
+            false
+        }
+
+        async fn delete_file(&self, _path: &str) -> AgentResult<()> {
+            Err(AgentError::Io {
+                message: "not implemented".into(),
+            })
+        }
+
+        async fn list_directory(
+            &self,
+            _path: &str,
+            _depth: usize,
+        ) -> AgentResult<Vec<crate::types::DirEntry>> {
+            Ok(Vec::new())
+        }
+
+        async fn exec_command(
+            &self,
+            _command: &str,
+            _timeout_ms: u64,
+            _working_dir: Option<&str>,
+            _env_vars: Option<&std::collections::HashMap<String, String>>,
+        ) -> AgentResult<crate::types::ExecResult> {
+            Err(AgentError::Io {
+                message: "not implemented".into(),
+            })
+        }
+
+        async fn grep(
+            &self,
+            _pattern: &str,
+            _path: &str,
+            _options: &crate::types::GrepOptions,
+        ) -> AgentResult<String> {
+            Ok(String::new())
+        }
+
+        async fn glob_files(&self, _pattern: &str, _path: &str) -> AgentResult<Vec<String>> {
+            Ok(Vec::new())
+        }
+
+        fn working_directory(&self) -> &str {
+            "."
+        }
+
+        fn platform(&self) -> &str {
+            "linux"
+        }
+
+        fn os_version(&self) -> String {
+            "test".into()
+        }
+    }
+
+    #[derive(Debug)]
+    struct TestProfile {
+        registry: crate::registry::ToolRegistry,
+    }
+
+    impl TestProfile {
+        fn new() -> Self {
+            Self {
+                registry: crate::registry::ToolRegistry::new(),
+            }
+        }
+    }
+
+    impl ProviderProfile for TestProfile {
+        fn id(&self) -> &str {
+            "test"
+        }
+
+        fn model(&self) -> &str {
+            "test-model"
+        }
+
+        fn tool_registry_mut(&mut self) -> &mut crate::registry::ToolRegistry {
+            &mut self.registry
+        }
+
+        fn tool_registry(&self) -> &crate::registry::ToolRegistry {
+            &self.registry
+        }
+
+        fn base_instructions(&self) -> &str {
+            "test instructions"
+        }
+
+        fn supports_reasoning(&self) -> bool {
+            false
+        }
+
+        fn supports_streaming(&self) -> bool {
+            false
+        }
+
+        fn supports_parallel_tool_calls(&self) -> bool {
+            false
+        }
+
+        fn context_window_size(&self) -> u64 {
+            8_192
+        }
+    }
+
+    fn dynamic_tool(name: &str) -> crate::registry::RegisteredTool {
+        crate::registry::RegisteredTool::new(
+            ToolDefinition {
+                name: name.into(),
+                description: "dynamic test tool".into(),
+                parameters: json!({
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                }),
+                strict: true,
+            },
+            Box::new(|_args, _env| Box::pin(async { Ok(ToolOutput::Text("ok".into())) })),
+        )
+    }
 
     #[test]
     fn append_guard_warning_text() {
@@ -2187,5 +2379,46 @@ mod guard_wiring_tests {
             }
             _ => panic!("expected ImageWithText variant"),
         }
+    }
+
+    #[tokio::test]
+    async fn register_tool_extends_allowed_tools_and_request_tools() -> AgentResult<()> {
+        let client = Arc::new(CapturingClient {
+            requests: std::sync::Mutex::new(Vec::new()),
+        });
+        let (mut session, _receiver) = ApiSession::new(
+            Box::new(TestProfile::new()),
+            Arc::new(NoopEnv),
+            client.clone(),
+            SessionConfig {
+                allowed_tools: Some(vec!["echo".into()]),
+                ..SessionConfig::default()
+            },
+            "system".into(),
+            0,
+            ApiSessionInit::default(),
+        );
+
+        session.register_tool(dynamic_tool("set_preferred_label"))?;
+        session.submit("choose a branch").await?;
+
+        let requests = client.requests.lock().map_err(|e| AgentError::Io {
+            message: format!("mock lock: {e}"),
+        })?;
+        let tool_names: Vec<&str> = requests[0]
+            .tools
+            .as_ref()
+            .expect("tools should be present")
+            .iter()
+            .map(|tool| tool.name.as_str())
+            .collect();
+
+        assert!(tool_names.contains(&"set_preferred_label"));
+        assert_eq!(
+            session.config().allowed_tools.as_ref(),
+            Some(&vec!["echo".to_string(), "set_preferred_label".to_string()])
+        );
+
+        Ok(())
     }
 }
