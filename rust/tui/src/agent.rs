@@ -44,6 +44,8 @@ pub enum ResponseSegment {
         call_id: String,
         label: String,
         status: ToolCallStatus,
+        /// Optional one-line preview of the tool result (shown after completion).
+        result_preview: Option<String>,
     },
     /// An inline interview marker rendered in-place within an exchange.
     Interview {
@@ -124,11 +126,22 @@ fn complete_thinking(segments: &mut [ResponseSegment]) {
 }
 
 /// Find a tool call segment by `call_id` and update its status.
-fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Option<&str>) {
+///
+/// When `output` is provided and the tool is one that benefits from a
+/// visible result preview (e.g. `get_last_output`, `get_workflow_context`),
+/// a one-line summary is stored in the segment for TUI display.
+fn complete_tool_call(
+    segments: &mut [ResponseSegment],
+    call_id: &str,
+    error: Option<&str>,
+    output: Option<&str>,
+    tool_name: Option<&str>,
+) {
     for seg in segments.iter_mut() {
         if let &mut ResponseSegment::ToolCall {
             call_id: ref id,
             ref mut status,
+            ref mut result_preview,
             ..
         } = seg
             && id == call_id
@@ -139,9 +152,150 @@ fn complete_tool_call(segments: &mut [ResponseSegment], call_id: &str, error: Op
                 },
                 None => ToolCallStatus::Done,
             };
+            if error.is_none() {
+                *result_preview = tool_result_preview(tool_name, output);
+            }
             return;
         }
     }
+}
+
+/// Produce a one-line preview for a tool's result.
+///
+/// Some tools are self-explanatory from their label alone (e.g. `write_file`,
+/// `edit_file`). Others benefit from a short summary of what came back.
+/// Returns `None` when no preview is useful.
+fn tool_result_preview(tool_name: Option<&str>, output: Option<&str>) -> Option<String> {
+    let name = tool_name?;
+    let text = output?;
+    if text.is_empty() {
+        return None;
+    }
+
+    match name {
+        // Workflow tools and MCP codemode — collapse the full output to one line
+        "get_last_output"
+        | "get_workflow_context"
+        | "get_node_output"
+        | "get_artifact"
+        | "get_workflow_run"
+        | "mcp_codemode" => collapse_to_oneline(text),
+
+        // Shell — extract exit code and first line of stdout/stderr
+        "shell" => preview_shell(text),
+
+        // Search / discovery — show a count
+        "grep" => preview_line_count(text, "match", "matches"),
+        "glob" => preview_line_count(text, "file", "files"),
+
+        // Listing tools — show count of items
+        "list_completed_nodes"
+        | "list_agents"
+        | "list_workflows"
+        | "list_designs"
+        | "list_plans" => preview_list(text),
+
+        // Web fetch — show the status line from the manifest
+        "web_fetch" => preview_web_fetch(text),
+
+        _ => None,
+    }
+}
+
+/// Collapse whitespace and truncate to a single display line.
+fn collapse_to_oneline(text: &str) -> Option<String> {
+    let oneline: String = text
+        .chars()
+        .map(|c| if c.is_whitespace() { ' ' } else { c })
+        .collect();
+    let trimmed = oneline.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    Some(truncate_for_display(trimmed, 120))
+}
+
+/// Preview shell output: "exit 0" or "exit 1: <first stderr line>".
+fn preview_shell(text: &str) -> Option<String> {
+    let exit_code = text
+        .lines()
+        .find(|l| l.starts_with("Exit code:"))
+        .and_then(|l| l.strip_prefix("Exit code:"))
+        .map(|s| s.trim().to_string())?;
+
+    let first_stderr = text
+        .find("STDERR:\n")
+        .map(|pos| &text[pos + "STDERR:\n".len()..])
+        .and_then(|rest| rest.lines().find(|l| !l.trim().is_empty()))
+        .map(str::trim);
+
+    let first_stdout = text
+        .find("STDOUT:\n")
+        .map(|pos| &text[pos + "STDOUT:\n".len()..])
+        .and_then(|rest| rest.lines().find(|l| !l.trim().is_empty()))
+        .map(str::trim);
+
+    let mut preview = format!("exit {exit_code}");
+    // Prefer stderr for non-zero exits, stdout otherwise
+    let detail = if exit_code == "0" {
+        first_stdout.or(first_stderr)
+    } else {
+        first_stderr.or(first_stdout)
+    };
+    if let Some(line) = detail {
+        preview.push_str(": ");
+        preview.push_str(line);
+    }
+
+    Some(truncate_for_display(&preview, 120))
+}
+
+/// Preview a newline-separated result list: "N item(s)" or the text itself if short.
+fn preview_line_count(text: &str, singular: &str, plural: &str) -> Option<String> {
+    let trimmed = text.trim();
+    if trimmed.is_empty() || trimmed.starts_with("No ") {
+        return Some(trimmed.to_string()).filter(|s| !s.is_empty());
+    }
+    let count = trimmed.lines().count();
+    if count == 1 {
+        Some(format!("1 {singular}"))
+    } else {
+        Some(format!("{count} {plural}"))
+    }
+}
+
+/// Preview a JSON list result (`list_agents`, `list_workflows`, etc.): count items.
+fn preview_list(text: &str) -> Option<String> {
+    let trimmed = text.trim();
+    if trimmed.starts_with("No ") || trimmed == "[]" {
+        return Some(trimmed.to_string());
+    }
+    // Try to count JSON array entries by top-level "name" fields
+    let name_count = trimmed.lines().filter(|l| l.contains("\"name\"")).count();
+    if name_count > 0 {
+        return Some(format!(
+            "{name_count} {}",
+            if name_count == 1 { "item" } else { "items" }
+        ));
+    }
+    // Fallback: count non-empty lines
+    let count = trimmed.lines().filter(|l| !l.trim().is_empty()).count();
+    if count > 0 {
+        Some(format!(
+            "{count} {}",
+            if count == 1 { "line" } else { "lines" }
+        ))
+    } else {
+        None
+    }
+}
+
+/// Preview `web_fetch`: extract the "Status:" line from the manifest.
+fn preview_web_fetch(text: &str) -> Option<String> {
+    text.lines()
+        .find(|l| l.starts_with("Status:"))
+        .map(|l| l.trim().to_string())
+        .map(|s| truncate_for_display(&s, 120))
 }
 
 /// Whether to delegate to an agent or a workflow.
@@ -560,6 +714,37 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let label = str_arg("label").unwrap_or_default();
             format!("Preferred workflow branch: {label}")
         }
+        "get_workflow_run" => "Get workflow run".to_string(),
+        "list_completed_nodes" => "List completed nodes".to_string(),
+        "get_last_output" => "Get last output".to_string(),
+        "get_node_output" => {
+            let node_id = str_arg("node_id").unwrap_or_default();
+            format!("Get output of node `{node_id}`")
+        }
+        "get_workflow_context" => {
+            let key = str_arg("key").unwrap_or_default();
+            if key.is_empty() {
+                "Get workflow context".to_string()
+            } else {
+                format!("Get workflow context: {key}")
+            }
+        }
+        "store_artifact" => {
+            let name = str_arg("name").unwrap_or_default();
+            if name.is_empty() {
+                "Store artifact".to_string()
+            } else {
+                format!("Store artifact `{name}`")
+            }
+        }
+        "get_artifact" => {
+            let name = str_arg("name").unwrap_or_default();
+            if name.is_empty() {
+                "Get artifact".to_string()
+            } else {
+                format!("Get artifact `{name}`")
+            }
+        }
         "list_agents" => "List agents".to_string(),
         "list_workflows" => "List workflows".to_string(),
         "delegate" => {
@@ -725,6 +910,7 @@ fn handle_tool_call_start(
                 call_id: call_id.to_string(),
                 label,
                 status: ToolCallStatus::Running,
+                result_preview: None,
             });
         }
         g.has_tool_calls = true;
@@ -779,7 +965,15 @@ pub(crate) fn process_event(
                     .and_then(Value::as_str)
                     .unwrap_or("");
                 let error = event.data.get("error").and_then(Value::as_str);
-                complete_tool_call(&mut g.segments, call_id, error);
+                let output = event.data.get("output").and_then(Value::as_str);
+                let tool_name = g.pending_tools.get(call_id).cloned();
+                complete_tool_call(
+                    &mut g.segments,
+                    call_id,
+                    error,
+                    output,
+                    tool_name.as_deref(),
+                );
                 g.pending_tools.remove(call_id);
             }
         }
@@ -1014,7 +1208,33 @@ mod tests {
         let args = serde_json::json!({"label": "Pass"});
         assert_eq!(
             format_tool_start("set_preferred_label", &args),
-            "Set preferred branch label: Pass"
+            "Preferred workflow branch: Pass"
+        );
+    }
+
+    #[test]
+    fn format_workflow_context_tools() {
+        assert_eq!(
+            format_tool_start("get_last_output", &Value::Null),
+            "Get last output"
+        );
+        let args = serde_json::json!({"key": "human.feedback"});
+        assert_eq!(
+            format_tool_start("get_workflow_context", &args),
+            "Get workflow context: human.feedback"
+        );
+        let args = serde_json::json!({"node_id": "Review"});
+        assert_eq!(
+            format_tool_start("get_node_output", &args),
+            "Get output of node `Review`"
+        );
+        assert_eq!(
+            format_tool_start("list_completed_nodes", &Value::Null),
+            "List completed nodes"
+        );
+        assert_eq!(
+            format_tool_start("get_workflow_run", &Value::Null),
+            "Get workflow run"
         );
     }
 
@@ -1033,6 +1253,168 @@ mod tests {
     fn format_unknown_tool_empty_object() {
         let args = serde_json::json!({});
         assert_eq!(format_tool_start("tool", &args), "Tool");
+    }
+
+    // ─── tool_result_preview tests ────────────────────────────────────
+
+    #[test]
+    fn tool_result_preview_for_get_last_output() {
+        let preview = tool_result_preview(Some("get_last_output"), Some("Some review feedback"));
+        assert_eq!(preview, Some("Some review feedback".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_for_get_workflow_context() {
+        let preview =
+            tool_result_preview(Some("get_workflow_context"), Some("Please fix the intro"));
+        assert_eq!(preview, Some("Please fix the intro".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_none_for_non_preview_tools() {
+        assert_eq!(
+            tool_result_preview(Some("read_file"), Some("file contents")),
+            None
+        );
+        assert_eq!(tool_result_preview(Some("write_file"), Some("ok")), None);
+        assert_eq!(tool_result_preview(Some("edit_file"), Some("ok")), None);
+    }
+
+    #[test]
+    fn tool_result_preview_none_for_empty_output() {
+        assert_eq!(tool_result_preview(Some("get_last_output"), Some("")), None);
+        assert_eq!(tool_result_preview(Some("get_last_output"), None), None);
+    }
+
+    #[test]
+    fn tool_result_preview_collapses_multiline() {
+        let output = "Line one\nLine two\nLine three";
+        let preview = tool_result_preview(Some("get_last_output"), Some(output));
+        assert!(preview.is_some());
+        let p = preview.expect("should have preview");
+        assert!(!p.contains('\n'));
+    }
+
+    #[test]
+    fn tool_result_preview_shell_success() {
+        let output = "Exit code: 0\nDuration: 42ms\n\nSTDOUT:\nhello world\n";
+        let preview = tool_result_preview(Some("shell"), Some(output));
+        assert_eq!(preview, Some("exit 0: hello world".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_shell_failure() {
+        let output = "Exit code: 1\nDuration: 10ms\n\nSTDERR:\ncommand not found\n";
+        let preview = tool_result_preview(Some("shell"), Some(output));
+        assert_eq!(preview, Some("exit 1: command not found".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_shell_no_output() {
+        let output = "Exit code: 0\nDuration: 5ms";
+        let preview = tool_result_preview(Some("shell"), Some(output));
+        assert_eq!(preview, Some("exit 0".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_grep_matches() {
+        let output = "src/main.rs:10:fn main() {\nsrc/lib.rs:5:pub fn run() {";
+        let preview = tool_result_preview(Some("grep"), Some(output));
+        assert_eq!(preview, Some("2 matches".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_grep_single_match() {
+        let output = "src/main.rs:10:fn main() {";
+        let preview = tool_result_preview(Some("grep"), Some(output));
+        assert_eq!(preview, Some("1 match".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_glob_files() {
+        let output = "src/main.rs\nsrc/lib.rs\nsrc/util.rs";
+        let preview = tool_result_preview(Some("glob"), Some(output));
+        assert_eq!(preview, Some("3 files".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_glob_no_files() {
+        let output = "No files found.";
+        let preview = tool_result_preview(Some("glob"), Some(output));
+        assert_eq!(preview, Some("No files found.".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_list_agents_json() {
+        let output = r#"[
+  {
+    "name": "coder",
+    "description": "Writes code"
+  },
+  {
+    "name": "reviewer",
+    "description": "Reviews code"
+  }
+]"#;
+        let preview = tool_result_preview(Some("list_agents"), Some(output));
+        assert_eq!(preview, Some("2 items".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_list_empty() {
+        let preview = tool_result_preview(Some("list_agents"), Some("[]"));
+        assert_eq!(preview, Some("[]".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_web_fetch() {
+        let output = "URL: https://example.com\nStatus: 200 OK, cached for 1h\nSaved to: .stencila/cache/web/example.com_abc123\n\nFiles:\n  index.md (5000 chars, 120 lines)";
+        let preview = tool_result_preview(Some("web_fetch"), Some(output));
+        assert_eq!(preview, Some("Status: 200 OK, cached for 1h".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_get_node_output() {
+        let preview = tool_result_preview(Some("get_node_output"), Some("Draft paragraph text"));
+        assert_eq!(preview, Some("Draft paragraph text".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_get_artifact() {
+        let preview = tool_result_preview(Some("get_artifact"), Some("stored data value"));
+        assert_eq!(preview, Some("stored data value".to_string()));
+    }
+
+    #[test]
+    fn tool_result_preview_mcp_codemode() {
+        let preview = tool_result_preview(Some("mcp_codemode"), Some("result: 42"));
+        assert_eq!(preview, Some("result: 42".to_string()));
+    }
+
+    #[test]
+    fn complete_tool_call_with_preview() {
+        let mut segments = vec![ResponseSegment::ToolCall {
+            call_id: "c1".to_string(),
+            label: "Get last output".to_string(),
+            status: ToolCallStatus::Running,
+            result_preview: None,
+        }];
+        complete_tool_call(
+            &mut segments,
+            "c1",
+            None,
+            Some("Review feedback text"),
+            Some("get_last_output"),
+        );
+        assert_eq!(
+            segments[0],
+            ResponseSegment::ToolCall {
+                call_id: "c1".to_string(),
+                label: "Get last output".to_string(),
+                status: ToolCallStatus::Done,
+                result_preview: Some("Review feedback text".to_string()),
+            }
+        );
     }
 
     #[test]
@@ -1120,6 +1502,7 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file".to_string(),
                 status: ToolCallStatus::Running,
+                result_preview: None,
             },
         ];
         append_text(&mut segments, "after");
@@ -1135,15 +1518,17 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file foo.rs".to_string(),
                 status: ToolCallStatus::Running,
+                result_preview: None,
             },
         ];
-        complete_tool_call(&mut segments, "c1", None);
+        complete_tool_call(&mut segments, "c1", None, None, None);
         assert_eq!(
             segments[1],
             ResponseSegment::ToolCall {
                 call_id: "c1".to_string(),
                 label: "Read file foo.rs".to_string(),
                 status: ToolCallStatus::Done,
+                result_preview: None,
             }
         );
     }
@@ -1154,8 +1539,9 @@ mod tests {
             call_id: "c1".to_string(),
             label: "Shell cargo build".to_string(),
             status: ToolCallStatus::Running,
+            result_preview: None,
         }];
-        complete_tool_call(&mut segments, "c1", Some("command not found"));
+        complete_tool_call(&mut segments, "c1", Some("command not found"), None, None);
         assert_eq!(
             segments[0],
             ResponseSegment::ToolCall {
@@ -1164,6 +1550,7 @@ mod tests {
                 status: ToolCallStatus::Error {
                     detail: "command not found".to_string()
                 },
+                result_preview: None,
             }
         );
     }
@@ -1174,9 +1561,10 @@ mod tests {
             call_id: "c1".to_string(),
             label: "shell ls".to_string(),
             status: ToolCallStatus::Running,
+            result_preview: None,
         }];
         let original = segments.clone();
-        complete_tool_call(&mut segments, "c999", None);
+        complete_tool_call(&mut segments, "c999", None, None, None);
         assert_eq!(segments, original);
     }
 
@@ -1187,14 +1575,16 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file a.rs".to_string(),
                 status: ToolCallStatus::Running,
+                result_preview: None,
             },
             ResponseSegment::ToolCall {
                 call_id: "c2".to_string(),
                 label: "Read file b.rs".to_string(),
                 status: ToolCallStatus::Running,
+                result_preview: None,
             },
         ];
-        complete_tool_call(&mut segments, "c2", None);
+        complete_tool_call(&mut segments, "c2", None, None, None);
         // c1 stays Running, c2 becomes Done
         assert_eq!(
             segments[0],
@@ -1202,6 +1592,7 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file a.rs".to_string(),
                 status: ToolCallStatus::Running,
+                result_preview: None,
             }
         );
         assert_eq!(
@@ -1210,6 +1601,7 @@ mod tests {
                 call_id: "c2".to_string(),
                 label: "Read file b.rs".to_string(),
                 status: ToolCallStatus::Done,
+                result_preview: None,
             }
         );
     }
@@ -1224,6 +1616,7 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file foo.rs".to_string(),
                 status: ToolCallStatus::Done,
+                result_preview: None,
             },
             ResponseSegment::Thinking {
                 text: "some reasoning".to_string(),
@@ -1282,6 +1675,7 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file".to_string(),
                 status: ToolCallStatus::Done,
+                result_preview: None,
             },
             ResponseSegment::Text("after".to_string()),
         ];
@@ -1310,6 +1704,7 @@ mod tests {
                 call_id: "c1".to_string(),
                 label: "Read file foo.rs".to_string(),
                 status: ToolCallStatus::Done,
+                result_preview: None,
             },
             ResponseSegment::Text("World".to_string()),
         ];
@@ -1419,6 +1814,7 @@ mod tests {
                     call_id: "c1".to_string(),
                     label: "Read file".to_string(),
                     status: ToolCallStatus::Done,
+                    result_preview: None,
                 },
                 ResponseSegment::Text("turn 2".to_string()),
             ],

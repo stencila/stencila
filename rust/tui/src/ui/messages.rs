@@ -530,7 +530,12 @@ fn response_segments_lines(
                 }
                 prev_was_annotation = false;
             }
-            ResponseSegment::ToolCall { label, status, .. } => {
+            ResponseSegment::ToolCall {
+                label,
+                status,
+                result_preview,
+                ..
+            } => {
                 if !prev_was_annotation {
                     lines.push(blank_line());
                 }
@@ -560,6 +565,18 @@ fn response_segments_lines(
                             content_width,
                         );
                     }
+                } else if let Some(preview) = result_preview {
+                    let preview_avail = content_width.saturating_sub(4);
+                    let display_preview = truncate_for_display(preview, preview_avail);
+                    push_annotation_lines(
+                        lines,
+                        dim_sidebar_style,
+                        '\u{21b3}',
+                        dim(),
+                        &display_preview,
+                        dim(),
+                        content_width,
+                    );
                 }
                 prev_was_annotation = true;
             }
