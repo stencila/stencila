@@ -59,7 +59,7 @@ preamble: |
 questions:
   - header: Decision
     question: Is the workflow acceptable?
-    type: multiple-choice
+    type: single-select
     options:
       - label: Accept
       - label: Revise
