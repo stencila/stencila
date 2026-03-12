@@ -241,8 +241,8 @@ digraph thing_creation {
 ```text #creator-prompt
 Create or update a Stencila thing for this goal: $goal
 
-If reviewer feedback is present, revise the current draft:
-$last_output
+Before starting, check for reviewer feedback from a previous iteration.
+If feedback is present, use it to revise the existing draft instead of starting over.
 ```
 
 ```sh #run-checks

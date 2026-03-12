@@ -120,6 +120,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - When a human review step needs to collect multiple pieces of information (e.g., a decision and freeform feedback), use `interview-ref` pointing to a YAML code block that defines the full interview with preamble, multiple typed questions, and per-question `store` keys; continue to use `ask` or `ask-ref` for single-question human gates
 - Use `show-if` on interview questions to conditionally display them based on a previous answer (e.g., `show-if: "decision == Revise"` to ask for revision notes only when the reviewer chose to revise); use `finish-if` on `yes-no`, `confirm`, or `single-select` questions to end the interview early when the answer matches a value (e.g., `finish-if: "no"` to skip remaining questions when the user declines to continue)
 - When an `agent` node has multiple outgoing edges with labels, the engine automatically provides routing instructions — via a `set_preferred_label` tool for tool-capable sessions, or an XML tag fallback otherwise. Prefer this label-based routing over `context.last_output` text-matching because it decouples the routing decision from the agent's text output. Simply give each outgoing edge a descriptive label (e.g., `Accept`, `Revise`, `Pass`, `Fail`) and the agent will signal its choice. Edge conditions still take priority over preferred labels, so both mechanisms can coexist
+- In iterative workflows, prefer tool-based context retrieval over `$last_output` and `$human.feedback` interpolation in creator prompts. The engine automatically tells agents about `get_last_output` (for prior node output) and `get_workflow_context` (for stored values like `human.feedback`), and agents fetch the content via background tool calls. This avoids bloating prompts with long prior outputs. Write prompts that say "check for reviewer feedback" and "check for human revision notes" instead of embedding `$last_output` and `$human.feedback` inline. Reserve `$`-variable interpolation for short values (`$goal`, `$last_stage`) and for shell commands and edge conditions where tools are not available
 - Use edges to express sequencing, branching, retry loops, and approval paths
 - Use `workflow="child-name"` on a node when a stage should run another workflow as a reusable composed subprocess; this is normalized as a workflow-handler node rather than a normal LLM, shell, or branch node. Prefer it when a subprocess is complex, reusable, or would otherwise make the parent graph hard to read
 - On composed workflow nodes, use `goal="..."` when the child workflow needs an explicit goal. If omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`), so child workflows can usually keep using `$goal`
@@ -147,8 +148,8 @@ Create or revise the draft for this goal: $goal
 
 ...
 
-Incorporate reviewer feedback when present:
-$last_output
+Before starting, check for reviewer feedback from a previous iteration.
+If feedback is present, use it to revise the existing draft instead of starting over.
 ```
 
 ```sh #run-checks
@@ -170,7 +171,7 @@ preamble: |
 questions:
   - header: Decision
     question: Is the draft ready to publish?
-    type: multiple-choice
+    type: single-select
     options:
       - label: Approve
       - label: Revise
@@ -277,7 +278,7 @@ preamble: |
 questions:
   - header: Decision
     question: Is the implementation ready to merge?
-    type: multiple-choice
+    type: single-select
     options:
       - label: Approve
       - label: Revise
@@ -321,11 +322,7 @@ digraph draft_review_iterative {
 ```text #creator-prompt
 Create or update the draft for: $goal
 
-Incorporate reviewer feedback when present:
-$last_output
-
-Incorporate human feedback when present:
-$human.feedback
+Before starting, check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. Also check for human revision notes and incorporate those as well.
 ```
 
 ```text #reviewer-prompt
@@ -343,7 +340,7 @@ preamble: |
 questions:
   - header: Decision
     question: Is the draft acceptable?
-    type: multiple-choice
+    type: single-select
     options:
       - label: Accept
       - label: Revise

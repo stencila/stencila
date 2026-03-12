@@ -4,6 +4,7 @@
 //! calls, rather than relying solely on prompt interpolation.
 
 mod get_artifact;
+mod get_last_output;
 mod get_node_output;
 mod get_workflow_context;
 mod get_workflow_run;
@@ -44,6 +45,7 @@ pub fn register_workflow_tools(
         set_workflow_context::registered_tool(conn.clone(), run_id.clone(), context_writable),
         list_completed_nodes::registered_tool(conn.clone(), run_id.clone()),
         get_node_output::registered_tool(conn.clone(), run_id.clone()),
+        get_last_output::registered_tool(conn.clone(), run_id.clone()),
         get_artifact::registered_tool(conn.clone(), run_id.clone()),
         store_artifact::registered_tool(conn, run_id, artifacts_dir, workspace_root),
     ];

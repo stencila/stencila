@@ -7,6 +7,7 @@ Pipelines let you define multi-stage AI workflows as directed graphs using [Grap
 
 Pipelines are declarative: you describe _what_ the workflow looks like, and the execution engine decides _how_ and _when_ to run each stage.
 
+> [!note]
 > Node and graph attribute names can be written in kebab-case, snake_case, or camelCase. We recommend **kebab-case** for readability, and this page uses that casing.
 
 # Quick start
@@ -248,6 +249,12 @@ Use `$`-prefixed variables in `prompt` attributes to inject dynamic values:
 
 `$goal` is expanded once before the pipeline starts. The other variables are expanded at execution time, so each stage sees the outputs of the stage that ran before it.
 
+> [!tip] Tool-based alternative
+>
+> Variable interpolation embeds prior output directly into the prompt text, which can bloat messages in iterative workflows where outputs are long (e.g. full drafts or detailed reviews). For these cases, prefer the `get_last_output` and `get_workflow_context` tools instead — the engine automatically tells agents about these tools, and agents fetch the content via background tool calls rather than receiving it inline. See [Workflow context tools](#workflow-context-tools) below.
+>
+> Variable interpolation remains the best choice for short references (e.g. `$goal`, `$last_stage`), shell commands, and edge conditions.
+
 ### Built-in variables
 
 Example using runtime variables:
@@ -268,11 +275,13 @@ digraph CountToThree {
 
 Use `$KEY` to reference any value stored in the pipeline context. The key can contain letters, digits, underscores, and dots. Missing keys resolve to an empty string.
 
-This is especially useful for incorporating human feedback into later stages (see [Collecting human feedback](#collecting-human-feedback) below):
+For example, a short inline reference to a stored context value:
 
 ```dot
 Create [prompt="Create a skill for: $goal\n\nHuman feedback: $human.feedback"]
 ```
+
+However, for iterative workflows where the interpolated content may be long (full drafts, detailed reviews), prefer using the `get_last_output` and `get_workflow_context` tools instead — see [Workflow context tools](#workflow-context-tools) below.
 
 Context values can come from several sources:
 
@@ -316,8 +325,8 @@ digraph Example {
 ```text #creator-prompt
 Create or update the draft for this goal: $goal
 
-Use reviewer feedback when present:
-$last_output
+Before starting, check for reviewer feedback from a previous iteration.
+If feedback is present, use it to revise the existing draft instead of starting over.
 ```
 
 ```sh #run-checks
@@ -633,7 +642,7 @@ When the human provides an answer, it is stored as a string:
 
 ### Collecting human feedback
 
-Combining `question-type`, `store`, and `$KEY` enables iterative workflows where a human can provide specific feedback that guides subsequent stages.
+Combining `question-type`, `store`, and workflow context tools enables iterative workflows where a human can provide specific feedback that guides subsequent stages.
 
 Here is a complete example of a create–review–revise workflow:
 
@@ -645,7 +654,7 @@ digraph SkillCreation {
 
   Create [
     agent="skill-creator",
-    prompt="Create or update a Stencila skill that achieves: $goal\n\nHuman feedback: $human.feedback"
+    prompt="Create or update a Stencila skill that achieves: $goal\n\nCheck for reviewer feedback and human revision notes before starting."
   ]
   Create -> Review
 
@@ -676,9 +685,7 @@ This pipeline:
 3. **Routes** to human review on success, or loops back to revise on failure
 4. **Asks the human** whether to accept or revise
 5. If revising, **collects freeform feedback** that describes what to change
-6. The feedback is stored as `human.feedback` and interpolated into the `Create` prompt on the next iteration via `$human.feedback`
-
-On the first iteration, `$human.feedback` resolves to an empty string (the key doesn't exist yet), so the prompt naturally adapts.
+6. The feedback is stored as `human.feedback` in the pipeline context. On the next iteration, the `Create` agent retrieves it using the `get_workflow_context` tool and retrieves the reviewer's output using `get_last_output` — both happen as background tool calls, keeping the prompt compact
 
 ### Multi-question interviews
 
@@ -873,7 +880,7 @@ This pipeline:
 
 # Context and state
 
-Nodes communicate through a shared key-value **context**. After each node executes, its outcome and any `context_updates` are merged into the context. Subsequent nodes can reference these values in edge conditions (e.g., `context.citations_valid=true`) and in prompt variables (e.g., `$human.feedback`).
+Nodes communicate through a shared key-value **context**. After each node executes, its outcome and any `context_updates` are merged into the context. Subsequent nodes can reference these values in edge conditions (e.g., `context.citations_valid=true`), in prompt variables (e.g., `$last_stage`), or by calling workflow context tools.
 
 Context values come from several sources:
 
@@ -883,6 +890,27 @@ Context values come from several sources:
 - **Graph attributes** — `graph.*` keys are mirrored into context at pipeline start
 
 The engine also saves a **checkpoint** after each node completes. If the pipeline crashes, it can resume from the last checkpoint.
+
+## Workflow context tools
+
+Agent nodes in a pipeline automatically receive workflow context tools that let them query pipeline state on demand via tool calls. This is the recommended way for agents to access prior outputs and stored values in iterative workflows, because the content is fetched in the background rather than being interpolated into the prompt text.
+
+Available tools:
+
+| Tool                     | Purpose                                                                 |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `get_last_output`        | Fetch the full output from the most recently completed pipeline node    |
+| `get_workflow_context`   | Read a specific context key (e.g., `human.feedback`) or all context     |
+| `set_workflow_context`   | Write a value to the pipeline context (under the `llm.` namespace)      |
+| `get_workflow_run`       | Get metadata about the current run (name, goal, status, start time)     |
+| `list_completed_nodes`   | List all completed nodes with status and duration                       |
+| `get_node_output`        | Get the output of a specific node by ID                                 |
+| `store_artifact`         | Store a file artifact associated with this run                          |
+| `get_artifact`           | Retrieve a previously stored artifact                                   |
+
+The engine appends usage instructions to each agent's prompt when these tools are available. Agents are told to call `get_last_output` for prior output (e.g., reviewer feedback or a previous draft) and `get_workflow_context` for stored values (e.g., `human.feedback`).
+
+> **When to use tools vs variables:** Use `$`-variable interpolation for short values like `$goal`, `$last_stage`, and `$last_outcome`, and in shell commands and edge conditions where tools are not available. Prefer tools like `get_last_output` and `get_workflow_context` when the content may be long (full drafts, detailed reviews) to keep prompts compact.
 
 # Syntax reference
 

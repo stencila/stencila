@@ -539,24 +539,31 @@ impl CodergenBackend for AgentCodergenBackend {
         })?;
 
         // Register workflow-context tools if we have a DB connection.
-        if let (Some(conn), Some(run_id), Some(artifacts_dir), Some(workspace_root)) = (
-            &self.db_conn,
-            &self.run_id,
-            &self.artifacts_dir,
-            &self.workspace_root,
-        ) {
-            let context_writable = node.get_str_attr("context_writable") == Some("true");
-            if let Err(e) = crate::tools::register_workflow_tools(
-                &mut session,
-                conn.clone(),
-                run_id.clone(),
-                context_writable,
-                artifacts_dir.clone(),
-                workspace_root.clone(),
+        let workflow_tools_available =
+            if let (Some(conn), Some(run_id), Some(artifacts_dir), Some(workspace_root)) = (
+                &self.db_conn,
+                &self.run_id,
+                &self.artifacts_dir,
+                &self.workspace_root,
             ) {
-                tracing::warn!("Failed to register workflow tools: {e}");
-            }
-        }
+                let context_writable = node.get_str_attr("context_writable") == Some("true");
+                match crate::tools::register_workflow_tools(
+                    &mut session,
+                    conn.clone(),
+                    run_id.clone(),
+                    context_writable,
+                    artifacts_dir.clone(),
+                    workspace_root.clone(),
+                ) {
+                    Ok(()) => true,
+                    Err(e) => {
+                        tracing::warn!("Failed to register workflow tools: {e}");
+                        false
+                    }
+                }
+            } else {
+                false
+            };
 
         // Collect outgoing edge labels from context (set fresh by
         // CodergenHandler before each backend call — intentionally transient
@@ -594,29 +601,41 @@ impl CodergenBackend for AgentCodergenBackend {
             false
         };
 
-        let effective_prompt = if outgoing_labels.is_empty() {
-            prompt.to_string()
-        } else {
+        let mut effective_prompt = prompt.to_string();
+
+        if workflow_tools_available {
+            effective_prompt.push_str(
+                "\n\n\
+                 WORKFLOW CONTEXT TOOLS: You have access to workflow tools for retrieving \
+                 prior state. Call `get_last_output` to fetch the full output from the \
+                 previous pipeline node (e.g. reviewer feedback or a prior draft). Call \
+                 `get_workflow_context` with a key (e.g. \"human.feedback\") to read stored \
+                 values such as human revision notes. Use these tools to obtain context \
+                 rather than assuming it is included in this prompt.",
+            );
+        }
+
+        if !outgoing_labels.is_empty() {
             let labels_list = outgoing_labels.join(", ");
             if routing_tool_available {
-                format!(
-                    "{prompt}\n\n\
+                effective_prompt.push_str(&format!(
+                    "\n\n\
                      WORKFLOW ROUTING: This node has multiple outgoing branches. \
                      After completing your main task, you MUST call the `set_preferred_label` tool \
                      with one of these labels to determine which branch the workflow takes next: \
                      {labels_list}"
-                )
+                ));
             } else {
-                format!(
-                    "{prompt}\n\n\
+                effective_prompt.push_str(&format!(
+                    "\n\n\
                      WORKFLOW ROUTING: This node has multiple outgoing branches. \
                      After completing your main task, you MUST end your response with an XML tag \
                      indicating which branch to take next. Use exactly one of these labels: \
                      {labels_list}\n\n\
                      Example: <preferred-label>Accept</preferred-label>"
-                )
+                ));
             }
-        };
+        }
 
         let node_id = node.id.clone();
         let mut submit_fut = Box::pin(session.submit(&effective_prompt));
