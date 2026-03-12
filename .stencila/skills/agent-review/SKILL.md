@@ -58,6 +58,8 @@ Check each present field for validity:
 
 Note: `Agent` extends `CreativeWork` in the schema, so agents may have additional valid fields such as `license`. Verify against the schema before flagging inherited properties as unknown.
 
+If both `allowed-skills` and `allowed-tools` are present, check tool coverage across skills: the agent's `allowed-tools` should include all tools required by the allowed skills. `use_skill` is optional for exactly one allowed skill because that skill is preloaded automatically, but should be present when the agent may need to invoke skills dynamically or choose among multiple skills.
+
 ### Discovery and Delegation Metadata
 
 - **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words, artifact types, and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability

@@ -83,6 +83,8 @@ These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`
 - `keywords` — list of keywords or tags for discovery and routing; use terms that reflect likely user intents, artifacts, and domains
 - `when-to-use` (positive selection signals) and `when-not-to-use` (negative selection signals); help managers choose the right resource
 
+If an agent does not need tool restrictions, prefer omitting `allowed-tools`. If an agent does set `allowed-tools` and it also needs one or more skills, ensure it includes all tools allowed by each allowed skill so the agent can actually execute those skills without tool-coverage mismatches. Include `use_skill` when the agent may need to invoke skills dynamically; for exactly one allowed skill, Stencila preloads that skill into the prompt so `use_skill` is not required just for that preloaded skill.
+
 ## Common Agent Patterns
 
 ### Minimal agent (configuration only)
@@ -121,6 +123,8 @@ You are a code reviewer. When asked to review code:
 When an agent should follow exactly one skill, set `allowed-skills` to that skill name. Stencila preloads the skill's full instructions into the system prompt automatically, so the model doesn't spend a turn calling `use_skill`.
 
 Add a short Markdown body (one or two sentences) that frames the agent's identity and specialization. The preloaded skill instructions are appended after this preamble, so the body should set context rather than repeat the skill.
+
+If you include `allowed-tools` on a skill-using agent, include all tools allowed by that skill. Add `use_skill` only if the agent may need to invoke skills dynamically; for exactly one allowed skill, the preloaded skill does not require `use_skill`.
 
 ```markdown
 ---
@@ -228,6 +232,13 @@ Guide the user with these defaults when they don't specify preferences:
 
 When in doubt, omit optional fields — Stencila uses sensible defaults.
 
+When combining `allowed-skills` with `allowed-tools`, use this rule:
+
+- No tool restrictions needed: omit `allowed-tools`
+- Tool restrictions needed and no skills: include only the tools the agent itself needs
+- Tool restrictions needed and exactly one allowed skill: include the tools required by that skill, plus any extra agent-specific tools; `use_skill` is optional because the skill is preloaded
+- Tool restrictions needed and multiple allowed skills or dynamic skill invocation: include `use_skill` and the union of tools required by those skills, plus any extra agent-specific tools
+
 ## Edge Cases
 
 - **Agent directory already exists**: Ask the user whether to overwrite, merge, or abort before modifying an existing agent. Never silently overwrite.
@@ -237,6 +248,7 @@ When in doubt, omit optional fields — Stencila uses sensible defaults.
 - **User vs workspace confusion**: Confirm with the user if the intent is ambiguous. Default to workspace-level agents.
 - **CLI-backed agents**: When the user wants to use a CLI tool, set the provider to the corresponding CLI variant (e.g., `claude-cli`, `codex-cli`, `gemini-cli`).
 - **Body is optional**: A frontmatter-only `AGENT.md` is valid. Only add a Markdown body when the user provides custom instructions or the agent needs behavioral guidance beyond what project docs supply.
+- **Skill/tool mismatch**: If an agent sets both `allowed-skills` and `allowed-tools`, check that every tool allowed by the selected skills is also included in the agent's `allowed-tools`. Also check whether `use_skill` is needed: it is optional for exactly one preloaded skill, but should be included when the agent may need to invoke skills dynamically or choose among multiple skills.
 
 ## Validation
 

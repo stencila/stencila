@@ -22,6 +22,7 @@ allowed-tools:
   - glob
   - grep
   - shell
+  - ask_user
 ---
 
 You are an assistant that specializes in creating Stencila workspace skills.

@@ -34,6 +34,27 @@ Review an existing workspace skill for quality, correctness, completeness, and s
 - **description**: present, under 1,024 characters, specific (not vague), includes keywords that help agents match the skill to user requests
 - **Optional fields**: `license`, `compatibility`, `allowed-tools`, `metadata` — check for correctness if present (e.g., valid SPDX identifier, `compatibility` under 500 characters, `allowed-tools` is space-delimited)
 
+### Tooling and `allowed-tools`
+
+- Check that the skill includes only tools it genuinely needs
+- Check that tool choices match the actions described in the steps and examples
+- If the skill modifies existing files, check whether `apply_patch` or `edit_file` should be allowed
+- If the skill creates files from scratch, check whether `write_file` should be allowed
+- If the skill may need clarification, confirmation, or approval from the user while executing, check whether `ask_user` should be allowed
+
+Use this table when reviewing tool coverage and fit:
+
+| Tool | Review / checking focus | Should usually be present when |
+|---|---|---|
+| `read_file` | Check whether the skill needs to inspect existing files | The steps require reading repository or workspace content |
+| `write_file` | Check whether the skill needs to create new files or replace whole files | The steps create files from scratch |
+| `apply_patch`, `edit_file` | Check whether the skill needs to update existing files in place | The steps revise existing files; some models prefer one or the other |
+| `grep` | Check whether the skill needs content search | The steps look for patterns, symbols, or references |
+| `glob` | Check whether the skill needs file discovery | The steps locate files or directories by pattern |
+| `web_fetch` | Check whether the skill needs to retrieve external web content into local files | The steps review or summarize web pages or external documentation |
+| `shell` | Check whether the skill needs command execution | The steps run validation, formatting, tests, or other CLI checks |
+| `ask_user` | Check whether the skill needs user clarification or approval | The workflow may pause for feedback before continuing |
+
 ### Discovery and Delegation Metadata
 
 - **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user intent words, artifact types, and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability

@@ -8,7 +8,7 @@ keywords:
   - create
   - write
   - SKILL.md
-allowed-tools: read_file write_file edit_file apply_patch glob grep shell
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
 ---
 
 ## Overview
@@ -63,7 +63,7 @@ The file has two parts:
 
 - `license` — SPDX identifier or reference to a license file
 - `compatibility` — environment requirements (max 500 characters)
-- `allowed-tools` — space-delimited or comma-delimited list of pre-approved tools (e.g., `read_file grep shell` or `read_file, grep, shell`)
+- `allowed-tools` — space-delimited or comma-delimited list of pre-approved tools (e.g., `read_file grep shell` or `read_file, grep, shell, ask_user`).
 - `keywords` — (Stencila extension) list of keywords or tags for discovery and routing. Use terms that reflect likely user intents, artifacts, and domains. Helps managers and selection systems find and rank this skill. Include both positive signals (what this skill does) and negative signals (what it doesn't do) as keywords.
 - `metadata` — arbitrary key-value pairs (e.g., `author`, `version`)
 
@@ -118,6 +118,21 @@ Each skill gets its own subdirectory. Only `SKILL.md` is required:
 Use `scripts/` for executable code, `references/` for detailed docs loaded on demand, and `assets/` for templates and data files. Reference them from `SKILL.md` using relative paths.
 
 Do not point `SKILL.md` at repository documentation, specifications, or other files outside the skill directory. When outside material is necessary, prefer adding a concise summary or excerpt under `references/` instead of copying a large document verbatim. Keep individual reference files focused so agents can load only the minimum context needed.
+
+## Choosing `allowed-tools`
+
+Only include tools the skill genuinely needs; prefer the minimal set.
+
+| Tool                       | Use for                                          | Include when                                                                |
+| -------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
+| `read_file`                | Read existing files                              | The skill needs to inspect repository or workspace content                  |
+| `write_file`               | Create new files or overwrite whole files        | The skill creates files from scratch                                        |
+| `apply_patch`, `edit_file` | Modify existing files in place                   | The skill updates existing files; some models prefer one or the other       |
+| `grep`                     | Search file contents                             | The skill needs to find patterns, symbols, or references                    |
+| `glob`                     | Find files by pattern                            | The skill needs to discover files or directories                            |
+| `web_fetch`                | Fetch and save web content locally               | The skill needs to retrieve web pages or external documentation for review or summarization |
+| `shell`                    | Run commands                                     | The skill needs validation, formatting, tests, or other command-line checks |
+| `ask_user`                 | Request clarification, confirmation, or approval | The skill may need user feedback before proceeding                          |
 
 ## Writing Guidelines
 
