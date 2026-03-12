@@ -238,7 +238,7 @@ impl SqliteBackend {
                 output_tokens = COALESCE(excluded.output_tokens, workflow_nodes.output_tokens),
                 retry_count = COALESCE(excluded.retry_count, workflow_nodes.retry_count),
                 failure_reason = excluded.failure_reason,
-                completed_at = CASE WHEN excluded.status IN ('completed', 'failed')
+                completed_at = CASE WHEN excluded.status IN ('success', 'partial_success', 'fail', 'skipped')
                                THEN strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
                                ELSE workflow_nodes.completed_at END",
             (
