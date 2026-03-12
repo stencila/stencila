@@ -1,6 +1,9 @@
 //! `read_design` tool: retrieve a persisted software design specification.
 
-use std::path::Path;
+use std::{
+    path::{Path, PathBuf},
+    time::SystemTime,
+};
 
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
@@ -79,16 +82,7 @@ pub fn executor() -> ToolExecutorFn {
 
 /// Find the name of the most recently written design.
 ///
-/// Reads the index first; falls back to filesystem modification time
-/// if the index is missing or empty.
 async fn find_latest_name(designs_dir: &Path) -> Result<String, AgentError> {
-    let index = super::write_design::read_index(designs_dir).await;
-
-    if let Some(last) = index.last() {
-        return Ok(last.clone());
-    }
-
-    // Fallback: find the most recently modified .md file
     let entries = std::fs::read_dir(designs_dir).map_err(|e| AgentError::Io {
         message: format!(
             "failed to read designs directory {}: {e}",
@@ -96,13 +90,10 @@ async fn find_latest_name(designs_dir: &Path) -> Result<String, AgentError> {
         ),
     })?;
 
-    let mut newest: Option<(std::path::PathBuf, std::time::SystemTime)> = None;
+    let mut newest: Option<(PathBuf, SystemTime)> = None;
     for entry in entries.filter_map(|e| e.ok()) {
         let path = entry.path();
-        if !path.is_file()
-            || path.extension().and_then(|e| e.to_str()) != Some("md")
-            || path.file_name().and_then(|f| f.to_str()) == Some(super::write_design::INDEX_FILE)
-        {
+        if !path.is_file() || path.extension().and_then(|e| e.to_str()) != Some("md") {
             continue;
         }
         if let Ok(meta) = path.metadata()

@@ -1,6 +1,9 @@
 //! `list_designs` tool: discover persisted software design specifications.
 
-use std::path::Path;
+use std::{
+    path::{Path, PathBuf},
+    time::SystemTime,
+};
 
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
@@ -12,7 +15,7 @@ pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "list_designs".into(),
         description: "List persisted software design specifications from .stencila/designs/. \
-            Returns design names in chronological order (most recently written last)."
+            Returns design names in reverse chronological order (most recently written first)."
             .into(),
         parameters: json!({
             "type": "object",
@@ -40,16 +43,16 @@ pub fn executor() -> ToolExecutorFn {
                     return Ok(ToolOutput::Text("No designs found.".into()));
                 }
 
-                let index = super::write_design::read_index(&designs_dir).await;
+                let mut designs = list_designs_by_modified_time(&designs_dir)?;
 
-                if index.is_empty() {
+                if designs.is_empty() {
                     return Ok(ToolOutput::Text("No designs found.".into()));
                 }
 
-                let entries: Vec<Value> = index
-                    .iter()
+                let entries: Vec<Value> = designs
+                    .drain(..)
                     .enumerate()
-                    .map(|(i, name)| {
+                    .map(|(i, (name, _))| {
                         json!({
                             "name": name,
                             "path": designs_dir.join(format!("{name}.md")).display().to_string(),
@@ -64,4 +67,35 @@ pub fn executor() -> ToolExecutorFn {
             })
         },
     )
+}
+
+fn list_designs_by_modified_time(
+    designs_dir: &Path,
+) -> Result<Vec<(String, SystemTime)>, AgentError> {
+    let entries = std::fs::read_dir(designs_dir).map_err(|e| AgentError::Io {
+        message: format!(
+            "failed to read designs directory {}: {e}",
+            designs_dir.display()
+        ),
+    })?;
+
+    let mut designs = entries
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            let path: PathBuf = entry.path();
+
+            if !path.is_file() || path.extension().and_then(|ext| ext.to_str()) != Some("md") {
+                return None;
+            }
+
+            let modified = path.metadata().ok()?.modified().ok()?;
+            let name = path.file_stem()?.to_str()?.to_string();
+
+            Some((name, modified))
+        })
+        .collect::<Vec<_>>();
+
+    designs.sort_by_key(|(_, modified)| std::cmp::Reverse(*modified));
+
+    Ok(designs)
 }
