@@ -1,4 +1,4 @@
-//! `write_design` tool: persist a software design specification.
+//! `write_plan` tool: persist an implementation plan.
 
 use std::path::Path;
 
@@ -12,9 +12,9 @@ use super::{required_str, to_kebab_case_name};
 
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "write_design".into(),
-        description: "Persist a software design specification as a Markdown file in \
-            .stencila/designs/. Accepts a design name (coerced to kebab-case) and the \
+        name: "write_plan".into(),
+        description: "Persist an implementation plan as a Markdown file in \
+            .stencila/plans/. Accepts a plan name (coerced to kebab-case) and the \
             full Markdown content. Returns the path of the written file."
             .into(),
         parameters: json!({
@@ -22,11 +22,11 @@ pub fn definition() -> ToolDefinition {
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "Design name, coerced to kebab-case (e.g. 'user-auth-flow')."
+                    "description": "Plan name, coerced to kebab-case (e.g. 'user-auth-flow')."
                 },
                 "content": {
                     "type": "string",
-                    "description": "Full Markdown content of the design specification."
+                    "description": "Full Markdown content of the implementation plan."
                 }
             },
             "required": ["name", "content"],
@@ -49,32 +49,29 @@ pub fn executor() -> ToolExecutorFn {
                     .map_err(|e| AgentError::Io {
                         message: format!("failed to find .stencila directory: {e}"),
                     })?;
-                let designs_dir = stencila_dir.join("designs");
+                let plans_dir = stencila_dir.join("plans");
 
-                // Ensure the designs directory exists
-                tokio::fs::create_dir_all(&designs_dir)
+                // Ensure the plans directory exists
+                tokio::fs::create_dir_all(&plans_dir)
                     .await
                     .map_err(|e| AgentError::Io {
                         message: format!(
-                            "failed to create designs directory {}: {e}",
-                            designs_dir.display()
+                            "failed to create plans directory {}: {e}",
+                            plans_dir.display()
                         ),
                     })?;
 
                 let filename = format!("{name}.md");
-                let file_path = designs_dir.join(&filename);
+                let file_path = plans_dir.join(&filename);
 
                 tokio::fs::write(&file_path, content)
                     .await
                     .map_err(|e| AgentError::Io {
-                        message: format!(
-                            "failed to write design file {}: {e}",
-                            file_path.display()
-                        ),
+                        message: format!("failed to write plan file {}: {e}", file_path.display()),
                     })?;
 
                 let path_str = file_path.display().to_string();
-                Ok(ToolOutput::Text(format!("Design written to {path_str}")))
+                Ok(ToolOutput::Text(format!("Plan written to {path_str}")))
             })
         },
     )

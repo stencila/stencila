@@ -11,6 +11,7 @@ codemode = ["dep:stencila-mcp", "dep:stencila-codemode"]
 cli = ["clap", "stencila-cli-utils"]
 
 [dependencies]
+Inflector = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 eyre = { workspace = true }

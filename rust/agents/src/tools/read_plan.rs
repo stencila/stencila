@@ -1,4 +1,4 @@
-//! `read_design` tool: retrieve a persisted software design specification.
+//! `read_plan` tool: retrieve a persisted implementation plan.
 
 use std::{
     path::{Path, PathBuf},
@@ -13,17 +13,17 @@ use crate::registry::{ToolExecutorFn, ToolOutput};
 
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "read_design".into(),
-        description: "Read a persisted software design specification from .stencila/designs/. \
-            When called with no arguments, returns the most recently written design. \
-            When called with a name, returns that specific design."
+        name: "read_plan".into(),
+        description: "Read a persisted implementation plan from .stencila/plans/. \
+            When called with no arguments, returns the most recently written plan. \
+            When called with a name, returns that specific plan."
             .into(),
         parameters: json!({
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "Optional design name. Omit to read the latest design."
+                    "description": "Optional plan name. Omit to read the latest plan."
                 }
             },
             "required": [],
@@ -43,11 +43,11 @@ pub fn executor() -> ToolExecutorFn {
                     .map_err(|e| AgentError::Io {
                         message: format!("failed to find .stencila directory: {e}"),
                     })?;
-                let designs_dir = stencila_dir.join("designs");
+                let plans_dir = stencila_dir.join("plans");
 
-                if !designs_dir.exists() {
+                if !plans_dir.exists() {
                     return Err(AgentError::ValidationError {
-                        reason: "no designs directory found (.stencila/designs/)".into(),
+                        reason: "no plans directory found (.stencila/plans/)".into(),
                     });
                 }
 
@@ -58,14 +58,14 @@ pub fn executor() -> ToolExecutorFn {
 
                 let name = match selector {
                     Some(name) => name.to_string(),
-                    None => find_latest_name(&designs_dir)?,
+                    None => find_latest_name(&plans_dir)?,
                 };
 
-                let file_path = designs_dir.join(format!("{name}.md"));
+                let file_path = plans_dir.join(format!("{name}.md"));
 
                 if !file_path.exists() {
                     return Err(AgentError::ValidationError {
-                        reason: format!("no design named '{name}' found in .stencila/designs/"),
+                        reason: format!("no plan named '{name}' found in .stencila/plans/"),
                     });
                 }
 
@@ -74,24 +74,24 @@ pub fn executor() -> ToolExecutorFn {
                         .await
                         .map_err(|e| AgentError::Io {
                             message: format!(
-                                "failed to read design file {}: {e}",
+                                "failed to read plan file {}: {e}",
                                 file_path.display()
                             ),
                         })?;
 
                 let path_str = file_path.display().to_string();
-                Ok(ToolOutput::Text(format!("Design: {path_str}\n\n{content}")))
+                Ok(ToolOutput::Text(format!("Plan: {path_str}\n\n{content}")))
             })
         },
     )
 }
 
-/// Find the name of the most recently written design.
-fn find_latest_name(designs_dir: &Path) -> Result<String, AgentError> {
-    let entries = std::fs::read_dir(designs_dir).map_err(|e| AgentError::Io {
+/// Find the name of the most recently written plan.
+fn find_latest_name(plans_dir: &Path) -> Result<String, AgentError> {
+    let entries = std::fs::read_dir(plans_dir).map_err(|e| AgentError::Io {
         message: format!(
-            "failed to read designs directory {}: {e}",
-            designs_dir.display()
+            "failed to read plans directory {}: {e}",
+            plans_dir.display()
         ),
     })?;
 
@@ -110,15 +110,14 @@ fn find_latest_name(designs_dir: &Path) -> Result<String, AgentError> {
     }
 
     let (path, _) = newest.ok_or_else(|| AgentError::ValidationError {
-        reason: "no design files found in .stencila/designs/".into(),
+        reason: "no plan files found in .stencila/plans/".into(),
     })?;
 
-    // Extract the name by stripping the .md extension
     let name =
         path.file_stem()
             .and_then(|s| s.to_str())
             .ok_or_else(|| AgentError::ValidationError {
-                reason: "invalid design filename".into(),
+                reason: "invalid plan filename".into(),
             })?;
 
     Ok(name.to_string())

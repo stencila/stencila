@@ -7,7 +7,10 @@
 use crate::error::AgentResult;
 use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
-use crate::tools::{build_pre_run_tool_context, register_delegation_tools, register_design_tools};
+use crate::tools::{
+    build_pre_run_tool_context, register_delegation_tools, register_design_tools,
+    register_plan_tools,
+};
 use crate::types::SessionConfig;
 
 const STENCILA_GIT_NAME: &str = "Stencila";
@@ -425,6 +428,19 @@ pub async fn build_system_prompt(
         });
         if needs_design && let Err(e) = register_design_tools(profile.tool_registry_mut()) {
             tracing::warn!("failed to register design tools: {e}");
+        }
+    }
+
+    // Register plan tools (write_plan, read_plan, list_plans) conditionally —
+    // only when the agent's `allowed_tools` includes them.
+    {
+        let needs_plan = config.allowed_tools.as_ref().is_some_and(|tools| {
+            tools
+                .iter()
+                .any(|t| t == "write_plan" || t == "read_plan" || t == "list_plans")
+        });
+        if needs_plan && let Err(e) = register_plan_tools(profile.tool_registry_mut()) {
+            tracing::warn!("failed to register plan tools: {e}");
         }
     }
 
