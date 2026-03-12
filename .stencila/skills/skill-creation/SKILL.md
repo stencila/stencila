@@ -133,6 +133,9 @@ Only include tools the skill genuinely needs; prefer the minimal set.
 | `web_fetch`                | Fetch and save web content locally               | The skill needs to retrieve web pages or external documentation for review or summarization |
 | `shell`                    | Run commands                                     | The skill needs validation, formatting, tests, or other command-line checks |
 | `ask_user`                 | Request clarification, confirmation, or approval | The skill may need user feedback before proceeding                          |
+| `write_design`             | Create or overwrite design documents             | The skill needs to draft or replace structured design notes or plans         |
+| `read_design`              | Read existing design documents                   | The skill needs to inspect stored design notes, plans, or specifications     |
+| `list_designs`             | List available design documents                  | The skill needs to discover existing design notes or plans before reading or updating them |
 
 ## Writing Guidelines
 

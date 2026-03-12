@@ -7,7 +7,7 @@
 use crate::error::AgentResult;
 use crate::execution::ExecutionEnvironment;
 use crate::profile::ProviderProfile;
-use crate::tools::{build_pre_run_tool_context, register_delegation_tools};
+use crate::tools::{build_pre_run_tool_context, register_delegation_tools, register_design_tools};
 use crate::types::SessionConfig;
 
 const STENCILA_GIT_NAME: &str = "Stencila";
@@ -412,6 +412,19 @@ pub async fn build_system_prompt(
         });
         if needs_delegation && let Err(e) = register_delegation_tools(profile.tool_registry_mut()) {
             tracing::warn!("failed to register delegation tools: {e}");
+        }
+    }
+
+    // Register design tools (write_design, read_design) conditionally —
+    // only when the agent's `allowed_tools` includes them.
+    {
+        let needs_design = config.allowed_tools.as_ref().is_some_and(|tools| {
+            tools
+                .iter()
+                .any(|t| t == "write_design" || t == "read_design" || t == "list_designs")
+        });
+        if needs_design && let Err(e) = register_design_tools(profile.tool_registry_mut()) {
+            tracing::warn!("failed to register design tools: {e}");
         }
     }
 

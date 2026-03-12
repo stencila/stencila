@@ -12,12 +12,15 @@ pub mod edit_file;
 pub mod glob;
 pub mod grep;
 pub mod list_agents;
+pub mod list_designs;
 pub mod list_dir;
 pub mod list_workflows;
+pub mod read_design;
 pub mod read_file;
 pub mod read_many_files;
 pub mod shell;
 pub mod web_fetch;
+pub mod write_design;
 pub mod write_file;
 
 use serde_json::{Value, json};
@@ -115,6 +118,23 @@ pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()>
         RegisteredTool::new(list_agents::definition(), list_agents::executor()),
         RegisteredTool::new(list_workflows::definition(), list_workflows::executor()),
         RegisteredTool::new(delegate::definition(), delegate::executor()),
+    ];
+    for tool in tools {
+        registry.register(tool)?;
+    }
+    Ok(())
+}
+
+/// Register the design tools: `write_design`, `read_design`, `list_designs`.
+///
+/// These are used for persisting, retrieving, and discovering software design
+/// specifications. They are registered separately from core tools so that only
+/// agents whose `allowedTools` includes them will see them.
+pub fn register_design_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
+    let tools: Vec<RegisteredTool> = vec![
+        RegisteredTool::new(write_design::definition(), write_design::executor()),
+        RegisteredTool::new(read_design::definition(), read_design::executor()),
+        RegisteredTool::new(list_designs::definition(), list_designs::executor()),
     ];
     for tool in tools {
         registry.register(tool)?;
