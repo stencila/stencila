@@ -35,7 +35,7 @@ digraph software_plan_iterative {
 ```
 
 ```text #creator-prompt
-Create or update a software delivery plan with the goal:
+Create or update a software delivery plan for the goal:
 
 $goal
 
@@ -43,7 +43,7 @@ Before starting, check for reviewer feedback from a previous iteration. If feedb
 ```
 
 ```text #reviewer-prompt
-Review the current software delivery plan draft with the goal:
+Review the current software delivery plan draft for the goal:
 
 $goal
 

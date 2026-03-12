@@ -1,7 +1,7 @@
 ---
 name: workflow-creation-iterative
 description: Create and iteratively refine a Stencila workflow using the workflow-creator and workflow-reviewer agents, route approved drafts through human review, and loop on requested revisions
-goal-hint: What kind of workflow do you want to create?
+goal-hint: Describe the workflow you want to create — what process should it automate?
 keywords:
   - workflow
   - creation
@@ -34,15 +34,17 @@ digraph workflow_creation_iterative {
 ```
 
 ```text #creator-prompt
-Create or update a Stencila workflow that helps users accomplish this underlying task: $goal
+Create or update a workflow for the goal:
 
-Interpret that as the end-user objective the workflow should support, not as an instruction to create another workflow. Ignore workflow-process phrasing such as iteration, review loops, or acceptance criteria unless it is genuinely part of the domain task.
+$goal
 
 Before starting, check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. Also check for human revision notes and incorporate those as well.
 ```
 
 ```text #reviewer-prompt
-Review the current workflow draft for the goal '$goal'. Ensure the workflow addresses the underlying user task rather than accidentally becoming a meta-workflow about creating workflows.
+Review the current workflow draft for the goal:
+
+$goal
 
 If the draft is acceptable, choose the Accept branch. If the draft needs changes, choose the Revise branch and provide specific revision feedback in your response.
 ```
