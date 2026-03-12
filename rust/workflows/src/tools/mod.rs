@@ -8,6 +8,7 @@ mod get_node_output;
 mod get_workflow_context;
 mod get_workflow_run;
 mod list_completed_nodes;
+pub(crate) mod set_preferred_label;
 mod set_workflow_context;
 mod store_artifact;
 

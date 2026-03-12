@@ -12,12 +12,12 @@ digraph Workflow {
   Init [prompt="Reply with just the number: 1"]
   Init -> Step
 
-  Step [prompt="If $last_output equals $goal reply with ONLY the word done in lowercase. Otherwise add one to $last_output and reply with ONLY the new number, nothing else."]
-  Step -> Verify [condition="context.last_output=done"]
-  Step -> Step   [condition="context.last_output!=done"]
+  Step [prompt="If $last_output equals $goal, the counting is complete — choose Done. Otherwise add one to $last_output and reply with ONLY the new number."]
+  Step -> Verify [label="Done"]
+  Step -> Step   [label="Continue"]
 
-  Verify [prompt="Does '$last_output' equal 'done'? Reply with ONLY yes or no in lowercase, nothing else."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify [prompt="Does '$last_output' confirm the count reached '$goal'? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 }
 ```

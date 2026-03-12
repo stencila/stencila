@@ -116,6 +116,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
 - When a human review step needs to collect multiple pieces of information (e.g., a decision and freeform feedback), use `interview-ref` pointing to a YAML code block that defines the full interview with preamble, multiple typed questions, and per-question `store` keys; continue to use `ask` or `ask-ref` for single-question human gates
 - Use `show-if` on interview questions to conditionally display them based on a previous answer (e.g., `show-if: "decision == Revise"` to ask for revision notes only when the reviewer chose to revise); use `finish-if` on `yes-no`, `confirm`, or `single-select` questions to end the interview early when the answer matches a value (e.g., `finish-if: "no"` to skip remaining questions when the user declines to continue)
+- When an `agent` node has multiple outgoing edges with labels, the engine automatically provides routing instructions — via a `set_preferred_label` tool for tool-capable sessions, or an XML tag fallback otherwise. Prefer this label-based routing over `context.last_output` text-matching because it decouples the routing decision from the agent's text output. Simply give each outgoing edge a descriptive label (e.g., `Accept`, `Revise`, `Pass`, `Fail`) and the agent will signal its choice. Edge conditions still take priority over preferred labels, so both mechanisms can coexist
 - Use edges to express sequencing, branching, retry loops, and approval paths
 - Use `workflow="child-name"` on a node when a stage should run another workflow as a reusable composed subprocess; this is normalized as a workflow-handler node rather than a normal LLM, shell, or branch node. Prefer it when a subprocess is complex, reusable, or would otherwise make the parent graph hard to read
 - On composed workflow nodes, use `goal="..."` when the child workflow needs an explicit goal. If omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`), so child workflows can usually keep using `$goal`
@@ -212,10 +213,10 @@ House style for examples in this skill:
 - omit extra Markdown headings unless they add important human-facing documentation
 - use `Start` and `End` nodes for readability
 - place the `Start -> ...` entry edge near the top, then for each node place the node definition before its outgoing edge or edges
-- use simple edge labels such as `Pass`, `Fail`, `Approve`, and `Revise`
+- use simple, self-explanatory edge labels such as `Pass`, `Fail`, `Approve`, and `Revise`
 - use `$goal` in prompts when the workflow has a frontmatter `goal`
 
-### Linear workflow
+### Linear agent-driven workflow
 
 ````markdown
 ---
@@ -228,47 +229,18 @@ goal: Review recent literature on CRISPR gene editing
 digraph lit_review {
   Start -> Search
   
-  Search    [prompt="Search for recent papers on: $goal"]
+  Search [prompt="Search for recent papers on: $goal"]
   Search -> Summarize
 
   Summarize [prompt="Summarize the key findings across the papers"]
   Summarize -> Draft
 
-  Draft     [prompt="Draft a literature review from the summaries"]
+  Draft [prompt="Draft a literature review from the summaries"]
   Draft -> End
 }
 ```
 ````
 
-### Agent-driven workflow with review gate
-
-````markdown
----
-name: code-review
-description: Automated code review with human approval gate
-goal: Implement and review the feature
----
-
-```dot
-digraph code_review {
-  Start -> Design
-
-  Design [agent="code-planner", prompt="Design the solution for: $goal"]
-  Design -> Build
-
-  Build [agent="code-engineer", prompt="Implement the design"]
-  Build -> Test
-
-  Test [agent="code-tester", prompt="Run tests and validate"]
-  Test -> Review       [label="Pass", condition="outcome=success"]
-  Test -> Build        [label="Fail", condition="outcome!=success"]
-
-  Review [shape=human]
-  Review -> End        [label="Approve"]
-  Review -> Design     [label="Revise"]
-}
-```
-````
 
 ### Agent-driven workflow with structured review interview
 
@@ -315,6 +287,108 @@ questions:
 ```
 ````
 
+### Agent-driven review with label routing
+
+When an LLM agent decides the branch, use labeled edges without conditions. The engine automatically provides routing instructions — registering a `set_preferred_label` tool for tool-capable sessions, or instructing the agent to use an XML tag fallback otherwise. The agent signals its branch choice through one of these mechanisms, decoupling routing from text output.
+
+````markdown
+---
+name: draft-review-iterative
+description: Draft and iteratively refine with agent-driven review
+goal: Produce an acceptable draft for the requested purpose
+---
+
+```dot
+digraph draft_review_iterative {
+  Start -> Create
+
+  Create [agent="writer", prompt-ref="#creator-prompt"]
+  Create -> Review
+
+  Review [agent="reviewer", prompt-ref="#reviewer-prompt"]
+  Review -> HumanReview  [label="Accept"]
+  Review -> Create       [label="Revise"]
+
+  HumanReview [interview-ref="#human-review-interview"]
+  HumanReview -> End     [label="Accept"]
+  HumanReview -> Create  [label="Revise"]
+}
+```
+
+```text #creator-prompt
+Create or update the draft for: $goal
+
+Incorporate reviewer feedback when present:
+$last_output
+
+Incorporate human feedback when present:
+$human.feedback
+```
+
+```text #reviewer-prompt
+Review the current draft for the goal '$goal'.
+
+If the draft is acceptable, choose the Accept branch.
+If the draft needs changes, choose the Revise branch and provide specific feedback in your response.
+```
+
+```yaml #human-review-interview
+preamble: |
+  The reviewer agent has approved the current draft.
+  Please review and decide whether to accept or revise.
+
+questions:
+  - header: Decision
+    question: Is the draft acceptable?
+    type: multiple-choice
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+    finish-if: Accept
+
+  - header: Revision Notes
+    question: What changes should be made?
+    store: human.feedback
+```
+````
+
+Note that the `Review` node's edges use only labels (`Accept`, `Revise`) without conditions. The engine provides routing instructions (via a tool call or XML tag fallback) so the agent selects the branch through a structured mechanism. This is more reliable than prompting the agent to "reply with ONLY yes" and matching `context.last_output=yes`.
+
+### Condition-based branching
+
+Use edge conditions for deterministic routing based on handler status, such as shell exit codes or test outcomes. Unlike label routing (where an agent decides the path), condition-based branching evaluates structured outcome fields.
+
+````markdown
+---
+name: code-review
+description: Automated code review with human approval gate
+goal: Implement and review the feature
+---
+
+```dot
+digraph code_review {
+  Start -> Design
+
+  Design [agent="code-planner", prompt="Design the solution for: $goal"]
+  Design -> Build
+
+  Build [agent="code-engineer", prompt="Implement the design"]
+  Build -> Test
+
+  Test [agent="code-tester", prompt="Run tests and validate"]
+  Test -> Review       [label="Pass", condition="outcome=success"]
+  Test -> Build        [label="Fail", condition="outcome!=success"]
+
+  Review [shape=human]
+  Review -> End        [label="Approve"]
+  Review -> Design     [label="Revise"]
+}
+```
+````
+
+Note the difference from label routing: edge conditions (`condition="outcome=success"`) evaluate the handler's structured outcome status, while labeled edges without conditions let the agent choose the path. Conditions take priority in the edge selection algorithm (Step 1), so both mechanisms can coexist on the same node.
+
 ## Authoring Guidance
 
 - Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish
@@ -328,7 +402,8 @@ questions:
 - Use workflow composition to encapsulate reusable or internally complex subprocesses, but prefer ordinary nodes when a stage is simple and local to one workflow
 - Put reusable high-level intent in frontmatter `goal` and refer to it in prompts with `$goal`
 - Prefer frontmatter `goal` over repeating the same objective in both frontmatter and graph attributes
-- Prefer explicit edge labels and conditions when a branch depends on success, failure, approval, or revision
+- Prefer explicit edge labels for LLM-driven branching; the engine provides structured routing (via tool call or XML tag fallback) so the agent can signal its branch choice. Do not prompt agents to "reply with ONLY yes" for routing — use labeled edges instead
+- Use edge conditions (`condition="outcome=success"`) for deterministic routing based on handler status; use labeled edges without conditions for agent-driven decisions where the agent chooses the path
 - Keep each node's outgoing routing close to that node in the DOT source instead of separating all edges from all node definitions
 - Do not try to encode ephemeral status in frontmatter or the DOT graph; use the `.gitignore` sentinel instead when needed
 - Do not overcomplicate the first draft; a shorter valid workflow is better than an elaborate but unclear one

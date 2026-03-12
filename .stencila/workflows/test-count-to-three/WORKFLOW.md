@@ -19,8 +19,8 @@ digraph Workflow {
   Three  [prompt="Add one to $last_output and reply with just the result."]
   Three -> Verify
 
-  Verify [prompt="Does $last_output equal $goal? Reply with ONLY yes or no in lowercase, nothing else."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify [prompt="Does $last_output equal $goal? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 }
 ```

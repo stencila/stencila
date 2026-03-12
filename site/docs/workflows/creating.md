@@ -195,8 +195,8 @@ digraph thing_creation_iterative {
   Create -> Review
 
   Review [agent="thing-reviewer", prompt-ref="#reviewer-prompt"]
-  Review -> HumanReview [label="Accept", condition="context.last_output=yes"]
-  Review -> Create      [label="Revise", condition="context.last_output!=yes"]
+  Review -> HumanReview [label="Accept"]
+  Review -> Create      [label="Revise"]
 
   HumanReview [ask="Is the thing acceptable after reviewer approval?"]
   HumanReview -> End           [label="Accept"]

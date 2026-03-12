@@ -26,7 +26,7 @@ Each node can:
 - **Pause for human input** — present choices and wait for a decision
 - **Route conditionally** — branch based on the outcome of the previous stage
 
-Nodes communicate through a shared key-value context. After each node completes, its outcome and any context updates are available to subsequent nodes via prompt variable expansion and edge conditions.
+Nodes communicate through a shared key-value context. After each node completes, its outcome and any context updates are available to subsequent nodes via prompt variable expansion and edge conditions. When an agent node has multiple labeled outgoing edges, the engine automatically provides routing instructions — via a tool call for tool-capable sessions, or an XML tag fallback otherwise — so routing decisions are decoupled from the agent's text output.
 
 ## Workflows vs Agents
 

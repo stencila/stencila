@@ -558,8 +558,68 @@ impl CodergenBackend for AgentCodergenBackend {
             }
         }
 
+        // Collect outgoing edge labels from context (set fresh by
+        // CodergenHandler before each backend call — intentionally transient
+        // and node-local-in-time). When labels are present, register the
+        // `set_preferred_label` tool so the agent can make a structured
+        // routing decision. For sessions without tool support, fall back
+        // to XML-block parsing from the response text.
+        let outgoing_labels: Vec<String> = context
+            .get("internal.outgoing_edge_labels")
+            .and_then(|v| v.as_array().cloned())
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|v| v.as_str().map(String::from))
+            .collect();
+
+        let preferred_label: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+        let routing_tool_available = if !outgoing_labels.is_empty() {
+            if let stencila_agents::session::AgentSession::Api(api_session) = &mut session {
+                let tool = crate::tools::set_preferred_label::registered_tool(
+                    outgoing_labels.clone(),
+                    preferred_label.clone(),
+                );
+                match api_session.register_tool(tool) {
+                    Ok(()) => true,
+                    Err(e) => {
+                        tracing::warn!("Failed to register set_preferred_label tool: {e}");
+                        false
+                    }
+                }
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+
+        let effective_prompt = if outgoing_labels.is_empty() {
+            prompt.to_string()
+        } else {
+            let labels_list = outgoing_labels.join(", ");
+            if routing_tool_available {
+                format!(
+                    "{prompt}\n\n\
+                     WORKFLOW ROUTING: This node has multiple outgoing branches. \
+                     After completing your main task, you MUST call the `set_preferred_label` tool \
+                     with one of these labels to determine which branch the workflow takes next: \
+                     {labels_list}"
+                )
+            } else {
+                format!(
+                    "{prompt}\n\n\
+                     WORKFLOW ROUTING: This node has multiple outgoing branches. \
+                     After completing your main task, you MUST end your response with an XML tag \
+                     indicating which branch to take next. Use exactly one of these labels: \
+                     {labels_list}\n\n\
+                     Example: <preferred-label>Accept</preferred-label>"
+                )
+            }
+        };
+
         let node_id = node.id.clone();
-        let mut submit_fut = Box::pin(session.submit(prompt));
+        let mut submit_fut = Box::pin(session.submit(&effective_prompt));
         let mut submit_done = false;
         let mut submit_result: Option<stencila_agents::error::AgentResult<()>> = None;
         let mut collected_text = String::new();
@@ -689,8 +749,53 @@ impl CodergenBackend for AgentCodergenBackend {
             }
         }
 
-        Ok(CodergenOutput::Text(collected_text))
+        // If the agent called set_preferred_label, propagate the choice
+        // into the outcome so the edge selection algorithm (§3.3 Step 2)
+        // can route on it. For sessions without tool support, fall back
+        // to parsing a <preferred-label> XML block from the response text.
+        let chosen_label = preferred_label
+            .lock()
+            // Poison recovery is safe: the guarded value is a simple Option<String>
+            // with no invariants that could be violated by a panicking thread.
+            .unwrap_or_else(|e| e.into_inner())
+            .take()
+            .or_else(|| {
+                // XML-block fallback: parse <preferred-label>...</preferred-label>
+                // from the agent's text response.
+                parse_preferred_label_xml(&collected_text, &outgoing_labels)
+            });
+
+        if let Some(label) = chosen_label {
+            let mut outcome = stencila_attractor::handlers::build_output_outcome(
+                &node_id,
+                &collected_text,
+                context,
+            );
+            outcome.preferred_label = label;
+            outcome.notes = format!("Codergen completed for node '{node_id}'");
+            Ok(CodergenOutput::FullOutcome(outcome))
+        } else {
+            Ok(CodergenOutput::Text(collected_text))
+        }
     }
+}
+
+/// Parse a `<preferred-label>` XML block from agent text output.
+///
+/// Returns the canonical (crate-defined) label if the extracted value
+/// matches one of the `valid_labels` case-insensitively, or `None`
+/// if no valid block is found.
+fn parse_preferred_label_xml(text: &str, valid_labels: &[String]) -> Option<String> {
+    // Look for <preferred-label>LABEL</preferred-label> (last occurrence wins)
+    let open = text.rfind("<preferred-label>")?;
+    let content_start = open + "<preferred-label>".len();
+    let close = text[content_start..].find("</preferred-label>")?;
+    let raw_label = text[content_start..content_start + close].trim();
+    // Return the canonical label form (preserving the casing from edge definitions)
+    valid_labels
+        .iter()
+        .find(|l| l.eq_ignore_ascii_case(raw_label))
+        .cloned()
 }
 
 /// Build an [`EngineConfig`] with all runtime handlers registered.

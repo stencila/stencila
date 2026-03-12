@@ -27,8 +27,8 @@ digraph Workflow {
   Combine [prompt="List the three colors from the previous stages as a comma-separated list, e.g. pink, brown, orange. Reply with ONLY the list, nothing else."]
   Combine -> Verify
 
-  Verify  [prompt="Does '$last_output' achieve the goal '$goal'? Reply with ONLY yes or no in lowercase, nothing else."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify  [prompt="Does '$last_output' achieve the goal '$goal'? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 }
 ```

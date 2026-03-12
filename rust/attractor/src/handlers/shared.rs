@@ -40,7 +40,8 @@ fn truncate_output(s: &str) -> String {
 /// and accumulates the node into `completed_stages`. Callers can insert
 /// additional handler-specific keys into [`Outcome::context_updates`]
 /// after this returns.
-pub(super) fn build_output_outcome(node_id: &str, output: &str, context: &Context) -> Outcome {
+#[must_use]
+pub fn build_output_outcome(node_id: &str, output: &str, context: &Context) -> Outcome {
     let mut outcome = Outcome::success();
     outcome.context_updates = IndexMap::new();
     outcome.context_updates.insert(

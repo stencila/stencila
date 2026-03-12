@@ -29,9 +29,9 @@ digraph Workflow {
   Combine [prompt="List the two words from previous stages separated by a comma. Reply with ONLY the list."]
   Combine -> Verify
 
-  Verify [prompt="Does '$last_output' contain both 'alpha' and 'beta'? Reply with ONLY yes or no in lowercase, nothing else."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify [prompt="Does '$last_output' contain both 'alpha' and 'beta'? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 
   Fail
 }

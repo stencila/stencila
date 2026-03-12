@@ -10,11 +10,11 @@ Tests the `agent=` node attribute, which references a named agent from the works
 digraph Workflow {
   Start -> Greet
 
-  Greet [agent="default", prompt="Reply with ONLY the word: hello"]
+  Greet [agent="general", prompt="Reply with ONLY the word: hello"]
   Greet -> Verify
 
-  Verify [prompt="Does '$last_output' equal 'hello'? Reply with ONLY yes or no in lowercase, nothing else."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify [agent="general", prompt="Does '$last_output' equal 'hello'? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 }
 ```

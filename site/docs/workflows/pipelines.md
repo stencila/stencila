@@ -390,6 +390,26 @@ Available variables:
 
 When an LLM writes context via the `set_workflow_context` tool, keys are stored under the `llm.` namespace (for example, writing `decision` stores `llm.decision`). Keys starting with `internal.` are reserved.
 
+## Agent routing with `set_preferred_label`
+
+When an agent node has outgoing edges with labels, the engine automatically provides routing instructions so the agent can make a structured routing decision instead of relying on text output matching.
+
+For sessions with tool support, the agent receives a `set_preferred_label` tool and calls it with the chosen label. For sessions without tool support, the agent is instructed to end its response with a `<preferred-label>` XML tag, which the engine parses.
+
+For example, this review node gives the agent two labeled branches:
+
+```dot
+Review [agent="reviewer", prompt="Review the draft for: $goal"]
+Review -> HumanReview  [label="Accept"]
+Review -> Create       [label="Revise"]
+```
+
+The agent sees both labels and signals its choice — via a tool call or XML tag — with either `Accept` or `Revise`. The engine matches the chosen label against outgoing edge labels (case-insensitive) and follows the corresponding edge.
+
+This is more reliable than prompting the agent to reply with a specific word and matching against `context.last_output`, because routing is decoupled from the agent's text response. The agent can provide detailed feedback in its text output while separately signaling the routing decision.
+
+Note that edge conditions (Step 1 in the edge selection algorithm) take priority over preferred labels (Step 2).
+
 # Workflow patterns
 
 ## Linear pipeline

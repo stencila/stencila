@@ -20,9 +20,9 @@ digraph Workflow {
   CountB [prompt="Reply with ONLY the number: 2", class="precise"]
   CountB -> Verify
 
-  Verify [prompt="Are the outputs from the previous stages numbers 1 and 2? Reply with ONLY yes or no in lowercase."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify [prompt="Are the outputs from the previous stages numbers 1 and 2? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 
   Fail
 }

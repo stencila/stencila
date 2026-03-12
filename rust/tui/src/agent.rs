@@ -556,6 +556,10 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
                 format!("MCP Codemode: {code}")
             }
         }
+        "set_preferred_label" => {
+            let label = str_arg("label").unwrap_or_default();
+            format!("Preferred workflow branch: {label}")
+        }
         "list_agents" => "List agents".to_string(),
         "list_workflows" => "List workflows".to_string(),
         "delegate" => {
@@ -1002,6 +1006,15 @@ mod tests {
         assert_eq!(
             format_tool_start("mcp_codemode", &args),
             "MCP Codemode: import { listServers } from \"@stencila/mcp/discovery\";"
+        );
+    }
+
+    #[test]
+    fn format_set_preferred_label() {
+        let args = serde_json::json!({"label": "Pass"});
+        assert_eq!(
+            format_tool_start("set_preferred_label", &args),
+            "Set preferred branch label: Pass"
         );
     }
 

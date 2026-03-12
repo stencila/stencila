@@ -20,8 +20,8 @@ digraph Workflow {
   Accept   [prompt="Reply with ONLY the word: $last_output"]
   Accept -> Verify
 
-  Verify [prompt="Is '$last_output' a single three-letter English word in lowercase? Reply with ONLY yes or no in lowercase, nothing else."]
-  Verify -> End  [condition="context.last_output=yes"]
-  Verify -> Fail
+  Verify [prompt="Is '$last_output' a single three-letter English word in lowercase? Verify the result and choose Pass or Fail."]
+  Verify -> End  [label="Pass"]
+  Verify -> Fail [label="Fail"]
 }
 ```

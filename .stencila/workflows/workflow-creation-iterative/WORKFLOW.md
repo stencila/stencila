@@ -24,8 +24,8 @@ digraph workflow_creation_iterative {
   Create -> Review
 
   Review [agent="workflow-reviewer", prompt-ref="#reviewer-prompt"]
-  Review -> HumanReview  [label="Accept", condition="context.last_output=yes"]
-  Review -> Create       [label="Revise", condition="context.last_output!=yes"]
+  Review -> HumanReview  [label="Accept"]
+  Review -> Create       [label="Revise"]
 
   HumanReview [interview-ref="#human-review-interview"]
   HumanReview -> End     [label="Accept"]
@@ -48,8 +48,7 @@ $human.feedback
 ```text #reviewer-prompt
 Review the current workflow draft for the goal '$goal'. Ensure the workflow addresses the underlying user task rather than accidentally becoming a meta-workflow about creating workflows.
 
-If the draft is acceptable, reply with ONLY yes in lowercase.
-If the draft is not acceptable, reply with concrete revision feedback that the creator can use on the next pass.
+If the draft is acceptable, choose the Accept branch. If the draft needs changes, choose the Revise branch and provide specific revision feedback in your response.
 ```
 
 ```yaml #human-review-interview
@@ -72,4 +71,4 @@ questions:
     store: human.feedback
 ```
 
-The workflow first uses the `workflow-creator` agent to draft or revise the workflow, then uses a review step that emits a deterministic routing signal via `context.last_output`: `yes` means the draft is acceptable and any other output is treated as revision feedback and routed back to `Create`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer approves, the workflow enters a structured human review interview. The decision question uses `finish-if: Accept` to end the interview immediately when the workflow is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.
+The workflow first uses the `workflow-creator` agent to draft or revise the workflow, then passes the draft to the `workflow-reviewer` agent for review. The reviewer uses the `set_preferred_label` tool (provided automatically) to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback that is routed back to `Create` via `$last_output`. The `Create` node consumes reviewer feedback from `$last_output` and any stored human revision notes from `$human.feedback`, so both automated and human guidance are available on iterative passes. After the reviewer accepts, the workflow enters a structured human review interview. The decision question uses `finish-if: Accept` to end the interview immediately when the workflow is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.

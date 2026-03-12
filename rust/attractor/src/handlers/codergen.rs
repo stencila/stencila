@@ -15,6 +15,7 @@ use crate::types::Outcome;
 use async_trait::async_trait;
 
 /// The output type returned by a codergen backend.
+#[derive(Debug)]
 pub enum CodergenOutput {
     /// A plain text output from the LLM.
     Text(String),
@@ -97,7 +98,7 @@ impl Handler for CodergenHandler {
         &self,
         node: &Node,
         context: &Context,
-        _graph: &Graph,
+        graph: &Graph,
     ) -> AttractorResult<Outcome> {
         // Build prompt: prefer explicit "prompt" attr, fall back to node label
         let raw_prompt = node.get_str_attr("prompt").unwrap_or_else(|| node.label());
@@ -106,6 +107,28 @@ impl Handler for CodergenHandler {
         // This runs at execution time (not at parse time like VariableExpansionTransform)
         // so that each stage sees the outputs of previously completed stages.
         let prompt = expand_runtime_variables(raw_prompt, context);
+
+        // Store outgoing edge labels in the context so backends can
+        // surface them to agents for structured routing decisions.
+        // Only written when labels are present; the backend defaults
+        // to an empty list via `unwrap_or_default()`.
+        let outgoing_labels: Vec<String> = graph
+            .outgoing_edges(&node.id)
+            .iter()
+            .map(|e| e.label().to_string())
+            .filter(|l| !l.is_empty())
+            .collect();
+        if !outgoing_labels.is_empty() {
+            context.set(
+                "internal.outgoing_edge_labels",
+                serde_json::Value::Array(
+                    outgoing_labels
+                        .into_iter()
+                        .map(serde_json::Value::String)
+                        .collect(),
+                ),
+            );
+        }
 
         // Read agent name from node attributes.
         let agent_name = node
