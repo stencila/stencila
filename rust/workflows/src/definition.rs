@@ -6,6 +6,7 @@
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use eyre::{Result, bail};
 use glob::glob;
@@ -348,6 +349,8 @@ async fn list_dir(workflows_dir: &Path) -> Result<Vec<WorkflowInstance>> {
 #[exclude = "test-*"]
 struct BuiltinWorkflows;
 
+static BUILTIN_WORKFLOWS: OnceLock<Vec<WorkflowInstance>> = OnceLock::new();
+
 /// List the builtin workflows.
 ///
 /// Writes embedded files to a cache directory and loads them using the
@@ -364,7 +367,11 @@ pub async fn list_builtin() -> Vec<WorkflowInstance> {
             .collect();
     }
 
-    match initialize_builtin().await {
+    if let Some(workflows) = BUILTIN_WORKFLOWS.get() {
+        return workflows.clone();
+    }
+
+    let workflows = match initialize_builtin().await {
         Ok(dir) => list(&dir)
             .await
             .into_iter()
@@ -374,7 +381,9 @@ pub async fn list_builtin() -> Vec<WorkflowInstance> {
             tracing::error!("While initializing builtin workflows: {error}");
             Vec::new()
         }
-    }
+    };
+
+    BUILTIN_WORKFLOWS.get_or_init(|| workflows.clone()).clone()
 }
 
 /// Initialize the builtin workflows directory by writing embedded files to disk.

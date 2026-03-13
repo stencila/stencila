@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use eyre::{OptionExt, Result, bail};
 use glob::glob;
@@ -328,6 +329,8 @@ async fn load_skill(path: &Path) -> Result<SkillInstance> {
 #[exclude = "test-*"]
 struct BuiltinSkills;
 
+static BUILTIN_SKILLS: OnceLock<Vec<SkillInstance>> = OnceLock::new();
+
 /// List the builtin skills.
 ///
 /// Writes embedded files to a cache directory and loads them using the
@@ -340,13 +343,19 @@ pub async fn list_builtin() -> Vec<SkillInstance> {
         return list(&dir).await;
     }
 
-    match initialize_builtin().await {
+    if let Some(skills) = BUILTIN_SKILLS.get() {
+        return skills.clone();
+    }
+
+    let skills = match initialize_builtin().await {
         Ok(dir) => list(&dir).await,
         Err(error) => {
             tracing::error!("While initializing builtin skills: {error}");
             Vec::new()
         }
-    }
+    };
+
+    BUILTIN_SKILLS.get_or_init(|| skills.clone()).clone()
 }
 
 /// Initialize the builtin skills directory by writing embedded files to disk.

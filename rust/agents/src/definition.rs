@@ -10,6 +10,7 @@
 //! optional Markdown body.
 
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use eyre::{Result, bail};
 use glob::glob;
@@ -370,6 +371,8 @@ async fn list_dir(agents_dir: &Path) -> Result<Vec<AgentInstance>> {
 #[exclude = "test-*"]
 struct BuiltinAgents;
 
+static BUILTIN_AGENTS: OnceLock<Vec<AgentInstance>> = OnceLock::new();
+
 /// List the builtin agents.
 ///
 /// Writes embedded files to a cache directory and loads them using the
@@ -386,7 +389,11 @@ pub async fn list_builtin() -> Vec<AgentInstance> {
             .collect();
     }
 
-    match initialize_builtin().await {
+    if let Some(agents) = BUILTIN_AGENTS.get() {
+        return agents.clone();
+    }
+
+    let agents = match initialize_builtin().await {
         Ok(dir) => list(&dir)
             .await
             .into_iter()
@@ -396,7 +403,9 @@ pub async fn list_builtin() -> Vec<AgentInstance> {
             tracing::error!("While initializing builtin agents: {error}");
             Vec::new()
         }
-    }
+    };
+
+    BUILTIN_AGENTS.get_or_init(|| agents.clone()).clone()
 }
 
 /// Initialize the builtin agents directory by writing embedded files to disk.
