@@ -42,7 +42,7 @@ static COMMANDS_RE: LazyLock<Regex> = LazyLock::new(|| {
 
       | \\(auto)?ref\{(?P<ref>[^}]*)\}
 
-      | \\(?P<cite_cmd>citep?|citet|citeauthor|citeyear|citealt|citealp)
+      | \\(?P<cite_cmd>citep?|citet|citeauthor|citeyear|citealt|citealp|parencite|textcite)
           (?:\[(?P<cite_arg1>[^\]]*)\])?
           (?:\[(?P<cite_arg2>[^\]]*)\])?
           \{(?P<cite_keys>[^}]+)\}
@@ -622,7 +622,7 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
         } else if let Some(keys_match) = captures.name("cite_keys") {
             // Determine citation mode from command
             let citation_mode = match captures.name("cite_cmd").map(|m| m.as_str()) {
-                Some("citet") => Some(CitationMode::Narrative),
+                Some("citet" | "textcite") => Some(CitationMode::Narrative),
                 Some("citeauthor") => Some(CitationMode::NarrativeAuthor),
                 Some("citeyear") => Some(CitationMode::NarrativeYear),
                 _ => Some(CitationMode::Parenthetical),

@@ -24,6 +24,9 @@ This document tests various citation styles.
 % Standard parenthetical citation
 This is a parenthetical citation \citep{smith2020}.
 
+% biblatex-style parenthetical citation
+This is also a parenthetical citation \citep{smith2020}.
+
 % Multiple parenthetical citations
 Multiple refs together \citep{smith2020,jones2021}.
 
@@ -40,6 +43,9 @@ With both \citep[see][p. 42]{smith2020}.
 
 % Standard narrative citation (author in text)
 According to \citet{smith2020}, this is important.
+
+% biblatex-style narrative citation
+According to \citet{jones2021}, this is also important.
 
 % Multiple narrative citations
 Both \citet{smith2020} and \citet{jones2021} agree.

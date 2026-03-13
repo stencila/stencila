@@ -24,6 +24,9 @@ This document tests various citation styles.
 % Standard parenthetical citation
 This is a parenthetical citation (Smith \& Doe, 2020).
 
+% biblatex-style parenthetical citation
+This is also a parenthetical citation (Smith \& Doe, 2020).
+
 % Multiple parenthetical citations
 Multiple refs together (Jones, 2021; Smith \& Doe, 2020).
 
@@ -40,6 +43,9 @@ With both (see Smith \& Doe, 2020, p. 42).
 
 % Standard narrative citation (author in text)
 According to Smith \& Doe (2020), this is important.
+
+% biblatex-style narrative citation
+According to Jones (2021), this is also important.
 
 % Multiple narrative citations
 Both Smith \& Doe (2020) and Jones (2021) agree.
