@@ -11,7 +11,7 @@ use stencila_codec::{
         AppendixBreak, Article, Author, Bibliography, Block, Citation, CitationGroup, CitationMode,
         CitationOptions, CodeChunk, CodeExpression, CompilationMessage, Date, ForBlock, Heading,
         IfBlock, IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link,
-        MessageLevel, Node, Paragraph, Person, RawBlock, Section, SectionType, Text,
+        MathBlock, MessageLevel, Node, Paragraph, Person, RawBlock, Section, SectionType, Text,
     },
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -52,6 +52,22 @@ static COMMANDS_RE: LazyLock<Regex> = LazyLock::new(|| {
       | (?P<appendix>\\appendix)\s*\n?
 
       | (?:\\label\{(?P<label_before>[^}]*)\}\s*)?\\section\{(?P<section>[^}]*)\}\s*(?:\\label\{(?P<label_after>[^}]*)\}\s*)?\n?
+
+      | \\begin\{equation\*?\} \s*
+          (?P<equation>.*?)
+        \\end\{equation\*?\}\n?
+
+      | \\begin\{align\*?\} \s*
+          (?P<align>.*?)
+        \\end\{align\*?\}\n?
+
+      | \\begin\{gather\*?\} \s*
+          (?P<gather>.*?)
+        \\end\{gather\*?\}\n?
+
+      | \\begin\{multline\*?\} \s*
+          (?P<multline>.*?)
+        \\end\{multline\*?\}\n?
 
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
@@ -686,6 +702,27 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
                 id,
                 level: 1,
                 content: vec![Inline::Text(Text::from(section.as_str()))],
+                ..Default::default()
+            }));
+        } else if let Some(mat) = captures
+            .name("equation")
+            .or(captures.name("align"))
+            .or(captures.name("gather"))
+            .or(captures.name("multline"))
+        {
+            static RE: LazyLock<Regex> =
+                LazyLock::new(|| Regex::new(r"\\label\{([^}]+)\}").expect("invalid regex"));
+
+            let code = RE.replace_all(mat.as_str(), "").trim().to_string();
+            let id = RE
+                .captures_iter(mat.as_str())
+                .filter_map(|caps| caps.get(1).map(|m| m.as_str().to_string()))
+                .last();
+
+            blocks.push(Block::MathBlock(MathBlock {
+                id,
+                code: code.into(),
+                math_language: Some("tex".to_string()),
                 ..Default::default()
             }));
         } else if let Some(mat) = captures.name("chunk") {

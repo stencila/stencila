@@ -1,0 +1,14 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+An autoref \autoref{eq:one}.
+
+A ref \autoref{eq:one}.
+
+\[
+\begin{equation}
+a = b
+\label{eq:one}
+\end{equation}
+\]

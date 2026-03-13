@@ -1,0 +1,69 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\\documentclass{article}\n\n\\begin{document}\n\nAn autoref "
+      }
+    },
+    {
+      "type": "InlinesBlock",
+      "content": [
+        {
+          "type": "Link",
+          "content": [],
+          "target": "#eq:one"
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": ".\n\nA ref "
+      }
+    },
+    {
+      "type": "InlinesBlock",
+      "content": [
+        {
+          "type": "Link",
+          "content": [],
+          "target": "#eq:one",
+          "labelOnly": true
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": ".\n\n"
+      }
+    },
+    {
+      "type": "MathBlock",
+      "id": "eq:one",
+      "code": {
+        "string": "a = b"
+      },
+      "mathLanguage": "tex"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n\\end{document}\n"
+      }
+    }
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/equation-ref.tex",
+  "commit": "redacted"
+}
