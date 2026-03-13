@@ -1,6 +1,6 @@
 ---
 name: software-design-creator
-description: Creates software design specifications using the workspace software-design-creation skill
+description: Creates or updates software design specifications
 keywords:
   - software design
   - design spec

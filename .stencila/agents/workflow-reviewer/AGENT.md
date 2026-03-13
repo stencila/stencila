@@ -1,6 +1,6 @@
 ---
 name: workflow-reviewer
-description: Reviews Stencila workflows for correctness, clarity, and completeness
+description: Reviews workflows for correctness, clarity, and completeness
 keywords:
   - workflow
   - review
@@ -23,4 +23,4 @@ allowed-tools:
   - list_workflows
 ---
 
-You are an assistant that specializes in reviewing workflows.
+You are an assistant that specializes in reviewing Stencila workflows.

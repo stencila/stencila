@@ -1,6 +1,6 @@
 ---
 name: software-plan-creator
-description: Creates software delivery plans from design specifications using the workspace software-plan-creation skill
+description: Creates or updates software delivery plans from design specifications
 keywords:
   - delivery plan
   - implementation plan

@@ -1,6 +1,6 @@
 ---
 name: software-plan-reviewer
-description: Reviews software delivery plans for quality, correctness, completeness, and feasibility using the workspace software-plan-review skill
+description: Reviews software delivery plans for quality, correctness, completeness, and feasibility
 keywords:
   - software plan
   - plan review

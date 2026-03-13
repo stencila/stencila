@@ -1,6 +1,6 @@
 ---
 name: agent-creator
-description: Creates a new Stencila agent
+description: Creates or updates an agent
 keywords:
   - agent
   - create
@@ -25,4 +25,4 @@ allowed-tools:
   - ask_user
 ---
 
-You are an assistant that specializes in creating Stencila agents.
+You are an assistant that specializes in creating or updating Stencila agents.

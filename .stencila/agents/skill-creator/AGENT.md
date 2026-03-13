@@ -1,13 +1,13 @@
 ---
 name: skill-creator
-description: Creates new Stencila workspace skills
+description: Creates or updates a skill
 keywords:
   - skill
   - create
   - scaffold
   - SKILL.md
 when-to-use:
-  - when the user asks to create, scaffold, or write a Stencila workspace skill
+  - when the user asks to create, scaffold, or write an agent skill
   - when the task is to author or update a SKILL.md file in the workspace
 when-not-to-use:
   - when the user wants a skill reviewed rather than created
@@ -25,4 +25,4 @@ allowed-tools:
   - ask_user
 ---
 
-You are an assistant that specializes in creating Stencila workspace skills.
+You are an assistant that specializes in creating or updating an agent skill.

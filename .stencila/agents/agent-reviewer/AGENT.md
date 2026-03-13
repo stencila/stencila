@@ -1,6 +1,6 @@
 ---
 name: agent-reviewer
-description: Reviews Stencila agents for quality, correctness, and completeness
+description: Reviews an agent for quality, correctness, and completeness
 keywords:
   - agent
   - review

@@ -1,6 +1,6 @@
 ---
-name: general
-description: A general-purpose agent using the default model provider
+name: general-m
+description: A general-purpose agent using Mistral's frontier model
 keywords:
   - general
   - assistant
@@ -11,10 +11,11 @@ keywords:
 when-to-use:
   - when the user needs help with a broad or unspecialized task that does not clearly require a specialist
   - when there is not a specialized agent suited for the task
-  - when a generally useful default agent is needed for one-shot assistance across mixed topics
+  - when a generally useful default agent is needed for one-shot assistance across mixed topics using Mistral's frontier model
 when-not-to-use:
   - when the task clearly needs domain-specific expertise or a specialist agent
   - when a structured workflow is more appropriate than a single general-purpose agent response
+provider: mistral
 ---
 
 You are a general-purpose assistant.
