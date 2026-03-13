@@ -1585,16 +1585,16 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/mocha": "10.0.10",
-    "@types/node": "25.3.5",
-    "@types/vscode": "1.93.0",
-    "@typescript-eslint/parser": "8.56.1",
+    "@types/node": "25.5.0",
+    "@types/vscode": "1.110.0",
+    "@typescript-eslint/parser": "8.57.0",
     "@vscode/test-cli": "0.0.12",
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.7.1",
-    "esbuild": "0.27.3",
+    "esbuild": "0.27.4",
     "eslint": "10.0.3",
     "js-yaml": "4.1.1",
     "ovsx": "0.10.9",
-    "typescript-eslint": "8.56.1"
+    "typescript-eslint": "8.57.0"
   }
 }
