@@ -73,29 +73,39 @@ When reviewing names, apply these conventions:
 - When an interview uses `finish-if`, check that it is on a `yes-no`, `confirm`, or `single-select` question — `finish-if` is not supported on `freeform` or `multi-select` questions; verify that the early exit value makes sense for the interview flow and that questions after the gate are ones the user would genuinely want to skip
 - Workflow composition is used appropriately — child workflows should encapsulate meaningful reusable subprocesses, not obscure simple local steps without a readability or reuse benefit
 - Parent workflows should focus on orchestration, while child workflows should own detailed internal execution where that split improves clarity
+- Top-down design is a valid approach: a workflow may intentionally reference agents or child workflows that do not yet exist, planning to create them later. When a workflow appears to follow this pattern, evaluate the pipeline structure and stage responsibilities on their own merits rather than penalizing unresolved references; instead note which dependencies remain to be created
 - The workflow is no more complex than necessary for the task
 
-### Agents and Prompts
+### Agents, Workflows, and Prompts
 
-- Referenced agent names are plausible workspace or user-level agent names rather than obvious invented placeholders; when agent choice matters or fit is uncertain, use `list_agents` to confirm availability and compare actual agent metadata; if actual existence still cannot be confirmed, report that uncertainty explicitly
-- When a node references `workflow="name"`, check that the child workflow name is plausible and, if reviewing within a workspace, that the referenced workflow can be found
-- When a node references `workflow="name"`, check whether the child workflow's goal is being passed clearly: use `goal="..."` when an explicit child objective is needed, otherwise confirm that the node's resolved input (`prompt` or `label`) is a sensible default child goal
-- When workflow composition matters, use `list_workflows` to compare the chosen child workflow against available workflows and their metadata rather than relying on the name alone
-- Specialized child workflow selection should be justified by metadata rather than name alone: `description` should match the delegated subprocess, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
-- Recommend nesting a child workflow only when it encapsulates a meaningful reusable subprocess, improves readability of the parent graph, or cleanly separates orchestration from detailed execution; flag trivial or over-engineered nesting where an inline node would be clearer
-- Specialized agent selection is justified by metadata rather than name alone: `description` should match the node's core task, `keywords` should overlap the workflow's domain and likely user intent, `when-to-use` should provide positive selection signals, and `when-not-to-use` should not conflict with the node's role
+#### Agent references
+
+- Referenced agent names should be plausible; use `list_agents` to confirm availability and metadata fit when uncertain. Forward-referencing agents that do not yet exist is valid in top-down design — the runtime falls back to a default agent, so flag missing agents as informational dependencies rather than errors
+- Agent selection should be justified by metadata, not name alone: `description` should match the task, `keywords` should overlap domain terms, `when-to-use` should provide positive signals, and `when-not-to-use` should not conflict with the node's role
+- The workflow does not overuse `agent.*` overrides where simpler inline attributes would be clearer
+- A workflow with no `agent` attributes may be valid, but note when explicit agent selection would materially improve clarity or control
+
+#### Child workflow references
+
+- For `workflow="name"` nodes: check that the child workflow name is plausible (use `list_workflows` to compare alternatives when composition matters); check that the child goal is passed clearly via `goal="..."` or a sensible default from `prompt`/`label`; and flag missing child workflows as outstanding dependencies in top-down designs rather than errors
+- Child workflow selection should also be justified by metadata, not name alone
+- Recommend nesting a child workflow only when it encapsulates a meaningful reusable subprocess, improves readability, or cleanly separates orchestration from execution; flag trivial or over-engineered nesting
+
+#### Prompts and content refs
+
 - Prompts are specific enough to guide each node's local task
 - When the workflow uses `prompt-ref`, `shell-ref`, `ask-ref`, or `interview-ref`, referenced ids exist in code blocks or code chunks in the same `WORKFLOW.md`, are unique, and are used where they improve readability, typically for long or multiline content rather than short single-line values
-- If frontmatter `goal` is present, prompts use `$goal` consistently where it improves reuse. If `goal` is absent but prompts reference `$goal`, check whether the workflow uses `goal-hint` to collect the goal from the user at run time (the user-supplied text becomes `$goal` at runtime)
-- The workflow does not overuse node-specific `agent.*` overrides when a simple `agent` reference would do
-- The workflow does not overuse content refs for short single-line prompts or questions when inline DOT attributes would be clearer
+- If `goal` is present, prompts should use `$goal` consistently. If `goal` is absent but prompts reference `$goal`, check that `goal-hint` is set (the user's response becomes `$goal` at runtime)
+- The workflow does not overuse content refs where simpler inline attributes would be clearer
+
+#### Interview specs
+
 - When a workflow uses `interview-ref`, check that the referenced YAML block is valid interview spec YAML (has a `questions` array with at least one entry, each question has `question` text and a recognized `type`)
 - Check that freeform questions in the interview spec have `store` keys — a freeform question without `store` collects an answer that is never stored, which is almost certainly a mistake
 - Check that the routing question (first `single-select`) has option labels matching the outgoing edge labels from the human node
 - Check that `show-if` conditions reference valid `store` keys from earlier questions and use the correct syntax; flag conditions that would always be true, always be false, or reference non-existent keys
 - Check that `finish-if` is only used on supported question types (`yes-no`, `confirm`, `single-select`) and that the early-exit value is a valid answer for that question type (e.g., `"yes"` or `"no"` for `yes-no`, an option label for `single-select`)
 - Flag `interview-ref` used for a single simple question where `ask` or `ask-ref` would be simpler
-- A workflow with no `agent` attributes may be valid, but note when explicit agent selection would materially improve clarity or control
 
 ### Ephemeral Workflow Conventions
 
@@ -109,8 +119,7 @@ When reviewing names, apply these conventions:
 - **keywords**: if present, check that keywords are relevant, not redundant with the description, and include likely user-intent words and domain terms. Flag generic or overly broad keywords. If absent, recommend adding keywords to improve discoverability
 - **when-to-use / when-not-to-use**: if present, check that entries are specific, actionable, and complementary to the description rather than duplicating it. Flag vague signals. If absent, recommend adding them to improve manager delegation accuracy
 - **Coherence check**: verify that `description`, `keywords`, `when-to-use`, and `when-not-to-use` work together — they should be complementary, not redundant
-- **Agent-selection metadata use**: when the workflow assigns specialized agents, check whether the workflow author appears to have selected them in a way consistent with available agent metadata. Flag cases where the chosen agent's `description`, `keywords`, `when-to-use`, or `when-not-to-use` suggest a mismatch with the node's task
-- **Composition coherence**: when a workflow composes child workflows, check that the parent description, node names, and child workflow purposes fit together coherently and that the decomposition helps discoverability rather than hiding the real process behind vague node names; use `list_workflows` when needed to compare whether a better existing child workflow would fit the subprocess
+- **Agent and composition coherence**: check that agent and child workflow assignments are consistent with their metadata (see Agents and Prompts above). For composition, check that the parent description, node names, and child workflow purposes fit together coherently; use `list_workflows` when needed to compare alternatives
 
 ### Completeness and Clarity
 
@@ -118,7 +127,7 @@ When reviewing names, apply these conventions:
 - Any Markdown documentation outside the first DOT block supports the workflow and does not contradict it
 - References to supporting files in `scripts/`, `references/`, or `assets/` point to files that actually exist
 - References from DOT to reusable fenced code blocks via `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` point to ids that actually exist in the same file
-- References from DOT to composed child workflows via `workflow="name"` point to workflows that exist when the review scope allows that to be checked
+- References from DOT to composed child workflows via `workflow="name"` point to workflows that exist when the review scope allows that to be checked; if child workflows do not yet exist, note them as outstanding dependencies for top-down designs rather than treating them as errors
 - When supporting files are large, check existence and relevance without reproducing their full contents in the report
 - The workflow is understandable to both the execution engine and a human reader
 
@@ -153,6 +162,10 @@ Include a brief explanation for warnings and failures.
 ### Suggestions
 
 A numbered list of specific, actionable improvements ordered by priority (most impactful first). Each suggestion should explain *what* to change and *why*.
+
+### Outstanding Dependencies (when applicable)
+
+When the workflow references agents or child workflows that do not yet exist, include a section listing these as dependencies to be created. This is expected in top-down workflow design and should be presented as an informational inventory, not as errors.
 
 Use heading level 3 (`###`) for each section in your output.
 
@@ -300,8 +313,8 @@ Output (use `###` headings in the report):
 - **No body content**: Flag this as a failure — a workflow without a DOT pipeline is incomplete for execution unless the user explicitly asked for documentation only.
 - **No `dot` block**: Flag this as a failure for an executable workflow. The first `dot` block is the executable pipeline source of truth.
 - **Additional DOT blocks**: Treat only the first `dot` block as executable. If later DOT blocks could confuse the intended pipeline, flag that as a warning.
-- **Unknown agents**: Flag likely placeholder or non-existent agent references as warnings. Use `list_agents` when agent selection matters so you can assess availability and metadata fit instead of relying on names alone, but note that existence still cannot always be confirmed for every environment.
-- **Unknown child workflows**: Flag likely placeholder or non-existent `workflow="name"` references as warnings. Use `list_workflows` when workflow composition matters so you can assess availability and metadata fit instead of relying on names alone, but note that existence still cannot always be confirmed for every environment.
+- **Unknown agents**: Use `list_agents` when agent selection matters so you can assess availability and metadata fit. If agents do not exist, distinguish between two cases: (a) the workflow appears to be designed top-down with intentionally planned agents — list them as outstanding dependencies to create, not as errors; (b) the names look like accidental placeholders or typos — flag them as warnings. The runtime accepts unresolved agent references (logging a warning and falling back to a default agent), so missing agents never block validation or execution.
+- **Unknown child workflows**: Use `list_workflows` when workflow composition matters so you can assess availability and metadata fit. As with agents, distinguish intentional top-down forward references from accidental placeholders. List planned but not-yet-created child workflows as outstanding dependencies rather than flagging them as errors.
 - **Ephemeral status unclear**: If the workflow seems temporary but lacks the `.gitignore` sentinel, flag that as a warning or failure depending on how strongly the workflow claims to be ephemeral.
 - **Supporting files are large**: For files in `scripts/`, `references/`, or `assets/`, check that they exist and are referenced where appropriate, but do not reproduce their full contents in the report.
 - **User asks to fix issues**: If the user asks you to apply suggestions, make the changes, then validate using the workflow directory path or `WORKFLOW.md` path before reporting completion; use name-based validation only when the name is unambiguous.

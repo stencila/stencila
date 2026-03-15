@@ -7,6 +7,7 @@ keywords:
   - create
   - scaffold
   - write
+  - set up
   - WORKFLOW.md
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user list_agents list_workflows
 ---
@@ -31,20 +32,24 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
 7. Create the directory `<closest-workspace>/.stencila/workflows/<name>/`
 8. Write `WORKFLOW.md` with:
    - YAML frontmatter containing at least `name` and `description`
-   - `goal-hint` in frontmatter to hint what kind of goal the user should provide at run time; most workflows should include this because most workflows expect the user to supply their own goal. Use `goal` in frontmatter only when the workflow has a stable, fixed objective; duplicate it in graph attributes only when required by execution semantics or existing project conventions
+   - `goal-hint` when the workflow expects user-supplied goals (see Optional frontmatter fields below); use `goal` only when the workflow has a stable, fixed objective
    - `keywords` with domain-relevant terms and `when-to-use`/`when-not-to-use` entries to improve discoverability and delegation accuracy
    - A Markdown body whose first `dot` fenced code block contains the workflow pipeline
    - Optional surrounding Markdown documentation that explains the workflow to humans
 9. If ephemeral, create the `.gitignore` sentinel file with exactly `*` on its own line; if permanent, do not add that sentinel
 10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, workflow composition, or agent overrides only when the user asks for them or the workflow clearly needs them
-11. Use `list_agents` when agent selection matters so you can choose from available specialized agents instead of guessing names
-12. When using `list_agents`, prefer agents whose metadata supports the node's role: use `description` to check the agent's core capability, `keywords` to match domain terms and user intent, `when-to-use` for positive fit signals, and `when-not-to-use` to avoid poor matches
-13. Use `list_workflows` when workflow composition is relevant so you can choose from available child workflows instead of guessing names or nesting ad hoc subprocesses
-14. When using `list_workflows`, prefer child workflows whose metadata supports the composition boundary: use `description` to check the child workflow's end-to-end purpose, `keywords` to match domain and task terms, `when-to-use` for positive fit signals, and `when-not-to-use` to avoid poor matches or overbroad reuse
-15. Reference existing agents by name with the `agent` attribute when appropriate, preferring specialized agents returned by `list_agents` when their metadata indicates a good fit; do not invent agent names unless the user requests them or they are already clear project conventions
-16. Reference existing child workflows by name with the `workflow` attribute when appropriate, preferring workflows returned by `list_workflows` when their metadata indicates a good fit; do not invent child workflow names unless the user requests them or they are already clear project conventions
-17. Replace placeholders such as `TODO` before considering the workflow complete
-18. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path, and report the result to the user when possible
+11. Use `list_agents` and `list_workflows` when agent selection or workflow composition matters, so you can choose from real available resources instead of guessing names:
+    - match `description` to the task and `keywords` to domain terms
+    - use `when-to-use` for positive signals and `when-not-to-use` to avoid poor matches
+12. Reference agents by name with `agent="name"` and child workflows with `workflow="name"`:
+    - prefer specialized resources returned by the list tools
+    - do not invent names unless the user requests them, they are clear project conventions, or the workflow is being designed top-down
+13. **Top-down design**: When the user wants to design the workflow structure first and create dependencies afterward:
+    - name planned agents and child workflows using kebab-case names that follow naming conventions
+    - note which ones need to be created and inform the user of the outstanding dependencies
+    - validation and the runtime accept forward references (unresolved agents produce a runtime warning, not an error), so the workflow can be authored and iterated on before all dependencies are in place
+14. Replace placeholders such as `TODO` before considering the workflow complete
+15. Validate the finished workflow with `stencila workflows validate <name>`, the workflow directory path, or the `WORKFLOW.md` path, and report the result to the user when possible
 
 When working from a nested directory in a repository, create the workflow in the closest workspace's `.stencila/workflows/` directory rather than creating a new `.stencila/` tree under the current subdirectory.
 
@@ -113,20 +118,22 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 
 - Put the executable pipeline in the first `dot` fenced code block in the Markdown body
 - Use a directed graph such as `digraph code_review { ... }`
-- Add a graph attributes in `graph [...]` only when required by execution semantics or to match an existing project style
+- Add graph attributes in `graph [...]` only when required by execution semantics or to match an existing project style
 - Use node attributes such as `prompt`, `agent`, and `ask` where needed
-- When prompts, shell scripts, or human questions become long or multiline, prefer reusable fenced code blocks with ids and reference them from the graph using kebab-case attributes `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` instead of embedding long escaped strings directly in DOT
-- Do not use refs for short single-line values just for consistency; use them when they materially improve readability and maintainability
-- When a human review step needs to collect multiple pieces of information (e.g., a decision and freeform feedback), use `interview-ref` pointing to a YAML code block that defines the full interview with preamble, multiple typed questions, and per-question `store` keys; continue to use `ask` or `ask-ref` for single-question human gates
+- For long or multiline prompts, shell scripts, or human questions, use reusable fenced code blocks with ids and reference them via `prompt-ref`, `shell-ref`, `ask-ref`, or `interview-ref` instead of embedding long strings in DOT. Do not use refs for short single-line values
+- Use `interview-ref` (pointing to a YAML block with preamble, typed questions, and `store` keys) when a human review step collects multiple pieces of information; use `ask` or `ask-ref` for single-question gates
 - Use `show-if` on interview questions to conditionally display them based on a previous answer (e.g., `show-if: "decision == Revise"` to ask for revision notes only when the reviewer chose to revise); use `finish-if` on `yes-no`, `confirm`, or `single-select` questions to end the interview early when the answer matches a value (e.g., `finish-if: "no"` to skip remaining questions when the user declines to continue)
-- When an `agent` node has multiple outgoing edges with labels, the engine automatically provides routing instructions — via a `set_preferred_label` tool for tool-capable sessions, or an XML tag fallback otherwise. Prefer this label-based routing over `context.last_output` text-matching because it decouples the routing decision from the agent's text output. Simply give each outgoing edge a descriptive label (e.g., `Accept`, `Revise`, `Pass`, `Fail`) and the agent will signal its choice. Edge conditions still take priority over preferred labels, so both mechanisms can coexist
-- In iterative workflows, prefer tool-based context retrieval over `$last_output` and `$human.feedback` interpolation in creator prompts. The engine automatically tells agents about `get_last_output` (for prior node output) and `get_workflow_context` (for stored values like `human.feedback`), and agents fetch the content via background tool calls. This avoids bloating prompts with long prior outputs. Write prompts that say "check for reviewer feedback" and "check for human revision notes" instead of embedding `$last_output` and `$human.feedback` inline. Reserve `$`-variable interpolation for short values (`$goal`, `$last_stage`) and for shell commands and edge conditions where tools are not available
+- When an `agent` node has multiple outgoing edges with labels, the engine provides routing instructions (via `set_preferred_label` tool or XML tag fallback). Give each outgoing edge a descriptive label (e.g., `Accept`, `Revise`, `Pass`, `Fail`) and the agent will signal its choice. Edge conditions take priority over preferred labels, so both mechanisms can coexist
+- In iterative workflows, prefer tool-based context retrieval (`get_last_output`, `get_workflow_context`) over `$last_output` / `$human.feedback` interpolation — this avoids bloating prompts with long prior outputs. Write prompts that say "check for reviewer feedback" instead of embedding variables inline. Reserve `$`-variable interpolation for short values (`$goal`, `$last_stage`) and for shell commands and edge conditions where tools are unavailable
 - Use edges to express sequencing, branching, retry loops, and approval paths
-- Use `workflow="child-name"` on a node when a stage should run another workflow as a reusable composed subprocess; this is normalized as a workflow-handler node rather than a normal LLM, shell, or branch node. Prefer it when a subprocess is complex, reusable, or would otherwise make the parent graph hard to read
-- On composed workflow nodes, use `goal="..."` when the child workflow needs an explicit goal. If omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`), so child workflows can usually keep using `$goal`
-- When composing workflows, keep the parent focused on orchestration and the child focused on detailed execution; avoid creating child workflows for trivial one-step tasks unless reuse is likely
+- Use `workflow="child-name"` on a node to run another workflow as a composed subprocess. Use `goal="..."` to pass an explicit child objective; if omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`). Keep the parent focused on orchestration and the child on detailed execution; avoid composing trivial one-step tasks unless reuse is likely
 - Do not create direct or indirect composition cycles; workflow nesting should remain acyclic. Current validation rejects direct self-reference, and indirect cycles should also be avoided even if they are not yet detected statically
 - Prefer the house style of placing the entry edge near the top, then organizing each node as a block: node definition followed immediately by its outgoing edge or edges
+- Forward references to agents and child workflows are valid — see step 13 (Top-down design)
+- Prefer explicit agent selection over relying on the default agent fallback, unless the user wants a minimal draft. When a node has no `agent` attribute, the engine uses a default agent — note this to the user when it matters
+- Stencila resolves agent names in order: workspace agents → user-level agents → CLI-detected agents
+- Use `shape=human` for explicit human approval or review steps
+- Prefer `goal-hint` over `goal` for most workflows; see Optional frontmatter fields for the distinction
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
 
 Markdown content outside the first DOT block is documentation for humans. Only the first DOT block is extracted as the pipeline definition.
@@ -145,29 +152,20 @@ digraph example {
 
 ```text #creator-prompt
 Create or revise the draft for this goal: $goal
-
-...
-
-Before starting, check for reviewer feedback from a previous iteration.
-If feedback is present, use it to revise the existing draft instead of starting over.
+Check for reviewer feedback from a previous iteration and revise rather than restart.
 ```
 
 ```sh #run-checks
-cargo fmt -p workflows
-...
-cargo test -p workflows
+cargo fmt -p workflows && cargo test -p workflows
 ```
 
 ```text #human-question
 What should change before the next revision?
-
-Be specific about missing sections, unclear instructions, or structural issues.
 ```
 
 ```yaml #review-interview
 preamble: |
   Please review the draft and provide structured feedback.
-
 questions:
   - header: Decision
     question: Is the draft ready to publish?
@@ -176,7 +174,6 @@ questions:
       - label: Approve
       - label: Revise
     store: review.decision
-
   - header: Feedback
     question: What specific changes should be made?
     store: review.feedback
@@ -203,22 +200,9 @@ Use ephemeral workflows when:
 
 Do not make a workflow ephemeral unless the user asks for temporary behavior or the surrounding flow clearly implies it.
 
-When describing the result to the user:
-
-- explain whether the workflow is ephemeral or permanent
-- if ephemeral, mention that it can be kept with `stencila workflows save <name>`
-- if ephemeral, mention that it can be removed with `stencila workflows discard <name>`
+When describing the result, explain whether the workflow is ephemeral or permanent. If ephemeral, mention `stencila workflows save <name>` to keep it and `stencila workflows discard <name>` to remove it.
 
 ## Common Workflow Patterns
-
-House style for examples in this skill:
-
-- use frontmatter with `name`, `description`, and `goal` when the objective is stable
-- omit extra Markdown headings unless they add important human-facing documentation
-- use `Start` and `End` nodes for readability
-- place the `Start -> ...` entry edge near the top, then for each node place the node definition before its outgoing edge or edges
-- use simple, self-explanatory edge labels such as `Pass`, `Fail`, `Approve`, and `Revise`
-- use `$goal` in prompts when the workflow has a frontmatter `goal`
 
 ### Linear agent-driven workflow
 
@@ -244,7 +228,6 @@ digraph lit_review {
 }
 ```
 ````
-
 
 ### Agent-driven workflow with structured review interview
 
@@ -283,23 +266,24 @@ questions:
       - label: Approve
       - label: Revise
     store: review.decision
-    finish-if: "yes"
+    finish-if: Approve
 
   - header: Revision Notes
     question: What specific changes should be made?
+    show-if: "review.decision == Revise"
     store: review.feedback
 ```
 ````
 
 ### Agent-driven review with label routing
 
-When an LLM agent decides the branch, use labeled edges without conditions. The engine automatically provides routing instructions — registering a `set_preferred_label` tool for tool-capable sessions, or instructing the agent to use an XML tag fallback otherwise. The agent signals its branch choice through one of these mechanisms, decoupling routing from text output.
+When an LLM agent decides the branch, use labeled edges without conditions.
 
 ````markdown
 ---
 name: draft-review-iterative
 description: Draft and iteratively refine with agent-driven review
-goal: Produce an acceptable draft for the requested purpose
+goal-hint: What would you like drafted and refined?
 ---
 
 ```dot
@@ -353,11 +337,9 @@ questions:
 ```
 ````
 
-Note that the `Review` node's edges use only labels (`Accept`, `Revise`) without conditions. The engine provides routing instructions (via a tool call or XML tag fallback) so the agent selects the branch through a structured mechanism. This is more reliable than prompting the agent to "reply with ONLY yes" and matching `context.last_output=yes`.
-
 ### Condition-based branching
 
-Use edge conditions for deterministic routing based on handler status, such as shell exit codes or test outcomes. Unlike label routing (where an agent decides the path), condition-based branching evaluates structured outcome fields.
+Use edge conditions for deterministic routing based on handler status. Unlike label routing above, condition-based branching evaluates structured outcome fields.
 
 ````markdown
 ---
@@ -387,43 +369,9 @@ digraph code_review {
 ```
 ````
 
-Note the difference from label routing: edge conditions (`condition="outcome=success"`) evaluate the handler's structured outcome status, while labeled edges without conditions let the agent choose the path. Conditions take priority in the edge selection algorithm (Step 1), so both mechanisms can coexist on the same node.
-
-## Authoring Guidance
-
-- Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish
-- Use `Start` and `End` nodes for readability unless the workflow format or user request suggests a different style
-- Use `list_agents` before assigning non-obvious agents so the workflow can reference real available agents rather than guessed names
-- When reviewing `list_agents` results, choose agents by metadata rather than by name alone: match `description` to the node's responsibility, use `keywords` for domain and task terms, treat `when-to-use` as positive routing guidance, and use `when-not-to-use` to avoid agents that are a poor fit
-- Use `agent="name"` to reference existing agents by name; when available, prefer specialized agents whose metadata indicates they match the node's task. Stencila resolves workspace agents first, then user-level agents, then CLI-detected agents
-- Use `list_workflows` before adding a composed `workflow="child-name"` node so the parent can reuse real available workflows rather than guessed or redundant child names
-- When reviewing `list_workflows` results, choose child workflows by metadata rather than by name alone: match `description` to the subprocess purpose, use `keywords` for domain and task terms, treat `when-to-use` as positive composition guidance, and use `when-not-to-use` to avoid nesting workflows that are too broad, too narrow, or mismatched
-- Prefer nesting a child workflow only when it encapsulates a meaningful reusable subprocess, improves readability of the parent graph, or separates orchestration from detailed execution; keep trivial one-step tasks inline unless reuse is likely
-- Use `workflow="name"` to reference existing child workflows by name; when available, prefer workflows whose metadata indicates they fit the subprocess being delegated. Avoid inventing child workflow names when `list_workflows` shows better existing options
-- When a node has no `agent` attribute, the engine uses a default agent; this fallback is unlikely to be optimal for a well-designed workflow, so prefer explicit agent selection unless the user wants a minimal draft
-- Use inline `agent.*` dotted attributes only when the user explicitly wants node-specific overrides such as `agent.model`, `agent.provider`, or `agent.reasoning-effort`
-- Use `shape=human` for explicit human approval or review steps
-- Use workflow composition to encapsulate reusable or internally complex subprocesses, but prefer ordinary nodes when a stage is simple and local to one workflow
-- Most workflows should include `goal-hint` with a clear, actionable hint that guides the user to provide a specific goal; the user's response becomes `$goal` at runtime. This hint is shown across all user interfaces (TUI, web, email, Slack, etc.)
-- Use frontmatter `goal` only for workflows with a fixed, predetermined objective, and refer to it in prompts with `$goal`; omit `goal` when it would just be a generic restatement of the description — such goals provide no runtime value and clutter the user interface with unhelpful pre-filled text
-- Prefer frontmatter `goal` over repeating the same objective in both frontmatter and graph attributes
-- Prefer explicit edge labels for LLM-driven branching; the engine provides structured routing (via tool call or XML tag fallback) so the agent can signal its branch choice. Do not prompt agents to "reply with ONLY yes" for routing — use labeled edges instead
-- Use edge conditions (`condition="outcome=success"`) for deterministic routing based on handler status; use labeled edges without conditions for agent-driven decisions where the agent chooses the path
-- Keep each node's outgoing routing close to that node in the DOT source instead of separating all edges from all node definitions
-- Do not try to encode ephemeral status in frontmatter or the DOT graph; use the `.gitignore` sentinel instead when needed
-- Do not overcomplicate the first draft; a shorter valid workflow is better than an elaborate but unclear one
-- Do not encode every node or branch in the workflow name; keep naming focused on the process and, if needed, a broad approach modifier
-- Use `interview-ref` when a human review step needs to collect both a routing decision and structured feedback in a single pause; ensure every freeform question has a `store` key so answers are not silently lost
-- Routing in multi-question interviews is driven by the first `single-select` question's answer, matched against outgoing edge labels — keep routing edges visible in the DOT graph, not hidden in the YAML spec
-- Use `show-if` to conditionally display follow-up questions based on earlier answers (e.g., `show-if: "decision == Revise"` shows revision notes only when the reviewer chose to revise); the syntax is `"store_key == value"` or `"store_key != value"` with case-insensitive comparison
-- Use `finish-if` on gate questions to end the interview early when the answer matches a value (e.g., `finish-if: "no"` on a `yes-no` question to skip the remaining questions); `finish-if` is supported on `yes-no`, `confirm`, and `single-select` questions but not on `freeform` or `multi-select`
-- When authoring a composed node, use `workflow="name"` and assume the child workflow's final output will become the parent node's output; design downstream parent prompts and branches accordingly
-- If the child workflow should receive a specific high-level objective, pass it with `goal="..."`; otherwise the child goal will default from the composed node's resolved input
-- If a child workflow needs parent context, prefer passing stable intent through shared context such as `$goal` rather than duplicating the same long prompt logic in both parent and child
-
 ## Practical Workflow Design Guidance
 
-Design the workflow so that each stage makes visible progress toward the goal instead of just adding more prompts.
+Design the workflow so that each stage makes visible progress toward the goal instead of just adding more prompts. Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish.
 
 - Break broad objectives into stages that reduce uncertainty or produce a concrete artifact for the next step
 - For each non-trivial node, be able to state its input, output, success condition, and revision path
@@ -433,34 +381,23 @@ Design the workflow so that each stage makes visible progress toward the goal in
 - Base branches on meaningful decisions such as pass/fail, approve/revise, or sufficient/insufficient evidence
 - Use human approval when the workflow crosses a trust boundary such as publish, deploy, or accept consequential changes
 - If a stage does not change what the workflow knows, decides, or produces, it is usually unnecessary
+- Alternate generation and evaluation so later steps decide whether earlier work is good enough to continue
 
-## Workflow Design Heuristics by Objective Type
+Common shapes by objective type (simplify or extend to fit the request):
 
-Use patterns like these as a starting point, then simplify or extend them to fit the request:
-
-| Objective type | Convergence-oriented shape |
+| Objective type | Typical shape |
 |---|---|
-| Research / literature review | clarify question → search → extract evidence → synthesize → critique gaps → draft |
-| Coding / implementation | clarify requirements → design → implement → test → review → revise or approve |
+| Research / literature review | clarify → search → extract → synthesize → critique → draft |
+| Coding / implementation | clarify → design → implement → test → review → approve |
 | Publishing / editorial | brief → draft → edit → fact-check → approve → publish |
 | Decision support | define criteria → gather options → evaluate → compare → recommend → approve |
-| Data analysis | define question → collect data → clean/validate → analyze → interpret → review |
-
-In each pattern, try to alternate generation and evaluation so later steps decide whether earlier work is good enough to continue.
+| Data analysis | define question → collect → clean → analyze → interpret → review |
 
 ## Example Walkthrough
 
 Input: "Create a workflow that designs, implements, tests, and then asks for human approval before finishing"
 
-Process:
-
-1. Derive name: prefer a process-oriented name such as `code-generation-iterative` rather than a step-by-step name such as `plan-implement-validate`
-2. Resolve workspace: find the nearest `.stencila/` directory, for example at the repository root
-3. Target path: `.stencila/workflows/code-generation-iterative/WORKFLOW.md`
-4. Check whether `.stencila/workflows/code-generation-iterative/` already exists; if it does, ask whether to overwrite, merge, or abort
-5. Capture the goal and choose a pipeline with design, build, test, and human review steps
-6. Use a DOT graph with clear edges, simple branch labels, and prompts or agents for each non-human node
-7. Write the file, then validate it
+Process: Derive name `code-generation-iterative` (process-oriented, not step-by-step like `plan-implement-validate`). Resolve workspace, check for duplicates, write the file, and validate.
 
 Output:
 
@@ -492,21 +429,11 @@ digraph code_generation_iterative {
 ```
 ````
 
-Validated with: `stencila workflows validate plan-implement-validate`
+Validated with: `stencila workflows validate code-generation-iterative`
 
 ## Ephemeral Example
 
 Input: "Create a temporary workflow I can try once to summarize a set of notes"
-
-Process:
-
-1. Derive name: `note-summary`
-2. Resolve the nearest workspace and target `.stencila/workflows/note-summary/`
-3. Confirm this should be ephemeral rather than permanent
-4. Check whether the target directory already exists; if it does, ask whether to overwrite, merge, or abort
-5. Write `WORKFLOW.md` using the same frontmatter and DOT house style as the other examples
-6. Create `.gitignore` containing exactly `*`
-7. Validate the workflow and explain how to save or discard it
 
 Output structure:
 
@@ -534,12 +461,6 @@ digraph note_summary {
 ```
 ````
 
-Notes to include when reporting completion:
-
-- this workflow is ephemeral because the directory contains the `.gitignore` sentinel
-- keep it with `stencila workflows save note-summary`
-- remove it with `stencila workflows discard note-summary`
-
 Validated with: `stencila workflows validate note-summary`
 
 ## Edge Cases
@@ -549,8 +470,8 @@ Validated with: `stencila workflows validate note-summary`
 - **Nested workspaces**: If multiple `.stencila/` directories exist in the ancestor chain, use the nearest one. Do not create a duplicate `.stencila/workflows/` tree.
 - **Empty or placeholder content**: Do not consider the workflow complete if any `TODO`, `<placeholder>`, or empty `description` remains in the final `WORKFLOW.md`.
 - **No DOT block**: A workflow without a DOT block may still be partially drafted, but it is incomplete for execution; add a valid first `dot` block before reporting completion unless the user explicitly asks for documentation only.
-- **Missing goal**: `goal` is optional. Omit it if the user has not provided a stable overarching objective. When the workflow expects a user-supplied goal (the common case), include `goal-hint` with a clear hint so user interfaces can guide the user to provide one.
-- **Unknown agents**: If the workflow references agent names that may not exist, tell the user they need corresponding agents or remove the `agent` attributes in the initial scaffold.
+- **Missing goal**: `goal` is optional — omit it if the user has not provided a stable objective. Use `goal-hint` when the workflow expects a user-supplied goal (the common case).
+- **Unknown agents or child workflows**: List outstanding dependencies so the user can create them. This is valid in top-down design (see step 13) — validation passes, and the runtime falls back to a default agent for unresolved names. Do not remove references just because the targets do not exist yet.
 - **Overriding agent properties**: Use inline `agent.*` attributes sparingly; prefer reusable agent definitions unless the user clearly needs a node-specific override.
 - **Ephemeral status**: Do not add custom frontmatter like `ephemeral: true`; ephemeral workflows are identified solely by the `.gitignore` sentinel file containing `*`.
 
@@ -573,5 +494,4 @@ Validation should pass before you report the workflow as complete.
 
 ## Limitations
 
-- This skill covers workflow structure, metadata, and authoring conventions. It does not execute the workflow or verify the runtime behavior of referenced agents.
-- Validation checks structure and known conventions, but some design issues may only become apparent during execution or real use.
+- This skill covers workflow structure, metadata, and authoring conventions. It does not execute the workflow or verify runtime behavior. Some design issues may only surface during execution.
