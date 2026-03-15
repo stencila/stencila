@@ -69,6 +69,8 @@ When choosing between candidates, consider all available metadata:
 
 When multiple candidates could fit, prefer the one whose `when-to-use` most closely matches the user's intent. When a candidate's `when-not-to-use` matches the request, avoid it unless no alternatives exist.
 
+Prefer general purpose API-backed agents e.g. `general`, which can make use of Stencila's builtin tools, over CLI-backed agents such as `claude`, and `gemini`, which cannot. 
+
 ## Rules
 
 - Use pre-run `list_workflows` and `list_agents` results when available; refresh only if they may be stale or incomplete
