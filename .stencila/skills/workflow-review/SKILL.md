@@ -51,8 +51,8 @@ When reviewing names, apply these conventions:
 
 ### DOT Pipeline Structure
 
-- The first fenced code block in the body uses the `dot` language
-- The first `dot` block contains a valid-looking directed graph such as `digraph name { ... }`
+- The Markdown body should begin with a short human-readable explanation of the workflow before the first `dot` fenced code block; flag workflows that jump straight into the DOT block without any introductory prose
+- The first `dot` fenced code block in the body contains a valid-looking directed graph such as `digraph name { ... }`
 - The workflow has a clear executable path from start to finish
 - Node and edge names are readable and internally consistent
 - Prompts, `agent` attributes, conditions, and labels are attached to the correct nodes or edges
@@ -124,7 +124,7 @@ When reviewing names, apply these conventions:
 ### Completeness and Clarity
 
 - The file has no placeholder content (`TODO`, `<placeholder>`, empty sections)
-- Any Markdown documentation outside the first DOT block supports the workflow and does not contradict it
+- The body begins with a short human-readable explanation before the DOT block, and any additional Markdown documentation after the DOT block supports the workflow and does not contradict it
 - References to supporting files in `scripts/`, `references/`, or `assets/` point to files that actually exist
 - References from DOT to reusable fenced code blocks via `prompt-ref`, `shell-ref`, `ask-ref`, and `interview-ref` point to ids that actually exist in the same file
 - References from DOT to composed child workflows via `workflow="name"` point to workflows that exist when the review scope allows that to be checked; if child workflows do not yet exist, note them as outstanding dependencies for top-down designs rather than treating them as errors

@@ -17,6 +17,8 @@ when-not-to-use:
   - when the task is to review an existing delivery plan without creating or refining it
 ---
 
+This workflow first uses the `software-plan-creator` agent to draft or revise the software delivery plan, then passes the draft to the `software-plan-reviewer` agent for review. The reviewer uses the `set_preferred_label` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback. The `Create` node uses the `get_last_output` tool to retrieve reviewer feedback and `get_workflow_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. The decision question uses `finish-if: Accept` to end the interview immediately when the delivery plan is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.
+
 ```dot
 digraph software_plan_iterative {
   Start -> Create
@@ -70,5 +72,3 @@ questions:
     type: freeform
     store: human.feedback
 ```
-
-The workflow first uses the `software-plan-creator` agent to draft or revise the software delivery plan, then passes the draft to the `software-plan-reviewer` agent for review. The reviewer uses the `set_preferred_label` tool (provided automatically) to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback. The `Create` node uses the `get_last_output` tool to retrieve reviewer feedback and `get_workflow_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. The decision question uses `finish-if: Accept` to end the interview immediately when the delivery plan is accepted, skipping the revision notes question. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`.

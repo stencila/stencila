@@ -118,7 +118,7 @@ An ephemeral workflow has the same structure, plus the temporary marker file:
 A workflow is a directory containing a `WORKFLOW.md` file. The file has two parts:
 
 1. **YAML frontmatter** — metadata (name, description, goal)
-2. **Markdown body** — a DOT pipeline in a `` ```dot `` fenced code block, plus optional documentation
+2. **Markdown body** — a short human-readable explanation of the workflow, then a DOT pipeline in a `` ```dot `` fenced code block, then optional additional documentation and referenced content blocks
 
 Here is a minimal example:
 
@@ -127,6 +127,8 @@ Here is a minimal example:
 name: lit-review
 description: Search and summarize recent literature
 ---
+
+This workflow searches for recent papers, summarizes the key findings, and drafts a literature review.
 
 ```dot
 digraph lit_review {
@@ -175,7 +177,7 @@ digraph code_review {
 ```
 ````
 
-Markdown content outside the `` ```dot `` block serves as human-readable documentation for the workflow. Only the first `` ```dot `` block is extracted as the pipeline definition.
+The recommended body structure is: a short human-readable explanation of the workflow before the `` ```dot `` block, then the DOT pipeline, then any additional referenced content blocks or documentation. Only the first `` ```dot `` block is extracted as the pipeline definition.
 
 ## Recommended DOT organization
 
@@ -222,6 +224,8 @@ Use refs where they improve readability. For short single-line values, inline DO
 name: thing-creation
 description: Create and review a thing using referenced multiline content
 ---
+
+This workflow creates a thing using a creator agent, runs validation checks, and collects human feedback.
 
 ```dot
 digraph thing_creation {
@@ -377,6 +381,8 @@ description: Implement and review with structured human feedback
 goal: Implement the feature and get approval
 ---
 
+This workflow builds the requested feature and then pauses for a structured human review interview that collects both a routing decision and detailed feedback. If the reviewer selects Revise, the feedback is stored and the pipeline loops back to rebuild.
+
 ```dot
 digraph code_review_guided {
   Start -> Build
@@ -510,6 +516,8 @@ description: Orchestrate implementation through a reusable child workflow and fi
 goal: Implement and approve the requested change
 ---
 
+This workflow delegates implementation to the `code-implementation` child workflow, then pauses for human review. The reviewer can approve or loop back for another implementation pass.
+
 ```dot
 digraph code_review_composed {
   Start -> Implement
@@ -531,6 +539,8 @@ Child workflow:
 name: code-implementation
 description: Design, implement, and test a requested software change
 ---
+
+This workflow designs an implementation plan, builds it, and runs tests. It is intended as a reusable child workflow for parent workflows that handle review and approval.
 
 ```dot
 digraph code_implementation {

@@ -14,7 +14,7 @@ allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_us
 
 ## Overview
 
-Create a new workflow directory and `WORKFLOW.md` file for Stencila. A workflow is a directory under `.stencila/workflows/` containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown body. The body usually begins with a `dot` fenced code block that defines the pipeline, followed by optional human-readable documentation.
+Create a new workflow directory and `WORKFLOW.md` file for Stencila. A workflow is a directory under `.stencila/workflows/` containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown body. The body should begin with a short human-readable explanation of what the workflow does and how it works, followed by a `dot` fenced code block that defines the pipeline, and then any additional documentation or referenced content blocks.
 
 Use this skill when the user wants to define a multi-stage AI workflow, orchestrate several agent or human steps, or scaffold a reusable pipeline that can be validated and run with Stencila.
 
@@ -34,8 +34,7 @@ Use this skill when the user wants to define a multi-stage AI workflow, orchestr
    - YAML frontmatter containing at least `name` and `description`
    - `goal-hint` when the workflow expects user-supplied goals (see Optional frontmatter fields below); use `goal` only when the workflow has a stable, fixed objective
    - `keywords` with domain-relevant terms and `when-to-use`/`when-not-to-use` entries to improve discoverability and delegation accuracy
-   - A Markdown body whose first `dot` fenced code block contains the workflow pipeline
-   - Optional surrounding Markdown documentation that explains the workflow to humans
+   - A Markdown body that begins with a short human-readable explanation of the workflow, followed by a `dot` fenced code block containing the workflow pipeline, and then any additional referenced content blocks or documentation
 9. If ephemeral, create the `.gitignore` sentinel file with exactly `*` on its own line; if permanent, do not add that sentinel
 10. Prefer a simple linear pipeline first, then add branching, retry loops, conditions, human review, workflow composition, or agent overrides only when the user asks for them or the workflow clearly needs them
 11. Use `list_agents` and `list_workflows` when agent selection or workflow composition matters, so you can choose from real available resources instead of guessing names:
@@ -94,7 +93,7 @@ Common corrections: `workflowBuilder` → `workflow-builder`, `test_deploy` → 
 The file has two parts:
 
 1. **YAML frontmatter** between `---` delimiters — metadata such as `name`, `description`, and optional `goal`
-2. **Markdown body** — a DOT pipeline in the first `dot` fenced code block, plus optional documentation
+2. **Markdown body** — a short human-readable explanation of the workflow, then a DOT pipeline in the first `dot` fenced code block, then optional additional documentation and referenced content blocks
 
 ### Required frontmatter fields
 
@@ -116,7 +115,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 
 ### DOT Pipeline Expectations
 
-- Put the executable pipeline in the first `dot` fenced code block in the Markdown body
+- Start the Markdown body with a short human-readable explanation of what the workflow does and how it works, then put the executable pipeline in the first `dot` fenced code block
 - Use a directed graph such as `digraph code_review { ... }`
 - Add graph attributes in `graph [...]` only when required by execution semantics or to match an existing project style
 - Use node attributes such as `prompt`, `agent`, and `ask` where needed
@@ -136,7 +135,7 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - Prefer `goal-hint` over `goal` for most workflows; see Optional frontmatter fields for the distinction
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
 
-Markdown content outside the first DOT block is documentation for humans. Only the first DOT block is extracted as the pipeline definition.
+The recommended body structure is: a short human-readable explanation of the workflow before the first DOT block, then the DOT pipeline, then any additional referenced content blocks or documentation. Only the first DOT block is extracted as the pipeline definition.
 
 Reusable content references resolve against code blocks or code chunks with ids in the same `WORKFLOW.md`. Use them mainly for longer content, for example:
 
@@ -213,6 +212,8 @@ description: Search and summarize recent literature
 goal: Review recent literature on CRISPR gene editing
 ---
 
+This workflow searches for recent papers, summarizes the key findings, and drafts a literature review.
+
 ```dot
 digraph lit_review {
   Start -> Search
@@ -237,6 +238,8 @@ name: code-review-guided
 description: Automated code review with structured human feedback
 goal: Implement and review the feature with detailed feedback
 ---
+
+This workflow designs, builds, and reviews code changes using a structured human review interview that collects both a routing decision and detailed feedback.
 
 ```dot
 digraph code_review_guided {
@@ -285,6 +288,8 @@ name: draft-review-iterative
 description: Draft and iteratively refine with agent-driven review
 goal-hint: What would you like drafted and refined?
 ---
+
+This workflow uses a writer agent to create or revise a draft, then a reviewer agent to evaluate it. The reviewer chooses between Accept and Revise branches via `set_preferred_label`. On acceptance, the draft enters a structured human review interview where the user can accept or request further revisions with feedback. The `Create` node retrieves reviewer feedback via `get_last_output` and human revision notes via `get_workflow_context` to keep prompts compact across iterations.
 
 ```dot
 digraph draft_review_iterative {
@@ -348,6 +353,8 @@ description: Automated code review with human approval gate
 goal: Implement and review the feature
 ---
 
+This workflow designs, builds, and tests a code change, then routes to human review on success or loops back on test failure. The human reviewer can approve or send the change back for revision.
+
 ```dot
 digraph code_review {
   Start -> Design
@@ -408,6 +415,8 @@ description: Generate and refine a requested software change through design, imp
 goal: Implement and validate the requested feature
 ---
 
+This workflow designs an implementation plan, builds it, runs tests, and gates progression on test success. On failure, it loops back to rebuild. On success, a human reviewer can approve or send the change back to redesign.
+
 ```dot
 digraph code_generation_iterative {
   Start -> Design
@@ -451,6 +460,8 @@ name: note-summary
 description: Summarize a temporary set of notes
 goal: Summarize the provided notes into a concise brief
 ---
+
+A simple one-step workflow that summarizes notes into a concise brief.
 
 ```dot
 digraph note_summary {
