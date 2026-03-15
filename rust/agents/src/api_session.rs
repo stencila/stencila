@@ -528,7 +528,7 @@ impl ApiSession {
         // also be reflected in `allowed_tools`. Otherwise request building and
         // tool-call prechecks can filter out or reject a tool that was just
         // registered on the session, making instructions like
-        // `set_preferred_label` impossible to follow for allowlisted agents.
+        // `workflow_set_route` impossible to follow for allowlisted agents.
         if let Some(allowed_tools) = &mut self.config.allowed_tools
             && !allowed_tools.iter().any(|allowed| allowed == &tool_name)
         {
@@ -2399,7 +2399,7 @@ mod guard_wiring_tests {
             ApiSessionInit::default(),
         );
 
-        session.register_tool(dynamic_tool("set_preferred_label"))?;
+        session.register_tool(dynamic_tool("workflow_set_route"))?;
         session.submit("choose a branch").await?;
 
         let requests = client.requests.lock().map_err(|e| AgentError::Io {
@@ -2413,10 +2413,10 @@ mod guard_wiring_tests {
             .map(|tool| tool.name.as_str())
             .collect();
 
-        assert!(tool_names.contains(&"set_preferred_label"));
+        assert!(tool_names.contains(&"workflow_set_route"));
         assert_eq!(
             session.config().allowed_tools.as_ref(),
-            Some(&vec!["echo".to_string(), "set_preferred_label".to_string()])
+            Some(&vec!["echo".to_string(), "workflow_set_route".to_string()])
         );
 
         Ok(())

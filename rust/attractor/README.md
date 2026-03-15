@@ -406,7 +406,7 @@ End-to-end integration tests live in `.stencila/workflows/test-*/WORKFLOW.md` at
 | ----------------------------- | --------------------------------------------------- |
 | `test-no-op`                  | Minimal `Start → End` graph |
 | `test-count-to-three`         | Linear chain, `$last_output`, `$goal` expansion, `Fail` node |
-| `test-count-to-goal`          | Looping (self-edge), label-based branching via `set_preferred_label` or XML tag fallback |
+| `test-count-to-goal`          | Looping (self-edge), label-based branching via `workflow_set_route` or XML tag fallback |
 | `test-human-gates`            | `wait.human` via `ask=` sugar, binary/three-way/single-choice gates, `question_type`, `store` |
 | `test-fan-out-fan-in`         | Parallel fan-out via `FanOut` ID, fan-in convergence |
 | `test-conditional-branching`  | `Check*` ID → diamond shape, `outcome=` conditions, edge retry loop |

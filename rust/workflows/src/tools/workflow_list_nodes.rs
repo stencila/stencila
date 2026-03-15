@@ -1,4 +1,4 @@
-//! `list_completed_nodes` tool: list completed nodes with their statuses.
+//! `workflow_list_nodes` tool: list workflow nodes with their statuses.
 
 use std::sync::{Arc, Mutex};
 
@@ -9,8 +9,8 @@ use stencila_models3::types::tool::ToolDefinition;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "list_completed_nodes".into(),
-        description: "List all completed pipeline nodes with their status and duration.".into(),
+        name: "workflow_list_nodes".into(),
+        description: "List all workflow nodes with their status and duration.".into(),
         parameters: json!({
             "type": "object",
             "properties": {},

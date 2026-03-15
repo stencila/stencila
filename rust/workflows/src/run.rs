@@ -568,7 +568,7 @@ impl CodergenBackend for AgentCodergenBackend {
         // Collect outgoing edge labels from context (set fresh by
         // CodergenHandler before each backend call — intentionally transient
         // and node-local-in-time). When labels are present, register the
-        // `set_preferred_label` tool so the agent can make a structured
+        // `workflow_set_route` tool so the agent can make a structured
         // routing decision. For sessions without tool support, fall back
         // to XML-block parsing from the response text.
         let outgoing_labels: Vec<String> = context
@@ -583,14 +583,14 @@ impl CodergenBackend for AgentCodergenBackend {
 
         let routing_tool_available = if !outgoing_labels.is_empty() {
             if let stencila_agents::session::AgentSession::Api(api_session) = &mut session {
-                let tool = crate::tools::set_preferred_label::registered_tool(
+                let tool = crate::tools::workflow_set_route::registered_tool(
                     outgoing_labels.clone(),
                     preferred_label.clone(),
                 );
                 match api_session.register_tool(tool) {
                     Ok(()) => true,
                     Err(e) => {
-                        tracing::warn!("Failed to register set_preferred_label tool: {e}");
+                        tracing::warn!("Failed to register workflow_set_route tool: {e}");
                         false
                     }
                 }
@@ -607,9 +607,9 @@ impl CodergenBackend for AgentCodergenBackend {
             effective_prompt.push_str(
                 "\n\n\
                  WORKFLOW CONTEXT TOOLS: You have access to workflow tools for retrieving \
-                 prior state. Call `get_last_output` to fetch the full output from the \
+                 prior state. Call `workflow_get_output` to fetch the full output from the \
                  previous pipeline node (e.g. reviewer feedback or a prior draft). Call \
-                 `get_workflow_context` with a key (e.g. \"human.feedback\") to read stored \
+                 `workflow_get_context` with a key (e.g. \"human.feedback\") to read stored \
                  values such as human revision notes. Use these tools to obtain context \
                  rather than assuming it is included in this prompt.",
             );
@@ -621,7 +621,7 @@ impl CodergenBackend for AgentCodergenBackend {
                 effective_prompt.push_str(&format!(
                     "\n\n\
                      WORKFLOW ROUTING: This node has multiple outgoing branches. \
-                     After completing your main task, you MUST call the `set_preferred_label` tool \
+                     After completing your main task, you MUST call the `workflow_set_route` tool \
                      with one of these labels to determine which branch the workflow takes next: \
                      {labels_list}"
                 ));
@@ -768,7 +768,7 @@ impl CodergenBackend for AgentCodergenBackend {
             }
         }
 
-        // If the agent called set_preferred_label, propagate the choice
+        // If the agent called workflow_set_route, propagate the choice
         // into the outcome so the edge selection algorithm (§3.3 Step 2)
         // can route on it. For sessions without tool support, fall back
         // to parsing a <preferred-label> XML block from the response text.

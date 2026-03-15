@@ -1,4 +1,4 @@
-//! `store_artifact` tool: register a workflow artifact in SQLite.
+//! `workflow_store_artifact` tool: register a workflow artifact in SQLite.
 
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -10,7 +10,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "store_artifact".into(),
+        name: "workflow_store_artifact".into(),
         description: "Store metadata for a workflow artifact and return its artifact ID.".into(),
         parameters: json!({
             "type": "object",

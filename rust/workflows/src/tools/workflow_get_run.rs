@@ -1,4 +1,4 @@
-//! `get_workflow_run` tool: read workflow run metadata.
+//! `workflow_get_run` tool: read workflow run metadata.
 
 use std::sync::{Arc, Mutex};
 
@@ -9,7 +9,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "get_workflow_run".into(),
+        name: "workflow_get_run".into(),
         description:
             "Get metadata about the current workflow run: name, goal, status, and start time."
                 .into(),

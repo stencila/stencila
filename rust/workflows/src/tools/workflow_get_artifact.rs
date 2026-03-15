@@ -1,4 +1,4 @@
-//! `get_artifact` tool: retrieve artifact metadata and path.
+//! `workflow_get_artifact` tool: retrieve artifact metadata and path by ID.
 
 use std::sync::{Arc, Mutex};
 
@@ -9,8 +9,8 @@ use stencila_models3::types::tool::ToolDefinition;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "get_artifact".into(),
-        description: "Get metadata and file path for a named artifact from this pipeline run."
+        name: "workflow_get_artifact".into(),
+        description: "Get metadata and file path for an artifact by ID from this workflow run."
             .into(),
         parameters: json!({
             "type": "object",

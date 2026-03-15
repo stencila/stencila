@@ -1,4 +1,4 @@
-//! `get_workflow_context` tool: read context key(s) or full snapshot.
+//! `workflow_get_context` tool: read context key(s) or full snapshot.
 
 use std::sync::{Arc, Mutex};
 
@@ -9,7 +9,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "get_workflow_context".into(),
+        name: "workflow_get_context".into(),
         description: "Read a workflow context value by key, or get all context values if no \
             key is specified."
             .into(),

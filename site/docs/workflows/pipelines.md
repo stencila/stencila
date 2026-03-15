@@ -251,7 +251,7 @@ Use `$`-prefixed variables in `prompt` attributes to inject dynamic values:
 
 > [!tip] Tool-based alternative
 >
-> Variable interpolation embeds prior output directly into the prompt text, which can bloat messages in iterative workflows where outputs are long (e.g. full drafts or detailed reviews). For these cases, prefer the `get_last_output` and `get_workflow_context` tools instead — the engine automatically tells agents about these tools, and agents fetch the content via background tool calls rather than receiving it inline. See [Workflow context tools](#workflow-context-tools) below.
+> Variable interpolation embeds prior output directly into the prompt text, which can bloat messages in iterative workflows where outputs are long (e.g. full drafts or detailed reviews). For these cases, prefer the `workflow_get_output` and `workflow_get_context` tools instead — the engine automatically tells agents about these tools, and agents fetch the content via background tool calls rather than receiving it inline. See [Workflow context tools](#workflow-context-tools) below.
 >
 > Variable interpolation remains the best choice for short references (e.g. `$goal`, `$last_stage`), shell commands, and edge conditions.
 
@@ -281,7 +281,7 @@ For example, a short inline reference to a stored context value:
 Create [prompt="Create a skill for: $goal\n\nHuman feedback: $human.feedback"]
 ```
 
-However, for iterative workflows where the interpolated content may be long (full drafts, detailed reviews), prefer using the `get_last_output` and `get_workflow_context` tools instead — see [Workflow context tools](#workflow-context-tools) below.
+However, for iterative workflows where the interpolated content may be long (full drafts, detailed reviews), prefer using the `workflow_get_output` and `workflow_get_context` tools instead — see [Workflow context tools](#workflow-context-tools) below.
 
 Context values can come from several sources:
 
@@ -397,13 +397,13 @@ Available variables:
 - `preferred_label` — the handler's preferred edge label
 - `context.*` — values from the shared pipeline context
 
-When an LLM writes context via the `set_workflow_context` tool, keys are stored under the `llm.` namespace (for example, writing `decision` stores `llm.decision`). Keys starting with `internal.` are reserved.
+When an LLM writes context via the `workflow_set_context` tool, keys are stored under the `llm.` namespace (for example, writing `decision` stores `llm.decision`). Keys starting with `internal.` are reserved.
 
-## Agent routing with `set_preferred_label`
+## Agent routing with `workflow_set_route`
 
 When an agent node has outgoing edges with labels, the engine automatically provides routing instructions so the agent can make a structured routing decision instead of relying on text output matching.
 
-For sessions with tool support, the agent receives a `set_preferred_label` tool and calls it with the chosen label. For sessions without tool support, the agent is instructed to end its response with a `<preferred-label>` XML tag, which the engine parses.
+For sessions with tool support, the agent receives a `workflow_set_route` tool and calls it with the chosen label. For sessions without tool support, the agent is instructed to end its response with a `<preferred-label>` XML tag, which the engine parses.
 
 For example, this review node gives the agent two labeled branches:
 
@@ -685,7 +685,7 @@ This pipeline:
 3. **Routes** to human review on success, or loops back to revise on failure
 4. **Asks the human** whether to accept or revise
 5. If revising, **collects freeform feedback** that describes what to change
-6. The feedback is stored as `human.feedback` in the pipeline context. On the next iteration, the `Create` agent retrieves it using the `get_workflow_context` tool and retrieves the reviewer's output using `get_last_output` — both happen as background tool calls, keeping the prompt compact
+6. The feedback is stored as `human.feedback` in the pipeline context. On the next iteration, the `Create` agent retrieves it using the `workflow_get_context` tool and retrieves the reviewer's output using `workflow_get_output` — both happen as background tool calls, keeping the prompt compact
 
 ### Multi-question interviews
 
@@ -885,7 +885,7 @@ Nodes communicate through a shared key-value **context**. After each node execut
 Context values come from several sources:
 
 - **Human node `store`** — the `store` attribute on human nodes writes the answer into a named key (e.g., `store="human.feedback"`)
-- **LLM tool calls** — when an LLM writes context via the `set_workflow_context` tool, keys are stored under the `llm.` namespace
+- **LLM tool calls** — when an LLM writes context via the `workflow_set_context` tool, keys are stored under the `llm.` namespace
 - **Handler outputs** — built-in keys like `human.gate.selected`, `human.gate.label`, `last_output`, `last_stage`
 - **Graph attributes** — `graph.*` keys are mirrored into context at pipeline start
 
@@ -899,18 +899,17 @@ Available tools:
 
 | Tool                     | Purpose                                                                 |
 | ------------------------ | ----------------------------------------------------------------------- |
-| `get_last_output`        | Fetch the full output from the most recently completed pipeline node    |
-| `get_workflow_context`   | Read a specific context key (e.g., `human.feedback`) or all context     |
-| `set_workflow_context`   | Write a value to the pipeline context (under the `llm.` namespace)      |
-| `get_workflow_run`       | Get metadata about the current run (name, goal, status, start time)     |
-| `list_completed_nodes`   | List all completed nodes with status and duration                       |
-| `get_node_output`        | Get the output of a specific node by ID                                 |
-| `store_artifact`         | Store a file artifact associated with this run                          |
-| `get_artifact`           | Retrieve a previously stored artifact                                   |
+| `workflow_get_output`    | Get the output of a pipeline node by ID, or the most recent output if no node_id is given |
+| `workflow_get_context`   | Read a specific context key (e.g., `human.feedback`) or all context     |
+| `workflow_set_context`   | Write a value to the workflow context (under the `llm.` namespace)      |
+| `workflow_get_run`       | Get metadata about the current run (name, goal, status, start time)     |
+| `workflow_list_nodes`    | List all workflow nodes with status and duration                        |
+| `workflow_store_artifact`| Store a file artifact associated with this run                          |
+| `workflow_get_artifact`  | Retrieve a previously stored artifact by ID                             |
 
-The engine appends usage instructions to each agent's prompt when these tools are available. Agents are told to call `get_last_output` for prior output (e.g., reviewer feedback or a previous draft) and `get_workflow_context` for stored values (e.g., `human.feedback`).
+The engine appends usage instructions to each agent's prompt when these tools are available. Agents are told to call `workflow_get_output` for prior output (e.g., reviewer feedback or a previous draft) and `workflow_get_context` for stored values (e.g., `human.feedback`).
 
-> **When to use tools vs variables:** Use `$`-variable interpolation for short values like `$goal`, `$last_stage`, and `$last_outcome`, and in shell commands and edge conditions where tools are not available. Prefer tools like `get_last_output` and `get_workflow_context` when the content may be long (full drafts, detailed reviews) to keep prompts compact.
+> **When to use tools vs variables:** Use `$`-variable interpolation for short values like `$goal`, `$last_stage`, and `$last_outcome`, and in shell commands and edge conditions where tools are not available. Prefer tools like `workflow_get_output` and `workflow_get_context` when the content may be long (full drafts, detailed reviews) to keep prompts compact.
 
 # Syntax reference
 

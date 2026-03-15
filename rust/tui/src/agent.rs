@@ -128,7 +128,7 @@ fn complete_thinking(segments: &mut [ResponseSegment]) {
 /// Find a tool call segment by `call_id` and update its status.
 ///
 /// When `output` is provided and the tool is one that benefits from a
-/// visible result preview (e.g. `get_last_output`, `get_workflow_context`),
+/// visible result preview (e.g. `workflow_get_output`, `workflow_get_context`),
 /// a one-line summary is stored in the segment for TUI display.
 fn complete_tool_call(
     segments: &mut [ResponseSegment],
@@ -174,11 +174,10 @@ fn tool_result_preview(tool_name: Option<&str>, output: Option<&str>) -> Option<
 
     match name {
         // Workflow tools and MCP codemode — collapse the full output to one line
-        "get_last_output"
-        | "get_workflow_context"
-        | "get_node_output"
-        | "get_artifact"
-        | "get_workflow_run"
+        "workflow_get_output"
+        | "workflow_get_context"
+        | "workflow_get_artifact"
+        | "workflow_get_run"
         | "mcp_codemode" => collapse_to_oneline(text),
 
         // Shell — extract exit code and first line of stdout/stderr
@@ -189,7 +188,7 @@ fn tool_result_preview(tool_name: Option<&str>, output: Option<&str>) -> Option<
         "glob" => preview_line_count(text, "file", "files"),
 
         // Listing tools — show count of items
-        "list_completed_nodes"
+        "workflow_list_nodes"
         | "list_agents"
         | "list_workflows"
         | "list_designs"
@@ -710,18 +709,21 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
                 format!("MCP Codemode: {code}")
             }
         }
-        "set_preferred_label" => {
+        "workflow_set_route" => {
             let label = str_arg("label").unwrap_or_default();
             format!("Preferred workflow branch: {label}")
         }
-        "get_workflow_run" => "Get workflow run".to_string(),
-        "list_completed_nodes" => "List completed nodes".to_string(),
-        "get_last_output" => "Get last output".to_string(),
-        "get_node_output" => {
+        "workflow_get_run" => "Get workflow run".to_string(),
+        "workflow_list_nodes" => "List workflow nodes".to_string(),
+        "workflow_get_output" => {
             let node_id = str_arg("node_id").unwrap_or_default();
-            format!("Get output of node `{node_id}`")
+            if node_id.is_empty() {
+                "Get last output".to_string()
+            } else {
+                format!("Get output of node `{node_id}`")
+            }
         }
-        "get_workflow_context" => {
+        "workflow_get_context" => {
             let key = str_arg("key").unwrap_or_default();
             if key.is_empty() {
                 "Get workflow context".to_string()
@@ -729,7 +731,7 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
                 format!("Get workflow context: {key}")
             }
         }
-        "store_artifact" => {
+        "workflow_store_artifact" => {
             let name = str_arg("name").unwrap_or_default();
             if name.is_empty() {
                 "Store artifact".to_string()
@@ -737,12 +739,12 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
                 format!("Store artifact `{name}`")
             }
         }
-        "get_artifact" => {
-            let name = str_arg("name").unwrap_or_default();
-            if name.is_empty() {
+        "workflow_get_artifact" => {
+            let id = str_arg("artifact_id").unwrap_or_default();
+            if id.is_empty() {
                 "Get artifact".to_string()
             } else {
-                format!("Get artifact `{name}`")
+                format!("Get artifact `{id}`")
             }
         }
         "list_agents" => "List agents".to_string(),
@@ -1204,10 +1206,10 @@ mod tests {
     }
 
     #[test]
-    fn format_set_preferred_label() {
+    fn format_workflow_set_route() {
         let args = serde_json::json!({"label": "Pass"});
         assert_eq!(
-            format_tool_start("set_preferred_label", &args),
+            format_tool_start("workflow_set_route", &args),
             "Preferred workflow branch: Pass"
         );
     }
@@ -1215,25 +1217,25 @@ mod tests {
     #[test]
     fn format_workflow_context_tools() {
         assert_eq!(
-            format_tool_start("get_last_output", &Value::Null),
+            format_tool_start("workflow_get_output", &Value::Null),
             "Get last output"
         );
         let args = serde_json::json!({"key": "human.feedback"});
         assert_eq!(
-            format_tool_start("get_workflow_context", &args),
+            format_tool_start("workflow_get_context", &args),
             "Get workflow context: human.feedback"
         );
         let args = serde_json::json!({"node_id": "Review"});
         assert_eq!(
-            format_tool_start("get_node_output", &args),
+            format_tool_start("workflow_get_output", &args),
             "Get output of node `Review`"
         );
         assert_eq!(
-            format_tool_start("list_completed_nodes", &Value::Null),
-            "List completed nodes"
+            format_tool_start("workflow_list_nodes", &Value::Null),
+            "List workflow nodes"
         );
         assert_eq!(
-            format_tool_start("get_workflow_run", &Value::Null),
+            format_tool_start("workflow_get_run", &Value::Null),
             "Get workflow run"
         );
     }
@@ -1258,15 +1260,16 @@ mod tests {
     // ─── tool_result_preview tests ────────────────────────────────────
 
     #[test]
-    fn tool_result_preview_for_get_last_output() {
-        let preview = tool_result_preview(Some("get_last_output"), Some("Some review feedback"));
+    fn tool_result_preview_for_workflow_get_output() {
+        let preview =
+            tool_result_preview(Some("workflow_get_output"), Some("Some review feedback"));
         assert_eq!(preview, Some("Some review feedback".to_string()));
     }
 
     #[test]
-    fn tool_result_preview_for_get_workflow_context() {
+    fn tool_result_preview_for_workflow_get_context() {
         let preview =
-            tool_result_preview(Some("get_workflow_context"), Some("Please fix the intro"));
+            tool_result_preview(Some("workflow_get_context"), Some("Please fix the intro"));
         assert_eq!(preview, Some("Please fix the intro".to_string()));
     }
 
@@ -1282,14 +1285,17 @@ mod tests {
 
     #[test]
     fn tool_result_preview_none_for_empty_output() {
-        assert_eq!(tool_result_preview(Some("get_last_output"), Some("")), None);
-        assert_eq!(tool_result_preview(Some("get_last_output"), None), None);
+        assert_eq!(
+            tool_result_preview(Some("workflow_get_output"), Some("")),
+            None
+        );
+        assert_eq!(tool_result_preview(Some("workflow_get_output"), None), None);
     }
 
     #[test]
     fn tool_result_preview_collapses_multiline() {
         let output = "Line one\nLine two\nLine three";
-        let preview = tool_result_preview(Some("get_last_output"), Some(output));
+        let preview = tool_result_preview(Some("workflow_get_output"), Some(output));
         assert!(preview.is_some());
         let p = preview.expect("should have preview");
         assert!(!p.contains('\n'));
@@ -1374,14 +1380,15 @@ mod tests {
     }
 
     #[test]
-    fn tool_result_preview_get_node_output() {
-        let preview = tool_result_preview(Some("get_node_output"), Some("Draft paragraph text"));
+    fn tool_result_preview_workflow_get_output_by_node() {
+        let preview =
+            tool_result_preview(Some("workflow_get_output"), Some("Draft paragraph text"));
         assert_eq!(preview, Some("Draft paragraph text".to_string()));
     }
 
     #[test]
-    fn tool_result_preview_get_artifact() {
-        let preview = tool_result_preview(Some("get_artifact"), Some("stored data value"));
+    fn tool_result_preview_workflow_get_artifact() {
+        let preview = tool_result_preview(Some("workflow_get_artifact"), Some("stored data value"));
         assert_eq!(preview, Some("stored data value".to_string()));
     }
 
@@ -1404,7 +1411,7 @@ mod tests {
             "c1",
             None,
             Some("Review feedback text"),
-            Some("get_last_output"),
+            Some("workflow_get_output"),
         );
         assert_eq!(
             segments[0],

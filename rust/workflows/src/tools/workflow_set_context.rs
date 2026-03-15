@@ -1,4 +1,4 @@
-//! `set_workflow_context` tool: write a context key-value pair.
+//! `workflow_set_context` tool: write a context key-value pair.
 
 use std::sync::{Arc, Mutex};
 
@@ -9,7 +9,7 @@ use stencila_models3::types::tool::ToolDefinition;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
-        name: "set_workflow_context".into(),
+        name: "workflow_set_context".into(),
         description: "Set a workflow context value. The value will be available to downstream \
             nodes and edge conditions. LLM-managed keys are stored under the `llm.` namespace. \
             Requires the current node to have context_writable=true."
@@ -47,7 +47,7 @@ fn executor(
                 if !writable {
                     return Ok(ToolOutput::Text(
                         "Error: Context writes are not enabled for this node. \
-                         The pipeline author must set context_writable=true on the node."
+                         The workflow author must set context_writable=true on the node."
                             .to_string(),
                     ));
                 }

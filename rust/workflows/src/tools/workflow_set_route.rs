@@ -1,4 +1,4 @@
-//! `set_preferred_label` tool: select a routing label for workflow branching.
+//! `workflow_set_route` tool: select a routing label for workflow branching.
 
 use std::sync::{Arc, Mutex};
 
@@ -12,7 +12,7 @@ fn definition(labels: &[String]) -> ToolDefinition {
         .map(|l| serde_json::Value::String(l.clone()))
         .collect();
     ToolDefinition {
-        name: "set_preferred_label".into(),
+        name: "workflow_set_route".into(),
         description: "Select which workflow branch to take next. Call this tool with one of the \
             available labels to route the workflow. You MUST call this tool exactly once before \
             finishing your response."
