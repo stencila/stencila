@@ -502,24 +502,106 @@ fn wrap_island_envs(
             // Pass through comment segments unchanged
             output.push_str(&segment);
         } else {
-            // Apply island wrapping only to non-comment segments
-            let mut wrapped = segment;
-            for env in island_envs {
-                let re = Regex::new(&format!(r"(?s)\\begin\{{{env}\}}.*?\\end\{{{env}\}}"))?;
-                wrapped = re
-                    .replace_all(&wrapped, |captures: &Captures| {
-                        format!(
-                            "\\begin{{island}}[auto,{}]{}\\end{{island}}",
-                            style, &captures[0]
-                        )
-                    })
-                    .into_owned();
+            // Apply island wrapping only to non-comment segments that are not
+            // already within an explicit island environment.
+            for (is_island, subsegment) in segment_by_explicit_islands(&segment) {
+                if is_island {
+                    output.push_str(&subsegment);
+                    continue;
+                }
+
+                let mut wrapped = subsegment;
+                for env in island_envs {
+                    let re = Regex::new(&format!(r"(?s)\\begin\{{{env}\}}.*?\\end\{{{env}\}}"))?;
+                    wrapped = re
+                        .replace_all(&wrapped, |captures: &Captures| {
+                            format!(
+                                "\\begin{{island}}[auto,{}]{}\\end{{island}}",
+                                style, &captures[0]
+                            )
+                        })
+                        .into_owned();
+                }
+
+                output.push_str(&wrapped);
             }
-            output.push_str(&wrapped);
         }
     }
 
     Ok(output)
+}
+
+/// Segment LaTeX into explicit island and non-island regions
+///
+/// Returns a vector of `(is_island, content)` tuples, preserving all input text.
+/// Uses a small scanner so that auto-island wrapping is not applied within
+/// manually authored island environments.
+///
+/// This function is called on non-comment segments produced by
+/// [`segment_by_comments`], so whole-line comments have already been stripped.
+/// Inline comments (e.g. `text % \begin{island}`) are *not* filtered and may
+/// produce false positives — this is an accepted limitation given how unlikely
+/// such input is in practice.
+fn segment_by_explicit_islands(latex: &str) -> Vec<(bool, String)> {
+    let mut segments = Vec::new();
+    let mut cursor = 0;
+    let mut depth = 0;
+    let mut segment_start = 0;
+
+    while cursor < latex.len() {
+        let remaining = &latex[cursor..];
+
+        let begin_len = if remaining.starts_with(r"\begin{island}") {
+            let after_begin = cursor + r"\begin{island}".len();
+            if latex[after_begin..].starts_with('[') {
+                // Skip past the option bracket. This looks for the first `]`
+                // which is sufficient because island options use simple
+                // key-value syntax without nested brackets.
+                latex[after_begin..]
+                    .find(']')
+                    .map(|index| r"\begin{island}".len() + index + 1)
+            } else {
+                Some(r"\begin{island}".len())
+            }
+        } else {
+            None
+        };
+
+        if let Some(len) = begin_len {
+            if depth == 0 && cursor > segment_start {
+                segments.push((false, latex[segment_start..cursor].to_string()));
+                segment_start = cursor;
+            }
+
+            depth += 1;
+            cursor += len;
+            continue;
+        }
+
+        if remaining.starts_with(r"\end{island}") && depth > 0 {
+            depth -= 1;
+            cursor += r"\end{island}".len();
+
+            if depth == 0 {
+                segments.push((true, latex[segment_start..cursor].to_string()));
+                segment_start = cursor;
+            }
+
+            continue;
+        }
+
+        cursor += remaining.chars().next().map_or(1, |c| c.len_utf8());
+    }
+
+    if segment_start < latex.len() {
+        segments.push((depth > 0, latex[segment_start..].to_string()));
+    }
+
+    if segments.is_empty() {
+        segments.push((false, latex.to_string()));
+    }
+
+    segments
 }
 
 /// Segment LaTeX into comment and non-comment regions

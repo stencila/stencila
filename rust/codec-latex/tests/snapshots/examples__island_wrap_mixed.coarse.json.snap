@@ -1,0 +1,69 @@
+---
+source: rust/codec-latex/tests/examples.rs
+assertion_line: 98
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "Before.\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "fig:manual",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\\begin{figure}\n\\caption{Manual figure}\n\\label{fig:manual}\n\\end{figure}\n"
+          }
+        }
+      ],
+      "labelType": "FigureLabel",
+      "otherIds": [
+        "fig:manual"
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nBetween.\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "fig:auto",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\\begin{figure}\n\\caption{Auto-wrapped figure}\n\\label{fig:auto}\n\\end{figure}"
+          }
+        }
+      ],
+      "isAutomatic": true,
+      "labelType": "FigureLabel",
+      "otherIds": [
+        "fig:auto"
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nAfter.\n"
+      }
+    }
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/island-wrap-mixed.tex",
+  "commit": "redacted"
+}

@@ -1,0 +1,45 @@
+---
+source: rust/codec-latex/tests/examples.rs
+assertion_line: 89
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "Before.\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "fig:second",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\\begin{figure}\n\\caption{First figure}\n\\label{fig:first}\n\\end{figure}\n\n\\begin{figure}\n\\ContinuedFloat\n\\caption{Second figure}\n\\label{fig:second}\n\\end{figure}\n"
+          }
+        }
+      ],
+      "labelType": "FigureLabel",
+      "otherIds": [
+        "fig:first",
+        "fig:second"
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nAfter.\n"
+      }
+    }
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/island-wrap-manual.tex",
+  "commit": "redacted"
+}

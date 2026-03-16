@@ -29,6 +29,12 @@ async fn examples() -> Result<()> {
             .expect("should have file stem")
             .to_string_lossy();
 
+        // Skip island-wrap-* fixtures — they require specific `island_wrap`
+        // decode options and are tested by dedicated tests below.
+        if name.starts_with("island-wrap-") {
+            continue;
+        }
+
         // Using default `--coarse` decoding
         let (article, ..) = LatexCodec.from_path(&path, None).await?;
         assert_json_snapshot!(format!("{name}.coarse.json"), article, {".commit" => "redacted"});
@@ -61,6 +67,39 @@ async fn examples() -> Result<()> {
             .await?;
         assert_snapshot!(format!("{name}.fine.tex"), &latex);
     }
+
+    Ok(())
+}
+
+/// Test that island wrapping preserves explicit manual islands
+#[tokio::test]
+async fn island_wrap_respects_manual_islands() -> Result<()> {
+    let examples = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/examples");
+
+    let wrap_opts = Some(DecodeOptions {
+        island_wrap: vec!["figure".to_string()],
+        ..Default::default()
+    });
+
+    // Manual island only: figures inside a manual island are not re-wrapped
+    let path = examples
+        .join("island-wrap-manual.tex")
+        .canonicalize()?;
+    let (article, ..) = LatexCodec.from_path(&path, wrap_opts.clone()).await?;
+    assert_json_snapshot!(
+        "island_wrap_manual.coarse.json",
+        article,
+        {".commit" => "redacted"}
+    );
+
+    // Mixed: manual island is preserved AND a bare figure outside is auto-wrapped
+    let path = examples.join("island-wrap-mixed.tex").canonicalize()?;
+    let (article, ..) = LatexCodec.from_path(&path, wrap_opts).await?;
+    assert_json_snapshot!(
+        "island_wrap_mixed.coarse.json",
+        article,
+        {".commit" => "redacted"}
+    );
 
     Ok(())
 }
