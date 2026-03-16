@@ -458,6 +458,31 @@ impl Run {
             wf.inner.goal = Some(goal.clone());
         }
 
+        // Validate before running so errors and warnings surface early,
+        // before time or tokens are spent on execution.
+        let dir_name = wf
+            .path()
+            .parent()
+            .and_then(|p| p.file_name())
+            .and_then(|n| n.to_str())
+            .map(String::from);
+        let (errors, warnings) = validate::validate_workflow(&wf.inner, dir_name.as_deref());
+
+        for warning in &warnings {
+            message!("⚠️  {}", warning);
+        }
+        if !errors.is_empty() {
+            for error in &errors {
+                message!("❌ {}", error);
+            }
+            bail!(
+                "Workflow `{}` has {} validation error{}; fix before running",
+                wf.name,
+                errors.len(),
+                if errors.len() > 1 { "s" } else { "" }
+            );
+        }
+
         if self.dry_run {
             message!("Workflow: {}", wf.name);
             message!("Description: {}", wf.description);

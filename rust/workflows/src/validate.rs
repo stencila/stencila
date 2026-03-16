@@ -11,40 +11,40 @@ use stencila_schema::Workflow;
 /// Validation errors for a workflow definition
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum ValidationError {
-    #[error("name must not be empty")]
+    #[error("Name must not be empty")]
     NameEmpty,
 
-    #[error("name must be at most 64 characters, got {0}")]
+    #[error("Name must be at most 64 characters, got {0}")]
     NameTooLong(usize),
 
-    #[error("name may only contain lowercase alphanumeric characters and hyphens")]
+    #[error("Name may only contain lowercase alphanumeric characters and hyphens")]
     NameInvalidChars,
 
-    #[error("name must not start with a hyphen")]
+    #[error("Name must not start with a hyphen")]
     NameLeadingHyphen,
 
-    #[error("name must not end with a hyphen")]
+    #[error("Name must not end with a hyphen")]
     NameTrailingHyphen,
 
-    #[error("name must not contain consecutive hyphens")]
+    #[error("Name must not contain consecutive hyphens")]
     NameConsecutiveHyphens,
 
-    #[error("name `{name}` does not match directory name `{dir_name}`")]
+    #[error("Name `{name}` does not match directory name `{dir_name}`")]
     NameDirMismatch { name: String, dir_name: String },
 
-    #[error("description must not be empty")]
+    #[error("Description must not be empty")]
     DescriptionEmpty,
 
-    #[error("description appears to be a placeholder")]
+    #[error("Description appears to be a placeholder")]
     DescriptionPlaceholder,
 
-    #[error("description must be at most 1024 characters, got {0}")]
+    #[error("Description must be at most 1024 characters, got {0}")]
     DescriptionTooLong(usize),
 
-    #[error("pipeline DOT parse error: {0}")]
+    #[error("Pipeline DOT parse error: {0}")]
     PipelineParseError(String),
 
-    #[error("pipeline validation error: {0}")]
+    #[error("Pipeline validation error: {0}")]
     PipelineValidationError(String),
 }
 
@@ -53,7 +53,7 @@ pub enum ValidationError {
 /// Warnings are advisory and do not prevent the workflow from being used.
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum ValidationWarning {
-    #[error("pipeline warning: {0}")]
+    #[error("Pipeline warning: {0}")]
     PipelineValidationWarning(String),
 }
 
