@@ -13,7 +13,7 @@ keywords:
   - definition of done
   - not code review
   - not design creation
-allowed-tools: read_file glob grep read_plan list_plans read_design list_designs
+allowed-tools: read_file glob grep
 ---
 
 ## Overview
@@ -52,12 +52,12 @@ Not every plan will have all sections. Assess whether omitted sections are genui
 
 2. Resolve the plan artifact:
    - if the full plan is already present in the conversation, review that text directly — do not force retrieval through plan tools
-   - if the user refers to a stored plan by name or asks to review an existing plan, use `list_plans` to locate candidates
-   - use `read_plan` to load the selected stored plan
+   - if the user refers to a stored plan by name or asks to review an existing plan, use `glob` with pattern `.stencila/plans/*.md` to locate candidates
+   - use `read_file` to load the selected stored plan
    - if multiple similarly named plans exist, list candidates, compare them, and review the one that best matches the user's request
 
 3. Resolve the corresponding design (when available):
-   - use `list_designs` and `read_design` to load the design specification that the plan is based on
+   - use `glob` with pattern `.stencila/designs/*.md` to find the design, then `read_file` to load the design specification that the plan is based on
    - if the plan includes a "Design Reference" section, use the name or path it provides to locate the design
    - reviewing a plan against its source design is essential for checking coverage, alignment, and whether acceptance criteria are fully addressed
    - if no corresponding design exists or cannot be identified, note this as a limitation and review the plan on its own merits

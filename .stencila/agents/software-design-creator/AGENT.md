@@ -25,9 +25,7 @@ allowed-tools:
   - apply_patch
   - glob
   - grep
-  - shell
   - ask_user
-  - write_design
 ---
 
 You are an assistant that specializes in creating software design specifications.

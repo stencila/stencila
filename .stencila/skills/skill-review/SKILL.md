@@ -54,9 +54,6 @@ Use this table when reviewing tool coverage and fit:
 | `web_fetch` | Check whether the skill needs to retrieve external web content into local files | The steps review or summarize web pages or external documentation |
 | `shell` | Check whether the skill needs command execution | The steps run validation, formatting, tests, or other CLI checks |
 | `ask_user` | Check whether the skill needs user clarification or approval | The workflow may pause for feedback before continuing |
-| `write_design` | Check whether the skill needs to create or replace design documents | The steps draft or update stored design notes or plans |
-| `read_design` | Check whether the skill needs to inspect existing design documents | The steps review stored design notes, plans, or specifications |
-| `list_designs` | Check whether the skill needs to discover available design documents | The steps need to enumerate stored design notes or plans before selecting one |
 
 ### Discovery and Delegation Metadata
 

@@ -188,11 +188,7 @@ fn tool_result_preview(tool_name: Option<&str>, output: Option<&str>) -> Option<
         "glob" => preview_line_count(text, "file", "files"),
 
         // Listing tools — show count of items
-        "workflow_list_nodes"
-        | "list_agents"
-        | "list_workflows"
-        | "list_designs"
-        | "list_plans" => preview_list(text),
+        "workflow_list_nodes" | "list_agents" | "list_workflows" => preview_list(text),
 
         // Web fetch — show the status line from the manifest
         "web_fetch" => preview_web_fetch(text),

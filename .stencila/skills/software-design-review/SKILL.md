@@ -15,7 +15,7 @@ keywords:
   - requirements quality
   - actionable feedback
   - not code review
-allowed-tools: read_file glob grep read_design list_designs
+allowed-tools: read_file glob grep
 ---
 
 ## Overview
@@ -32,8 +32,8 @@ Use this skill when the user already has a design artifact and wants critical re
    - if the input is fragmented, reconstruct the main proposal before critiquing it
 2. Resolve the design artifact:
    - if the full design specification is already present in the conversation, review that text directly and do not force retrieval through design tools
-   - if the user refers to a stored design by name or asks to review an existing design, use `list_designs` when needed to locate likely candidates
-   - use `read_design` to load the selected stored design before reviewing it
+   - if the user refers to a stored design by name or asks to review an existing design, use `glob` with pattern `.stencila/designs/*.md` to locate likely candidates
+   - use `read_file` to load the selected stored design before reviewing it
    - if multiple similarly named designs exist, compare the candidates and review the one that best matches the user's request
 3. Understand the design before judging it:
    - summarize the proposed system, feature, or change in plain language

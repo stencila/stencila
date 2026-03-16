@@ -16,27 +16,27 @@ keywords:
   - not design creation
   - not code generation
   - not implementation
-allowed-tools: read_file glob grep read_design list_designs write_plan read_plan list_plans ask_user
+allowed-tools: read_file write_file edit_file apply_patch glob grep ask_user
 ---
 
 ## Overview
 
-Produce a delivery plan that turns a software design specification into an actionable sequence of implementation, testing, and documentation work. The primary input is a persisted design spec retrieved via `list_designs` and `read_design`. The primary output is a Markdown plan persisted via `write_plan`.
+Produce a delivery plan that turns a software design specification into an actionable sequence of implementation, testing, and documentation work. The primary input is a persisted design spec read from `.stencila/designs/`. The primary output is a Markdown plan written to `.stencila/plans/`.
 
 Use this skill when the user wants a delivery plan, implementation plan, task breakdown, phased roadmap, or test-driven development strategy for a design spec. Do not use it when the main task is to write production code, create a design from scratch, review code, or build a workflow.
 
 ## Steps
 
 1. Identify the design to plan against:
-   - call `list_designs` to discover available design specs
-   - if the user names a specific design, locate it in the list
-   - if the user does not name a design, use the most recent design
-   - call `read_design` to load the full design content
+   - use `glob` with pattern `.stencila/designs/*.md` to discover available design specs (results are sorted newest first)
+   - if the user names a specific design, locate it in the results
+   - if the user does not name a design, use the first result (most recent)
+   - use `read_file` to load the full design content
    - if no designs exist and the user is asking to plan an undesigned feature, handle the no-design case (see Edge Cases below)
 
 2. Check for existing plans:
-   - call `list_plans` to see whether a plan already exists for the target design
-   - if a matching plan exists, call `read_plan` to load it and ask the user whether to replace it, update it, or create a new plan alongside it
+   - use `glob` with pattern `.stencila/plans/*.md` to see whether a plan already exists for the target design
+   - if a matching plan exists, use `read_file` to load it and ask the user whether to replace it, update it, or create a new plan alongside it
    - do not silently overwrite an existing plan
 
 3. Understand the design and codebase before planning:
@@ -84,7 +84,8 @@ Use this skill when the user wants a delivery plan, implementation plan, task br
    - risks from the design should be addressed or acknowledged
 
 9. Persist the plan:
-   - call `write_plan` with a kebab-case name derived from the design name (e.g., if the design is `user-auth-flow`, the plan might be `user-auth-flow-delivery`)
+   - write the plan to `.stencila/plans/{name}.md` using `write_file`, where `{name}` is a kebab-case name derived from the design name (e.g., if the design is `user-auth-flow`, the plan might be `user-auth-flow-delivery`)
+   - for updates to an existing plan, prefer `edit_file` or `apply_patch` over rewriting the entire file
    - provide the full Markdown plan content
 
 ## Suggested Output Structure
@@ -170,17 +171,17 @@ Brief description of what is being delivered and the value it provides.
 Input: "Create a delivery plan for the latest design"
 
 Output:
-- agent calls `list_designs`, then `read_design` for the latest design
+- agent uses `glob` to find designs in `.stencila/designs/`, then `read_file` for the latest design
 - produces a phased plan covering the design's components
 - includes TDD guidance where the design has clear interfaces and acceptance criteria
-- persists the plan via `write_plan`
+- persists the plan to `.stencila/plans/` via `write_file`
 
 Input: "Plan implementation for the user-auth-flow design using TDD"
 
 Output:
-- agent calls `read_design` with name `user-auth-flow`
+- agent reads `.stencila/designs/user-auth-flow.md` via `read_file`
 - produces a plan with explicit red-green-refactor slices per phase
-- persists the plan via `write_plan`
+- persists the plan to `.stencila/plans/` via `write_file`
 
 Concrete excerpt from a Phase 1 with TDD slices:
 
@@ -209,7 +210,7 @@ Concrete excerpt from a Phase 1 with TDD slices:
 Input: "I need a plan for building a notification system" (no design exists)
 
 Output:
-- agent calls `list_designs` and finds no matching design
+- agent uses `glob` to search `.stencila/designs/` and finds no matching design
 - advises the user to create a design first, explaining that a plan without a design spec will lack grounding
 - optionally produces a lightweight preliminary plan with explicit caveats about missing design decisions, scope uncertainty, and assumptions
 
@@ -221,5 +222,5 @@ Output:
 - **Very large design**: Break into phases that each deliver a working increment. Prefer vertical slices (end-to-end functionality) over horizontal slices (all models, then all APIs, then all UI).
 - **Design lacks acceptance criteria**: Note this gap as a risk. Derive testable criteria from the requirements and goals sections where possible, and recommend the design be updated.
 - **User asks for TDD but the work is unsuitable**: Explain why TDD may not be the best fit and propose an alternative testing strategy. Do not force TDD onto exploratory or heavily UI-driven work.
-- **Plan already exists for this design**: If `list_plans` reveals an existing plan that covers the target design, do not silently overwrite it. Show the user the existing plan name and ask whether to replace it entirely, update specific sections, or create a new plan alongside it with a different name.
+- **Plan already exists for this design**: If `glob` reveals an existing plan in `.stencila/plans/` that covers the target design, do not silently overwrite it. Show the user the existing plan name and ask whether to replace it entirely, update specific sections, or create a new plan alongside it with a different name.
 - **Multiple designs match**: If the user's request is ambiguous and multiple designs could apply, list the candidates and ask which one to plan against rather than guessing.

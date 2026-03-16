@@ -12,19 +12,13 @@ pub mod edit_file;
 pub mod glob;
 pub mod grep;
 pub mod list_agents;
-pub mod list_designs;
 pub mod list_dir;
-pub mod list_plans;
 pub mod list_workflows;
-pub mod read_design;
 pub mod read_file;
 pub mod read_many_files;
-pub mod read_plan;
 pub mod shell;
 pub mod web_fetch;
-pub mod write_design;
 pub mod write_file;
-pub mod write_plan;
 
 use serde_json::{Value, json};
 
@@ -128,40 +122,6 @@ pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()>
     Ok(())
 }
 
-/// Register the design tools: `write_design`, `read_design`, `list_designs`.
-///
-/// These are used for persisting, retrieving, and discovering software design
-/// specifications. They are registered separately from core tools so that only
-/// agents whose `allowedTools` includes them will see them.
-pub fn register_design_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    let tools: Vec<RegisteredTool> = vec![
-        RegisteredTool::new(write_design::definition(), write_design::executor()),
-        RegisteredTool::new(read_design::definition(), read_design::executor()),
-        RegisteredTool::new(list_designs::definition(), list_designs::executor()),
-    ];
-    for tool in tools {
-        registry.register(tool)?;
-    }
-    Ok(())
-}
-
-/// Register the plan tools: `write_plan`, `read_plan`, `list_plans`.
-///
-/// These are used for persisting, retrieving, and discovering implementation
-/// plans. They are registered separately from core tools so that only
-/// agents whose `allowedTools` includes them will see them.
-pub fn register_plan_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    let tools: Vec<RegisteredTool> = vec![
-        RegisteredTool::new(write_plan::definition(), write_plan::executor()),
-        RegisteredTool::new(read_plan::definition(), read_plan::executor()),
-        RegisteredTool::new(list_plans::definition(), list_plans::executor()),
-    ];
-    for tool in tools {
-        registry.register(tool)?;
-    }
-    Ok(())
-}
-
 /// Register the 2 Gemini-specific tools (spec 3.6).
 ///
 /// These tools are added on top of the core set for Gemini profiles:
@@ -235,23 +195,6 @@ pub async fn read_raw_content(
             reason: format!("cannot edit binary/image file: {file_path}"),
         }),
     }
-}
-
-/// Coerce a name to kebab-case using `Inflector`.
-///
-/// # Errors
-///
-/// Returns `ValidationError` if `name` is empty or coerces to an empty string.
-pub fn to_kebab_case_name(name: &str) -> AgentResult<String> {
-    use inflector::Inflector;
-
-    let kebab = name.to_kebab_case();
-    if kebab.is_empty() {
-        return Err(AgentError::ValidationError {
-            reason: format!("name is empty or could not be converted to kebab-case: '{name}'"),
-        });
-    }
-    Ok(kebab)
 }
 
 /// Extract a required string parameter from JSON arguments.

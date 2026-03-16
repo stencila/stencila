@@ -23,13 +23,11 @@ allowed-skills:
   - software-plan-creation
 allowed-tools:
   - read_file
+  - write_file
+  - edit_file
+  - apply_patch
   - glob
   - grep
-  - read_design
-  - list_designs
-  - write_plan
-  - read_plan
-  - list_plans
   - ask_user
 ---
 

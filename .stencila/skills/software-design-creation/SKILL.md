@@ -14,7 +14,7 @@ keywords:
   - architecture
   - implementation planning
   - not code review
-allowed-tools: read_file glob grep ask_user write_design
+allowed-tools: read_file write_file edit_file apply_patch glob grep ask_user
 ---
 
 ## Overview
@@ -69,9 +69,9 @@ Use this skill when the user wants a design spec, technical plan, feature specif
    - ensure assumptions and unknowns are clearly labeled
    - ensure the output supports downstream planning and implementation
 8. Always persist the completed design:
-   - end by calling `write_design`
-   - provide a concise kebab-case name for the design
-   - provide the full design content to be persisted
+   - write the design to `.stencila/designs/{name}.md` using `write_file`, where `{name}` is a concise kebab-case name for the design (e.g. `user-auth-flow`)
+   - create the `.stencila/designs/` directory if it does not exist (the `write_file` tool creates parent directories automatically)
+   - for updates to an existing design, prefer `edit_file` or `apply_patch` over rewriting the entire file
 
 ## Suggested Output Structure
 

@@ -26,8 +26,6 @@ allowed-tools:
   - read_file
   - glob
   - grep
-  - read_design
-  - list_designs
 ---
 
 You are an assistant that specializes in reviewing software design specifications.

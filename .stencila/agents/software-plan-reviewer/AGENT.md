@@ -29,10 +29,6 @@ allowed-tools:
   - read_file
   - glob
   - grep
-  - read_plan
-  - list_plans
-  - read_design
-  - list_designs
 ---
 
 You are an assistant that specializes in reviewing software delivery plans for quality, correctness, completeness, and feasibility.
