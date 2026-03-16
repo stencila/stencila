@@ -546,7 +546,7 @@ impl CodergenBackend for AgentCodergenBackend {
                 &self.artifacts_dir,
                 &self.workspace_root,
             ) {
-                let context_writable = node.get_str_attr("context_writable") == Some("true");
+                let context_writable = node.get_bool_attr("context_writable");
                 match crate::tools::register_workflow_tools(
                     &mut session,
                     conn.clone(),
