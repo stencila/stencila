@@ -73,7 +73,7 @@ To reduce boilerplate, the pipeline engine recognizes certain node IDs and attri
 | `Check…`, `Branch…`          | `diamond`       | Conditional      |
 | `Shell…`, `Run…`             | `parallelogram` | Shell command    |
 
-The first three are exact ID matches; the rest are prefix matches (e.g. `FanOutSearch`, `FanInResults`, `ReviewDraft`, `CheckQuality`).
+The first three are exact ID matches; the rest are prefix matches (e.g. `FanOutSearch`, `FanInResults`, `ReviewDraft`, `CheckQuality`). A node with a `fan-out` attribute also implies `shape=component` (parallel fan-out), regardless of its ID.
 
 An explicit `shape` attribute always takes precedence over ID-based inference. If a node has a `prompt` or `agent` attribute, it is treated as an LLM task (`box`), overriding prefix-based ID inference — so `ReviewData [prompt="Summarize the reviews"]` stays a codergen node, not a human gate. Reserved structural IDs (`Start`/`End`/`Exit`/`Fail`) are exempt: they always receive their structural shape.
 
@@ -152,7 +152,9 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 | `timeout`                | Duration | Maximum execution time (e.g., `900s`, `15m`).                                                                                                        |
 | `class`                  | String   | Comma-separated class names for overrides targeting.                                                                                                 |
 | `question-type`          | String   | Human node question type: `"yes-no"`, `"confirm"`. `"single-select'`, `"freeform"`, Default: single select from edges.                               |
-| `store`                  | String   | Human node context key to store the answer in (e.g., `"human.feedback"`).                                                                            |
+| `store`                  | String   | Context key to store a node's output in. On human nodes, stores the answer; on shell nodes, stores trimmed stdout.                                    |
+| `store-as`               | String   | Shell node output format: `"json"` (force JSON parse), `"string"` (no parse), or absent (try JSON, fall back to string).                             |
+| `fan-out`                | String   | Dynamic fan-out list key. Resolves a JSON array from context and spawns one branch per item. `true` derives key from node ID.                        |
 | `interview-ref`          | String   | Reference to a YAML code block defining a multi-question interview (e.g., `"#review-interview"`).                                                    |
 
 ## Agent property overrides
@@ -290,7 +292,7 @@ However, for iterative workflows where the interpolated content may be long (ful
 Context values can come from several sources:
 
 - **Human answers** stored via the `store` attribute on human nodes
-- **LLM tool calls** that write to the context (stored under the `llm.` namespace)
+- **LLM tool calls** that write to the context via `workflow_set_context`
 - **Handler outputs** like `human.gate.selected` and `human.gate.label`
 
 ## Referencing multiline content from Markdown
@@ -401,7 +403,7 @@ Available variables:
 - `preferred_label` — the handler's preferred edge label
 - `context.*` — values from the shared pipeline context
 
-When an LLM writes context via the `workflow_set_context` tool, keys are stored under the `llm.` namespace (for example, writing `decision` stores `llm.decision`). Keys starting with `internal.` are reserved.
+Keys starting with `internal.` are reserved and cannot be written by agents.
 
 ## Agent routing with `workflow_set_route`
 
@@ -520,6 +522,57 @@ digraph IterativeAnalysis {
   Report -> End
 }
 ```
+
+## Shell nodes
+
+Shell nodes run a command and capture its standard output. Use the `Shell…` or `Run…` node ID prefix, or the `shell` property shortcut:
+
+```dot
+ShellLint [shell="cargo clippy --all-targets 2>&1"]
+```
+
+The command's trimmed stdout is stored as `shell.output` and `last_output` in the pipeline context.
+
+### Shell output storage
+
+The `store` attribute on a shell node writes the command's trimmed stdout into the pipeline context under a named key, in addition to the standard `shell.output` and `last_output` keys:
+
+```dot
+ShellListFiles [shell="find src -name '*.rs' -printf '%f\n' | sort | head -20", store="source_files"]
+```
+
+By default, the handler tries to parse the output as JSON. If the output is valid JSON it is stored as a typed value (array, object, number, etc.); otherwise it falls back to storing the raw string. This means a command that emits a JSON array produces a real list in the context, while a command that emits plain text is stored as-is.
+
+The `store-as` attribute overrides this automatic behavior:
+
+| `store-as` value | Behavior                                                        |
+| ---------------- | --------------------------------------------------------------- |
+| `"json"`         | Force JSON parse. Fails the node if the output is not valid JSON. |
+| `"string"`       | Always store as a plain string, no JSON parsing.                |
+| _(absent)_       | Try JSON parse, fall back to string (the default).              |
+
+This is primarily useful for producing structured data — like JSON arrays — that downstream nodes can consume as typed values. For example, a shell node can emit a JSON list that a dynamic [`fan-out`](#dynamic-fan-out) node iterates over:
+
+```dot
+ShellDiscover [
+  shell="gh repo list myorg --json name,language --limit 50",
+  store="repos",
+  store-as="json"
+]
+ShellDiscover -> FanOutRepos
+
+FanOutRepos [fan-out="repos"]
+FanOutRepos -> Analyze
+
+Analyze [prompt="Analyze repository $fan_out.item.name ($fan_out.item.language)"]
+Analyze -> FanInResults
+
+FanInResults
+FanInResults -> Summarize
+```
+
+> [!note]
+> Use kebab-case (`store-as`) in DOT attributes. The canonical form `store_as` is also accepted but kebab-case is recommended for consistency.
 
 ## Goal gates
 
@@ -733,7 +786,7 @@ See [Creating Workflows — Multi-question interviews](creating#multi-question-i
 
 ## Parallel execution
 
-Fan out to multiple branches using a `FanOut…` node ID prefix and collect results with a fan-in node. You can make the fan-in point explicit using a `FanIn…` node ID prefix. These prefixes imply `shape=component` and `shape=tripleoctagon` respectively, so you don't need to set the shape explicitly:
+Fan out to multiple branches using a `FanOut…` node ID prefix and collect results with a fan-in node. Branches can be defined statically in the graph (one edge per branch) or dynamically at runtime using the `fan-out` attribute. You can make the fan-in point explicit using a `FanIn…` node ID prefix. These prefixes imply `shape=component` and `shape=tripleoctagon` respectively, so you don't need to set the shape explicitly:
 
 ```dot
 digraph ParallelReview {
@@ -761,6 +814,79 @@ digraph ParallelReview {
 ```
 
 Branches execute concurrently. The fan-in node waits for all branches to complete before proceeding.
+
+### Dynamic fan-out
+
+Static fan-out (above) fixes the number of branches at graph-definition time. The `fan-out` attribute adds **dynamic fan-out**, where the branch count is determined at runtime from a variable-length list in the pipeline context.
+
+A node with `fan-out` must have exactly **one outgoing edge** pointing to the template entry node. The engine spawns one concurrent branch per list item, each executing the same downstream subgraph with per-item context.
+
+The list is typically produced by an upstream shell node with `store` (see [Shell output storage](#shell-output-storage)), but any source that writes a JSON array into the context works — for example, an agent node with `context-writable=true` can call `workflow_set_context` to store a JSON array (e.g., key `items`), and the fan-out node references it with `fan-out="items"`.
+
+**Attribute forms:**
+
+| Form                  | Behavior                                                           |
+| --------------------- | ------------------------------------------------------------------ |
+| `fan-out="key"`       | Resolves the context key as a JSON array and fans out over it.     |
+| `fan-out=true`        | Derives the key from the node ID in snake_case (e.g., `FanOutRepos` → `fan_out_repos`). |
+
+**Per-branch context:**
+
+Each branch receives the following variables, accessible via `$`-expansion or workflow context tools:
+
+| Variable                  | Description                                       |
+| ------------------------- | ------------------------------------------------- |
+| `$fan_out.item`           | The current list item (scalar or JSON object).    |
+| `$fan_out.index`          | Zero-based index of this branch.                  |
+| `$fan_out.total`          | Total number of items in the list.                |
+| `$fan_out.key`            | The context key that was fanned out over.         |
+| `$fan_out.item.<prop>`    | For object items, individual properties are accessible directly. |
+
+After all branches complete, results are aggregated into `parallel.results` (list of per-branch outcomes) and `parallel.outputs` (list of per-branch outputs). The fan-in successor receives these as context values.
+
+**Empty lists:** When the resolved list is empty, the handler skips directly to the fan-in successor — no branches are spawned.
+
+**Validation rules:**
+
+- The fan-out node must have exactly one outgoing edge.
+- A warning is emitted if no `tripleoctagon` fan-in node is reachable from the template subgraph.
+- Nested dynamic fan-out (a dynamic fan-out inside another dynamic fan-out's template subgraph) is rejected.
+
+**Example** — discover repositories with a shell node, then analyze each one in parallel:
+
+```dot
+digraph RepoAudit {
+  graph [goal="Audit all repositories in the organization"]
+
+  Start -> ShellDiscover
+
+  ShellDiscover [
+    shell="gh repo list myorg --json name,url --limit 100",
+    store="repos"
+  ]
+  ShellDiscover -> FanOutRepos
+
+  FanOutRepos [fan-out="repos"]
+  FanOutRepos -> Audit
+
+  Audit [prompt="Audit repository $fan_out.item.name at $fan_out.item.url for: $goal"]
+  Audit -> FanInResults
+
+  FanInResults
+  FanInResults -> Summarize
+
+  Summarize [prompt="Summarize audit findings across all $fan_out.total repositories"]
+  Summarize -> End
+}
+```
+
+This pipeline:
+
+1. **Discovers** repositories by running `gh repo list` and storing the JSON output as a typed array under `repos`
+2. **Fans out** dynamically — one branch per repository in the list
+3. **Audits** each repository concurrently, with `$fan_out.item.name` and `$fan_out.item.url` expanded per branch
+4. **Collects** results at the fan-in node
+5. **Summarizes** the combined findings
 
 ## Composed subprocess
 
@@ -889,7 +1015,8 @@ Nodes communicate through a shared key-value **context**. After each node execut
 Context values come from several sources:
 
 - **Human node `store`** — the `store` attribute on human nodes writes the answer into a named key (e.g., `store="human.feedback"`)
-- **LLM tool calls** — when an LLM writes context via the `workflow_set_context` tool, keys are stored under the `llm.` namespace
+- **Shell node `store`** — the `store` attribute on shell nodes writes trimmed stdout into a named key, with optional JSON parsing controlled by `store-as`
+- **LLM tool calls** — when an LLM writes context via the `workflow_set_context` tool
 - **Handler outputs** — built-in keys like `human.gate.selected`, `human.gate.label`, `last_output`, `last_stage`
 - **Graph attributes** — `graph.*` keys are mirrored into context at pipeline start
 
@@ -905,7 +1032,7 @@ Available tools:
 | ------------------------ | ----------------------------------------------------------------------- |
 | `workflow_get_output`    | Get the output of a pipeline node by ID, or the most recent output if no node_id is given |
 | `workflow_get_context`   | Read a specific context key (e.g., `human.feedback`) or all context     |
-| `workflow_set_context`   | Write a value to the workflow context (under the `llm.` namespace)      |
+| `workflow_set_context`   | Write a value to the workflow context (requires `context-writable=true` on the node) |
 | `workflow_get_run`       | Get metadata about the current run (name, goal, status, start time)     |
 | `workflow_list_nodes`    | List all workflow nodes with status and duration                        |
 | `workflow_store_artifact`| Store a file artifact associated with this run                          |

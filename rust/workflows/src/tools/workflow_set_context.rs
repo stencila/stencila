@@ -11,7 +11,7 @@ fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "workflow_set_context".into(),
         description: "Set a workflow context value. The value will be available to downstream \
-            nodes and edge conditions. LLM-managed keys are stored under the `llm.` namespace. \
+            nodes and edge conditions. Keys starting with `internal.` are reserved. \
             Requires the current node to have context_writable=true."
             .into(),
         parameters: json!({
@@ -62,12 +62,6 @@ fn executor(
                         "Error: Keys starting with `internal.` are reserved.".to_string(),
                     ));
                 }
-                let storage_key = if key.starts_with("llm.") {
-                    key.to_string()
-                } else {
-                    format!("llm.{key}")
-                };
-
                 let value = args
                     .get("value")
                     .cloned()
@@ -81,9 +75,9 @@ fn executor(
                      ON CONFLICT(run_id, key) DO UPDATE SET
                         value = excluded.value,
                         updated_at = excluded.updated_at",
-                    (&run_id, &storage_key, &value_str),
+                    (&run_id, key, &value_str),
                 ) {
-                    Ok(_) => Ok(ToolOutput::Text(format!("Set context key: {storage_key}"))),
+                    Ok(_) => Ok(ToolOutput::Text(format!("Set context key: {key}"))),
                     Err(e) => Ok(ToolOutput::Text(format!("Error setting context: {e}"))),
                 }
             })

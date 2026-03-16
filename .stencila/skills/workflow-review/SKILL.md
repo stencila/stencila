@@ -60,7 +60,8 @@ When reviewing names, apply these conventions:
 - The graph is not missing obvious terminal or branching connections
 - Only the first `dot` block is relied on for execution; additional DOT blocks, if any, are treated as documentation and should not create ambiguity
 - When a node uses `workflow="name"`, treat it as a composed child workflow node and check that the composition boundary is clear and justified; this attribute is normalized to workflow-handler semantics rather than acting like a normal LLM, shell, or branch node
-- When a node uses a `FanOut…` node ID prefix, check that it has multiple outgoing edges (a fan-out with a single branch is unnecessary) and that the branches converge at a downstream node (either an explicit `FanIn…` prefix / `shape=tripleoctagon` node or a structural convergence); flag fan-out nodes with no plausible fan-in point
+- When a node uses a `FanOut…` node ID prefix (static fan-out), check that it has multiple outgoing edges (a fan-out with a single branch is unnecessary) and that the branches converge at a downstream node (either an explicit `FanIn…` prefix / `shape=tripleoctagon` node or a structural convergence); flag fan-out nodes with no plausible fan-in point
+- When a node uses `fan-out="key"` (dynamic fan-out), check that it has exactly one outgoing edge (the runtime creates parallel instances from the stored list), that a fan-in node (`FanIn…` prefix or `shape=tripleoctagon`) is reachable downstream, and that the context key is plausibly populated by an upstream node — either a shell node with `store` or an agent node with `context-writable=true` that writes a JSON array via `workflow_set_context`; flag nested dynamic fan-out (dynamic fan-out inside another dynamic fan-out's template subgraph) as an error
 
 ### Workflow Design Quality
 
@@ -77,7 +78,7 @@ When reviewing names, apply these conventions:
 - Top-down design is a valid approach: a workflow may intentionally reference agents or child workflows that do not yet exist, planning to create them later. When a workflow appears to follow this pattern, evaluate the pipeline structure and stage responsibilities on their own merits rather than penalizing unresolved references; instead note which dependencies remain to be created
 - The workflow is no more complex than necessary for the task
 - When a workflow uses parallel fan-out (`FanOut…` node ID prefix or the underlying `shape=component`), check that: all branches are genuinely independent and do not depend on each other's output; branches reconverge at a clear fan-in point (either an explicit `FanIn…` prefix / `shape=tripleoctagon` node or a structural convergence where all branches share a common downstream node); `join_policy`, `error_policy`, and `max_parallel` are appropriate for the task; and the fan-out is not used where a simple sequential pipeline would be clearer
-- When a workflow uses a sequential loop-and-check pattern to iterate over a collection of items, consider whether the items are independent — if so, note that parallel fan-out (`FanOut…` node ID prefix / `shape=component`) could improve throughput, but also note that parallel fan-out is static (the number of branches is fixed in the DOT graph) and cannot vary at runtime, so a sequential loop may still be the correct choice for variable-length lists
+- When a workflow uses a sequential loop-and-check pattern to iterate over a collection of items, consider whether the items are independent — if so, suggest the appropriate fan-out pattern: if the list is known at graph-definition time, use static fan-out (`FanOut…` node ID prefix / `shape=component`) where the number of branches is fixed in the DOT graph; if the list is determined at runtime (e.g., produced by a shell node with `store`), use dynamic fan-out (`fan-out` attribute) which creates parallel instances from a variable-length list; if items have dependencies on each other's output, a sequential loop is still the correct choice
 
 ### Agents, Workflows, and Prompts
 
@@ -109,6 +110,12 @@ When reviewing names, apply these conventions:
 - Check that `show-if` conditions reference valid `store` keys from earlier questions and use the correct syntax; flag conditions that would always be true, always be false, or reference non-existent keys
 - Check that `finish-if` is only used on supported question types (`yes-no`, `confirm`, `single-select`) and that the early-exit value is a valid answer for that question type (e.g., `"yes"` or `"no"` for `yes-no`, an option label for `single-select`)
 - Flag `interview-ref` used for a single simple question where `ask` or `ask-ref` would be simpler
+
+#### Shell node output storage
+
+- When a shell node uses `store="key"`, check that the stored key is referenced downstream — either in a `fan-out` attribute, a `$KEY` expansion in a prompt or shell command, or an edge condition; flag `store` on shell nodes without downstream consumers as a warning (storing data nobody reads)
+- When a shell node uses `store-as="json"`, check that the shell command plausibly produces valid JSON output (e.g., uses `jq`, prints a JSON literal, or wraps output in JSON structure); flag `store-as="json"` on commands whose output is unlikely to be valid JSON
+- When a dynamic fan-out node references a context key via `fan-out="key"`, verify that an upstream node populates that key — either a shell node with `store="key"` (ideally with `store-as="json"`) or an agent node with `context-writable=true` that calls `workflow_set_context` to write a JSON array (e.g., `fan-out="items"`); flag fan-out keys with no plausible upstream producer
 
 ### Ephemeral Workflow Conventions
 

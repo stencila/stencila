@@ -125,7 +125,8 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - When an `agent` node has multiple outgoing edges with labels, the engine provides routing instructions (via `workflow_set_route` tool or XML tag fallback). Give each outgoing edge a descriptive label (e.g., `Accept`, `Revise`, `Pass`, `Fail`) and the agent will signal its choice. Edge conditions take priority over preferred labels, so both mechanisms can coexist
 - In iterative workflows, prefer tool-based context retrieval (`workflow_get_output`, `workflow_get_context`) over `$last_output` / `$human.feedback` interpolation — this avoids bloating prompts with long prior outputs. Write prompts that say "check for reviewer feedback" instead of embedding variables inline. Reserve `$`-variable interpolation for short values (`$goal`, `$last_stage`) and for shell commands and edge conditions where tools are unavailable
 - Use edges to express sequencing, branching, retry loops, and approval paths
-- Use a `FanOut…` node ID prefix for parallel fan-out — all outgoing edges from the fan-out node execute concurrently and reconverge at a downstream fan-in point. Set `join_policy` (`wait_all` or `first_success`), `error_policy` (`fail_fast`, `continue`, or `ignore`), and `max_parallel` (default 4) as needed. The fan-in node is detected automatically by structural convergence or can be made explicit with a `FanIn…` node ID prefix. Parallel fan-out is static: the number of branches is fixed in the DOT graph and cannot vary at runtime based on data produced by a prior node
+- Use a `FanOut…` node ID prefix for parallel fan-out — all outgoing edges from the fan-out node execute concurrently and reconverge at a downstream fan-in point. Set `join_policy` (`wait_all` or `first_success`), `error_policy` (`fail_fast`, `continue`, or `ignore`), and `max_parallel` (default 4) as needed. The fan-in node is detected automatically by structural convergence or can be made explicit with a `FanIn…` node ID prefix or `shape=tripleoctagon`. Static fan-out has a fixed number of branches defined by the outgoing edges in the DOT graph. For dynamic fan-out where the number of branches is determined at runtime, use `fan-out="key"` on a node to fan out over a list stored in the pipeline context under that key; the node must have exactly one outgoing edge pointing to the template entry node, and a fan-in node (explicit `FanIn…` prefix or `shape=tripleoctagon`) must follow the template subgraph to collect the results
+- Shell nodes can use `store="key"` to write their stdout into the pipeline context, with optional `store-as="json"` or `store-as="string"` to control parsing (default: try JSON, fall back to string). This is the typical way to produce the list that a dynamic `fan-out` consumes — a shell node outputs a JSON array and stores it with `store="items" store-as="json"`, then a downstream fan-out node references `fan-out="items"`. Alternatively, an agent node with `context-writable=true` can produce a list by calling `workflow_set_context` with a JSON array value (e.g., `fan-out="items"`)
 - Use `workflow="child-name"` on a node to run another workflow as a composed subprocess. Use `goal="..."` to pass an explicit child objective; if omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`). Keep the parent focused on orchestration and the child on detailed execution; avoid composing trivial one-step tasks unless reuse is likely
 - Do not create direct or indirect composition cycles; workflow nesting should remain acyclic. Current validation rejects direct self-reference, and indirect cycles should also be avoided even if they are not yet detected statically
 - Prefer the house style of placing the entry edge near the top, then organizing each node as a block: node definition followed immediately by its outgoing edge or edges
@@ -379,9 +380,11 @@ digraph code_review {
 
 ### Parallel fan-out
 
-Use a `FanOut…` node ID prefix to execute independent branches concurrently. Branches reconverge at a shared downstream node (the fan-in point), which can be made explicit with a `FanIn…` node ID prefix. Use this pattern when the workflow has multiple independent tasks that do not depend on each other's output — for example, searching different sources, running independent analyses, or generating alternative candidates.
+Use a `FanOut…` node ID prefix to execute independent branches concurrently. Branches reconverge at a shared downstream node (the fan-in point), which can be made explicit with a `FanIn…` node ID prefix or `shape=tripleoctagon`. Use this pattern when the workflow has multiple independent tasks that do not depend on each other's output — for example, searching different sources, running independent analyses, or generating alternative candidates.
 
-Note: parallel fan-out is static. The number of branches is fixed at graph-definition time by the outgoing edges in the DOT file. The engine does not support dynamic fan-out where the number of branches is determined at runtime from a list produced by a prior node. If you need to process a variable-length list of items, use a sequential loop with a conditional check node instead.
+Fan-out can be **static** or **dynamic**. Static fan-out has a fixed number of branches defined by the outgoing edges in the DOT graph. Dynamic fan-out uses `fan-out="key"` to iterate over a runtime list stored in the pipeline context, spawning one branch per item — use this when the number of items is not known until execution time.
+
+#### Static fan-out
 
 ````markdown
 ---
@@ -416,6 +419,41 @@ digraph literature_search_parallel {
 ```
 ````
 
+#### Dynamic fan-out
+
+Use a shell node with `store` and `store-as` to produce a runtime list, then a `FanOut…` node with `fan-out="key"` to iterate over it. The fan-out node must have exactly one outgoing edge pointing to the template entry node. A fan-in node collects the results after the template subgraph. Alternatively, an agent node with `context-writable=true` can populate the list by calling `workflow_set_context` with a JSON array value (e.g., key `items`), which the downstream fan-out node references with `fan-out="items"`.
+
+````markdown
+---
+name: batch-analysis
+description: Dynamically analyze items discovered at runtime
+goal-hint: What kind of items should be discovered and analyzed?
+---
+
+This workflow discovers items with a shell command, fans out dynamically to process each one in parallel, then merges the results.
+
+```dot
+digraph batch_analysis {
+  Start -> Discover
+
+  Discover [shell="find src -name '*.rs' -printf '%f\\n' | head -20 | jq -R -s 'split(\"\\n\") | map(select(. != \"\"))'", store="items", store-as="json"]
+  Discover -> FanOutItems
+
+  FanOutItems [fan-out="items", label="Process each item"]
+  FanOutItems -> Analyze
+
+  Analyze [prompt="Analyze $fan_out.item and produce a summary"]
+  Analyze -> FanInResults
+
+  FanInResults [shape=tripleoctagon, label="Merge results"]
+  FanInResults -> Report
+
+  Report [prompt="Compile all analysis summaries into a final report"]
+  Report -> End
+}
+```
+````
+
 ## Practical Workflow Design Guidance
 
 Design the workflow so that each stage makes visible progress toward the goal instead of just adding more prompts. Start from the user's real objective, then map it to stages such as research, plan, build, test, review, and publish.
@@ -429,7 +467,7 @@ Design the workflow so that each stage makes visible progress toward the goal in
 - Use human approval when the workflow crosses a trust boundary such as publish, deploy, or accept consequential changes
 - If a stage does not change what the workflow knows, decides, or produces, it is usually unnecessary
 - Alternate generation and evaluation so later steps decide whether earlier work is good enough to continue
-- Use parallel fan-out (via a `FanOut…` node ID prefix) when the workflow has independent tasks that can run concurrently, such as searching multiple sources or generating alternative approaches. Ensure all branches are truly independent — if one branch needs another's output, use sequential edges instead
+- Use parallel fan-out (via a `FanOut…` node ID prefix) when the workflow has independent tasks that can run concurrently, such as searching multiple sources or generating alternative approaches. Ensure all branches are truly independent — if one branch needs another's output, use sequential edges instead. When the set of items is known at design time, use static fan-out with explicit branches; when items are determined at runtime (e.g., discovered by a shell command or produced by a prior agent), use dynamic fan-out with `fan-out="key"` over a stored list
 
 Common shapes by objective type (simplify or extend to fit the request):
 

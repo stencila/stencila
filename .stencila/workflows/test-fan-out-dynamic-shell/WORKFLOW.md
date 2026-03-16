@@ -1,5 +1,5 @@
 ---
-name: test-dynamic-fan-out
+name: test-fan-out-dynamic-shell
 description: Test dynamic parallel fan-out over a runtime list using shell nodes only
 ---
 
@@ -16,10 +16,10 @@ digraph Workflow {
   FanOut -> Process
 
   Process [shell="printf '%s:%s/%s' '$fan_out.item' '$fan_out.index' '$fan_out.total'"]
-  Process -> Merge
+  Process -> FanIn
 
-  Merge [shape=tripleoctagon]
-  Merge -> Verify
+  FanIn
+  FanIn -> Verify
 
   Verify [shell="echo '$parallel.outputs'"]
   Verify -> End

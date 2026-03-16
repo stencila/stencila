@@ -136,8 +136,8 @@ async fn test_human_gates() {
 
 /// Dynamic fan-out over a JSON array produced by a shell node, no LLM calls.
 #[tokio::test]
-async fn test_dynamic_fan_out() {
-    run_and_assert_success("test-dynamic-fan-out").await;
+async fn test_fan_out_dynamic_shell() {
+    run_and_assert_success("test-fan-out-dynamic-shell").await;
 }
 
 // ===========================================================================
@@ -205,6 +205,13 @@ async fn test_subgraph_defaults() {
 #[ignore]
 async fn test_agent_reference() {
     run_and_assert_success("test-agent-reference").await;
+}
+
+/// Dynamic fan-out over a JSON array produced by an agent via workflow_set_context.
+#[tokio::test]
+#[ignore]
+async fn test_fan_out_dynamic_agent() {
+    run_and_assert_success("test-fan-out-dynamic-agent").await;
 }
 
 /// Combined pipeline with 10+ nodes: shell, parallel, conditional,

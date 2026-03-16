@@ -225,15 +225,15 @@ The attractor spec's parallel fan-out (§4.8) is **static**: the number of concu
 A node with `fan_out` must have exactly one outgoing edge pointing to the template entry node. The engine spawns one concurrent branch per list item, each executing the same downstream subgraph with per-item context injection:
 
 ```dot
-FanOutSkills [fan_out="llm.skills"]
-FanOutSkills -> ProcessSkill
-ProcessSkill -> Merge [shape=tripleoctagon]
+FanOutSlices [fan_out="slices"]
+FanOutSlices -> ProcessSlice
+ProcessSlice -> FanIn
 ```
 
 | Attribute form | Behavior |
 |---|---|
 | `fan_out="key"` | Resolve context key `key` as a JSON array |
-| `fan_out=true` | Derive key from node ID in snake_case (e.g., `FanOutSkills` → `fan_out_skills`) |
+| `fan_out=true` | Derive key from node ID in snake_case (e.g., `FanOutSlices` → `fan_out_slices`) |
 | `fan_out=false` | Runtime error (configuration mistake) |
 
 Each branch receives an isolated context clone with these injected keys:
