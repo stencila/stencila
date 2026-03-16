@@ -727,8 +727,7 @@ async fn shell_store_as_json_valid() -> AttractorResult<()> {
         "shell_command".into(),
         AttrValue::from(r#"echo '{"name":"rust"}'"#),
     );
-    node.attrs
-        .insert("store".into(), AttrValue::from("item"));
+    node.attrs.insert("store".into(), AttrValue::from("item"));
     node.attrs
         .insert("store_as".into(), AttrValue::from("json"));
     let ctx = Context::new();
@@ -754,8 +753,7 @@ async fn shell_store_as_json_invalid_fails() -> AttractorResult<()> {
     let mut node = Node::new("bad");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("echo not-json"));
-    node.attrs
-        .insert("store".into(), AttrValue::from("item"));
+    node.attrs.insert("store".into(), AttrValue::from("item"));
     node.attrs
         .insert("store_as".into(), AttrValue::from("json"));
     let ctx = Context::new();
@@ -773,8 +771,7 @@ async fn shell_store_as_string_skips_parsing() -> AttractorResult<()> {
     let mut node = Node::new("num");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("echo 42"));
-    node.attrs
-        .insert("store".into(), AttrValue::from("count"));
+    node.attrs.insert("store".into(), AttrValue::from("count"));
     node.attrs
         .insert("store_as".into(), AttrValue::from("string"));
     let ctx = Context::new();
@@ -794,8 +791,7 @@ async fn shell_store_auto_parses_number() -> AttractorResult<()> {
     let mut node = Node::new("num");
     node.attrs
         .insert("shell_command".into(), AttrValue::from("echo 42"));
-    node.attrs
-        .insert("store".into(), AttrValue::from("count"));
+    node.attrs.insert("store".into(), AttrValue::from("count"));
     let ctx = Context::new();
     let g = Graph::new("test");
 

@@ -60,7 +60,7 @@ When reviewing names, apply these conventions:
 - The graph is not missing obvious terminal or branching connections
 - Only the first `dot` block is relied on for execution; additional DOT blocks, if any, are treated as documentation and should not create ambiguity
 - When a node uses `workflow="name"`, treat it as a composed child workflow node and check that the composition boundary is clear and justified; this attribute is normalized to workflow-handler semantics rather than acting like a normal LLM, shell, or branch node
-- When a node uses `shape=component` or has a `FanOut…` prefix, check that it has multiple outgoing edges (a fan-out with a single branch is unnecessary) and that the branches converge at a downstream node; flag fan-out nodes with no plausible fan-in point
+- When a node uses `shape=component` or has a `FanOut…` prefix, check that it has multiple outgoing edges (a fan-out with a single branch is unnecessary) and that the branches converge at a downstream node (either an explicit `shape=tripleoctagon` / `FanIn…` node or a structural convergence); flag fan-out nodes with no plausible fan-in point
 
 ### Workflow Design Quality
 
@@ -76,7 +76,7 @@ When reviewing names, apply these conventions:
 - Parent workflows should focus on orchestration, while child workflows should own detailed internal execution where that split improves clarity
 - Top-down design is a valid approach: a workflow may intentionally reference agents or child workflows that do not yet exist, planning to create them later. When a workflow appears to follow this pattern, evaluate the pipeline structure and stage responsibilities on their own merits rather than penalizing unresolved references; instead note which dependencies remain to be created
 - The workflow is no more complex than necessary for the task
-- When a workflow uses parallel fan-out (`shape=component` or `FanOut…` node ID prefix), check that: all branches are genuinely independent and do not depend on each other's output; branches reconverge at a clear fan-in point (either an explicit `shape=tripleoctagon` node or a structural convergence where all branches share a common downstream node); `join_policy`, `error_policy`, and `max_parallel` are appropriate for the task; and the fan-out is not used where a simple sequential pipeline would be clearer
+- When a workflow uses parallel fan-out (`shape=component` or `FanOut…` node ID prefix), check that: all branches are genuinely independent and do not depend on each other's output; branches reconverge at a clear fan-in point (either an explicit `shape=tripleoctagon` / `FanIn…` node or a structural convergence where all branches share a common downstream node); `join_policy`, `error_policy`, and `max_parallel` are appropriate for the task; and the fan-out is not used where a simple sequential pipeline would be clearer
 - When a workflow uses a sequential loop-and-check pattern to iterate over a collection of items, consider whether the items are independent — if so, note that parallel fan-out (`shape=component`) could improve throughput, but also note that parallel fan-out is static (the number of branches is fixed in the DOT graph) and cannot vary at runtime, so a sequential loop may still be the correct choice for variable-length lists
 
 ### Agents, Workflows, and Prompts

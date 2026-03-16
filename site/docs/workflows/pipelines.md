@@ -49,6 +49,7 @@ Every node represents a task in the pipeline. The node's `shape` determines what
 | `hexagon`       | Human review gate   | `Review [shape=hexagon]`              |
 | `diamond`       | Conditional routing | `Check [shape=diamond]`               |
 | `component`     | Parallel fan-out    | `FanOut [shape=component]`            |
+| `tripleoctagon` | Parallel fan-in     | `FanIn [shape=tripleoctagon]`         |
 | `invtriangle`   | Explicit failure    | `Fail [shape=invtriangle]`            |
 
 You can also write `shape=human` as a shorthand for `shape=hexagon`.
@@ -65,11 +66,12 @@ To reduce boilerplate, the pipeline engine recognizes certain node IDs and attri
 | `End`, `end`, `Exit`, `exit` | `Msquare`       | Exit point       |
 | `Fail`, `fail`               | `invtriangle`   | Failure          |
 | `FanOut…`                    | `component`     | Parallel fan-out |
+| `FanIn…`                     | `tripleoctagon` | Parallel fan-in  |
 | `Review…`, `Approve…`        | `hexagon`       | Human review     |
 | `Check…`, `Branch…`          | `diamond`       | Conditional      |
 | `Shell…`, `Run…`             | `parallelogram` | Shell command    |
 
-The first three are exact ID matches; the rest are prefix matches (e.g. `FanOutSearch`, `ReviewDraft`, `CheckQuality`).
+The first three are exact ID matches; the rest are prefix matches (e.g. `FanOutSearch`, `FanInResults`, `ReviewDraft`, `CheckQuality`).
 
 An explicit `shape` attribute always takes precedence over ID-based inference. If a node has a `prompt` or `agent` attribute, it is treated as an LLM task (`box`), overriding prefix-based ID inference — so `ReviewData [prompt="Summarize the reviews"]` stays a codergen node, not a human gate. Reserved structural IDs (`Start`/`End`/`Exit`/`Fail`) are exempt: they always receive their structural shape.
 
@@ -729,7 +731,7 @@ See [Creating Workflows — Multi-question interviews](creating#multi-question-i
 
 ## Parallel execution
 
-Fan out to multiple branches using `shape=component` and collect results with a fan-in node:
+Fan out to multiple branches using `shape=component` (or a `FanOut…` node ID prefix) and collect results with a fan-in node. You can make the fan-in point explicit using `shape=tripleoctagon` or a `FanIn…` node ID prefix:
 
 ```dot
 digraph ParallelReview {
@@ -737,7 +739,7 @@ digraph ParallelReview {
 
   Start -> FanOut
 
-  FanOut [shape=component, label="Search in parallel"]
+  FanOut [label="Search in parallel"]
   FanOut -> Databases
   FanOut -> Preprints
   FanOut -> Reviews

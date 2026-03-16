@@ -49,6 +49,7 @@
 //! | Node ID (prefix)         | Implied shape    | Handler          |
 //! |--------------------------|------------------|------------------|
 //! | `FanOut*`, `Fanout*`     | `component`      | parallel fan-out |
+//! | `FanIn*`, `Fanin*`       | `tripleoctagon`  | parallel fan-in  |
 //! | `Review*`, `Approve*`    | `hexagon`        | wait.human       |
 //! | `Check*`, `Branch*`      | `diamond`        | conditional      |
 //! | `Shell*`, `Run*`         | `parallelogram`  | shell            |
@@ -78,6 +79,8 @@ fn infer_shape_from_id(id: &str) -> Option<&'static str> {
     structural_shape(id).or_else(|| {
         if id.starts_with("FanOut") || id.starts_with("Fanout") {
             Some(Graph::PARALLEL_SHAPE)
+        } else if id.starts_with("FanIn") || id.starts_with("Fanin") {
+            Some(Graph::PARALLEL_FAN_IN_SHAPE)
         } else if id.starts_with("Review") || id.starts_with("Approve") {
             Some(Graph::HUMAN_SHAPE)
         } else if id.starts_with("Check") || id.starts_with("Branch") {

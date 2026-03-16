@@ -86,6 +86,45 @@ fn fanout_lowercase_variant() -> AttractorResult<()> {
 }
 
 #[test]
+fn fanin_id_implies_tripleoctagon_shape() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> FanIn -> End
+        }
+        "#,
+    )?;
+    assert_eq!(node_shape(&g, "FanIn"), "tripleoctagon");
+    Ok(())
+}
+
+#[test]
+fn fanin_suffixed_id_implies_tripleoctagon_shape() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> FanInResults -> End
+        }
+        "#,
+    )?;
+    assert_eq!(node_shape(&g, "FanInResults"), "tripleoctagon");
+    Ok(())
+}
+
+#[test]
+fn fanin_lowercase_variant() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> FaninCollect -> End
+        }
+        "#,
+    )?;
+    assert_eq!(node_shape(&g, "FaninCollect"), "tripleoctagon");
+    Ok(())
+}
+
+#[test]
 fn review_id_implies_hexagon_shape() -> AttractorResult<()> {
     let g = apply_sugar(
         r#"
@@ -689,6 +728,24 @@ fn agent_on_fanout_id_keeps_codergen() -> AttractorResult<()> {
     assert_eq!(node_shape(&g, "FanOutAnalysis"), "box");
     assert_eq!(
         g.get_node("FanOutAnalysis").unwrap().handler_type(),
+        "codergen"
+    );
+    Ok(())
+}
+
+#[test]
+fn agent_on_fanin_id_keeps_codergen() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> FanInResults -> End
+            FanInResults [agent="aggregator"]
+        }
+        "#,
+    )?;
+    assert_eq!(node_shape(&g, "FanInResults"), "box");
+    assert_eq!(
+        g.get_node("FanInResults").unwrap().handler_type(),
         "codergen"
     );
     Ok(())
