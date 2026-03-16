@@ -134,6 +134,12 @@ async fn test_human_gates() {
     run_and_assert_success("test-human-gates").await;
 }
 
+/// Dynamic fan-out over a JSON array produced by a shell node, no LLM calls.
+#[tokio::test]
+async fn test_dynamic_fan_out() {
+    run_and_assert_success("test-dynamic-fan-out").await;
+}
+
 // ===========================================================================
 // Tests that require a model API key
 // ===========================================================================
