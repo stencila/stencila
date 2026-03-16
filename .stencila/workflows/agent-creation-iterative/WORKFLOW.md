@@ -40,7 +40,9 @@ Create or update an agent for the goal:
 
 $goal
 
-Before starting, check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. Also check for human revision notes and incorporate those as well.
+Before starting, use workflow_get_output to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
+
+Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
 ```
 
 ```text #reviewer-prompt
