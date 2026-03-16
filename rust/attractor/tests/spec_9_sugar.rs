@@ -124,97 +124,6 @@ fn fanin_lowercase_variant() -> AttractorResult<()> {
     Ok(())
 }
 
-#[test]
-fn review_id_implies_hexagon_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> Review -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "Review"), "hexagon");
-    Ok(())
-}
-
-#[test]
-fn review_suffixed_id() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> ReviewDraft -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "ReviewDraft"), "hexagon");
-    Ok(())
-}
-
-#[test]
-fn approve_id_implies_hexagon_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> ApproveResults -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "ApproveResults"), "hexagon");
-    Ok(())
-}
-
-#[test]
-fn check_id_implies_diamond_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> CheckQuality -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "CheckQuality"), "diamond");
-    Ok(())
-}
-
-#[test]
-fn branch_id_implies_diamond_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> BranchOnType -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "BranchOnType"), "diamond");
-    Ok(())
-}
-
-#[test]
-fn shell_id_implies_parallelogram_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> ShellBuild -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "ShellBuild"), "parallelogram");
-    Ok(())
-}
-
-#[test]
-fn run_id_implies_parallelogram_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> RunTests -> End
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "RunTests"), "parallelogram");
-    Ok(())
-}
-
 // ===========================================================================
 // Explicit shape is never overridden
 // ===========================================================================
@@ -230,20 +139,6 @@ fn explicit_shape_not_overridden_by_id() -> AttractorResult<()> {
         "#,
     )?;
     assert_eq!(node_shape(&g, "FanOut"), "box");
-    Ok(())
-}
-
-#[test]
-fn explicit_shape_not_overridden_by_review_id() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> Review -> End
-            Review [shape=diamond]
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "Review"), "diamond");
     Ok(())
 }
 
@@ -451,58 +346,6 @@ fn shell_handler_type_resolution() -> AttractorResult<()> {
 }
 
 // ===========================================================================
-// Property-based sugar: cmd
-// ===========================================================================
-
-#[test]
-fn cmd_attr_implies_parallelogram_and_shell_command() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> Build -> End
-            Build [cmd="make build"]
-        }
-        "#,
-    )?;
-    let node = g.get_node("Build").unwrap();
-    assert_eq!(node.shape(), "parallelogram");
-    assert_eq!(node.get_str_attr("shell_command"), Some("make build"));
-    assert!(node.get_attr("cmd").is_none());
-    Ok(())
-}
-
-#[test]
-fn cmd_does_not_override_explicit_shape() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> Build -> End
-            Build [cmd="make build", shape=box]
-        }
-        "#,
-    )?;
-    let node = g.get_node("Build").unwrap();
-    assert_eq!(node.shape(), "box");
-    assert_eq!(node.get_str_attr("shell_command"), Some("make build"));
-    Ok(())
-}
-
-#[test]
-fn cmd_does_not_override_explicit_shell_command() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> Build -> End
-            Build [cmd="make build", shell_command="cargo build"]
-        }
-        "#,
-    )?;
-    let node = g.get_node("Build").unwrap();
-    assert_eq!(node.get_str_attr("shell_command"), Some("cargo build"));
-    Ok(())
-}
-
-// ===========================================================================
 // Property-based sugar: branch
 // ===========================================================================
 
@@ -578,14 +421,16 @@ fn combined_sugar_example() -> AttractorResult<()> {
             Search       [prompt="Search databases for papers"]
             Screen       [prompt="Screen papers for relevance"]
             Analyze      [prompt="Extract and synthesize key findings"]
+            CheckQuality [branch="Analysis meets quality criteria?"]
+            Review       [ask="Review the systematic review draft"]
             Publish      [prompt="Format the final review for publication"]
         }
         "#,
     )?;
 
-    // CheckQuality inferred as diamond (conditional)
+    // CheckQuality inferred as diamond via `branch` shortcut
     assert_eq!(node_shape(&g, "CheckQuality"), "diamond");
-    // Review inferred as hexagon (human gate)
+    // Review inferred as hexagon via `ask` shortcut
     assert_eq!(node_shape(&g, "Review"), "hexagon");
     // Ordinary LLM nodes remain box
     assert_eq!(node_shape(&g, "Search"), "box");
@@ -635,11 +480,12 @@ fn review_handler_type_resolution() -> AttractorResult<()> {
 }
 
 #[test]
-fn check_handler_type_resolution() -> AttractorResult<()> {
+fn branch_handler_type_resolution() -> AttractorResult<()> {
     let g = apply_sugar(
         r#"
         digraph T {
             Start -> CheckValid -> End
+            CheckValid [branch="Is it valid?"]
         }
         "#,
     )?;
@@ -655,7 +501,7 @@ fn cmd_handler_type_resolution() -> AttractorResult<()> {
         r#"
         digraph T {
             Start -> Build -> End
-            Build [cmd="make"]
+            Build [shell="make"]
         }
         "#,
     )?;
@@ -668,52 +514,6 @@ fn cmd_handler_type_resolution() -> AttractorResult<()> {
 // ===========================================================================
 // prompt/agent override ID-based inference
 // ===========================================================================
-
-#[test]
-fn prompt_on_review_id_keeps_codergen() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> ReviewData -> End
-            ReviewData [prompt="Review and summarize the data"]
-        }
-        "#,
-    )?;
-    // prompt present → stays as box/codergen, not hexagon
-    assert_eq!(node_shape(&g, "ReviewData"), "box");
-    assert_eq!(g.get_node("ReviewData").unwrap().handler_type(), "codergen");
-    Ok(())
-}
-
-#[test]
-fn prompt_on_check_id_keeps_codergen() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> CheckData -> End
-            CheckData [prompt="Check the data for errors"]
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "CheckData"), "box");
-    assert_eq!(g.get_node("CheckData").unwrap().handler_type(), "codergen");
-    Ok(())
-}
-
-#[test]
-fn agent_on_review_id_keeps_codergen() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> ReviewCode -> End
-            ReviewCode [agent="code-reviewer"]
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "ReviewCode"), "box");
-    assert_eq!(g.get_node("ReviewCode").unwrap().handler_type(), "codergen");
-    Ok(())
-}
 
 #[test]
 fn agent_on_fanout_id_keeps_codergen() -> AttractorResult<()> {
@@ -752,21 +552,6 @@ fn agent_on_fanin_id_keeps_codergen() -> AttractorResult<()> {
 }
 
 #[test]
-fn agent_dotted_key_on_review_id_keeps_codergen() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> ReviewCode -> End
-            ReviewCode [agent.model="o3", agent.provider="openai"]
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "ReviewCode"), "box");
-    assert_eq!(g.get_node("ReviewCode").unwrap().handler_type(), "codergen");
-    Ok(())
-}
-
-#[test]
 fn agent_trust_level_on_node_keeps_codergen() -> AttractorResult<()> {
     let g = apply_sugar(
         r#"
@@ -778,24 +563,6 @@ fn agent_trust_level_on_node_keeps_codergen() -> AttractorResult<()> {
     )?;
     assert_eq!(node_shape(&g, "Risky"), "box");
     assert_eq!(g.get_node("Risky").unwrap().handler_type(), "codergen");
-    Ok(())
-}
-
-#[test]
-fn prompt_on_shell_id_keeps_codergen() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> RunAnalysis -> End
-            RunAnalysis [prompt="Run the analysis pipeline"]
-        }
-        "#,
-    )?;
-    assert_eq!(node_shape(&g, "RunAnalysis"), "box");
-    assert_eq!(
-        g.get_node("RunAnalysis").unwrap().handler_type(),
-        "codergen"
-    );
     Ok(())
 }
 
@@ -902,31 +669,12 @@ fn coexisting_ask_and_branch_drains_both() -> AttractorResult<()> {
 }
 
 #[test]
-fn coexisting_cmd_and_shell_drains_both() -> AttractorResult<()> {
-    let g = apply_sugar(
-        r#"
-        digraph T {
-            Start -> Build -> End
-            Build [cmd="make", shell="cargo build"]
-        }
-        "#,
-    )?;
-    let node = g.get_node("Build").unwrap();
-    // `cmd` wins over `shell`
-    assert_eq!(node.get_str_attr("shell_command"), Some("make"));
-    // `shell` was drained
-    assert!(node.get_attr("shell").is_none());
-    assert!(node.get_attr("cmd").is_none());
-    Ok(())
-}
-
-#[test]
 fn coexisting_ask_and_cmd_drains_both() -> AttractorResult<()> {
     let g = apply_sugar(
         r#"
         digraph T {
             Start -> Node1 -> End
-            Node1 [ask="Ready?", cmd="echo yes"]
+            Node1 [ask="Ready?", shell="echo yes"]
         }
         "#,
     )?;
@@ -934,26 +682,25 @@ fn coexisting_ask_and_cmd_drains_both() -> AttractorResult<()> {
     // `ask` wins (highest precedence)
     assert_eq!(node.shape(), "hexagon");
     assert_eq!(node.label(), "Ready?");
-    // `cmd` was drained
-    assert!(node.get_attr("cmd").is_none());
-    // `cmd` value was NOT applied as shell_command since ask won
+    // `shell` was drained
+    assert!(node.get_attr("shell").is_none());
+    // `shell` value was NOT applied as shell_command since ask won
     assert!(node.get_attr("shell_command").is_none());
     Ok(())
 }
 
 #[test]
-fn all_four_sugar_keys_drained() -> AttractorResult<()> {
+fn all_sugar_keys_drained() -> AttractorResult<()> {
     let g = apply_sugar(
         r#"
         digraph T {
             Start -> Node1 -> End
-            Node1 [ask="Q?", cmd="c", shell="s", branch="b"]
+            Node1 [ask="Q?", shell="s", branch="b"]
         }
         "#,
     )?;
     let node = g.get_node("Node1").unwrap();
     assert!(node.get_attr("ask").is_none());
-    assert!(node.get_attr("cmd").is_none());
     assert!(node.get_attr("shell").is_none());
     assert!(node.get_attr("branch").is_none());
     Ok(())

@@ -370,16 +370,7 @@ description: {description}
 
 ```dot
 digraph {name_underscored} {{
-    Start -> Design -> Build -> Test
-    Test -> Review       [label="Pass"]
-    Test -> Build        [label="Fail"]
-    Review -> End        [label="Approve"]
-    Review -> Design     [label="Revise"]
-
-    Design [agent="code-planner", prompt="Design the solution for: $goal"]
-    Build  [agent="code-engineer", prompt="Implement the design"]
-    Test   [agent="code-tester", prompt="Run tests and validate"]
-    Review [shape=human]
+    Start -> End
 }}
 ```
 "#,

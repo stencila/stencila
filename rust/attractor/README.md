@@ -10,12 +10,14 @@ use stencila_attractor::parse_dot;
 let dot = r#"
     digraph Pipeline {
         graph [goal="Run tests and report"]
-        start [shape=Mdiamond]
-        run_tests [label="Run Tests", prompt="Execute the test suite"]
-        report [label="Report", prompt="Summarize results"]
-        exit [shape=Msquare]
+        
+        Start -> RunTests
 
-        start -> run_tests -> report -> exit
+        RunTests [prompt="Execute the test suite"]
+        RunTests -> Report
+        
+        Report [prompt="Summarize results"]
+        Report -> End
     }
 "#;
 
@@ -112,10 +114,6 @@ Build [agent="code-engineer", agent.provider="openai", agent.model="o3"]
 
 All casing variants are accepted thanks to attribute key normalization (see above). Kebab-case is recommended for consistency with agent configuration.
 
-### Human shape alias
-
-`shape=human` is accepted as an alias for `shape=hexagon`, mapping to the `wait.human` handler type. This provides a more intuitive way to declare human-in-the-loop nodes (e.g., `Review [shape=human]`).
-
 ### Extended human question types (`question-type` attribute)
 
 The attractor spec's `wait.human` handler (§4.6) only supports multiple-choice questions derived from outgoing edge labels. This extension adds a `question-type` node attribute that overrides the default question type:
@@ -197,7 +195,7 @@ By default, the handler attempts to parse the output as JSON and falls back to s
 | `"string"` | Always store as a string, no JSON parsing |
 
 ```dot
-Seed [cmd="echo '[\"alpha\",\"beta\",\"gamma\"]'", store="items"]
+Seed [shell="echo '[\"alpha\",\"beta\",\"gamma\"]'", store="items"]
 Seed -> FanOut
 
 FanOut [fan_out="items"]
@@ -472,7 +470,7 @@ End-to-end integration tests live in `.stencila/workflows/test-*/WORKFLOW.md` at
 | `test-overrides`              | `overrides` frontmatter, `*` / `.class` / `#id` selectors |
 | `test-goal-gates`             | `goal_gate=true`, `retryTarget` loopback |
 | `test-max-retries`            | `max_retries=N` node attribute |
-| `test-shell-nodes`            | `cmd=` / `shell=` sugar → `shell` handler, no LLM calls |
+| `test-shell-nodes`            | `shell=` sugar → `shell` handler, no LLM calls |
 | `test-edge-weights`           | Edge `weight=` routing priority |
 | `test-subgraph-defaults`      | `subgraph` blocks, scoped `node [...]` defaults |
 | `test-agent-reference`        | `agent=` node attribute, agent resolution |

@@ -9,14 +9,14 @@ Tests that the engine selects the higher-weight edge when multiple unconditional
 digraph Workflow {
   Start -> Gate
 
-  Gate [cmd="echo gate"]
+  Gate [shell="echo gate"]
   Gate -> PathA [weight=10]
   Gate -> PathB [weight=1]
 
-  PathA [cmd="echo alpha"]
+  PathA [shell="echo alpha"]
   PathA -> End
 
-  PathB [cmd="echo beta"]
+  PathB [shell="echo beta"]
   PathB -> Fail
 }
 ```

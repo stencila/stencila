@@ -11,14 +11,14 @@ Tests the `max_retries` node attribute and `defaultMaxRetry` frontmatter using d
 digraph Workflow {
   Start -> Setup
 
-  Setup [cmd="echo 0 > /tmp/stencila-test-max_retries-a.txt; echo 0 > /tmp/stencila-test-max_retries-b.txt"]
+  Setup [shell="echo 0 > /tmp/stencila-test-max_retries-a.txt; echo 0 > /tmp/stencila-test-max_retries-b.txt"]
   Setup -> StepA
 
-  StepA [cmd="N=$(cat /tmp/stencila-test-max_retries-a.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max_retries-a.txt; test $N -ge 2", goal_gate=true]
+  StepA [shell="N=$(cat /tmp/stencila-test-max_retries-a.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max_retries-a.txt; test $N -ge 2", goal_gate=true]
   StepA -> StepB
   StepA -> StepB [condition="outcome=fail"]
 
-  StepB [cmd="N=$(cat /tmp/stencila-test-max_retries-b.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max_retries-b.txt; test $N -ge 3", max_retries=3, goal_gate=true]
+  StepB [shell="N=$(cat /tmp/stencila-test-max_retries-b.txt); N=$((N+1)); echo $N > /tmp/stencila-test-max_retries-b.txt; test $N -ge 3", max_retries=3, goal_gate=true]
   StepB -> End
   StepB -> End [condition="outcome=fail"]
 }

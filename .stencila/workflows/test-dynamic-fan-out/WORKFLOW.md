@@ -9,19 +9,19 @@ Tests the `fan_out` attribute for dynamic parallel fan-out. A shell node produce
 digraph Workflow {
   Start -> Seed
 
-  Seed [cmd="echo '[\"alpha\",\"beta\",\"gamma\"]'", store="items"]
+  Seed [shell="echo '[\"alpha\",\"beta\",\"gamma\"]'", store="items"]
   Seed -> FanOut
 
   FanOut [fan_out="items"]
   FanOut -> Process
 
-  Process [cmd="printf '%s:%s/%s' '$fan_out.item' '$fan_out.index' '$fan_out.total'"]
+  Process [shell="printf '%s:%s/%s' '$fan_out.item' '$fan_out.index' '$fan_out.total'"]
   Process -> Merge
 
   Merge [shape=tripleoctagon]
   Merge -> Verify
 
-  Verify [cmd="echo '$parallel.outputs'"]
+  Verify [shell="echo '$parallel.outputs'"]
   Verify -> End
 }
 ```

@@ -60,7 +60,7 @@ When reviewing names, apply these conventions:
 - The graph is not missing obvious terminal or branching connections
 - Only the first `dot` block is relied on for execution; additional DOT blocks, if any, are treated as documentation and should not create ambiguity
 - When a node uses `workflow="name"`, treat it as a composed child workflow node and check that the composition boundary is clear and justified; this attribute is normalized to workflow-handler semantics rather than acting like a normal LLM, shell, or branch node
-- When a node uses `shape=component` or has a `FanOut…` prefix, check that it has multiple outgoing edges (a fan-out with a single branch is unnecessary) and that the branches converge at a downstream node (either an explicit `shape=tripleoctagon` / `FanIn…` node or a structural convergence); flag fan-out nodes with no plausible fan-in point
+- When a node uses a `FanOut…` node ID prefix, check that it has multiple outgoing edges (a fan-out with a single branch is unnecessary) and that the branches converge at a downstream node (either an explicit `FanIn…` prefix / `shape=tripleoctagon` node or a structural convergence); flag fan-out nodes with no plausible fan-in point
 
 ### Workflow Design Quality
 
@@ -68,7 +68,7 @@ When reviewing names, apply these conventions:
 - The workflow breaks non-trivial tasks into meaningful stages with clear outputs or decision points
 - Branches, loops, and approval gates are used only where they add value
 - Revision loops have a plausible feedback path rather than a vague cycle
-- Human review (`shape=human`) is used appropriately for approval, oversight, or trust-boundary decisions
+- Human review (via `ask` attribute) is used appropriately for approval, oversight, or trust-boundary decisions
 - Multi-question interviews via `interview-ref` are used appropriately — combining a routing decision with structured feedback in a single review pause, not overloading a single interview with unrelated questions that would be clearer as separate human nodes
 - When an interview uses `show-if`, check that the referenced `store` key belongs to an earlier question and the condition syntax is valid (`"store_key == value"` or `"store_key != value"`); flag `show-if` conditions that reference a `store` key from the same or a later question
 - When an interview uses `finish-if`, check that it is on a `yes-no`, `confirm`, or `single-select` question — `finish-if` is not supported on `freeform` or `multi-select` questions; verify that the early exit value makes sense for the interview flow and that questions after the gate are ones the user would genuinely want to skip
@@ -76,8 +76,8 @@ When reviewing names, apply these conventions:
 - Parent workflows should focus on orchestration, while child workflows should own detailed internal execution where that split improves clarity
 - Top-down design is a valid approach: a workflow may intentionally reference agents or child workflows that do not yet exist, planning to create them later. When a workflow appears to follow this pattern, evaluate the pipeline structure and stage responsibilities on their own merits rather than penalizing unresolved references; instead note which dependencies remain to be created
 - The workflow is no more complex than necessary for the task
-- When a workflow uses parallel fan-out (`shape=component` or `FanOut…` node ID prefix), check that: all branches are genuinely independent and do not depend on each other's output; branches reconverge at a clear fan-in point (either an explicit `shape=tripleoctagon` / `FanIn…` node or a structural convergence where all branches share a common downstream node); `join_policy`, `error_policy`, and `max_parallel` are appropriate for the task; and the fan-out is not used where a simple sequential pipeline would be clearer
-- When a workflow uses a sequential loop-and-check pattern to iterate over a collection of items, consider whether the items are independent — if so, note that parallel fan-out (`shape=component`) could improve throughput, but also note that parallel fan-out is static (the number of branches is fixed in the DOT graph) and cannot vary at runtime, so a sequential loop may still be the correct choice for variable-length lists
+- When a workflow uses parallel fan-out (`FanOut…` node ID prefix or the underlying `shape=component`), check that: all branches are genuinely independent and do not depend on each other's output; branches reconverge at a clear fan-in point (either an explicit `FanIn…` prefix / `shape=tripleoctagon` node or a structural convergence where all branches share a common downstream node); `join_policy`, `error_policy`, and `max_parallel` are appropriate for the task; and the fan-out is not used where a simple sequential pipeline would be clearer
+- When a workflow uses a sequential loop-and-check pattern to iterate over a collection of items, consider whether the items are independent — if so, note that parallel fan-out (`FanOut…` node ID prefix / `shape=component`) could improve throughput, but also note that parallel fan-out is static (the number of branches is fixed in the DOT graph) and cannot vary at runtime, so a sequential loop may still be the correct choice for variable-length lists
 
 ### Agents, Workflows, and Prompts
 

@@ -39,20 +39,22 @@ Key elements:
 
 # Nodes
 
-Every node represents a task in the pipeline. The node's `shape` determines what kind of task it is.
+Every node represents a task in the pipeline. The node's `shape` determines what kind of task it is. In practice, you rarely need to set `shape` explicitly — the [shorthand conventions](#shorthand-conventions) below (node ID prefixes and property shortcuts) cover most use cases and are more readable.
 
 ## Shapes
 
-| Shape           | Purpose             | Example                               |
-| --------------- | ------------------- | ------------------------------------- |
-| `box` (default) | LLM task            | `Analyze [prompt="Analyze the data"]` |
-| `hexagon`       | Human review gate   | `Review [shape=hexagon]`              |
-| `diamond`       | Conditional routing | `Check [shape=diamond]`               |
-| `component`     | Parallel fan-out    | `FanOut [shape=component]`            |
-| `tripleoctagon` | Parallel fan-in     | `FanIn [shape=tripleoctagon]`         |
-| `invtriangle`   | Explicit failure    | `Fail [shape=invtriangle]`            |
+The recommended approach is to use **node ID prefixes** (e.g. `Review`, `CheckQuality`, `FanOut`) or **property shortcuts** (e.g. `ask="..."`, `branch="..."`, `shell="..."`) instead of explicit `shape=` attributes. These shorthands are self-documenting and reduce boilerplate.
 
-You can also write `shape=human` as a shorthand for `shape=hexagon`.
+The table below shows the underlying shape mechanism for reference:
+
+| Shape           | Purpose             | Preferred form                                      |
+| --------------- | ------------------- | --------------------------------------------------- |
+| `box` (default) | LLM task            | `Analyze [prompt="Analyze the data"]`               |
+| `hexagon`       | Human review gate   | `Review [ask="Review the draft"]`                   |
+| `diamond`       | Conditional routing | `CheckQuality [branch="Meets criteria?"]`           |
+| `component`     | Parallel fan-out    | `FanOut [label="Search in parallel"]`               |
+| `tripleoctagon` | Parallel fan-in     | `FanIn [label="Collect results"]`                   |
+| `invtriangle`   | Explicit failure    | `Fail`                                              |
 
 ## Shorthand conventions
 
@@ -81,19 +83,19 @@ An explicit `shape` attribute always takes precedence over ID-based inference. I
 | ----------------------- | ------------------------------------------------- |
 | `ask="Do you approve?"` | `shape=hexagon, label="Do you approve?"`          |
 | `workflow="child"`      | `type="workflow"`                                 |
-| `cmd="make build"`      | `shape=parallelogram, shell_command="make build"` |
+| `shell="make build"`      | `shape=parallelogram, shell_command="make build"` |
 | `shell="cargo test"`    | `shape=parallelogram, shell_command="cargo test"` |
 | `branch="Quality OK?"`  | `shape=diamond, label="Quality OK?"`              |
 
 Additionally, a node with an `interview` attribute (typically set via `interview-ref`) is inferred as `shape=hexagon` (a human gate).
 
-Property shortcuts never override an explicitly set `shape`, `label`, `type`, or `shell_command`. All sugar keys (`ask`, `workflow`, `cmd`, `shell`, `branch`) are always normalized on the node, even when a higher-precedence shortcut wins.
+Property shortcuts never override an explicitly set `shape`, `label`, `type`, or `shell_command`. All sugar keys (`ask`, `workflow`, `shell`, `branch`) are always normalized on the node, even when a higher-precedence shortcut wins.
 
 ### Resolution order
 
 When a node has no explicit `shape`, the engine applies the first matching rule:
 
-1. **Property shortcuts** — `ask` > `cmd`/`shell` > `branch` (all consumed regardless of which wins)
+1. **Property shortcuts** — `ask` > `shell` > `branch` (all consumed regardless of which wins)
    - `workflow` is also treated as a property shortcut and normalized to a workflow handler node
 2. **`interview`** — node has an `interview` attribute (typically from `interview-ref`), inferred as human gate
 3. **`prompt` or `agent`** — node is an LLM task, prefix-based ID inference is skipped (structural IDs exempt)
@@ -183,7 +185,7 @@ digraph ParentWorkflow {
   Implement [workflow="code-implementation"]
   Implement -> Review
 
-  Review [shape=human]
+  Review [ask="Review the changes"]
   Review -> End       [label="Approve"]
   Review -> Implement [label="Revise"]
 }
@@ -463,11 +465,11 @@ digraph CitationCheck {
   Extract -> Verify
 
   Verify [prompt="Verify each citation against its source"]
-  Verify -> Check
+  Verify -> CheckCitations
 
-  Check [shape=diamond, label="All citations valid?"]
-  Check -> Finalize [label="Valid",   condition="outcome=success"]
-  Check -> Fix      [label="Invalid", condition="outcome!=success"]
+  CheckCitations [branch="All citations valid?"]
+  CheckCitations -> Finalize [label="Valid",   condition="outcome=success"]
+  CheckCitations -> Fix      [label="Invalid", condition="outcome!=success"]
 
   Fix [prompt="Fix invalid citations and find correct references"]
   Fix -> Verify
@@ -477,7 +479,7 @@ digraph CitationCheck {
 }
 ```
 
-The `diamond` shape creates a conditional routing point. The engine evaluates edge conditions against the current outcome and context to decide which path to take.
+The `Check` prefix and `branch` attribute both imply a conditional (diamond) routing point. The engine evaluates edge conditions against the current outcome and context to decide which path to take.
 
 ## Retry loops
 
@@ -543,7 +545,7 @@ If the pipeline reaches the exit node and any goal gate node has not succeeded, 
 
 ## Human-in-the-loop
 
-Use `shape=human` to create a gate that pauses for human input. The choices are derived from the node's outgoing edge labels:
+Use a `Review` (or `Approve`) node ID prefix, or the `ask` property shortcut, to create a gate that pauses for human input. The choices are derived from the node's outgoing edge labels:
 
 ```dot
 digraph PeerReview {
@@ -554,7 +556,7 @@ digraph PeerReview {
   Analyze [prompt="Analyze the experimental data and summarize results"]
   Analyze -> Review
 
-  Review [shape=human, label="Review the analysis"]
+  Review [ask="Review the analysis"]
   Review -> Publish [label="[A] Approve"]
   Review -> Analyze [label="[R] Revise"]
 
@@ -667,7 +669,7 @@ digraph SkillCreation {
   Review -> HumanDecision   [label="Accept", condition="outcome=success"]
   Review -> Create          [label="Revise", condition="outcome!=success"]
 
-  HumanDecision [shape=human, label="Is the skill acceptable?"]
+  HumanDecision [ask="Is the skill acceptable?"]
   HumanDecision -> End            [label="Accept"]
   HumanDecision -> HumanFeedback  [label="Revise"]
 
@@ -731,7 +733,7 @@ See [Creating Workflows — Multi-question interviews](creating#multi-question-i
 
 ## Parallel execution
 
-Fan out to multiple branches using `shape=component` (or a `FanOut…` node ID prefix) and collect results with a fan-in node. You can make the fan-in point explicit using `shape=tripleoctagon` or a `FanIn…` node ID prefix:
+Fan out to multiple branches using a `FanOut…` node ID prefix and collect results with a fan-in node. You can make the fan-in point explicit using a `FanIn…` node ID prefix. These prefixes imply `shape=component` and `shape=tripleoctagon` respectively, so you don't need to set the shape explicitly:
 
 ```dot
 digraph ParallelReview {
@@ -771,7 +773,7 @@ digraph PublicationWorkflow {
   Draft [workflow="paper-drafting"]
   Draft -> Review
 
-  Review [shape=human]
+  Review
   Review -> Publish [label="Approve"]
   Review -> Draft   [label="Revise"]
 
@@ -780,7 +782,7 @@ digraph PublicationWorkflow {
 }
 ```
 
-The parent graph stays focused on orchestration, while `paper-drafting` can own the internal research, outlining, drafting, and checking stages.
+The `Review` prefix alone implies a human gate — no `shape=` needed. The parent graph stays focused on orchestration, while `paper-drafting` can own the internal research, outlining, drafting, and checking stages.
 
 ## Overrides
 
@@ -847,7 +849,7 @@ digraph ResearchWorkflow {
   Analyze [prompt="Extract and synthesize key findings", class="deep_analysis", goal-gate=true]
   Analyze -> CheckQuality
 
-  CheckQuality [shape=diamond, label="Analysis meets quality criteria?"]
+  CheckQuality [branch="Analysis meets quality criteria?"]
   CheckQuality -> Review    [label="Pass", condition="outcome=success"]
   CheckQuality -> Analyze   [label="Fail", condition="outcome!=success"]
 

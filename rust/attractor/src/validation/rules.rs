@@ -662,7 +662,7 @@ impl LintRule for ShellCommandPresentRule {
                 message: format!("shell node `{}` has no shell_command attribute", n.id),
                 node_id: Some(n.id.clone()),
                 edge: None,
-                fix: Some("add shell_command=\"...\" or use the cmd/shell sugar attribute".into()),
+                fix: Some("add shell_command=\"...\" or use the shell sugar attribute".into()),
             })
             .collect()
     }

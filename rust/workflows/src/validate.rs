@@ -175,7 +175,7 @@ pub fn validate_workflow(
             Ok(mut graph) => {
                 // Apply transforms (sugar, variable expansion, stylesheet) so that
                 // validation sees the canonical node attributes. Without this, nodes
-                // using sugar attributes like `cmd` still appear as codergen nodes
+                // using sugar attributes like `shell` still appear as codergen nodes
                 // and trigger false-positive warnings.
                 let transforms = stencila_attractor::TransformRegistry::with_defaults();
                 if let Err(e) = transforms.apply_all(&mut graph) {

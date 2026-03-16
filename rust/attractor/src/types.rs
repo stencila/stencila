@@ -92,13 +92,13 @@ impl HandlerType {
     /// Unknown shapes (including [`Graph::CODERGEN_SHAPE`]) default to [`Codergen`](Self::Codergen).
     #[must_use]
     pub const fn from_shape(shape: &str) -> Self {
-        if const_str_eq(shape, "Mdiamond") {
+        if const_str_eq(shape, Graph::START_SHAPE) {
             Self::Start
-        } else if const_str_eq(shape, "Msquare") {
+        } else if const_str_eq(shape, Graph::EXIT_SHAPE) {
             Self::Exit
-        } else if const_str_eq(shape, "invtriangle") {
+        } else if const_str_eq(shape, Graph::FAIL_SHAPE) {
             Self::Fail
-        } else if const_str_eq(shape, Graph::HUMAN_SHAPE) || const_str_eq(shape, "human") {
+        } else if const_str_eq(shape, Graph::HUMAN_SHAPE) {
             Self::WaitHuman
         } else if const_str_eq(shape, Graph::CONDITIONAL_SHAPE) {
             Self::Conditional

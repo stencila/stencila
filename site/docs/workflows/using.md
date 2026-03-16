@@ -68,10 +68,10 @@ This shows the workflow name, description, goal, referenced agents, pipeline DOT
 
 ## Human-in-the-Loop
 
-When a pipeline reaches a human review gate (`shape=human` or `shape=hexagon`), it pauses and presents choices derived from the node's outgoing edge labels. For example:
+When a pipeline reaches a human review gate (a node with an `ask` attribute), it pauses and presents choices derived from the node's outgoing edge labels. For example:
 
 ```dot
-Review [shape=human, label="Review the release candidate"]
+Review [ask="Review the release candidate"]
 Review -> Publish [label="[A] Approve"]
 Review -> Design  [label="[R] Revise"]
 ```

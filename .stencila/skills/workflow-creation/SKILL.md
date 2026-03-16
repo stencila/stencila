@@ -125,14 +125,14 @@ Ephemeral status is not stored in frontmatter. It is determined by whether the w
 - When an `agent` node has multiple outgoing edges with labels, the engine provides routing instructions (via `workflow_set_route` tool or XML tag fallback). Give each outgoing edge a descriptive label (e.g., `Accept`, `Revise`, `Pass`, `Fail`) and the agent will signal its choice. Edge conditions take priority over preferred labels, so both mechanisms can coexist
 - In iterative workflows, prefer tool-based context retrieval (`workflow_get_output`, `workflow_get_context`) over `$last_output` / `$human.feedback` interpolation — this avoids bloating prompts with long prior outputs. Write prompts that say "check for reviewer feedback" instead of embedding variables inline. Reserve `$`-variable interpolation for short values (`$goal`, `$last_stage`) and for shell commands and edge conditions where tools are unavailable
 - Use edges to express sequencing, branching, retry loops, and approval paths
-- Use `shape=component` (or a node ID starting with `FanOut`) for parallel fan-out — all outgoing edges from the fan-out node execute concurrently and reconverge at a downstream fan-in point. Set `join_policy` (`wait_all` or `first_success`), `error_policy` (`fail_fast`, `continue`, or `ignore`), and `max_parallel` (default 4) as needed. The fan-in node is detected automatically by structural convergence or can be made explicit with `shape=tripleoctagon` (or a node ID starting with `FanIn`). Parallel fan-out is static: the number of branches is fixed in the DOT graph and cannot vary at runtime based on data produced by a prior node
+- Use a `FanOut…` node ID prefix for parallel fan-out — all outgoing edges from the fan-out node execute concurrently and reconverge at a downstream fan-in point. Set `join_policy` (`wait_all` or `first_success`), `error_policy` (`fail_fast`, `continue`, or `ignore`), and `max_parallel` (default 4) as needed. The fan-in node is detected automatically by structural convergence or can be made explicit with a `FanIn…` node ID prefix. Parallel fan-out is static: the number of branches is fixed in the DOT graph and cannot vary at runtime based on data produced by a prior node
 - Use `workflow="child-name"` on a node to run another workflow as a composed subprocess. Use `goal="..."` to pass an explicit child objective; if omitted, the child goal defaults to the node's resolved input (`prompt`, then `label`). Keep the parent focused on orchestration and the child on detailed execution; avoid composing trivial one-step tasks unless reuse is likely
 - Do not create direct or indirect composition cycles; workflow nesting should remain acyclic. Current validation rejects direct self-reference, and indirect cycles should also be avoided even if they are not yet detected statically
 - Prefer the house style of placing the entry edge near the top, then organizing each node as a block: node definition followed immediately by its outgoing edge or edges
 - Forward references to agents and child workflows are valid — see step 13 (Top-down design)
 - Prefer explicit agent selection over relying on the default agent fallback, unless the user wants a minimal draft. When a node has no `agent` attribute, the engine uses a default agent — note this to the user when it matters
 - Stencila resolves agent names in order: workspace agents → user-level agents → CLI-detected agents
-- Use `shape=human` for explicit human approval or review steps
+- Use the `ask` property for explicit human approval or review steps
 - Prefer `goal-hint` over `goal` for most workflows; see Optional frontmatter fields for the distinction
 - Keep the initial scaffold minimal and readable unless the user explicitly asks for a complex pipeline
 
@@ -370,7 +370,7 @@ digraph code_review {
   Test -> Review       [label="Pass", condition="outcome=success"]
   Test -> Build        [label="Fail", condition="outcome!=success"]
 
-  Review [shape=human]
+  Review [ask="Review the code changes"]
   Review -> End        [label="Approve"]
   Review -> Design     [label="Revise"]
 }
@@ -379,7 +379,7 @@ digraph code_review {
 
 ### Parallel fan-out
 
-Use `shape=component`, or `FanOut…` node ID prefix, to execute independent branches concurrently. Branches reconverge at a shared downstream node (the fan-in point), which can be made explicit using `shape=tripleoctagon` or a `FanIn…` node ID prefix. Use this pattern when the workflow has multiple independent tasks that do not depend on each other's output — for example, searching different sources, running independent analyses, or generating alternative candidates.
+Use a `FanOut…` node ID prefix to execute independent branches concurrently. Branches reconverge at a shared downstream node (the fan-in point), which can be made explicit with a `FanIn…` node ID prefix. Use this pattern when the workflow has multiple independent tasks that do not depend on each other's output — for example, searching different sources, running independent analyses, or generating alternative candidates.
 
 Note: parallel fan-out is static. The number of branches is fixed at graph-definition time by the outgoing edges in the DOT file. The engine does not support dynamic fan-out where the number of branches is determined at runtime from a list produced by a prior node. If you need to process a variable-length list of items, use a sequential loop with a conditional check node instead.
 
@@ -429,7 +429,7 @@ Design the workflow so that each stage makes visible progress toward the goal in
 - Use human approval when the workflow crosses a trust boundary such as publish, deploy, or accept consequential changes
 - If a stage does not change what the workflow knows, decides, or produces, it is usually unnecessary
 - Alternate generation and evaluation so later steps decide whether earlier work is good enough to continue
-- Use parallel fan-out (`shape=component`) when the workflow has independent tasks that can run concurrently, such as searching multiple sources or generating alternative approaches. Ensure all branches are truly independent — if one branch needs another's output, use sequential edges instead
+- Use parallel fan-out (via a `FanOut…` node ID prefix) when the workflow has independent tasks that can run concurrently, such as searching multiple sources or generating alternative approaches. Ensure all branches are truly independent — if one branch needs another's output, use sequential edges instead
 
 Common shapes by objective type (simplify or extend to fit the request):
 
@@ -472,7 +472,7 @@ digraph code_generation_iterative {
   Test -> Review   [label="Pass", condition="outcome=success"]
   Test -> Build    [label="Fail", condition="outcome!=success"]
 
-  Review [shape=human]
+  Review [ask="Review the implementation"]
   Review -> End    [label="Approve"]
   Review -> Design [label="Revise"]
 }

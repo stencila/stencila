@@ -13,7 +13,7 @@ A "kitchen sink" integration test that combines multiple pipeline concepts in on
 digraph Workflow {
   Start -> RunSetup
 
-  RunSetup [cmd="echo setup-complete"]
+  RunSetup [shell="echo setup-complete"]
   RunSetup -> FanOut
 
   FanOut [label="Fan out"]
@@ -29,7 +29,7 @@ digraph Workflow {
   Merge [prompt="Combine the words from parallel branches into a comma-separated list. Reply with ONLY the list."]
   Merge -> CheckQuality
 
-  CheckQuality [label="Check quality"]
+  CheckQuality [branch="Check quality"]
   CheckQuality -> ReviewResult  [label="Pass", condition="outcome=success"]
   CheckQuality -> BranchA       [label="Retry", condition="outcome!=success"]
 

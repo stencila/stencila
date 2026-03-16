@@ -170,7 +170,7 @@ digraph code_review {
   Test -> Review [label="Pass", condition="outcome=success"]
   Test -> Build  [label="Fail", condition="outcome!=success"]
 
-  Review [shape=human]
+  Review [ask="Review the code changes"]
   Review -> End    [label="[A] Approve"]
   Review -> Design [label="[R] Revise"]
 }
@@ -497,7 +497,7 @@ digraph code_generation {
   Implement [workflow="code-implementation"]
   Implement -> Review
 
-  Review [shape=human]
+  Review [ask="Review the implementation"]
   Review -> End      [label="Approve"]
   Review -> Implement [label="Revise"]
 }
@@ -525,7 +525,7 @@ digraph code_review_composed {
   Implement [workflow="code-implementation"]
   Implement -> Review
 
-  Review [shape=human]
+  Review [ask="Review the implementation"]
   Review -> End       [label="Approve"]
   Review -> Implement [label="Revise"]
 }
