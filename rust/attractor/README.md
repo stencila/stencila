@@ -184,6 +184,30 @@ Each question's answer is stored under its `store` key. Routing is driven by the
 
 When an interview has no `single-select` question, the handler follows the first outgoing edge (same as `question_type="freeform"` for single-question nodes).
 
+### Shell output storage (`store` and `store_as` attributes)
+
+The `store` attribute on a shell node writes the command's trimmed stdout into the pipeline context under the specified key, in addition to the standard `shell.output` and `last_output_full` keys. This enables shell nodes to produce structured data (JSON arrays, objects) that downstream nodes — including dynamic `fan_out` — can consume as typed values.
+
+By default, the handler attempts to parse the output as JSON and falls back to storing it as a plain string. The `store_as` attribute overrides this behavior:
+
+| `store_as` | Behavior |
+|---|---|
+| _(absent)_ | Try JSON parse; fall back to string |
+| `"json"` | JSON parse; fail the node if output is not valid JSON |
+| `"string"` | Always store as a string, no JSON parsing |
+
+```dot
+Seed [cmd="echo '[\"alpha\",\"beta\",\"gamma\"]'", store="items"]
+Seed -> FanOut
+
+FanOut [fan_out="items"]
+```
+
+In this example, `Seed` outputs a JSON array. Because `store_as` is absent, the handler parses it as JSON and stores a `Value::Array` under the `items` context key. The `FanOut` node then reads `items` as a real JSON array for dynamic fan-out.
+
+For plain text output (`echo hello`), JSON parsing fails silently and the value is stored as a `Value::String`. To force string storage even for output that happens to be valid JSON (e.g., `echo 42`), use `store_as="string"`.
+
+
 ### Generic context variable expansion (`$KEY`)
 
 In addition to the built-in `$last_output`, `$last_stage`, and `$last_outcome` runtime variables, the codergen handler expands `$KEY` references against the pipeline context at execution time:

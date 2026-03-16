@@ -668,3 +668,144 @@ async fn shell_end_to_end() -> AttractorResult<()> {
     assert_eq!(outcome.status, StageStatus::Success);
     Ok(())
 }
+
+// ===========================================================================
+// Shell handler: store / store_as attribute
+// ===========================================================================
+
+#[tokio::test]
+async fn shell_store_json_array_auto_parsed() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("seed");
+    node.attrs.insert(
+        "shell_command".into(),
+        AttrValue::from(r#"echo '["alpha","beta","gamma"]'"#),
+    );
+    node.attrs
+        .insert("store".into(), AttrValue::from("my_items"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome.context_updates.get("my_items");
+    assert!(stored.is_some(), "store key should be in context_updates");
+    let arr = stored.and_then(|v| v.as_array());
+    assert!(arr.is_some(), "value should be a JSON array");
+    assert_eq!(arr.map(Vec::len), Some(3));
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_store_plain_text_fallback() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("greet");
+    node.attrs
+        .insert("shell_command".into(), AttrValue::from("echo hello world"));
+    node.attrs
+        .insert("store".into(), AttrValue::from("greeting"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome.context_updates.get("greeting");
+    assert_eq!(
+        stored,
+        Some(&serde_json::Value::String("hello world".into())),
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_store_as_json_valid() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("seed");
+    node.attrs.insert(
+        "shell_command".into(),
+        AttrValue::from(r#"echo '{"name":"rust"}'"#),
+    );
+    node.attrs
+        .insert("store".into(), AttrValue::from("item"));
+    node.attrs
+        .insert("store_as".into(), AttrValue::from("json"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome.context_updates.get("item");
+    assert!(stored.is_some());
+    let obj = stored.and_then(|v| v.as_object());
+    assert!(obj.is_some(), "value should be a JSON object");
+    assert_eq!(
+        obj.and_then(|o| o.get("name")).and_then(|v| v.as_str()),
+        Some("rust"),
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_store_as_json_invalid_fails() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("bad");
+    node.attrs
+        .insert("shell_command".into(), AttrValue::from("echo not-json"));
+    node.attrs
+        .insert("store".into(), AttrValue::from("item"));
+    node.attrs
+        .insert("store_as".into(), AttrValue::from("json"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Fail);
+    assert!(outcome.failure_reason.contains("store_as=json"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_store_as_string_skips_parsing() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("num");
+    node.attrs
+        .insert("shell_command".into(), AttrValue::from("echo 42"));
+    node.attrs
+        .insert("store".into(), AttrValue::from("count"));
+    node.attrs
+        .insert("store_as".into(), AttrValue::from("string"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome.context_updates.get("count");
+    assert_eq!(stored, Some(&serde_json::Value::String("42".into())));
+    Ok(())
+}
+
+#[tokio::test]
+async fn shell_store_auto_parses_number() -> AttractorResult<()> {
+    let handler = ShellHandler::new();
+    let mut node = Node::new("num");
+    node.attrs
+        .insert("shell_command".into(), AttrValue::from("echo 42"));
+    node.attrs
+        .insert("store".into(), AttrValue::from("count"));
+    let ctx = Context::new();
+    let g = Graph::new("test");
+
+    let outcome = handler.execute(&node, &ctx, &g).await?;
+    assert_eq!(outcome.status, StageStatus::Success);
+
+    let stored = outcome.context_updates.get("count");
+    assert_eq!(
+        stored,
+        Some(&serde_json::Value::Number(serde_json::Number::from(42))),
+    );
+    Ok(())
+}

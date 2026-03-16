@@ -104,8 +104,35 @@ impl Handler for ShellHandler {
                     let mut outcome = build_output_outcome(&node.id, &stdout, context);
                     outcome.context_updates.insert(
                         "shell.output".to_string(),
-                        serde_json::Value::String(stdout),
+                        serde_json::Value::String(stdout.clone()),
                     );
+
+                    // Optional `store` attribute: write the output to a
+                    // named context key. `store_as` controls parsing:
+                    //   - absent  → try JSON, fall back to string
+                    //   - "json"  → JSON parse; fail if invalid
+                    //   - "string"→ always store as string
+                    if let Some(store_key) = node.get_str_attr("store") {
+                        let store_as = node.get_str_attr("store_as").unwrap_or("");
+                        let stored_value = match store_as {
+                            "string" => serde_json::Value::String(stdout),
+                            "json" => match serde_json::from_str::<serde_json::Value>(&stdout) {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    return Ok(Outcome::fail(format!(
+                                        "node '{}': store_as=json but output is not valid JSON: {e}",
+                                        node.id
+                                    )));
+                                }
+                            },
+                            _ => serde_json::from_str::<serde_json::Value>(&stdout)
+                                .unwrap_or_else(|_| serde_json::Value::String(stdout)),
+                        };
+                        outcome
+                            .context_updates
+                            .insert(store_key.to_string(), stored_value);
+                    }
+
                     Ok(outcome)
                 } else {
                     Ok(Outcome::fail(format!(
