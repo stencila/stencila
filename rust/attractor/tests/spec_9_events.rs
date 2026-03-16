@@ -36,6 +36,7 @@ fn event_all_categories_exist() {
     };
     let _parallel = PipelineEvent::ParallelStarted {
         node_id: "n".into(),
+        dynamic_item_count: None,
     };
     let _interview = PipelineEvent::InterviewQuestionAsked {
         interview_id: "int-1".into(),

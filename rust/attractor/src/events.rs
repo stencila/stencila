@@ -115,6 +115,9 @@ pub enum PipelineEvent {
     ParallelStarted {
         /// Node ID of the parallel node.
         node_id: String,
+        /// For dynamic fan-out, the number of items in the source list.
+        /// `None` for static fan-out.
+        dynamic_item_count: Option<usize>,
     },
     /// A parallel branch has started.
     ParallelBranchStarted {

@@ -13,6 +13,7 @@ use async_trait::async_trait;
 use futures::StreamExt;
 use futures::stream::FuturesUnordered;
 use indexmap::IndexMap;
+use inflector::Inflector;
 
 use tokio::sync::Semaphore;
 
@@ -20,7 +21,7 @@ use crate::context::Context;
 use crate::edge_selection::select_edge;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
-use crate::graph::{Graph, Node};
+use crate::graph::{AttrValue, Graph, Node};
 use crate::handler::{Handler, HandlerRegistry};
 use crate::retry::{build_retry_policy, execute_with_retry};
 use crate::types::{HandlerType, Outcome, StageStatus};
@@ -74,6 +75,23 @@ struct ParallelPolicies {
     max_parallel: usize,
 }
 
+/// Resolve join, error, and max-parallel policies from node attributes.
+fn resolve_policies(node: &Node) -> ParallelPolicies {
+    ParallelPolicies {
+        join: JoinPolicy::from_str_or_default(node.get_str_attr("join_policy")),
+        error: ErrorPolicy::from_str_or_default(node.get_str_attr("error_policy")),
+        max_parallel: node
+            .get_attr("max_parallel")
+            .and_then(|v| match v {
+                AttrValue::Integer(n) => usize::try_from(*n).ok(),
+                AttrValue::String(s) => s.parse::<usize>().ok(),
+                _ => None,
+            })
+            .unwrap_or(DEFAULT_MAX_PARALLEL)
+            .max(1),
+    }
+}
+
 /// Result of a single parallel branch execution.
 #[derive(Debug, Clone)]
 pub struct BranchResult {
@@ -81,6 +99,14 @@ pub struct BranchResult {
     pub target: String,
     /// The outcome of executing this branch.
     pub outcome: Outcome,
+    /// The `last_output_full` value from the branch context after execution,
+    /// if available. Used to populate `parallel.outputs`.
+    pub output: Option<String>,
+    /// The original submission index of this branch. For dynamic fan-out,
+    /// this is the zero-based index into the source list. For static
+    /// fan-out, this is the edge index. Used to restore submission order
+    /// after `FuturesUnordered` yields results in completion order.
+    pub index: usize,
 }
 
 /// Handler for parallel fan-out nodes.
@@ -117,24 +143,17 @@ impl Handler for ParallelHandler {
         context: &Context,
         graph: &Graph,
     ) -> AttractorResult<Outcome> {
+        // Check for dynamic fan-out attribute
+        if node.attrs.contains_key("fan_out") {
+            return self.execute_dynamic(node, context, graph).await;
+        }
+
         let edges = graph.outgoing_edges(&node.id);
         if edges.is_empty() {
             return Ok(Outcome::fail("parallel node has no outgoing edges"));
         }
 
-        let policies = ParallelPolicies {
-            join: JoinPolicy::from_str_or_default(node.get_str_attr("join_policy")),
-            error: ErrorPolicy::from_str_or_default(node.get_str_attr("error_policy")),
-            max_parallel: node
-                .get_attr("max_parallel")
-                .and_then(|v| match v {
-                    crate::graph::AttrValue::Integer(n) => usize::try_from(*n).ok(),
-                    crate::graph::AttrValue::String(s) => s.parse::<usize>().ok(),
-                    _ => None,
-                })
-                .unwrap_or(DEFAULT_MAX_PARALLEL)
-                .max(1),
-        };
+        let policies = resolve_policies(node);
 
         // Compute the structural fan-in node before launching branches so
         // that (a) branches can stop when they reach it, and (b) the engine
@@ -147,9 +166,10 @@ impl Handler for ParallelHandler {
 
         self.emitter.emit(PipelineEvent::ParallelStarted {
             node_id: node.id.clone(),
+            dynamic_item_count: None,
         });
 
-        let branch_results = self
+        let mut branch_results = self
             .run_branches(
                 &node.id,
                 &edges,
@@ -160,9 +180,26 @@ impl Handler for ParallelHandler {
             )
             .await;
 
+        // Sort by submission index for deterministic ordering
+        branch_results.sort_by_key(|br| br.index);
+
         self.emitter.emit(PipelineEvent::ParallelCompleted {
             node_id: node.id.clone(),
         });
+
+        // Build parallel.outputs from all branch results (before error filtering)
+        let outputs_json: Vec<serde_json::Value> = branch_results
+            .iter()
+            .map(|br| {
+                br.output.as_ref().map_or(serde_json::Value::Null, |s| {
+                    serde_json::Value::String(s.clone())
+                })
+            })
+            .collect();
+        context.set(
+            format!("{}.outputs", HandlerType::Parallel),
+            serde_json::Value::Array(outputs_json),
+        );
 
         // Store results in context for downstream fan-in.
         // When error_policy is Ignore, filter to successful results only
@@ -324,6 +361,366 @@ fn find_fan_in_node(
     best.map(|(id, _)| id)
 }
 
+/// Find the fan-in node for a dynamic fan-out using forward BFS from the
+/// template entry node.
+///
+/// Unlike [`find_fan_in_node`] which requires multi-branch convergence,
+/// this function searches for the first explicit `parallel.fan_in`
+/// (`tripleoctagon`) node reachable from `template_entry_id`. Dynamic
+/// fan-out has only one outgoing edge, so structural convergence detection
+/// (reachable from ≥2 branches) does not apply.
+fn find_dynamic_fan_in_node(graph: &Graph, template_entry_id: &str) -> Option<String> {
+    let mut visited = HashSet::new();
+    let mut queue = VecDeque::new();
+    queue.push_back(template_entry_id.to_string());
+
+    while let Some(current) = queue.pop_front() {
+        if !visited.insert(current.clone()) {
+            continue;
+        }
+
+        if let Some(node) = graph.get_node(&current)
+            && node.handler_type() == HandlerType::ParallelFanIn
+        {
+            return Some(current);
+        }
+
+        for edge in graph.outgoing_edges(&current) {
+            if !visited.contains(&edge.to) {
+                queue.push_back(edge.to.clone());
+            }
+        }
+    }
+
+    None
+}
+
+/// Find the first successor of a fan-in node by examining its outgoing edges.
+///
+/// Used by the empty-list bypass to skip the fan-in node and jump directly
+/// to its successor.
+fn find_fan_in_successor(graph: &Graph, fan_in_id: &str) -> Option<String> {
+    graph
+        .outgoing_edges(fan_in_id)
+        .first()
+        .map(|e| e.to.clone())
+}
+
+/// Return a human-readable type name for a JSON value.
+fn json_type_name(value: &serde_json::Value) -> &'static str {
+    match value {
+        serde_json::Value::Null => "null",
+        serde_json::Value::Bool(_) => "boolean",
+        serde_json::Value::Number(_) => "number",
+        serde_json::Value::String(_) => "string",
+        serde_json::Value::Array(_) => "array",
+        serde_json::Value::Object(_) => "object",
+    }
+}
+
+impl ParallelHandler {
+    /// Execute a dynamic fan-out over a runtime-determined list.
+    #[allow(clippy::too_many_lines)]
+    async fn execute_dynamic(
+        &self,
+        node: &Node,
+        context: &Context,
+        graph: &Graph,
+    ) -> AttractorResult<Outcome> {
+        let edges = graph.outgoing_edges(&node.id);
+        if edges.is_empty() {
+            return Ok(Outcome::fail(
+                "dynamic fan-out node has no outgoing edges; exactly 1 is required",
+            ));
+        }
+        if edges.len() > 1 {
+            return Ok(Outcome::fail(format!(
+                "dynamic fan-out node `{}` has {} outgoing edges; exactly 1 is required",
+                node.id,
+                edges.len()
+            )));
+        }
+
+        // Resolve the context key from the fan_out attribute
+        let context_key = match node.get_attr("fan_out") {
+            Some(AttrValue::Boolean(false)) => {
+                return Ok(Outcome::fail(format!(
+                    "dynamic fan-out on node '{}': fan_out=false is not valid; use fan_out=true or fan_out=\"key\"",
+                    node.id
+                )));
+            }
+            Some(AttrValue::Boolean(true)) => {
+                // Derive context key from node ID in snake_case
+                node.id.to_snake_case()
+            }
+            Some(AttrValue::String(s)) if s == "true" => {
+                // fan_out="true" (quoted) treated same as fan_out=true (unquoted)
+                node.id.to_snake_case()
+            }
+            Some(AttrValue::String(key)) => key.clone(),
+            Some(other) => {
+                return Ok(Outcome::fail(format!(
+                    "dynamic fan-out on node '{}': fan_out attribute has unsupported type '{}'",
+                    node.id,
+                    other.type_name()
+                )));
+            }
+            None => {
+                return Ok(Outcome::fail(format!(
+                    "dynamic fan-out on node '{}': fan_out attribute is missing",
+                    node.id
+                )));
+            }
+        };
+
+        // Resolve the list from context
+        let items = match context.get(&context_key) {
+            Some(serde_json::Value::Array(arr)) => arr,
+            Some(other) => {
+                return Ok(Outcome::fail(format!(
+                    "dynamic fan-out on node '{}': context key '{}' resolved to {}, expected Array",
+                    node.id,
+                    context_key,
+                    json_type_name(&other)
+                )));
+            }
+            None => {
+                return Ok(Outcome::fail(format!(
+                    "dynamic fan-out on node '{}': context key '{}' not found in context",
+                    node.id, context_key
+                )));
+            }
+        };
+
+        let template_entry_id = edges[0].to.clone();
+        let fan_in_id = find_dynamic_fan_in_node(graph, &template_entry_id);
+        let policies = resolve_policies(node);
+
+        // Empty-list bypass: skip the fan-in node entirely
+        if items.is_empty() {
+            context.set(
+                format!("{}.results", HandlerType::Parallel),
+                serde_json::Value::Array(vec![]),
+            );
+            context.set(
+                format!("{}.outputs", HandlerType::Parallel),
+                serde_json::Value::Array(vec![]),
+            );
+
+            let mut outcome = Outcome::success();
+            outcome.notes = "dynamic fan-out: 0 items, nothing to execute".into();
+
+            // Jump past the fan-in node to its successor
+            outcome.jump_target = if let Some(ref fi_id) = fan_in_id {
+                find_fan_in_successor(graph, fi_id).or(fan_in_id.clone())
+            } else {
+                None
+            };
+
+            // Write success/fail counts
+            let mut updates = IndexMap::new();
+            updates.insert(
+                format!("{}.success_count", HandlerType::Parallel),
+                serde_json::Value::Number(0.into()),
+            );
+            updates.insert(
+                format!("{}.fail_count", HandlerType::Parallel),
+                serde_json::Value::Number(0.into()),
+            );
+            outcome.context_updates = updates;
+
+            return Ok(outcome);
+        }
+
+        let item_count = items.len();
+
+        self.emitter.emit(PipelineEvent::ParallelStarted {
+            node_id: node.id.clone(),
+            dynamic_item_count: Some(item_count),
+        });
+
+        let mut branch_results = self
+            .run_dynamic_branches(
+                &node.id,
+                &template_entry_id,
+                &items,
+                &context_key,
+                context,
+                graph,
+                &policies,
+                fan_in_id.as_deref(),
+            )
+            .await;
+
+        // Sort by submission index for deterministic ordering
+        branch_results.sort_by_key(|br| br.index);
+
+        self.emitter.emit(PipelineEvent::ParallelCompleted {
+            node_id: node.id.clone(),
+        });
+
+        // Build parallel.outputs indexed by original fan-out position.
+        // Initialize with null for every source item so that even when
+        // branches are missing (e.g. fail_fast early exit) the array stays
+        // aligned to the source list: outputs[i] corresponds to item i.
+        let mut outputs_json: Vec<serde_json::Value> = vec![serde_json::Value::Null; item_count];
+        for br in &branch_results {
+            if br.index < outputs_json.len() {
+                outputs_json[br.index] = br.output.as_ref().map_or(serde_json::Value::Null, |s| {
+                    serde_json::Value::String(s.clone())
+                });
+            }
+        }
+        context.set(
+            format!("{}.outputs", HandlerType::Parallel),
+            serde_json::Value::Array(outputs_json),
+        );
+
+        // Store results in context with dynamic fan-out metadata
+        let results_json: Vec<serde_json::Value> = branch_results
+            .iter()
+            .filter(|br| policies.error != ErrorPolicy::Ignore || br.outcome.status.is_success())
+            .map(|br| {
+                serde_json::json!({
+                    "target": br.target,
+                    "outcome": br.outcome.status.as_str(),
+                    "notes": br.outcome.notes,
+                    "fan_out_index": br.index,
+                    "fan_out_item": items.get(br.index).unwrap_or(&serde_json::Value::Null),
+                })
+            })
+            .collect();
+        context.set(
+            format!("{}.results", HandlerType::Parallel),
+            serde_json::Value::Array(results_json),
+        );
+
+        let mut outcome = evaluate_join(&branch_results, policies.join, policies.error);
+        outcome.jump_target = fan_in_id;
+
+        Ok(outcome)
+    }
+
+    /// Spawn dynamic branches over a list of items, each starting at
+    /// `template_entry_id` with per-item context injection.
+    #[allow(clippy::too_many_arguments)]
+    async fn run_dynamic_branches(
+        &self,
+        parallel_node_id: &str,
+        template_entry_id: &str,
+        items: &[serde_json::Value],
+        context_key: &str,
+        context: &Context,
+        graph: &Graph,
+        policies: &ParallelPolicies,
+        fan_in_id: Option<&str>,
+    ) -> Vec<BranchResult> {
+        let semaphore = Arc::new(Semaphore::new(policies.max_parallel));
+        let fan_in_id: Arc<Option<String>> = Arc::new(fan_in_id.map(String::from));
+        let total = items.len();
+
+        let futs: FuturesUnordered<_> = items
+            .iter()
+            .enumerate()
+            .map(|(idx, item)| {
+                let target_id = template_entry_id.to_string();
+                let parent_id = parallel_node_id.to_string();
+                let branch_context = context.deep_clone();
+
+                // Inject per-item context keys
+                branch_context.set("fan_out.item", item.clone());
+                branch_context.set(
+                    "fan_out.index",
+                    serde_json::Value::Number(serde_json::Number::from(idx)),
+                );
+                branch_context.set(
+                    "fan_out.total",
+                    serde_json::Value::Number(serde_json::Number::from(total)),
+                );
+                branch_context.set(
+                    "fan_out.key",
+                    serde_json::Value::String(context_key.to_string()),
+                );
+
+                // Object property flattening: top-level properties of object items
+                if let serde_json::Value::Object(map) = item {
+                    for (prop, val) in map {
+                        branch_context.set(format!("fan_out.item.{prop}"), val.clone());
+                    }
+                }
+
+                let registry = Arc::clone(&self.registry);
+                let emitter = Arc::clone(&self.emitter);
+                let graph = graph.clone();
+                let sem = Arc::clone(&semaphore);
+                let fan_in_id = Arc::clone(&fan_in_id);
+
+                async move {
+                    let Ok(_permit) = sem.acquire_owned().await else {
+                        return BranchResult {
+                            target: target_id,
+                            outcome: Outcome::fail("concurrency semaphore closed"),
+                            output: None,
+                            index: idx,
+                        };
+                    };
+
+                    emitter.emit(PipelineEvent::ParallelBranchStarted {
+                        node_id: parent_id.clone(),
+                        branch_index: idx,
+                    });
+
+                    let result = execute_branch_subgraph(
+                        &target_id,
+                        &branch_context,
+                        &graph,
+                        &registry,
+                        fan_in_id.as_deref(),
+                    )
+                    .await;
+
+                    let output = {
+                        let s = branch_context.get_string("last_output_full");
+                        if s.is_empty() { None } else { Some(s) }
+                    };
+
+                    let branch_result = match result {
+                        Ok(outcome) => BranchResult {
+                            target: target_id,
+                            outcome,
+                            output,
+                            index: idx,
+                        },
+                        Err(e) => BranchResult {
+                            target: target_id,
+                            outcome: Outcome::fail(e.to_string()),
+                            output,
+                            index: idx,
+                        },
+                    };
+
+                    if branch_result.outcome.status == StageStatus::Fail {
+                        emitter.emit(PipelineEvent::ParallelBranchFailed {
+                            node_id: parent_id.clone(),
+                            branch_index: idx,
+                            reason: branch_result.outcome.failure_reason.clone(),
+                        });
+                    } else {
+                        emitter.emit(PipelineEvent::ParallelBranchCompleted {
+                            node_id: parent_id,
+                            branch_index: idx,
+                        });
+                    }
+
+                    branch_result
+                }
+            })
+            .collect();
+
+        drain_with_policy(futs, policies.join, policies.error).await
+    }
+}
+
 impl ParallelHandler {
     /// Execute all branches concurrently with policy-driven completion.
     ///
@@ -366,6 +763,8 @@ impl ParallelHandler {
                         return BranchResult {
                             target: target_id,
                             outcome: Outcome::fail("concurrency semaphore closed"),
+                            output: None,
+                            index: idx,
                         };
                     };
 
@@ -383,14 +782,23 @@ impl ParallelHandler {
                     )
                     .await;
 
+                    let output = {
+                        let s = branch_context.get_string("last_output_full");
+                        if s.is_empty() { None } else { Some(s) }
+                    };
+
                     let branch_result = match result {
                         Ok(outcome) => BranchResult {
                             target: target_id,
                             outcome,
+                            output,
+                            index: idx,
                         },
                         Err(e) => BranchResult {
                             target: target_id,
                             outcome: Outcome::fail(e.to_string()),
+                            output,
+                            index: idx,
                         },
                     };
 

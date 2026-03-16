@@ -291,7 +291,7 @@ impl EventEmitter for ProgressEventEmitter {
                 }
             }
 
-            PipelineEvent::ParallelStarted { ref node_id } => {
+            PipelineEvent::ParallelStarted { ref node_id, .. } => {
                 eprintln!("{}", color("2", &format!("║ parallel started: {node_id}")));
             }
             PipelineEvent::ParallelCompleted { ref node_id } => {
@@ -551,7 +551,7 @@ impl EventEmitter for VerboseEventEmitter {
 
             PipelineEvent::CheckpointSaved { .. } => {}
 
-            PipelineEvent::ParallelStarted { ref node_id } => {
+            PipelineEvent::ParallelStarted { ref node_id, .. } => {
                 let indent = indent_prefix(state.depth);
                 eprintln!("{indent}│  ║ parallel started: {node_id}");
             }

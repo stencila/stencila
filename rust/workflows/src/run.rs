@@ -1124,7 +1124,7 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
             PipelineEvent::CheckpointSaved { node_id } => {
                 eprintln!("[checkpoint] Saved at: {node_id}");
             }
-            PipelineEvent::ParallelStarted { node_id } => {
+            PipelineEvent::ParallelStarted { node_id, .. } => {
                 eprintln!("[parallel] Started: {node_id}");
             }
             PipelineEvent::ParallelCompleted { node_id } => {

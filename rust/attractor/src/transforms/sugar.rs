@@ -17,12 +17,15 @@
 //!    regardless of which one wins, so they never leak into the graph.
 //! 2. **`interview`** — if the `interview` attribute is present, the node
 //!    is a human gate (`hexagon`), supporting multi-question interviews.
-//! 3. **`prompt` / `agent`** — if either is present the node is an LLM
+//! 3. **`fan_out`** — if present, the node is a parallel fan-out
+//!    (`component`). Unlike other sugar keys, `fan_out` is **not** drained
+//!    because the `ParallelHandler` reads it at runtime.
+//! 4. **`prompt` / `agent`** — if either is present the node is an LLM
 //!    task (`box`), overriding prefix-based ID inference. Reserved
 //!    structural IDs (`Start`/`End`/`Fail`) are exempt — they always
 //!    get their structural shape because `Node::handler_type()` treats
 //!    them specially even when shape is `box`.
-//! 4. **Node ID** — exact or prefix match maps to a shape.
+//! 5. **Node ID** — exact or prefix match maps to a shape.
 //!
 //! An explicit `shape` attribute always wins over all of the above.
 //!
@@ -163,6 +166,17 @@ impl Transform for NodeSugarTransform {
                 node.attrs.insert(
                     "shape".to_string(),
                     AttrValue::String(Graph::HUMAN_SHAPE.into()),
+                );
+                continue;
+            }
+
+            // `fan_out` implies parallel fan-out node (component shape).
+            // Unlike other sugar keys, `fan_out` is NOT drained — it must
+            // remain on the node for the `ParallelHandler` to read at runtime.
+            if node.attrs.contains_key("fan_out") && !has_shape {
+                node.attrs.insert(
+                    "shape".to_string(),
+                    AttrValue::String(Graph::PARALLEL_SHAPE.into()),
                 );
                 continue;
             }

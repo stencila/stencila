@@ -196,6 +196,40 @@ KEY may contain letters, digits, underscores, and dots (e.g., `$human.feedback`,
 
 This enables the end-to-end human feedback pattern: a freeform `wait.human` node stores feedback with `store="human.feedback"`, and a subsequent codergen node interpolates it with `$human.feedback`.
 
+### Dynamic parallel fan-out (`fan_out` attribute)
+
+The attractor spec's parallel fan-out (§4.8) is **static**: the number of concurrent branches is fixed at graph-definition time by the outgoing edges. The `fan_out` node attribute adds a dynamic fan-out mechanism where the branch count is determined at runtime from a variable-length list in the pipeline context.
+
+A node with `fan_out` must have exactly one outgoing edge pointing to the template entry node. The engine spawns one concurrent branch per list item, each executing the same downstream subgraph with per-item context injection:
+
+```dot
+FanOutSkills [fan_out="llm.skills"]
+FanOutSkills -> ProcessSkill
+ProcessSkill -> Merge [shape=tripleoctagon]
+```
+
+| Attribute form | Behavior |
+|---|---|
+| `fan_out="key"` | Resolve context key `key` as a JSON array |
+| `fan_out=true` | Derive key from node ID in snake_case (e.g., `FanOutSkills` → `fan_out_skills`) |
+| `fan_out=false` | Runtime error (configuration mistake) |
+
+Each branch receives an isolated context clone with these injected keys:
+
+| Context key | Value |
+|---|---|
+| `fan_out.item` | The current item (any JSON value) |
+| `fan_out.index` | Zero-based index into the source list |
+| `fan_out.total` | Total number of items |
+| `fan_out.key` | The resolved context key |
+| `fan_out.item.<prop>` | Top-level properties of object items (enables `$fan_out.item.name` interpolation) |
+
+The `fan_out` attribute implies `shape=component` in the sugar transform (placed after `interview` and before `prompt`/`agent` in precedence). Unlike other sugar keys, `fan_out` is **not** drained — it remains on the node for the `ParallelHandler` to read at runtime.
+
+After all branches complete, results are aggregated into `parallel.results` (with `fan_out_index` and `fan_out_item` fields per entry) and `parallel.outputs` (a JSON array of branch outputs indexed by source position). Existing `join_policy`, `error_policy`, and `max_parallel` semantics apply unchanged.
+
+For empty lists, the handler sets empty `parallel.results` and `parallel.outputs`, then jumps past the fan-in node to its successor. Three validation rules enforce correctness: `dynamic_fan_out` (exactly one outgoing edge), `dynamic_fan_out_missing_fan_in` (warn if no `tripleoctagon` fan-in is reachable), and `nested_dynamic_fan_out` (reject dynamic fan-out inside another dynamic fan-out's template subgraph).
+
 ### Outcome status-file compatibility alias
 
 Outcome deserialization accepts both `preferred_next_label` (spec field name) and `preferred_label` as input keys for compatibility with legacy/external status producers.
@@ -384,6 +418,7 @@ Test files map to spec sections. See `tests/README.md` for details and `tests/sp
 | `tests/spec_3_engine.rs`    | §3.1–3.8, §4.1–4.4 | Edge selection, engine core, retry, basic handlers    |
 | `tests/spec_4_handlers.rs`  | §4.5, §4.10        | Codergen handler, shell handler, `$KEY` expansion |
 | `tests/spec_4_parallel.rs`  | §4.8–4.9           | Parallel fan-out, fan-in, join/error policies         |
+| `tests/spec_4_dynamic_fan_out.rs` | §4.8 (ext)   | Dynamic fan-out: runtime list resolution, per-item context, validation |
 | `tests/spec_5_state.rs`     | §5.3–5.5           | Artifacts, fidelity, thread IDs, checkpoint resume    |
 | `tests/spec_6_human.rs`     | §4.6, §6           | Interviewers, WaitForHuman handler, accelerator keys, `question_type`, `store` |
 | `tests/spec_7_validation.rs`| §7                  | Validation and lint rules                             |

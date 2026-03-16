@@ -28,6 +28,9 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(PromptOnLlmNodesRule),
         Box::new(ShellCommandPresentRule),
         Box::new(InterviewSpecRule),
+        Box::new(DynamicFanOutRule),
+        Box::new(DynamicFanOutMissingFanInRule),
+        Box::new(NestedDynamicFanOutRule),
     ]
 }
 
@@ -815,6 +818,195 @@ impl LintRule for InterviewSpecRule {
                         fix: Some(
                             "add a single-select question for routing, or reduce to one \
                              outgoing edge"
+                                .into(),
+                        ),
+                    });
+                }
+            }
+        }
+
+        diagnostics
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 16. dynamic_fan_out (ERROR) — dynamic fan-out nodes must have exactly 1 edge
+// ---------------------------------------------------------------------------
+
+struct DynamicFanOutRule;
+
+impl LintRule for DynamicFanOutRule {
+    fn name(&self) -> &'static str {
+        "dynamic_fan_out"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        graph
+            .nodes
+            .values()
+            .filter(|n| n.attrs.contains_key("fan_out"))
+            .filter(|n| {
+                let edges = graph.outgoing_edges(&n.id);
+                edges.len() != 1
+            })
+            .map(|n| {
+                let edge_count = graph.outgoing_edges(&n.id).len();
+                Diagnostic {
+                    rule: self.name().to_string(),
+                    severity: Severity::Error,
+                    message: format!(
+                        "dynamic fan-out node `{}` has {} outgoing edge(s); exactly 1 is required",
+                        n.id, edge_count
+                    ),
+                    node_id: Some(n.id.clone()),
+                    edge: None,
+                    fix: Some(
+                        "a dynamic fan-out node must have exactly 1 outgoing edge to the \
+                         template entry node"
+                            .into(),
+                    ),
+                }
+            })
+            .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 17. dynamic_fan_out_missing_fan_in (WARNING) — fan-in should be reachable
+// ---------------------------------------------------------------------------
+
+struct DynamicFanOutMissingFanInRule;
+
+impl LintRule for DynamicFanOutMissingFanInRule {
+    fn name(&self) -> &'static str {
+        "dynamic_fan_out_missing_fan_in"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        graph
+            .nodes
+            .values()
+            .filter(|n| n.attrs.contains_key("fan_out"))
+            .filter(|n| {
+                let edges = graph.outgoing_edges(&n.id);
+                edges.len() == 1
+            })
+            .filter(|n| {
+                let template_entry = &graph.outgoing_edges(&n.id)[0].to;
+                // BFS forward from template entry to find a tripleoctagon fan-in
+                let mut visited = HashSet::new();
+                let mut queue = std::collections::VecDeque::new();
+                queue.push_back(template_entry.clone());
+                while let Some(current) = queue.pop_front() {
+                    if !visited.insert(current.clone()) {
+                        continue;
+                    }
+                    if let Some(node) = graph.get_node(&current)
+                        && node.handler_type() == HandlerType::ParallelFanIn
+                    {
+                        return false; // fan-in found
+                    }
+                    for edge in graph.outgoing_edges(&current) {
+                        if !visited.contains(&edge.to) {
+                            queue.push_back(edge.to.clone());
+                        }
+                    }
+                }
+                true // no fan-in found
+            })
+            .map(|n| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Warning,
+                message: format!(
+                    "dynamic fan-out node `{}` has no reachable fan-in (tripleoctagon) node; \
+                     branch results will be written to context but there will be no \
+                     fan-in handler to consolidate them",
+                    n.id
+                ),
+                node_id: Some(n.id.clone()),
+                edge: None,
+                fix: Some(
+                    "add a tripleoctagon fan-in node downstream of the template subgraph".into(),
+                ),
+            })
+            .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 18. nested_dynamic_fan_out (ERROR) — no nested dynamic fan-outs
+// ---------------------------------------------------------------------------
+
+struct NestedDynamicFanOutRule;
+
+impl NestedDynamicFanOutRule {
+    /// Collect all node IDs reachable from `start_id` via BFS, stopping at
+    /// nodes with handler type `parallel.fan_in` (which are the boundary
+    /// of the template subgraph).
+    fn template_subgraph_nodes(graph: &Graph, start_id: &str) -> HashSet<String> {
+        let mut visited = HashSet::new();
+        let mut queue = std::collections::VecDeque::new();
+        queue.push_back(start_id.to_string());
+
+        while let Some(current) = queue.pop_front() {
+            if !visited.insert(current.clone()) {
+                continue;
+            }
+            if let Some(node) = graph.get_node(&current)
+                && node.handler_type() == HandlerType::ParallelFanIn
+            {
+                continue;
+            }
+            for edge in graph.outgoing_edges(&current) {
+                if !visited.contains(&edge.to) {
+                    queue.push_back(edge.to.clone());
+                }
+            }
+        }
+
+        visited
+    }
+}
+
+impl LintRule for NestedDynamicFanOutRule {
+    fn name(&self) -> &'static str {
+        "nested_dynamic_fan_out"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        let mut diagnostics = Vec::new();
+
+        for node in graph.nodes.values() {
+            if !node.attrs.contains_key("fan_out") {
+                continue;
+            }
+
+            let edges = graph.outgoing_edges(&node.id);
+            if edges.len() != 1 {
+                continue; // DynamicFanOutRule handles this
+            }
+
+            let template_entry = &edges[0].to;
+            let subgraph = Self::template_subgraph_nodes(graph, template_entry);
+
+            for sub_node_id in &subgraph {
+                if let Some(sub_node) = graph.get_node(sub_node_id)
+                    && sub_node.attrs.contains_key("fan_out")
+                {
+                    diagnostics.push(Diagnostic {
+                        rule: self.name().to_string(),
+                        severity: Severity::Error,
+                        message: format!(
+                            "nested dynamic fan-out: node `{}` is inside the template \
+                                 subgraph of dynamic fan-out node `{}`; nested dynamic \
+                                 fan-out is not supported",
+                            sub_node_id, node.id
+                        ),
+                        node_id: Some(sub_node_id.clone()),
+                        edge: None,
+                        fix: Some(
+                            "remove the inner fan_out attribute or restructure the \
+                                 pipeline to avoid nesting"
                                 .into(),
                         ),
                     });
