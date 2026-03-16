@@ -26,7 +26,11 @@ Create a new agent directory and `AGENT.md` file for Stencila. An agent is a dir
 5. Add `keywords`, `when-to-use`, and `when-not-to-use` to help managers select this agent — include terms from the user's request and relevant domain words in `keywords`, and add `when-to-use`/`when-not-to-use` signals describing when this agent should or should not be chosen
 6. Write the `AGENT.md` file with frontmatter and optional system instructions
 7. Replace all placeholders such as `TODO` before considering the agent complete
-8. Validate the finished agent with `stencila agents validate <name>`, the agent directory path, or the `AGENT.md` path
+8. **Top-down design**: When the user wants to design the agent first and create its skills afterward:
+   - list planned skills in `allowed-skills` using kebab-case names that follow naming conventions, even if no corresponding `SKILL.md` exists yet
+   - note which skills need to be created and inform the user of the outstanding dependencies
+   - validation and the runtime accept forward references (unresolved skills produce a runtime warning, not an error), so the agent can be authored and iterated on before all skill dependencies are in place
+9. Validate the finished agent with `stencila agents validate <name>`, the agent directory path, or the `AGENT.md` path
 
 ## Naming Rules
 
@@ -66,7 +70,7 @@ These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`
 - `reasoning-effort` — `low`, `medium`, or `high`. Controls model reasoning depth.
 - `trust-level` — `low`, `medium` (default), or `high`. Controls tool call guard strictness.
 - `allowed-tools` — list of tool names the agent may use. Use a YAML list (one item per line) to avoid confusion. When omitted, all provider tools are available.
-- `allowed-skills` — list of skill names the agent may use. When omitted, all discovered skills are available. Set to `[]` to disable skills. When set to exactly one skill, that skill's full content is automatically preloaded into the system prompt in addition to being available via `use_skill`.
+- `allowed-skills` — list of skill names the agent may use. When omitted, all discovered skills are available. Set to `[]` to disable skills. When set to exactly one skill, that skill's full content is automatically preloaded into the system prompt in addition to being available via `use_skill`. Forward references to skills that do not yet exist are valid — see step 8 (Top-down design).
 - `allowed-domains` — domain allowlist for `web_fetch`. Supports `*.example.com` wildcards.
 - `disallowed-domains` — domain denylist for `web_fetch`.
 - `max-turns` — maximum conversation turns (0 = unlimited, default: 0).
@@ -249,6 +253,7 @@ When combining `allowed-skills` with `allowed-tools`, use this rule:
 - **CLI-backed agents**: When the user wants to use a CLI tool, set the provider to the corresponding CLI variant (e.g., `claude-cli`, `codex-cli`, `gemini-cli`).
 - **Body is optional**: A frontmatter-only `AGENT.md` is valid. Only add a Markdown body when the user provides custom instructions or the agent needs behavioral guidance beyond what project docs supply.
 - **Skill/tool mismatch**: If an agent sets both `allowed-skills` and `allowed-tools`, check that every tool allowed by the selected skills is also included in the agent's `allowed-tools`. Also check whether `use_skill` is needed: it is optional for exactly one preloaded skill, but should be included when the agent may need to invoke skills dynamically or choose among multiple skills.
+- **Unknown skills**: List outstanding skill dependencies so the user can create them. This is valid in top-down design (see step 8) — validation passes, and the runtime produces a warning for unresolved skill names, not an error. Do not remove skill references just because the targets do not exist yet.
 
 ## Validation
 

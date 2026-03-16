@@ -42,7 +42,7 @@ Check each present field for validity:
 - **reasoning-effort**: typically `low`, `medium`, or `high` if present; custom provider-specific values are also valid
 - **trust-level**: must be `low`, `medium`, or `high` if present; check that it matches the agent's intended use (e.g., a read-only reviewer should not have `high` trust)
 - **allowed-tools**: check that listed tools are valid Stencila tool names (`read_file`, `write_file`, `edit_file`, `grep`, `glob`, `shell`, `web_fetch`, `use_skill`, `spawn_agent`, `send_input`, `wait`, `close_agent`, `ask_user`, `mcp_codemode`); flag unknown tool names
-- **allowed-skills**: if present, check that listed skill names are valid kebab-case
+- **allowed-skills**: if present, check that listed skill names are valid kebab-case. Skills that do not yet have a corresponding `SKILL.md` are valid forward references (top-down design) — note them as outstanding dependencies rather than flagging them as errors
 - **allowed-domains** / **disallowed-domains**: if present, check format (exact hosts or `*.example.com` wildcards)
 - **max-turns**: non-negative integer if present
 - **max-tool-rounds**: positive integer if present
@@ -220,6 +220,7 @@ Output (use `###` headings in the report):
 - **Multiple agents requested**: Review each agent separately with its own report section. Ask the user to confirm if reviewing all agents is intended.
 - **Frontmatter-only agent (no body)**: This is valid — do not flag it as a failure. A frontmatter-only `AGENT.md` is a legitimate configuration-only agent.
 - **Single allowed skill with brief body**: Do not flag a short one- or two-sentence body as too sparse when `allowed-skills` contains exactly one skill. Treat it as a preamble, because the skill content is preloaded automatically.
+- **Unresolved skill references**: If `allowed-skills` lists skill names that have no corresponding `SKILL.md`, do not flag them as errors. These are valid forward references from top-down design — note them as outstanding dependencies and evaluate the rest of the agent definition on its own merits. The runtime produces a warning for unresolved skill names, not an error.
 - **User-level agent**: Check `~/.config/stencila/agents/` if the agent is not found in the workspace.
 - **Hard-coded model or provider**: Flag as a warning, not a failure. Hard-coding reduces portability but may be intentional.
 - **Unknown frontmatter fields**: Flag any fields not in the Agent schema as warnings — they may be typos or unsupported properties that will be silently ignored.
