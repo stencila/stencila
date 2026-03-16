@@ -172,7 +172,17 @@ pub fn validate_workflow(
 
     if let Some(ref pipeline) = workflow.pipeline {
         match stencila_attractor::parse_dot(pipeline) {
-            Ok(graph) => {
+            Ok(mut graph) => {
+                // Apply transforms (sugar, variable expansion, stylesheet) so that
+                // validation sees the canonical node attributes. Without this, nodes
+                // using sugar attributes like `cmd` still appear as codergen nodes
+                // and trigger false-positive warnings.
+                let transforms = stencila_attractor::TransformRegistry::with_defaults();
+                if let Err(e) = transforms.apply_all(&mut graph) {
+                    errors.push(ValidationError::PipelineValidationError(e.to_string()));
+                    return (errors, warnings);
+                }
+
                 for node in graph.nodes.values() {
                     errors.extend(validate_workflow_handler_node(&workflow.name, node));
                 }
