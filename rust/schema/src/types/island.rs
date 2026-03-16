@@ -41,6 +41,12 @@ pub struct Island {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_automatic: Option<Boolean>,
 
+    /// Whether the island is a continuation of a previous island.
+    #[serde(alias = "is-continuation", alias = "is_continuation")]
+    #[patch(format = "latex")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub is_continuation: Option<Boolean>,
+
     /// The type of the label for the island.
     #[serde(alias = "label-type", alias = "label_type")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]

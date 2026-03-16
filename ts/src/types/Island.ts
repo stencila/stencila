@@ -22,6 +22,11 @@ export class Island extends Entity {
   isAutomatic?: boolean;
 
   /**
+   * Whether the island is a continuation of a previous island.
+   */
+  isContinuation?: boolean;
+
+  /**
    * The type of the label for the island.
    */
   labelType?: LabelType;

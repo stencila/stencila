@@ -1,0 +1,70 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "Before.\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "fig:study-sites",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\\begin{figure}[!htbp]\n  \\centering\n  \\begin{subfigure}{0.48\\textwidth}\n    \\caption{Site A}\n    \\includegraphics[width=\\textwidth]{site_a.jpg}\n  \\end{subfigure}\\quad\n  \\begin{subfigure}{0.48\\textwidth}\n    \\caption{Site B}\n    \\includegraphics[width=\\textwidth]{site_b.jpg}\n  \\end{subfigure}\n  \\caption{Study sites. (\\emph{Continued on next page})}\n  \\label{fig:study-sites}\n\\end{figure}"
+          }
+        }
+      ],
+      "isAutomatic": true,
+      "labelType": "FigureLabel",
+      "otherIds": [
+        "fig:study-sites"
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "fig:study-sites2",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\\begin{figure}[!htbp]\n  \\ContinuedFloat\n  \\centering\n  \\begin{subfigure}{0.48\\textwidth}\n    \\caption{Site C}\n    \\includegraphics[width=\\textwidth]{site_c.jpg}\n  \\end{subfigure}\\quad\n  \\begin{subfigure}{0.48\\textwidth}\n    \\caption{Site D}\n    \\includegraphics[width=\\textwidth]{site_d.jpg}\n  \\end{subfigure}\n  \\caption{(\\emph{continued}) Study sites.}\n  \\label{fig:study-sites2}\n\\end{figure}"
+          }
+        }
+      ],
+      "isAutomatic": true,
+      "isContinuation": true,
+      "labelType": "FigureLabel",
+      "otherIds": [
+        "fig:study-sites2"
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nAfter.\n"
+      }
+    }
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/island-wrap-continued-float.tex",
+  "commit": "redacted"
+}

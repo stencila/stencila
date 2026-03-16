@@ -1029,6 +1029,16 @@ impl Executor {
         }
     }
 
+    /// Whether at least one label of the given type has been assigned
+    pub fn has_prior_label(&self, label_type: &LabelType) -> bool {
+        match label_type {
+            LabelType::FigureLabel => self.figure_count > 0,
+            LabelType::TableLabel => self.table_count > 0,
+            LabelType::AppendixLabel => self.appendix_count.is_some(),
+            LabelType::SupplementLabel => self.supplement_count > 0,
+        }
+    }
+
     /// Updates the figure count and returns the current figure label
     pub fn figure_label(&mut self) -> String {
         self.figure_count += 1;
@@ -1036,10 +1046,20 @@ impl Executor {
         [self.appendix_label(), self.figure_count.to_string()].concat()
     }
 
+    /// Returns the current figure label without incrementing the count
+    pub fn figure_label_continued(&self) -> String {
+        [self.appendix_label(), self.figure_count.to_string()].concat()
+    }
+
     /// Updates the table count and returns the current table label
     pub fn table_label(&mut self) -> String {
         self.table_count += 1;
 
+        [self.appendix_label(), self.table_count.to_string()].concat()
+    }
+
+    /// Returns the current table label without incrementing the count
+    pub fn table_label_continued(&self) -> String {
         [self.appendix_label(), self.table_count.to_string()].concat()
     }
 
@@ -1054,6 +1074,11 @@ impl Executor {
     pub fn supplement_label(&mut self) -> String {
         self.supplement_count += 1;
 
+        self.supplement_count.to_string()
+    }
+
+    /// Returns the current supplement label without incrementing the count
+    pub fn supplement_label_continued(&self) -> String {
         self.supplement_count.to_string()
     }
 

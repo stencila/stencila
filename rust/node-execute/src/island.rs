@@ -9,12 +9,33 @@ impl Executable for Island {
         tracing::trace!("Compiling Island {node_id}");
 
         if let Some(label_type) = &self.label_type {
-            // Update executor figure/table count and label
-            let label = match label_type {
-                LabelType::FigureLabel => executor.figure_label(),
-                LabelType::TableLabel => executor.table_label(),
-                LabelType::AppendixLabel => executor.appendix_label(),
-                LabelType::SupplementLabel => executor.supplement_label(),
+            // For continuation islands, reuse the current label without
+            // incrementing. Appendix labels are always read-only (no counter
+            // to increment), so they take the same path regardless.
+            let is_continuation = self.is_continuation.unwrap_or(false);
+            let label = if is_continuation
+                && !matches!(label_type, LabelType::AppendixLabel)
+                && executor.has_prior_label(label_type)
+            {
+                match label_type {
+                    LabelType::FigureLabel => executor.figure_label_continued(),
+                    LabelType::TableLabel => executor.table_label_continued(),
+                    LabelType::SupplementLabel => executor.supplement_label_continued(),
+                    LabelType::AppendixLabel => unreachable!(),
+                }
+            } else {
+                if is_continuation && !matches!(label_type, LabelType::AppendixLabel) {
+                    tracing::warn!(
+                        "Island {node_id} has isContinuation but no prior {label_type:?}; \
+                         falling back to normal numbering"
+                    );
+                }
+                match label_type {
+                    LabelType::FigureLabel => executor.figure_label(),
+                    LabelType::TableLabel => executor.table_label(),
+                    LabelType::AppendixLabel => executor.appendix_label(),
+                    LabelType::SupplementLabel => executor.supplement_label(),
+                }
             };
 
             if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {

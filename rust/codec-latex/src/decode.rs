@@ -981,9 +981,22 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
                 }
             }
 
+            // Detect \ContinuedFloat in auto-wrapped islands, which indicates
+            // this island continues the numbering of a previous island of the
+            // same type. Only applies to auto-wrapped islands; manually authored
+            // islands may contain \ContinuedFloat internally between multiple
+            // figure environments and handle it within their own LaTeX.
+            let is_continuation =
+                if is_automatic == Some(true) && content.contains(r"\ContinuedFloat") {
+                    Some(true)
+                } else {
+                    None
+                };
+
             blocks.push(Block::Island(Island {
                 id,
                 is_automatic,
+                is_continuation,
                 label_type,
                 label,
                 label_automatically,

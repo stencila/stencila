@@ -10,12 +10,10 @@ impl LatexCodec for Island {
         if context.has_format_via_pandoc() {
             let (mut latex, ..) = to_latex(&self.content, Format::Svg, false, true, false, false);
 
-            // Check for and remove \ContinuedFloat since we can't render a true continuation
-            // in isolation (there's no previous figure to continue from)
-            let has_continued_float = latex.contains(r"\ContinuedFloat");
-            if has_continued_float {
-                latex = latex.replace(r"\ContinuedFloat", "");
-            }
+            // Remove \ContinuedFloat since we can't render a true continuation
+            // in isolation (there's no previous figure to continue from).
+            // The correct counter value is set below based on the label.
+            latex = latex.replace(r"\ContinuedFloat", "");
 
             // Set figure or table counter within the island's LaTeX
             if let (Some(label_type), Some(label)) = (self.label_type, &self.label)
@@ -42,18 +40,13 @@ impl LatexCodec for Island {
                     // Parse appendix counter from first uppercase letter (A=1, B=2, etc.)
                     let appendix = prefix.chars().next().map(|c| c as u32 - 'A' as u32 + 1);
 
-                    // Parse label counter: subtract 1 only if NOT a ContinuedFloat
-                    // (because normal figures increment the counter, but ContinuedFloat figures don't)
-                    let label_counter = suffix.parse::<u32>().ok().and_then(|n| {
-                        if has_continued_float {
-                            // Don't subtract 1 for ContinuedFloat since it doesn't increment
-                            Some(n)
-                        } else if n > 0 {
-                            Some(n - 1)
-                        } else {
-                            None
-                        }
-                    });
+                    // Subtract 1 because \begin{figure} will increment the counter.
+                    // This applies to continuations too since \ContinuedFloat has
+                    // already been stripped above.
+                    let label_counter = suffix
+                        .parse::<u32>()
+                        .ok()
+                        .and_then(|n| if n > 0 { Some(n - 1) } else { None });
 
                     (appendix, label_counter)
                 };

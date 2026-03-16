@@ -341,6 +341,7 @@
     "isAutomatic": "stencila:isAutomatic",
     "isChecked": "stencila:isChecked",
     "isCollapsed": "stencila:isCollapsed",
+    "isContinuation": "stencila:isContinuation",
     "isDisabled": "stencila:isDisabled",
     "isEchoed": "stencila:isEchoed",
     "isEmbedded": "stencila:isEmbedded",

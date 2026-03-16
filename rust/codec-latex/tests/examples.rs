@@ -82,9 +82,7 @@ async fn island_wrap_respects_manual_islands() -> Result<()> {
     });
 
     // Manual island only: figures inside a manual island are not re-wrapped
-    let path = examples
-        .join("island-wrap-manual.tex")
-        .canonicalize()?;
+    let path = examples.join("island-wrap-manual.tex").canonicalize()?;
     let (article, ..) = LatexCodec.from_path(&path, wrap_opts.clone()).await?;
     assert_json_snapshot!(
         "island_wrap_manual.coarse.json",
@@ -94,9 +92,21 @@ async fn island_wrap_respects_manual_islands() -> Result<()> {
 
     // Mixed: manual island is preserved AND a bare figure outside is auto-wrapped
     let path = examples.join("island-wrap-mixed.tex").canonicalize()?;
-    let (article, ..) = LatexCodec.from_path(&path, wrap_opts).await?;
+    let (article, ..) = LatexCodec.from_path(&path, wrap_opts.clone()).await?;
     assert_json_snapshot!(
         "island_wrap_mixed.coarse.json",
+        article,
+        {".commit" => "redacted"}
+    );
+
+    // ContinuedFloat: consecutive figures with \ContinuedFloat produce
+    // separate islands but the continuation island has is_continuation=true
+    let path = examples
+        .join("island-wrap-continued-float.tex")
+        .canonicalize()?;
+    let (article, ..) = LatexCodec.from_path(&path, wrap_opts).await?;
+    assert_json_snapshot!(
+        "island_wrap_continued_float.coarse.json",
         article,
         {".commit" => "redacted"}
     );

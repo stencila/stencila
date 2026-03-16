@@ -10,6 +10,7 @@ required:
   - content
 core:
   - isAutomatic
+  - isContinuation
   - labelType
   - label
   - labelAutomatically
@@ -35,6 +36,16 @@ properties:
     type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd, latex]
+  isContinuation:
+    "@id": stencila:isContinuation
+    description: Whether the island is a continuation of a previous island.
+    $comment: |
+      When true, the island shares the label number of the most recent island
+      of the same label type, rather than incrementing the counter. This maps
+      to the LaTeX `\ContinuedFloat` command from the `caption` package.
+    type: boolean
+    patch:
+      formats: [latex]
   labelType:
     "@id": stencila:labelType
     description: The type of the label for the island.

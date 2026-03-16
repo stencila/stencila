@@ -18,6 +18,7 @@
   "core": [
     "id",
     "isAutomatic",
+    "isContinuation",
     "labelType",
     "label",
     "labelAutomatically",
@@ -72,6 +73,21 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex"
+        ]
+      },
+      "type": "boolean"
+    },
+    "isContinuation": {
+      "@id": "stencila:isContinuation",
+      "description": "Whether the island is a continuation of a previous island.",
+      "$comment": "When true, the island shares the label number of the most recent island\nof the same label type, rather than incrementing the counter. This maps\nto the LaTeX `\\ContinuedFloat` command from the `caption` package.\n",
+      "aliases": [
+        "is-continuation",
+        "is_continuation"
+      ],
+      "patch": {
+        "formats": [
           "latex"
         ]
       },

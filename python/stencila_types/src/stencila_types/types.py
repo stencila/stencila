@@ -2337,6 +2337,9 @@ class Island(Entity):
     is_automatic: bool | None = None
     """Whether the island is automatically generated."""
 
+    is_continuation: bool | None = None
+    """Whether the island is a continuation of a previous island."""
+
     label_type: LabelType | None = None
     """The type of the label for the island."""
 

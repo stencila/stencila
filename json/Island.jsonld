@@ -167,6 +167,18 @@
       }
     },
     {
+      "@id": "stencila:isContinuation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isContinuation",
+      "rdfs:comment": "Whether the island is a continuation of a previous island.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Island"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
       "@id": "stencila:labelType",
       "@type": "rdfs:Property",
       "rdfs:label": "labelType",
