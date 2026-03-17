@@ -147,6 +147,28 @@ Only include tools the skill genuinely needs; prefer the minimal set.
 - Write a description that is specific, not vague (e.g., "Analyze datasets and generate summary statistics. Use when working with CSV, Parquet, or database query results." not "Helps with data.")
 - Keep `description` under 1,024 characters and `compatibility` under 500 characters
 
+### Keeping skills workflow-agnostic
+
+Skills must describe **generic domain competence with generic inputs and outputs**. They should work equally well when invoked by a user in a chat, by an agent acting alone, or by a workflow stage prompt. Workflow-specific concerns — context keys, route labels, `workflow_*` tool calls — belong in the workflow's stage prompts, not in skills.
+
+Follow these rules:
+
+- **Do not reference `workflow_get_context`, `workflow_set_context`, `workflow_set_route`, or `workflow_get_output`** in any skill. These are workflow orchestration tools. If a skill needs input data, declare it in a "Required Inputs" table and let the caller (user, agent prompt, or workflow stage prompt) supply it.
+- **Do not define "Context Keys" or "Route Labels" tables** in skills. The workflow owns its data contract — which keys hold which values, and which labels control which branches. Skills should not know or care about that contract.
+- **Do not reference workflow node names** (e.g., `RunTestsRed`, `CheckRemaining`) or specific workflow files. Skills should not know which workflow is calling them.
+- **Declare inputs and outputs generically.** Use a "Required Inputs" table listing what the skill needs (with Required/Optional) and an "Outputs" table listing what it produces. Use domain-appropriate names (e.g., "Acceptance criteria", "Test files", "Recommendation") rather than context key names.
+- **Use a single sentence to explain how inputs arrive.** After the inputs table, include: "When used standalone, these inputs come from the user or the agent's prompt. When used within a workflow, the workflow's stage prompt will specify how to obtain them." This one sentence bridges both use cases without coupling to either.
+- **Mark plan/file fallbacks as standalone convenience.** If a skill falls back to reading from a well-known location (e.g., `.stencila/plans/`) when an input is missing, frame this as a convenience for standalone use: "attempt to infer from X as a standalone convenience. In workflow use, the stage prompt should provide this explicitly."
+
+The workflow's stage prompts are the glue layer. A well-structured stage prompt follows this pattern:
+
+1. **Read workflow state** — `workflow_get_context` / `workflow_get_output` calls
+2. **Delegate to the skill** — pass the retrieved values as the skill's declared inputs
+3. **Store the skill's outputs** — `workflow_set_context` with the workflow's chosen key names
+4. **Route** — `workflow_set_route` with the workflow's chosen labels, mapped from the skill's domain outputs
+
+This separation means skills stay reusable across workflows, agents can use skills without workflow infrastructure, and the workflow is the single source of truth for its own data contract.
+
 ## Edge Cases
 
 - **Skill directory already exists**: Ask the user whether to overwrite, merge, or abort before modifying an existing skill. Never silently overwrite.

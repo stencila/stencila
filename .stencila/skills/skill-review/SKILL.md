@@ -82,6 +82,19 @@ Use this table when reviewing tool coverage and fit:
 - Reference files are focused and appropriately scoped rather than large catch-all documents
 - Links and relative paths point only to files within the skill directory
 
+### Workflow Agnosticism
+
+Skills must describe generic domain competence, not workflow orchestration. Check for these violations:
+
+- **`workflow_*` tool references**: The skill must not reference `workflow_get_context`, `workflow_set_context`, `workflow_set_route`, or `workflow_get_output`. These are workflow tools — the workflow's stage prompts should call them, not the skill.
+- **Context Keys or Route Labels tables**: The skill must not define tables of workflow context keys or route labels. The workflow owns its data contract.
+- **Workflow node names**: The skill must not reference specific workflow node names (e.g., `RunTestsRed`, `CheckRemaining`) or workflow files.
+- **Generic inputs/outputs**: The skill should declare what it needs in a "Required Inputs" table and what it produces in an "Outputs" table, using domain-appropriate names rather than context key names. After the inputs table, it should include a bridging sentence like: "When used standalone, these inputs come from the user or the agent's prompt. When used within a workflow, the workflow's stage prompt will specify how to obtain them."
+- **Standalone fallbacks**: If the skill falls back to reading from a well-known location (e.g., `.stencila/plans/`) when an input is missing, check that this is framed as a standalone convenience, not as the primary contract. Look for language like "as a standalone convenience" or "in workflow use, the stage prompt should provide this explicitly."
+- **Implicit mode switches**: If the skill has multiple operational modes driven by the presence or absence of specific inputs (e.g., "selection mode" vs "completion-check mode"), consider whether these should be separate skills. A single skill doing two fundamentally different jobs is often a sign that workflow protocol has leaked into the skill layer.
+
+Any `workflow_*` reference or context-key/route-label table in a skill is a ❌ Fail. Recommend moving the workflow-specific details into the workflow's stage prompts and restructuring the skill around generic inputs and outputs.
+
 ### Size and Focus
 
 - Body is under 500 lines / 5,000 tokens

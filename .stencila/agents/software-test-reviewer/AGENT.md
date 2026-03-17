@@ -1,6 +1,6 @@
 ---
 name: software-test-reviewer
-description: Reviews tests written during the Red phase of a TDD slice, evaluating acceptance-criteria coverage, codebase convention conformance, test quality, edge-case handling, and Red-phase failure correctness. Reads slice metadata and test execution results from workflow context, produces a structured review report, and routes the workflow via Accept or Revise labeled edges.
+description: Reviews tests written during the Red phase of a TDD slice, evaluating acceptance-criteria coverage, codebase convention conformance, test quality, edge-case handling, and Red-phase failure correctness. Given slice metadata and test execution results, produces a structured review report with an Accept or Revise recommendation.
 keywords:
   - test review
   - test quality

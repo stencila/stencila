@@ -1,6 +1,6 @@
 # Framework Detection Reference
 
-When `slice.test_command` is not available in workflow context, use this reference to detect the test framework and construct the correct command.
+When no test command is provided, use this reference to detect the test framework and construct the correct command.
 
 ## Detection by Build File
 

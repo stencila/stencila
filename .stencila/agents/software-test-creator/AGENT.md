@@ -1,6 +1,6 @@
 ---
 name: software-test-creator
-description: Writes failing tests for the current TDD slice (Red phase). Reads slice scope, acceptance criteria, and package references from workflow context, examines existing codebase test conventions, writes focused tests that will fail because the implementation does not yet exist, and stores test file paths and scoped test commands in workflow context for downstream agents.
+description: Writes failing tests for a TDD slice (Red phase). Given slice scope, acceptance criteria, and package references, examines existing codebase test conventions, writes focused tests that will fail because the implementation does not yet exist, and reports the test file paths and scoped test command.
 keywords:
   - test creation
   - TDD

@@ -30,11 +30,11 @@ The workflow processes a delivery plan slice-by-slice in a single run. For each 
 
 5. **Human review** — a structured interview lets the human accept the slice or send it back to the Red phase with revision notes
 
-6. **Loop or finish** — the `software-slice-selector` agent checks for remaining slices and either loops back or ends the workflow
+6. **Loop or finish** — the `software-slice-checker` agent marks the slice done and checks for remaining slices, then either loops back or ends the workflow
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
-Agents use tool-based context passing (`workflow_set_context` / `workflow_get_context`, `workflow_get_output`) rather than prompt interpolation to share state across stages — the slice selector stores the active slice details, the test creator stores the scoped test command and files, and the completion checker records finished slices. This keeps prompts concise across many iterations. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions
+Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. This keeps prompts concise across many iterations. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
 
 ```dot
 digraph software_delivery_tdd {
@@ -84,7 +84,7 @@ digraph software_delivery_tdd {
   HumanReview -> CheckRemaining  [label="Accept"]
   HumanReview -> CreateTests     [label="Revise"]
 
-  CheckRemaining [agent="software-slice-selector", prompt-ref="#check-remaining-prompt"]
+  CheckRemaining [agent="software-slice-checker", prompt-ref="#check-slices-prompt"]
   CheckRemaining -> SelectSlice  [label="Continue"]
   CheckRemaining -> End          [label="Done"]
 }
@@ -93,45 +93,69 @@ digraph software_delivery_tdd {
 ```text #run-tests-prompt
 Run the tests relevant to the current slice.
 
-Use workflow_get_context to read the test command (key "slice.test_command"), test files (key "slice.test_files"), and slice scope (key "slice.scope"). Execute the test command. If no test command is stored, inspect the project structure, build files, and test conventions to determine the correct scoped test command. Run only the tests scoped to this slice — do not run the full test suite.
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "slice.test_command" — the test command to run
+  - key "slice.test_files" — the test file paths
+  - key "slice.scope" — what the slice covers
+  - key "slice.packages" — the packages or directories involved
+  - key "current_slice" — the slice name (for the report header)
 
-Report the test results clearly, including which tests passed and which failed along with failure details. If this node has outgoing labeled edges (Pass/Fail), choose the appropriate branch based on the results.
+Step 2 — delegate to the test-execution skill:
+  Pass the test command, test files, slice scope, target packages, and slice name as inputs.
+  If no test command is stored, the skill will discover the correct scoped test command.
+  The skill will execute the tests, parse the output, and report a structured pass/fail result.
+
+Step 3 — route based on the skill's result:
+  If this node has outgoing labeled edges: call workflow_set_route with label "Pass" if all tests passed, or "Fail" if any test failed.
 ```
 
 ```text #select-slice-prompt
-Review the delivery plan and select the next unfinished slice of work for implementation.
+Select the next unfinished slice of work from the delivery plan.
 
 The delivery plan goal is: $goal
 
-Use workflow_get_context to check for any previously completed slices (key "completed_slices"). Identify the highest-priority slice that has not yet been completed. Present the slice details including its scope, acceptance criteria, and any dependencies.
+Step 1 — read workflow state:
+  Use workflow_get_context to read key "completed_slices" (the list of previously completed slice names).
 
-After selecting a slice, use workflow_set_context to store:
-- key "current_slice" — the slice name or identifier
-- key "slice.scope" — a concise description of what this slice covers
-- key "slice.acceptance_criteria" — the acceptance criteria for this slice
-- key "slice.packages" — the packages, crates, modules, or directories involved (so downstream agents can scope their work and tests)
+Step 2 — delegate to the slice-selection skill:
+  Pass the completed slices list and the plan goal to the slice-selection skill. The skill will read the delivery plan, identify the next unfinished slice, and report its details (name, scope, acceptance criteria, packages) or signal that all slices are complete.
 
-If all slices have been completed, choose the Done branch.
+Step 3 — store the skill's outputs into workflow context:
+  If a slice was selected, use workflow_set_context to store:
+  - key "current_slice" — the slice name or identifier
+  - key "slice.scope" — the scope description
+  - key "slice.acceptance_criteria" — the acceptance criteria
+  - key "slice.packages" — the packages, crates, modules, or directories involved
+
+Step 4 — route:
+  If a slice was selected, call workflow_set_route with label "Continue".
+  If all slices are complete, call workflow_set_route with label "Done".
 ```
 
 ```text #create-tests-prompt
 Write failing tests for the current slice of work (Red step of TDD).
 
-Use workflow_get_context to read the current slice details (keys "current_slice", "slice.scope", "slice.acceptance_criteria", "slice.packages").
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the slice name
+  - key "slice.scope" — what the slice covers
+  - key "slice.acceptance_criteria" — the criteria the tests must verify
+  - key "slice.packages" — the packages or directories involved
 
-Check for reviewer feedback from a previous iteration using workflow_get_output. If feedback is present, use it to revise the tests instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
+  Check for reviewer feedback from a previous iteration using workflow_get_output.
+  Also use workflow_get_context with key "human.feedback" to check for human revision notes.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Step 2 — delegate to the test-creation skill:
+  Pass the slice name, scope, acceptance criteria, and target packages as inputs.
+  If reviewer feedback or human revision notes exist, pass those as the revision feedback input.
+  The skill will discover codebase test conventions, write the tests, verify they fail as expected,
+  and report the test file paths and test command.
 
-Write tests that:
-- Cover the acceptance criteria for this slice
-- Are specific and focused on the slice's scope
-- Follow existing test conventions in the codebase
-- Will fail because the implementation does not exist yet
-
-After writing tests, use workflow_set_context to store:
-- key "slice.test_files" — the list of test file paths created or modified
-- key "slice.test_command" — the specific command to run only these tests (e.g. "cargo test -p crate-name", "pytest tests/test_specific.py", "npm test -- --testPathPattern=specific")
+Step 3 — store the skill's outputs into workflow context:
+  Use workflow_set_context to store:
+  - key "slice.test_files" — the list of test file paths created or modified
+  - key "slice.test_command" — the specific command to run only these tests
 
 The tests will be executed automatically in the next step to confirm they fail as expected.
 ```
@@ -139,56 +163,99 @@ The tests will be executed automatically in the next step to confirm they fail a
 ```text #review-tests-prompt
 Review the tests written for the current slice of work.
 
-Use workflow_get_context to read the slice details (keys "current_slice", "slice.scope", "slice.acceptance_criteria", "slice.test_files"). Use workflow_get_output to see the test execution results from the Red phase run.
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the slice name
+  - key "slice.scope" — what the slice covers
+  - key "slice.acceptance_criteria" — the criteria the tests must verify
+  - key "slice.packages" — the packages or directories involved
+  - key "slice.test_files" — the test file paths to review
+  - key "slice.test_command" — the command used to run the tests
 
-Evaluate:
-- Do the tests adequately cover the acceptance criteria for this slice?
-- Are the tests well-structured, readable, and maintainable?
-- Do the tests follow existing conventions in the codebase?
-- Are edge cases and error conditions covered appropriately?
-- Did the tests fail as expected (confirming they test unimplemented behavior)?
-- Will these tests meaningfully validate the implementation?
+  Use workflow_get_output to read the test execution results from the Red phase run.
 
-If the tests are acceptable, choose the Accept branch.
-If the tests need changes, choose the Revise branch and provide specific feedback.
+Step 2 — delegate to the test-review skill:
+  Pass the slice name, scope, acceptance criteria, target packages, test files, test command,
+  and test execution results as inputs. The skill will independently discover codebase conventions,
+  evaluate the tests across all quality dimensions, and produce a structured review report
+  with an Accept or Revise recommendation.
+
+Step 3 — route based on the skill's recommendation:
+  If the skill recommends Accept, call workflow_set_route with label "Accept".
+  If the skill recommends Revise, call workflow_set_route with label "Revise" — the review
+  report serves as feedback for the test-creation agent in the next iteration.
 ```
 
 ```text #implement-prompt
 Implement the minimum code necessary to make all tests pass (Green step of TDD).
 
-Use workflow_get_context to read the slice details (keys "current_slice", "slice.scope", "slice.acceptance_criteria", "slice.packages", "slice.test_files"). Use workflow_get_output to check for any feedback from a failed test run or previous iteration. If present, fix the issues identified while keeping all tests passing.
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the slice name
+  - key "slice.scope" — what the slice covers
+  - key "slice.acceptance_criteria" — the criteria being implemented
+  - key "slice.packages" — the packages or directories to work in
+  - key "slice.test_files" — the test files that must pass
 
-Write code that:
-- Makes all existing tests pass
-- Is minimal — do not add functionality beyond what the tests require
-- Follows existing code conventions in the codebase
-- Is scoped to the packages and directories listed in "slice.packages"
+  Use workflow_get_output to check for feedback from a failed test run or previous iteration.
 
-After writing code, the tests will be executed automatically in the next step to confirm they pass.
+Step 2 — implement:
+  Write the minimum code to make all tests pass. If feedback from a prior failure is present,
+  fix the issues identified while keeping all tests passing.
+
+  Requirements:
+  - Make all existing tests pass
+  - Be minimal — do not add functionality beyond what the tests require
+  - Follow existing code conventions in the codebase
+  - Scope changes to the packages and directories listed in "slice.packages"
+
+The tests will be executed automatically in the next step to confirm they pass.
 ```
 
 ```text #refactor-prompt
 Refactor the implementation while keeping all tests passing (Refactor step of TDD).
 
-Use workflow_get_context to read the slice details (keys "current_slice", "slice.scope", "slice.packages", "slice.test_files"). Use workflow_get_output to check for feedback from a failed refactor verification. If test failures were reported, fix them before continuing with refactoring.
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the slice name
+  - key "slice.scope" — what the slice covers
+  - key "slice.packages" — the packages or directories to work in
+  - key "slice.test_files" — the test files that must keep passing
 
-Improve the code quality by:
-- Eliminating duplication
-- Improving naming and readability
-- Simplifying complex logic
-- Ensuring the code follows existing patterns and conventions
-- Keeping changes scoped to the packages and directories listed in "slice.packages"
-- Keeping all tests passing after every change
+  Use workflow_get_output to check for feedback from a failed refactor verification.
 
-After refactoring, the tests will be executed automatically to verify no regressions.
+Step 2 — refactor:
+  If test failures were reported in prior feedback, fix them first. Then improve the code:
+  - Eliminate duplication
+  - Improve naming and readability
+  - Simplify complex logic
+  - Ensure the code follows existing patterns and conventions
+  - Keep changes scoped to the packages and directories in "slice.packages"
+  - Keep all tests passing after every change
+
+The tests will be executed automatically to verify no regressions.
 ```
 
-```text #check-remaining-prompt
+```text #check-slices-prompt
 Check the delivery plan for any remaining unfinished slices.
 
-Use workflow_get_context to read the current slice (key "current_slice") and previously completed slices (key "completed_slices"). Mark the current slice as completed by using workflow_set_context to update key "completed_slices" — append the current slice name to the list of completed slices.
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the slice that was just completed
+  - key "completed_slices" — the list of previously completed slices
 
-Compare the completed slices against the full delivery plan. If there are more slices to implement, choose the Continue branch. If all slices have been completed, choose the Done branch.
+Step 2 — delegate to the slice-completion skill:
+  Pass the current slice name and the completed slices list as inputs. The skill will append
+  the current slice to the completed list, compare against the full delivery plan, and report
+  the updated completed slices list and whether more work remains.
+
+Step 3 — store the skill's outputs into workflow context:
+  Use workflow_set_context to store:
+  - key "completed_slices" — the updated completed slices list returned by the skill
+
+Step 4 — route based on the skill's result:
+  If more slices remain, call workflow_set_route with label "Continue".
+  If all slices are complete, call workflow_set_route with label "Done".
 ```
 
 ```yaml #slice-review

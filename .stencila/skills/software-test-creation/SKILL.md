@@ -1,6 +1,6 @@
 ---
 name: software-test-creation
-description: Write failing tests for a TDD slice based on acceptance criteria, codebase conventions, and slice metadata from workflow context. Use when a workflow needs the "red" phase of red-green-refactor — creating tests that define expected behavior before implementation exists. Discovers codebase test conventions first, writes test files that fail because the implementation does not exist yet, and stores test metadata back in workflow context. Works with any language or test framework.
+description: Write failing tests for a TDD slice based on acceptance criteria and codebase conventions. Use when the "red" phase of red-green-refactor requires tests that define expected behavior before implementation exists. Discovers codebase test conventions first, writes test files that compile or parse but fail because the implementation does not yet exist, and reports test metadata. Works with any language or test framework.
 keywords:
   - test creation
   - test writing
@@ -15,9 +15,6 @@ keywords:
   - integration tests
   - test conventions
   - test scaffolding
-  - slice testing
-  - workflow slice
-  - workflow context
   - codebase conventions
   - test framework discovery
   - write failing tests
@@ -27,7 +24,7 @@ allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_us
 
 ## Overview
 
-Write failing tests for a TDD slice as part of a red-green-refactor workflow. This skill handles the "red" phase: it reads slice metadata from workflow context, discovers the codebase's existing test conventions, writes test files that compile or parse but fail because the implementation does not yet exist, and stores test metadata in workflow context for downstream agents.
+Write failing tests for a TDD slice as part of a red-green-refactor cycle. This skill handles the "red" phase: given slice scope, acceptance criteria, and target packages, it discovers the codebase's existing test conventions, writes test files that compile or parse but fail because the implementation does not yet exist, and reports the test file paths and test command.
 
 The core principle is **discover first, prescribe only as fallback**. The agent must adapt to whatever language, framework, and conventions the codebase already uses. Language-specific defaults are provided only for the case where no existing test conventions can be found.
 
@@ -39,33 +36,43 @@ The tests must:
 - Fail because the code under test does not exist or does not yet behave correctly
 - Be minimal — test only what the slice requires, not more
 
-## Context Keys
+## Required Inputs
 
-These are the workflow context keys this skill reads and writes:
+This skill requires the following information to operate:
 
-| Key                         | Direction | Type   | Description                                                 |
-| --------------------------- | --------- | ------ | ----------------------------------------------------------- |
-| `current_slice`             | Read      | String | Name or identifier of the current slice                     |
-| `slice.scope`               | Read      | String | Concise description of what the slice covers                |
-| `slice.acceptance_criteria` | Read      | String | Acceptance criteria for the slice                           |
-| `slice.packages`            | Read      | String | Packages, crates, modules, or directories involved          |
-| `slice.test_files`          | Write     | String | Comma-separated list of test file paths created or modified |
-| `slice.test_command`        | Write     | String | Command to run the tests (e.g., `cargo test -p auth`)       |
+| Input                | Required | Description                                                  |
+|----------------------|----------|--------------------------------------------------------------|
+| Slice name           | Yes      | Name or identifier of the current slice                      |
+| Slice scope          | Yes      | Concise description of what the slice covers                 |
+| Acceptance criteria  | Yes      | The criteria the tests must verify                           |
+| Target packages      | Yes      | Packages, crates, modules, or directories involved           |
+| Revision feedback    | No       | Feedback from a reviewer or human on a previous attempt      |
+
+When used standalone, these inputs come from the user or the agent's prompt. When used within a workflow, the workflow's stage prompt will specify how to obtain them.
+
+## Outputs
+
+After completing its work, this skill reports:
+
+| Output        | Description                                                            |
+|---------------|------------------------------------------------------------------------|
+| Test files    | The list of test file paths created or modified                        |
+| Test command  | The specific command to run only these tests                           |
 
 ## Steps
 
-### 1. Read slice metadata from workflow context
+### 1. Gather slice information
 
-- Call `workflow_get_context` for keys: `current_slice`, `slice.scope`, `slice.acceptance_criteria`, `slice.packages`
-- If `current_slice` is missing, report the error and stop — there is no slice to test
-- If `slice.acceptance_criteria` is missing or empty, check the delivery plan in `.stencila/plans/` for criteria related to the current slice and use those
-- If no matching plan file exists in `.stencila/plans/`, no criteria can be matched confidently, or the repository does not use plan files at all, stop and report that acceptance criteria are required before tests can be written; use `ask_user` if clarification is available in the current environment
-- Parse `slice.packages` into a list of packages, crates, or directories to focus exploration
+Ensure the required inputs are available before proceeding:
 
-### 2. Check for reviewer or human feedback
+- If the slice name is missing, report the error and stop — there is no slice to test
+- If acceptance criteria are missing or empty, attempt to infer them from a delivery plan in `.stencila/plans/` as a standalone convenience — look for criteria related to the current slice name. In workflow use, the stage prompt should always provide acceptance criteria explicitly.
+- If no matching plan file exists in `.stencila/plans/`, no criteria can be matched confidently, or the repository does not use plan files at all, stop and report that acceptance criteria are required before tests can be written; use `ask_user` if clarification is available
+- Parse target packages into a list of packages, crates, or directories to focus exploration
 
-- Call `workflow_get_context` with key `human.feedback` and check the previous workflow node output for revision notes
-- If feedback exists, read the previously written test files (from `slice.test_files` in context) and revise them rather than starting from scratch
+### 2. Check for revision feedback
+
+- If feedback has been provided (from a reviewer, human, or previous iteration), read the previously written test files and revise them rather than starting from scratch
 - Address each feedback point: fix incorrect assertions, add missing test cases, adjust naming, restructure, or provide a reasoned rebuttal for feedback you disagree with
 
 ### 3. Discover codebase test conventions
@@ -82,7 +89,7 @@ This is the most important step. Systematically discover how the codebase organi
 
 - Use `glob` to search broadly for test files:
   - `**/*test*`, `**/*spec*`, `**/tests/**`, `**/__tests__/**`, `**/test/**`, `**/spec/**`, `**/src/test/**`
-- Narrow down to the packages listed in `slice.packages`
+- Narrow down to the target packages
 
 #### 3c. Study existing test conventions
 
@@ -97,7 +104,7 @@ This is the most important step. Systematically discover how the codebase organi
 #### 3d. Determine the test command
 
 - Check `Makefile`, CI config files (`.github/workflows/*.yml`, `.gitlab-ci.yml`), `package.json` scripts, or other build system files for the canonical test command
-- Record the command for use in Step 7 and Step 8
+- Record the command for use in Step 7 and the final output
 
 #### 3e. Synthesize a convention summary
 
@@ -113,7 +120,7 @@ If no existing tests are found in the package or its siblings, consult `referenc
 
 ### 4. Understand the code structure the tests will target
 
-- Use `glob` and `grep` to examine the source files in `slice.packages`
+- Use `glob` and `grep` to examine the source files in the target packages
 - Identify what types, functions, methods, or modules the slice will introduce or modify
 - For new code that does not exist yet, determine where it will live based on:
   - The slice scope description
@@ -154,19 +161,14 @@ Write the actual test code using the conventions discovered in Step 3:
 - If the tests fail for unexpected reasons (syntax errors, wrong imports for existing code, framework misconfiguration), fix those issues before proceeding
 - The tests should fail cleanly — with "not found", "does not exist", "cannot resolve", or assertion failure messages — not with cryptic errors
 
-### 8. Store test metadata in workflow context
-
-- Call `workflow_set_context` with key `slice.test_files` and the comma-separated list of test file paths that were created or modified
-- Call `workflow_set_context` with key `slice.test_command` and the test command determined in Step 3d. If no canonical command was found, construct one from the language's standard test runner using `references/fallback-test-conventions.md`.
-
-### 9. Present a summary
+### 8. Present a summary
 
 Output a clear summary including:
 
 - The slice name and scope
 - Number of test cases written
-- Test file paths
-- Test command
+- **Test file paths** — the list of test files created or modified
+- **Test command** — the specific command to run only these tests (e.g., `cargo test -p crate-name`, `pytest tests/test_specific.py`, `npm test -- --testPathPattern=specific`)
 - Which acceptance criteria each test covers
 - Expected failure mode (why the tests fail)
 - Any ambiguities encountered in the acceptance criteria
@@ -185,10 +187,10 @@ See:
 - **No existing tests in the package**: If the package has no test files to learn conventions from, look at sibling packages or the project root for test configuration. If no conventions are found anywhere, use `references/fallback-test-conventions.md`, selecting the row that matches the detected language. Note in the summary that no existing tests were found and conventions were inferred from the fallback table.
 - **Multiple test frameworks detected**: If the package uses more than one test framework (e.g., both pytest and unittest, or both jest and vitest), prefer the one used by the majority of test files. Note the choice in the summary.
 - **Tests need fixtures or setup**: If the acceptance criteria require test data, mock objects, or setup code, create minimal fixtures following the package's existing fixture patterns. Do not create elaborate fixture infrastructure beyond what the tests need.
-- **Slice targets code across multiple packages**: Write tests in each relevant package following that package's conventions. Store all test file paths in `slice.test_files` and construct a combined test command.
+- **Slice targets code across multiple packages**: Write tests in each relevant package following that package's conventions. Report all test file paths and construct a combined test command.
 - **Acceptance criteria are vague**: Derive the most concrete tests possible from the criteria. Add a comment in the test file noting which criterion is vague and what interpretation was used. Flag the ambiguity in the summary. If the ambiguity is severe enough to risk wasted effort, use `ask_user` to request clarification before writing tests.
 - **Implementation partially exists**: If some of the code under test already exists (perhaps from a previous slice), write tests that import existing code correctly and only fail for the parts that are new. Verify that existing tests still pass.
 - **Test file already exists at the target path**: Read the existing file and extend it rather than overwriting. Add new test functions alongside existing ones. Do not remove or modify existing tests unless feedback specifically requests it.
-- **Cannot determine test command**: If the project uses a non-standard test runner or build system, use `grep` to search for test scripts in `Makefile`, `package.json`, `pyproject.toml`, CI configuration, or similar files. Store whatever command is most appropriate for running the specific tests written.
+- **Cannot determine test command**: If the project uses a non-standard test runner or build system, use `grep` to search for test scripts in `Makefile`, `package.json`, `pyproject.toml`, CI configuration, or similar files. Report whatever command is most appropriate for running the specific tests written.
 - **Cyclic dependency in test imports**: If the test needs to import from a module that imports from the module being tested, restructure the test to avoid the cycle — typically by testing through the public API rather than internal modules.
 - **Language not in the fallback table**: If the codebase uses a language not listed in `references/fallback-test-conventions.md`, search for that language's most common test framework conventions online or infer from the build system, and note in the summary what conventions were chosen and why.

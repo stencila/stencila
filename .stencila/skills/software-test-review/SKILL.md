@@ -1,6 +1,6 @@
 ---
 name: software-test-review
-description: Evaluate the quality of TDD tests against slice acceptance criteria, codebase conventions, and Red-phase execution results, producing a structured review with Accept/Revise routing. Use when a workflow needs to review tests written during the Red phase of red-green-refactor — checking coverage of acceptance criteria, conformance with codebase test conventions, test quality (naming, assertions, isolation, readability), edge-case and error-path coverage, and whether Red-phase failures indicate correctly missing implementation. Reads slice metadata and test execution output from workflow context, discovers codebase conventions independently, and routes via Accept or Revise labeled edges.
+description: Evaluate the quality of TDD tests against slice acceptance criteria, codebase conventions, and Red-phase execution results, producing a structured review with Accept or Revise recommendations. Use when tests written during the Red phase of red-green-refactor need quality review — checking coverage of acceptance criteria, conformance with codebase test conventions, test quality (naming, assertions, isolation, readability), edge-case and error-path coverage, and whether Red-phase failures indicate correctly missing implementation. Discovers codebase conventions independently and produces an actionable review report.
 keywords:
   - test review
   - test quality
@@ -16,10 +16,6 @@ keywords:
   - edge cases
   - error paths
   - Red-phase validation
-  - workflow routing
-  - Accept Revise
-  - slice testing
-  - workflow context
   - codebase conventions
   - test conformance
   - not test creation
@@ -32,50 +28,57 @@ allowed-tools: read_file glob grep
 
 ## Overview
 
-Review tests written during the Red phase of a TDD workflow. This skill is used by agents operating at a test-review node after tests have been created and executed. It reads slice metadata and test execution results from workflow context, independently discovers the codebase's test conventions, reads the test files, and evaluates them across multiple quality dimensions. The output is a structured review report that routes the workflow via `Accept` or `Revise` labeled edges.
+Review tests written during the Red phase of a TDD cycle. This skill evaluates tests across multiple quality dimensions: acceptance-criteria coverage, codebase convention conformance, test quality, edge-case handling, and whether Red-phase failures indicate correctly missing implementation. The output is a structured review report with an Accept or Revise recommendation.
 
 This skill does not write or modify any code or test files. It only reads, evaluates, and reports.
 
 The review answers one central question: **Are these tests good enough to drive the Green phase of implementation?** Tests that are accepted should be a reliable specification of the slice's expected behavior. Tests that need revision should come back with specific, actionable feedback so the test-creation agent can fix them efficiently.
 
-## Context Keys
+## Required Inputs
 
-| Key                         | Direction | Type   | Description                                                 |
-| --------------------------- | --------- | ------ | ----------------------------------------------------------- |
-| `current_slice`             | Read      | String | Name or identifier of the current slice                     |
-| `slice.scope`               | Read      | String | Concise description of what the slice covers                |
-| `slice.acceptance_criteria` | Read      | String | Acceptance criteria for the slice                           |
-| `slice.packages`            | Read      | String | Packages, crates, modules, or directories involved          |
-| `slice.test_files`          | Read      | String | Comma-separated list of test file paths created or modified |
-| `slice.test_command`        | Read      | String | Command used to run the tests                               |
+This skill requires the following information to operate:
 
-The skill also reads the output from the most recent workflow node (the test execution node) to obtain the structured test results including pass/fail counts and failure details.
+| Input                | Required | Description                                                 |
+|----------------------|----------|-------------------------------------------------------------|
+| Slice name           | Yes      | Name or identifier of the current slice                     |
+| Slice scope          | Yes      | Concise description of what the slice covers                |
+| Acceptance criteria  | Yes      | The criteria the tests must verify                          |
+| Target packages      | Yes      | Packages, crates, modules, or directories involved          |
+| Test files           | Yes      | List of test file paths to review                           |
+| Test command         | No       | Command used to run the tests                               |
+| Test execution results | No     | Structured output from running the tests (pass/fail counts, failure details) |
 
-## Route Labels
+When used standalone, these inputs come from the user or the agent's prompt. When used within a workflow, the workflow's stage prompt will specify how to obtain them.
 
-| Label    | When to use                                                        |
-| -------- | ------------------------------------------------------------------ |
-| `Accept` | Tests are good enough to drive the Green phase                     |
-| `Revise` | Tests need changes — feedback is provided for the test creator     |
+## Outputs
+
+After completing its work, this skill reports:
+
+| Output         | Description                                                              |
+|----------------|--------------------------------------------------------------------------|
+| Recommendation | Whether the tests should be accepted or revised (Accept / Revise)        |
+| Review report  | Structured report with coverage matrix, findings, and recommendations    |
 
 ## Steps
 
-### 1. Read slice metadata from workflow context
+### 1. Gather slice and test information
 
-- Call `workflow_get_context` for keys: `current_slice`, `slice.scope`, `slice.acceptance_criteria`, `slice.packages`, `slice.test_files`, `slice.test_command`
-- If `current_slice` or `slice.test_files` is missing, report the error and route `Revise` — there is nothing to review
-- If `slice.acceptance_criteria` is missing, check the delivery plan in `.stencila/plans/` for criteria related to the current slice and use those
-- Parse `slice.test_files` into a list of file paths for reading
+Ensure the required inputs are available:
 
-### 2. Read test execution results
+- If the slice name or test files are missing, report the error and recommend Revise — there is nothing to review
+- If acceptance criteria are missing, attempt to infer them from a delivery plan in `.stencila/plans/` as a standalone convenience — look for criteria related to the current slice name. In workflow use, the stage prompt should always provide acceptance criteria explicitly.
+- Parse test files into a list of file paths for reading
 
-- Call `workflow_get_output` to obtain the structured test execution report from the previous node
+### 2. Review test execution results
+
+If test execution results are available:
+
 - Extract: number of tests passed, number failed, failure messages, and any notes about compilation errors or unexpected failures
 - If no execution results are available, note this as a limitation — the review will assess test quality without execution feedback
 
 ### 3. Read the test files
 
-- Use `read_file` to load each test file listed in `slice.test_files`
+- Use `read_file` to load each test file listed in the inputs
 - If a file does not exist, flag it immediately — this indicates a problem with the test creation step
 
 ### 4. Discover codebase test conventions
@@ -84,7 +87,7 @@ Independently discover the codebase's test conventions to evaluate conformance. 
 
 #### 4a. Find existing test files in the relevant packages
 
-- Use `glob` to search for test files in the directories listed in `slice.packages`:
+- Use `glob` to search for test files in the target package directories:
   - `**/*test*`, `**/*spec*`, `**/tests/**`, `**/__tests__/**`, `**/test/**`
 - Exclude the test files being reviewed from the convention sample
 
@@ -105,7 +108,7 @@ Independently discover the codebase's test conventions to evaluate conformance. 
 
 ### 5. Evaluate acceptance-criteria coverage
 
-For each acceptance criterion in `slice.acceptance_criteria`:
+For each acceptance criterion:
 
 - Determine whether at least one test directly verifies the criterion
 - Check that the test's assertion actually exercises the criterion, not just a superficially related behavior
@@ -178,7 +181,7 @@ Assess each test across these dimensions:
 
 ### 9. Validate Red-phase failure mode
 
-Using the test execution results from Step 2:
+If test execution results are available:
 
 - **All tests should fail**: In the Red phase, tests should fail because the implementation does not exist or is incomplete, not because of test bugs
 - **Correct failure reasons**: Check that failure messages indicate missing functions, unresolved imports, unimplemented methods, or assertion failures against stub/missing behavior — not syntax errors, framework misconfiguration, or import errors for existing code
@@ -191,29 +194,29 @@ If no execution results are available, skip this step and note the limitation.
 
 Follow the Report Format below.
 
-### 11. Route the workflow
+### 11. Make the recommendation
 
-Route `Accept` when:
+Recommend **Accept** when:
 
 - All acceptance criteria are covered by at least one test (no ❌ Missing in the coverage matrix)
 - There are no High-severity findings
 - Red-phase failures (if available) indicate correctly missing implementation, not test bugs
 
-Route `Revise` when:
+Recommend **Revise** when:
 
 - Any acceptance criterion is missing test coverage, OR
 - Any High-severity finding exists (test bugs, syntax errors, serious quality problems), OR
 - Red-phase failures indicate test defects rather than missing implementation
 
-When routing `Revise`, the review report serves as feedback for the test-creation agent. Make findings specific and actionable so the test creator knows exactly what to fix.
+When recommending Revise, the review report serves as feedback for the test-creation agent. Make findings specific and actionable so the test creator knows exactly what to fix.
 
-When in doubt, route `Revise` — it is safer to improve tests before driving implementation than to accept weak tests that lead to incorrect Green-phase code.
+When in doubt, recommend Revise — it is safer to improve tests before driving implementation than to accept weak tests that lead to incorrect Green-phase code.
 
 ## Report Format
 
 ### Overall Assessment
 
-One to three sentences summarizing the test suite's quality and the most important finding. State the routing decision (Accept or Revise) and the primary reason.
+One to three sentences summarizing the test suite's quality and the most important finding. State the recommendation (Accept or Revise) and the primary reason.
 
 ### Strengths
 
@@ -221,7 +224,7 @@ A short bullet list of what the tests do well. Recognizing strengths helps the t
 
 ### Acceptance-Criteria Coverage
 
-The coverage matrix from Step 5. This is the most important section — missing coverage is the primary reason for Revise routing.
+The coverage matrix from Step 5. This is the most important section — missing coverage is the primary reason for a Revise recommendation.
 
 ### Findings
 
@@ -331,11 +334,11 @@ Review:
 
 ## Edge Cases
 
-- **No test execution results available**: Review the tests on their quality dimensions alone. Skip the Red-phase validation step. Note in the report that execution feedback was unavailable. The review can still route `Accept` or `Revise` based on coverage and quality alone.
-- **Test files do not exist**: If `slice.test_files` lists files that cannot be found, route `Revise` immediately with a clear finding that the test files are missing.
+- **No test execution results available**: Review the tests on their quality dimensions alone. Skip the Red-phase validation step. Note in the report that execution feedback was unavailable. The review can still recommend Accept or Revise based on coverage and quality alone.
+- **Test files do not exist**: If the listed test files cannot be found, recommend Revise immediately with a clear finding that the test files are missing.
 - **No existing tests in the codebase for convention discovery**: Note that convention conformance cannot be assessed. Evaluate tests on intrinsic quality dimensions only. Do not penalize convention deviations when no conventions could be discovered.
-- **Acceptance criteria are vague**: Interpret the criteria as concretely as possible and evaluate coverage against that interpretation. Note which criteria were ambiguous and what interpretation was used. If the vagueness makes it impossible to judge coverage, flag this as a finding but do not automatically route `Revise` — the tests may be reasonable given the available information.
+- **Acceptance criteria are vague**: Interpret the criteria as concretely as possible and evaluate coverage against that interpretation. Note which criteria were ambiguous and what interpretation was used. If the vagueness makes it impossible to judge coverage, flag this as a finding but do not automatically recommend Revise — the tests may be reasonable given the available information.
 - **Tests intentionally pass during Red phase**: Some tests in a slice that extends existing code may pass because the existing code already satisfies part of the criterion. If the slice scope explains this, note it as acceptable. If it is unexpected, flag it for scrutiny.
 - **Very large test files**: For test files with many tests, focus the review on the tests relevant to the current slice's acceptance criteria. Existing tests in the file that predate the current slice are outside the review scope.
 - **Multiple test files across packages**: Review each file against its own package's conventions. Produce a single unified report covering all files.
-- **Test creation agent added tests beyond acceptance criteria**: Mild over-testing is acceptable. Flag it as Low severity only if the extra tests risk confusion or maintenance burden. Do not route `Revise` solely for minor over-testing.
+- **Test creation agent added tests beyond acceptance criteria**: Mild over-testing is acceptable. Flag it as Low severity only if the extra tests risk confusion or maintenance burden. Do not recommend Revise solely for minor over-testing.
