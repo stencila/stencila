@@ -1,7 +1,7 @@
 ---
 name: software-delivery-tdd
 description: Execute a software delivery plan slice-by-slice using test-driven development with Red-Green-Refactor cycles, agent-driven scoped test execution, iterative review, and human approval after each completed slice
-goal-hint: Provide the delivery plan to execute, or reference the plan file/location
+goal-hint: Which delivery plan should be executed? Provide the plan content or reference the plan file path
 keywords:
   - tdd
   - test-driven-development
@@ -9,6 +9,7 @@ keywords:
   - software-delivery
   - implementation
   - slicing
+  - human-in-the-loop
 when-to-use:
   - when a software delivery plan exists and needs to be executed slice-by-slice using TDD
   - when you want automated Red-Green-Refactor cycles with human sign-off after each slice
@@ -34,7 +35,7 @@ The workflow processes a delivery plan slice-by-slice in a single run. For each 
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
-Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. This keeps prompts concise across many iterations. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
+Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. This keeps prompts concise across many iterations. Revision loops rely on `workflow_get_output` as the feedback channel: the test-reviewer's output text is the feedback that the test-creator reads on the next iteration, and failed test-execution output is the feedback that the implementor and refactorer read. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
 
 ```dot
 digraph software_delivery_tdd {
@@ -64,7 +65,7 @@ digraph software_delivery_tdd {
     Implement [agent="software-implementor", prompt-ref="#implement-prompt", max_retries=3]
     Implement -> RunTestsGreen
 
-    RunTestsGreen [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
+    RunTestsGreen [agent="software-test-executor", prompt-ref="#run-tests-prompt", max_retries=3]
     RunTestsGreen -> Refactor    [label="Pass"]
     RunTestsGreen -> Implement   [label="Fail"]
   }
@@ -75,7 +76,7 @@ digraph software_delivery_tdd {
     Refactor [agent="software-refactorer", prompt-ref="#refactor-prompt", max_retries=3]
     Refactor -> RunTestsRefactor
 
-    RunTestsRefactor [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
+    RunTestsRefactor [agent="software-test-executor", prompt-ref="#run-tests-prompt", max_retries=3]
     RunTestsRefactor -> HumanReview  [label="Pass"]
     RunTestsRefactor -> Refactor     [label="Fail"]
   }
@@ -92,6 +93,8 @@ digraph software_delivery_tdd {
 
 ```text #run-tests-prompt
 Run the tests relevant to the current slice.
+
+Delivery plan goal: $goal
 
 Step 1 — read workflow state:
   Use workflow_get_context to read:
