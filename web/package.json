@@ -34,7 +34,7 @@
     "build": "vite build",
     "build:vscode": "vite build --config vite.config.vscode.ts",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
-    "unused": "depcheck --quiet --ignores 'vite,vite-*,postcss-*,@tailwindcss/postcss' --ignore-patterns 'vitest.config.ts,**/*.test.ts'"
+    "unused": "depcheck --quiet --ignores 'vite,vite-*,postcss-*,@tailwindcss/postcss,@types/node' --ignore-patterns 'vitest.config.ts,**/*.test.ts'"
   },
   "dependencies": {
     "@codemirror/commands": "6.10.2",
@@ -74,7 +74,6 @@
     "echarts": "6.0.0",
     "idiomorph": "0.7.4",
     "just-diff-apply": "5.5.0",
-    "katex": "0.16.37",
     "lit": "3.3.2",
     "mermaid": "11.12.3",
     "moment": "2.30.1",
@@ -90,7 +89,6 @@
     "@argos-ci/playwright": "6.4.2",
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.2.1",
-    "@types/katex": "0.16.8",
     "@types/plotly.js-dist-min": "2.3.4",
     "@types/prismjs": "1.26.6",
     "glob": "13.0.6",
