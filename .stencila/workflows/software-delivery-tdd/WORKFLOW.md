@@ -22,17 +22,17 @@ The workflow processes a delivery plan slice-by-slice in a single run. For each 
 
 1. **SelectSlice** — the `software-slice-selector` agent reads the plan and prior context to pick the next unfinished slice, or signals Done when all slices are complete
 
-2. **Red phase** — the `software-test-creator` agent writes failing tests for the slice; the `software-test-runner` agent executes the relevant tests to confirm they actually fail; the `software-test-reviewer` agent evaluates test quality and can loop the creator back for revisions
+2. **Red phase** — the `software-test-creator` agent writes failing tests for the slice; the `software-test-executor` agent executes the relevant tests to confirm they actually fail; the `software-test-reviewer` agent evaluates test quality and can loop the creator back for revisions
 
-3. **Green phase** — the `software-implementor` agent writes the minimum code to pass; the `software-test-runner` agent executes the relevant tests to verify the implementation; if tests fail the loop sends control back to the implementor
+3. **Green phase** — the `software-implementor` agent writes the minimum code to pass; the `software-test-executor` agent executes the relevant tests to verify the implementation; if tests fail the loop sends control back to the implementor
 
-4. **Refactor phase** — the `software-refactorer` agent improves code quality; the `software-test-runner` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
+4. **Refactor phase** — the `software-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
 
 5. **Human review** — a structured interview lets the human accept the slice or send it back to the Red phase with revision notes
 
 6. **Loop or finish** — the `software-slice-selector` agent checks for remaining slices and either loops back or ends the workflow
 
-Test execution uses a `software-test-runner` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
+Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
 Agents use tool-based context passing (`workflow_set_context` / `workflow_get_context`, `workflow_get_output`) rather than prompt interpolation to share state across stages — the slice selector stores the active slice details, the test creator stores the scoped test command and files, and the completion checker records finished slices. This keeps prompts concise across many iterations. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions
 
@@ -50,7 +50,7 @@ digraph software_delivery_tdd {
     CreateTests [agent="software-test-creator", prompt-ref="#create-tests-prompt", max_retries=3]
     CreateTests -> RunTestsRed
 
-    RunTestsRed [agent="software-test-runner", prompt-ref="#run-tests-prompt"]
+    RunTestsRed [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
     RunTestsRed -> ReviewTests
 
     ReviewTests [agent="software-test-reviewer", prompt-ref="#review-tests-prompt"]
@@ -64,7 +64,7 @@ digraph software_delivery_tdd {
     Implement [agent="software-implementor", prompt-ref="#implement-prompt", max_retries=3]
     Implement -> RunTestsGreen
 
-    RunTestsGreen [agent="software-test-runner", prompt-ref="#run-tests-prompt"]
+    RunTestsGreen [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
     RunTestsGreen -> Refactor    [label="Pass"]
     RunTestsGreen -> Implement   [label="Fail"]
   }
@@ -75,7 +75,7 @@ digraph software_delivery_tdd {
     Refactor [agent="software-refactorer", prompt-ref="#refactor-prompt", max_retries=3]
     Refactor -> RunTestsRefactor
 
-    RunTestsRefactor [agent="software-test-runner", prompt-ref="#run-tests-prompt"]
+    RunTestsRefactor [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
     RunTestsRefactor -> HumanReview  [label="Pass"]
     RunTestsRefactor -> Refactor     [label="Fail"]
   }
