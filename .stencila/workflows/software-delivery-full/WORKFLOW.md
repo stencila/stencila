@@ -11,6 +11,8 @@ keywords:
   - planning
   - delivery
   - tdd
+  - implementation
+  - development
 when-to-use:
   - when a feature needs to go from idea through design, planning, and implementation in one pipeline
   - when you want the full design-plan-deliver lifecycle orchestrated automatically with human approval gates at each stage
@@ -28,19 +30,19 @@ This workflow composes three child workflows into a sequential end-to-end pipeli
 2. **Plan** — runs `software-plan-iterative` to create and refine a delivery plan from the approved design through agent review and human approval
 3. **Deliver** — runs `software-delivery-tdd` to execute the delivery plan slice-by-slice using Red-Green-Refactor TDD cycles with human sign-off after each slice
 
-Each child workflow contains its own internal review and refinement loops, so this parent workflow focuses purely on orchestration: passing the user's goal through each stage in sequence. The user provides their feature idea once, and each composed workflow receives it as `$goal` to drive its internal agents.
+Each child workflow contains its own internal review and refinement loops, so this parent workflow focuses purely on orchestration. The user provides their feature idea once via `goal-hint`, and each composed workflow receives it as `$goal` via explicit `goal="$goal"` attributes. Later stages also receive the output of the preceding stage so that the design feeds into planning and the plan feeds into delivery.
 
 ```dot
 digraph software_feature_lifecycle {
   Start -> Design
 
-  Design [workflow="software-design-iterative", label="Design specification"]
+  Design [workflow="software-design-iterative", label="Design specification", goal="Create a design spec for: $goal"]
   Design -> Plan
 
-  Plan [workflow="software-plan-iterative", label="Delivery plan"]
+  Plan [workflow="software-plan-iterative", label="Delivery plan", goal="Create a delivery plan for: $goal\n\nApproved design:\n$last_output"]
   Plan -> Deliver
 
-  Deliver [workflow="software-delivery-tdd", label="Test-driven delivery"]
+  Deliver [workflow="software-delivery-tdd", label="Test-driven delivery", goal="Execute the delivery plan for: $goal\n\nDelivery plan:\n$last_output"]
   Deliver -> End
 }
 ```
