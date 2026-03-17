@@ -55,6 +55,9 @@ pub enum ValidationError {
 pub enum ValidationWarning {
     #[error("Pipeline warning: {0}")]
     PipelineValidationWarning(String),
+
+    #[error("{0}")]
+    GoalNotPassedToChild(String),
 }
 
 fn validate_workflow_handler_node(
@@ -93,6 +96,35 @@ fn validate_workflow_handler_node(
     }
 
     errors
+}
+
+/// Check whether a workflow-type node passes `$goal` to the child workflow.
+///
+/// Should be called on the **pre-transform** graph so that `$goal` placeholders
+/// have not yet been expanded by the variable-expansion transform.
+fn check_goal_pass_through(node: &stencila_attractor::graph::Node) -> Option<ValidationWarning> {
+    // Before transforms, workflow nodes are identified by an explicit `type="workflow"`
+    // attribute or the presence of a `workflow` attribute.
+    if node.get_str_attr("type") != Some("workflow") && !node.attrs.contains_key("workflow") {
+        return None;
+    }
+
+    let attrs_contain_goal_var = ["goal", "prompt", "label"]
+        .iter()
+        .any(|attr| node.get_str_attr(attr).is_some_and(|v| v.contains("$goal")));
+
+    if attrs_contain_goal_var {
+        return None;
+    }
+
+    let child_name = node.get_str_attr("workflow").unwrap_or("(unknown)");
+
+    Some(ValidationWarning::GoalNotPassedToChild(format!(
+        "Workflow node `{}` does not pass $goal to child workflow `{}`; \
+         the child will receive the node's label as its goal instead of \
+         the user's input — consider adding goal=\"$goal\"",
+        node.id, child_name
+    )))
 }
 
 /// Validate a workflow name.
@@ -170,9 +202,20 @@ pub fn validate_workflow(
         ));
     }
 
+    let parent_has_user_goal = workflow.goal_hint.is_some() && workflow.goal.is_none();
+
     if let Some(ref pipeline) = workflow.pipeline {
         match stencila_attractor::parse_dot(pipeline) {
             Ok(mut graph) => {
+                // Check for $goal pass-through on the raw graph *before*
+                // transforms, because variable expansion replaces `$goal`
+                // placeholders and would hide them from the check.
+                if parent_has_user_goal {
+                    for node in graph.nodes.values() {
+                        warnings.extend(check_goal_pass_through(node));
+                    }
+                }
+
                 // Apply transforms (sugar, variable expansion, stylesheet) so that
                 // validation sees the canonical node attributes. Without this, nodes
                 // using sugar attributes like `shell` still appear as codergen nodes
@@ -381,6 +424,136 @@ mod tests {
             ValidationError::PipelineValidationError(msg)
             if msg.contains("empty `goal` attribute")
         )));
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_warns_goal_not_passed_to_child() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "parent".into());
+        workflow.goal_hint = Some("What do you want to build?".into());
+        workflow.goal = None;
+        workflow.pipeline = Some(
+            r#"digraph parent {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    Design [type="workflow", workflow="software-design-iterative"]
+    start -> Design -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(msg) if msg.contains("$goal"))),
+            "should warn about missing $goal pass-through: {warnings:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_no_goal_warning_when_goal_passed() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "parent".into());
+        workflow.goal_hint = Some("What do you want to build?".into());
+        workflow.goal = None;
+        workflow.pipeline = Some(
+            r#"digraph parent {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    Design [type="workflow", workflow="software-design-iterative", goal="$goal"]
+    start -> Design -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            !warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(_))),
+            "should not warn when $goal is passed: {warnings:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_no_goal_warning_when_parent_has_fixed_goal() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "parent".into());
+        workflow.goal_hint = Some("What do you want to build?".into());
+        workflow.goal = Some("Build a spaceship".into());
+        workflow.pipeline = Some(
+            r#"digraph parent {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    Design [type="workflow", workflow="software-design-iterative"]
+    start -> Design -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            !warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(_))),
+            "should not warn when parent has a fixed goal: {warnings:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_no_goal_warning_when_no_goal_hint() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "parent".into());
+        workflow.goal_hint = None;
+        workflow.goal = None;
+        workflow.pipeline = Some(
+            r#"digraph parent {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    Design [type="workflow", workflow="software-design-iterative"]
+    start -> Design -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            !warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(_))),
+            "should not warn when parent has no goal_hint: {warnings:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn validate_workflow_no_goal_warning_when_prompt_contains_goal() -> eyre::Result<()> {
+        let mut workflow = Workflow::new("A test workflow".into(), "parent".into());
+        workflow.goal_hint = Some("What do you want to build?".into());
+        workflow.goal = None;
+        workflow.pipeline = Some(
+            r#"digraph parent {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    Design [type="workflow", workflow="software-design-iterative", prompt="Do this: $goal"]
+    start -> Design -> exit
+}"#
+            .to_string(),
+        );
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            !warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(_))),
+            "should not warn when $goal is in prompt: {warnings:?}"
+        );
         Ok(())
     }
 }
