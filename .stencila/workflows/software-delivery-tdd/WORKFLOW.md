@@ -41,14 +41,14 @@ Stages share state via `workflow_set_context` / `workflow_get_context` and `work
 digraph software_delivery_tdd {
   Start -> SelectSlice
 
-  SelectSlice [agent="software-slice-selector", prompt-ref="#select-slice-prompt"]
+  SelectSlice [agent="software-slice-selector", prompt-ref="#select-slice-prompt", context-writable=true]
   SelectSlice -> CreateTests  [label="Continue"]
   SelectSlice -> End          [label="Done"]
 
   subgraph red_phase {
     node [class="red-phase"]
 
-    CreateTests [agent="software-test-creator", prompt-ref="#create-tests-prompt", max_retries=3]
+    CreateTests [agent="software-test-creator", prompt-ref="#create-tests-prompt", max_retries=3, context-writable=true]
     CreateTests -> RunTestsRed
 
     RunTestsRed [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
@@ -85,32 +85,10 @@ digraph software_delivery_tdd {
   HumanReview -> CheckRemaining  [label="Accept"]
   HumanReview -> CreateTests     [label="Revise"]
 
-  CheckRemaining [agent="software-slice-checker", prompt-ref="#check-slices-prompt"]
+  CheckRemaining [agent="software-slice-checker", prompt-ref="#check-slices-prompt", context-writable=true]
   CheckRemaining -> SelectSlice  [label="Continue"]
   CheckRemaining -> End          [label="Done"]
 }
-```
-
-```text #run-tests-prompt
-Run the tests relevant to the current slice.
-
-Delivery plan goal: $goal
-
-Step 1 — read workflow state:
-  Use workflow_get_context to read:
-  - key "slice.test_command" — the test command to run
-  - key "slice.test_files" — the test file paths
-  - key "slice.scope" — what the slice covers
-  - key "slice.packages" — the packages or directories involved
-  - key "current_slice" — the slice name (for the report header)
-
-Step 2 — delegate to the test-execution skill:
-  Pass the test command, test files, slice scope, target packages, and slice name as inputs.
-  If no test command is stored, the skill will discover the correct scoped test command.
-  The skill will execute the tests, parse the output, and report a structured pass/fail result.
-
-Step 3 — route based on the skill's result:
-  If this node has outgoing labeled edges: call workflow_set_route with label "Pass" if all tests passed, or "Fail" if any test failed.
 ```
 
 ```text #select-slice-prompt
@@ -187,6 +165,28 @@ Step 3 — route based on the skill's recommendation:
   If the skill recommends Accept, call workflow_set_route with label "Accept".
   If the skill recommends Revise, call workflow_set_route with label "Revise" — the review
   report serves as feedback for the test-creation agent in the next iteration.
+```
+
+```text #run-tests-prompt
+Run the tests relevant to the current slice.
+
+Delivery plan goal: $goal
+
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "slice.test_command" — the test command to run
+  - key "slice.test_files" — the test file paths
+  - key "slice.scope" — what the slice covers
+  - key "slice.packages" — the packages or directories involved
+  - key "current_slice" — the slice name (for the report header)
+
+Step 2 — delegate to the test-execution skill:
+  Pass the test command, test files, slice scope, target packages, and slice name as inputs.
+  If no test command is stored, the skill will discover the correct scoped test command.
+  The skill will execute the tests, parse the output, and report a structured pass/fail result.
+
+Step 3 — route based on the skill's result:
+  If this node has outgoing labeled edges: call workflow_set_route with label "Pass" if all tests passed, or "Fail" if any test failed.
 ```
 
 ```text #implement-prompt
