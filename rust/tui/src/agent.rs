@@ -307,8 +307,6 @@ pub struct DelegationRequest {
     pub kind: DelegationKind,
     /// Name of the agent or workflow to delegate to.
     pub name: String,
-    /// Brief explanation of why this delegatee was chosen.
-    pub reason: String,
     /// Instruction for the delegated agent or workflow.
     pub instruction: String,
 }
@@ -1083,12 +1081,6 @@ pub(crate) fn process_event(
                     .and_then(Value::as_str)
                     .unwrap_or("")
                     .to_string();
-                let reason = event
-                    .data
-                    .get("reason")
-                    .and_then(Value::as_str)
-                    .unwrap_or("")
-                    .to_string();
                 let instruction = event
                     .data
                     .get("instruction")
@@ -1098,7 +1090,6 @@ pub(crate) fn process_event(
                 g.delegation = Some(DelegationRequest {
                     kind,
                     name,
-                    reason,
                     instruction,
                 });
             }

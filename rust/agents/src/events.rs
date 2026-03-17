@@ -215,13 +215,11 @@ impl EventEmitter {
         &self,
         kind: impl Into<String>,
         name: impl Into<String>,
-        reason: impl Into<String>,
         instruction: Option<String>,
     ) {
         let mut data = serde_json::Map::new();
         data.insert("kind".into(), Value::String(kind.into()));
         data.insert("name".into(), Value::String(name.into()));
-        data.insert("reason".into(), Value::String(reason.into()));
         if let Some(instr) = instruction {
             data.insert("instruction".into(), Value::String(instr));
         }

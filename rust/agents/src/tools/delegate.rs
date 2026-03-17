@@ -29,16 +29,12 @@ pub fn definition() -> ToolDefinition {
                     "type": "string",
                     "description": "Name of the agent or workflow to delegate to."
                 },
-                "reason": {
-                    "type": "string",
-                    "description": "Brief explanation of why this delegatee was chosen."
-                },
                 "instruction": {
                     "type": "string",
                     "description": "What the delegatee should accomplish. For agent delegation, phrase as a task. For workflow delegation, phrase as a goal."
                 }
             },
-            "required": ["kind", "name", "reason", "instruction"],
+            "required": ["kind", "name", "instruction"],
             "additionalProperties": false
         }),
         strict: false,
@@ -51,7 +47,6 @@ pub fn executor() -> ToolExecutorFn {
             Box::pin(async move {
                 let kind = required_str(&args, "kind")?;
                 let name = required_str(&args, "name")?;
-                let reason = required_str(&args, "reason")?;
                 let instruction = required_str(&args, "instruction")?;
 
                 if kind != "agent" && kind != "workflow" {
@@ -96,7 +91,6 @@ pub fn executor() -> ToolExecutorFn {
                     "delegated": true,
                     "kind": kind,
                     "name": name,
-                    "reason": reason,
                     "instruction": instruction,
                 });
 

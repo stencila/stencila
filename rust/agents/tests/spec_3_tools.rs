@@ -1074,7 +1074,6 @@ async fn delegate_rejects_invalid_kind() {
         json!({
             "kind": "invalid",
             "name": "test",
-            "reason": "testing",
             "instruction": "do something"
         }),
         &env,
@@ -1091,8 +1090,7 @@ async fn delegate_rejects_missing_instruction() {
     let result = exec(
         json!({
             "kind": "agent",
-            "name": "test",
-            "reason": "testing"
+            "name": "test"
         }),
         &env,
     )

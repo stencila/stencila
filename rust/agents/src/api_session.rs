@@ -2098,16 +2098,11 @@ async fn execute_tool(
                     .and_then(Value::as_str)
                     .unwrap_or("")
                     .to_string();
-                let reason = args
-                    .get("reason")
-                    .and_then(Value::as_str)
-                    .unwrap_or("")
-                    .to_string();
                 let instruction = args
                     .get("instruction")
                     .and_then(Value::as_str)
                     .map(String::from);
-                events.emit_delegation(kind, name, reason, instruction);
+                events.emit_delegation(kind, name, instruction);
             }
 
             // Truncated version for LLM

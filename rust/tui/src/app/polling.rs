@@ -503,10 +503,7 @@ impl App {
         match delegation.kind {
             crate::agent::DelegationKind::Agent => {
                 self.messages.push(AppMessage::System {
-                    content: format!(
-                        "Delegating to agent `{}`: {}",
-                        delegation.name, delegation.reason
-                    ),
+                    content: format!("Delegating to agent `{}`", delegation.name),
                 });
 
                 // Find or create the target agent session
@@ -553,10 +550,7 @@ impl App {
             }
             crate::agent::DelegationKind::Workflow => {
                 self.messages.push(AppMessage::System {
-                    content: format!(
-                        "Delegating to workflow `{}`: {}",
-                        delegation.name, delegation.reason
-                    ),
+                    content: format!("Delegating to workflow `{}`", delegation.name),
                 });
 
                 // Find the workflow definition, including newly created ephemeral workflows
