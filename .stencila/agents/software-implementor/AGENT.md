@@ -20,7 +20,6 @@ when-not-to-use:
   - when reviewing tests, designs, or plans
 reasoning-effort: high
 trust-level: medium
-max-turns: 5
 allowed-skills:
   - software-implementation
 allowed-tools:

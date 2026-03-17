@@ -16,7 +16,6 @@ when-not-to-use:
   - when implementing code, writing tests, or running tests
 reasoning-effort: medium
 trust-level: low
-max-turns: 5
 allowed-skills:
   - software-slice-selection
 allowed-tools:

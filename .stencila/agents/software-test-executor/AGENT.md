@@ -19,7 +19,6 @@ when-not-to-use:
   - when creating, reviewing, or selecting delivery plan slices
 reasoning-effort: medium
 trust-level: medium
-max-turns: 5
 allowed-skills:
   - software-test-execution
 allowed-tools:

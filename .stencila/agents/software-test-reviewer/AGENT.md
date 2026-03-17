@@ -22,7 +22,6 @@ when-not-to-use:
   - when reviewing designs or plans
 reasoning-effort: high
 trust-level: low
-max-turns: 5
 allowed-skills:
   - software-test-review
 allowed-tools:

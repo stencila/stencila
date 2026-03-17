@@ -19,7 +19,6 @@ when-not-to-use:
   - when creating or reviewing a delivery plan or design spec
 reasoning-effort: high
 trust-level: medium
-max-turns: 5
 allowed-skills:
   - software-test-creation
 allowed-tools:
