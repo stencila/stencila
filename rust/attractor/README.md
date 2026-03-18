@@ -342,6 +342,12 @@ The condition engine supports `=` / `!=` with `&&` (plus documented bare-key tru
 
 Parallel fan-out currently implements only `wait_all` and `first_success`, and fan-in currently uses heuristic candidate ranking only; the `k_of_n`/`quorum` joins and prompt-driven LLM fan-in evaluation path are not implemented.
 
+### Non-`full` fidelity prompt carryover (§5.4, §9.2)
+
+The engine resolves and validates all spec fidelity modes (`full`, `truncate`, `compact`, `summary:low`, `summary:medium`, `summary:high`) and exposes the effective mode to handlers via `internal.fidelity`. Thread resolution, resume degradation to `summary:high`, and `max_session_turns`-driven session reuse limits are also implemented.
+
+However, the spec's execution-time preamble transform for non-`full` fidelity modes is not implemented. In practice, codergen/agent nodes only alter runtime behavior for `full` fidelity (session reuse by `thread_id`); `truncate`, `compact`, and the `summary:*` modes currently do not synthesize different context-carryover prompt text or token-budgeted summaries.
+
 ### Tool Call Hooks (§9.7)
 
 `tool_hooks.pre` and `tool_hooks.post` are parsed as attributes but no hook execution is implemented around tool calls.
