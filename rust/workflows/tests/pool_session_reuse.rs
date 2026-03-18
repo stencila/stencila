@@ -1,4 +1,4 @@
-//! Integration tests for ssession pool reuse in `AgentCodergenBackend`.
+//! Integration tests for session pool reuse in `AgentCodergenBackend`.
 //!
 //! These tests verify that when `fidelity=full` is set on an edge,
 //! `AgentCodergenBackend::run()` consults the `SessionPool` via
@@ -108,9 +108,18 @@ impl CodergenBackend for PoolAwareMockBackend {
                 agent_name: format!("mock-agent-{}", node.id),
                 ..Default::default()
             });
-            // SessionGuard::Drop will put_back the entry, incrementing
-            // turn_count. This is the observable side effect we assert on.
-            let _guard = SessionGuard::from_pool(self.pool.clone(), tid.clone(), entry);
+            let mut guard = SessionGuard::from_pool(self.pool.clone(), tid.clone(), entry);
+
+            // CLI session fallback: detect agent_type="cli" on the node
+            // and discard the guard so the session is not returned to the pool.
+            let is_cli = node.attrs.get("agent_type").and_then(|v| v.as_str()) == Some("cli");
+            if is_cli {
+                tracing::warn!(
+                    node_id = %node.id,
+                    "CLI sessions do not support persistent reuse; discarding pool guard"
+                );
+                guard.discard();
+            }
         }
 
         Ok(CodergenOutput::Text(self.response.clone()))
@@ -482,6 +491,152 @@ async fn loop_with_fidelity_full_reuses_session_via_pool() -> eyre::Result<()> {
         "turn_count should be 2 after two SessionGuard lifecycles \
          (one per loop iteration), got {}",
         entry.turn_count
+    );
+
+    Ok(())
+}
+
+/// Slice 5 (CLI session fallback): When `fidelity=full` and the agent
+/// session is CLI-backed (indicated by `agent_type="cli"` node attribute),
+/// the mock simulates the protocol that `AgentCodergenBackend.run()` must
+/// implement: detect `AgentSession::Cli`, call `guard.discard()`, and log
+/// a warning. The observable result is that the pool remains empty after
+/// execution — the session is used for the current execution but not returned.
+///
+/// This test builds a loop graph where node A has `fidelity="full"`,
+/// `thread_id="loop_thread"`, AND `agent_type="cli"`. After two loop
+/// iterations the pool should be empty because both iterations should
+/// have discarded the guard.
+///
+/// **Expected to FAIL** until `PoolAwareMockBackend.run()` is updated to
+/// check for `agent_type="cli"` and call `guard.discard()`, mirroring the
+/// real `AgentCodergenBackend` protocol.
+#[tokio::test]
+async fn cli_session_with_fidelity_full_does_not_pool_session() -> eyre::Result<()> {
+    let pool = SessionPool::new();
+    let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
+
+    // Build a loop graph similar to build_loop_graph() but with agent_type="cli"
+    // on node A.
+    let mut graph = Graph::new("cli_pool_test");
+    graph.add_node(make_start_node());
+
+    let mut node_a = Node::new("A");
+    node_a
+        .attrs
+        .insert("fidelity".into(), AttrValue::String("full".into()));
+    node_a
+        .attrs
+        .insert("thread_id".into(), AttrValue::String("loop_thread".into()));
+    node_a
+        .attrs
+        .insert("agent_type".into(), AttrValue::String("cli".into()));
+    graph.add_node(node_a);
+
+    graph.add_node(Node::new("B"));
+    graph.add_node(make_exit_node());
+
+    graph.add_edge(Edge::new("Start", "A"));
+    graph.add_edge(Edge::new("A", "B"));
+
+    let mut e_loop = Edge::new("B", "A");
+    e_loop
+        .attrs
+        .insert("label".into(), AttrValue::String("retry".into()));
+    e_loop
+        .attrs
+        .insert("loop_restart".into(), AttrValue::Boolean(true));
+    graph.add_edge(e_loop);
+
+    let mut e_exit = Edge::new("B", "Exit");
+    e_exit
+        .attrs
+        .insert("label".into(), AttrValue::String("done".into()));
+    graph.add_edge(e_exit);
+
+    let handler = SequenceCodergenHandler::new(
+        backend.clone(),
+        vec!["retry".to_string(), "done".to_string()],
+    );
+
+    let mut config = EngineConfig::new();
+    config.skip_validation = true;
+    config.registry.register("codergen", handler);
+
+    let outcome = engine::run_with_context(&graph, config, Context::new()).await?;
+    assert!(
+        outcome.status.is_success(),
+        "pipeline should complete successfully, got: {:?}",
+        outcome.status
+    );
+
+    // Node A should have been executed twice
+    let calls = backend.calls();
+    let a_calls: Vec<_> = calls.iter().filter(|c| c.node_id == "A").collect();
+    assert_eq!(
+        a_calls.len(),
+        2,
+        "node A should have been executed twice (two loop iterations)"
+    );
+
+    // Key assertion: after execution with agent_type="cli", the pool
+    // should be EMPTY because guard.discard() should have been called
+    // on every iteration, preventing the session from being returned.
+    let drained = pool.drain();
+    assert!(
+        drained.is_empty(),
+        "CLI-backed sessions should NOT be pooled (guard.discard() should \
+         be called when agent_type='cli'). Expected empty pool, but found \
+         {} entries: {:?}",
+        drained.len(),
+        drained.keys().collect::<Vec<_>>()
+    );
+
+    Ok(())
+}
+
+/// Slice 5 (cont): Verify that the mock backend records that CLI sessions
+/// were detected — specifically, when `fidelity=full` AND `agent_type=cli`,
+/// the guard should be discarded (not returned to pool).
+///
+/// This unit-level test calls `PoolAwareMockBackend.run()` directly with
+/// `agent_type=cli` to verify discard behavior without running a full pipeline.
+#[tokio::test]
+async fn pool_aware_mock_discards_guard_for_cli_sessions() -> eyre::Result<()> {
+    let pool = SessionPool::new();
+    let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
+
+    let mut node = Node::new("cli-node");
+    node.attrs
+        .insert("agent_type".into(), AttrValue::String("cli".into()));
+
+    let context = Context::new();
+    context.set(
+        "internal.fidelity",
+        serde_json::Value::String("full".into()),
+    );
+    context.set(
+        "internal.thread_id",
+        serde_json::Value::String("cli-thread".into()),
+    );
+
+    backend
+        .run(
+            &node,
+            "prompt",
+            &context,
+            Arc::new(stencila_attractor::events::NoOpEmitter),
+            0,
+        )
+        .await?;
+
+    // After a CLI session with fidelity=full, the pool should be empty
+    // because guard.discard() should prevent the entry from being returned.
+    assert!(
+        pool.take("cli-thread").is_none(),
+        "CLI session guard should have been discarded, so pool entry for \
+         'cli-thread' should not exist. guard.discard() must be called \
+         when the session is CLI-backed."
     );
 
     Ok(())
