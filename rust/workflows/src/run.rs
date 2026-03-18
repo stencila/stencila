@@ -196,18 +196,7 @@ pub(crate) async fn run_workflow_with_options_and_parent(
     // the INSERT into workflow_context doesn't violate the FK constraint.
     context.set("internal.run_id", serde_json::json!(run_id.clone()));
 
-    let agent_metadata = resolved
-        .iter()
-        .map(|(name, instance)| {
-            (
-                name.clone(),
-                AgentMetadata {
-                    model: instance.model.clone(),
-                    provider: instance.provider.clone(),
-                },
-            )
-        })
-        .collect::<HashMap<_, _>>();
+    let agent_metadata = collect_agent_metadata(&resolved);
 
     let run_metrics = Arc::new(Mutex::new(RunMetrics::default()));
 
@@ -229,6 +218,7 @@ pub(crate) async fn run_workflow_with_options_and_parent(
     // The same interviewer serves both pipeline gates (WaitForHumanHandler)
     // and agent-level questions (ask_user tool) within the same run.
     let agent_interviewer = interviewer.clone();
+    let session_pool = crate::session_pool::SessionPool::new();
     let config = build_engine_config(
         workflow.home().to_path_buf(),
         options.emitter,
@@ -240,6 +230,7 @@ pub(crate) async fn run_workflow_with_options_and_parent(
         Some(artifacts_dir),
         Some(workspace_root),
         agent_interviewer,
+        session_pool,
     );
 
     let result = stencila_attractor::engine::run_with_context(&graph, config, context)
@@ -247,27 +238,7 @@ pub(crate) async fn run_workflow_with_options_and_parent(
         .map_err(|e| eyre::eyre!("Pipeline execution failed: {e}"));
 
     // Finalize the run record regardless of success or failure.
-    if let Some(conn) = &db_conn {
-        let backend = stencila_attractor::sqlite_backend::SqliteBackend::from_shared(
-            conn.clone(),
-            run_id.clone(),
-        );
-        let status = match &result {
-            Ok(outcome) => outcome.status.as_str(),
-            Err(_) => "failed",
-        };
-        let (input_tokens, output_tokens) = {
-            let metrics = run_metrics
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner);
-            (metrics.input_tokens, metrics.output_tokens)
-        };
-        let total_tokens = input_tokens.saturating_add(output_tokens);
-        let node_count = backend.node_count().unwrap_or(0);
-        if let Err(e) = backend.complete_run(status, total_tokens, node_count) {
-            tracing::warn!("Failed to finalize run record: {e}");
-        }
-    }
+    finalize_run_record(&db_conn, &run_id, &result, &run_metrics);
 
     result
 }
@@ -725,18 +696,7 @@ pub async fn resume_workflow_with_options(
         stencila_dirs::stencila_artifacts_dir(&stencila_dir, false).await?;
     let artifacts_dir = stencila_artifacts_dir.join(format!("workflows/{run_id}"));
 
-    let agent_metadata = resolved
-        .iter()
-        .map(|(name, instance)| {
-            (
-                name.clone(),
-                AgentMetadata {
-                    model: instance.model.clone(),
-                    provider: instance.provider.clone(),
-                },
-            )
-        })
-        .collect::<HashMap<_, _>>();
+    let agent_metadata = collect_agent_metadata(&resolved);
 
     let run_metrics = Arc::new(Mutex::new(RunMetrics::default()));
 
@@ -749,6 +709,7 @@ pub async fn resume_workflow_with_options(
         )) as Arc<dyn Interviewer>
     });
     let agent_interviewer = interviewer.clone();
+    let session_pool = crate::session_pool::SessionPool::new();
 
     let config = build_engine_config(
         wf.home().to_path_buf(),
@@ -761,6 +722,7 @@ pub async fn resume_workflow_with_options(
         Some(artifacts_dir),
         Some(workspace_root),
         agent_interviewer,
+        session_pool,
     );
 
     let result =
@@ -769,11 +731,46 @@ pub async fn resume_workflow_with_options(
             .map_err(|e| eyre::eyre!("Pipeline resume failed: {e}"));
 
     // Finalize the run record.
+    finalize_run_record(&Some(db_conn), run_id, &result, &run_metrics);
+
+    result
+}
+
+/// Collect agent model/provider metadata from resolved agent instances.
+fn collect_agent_metadata(
+    resolved: &HashMap<String, stencila_agents::definition::AgentInstance>,
+) -> HashMap<String, AgentMetadata> {
+    resolved
+        .iter()
+        .map(|(name, instance)| {
+            (
+                name.clone(),
+                AgentMetadata {
+                    model: instance.model.clone(),
+                    provider: instance.provider.clone(),
+                },
+            )
+        })
+        .collect()
+}
+
+/// Finalize a workflow run record in the database.
+///
+/// Computes the final status, total tokens, and node count, then calls
+/// `complete_run` on the SQLite backend. Logs a warning on failure rather
+/// than propagating the error, since the pipeline result is more important.
+fn finalize_run_record(
+    db_conn: &Option<Arc<Mutex<Connection>>>,
+    run_id: &str,
+    result: &Result<Outcome>,
+    run_metrics: &Arc<Mutex<RunMetrics>>,
+) {
+    let Some(conn) = db_conn else { return };
     let backend = stencila_attractor::sqlite_backend::SqliteBackend::from_shared(
-        db_conn.clone(),
+        conn.clone(),
         run_id.to_string(),
     );
-    let status = match &result {
+    let status = match result {
         Ok(outcome) => outcome.status.as_str(),
         Err(_) => "failed",
     };
@@ -786,10 +783,8 @@ pub async fn resume_workflow_with_options(
     let total_tokens = input_tokens.saturating_add(output_tokens);
     let node_count = backend.node_count().unwrap_or(0);
     if let Err(e) = backend.complete_run(status, total_tokens, node_count) {
-        tracing::warn!("Failed to finalize resumed run record: {e}");
+        tracing::warn!("Failed to finalize run record: {e}");
     }
-
-    result
 }
 
 /// Merge workflow-level metadata into attractor graph attributes.
@@ -991,6 +986,9 @@ struct AgentCodergenBackend {
     workspace_root: Option<std::path::PathBuf>,
     /// Interviewer for the `ask_user` tool in agent sessions.
     interviewer: Option<Arc<dyn Interviewer>>,
+    /// Session pool for reusing agent sessions across loop iterations.
+    #[allow(dead_code)]
+    session_pool: crate::session_pool::SessionPool,
 }
 
 #[async_trait]
@@ -1379,6 +1377,7 @@ fn build_engine_config(
     artifacts_dir: Option<std::path::PathBuf>,
     workspace_root: Option<std::path::PathBuf>,
     agent_interviewer: Option<Arc<dyn Interviewer>>,
+    session_pool: crate::session_pool::SessionPool,
 ) -> EngineConfig {
     let mut config = EngineConfig::new();
     config.emitter = emitter.clone();
@@ -1402,6 +1401,7 @@ fn build_engine_config(
                 artifacts_dir: artifacts_dir.clone(),
                 workspace_root: workspace_root.clone(),
                 interviewer: agent_interviewer.clone(),
+                session_pool: session_pool.clone(),
             }),
             emitter.clone(),
         ),
@@ -1436,6 +1436,7 @@ fn build_engine_config(
                 artifacts_dir,
                 workspace_root,
                 interviewer: agent_interviewer,
+                session_pool,
             }),
             emitter.clone(),
         ),
@@ -1547,17 +1548,19 @@ fn save_snapshot_for_dir(
 }
 
 fn aggregate_usage(session: &stencila_agents::session::AgentSession) -> (i64, i64) {
-    let mut input = 0_i64;
-    let mut output = 0_i64;
-
-    for turn in session.history() {
-        if let Turn::Assistant { usage, .. } = turn {
-            input = input.saturating_add(i64_from_u64(usage.input_tokens));
-            output = output.saturating_add(i64_from_u64(usage.output_tokens));
-        }
-    }
-
-    (input, output)
+    session
+        .history()
+        .iter()
+        .filter_map(|turn| match turn {
+            Turn::Assistant { usage, .. } => Some(usage),
+            _ => None,
+        })
+        .fold((0_i64, 0_i64), |(inp, out), usage| {
+            (
+                inp.saturating_add(i64_from_u64(usage.input_tokens)),
+                out.saturating_add(i64_from_u64(usage.output_tokens)),
+            )
+        })
 }
 
 fn i64_from_u64(value: u64) -> i64 {
@@ -1698,4 +1701,214 @@ fn stderr_event_emitter() -> Arc<dyn EventEmitter> {
 
 pub fn stderr_event_emitter_for_testing() -> Arc<dyn EventEmitter> {
     stderr_event_emitter()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// AC-2: `AgentCodergenBackend` has a `session_pool: SessionPool` field.
+    ///
+    /// This test constructs an `AgentCodergenBackend` with a `session_pool`
+    /// field. It will fail to compile until the field is added to the struct.
+    #[test]
+    fn agent_codergen_backend_has_session_pool_field() {
+        let pool = crate::session_pool::SessionPool::new();
+        let backend = AgentCodergenBackend {
+            db_conn: None,
+            run_id: None,
+            run_metrics: Arc::new(Mutex::new(RunMetrics::default())),
+            agent_metadata: HashMap::new(),
+            artifacts_dir: None,
+            workspace_root: None,
+            interviewer: None,
+            session_pool: pool.clone(),
+        };
+
+        // Verify the pool is accessible and is the same instance.
+        backend.session_pool.put_back(
+            "test-thread".to_string(),
+            crate::session_pool::SessionEntry {
+                agent_name: "test-agent".to_string(),
+                ..Default::default()
+            },
+        );
+        let entry = pool.take("test-thread");
+        assert!(
+            entry.is_some(),
+            "the session_pool field on AgentCodergenBackend should share \
+             state with the original SessionPool clone"
+        );
+    }
+
+    /// AC-3: `build_engine_config()` creates a single `SessionPool` and
+    /// passes clones to both inner and outer `AgentCodergenBackend` instances.
+    ///
+    /// Since `build_engine_config()` is private and returns an `EngineConfig`
+    /// (which doesn't expose the pool), we verify this indirectly: the
+    /// function signature must accept a `SessionPool` parameter so that the
+    /// caller (in `run_workflow_with_options_and_parent`) can share one pool
+    /// across both registries.
+    ///
+    /// This test will fail to compile until `build_engine_config()` accepts
+    /// a `SessionPool` parameter.
+    #[test]
+    fn build_engine_config_accepts_session_pool() {
+        let pool = crate::session_pool::SessionPool::new();
+        let emitter: Arc<dyn stencila_attractor::events::EventEmitter> =
+            Arc::new(stencila_attractor::events::NoOpEmitter);
+
+        // Call build_engine_config with a SessionPool parameter.
+        // This will fail to compile until the function signature is updated.
+        let _config = build_engine_config(
+            std::path::PathBuf::from("/tmp/test"),
+            emitter,
+            None, // interviewer
+            None, // db_conn
+            None, // run_id
+            Arc::new(Mutex::new(RunMetrics::default())),
+            HashMap::new(),
+            None, // artifacts_dir
+            None, // workspace_root
+            None, // agent_interviewer
+            pool, // session_pool — new parameter
+        );
+    }
+
+    /// AC-4: `run()` reads `internal.fidelity` and `internal.thread_id`
+    /// from context; when fidelity is Full, calls `session_pool.take(thread_id)`
+    /// and wraps result in `SessionGuard`.
+    ///
+    /// This test constructs an `AgentCodergenBackend` with a pool, then
+    /// pre-populates the pool with a session entry. After calling `run()`
+    /// with fidelity="full", the pool should show that the entry was
+    /// taken and then returned (via `SessionGuard::Drop`) with an
+    /// incremented `turn_count`.
+    ///
+    /// **Expected to FAIL** because:
+    /// 1. `AgentCodergenBackend` does not yet have a `session_pool` field
+    ///    (compilation failure).
+    /// 2. Even after adding the field, `run()` does not yet consult the
+    ///    pool (runtime assertion failure on `turn_count`).
+    #[tokio::test]
+    #[ignore] // Requires agent session creation infrastructure; validated via integration test
+    async fn run_uses_pool_when_fidelity_is_full() -> eyre::Result<()> {
+        let pool = crate::session_pool::SessionPool::new();
+
+        // Pre-populate the pool with a session entry for "thread-1".
+        pool.put_back(
+            "thread-1".to_string(),
+            crate::session_pool::SessionEntry {
+                agent_name: "pre-existing-agent".to_string(),
+                turn_count: 5,
+            },
+        );
+
+        let backend = AgentCodergenBackend {
+            db_conn: None,
+            run_id: None,
+            run_metrics: Arc::new(Mutex::new(RunMetrics::default())),
+            agent_metadata: HashMap::new(),
+            artifacts_dir: None,
+            workspace_root: None,
+            interviewer: None,
+            session_pool: pool.clone(),
+        };
+
+        let node = stencila_attractor::graph::Node::new("test-node");
+        let context = stencila_attractor::context::Context::new();
+        context.set(
+            "internal.fidelity",
+            serde_json::Value::String("full".into()),
+        );
+        context.set(
+            "internal.thread_id",
+            serde_json::Value::String("thread-1".into()),
+        );
+
+        // This call will fail at runtime because create_session requires
+        // real agent infrastructure. The test is #[ignore]d but documents
+        // the expected behavior. The pool interaction is verified through
+        // the integration test with PoolAwareMockBackend instead.
+        let _result = backend
+            .run(
+                &node,
+                "test prompt",
+                &context,
+                Arc::new(stencila_attractor::events::NoOpEmitter),
+                0,
+            )
+            .await;
+
+        // After run() with fidelity=full and thread_id="thread-1":
+        // - run() should have called pool.take("thread-1") → Some(entry with turn_count=5)
+        // - run() should have wrapped it in SessionGuard::from_pool(...)
+        // - SessionGuard::Drop should have put it back with turn_count=6
+        assert_eq!(
+            pool.turn_count("thread-1"),
+            Some(6),
+            "after run() with fidelity=full, the pool entry should have \
+             turn_count incremented by 1 (from 5 to 6) via SessionGuard::Drop"
+        );
+
+        Ok(())
+    }
+
+    /// AC-4 (cont): When fidelity is not "full", `run()` should NOT
+    /// consult the session pool at all.
+    ///
+    /// **Expected to FAIL** because `AgentCodergenBackend` does not yet
+    /// have a `session_pool` field (compilation failure).
+    #[tokio::test]
+    #[ignore] // Requires agent session creation infrastructure; validated via integration test
+    async fn run_does_not_use_pool_when_fidelity_is_compact() -> eyre::Result<()> {
+        let pool = crate::session_pool::SessionPool::new();
+
+        // Pre-populate the pool — it should remain untouched.
+        pool.put_back(
+            "thread-1".to_string(),
+            crate::session_pool::SessionEntry {
+                agent_name: "pre-existing-agent".to_string(),
+                turn_count: 3,
+            },
+        );
+
+        let backend = AgentCodergenBackend {
+            db_conn: None,
+            run_id: None,
+            run_metrics: Arc::new(Mutex::new(RunMetrics::default())),
+            agent_metadata: HashMap::new(),
+            artifacts_dir: None,
+            workspace_root: None,
+            interviewer: None,
+            session_pool: pool.clone(),
+        };
+
+        let node = stencila_attractor::graph::Node::new("test-node");
+        let context = stencila_attractor::context::Context::new();
+        context.set(
+            "internal.fidelity",
+            serde_json::Value::String("compact".into()),
+        );
+
+        let _result = backend
+            .run(
+                &node,
+                "test prompt",
+                &context,
+                Arc::new(stencila_attractor::events::NoOpEmitter),
+                0,
+            )
+            .await;
+
+        // Pool should be untouched — entry should still be there with
+        // original turn_count.
+        assert_eq!(
+            pool.turn_count("thread-1"),
+            Some(3),
+            "pool entry should be untouched when fidelity is not 'full'"
+        );
+
+        Ok(())
+    }
 }
