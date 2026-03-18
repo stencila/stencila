@@ -104,10 +104,24 @@ impl CodergenBackend for PoolAwareMockBackend {
         if fidelity.as_deref() == Some("full")
             && let Some(tid) = &thread_id
         {
-            let entry = self.pool.take(tid).unwrap_or_else(|| SessionEntry {
+            // AC-16: Read max_session_turns from node attributes.
+            let max_turns: Option<u64> = node
+                .attrs
+                .get("max_session_turns")
+                .and_then(|v| v.as_str())
+                .and_then(|s| s.parse().ok());
+
+            let fresh = || SessionEntry {
                 agent_name: format!("mock-agent-{}", node.id),
                 ..Default::default()
-            });
+            };
+            let entry = match (self.pool.take(tid), max_turns) {
+                // Pool has an entry below the limit (or no limit) — reuse.
+                (Some(existing), Some(limit)) if existing.turn_count < limit => existing,
+                (Some(existing), None) => existing,
+                // Pool empty or limit reached — create a fresh session.
+                _ => fresh(),
+            };
             let mut guard = SessionGuard::from_pool(self.pool.clone(), tid.clone(), entry);
 
             // CLI session fallback: detect agent_type="cli" on the node
@@ -144,17 +158,17 @@ fn make_exit_node() -> Node {
     node
 }
 
-/// Build a 2-iteration loop graph:
+/// Build a loop graph with configurable extra attributes on node A:
 ///
 /// ```text
-/// Start → A [fidelity=full, thread_id=loop_thread] → B
+/// Start → A [fidelity=full, thread_id=loop_thread, ...extra_attrs] → B
 ///              ├──[retry, loop_restart]──→ A
 ///              └──[done]──→ Exit
 /// ```
 ///
-/// Node A carries `fidelity="full"` and `thread_id="loop_thread"` as
-/// **node attributes** so that every execution of A (regardless of
-/// which edge was used to reach it) triggers the pool protocol.
+/// Node A always carries `fidelity="full"` and `thread_id="loop_thread"`.
+/// Callers can supply additional string attributes via `extra_node_a_attrs`
+/// (e.g. `agent_type="cli"` or `max_session_turns="2"`).
 ///
 /// On loop restart, the engine clears `last_selected_edge`, so
 /// edge-level fidelity from B→A would not be visible to A. By placing
@@ -164,11 +178,10 @@ fn make_exit_node() -> Node {
 /// The `SequenceCodergenHandler` is used so that B returns "retry" on
 /// the first call and "done" on the second call, producing exactly two
 /// iterations through A.
-fn build_loop_graph() -> Graph {
-    let mut graph = Graph::new("pool_reuse_loop");
+fn build_loop_graph_with_attrs(name: &str, extra_node_a_attrs: &[(&str, &str)]) -> Graph {
+    let mut graph = Graph::new(name);
     graph.add_node(make_start_node());
 
-    // Node A: fidelity=full and thread_id=loop_thread as node attributes
     let mut node_a = Node::new("A");
     node_a
         .attrs
@@ -176,6 +189,11 @@ fn build_loop_graph() -> Graph {
     node_a
         .attrs
         .insert("thread_id".into(), AttrValue::String("loop_thread".into()));
+    for &(key, value) in extra_node_a_attrs {
+        node_a
+            .attrs
+            .insert(key.into(), AttrValue::String(value.into()));
+    }
     graph.add_node(node_a);
 
     graph.add_node(Node::new("B"));
@@ -184,7 +202,6 @@ fn build_loop_graph() -> Graph {
     graph.add_edge(Edge::new("Start", "A"));
     graph.add_edge(Edge::new("A", "B"));
 
-    // Back edge: B → A with loop_restart (fidelity is on the node, not edge)
     let mut e_loop = Edge::new("B", "A");
     e_loop
         .attrs
@@ -201,6 +218,10 @@ fn build_loop_graph() -> Graph {
     graph.add_edge(e_exit);
 
     graph
+}
+
+fn build_loop_graph() -> Graph {
+    build_loop_graph_with_attrs("pool_reuse_loop", &[])
 }
 
 /// A handler wrapper that returns sequenced outcomes (alternating
@@ -252,6 +273,25 @@ impl stencila_attractor::handler::Handler for SequenceCodergenHandler {
 
         Ok(outcome)
     }
+}
+
+/// Run a pipeline to completion with the given handler and graph,
+/// skipping validation.
+async fn run_pipeline(
+    graph: &Graph,
+    handler: impl stencila_attractor::handler::Handler + 'static,
+) -> eyre::Result<stencila_attractor::types::Outcome> {
+    let mut config = EngineConfig::new();
+    config.skip_validation = true;
+    config.registry.register("codergen", handler);
+
+    let outcome = engine::run_with_context(graph, config, Context::new()).await?;
+    assert!(
+        outcome.status.is_success(),
+        "pipeline should complete successfully, got: {:?}",
+        outcome.status
+    );
+    Ok(outcome)
 }
 
 // ===========================================================================
@@ -424,16 +464,7 @@ async fn loop_with_fidelity_full_reuses_session_via_pool() -> eyre::Result<()> {
         vec!["retry".to_string(), "done".to_string()],
     );
 
-    let mut config = EngineConfig::new();
-    config.skip_validation = true;
-    config.registry.register("codergen", handler);
-
-    let outcome = engine::run_with_context(&graph, config, Context::new()).await?;
-    assert!(
-        outcome.status.is_success(),
-        "pipeline should complete successfully, got: {:?}",
-        outcome.status
-    );
+    run_pipeline(&graph, handler).await?;
 
     // Verify that the backend was called for node A twice (once per iteration).
     let calls = backend.calls();
@@ -516,59 +547,14 @@ async fn cli_session_with_fidelity_full_does_not_pool_session() -> eyre::Result<
     let pool = SessionPool::new();
     let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
 
-    // Build a loop graph similar to build_loop_graph() but with agent_type="cli"
-    // on node A.
-    let mut graph = Graph::new("cli_pool_test");
-    graph.add_node(make_start_node());
-
-    let mut node_a = Node::new("A");
-    node_a
-        .attrs
-        .insert("fidelity".into(), AttrValue::String("full".into()));
-    node_a
-        .attrs
-        .insert("thread_id".into(), AttrValue::String("loop_thread".into()));
-    node_a
-        .attrs
-        .insert("agent_type".into(), AttrValue::String("cli".into()));
-    graph.add_node(node_a);
-
-    graph.add_node(Node::new("B"));
-    graph.add_node(make_exit_node());
-
-    graph.add_edge(Edge::new("Start", "A"));
-    graph.add_edge(Edge::new("A", "B"));
-
-    let mut e_loop = Edge::new("B", "A");
-    e_loop
-        .attrs
-        .insert("label".into(), AttrValue::String("retry".into()));
-    e_loop
-        .attrs
-        .insert("loop_restart".into(), AttrValue::Boolean(true));
-    graph.add_edge(e_loop);
-
-    let mut e_exit = Edge::new("B", "Exit");
-    e_exit
-        .attrs
-        .insert("label".into(), AttrValue::String("done".into()));
-    graph.add_edge(e_exit);
+    let graph = build_loop_graph_with_attrs("cli_pool_test", &[("agent_type", "cli")]);
 
     let handler = SequenceCodergenHandler::new(
         backend.clone(),
         vec!["retry".to_string(), "done".to_string()],
     );
 
-    let mut config = EngineConfig::new();
-    config.skip_validation = true;
-    config.registry.register("codergen", handler);
-
-    let outcome = engine::run_with_context(&graph, config, Context::new()).await?;
-    assert!(
-        outcome.status.is_success(),
-        "pipeline should complete successfully, got: {:?}",
-        outcome.status
-    );
+    run_pipeline(&graph, handler).await?;
 
     // Node A should have been executed twice
     let calls = backend.calls();
@@ -642,6 +628,303 @@ async fn pool_aware_mock_discards_guard_for_cli_sessions() -> eyre::Result<()> {
     Ok(())
 }
 
+// ===========================================================================
+// max_session_turns tests (Phase 3b / Slice 7, AC-16)
+// ===========================================================================
+
+/// AC-16 (1): When a node has `max_session_turns="2"` and the pooled
+/// session's `turn_count` is >= 2, the pool lookup is skipped and a
+/// fresh session is created instead of reusing the pooled one.
+///
+/// This test pre-populates the pool with a session entry that has
+/// `turn_count=2`, then invokes the mock backend with
+/// `max_session_turns="2"`. The mock should detect that the limit is
+/// reached and NOT take from the pool — creating a fresh entry instead.
+/// After the call, the *original* pool entry (turn_count=2) should be
+/// gone (or replaced), and a *new* entry with turn_count=1 should be
+/// present, proving that a fresh session was created.
+///
+/// **Expected to FAIL** until `PoolAwareMockBackend.run()` (and the
+/// real `AgentCodergenBackend.run()`) reads `max_session_turns` from
+/// node attributes and skips pool reuse when `turn_count >= limit`.
+#[tokio::test]
+async fn max_session_turns_skips_pool_when_limit_reached() -> eyre::Result<()> {
+    let pool = SessionPool::new();
+
+    // Pre-populate with an entry at the turn limit.
+    pool.put_back(
+        "tid-max".to_string(),
+        SessionEntry {
+            agent_name: "stale-agent".to_string(),
+            turn_count: 2,
+        },
+    );
+
+    let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
+
+    let mut node = Node::new("limited-node");
+    node.attrs
+        .insert("max_session_turns".into(), AttrValue::String("2".into()));
+
+    let context = Context::new();
+    context.set(
+        "internal.fidelity",
+        serde_json::Value::String("full".into()),
+    );
+    context.set(
+        "internal.thread_id",
+        serde_json::Value::String("tid-max".into()),
+    );
+
+    backend
+        .run(
+            &node,
+            "prompt",
+            &context,
+            Arc::new(stencila_attractor::events::NoOpEmitter),
+            0,
+        )
+        .await?;
+
+    // After the call, the pool should contain an entry with turn_count=1,
+    // NOT the old entry with turn_count=2+1=3. This proves that the
+    // backend created a fresh session instead of reusing the stale one.
+    let entry = pool.take("tid-max");
+    assert!(
+        entry.is_some(),
+        "pool should contain a fresh entry for 'tid-max' after a limited run"
+    );
+    let entry = entry.expect("entry should exist");
+    assert_eq!(
+        entry.turn_count, 1,
+        "when max_session_turns is reached, the backend should create a \
+         fresh session (turn_count=1 after SessionGuard::Drop), but got \
+         turn_count={} — this means it reused the old session instead of \
+         starting fresh",
+        entry.turn_count
+    );
+
+    Ok(())
+}
+
+/// AC-16 (2): When `turn_count` is below `max_session_turns`, the
+/// pooled session is reused as normal.
+///
+/// Pre-populate pool with turn_count=1, set max_session_turns="2".
+/// The backend should take from pool and reuse the existing session.
+/// After the call, the entry should have turn_count=2 (1 + 1 from
+/// SessionGuard::Drop increment).
+///
+/// **Expected to FAIL** until the max_session_turns check is
+/// implemented — the current code ignores the attribute entirely, so
+/// this test may pass vacuously (since reuse is the default behavior).
+/// It exists to confirm that the limit check does not over-restrict.
+#[tokio::test]
+async fn max_session_turns_reuses_pool_when_below_limit() -> eyre::Result<()> {
+    let pool = SessionPool::new();
+
+    // Pre-populate with an entry below the limit.
+    pool.put_back(
+        "tid-ok".to_string(),
+        SessionEntry {
+            agent_name: "reusable-agent".to_string(),
+            turn_count: 1,
+        },
+    );
+
+    let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
+
+    let mut node = Node::new("limited-node");
+    node.attrs
+        .insert("max_session_turns".into(), AttrValue::String("2".into()));
+
+    let context = Context::new();
+    context.set(
+        "internal.fidelity",
+        serde_json::Value::String("full".into()),
+    );
+    context.set(
+        "internal.thread_id",
+        serde_json::Value::String("tid-ok".into()),
+    );
+
+    backend
+        .run(
+            &node,
+            "prompt",
+            &context,
+            Arc::new(stencila_attractor::events::NoOpEmitter),
+            0,
+        )
+        .await?;
+
+    // After the call, the pool entry should have turn_count=2 (reused
+    // the existing entry with turn_count=1, SessionGuard::Drop incremented
+    // to 2). This proves the session was reused, not replaced.
+    let entry = pool.take("tid-ok");
+    assert!(
+        entry.is_some(),
+        "pool should contain the reused entry for 'tid-ok'"
+    );
+    let entry = entry.expect("entry should exist");
+    assert_eq!(
+        entry.turn_count, 2,
+        "when turn_count (1) is below max_session_turns (2), the backend \
+         should reuse the pooled session (turn_count becomes 2 after \
+         SessionGuard::Drop increment), but got turn_count={}",
+        entry.turn_count
+    );
+    assert_eq!(
+        entry.agent_name, "reusable-agent",
+        "the reused entry should preserve the original agent_name, proving \
+         the session was reused rather than replaced with a fresh one"
+    );
+
+    Ok(())
+}
+
+/// AC-16 (3): When `max_session_turns` is not set, there is no turn
+/// limit and pooled sessions are always reused regardless of turn count.
+///
+/// Pre-populate pool with a high turn_count (100), do NOT set
+/// max_session_turns on the node. The backend should reuse the
+/// session as normal.
+#[tokio::test]
+async fn no_max_session_turns_always_reuses_pool() -> eyre::Result<()> {
+    let pool = SessionPool::new();
+
+    pool.put_back(
+        "tid-nolimit".to_string(),
+        SessionEntry {
+            agent_name: "long-running-agent".to_string(),
+            turn_count: 100,
+        },
+    );
+
+    let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
+
+    // Node without max_session_turns attribute.
+    let node = Node::new("unlimited-node");
+
+    let context = Context::new();
+    context.set(
+        "internal.fidelity",
+        serde_json::Value::String("full".into()),
+    );
+    context.set(
+        "internal.thread_id",
+        serde_json::Value::String("tid-nolimit".into()),
+    );
+
+    backend
+        .run(
+            &node,
+            "prompt",
+            &context,
+            Arc::new(stencila_attractor::events::NoOpEmitter),
+            0,
+        )
+        .await?;
+
+    // Session should be reused: turn_count goes from 100 to 101.
+    let entry = pool.take("tid-nolimit");
+    assert!(
+        entry.is_some(),
+        "pool should contain the reused entry for 'tid-nolimit'"
+    );
+    let entry = entry.expect("entry should exist");
+    assert_eq!(
+        entry.turn_count, 101,
+        "when max_session_turns is not set, sessions should always be \
+         reused regardless of turn count. Expected 101, got {}",
+        entry.turn_count
+    );
+    assert_eq!(
+        entry.agent_name, "long-running-agent",
+        "the reused entry should preserve the original agent_name"
+    );
+
+    Ok(())
+}
+
+/// AC-16 (4): Integration test — a 3-iteration loop with
+/// `max_session_turns="2"`. After 2 submissions the 3rd creates a
+/// fresh session.
+///
+/// ```text
+/// Start → A [fidelity=full, thread_id=loop_thread, max_session_turns=2] → B
+///              ├──[retry, loop_restart]──→ A
+///              └──[done]──→ Exit
+/// ```
+///
+/// Node B returns "retry" for iterations 1, 2 and "done" for iteration
+/// 3, producing exactly 3 executions of node A.
+///
+/// Expected pool lifecycle:
+///   - Iteration 1: pool empty → create fresh entry, guard drops → turn_count=1
+///   - Iteration 2: pool has turn_count=1 (< 2) → reuse, guard drops → turn_count=2
+///   - Iteration 3: pool has turn_count=2 (>= 2 = limit) → skip pool,
+///     create fresh entry, guard drops → turn_count=1
+///
+/// After execution, the pool entry for "loop_thread" should have
+/// turn_count=1, proving the 3rd iteration started a fresh session.
+///
+/// **Expected to FAIL** until max_session_turns enforcement is implemented.
+#[tokio::test]
+async fn loop_with_max_session_turns_creates_fresh_session_after_limit() -> eyre::Result<()> {
+    let pool = SessionPool::new();
+    let backend = Arc::new(PoolAwareMockBackend::new(pool.clone(), "ok"));
+
+    let graph = build_loop_graph_with_attrs("max_turns_loop", &[("max_session_turns", "2")]);
+
+    // Sequence: B returns "retry", "retry", "done" to produce 3 iterations.
+    let handler = SequenceCodergenHandler::new(
+        backend.clone(),
+        vec!["retry".to_string(), "retry".to_string(), "done".to_string()],
+    );
+
+    run_pipeline(&graph, handler).await?;
+
+    // Verify node A was executed 3 times.
+    let calls = backend.calls();
+    let a_calls: Vec<_> = calls.iter().filter(|c| c.node_id == "A").collect();
+    assert_eq!(
+        a_calls.len(),
+        3,
+        "node A should have been executed 3 times (three loop iterations), \
+         but was executed {} times",
+        a_calls.len()
+    );
+
+    // After the 3-iteration loop with max_session_turns=2:
+    //   - Iterations 1-2 use the same session (turn_count grows to 2)
+    //   - Iteration 3 hits the limit (turn_count >= 2), creates fresh session
+    //   - Fresh session's guard drops with turn_count=1
+    //
+    // The pool should have an entry for "loop_thread" with turn_count=1.
+    let pool_entry = pool.take("loop_thread");
+    assert!(
+        pool_entry.is_some(),
+        "after the loop, the pool should contain an entry for 'loop_thread'"
+    );
+
+    let entry = pool_entry.expect("entry should exist");
+    assert_eq!(
+        entry.turn_count, 1,
+        "after a 3-iteration loop with max_session_turns=2, the 3rd \
+         iteration should have created a fresh session (turn_count=1), \
+         but got turn_count={}. This means the limit was not enforced \
+         and the session was reused across all 3 iterations.",
+        entry.turn_count
+    );
+
+    Ok(())
+}
+
+// ===========================================================================
+// Older tests
+// ===========================================================================
+
 /// AC-4 (partial): When no edge carries fidelity="full", the pool
 /// should remain completely empty after pipeline execution.
 ///
@@ -661,12 +944,7 @@ async fn linear_graph_without_fidelity_does_not_touch_pool() -> eyre::Result<()>
 
     let handler = CodergenHandler::with_backend(backend.clone());
 
-    let mut config = EngineConfig::new();
-    config.skip_validation = true;
-    config.registry.register("codergen", handler);
-
-    let outcome = engine::run_with_context(&graph, config, Context::new()).await?;
-    assert!(outcome.status.is_success());
+    run_pipeline(&graph, handler).await?;
 
     // Verify the backend saw the default (compact) fidelity — the engine
     // sets internal.fidelity to "compact" by default (verified by
