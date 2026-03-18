@@ -112,16 +112,27 @@ impl ArtifactStore {
             is_file_backed,
         };
 
-        let mut artifacts = self
-            .artifacts
-            .write()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        // Clean up old file-backed data before overwriting the entry
-        if let Some((_, ArtifactData::FileBacked(old_path))) = artifacts.get(&id) {
-            let _ = std::fs::remove_file(old_path);
-        }
-        artifacts.insert(id, (info.clone(), stored_data));
-        self.register_sqlite_artifact(&info, artifacts.get(&info.id).map(|(_, data)| data));
+        let sqlite_registration = {
+            let mut artifacts = self
+                .artifacts
+                .write()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+
+            // Clean up old file-backed data before overwriting the entry.
+            // Keep the critical section limited to artifact map maintenance;
+            // do not call into SQLite while this lock is held.
+            if let Some((_, ArtifactData::FileBacked(old_path))) = artifacts.get(&id) {
+                let _ = std::fs::remove_file(old_path);
+            }
+            artifacts.insert(id, (info.clone(), stored_data));
+
+            artifacts.get(&info.id).and_then(|(_, data)| match data {
+                ArtifactData::FileBacked(path) => Some(path.clone()),
+                ArtifactData::InMemory(_) => None,
+            })
+        };
+
+        self.register_sqlite_artifact(&info, sqlite_registration.as_deref());
         Ok(info)
     }
 
@@ -200,14 +211,10 @@ impl ArtifactStore {
         self.base_dir.as_deref()
     }
 
-    fn register_sqlite_artifact(&self, info: &ArtifactInfo, data: Option<&ArtifactData>) {
-        let (Some(backend), Some(workspace_root), Some(data)) =
-            (&self.sqlite_backend, &self.workspace_root, data)
+    fn register_sqlite_artifact(&self, info: &ArtifactInfo, path: Option<&Path>) {
+        let (Some(backend), Some(workspace_root), Some(path)) =
+            (&self.sqlite_backend, &self.workspace_root, path)
         else {
-            return;
-        };
-
-        let ArtifactData::FileBacked(path) = data else {
             return;
         };
 
@@ -219,7 +226,7 @@ impl ArtifactStore {
                         p.strip_prefix(root).ok().map(std::path::Path::to_path_buf)
                     })
                 })
-                .unwrap_or_else(|| path.clone());
+                .unwrap_or_else(|| path.to_path_buf());
 
         if let Err(error) = backend.insert_artifact(
             &info.id,

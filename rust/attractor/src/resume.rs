@@ -153,65 +153,89 @@ fn load_sqlite_run_state(
     completed_nodes_ordered: &mut Vec<String>,
     node_statuses: &mut IndexMap<String, String>,
 ) -> AttractorResult<Result<(String, String), stencila_db::rusqlite::Error>> {
-    let db = conn
-        .lock()
-        .unwrap_or_else(std::sync::PoisonError::into_inner);
-    let mut stmt = db
-        .prepare(
-            "SELECT node_id, status, retry_count
-             FROM workflow_nodes
-             WHERE run_id = ?1
-             ORDER BY COALESCE(completed_at, started_at, ''), node_id",
-        )
-        .map_err(|error| crate::error::AttractorError::Io {
-            message: format!("Failed to prepare workflow_nodes resume query: {error}"),
-        })?;
+    // Collect all data into local buffers while holding the DB lock, then
+    // release the lock before calling `context.set()`. The context uses a
+    // SQLite backend that shares the same `Arc<Mutex<Connection>>`, so
+    // calling `context.set()` while the lock is held would deadlock.
+    //
+    // Buffering completed nodes and statuses locally also provides
+    // transactional semantics: the output parameters are only mutated
+    // after all DB queries succeed.
+    let (local_completed, local_statuses, retry_counts, edge) = {
+        let db = conn
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut stmt = db
+            .prepare(
+                "SELECT node_id, status, retry_count
+                 FROM workflow_nodes
+                 WHERE run_id = ?1
+                 ORDER BY COALESCE(completed_at, started_at, ''), node_id",
+            )
+            .map_err(|error| crate::error::AttractorError::Io {
+                message: format!("Failed to prepare workflow_nodes resume query: {error}"),
+            })?;
 
-    let mut rows = stmt
-        .query((run_id,))
-        .map_err(|error| crate::error::AttractorError::Io {
-            message: format!("Failed to query workflow_nodes for resume: {error}"),
-        })?;
-    while let Some(row) = rows
-        .next()
-        .map_err(|error| crate::error::AttractorError::Io {
-            message: format!("Failed to read workflow_nodes resume row: {error}"),
-        })?
-    {
-        let node_id: String = row
-            .get(0)
+        let mut rows = stmt
+            .query((run_id,))
             .map_err(|error| crate::error::AttractorError::Io {
-                message: format!("Failed to read resumed node_id: {error}"),
+                message: format!("Failed to query workflow_nodes for resume: {error}"),
             })?;
-        let status: String = row
-            .get(1)
+        let mut local_completed = Vec::new();
+        let mut local_statuses = IndexMap::new();
+        let mut retry_counts = Vec::new();
+        while let Some(row) = rows
+            .next()
             .map_err(|error| crate::error::AttractorError::Io {
-                message: format!("Failed to read resumed node status: {error}"),
-            })?;
-        let retry_count: i64 = row
-            .get(2)
-            .map_err(|error| crate::error::AttractorError::Io {
-                message: format!("Failed to read resumed node retry count: {error}"),
-            })?;
-        completed_nodes_ordered.push(node_id.clone());
-        node_statuses.insert(node_id.clone(), status);
+                message: format!("Failed to read workflow_nodes resume row: {error}"),
+            })?
+        {
+            let node_id: String = row
+                .get(0)
+                .map_err(|error| crate::error::AttractorError::Io {
+                    message: format!("Failed to read resumed node_id: {error}"),
+                })?;
+            let status: String = row
+                .get(1)
+                .map_err(|error| crate::error::AttractorError::Io {
+                    message: format!("Failed to read resumed node status: {error}"),
+                })?;
+            let retry_count: i64 =
+                row.get(2)
+                    .map_err(|error| crate::error::AttractorError::Io {
+                        message: format!("Failed to read resumed node retry count: {error}"),
+                    })?;
+            local_completed.push(node_id.clone());
+            local_statuses.insert(node_id.clone(), status);
+            retry_counts.push((node_id, retry_count));
+        }
+        drop(rows);
+        drop(stmt);
+
+        let edge = db.query_row(
+            "SELECT from_node, to_node
+             FROM workflow_edges
+             WHERE run_id = ?1
+             ORDER BY step_index DESC
+             LIMIT 1",
+            (run_id,),
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+        );
+
+        (local_completed, local_statuses, retry_counts, edge)
+    };
+    // Lock is released here; safe to write to the SQLite-backed context.
+
+    // All DB queries succeeded; commit buffered data to output parameters.
+    *completed_nodes_ordered = local_completed;
+    *node_statuses = local_statuses;
+
+    for (node_id, retry_count) in retry_counts {
         context.set(
             format!("internal.retry_count.{node_id}"),
             serde_json::Value::Number(serde_json::Number::from(retry_count)),
         );
     }
-    drop(rows);
-    drop(stmt);
-
-    let edge = db.query_row(
-        "SELECT from_node, to_node
-         FROM workflow_edges
-         WHERE run_id = ?1
-         ORDER BY step_index DESC
-         LIMIT 1",
-        (run_id,),
-        |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
-    );
 
     Ok(edge)
 }

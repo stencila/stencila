@@ -297,6 +297,12 @@ impl Context {
     ///
     /// Returns `None` for in-memory backends. Tool executors use this to get
     /// shared access to the database connection.
+    ///
+    /// Callers should avoid holding the returned connection lock while also
+    /// invoking higher-level [`Context`] methods such as [`Context::set`],
+    /// [`Context::get`], [`Context::snapshot`], or [`Context::logs`] when this
+    /// context is SQLite-backed. Those methods re-enter the same shared
+    /// `Arc<Mutex<Connection>>`, so doing both at once can deadlock.
     #[must_use]
     pub fn sqlite_connection(
         &self,

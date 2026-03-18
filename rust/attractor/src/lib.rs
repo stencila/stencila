@@ -2,6 +2,26 @@
 //!
 //! Implements the [Attractor Specification][spec].
 //!
+//! # Concurrency and lock-order guidance
+//!
+//! Some subsystems in this crate share state via locks, most notably the
+//! SQLite-backed [`context::Context`] / [`sqlite_backend::SqliteBackend`]
+//! integration which uses a shared `Arc<Mutex<rusqlite::Connection>>`.
+//!
+//! To avoid deadlocks:
+//!
+//! - keep lock scopes as small as possible
+//! - do not hold a raw SQLite connection lock while calling higher-level
+//!   abstractions such as [`context::Context`] methods, artifact storage,
+//!   interview coordination, or event emission
+//! - avoid calling into another lock-owning subsystem while holding a local
+//!   `Mutex` or `RwLock` guard; collect the data you need, drop the guard,
+//!   then perform the follow-up work
+//!
+//! When touching resume, persistence, or workflow coordination code, prefer
+//! the pattern of buffering database results first and applying context or
+//! cross-subsystem updates only after the relevant lock has been released.
+//!
 //! [spec]: https://github.com/strongdm/attractor/blob/main/attractor-spec.md
 
 #![warn(clippy::pedantic)]

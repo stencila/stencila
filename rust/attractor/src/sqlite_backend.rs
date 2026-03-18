@@ -56,6 +56,12 @@ pub struct NodeRecord<'a> {
 /// Reads and writes the `context` table scoped by `run_id`. The same
 /// connection is shared (via `Arc<Mutex<Connection>>`) with tool executors
 /// that need to query other tables (nodes, edges, etc.).
+///
+/// Callers should keep lock scopes small and avoid holding the shared
+/// connection mutex while calling back into higher-level abstractions such as
+/// [`crate::context::Context`], artifact storage, event emitters, or interview
+/// coordination. Those layers may re-enter this backend and try to acquire the
+/// same mutex again.
 pub struct SqliteBackend {
     conn: Arc<Mutex<Connection>>,
     run_id: String,
