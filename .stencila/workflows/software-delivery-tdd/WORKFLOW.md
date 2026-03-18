@@ -29,7 +29,7 @@ The workflow processes a delivery plan slice-by-slice in a single run. For each 
 
 4. **Refactor phase** — the `software-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
 
-5. **Human review** — a structured interview lets the human accept the slice or send it back to the Red phase with revision notes; on acceptance, control returns to SelectSlice which handles both completion tracking and next-slice selection
+5. **Human review** — a structured interview lets the human accept the slice, accept and commit it, or send it back to the Red phase with revision notes; choosing "Accept and Commit" routes through a CommitSlice agent that stages and commits the changes before continuing; on acceptance (with or without commit), control returns to SelectSlice which handles both completion tracking and next-slice selection
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
@@ -81,7 +81,11 @@ digraph software_delivery_tdd {
 
   HumanReview [interview-ref="#slice-review"]
   HumanReview -> SelectSlice  [label="Accept"]
+  HumanReview -> CommitSlice  [label="Accept and Commit"]
   HumanReview -> CreateTests  [label="Revise"]
+
+  CommitSlice [agent="general", prompt-ref="#commit-slice-prompt"]
+  CommitSlice -> SelectSlice
 }
 ```
 
@@ -266,13 +270,40 @@ questions:
     type: single-select
     options:
       - label: Accept
+      - label: Accept and Commit
       - label: Revise
     store: human.decision
-    finish-if: Accept
 
   - header: Revision Notes
     question: What specific changes should be made?
     type: freeform
     show-if: "human.decision == Revise"
     store: human.feedback
+```
+
+```text #commit-slice-prompt
+Commit the changes from the completed TDD slice.
+
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the slice name
+  - key "slice.scope" — what the slice covers
+  - key "slice.packages" — the packages or directories involved
+
+Step 2 — stage changes:
+  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+  Stage the files related to this slice. Use "slice.packages" as a guide for which paths
+  are most relevant, but include other changed files (e.g., test fixtures, configuration,
+  shared modules) when they are clearly part of this slice's work. Use your judgement —
+  avoid staging unrelated changes that happened to be in the working tree.
+
+Step 3 — commit:
+  Compose a commit message based on the slice name, scope, and the actual changes staged.
+  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+  project's commit message conventions and follow them. Also check for any commit message
+  instructions in the system prompt or prior context and apply those.
+  Run `git commit` with the composed message.
+
+If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
+the workflow — execution will continue to the next slice regardless.
 ```
