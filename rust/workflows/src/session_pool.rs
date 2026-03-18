@@ -9,6 +9,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 #[derive(Debug, Clone, Default)]
 pub struct SessionEntry {
     pub agent_name: String,
+    pub turn_count: u64,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -34,8 +35,44 @@ impl SessionPool {
         self.lock_entries().insert(thread_id, entry);
     }
 
+    pub fn turn_count(&self, thread_id: &str) -> Option<u64> {
+        self.lock_entries()
+            .get(thread_id)
+            .map(|entry| entry.turn_count)
+    }
+
     pub fn drain(&self) -> HashMap<String, SessionEntry> {
         std::mem::take(&mut *self.lock_entries())
+    }
+}
+
+#[derive(Debug)]
+pub struct SessionGuard {
+    pool: SessionPool,
+    thread_id: String,
+    entry: Option<SessionEntry>,
+}
+
+impl SessionGuard {
+    pub fn from_pool(pool: SessionPool, thread_id: String, entry: SessionEntry) -> Self {
+        Self {
+            pool,
+            thread_id,
+            entry: Some(entry),
+        }
+    }
+
+    pub fn discard(&mut self) {
+        self.entry.take();
+    }
+}
+
+impl Drop for SessionGuard {
+    fn drop(&mut self) {
+        if let Some(mut entry) = self.entry.take() {
+            entry.turn_count += 1;
+            self.pool.put_back(self.thread_id.clone(), entry);
+        }
     }
 }
 
@@ -46,6 +83,7 @@ mod tests {
     fn offline_session_entry(agent_name: &str) -> SessionEntry {
         SessionEntry {
             agent_name: agent_name.to_string(),
+            ..Default::default()
         }
     }
 
@@ -120,6 +158,93 @@ mod tests {
         assert!(
             pool.take("thread-b").is_none(),
             "drain() should remove all thread IDs, not just one"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn dropping_session_guard_puts_entry_back_in_pool() -> eyre::Result<()> {
+        let pool = SessionPool::new();
+        let thread_id = "thread-guard";
+
+        {
+            let _guard = SessionGuard::from_pool(
+                pool.clone(),
+                thread_id.to_string(),
+                offline_session_entry("offline-agent"),
+            );
+        }
+
+        let entry = pool.take(thread_id);
+        assert_eq!(
+            entry.map(|entry| entry.agent_name),
+            Some("offline-agent".to_string()),
+            "dropping a non-discarded SessionGuard should return its SessionEntry to the pool"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn discarding_session_guard_skips_return_to_pool() -> eyre::Result<()> {
+        let pool = SessionPool::new();
+        let thread_id = "thread-discard";
+
+        {
+            let mut guard = SessionGuard::from_pool(
+                pool.clone(),
+                thread_id.to_string(),
+                offline_session_entry("offline-agent"),
+            );
+            guard.discard();
+        }
+
+        assert!(
+            pool.take(thread_id).is_none(),
+            "discard() should prevent SessionGuard::drop from returning the SessionEntry to the pool"
+        );
+        assert_eq!(
+            pool.turn_count(thread_id),
+            None,
+            "discarded guards should not leave behind turn_count state in the pool"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn dropping_session_guard_increments_turn_count_each_time_it_returns_entry() -> eyre::Result<()>
+    {
+        let pool = SessionPool::new();
+        let thread_id = "thread-turn-count";
+
+        {
+            let _guard = SessionGuard::from_pool(
+                pool.clone(),
+                thread_id.to_string(),
+                offline_session_entry("offline-agent"),
+            );
+        }
+
+        assert_eq!(
+            pool.turn_count(thread_id),
+            Some(1),
+            "the first non-discarded drop should record turn_count = 1"
+        );
+
+        let entry = pool
+            .take(thread_id)
+            .ok_or_else(|| eyre::eyre!("expected first drop to return SessionEntry to the pool"))?;
+
+        {
+            let _guard = SessionGuard::from_pool(pool.clone(), thread_id.to_string(), entry);
+        }
+
+        assert_eq!(
+            pool.turn_count(thread_id),
+            Some(2),
+            "each subsequent non-discarded drop should increment turn_count before returning the SessionEntry to the pool"
         );
 
         Ok(())
