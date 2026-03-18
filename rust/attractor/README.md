@@ -342,10 +342,6 @@ The condition engine supports `=` / `!=` with `&&` (plus documented bare-key tru
 
 Parallel fan-out currently implements only `wait_all` and `first_success`, and fan-in currently uses heuristic candidate ranking only; the `k_of_n`/`quorum` joins and prompt-driven LLM fan-in evaluation path are not implemented.
 
-### Fidelity runtime integration gaps (§5.3-§5.4, §9.2)
-
-The fidelity resolution chain (edge -> node -> graph -> default) and resume degradation marker are implemented, but not consumed by the codergen handler, and no preamble transform is implemented for carrying runtime context into prompts for non-`full` fidelity modes. The current simulation backend has no LLM sessions to degrade.
-
 ### Tool Call Hooks (§9.7)
 
 `tool_hooks.pre` and `tool_hooks.post` are parsed as attributes but no hook execution is implemented around tool calls.
