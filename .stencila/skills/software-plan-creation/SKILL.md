@@ -1,6 +1,6 @@
 ---
 name: software-plan-creation
-description: Create delivery plans for software design specifications. Use when the user wants to plan implementation, break a design into delivery phases, create an implementation roadmap, produce a test plan, or structure a TDD approach for a feature. Reads the latest design spec by default and produces a phased plan covering implementation, testing, and documentation.
+description: Create delivery plans for software design specifications. Use when the user wants to plan implementation, break a design into delivery phases, create an implementation roadmap, produce a test plan, or structure a TDD approach for a feature. Reads the latest design spec by default and produces a phased plan covering implementation, testing, and documentation, with TDD slices sized to be logically coherent without degenerating into micro-slices.
 keywords:
   - delivery plan
   - implementation plan
@@ -56,11 +56,26 @@ Use this skill when the user wants a delivery plan, implementation plan, task br
    - assess whether TDD (red-green-refactor) is appropriate for the work
    - TDD is a good fit when: the design has clear acceptance criteria, the work involves well-defined interfaces or data transformations, or correctness is critical
    - TDD is less appropriate when: the work is primarily exploratory, involves heavy UI prototyping, or depends on external systems that are hard to mock
-   - when TDD fits, structure work as several narrow red-green-refactor slices rather than one broad slice — each slice should add one or a small number of tests, implement just enough code to pass them, and refactor before moving to the next slice; this keeps each cycle focused, maintains test quality, and avoids the pitfall of writing many tests at once that overwhelm the implementation step and dilute test intent
-   - describe the red-green-refactor slices for each phase: what the first slice tests, what the next slice adds, and how the slices build on each other incrementally
+   - when TDD fits, structure work as several logically coherent red-green-refactor slices rather than one broad slice or many trivial micro-slices
+   - each slice should usually cover one behavior, one acceptance-criterion-sized increment, or one tightly related cluster of tests and implementation changes that naturally belong together
+   - avoid micro-slicing where each slice captures only a tiny assertion, a purely mechanical follow-up, or a distinction so fine-grained that the workflow overhead would dominate the useful work
+   - avoid over-broad slices that bundle several loosely related behaviors, multiple subsystem boundaries, or an amount of work that would make one Red-Green-Refactor cycle hard to review or recover when it fails
+   - prefer a slice boundary when it corresponds to a meaningful behavior boundary, dependency boundary, risk boundary, or review checkpoint
+   - it is acceptable for one slice to include a small number of closely related tests when they jointly define one coherent behavior and are likely to be implemented together
+   - describe the red-green-refactor slices for each phase: what the first slice validates, what the next slice adds, and how the slices build incrementally while remaining substantial enough to justify a workflow iteration
    - when TDD does not fit, describe the testing strategy that does apply (integration tests, manual verification, end-to-end tests, etc.)
 
-6. Draft the plan with these sections (adapt as needed):
+6. Size TDD slices deliberately:
+   - use the codebase structure and design boundaries to decide slice size, not an abstract preference for ever-smaller units
+   - prefer slices that a developer can usually complete in one focused iteration including Red, Green, Refactor, and review
+   - group tightly related validation and implementation work in the same slice when separating them would create artificial overhead
+   - keep separate slices when work crosses packages, layers, or risk boundaries, or when one behavior should be proven before another depends on it
+   - if a phase's proposed slices read like a checklist of tiny assertions, merge them into fewer behavior-oriented slices
+   - if a phase has only one huge slice covering many behaviors, split it into two or more coherent slices
+   - for straightforward implementation work, a good default is a small number of meaningful slices per phase rather than a long tail of tiny ones
+   - explicitly optimize for execution efficiency as well as conceptual clarity: the plan should support efficient workflow operation, not just theoretical decomposition
+
+7. Draft the plan with these sections (adapt as needed):
    - **Title and summary**: what is being delivered and why
    - **Design reference**: which design spec this plan covers (name and path)
    - **Prerequisites**: anything that must be true before work begins (dependencies, access, open questions that must be resolved)
@@ -70,20 +85,22 @@ Use this skill when the user wants a delivery plan, implementation plan, task br
    - **Risks and mitigations**: derived from the design's open questions, assumptions, and complexity areas
    - **Definition of done**: what must be true for the entire plan to be considered complete
 
-7. Tailor detail level to the design:
+8. Tailor detail level to the design:
    - for a large design with many components, produce a detailed multi-phase plan
    - for a small, focused design, produce a concise single-phase plan
    - do not invent unnecessary phases or tasks to fill space
    - keep tasks concrete and actionable — each task should be something a developer can start and finish
 
-8. Check plan quality before finishing:
+9. Check plan quality before finishing:
    - every acceptance criterion from the design should be covered by at least one phase
    - phases should be ordered so no phase depends on work from a later phase
    - testing strategy should be realistic for the technology and architecture described
+   - TDD slices should be logically coherent and execution-efficient: neither one giant batch nor a long series of trivial micro-slices
+   - each TDD slice should map to a meaningful behavior or tightly related behavior cluster, not a single low-value assertion unless that assertion is itself the key risk boundary
    - documentation tasks should be included, not deferred indefinitely
    - risks from the design should be addressed or acknowledged
 
-9. Persist the plan:
+10. Persist the plan:
    - write the plan to `.stencila/plans/{name}.md` using `write_file`, where `{name}` is a kebab-case name derived from the design name (e.g., if the design is `user-auth-flow`, the plan might be `user-auth-flow-delivery`)
    - for updates to an existing plan, prefer `edit_file` or `apply_patch` over rewriting the entire file
    - provide the full Markdown plan content
@@ -120,7 +137,7 @@ Brief description of what is being delivered and the value it provides.
 
 **Testing**:
 - <testing approach for this phase>
-- <TDD slices if applicable: slice 1 — write failing test for A, implement, refactor; slice 2 — write failing test for B, implement, refactor; ...>
+   - <TDD slices if applicable: slice 1 — write failing test(s) for one coherent behavior, implement, refactor; slice 2 — add the next meaningful behavior, implement, refactor; ...>
 
 **Exit criteria**:
 - <what must be true when this phase is complete>
@@ -141,12 +158,13 @@ Brief description of what is being delivered and the value it provides.
 - ...
 
 ### TDD approach (when applicable)
-- Work in narrow red-green-refactor slices, each covering one or a small number of tests
-- Red: write one (or a few closely related) failing tests derived from an acceptance criterion
+- Work in red-green-refactor slices sized around meaningful behaviors
+- Red: write one or a few closely related failing tests derived from one behavior or acceptance-criterion-sized increment
 - Green: implement just enough code to pass those tests
 - Refactor: clean up duplication and improve structure while tests stay green
-- Repeat: move to the next slice — do not batch many tests before implementing
-- This iterative cadence keeps each cycle small, maintains focus on test quality, and ensures tests are well-understood before the next slice begins
+- Repeat: move to the next slice — do not batch many unrelated tests before implementing, but also do not decompose work into low-value micro-slices
+- Prefer slice boundaries that align with behavior, dependency, or risk boundaries
+- This iterative cadence keeps each cycle focused while avoiding workflow overhead from over-fragmented plans
 
 ## Documentation
 
@@ -180,10 +198,10 @@ Input: "Plan implementation for the user-auth-flow design using TDD"
 
 Output:
 - agent reads `.stencila/designs/user-auth-flow.md` via `read_file`
-- produces a plan with explicit red-green-refactor slices per phase
+- produces a plan with explicit red-green-refactor slices per phase, sized around meaningful behaviors rather than micro-assertions
 - persists the plan to `.stencila/plans/` via `write_file`
 
-Concrete excerpt from a Phase 1 with TDD slices:
+Concrete excerpt from a Phase 1 with balanced TDD slices:
 
 ```markdown
 ### Phase 1: Core authentication types and token validation
@@ -196,14 +214,13 @@ Concrete excerpt from a Phase 1 with TDD slices:
 3. Implement `AuthToken::is_expired(&self) -> bool`
 
 **Testing (TDD slices)**:
-- *Slice 1*: Write a failing test that `parse` returns `AuthError::MalformedToken` for an empty string. Implement just enough parsing to pass. Refactor.
-- *Slice 2*: Write a failing test that `parse` returns a valid `AuthToken` for a well-formed JWT string. Extend parsing to pass. Refactor.
-- *Slice 3*: Write a failing test that `is_expired` returns `true` when `exp` is in the past. Implement expiry check. Refactor.
-- *Slice 4*: Write a failing test that `is_expired` returns `false` when `exp` is in the future. Verify existing implementation passes (no new code expected). Refactor if needed.
+- *Slice 1*: Write failing tests for malformed-token handling, including empty input and clearly invalid token structure. Implement just enough parsing and error handling to reject malformed input. Refactor.
+- *Slice 2*: Write failing tests for successful parsing of a well-formed JWT into `AuthToken`, including the required `sub`, `exp`, `iat`, and `roles` fields. Extend parsing to pass. Refactor.
+- *Slice 3*: Write failing tests for expiry behavior covering past and future `exp` values. Implement `is_expired` and any supporting time-handling logic. Refactor.
 
 **Exit criteria**:
 - `AuthToken` and `AuthError` types compile and are public
-- All four TDD slices pass
+- All three TDD slices pass
 - `cargo clippy` and `cargo fmt` produce no warnings
 ```
 
@@ -220,7 +237,36 @@ Output:
 - **Design has open questions**: Include open questions as prerequisites or risks in the plan. Do not silently assume answers — flag them as decisions that must be resolved before the relevant phase begins.
 - **Very small design**: Produce a single-phase plan. Do not artificially break trivial work into multiple phases.
 - **Very large design**: Break into phases that each deliver a working increment. Prefer vertical slices (end-to-end functionality) over horizontal slices (all models, then all APIs, then all UI).
+- **Plan naturally suggests many tiny TDD slices**: Merge adjacent low-risk, tightly related slices into fewer behavior-oriented slices so the plan remains efficient to execute.
+- **Plan naturally suggests a very broad TDD slice**: Split it at behavior, dependency, subsystem, or risk boundaries so each slice remains reviewable and tractable.
 - **Design lacks acceptance criteria**: Note this gap as a risk. Derive testable criteria from the requirements and goals sections where possible, and recommend the design be updated.
 - **User asks for TDD but the work is unsuitable**: Explain why TDD may not be the best fit and propose an alternative testing strategy. Do not force TDD onto exploratory or heavily UI-driven work.
 - **Plan already exists for this design**: If `glob` reveals an existing plan in `.stencila/plans/` that covers the target design, do not silently overwrite it. Show the user the existing plan name and ask whether to replace it entirely, update specific sections, or create a new plan alongside it with a different name.
 - **Multiple designs match**: If the user's request is ambiguous and multiple designs could apply, list the candidates and ask which one to plan against rather than guessing.
+
+## Slice Sizing Guidance
+
+Use these heuristics when deciding whether a proposed TDD slice is too small, about right, or too large.
+
+### Signs a slice is too small
+
+- it captures only a single trivial assertion that adds little independent value
+- it exists mainly because of implementation sequencing rather than a meaningful behavior boundary
+- it would likely take less effort to execute than the workflow overhead around it
+- several adjacent slices touch the same code, same acceptance criterion, and same failure mode
+
+### Signs a slice is about right
+
+- it delivers one meaningful behavior or one tightly related behavior cluster
+- it has a clear failing-test story, a plausible minimal implementation, and a sensible refactor step
+- it can be reviewed as one coherent increment
+- if it fails, the corrective loop is still localized and understandable
+
+### Signs a slice is too large
+
+- it spans multiple loosely related behaviors or acceptance criteria
+- it crosses subsystem or package boundaries without a strong reason
+- it would require many unrelated tests before implementation can begin
+- a failed implementation or review would generate diffuse feedback across too many concerns
+
+When in doubt, choose the smallest slice that still feels like a meaningful increment of user-visible or developer-visible progress.

@@ -1,6 +1,6 @@
 ---
 name: software-plan-review
-description: Critically review a software delivery plan and suggest concrete improvements. Use when the user wants to review, critique, audit, evaluate, or strengthen a delivery plan, implementation plan, project plan, phased roadmap, or test plan. Reviews plans produced by the software-plan-creation skill, checking task breakdown quality, sequencing, dependencies, testing strategy, TDD slice design, design coverage, risks, and actionability. Produces a structured critique with prioritized recommendations.
+description: Critically review a software delivery plan and suggest concrete improvements. Use when the user wants to review, critique, audit, evaluate, or strengthen a delivery plan, implementation plan, project plan, phased roadmap, or test plan. Reviews plans produced by the software-plan-creation skill, checking task breakdown quality, sequencing, dependencies, testing strategy, TDD slice design and sizing, design coverage, risks, and actionability. Produces a structured critique with prioritized recommendations.
 keywords:
   - plan review
   - plan critique
@@ -95,10 +95,13 @@ Not every plan will have all sections. Assess whether omitted sections are genui
    - flag phases that have no testing approach specified
 
 9. Evaluate TDD slices (when TDD is used):
-   - check whether TDD slices follow narrow red-green-refactor cycles — each slice should add one or a small number of tests, implement just enough to pass, then refactor
-   - flag slices that batch too many tests before implementing (this dilutes test intent and overwhelms the implementation step)
+   - check whether TDD slices follow logically coherent red-green-refactor cycles — each slice should cover one meaningful behavior or a tightly related behavior cluster, implement just enough to pass, then refactor
+   - flag slices that batch too many unrelated tests before implementing (this dilutes test intent and overwhelms the implementation step)
+   - flag slices that are overly micro-sliced into trivial assertions or mechanical follow-ups where workflow overhead would dominate the useful work
    - check whether slices are well-sequenced and build incrementally on each other
    - check whether slice descriptions are specific enough to act on (e.g., "write a failing test that `parse` returns `AuthError::MalformedToken` for an empty string" is good; "write tests for parsing" is too vague)
+   - assess whether slice boundaries align with behavior boundaries, dependency boundaries, risk boundaries, or meaningful review checkpoints
+   - suggest merging adjacent slices when they are too small and tightly related, or splitting slices when they are too broad and mix loosely related behaviors
    - if TDD is proposed for work where it is a poor fit (exploratory, UI-heavy, hard-to-mock external dependencies), flag this and suggest an alternative
 
 10. Evaluate risks and mitigations:
@@ -168,9 +171,11 @@ Assess the plan against the following dimensions, tailoring depth to the size an
 - Is the testing approach specified for each phase?
 - Is the overall testing strategy realistic for the architecture?
 - Are unit, integration, and end-to-end testing covered as appropriate?
-- If TDD is used, are slices narrow and incremental?
+- If TDD is used, are slices logically coherent and incremental?
 - If TDD is used, does each slice specify what test to write, what to implement, and what to refactor?
 - If TDD is used, do slices avoid batching many tests before implementing?
+- If TDD is used, do slices also avoid low-value micro-slicing where several adjacent slices should really be one behavior-oriented unit?
+- If TDD is used, are slice boundaries justified by behavior, dependency, subsystem, or risk boundaries?
 - If TDD is not used, is the alternative clearly described?
 - Are there phases with no testing approach specified?
 
@@ -235,7 +240,7 @@ For each finding:
 
 ### Recommendations
 
-Provide a numbered list of concrete improvements in priority order. Each recommendation should say what to change and why. When useful, suggest replacement wording, restructured phases, sharper exit criteria, narrower TDD slices, or additional tasks.
+Provide a numbered list of concrete improvements in priority order. Each recommendation should say what to change and why. When useful, suggest replacement wording, restructured phases, sharper exit criteria, narrower or broader TDD slices, merged micro-slices, split oversized slices, or additional tasks.
 
 ### Open Questions
 
@@ -249,8 +254,8 @@ Output:
 - a structured critique covering each checklist dimension
 - feedback on sequencing (e.g., token validation should precede middleware integration)
 - assessment of whether all design acceptance criteria are covered by plan tasks
-- evaluation of TDD slice quality (e.g., slices in Phase 1 are well-scoped but Phase 3 batches too many tests in a single slice)
-- prioritized recommendations such as adding exit criteria to Phase 2, narrowing TDD slices in Phase 3, and adding a risk entry for third-party OAuth provider downtime
+- evaluation of TDD slice quality (e.g., slices in Phase 1 are well-scoped but Phase 3 batches too many tests in a single slice, or Phase 2 is fragmented into micro-slices that should be merged)
+- prioritized recommendations such as adding exit criteria to Phase 2, rebalancing TDD slices in Phase 3, and adding a risk entry for third-party OAuth provider downtime
 
 Input: "Critique the plan I just created for the notification system"
 
@@ -268,8 +273,36 @@ Output:
 - **Plan without a source design**: Review the plan on its own merits. Note that the absence of a source design limits the ability to check coverage and alignment. Recommend creating a design if the plan covers complex or ambiguous work.
 - **Plan that diverges from its source design**: Call out the divergence explicitly — added scope, dropped requirements, or changed assumptions — and recommend reconciling the plan with the design or updating the design to reflect intentional changes.
 - **Plan with no testing strategy**: Flag this as a high-severity finding and suggest what types of testing should be specified based on the nature of the work.
-- **Plan with TDD slices that are too broad**: Flag slices that batch many tests or cover too much scope. Suggest narrowing each slice to one or a small number of tests with a clear red-green-refactor cycle.
+- **Plan with TDD slices that are too broad**: Flag slices that batch many tests or cover too much scope. Suggest narrowing each slice to one meaningful behavior or tightly related behavior cluster with a clear red-green-refactor cycle.
+- **Plan with TDD slices that are too narrow**: Flag runs of trivial or highly adjacent slices whose boundaries add more workflow overhead than clarity. Suggest merging them into fewer behavior-oriented slices.
 - **Plan with artificial phasing**: If the work is simple enough for a single phase but the plan breaks it into many phases, recommend consolidation and explain why fewer phases would be more effective.
 - **Plan with no definition of done**: Flag this as a finding and suggest a checklist derived from the design's acceptance criteria plus standard items (tests passing, documentation written, code reviewed).
 - **Plan pasted in conversation**: Review the text directly. Do not insist on locating a stored plan artifact when the content is already available.
 - **Review drifting into plan creation**: Suggest structural changes and task improvements when helpful, but keep the primary deliverable as critique and revision guidance rather than producing a replacement plan.
+
+## TDD Slice Sizing Review Heuristics
+
+Use these heuristics when judging whether a plan's TDD slices are well-sized.
+
+### Signs slices are too narrow
+
+- multiple adjacent slices touch the same code area and acceptance criterion with only tiny assertion-level differences
+- the plan separates behavior that would naturally be tested and implemented together
+- several slices appear to exist only because of implementation order, not because of meaningful behavior or risk boundaries
+- the likely workflow overhead per slice would be disproportionate to the value of the separation
+
+### Signs slices are about right
+
+- each slice delivers one meaningful behavior or one tightly related behavior cluster
+- each slice has a plausible Red, Green, and Refactor loop with localized feedback if something fails
+- the slice descriptions are concrete enough to act on without prescribing every tiny assertion as its own slice
+- the sequence builds confidence incrementally without unnecessary handoff overhead
+
+### Signs slices are too broad
+
+- one slice spans several loosely related behaviors or acceptance criteria
+- a single slice crosses package, subsystem, or architectural boundaries without a strong reason
+- many unrelated tests would need to be written before implementation can begin
+- failure or review feedback would likely be diffuse and hard to resolve in one iteration
+
+When recommending changes, optimize for slices that are both conceptually coherent and efficient to execute in the TDD workflow.

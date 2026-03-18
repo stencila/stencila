@@ -1,6 +1,6 @@
 ---
 name: software-delivery-tdd
-description: Execute a software delivery plan slice-by-slice using test-driven development with Red-Green-Refactor cycles, agent-driven scoped test execution, iterative review, and human approval after each completed slice
+description: Execute a software delivery plan using test-driven development with Red-Green-Refactor cycles, agent-driven scoped test execution, iterative review, and human approval after each completed slice or combined slice batch
 goal-hint: Which delivery plan should be executed? Provide the plan content or reference the plan file path
 keywords:
   - tdd
@@ -19,9 +19,9 @@ when-not-to-use:
   - when you want to implement without test-first discipline
 ---
 
-The workflow processes a delivery plan slice-by-slice in a single run. For each slice:
+The workflow processes a delivery plan in successive execution units during a single run. Each execution unit may correspond to one plan-authored slice or to several adjacent compatible slices combined by the selector to normalize overly fine-grained plans. For each selected unit:
 
-1. **SelectSlice** — the `software-slice-selector` agent marks the just-completed slice (if any), updates the completed slices list, reads the plan and prior context to pick the next unfinished slice, and reports whether more slices remain — or signals Done when all slices are complete
+1. **SelectSlice** — the `software-slice-selector` agent marks the just-completed slice or slice batch (if any), updates the completed slices list, reads the plan and prior context to pick the next unfinished execution unit, and reports whether more slices remain — or signals Done when all slices are complete
 
 2. **Red phase** — the `software-test-creator` agent writes failing tests for the slice; the `software-test-executor` agent executes the relevant tests to confirm they actually fail; the `software-test-reviewer` agent evaluates test quality and can loop the creator back for revisions
 
@@ -29,11 +29,11 @@ The workflow processes a delivery plan slice-by-slice in a single run. For each 
 
 4. **Refactor phase** — the `software-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
 
-5. **Human review** — a structured interview lets the human accept the slice, accept and commit it, or send it back to the Red phase with revision notes; choosing "Accept and Commit" routes through a CommitSlice agent that stages and commits the changes before continuing; on acceptance (with or without commit), control returns to SelectSlice which handles both completion tracking and next-slice selection
+5. **Human review** — a structured interview lets the human accept the execution unit, accept and commit it, or send it back to the Red phase with revision notes; choosing "Accept and Commit" routes through a CommitSlice agent that stages and commits the changes before continuing; on acceptance (with or without commit), control returns to SelectSlice which handles both completion tracking and next-unit selection
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
-Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. This keeps prompts concise across many iterations. Revision loops rely on `workflow_get_output` as the feedback channel: the test-reviewer's output text is the feedback that the test-creator reads on the next iteration, and failed test-execution output is the feedback that the implementor and refactorer read. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
+Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. The existing context keys are retained even when the selected work corresponds to several combined plan slices: in that case `current_slice`, `slice.scope`, `slice.acceptance_criteria`, and `slice.packages` describe the selected execution unit, while `completed_slices` continues to track the underlying plan slice identifiers. This keeps prompts concise across many iterations. Revision loops rely on `workflow_get_output` as the feedback channel: the test-reviewer's output text is the feedback that the test-creator reads on the next iteration, and failed test-execution output is the feedback that the implementor and refactorer read. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
 
 ```dot
 digraph software_delivery_tdd {
@@ -90,27 +90,28 @@ digraph software_delivery_tdd {
 ```
 
 ```text #select-slice-prompt
-Mark the just-completed slice (if any) and select the next unfinished slice of work from the delivery plan.
+Mark the just-completed slice or slice batch (if any) and select the next unfinished execution unit from the delivery plan.
 
 The delivery plan goal is: $goal
 
 Note on "current_slice": this key serves a dual role. When entering SelectSlice after
-HumanReview acceptance it holds the most recently completed slice name. After SelectSlice
-stores a newly selected slice it holds the next slice to work on. On the first invocation
-it is empty.
+HumanReview acceptance it holds the most recently completed execution unit name. After
+SelectSlice stores a newly selected execution unit it holds the next unit to work on. On the
+first invocation it is empty. The selected unit may represent one plan slice or a combined
+batch of adjacent compatible plan slices.
 
 Step 1 — read workflow state:
   Use workflow_get_context to read:
-  - key "current_slice" — the most recently selected slice (treat as just-completed when
+  - key "current_slice" — the most recently selected execution unit (treat as just-completed when
     re-entering after acceptance; empty on first invocation)
   - key "completed_slices" — the list of previously completed slice names
 
 Step 2 — delegate to the slice-selection skill:
-  Pass the just-completed slice name (from "current_slice", may be empty on first invocation),
+  Pass the just-completed slice or execution unit name (from "current_slice", may be empty on first invocation),
   the completed slices list, and the plan goal to the slice-selection skill. The skill will:
-  - Append the just-completed slice to the completed list (if provided)
-  - Read the delivery plan and identify the next unfinished slice
-  - Report the updated completed list, selected slice details (name, scope, acceptance criteria,
+  - Append the just-completed slice or the underlying slices represented by a just-completed combined unit to the completed list (if provided)
+  - Read the delivery plan and identify the next unfinished execution unit, combining adjacent compatible slices when appropriate to normalize overly narrow planning granularity
+  - Report the updated completed list, selected execution unit details (name, included slices, scope, acceptance criteria,
     packages), and whether more slices remain — or signal that all slices are complete
 
 Step 3 — clear stale slice-scoped context:
@@ -123,14 +124,14 @@ Step 3 — clear stale slice-scoped context:
 Step 4 — store the skill's outputs into workflow context:
   Use workflow_set_context to store:
   - key "completed_slices" — the updated completed slices list returned by the skill
-  If a slice was selected, also store:
-  - key "current_slice" — the slice name or identifier
+  If a slice or slice batch was selected, also store:
+  - key "current_slice" — the selected execution unit name or identifier
   - key "slice.scope" — the scope description
   - key "slice.acceptance_criteria" — the acceptance criteria
   - key "slice.packages" — the packages, crates, modules, or directories involved
 
 Step 5 — route:
-  If a slice was selected, call workflow_set_route with label "Continue".
+  If a slice or slice batch was selected, call workflow_set_route with label "Continue".
   If all slices are complete, call workflow_set_route with label "Done".
 ```
 
