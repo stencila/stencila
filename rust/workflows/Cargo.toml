@@ -9,6 +9,7 @@ async-trait = { workspace = true }
 clap = { workspace = true }
 dialoguer = { workspace = true }
 chrono = { workspace = true }
+chrono-humanize = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
 indexmap = { workspace = true }

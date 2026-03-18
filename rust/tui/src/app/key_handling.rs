@@ -1,6 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::autocomplete::agents::AgentSelection;
+use crate::autocomplete::resume::ResumableKind;
 use stencila_attractor::interviewer::QuestionType;
 
 use super::{App, AppMode};
@@ -59,6 +60,7 @@ impl App {
     /// Dispatch a key event.
     pub(super) async fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
+            || (self.resume_state.is_visible() && self.handle_resume_autocomplete(key))
             || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
             || (self.workflows_state.is_visible() && self.handle_workflows_autocomplete(key))
             || (self.mentions_state.is_visible() && self.handle_mentions_autocomplete(key))
@@ -116,6 +118,42 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Esc) => self.cancel_state.dismiss(),
             (KeyModifiers::NONE, KeyCode::Up) => self.cancel_state.select_prev(),
             (KeyModifiers::NONE, KeyCode::Down) => self.cancel_state.select_next(),
+            _ => return false,
+        }
+        true
+    }
+
+    /// Handle a key event when the resume picker popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    fn handle_resume_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(candidate) = self.resume_state.accept() {
+                    self.input.clear();
+                    match candidate.kind {
+                        ResumableKind::Workflow => {
+                            self.resume_workflow(candidate.id, &candidate.name);
+                        }
+                    }
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => {
+                self.resume_state.dismiss();
+                self.input.clear();
+            }
+            (KeyModifiers::NONE, KeyCode::Up) => self.resume_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.resume_state.select_next(),
+            (KeyModifiers::NONE, KeyCode::Backspace) => {
+                self.input.delete_char_before();
+                self.resume_state.update(self.input.text());
+            }
+            (modifier, KeyCode::Char(c))
+                if modifier.is_empty() || modifier == KeyModifiers::SHIFT =>
+            {
+                self.input.insert_char(c);
+                self.resume_state.update(self.input.text());
+            }
             _ => return false,
         }
         true

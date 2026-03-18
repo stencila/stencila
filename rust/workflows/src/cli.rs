@@ -542,7 +542,7 @@ impl Run {
         let outcome = crate::run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
 
-        eprintln!();
+        message!("");
         let time_str = format_elapsed(elapsed);
         if outcome.status.is_success() {
             message!("🎉 Workflow `{}` completed in {}", wf.name, time_str);
@@ -575,6 +575,10 @@ struct Runs {
     /// Maximum number of runs to show
     #[arg(long, short = 'n', default_value = "20")]
     limit: u32,
+
+    /// Only show resumable runs
+    #[arg(long)]
+    resumable: bool,
 }
 
 pub static RUNS_AFTER_LONG_HELP: &str = cstr!(
@@ -590,10 +594,19 @@ pub static RUNS_AFTER_LONG_HELP: &str = cstr!(
 impl Runs {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let runs = crate::run::list_runs(&cwd, self.limit).await?;
+        let filter = if self.resumable {
+            crate::run::RunListFilter::Resumable
+        } else {
+            crate::run::RunListFilter::All
+        };
+        let runs = crate::run::list_runs(&cwd, self.limit, filter).await?;
 
         if runs.is_empty() {
-            message!("No workflow runs found in this workspace");
+            if self.resumable {
+                message!("No resumable workflow runs found in this workspace");
+            } else {
+                message!("No workflow runs found in this workspace");
+            }
             return Ok(());
         }
 
@@ -602,7 +615,7 @@ impl Runs {
         let prefix_len = shortest_unique_prefix_len(&ids);
 
         let mut table = Tabulated::new();
-        table.set_header(["Run ID", "Workflow", "Goal", "Status", "Started", "Nodes"]);
+        table.set_header(["Run ID", "Workflow", "Goal", "Started", "Status"]);
 
         for run in &runs {
             let short_id = &run.run_id[..prefix_len.min(run.run_id.len())];
@@ -614,28 +627,23 @@ impl Runs {
                 other => Cell::new(other),
             };
 
-            let goal_preview = if run.goal.len() > 40 {
-                format!("{}…", &run.goal[..39])
+            let goal_preview = if run.goal.chars().count() > 40 {
+                let truncated: String = run.goal.chars().take(39).collect();
+                format!("{truncated}…")
             } else if run.goal.is_empty() {
                 "-".to_string()
             } else {
                 run.goal.clone()
             };
 
-            // Format the timestamp — show date and time portion.
-            let started = if run.started_at.len() >= 16 {
-                &run.started_at[..16]
-            } else {
-                &run.started_at
-            };
+            let started = crate::run::humanize_timestamp(&run.started_at);
 
             table.add_row([
                 Cell::new(short_id),
                 Cell::new(&run.workflow_name),
                 Cell::new(&goal_preview),
+                Cell::new(&started),
                 status_cell,
-                Cell::new(started),
-                Cell::new(run.node_count.to_string()),
             ]);
         }
 
@@ -740,7 +748,7 @@ impl Resume {
         } else {
             message!("🔄 Resuming run {}", &run_id[..run_id.len().min(8)]);
         }
-        eprintln!();
+        message!("");
 
         let is_tty = std::io::stderr().is_terminal();
         let emitter: Arc<dyn stencila_attractor::events::EventEmitter> = if self.verbose {

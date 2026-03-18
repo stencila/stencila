@@ -373,6 +373,67 @@ pub(super) fn workflows(frame: &mut Frame, app: &App, input_area: Rect) {
     render_popup(frame, area, lines, Some(" Workflows "));
 }
 
+/// Render the resume picker popup floating above the input area.
+pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.resume_state.candidates();
+    let row_count = candidates.len().max(1);
+    let Some(area) = popup_area(input_area, row_count) else {
+        return;
+    };
+
+    if !app.resume_state.has_matches() {
+        let lines = vec![Line::from(Span::styled(" No matches ", dim()))];
+        render_popup(frame, area, lines, Some(" Resume "));
+        return;
+    }
+
+    let max_time_width = candidates
+        .iter()
+        .map(|c| c.time_ago.len())
+        .max()
+        .unwrap_or(0);
+    let max_name_width = candidates.iter().map(|c| c.name.len()).max().unwrap_or(0);
+    let selected = app.resume_state.selected();
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let time_col = format!(" {:<max_time_width$}  ", candidate.time_ago);
+            let status_label = match candidate.status.as_str() {
+                "fail" | "failed" => "failed",
+                other => other,
+            };
+            let status_color = match candidate.status.as_str() {
+                "failed" | "fail" => Color::Red,
+                "running" => Color::Yellow,
+                _ => Color::DarkGray,
+            };
+            let status_col = format!("{status_label:>7}  ");
+            let name_col = format!("{:<max_name_width$}  ", candidate.name);
+            let goal = &candidate.goal;
+
+            if i == selected {
+                Line::from(vec![
+                    Span::styled(time_col, dim()),
+                    Span::styled(status_col, Style::new().fg(status_color)),
+                    Span::styled(name_col, selected_style()),
+                    Span::styled(goal.to_string(), selected_secondary_style()),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled(time_col, dim()),
+                    Span::styled(status_col, Style::new().fg(status_color)),
+                    Span::styled(name_col, unselected_style()),
+                    Span::styled(goal.to_string(), dim()),
+                ])
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Resume "));
+}
+
 /// Render the agent mention autocomplete popup floating above the input area.
 pub(super) fn mentions(frame: &mut Frame, app: &App, input_area: Rect) {
     let candidates = app.mentions_state.candidates();

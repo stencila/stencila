@@ -500,6 +500,26 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
             spans.push(Span::styled("cancel", dim()));
             Line::from(spans)
         }
+    } else if app.resume_state.is_visible() {
+        if app.resume_state.has_matches() {
+            Line::from(vec![
+                Span::raw("type "),
+                Span::styled("filter", dim()),
+                Span::raw("  ↑↓ "),
+                Span::styled("select", dim()),
+                Span::raw("  ↵ "),
+                Span::styled("resume", dim()),
+                Span::raw("  esc "),
+                Span::styled("close", dim()),
+            ])
+        } else {
+            Line::from(vec![
+                Span::raw("type "),
+                Span::styled("filter", dim()),
+                Span::raw("  esc "),
+                Span::styled("close", dim()),
+            ])
+        }
     } else if is_running {
         Line::from(vec![Span::raw("esc "), Span::styled("cancel", dim())])
     } else if has_ghost {

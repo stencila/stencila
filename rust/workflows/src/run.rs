@@ -14,6 +14,8 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
+use chrono::{DateTime, TimeDelta, Utc};
+use chrono_humanize::{Accuracy, HumanTime, Tense};
 use eyre::Result;
 use indexmap::IndexMap;
 use stencila_agents::types::Turn;
@@ -269,15 +271,30 @@ pub struct RunInfo {
     pub is_child: bool,
 }
 
+/// Filter applied when listing workflow runs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RunListFilter {
+    /// Return all top-level workflow runs.
+    All,
+    /// Return only failed or still-running top-level runs that may be resumed.
+    Resumable,
+}
+
 /// List recent workflow runs from the workspace database.
 ///
 /// Returns up to `limit` runs ordered by most recent first. Only
-/// top-level runs are included (those without a parent).
+/// top-level runs are included (those without a parent). When `filter`
+/// is [`RunListFilter::Resumable`], only failed or still-running runs are
+/// returned.
 ///
 /// # Errors
 ///
 /// Returns an error if the workspace database cannot be opened.
-pub async fn list_runs(workspace_path: &Path, limit: u32) -> Result<Vec<RunInfo>> {
+pub async fn list_runs(
+    workspace_path: &Path,
+    limit: u32,
+    filter: RunListFilter,
+) -> Result<Vec<RunInfo>> {
     let stencila_dir = stencila_dirs::closest_stencila_dir(workspace_path, false).await?;
     let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
 
@@ -304,15 +321,25 @@ pub async fn list_runs(workspace_path: &Path, limit: u32) -> Result<Vec<RunInfo>
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
 
+    let query = if matches!(filter, RunListFilter::Resumable) {
+        "SELECT run_id, workflow_name, goal, status, started_at,
+                completed_at, node_count, total_tokens
+         FROM workflow_runs
+         WHERE parent_run_id IS NULL
+           AND status IN ('failed', 'fail', 'running')
+         ORDER BY started_at DESC
+         LIMIT ?1"
+    } else {
+        "SELECT run_id, workflow_name, goal, status, started_at,
+                completed_at, node_count, total_tokens
+         FROM workflow_runs
+         WHERE parent_run_id IS NULL
+         ORDER BY started_at DESC
+         LIMIT ?1"
+    };
+
     let mut stmt = conn
-        .prepare(
-            "SELECT run_id, workflow_name, goal, status, started_at,
-                    completed_at, node_count, total_tokens
-             FROM workflow_runs
-             WHERE parent_run_id IS NULL
-             ORDER BY started_at DESC
-             LIMIT ?1",
-        )
+        .prepare(query)
         .map_err(|e| eyre::eyre!("Failed to prepare runs query: {e}"))?;
 
     let rows = stmt
@@ -339,16 +366,53 @@ pub async fn list_runs(workspace_path: &Path, limit: u32) -> Result<Vec<RunInfo>
     Ok(runs)
 }
 
+/// Humanize an RFC3339 timestamp for CLI and TUI display.
+pub fn humanize_timestamp(iso_timestamp: &str) -> String {
+    if let Ok(dt) = DateTime::parse_from_rfc3339(iso_timestamp) {
+        let now = Utc::now();
+        let duration = now.signed_duration_since(dt.with_timezone(&Utc));
+        let delta = if duration < TimeDelta::zero() {
+            -duration
+        } else {
+            duration
+        };
+
+        let mut text = HumanTime::from(delta).to_text_en(
+            Accuracy::Rough,
+            if duration < TimeDelta::zero() {
+                Tense::Future
+            } else {
+                Tense::Present
+            },
+        );
+
+        if duration < TimeDelta::zero() {
+            return text;
+        }
+
+        if text == "now" {
+            text.insert_str(0, "just ");
+        } else {
+            text.push_str(" ago");
+        }
+        return text;
+    }
+
+    if iso_timestamp.len() >= 16 {
+        iso_timestamp[..16].to_string()
+    } else {
+        iso_timestamp.to_string()
+    }
+}
+
 /// Find the most recent resumable run (failed or still marked running).
 ///
 /// # Errors
 ///
 /// Returns an error if the workspace database cannot be opened.
 pub async fn last_resumable_run(workspace_path: &Path) -> Result<Option<RunInfo>> {
-    let runs = list_runs(workspace_path, 50).await?;
-    Ok(runs
-        .into_iter()
-        .find(|r| r.status == "failed" || r.status == "fail" || r.status == "running"))
+    let runs = list_runs(workspace_path, 1, RunListFilter::Resumable).await?;
+    Ok(runs.into_iter().next())
 }
 
 /// Look up a single run by its full ID.
@@ -463,7 +527,7 @@ pub async fn resolve_run_id_from_db(workspace_path: &Path, id: &str) -> Result<S
 
     match matches.len() {
         0 => eyre::bail!("No workflow run found matching `{id}`"),
-        1 => Ok(matches.into_iter().next().expect("length checked")),
+        1 => Ok(matches.into_iter().next().unwrap_or_default()),
         n => {
             eyre::bail!("Ambiguous run ID prefix `{id}` matches {n} runs; provide more characters")
         }

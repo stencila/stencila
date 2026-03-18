@@ -82,6 +82,40 @@ fn spawn_interview_forwarder(
     interviewer
 }
 
+/// Spawn a resumed workflow run on a background task.
+///
+/// Resumes a previously failed or interrupted workflow run from where it
+/// left off.
+pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
+    let (event_tx, event_rx) = mpsc::unbounded_channel();
+
+    let join_handle = tokio::spawn(async move {
+        let completion_tx = event_tx.clone();
+        let emitter: Arc<dyn EventEmitter> = Arc::new(TuiEventEmitter {
+            tx: event_tx.clone(),
+        });
+
+        let interviewer = spawn_interview_forwarder(event_tx);
+
+        let result = async {
+            let cwd = std::env::current_dir()?;
+            let options = stencila_workflows::RunOptions {
+                emitter,
+                interviewer: Some(interviewer),
+            };
+            stencila_workflows::resume_workflow_with_options(&run_id, &cwd, options, false).await
+        }
+        .await;
+
+        let _ = completion_tx.send(WorkflowEvent::Completed(result));
+    });
+
+    WorkflowRunHandle {
+        event_rx,
+        join_handle,
+    }
+}
+
 /// Spawn a workflow run on a background task.
 ///
 /// Returns the run handle and total number of pipeline stages (graph nodes).

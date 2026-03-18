@@ -71,6 +71,48 @@ impl App {
         self.scroll_offset = 0;
     }
 
+    /// Resume a previously failed or interrupted workflow run.
+    ///
+    /// Sets up workflow mode and immediately spawns the resumed run (no goal
+    /// prompt — the original goal is restored by the workflow engine).
+    pub(super) fn resume_workflow(&mut self, run_id: String, workflow_name: &str) {
+        self.cancel_active_workflow();
+        self.mode = super::AppMode::Workflow;
+
+        let info = WorkflowDefinitionInfo {
+            name: workflow_name.to_string(),
+            description: format!(
+                "Resume workflow `{workflow_name}` from run {}",
+                &run_id[..run_id.len().min(8)]
+            ),
+            goal: None,
+            goal_hint: None,
+        };
+
+        let handle = crate::workflow::spawn_resume_workflow(run_id);
+
+        self.active_workflow = Some(ActiveWorkflow {
+            is_ephemeral: crate::workflow::is_ephemeral_workflow(workflow_name),
+            save_prompt_pending: false,
+            info,
+            state: ActiveWorkflowState::Running,
+            run_handle: Some(handle),
+            current_exchange_msg_index: None,
+            current_stage_progress: None,
+            workflow_status_msg_index: None,
+            stage_status_msg_index: None,
+            in_parallel: false,
+            parallel_stages: HashMap::new(),
+            parallel_had_failure: false,
+            pipeline_depth: 0,
+        });
+
+        self.input.clear();
+        self.input_scroll = 0;
+        self.scroll_pinned = true;
+        self.scroll_offset = 0;
+    }
+
     pub(super) fn handle_pipeline_event(&mut self, event: &PipelineEvent) {
         match self.config.workflow_verbosity {
             WorkflowVerbosity::Minimal => self.handle_pipeline_event_minimal(event),

@@ -21,7 +21,7 @@ use crate::{
     agent::{AgentHandle, AgentProgress, ResponseSegment, RunningAgentExchange},
     autocomplete::{
         AgentsState, CancelState, CommandsState, FilesState, HistoryState, MentionsState,
-        ResponsesState, WorkflowsState, agents::AgentDefinitionInfo,
+        ResponsesState, ResumeState, WorkflowsState, agents::AgentDefinitionInfo,
         workflows::WorkflowDefinitionInfo,
     },
     cli_commands::CliCommandNode,
@@ -429,6 +429,8 @@ pub struct App {
     pub agents_state: AgentsState,
     /// Workflow picker popup state.
     pub workflows_state: WorkflowsState,
+    /// Resume picker popup state.
+    pub resume_state: ResumeState,
     /// Agent mention autocomplete popup state (triggered by `#`).
     pub mentions_state: MentionsState,
 
@@ -554,6 +556,7 @@ impl App {
             cancel_state: CancelState::new(),
             agents_state: AgentsState::new(),
             workflows_state: WorkflowsState::new(),
+            resume_state: ResumeState::new(),
             mentions_state: MentionsState::new(),
             pastes: std::collections::HashMap::new(),
             paste_counter: 0,

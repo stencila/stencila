@@ -4,6 +4,7 @@ use strum::{Display, EnumMessage, EnumString};
 
 use crate::app::{App, AppMessage, AppMode};
 use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
+use crate::autocomplete::resume::{ResumableKind, ResumeCandidate};
 use crate::autocomplete::workflows::{WorkflowCandidate, WorkflowDefinitionInfo};
 use crate::cli_commands::CliCommandNode;
 
@@ -13,11 +14,14 @@ use crate::cli_commands::CliCommandNode;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumMessage)]
 #[strum(serialize_all = "lowercase")]
 pub enum SlashCommand {
-    #[strum(serialize = "workflow", message = "Run a workflow")]
+    #[strum(message = "Run a workflow")]
     Workflow,
 
-    #[strum(serialize = "agent", message = "Start and switch agent sessions")]
+    #[strum(message = "Start and switch agent sessions")]
     Agent,
+
+    #[strum(message = "Resume a workflow or agent session")]
+    Resume,
 
     #[strum(message = "Cancel a running command")]
     Cancel,
@@ -67,7 +71,7 @@ impl SlashCommand {
     pub fn display_order() -> &'static [CommandSlot] {
         use CommandSlot::{Builtin, Cli};
         use SlashCommand::{
-            Agent, Cancel, Clear, Exit, Help, History, New, Quit, Shell, Upgrade, Workflow,
+            Agent, Cancel, Clear, Exit, Help, History, New, Quit, Resume, Shell, Upgrade, Workflow,
         };
         &[
             Builtin(Workflow),
@@ -78,6 +82,7 @@ impl SlashCommand {
             Cli("models"),
             Cli("mcp"),
             Cli("db"),
+            Builtin(Resume),
             Builtin(Cancel),
             Builtin(Clear),
             Builtin(New),
@@ -130,6 +135,7 @@ impl SlashCommand {
     pub async fn execute(self, app: &mut App, _args: &str) {
         match self {
             Self::Agent => execute_agents(app).await,
+            Self::Resume => execute_resume(app).await,
             Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
             Self::New => execute_new(app).await,
@@ -170,6 +176,7 @@ impl SlashCommand {
             self,
             Self::Agent
                 | Self::Workflow
+                | Self::Resume
                 | Self::Cancel
                 | Self::Clear
                 | Self::New
@@ -350,6 +357,52 @@ async fn execute_workflows(app: &mut App) {
         });
     } else {
         app.workflows_state.open(candidates);
+    }
+}
+
+async fn execute_resume(app: &mut App) {
+    let cwd = std::env::current_dir().unwrap_or_default();
+    let runs =
+        match stencila_workflows::list_runs(&cwd, 50, stencila_workflows::RunListFilter::Resumable)
+            .await
+        {
+            Ok(runs) => runs,
+            Err(error) => {
+                app.messages.push(AppMessage::System {
+                    content: format!("Failed to load resumable workflow runs: {error}"),
+                });
+                return;
+            }
+        };
+
+    let candidates: Vec<ResumeCandidate> = runs
+        .into_iter()
+        .map(|run| {
+            let goal = if run.goal.chars().count() > 60 {
+                let truncated: String = run.goal.chars().take(59).collect();
+                format!("{truncated}…")
+            } else {
+                run.goal
+            };
+            ResumeCandidate {
+                kind: ResumableKind::Workflow,
+                id: run.run_id,
+                name: run.workflow_name,
+                goal,
+                status: run.status,
+                time_ago: stencila_workflows::humanize_timestamp(&run.started_at),
+            }
+        })
+        .collect();
+
+    // Future: append agent session candidates here.
+
+    if candidates.is_empty() {
+        app.messages.push(AppMessage::System {
+            content: "No resumable workflow runs or agent sessions found.".to_string(),
+        });
+    } else {
+        app.resume_state.open(candidates);
     }
 }
 

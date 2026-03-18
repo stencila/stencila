@@ -5,6 +5,7 @@ pub mod files;
 pub mod history;
 pub mod mentions;
 pub mod responses;
+pub mod resume;
 pub mod workflows;
 
 pub use agents::AgentsState;
@@ -14,4 +15,5 @@ pub use files::FilesState;
 pub use history::HistoryState;
 pub use mentions::MentionsState;
 pub use responses::ResponsesState;
+pub use resume::ResumeState;
 pub use workflows::WorkflowsState;

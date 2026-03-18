@@ -71,6 +71,8 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     // Cancel popup has highest priority, then agents, model, history, commands, files, responses.
     if app.cancel_state.is_visible() {
         popups::cancel(frame, app, input_area);
+    } else if app.resume_state.is_visible() {
+        popups::resume(frame, app, input_area);
     } else if app.agents_state.is_visible() {
         popups::agents(frame, app, input_area);
     } else if app.workflows_state.is_visible() {
