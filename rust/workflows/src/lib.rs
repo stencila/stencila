@@ -17,4 +17,6 @@ pub use run::*;
 
 mod tools;
 
+mod session_pool;
+
 pub mod cli;
