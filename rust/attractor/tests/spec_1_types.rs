@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use indexmap::IndexMap;
 use serde_json::json;
 
+use stencila_agents::error::AgentError;
 use stencila_attractor::checkpoint::Checkpoint;
 use stencila_attractor::context::Context;
 use stencila_attractor::error::AttractorError;
@@ -50,6 +51,57 @@ fn error_is_retryable() -> Result<(), Box<dyn std::error::Error>> {
             message: String::new()
         }
         .is_retryable()
+    );
+
+    // AgentFailed with a retryable SDK error is retryable
+    let retryable_agent = AttractorError::AgentFailed {
+        node_id: "N".into(),
+        source: Box::new(AgentError::Sdk(
+            stencila_models3::error::SdkError::Network {
+                message: "error decoding response body".into(),
+            },
+        )),
+    };
+    assert!(
+        retryable_agent.is_retryable(),
+        "AgentFailed wrapping Network should be retryable"
+    );
+    assert!(
+        !retryable_agent.is_terminal(),
+        "AgentFailed wrapping Network should not be terminal"
+    );
+
+    // AgentFailed with a non-retryable SDK error is not retryable
+    let non_retryable_agent = AttractorError::AgentFailed {
+        node_id: "N".into(),
+        source: Box::new(AgentError::Sdk(
+            stencila_models3::error::SdkError::Authentication {
+                message: "bad key".into(),
+                details: Default::default(),
+            },
+        )),
+    };
+    assert!(
+        !non_retryable_agent.is_retryable(),
+        "AgentFailed wrapping Authentication should not be retryable"
+    );
+    assert!(
+        non_retryable_agent.is_terminal(),
+        "AgentFailed wrapping Authentication should be terminal"
+    );
+
+    // AgentFailed with a non-SDK agent error is not retryable
+    let tool_agent = AttractorError::AgentFailed {
+        node_id: "N".into(),
+        source: Box::new(AgentError::SessionClosed),
+    };
+    assert!(
+        !tool_agent.is_retryable(),
+        "AgentFailed wrapping SessionClosed should not be retryable"
+    );
+    assert!(
+        tool_agent.is_terminal(),
+        "AgentFailed wrapping SessionClosed should be terminal"
     );
 
     // Non-retryable samples
@@ -144,6 +196,10 @@ fn error_codes_unique() -> Result<(), Box<dyn std::error::Error>> {
         AttractorError::HandlerFailed {
             node_id: String::new(),
             reason: String::new(),
+        },
+        AttractorError::AgentFailed {
+            node_id: String::new(),
+            source: Box::new(AgentError::SessionClosed),
         },
         AttractorError::NoStartNode,
         AttractorError::NoExitNode,

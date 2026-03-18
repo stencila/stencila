@@ -283,12 +283,15 @@ fn merge_workflow_attrs(workflow: &WorkflowInstance, graph: &mut Graph) {
             .or_insert_with(|| AttrValue::String(stylesheet.clone()));
     }
 
-    if let Some(max_retry) = workflow.options.default_max_retry {
-        graph
-            .graph_attrs
-            .entry("default_max_retry".to_string())
-            .or_insert_with(|| AttrValue::Integer(max_retry));
-    }
+    // Apply workflow-level default_max_retry, falling back to 3 when
+    // neither the workflow frontmatter nor the DOT graph specifies one.
+    // This ensures transient errors (network, rate-limit, server) are
+    // retried automatically without requiring every workflow to opt in.
+    let max_retry = workflow.options.default_max_retry.unwrap_or(3);
+    graph
+        .graph_attrs
+        .entry("default_max_retry".to_string())
+        .or_insert_with(|| AttrValue::Integer(max_retry));
 
     if let Some(ref target) = workflow.options.retry_target {
         graph
@@ -533,9 +536,9 @@ impl CodergenBackend for AgentCodergenBackend {
         } else {
             stencila_agents::convenience::create_session(agent_name).await
         }
-        .map_err(|e| stencila_attractor::AttractorError::HandlerFailed {
+        .map_err(|e| stencila_attractor::AttractorError::AgentFailed {
             node_id: node.id.clone(),
-            reason: format!("Agent `{agent_name}` session creation failed: {e}"),
+            source: Box::new(e),
         })?;
 
         // Register workflow-context tools if we have a DB connection.
@@ -686,9 +689,9 @@ impl CodergenBackend for AgentCodergenBackend {
         }
 
         if let Some(Err(e)) = submit_result {
-            return Err(stencila_attractor::AttractorError::HandlerFailed {
+            return Err(stencila_attractor::AttractorError::AgentFailed {
                 node_id: node_id.clone(),
-                reason: format!("Agent `{agent_name}` failed: {e}"),
+                source: Box::new(e),
             });
         }
         drop(submit_fut);

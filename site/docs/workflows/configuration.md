@@ -124,9 +124,9 @@ Specificity order: `*` (universal) < `.class` < `#node_id`. Override values take
 
 ### `default_max_retry`
 
-**Type:** `integer` — Default: `0`
+**Type:** `integer` — Default: `3`
 
-Global retry ceiling for nodes that omit `max_retries`.
+Global retry ceiling for nodes that omit `max_retries`. Workflows default to `3` retries so that transient errors (network failures, rate limits, server errors) are retried automatically. Set to `0` to disable.
 
 ```dot
 graph [default_max_retry=3]

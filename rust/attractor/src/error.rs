@@ -1,5 +1,7 @@
 use serde::ser::SerializeMap;
 
+use stencila_agents::error::AgentError;
+
 /// Errors that can occur during attractor pipeline execution.
 ///
 /// Organized into three categories per Appendix D of the specification:
@@ -39,6 +41,18 @@ pub enum AttractorError {
     /// A stage handler returned an error.
     #[error("handler failed for node {node_id}: {reason}")]
     HandlerFailed { node_id: String, reason: String },
+
+    /// An agent returned an error during node execution.
+    ///
+    /// Preserves the original [`AgentError`] so that retryability
+    /// is determined by the underlying SDK error rather than being
+    /// lost through string conversion. Boxed to keep the enum size
+    /// small since `AgentError` embeds `SdkError` which is large.
+    #[error("agent failed for node {node_id}: {source}")]
+    AgentFailed {
+        node_id: String,
+        source: Box<AgentError>,
+    },
 
     // -- Pipeline --
     /// The pipeline graph has no start node.
@@ -85,6 +99,13 @@ impl AttractorError {
             | Self::TemporaryUnavailable { .. }
             | Self::Io { .. } => true,
 
+            // Delegate to the inner AgentError: retryable SDK errors
+            // (network, rate-limit, server, timeout, stream) are
+            // retryable at the pipeline level too.
+            Self::AgentFailed { source, .. } => {
+                matches!(source.as_ref(), AgentError::Sdk(sdk) if sdk.is_retryable())
+            }
+
             Self::InvalidPrompt { .. }
             | Self::MissingContext { .. }
             | Self::AuthenticationFailed { .. }
@@ -108,6 +129,11 @@ impl AttractorError {
             | Self::AuthenticationFailed { .. }
             | Self::HandlerFailed { .. }
             | Self::Json { .. } => true,
+
+            // Terminal when the underlying error is not retryable.
+            Self::AgentFailed { source, .. } => {
+                !matches!(source.as_ref(), AgentError::Sdk(sdk) if sdk.is_retryable())
+            }
 
             Self::RateLimited { .. }
             | Self::NetworkTimeout { .. }
@@ -140,6 +166,7 @@ impl AttractorError {
             | Self::MissingContext { .. }
             | Self::AuthenticationFailed { .. }
             | Self::HandlerFailed { .. }
+            | Self::AgentFailed { .. }
             | Self::Io { .. }
             | Self::Json { .. } => false,
         }
@@ -156,6 +183,7 @@ impl AttractorError {
             Self::MissingContext { .. } => "MISSING_CONTEXT",
             Self::AuthenticationFailed { .. } => "AUTHENTICATION_FAILED",
             Self::HandlerFailed { .. } => "HANDLER_FAILED",
+            Self::AgentFailed { .. } => "AGENT_FAILED",
             Self::NoStartNode => "NO_START_NODE",
             Self::NoExitNode => "NO_EXIT_NODE",
             Self::UnreachableNode { .. } => "UNREACHABLE_NODE",

@@ -9145,6 +9145,7 @@ dependencies = [
  "stencila-agents",
  "stencila-db",
  "stencila-interviews",
+ "stencila-models3",
  "tar",
  "tempfile",
  "thiserror 2.0.18",

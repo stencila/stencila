@@ -1004,7 +1004,7 @@ This pipeline:
 | `goal`              | String  | `""`    | Pipeline-level goal. Expanded as `$goal` in prompts.     |
 | `label`             | String  | `""`    | Display name for the pipeline.                           |
 | `overrides`         | String  | `""`    | CSS-like per-node agent override rules.                  |
-| `default-max-retry` | Integer | `0`     | Global retry ceiling for nodes that omit `max-retries`.  |
+| `default-max-retry` | Integer | `3`     | Global retry ceiling for nodes that omit `max-retries`.  |
 | `default-fidelity`  | String  | `""`    | Default context fidelity mode.                           |
 | `retry-target`      | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
 

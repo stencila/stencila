@@ -25,6 +25,7 @@ winnow = { workspace = true }
 zstd = { workspace = true }
 
 [dev-dependencies]
+stencila-models3 = { path = "../models3" }
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt"] }
 
