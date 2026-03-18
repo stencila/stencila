@@ -9,7 +9,7 @@ use winnow::{
 };
 
 use crate::error::{AttractorError, AttractorResult};
-use crate::graph::{AttrValue, Edge, Graph, Node};
+use crate::graph::{AttrValue, Edge, Graph, Node, attr};
 use crate::types::Duration;
 
 // ---------------------------------------------------------------------------
@@ -888,13 +888,16 @@ fn insert_or_merge_node(
 
 /// Append a class name to the `class` attribute, comma-separating if non-empty.
 fn append_class(attrs: &mut IndexMap<String, AttrValue>, class: &str) {
-    let existing = attrs.get("class").and_then(AttrValue::as_str).unwrap_or("");
+    let existing = attrs
+        .get(attr::CLASS)
+        .and_then(AttrValue::as_str)
+        .unwrap_or("");
     let new_class = if existing.is_empty() {
         class.to_string()
     } else {
         format!("{existing},{class}")
     };
-    attrs.insert("class".to_string(), AttrValue::String(new_class));
+    attrs.insert(attr::CLASS.to_string(), AttrValue::String(new_class));
 }
 
 /// Ensure a node exists in the graph, creating it with defaults if needed.
@@ -920,10 +923,10 @@ fn derive_subgraph_class(_name: Option<&str>, stmts: &[Statement]) -> Option<Str
         .iter()
         .filter_map(|s| match s {
             Statement::GraphAttr(attrs) => attrs
-                .get("label")
+                .get(attr::LABEL)
                 .and_then(AttrValue::as_str)
                 .map(String::from),
-            Statement::GraphAttrDecl(key, value) if key == "label" => {
+            Statement::GraphAttrDecl(key, value) if key == attr::LABEL => {
                 value.as_str().map(String::from)
             }
             _ => None,

@@ -7,7 +7,7 @@ use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use super::{Diagnostic, LintRule, Severity};
-use crate::graph::Graph;
+use crate::graph::{Graph, attr};
 use crate::types::HandlerType;
 
 /// Return all built-in lint rules.
@@ -412,7 +412,7 @@ impl LintRule for FidelityValidRule {
 
         // Check node-level fidelity attrs
         for node in graph.nodes.values() {
-            if let Some(fidelity_str) = node.get_str_attr("fidelity")
+            if let Some(fidelity_str) = node.get_str_attr(attr::FIDELITY)
                 && fidelity_str.parse::<crate::types::FidelityMode>().is_err()
             {
                 diagnostics.push(Diagnostic {
@@ -434,7 +434,7 @@ impl LintRule for FidelityValidRule {
 
         // Check edge-level fidelity attrs
         for edge in &graph.edges {
-            if let Some(fidelity_str) = edge.get_attr("fidelity").and_then(|v| v.as_str())
+            if let Some(fidelity_str) = edge.get_attr(attr::FIDELITY).and_then(|v| v.as_str())
                 && fidelity_str.parse::<crate::types::FidelityMode>().is_err()
             {
                 diagnostics.push(Diagnostic {
@@ -456,7 +456,7 @@ impl LintRule for FidelityValidRule {
 
         // Check graph-level default_fidelity (§2.5, §5.4)
         if let Some(fidelity_str) = graph
-            .get_graph_attr("default_fidelity")
+            .get_graph_attr(attr::DEFAULT_FIDELITY)
             .and_then(|v| v.as_str())
             && fidelity_str.parse::<crate::types::FidelityMode>().is_err()
         {
@@ -600,19 +600,19 @@ const LLM_HANDLER_TYPES: &[&str] = &[HandlerType::Codergen.as_str()];
 /// Includes both direct attributes and their `-ref` variants (resolved at
 /// workflow level before execution).
 const AGENT_INPUT_ATTRS: &[&str] = &[
-    "prompt",
+    attr::PROMPT,
     "prompt-ref",
     "prompt_ref",
-    "interview",
+    attr::INTERVIEW,
     "interview-ref",
     "interview_ref",
-    "shell",
+    attr::SHELL,
     "shell-ref",
     "shell_ref",
-    "ask",
+    attr::ASK,
     "ask-ref",
     "ask_ref",
-    "label",
+    attr::LABEL,
 ];
 
 struct PromptOnLlmNodesRule;
@@ -660,7 +660,7 @@ impl LintRule for ShellCommandPresentRule {
             .nodes
             .values()
             .filter(|n| n.handler_type() == HandlerType::Shell)
-            .filter(|n| n.get_str_attr("shell_command").is_none())
+            .filter(|n| n.get_str_attr(attr::SHELL_COMMAND).is_none())
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
                 severity: Severity::Warning,
@@ -691,7 +691,7 @@ impl LintRule for InterviewSpecRule {
         let mut diagnostics = Vec::new();
 
         for node in graph.nodes.values() {
-            let Some(spec_str) = node.get_str_attr("interview") else {
+            let Some(spec_str) = node.get_str_attr(attr::INTERVIEW) else {
                 continue;
             };
 
@@ -880,7 +880,7 @@ impl LintRule for DynamicFanOutRule {
         graph
             .nodes
             .values()
-            .filter(|n| n.attrs.contains_key("fan_out"))
+            .filter(|n| n.attrs.contains_key(attr::FAN_OUT))
             .filter_map(|n| {
                 let edge_count = graph.outgoing_edges(&n.id).len();
                 (edge_count != 1).then(|| Diagnostic {
@@ -919,7 +919,7 @@ impl LintRule for DynamicFanOutMissingFanInRule {
         graph
             .nodes
             .values()
-            .filter(|n| n.attrs.contains_key("fan_out"))
+            .filter(|n| n.attrs.contains_key(attr::FAN_OUT))
             .filter(|n| {
                 let edges = graph.outgoing_edges(&n.id);
                 edges.len() == 1
@@ -969,7 +969,7 @@ impl LintRule for NestedDynamicFanOutRule {
         let mut diagnostics = Vec::new();
 
         for node in graph.nodes.values() {
-            if !node.attrs.contains_key("fan_out") {
+            if !node.attrs.contains_key(attr::FAN_OUT) {
                 continue;
             }
 
@@ -983,7 +983,7 @@ impl LintRule for NestedDynamicFanOutRule {
 
             for sub_node_id in &subgraph {
                 if let Some(sub_node) = graph.get_node(sub_node_id)
-                    && sub_node.attrs.contains_key("fan_out")
+                    && sub_node.attrs.contains_key(attr::FAN_OUT)
                 {
                     diagnostics.push(Diagnostic {
                         rule: self.name().to_string(),
@@ -1028,8 +1028,8 @@ impl LintRule for MismatchedAgentThreadIdRule {
         let mut mismatched: HashSet<&str> = HashSet::new();
 
         for node in graph.nodes.values() {
-            if let Some(tid) = node.get_str_attr("thread_id") {
-                let agent = node.get_str_attr("agent").unwrap_or("");
+            if let Some(tid) = node.get_str_attr(attr::THREAD_ID) {
+                let agent = node.get_str_attr(attr::AGENT).unwrap_or("");
                 match first_agent.entry(tid) {
                     Entry::Vacant(e) => {
                         e.insert(agent);
@@ -1064,7 +1064,8 @@ impl LintRule for MismatchedAgentThreadIdRule {
 // ---------------------------------------------------------------------------
 
 fn has_full_fidelity(node: &crate::graph::Node) -> bool {
-    node.get_str_attr("fidelity").is_some_and(|f| f == "full")
+    node.get_str_attr(attr::FIDELITY)
+        .is_some_and(|f| f == "full")
 }
 
 // ---------------------------------------------------------------------------
@@ -1108,7 +1109,7 @@ impl LintRule for ParallelBranchThreadIdRule {
                 for nid in &reachable {
                     if let Some(n) = graph.get_node(nid)
                         && has_full_fidelity(n)
-                        && let Some(tid) = n.get_str_attr("thread_id")
+                        && let Some(tid) = n.get_str_attr(attr::THREAD_ID)
                     {
                         match thread_id_branch.entry(tid.to_string()) {
                             Entry::Vacant(e) => {
@@ -1164,7 +1165,7 @@ impl LintRule for ThreadIdWithoutFidelityRule {
         graph
             .nodes
             .values()
-            .filter(|n| n.get_str_attr("thread_id").is_some())
+            .filter(|n| n.get_str_attr(attr::THREAD_ID).is_some())
             .filter(|n| !has_full_fidelity(n))
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
@@ -1279,7 +1280,7 @@ impl LintRule for FidelityFullNoCycleThreadIdRule {
             .nodes
             .values()
             .filter(|n| has_full_fidelity(n))
-            .filter(|n| n.get_str_attr("thread_id").is_none())
+            .filter(|n| n.get_str_attr(attr::THREAD_ID).is_none())
             .filter(|n| cycle_members.contains(&n.id))
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),

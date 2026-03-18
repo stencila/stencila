@@ -9,7 +9,7 @@ use std::sync::Arc;
 use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, attr};
 use crate::handler::Handler;
 use crate::types::Outcome;
 use async_trait::async_trait;
@@ -101,7 +101,9 @@ impl Handler for CodergenHandler {
         graph: &Graph,
     ) -> AttractorResult<Outcome> {
         // Build prompt: prefer explicit "prompt" attr, fall back to node label
-        let raw_prompt = node.get_str_attr("prompt").unwrap_or_else(|| node.label());
+        let raw_prompt = node
+            .get_str_attr(attr::PROMPT)
+            .unwrap_or_else(|| node.label());
 
         // Expand runtime variables ($last_output, $last_stage) from context.
         // This runs at execution time (not at parse time like VariableExpansionTransform)
@@ -132,7 +134,7 @@ impl Handler for CodergenHandler {
 
         // Read agent name from node attributes.
         let agent_name = node
-            .get_str_attr("agent")
+            .get_str_attr(attr::AGENT)
             .unwrap_or(stencila_agents::DEFAULT_WORKFLOW_AGENT_NAME);
 
         // Read stage_index from context (set by the engine loop).

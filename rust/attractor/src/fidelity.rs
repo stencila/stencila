@@ -15,7 +15,7 @@
 //! - Set `max_session_turns` on long-running loops to cap the number of
 //!   accumulated turns and prevent unbounded context growth.
 
-use crate::graph::{Edge, Graph, Node};
+use crate::graph::{Edge, Graph, Node, attr};
 use crate::types::FidelityMode;
 
 /// Resolve the fidelity mode for a node, checking (§5.4):
@@ -28,20 +28,21 @@ use crate::types::FidelityMode;
 pub fn resolve_fidelity(node: &Node, incoming_edge: Option<&Edge>, graph: &Graph) -> FidelityMode {
     // 1. Edge-level fidelity
     if let Some(edge) = incoming_edge
-        && let Some(mode) = parse_fidelity_attr(edge.get_attr("fidelity").and_then(|v| v.as_str()))
+        && let Some(mode) =
+            parse_fidelity_attr(edge.get_attr(attr::FIDELITY).and_then(|v| v.as_str()))
     {
         return mode;
     }
 
     // 2. Node-level fidelity
-    if let Some(mode) = parse_fidelity_attr(node.get_str_attr("fidelity")) {
+    if let Some(mode) = parse_fidelity_attr(node.get_str_attr(attr::FIDELITY)) {
         return mode;
     }
 
     // 3. Graph-level default_fidelity
     if let Some(mode) = parse_fidelity_attr(
         graph
-            .get_graph_attr("default_fidelity")
+            .get_graph_attr(attr::DEFAULT_FIDELITY)
             .and_then(|v| v.as_str()),
     ) {
         return mode;
@@ -67,20 +68,20 @@ pub fn resolve_thread_id(
     previous_node_id: &str,
 ) -> String {
     // 1. Node thread_id
-    if let Some(tid) = node.get_str_attr("thread_id") {
+    if let Some(tid) = node.get_str_attr(attr::THREAD_ID) {
         return tid.to_string();
     }
 
     // 2. Edge thread_id
     if let Some(edge) = incoming_edge
-        && let Some(tid) = edge.get_attr("thread_id").and_then(|v| v.as_str())
+        && let Some(tid) = edge.get_attr(attr::THREAD_ID).and_then(|v| v.as_str())
     {
         return tid.to_string();
     }
 
     // 3. Graph-level default thread
     if let Some(tid) = graph
-        .get_graph_attr("default_thread_id")
+        .get_graph_attr(attr::DEFAULT_THREAD_ID)
         .and_then(|v| v.as_str())
     {
         return tid.to_string();
@@ -89,7 +90,7 @@ pub fn resolve_thread_id(
     // 4. Enclosing subgraph class (§5.4)
     //    The subgraph-derived class is appended last by the parser, so
     //    use the last token from the comma-separated class list.
-    if let Some(class) = node.get_str_attr("class")
+    if let Some(class) = node.get_str_attr(attr::CLASS)
         && let Some(last_class) = class.rsplit(',').next().map(str::trim)
         && !last_class.is_empty()
     {

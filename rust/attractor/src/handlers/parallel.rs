@@ -21,7 +21,7 @@ use crate::context::Context;
 use crate::edge_selection::select_edge;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
-use crate::graph::{AttrValue, Graph, Node};
+use crate::graph::{AttrValue, Graph, Node, attr};
 use crate::handler::{Handler, HandlerRegistry};
 use crate::retry::{build_retry_policy, execute_with_retry};
 use crate::types::{HandlerType, Outcome, StageStatus};
@@ -144,7 +144,7 @@ impl Handler for ParallelHandler {
         graph: &Graph,
     ) -> AttractorResult<Outcome> {
         // Check for dynamic fan-out attribute
-        if node.attrs.contains_key("fan_out") {
+        if node.attrs.contains_key(attr::FAN_OUT) {
             return self.execute_dynamic(node, context, graph).await;
         }
 
@@ -442,7 +442,7 @@ impl ParallelHandler {
         }
 
         // Resolve the context key from the fan_out attribute
-        let context_key = match node.get_attr("fan_out") {
+        let context_key = match node.get_attr(attr::FAN_OUT) {
             Some(AttrValue::Boolean(false)) => {
                 return Ok(Outcome::fail(format!(
                     "dynamic fan-out on node '{}': fan_out=false is not valid; use fan_out=true or fan_out=\"key\"",

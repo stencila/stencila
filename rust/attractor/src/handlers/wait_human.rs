@@ -37,7 +37,7 @@ use stencila_interviews::spec::InterviewSpec;
 use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, attr};
 use crate::handler::Handler;
 use crate::interviewer::{
     Answer, AnswerValue, Interview, InterviewError, Interviewer, Question, QuestionOption,
@@ -597,7 +597,7 @@ impl Handler for WaitForHumanHandler {
     ) -> AttractorResult<Outcome> {
         // Multi-question interview path: if the node has an `interview`
         // attribute, parse and execute the full interview spec.
-        if let Some(interview_spec_str) = node.get_str_attr("interview") {
+        if let Some(interview_spec_str) = node.get_str_attr(attr::INTERVIEW) {
             return self
                 .execute_interview_spec(node, context, graph, interview_spec_str)
                 .await;
@@ -618,7 +618,9 @@ impl Handler for WaitForHumanHandler {
         }
 
         // 2. Build question based on question_type
-        let text = node.get_str_attr("label").unwrap_or("Select an option:");
+        let text = node
+            .get_str_attr(attr::LABEL)
+            .unwrap_or("Select an option:");
         let is_choice_based = question_type.is_none()
             || matches!(
                 question_type,

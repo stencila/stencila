@@ -14,7 +14,7 @@ use async_trait::async_trait;
 
 use crate::context::Context;
 use crate::error::AttractorResult;
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, attr};
 use crate::handlers;
 use crate::types::{HandlerType, Outcome};
 
@@ -119,7 +119,10 @@ impl HandlerRegistry {
     #[must_use]
     pub fn resolve(&self, node: &Node) -> Option<Arc<dyn Handler>> {
         // Step 1: explicit type attribute
-        if let Some(handler) = node.get_str_attr("type").and_then(|t| self.handlers.get(t)) {
+        if let Some(handler) = node
+            .get_str_attr(attr::TYPE)
+            .and_then(|t| self.handlers.get(t))
+        {
             return Some(handler.clone());
         }
 

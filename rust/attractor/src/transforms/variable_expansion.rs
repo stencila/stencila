@@ -4,7 +4,7 @@
 //! the graph-level `goal` attribute value.
 
 use crate::error::AttractorResult;
-use crate::graph::{AttrValue, Graph};
+use crate::graph::{AttrValue, Graph, attr};
 use crate::transform::Transform;
 
 /// Expands `$goal` variables in node prompt attributes.
@@ -27,7 +27,7 @@ impl Transform for VariableExpansionTransform {
             .to_string();
 
         for node in graph.nodes.values_mut() {
-            if let Some(AttrValue::String(prompt)) = node.attrs.get_mut("prompt")
+            if let Some(AttrValue::String(prompt)) = node.attrs.get_mut(attr::PROMPT)
                 && prompt.contains("$goal")
             {
                 *prompt = prompt.replace("$goal", &goal);

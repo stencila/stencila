@@ -18,7 +18,7 @@
 // selector. Using 3-level specificity per grammar. (spec: §11.10 vs §8.2–8.3)
 
 use crate::error::AttractorResult;
-use crate::graph::{AttrValue, Graph, Node};
+use crate::graph::{AttrValue, Graph, Node, attr};
 use crate::stylesheet_parser::{
     CANONICAL_PROPERTIES, ParsedStylesheet, Selector, parse_stylesheet,
 };
@@ -116,7 +116,7 @@ fn selector_matches(selector: &Selector, node: &Node) -> bool {
 ///
 /// Classes are stored as a comma-separated string in the `class` attribute.
 fn node_has_class(node: &Node, class_name: &str) -> bool {
-    node.get_str_attr("class")
+    node.get_str_attr(attr::CLASS)
         .is_some_and(|classes| classes.split(',').any(|c| c.trim() == class_name))
 }
 

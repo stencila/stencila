@@ -6,6 +6,33 @@ use serde::{Deserialize, Serialize};
 use crate::error::{AttractorError, AttractorResult};
 use crate::types::{Duration, HandlerType};
 
+/// Well-known graph, node, and edge attribute names.
+///
+/// Add new shared attribute names here instead of repeating inline string
+/// literals throughout the crate. This keeps core attribute keys consistent,
+/// easier to grep, and less error-prone to rename or audit.
+pub mod attr {
+    pub const AGENT: &str = "agent";
+    pub const ASK: &str = "ask";
+    pub const BRANCH: &str = "branch";
+    pub const CLASS: &str = "class";
+    pub const CONDITION: &str = "condition";
+    pub const DEFAULT_FIDELITY: &str = "default_fidelity";
+    pub const DEFAULT_THREAD_ID: &str = "default_thread_id";
+    pub const FAN_OUT: &str = "fan_out";
+    pub const FIDELITY: &str = "fidelity";
+    pub const INTERVIEW: &str = "interview";
+    pub const LABEL: &str = "label";
+    pub const PROMPT: &str = "prompt";
+    pub const SHAPE: &str = "shape";
+    pub const SHELL_COMMAND: &str = "shell_command";
+    pub const SHELL: &str = "shell";
+    pub const THREAD_ID: &str = "thread_id";
+    pub const TYPE: &str = "type";
+    pub const WEIGHT: &str = "weight";
+    pub const WORKFLOW: &str = "workflow";
+}
+
 /// A typed attribute value in a graph node or edge.
 ///
 /// Supports the value types defined in §2.4 of the specification:
@@ -195,13 +222,14 @@ impl Node {
     /// Return the node's shape, defaulting to [`Graph::CODERGEN_SHAPE`].
     #[must_use]
     pub fn shape(&self) -> &str {
-        self.get_str_attr("shape").unwrap_or(Graph::CODERGEN_SHAPE)
+        self.get_str_attr(attr::SHAPE)
+            .unwrap_or(Graph::CODERGEN_SHAPE)
     }
 
     /// Return the node's label, falling back to the node ID.
     #[must_use]
     pub fn label(&self) -> &str {
-        self.get_str_attr("label").unwrap_or(&self.id)
+        self.get_str_attr(attr::LABEL).unwrap_or(&self.id)
     }
 
     /// Return the handler type for this node.
@@ -212,7 +240,7 @@ impl Node {
     /// 3. Shape-based mapping per §2.8
     #[must_use]
     pub fn handler_type(&self) -> &str {
-        if let Some(explicit) = self.get_str_attr("type") {
+        if let Some(explicit) = self.get_str_attr(attr::TYPE) {
             return explicit;
         }
         if Graph::START_IDS.contains(&self.id.as_str()) && self.shape() == Graph::CODERGEN_SHAPE {
@@ -261,7 +289,7 @@ impl Edge {
     #[must_use]
     pub fn label(&self) -> &str {
         self.attrs
-            .get("label")
+            .get(attr::LABEL)
             .and_then(AttrValue::as_str)
             .unwrap_or("")
     }
@@ -270,7 +298,7 @@ impl Edge {
     #[must_use]
     pub fn condition(&self) -> &str {
         self.attrs
-            .get("condition")
+            .get(attr::CONDITION)
             .and_then(AttrValue::as_str)
             .unwrap_or("")
     }
@@ -279,7 +307,7 @@ impl Edge {
     #[must_use]
     pub fn weight(&self) -> i64 {
         self.attrs
-            .get("weight")
+            .get(attr::WEIGHT)
             .and_then(AttrValue::as_i64)
             .unwrap_or(0)
     }
@@ -451,7 +479,7 @@ mod tests {
     fn handler_type_explicit_type_attr() {
         let mut node = Node::new("n1");
         node.attrs
-            .insert("type".into(), AttrValue::String("shell".into()));
+            .insert(attr::TYPE.into(), AttrValue::String("shell".into()));
         assert_eq!(node.handler_type(), "shell");
     }
 
@@ -459,7 +487,7 @@ mod tests {
     fn handler_type_by_shape() {
         let mut node = Node::new("n1");
         node.attrs.insert(
-            "shape".into(),
+            attr::SHAPE.into(),
             AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
         );
         assert_eq!(node.handler_type(), "conditional");
@@ -491,7 +519,7 @@ mod tests {
     fn handler_type_id_match_does_not_override_explicit_shape() {
         let mut node = Node::new("Start");
         node.attrs.insert(
-            "shape".into(),
+            attr::SHAPE.into(),
             AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
         );
         assert_eq!(node.handler_type(), "conditional");

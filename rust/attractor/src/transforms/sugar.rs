@@ -54,7 +54,7 @@
 //! | `FanIn*`, `Fanin*`       | `tripleoctagon`  | parallel fan-in  |
 
 use crate::error::AttractorResult;
-use crate::graph::{AttrValue, Graph};
+use crate::graph::{AttrValue, Graph, attr};
 use crate::transform::Transform;
 
 pub struct NodeSugarTransform;
@@ -93,14 +93,14 @@ impl Transform for NodeSugarTransform {
 
     fn apply(&self, graph: &mut Graph) -> AttractorResult<()> {
         for node in graph.nodes.values_mut() {
-            let has_shape = node.attrs.contains_key("shape");
+            let has_shape = node.attrs.contains_key(attr::SHAPE);
 
             // Drain all sugar keys up front so none leak into the graph.
             // Precedence: ask > shell > branch (first present wins).
-            let ask_val = node.attrs.shift_remove("ask");
-            let shell_val = node.attrs.shift_remove("shell");
-            let branch_val = node.attrs.shift_remove("branch");
-            let workflow_val = node.attrs.shift_remove("workflow");
+            let ask_val = node.attrs.shift_remove(attr::ASK);
+            let shell_val = node.attrs.shift_remove(attr::SHELL);
+            let branch_val = node.attrs.shift_remove(attr::BRANCH);
+            let workflow_val = node.attrs.shift_remove(attr::WORKFLOW);
 
             // --- Property shortcuts (highest priority) ---
 
@@ -108,23 +108,25 @@ impl Transform for NodeSugarTransform {
             if let Some(val) = ask_val {
                 if !has_shape {
                     node.attrs.insert(
-                        "shape".to_string(),
+                        attr::SHAPE.to_string(),
                         AttrValue::String(Graph::HUMAN_SHAPE.into()),
                     );
                 }
-                if !node.attrs.contains_key("label") {
-                    node.attrs.insert("label".to_string(), val);
+                if !node.attrs.contains_key(attr::LABEL) {
+                    node.attrs.insert(attr::LABEL.to_string(), val);
                 }
                 continue;
             }
 
             // `workflow` implies a workflow composition node
             if let Some(val) = workflow_val {
-                if !node.attrs.contains_key("type") {
-                    node.attrs
-                        .insert("type".to_string(), AttrValue::String("workflow".into()));
+                if !node.attrs.contains_key(attr::TYPE) {
+                    node.attrs.insert(
+                        attr::TYPE.to_string(),
+                        AttrValue::String(attr::WORKFLOW.into()),
+                    );
                 }
-                node.attrs.insert("workflow".to_string(), val);
+                node.attrs.insert(attr::WORKFLOW.to_string(), val);
                 continue;
             }
 
@@ -132,12 +134,12 @@ impl Transform for NodeSugarTransform {
             if let Some(val) = shell_val {
                 if !has_shape {
                     node.attrs.insert(
-                        "shape".to_string(),
+                        attr::SHAPE.to_string(),
                         AttrValue::String(Graph::SHELL_SHAPE.into()),
                     );
                 }
-                if !node.attrs.contains_key("shell_command") {
-                    node.attrs.insert("shell_command".to_string(), val);
+                if !node.attrs.contains_key(attr::SHELL_COMMAND) {
+                    node.attrs.insert(attr::SHELL_COMMAND.to_string(), val);
                 }
                 continue;
             }
@@ -146,20 +148,20 @@ impl Transform for NodeSugarTransform {
             if let Some(val) = branch_val {
                 if !has_shape {
                     node.attrs.insert(
-                        "shape".to_string(),
+                        attr::SHAPE.to_string(),
                         AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
                     );
                 }
-                if !node.attrs.contains_key("label") {
-                    node.attrs.insert("label".to_string(), val);
+                if !node.attrs.contains_key(attr::LABEL) {
+                    node.attrs.insert(attr::LABEL.to_string(), val);
                 }
                 continue;
             }
 
             // `interview` implies human gate (multi-question interview)
-            if node.attrs.contains_key("interview") && !has_shape {
+            if node.attrs.contains_key(attr::INTERVIEW) && !has_shape {
                 node.attrs.insert(
-                    "shape".to_string(),
+                    attr::SHAPE.to_string(),
                     AttrValue::String(Graph::HUMAN_SHAPE.into()),
                 );
                 continue;
@@ -168,9 +170,9 @@ impl Transform for NodeSugarTransform {
             // `fan_out` implies parallel fan-out node (component shape).
             // Unlike other sugar keys, `fan_out` is NOT drained — it must
             // remain on the node for the `ParallelHandler` to read at runtime.
-            if node.attrs.contains_key("fan_out") && !has_shape {
+            if node.attrs.contains_key(attr::FAN_OUT) && !has_shape {
                 node.attrs.insert(
-                    "shape".to_string(),
+                    attr::SHAPE.to_string(),
                     AttrValue::String(Graph::PARALLEL_SHAPE.into()),
                 );
                 continue;
@@ -184,21 +186,25 @@ impl Transform for NodeSugarTransform {
             // `prompt` or `agent` means this is an LLM node — skip prefix-
             // based ID inference so e.g. `FanOutAnalysis [prompt="..."]`
             // stays codergen. Structural IDs (Start/End/Fail) are exempt.
-            if node.attrs.contains_key("prompt")
-                || node.attrs.contains_key("agent")
+            if node.attrs.contains_key(attr::PROMPT)
+                || node.attrs.contains_key(attr::AGENT)
                 || node.attrs.keys().any(|k| k.starts_with("agent."))
             {
                 if let Some(shape) = structural_shape(&node.id) {
-                    node.attrs
-                        .insert("shape".to_string(), AttrValue::String(shape.to_string()));
+                    node.attrs.insert(
+                        attr::SHAPE.to_string(),
+                        AttrValue::String(shape.to_string()),
+                    );
                 }
                 continue;
             }
 
             // --- Node ID-based shape inference ---
             if let Some(shape) = infer_shape_from_id(&node.id) {
-                node.attrs
-                    .insert("shape".to_string(), AttrValue::String(shape.to_string()));
+                node.attrs.insert(
+                    attr::SHAPE.to_string(),
+                    AttrValue::String(shape.to_string()),
+                );
             }
         }
 

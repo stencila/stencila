@@ -14,7 +14,7 @@ use super::shared::build_output_outcome;
 use crate::context::Context;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, attr};
 use crate::handler::Handler;
 use crate::interpolation::expand_runtime_variables;
 use crate::types::Outcome;
@@ -61,7 +61,7 @@ impl Handler for ShellHandler {
         context: &Context,
         _graph: &Graph,
     ) -> AttractorResult<Outcome> {
-        let Some(raw_command) = node.get_str_attr("shell_command") else {
+        let Some(raw_command) = node.get_str_attr(attr::SHELL_COMMAND) else {
             return Ok(Outcome::fail(format!(
                 "node '{}' has type 'shell' but no 'shell_command' attribute",
                 node.id
