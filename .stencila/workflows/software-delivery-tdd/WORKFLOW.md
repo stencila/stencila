@@ -21,7 +21,7 @@ when-not-to-use:
 
 The workflow processes a delivery plan slice-by-slice in a single run. For each slice:
 
-1. **SelectSlice** — the `software-slice-selector` agent reads the plan and prior context to pick the next unfinished slice, or signals Done when all slices are complete
+1. **SelectSlice** — the `software-slice-selector` agent marks the just-completed slice (if any), updates the completed slices list, reads the plan and prior context to pick the next unfinished slice, and reports whether more slices remain — or signals Done when all slices are complete
 
 2. **Red phase** — the `software-test-creator` agent writes failing tests for the slice; the `software-test-executor` agent executes the relevant tests to confirm they actually fail; the `software-test-reviewer` agent evaluates test quality and can loop the creator back for revisions
 
@@ -29,9 +29,7 @@ The workflow processes a delivery plan slice-by-slice in a single run. For each 
 
 4. **Refactor phase** — the `software-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
 
-5. **Human review** — a structured interview lets the human accept the slice or send it back to the Red phase with revision notes
-
-6. **Loop or finish** — the `software-slice-checker` agent marks the slice done and checks for remaining slices, then either loops back or ends the workflow
+5. **Human review** — a structured interview lets the human accept the slice or send it back to the Red phase with revision notes; on acceptance, control returns to SelectSlice which handles both completion tracking and next-slice selection
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
@@ -82,34 +80,52 @@ digraph software_delivery_tdd {
   }
 
   HumanReview [interview-ref="#slice-review"]
-  HumanReview -> CheckRemaining  [label="Accept"]
-  HumanReview -> CreateTests     [label="Revise"]
-
-  CheckRemaining [agent="software-slice-checker", prompt-ref="#check-slices-prompt", context-writable=true]
-  CheckRemaining -> SelectSlice  [label="Continue"]
-  CheckRemaining -> End          [label="Done"]
+  HumanReview -> SelectSlice  [label="Accept"]
+  HumanReview -> CreateTests  [label="Revise"]
 }
 ```
 
 ```text #select-slice-prompt
-Select the next unfinished slice of work from the delivery plan.
+Mark the just-completed slice (if any) and select the next unfinished slice of work from the delivery plan.
 
 The delivery plan goal is: $goal
 
+Note on "current_slice": this key serves a dual role. When entering SelectSlice after
+HumanReview acceptance it holds the most recently completed slice name. After SelectSlice
+stores a newly selected slice it holds the next slice to work on. On the first invocation
+it is empty.
+
 Step 1 — read workflow state:
-  Use workflow_get_context to read key "completed_slices" (the list of previously completed slice names).
+  Use workflow_get_context to read:
+  - key "current_slice" — the most recently selected slice (treat as just-completed when
+    re-entering after acceptance; empty on first invocation)
+  - key "completed_slices" — the list of previously completed slice names
 
 Step 2 — delegate to the slice-selection skill:
-  Pass the completed slices list and the plan goal to the slice-selection skill. The skill will read the delivery plan, identify the next unfinished slice, and report its details (name, scope, acceptance criteria, packages) or signal that all slices are complete.
+  Pass the just-completed slice name (from "current_slice", may be empty on first invocation),
+  the completed slices list, and the plan goal to the slice-selection skill. The skill will:
+  - Append the just-completed slice to the completed list (if provided)
+  - Read the delivery plan and identify the next unfinished slice
+  - Report the updated completed list, selected slice details (name, scope, acceptance criteria,
+    packages), and whether more slices remain — or signal that all slices are complete
 
-Step 3 — store the skill's outputs into workflow context:
-  If a slice was selected, use workflow_set_context to store:
+Step 3 — clear stale slice-scoped context:
+  Use workflow_set_context to clear transient state from the previous slice so it cannot
+  leak into the next one:
+  - key "human.feedback" — set to ""
+  - key "slice.test_files" — set to ""
+  - key "slice.test_command" — set to ""
+
+Step 4 — store the skill's outputs into workflow context:
+  Use workflow_set_context to store:
+  - key "completed_slices" — the updated completed slices list returned by the skill
+  If a slice was selected, also store:
   - key "current_slice" — the slice name or identifier
   - key "slice.scope" — the scope description
   - key "slice.acceptance_criteria" — the acceptance criteria
   - key "slice.packages" — the packages, crates, modules, or directories involved
 
-Step 4 — route:
+Step 5 — route:
   If a slice was selected, call workflow_set_route with label "Continue".
   If all slices are complete, call workflow_set_route with label "Done".
 ```
@@ -237,28 +253,6 @@ Step 2 — refactor:
   - Keep all tests passing after every change
 
 The tests will be executed automatically to verify no regressions.
-```
-
-```text #check-slices-prompt
-Check the delivery plan for any remaining unfinished slices.
-
-Step 1 — read workflow state:
-  Use workflow_get_context to read:
-  - key "current_slice" — the slice that was just completed
-  - key "completed_slices" — the list of previously completed slices
-
-Step 2 — delegate to the slice-completion skill:
-  Pass the current slice name and the completed slices list as inputs. The skill will append
-  the current slice to the completed list, compare against the full delivery plan, and report
-  the updated completed slices list and whether more work remains.
-
-Step 3 — store the skill's outputs into workflow context:
-  Use workflow_set_context to store:
-  - key "completed_slices" — the updated completed slices list returned by the skill
-
-Step 4 — route based on the skill's result:
-  If more slices remain, call workflow_set_route with label "Continue".
-  If all slices are complete, call workflow_set_route with label "Done".
 ```
 
 ```yaml #slice-review
