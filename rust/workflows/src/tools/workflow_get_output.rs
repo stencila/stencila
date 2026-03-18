@@ -38,7 +38,7 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
             Box::pin(async move {
                 let conn = conn.lock().unwrap_or_else(|e| e.into_inner());
 
-                let blob = if let Some(node_id) = args.get("node_id").and_then(|v| v.as_str()) {
+                let blob = if let Some(node_id) = args.get("node_id").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
                     // Specific node lookup
                     let result = conn.query_row(
                         "SELECT output FROM workflow_node_outputs WHERE run_id = ?1 AND node_id = ?2",
