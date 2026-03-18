@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use indexmap::IndexMap;
 use serde_json::Value;
 
-use stencila_attractor::context::Context;
+use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::edge_selection::{
     best_by_weight_then_lexical, normalize_label, select_edge,
 };
@@ -106,18 +106,18 @@ async fn engine_goal_gate_restart_preserves_runtime_context_but_clears_internal_
                     serde_json::json!(context.get_i64("user.counter").unwrap_or(0) + 1),
                 );
                 outcome.context_updates.insert(
-                    "internal.retry_count.gate_task".into(),
+                    format!("{}gate_task", ctx::RETRY_COUNT_PREFIX),
                     serde_json::json!(99),
                 );
             } else if *calls == 2 {
                 assert_eq!(context.get_i64("user.counter"), Some(1));
                 assert_eq!(
-                    context.get("internal.retry_count.gate_task"),
+                    context.get(&format!("{}gate_task", ctx::RETRY_COUNT_PREFIX)),
                     Some(serde_json::Value::Null)
                 );
-                assert_eq!(context.get("outcome"), Some(serde_json::Value::Null));
+                assert_eq!(context.get(ctx::OUTCOME), Some(serde_json::Value::Null));
                 assert_eq!(
-                    context.get("preferred_label"),
+                    context.get(ctx::PREFERRED_LABEL),
                     Some(serde_json::Value::Null)
                 );
             }
@@ -1024,7 +1024,9 @@ async fn retry_counter_reset_on_success() {
     assert_eq!(outcome.status, StageStatus::Success);
 
     // After success, the retry counter must be reset to 0.
-    let count = ctx.get_i64("internal.retry_count.task1").unwrap_or(-1);
+    let count = ctx
+        .get_i64(&format!("{}task1", ctx::RETRY_COUNT_PREFIX))
+        .unwrap_or(-1);
     assert_eq!(count, 0, "retry counter should be reset to 0 after success");
 }
 
@@ -1095,7 +1097,9 @@ async fn retry_counter_reset_on_allow_partial() {
     let outcome = execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
 
-    let count = ctx.get_i64("internal.retry_count.task1").unwrap_or(-1);
+    let count = ctx
+        .get_i64(&format!("{}task1", ctx::RETRY_COUNT_PREFIX))
+        .unwrap_or(-1);
     assert_eq!(
         count, 0,
         "retry counter should be reset on PartialSuccess via allow_partial"
@@ -1124,7 +1128,7 @@ async fn retry_sets_context_key() {
     execute_with_retry(&handler, &node, &ctx, &g, &policy, &NoOpEmitter, 0).await;
 
     // After retry-then-success, counter is reset to 0 per §3.5.
-    let retry_count = ctx.get_i64("internal.retry_count.mynode");
+    let retry_count = ctx.get_i64(&format!("{}mynode", ctx::RETRY_COUNT_PREFIX));
     assert_eq!(retry_count, Some(0));
 }
 

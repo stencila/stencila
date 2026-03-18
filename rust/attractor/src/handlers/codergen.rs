@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node, attr};
@@ -122,7 +122,7 @@ impl Handler for CodergenHandler {
             .collect();
         if !outgoing_labels.is_empty() {
             context.set(
-                "internal.outgoing_edge_labels",
+                ctx::OUTGOING_EDGE_LABELS,
                 serde_json::Value::Array(
                     outgoing_labels
                         .into_iter()
@@ -139,7 +139,7 @@ impl Handler for CodergenHandler {
 
         // Read stage_index from context (set by the engine loop).
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        let stage_index = context.get_i64("internal.stage_index").unwrap_or(0) as usize;
+        let stage_index = context.get_i64(ctx::STAGE_INDEX).unwrap_or(0) as usize;
 
         // Emit the input event
         self.emitter.emit(PipelineEvent::StageInput {

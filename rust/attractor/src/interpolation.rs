@@ -1,6 +1,6 @@
 //! Runtime interpolation helpers for pipeline and workflow handlers.
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 
 /// Expand runtime variables in an input string from context values.
 ///
@@ -25,16 +25,16 @@ use crate::context::Context;
 pub fn expand_runtime_variables(input: &str, context: &Context) -> String {
     let mut result = input.to_string();
 
-    if result.contains("$last_stage") && context.get("last_stage").is_some() {
-        result = result.replace("$last_stage", &context.get_string("last_stage"));
+    if result.contains("$last_stage") && context.get(ctx::LAST_STAGE).is_some() {
+        result = result.replace("$last_stage", &context.get_string(ctx::LAST_STAGE));
     }
 
-    if result.contains("$last_outcome") && context.get("outcome").is_some() {
-        result = result.replace("$last_outcome", &context.get_string("outcome"));
+    if result.contains("$last_outcome") && context.get(ctx::OUTCOME).is_some() {
+        result = result.replace("$last_outcome", &context.get_string(ctx::OUTCOME));
     }
 
-    if result.contains("$last_output") && context.get("last_output_full").is_some() {
-        result = result.replace("$last_output", &context.get_string("last_output_full"));
+    if result.contains("$last_output") && context.get(ctx::LAST_OUTPUT_FULL).is_some() {
+        result = result.replace("$last_output", &context.get_string(ctx::LAST_OUTPUT_FULL));
     }
 
     if result.contains('$') {
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn substitutes_known_variables() {
         let context = Context::new();
-        context.set("last_output_full", serde_json::json!("child goal"));
+        context.set(ctx::LAST_OUTPUT_FULL, serde_json::json!("child goal"));
         context.set("human.feedback", serde_json::json!("Add tests"));
 
         assert_eq!(

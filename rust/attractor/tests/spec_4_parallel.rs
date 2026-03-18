@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use stencila_attractor::context::Context;
+use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::events::NoOpEmitter;
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
@@ -80,7 +80,7 @@ async fn parallel_executes_all_branches() -> AttractorResult<()> {
     assert!(outcome.status.is_success());
 
     // parallel.results should be set in context
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     assert!(results.is_some());
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(3));
@@ -167,11 +167,11 @@ async fn parallel_wait_all_default_policy() -> AttractorResult<()> {
     // Check success/fail counts
     let success = outcome
         .context_updates
-        .get("parallel.success_count")
+        .get(ctx::PARALLEL_SUCCESS_COUNT)
         .and_then(|v| v.as_u64());
     let fail = outcome
         .context_updates
-        .get("parallel.fail_count")
+        .get(ctx::PARALLEL_FAIL_COUNT)
         .and_then(|v| v.as_u64());
     assert_eq!(success, Some(2));
     assert_eq!(fail, Some(0));
@@ -296,7 +296,7 @@ async fn parallel_fail_fast_stops_on_first_failure() -> AttractorResult<()> {
 
     // With fail_fast + wait_all, we get partial success (some succeeded, some failed)
     // but the key thing is it doesn't wait for all — we just verify it completes.
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     // Should have fewer than 3 results if early exit triggered
     // (but since all futures are spawned immediately, at least 1 arrives)
@@ -304,7 +304,7 @@ async fn parallel_fail_fast_stops_on_first_failure() -> AttractorResult<()> {
     // The outcome should reflect that failures occurred
     let fail_count = outcome
         .context_updates
-        .get("parallel.fail_count")
+        .get(ctx::PARALLEL_FAIL_COUNT)
         .and_then(|v| v.as_u64())
         .unwrap_or(0);
     assert!(fail_count >= 1);
@@ -353,11 +353,11 @@ async fn parallel_wait_all_mixed_partial_success() -> AttractorResult<()> {
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
     let success_count = outcome
         .context_updates
-        .get("parallel.success_count")
+        .get(ctx::PARALLEL_SUCCESS_COUNT)
         .and_then(|v| v.as_u64());
     let fail_count = outcome
         .context_updates
-        .get("parallel.fail_count")
+        .get(ctx::PARALLEL_FAIL_COUNT)
         .and_then(|v| v.as_u64());
     assert_eq!(success_count, Some(1));
     assert_eq!(fail_count, Some(1));
@@ -390,11 +390,11 @@ async fn parallel_wait_all_all_branches_fail_returns_partial() -> AttractorResul
 
     let success_count = outcome
         .context_updates
-        .get("parallel.success_count")
+        .get(ctx::PARALLEL_SUCCESS_COUNT)
         .and_then(|v| v.as_u64());
     let fail_count = outcome
         .context_updates
-        .get("parallel.fail_count")
+        .get(ctx::PARALLEL_FAIL_COUNT)
         .and_then(|v| v.as_u64());
     assert_eq!(success_count, Some(0));
     assert_eq!(fail_count, Some(2));
@@ -425,7 +425,7 @@ async fn parallel_max_parallel_from_attr() -> AttractorResult<()> {
     let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(3));
     Ok(())
@@ -447,13 +447,13 @@ async fn fan_in_tiebreak_by_score() -> AttractorResult<()> {
         {"target": "branch_a", "outcome": "success", "score": 0.7},
         {"target": "branch_b", "outcome": "success", "score": 0.9},
     ]);
-    ctx.set("parallel.results", results);
+    ctx.set(ctx::PARALLEL_RESULTS, results);
 
     let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let best_id = outcome
         .context_updates
-        .get("parallel.fan_in.best_id")
+        .get(ctx::FAN_IN_BEST_ID)
         .and_then(|v| v.as_str());
     assert_eq!(best_id, Some("branch_b"));
     Ok(())
@@ -472,13 +472,13 @@ async fn fan_in_tiebreak_by_id() -> AttractorResult<()> {
         {"target": "branch_a", "outcome": "success"},
         {"target": "branch_b", "outcome": "success"},
     ]);
-    ctx.set("parallel.results", results);
+    ctx.set(ctx::PARALLEL_RESULTS, results);
 
     let outcome = handler.execute(&node, &ctx, &g).await?;
 
     let best_id = outcome
         .context_updates
-        .get("parallel.fan_in.best_id")
+        .get(ctx::FAN_IN_BEST_ID)
         .and_then(|v| v.as_str());
     // branch_a should win (lowest id)
     assert_eq!(best_id, Some("branch_a"));
@@ -516,14 +516,14 @@ async fn fan_in_selects_best_candidate() -> AttractorResult<()> {
         {"target": "branch_b", "outcome": "success", "notes": "ok"},
         {"target": "branch_c", "outcome": "partial_success", "notes": "partial"},
     ]);
-    ctx.set("parallel.results", results);
+    ctx.set(ctx::PARALLEL_RESULTS, results);
 
     let outcome = handler.execute(&node, &ctx, &g).await?;
 
     assert_eq!(outcome.status, StageStatus::Success);
     let best_id = outcome
         .context_updates
-        .get("parallel.fan_in.best_id")
+        .get(ctx::FAN_IN_BEST_ID)
         .and_then(|v| v.as_str());
     assert_eq!(best_id, Some("branch_b"));
 
@@ -541,7 +541,7 @@ async fn fan_in_all_failed() -> AttractorResult<()> {
         {"target": "a", "outcome": "fail", "notes": "err1"},
         {"target": "b", "outcome": "fail", "notes": "err2"},
     ]);
-    ctx.set("parallel.results", results);
+    ctx.set(ctx::PARALLEL_RESULTS, results);
 
     let outcome = handler.execute(&node, &ctx, &g).await?;
 
@@ -565,7 +565,7 @@ async fn fan_in_partial_success_best() -> AttractorResult<()> {
         {"target": "a", "outcome": "fail", "notes": "err"},
         {"target": "b", "outcome": "partial_success", "notes": "partial"},
     ]);
-    ctx.set("parallel.results", results);
+    ctx.set(ctx::PARALLEL_RESULTS, results);
 
     let outcome = handler.execute(&node, &ctx, &g).await?;
 
@@ -573,7 +573,7 @@ async fn fan_in_partial_success_best() -> AttractorResult<()> {
     assert_eq!(outcome.status, StageStatus::PartialSuccess);
     let best = outcome
         .context_updates
-        .get("parallel.fan_in.best_outcome")
+        .get(ctx::FAN_IN_BEST_OUTCOME)
         .and_then(|v| v.as_str());
     assert_eq!(best, Some("partial_success"));
     Ok(())
@@ -586,7 +586,7 @@ async fn fan_in_empty_results_array() -> AttractorResult<()> {
     let ctx = Context::new();
     let g = Graph::new("test");
 
-    ctx.set("parallel.results", serde_json::json!([]));
+    ctx.set(ctx::PARALLEL_RESULTS, serde_json::json!([]));
 
     let outcome = handler.execute(&node, &ctx, &g).await?;
 
@@ -823,9 +823,13 @@ async fn parallel_fan_in_target_not_in_context_updates() -> AttractorResult<()> 
     assert!(
         outcome
             .context_updates
-            .contains_key("parallel.success_count")
+            .contains_key(ctx::PARALLEL_SUCCESS_COUNT)
     );
-    assert!(outcome.context_updates.contains_key("parallel.fail_count"));
+    assert!(
+        outcome
+            .context_updates
+            .contains_key(ctx::PARALLEL_FAIL_COUNT)
+    );
     Ok(())
 }
 

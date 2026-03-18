@@ -34,7 +34,7 @@ use indexmap::IndexMap;
 use stencila_interviews::conduct::conduct_conditional;
 use stencila_interviews::spec::InterviewSpec;
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node, attr};
@@ -164,7 +164,7 @@ impl WaitForHumanHandler {
                 reason,
             }
         })?;
-        interview.stage_index = context.get_i64("internal.stage_index");
+        interview.stage_index = context.get_i64(ctx::STAGE_INDEX);
 
         // 5. Resume recovery
         if let Some(ref db_conn) = self.db_conn {
@@ -670,7 +670,7 @@ impl Handler for WaitForHumanHandler {
 
         // 3. Build an Interview and conduct it
         let mut interview = Interview::single(question.clone(), &node.id);
-        interview.stage_index = context.get_i64("internal.stage_index");
+        interview.stage_index = context.get_i64(ctx::STAGE_INDEX);
 
         // 3a. Resume recovery: if we have a DB connection, check for a
         // pending interview from a previous run at this node/stage_index.
@@ -826,11 +826,11 @@ impl Handler for WaitForHumanHandler {
 fn build_human_outcome(choice: &Choice) -> Outcome {
     let mut updates = IndexMap::new();
     updates.insert(
-        "human.gate.selected".into(),
+        ctx::HUMAN_GATE_SELECTED.into(),
         serde_json::Value::String(choice.key.clone()),
     );
     updates.insert(
-        "human.gate.label".into(),
+        ctx::HUMAN_GATE_LABEL.into(),
         serde_json::Value::String(choice.label.clone()),
     );
 

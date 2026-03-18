@@ -7,7 +7,7 @@ use indexmap::IndexMap;
 use serde_json::Value;
 
 use crate::checkpoint::Checkpoint;
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::edge_selection::select_edge;
 use crate::error::{AttractorError, AttractorResult};
 use crate::events::PipelineEvent;
@@ -113,7 +113,7 @@ pub(crate) async fn resume_loop(
     // Restore retry counts from checkpoint.
     let mut node_retries = IndexMap::new();
     for node_id in &resume_state.completed_nodes_ordered {
-        if let Some(count) = context.get_i64(&format!("internal.retry_count.{node_id}")) {
+        if let Some(count) = context.get_i64(&format!("{}{node_id}", ctx::RETRY_COUNT_PREFIX)) {
             #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
             node_retries.insert(node_id.clone(), count as u32);
         }
@@ -160,7 +160,7 @@ pub(crate) async fn resume_loop(
     // previous node used full fidelity, the first resumed hop must
     // degrade because in-memory LLM sessions can't be serialized.
     if resume_state.degrade_fidelity {
-        context.set("internal.resume_degrade_fidelity", Value::Bool(true));
+        context.set(ctx::RESUME_DEGRADE_FIDELITY, Value::Bool(true));
     }
 
     let stage_index = resume_state.completed_nodes_ordered.len();
@@ -200,10 +200,10 @@ fn clone_runtime_context_for_restart(previous: &Context) -> Context {
     let context = Context::new();
 
     for (key, value) in previous.snapshot() {
-        if key == "current_node"
-            || key == "outcome"
-            || key == "preferred_label"
-            || key.starts_with("internal.")
+        if key == ctx::CURRENT_NODE
+            || key == ctx::OUTCOME
+            || key == ctx::PREFERRED_LABEL
+            || key.starts_with(ctx::INTERNAL_PREFIX)
         {
             continue;
         }
@@ -217,16 +217,16 @@ fn clone_runtime_context_for_restart(previous: &Context) -> Context {
 /// Populate a context with goal and graph-level attributes.
 fn populate_context(graph: &Graph, context: &Context) {
     let goal = graph
-        .get_graph_attr("goal")
+        .get_graph_attr(ctx::GOAL)
         .map(AttrValue::to_string_value)
         .unwrap_or_default();
 
     if !goal.is_empty() {
-        context.set("goal", Value::String(goal));
+        context.set(ctx::GOAL, Value::String(goal));
     }
     for (key, value) in &graph.graph_attrs {
         context.set(
-            format!("graph.{key}"),
+            format!("{}{key}", ctx::GRAPH_PREFIX),
             Value::String(value.to_string_value()),
         );
     }
@@ -297,9 +297,9 @@ async fn execute_loop(
             return Ok(outcome);
         }
 
-        context.set("current_node", Value::String(node.id.clone()));
+        context.set(ctx::CURRENT_NODE, Value::String(node.id.clone()));
         context.set(
-            "internal.stage_index",
+            ctx::STAGE_INDEX,
             Value::Number(serde_json::Number::from(state.stage_index as u64)),
         );
         config.emitter.emit(PipelineEvent::StageStarted {
@@ -319,11 +319,11 @@ async fn execute_loop(
         // resumed hop (§5.3). For fresh runs the key is absent, so
         // the get returns None and no write occurs.
         if context
-            .get("internal.resume_degrade_fidelity")
+            .get(ctx::RESUME_DEGRADE_FIDELITY)
             .and_then(|v| v.as_bool())
             .unwrap_or(false)
         {
-            context.set("internal.resume_degrade_fidelity", Value::Bool(false));
+            context.set(ctx::RESUME_DEGRADE_FIDELITY, Value::Bool(false));
         }
 
         // §3.2 Step 4: Apply context updates from outcome before edge
@@ -332,12 +332,12 @@ async fn execute_loop(
             context.apply_updates(&outcome.context_updates);
         }
         context.set(
-            "outcome",
+            ctx::OUTCOME,
             Value::String(outcome.status.as_str().to_string()),
         );
         // Always overwrite to clear stale values from earlier stages (§5.1).
         context.set(
-            "preferred_label",
+            ctx::PREFERRED_LABEL,
             Value::String(outcome.preferred_label.clone()),
         );
 
@@ -484,7 +484,7 @@ fn record_and_checkpoint(
 
     // Sync retry count from context into LoopState so checkpoints
     // contain accurate retry metadata (§5.3).
-    if let Some(count) = context.get_i64(&format!("internal.retry_count.{}", node.id)) {
+    if let Some(count) = context.get_i64(&format!("{}{}", ctx::RETRY_COUNT_PREFIX, node.id)) {
         #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
         state.node_retries.insert(node.id.clone(), count as u32);
     }
@@ -498,13 +498,13 @@ fn record_and_checkpoint(
             None
         };
         let model = context
-            .get(&format!("internal.model.{}", node.id))
+            .get(&format!("{}{}", ctx::MODEL_PREFIX, node.id))
             .and_then(|v| v.as_str().map(std::string::ToString::to_string));
         let provider = context
-            .get(&format!("internal.provider.{}", node.id))
+            .get(&format!("{}{}", ctx::PROVIDER_PREFIX, node.id))
             .and_then(|v| v.as_str().map(std::string::ToString::to_string));
-        let input_tokens = context.get_i64(&format!("internal.input_tokens.{}", node.id));
-        let output_tokens = context.get_i64(&format!("internal.output_tokens.{}", node.id));
+        let input_tokens = context.get_i64(&format!("{}{}", ctx::INPUT_TOKENS_PREFIX, node.id));
+        let output_tokens = context.get_i64(&format!("{}{}", ctx::OUTPUT_TOKENS_PREFIX, node.id));
         let record = crate::sqlite_backend::NodeRecord {
             node_id: &node.id,
             status: outcome.status.as_str(),
@@ -559,14 +559,14 @@ fn apply_edge_fidelity(
             .find(|e| e.from == *from)
     });
     let fidelity = resolve_fidelity(node, incoming_edge, graph);
-    context.set("internal.fidelity", Value::String(fidelity.to_string()));
+    context.set(ctx::FIDELITY, Value::String(fidelity.to_string()));
 
     if fidelity == FidelityMode::Full {
         let previous_node_id = last_selected_edge.map_or("", |(from, _)| from.as_str());
         let thread_id = resolve_thread_id(node, incoming_edge, graph, previous_node_id);
-        context.set("internal.thread_id", Value::String(thread_id));
+        context.set(ctx::THREAD_ID, Value::String(thread_id));
     } else {
-        context.set("internal.thread_id", Value::Null);
+        context.set(ctx::THREAD_ID, Value::Null);
     }
 }
 
@@ -655,10 +655,10 @@ mod tests {
     /// Read `internal.fidelity` and `internal.thread_id` from the context.
     fn capture_fidelity(context: &Context) -> (Option<String>, Option<String>) {
         let fidelity = context
-            .get("internal.fidelity")
+            .get(ctx::FIDELITY)
             .and_then(|v| v.as_str().map(String::from));
         let thread_id = context
-            .get("internal.thread_id")
+            .get(ctx::THREAD_ID)
             .and_then(|v| v.as_str().map(String::from));
         (fidelity, thread_id)
     }

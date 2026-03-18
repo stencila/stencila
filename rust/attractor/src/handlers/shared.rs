@@ -7,7 +7,7 @@
 
 use indexmap::IndexMap;
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::types::Outcome;
 
 /// Maximum length for the truncated response stored in context updates.
@@ -45,25 +45,25 @@ pub fn build_output_outcome(node_id: &str, output: &str, context: &Context) -> O
     let mut outcome = Outcome::success();
     outcome.context_updates = IndexMap::new();
     outcome.context_updates.insert(
-        "last_stage".to_string(),
+        ctx::LAST_STAGE.to_string(),
         serde_json::Value::String(node_id.to_string()),
     );
     outcome.context_updates.insert(
-        "last_output".to_string(),
+        ctx::LAST_OUTPUT.to_string(),
         serde_json::Value::String(truncate_output(output)),
     );
     outcome.context_updates.insert(
-        "last_output_full".to_string(),
+        ctx::LAST_OUTPUT_FULL.to_string(),
         serde_json::Value::String(output.to_string()),
     );
 
     let mut stages: Vec<serde_json::Value> = context
-        .get("completed_stages")
+        .get(ctx::COMPLETED_STAGES)
         .and_then(|v| v.as_array().cloned())
         .unwrap_or_default();
     stages.push(serde_json::json!({"id": node_id, "status": "success"}));
     outcome.context_updates.insert(
-        "completed_stages".to_string(),
+        ctx::COMPLETED_STAGES.to_string(),
         serde_json::Value::Array(stages),
     );
 

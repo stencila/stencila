@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use stencila_attractor::context::Context;
+use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::events::{CollectingEmitter, NoOpEmitter, PipelineEvent};
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
@@ -45,12 +45,12 @@ impl Handler for EchoFanOutItemNameHandler {
         context: &Context,
         _graph: &Graph,
     ) -> AttractorResult<Outcome> {
-        let name = context.get_string("fan_out.item.name");
-        let index = context.get_string("fan_out.index");
-        let total = context.get_string("fan_out.total");
-        let key = context.get_string("fan_out.key");
+        let name = context.get_string(&format!("{}name", ctx::FAN_OUT_ITEM_PREFIX));
+        let index = context.get_string(ctx::FAN_OUT_INDEX);
+        let total = context.get_string(ctx::FAN_OUT_TOTAL);
+        let key = context.get_string(ctx::FAN_OUT_KEY);
         let output = format!("name={name},index={index},total={total},key={key}");
-        context.set("last_output_full", serde_json::Value::String(output));
+        context.set(ctx::LAST_OUTPUT_FULL, serde_json::Value::String(output));
         Ok(Outcome::success())
     }
 }
@@ -128,7 +128,7 @@ async fn dynamic_fan_out_basic_3_items() -> AttractorResult<()> {
     assert!(outcome.status.is_success());
 
     // parallel.results should have 3 entries
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(3));
 
@@ -143,7 +143,7 @@ async fn dynamic_fan_out_basic_3_items() -> AttractorResult<()> {
     }
 
     // parallel.outputs should also have 3 entries
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     let outputs_arr = outputs.as_ref().and_then(|v| v.as_array());
     assert_eq!(outputs_arr.map(Vec::len), Some(3));
 
@@ -192,7 +192,7 @@ async fn dynamic_fan_out_true_derives_key_from_id() -> AttractorResult<()> {
     let outcome = handler.execute(node, &ctx, &g).await?;
 
     assert!(outcome.status.is_success());
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(2));
 
@@ -277,11 +277,11 @@ async fn dynamic_fan_out_empty_list_bypasses_fan_in() -> AttractorResult<()> {
     assert!(outcome.status.is_success());
 
     // parallel.results and outputs should be empty
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(0));
 
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     let outputs_arr = outputs.as_ref().and_then(|v| v.as_array());
     assert_eq!(outputs_arr.map(Vec::len), Some(0));
 
@@ -414,7 +414,7 @@ async fn dynamic_fan_out_object_property_flattening() -> AttractorResult<()> {
     assert!(outcome.status.is_success());
 
     // parallel.outputs should contain the echoed values with flattened properties
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     let outputs_arr = outputs
         .as_ref()
         .and_then(|v| v.as_array())
@@ -477,7 +477,7 @@ async fn dynamic_fan_out_outputs_populated() -> AttractorResult<()> {
 
     assert!(outcome.status.is_success());
 
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     assert!(outputs.is_some());
     let outputs_arr = outputs.as_ref().and_then(|v| v.as_array());
     assert_eq!(outputs_arr.map(Vec::len), Some(2));
@@ -519,7 +519,7 @@ async fn static_fan_out_backward_compatible() -> AttractorResult<()> {
 
     assert!(outcome.status.is_success());
 
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(2));
 
@@ -531,7 +531,7 @@ async fn static_fan_out_backward_compatible() -> AttractorResult<()> {
     }
 
     // parallel.outputs should also be populated for static fan-out
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     let outputs_arr = outputs.as_ref().and_then(|v| v.as_array());
     assert_eq!(outputs_arr.map(Vec::len), Some(2));
 
@@ -697,7 +697,7 @@ async fn static_fan_out_also_populates_outputs() -> AttractorResult<()> {
 
     assert!(outcome.status.is_success());
 
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     assert!(outputs.is_some());
     let outputs_arr = outputs.as_ref().and_then(|v| v.as_array());
     assert_eq!(outputs_arr.map(Vec::len), Some(2));
@@ -768,7 +768,7 @@ async fn dynamic_fan_out_results_ordered_by_index() -> AttractorResult<()> {
 
     assert!(outcome.status.is_success());
 
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results
         .as_ref()
         .and_then(|v| v.as_array())
@@ -846,7 +846,7 @@ async fn dynamic_fan_out_single_item() -> AttractorResult<()> {
 
     assert!(outcome.status.is_success());
 
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(1));
 
@@ -901,7 +901,7 @@ async fn dynamic_fan_out_error_policy_ignore() -> AttractorResult<()> {
     assert!(outcome.status.is_success());
 
     // parallel.results should be empty (all failures filtered)
-    let results = ctx.get("parallel.results");
+    let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(0));
 
@@ -910,7 +910,7 @@ async fn dynamic_fan_out_error_policy_ignore() -> AttractorResult<()> {
     // before error filtering so that downstream consumers can correlate
     // outputs by fan_out_index. When error_policy=ignore,
     // parallel.results may be shorter than parallel.outputs.
-    let outputs = ctx.get("parallel.outputs");
+    let outputs = ctx.get(ctx::PARALLEL_OUTPUTS);
     let outputs_arr = outputs.as_ref().and_then(|v| v.as_array());
     assert_eq!(
         outputs_arr.map(Vec::len),
@@ -1095,11 +1095,11 @@ async fn dynamic_fan_out_success_fail_counts() -> AttractorResult<()> {
 
     let success_count = outcome
         .context_updates
-        .get("parallel.success_count")
+        .get(ctx::PARALLEL_SUCCESS_COUNT)
         .and_then(|v| v.as_u64());
     let fail_count = outcome
         .context_updates
-        .get("parallel.fail_count")
+        .get(ctx::PARALLEL_FAIL_COUNT)
         .and_then(|v| v.as_u64());
     assert_eq!(success_count, Some(3));
     assert_eq!(fail_count, Some(0));
@@ -1130,11 +1130,11 @@ async fn dynamic_fan_out_empty_list_counts() -> AttractorResult<()> {
 
     let success_count = outcome
         .context_updates
-        .get("parallel.success_count")
+        .get(ctx::PARALLEL_SUCCESS_COUNT)
         .and_then(|v| v.as_u64());
     let fail_count = outcome
         .context_updates
-        .get("parallel.fail_count")
+        .get(ctx::PARALLEL_FAIL_COUNT)
         .and_then(|v| v.as_u64());
     assert_eq!(success_count, Some(0));
     assert_eq!(fail_count, Some(0));

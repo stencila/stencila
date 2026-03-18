@@ -9,7 +9,7 @@ use std::collections::HashSet;
 
 use stencila_attractor::artifact::ArtifactStore;
 use stencila_attractor::checkpoint::Checkpoint;
-use stencila_attractor::context::Context;
+use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::fidelity::{resolve_fidelity, resolve_thread_id};
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
@@ -388,7 +388,7 @@ fn resume_restores_context() -> AttractorResult<()> {
 
     // Context should have the saved value
     assert_eq!(
-        state.context.get("goal"),
+        state.context.get(ctx::GOAL),
         Some(serde_json::json!("test goal"))
     );
     // Logs should be restored
@@ -481,7 +481,9 @@ fn resume_retry_counters_restored() -> AttractorResult<()> {
 
     let state = resume_from_checkpoint(&checkpoint_path, &g)?;
 
-    let retry_count = state.context.get("internal.retry_count.middle");
+    let retry_count = state
+        .context
+        .get(&format!("{}middle", ctx::RETRY_COUNT_PREFIX));
     assert_eq!(retry_count, Some(serde_json::json!(3)));
 
     Ok(())

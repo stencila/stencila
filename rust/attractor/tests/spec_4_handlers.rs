@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use stencila_attractor::context::Context;
+use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::engine::{self, EngineConfig};
 use stencila_attractor::error::{AttractorError, AttractorResult};
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
@@ -213,13 +213,13 @@ async fn codergen_context_updates() -> AttractorResult<()> {
 
     let last_stage = outcome
         .context_updates
-        .get("last_stage")
+        .get(ctx::LAST_STAGE)
         .and_then(|v| v.as_str());
     assert_eq!(last_stage, Some("task1"));
 
     let last_output = outcome
         .context_updates
-        .get("last_output")
+        .get(ctx::LAST_OUTPUT)
         .and_then(|v| v.as_str());
     assert_eq!(last_output, Some("some output"));
     Ok(())
@@ -239,7 +239,7 @@ async fn codergen_output_truncation() -> AttractorResult<()> {
 
     let last_output = outcome
         .context_updates
-        .get("last_output")
+        .get(ctx::LAST_OUTPUT)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     // Truncated to 200 + "..."
@@ -278,7 +278,7 @@ async fn codergen_truncation_non_ascii_safe() -> AttractorResult<()> {
 
     let last_output = outcome
         .context_updates
-        .get("last_output")
+        .get(ctx::LAST_OUTPUT)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     // Should be truncated without panicking, at a char boundary
@@ -392,7 +392,7 @@ async fn shell_preserves_unknown_shell_variables() -> AttractorResult<()> {
 
     let output = outcome
         .context_updates
-        .get("last_output")
+        .get(ctx::LAST_OUTPUT)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert_eq!(output, "1");
@@ -523,14 +523,14 @@ async fn shell_captures_stdout() -> AttractorResult<()> {
     // last_output and last_output_full should also be set
     let last_output = outcome
         .context_updates
-        .get("last_output")
+        .get(ctx::LAST_OUTPUT)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert_eq!(last_output, "hello");
 
     let last_output_full = outcome
         .context_updates
-        .get("last_output_full")
+        .get(ctx::LAST_OUTPUT_FULL)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert_eq!(last_output_full, "hello");
@@ -538,7 +538,7 @@ async fn shell_captures_stdout() -> AttractorResult<()> {
     // last_stage should be the node id
     let last_stage = outcome
         .context_updates
-        .get("last_stage")
+        .get(ctx::LAST_STAGE)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert_eq!(last_stage, "tool1");
@@ -554,7 +554,7 @@ async fn shell_expands_context_variables() -> AttractorResult<()> {
         .insert("shell_command".into(), AttrValue::from("echo $last_output"));
     let ctx = Context::new();
     ctx.set(
-        "last_output_full",
+        ctx::LAST_OUTPUT_FULL,
         serde_json::Value::String("world".into()),
     );
     let g = Graph::new("test");
@@ -564,7 +564,7 @@ async fn shell_expands_context_variables() -> AttractorResult<()> {
 
     let output = outcome
         .context_updates
-        .get("last_output")
+        .get(ctx::LAST_OUTPUT)
         .and_then(|v| v.as_str())
         .unwrap_or("");
     assert_eq!(output, "world");

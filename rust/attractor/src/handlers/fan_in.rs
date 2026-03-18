@@ -6,11 +6,11 @@
 use async_trait::async_trait;
 use indexmap::IndexMap;
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::error::AttractorResult;
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
-use crate::types::{HandlerType, Outcome, StageStatus};
+use crate::types::{Outcome, StageStatus};
 
 /// Handler for fan-in (result consolidation) nodes.
 ///
@@ -40,7 +40,7 @@ impl Handler for FanInHandler {
         _graph: &Graph,
     ) -> AttractorResult<Outcome> {
         // Read parallel results from context
-        let results = context.get(&format!("{}.results", HandlerType::Parallel));
+        let results = context.get(ctx::PARALLEL_RESULTS);
         let results_array = results.as_ref().and_then(serde_json::Value::as_array);
 
         let Some(candidates) = results_array else {
@@ -117,11 +117,11 @@ impl Handler for FanInHandler {
 
         let mut updates = IndexMap::new();
         updates.insert(
-            format!("{}.best_id", HandlerType::ParallelFanIn),
+            ctx::FAN_IN_BEST_ID.into(),
             serde_json::Value::String(best_target.to_string()),
         );
         updates.insert(
-            format!("{}.best_outcome", HandlerType::ParallelFanIn),
+            ctx::FAN_IN_BEST_OUTCOME.into(),
             serde_json::Value::String(best_status.to_string()),
         );
 

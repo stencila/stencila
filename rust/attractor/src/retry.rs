@@ -10,7 +10,7 @@ use futures::FutureExt;
 use rand::RngExt;
 use serde::{Deserialize, Serialize};
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::events::{EventEmitter, PipelineEvent};
 use crate::graph::{Graph, Node};
 use crate::handler::Handler;
@@ -286,13 +286,13 @@ async fn emit_retry_and_sleep(
 
 /// Set the retry count for a node in the context.
 fn set_retry_count(context: &Context, node_id: &str, count: u32) {
-    let key = format!("internal.retry_count.{node_id}");
+    let key = format!("{}{node_id}", ctx::RETRY_COUNT_PREFIX);
     context.set(key, serde_json::Value::Number(count.into()));
 }
 
 /// Reset the retry counter for a node after successful completion (§3.5).
 fn reset_retry_count(context: &Context, node_id: &str) {
-    let key = format!("internal.retry_count.{node_id}");
+    let key = format!("{}{node_id}", ctx::RETRY_COUNT_PREFIX);
     context.set(key, serde_json::Value::Number(0.into()));
 }
 

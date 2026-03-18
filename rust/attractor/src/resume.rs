@@ -8,7 +8,7 @@ use std::path::Path;
 use indexmap::IndexMap;
 
 use crate::checkpoint::Checkpoint;
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::error::AttractorResult;
 use crate::fidelity::resolve_fidelity;
 use crate::graph::Graph;
@@ -62,7 +62,7 @@ pub fn resume_from_checkpoint(
     // Restore retry counters in context
     for (node_id, count) in &checkpoint.node_retries {
         context.set(
-            format!("internal.retry_count.{node_id}"),
+            format!("{}{node_id}", ctx::RETRY_COUNT_PREFIX),
             serde_json::Value::Number(serde_json::Number::from(*count)),
         );
     }
@@ -232,7 +232,7 @@ fn load_sqlite_run_state(
 
     for (node_id, retry_count) in retry_counts {
         context.set(
-            format!("internal.retry_count.{node_id}"),
+            format!("{}{node_id}", ctx::RETRY_COUNT_PREFIX),
             serde_json::Value::Number(serde_json::Number::from(retry_count)),
         );
     }

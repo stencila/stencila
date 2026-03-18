@@ -17,7 +17,7 @@ use inflector::Inflector;
 
 use tokio::sync::Semaphore;
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::edge_selection::select_edge;
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
@@ -197,7 +197,7 @@ impl Handler for ParallelHandler {
             })
             .collect();
         context.set(
-            format!("{}.outputs", HandlerType::Parallel),
+            ctx::PARALLEL_OUTPUTS,
             serde_json::Value::Array(outputs_json),
         );
 
@@ -216,7 +216,7 @@ impl Handler for ParallelHandler {
             })
             .collect();
         context.set(
-            format!("{}.results", HandlerType::Parallel),
+            ctx::PARALLEL_RESULTS,
             serde_json::Value::Array(results_json),
         );
 
@@ -498,14 +498,8 @@ impl ParallelHandler {
 
         // Empty-list bypass: skip the fan-in node entirely
         if items.is_empty() {
-            context.set(
-                format!("{}.results", HandlerType::Parallel),
-                serde_json::Value::Array(vec![]),
-            );
-            context.set(
-                format!("{}.outputs", HandlerType::Parallel),
-                serde_json::Value::Array(vec![]),
-            );
+            context.set(ctx::PARALLEL_RESULTS, serde_json::Value::Array(vec![]));
+            context.set(ctx::PARALLEL_OUTPUTS, serde_json::Value::Array(vec![]));
 
             let mut outcome = Outcome::success();
             outcome.notes = "dynamic fan-out: 0 items, nothing to execute".into();
@@ -520,11 +514,11 @@ impl ParallelHandler {
             // Write success/fail counts
             let mut updates = IndexMap::new();
             updates.insert(
-                format!("{}.success_count", HandlerType::Parallel),
+                ctx::PARALLEL_SUCCESS_COUNT.into(),
                 serde_json::Value::Number(0.into()),
             );
             updates.insert(
-                format!("{}.fail_count", HandlerType::Parallel),
+                ctx::PARALLEL_FAIL_COUNT.into(),
                 serde_json::Value::Number(0.into()),
             );
             outcome.context_updates = updates;
@@ -572,7 +566,7 @@ impl ParallelHandler {
             }
         }
         context.set(
-            format!("{}.outputs", HandlerType::Parallel),
+            ctx::PARALLEL_OUTPUTS,
             serde_json::Value::Array(outputs_json),
         );
 
@@ -591,7 +585,7 @@ impl ParallelHandler {
             })
             .collect();
         context.set(
-            format!("{}.results", HandlerType::Parallel),
+            ctx::PARALLEL_RESULTS,
             serde_json::Value::Array(results_json),
         );
 
@@ -628,24 +622,25 @@ impl ParallelHandler {
                 let branch_context = context.deep_clone();
 
                 // Inject per-item context keys
-                branch_context.set("fan_out.item", item.clone());
+                branch_context.set(ctx::FAN_OUT_ITEM, item.clone());
                 branch_context.set(
-                    "fan_out.index",
+                    ctx::FAN_OUT_INDEX,
                     serde_json::Value::Number(serde_json::Number::from(idx)),
                 );
                 branch_context.set(
-                    "fan_out.total",
+                    ctx::FAN_OUT_TOTAL,
                     serde_json::Value::Number(serde_json::Number::from(total)),
                 );
                 branch_context.set(
-                    "fan_out.key",
+                    ctx::FAN_OUT_KEY,
                     serde_json::Value::String(context_key.to_string()),
                 );
 
                 // Object property flattening: top-level properties of object items
                 if let serde_json::Value::Object(map) = item {
                     for (prop, val) in map {
-                        branch_context.set(format!("fan_out.item.{prop}"), val.clone());
+                        branch_context
+                            .set(format!("{}{prop}", ctx::FAN_OUT_ITEM_PREFIX), val.clone());
                     }
                 }
 
@@ -680,7 +675,7 @@ impl ParallelHandler {
                     .await;
 
                     let output = {
-                        let s = branch_context.get_string("last_output_full");
+                        let s = branch_context.get_string(ctx::LAST_OUTPUT_FULL);
                         if s.is_empty() { None } else { Some(s) }
                     };
 
@@ -783,7 +778,7 @@ impl ParallelHandler {
                     .await;
 
                     let output = {
-                        let s = branch_context.get_string("last_output_full");
+                        let s = branch_context.get_string(ctx::LAST_OUTPUT_FULL);
                         if s.is_empty() { None } else { Some(s) }
                     };
 
@@ -891,11 +886,11 @@ fn evaluate_join(
 
     let mut updates = IndexMap::new();
     updates.insert(
-        format!("{}.success_count", HandlerType::Parallel),
+        ctx::PARALLEL_SUCCESS_COUNT.into(),
         serde_json::Value::Number(serde_json::Number::from(success_count)),
     );
     updates.insert(
-        format!("{}.fail_count", HandlerType::Parallel),
+        ctx::PARALLEL_FAIL_COUNT.into(),
         serde_json::Value::Number(serde_json::Number::from(fail_count)),
     );
     outcome.context_updates = updates;

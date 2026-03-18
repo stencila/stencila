@@ -11,7 +11,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 
 use super::shared::build_output_outcome;
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
 use crate::graph::{Graph, Node, attr};
@@ -71,7 +71,7 @@ impl Handler for ShellHandler {
         let command = expand_runtime_variables(raw_command, context);
 
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        let stage_index = context.get_i64("internal.stage_index").unwrap_or(0) as usize;
+        let stage_index = context.get_i64(ctx::STAGE_INDEX).unwrap_or(0) as usize;
 
         self.emitter.emit(PipelineEvent::StageInput {
             node_id: node.id.clone(),

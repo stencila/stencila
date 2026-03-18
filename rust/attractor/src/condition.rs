@@ -22,7 +22,7 @@
 //! `preferred_label=Fix` are equivalent. All §10.6 examples use unquoted
 //! literals.
 
-use crate::context::Context;
+use crate::context::{Context, ctx};
 use crate::error::{AttractorError, AttractorResult};
 use crate::types::Outcome;
 
@@ -251,8 +251,8 @@ fn value_to_string(value: &serde_json::Value) -> String {
 /// Resolve a key to its string value per §10.4.
 ///
 /// Resolution order:
-/// 1. `"outcome"` → outcome status as string
-/// 2. `"preferred_label"` → outcome preferred label
+/// 1. [`ctx::OUTCOME`] → outcome status as string
+/// 2. [`ctx::PREFERRED_LABEL`] → outcome preferred label
 /// 3. `"context."` prefix → context lookup by presence (with prefix first,
 ///    then without). Fallback uses key *presence* (`get` returns `Some`), not
 ///    string emptiness, per §10.4 pseudocode.
@@ -260,11 +260,11 @@ fn value_to_string(value: &serde_json::Value) -> String {
 ///
 /// Missing keys resolve to an empty string.
 fn resolve_key(key: &str, outcome: &Outcome, context: &Context) -> String {
-    if key == "outcome" {
+    if key == ctx::OUTCOME {
         return outcome.status.as_str().to_string();
     }
 
-    if key == "preferred_label" {
+    if key == ctx::PREFERRED_LABEL {
         return outcome.preferred_label.clone();
     }
 

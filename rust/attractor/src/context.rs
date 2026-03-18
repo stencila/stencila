@@ -4,6 +4,73 @@ use std::sync::RwLock;
 use indexmap::IndexMap;
 use serde_json::Value;
 
+/// Well-known context key names.
+///
+/// Add new shared context keys here instead of repeating inline string
+/// literals throughout the crate. This keeps context keys consistent,
+/// easier to grep, and less error-prone to rename or audit.
+///
+/// Keys that are parameterised by a node ID (e.g.
+/// `internal.retry_count.<node>`) are stored as a prefix constant; callers
+/// build the full key with `format!("{}{node_id}", ctx::RETRY_COUNT_PREFIX)`.
+pub mod ctx {
+    // -- public / user-visible keys -----------------------------------------
+    pub const CURRENT_NODE: &str = "current_node";
+    pub const OUTCOME: &str = "outcome";
+    pub const PREFERRED_LABEL: &str = "preferred_label";
+    pub const GOAL: &str = "goal";
+    pub const LAST_STAGE: &str = "last_stage";
+    pub const LAST_OUTPUT: &str = "last_output";
+    pub const LAST_OUTPUT_FULL: &str = "last_output_full";
+    pub const COMPLETED_STAGES: &str = "completed_stages";
+
+    // -- internal (engine bookkeeping) keys ---------------------------------
+    pub const INTERNAL_PREFIX: &str = "internal.";
+    pub const FIDELITY: &str = "internal.fidelity";
+    pub const THREAD_ID: &str = "internal.thread_id";
+    pub const STAGE_INDEX: &str = "internal.stage_index";
+    pub const RESUME_DEGRADE_FIDELITY: &str = "internal.resume_degrade_fidelity";
+    pub const OUTGOING_EDGE_LABELS: &str = "internal.outgoing_edge_labels";
+
+    // -- internal per-node prefixes (append node ID) ------------------------
+    pub const RETRY_COUNT_PREFIX: &str = "internal.retry_count.";
+    pub const MODEL_PREFIX: &str = "internal.model.";
+    pub const PROVIDER_PREFIX: &str = "internal.provider.";
+    pub const INPUT_TOKENS_PREFIX: &str = "internal.input_tokens.";
+    pub const OUTPUT_TOKENS_PREFIX: &str = "internal.output_tokens.";
+
+    // -- fan-out keys -------------------------------------------------------
+    pub const FAN_OUT_ITEM: &str = "fan_out.item";
+    pub const FAN_OUT_INDEX: &str = "fan_out.index";
+    pub const FAN_OUT_TOTAL: &str = "fan_out.total";
+    pub const FAN_OUT_KEY: &str = "fan_out.key";
+    /// Prefix for flattened object properties: `fan_out.item.<prop>`.
+    pub const FAN_OUT_ITEM_PREFIX: &str = "fan_out.item.";
+
+    // -- human gate keys ----------------------------------------------------
+    pub const HUMAN_GATE_SELECTED: &str = "human.gate.selected";
+    pub const HUMAN_GATE_LABEL: &str = "human.gate.label";
+
+    // -- parallel / fan-in suffixes (prepend handler type) -------------------
+    pub const RESULTS_SUFFIX: &str = ".results";
+    pub const OUTPUTS_SUFFIX: &str = ".outputs";
+    pub const SUCCESS_COUNT_SUFFIX: &str = ".success_count";
+    pub const FAIL_COUNT_SUFFIX: &str = ".fail_count";
+    pub const BEST_ID_SUFFIX: &str = ".best_id";
+    pub const BEST_OUTCOME_SUFFIX: &str = ".best_outcome";
+
+    // -- pre-built parallel / fan-in keys -----------------------------------
+    pub const PARALLEL_RESULTS: &str = "parallel.results";
+    pub const PARALLEL_OUTPUTS: &str = "parallel.outputs";
+    pub const PARALLEL_SUCCESS_COUNT: &str = "parallel.success_count";
+    pub const PARALLEL_FAIL_COUNT: &str = "parallel.fail_count";
+    pub const FAN_IN_BEST_ID: &str = "parallel.fan_in.best_id";
+    pub const FAN_IN_BEST_OUTCOME: &str = "parallel.fan_in.best_outcome";
+
+    // -- graph-level key prefix ---------------------------------------------
+    pub const GRAPH_PREFIX: &str = "graph.";
+}
+
 // ---------------------------------------------------------------------------
 // ContextBackend trait
 // ---------------------------------------------------------------------------
