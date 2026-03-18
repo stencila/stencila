@@ -601,14 +601,17 @@ impl App {
             }
             PipelineEvent::StageFailed { reason, .. } => {
                 if let Some(workflow) = &mut self.active_workflow {
-                    if let Some(msg_index) = workflow.current_exchange_msg_index.take() {
-                        Self::update_exchange_at(
-                            &mut self.messages,
-                            msg_index,
-                            ExchangeStatus::Failed,
-                            Some(reason.clone()),
-                            None,
-                        );
+                    if let Some(msg_index) = workflow.current_exchange_msg_index.take()
+                        && let Some(AppMessage::Exchange {
+                            status, response, ..
+                        }) = self.messages.get_mut(msg_index)
+                    {
+                        *status = ExchangeStatus::Failed;
+                        // Preserve existing streamed response/segments;
+                        // only set the response if nothing was streamed.
+                        if response.is_none() {
+                            *response = Some(reason.clone());
+                        }
                     }
                     workflow.current_stage_progress = None;
                 }
