@@ -35,6 +35,7 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(MismatchedAgentThreadIdRule),
         Box::new(ParallelBranchThreadIdRule),
         Box::new(ThreadIdWithoutFidelityRule),
+        Box::new(FidelityFullNoCycleThreadIdRule),
     ]
 }
 
@@ -1172,6 +1173,122 @@ impl LintRule for ThreadIdWithoutFidelityRule {
                 node_id: Some(n.id.clone()),
                 edge: None,
                 fix: Some("add fidelity=\"full\" or remove thread_id".into()),
+            })
+            .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Helper: find all nodes participating in cycles (DFS-based)
+// ---------------------------------------------------------------------------
+
+/// Return the set of node IDs that participate in at least one cycle.
+///
+/// Uses Tarjan-style DFS with a recursion stack to detect back edges. A node
+/// is "in a cycle" if it can reach itself through one or more directed edges,
+/// including the trivial self-loop case.
+#[must_use]
+pub fn nodes_in_cycles(graph: &Graph) -> HashSet<String> {
+    // Build an adjacency list for efficient lookup.  Nodes with no outgoing
+    // edges are handled via `map_or` in `dfs_cycle`, so we only need entries
+    // for edge sources.
+    let mut adj: HashMap<&str, Vec<&str>> = HashMap::new();
+    for edge in &graph.edges {
+        adj.entry(edge.from.as_str())
+            .or_default()
+            .push(edge.to.as_str());
+    }
+
+    let mut visited: HashSet<&str> = HashSet::new();
+    let mut on_stack: HashSet<&str> = HashSet::new();
+    let mut result: HashSet<String> = HashSet::new();
+
+    for node_id in graph.nodes.keys() {
+        if !visited.contains(node_id.as_str()) {
+            dfs_cycle(
+                node_id.as_str(),
+                &adj,
+                &mut visited,
+                &mut on_stack,
+                &mut result,
+            );
+        }
+    }
+
+    result
+}
+
+/// DFS helper that marks nodes participating in cycles.
+///
+/// Returns `true` if the current node can reach a node on the recursion stack
+/// (i.e., it participates in a cycle).
+fn dfs_cycle<'a>(
+    node: &'a str,
+    adj: &HashMap<&'a str, Vec<&'a str>>,
+    visited: &mut HashSet<&'a str>,
+    on_stack: &mut HashSet<&'a str>,
+    cycle_nodes: &mut HashSet<String>,
+) -> bool {
+    visited.insert(node);
+    on_stack.insert(node);
+
+    let mut is_in_cycle = false;
+
+    for &next in adj.get(node).map_or(&[][..], Vec::as_slice) {
+        if !visited.contains(next) {
+            if dfs_cycle(next, adj, visited, on_stack, cycle_nodes) {
+                // `next` (or a descendant) can reach something on the stack.
+                // If `node` is still on the stack, it is part of the cycle.
+                if on_stack.contains(node) {
+                    cycle_nodes.insert(node.to_string());
+                    is_in_cycle = true;
+                }
+            }
+        } else if on_stack.contains(next) {
+            // Back edge: both `node` and `next` are in a cycle.
+            cycle_nodes.insert(node.to_string());
+            cycle_nodes.insert(next.to_string());
+            is_in_cycle = true;
+        }
+    }
+
+    on_stack.remove(node);
+    is_in_cycle
+}
+
+// ---------------------------------------------------------------------------
+// 22. fidelity_full_no_cycle_thread_id (WARNING) — fallback thread_id
+//     unreliable in cycles
+// ---------------------------------------------------------------------------
+
+struct FidelityFullNoCycleThreadIdRule;
+
+impl LintRule for FidelityFullNoCycleThreadIdRule {
+    fn name(&self) -> &'static str {
+        "fidelity_full_no_cycle_thread_id"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        let cycle_members = nodes_in_cycles(graph);
+
+        graph
+            .nodes
+            .values()
+            .filter(|n| has_full_fidelity(n))
+            .filter(|n| n.get_str_attr("thread_id").is_none())
+            .filter(|n| cycle_members.contains(&n.id))
+            .map(|n| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Warning,
+                message: format!(
+                    "node `{}` has fidelity=\"full\" without an explicit thread_id and \
+                     participates in a cycle; the fallback thread_id may be unreliable \
+                     in loops",
+                    n.id
+                ),
+                node_id: Some(n.id.clone()),
+                edge: None,
+                fix: Some("add an explicit thread_id attribute".into()),
             })
             .collect()
     }

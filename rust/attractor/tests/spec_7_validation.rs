@@ -1097,6 +1097,248 @@ fn rule_thread_id_without_fidelity_is_registered_in_builtin_rules() {
 }
 
 // ===========================================================================
+// nodes_in_cycles() helper (AC1)
+// ===========================================================================
+
+/// AC1a: An acyclic graph returns an empty set from nodes_in_cycles().
+#[test]
+fn nodes_in_cycles_acyclic_returns_empty() {
+    use stencila_attractor::validation::rules::nodes_in_cycles;
+
+    // Simple chain: a -> b -> c (no cycles)
+    let mut g = Graph::new("test");
+    g.add_node(Node::new("a"));
+    g.add_node(Node::new("b"));
+    g.add_node(Node::new("c"));
+    g.add_edge(Edge::new("a", "b"));
+    g.add_edge(Edge::new("b", "c"));
+
+    let cycle_nodes = nodes_in_cycles(&g);
+    assert!(
+        cycle_nodes.is_empty(),
+        "acyclic graph should have no nodes in cycles: {cycle_nodes:?}"
+    );
+}
+
+/// AC1b: A single-cycle graph returns exactly the cycle participants.
+#[test]
+fn nodes_in_cycles_single_cycle() {
+    use stencila_attractor::validation::rules::nodes_in_cycles;
+
+    // a -> b -> c -> a (all three in a cycle)
+    let mut g = Graph::new("test");
+    g.add_node(Node::new("a"));
+    g.add_node(Node::new("b"));
+    g.add_node(Node::new("c"));
+    g.add_edge(Edge::new("a", "b"));
+    g.add_edge(Edge::new("b", "c"));
+    g.add_edge(Edge::new("c", "a"));
+
+    let cycle_nodes = nodes_in_cycles(&g);
+    assert!(cycle_nodes.contains("a"), "node 'a' should be in cycle");
+    assert!(cycle_nodes.contains("b"), "node 'b' should be in cycle");
+    assert!(cycle_nodes.contains("c"), "node 'c' should be in cycle");
+    assert_eq!(cycle_nodes.len(), 3, "should have exactly 3 cycle nodes");
+}
+
+/// AC1c: A graph with multiple cycles returns all cycle participants.
+#[test]
+fn nodes_in_cycles_multi_cycle() {
+    use stencila_attractor::validation::rules::nodes_in_cycles;
+
+    // Two separate cycles: a -> b -> a, and c -> d -> c
+    // Plus a non-cycle node e
+    let mut g = Graph::new("test");
+    g.add_node(Node::new("a"));
+    g.add_node(Node::new("b"));
+    g.add_node(Node::new("c"));
+    g.add_node(Node::new("d"));
+    g.add_node(Node::new("e"));
+    g.add_edge(Edge::new("a", "b"));
+    g.add_edge(Edge::new("b", "a"));
+    g.add_edge(Edge::new("c", "d"));
+    g.add_edge(Edge::new("d", "c"));
+    g.add_edge(Edge::new("a", "e")); // e is not in any cycle
+
+    let cycle_nodes = nodes_in_cycles(&g);
+    assert!(cycle_nodes.contains("a"), "node 'a' should be in cycle");
+    assert!(cycle_nodes.contains("b"), "node 'b' should be in cycle");
+    assert!(cycle_nodes.contains("c"), "node 'c' should be in cycle");
+    assert!(cycle_nodes.contains("d"), "node 'd' should be in cycle");
+    assert!(
+        !cycle_nodes.contains("e"),
+        "node 'e' should NOT be in any cycle"
+    );
+}
+
+/// AC1d: A self-loop is detected as a cycle.
+#[test]
+fn nodes_in_cycles_self_loop() {
+    use stencila_attractor::validation::rules::nodes_in_cycles;
+
+    // a -> a (self-loop), b is isolated
+    let mut g = Graph::new("test");
+    g.add_node(Node::new("a"));
+    g.add_node(Node::new("b"));
+    g.add_edge(Edge::new("a", "a"));
+
+    let cycle_nodes = nodes_in_cycles(&g);
+    assert!(
+        cycle_nodes.contains("a"),
+        "self-loop node 'a' should be in cycle"
+    );
+    assert!(
+        !cycle_nodes.contains("b"),
+        "node 'b' should NOT be in cycle"
+    );
+}
+
+// ===========================================================================
+// fidelity_full_no_cycle_thread_id (WARNING) — fallback thread_id unreliable
+// in cycles (AC2)
+// ===========================================================================
+
+/// AC2: A node with fidelity="full", no explicit thread_id, participating in a
+/// cycle should produce a WARNING.
+#[test]
+fn rule_fidelity_full_no_cycle_thread_id_warns_in_cycle() {
+    // Build a pipeline with a cycle: start -> task -> loopback -> task -> exit
+    // The task node has fidelity="full" and no thread_id.
+    let mut g = Graph::new("test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut task = Node::new("task");
+    task.attrs
+        .insert("prompt".into(), AttrValue::from("do something"));
+    task.attrs
+        .insert("fidelity".into(), AttrValue::from("full"));
+    // No thread_id set — should trigger the warning
+    g.add_node(task);
+
+    let mut loopback = Node::new("loopback");
+    loopback
+        .attrs
+        .insert("shape".into(), AttrValue::from("diamond"));
+    g.add_node(loopback);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    // start -> task -> loopback -> task (cycle) and loopback -> exit
+    g.add_edge(Edge::new("start", "task"));
+    g.add_edge(Edge::new("task", "loopback"));
+    g.add_edge(Edge::new("loopback", "task")); // creates a cycle
+    g.add_edge(Edge::new("loopback", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "fidelity_full_no_cycle_thread_id");
+    assert_eq!(
+        hits.len(),
+        1,
+        "should emit exactly one WARNING for fidelity=full node in cycle without thread_id: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Warning);
+    assert_eq!(hits[0].node_id.as_deref(), Some("task"));
+}
+
+// ===========================================================================
+// fidelity_full_no_cycle_thread_id — negative: explicit thread_id suppresses
+// warning (AC3)
+// ===========================================================================
+
+/// AC3: A node with fidelity="full" AND explicit thread_id in a cycle should
+/// produce NO warning from FidelityFullNoCycleThreadIdRule.
+#[test]
+fn rule_fidelity_full_no_cycle_thread_id_explicit_thread_id_no_warning() {
+    let mut g = Graph::new("test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut task = Node::new("task");
+    task.attrs
+        .insert("prompt".into(), AttrValue::from("do something"));
+    task.attrs
+        .insert("fidelity".into(), AttrValue::from("full"));
+    task.attrs
+        .insert("thread_id".into(), AttrValue::from("explicit_thread"));
+    g.add_node(task);
+
+    let mut loopback = Node::new("loopback");
+    loopback
+        .attrs
+        .insert("shape".into(), AttrValue::from("diamond"));
+    g.add_node(loopback);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "task"));
+    g.add_edge(Edge::new("task", "loopback"));
+    g.add_edge(Edge::new("loopback", "task")); // creates a cycle
+    g.add_edge(Edge::new("loopback", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "fidelity_full_no_cycle_thread_id");
+    assert!(
+        hits.is_empty(),
+        "node with explicit thread_id in a cycle should produce no warning from this rule: {diagnostics:?}"
+    );
+}
+
+/// AC3 (variant): A node with fidelity="full" and no thread_id that is NOT in a
+/// cycle should produce no warning from this rule.
+#[test]
+fn rule_fidelity_full_no_cycle_thread_id_no_cycle_no_warning() {
+    let mut g = valid_pipeline();
+
+    // Add fidelity="full" to the task node (which is NOT in any cycle)
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("full"));
+        // No thread_id — but no cycle either, so no warning
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "fidelity_full_no_cycle_thread_id");
+    assert!(
+        hits.is_empty(),
+        "node not in a cycle should produce no warning: {diagnostics:?}"
+    );
+}
+
+// ===========================================================================
+// fidelity_full_no_cycle_thread_id — rule registration (AC4)
+// ===========================================================================
+
+/// AC4: The rule is registered in builtin_rules().
+#[test]
+fn rule_fidelity_full_no_cycle_thread_id_is_registered_in_builtin_rules() {
+    use stencila_attractor::validation::rules::builtin_rules;
+
+    let rules = builtin_rules();
+    let found = rules
+        .iter()
+        .any(|r| r.name() == "fidelity_full_no_cycle_thread_id");
+    assert!(
+        found,
+        "FidelityFullNoCycleThreadIdRule must be registered in builtin_rules()"
+    );
+}
+
+// ===========================================================================
 // validate collects all diagnostics
 // ===========================================================================
 
