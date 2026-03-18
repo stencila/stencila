@@ -406,6 +406,7 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
             };
             let status_color = match candidate.status.as_str() {
                 "failed" | "fail" => Color::Red,
+                "cancelled" => Color::Magenta,
                 "running" => Color::Yellow,
                 _ => Color::DarkGray,
             };

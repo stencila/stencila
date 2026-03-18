@@ -538,6 +538,7 @@ impl Run {
         let options = crate::run::RunOptions {
             emitter,
             interviewer: Some(interviewer),
+            run_id_out: None,
         };
         let outcome = crate::run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
@@ -623,6 +624,7 @@ impl Runs {
             let status_cell = match run.status.as_str() {
                 "success" => Cell::new("success").fg(Color::Green),
                 "fail" | "failed" => Cell::new("failed").fg(Color::Red),
+                "cancelled" => Cell::new("cancelled").fg(Color::DarkYellow),
                 "running" => Cell::new("running").fg(Color::Yellow),
                 other => Cell::new(other),
             };
@@ -668,15 +670,15 @@ fn shortest_unique_prefix_len(ids: &[&str]) -> usize {
     max_len
 }
 
-/// Resume a failed or interrupted workflow run
+/// Resume a failed, cancelled, or interrupted workflow run
 ///
-/// Continues execution of a previously failed or interrupted workflow run
-/// from where it left off. The pipeline state (completed nodes, context
-/// values, edge traversal history) is restored from the workspace database,
-/// and execution resumes at the next unfinished node.
+/// Continues execution of a previously failed, cancelled, or interrupted
+/// workflow run from where it left off. The pipeline state (completed
+/// nodes, context values, edge traversal history) is restored from the
+/// workspace database, and execution resumes at the next unfinished node.
 ///
-/// If no run ID is provided, the most recent resumable run (failed or
-/// still marked as running) is used.
+/// If no run ID is provided, the most recent resumable run (failed,
+/// cancelled, or still marked as running) is used.
 #[derive(Debug, Args)]
 #[command(after_long_help = RESUME_AFTER_LONG_HELP)]
 struct Resume {
@@ -765,6 +767,7 @@ impl Resume {
         let options = crate::run::RunOptions {
             emitter,
             interviewer: Some(interviewer),
+            run_id_out: None,
         };
         let outcome =
             crate::run::resume_workflow_with_options(&run_id, &cwd, options, self.force).await?;

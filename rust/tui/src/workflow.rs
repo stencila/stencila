@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
@@ -35,12 +35,32 @@ pub fn is_ephemeral_workflow(name: &str) -> bool {
 /// Handle to a running workflow task.
 pub struct WorkflowRunHandle {
     pub event_rx: mpsc::UnboundedReceiver<WorkflowEvent>,
-    #[allow(dead_code)]
     join_handle: JoinHandle<()>,
+    /// The run ID, published by the workflow engine once it is known.
+    run_id: Arc<Mutex<Option<String>>>,
 }
 
 impl WorkflowRunHandle {
-    pub fn abort(&self) {
+    /// Cancel the running workflow: mark the run as cancelled in the DB,
+    /// then abort the background task.
+    pub fn cancel(&self) {
+        // Try to mark the run as cancelled in the database before
+        // aborting the task. This is best-effort: if the DB update
+        // fails or the run_id isn't set yet we still abort the task.
+        if let Some(run_id) = self
+            .run_id
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
+        {
+            let cwd = std::env::current_dir().unwrap_or_default();
+            // Spawn a blocking task so we don't block the TUI event loop.
+            tokio::spawn(async move {
+                if let Err(e) = stencila_workflows::cancel_run(&cwd, &run_id).await {
+                    tracing::warn!("Failed to mark run `{run_id}` as cancelled: {e}");
+                }
+            });
+        }
         self.join_handle.abort();
     }
 
@@ -49,6 +69,7 @@ impl WorkflowRunHandle {
         Self {
             event_rx,
             join_handle: tokio::spawn(async {}),
+            run_id: Arc::new(Mutex::new(None)),
         }
     }
 }
@@ -84,10 +105,11 @@ fn spawn_interview_forwarder(
 
 /// Spawn a resumed workflow run on a background task.
 ///
-/// Resumes a previously failed or interrupted workflow run from where it
-/// left off.
+/// Resumes a previously failed, cancelled, or interrupted workflow run
+/// from where it left off.
 pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
     let (event_tx, event_rx) = mpsc::unbounded_channel();
+    let run_id_shared: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(Some(run_id.clone())));
 
     let join_handle = tokio::spawn(async move {
         let completion_tx = event_tx.clone();
@@ -102,6 +124,7 @@ pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
             let options = stencila_workflows::RunOptions {
                 emitter,
                 interviewer: Some(interviewer),
+                run_id_out: None,
             };
             stencila_workflows::resume_workflow_with_options(&run_id, &cwd, options, false).await
         }
@@ -113,6 +136,7 @@ pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
     WorkflowRunHandle {
         event_rx,
         join_handle,
+        run_id: run_id_shared,
     }
 }
 
@@ -123,6 +147,8 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
     let (event_tx, event_rx) = mpsc::unbounded_channel();
     let info = info.clone();
     let total_stages = compute_total_stages(&info);
+    let run_id_shared: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+    let run_id_for_task = run_id_shared.clone();
 
     let join_handle = tokio::spawn(async move {
         let completion_tx = event_tx.clone();
@@ -139,6 +165,7 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
             let options = stencila_workflows::RunOptions {
                 emitter,
                 interviewer: Some(interviewer),
+                run_id_out: Some(run_id_for_task),
             };
             stencila_workflows::run_workflow_with_options(&workflow, options).await
         }
@@ -150,6 +177,7 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
     let handle = WorkflowRunHandle {
         event_rx,
         join_handle,
+        run_id: run_id_shared,
     };
 
     (handle, total_stages)

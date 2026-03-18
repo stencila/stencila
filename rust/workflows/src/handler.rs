@@ -111,6 +111,7 @@ impl Handler for WorkflowHandler {
             RunOptions {
                 emitter: self.emitter.clone(),
                 interviewer: self.interviewer.clone(),
+                run_id_out: None,
             },
             Some(ParentRun {
                 run_id: context.get_string("internal.run_id"),

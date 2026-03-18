@@ -45,6 +45,7 @@ pub async fn run_workflow(workflow: &WorkflowInstance) -> Result<Outcome> {
     let options = RunOptions {
         emitter: stderr_event_emitter(),
         interviewer: None,
+        run_id_out: None,
     };
     run_workflow_with_options(workflow, options).await
 }
@@ -53,6 +54,10 @@ pub async fn run_workflow(workflow: &WorkflowInstance) -> Result<Outcome> {
 pub struct RunOptions {
     pub emitter: Arc<dyn EventEmitter>,
     pub interviewer: Option<Arc<dyn Interviewer>>,
+    /// When set, the run ID is published here as soon as it is known.
+    /// Callers can use this to mark the run as cancelled if the task is
+    /// aborted before the engine finishes.
+    pub run_id_out: Option<Arc<Mutex<Option<String>>>>,
 }
 
 #[derive(Clone, Default)]
@@ -129,6 +134,16 @@ pub(crate) async fn run_workflow_with_options_and_parent(
     let effective_db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
 
     let run_id = uuid::Uuid::now_v7().to_string();
+
+    // Publish the run ID so callers (e.g. the TUI) can mark it as
+    // cancelled if the task is aborted before the engine finishes.
+    if let Some(out) = &options.run_id_out {
+        let mut guard = out
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        *guard = Some(run_id.clone());
+    }
+
     let stencila_artifacts_dir =
         stencila_dirs::stencila_artifacts_dir(&stencila_dir, false).await?;
     let artifacts_dir = stencila_artifacts_dir.join(format!("workflows/{run_id}"));
@@ -276,7 +291,7 @@ pub struct RunInfo {
 pub enum RunListFilter {
     /// Return all top-level workflow runs.
     All,
-    /// Return only failed or still-running top-level runs that may be resumed.
+    /// Return only failed, cancelled, or still-running top-level runs that may be resumed.
     Resumable,
 }
 
@@ -284,8 +299,8 @@ pub enum RunListFilter {
 ///
 /// Returns up to `limit` runs ordered by most recent first. Only
 /// top-level runs are included (those without a parent). When `filter`
-/// is [`RunListFilter::Resumable`], only failed or still-running runs are
-/// returned.
+/// is [`RunListFilter::Resumable`], only failed, cancelled, or still-running
+/// runs are returned.
 ///
 /// # Errors
 ///
@@ -326,7 +341,7 @@ pub async fn list_runs(
                 completed_at, node_count, total_tokens
          FROM workflow_runs
          WHERE parent_run_id IS NULL
-           AND status IN ('failed', 'fail', 'running')
+           AND status IN ('failed', 'fail', 'running', 'cancelled')
          ORDER BY started_at DESC
          LIMIT ?1"
     } else {
@@ -405,7 +420,7 @@ pub fn humanize_timestamp(iso_timestamp: &str) -> String {
     }
 }
 
-/// Find the most recent resumable run (failed or still marked running).
+/// Find the most recent resumable run (failed, cancelled, or still marked running).
 ///
 /// # Errors
 ///
@@ -413,6 +428,63 @@ pub fn humanize_timestamp(iso_timestamp: &str) -> String {
 pub async fn last_resumable_run(workspace_path: &Path) -> Result<Option<RunInfo>> {
     let runs = list_runs(workspace_path, 1, RunListFilter::Resumable).await?;
     Ok(runs.into_iter().next())
+}
+
+/// Mark a workflow run as cancelled in the workspace database.
+///
+/// Updates the run's status to `"cancelled"` and sets the `completed_at`
+/// timestamp. This should be called when a running workflow is aborted
+/// (e.g. by the user pressing Ctrl-C in the TUI) so the run does not
+/// remain stuck as `"running"` in the database.
+///
+/// No-op if the database does not exist or the run ID is not found.
+///
+/// # Errors
+///
+/// Returns an error if the workspace database cannot be opened or the
+/// update fails.
+pub async fn cancel_run(workspace_path: &Path, run_id: &str) -> Result<()> {
+    let stencila_dir = match stencila_dirs::closest_stencila_dir(workspace_path, false).await {
+        Ok(dir) => dir,
+        Err(_) => return Ok(()),
+    };
+    let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
+
+    if !db_path.exists() {
+        return Ok(());
+    }
+
+    let workspace_db = stencila_db::WorkspaceDb::open(&db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+
+    workspace_db
+        .migrate_all(&[
+            (
+                "workflows",
+                stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
+            ),
+            ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+        ])
+        .map_err(|e| eyre::eyre!("Failed to apply workflow migrations: {e}"))?;
+
+    let conn = workspace_db.connection();
+    let conn = conn
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    conn.execute(
+        "UPDATE workflow_runs
+         SET status = 'cancelled',
+             completed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+             total_duration_ms = CAST(
+                (julianday(strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) - julianday(started_at))
+                * 86400000.0 AS INTEGER
+             )
+         WHERE run_id = ?1 AND status = 'running'",
+        (run_id,),
+    )
+    .map_err(|e| eyre::eyre!("Failed to cancel run `{run_id}`: {e}"))?;
+
+    Ok(())
 }
 
 /// Look up a single run by its full ID.
@@ -534,7 +606,7 @@ pub async fn resolve_run_id_from_db(workspace_path: &Path, id: &str) -> Result<S
     }
 }
 
-/// Resume a previously failed or interrupted workflow run.
+/// Resume a previously failed, cancelled, or interrupted workflow run.
 ///
 /// Looks up the original run's workflow name from the database, loads the
 /// current workflow definition, rebuilds the pipeline graph and engine

@@ -122,7 +122,7 @@ impl App {
         if let Some(workflow) = &mut self.active_workflow
             && let Some(handle) = workflow.run_handle.take()
         {
-            handle.abort();
+            handle.cancel();
             let name = workflow.info.name.clone();
             // Mark all workflow progress/status messages with spinners as cancelled
             for msg in &mut self.messages {

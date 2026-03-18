@@ -58,6 +58,7 @@ fn run_options() -> RunOptions {
     RunOptions {
         emitter: Arc::new(NoOpEmitter),
         interviewer: Some(Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>),
+        run_id_out: None,
     }
 }
 
@@ -69,6 +70,7 @@ async fn run_and_assert_success(name: &str) {
         RunOptions {
             emitter: stencila_workflows::stderr_event_emitter_for_testing(),
             interviewer: run_options().interviewer,
+            run_id_out: None,
         },
     )
     .await
