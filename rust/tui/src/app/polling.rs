@@ -135,10 +135,18 @@ impl App {
                         format!("{text}\n\nError: {err}")
                     };
                     (Some(resp), Some(segs))
-                } else if result.text.is_empty() {
+                } else if result.text.is_empty() && result.segments.is_empty() {
                     (None, None)
                 } else {
-                    (Some(result.text), Some(result.segments))
+                    // Preserve segments even when plain text is empty —
+                    // non-text segments (tool calls, thinking) should remain
+                    // visible after completion rather than being wiped.
+                    let text = if result.text.is_empty() {
+                        None
+                    } else {
+                        Some(result.text)
+                    };
+                    (text, Some(result.segments))
                 };
                 Self::update_exchange_complete(
                     &mut self.messages,
