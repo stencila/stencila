@@ -11,7 +11,7 @@
 //! To avoid deadlocks:
 //!
 //! - keep lock scopes as small as possible
-//! - do not hold a raw SQLite connection lock while calling higher-level
+//! - do not hold a raw `SQLite` connection lock while calling higher-level
 //!   abstractions such as [`context::Context`] methods, artifact storage,
 //!   interview coordination, or event emission
 //! - avoid calling into another lock-owning subsystem while holding a local

@@ -190,19 +190,6 @@ fn init_run(graph: &Graph, previous: Option<&Context>) -> Context {
     context
 }
 
-/// Clear transient execution keys that should not survive a loop restart.
-fn clear_restart_transients(context: &Context) {
-    context.set("current_node", Value::Null);
-    context.set("outcome", Value::Null);
-    context.set("preferred_label", Value::Null);
-
-    for key in context.snapshot().keys() {
-        if key.starts_with("internal.") {
-            context.set(key.clone(), Value::Null);
-        }
-    }
-}
-
 /// Clone only restart-safe runtime context into a fresh in-memory backend.
 ///
 /// Loop restarts should preserve user-visible/runtime variables from prior
@@ -427,9 +414,11 @@ async fn execute_loop(
             Some(AdvanceResult::LoopRestart(target)) => {
                 // §2.7/§3.2: preserve runtime context across loop restarts,
                 // while clearing transient execution bookkeeping.
-                let new_context = init_run(graph, Some(&context));
-                clear_restart_transients(&new_context);
-                context = new_context;
+                // `init_run` with a previous context uses
+                // `clone_runtime_context_for_restart` which creates a fresh
+                // context excluding all transient keys (`internal.*`,
+                // `current_node`, `outcome`, `preferred_label`).
+                context = init_run(graph, Some(&context));
                 state = LoopState::new(target);
             }
             Some(AdvanceResult::End) | None => {
@@ -576,6 +565,8 @@ fn apply_edge_fidelity(
         let previous_node_id = last_selected_edge.map_or("", |(from, _)| from.as_str());
         let thread_id = resolve_thread_id(node, incoming_edge, graph, previous_node_id);
         context.set("internal.thread_id", Value::String(thread_id));
+    } else {
+        context.set("internal.thread_id", Value::Null);
     }
 }
 
@@ -613,6 +604,7 @@ fn advance(
     // selection and advance directly to that node.
     if let Some(target) = &outcome.jump_target {
         state.current_node_id.clone_from(target);
+        state.last_selected_edge = None;
         return AdvanceResult::Continue;
     }
 
@@ -659,10 +651,37 @@ mod tests {
     /// Fidelity and `thread_id` captured from context, keyed by node ID.
     type CapturedFidelity = HashMap<String, (Option<String>, Option<String>)>;
 
+    /// Read `internal.fidelity` and `internal.thread_id` from the context.
+    fn capture_fidelity(context: &Context) -> (Option<String>, Option<String>) {
+        let fidelity = context
+            .get("internal.fidelity")
+            .and_then(|v| v.as_str().map(String::from));
+        let thread_id = context
+            .get("internal.thread_id")
+            .and_then(|v| v.as_str().map(String::from));
+        (fidelity, thread_id)
+    }
+
+    fn make_start_node() -> Node {
+        let mut node = Node::new("Start");
+        node.attrs
+            .insert("shape".into(), AttrValue::String(Graph::START_SHAPE.into()));
+        node
+    }
+
+    fn make_exit_node() -> Node {
+        let mut node = Node::new("Exit");
+        node.attrs
+            .insert("shape".into(), AttrValue::String(Graph::EXIT_SHAPE.into()));
+        node
+    }
+
     /// A test handler that captures `internal.fidelity` and `internal.thread_id`
-    /// from the context at execution time, keyed by node ID.
+    /// from the context at execution time, keyed by node ID. Optionally returns
+    /// a `jump_target` for specific nodes.
     struct CapturingHandler {
         captured: Arc<Mutex<CapturedFidelity>>,
+        jump_targets: HashMap<String, String>,
     }
 
     #[async_trait]
@@ -673,37 +692,26 @@ mod tests {
             context: &Context,
             _graph: &Graph,
         ) -> AttractorResult<Outcome> {
-            let fidelity = context
-                .get("internal.fidelity")
-                .and_then(|v| v.as_str().map(String::from));
-            let thread_id = context
-                .get("internal.thread_id")
-                .and_then(|v| v.as_str().map(String::from));
             self.captured
                 .lock()
                 .unwrap_or_else(std::sync::PoisonError::into_inner)
-                .insert(node.id.clone(), (fidelity, thread_id));
-            Ok(Outcome::success())
+                .insert(node.id.clone(), capture_fidelity(context));
+
+            let mut outcome = Outcome::success();
+            if let Some(target) = self.jump_targets.get(&node.id) {
+                outcome.jump_target = Some(target.clone());
+            }
+            Ok(outcome)
         }
     }
 
     /// Build a minimal Start → A → B → Exit graph with a custom A→B edge.
     fn build_linear_graph(name: &str, edge_ab: Edge) -> Graph {
         let mut graph = Graph::new(name);
-
-        let mut start = Node::new("Start");
-        start
-            .attrs
-            .insert("shape".into(), AttrValue::String(Graph::START_SHAPE.into()));
-        graph.add_node(start);
-
+        graph.add_node(make_start_node());
         graph.add_node(Node::new("A"));
         graph.add_node(Node::new("B"));
-
-        let mut exit = Node::new("Exit");
-        exit.attrs
-            .insert("shape".into(), AttrValue::String(Graph::EXIT_SHAPE.into()));
-        graph.add_node(exit);
+        graph.add_node(make_exit_node());
 
         graph.add_edge(Edge::new("Start", "A"));
         graph.add_edge(edge_ab);
@@ -718,6 +726,7 @@ mod tests {
 
         let handler = CapturingHandler {
             captured: captured.clone(),
+            jump_targets: HashMap::new(),
         };
 
         let mut config = EngineConfig::new();
@@ -924,6 +933,236 @@ mod tests {
             thread_id_b.as_deref(),
             Some("A"),
             "thread_id should fall back to previous node ID 'A'"
+        );
+
+        Ok(())
+    }
+
+    /// §5.4 / Slice 4: after a `jump_target` advance, `last_selected_edge`
+    /// must be cleared so the jumped-to node resolves fidelity from
+    /// node/graph/default — not stale edge data.
+    ///
+    /// Graph: Start → A → B → C → Exit
+    /// Edge A→B has fidelity="full". Node A's handler returns a normal
+    /// success, so `advance()` selects edge A→B (setting `last_selected_edge`).
+    /// Node B's handler returns `jump_target="C`", so `advance()` jumps directly
+    /// to C without edge selection. If `last_selected_edge` is NOT cleared,
+    /// node C will incorrectly inherit fidelity="full" from the stale A→B edge.
+    #[tokio::test]
+    async fn jump_target_clears_last_selected_edge() -> AttractorResult<()> {
+        let mut graph = Graph::new("jump_clears_edge");
+        graph.add_node(make_start_node());
+        graph.add_node(Node::new("A"));
+        graph.add_node(Node::new("B"));
+        graph.add_node(Node::new("C"));
+        graph.add_node(make_exit_node());
+
+        graph.add_edge(Edge::new("Start", "A"));
+        // Edge A→B carries fidelity="full" — this is the stale data source
+        let mut edge_ab = Edge::new("A", "B");
+        edge_ab
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("full".into()));
+        graph.add_edge(edge_ab);
+        graph.add_edge(Edge::new("B", "C"));
+        graph.add_edge(Edge::new("C", "Exit"));
+
+        let captured = Arc::new(Mutex::new(HashMap::new()));
+
+        // Node B returns jump_target="C", bypassing normal edge selection
+        let handler = CapturingHandler {
+            captured: captured.clone(),
+            jump_targets: HashMap::from([("B".to_string(), "C".to_string())]),
+        };
+
+        let mut config = EngineConfig::new();
+        config.skip_validation = true;
+        config.registry.register(HandlerType::Codergen, handler);
+
+        crate::engine::run_with_context(&graph, config, Context::new()).await?;
+
+        let map = captured
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone();
+
+        // Node B was reached via edge A→B with fidelity="full" — correct
+        let (fidelity_b, _) = map.get("B").expect("node B should have been executed");
+        assert_eq!(
+            fidelity_b.as_deref(),
+            Some("full"),
+            "node B should see fidelity='full' from edge A→B"
+        );
+
+        // Node C was reached via jump_target from B (no edge selection).
+        // last_selected_edge must have been cleared, so fidelity falls
+        // through to the default "compact".
+        let (fidelity_c, thread_id_c) = map.get("C").expect("node C should have been executed");
+        assert_eq!(
+            fidelity_c.as_deref(),
+            Some("compact"),
+            "node C should have default fidelity='compact' after jump_target, \
+             not stale fidelity='full' from edge A→B"
+        );
+        assert_eq!(
+            thread_id_c.as_deref(),
+            None,
+            "node C should have no thread_id after jump_target clears last_selected_edge"
+        );
+
+        Ok(())
+    }
+
+    /// (`node_id`, fidelity, `thread_id`) tuple captured per handler invocation.
+    type FidelityCapture = (String, Option<String>, Option<String>);
+
+    /// A test handler that captures fidelity on each invocation and returns
+    /// outcomes from a pre-built sequence (keyed by call index). Used for
+    /// loop restart tests where the same node is visited multiple times.
+    struct LoopCapturingHandler {
+        captured: Arc<Mutex<Vec<FidelityCapture>>>,
+        /// Pre-built outcomes indexed by call order.
+        outcomes: Mutex<Vec<Outcome>>,
+        call_count: Mutex<usize>,
+    }
+
+    #[async_trait]
+    impl Handler for LoopCapturingHandler {
+        async fn execute(
+            &self,
+            node: &Node,
+            context: &Context,
+            _graph: &Graph,
+        ) -> AttractorResult<Outcome> {
+            let (fidelity, thread_id) = capture_fidelity(context);
+            self.captured
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .push((node.id.clone(), fidelity, thread_id));
+
+            let mut count = self
+                .call_count
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let idx = *count;
+            *count += 1;
+            let outcomes = self
+                .outcomes
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            if idx < outcomes.len() {
+                Ok(outcomes[idx].clone())
+            } else {
+                Ok(outcomes.last().cloned().unwrap_or_else(Outcome::success))
+            }
+        }
+    }
+
+    /// §5.4 / Slice 5: after a `LoopRestart`, `last_selected_edge` must be
+    /// None so the first node in the restarted iteration resolves fidelity
+    /// from node attributes, not stale edge data from the prior iteration.
+    ///
+    /// Graph: Start → A → B with two outgoing edges from B:
+    ///   - B → A [label="retry", `loop_restart=true`, fidelity="full"]
+    ///   - B → Exit [label="done"]
+    ///
+    /// First iteration: Start → A (no fidelity) → B returns `preferred_label="retry`"
+    ///   → edge B→A selected (fidelity="full", `loop_restart=true`) → `LoopRestart`
+    /// Second iteration: fresh `LoopState` → Start → A
+    ///   → A must see fidelity from node attributes (truncate), not stale "full"
+    #[tokio::test]
+    async fn loop_restart_clears_last_selected_edge() -> AttractorResult<()> {
+        let mut graph = Graph::new("loop_restart_fidelity");
+        graph.add_node(make_start_node());
+
+        // Node A has explicit fidelity="truncate" — this should be visible
+        // after restart (not stale edge fidelity from prior iteration).
+        let mut node_a = Node::new("A");
+        node_a
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("truncate".into()));
+        graph.add_node(node_a);
+
+        graph.add_node(Node::new("B"));
+        graph.add_node(make_exit_node());
+
+        graph.add_edge(Edge::new("Start", "A"));
+        graph.add_edge(Edge::new("A", "B"));
+
+        // Loop restart edge with fidelity="full" — this is the stale data
+        let mut e_loop = Edge::new("B", "A");
+        e_loop
+            .attrs
+            .insert("label".into(), AttrValue::String("retry".into()));
+        e_loop
+            .attrs
+            .insert("loop_restart".into(), AttrValue::Boolean(true));
+        e_loop
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("full".into()));
+        graph.add_edge(e_loop);
+
+        let mut e_exit = Edge::new("B", "Exit");
+        e_exit
+            .attrs
+            .insert("label".into(), AttrValue::String("done".into()));
+        graph.add_edge(e_exit);
+
+        let captured = Arc::new(Mutex::new(Vec::new()));
+
+        // Sequence: call 0 = A (iter 1), call 1 = B returns "retry",
+        //           call 2 = A (iter 2), call 3 = B returns "done"
+        let handler = LoopCapturingHandler {
+            captured: captured.clone(),
+            outcomes: Mutex::new(vec![
+                Outcome::success(),
+                {
+                    let mut o = Outcome::success();
+                    o.preferred_label = "retry".to_string();
+                    o
+                },
+                Outcome::success(),
+                {
+                    let mut o = Outcome::success();
+                    o.preferred_label = "done".to_string();
+                    o
+                },
+            ]),
+            call_count: Mutex::new(0),
+        };
+
+        let mut config = EngineConfig::new();
+        config.skip_validation = true;
+        config.registry.register(HandlerType::Codergen, handler);
+
+        crate::engine::run_with_context(&graph, config, Context::new()).await?;
+
+        let entries = captured
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone();
+
+        // Find the second visit to node A (after loop restart).
+        // entries[0] = A (first iteration), entries[2] = A (second iteration)
+        let second_a = entries
+            .iter()
+            .filter(|(id, _, _)| id == "A")
+            .nth(1)
+            .expect("node A should have been executed twice (loop restart)");
+
+        // After loop restart, LoopState::new() sets last_selected_edge=None,
+        // so node A's fidelity should come from the node attribute ("truncate"),
+        // NOT from the stale loop_restart edge fidelity ("full").
+        assert_eq!(
+            second_a.1.as_deref(),
+            Some("truncate"),
+            "after loop restart, node A should resolve fidelity from node attribute ('truncate'), \
+             not from stale loop_restart edge fidelity ('full')"
+        );
+        assert_eq!(
+            second_a.2.as_deref(),
+            None,
+            "after loop restart, node A should have no thread_id since fidelity is not 'full'"
         );
 
         Ok(())
