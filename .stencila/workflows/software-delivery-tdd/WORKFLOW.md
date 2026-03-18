@@ -270,8 +270,8 @@ questions:
     question: Is the completed slice acceptable?
     type: single-select
     options:
-      - label: Accept
       - label: Accept and Commit
+      - label: Accept
       - label: Revise
     store: human.decision
 
