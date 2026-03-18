@@ -87,6 +87,7 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
      - they are small and closely related enough that one Red-Green-Refactor cycle remains tractable
      - combining them is likely to reduce workflow overhead materially relative to doing them one-by-one
    - Stop combining when adding another slice would make the execution unit too broad, too risky, cross a package or subsystem boundary, or obscure a meaningful review checkpoint
+    - When synthesizing scope and acceptance criteria for the selected unit, preserve documentation or other non-test deliverables from the plan, but do not frame them as implying mandatory unit/integration tests; downstream stages may satisfy them through implementation, review notes, or explicit existence checks instead of Red-phase tests
    - If all slices are completed, go to step 8
 
 6. Validate package references against the codebase:

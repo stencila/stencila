@@ -36,6 +36,8 @@ The tests must:
 - Fail because the code under test does not exist or does not yet behave correctly
 - Be minimal — test only what the slice requires, not more
 
+Not every acceptance criterion should become an automated unit or integration test. If a slice includes documentation, comments, commit-message, changelog, release-note, or other non-executable deliverables, do **not** create tests that inspect source files merely to assert those artifacts exist. Those criteria should instead be treated as implementation or review obligations to be satisfied by the implementation/refactor/human-review stages. Only write automated tests for executable behavior or other machine-checkable product behavior where such tests are a natural fit.
+
 ## Required Inputs
 
 This skill requires the following information to operate:
@@ -132,13 +134,18 @@ If no existing tests are found in the package or its siblings, consult `referenc
 
 For each acceptance criterion in the slice:
 
-- Derive one or more test cases that verify the criterion
+- First classify the criterion:
+  - **Executable behavior**: runtime behavior, return values, side effects, errors, serialization, protocol behavior, CLI output, API contracts, UI behavior that is already tested in the codebase, or other behavior naturally verified by automated tests
+  - **Non-test deliverable**: documentation, doc comments, README text, examples, migration notes, changelog updates, naming cleanup, manual review checkpoints, or other artifacts better verified by inspection than by tests
+- Derive one or more test cases only for **executable behavior** criteria
+- Do **not** write tests that read source files, generated files, Markdown files, or comments solely to prove documentation or prose was added. For example, if a criterion says to add doc strings, mark that criterion as a non-test deliverable rather than creating a test that opens a Rust source file and asserts `///` lines exist
 - Each test should be focused: one logical assertion per test function (though multiple `assert` calls are fine if they verify the same behavior)
 - Name tests descriptively, following the naming conventions discovered in Step 3:
   - Good: `test_parse_returns_malformed_token_error_for_empty_string`
   - Bad: `test1`, `test_parse`
 - Include both positive cases (expected behavior) and negative cases (error handling, edge cases) when the acceptance criteria require them
-- If the slice has N acceptance criteria, aim for at least N test cases — more if a criterion has multiple interesting inputs
+- For the subset of acceptance criteria that are executable behavior, aim for at least one test case per criterion — more if a criterion has multiple interesting inputs
+- Keep a short internal mapping of which criteria are test-covered versus intentionally left for implementation/review because they are non-test deliverables
 
 ### 6. Write the test files
 
@@ -170,6 +177,7 @@ Output a clear summary including:
 - **Test file paths** — the list of test files created or modified
 - **Test command** — the specific command to run only these tests (e.g., `cargo test -p crate-name`, `pytest tests/test_specific.py`, `npm test -- --testPathPattern=specific`)
 - Which acceptance criteria each test covers
+- Which acceptance criteria were intentionally **not** converted into tests because they are non-test deliverables (for example documentation requirements), and a short reason for each
 - Expected failure mode (why the tests fail)
 - Any ambiguities encountered in the acceptance criteria
 
@@ -189,6 +197,8 @@ See:
 - **Tests need fixtures or setup**: If the acceptance criteria require test data, mock objects, or setup code, create minimal fixtures following the package's existing fixture patterns. Do not create elaborate fixture infrastructure beyond what the tests need.
 - **Slice targets code across multiple packages**: Write tests in each relevant package following that package's conventions. Report all test file paths and construct a combined test command.
 - **Acceptance criteria are vague**: Derive the most concrete tests possible from the criteria. Add a comment in the test file noting which criterion is vague and what interpretation was used. Flag the ambiguity in the summary. If the ambiguity is severe enough to risk wasted effort, use `ask_user` to request clarification before writing tests.
+- **Acceptance criteria mix behavior and documentation**: Write tests only for the behavioral portion. Explicitly list the documentation-related criteria in the summary as implementation/review obligations, not missing coverage.
+- **A criterion appears machine-checkable but would produce a brittle or silly test**: Prefer not to write the test when it only validates the presence of prose, comments, formatting, or source layout. Call this out in the summary rather than forcing a literal red-phase artifact.
 - **Implementation partially exists**: If some of the code under test already exists (perhaps from a previous slice), write tests that import existing code correctly and only fail for the parts that are new. Verify that existing tests still pass.
 - **Test file already exists at the target path**: Read the existing file and extend it rather than overwriting. Add new test functions alongside existing ones. Do not remove or modify existing tests unless feedback specifically requests it.
 - **Cannot determine test command**: If the project uses a non-standard test runner or build system, use `grep` to search for test scripts in `Makefile`, `package.json`, `pyproject.toml`, CI configuration, or similar files. Report whatever command is most appropriate for running the specific tests written.

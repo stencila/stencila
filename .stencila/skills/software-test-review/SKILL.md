@@ -34,6 +34,8 @@ This skill does not write or modify any code or test files. It only reads, evalu
 
 The review answers one central question: **Are these tests good enough to drive the Green phase of implementation?** Tests that are accepted should be a reliable specification of the slice's expected behavior. Tests that need revision should come back with specific, actionable feedback so the test-creation agent can fix them efficiently.
 
+The reviewer must distinguish between acceptance criteria that should drive automated tests and criteria that are better satisfied by implementation or human inspection. Documentation requirements, doc comments, README edits, changelog entries, and similar non-executable deliverables are usually **not** reasons to demand source-inspecting unit tests. Their absence from the test suite is not automatically a coverage gap.
+
 ## Required Inputs
 
 This skill requires the following information to operate:
@@ -110,18 +112,23 @@ Independently discover the codebase's test conventions to evaluate conformance. 
 
 For each acceptance criterion:
 
-- Determine whether at least one test directly verifies the criterion
+- First classify the criterion as either:
+  - **Test-appropriate executable behavior** — behavior that should reasonably be verified by automated tests
+  - **Non-test deliverable** — documentation, comments, prose updates, manual review items, naming cleanup, or similar requirements better checked outside the automated test suite
+- Determine whether at least one test directly verifies each **test-appropriate executable behavior** criterion
 - Check that the test's assertion actually exercises the criterion, not just a superficially related behavior
-- Flag any acceptance criteria that have no corresponding test
+- Flag any **test-appropriate executable behavior** criteria that have no corresponding test
+- Do **not** mark a documentation-only or other non-test-deliverable criterion as missing merely because there is no automated test for it
+- Flag tests that read source files, comments, or documentation solely to prove prose was added as an inappropriate testing strategy unless the repository already has a strong convention for such checks and the criterion explicitly calls for them
 - Flag tests that do not map to any acceptance criterion (over-testing is a mild concern; missing coverage is a serious one)
 
 Produce a coverage matrix:
 
 | Acceptance Criterion | Covered By | Status |
 |---|---|---|
-| Criterion text | `test_function_name` | ✅ Covered / ❌ Missing / ⚠️ Weak |
+| Criterion text | `test_function_name` | ✅ Covered / ❌ Missing / ⚠️ Weak / ➖ Non-test deliverable |
 
-A criterion is **Weak** if a test exists but does not adequately verify the criterion (e.g., it asserts the wrong property, uses a trivial input, or only tests the happy path when the criterion includes error handling).
+A criterion is **Weak** if a test exists but does not adequately verify the criterion (e.g., it asserts the wrong property, uses a trivial input, or only tests the happy path when the criterion includes error handling). A criterion is **Non-test deliverable** when it is better satisfied by implementation and review than by an automated test.
 
 ### 6. Evaluate codebase convention conformance
 
@@ -152,6 +159,7 @@ Assess each test across these dimensions:
 - Assertions should test the right property (return value, side effect, error type — whatever the criterion requires)
 - Avoid tests that assert only that code runs without error unless that is the specific criterion
 - Check for over-assertion: testing internal implementation details that may change creates brittle tests
+- Treat tests that inspect source files or comments only to confirm documentation was written as brittle and generally inappropriate for TDD; normally raise this as at least a Medium-severity quality issue
 
 #### 7c. Isolation
 
@@ -198,13 +206,13 @@ Follow the Report Format below.
 
 Recommend **Accept** when:
 
-- All acceptance criteria are covered by at least one test (no ❌ Missing in the coverage matrix)
+- All test-appropriate executable acceptance criteria are covered by at least one test (no ❌ Missing in the coverage matrix for criteria that should be tested)
 - There are no High-severity findings
 - Red-phase failures (if available) indicate correctly missing implementation, not test bugs
 
 Recommend **Revise** when:
 
-- Any acceptance criterion is missing test coverage, OR
+- Any test-appropriate executable acceptance criterion is missing test coverage, OR
 - Any High-severity finding exists (test bugs, syntax errors, serious quality problems), OR
 - Red-phase failures indicate test defects rather than missing implementation
 
@@ -244,7 +252,7 @@ For each finding:
 Severity guidelines:
 
 - **High**: Missing acceptance-criteria coverage, test bugs, syntax/compilation errors, tests that pass when they should fail, tests that fail for the wrong reason
-- **Medium**: Convention violations, weak assertions, poor naming, missing edge-case tests that the criteria imply, tests that over-assert on implementation details
+- **Medium**: Convention violations, weak assertions, poor naming, missing edge-case tests that the criteria imply, tests that over-assert on implementation details, tests that verify documentation or comments by reading source files when inspection would be more appropriate
 - **Low**: Style inconsistencies, minor naming improvements, opportunities to simplify setup, tests that go slightly beyond slice scope
 
 ### Recommendations
@@ -338,7 +346,9 @@ Review:
 - **Test files do not exist**: If the listed test files cannot be found, recommend Revise immediately with a clear finding that the test files are missing.
 - **No existing tests in the codebase for convention discovery**: Note that convention conformance cannot be assessed. Evaluate tests on intrinsic quality dimensions only. Do not penalize convention deviations when no conventions could be discovered.
 - **Acceptance criteria are vague**: Interpret the criteria as concretely as possible and evaluate coverage against that interpretation. Note which criteria were ambiguous and what interpretation was used. If the vagueness makes it impossible to judge coverage, flag this as a finding but do not automatically recommend Revise — the tests may be reasonable given the available information.
+- **Acceptance criteria include documentation or prose requirements**: Mark those rows in the coverage matrix as `➖ Non-test deliverable` unless the project already has an established automated check for them and the criterion clearly intends that. Do not recommend Revise solely because there is no unit test asserting docs exist.
 - **Tests intentionally pass during Red phase**: Some tests in a slice that extends existing code may pass because the existing code already satisfies part of the criterion. If the slice scope explains this, note it as acceptable. If it is unexpected, flag it for scrutiny.
 - **Very large test files**: For test files with many tests, focus the review on the tests relevant to the current slice's acceptance criteria. Existing tests in the file that predate the current slice are outside the review scope.
 - **Multiple test files across packages**: Review each file against its own package's conventions. Produce a single unified report covering all files.
 - **Test creation agent added tests beyond acceptance criteria**: Mild over-testing is acceptable. Flag it as Low severity only if the extra tests risk confusion or maintenance burden. Do not recommend Revise solely for minor over-testing.
+- **Tests were added only to prove docs exist**: Recommend Revise unless there is an explicit repository convention or plan requirement for an automated docs-presence check. Prefer feedback telling the creator to remove those tests and leave the documentation requirement to implementation and human review.
