@@ -11,8 +11,10 @@ use crate::context::Context;
 use crate::edge_selection::select_edge;
 use crate::error::{AttractorError, AttractorResult};
 use crate::events::PipelineEvent;
-use crate::graph::Graph;
+use crate::fidelity::{resolve_fidelity, resolve_thread_id};
+use crate::graph::{AttrValue, Graph, Node};
 use crate::retry::{build_retry_policy, execute_with_retry};
+use crate::types::FidelityMode;
 use crate::types::{HandlerType, Outcome, StageStatus};
 
 use super::EngineConfig;
@@ -29,6 +31,26 @@ struct LoopState {
     node_retries: IndexMap<String, u32>,
     stage_index: usize,
     last_outcome: Outcome,
+    /// The (from, to) node IDs of the last edge selected by `advance()`.
+    /// Used to resolve fidelity and `thread_id` from edge attributes before
+    /// executing the next node.
+    last_selected_edge: Option<(String, String)>,
+}
+
+impl LoopState {
+    /// Create fresh state for a new (non-resumed) run starting at the given node.
+    fn new(start_node_id: String) -> Self {
+        Self {
+            current_node_id: start_node_id,
+            completed_nodes: Vec::new(),
+            node_outcomes: IndexMap::new(),
+            node_statuses: IndexMap::new(),
+            node_retries: IndexMap::new(),
+            stage_index: 0,
+            last_outcome: Outcome::success(),
+            last_selected_edge: None,
+        }
+    }
 }
 
 /// Run the core traversal loop with a pre-created context.
@@ -50,16 +72,7 @@ pub(crate) async fn run_loop_with_context(
         pipeline_name: graph.name.clone(),
     });
 
-    let state = LoopState {
-        current_node_id: start_node.id.clone(),
-        completed_nodes: Vec::new(),
-        node_outcomes: IndexMap::new(),
-        node_statuses: IndexMap::new(),
-        node_retries: IndexMap::new(),
-        stage_index: 0,
-        last_outcome: Outcome::success(),
-    };
-
+    let state = LoopState::new(start_node.id.clone());
     execute_loop(graph, config, context, state).await
 }
 
@@ -75,16 +88,7 @@ pub(crate) async fn run_loop(graph: &Graph, config: EngineConfig) -> AttractorRe
         pipeline_name: graph.name.clone(),
     });
 
-    let state = LoopState {
-        current_node_id: start_node.id.clone(),
-        completed_nodes: Vec::new(),
-        node_outcomes: IndexMap::new(),
-        node_statuses: IndexMap::new(),
-        node_retries: IndexMap::new(),
-        stage_index: 0,
-        last_outcome: Outcome::success(),
-    };
-
+    let state = LoopState::new(start_node.id.clone());
     execute_loop(graph, config, context, state).await
 }
 
@@ -169,6 +173,7 @@ pub(crate) async fn resume_loop(
         node_retries,
         stage_index,
         last_outcome: Outcome::success(),
+        last_selected_edge: None,
     };
 
     execute_loop(graph, config, context, state).await
@@ -226,7 +231,7 @@ fn clone_runtime_context_for_restart(previous: &Context) -> Context {
 fn populate_context(graph: &Graph, context: &Context) {
     let goal = graph
         .get_graph_attr("goal")
-        .map(super::super::graph::AttrValue::to_string_value)
+        .map(AttrValue::to_string_value)
         .unwrap_or_default();
 
     if !goal.is_empty() {
@@ -315,6 +320,11 @@ async fn execute_loop(
             stage_index: state.stage_index,
             handler_type: node.handler_type().to_string(),
         });
+
+        // Resolve fidelity and thread_id from the incoming edge (§5.4)
+        // and store as context keys before execution so handlers can
+        // observe them.
+        apply_edge_fidelity(node, state.last_selected_edge.as_ref(), graph, &context);
 
         let outcome = execute_node(node, graph, &config, &context, state.stage_index).await?;
 
@@ -420,12 +430,7 @@ async fn execute_loop(
                 let new_context = init_run(graph, Some(&context));
                 clear_restart_transients(&new_context);
                 context = new_context;
-                state.completed_nodes.clear();
-                state.node_outcomes.clear();
-                state.node_statuses.clear();
-                state.node_retries.clear();
-                state.stage_index = 0;
-                state.current_node_id = target;
+                state = LoopState::new(target);
             }
             Some(AdvanceResult::End) | None => {
                 config.emitter.emit(PipelineEvent::PipelineCompleted {
@@ -440,7 +445,7 @@ async fn execute_loop(
 
 /// Execute a node through its handler with retry.
 async fn execute_node(
-    node: &crate::graph::Node,
+    node: &Node,
     graph: &Graph,
     config: &EngineConfig,
     context: &Context,
@@ -476,7 +481,7 @@ async fn execute_node(
 /// The optional `next_node_id` is written into the checkpoint so that
 /// resume routing is unambiguous even in branching graphs (§5.3).
 fn record_and_checkpoint(
-    node: &crate::graph::Node,
+    node: &Node,
     outcome: &Outcome,
     context: &Context,
     state: &mut LoopState,
@@ -550,9 +555,33 @@ fn resolve_gate_retry(
     get_retry_target(failed_node, graph)
 }
 
+/// Resolve fidelity mode and thread ID from the last selected edge and
+/// write them into the context as `internal.fidelity` / `internal.thread_id`.
+fn apply_edge_fidelity(
+    node: &Node,
+    last_selected_edge: Option<&(String, String)>,
+    graph: &Graph,
+    context: &Context,
+) {
+    let incoming_edge = last_selected_edge.and_then(|(from, to)| {
+        graph
+            .incoming_edges(to)
+            .into_iter()
+            .find(|e| e.from == *from)
+    });
+    let fidelity = resolve_fidelity(node, incoming_edge, graph);
+    context.set("internal.fidelity", Value::String(fidelity.to_string()));
+
+    if fidelity == FidelityMode::Full {
+        let previous_node_id = last_selected_edge.map_or("", |(from, _)| from.as_str());
+        let thread_id = resolve_thread_id(node, incoming_edge, graph, previous_node_id);
+        context.set("internal.thread_id", Value::String(thread_id));
+    }
+}
+
 /// Route a failed node to the next target, if possible.
 fn route_failure(
-    node: &crate::graph::Node,
+    node: &Node,
     graph: &Graph,
     outcome: &Outcome,
     context: &Context,
@@ -573,7 +602,7 @@ enum AdvanceResult {
 
 /// Select the next edge and advance.
 fn advance(
-    node: &crate::graph::Node,
+    node: &Node,
     outcome: &Outcome,
     context: &Context,
     graph: &Graph,
@@ -600,9 +629,11 @@ fn advance(
         return AdvanceResult::End;
     };
 
+    state.last_selected_edge = Some((edge.from.clone(), edge.to.clone()));
+
     let is_loop_restart = edge
         .get_attr("loop_restart")
-        .and_then(super::super::graph::AttrValue::as_bool)
+        .and_then(AttrValue::as_bool)
         .unwrap_or(false);
 
     if is_loop_restart {
@@ -611,4 +642,290 @@ fn advance(
 
     state.current_node_id.clone_from(&edge.to);
     AdvanceResult::Continue
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
+
+    use async_trait::async_trait;
+
+    use crate::Edge;
+    use crate::handler::Handler;
+
+    use super::*;
+
+    /// Fidelity and `thread_id` captured from context, keyed by node ID.
+    type CapturedFidelity = HashMap<String, (Option<String>, Option<String>)>;
+
+    /// A test handler that captures `internal.fidelity` and `internal.thread_id`
+    /// from the context at execution time, keyed by node ID.
+    struct CapturingHandler {
+        captured: Arc<Mutex<CapturedFidelity>>,
+    }
+
+    #[async_trait]
+    impl Handler for CapturingHandler {
+        async fn execute(
+            &self,
+            node: &Node,
+            context: &Context,
+            _graph: &Graph,
+        ) -> AttractorResult<Outcome> {
+            let fidelity = context
+                .get("internal.fidelity")
+                .and_then(|v| v.as_str().map(String::from));
+            let thread_id = context
+                .get("internal.thread_id")
+                .and_then(|v| v.as_str().map(String::from));
+            self.captured
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .insert(node.id.clone(), (fidelity, thread_id));
+            Ok(Outcome::success())
+        }
+    }
+
+    /// Build a minimal Start → A → B → Exit graph with a custom A→B edge.
+    fn build_linear_graph(name: &str, edge_ab: Edge) -> Graph {
+        let mut graph = Graph::new(name);
+
+        let mut start = Node::new("Start");
+        start
+            .attrs
+            .insert("shape".into(), AttrValue::String(Graph::START_SHAPE.into()));
+        graph.add_node(start);
+
+        graph.add_node(Node::new("A"));
+        graph.add_node(Node::new("B"));
+
+        let mut exit = Node::new("Exit");
+        exit.attrs
+            .insert("shape".into(), AttrValue::String(Graph::EXIT_SHAPE.into()));
+        graph.add_node(exit);
+
+        graph.add_edge(Edge::new("Start", "A"));
+        graph.add_edge(edge_ab);
+        graph.add_edge(Edge::new("B", "Exit"));
+
+        graph
+    }
+
+    /// Run a graph with a `CapturingHandler` and return the captured fidelity map.
+    async fn run_capturing(graph: &Graph) -> AttractorResult<CapturedFidelity> {
+        let captured = Arc::new(Mutex::new(HashMap::new()));
+
+        let handler = CapturingHandler {
+            captured: captured.clone(),
+        };
+
+        let mut config = EngineConfig::new();
+        config.skip_validation = true;
+        config.registry.register(HandlerType::Codergen, handler);
+
+        crate::engine::run_with_context(graph, config, Context::new()).await?;
+
+        let map = captured
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone();
+        Ok(map)
+    }
+
+    #[tokio::test]
+    async fn default_fidelity_is_compact_and_thread_id_is_absent() -> AttractorResult<()> {
+        let graph = build_linear_graph("no_fidelity_test", Edge::new("A", "B"));
+        let map = run_capturing(&graph).await?;
+
+        // Node A: traversed from Start with no fidelity attributes.
+        let (fidelity_a, thread_id_a) = map.get("A").expect("node A should have been executed");
+        assert_eq!(
+            fidelity_a.as_deref(),
+            Some("compact"),
+            "internal.fidelity should default to 'compact' for node A"
+        );
+        assert_eq!(
+            thread_id_a.as_deref(),
+            None,
+            "internal.thread_id should be absent when fidelity is not 'full' (node A)"
+        );
+
+        // Node B: traversed from A with no fidelity attributes.
+        let (fidelity_b, thread_id_b) = map.get("B").expect("node B should have been executed");
+        assert_eq!(
+            fidelity_b.as_deref(),
+            Some("compact"),
+            "internal.fidelity should default to 'compact' for node B"
+        );
+        assert_eq!(
+            thread_id_b.as_deref(),
+            None,
+            "internal.thread_id should be absent when fidelity is not 'full' (node B)"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn edge_fidelity_and_thread_id_propagate_to_context() -> AttractorResult<()> {
+        let mut edge_ab = Edge::new("A", "B");
+        edge_ab
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("full".into()));
+        edge_ab
+            .attrs
+            .insert("thread_id".into(), AttrValue::String("t1".into()));
+
+        let graph = build_linear_graph("fidelity_test", edge_ab);
+        let map = run_capturing(&graph).await?;
+
+        // After traversing edge A→B (which has fidelity="full", thread_id="t1"),
+        // node B should see these values in the context.
+        let (fidelity, thread_id) = map.get("B").expect("node B should have been executed");
+        assert_eq!(
+            fidelity.as_deref(),
+            Some("full"),
+            "internal.fidelity should be 'full' for node B"
+        );
+        assert_eq!(
+            thread_id.as_deref(),
+            Some("t1"),
+            "internal.thread_id should be 't1' for node B"
+        );
+
+        Ok(())
+    }
+
+    /// §5.4 edge-level fidelity override: when node B has `fidelity="truncate"`
+    /// but the incoming edge A→B has `fidelity="full"`, the edge wins.
+    ///
+    /// This tests the precedence chain (edge > node > graph > default) through
+    /// the engine's `last_selected_edge` mechanism, not just the pure
+    /// `resolve_fidelity` function.
+    #[tokio::test]
+    async fn edge_fidelity_overrides_node_fidelity_via_last_selected_edge() -> AttractorResult<()> {
+        // Edge A→B overrides with fidelity="full"
+        let mut edge_ab = Edge::new("A", "B");
+        edge_ab
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("full".into()));
+
+        let mut graph = build_linear_graph("edge_override_node_fidelity", edge_ab);
+
+        // Node B has its own fidelity="truncate"
+        graph
+            .get_node_mut("B")
+            .expect("node B exists")
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("truncate".into()));
+
+        let map = run_capturing(&graph).await?;
+
+        // Node B: the edge fidelity="full" must override node fidelity="truncate"
+        let (fidelity_b, thread_id_b) = map.get("B").expect("node B should have been executed");
+        assert_eq!(
+            fidelity_b.as_deref(),
+            Some("full"),
+            "edge fidelity='full' should override node fidelity='truncate' for node B"
+        );
+        // With fidelity="full" and no explicit thread_id on node or edge,
+        // thread_id falls back to the previous node ID ("A") per §5.4 step 5.
+        assert_eq!(
+            thread_id_b.as_deref(),
+            Some("A"),
+            "thread_id should fall back to previous node ID 'A' when no explicit thread_id is set"
+        );
+
+        Ok(())
+    }
+
+    /// §5.4 edge-level fidelity override with explicit `thread_id` on the edge:
+    /// when the edge carries both `fidelity="full"` and `thread_id="edge_thread"`,
+    /// those values must appear in the context — even if the node has a different
+    /// fidelity and its own `thread_id`.
+    #[tokio::test]
+    async fn edge_fidelity_full_with_edge_thread_id_overrides_node() -> AttractorResult<()> {
+        // Edge A→B carries fidelity="full" and thread_id="edge_thread"
+        let mut edge_ab = Edge::new("A", "B");
+        edge_ab
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("full".into()));
+        edge_ab
+            .attrs
+            .insert("thread_id".into(), AttrValue::String("edge_thread".into()));
+
+        let mut graph = build_linear_graph("edge_fidelity_thread_override", edge_ab);
+
+        // Node B has fidelity="compact" and thread_id="node_thread"
+        let node_b = graph.get_node_mut("B").expect("node B exists");
+        node_b
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("compact".into()));
+        node_b
+            .attrs
+            .insert("thread_id".into(), AttrValue::String("node_thread".into()));
+
+        let map = run_capturing(&graph).await?;
+
+        let (fidelity_b, thread_id_b) = map.get("B").expect("node B should have been executed");
+        assert_eq!(
+            fidelity_b.as_deref(),
+            Some("full"),
+            "edge fidelity='full' should override node fidelity='compact'"
+        );
+        // thread_id resolution §5.4: node thread_id (step 1) has highest priority,
+        // so even though the edge also has thread_id="edge_thread", the node's
+        // thread_id="node_thread" wins.
+        assert_eq!(
+            thread_id_b.as_deref(),
+            Some("node_thread"),
+            "node thread_id should take priority over edge thread_id per §5.4 step 1"
+        );
+
+        Ok(())
+    }
+
+    /// §5.4 precedence: graph-level `default_fidelity` is overridden by
+    /// edge-level fidelity. Node B has no fidelity, graph has
+    /// `default_fidelity="summary:high`", but edge A→B has fidelity="full".
+    #[tokio::test]
+    async fn edge_fidelity_overrides_graph_default() -> AttractorResult<()> {
+        let mut edge_ab = Edge::new("A", "B");
+        edge_ab
+            .attrs
+            .insert("fidelity".into(), AttrValue::String("full".into()));
+
+        let mut graph = build_linear_graph("edge_override_graph_default", edge_ab);
+
+        graph.graph_attrs.insert(
+            "default_fidelity".into(),
+            AttrValue::String("summary:high".into()),
+        );
+
+        let map = run_capturing(&graph).await?;
+
+        // Node A has no edge fidelity and no node fidelity — should use graph default
+        let (fidelity_a, _) = map.get("A").expect("node A should have been executed");
+        assert_eq!(
+            fidelity_a.as_deref(),
+            Some("summary:high"),
+            "node A should inherit graph default_fidelity='summary:high'"
+        );
+
+        // Node B's incoming edge has fidelity="full" — edge overrides graph default
+        let (fidelity_b, thread_id_b) = map.get("B").expect("node B should have been executed");
+        assert_eq!(
+            fidelity_b.as_deref(),
+            Some("full"),
+            "edge fidelity='full' should override graph default_fidelity='summary:high'"
+        );
+        assert_eq!(
+            thread_id_b.as_deref(),
+            Some("A"),
+            "thread_id should fall back to previous node ID 'A'"
+        );
+
+        Ok(())
+    }
 }
