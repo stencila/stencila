@@ -2,17 +2,31 @@
 //!
 //! Provides [`SessionPool`], an `Arc<Mutex<…>>`-backed map of session
 //! entries keyed by thread ID.
+//!
+//! # Best practices
+//!
+//! - Use an explicit `thread_id` attribute on nodes inside loops so that
+//!   the same session is reused across iterations rather than relying on
+//!   the fallback (previous-node) thread ID which may be unstable.
+//! - Nodes that share a `thread_id` should reference the same agent so
+//!   the conversation history remains coherent.
+//! - Set `max_session_turns` on long-running loops to bound the number
+//!   of turns accumulated on a single session and avoid unbounded
+//!   context growth.
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 #[derive(Debug, Clone, Default)]
+/// A single pooled session entry, holding the agent name and the
+/// cumulative turn count for the session.
 pub struct SessionEntry {
     pub agent_name: String,
     pub turn_count: u64,
 }
 
 #[derive(Debug, Clone, Default)]
+/// Thread-safe pool of agent sessions keyed by thread ID.
 pub struct SessionPool {
     inner: Arc<Mutex<HashMap<String, SessionEntry>>>,
 }
@@ -27,25 +41,30 @@ impl SessionPool {
         self.inner.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
+    /// Remove and return the session entry for `thread_id`, if present.
     pub fn take(&self, thread_id: &str) -> Option<SessionEntry> {
         self.lock_entries().remove(thread_id)
     }
 
+    /// Insert (or replace) a session entry for `thread_id`.
     pub fn put_back(&self, thread_id: String, entry: SessionEntry) {
         self.lock_entries().insert(thread_id, entry);
     }
 
+    /// Return the current turn count for `thread_id`, if the entry exists.
     pub fn turn_count(&self, thread_id: &str) -> Option<u64> {
         self.lock_entries()
             .get(thread_id)
             .map(|entry| entry.turn_count)
     }
 
+    /// Remove and return all session entries, leaving the pool empty.
     pub fn drain(&self) -> HashMap<String, SessionEntry> {
         std::mem::take(&mut *self.lock_entries())
     }
 }
 
+/// RAII guard that returns a [`SessionEntry`] to its [`SessionPool`] on drop.
 #[derive(Debug)]
 pub struct SessionGuard {
     pool: SessionPool,
@@ -54,6 +73,7 @@ pub struct SessionGuard {
 }
 
 impl SessionGuard {
+    /// Create a guard that will return `entry` to `pool` under `thread_id` when dropped.
     pub fn from_pool(pool: SessionPool, thread_id: String, entry: SessionEntry) -> Self {
         Self {
             pool,
@@ -62,6 +82,7 @@ impl SessionGuard {
         }
     }
 
+    /// Prevent this guard from returning the entry to the pool on drop.
     pub fn discard(&mut self) {
         self.entry.take();
     }

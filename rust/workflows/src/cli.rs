@@ -289,7 +289,7 @@ impl Validate {
                 "⚠️  Workflow `{}` has {} warning{}:",
                 workflow.name,
                 warnings.len(),
-                if warnings.len() > 1 { "s" } else { "" }
+                plural_suffix(warnings.len())
             );
             for warning in &warnings {
                 message!("  - {}", warning);
@@ -304,7 +304,7 @@ impl Validate {
                     "🎉 Workflow `{}` is valid with {} warning{}",
                     workflow.name,
                     warnings.len(),
-                    if warnings.len() > 1 { "s" } else { "" }
+                    plural_suffix(warnings.len())
                 );
             }
             Ok(())
@@ -313,7 +313,7 @@ impl Validate {
                 "❌ Workflow `{}` has {} error{}:",
                 workflow.name,
                 errors.len(),
-                if errors.len() > 1 { "s" } else { "" }
+                plural_suffix(errors.len())
             );
             for error in &errors {
                 message!("  - {}", error);
@@ -544,23 +544,7 @@ impl Run {
         let elapsed = started.elapsed();
 
         message!("");
-        let time_str = format_elapsed(elapsed);
-        if outcome.status.is_success() {
-            message!("🎉 Workflow `{}` completed in {}", wf.name, time_str);
-        } else {
-            message!("❌ Workflow `{}` failed in {}", wf.name, time_str);
-        }
-
-        if !outcome.notes.is_empty() {
-            message!("   Notes: {}", outcome.notes);
-        }
-        if !outcome.failure_reason.is_empty() {
-            message!("   Failure: {}", outcome.failure_reason);
-        }
-
-        if !outcome.status.is_success() {
-            exit(1);
-        }
+        report_outcome(&wf.name, &outcome, elapsed);
 
         Ok(())
     }
@@ -774,28 +758,11 @@ impl Resume {
         let elapsed = started.elapsed();
 
         eprintln!();
-        let time_str = format_elapsed(elapsed);
-
         let workflow_name = run_info
             .as_ref()
             .map(|i| i.workflow_name.as_str())
             .unwrap_or("workflow");
-        if outcome.status.is_success() {
-            message!("🎉 Workflow `{}` completed in {}", workflow_name, time_str);
-        } else {
-            message!("❌ Workflow `{}` failed in {}", workflow_name, time_str);
-        }
-
-        if !outcome.notes.is_empty() {
-            message!("   Notes: {}", outcome.notes);
-        }
-        if !outcome.failure_reason.is_empty() {
-            message!("   Failure: {}", outcome.failure_reason);
-        }
-
-        if !outcome.status.is_success() {
-            exit(1);
-        }
+        report_outcome(workflow_name, &outcome, elapsed);
 
         Ok(())
     }
@@ -871,6 +838,34 @@ impl Discard {
                 );
             }
         }
+    }
+}
+
+fn plural_suffix(count: usize) -> &'static str {
+    if count == 1 { "" } else { "s" }
+}
+
+fn report_outcome(
+    workflow_name: &str,
+    outcome: &stencila_attractor::types::Outcome,
+    elapsed: std::time::Duration,
+) {
+    let time_str = format_elapsed(elapsed);
+    if outcome.status.is_success() {
+        message!("🎉 Workflow `{}` completed in {}", workflow_name, time_str);
+    } else {
+        message!("❌ Workflow `{}` failed in {}", workflow_name, time_str);
+    }
+
+    if !outcome.notes.is_empty() {
+        message!("   Notes: {}", outcome.notes);
+    }
+    if !outcome.failure_reason.is_empty() {
+        message!("   Failure: {}", outcome.failure_reason);
+    }
+
+    if !outcome.status.is_success() {
+        exit(1);
     }
 }
 

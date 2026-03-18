@@ -2,6 +2,18 @@
 //!
 //! Determines the context fidelity mode for a node based on the
 //! 4-level precedence chain: edge → node → graph → default (`compact`).
+//!
+//! When fidelity is `full`, a `thread_id` is resolved via a 5-step
+//! priority chain so that sessions can be reused across loop iterations.
+//!
+//! # Best practices
+//!
+//! - Use an explicit `thread_id` attribute on nodes inside loops so that
+//!   the thread identity is stable across iterations.
+//! - Nodes sharing a `thread_id` should reference the same agent to keep
+//!   conversation history coherent.
+//! - Set `max_session_turns` on long-running loops to cap the number of
+//!   accumulated turns and prevent unbounded context growth.
 
 use crate::graph::{Edge, Graph, Node};
 use crate::types::FidelityMode;

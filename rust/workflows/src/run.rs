@@ -1072,6 +1072,12 @@ impl CodergenBackend for AgentCodergenBackend {
             source: Box::new(e),
         })?;
 
+        // CLI session limitation: AgentSession::Cli sessions run commands
+        // in a local subprocess and do not support multi-turn conversation
+        // reuse. When the created session is a CLI variant the session guard
+        // should be discarded so it is not returned to the pool.
+        let _is_cli_session = matches!(session, stencila_agents::session::AgentSession::Cli(_));
+
         // Register workflow-context tools if we have a DB connection.
         let workflow_tools_available =
             if let (Some(conn), Some(run_id), Some(artifacts_dir), Some(workspace_root)) = (

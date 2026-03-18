@@ -1072,6 +1072,10 @@ fn has_full_fidelity(node: &crate::graph::Node) -> bool {
 //     different parallel branches when fidelity="full"
 // ---------------------------------------------------------------------------
 
+/// Validates that the same `thread_id` does not appear in different
+/// parallel branches when `fidelity="full"`. Concurrent branches sharing
+/// a thread ID would cause data races on the pooled session, so this
+/// rule reports an error when it detects the conflict.
 struct ParallelBranchThreadIdRule;
 
 impl LintRule for ParallelBranchThreadIdRule {
