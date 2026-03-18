@@ -34,6 +34,7 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(NestedDynamicFanOutRule),
         Box::new(MismatchedAgentThreadIdRule),
         Box::new(ParallelBranchThreadIdRule),
+        Box::new(ThreadIdWithoutFidelityRule),
     ]
 }
 
@@ -1026,12 +1027,8 @@ impl LintRule for MismatchedAgentThreadIdRule {
         let mut mismatched: HashSet<&str> = HashSet::new();
 
         for node in graph.nodes.values() {
-            if let Some(tid) = node.attrs.get("thread_id").and_then(|v| v.as_str()) {
-                let agent = node
-                    .attrs
-                    .get("agent")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("");
+            if let Some(tid) = node.get_str_attr("thread_id") {
+                let agent = node.get_str_attr("agent").unwrap_or("");
                 match first_agent.entry(tid) {
                     Entry::Vacant(e) => {
                         e.insert(agent);
@@ -1059,6 +1056,14 @@ impl LintRule for MismatchedAgentThreadIdRule {
             })
             .collect()
     }
+}
+
+// ---------------------------------------------------------------------------
+// Helper: check whether a node has fidelity="full"
+// ---------------------------------------------------------------------------
+
+fn has_full_fidelity(node: &crate::graph::Node) -> bool {
+    node.get_str_attr("fidelity").is_some_and(|f| f == "full")
 }
 
 // ---------------------------------------------------------------------------
@@ -1096,26 +1101,17 @@ impl LintRule for ParallelBranchThreadIdRule {
                 let reachable = template_subgraph_nodes(graph, &edge.to);
 
                 for nid in &reachable {
-                    if let Some(n) = graph.get_node(nid) {
-                        let is_full_fidelity = n
-                            .attrs
-                            .get("fidelity")
-                            .and_then(|v| v.as_str())
-                            .is_some_and(|f| f == "full");
-
-                        if !is_full_fidelity {
-                            continue;
-                        }
-
-                        if let Some(tid) = n.attrs.get("thread_id").and_then(|v| v.as_str()) {
-                            match thread_id_branch.entry(tid.to_string()) {
-                                Entry::Vacant(e) => {
-                                    e.insert(branch_idx);
-                                }
-                                Entry::Occupied(e) => {
-                                    if *e.get() != branch_idx {
-                                        conflicting.insert(tid.to_string());
-                                    }
+                    if let Some(n) = graph.get_node(nid)
+                        && has_full_fidelity(n)
+                        && let Some(tid) = n.get_str_attr("thread_id")
+                    {
+                        match thread_id_branch.entry(tid.to_string()) {
+                            Entry::Vacant(e) => {
+                                e.insert(branch_idx);
+                            }
+                            Entry::Occupied(e) => {
+                                if *e.get() != branch_idx {
+                                    conflicting.insert(tid.to_string());
                                 }
                             }
                         }
@@ -1144,5 +1140,39 @@ impl LintRule for ParallelBranchThreadIdRule {
         }
 
         diagnostics
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 21. thread_id_without_fidelity (WARNING) — thread_id has no effect without
+//     fidelity="full"
+// ---------------------------------------------------------------------------
+
+struct ThreadIdWithoutFidelityRule;
+
+impl LintRule for ThreadIdWithoutFidelityRule {
+    fn name(&self) -> &'static str {
+        "thread_id_without_fidelity"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        graph
+            .nodes
+            .values()
+            .filter(|n| n.get_str_attr("thread_id").is_some())
+            .filter(|n| !has_full_fidelity(n))
+            .map(|n| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Warning,
+                message: format!(
+                    "node `{}` has `thread_id` but fidelity is not set to \"full\"; \
+                     thread_id has no effect without fidelity=\"full\"",
+                    n.id
+                ),
+                node_id: Some(n.id.clone()),
+                edge: None,
+                fix: Some("add fidelity=\"full\" or remove thread_id".into()),
+            })
+            .collect()
     }
 }

@@ -1,6 +1,6 @@
 //! Validation and linting for pipeline graphs (§7).
 //!
-//! Provides a diagnostic model, 14 built-in lint rules, and public
+//! Provides a diagnostic model, built-in lint rules, and public
 //! [`validate`] / [`validate_or_raise`] entry points. Custom lint rules
 //! can be registered alongside the built-ins.
 

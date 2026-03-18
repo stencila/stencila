@@ -992,6 +992,111 @@ fn rule_parallel_branch_thread_id_is_registered_in_builtin_rules() {
 }
 
 // ===========================================================================
+// thread_id_without_fidelity (WARNING) — thread_id has no effect without
+// fidelity="full"
+// ===========================================================================
+
+/// AC1: A node with `thread_id` but *no* `fidelity` attribute produces a
+/// WARNING diagnostic from `ThreadIdWithoutFidelityRule`.
+#[test]
+fn rule_thread_id_without_fidelity_no_fidelity_attr() {
+    let mut g = valid_pipeline();
+
+    // Set thread_id on the task node but do *not* set fidelity
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("my_thread"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "thread_id_without_fidelity");
+    assert_eq!(
+        hits.len(),
+        1,
+        "should emit exactly one WARNING when thread_id is set but fidelity is absent: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Warning);
+    assert!(
+        hits[0].message.contains("thread_id"),
+        "warning message should mention thread_id: {}",
+        hits[0].message
+    );
+}
+
+/// AC1 (variant): A node with `thread_id` and `fidelity` set to something other
+/// than `full` (e.g. `compact`) also produces a WARNING.
+#[test]
+fn rule_thread_id_without_fidelity_non_full_fidelity() {
+    let mut g = valid_pipeline();
+
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("my_thread"));
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("compact"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "thread_id_without_fidelity");
+    assert_eq!(
+        hits.len(),
+        1,
+        "should emit WARNING when thread_id is set but fidelity is not full: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Warning);
+}
+
+/// AC3: A node with both `thread_id` and `fidelity="full"` produces no
+/// diagnostic from this rule.
+#[test]
+fn rule_thread_id_with_fidelity_full_no_diagnostic() {
+    let mut g = valid_pipeline();
+
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("my_thread"));
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("full"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "thread_id_without_fidelity");
+    assert!(
+        hits.is_empty(),
+        "thread_id with fidelity=full should produce no diagnostic: {diagnostics:?}"
+    );
+}
+
+/// AC4: A node with neither `thread_id` nor `fidelity` produces no diagnostic
+/// from this rule.
+#[test]
+fn rule_thread_id_without_fidelity_neither_set_no_diagnostic() {
+    let g = valid_pipeline();
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "thread_id_without_fidelity");
+    assert!(
+        hits.is_empty(),
+        "no thread_id and no fidelity should produce no diagnostic: {diagnostics:?}"
+    );
+}
+
+/// AC2: The rule is registered in `builtin_rules()`.
+#[test]
+fn rule_thread_id_without_fidelity_is_registered_in_builtin_rules() {
+    use stencila_attractor::validation::rules::builtin_rules;
+
+    let rules = builtin_rules();
+    let found = rules
+        .iter()
+        .any(|r| r.name() == "thread_id_without_fidelity");
+    assert!(
+        found,
+        "ThreadIdWithoutFidelityRule must be registered in builtin_rules()"
+    );
+}
+
+// ===========================================================================
 // validate collects all diagnostics
 // ===========================================================================
 
