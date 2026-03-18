@@ -864,6 +864,134 @@ fn rule_mismatched_agent_thread_id_is_registered_in_builtin_rules() {
 }
 
 // ===========================================================================
+// parallel_branch_thread_id (ERROR) — same thread_id in different branches
+// ===========================================================================
+
+/// Helper: build a pipeline with a parallel fan-out node that has two branches,
+/// each containing a task node. Returns the graph and the IDs of the two branch
+/// task nodes so callers can set attributes on them.
+fn parallel_two_branch_pipeline() -> Graph {
+    let mut g = Graph::new("test");
+
+    // start → parallel_node → {branch_a_task, branch_b_task} → fan_in → exit
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert("shape".into(), AttrValue::from("Mdiamond"));
+    g.add_node(start);
+
+    let mut par = Node::new("parallel_node");
+    par.attrs
+        .insert("shape".into(), AttrValue::from("component"));
+    g.add_node(par);
+
+    let mut branch_a = Node::new("branch_a_task");
+    branch_a
+        .attrs
+        .insert("prompt".into(), AttrValue::from("do A"));
+    g.add_node(branch_a);
+
+    let mut branch_b = Node::new("branch_b_task");
+    branch_b
+        .attrs
+        .insert("prompt".into(), AttrValue::from("do B"));
+    g.add_node(branch_b);
+
+    let mut fan_in = Node::new("fan_in");
+    fan_in
+        .attrs
+        .insert("shape".into(), AttrValue::from("tripleoctagon"));
+    g.add_node(fan_in);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert("shape".into(), AttrValue::from("Msquare"));
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "parallel_node"));
+    g.add_edge(Edge::new("parallel_node", "branch_a_task"));
+    g.add_edge(Edge::new("parallel_node", "branch_b_task"));
+    g.add_edge(Edge::new("branch_a_task", "fan_in"));
+    g.add_edge(Edge::new("branch_b_task", "fan_in"));
+    g.add_edge(Edge::new("fan_in", "exit"));
+
+    g
+}
+
+#[test]
+fn rule_parallel_branch_thread_id_conflict_emits_error() {
+    let mut g = parallel_two_branch_pipeline();
+
+    // Both branch tasks share thread_id="conflict" with fidelity="full"
+    if let Some(node) = g.get_node_mut("branch_a_task") {
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("full"));
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("conflict"));
+    }
+    if let Some(node) = g.get_node_mut("branch_b_task") {
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("full"));
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("conflict"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "parallel_branch_thread_id");
+    assert_eq!(
+        hits.len(),
+        1,
+        "should emit exactly one ERROR for conflicting thread_id across parallel branches: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Error);
+    assert!(
+        hits[0].message.contains("conflict"),
+        "error message should mention the conflicting thread_id: {}",
+        hits[0].message
+    );
+}
+
+#[test]
+fn rule_parallel_branch_thread_id_distinct_no_diagnostic() {
+    let mut g = parallel_two_branch_pipeline();
+
+    // Each branch task has a *different* thread_id with fidelity="full"
+    if let Some(node) = g.get_node_mut("branch_a_task") {
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("full"));
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("thread_a"));
+    }
+    if let Some(node) = g.get_node_mut("branch_b_task") {
+        node.attrs
+            .insert("fidelity".into(), AttrValue::from("full"));
+        node.attrs
+            .insert("thread_id".into(), AttrValue::from("thread_b"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "parallel_branch_thread_id");
+    assert!(
+        hits.is_empty(),
+        "distinct thread_ids in different branches should produce no diagnostic: {diagnostics:?}"
+    );
+}
+
+#[test]
+fn rule_parallel_branch_thread_id_is_registered_in_builtin_rules() {
+    use stencila_attractor::validation::rules::builtin_rules;
+
+    let rules = builtin_rules();
+    let found = rules
+        .iter()
+        .any(|r| r.name() == "parallel_branch_thread_id");
+    assert!(
+        found,
+        "ParallelBranchThreadIdRule must be registered in builtin_rules()"
+    );
+}
+
+// ===========================================================================
 // validate collects all diagnostics
 // ===========================================================================
 

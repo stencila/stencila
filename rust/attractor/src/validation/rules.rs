@@ -3,7 +3,8 @@
 //! Provides all built-in validation rules covering structural integrity,
 //! condition syntax, stylesheet syntax, and best-practice warnings.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::hash_map::Entry;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use super::{Diagnostic, LintRule, Severity};
 use crate::graph::Graph;
@@ -32,6 +33,7 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(DynamicFanOutMissingFanInRule),
         Box::new(NestedDynamicFanOutRule),
         Box::new(MismatchedAgentThreadIdRule),
+        Box::new(ParallelBranchThreadIdRule),
     ]
 }
 
@@ -839,7 +841,7 @@ impl LintRule for InterviewSpecRule {
 /// of the template subgraph).
 fn template_subgraph_nodes(graph: &Graph, start_id: &str) -> HashSet<String> {
     let mut visited = HashSet::new();
-    let mut queue = std::collections::VecDeque::new();
+    let mut queue = VecDeque::new();
     queue.push_back(start_id.to_string());
 
     while let Some(current) = queue.pop_front() {
@@ -1031,10 +1033,10 @@ impl LintRule for MismatchedAgentThreadIdRule {
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
                 match first_agent.entry(tid) {
-                    std::collections::hash_map::Entry::Vacant(e) => {
+                    Entry::Vacant(e) => {
                         e.insert(agent);
                     }
-                    std::collections::hash_map::Entry::Occupied(e) => {
+                    Entry::Occupied(e) => {
                         if *e.get() != agent {
                             mismatched.insert(tid);
                         }
@@ -1056,5 +1058,91 @@ impl LintRule for MismatchedAgentThreadIdRule {
                 fix: Some("ensure all nodes with the same thread_id use the same agent".into()),
             })
             .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 20. parallel_branch_thread_id (ERROR) — same thread_id must not appear in
+//     different parallel branches when fidelity="full"
+// ---------------------------------------------------------------------------
+
+struct ParallelBranchThreadIdRule;
+
+impl LintRule for ParallelBranchThreadIdRule {
+    fn name(&self) -> &'static str {
+        "parallel_branch_thread_id"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        let mut diagnostics = Vec::new();
+
+        // Find all parallel fan-out nodes (shape = component).
+        for node in graph.nodes.values() {
+            if node.handler_type() != HandlerType::Parallel {
+                continue;
+            }
+
+            let branches = graph.outgoing_edges(&node.id);
+            if branches.len() < 2 {
+                continue;
+            }
+
+            // For each branch, collect thread_ids from nodes with fidelity="full".
+            // Map: thread_id → index of the first branch that contains it.
+            let mut thread_id_branch: HashMap<String, usize> = HashMap::new();
+            let mut conflicting: HashSet<String> = HashSet::new();
+
+            for (branch_idx, edge) in branches.iter().enumerate() {
+                let reachable = template_subgraph_nodes(graph, &edge.to);
+
+                for nid in &reachable {
+                    if let Some(n) = graph.get_node(nid) {
+                        let is_full_fidelity = n
+                            .attrs
+                            .get("fidelity")
+                            .and_then(|v| v.as_str())
+                            .is_some_and(|f| f == "full");
+
+                        if !is_full_fidelity {
+                            continue;
+                        }
+
+                        if let Some(tid) = n.attrs.get("thread_id").and_then(|v| v.as_str()) {
+                            match thread_id_branch.entry(tid.to_string()) {
+                                Entry::Vacant(e) => {
+                                    e.insert(branch_idx);
+                                }
+                                Entry::Occupied(e) => {
+                                    if *e.get() != branch_idx {
+                                        conflicting.insert(tid.to_string());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for tid in &conflicting {
+                diagnostics.push(Diagnostic {
+                    rule: self.name().to_string(),
+                    severity: Severity::Error,
+                    message: format!(
+                        "thread_id `{tid}` with fidelity=full appears in multiple parallel \
+                         branches of fan-out node `{}`; concurrent writes to the same thread \
+                         would conflict",
+                        node.id
+                    ),
+                    node_id: Some(node.id.clone()),
+                    edge: None,
+                    fix: Some(
+                        "use distinct thread_id values for nodes in different parallel branches"
+                            .into(),
+                    ),
+                });
+            }
+        }
+
+        diagnostics
     }
 }
