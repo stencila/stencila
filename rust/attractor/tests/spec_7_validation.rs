@@ -758,6 +758,112 @@ fn custom_rule_passes() {
 }
 
 // ===========================================================================
+// mismatched_agent_thread_id (ERROR)
+// ===========================================================================
+
+#[test]
+fn rule_mismatched_agent_thread_id_different_agents() {
+    let mut g = valid_pipeline();
+
+    // Two codergen nodes sharing thread_id="shared" but with different agents
+    let mut node_a = Node::new("node_a");
+    node_a
+        .attrs
+        .insert("thread_id".into(), AttrValue::from("shared"));
+    node_a
+        .attrs
+        .insert("agent".into(), AttrValue::from("agent_alpha"));
+    node_a
+        .attrs
+        .insert("prompt".into(), AttrValue::from("do A"));
+    g.add_node(node_a);
+
+    let mut node_b = Node::new("node_b");
+    node_b
+        .attrs
+        .insert("thread_id".into(), AttrValue::from("shared"));
+    node_b
+        .attrs
+        .insert("agent".into(), AttrValue::from("agent_beta"));
+    node_b
+        .attrs
+        .insert("prompt".into(), AttrValue::from("do B"));
+    g.add_node(node_b);
+
+    // Wire them into the pipeline so they are reachable
+    g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
+    g.add_edge(Edge::new("task", "node_a"));
+    g.add_edge(Edge::new("node_a", "node_b"));
+    g.add_edge(Edge::new("node_b", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "mismatched_agent_thread_id");
+    assert_eq!(
+        hits.len(),
+        1,
+        "should emit exactly one diagnostic for mismatched agents on shared thread_id: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Error);
+}
+
+#[test]
+fn rule_mismatched_agent_thread_id_same_agent_no_diagnostic() {
+    let mut g = valid_pipeline();
+
+    // Two codergen nodes sharing thread_id="shared" and the *same* agent
+    let mut node_a = Node::new("node_a");
+    node_a
+        .attrs
+        .insert("thread_id".into(), AttrValue::from("shared"));
+    node_a
+        .attrs
+        .insert("agent".into(), AttrValue::from("agent_alpha"));
+    node_a
+        .attrs
+        .insert("prompt".into(), AttrValue::from("do A"));
+    g.add_node(node_a);
+
+    let mut node_b = Node::new("node_b");
+    node_b
+        .attrs
+        .insert("thread_id".into(), AttrValue::from("shared"));
+    node_b
+        .attrs
+        .insert("agent".into(), AttrValue::from("agent_alpha"));
+    node_b
+        .attrs
+        .insert("prompt".into(), AttrValue::from("do B"));
+    g.add_node(node_b);
+
+    // Wire them into the pipeline so they are reachable
+    g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
+    g.add_edge(Edge::new("task", "node_a"));
+    g.add_edge(Edge::new("node_a", "node_b"));
+    g.add_edge(Edge::new("node_b", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "mismatched_agent_thread_id");
+    assert!(
+        hits.is_empty(),
+        "same agent on shared thread_id should produce no diagnostic: {diagnostics:?}"
+    );
+}
+
+#[test]
+fn rule_mismatched_agent_thread_id_is_registered_in_builtin_rules() {
+    use stencila_attractor::validation::rules::builtin_rules;
+
+    let rules = builtin_rules();
+    let found = rules
+        .iter()
+        .any(|r| r.name() == "mismatched_agent_thread_id");
+    assert!(
+        found,
+        "MismatchedAgentThreadIdRule must be registered in builtin_rules()"
+    );
+}
+
+// ===========================================================================
 // validate collects all diagnostics
 // ===========================================================================
 

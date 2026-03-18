@@ -3,7 +3,7 @@
 //! Provides all built-in validation rules covering structural integrity,
 //! condition syntax, stylesheet syntax, and best-practice warnings.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use super::{Diagnostic, LintRule, Severity};
 use crate::graph::Graph;
@@ -31,6 +31,7 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(DynamicFanOutRule),
         Box::new(DynamicFanOutMissingFanInRule),
         Box::new(NestedDynamicFanOutRule),
+        Box::new(MismatchedAgentThreadIdRule),
     ]
 }
 
@@ -830,6 +831,37 @@ impl LintRule for InterviewSpecRule {
 }
 
 // ---------------------------------------------------------------------------
+// Helper: BFS over a template subgraph, stopping at fan-in boundaries
+// ---------------------------------------------------------------------------
+
+/// Collect all node IDs reachable from `start_id` via BFS, stopping at
+/// nodes with handler type `parallel.fan_in` (which mark the boundary
+/// of the template subgraph).
+fn template_subgraph_nodes(graph: &Graph, start_id: &str) -> HashSet<String> {
+    let mut visited = HashSet::new();
+    let mut queue = std::collections::VecDeque::new();
+    queue.push_back(start_id.to_string());
+
+    while let Some(current) = queue.pop_front() {
+        if !visited.insert(current.clone()) {
+            continue;
+        }
+        if let Some(node) = graph.get_node(&current)
+            && node.handler_type() == HandlerType::ParallelFanIn
+        {
+            continue;
+        }
+        for edge in graph.outgoing_edges(&current) {
+            if !visited.contains(&edge.to) {
+                queue.push_back(edge.to.clone());
+            }
+        }
+    }
+
+    visited
+}
+
+// ---------------------------------------------------------------------------
 // 16. dynamic_fan_out (ERROR) — dynamic fan-out nodes must have exactly 1 edge
 // ---------------------------------------------------------------------------
 
@@ -845,18 +877,15 @@ impl LintRule for DynamicFanOutRule {
             .nodes
             .values()
             .filter(|n| n.attrs.contains_key("fan_out"))
-            .filter(|n| {
-                let edges = graph.outgoing_edges(&n.id);
-                edges.len() != 1
-            })
-            .map(|n| {
+            .filter_map(|n| {
                 let edge_count = graph.outgoing_edges(&n.id).len();
-                Diagnostic {
+                (edge_count != 1).then(|| Diagnostic {
                     rule: self.name().to_string(),
                     severity: Severity::Error,
                     message: format!(
-                        "dynamic fan-out node `{}` has {} outgoing edge(s); exactly 1 is required",
-                        n.id, edge_count
+                        "dynamic fan-out node `{}` has {edge_count} outgoing edge(s); \
+                         exactly 1 is required",
+                        n.id
                     ),
                     node_id: Some(n.id.clone()),
                     edge: None,
@@ -865,7 +894,7 @@ impl LintRule for DynamicFanOutRule {
                          template entry node"
                             .into(),
                     ),
-                }
+                })
             })
             .collect()
     }
@@ -893,26 +922,14 @@ impl LintRule for DynamicFanOutMissingFanInRule {
             })
             .filter(|n| {
                 let template_entry = &graph.outgoing_edges(&n.id)[0].to;
-                // BFS forward from template entry to find a tripleoctagon fan-in
-                let mut visited = HashSet::new();
-                let mut queue = std::collections::VecDeque::new();
-                queue.push_back(template_entry.clone());
-                while let Some(current) = queue.pop_front() {
-                    if !visited.insert(current.clone()) {
-                        continue;
-                    }
-                    if let Some(node) = graph.get_node(&current)
-                        && node.handler_type() == HandlerType::ParallelFanIn
-                    {
-                        return false; // fan-in found
-                    }
-                    for edge in graph.outgoing_edges(&current) {
-                        if !visited.contains(&edge.to) {
-                            queue.push_back(edge.to.clone());
-                        }
-                    }
-                }
-                true // no fan-in found
+                let subgraph = template_subgraph_nodes(graph, template_entry);
+                // If no fan-in node was reached, no node in the subgraph
+                // will have the ParallelFanIn handler type.
+                !subgraph.iter().any(|id| {
+                    graph
+                        .get_node(id)
+                        .is_some_and(|node| node.handler_type() == HandlerType::ParallelFanIn)
+                })
             })
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
@@ -939,35 +956,6 @@ impl LintRule for DynamicFanOutMissingFanInRule {
 
 struct NestedDynamicFanOutRule;
 
-impl NestedDynamicFanOutRule {
-    /// Collect all node IDs reachable from `start_id` via BFS, stopping at
-    /// nodes with handler type `parallel.fan_in` (which are the boundary
-    /// of the template subgraph).
-    fn template_subgraph_nodes(graph: &Graph, start_id: &str) -> HashSet<String> {
-        let mut visited = HashSet::new();
-        let mut queue = std::collections::VecDeque::new();
-        queue.push_back(start_id.to_string());
-
-        while let Some(current) = queue.pop_front() {
-            if !visited.insert(current.clone()) {
-                continue;
-            }
-            if let Some(node) = graph.get_node(&current)
-                && node.handler_type() == HandlerType::ParallelFanIn
-            {
-                continue;
-            }
-            for edge in graph.outgoing_edges(&current) {
-                if !visited.contains(&edge.to) {
-                    queue.push_back(edge.to.clone());
-                }
-            }
-        }
-
-        visited
-    }
-}
-
 impl LintRule for NestedDynamicFanOutRule {
     fn name(&self) -> &'static str {
         "nested_dynamic_fan_out"
@@ -987,7 +975,7 @@ impl LintRule for NestedDynamicFanOutRule {
             }
 
             let template_entry = &edges[0].to;
-            let subgraph = Self::template_subgraph_nodes(graph, template_entry);
+            let subgraph = template_subgraph_nodes(graph, template_entry);
 
             for sub_node_id in &subgraph {
                 if let Some(sub_node) = graph.get_node(sub_node_id)
@@ -1015,5 +1003,58 @@ impl LintRule for NestedDynamicFanOutRule {
         }
 
         diagnostics
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 19. mismatched_agent_thread_id (ERROR) — nodes sharing a thread_id must use the same agent
+// ---------------------------------------------------------------------------
+
+struct MismatchedAgentThreadIdRule;
+
+impl LintRule for MismatchedAgentThreadIdRule {
+    fn name(&self) -> &'static str {
+        "mismatched_agent_thread_id"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        // Track the first agent seen for each thread_id; emit a diagnostic the
+        // first time a different agent is encountered.
+        let mut first_agent: HashMap<&str, &str> = HashMap::new();
+        let mut mismatched: HashSet<&str> = HashSet::new();
+
+        for node in graph.nodes.values() {
+            if let Some(tid) = node.attrs.get("thread_id").and_then(|v| v.as_str()) {
+                let agent = node
+                    .attrs
+                    .get("agent")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                match first_agent.entry(tid) {
+                    std::collections::hash_map::Entry::Vacant(e) => {
+                        e.insert(agent);
+                    }
+                    std::collections::hash_map::Entry::Occupied(e) => {
+                        if *e.get() != agent {
+                            mismatched.insert(tid);
+                        }
+                    }
+                }
+            }
+        }
+
+        mismatched
+            .into_iter()
+            .map(|tid| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Error,
+                message: format!(
+                    "nodes sharing thread_id `{tid}` have different `agent` attributes"
+                ),
+                node_id: None,
+                edge: None,
+                fix: Some("ensure all nodes with the same thread_id use the same agent".into()),
+            })
+            .collect()
     }
 }
