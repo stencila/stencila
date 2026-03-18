@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use stencila_attractor::context::Context;
 use stencila_attractor::engine::{self, EngineConfig};
 use stencila_attractor::error::AttractorResult;
-use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
+use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::handlers::{CodergenBackend, CodergenHandler, CodergenOutput};
 use stencila_attractor::transform::{Transform, TransformRegistry};
 use stencila_attractor::transforms::VariableExpansionTransform;
@@ -307,7 +307,7 @@ async fn engine_applies_variable_expansion() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert("shape".into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
     g.add_node(start);
 
     let mut task = Node::new("task");
@@ -317,7 +317,7 @@ async fn engine_applies_variable_expansion() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));

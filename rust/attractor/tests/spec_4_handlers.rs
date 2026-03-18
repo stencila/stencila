@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::engine::{self, EngineConfig};
 use stencila_attractor::error::{AttractorError, AttractorResult};
-use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
+use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::handler::Handler;
 use stencila_attractor::handlers::{
     CodergenBackend, CodergenHandler, CodergenOutput, ShellHandler,
@@ -94,14 +94,14 @@ fn pipeline_with_middle(middle: Node) -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert("shape".into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
     g.add_node(start);
 
     g.add_node(middle);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "middle"));
@@ -657,7 +657,7 @@ async fn shell_end_to_end() -> AttractorResult<()> {
     let mut middle = Node::new("middle");
     middle
         .attrs
-        .insert("shape".into(), AttrValue::from("parallelogram"));
+        .insert(attr::SHAPE.into(), AttrValue::from("parallelogram"));
     middle
         .attrs
         .insert("shell_command".into(), AttrValue::from("echo done"));

@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use stencila_attractor::context::Context;
 use stencila_attractor::error::AttractorResult;
-use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
+use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::handler::Handler;
 use stencila_attractor::handlers::{WaitForHumanHandler, parse_accelerator_label};
 use stencila_attractor::interviewer::{
@@ -429,7 +429,7 @@ fn human_gate_graph(choices: &[(&str, &str)]) -> Graph {
 
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     gate.attrs
         .insert("label".into(), AttrValue::from("Choose an option:"));
     g.add_node(gate);
@@ -641,7 +641,7 @@ async fn wait_human_no_edges_fails() -> AttractorResult<()> {
     let mut g = Graph::new("test");
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     g.add_node(gate);
     // No outgoing edges
 
@@ -738,7 +738,7 @@ async fn wait_human_edge_label_fallback_to_target() -> AttractorResult<()> {
     let mut g = Graph::new("test");
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     g.add_node(gate);
     g.add_node(Node::new("deploy"));
     g.add_edge(Edge::new("gate", "deploy")); // No label
@@ -778,7 +778,7 @@ fn human_node_with_type(
 
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     gate.attrs.insert("label".into(), AttrValue::from(label));
     gate.attrs
         .insert("question_type".into(), AttrValue::from(question_type));
@@ -928,7 +928,7 @@ async fn wait_human_single_select_with_store() -> AttractorResult<()> {
     let mut g = Graph::new("test");
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     gate.attrs
         .insert("label".into(), AttrValue::from("Pick action:"));
     gate.attrs
@@ -1036,7 +1036,7 @@ async fn wait_human_unknown_question_type_falls_back_to_choice() -> AttractorRes
     let mut g = Graph::new("test");
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     gate.attrs
         .insert("label".into(), AttrValue::from("Choose:"));
     gate.attrs
@@ -1071,7 +1071,7 @@ fn interview_spec_graph(spec_yaml: &str, edges: &[(&str, &str)]) -> Graph {
 
     let mut gate = Node::new("gate");
     gate.attrs
-        .insert("shape".into(), AttrValue::from("hexagon"));
+        .insert(attr::SHAPE.into(), AttrValue::from("hexagon"));
     gate.attrs
         .insert("interview".into(), AttrValue::from(spec_yaml));
     g.add_node(gate);

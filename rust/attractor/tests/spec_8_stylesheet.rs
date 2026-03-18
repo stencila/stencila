@@ -1,7 +1,7 @@
 //! Tests for model stylesheet (§8).
 
 use stencila_attractor::error::AttractorResult;
-use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
+use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::stylesheet::{apply_stylesheet, parse_and_apply_stylesheet};
 use stencila_attractor::stylesheet_parser::{
     Declaration, ParsedStylesheet, Selector, StylesheetRule, parse_stylesheet,
@@ -18,7 +18,7 @@ fn stylesheet_pipeline() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert("shape".into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
     g.add_node(start);
 
     let mut plan = Node::new("plan");
@@ -42,7 +42,7 @@ fn stylesheet_pipeline() -> Graph {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "plan"));

@@ -147,14 +147,14 @@ impl CodergenBackend for PoolAwareMockBackend {
 fn make_start_node() -> Node {
     let mut node = Node::new("Start");
     node.attrs
-        .insert("shape".into(), AttrValue::String(Graph::START_SHAPE.into()));
+        .insert(attr::SHAPE.into(), AttrValue::String(Graph::START_SHAPE.into()));
     node
 }
 
 fn make_exit_node() -> Node {
     let mut node = Node::new("Exit");
     node.attrs
-        .insert("shape".into(), AttrValue::String(Graph::EXIT_SHAPE.into()));
+        .insert(attr::SHAPE.into(), AttrValue::String(Graph::EXIT_SHAPE.into()));
     node
 }
 

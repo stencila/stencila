@@ -12,7 +12,7 @@ use stencila_attractor::checkpoint::Checkpoint;
 use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::fidelity::{resolve_fidelity, resolve_thread_id};
-use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
+use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::resume::resume_from_checkpoint;
 use stencila_attractor::types::FidelityMode;
 
@@ -360,12 +360,12 @@ fn resume_restores_context() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert("shape".into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
     g.add_node(start);
     g.add_node(Node::new("middle"));
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
@@ -412,7 +412,7 @@ fn resume_fidelity_degradation() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert("shape".into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
     g.add_node(start);
 
     let mut middle = Node::new("middle");
@@ -423,7 +423,7 @@ fn resume_fidelity_degradation() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
@@ -457,12 +457,12 @@ fn resume_retry_counters_restored() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert("shape".into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
     g.add_node(start);
     g.add_node(Node::new("middle"));
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
@@ -497,7 +497,7 @@ fn resume_at_exit_node() -> AttractorResult<()> {
     let mut g = Graph::new("test");
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert("shape".into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
     g.add_node(exit);
 
     let ctx = Context::new();
