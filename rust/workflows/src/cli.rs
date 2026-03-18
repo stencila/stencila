@@ -1,6 +1,7 @@
 //! CLI for managing workflow definitions.
 //!
-//! Provides `stencila workflows` subcommands: list, show, validate, create, save, discard.
+//! Provides `stencila workflows` subcommands: list, show, validate, create, run,
+//! runs, resume, save, discard.
 
 use std::{io::IsTerminal, path::PathBuf, process::exit, sync::Arc, time::Instant};
 
@@ -13,7 +14,7 @@ use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     message,
-    tabulated::{Attribute, Cell, Tabulated},
+    tabulated::{Attribute, Cell, Color, Tabulated},
 };
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
@@ -48,6 +49,15 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Run a workflow with a goal override</dim>
   <b>stencila workflows run</> <g>code-review</> <c>--goal</> <y>\"Implement login feature\"</>
 
+  <dim># List recent workflow runs</dim>
+  <b>stencila workflows runs</>
+
+  <dim># Resume the last failed or interrupted run</dim>
+  <b>stencila workflows resume</>
+
+  <dim># Resume a specific run by ID</dim>
+  <b>stencila workflows resume</> <g>01926f3a-...</>
+
   <dim># Save an ephemeral workflow</dim>
   <b>stencila workflows save</> <g>my-workflow</>
 
@@ -63,6 +73,8 @@ enum Command {
     Validate(Validate),
     Create(Create),
     Run(Run),
+    Runs(Runs),
+    Resume(Resume),
     Save(Save),
     Discard(Discard),
 }
@@ -80,6 +92,8 @@ impl Cli {
             Command::Validate(validate) => validate.run().await?,
             Command::Create(create) => create.run().await?,
             Command::Run(run) => run.run().await?,
+            Command::Runs(runs) => runs.run().await?,
+            Command::Resume(resume) => resume.run().await?,
             Command::Save(save) => save.run().await?,
             Command::Discard(discard) => discard.run().await?,
         }
@@ -534,6 +548,231 @@ impl Run {
             message!("🎉 Workflow `{}` completed in {}", wf.name, time_str);
         } else {
             message!("❌ Workflow `{}` failed in {}", wf.name, time_str);
+        }
+
+        if !outcome.notes.is_empty() {
+            message!("   Notes: {}", outcome.notes);
+        }
+        if !outcome.failure_reason.is_empty() {
+            message!("   Failure: {}", outcome.failure_reason);
+        }
+
+        if !outcome.status.is_success() {
+            exit(1);
+        }
+
+        Ok(())
+    }
+}
+
+/// List recent workflow runs
+///
+/// Shows the most recent workflow runs from the workspace database,
+/// including run ID, workflow name, goal, status, and timing.
+#[derive(Debug, Args)]
+#[command(after_long_help = RUNS_AFTER_LONG_HELP)]
+struct Runs {
+    /// Maximum number of runs to show
+    #[arg(long, short = 'n', default_value = "20")]
+    limit: u32,
+}
+
+pub static RUNS_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># List the 20 most recent runs</dim>
+  <b>stencila workflows runs</>
+
+  <dim># List the 5 most recent runs</dim>
+  <b>stencila workflows runs</> <c>-n</> <g>5</>
+"
+);
+
+impl Runs {
+    async fn run(self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+        let runs = crate::run::list_runs(&cwd, self.limit).await?;
+
+        if runs.is_empty() {
+            message!("No workflow runs found in this workspace");
+            return Ok(());
+        }
+
+        // Compute the shortest unique prefix length for run IDs.
+        let ids: Vec<&str> = runs.iter().map(|r| r.run_id.as_str()).collect();
+        let prefix_len = shortest_unique_prefix_len(&ids);
+
+        let mut table = Tabulated::new();
+        table.set_header(["Run ID", "Workflow", "Goal", "Status", "Started", "Nodes"]);
+
+        for run in &runs {
+            let short_id = &run.run_id[..prefix_len.min(run.run_id.len())];
+
+            let status_cell = match run.status.as_str() {
+                "success" => Cell::new("success").fg(Color::Green),
+                "fail" | "failed" => Cell::new("failed").fg(Color::Red),
+                "running" => Cell::new("running").fg(Color::Yellow),
+                other => Cell::new(other),
+            };
+
+            let goal_preview = if run.goal.len() > 40 {
+                format!("{}…", &run.goal[..39])
+            } else if run.goal.is_empty() {
+                "-".to_string()
+            } else {
+                run.goal.clone()
+            };
+
+            // Format the timestamp — show date and time portion.
+            let started = if run.started_at.len() >= 16 {
+                &run.started_at[..16]
+            } else {
+                &run.started_at
+            };
+
+            table.add_row([
+                Cell::new(short_id),
+                Cell::new(&run.workflow_name),
+                Cell::new(&goal_preview),
+                status_cell,
+                Cell::new(started),
+                Cell::new(run.node_count.to_string()),
+            ]);
+        }
+
+        table.to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Compute the shortest prefix length that makes every ID in the list
+/// unique. Returns at least 8 (the conventional short-hash length) and
+/// at most the length of the longest ID.
+fn shortest_unique_prefix_len(ids: &[&str]) -> usize {
+    let max_len = ids.iter().map(|id| id.len()).max().unwrap_or(0);
+    // Start at 8 chars (conventional short-hash length).
+    for len in 8..=max_len {
+        let mut seen = std::collections::HashSet::with_capacity(ids.len());
+        if ids.iter().all(|id| seen.insert(&id[..len.min(id.len())])) {
+            return len;
+        }
+    }
+    max_len
+}
+
+/// Resume a failed or interrupted workflow run
+///
+/// Continues execution of a previously failed or interrupted workflow run
+/// from where it left off. The pipeline state (completed nodes, context
+/// values, edge traversal history) is restored from the workspace database,
+/// and execution resumes at the next unfinished node.
+///
+/// If no run ID is provided, the most recent resumable run (failed or
+/// still marked as running) is used.
+#[derive(Debug, Args)]
+#[command(after_long_help = RESUME_AFTER_LONG_HELP)]
+struct Resume {
+    /// The run ID to resume
+    ///
+    /// If omitted, resumes the most recent failed or interrupted run.
+    /// Use `stencila workflows runs` to list recent runs and their IDs.
+    run_id: Option<String>,
+
+    /// Show detailed output with prompts and responses
+    #[arg(long, short)]
+    verbose: bool,
+
+    /// Force resume of a run that is still marked as running
+    ///
+    /// Use this when a previous run was interrupted without being marked
+    /// as failed (e.g. the process was killed). Without this flag,
+    /// resuming a "running" run is rejected to avoid conflicts with an
+    /// active process.
+    #[arg(long)]
+    force: bool,
+}
+
+pub static RESUME_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Resume the last failed or interrupted run</dim>
+  <b>stencila workflows resume</>
+
+  <dim># Resume a specific run by ID</dim>
+  <b>stencila workflows resume</> <g>01926f3a-7b2c-7d4e-8f1a-9c3d5e7f0a1b</>
+
+  <dim># Resume with verbose output</dim>
+  <b>stencila workflows resume</> <c>--verbose</>
+
+  <dim># List runs to find a run ID, then resume it</dim>
+  <b>stencila workflows runs</>
+  <b>stencila workflows resume</> <g>01926f3a</>
+"
+);
+
+impl Resume {
+    #[allow(clippy::print_stdout, clippy::print_stderr)]
+    async fn run(self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+
+        // Resolve the run ID: use provided ID, or find the last resumable run.
+        let run_id = if let Some(ref id) = self.run_id {
+            crate::run::resolve_run_id_from_db(&cwd, id).await?
+        } else {
+            let Some(run) = crate::run::last_resumable_run(&cwd).await? else {
+                bail!("No resumable workflow runs found in this workspace");
+            };
+            run.run_id
+        };
+
+        // Look up run info for display.
+        let run_info = crate::run::get_run(&cwd, &run_id).await.ok();
+
+        if let Some(ref info) = run_info {
+            message!(
+                "🔄 Resuming workflow `{}` (run {})",
+                info.workflow_name,
+                &run_id[..run_id.len().min(8)]
+            );
+            if !info.goal.is_empty() {
+                message!("   Goal: {}", info.goal);
+            }
+            message!("   Previous status: {}", info.status);
+        } else {
+            message!("🔄 Resuming run {}", &run_id[..run_id.len().min(8)]);
+        }
+        eprintln!();
+
+        let is_tty = std::io::stderr().is_terminal();
+        let emitter: Arc<dyn stencila_attractor::events::EventEmitter> = if self.verbose {
+            Arc::new(crate::emitters::VerboseEventEmitter::new())
+        } else if is_tty {
+            Arc::new(crate::emitters::ProgressEventEmitter::new())
+        } else {
+            Arc::new(crate::emitters::PlainEventEmitter::new())
+        };
+
+        let started = Instant::now();
+        let interviewer: Arc<dyn stencila_attractor::interviewer::Interviewer> =
+            Arc::new(CliInterviewer);
+        let options = crate::run::RunOptions {
+            emitter,
+            interviewer: Some(interviewer),
+        };
+        let outcome =
+            crate::run::resume_workflow_with_options(&run_id, &cwd, options, self.force).await?;
+        let elapsed = started.elapsed();
+
+        eprintln!();
+        let time_str = format_elapsed(elapsed);
+
+        let workflow_name = run_info
+            .as_ref()
+            .map(|i| i.workflow_name.as_str())
+            .unwrap_or("workflow");
+        if outcome.status.is_success() {
+            message!("🎉 Workflow `{}` completed in {}", workflow_name, time_str);
+        } else {
+            message!("❌ Workflow `{}` failed in {}", workflow_name, time_str);
         }
 
         if !outcome.notes.is_empty() {

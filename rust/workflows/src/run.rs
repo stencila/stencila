@@ -4,6 +4,9 @@
 //! Converts workflow-level attributes (goal, overrides, etc.) into
 //! graph attributes, resolves agent references, sets up a codergen backend
 //! that delegates to Stencila's agent session system, and runs the pipeline.
+//!
+//! Also provides [`resume_workflow_with_options`] for resuming a previously
+//! failed or interrupted run from its persisted SQLite state.
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -247,6 +250,407 @@ pub(crate) async fn run_workflow_with_options_and_parent(
         if let Err(e) = backend.complete_run(status, total_tokens, node_count) {
             tracing::warn!("Failed to finalize run record: {e}");
         }
+    }
+
+    result
+}
+
+/// Summary of a past workflow run, returned by [`list_runs`] and [`get_run`].
+#[derive(Debug, Clone)]
+pub struct RunInfo {
+    pub run_id: String,
+    pub workflow_name: String,
+    pub goal: String,
+    pub status: String,
+    pub started_at: String,
+    pub completed_at: Option<String>,
+    pub node_count: i64,
+    pub total_tokens: i64,
+    pub is_child: bool,
+}
+
+/// List recent workflow runs from the workspace database.
+///
+/// Returns up to `limit` runs ordered by most recent first. Only
+/// top-level runs are included (those without a parent).
+///
+/// # Errors
+///
+/// Returns an error if the workspace database cannot be opened.
+pub async fn list_runs(workspace_path: &Path, limit: u32) -> Result<Vec<RunInfo>> {
+    let stencila_dir = stencila_dirs::closest_stencila_dir(workspace_path, false).await?;
+    let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
+
+    if !db_path.exists() {
+        return Ok(Vec::new());
+    }
+
+    let workspace_db = stencila_db::WorkspaceDb::open(&db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+
+    // Ensure migrations are applied so tables exist.
+    workspace_db
+        .migrate_all(&[
+            (
+                "workflows",
+                stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
+            ),
+            ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+        ])
+        .map_err(|e| eyre::eyre!("Failed to apply workflow migrations: {e}"))?;
+
+    let conn = workspace_db.connection();
+    let conn = conn
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+
+    let mut stmt = conn
+        .prepare(
+            "SELECT run_id, workflow_name, goal, status, started_at,
+                    completed_at, node_count, total_tokens
+             FROM workflow_runs
+             WHERE parent_run_id IS NULL
+             ORDER BY started_at DESC
+             LIMIT ?1",
+        )
+        .map_err(|e| eyre::eyre!("Failed to prepare runs query: {e}"))?;
+
+    let rows = stmt
+        .query_map((limit,), |row| {
+            Ok(RunInfo {
+                run_id: row.get(0)?,
+                workflow_name: row.get(1)?,
+                goal: row.get(2)?,
+                status: row.get(3)?,
+                started_at: row.get(4)?,
+                completed_at: row.get(5)?,
+                node_count: row.get::<_, Option<i64>>(6)?.unwrap_or(0),
+                total_tokens: row.get::<_, Option<i64>>(7)?.unwrap_or(0),
+                is_child: false,
+            })
+        })
+        .map_err(|e| eyre::eyre!("Failed to query runs: {e}"))?;
+
+    let mut runs = Vec::new();
+    for row in rows {
+        runs.push(row.map_err(|e| eyre::eyre!("Failed to read run row: {e}"))?);
+    }
+
+    Ok(runs)
+}
+
+/// Find the most recent resumable run (failed or still marked running).
+///
+/// # Errors
+///
+/// Returns an error if the workspace database cannot be opened.
+pub async fn last_resumable_run(workspace_path: &Path) -> Result<Option<RunInfo>> {
+    let runs = list_runs(workspace_path, 50).await?;
+    Ok(runs
+        .into_iter()
+        .find(|r| r.status == "failed" || r.status == "fail" || r.status == "running"))
+}
+
+/// Look up a single run by its full ID.
+///
+/// Returns the run regardless of whether it is a top-level or child run.
+///
+/// # Errors
+///
+/// Returns an error if the database cannot be opened or the run is not found.
+pub async fn get_run(workspace_path: &Path, run_id: &str) -> Result<RunInfo> {
+    let stencila_dir = stencila_dirs::closest_stencila_dir(workspace_path, false).await?;
+    let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
+
+    let workspace_db = stencila_db::WorkspaceDb::open(&db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+    workspace_db
+        .migrate_all(&[
+            (
+                "workflows",
+                stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
+            ),
+            ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+        ])
+        .map_err(|e| eyre::eyre!("Failed to apply workflow migrations: {e}"))?;
+
+    let conn = workspace_db.connection();
+    let conn = conn
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    conn.query_row(
+        "SELECT run_id, workflow_name, goal, status, started_at,
+                completed_at, node_count, total_tokens, parent_run_id
+         FROM workflow_runs
+         WHERE run_id = ?1",
+        (run_id,),
+        |row| {
+            let parent: Option<String> = row.get(8)?;
+            Ok(RunInfo {
+                run_id: row.get(0)?,
+                workflow_name: row.get(1)?,
+                goal: row.get(2)?,
+                status: row.get(3)?,
+                started_at: row.get(4)?,
+                completed_at: row.get(5)?,
+                node_count: row.get::<_, Option<i64>>(6)?.unwrap_or(0),
+                total_tokens: row.get::<_, Option<i64>>(7)?.unwrap_or(0),
+                is_child: parent.is_some(),
+            })
+        },
+    )
+    .map_err(|e| eyre::eyre!("Run `{run_id}` not found: {e}"))
+}
+
+/// Resolve a run ID or prefix against the database.
+///
+/// Searches all runs (including child runs) by exact match first, then
+/// by prefix. Returns an error if no match is found or the prefix is
+/// ambiguous.
+///
+/// # Errors
+///
+/// Returns an error if the database cannot be opened, no match is found,
+/// or the prefix matches multiple runs.
+pub async fn resolve_run_id_from_db(workspace_path: &Path, id: &str) -> Result<String> {
+    let stencila_dir = stencila_dirs::closest_stencila_dir(workspace_path, false).await?;
+    let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
+
+    if !db_path.exists() {
+        eyre::bail!("No workflow run found matching `{id}`");
+    }
+
+    let workspace_db = stencila_db::WorkspaceDb::open(&db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+    workspace_db
+        .migrate_all(&[
+            (
+                "workflows",
+                stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
+            ),
+            ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+        ])
+        .map_err(|e| eyre::eyre!("Failed to apply workflow migrations: {e}"))?;
+
+    let conn = workspace_db.connection();
+    let conn = conn
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+
+    // Exact match.
+    let exact: Result<String, _> = conn.query_row(
+        "SELECT run_id FROM workflow_runs WHERE run_id = ?1",
+        (id,),
+        |row| row.get(0),
+    );
+    if let Ok(run_id) = exact {
+        return Ok(run_id);
+    }
+
+    // Prefix match using LIKE (the id is user-supplied but only used in
+    // a parameterised query so there is no injection risk; we escape any
+    // embedded `%` / `_` characters for correctness).
+    let escaped = id.replace('%', r"\%").replace('_', r"\_");
+    let pattern = format!("{escaped}%");
+    let mut stmt = conn
+        .prepare("SELECT run_id FROM workflow_runs WHERE run_id LIKE ?1 ESCAPE '\\'")
+        .map_err(|e| eyre::eyre!("Failed to prepare prefix query: {e}"))?;
+    let matches: Vec<String> = stmt
+        .query_map((&pattern,), |row| row.get(0))
+        .map_err(|e| eyre::eyre!("Failed to query runs: {e}"))?
+        .filter_map(Result::ok)
+        .collect();
+
+    match matches.len() {
+        0 => eyre::bail!("No workflow run found matching `{id}`"),
+        1 => Ok(matches.into_iter().next().expect("length checked")),
+        n => {
+            eyre::bail!("Ambiguous run ID prefix `{id}` matches {n} runs; provide more characters")
+        }
+    }
+}
+
+/// Resume a previously failed or interrupted workflow run.
+///
+/// Looks up the original run's workflow name from the database, loads the
+/// current workflow definition, rebuilds the pipeline graph and engine
+/// configuration, then calls [`attractor::engine::resume_with_sqlite`] to
+/// continue execution from where the run left off.
+///
+/// The resumed execution reuses the original `run_id` so that node records,
+/// edges, and context accumulate in the same run scope.
+///
+/// Set `force` to `true` to allow resuming a run that is still marked as
+/// `"running"` (which may indicate a stale process or a concurrent run).
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The run ID is not found in the database
+/// - The run is a nested/child run (resume the parent instead)
+/// - The run has already completed successfully
+/// - The run is still marked as running and `force` is `false`
+/// - The workflow definition cannot be loaded
+/// - The pipeline engine fails during resumed execution
+pub async fn resume_workflow_with_options(
+    run_id: &str,
+    workspace_path: &Path,
+    options: RunOptions,
+    force: bool,
+) -> Result<Outcome> {
+    let stencila_dir = stencila_dirs::closest_stencila_dir(workspace_path, false).await?;
+    let workspace_root = stencila_dirs::workspace_dir(&stencila_dir)?;
+    let db_path = stencila_dir.join(stencila_dirs::DB_SQLITE_FILE);
+
+    let workspace_db = stencila_db::WorkspaceDb::open(&db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+
+    workspace_db
+        .migrate_all(&[
+            (
+                "workflows",
+                stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
+            ),
+            ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+        ])
+        .map_err(|e| eyre::eyre!("Failed to apply workflow migrations: {e}"))?;
+
+    // Look up the original run to find the workflow name, goal, and status.
+    let (workflow_name, goal, status, is_child) = {
+        let conn = workspace_db.connection();
+        let conn = conn
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        conn.query_row(
+            "SELECT workflow_name, goal, status, parent_run_id FROM workflow_runs WHERE run_id = ?1",
+            (run_id,),
+            |row| {
+                let parent: Option<String> = row.get(3)?;
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    parent.is_some(),
+                ))
+            },
+        )
+        .map_err(|e| eyre::eyre!("Run `{run_id}` not found in workspace database: {e}"))?
+    };
+
+    // Validate that the run is resumable.
+    if is_child {
+        eyre::bail!("Cannot resume nested workflow run `{run_id}`; resume the parent run instead");
+    }
+    if status == "success" {
+        eyre::bail!(
+            "Run `{run_id}` already completed successfully; use `stencila workflows run` to start a new run"
+        );
+    }
+    if status == "running" && !force {
+        eyre::bail!(
+            "Run `{run_id}` is still marked as running (possibly stale or active in another process); \
+             use --force to resume it anyway"
+        );
+    }
+
+    // Load the current workflow definition.
+    let cwd = std::env::current_dir()?;
+    let mut wf = crate::definition::get_by_name(&cwd, &workflow_name)
+        .await
+        .map_err(|e| {
+            eyre::eyre!("Cannot resume run `{run_id}`: workflow `{workflow_name}` not found: {e}")
+        })?;
+
+    // Restore the goal from the original run.
+    if !goal.is_empty() {
+        wf.inner.goal = Some(goal);
+    }
+
+    let mut graph = wf.graph()?;
+    merge_workflow_attrs(&wf, &mut graph);
+    insert_execution_context(&mut graph, &wf, None, None)?;
+
+    let resolved = resolve_agent_references(&wf).await;
+
+    let db_conn = workspace_db.connection().clone();
+
+    // Reset status to 'running' for the resumed execution.
+    {
+        let conn = db_conn
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let _ = conn.execute(
+            "UPDATE workflow_runs SET status = 'running', completed_at = NULL WHERE run_id = ?1",
+            (run_id,),
+        );
+    }
+
+    let stencila_artifacts_dir =
+        stencila_dirs::stencila_artifacts_dir(&stencila_dir, false).await?;
+    let artifacts_dir = stencila_artifacts_dir.join(format!("workflows/{run_id}"));
+
+    let agent_metadata = resolved
+        .iter()
+        .map(|(name, instance)| {
+            (
+                name.clone(),
+                AgentMetadata {
+                    model: instance.model.clone(),
+                    provider: instance.provider.clone(),
+                },
+            )
+        })
+        .collect::<HashMap<_, _>>();
+
+    let run_metrics = Arc::new(Mutex::new(RunMetrics::default()));
+
+    let interviewer = options.interviewer.map(|inner| {
+        Arc::new(PersistentInterviewer::new(
+            inner,
+            db_conn.clone(),
+            "workflow",
+            run_id.to_string(),
+        )) as Arc<dyn Interviewer>
+    });
+    let agent_interviewer = interviewer.clone();
+
+    let config = build_engine_config(
+        wf.home().to_path_buf(),
+        options.emitter,
+        interviewer,
+        Some(db_conn.clone()),
+        Some(run_id.to_string()),
+        run_metrics.clone(),
+        agent_metadata,
+        Some(artifacts_dir),
+        Some(workspace_root),
+        agent_interviewer,
+    );
+
+    let result =
+        stencila_attractor::engine::resume_with_sqlite(&graph, config, db_conn.clone(), run_id)
+            .await
+            .map_err(|e| eyre::eyre!("Pipeline resume failed: {e}"));
+
+    // Finalize the run record.
+    let backend = stencila_attractor::sqlite_backend::SqliteBackend::from_shared(
+        db_conn.clone(),
+        run_id.to_string(),
+    );
+    let status = match &result {
+        Ok(outcome) => outcome.status.as_str(),
+        Err(_) => "failed",
+    };
+    let (input_tokens, output_tokens) = {
+        let metrics = run_metrics
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        (metrics.input_tokens, metrics.output_tokens)
+    };
+    let total_tokens = input_tokens.saturating_add(output_tokens);
+    let node_count = backend.node_count().unwrap_or(0);
+    if let Err(e) = backend.complete_run(status, total_tokens, node_count) {
+        tracing::warn!("Failed to finalize resumed run record: {e}");
     }
 
     result
