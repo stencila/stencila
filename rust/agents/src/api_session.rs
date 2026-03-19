@@ -1095,12 +1095,14 @@ impl ApiSession {
                         } else if !parts.is_empty() {
                             messages.push(Message::new(Role::Assistant, parts));
                         }
+                    } else if thinking_parts.is_empty() && tool_calls.is_empty() {
                         // When both filtered parts and content are empty (e.g.
                         // an assistant turn that was purely thinking), skip the
                         // message entirely to avoid pushing an empty turn that
                         // some providers would reject.
-                    } else if thinking_parts.is_empty() && tool_calls.is_empty() {
-                        messages.push(Message::assistant(content.as_str()));
+                        if !content.is_empty() {
+                            messages.push(Message::assistant(content.as_str()));
+                        }
                     } else {
                         let replay = matches!(
                             self.config.history_thinking_replay,

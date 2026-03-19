@@ -145,7 +145,9 @@ fn translate_message(
             for part in &message.content {
                 match part {
                     ContentPart::Text { text } => {
-                        system_blocks.push(json!({"type": "text", "text": text}));
+                        if !text.is_empty() {
+                            system_blocks.push(json!({"type": "text", "text": text}));
+                        }
                     }
                     _ => {
                         return Err(SdkError::InvalidRequest {
@@ -208,7 +210,9 @@ fn translate_single_content_part(
 ) -> SdkResult<()> {
     match part {
         ContentPart::Text { text } => {
-            content.push(json!({"type": "text", "text": text}));
+            if !text.is_empty() {
+                content.push(json!({"type": "text", "text": text}));
+            }
         }
         ContentPart::Image { image } => {
             image.validate()?;
