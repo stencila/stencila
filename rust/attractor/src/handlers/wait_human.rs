@@ -43,6 +43,7 @@ use crate::interviewer::{
     Answer, AnswerValue, Interview, InterviewError, Interviewer, Question, QuestionOption,
     QuestionType,
 };
+use crate::interviewers::AutoApproveInterviewer;
 use crate::types::Outcome;
 
 /// Handler for `wait.human` nodes that presents questions to a human.
@@ -114,6 +115,45 @@ impl WaitForHumanHandler {
         self.context_id = context_id.into();
         self
     }
+    /// Attempt to recover a pending interview from a previous run.
+    ///
+    /// If a DB connection is configured, queries for a pending interview
+    /// at the given node and stage index. When found, the interview's ID and
+    /// question IDs are updated in place so that external systems that
+    /// already have the question can still submit answers.
+    fn try_resume_recovery(&self, interview: &mut Interview, node_id: &str) {
+        let Some(ref db_conn) = self.db_conn else {
+            return;
+        };
+        match stencila_interviews::find_pending_interview(
+            db_conn,
+            &self.context_type,
+            &self.context_id,
+            node_id,
+            interview.stage_index,
+        ) {
+            Ok(Some((recovered_id, recovered_qids))) => {
+                tracing::debug!(
+                    interview_id = %recovered_id,
+                    node_id = %node_id,
+                    "recovered pending interview from previous run"
+                );
+                interview.id = recovered_id;
+                for (q, qid) in interview.questions.iter_mut().zip(recovered_qids) {
+                    q.id = Some(qid);
+                }
+            }
+            Ok(None) => {}
+            Err(e) => {
+                tracing::warn!(
+                    node_id = %node_id,
+                    error = %e,
+                    "failed to query for pending interview during resume; \
+                     proceeding with a new interview ID"
+                );
+            }
+        }
+    }
 }
 
 impl WaitForHumanHandler {
@@ -133,19 +173,15 @@ impl WaitForHumanHandler {
         let store_key = node.get_str_attr(attr::STORE).map(ToString::to_string);
 
         // 1. Parse the spec from YAML (fall back to JSON)
-        let spec = InterviewSpec::parse(spec_str).map_err(|reason| {
-            crate::error::AttractorError::HandlerFailed {
-                node_id: node.id.clone(),
-                reason,
-            }
-        })?;
+        let spec =
+            InterviewSpec::parse(spec_str).map_err(|reason| handler_failed(&node.id, reason))?;
 
         // 2. Validate semantic correctness (show-if, finish-if, duplicates)
         if let Err(errors) = spec.validate() {
-            return Err(crate::error::AttractorError::HandlerFailed {
-                node_id: node.id.clone(),
-                reason: format!("invalid interview spec: {}", errors.join("; ")),
-            });
+            return Err(handler_failed(
+                &node.id,
+                format!("invalid interview spec: {}", errors.join("; ")),
+            ));
         }
 
         // 3. Conditional specs are conducted progressively (one question
@@ -158,45 +194,13 @@ impl WaitForHumanHandler {
         }
 
         // 4. Convert spec to Interview (non-conditional batch path)
-        let mut interview = spec.to_interview(&node.id).map_err(|reason| {
-            crate::error::AttractorError::HandlerFailed {
-                node_id: node.id.clone(),
-                reason,
-            }
-        })?;
+        let mut interview = spec
+            .to_interview(&node.id)
+            .map_err(|reason| handler_failed(&node.id, reason))?;
         interview.stage_index = context.get_i64(ctx::STAGE_INDEX);
 
         // 5. Resume recovery
-        if let Some(ref db_conn) = self.db_conn {
-            match stencila_interviews::find_pending_interview(
-                db_conn,
-                &self.context_type,
-                &self.context_id,
-                &node.id,
-                interview.stage_index,
-            ) {
-                Ok(Some((recovered_id, recovered_qids))) => {
-                    tracing::debug!(
-                        interview_id = %recovered_id,
-                        node_id = %node.id,
-                        "recovered pending interview from previous run"
-                    );
-                    interview.id = recovered_id;
-                    for (q, qid) in interview.questions.iter_mut().zip(recovered_qids) {
-                        q.id = Some(qid);
-                    }
-                }
-                Ok(None) => {}
-                Err(e) => {
-                    tracing::warn!(
-                        node_id = %node.id,
-                        error = %e,
-                        "failed to query for pending interview during resume; \
-                         proceeding with a new interview ID"
-                    );
-                }
-            }
-        }
+        self.try_resume_recovery(&mut interview, &node.id);
 
         // 6. Emit events for each question
         for question in &interview.questions {
@@ -211,22 +215,7 @@ impl WaitForHumanHandler {
         self.interviewer
             .conduct(&mut interview)
             .await
-            .map_err(|e| match e {
-                InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: "interview channel closed".into(),
-                },
-                InterviewError::BackendFailure(msg) => {
-                    crate::error::AttractorError::HandlerFailed {
-                        node_id: node.id.clone(),
-                        reason: format!("interview backend failure: {msg}"),
-                    }
-                }
-                InterviewError::Cancelled => crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: "interview cancelled".into(),
-                },
-            })?;
+            .map_err(|e| interview_error(&node.id, e))?;
 
         // 8. Store answers and find routing answer.
         //    For non-conditional specs, spec index == interview index.
@@ -236,10 +225,10 @@ impl WaitForHumanHandler {
 
         for (i, question) in interview.questions.iter().enumerate() {
             let answer = interview.answers.get(i).cloned().ok_or_else(|| {
-                crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: format!("no answer for question {i} after interview"),
-                }
+                handler_failed(
+                    &node.id,
+                    format!("no answer for question {i} after interview"),
+                )
             })?;
 
             // Store the canonical (human-readable) value so that stored
@@ -273,62 +262,15 @@ impl WaitForHumanHandler {
 
         // 9. Routing: derive choices from outgoing edges
         let choices = choices_from_edges(graph, &node.id);
-
-        if let Some(routing_ans) = routing_answer {
-            // Routing requires at least one outgoing edge
-            if choices.is_empty() {
-                return Ok(Outcome::fail(
-                    "interview has a routing question but no outgoing edges",
-                ));
-            }
-
-            // Handle timeout/skip for routing answer
-            if routing_ans.is_timeout() {
-                self.emitter.emit(PipelineEvent::InterviewTimedOut {
-                    interview_id: interview.id.clone(),
-                    node_id: node.id.clone(),
-                });
-
-                if let Some(default_target) = node.get_str_attr("human.default_choice")
-                    && let Some(choice) = find_choice_by_str(default_target, &choices)
-                {
-                    let mut outcome = build_human_outcome(choice);
-                    outcome.context_updates.extend(context_updates);
-                    return Ok(outcome);
-                }
-                return Ok(Outcome::retry("human gate timeout, no default"));
-            }
-
-            if routing_ans.is_skipped() {
-                return Ok(Outcome::fail("human skipped interaction"));
-            }
-
-            // Choice-based routing using first single-select answer
-            let Some(selected) =
-                find_matching_choice(&routing_ans, &choices, &routing_question_options)
-            else {
-                return Ok(Outcome::fail("answer did not match any available choice"));
-            };
-
-            let mut outcome = build_human_outcome(selected);
-            outcome.context_updates.extend(context_updates);
-            Ok(outcome)
-        } else if choices.is_empty() {
-            // Terminal interview node — no routing question, no outgoing
-            // edges. Succeed with just the stored context updates.
-            Ok(Outcome {
-                context_updates,
-                ..Outcome::success()
-            })
-        } else {
-            // No routing question — follow first outgoing edge
-            Ok(Outcome {
-                status: crate::types::StageStatus::Success,
-                suggested_next_ids: vec![choices[0].target.clone()],
-                context_updates,
-                ..Outcome::success()
-            })
-        }
+        Ok(route_interview(
+            routing_answer,
+            &routing_question_options,
+            &choices,
+            context_updates,
+            node,
+            self.emitter.as_ref(),
+            &interview.id,
+        ))
     }
 
     /// Execute a conditional interview spec progressively.
@@ -342,7 +284,6 @@ impl WaitForHumanHandler {
     /// Resume recovery is not supported for conditional interviews — if
     /// the process crashes mid-interview, it restarts from the first
     /// question.
-    #[allow(clippy::too_many_lines)]
     async fn execute_conditional_interview_spec(
         &self,
         node: &Node,
@@ -352,22 +293,7 @@ impl WaitForHumanHandler {
     ) -> AttractorResult<Outcome> {
         let result = conduct_conditional(spec, self.interviewer.as_ref(), &node.id)
             .await
-            .map_err(|e| match e {
-                InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: "interview channel closed".into(),
-                },
-                InterviewError::BackendFailure(msg) => {
-                    crate::error::AttractorError::HandlerFailed {
-                        node_id: node.id.clone(),
-                        reason: format!("interview backend failure: {msg}"),
-                    }
-                }
-                InterviewError::Cancelled => crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: "interview cancelled".into(),
-                },
-            })?;
+            .map_err(|e| interview_error(&node.id, e))?;
 
         let interview = &result.interview;
 
@@ -387,10 +313,10 @@ impl WaitForHumanHandler {
 
         for (i, question) in interview.questions.iter().enumerate() {
             let answer = interview.answers.get(i).cloned().ok_or_else(|| {
-                crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: format!("no answer for question {i} after conditional interview"),
-                }
+                handler_failed(
+                    &node.id,
+                    format!("no answer for question {i} after conditional interview"),
+                )
             })?;
 
             // Use spec_indices to find the original spec question and
@@ -434,58 +360,80 @@ impl WaitForHumanHandler {
             node_id: node.id.clone(),
         });
 
-        // Routing mirrors the non-conditional path, including timeout
-        // and default-choice handling.
+        // Routing mirrors the non-conditional path
         let choices = choices_from_edges(graph, &node.id);
+        Ok(route_interview(
+            routing_answer,
+            &routing_question_options,
+            &choices,
+            context_updates,
+            node,
+            self.emitter.as_ref(),
+            &interview.id,
+        ))
+    }
+}
 
-        if let Some(routing_ans) = routing_answer {
-            if choices.is_empty() {
-                return Ok(Outcome::fail(
-                    "interview has a routing question but no outgoing edges",
-                ));
+/// Routing result from an interview: resolve the selected answer to
+/// an outgoing edge and merge in stored context updates.
+///
+/// This centralizes the routing logic shared by the batch and
+/// conditional interview paths: timeout handling (with default-choice
+/// fallback), skip handling, choice matching, and fallback to the
+/// first edge when there is no single-select routing question.
+fn route_interview(
+    routing_answer: Option<Answer>,
+    routing_question_options: &[QuestionOption],
+    choices: &[Choice],
+    context_updates: IndexMap<String, serde_json::Value>,
+    node: &Node,
+    emitter: &dyn EventEmitter,
+    interview_id: &str,
+) -> Outcome {
+    if let Some(routing_ans) = routing_answer {
+        if choices.is_empty() {
+            return Outcome::fail("interview has a routing question but no outgoing edges");
+        }
+
+        if routing_ans.is_timeout() {
+            emitter.emit(PipelineEvent::InterviewTimedOut {
+                interview_id: interview_id.to_string(),
+                node_id: node.id.clone(),
+            });
+
+            if let Some(default_target) = node.get_str_attr("human.default_choice")
+                && let Some(choice) = find_choice_by_str(default_target, choices)
+            {
+                let mut outcome = build_human_outcome(choice);
+                outcome.context_updates.extend(context_updates);
+                return outcome;
             }
+            return Outcome::retry("human gate timeout, no default");
+        }
 
-            if routing_ans.is_timeout() {
-                self.emitter.emit(PipelineEvent::InterviewTimedOut {
-                    interview_id: interview.id.clone(),
-                    node_id: node.id.clone(),
-                });
+        if routing_ans.is_skipped() {
+            return Outcome::fail("human skipped interaction");
+        }
 
-                if let Some(default_target) = node.get_str_attr("human.default_choice")
-                    && let Some(choice) = find_choice_by_str(default_target, &choices)
-                {
-                    let mut outcome = build_human_outcome(choice);
-                    outcome.context_updates.extend(context_updates);
-                    return Ok(outcome);
-                }
-                return Ok(Outcome::retry("human gate timeout, no default"));
-            }
+        let Some(selected) = find_matching_choice(&routing_ans, choices, routing_question_options)
+        else {
+            return Outcome::fail("answer did not match any available choice");
+        };
 
-            if routing_ans.is_skipped() {
-                return Ok(Outcome::fail("human skipped interaction"));
-            }
-
-            let Some(selected) =
-                find_matching_choice(&routing_ans, &choices, &routing_question_options)
-            else {
-                return Ok(Outcome::fail("answer did not match any available choice"));
-            };
-
-            let mut outcome = build_human_outcome(selected);
-            outcome.context_updates.extend(context_updates);
-            Ok(outcome)
-        } else if choices.is_empty() {
-            Ok(Outcome {
-                context_updates,
-                ..Outcome::success()
-            })
-        } else {
-            Ok(Outcome {
-                status: crate::types::StageStatus::Success,
-                suggested_next_ids: vec![choices[0].target.clone()],
-                context_updates,
-                ..Outcome::success()
-            })
+        let mut outcome = build_human_outcome(selected);
+        outcome.context_updates.extend(context_updates);
+        outcome
+    } else if choices.is_empty() {
+        Outcome {
+            context_updates,
+            ..Outcome::success()
+        }
+    } else {
+        Outcome {
+            status: crate::types::StageStatus::Success,
+            suggested_next_ids: vec![choices[0].target.clone()],
+            context_updates,
+            ..Outcome::success()
         }
     }
 }
@@ -496,6 +444,18 @@ struct Choice {
     key: String,
     label: String,
     target: String,
+}
+
+/// Convert a slice of choices into question options for the interviewer.
+fn options_from_choices(choices: &[Choice]) -> Vec<QuestionOption> {
+    choices
+        .iter()
+        .map(|c| QuestionOption {
+            key: c.key.clone(),
+            label: c.label.clone(),
+            description: None,
+        })
+        .collect()
 }
 
 /// Derive choices from a node's outgoing edges.
@@ -618,6 +578,33 @@ impl Handler for WaitForHumanHandler {
             return Ok(Outcome::fail("No outgoing edges for human gate"));
         }
 
+        // Auto-approve fast path: when `internal.gate_timeouts` resolves
+        // to a sub-second value, bypass the normal interviewer and use
+        // AutoApproveInterviewer to immediately select the first edge.
+        if let Some(timeout) = resolve_gate_timeout(context, &node.id)
+            && timeout < 1.0
+        {
+            let text = node
+                .get_str_attr(attr::LABEL)
+                .unwrap_or("Select an option:");
+            let question = Question::single_select(text, options_from_choices(&choices));
+
+            let auto_interviewer = AutoApproveInterviewer;
+            let answer = auto_interviewer
+                .ask(&question)
+                .await
+                .map_err(|e| handler_failed(&node.id, format!("auto-approve failed: {e}")))?;
+
+            let selected =
+                find_matching_choice(&answer, &choices, &question.options).ok_or_else(|| {
+                    handler_failed(&node.id, "auto-approve answer did not match any choice")
+                })?;
+
+            let mut outcome = build_human_outcome(selected);
+            outcome.notes = "[auto-approved]".into();
+            return Ok(outcome);
+        }
+
         // 2. Build question based on question_type
         let text = node
             .get_str_attr(attr::LABEL)
@@ -633,27 +620,11 @@ impl Handler for WaitForHumanHandler {
             Some(QuestionType::YesNo) => Question::yes_no(text),
             Some(QuestionType::Confirm) => Question::confirm(text),
             Some(QuestionType::MultiSelect) => {
-                let options: Vec<QuestionOption> = choices
-                    .iter()
-                    .map(|c| QuestionOption {
-                        key: c.key.clone(),
-                        label: c.label.clone(),
-                        description: None,
-                    })
-                    .collect();
-                Question::multi_select(text, options)
+                Question::multi_select(text, options_from_choices(&choices))
             }
             // Default: MultipleChoice (original behavior)
             None | Some(QuestionType::SingleSelect) => {
-                let options: Vec<QuestionOption> = choices
-                    .iter()
-                    .map(|c| QuestionOption {
-                        key: c.key.clone(),
-                        label: c.label.clone(),
-                        description: None,
-                    })
-                    .collect();
-                Question::single_select(text, options)
+                Question::single_select(text, options_from_choices(&choices))
             }
         };
 
@@ -673,42 +644,8 @@ impl Handler for WaitForHumanHandler {
         let mut interview = Interview::single(question.clone(), &node.id);
         interview.stage_index = context.get_i64(ctx::STAGE_INDEX);
 
-        // 3a. Resume recovery: if we have a DB connection, check for a
-        // pending interview from a previous run at this node/stage_index.
-        // If found, reuse its ID so external systems that already have
-        // the question can still submit answers.
-        if let Some(ref db_conn) = self.db_conn {
-            match stencila_interviews::find_pending_interview(
-                db_conn,
-                &self.context_type,
-                &self.context_id,
-                &node.id,
-                interview.stage_index,
-            ) {
-                Ok(Some((recovered_id, recovered_qids))) => {
-                    tracing::debug!(
-                        interview_id = %recovered_id,
-                        node_id = %node.id,
-                        "recovered pending interview from previous run"
-                    );
-                    interview.id = recovered_id;
-                    // Propagate recovered question IDs so PersistentInterviewer's
-                    // answer updates target the existing DB rows.
-                    for (q, qid) in interview.questions.iter_mut().zip(recovered_qids) {
-                        q.id = Some(qid);
-                    }
-                }
-                Ok(None) => {}
-                Err(e) => {
-                    tracing::warn!(
-                        node_id = %node.id,
-                        error = %e,
-                        "failed to query for pending interview during resume; \
-                         proceeding with a new interview ID"
-                    );
-                }
-            }
-        }
+        // 3a. Resume recovery
+        self.try_resume_recovery(&mut interview, &node.id);
 
         // Use the interview's question (not the local `question`) because
         // resume recovery above may have set `question.id` on the interview copy.
@@ -721,29 +658,13 @@ impl Handler for WaitForHumanHandler {
         self.interviewer
             .conduct(&mut interview)
             .await
-            .map_err(|e| match e {
-                InterviewError::ChannelClosed => crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: "interview channel closed".into(),
-                },
-                InterviewError::BackendFailure(msg) => {
-                    crate::error::AttractorError::HandlerFailed {
-                        node_id: node.id.clone(),
-                        reason: format!("interview backend failure: {msg}"),
-                    }
-                }
-                InterviewError::Cancelled => crate::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: "interview cancelled".into(),
-                },
-            })?;
+            .map_err(|e| interview_error(&node.id, e))?;
 
-        let answer = interview.answers.first().cloned().ok_or_else(|| {
-            crate::error::AttractorError::HandlerFailed {
-                node_id: node.id.clone(),
-                reason: "no answer after interview".into(),
-            }
-        })?;
+        let answer = interview
+            .answers
+            .first()
+            .cloned()
+            .ok_or_else(|| handler_failed(&node.id, "no answer after interview"))?;
 
         // 4. Handle timeout/skip
         if answer.is_timeout() {
@@ -878,28 +799,34 @@ fn find_matching_choice<'a>(
 ) -> Option<&'a Choice> {
     match &answer.value {
         AnswerValue::Selected(key) => {
-            // Try matching the selected key directly against edge-derived keys.
-            choices
-                .iter()
-                .find(|c| c.key.eq_ignore_ascii_case(key))
+            // Resolve the option label from the answer or question options.
+            // When available, prefer label-based matching because edge-derived
+            // keys (first letter of the label) can collide (e.g. "Accept" and
+            // "Accept and Commit" both produce key "A"). Label matching is
+            // unambiguous.
+            let label = answer
+                .selected_option
+                .as_ref()
+                .map(|o| o.label.as_str())
                 .or_else(|| {
-                    // When the question comes from an interview spec, its
-                    // auto-assigned option keys (A, B, C…) may differ from
-                    // the edge-derived keys (first letter of each label).
-                    // Resolve the selected key to the option label, then
-                    // match that label against edge labels.
-                    let label = answer
-                        .selected_option
-                        .as_ref()
+                    question_options
+                        .iter()
+                        .find(|o| o.key.eq_ignore_ascii_case(key))
                         .map(|o| o.label.as_str())
-                        .or_else(|| {
-                            question_options
-                                .iter()
-                                .find(|o| o.key.eq_ignore_ascii_case(key))
-                                .map(|o| o.label.as_str())
-                        })?;
-                    choices.iter().find(|c| c.label.eq_ignore_ascii_case(label))
-                })
+                });
+
+            if let Some(label) = label {
+                choices
+                    .iter()
+                    .find(|c| c.label.eq_ignore_ascii_case(label))
+                    .or_else(|| {
+                        // Fallback to key match when no label matched
+                        choices.iter().find(|c| c.key.eq_ignore_ascii_case(key))
+                    })
+            } else {
+                // No label available — match by key directly
+                choices.iter().find(|c| c.key.eq_ignore_ascii_case(key))
+            }
         }
         AnswerValue::Text(text) => {
             // Try matching by key first, then by label
@@ -911,6 +838,38 @@ fn find_matching_choice<'a>(
         AnswerValue::Yes => choices.first(),
         _ => None,
     }
+}
+
+/// Build a [`HandlerFailed`](crate::error::AttractorError::HandlerFailed) error.
+fn handler_failed(node_id: &str, reason: impl Into<String>) -> crate::error::AttractorError {
+    crate::error::AttractorError::HandlerFailed {
+        node_id: node_id.to_string(),
+        reason: reason.into(),
+    }
+}
+
+/// Convert an [`InterviewError`] into an [`AttractorError::HandlerFailed`].
+fn interview_error(node_id: &str, e: InterviewError) -> crate::error::AttractorError {
+    let reason = match e {
+        InterviewError::ChannelClosed => "interview channel closed".into(),
+        InterviewError::BackendFailure(msg) => format!("interview backend failure: {msg}"),
+        InterviewError::Cancelled => "interview cancelled".into(),
+    };
+    handler_failed(node_id, reason)
+}
+
+/// Resolve the gate timeout for a node from context.
+///
+/// Reads `internal.gate_timeouts` (expected to be a JSON object mapping
+/// node IDs or `"*"` to timeout seconds). Returns the timeout in seconds
+/// if a match is found — first checking the specific node ID, then the
+/// `"*"` wildcard.
+fn resolve_gate_timeout(context: &Context, node_id: &str) -> Option<f64> {
+    let map = context.get("internal.gate_timeouts")?;
+    let obj = map.as_object()?;
+    obj.get(node_id)
+        .or_else(|| obj.get("*"))
+        .and_then(serde_json::Value::as_f64)
 }
 
 // Note: `wait.human` is not included in `HandlerRegistry::with_defaults()`

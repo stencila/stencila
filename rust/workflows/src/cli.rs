@@ -539,6 +539,7 @@ impl Run {
             emitter,
             interviewer: Some(interviewer),
             run_id_out: None,
+            gate_timeout: crate::run::GateTimeoutConfig::default(),
         };
         let outcome = crate::run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
@@ -752,6 +753,7 @@ impl Resume {
             emitter,
             interviewer: Some(interviewer),
             run_id_out: None,
+            gate_timeout: crate::run::GateTimeoutConfig::default(),
         };
         let outcome =
             crate::run::resume_workflow_with_options(&run_id, &cwd, options, self.force).await?;

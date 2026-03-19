@@ -14,6 +14,7 @@ use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use tokio::fs::read_to_string;
 
+use stencila_attractor::{Graph, graph::attr};
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Block, Node, NodeType, Workflow};
 use stencila_version::STENCILA_VERSION;
@@ -34,6 +35,15 @@ impl std::fmt::Display for WorkflowSource {
             Self::Builtin => f.write_str("builtin"),
         }
     }
+}
+
+/// Information about a human gate node in a workflow pipeline.
+#[derive(Debug, Clone)]
+pub struct HumanGateInfo {
+    /// The node ID in the pipeline graph.
+    pub node_id: String,
+    /// The display label for this gate.
+    pub label: String,
 }
 
 /// An instance of a workflow loaded from disk.
@@ -130,7 +140,7 @@ impl WorkflowInstance {
     }
 
     /// Parse the pipeline DOT source into an attractor Graph.
-    pub fn graph(&self) -> eyre::Result<stencila_attractor::Graph> {
+    pub fn graph(&self) -> eyre::Result<Graph> {
         let pipeline = self
             .pipeline
             .as_deref()
@@ -158,16 +168,38 @@ impl WorkflowInstance {
         };
         let mut agents = Vec::new();
         for node in graph.nodes.values() {
-            if let Some(stencila_attractor::AttrValue::String(agent)) = node.attrs.get("agent")
-                && !agents.contains(agent)
+            if let Some(agent) = node.get_str_attr(attr::AGENT)
+                && !agents.iter().any(|a: &String| a == agent)
             {
-                agents.push(agent.clone());
+                agents.push(agent.to_string());
             }
         }
         agents
     }
 
-    fn resolve_content_references(&self, graph: &mut stencila_attractor::Graph) -> Result<()> {
+    /// Return information about all human gate nodes in the pipeline.
+    ///
+    /// A node is considered a human gate if it has hexagon shape, or has
+    /// an `ask` or `interview` attribute.
+    pub fn human_gate_nodes(&self) -> Result<Vec<HumanGateInfo>> {
+        let graph = self.graph()?;
+        let gates = graph
+            .nodes
+            .values()
+            .filter(|node| {
+                node.shape() == Graph::HUMAN_SHAPE
+                    || node.attrs.contains_key(attr::ASK)
+                    || node.attrs.contains_key(attr::INTERVIEW)
+            })
+            .map(|node| HumanGateInfo {
+                node_id: node.id.clone(),
+                label: node.label().to_string(),
+            })
+            .collect();
+        Ok(gates)
+    }
+
+    fn resolve_content_references(&self, graph: &mut Graph) -> Result<()> {
         const REF_ATTRS: &[(&str, &[&str])] = &[
             ("prompt", &["prompt_ref", "prompt-ref"]),
             ("shell", &["shell_ref", "shell-ref"]),
@@ -823,6 +855,235 @@ digraph interview_ref {
             Some(
                 "questions:\n  - question: \"What areas need improvement?\"\n    type: freeform\n    store: review.improvements\n  - question: \"Are there any blocking issues?\"\n    type: yes-no"
             )
+        );
+    }
+
+    // -- human_gate_nodes() tests --
+
+    #[tokio::test]
+    async fn human_gate_nodes_returns_empty_for_no_gates() {
+        let (_tmp, instance) = load_inline_workflow(
+            "no-gates",
+            r##"---
+name: no-gates
+description: Workflow with no human gates
+---
+
+```dot
+digraph no_gates {
+    Start [shape=Mdiamond]
+    Exit  [shape=Msquare]
+    Work  [agent="code-engineer", prompt="Do something"]
+    Start -> Work -> Exit
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert!(gates.is_empty(), "expected no human gates, got {gates:?}");
+    }
+
+    #[tokio::test]
+    async fn human_gate_nodes_returns_single_hexagon_gate() {
+        let (_tmp, instance) = load_inline_workflow(
+            "one-gate",
+            r##"---
+name: one-gate
+description: Workflow with one hexagon human gate
+---
+
+```dot
+digraph one_gate {
+    Start [shape=Mdiamond]
+    Exit  [shape=Msquare]
+    Gate  [shape=hexagon, label="Approve?"]
+    Start -> Gate
+    Gate -> Exit [label="yes"]
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert_eq!(
+            gates.len(),
+            1,
+            "expected exactly one human gate, got {gates:?}"
+        );
+        assert_eq!(gates[0].node_id, "Gate");
+        assert_eq!(gates[0].label, "Approve?");
+    }
+
+    #[tokio::test]
+    async fn human_gate_nodes_returns_only_gates_from_mixed_graph() {
+        let (_tmp, instance) = load_inline_workflow(
+            "mixed-nodes",
+            r##"---
+name: mixed-nodes
+description: Workflow with mixed node types
+---
+
+```dot
+digraph mixed_nodes {
+    Start  [shape=Mdiamond]
+    Exit   [shape=Msquare]
+    Code   [agent="code-engineer", prompt="Write code"]
+    Shell  [shell="echo hello"]
+    Review [shape=hexagon, label="Review changes?"]
+    Start -> Code -> Shell -> Review
+    Review -> Exit [label="approve"]
+    Review -> Code [label="revise"]
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert_eq!(
+            gates.len(),
+            1,
+            "expected exactly one human gate from mixed graph, got {gates:?}"
+        );
+        assert_eq!(gates[0].node_id, "Review");
+        assert_eq!(gates[0].label, "Review changes?");
+    }
+
+    #[tokio::test]
+    async fn human_gate_nodes_detects_ask_attribute() {
+        let (_tmp, instance) = load_inline_workflow(
+            "ask-gate",
+            r##"---
+name: ask-gate
+description: Workflow with ask attribute
+---
+
+```dot
+digraph ask_gate {
+    Start [shape=Mdiamond]
+    Exit  [shape=Msquare]
+    Question [ask="What should change?"]
+    Start -> Question -> Exit
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert_eq!(
+            gates.len(),
+            1,
+            "expected one human gate from ask attribute, got {gates:?}"
+        );
+        assert_eq!(gates[0].node_id, "Question");
+    }
+
+    #[tokio::test]
+    async fn human_gate_nodes_detects_interview_ref_attribute() {
+        let (_tmp, instance) = load_inline_workflow(
+            "interview-gate",
+            r##"---
+name: interview-gate
+description: Workflow with interview-ref attribute
+---
+
+```yaml #review-questions
+questions:
+  - question: "Is the code ready?"
+    type: yes-no
+```
+
+```dot
+digraph interview_gate {
+    Start  [shape=Mdiamond]
+    Exit   [shape=Msquare]
+    Code   [agent="code-engineer", prompt="Write code"]
+    Review [interview-ref="#review-questions"]
+    Start -> Code -> Review -> Exit
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert_eq!(
+            gates.len(),
+            1,
+            "expected one human gate from interview-ref, got {gates:?}"
+        );
+        assert_eq!(gates[0].node_id, "Review");
+    }
+
+    #[tokio::test]
+    async fn human_gate_nodes_detects_interview_attribute() {
+        let (_tmp, instance) = load_inline_workflow(
+            "interview-inline",
+            r##"---
+name: interview-inline
+description: Workflow with inline interview attribute
+---
+
+```dot
+digraph interview_inline {
+    Start  [shape=Mdiamond]
+    Exit   [shape=Msquare]
+    Code   [agent="code-engineer", prompt="Write code"]
+    Review [interview="questions:\n  - question: Ready?\n    type: yes-no"]
+    Start -> Code -> Review -> Exit
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert_eq!(
+            gates.len(),
+            1,
+            "expected one human gate from interview attr, got {gates:?}"
+        );
+        assert_eq!(gates[0].node_id, "Review");
+    }
+
+    #[tokio::test]
+    async fn human_gate_nodes_returns_multiple_gates() {
+        let (_tmp, instance) = load_inline_workflow(
+            "multi-gate",
+            r##"---
+name: multi-gate
+description: Workflow with multiple human gates
+---
+
+```dot
+digraph multi_gate {
+    Start   [shape=Mdiamond]
+    Exit    [shape=Msquare]
+    Code    [agent="code-engineer", prompt="Write code"]
+    Gate1   [shape=hexagon, label="Approve design?"]
+    Gate2   [ask="Ready to deploy?"]
+    Start -> Gate1 -> Code -> Gate2 -> Exit
+}
+```
+"##,
+        )
+        .await;
+
+        let gates = instance.human_gate_nodes().expect("should parse graph");
+        assert_eq!(gates.len(), 2, "expected two human gates, got {gates:?}");
+
+        let gate_ids: Vec<&str> = gates.iter().map(|g| g.node_id.as_str()).collect();
+        assert!(
+            gate_ids.contains(&"Gate1"),
+            "expected Gate1 in gates: {gate_ids:?}"
+        );
+        assert!(
+            gate_ids.contains(&"Gate2"),
+            "expected Gate2 in gates: {gate_ids:?}"
         );
     }
 

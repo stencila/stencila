@@ -15,7 +15,7 @@ use stencila_attractor::{
 
 use crate::{
     get_by_name,
-    run::{ParentRun, RunOptions, run_workflow_with_options_and_parent},
+    run::{GateTimeoutConfig, ParentRun, RunOptions, run_workflow_with_options_and_parent},
 };
 
 #[derive(Clone)]
@@ -112,6 +112,7 @@ impl Handler for WorkflowHandler {
                 emitter: self.emitter.clone(),
                 interviewer: self.interviewer.clone(),
                 run_id_out: None,
+                gate_timeout: GateTimeoutConfig::default(),
             },
             Some(ParentRun {
                 run_id: context.get_string("internal.run_id"),

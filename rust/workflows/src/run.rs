@@ -46,6 +46,7 @@ pub async fn run_workflow(workflow: &WorkflowInstance) -> Result<Outcome> {
         emitter: stderr_event_emitter(),
         interviewer: None,
         run_id_out: None,
+        gate_timeout: GateTimeoutConfig::default(),
     };
     run_workflow_with_options(workflow, options).await
 }
@@ -58,6 +59,49 @@ pub struct RunOptions {
     /// Callers can use this to mark the run as cancelled if the task is
     /// aborted before the engine finishes.
     pub run_id_out: Option<Arc<Mutex<Option<String>>>>,
+    /// Controls how human gates (hexagon nodes) behave during execution.
+    pub gate_timeout: GateTimeoutConfig,
+}
+
+/// Controls how human gates behave during workflow execution.
+#[derive(Clone, Debug, Default)]
+pub enum GateTimeoutConfig {
+    /// Wait indefinitely for human input (default).
+    #[default]
+    Interactive,
+    /// Automatically approve all gates with zero timeout.
+    AutoApprove,
+    /// Auto-approve gates after the given number of seconds.
+    Timed { seconds: f64 },
+}
+
+impl GateTimeoutConfig {
+    /// Serialize this config to a JSON value suitable for writing into the
+    /// `internal.gate_timeouts` context key.
+    ///
+    /// Returns `None` for `Interactive` (meaning: omit from context).
+    pub fn to_context_json(&self) -> Option<serde_json::Value> {
+        match self {
+            Self::Interactive => None,
+            Self::AutoApprove => Some(serde_json::json!({"*": 0})),
+            Self::Timed { seconds } => {
+                let value = if seconds.fract() == 0.0 {
+                    serde_json::json!(*seconds as i64)
+                } else {
+                    serde_json::json!(*seconds)
+                };
+                Some(serde_json::json!({"*": value}))
+            }
+        }
+    }
+}
+
+/// Write `internal.gate_timeouts` into the pipeline context when the
+/// gate-timeout config is non-interactive.
+fn propagate_gate_timeout(config: &GateTimeoutConfig, context: &Context) {
+    if let Some(value) = config.to_context_json() {
+        context.set("internal.gate_timeouts", value);
+    }
 }
 
 #[derive(Clone, Default)]
@@ -195,6 +239,8 @@ pub(crate) async fn run_workflow_with_options_and_parent(
     // Set the run_id in context *after* the workflow_runs row exists so
     // the INSERT into workflow_context doesn't violate the FK constraint.
     context.set("internal.run_id", serde_json::json!(run_id.clone()));
+
+    propagate_gate_timeout(&options.gate_timeout, &context);
 
     let agent_metadata = collect_agent_metadata(&resolved);
 
@@ -2150,4 +2196,198 @@ mod tests {
 
         Ok(())
     }
+
+    // -- GateTimeoutConfig tests (Phase 1 / Slice 2) --
+
+    /// AC-1: `GateTimeoutConfig` enum exists with `Interactive`, `AutoApprove`,
+    /// and `Timed { seconds: f64 }` variants and derives `Clone`, `Debug`,
+    /// `Default` (defaulting to `Interactive`).
+    #[test]
+    fn gate_timeout_config_has_expected_variants_and_derives() {
+        // Construct each variant to verify they exist.
+        let interactive = GateTimeoutConfig::Interactive;
+        let auto_approve = GateTimeoutConfig::AutoApprove;
+        let timed = GateTimeoutConfig::Timed { seconds: 30.0 };
+
+        // Verify Default is Interactive.
+        let default_config = GateTimeoutConfig::default();
+        assert!(
+            matches!(default_config, GateTimeoutConfig::Interactive),
+            "GateTimeoutConfig::default() should be Interactive"
+        );
+
+        // Verify Clone.
+        let _cloned = interactive.clone();
+        let _cloned = auto_approve.clone();
+        let _cloned = timed.clone();
+
+        // Verify Debug.
+        let debug_str = format!("{interactive:?}");
+        assert!(
+            !debug_str.is_empty(),
+            "Debug should produce non-empty output"
+        );
+    }
+
+    /// AC-2: `RunOptions` has a `gate_timeout: GateTimeoutConfig` field that
+    /// defaults to `Interactive`.
+    #[test]
+    fn run_options_has_gate_timeout_field() {
+        let options = RunOptions {
+            emitter: Arc::new(stencila_attractor::events::NoOpEmitter),
+            interviewer: None,
+            run_id_out: None,
+            gate_timeout: GateTimeoutConfig::AutoApprove,
+        };
+
+        assert!(
+            matches!(options.gate_timeout, GateTimeoutConfig::AutoApprove),
+            "RunOptions should accept gate_timeout field"
+        );
+    }
+
+    /// AC-2 (cont): `RunOptions` with default gate_timeout (Interactive) still
+    /// works at the `run_workflow` convenience wrapper construction site.
+    #[test]
+    fn run_options_defaults_gate_timeout_to_interactive() {
+        let options = RunOptions {
+            emitter: Arc::new(stencila_attractor::events::NoOpEmitter),
+            interviewer: None,
+            run_id_out: None,
+            gate_timeout: GateTimeoutConfig::default(),
+        };
+
+        assert!(
+            matches!(options.gate_timeout, GateTimeoutConfig::Interactive),
+            "default gate_timeout should be Interactive"
+        );
+    }
+
+    /// AC-4: `GateTimeoutConfig::Interactive` serializes to empty/omit for
+    /// context — `to_context_json()` returns `None`.
+    #[test]
+    fn gate_timeout_interactive_serializes_to_none() {
+        let config = GateTimeoutConfig::Interactive;
+        let json = config.to_context_json();
+        assert!(
+            json.is_none(),
+            "Interactive should serialize to None (omit from context), got {json:?}"
+        );
+    }
+
+    /// AC-5: `GateTimeoutConfig::AutoApprove` serializes to `{{"*": 0}}` for
+    /// context.
+    #[test]
+    fn gate_timeout_auto_approve_serializes_to_star_zero() {
+        let config = GateTimeoutConfig::AutoApprove;
+        let json = config.to_context_json();
+        assert!(json.is_some(), "AutoApprove should produce Some(...)");
+        let value = json.expect("should be Some");
+        let expected: serde_json::Value = serde_json::json!({"*": 0});
+        assert_eq!(
+            value, expected,
+            "AutoApprove should serialize to {{\"*\": 0}}, got {value}"
+        );
+    }
+
+    /// AC-6: `GateTimeoutConfig::Timed { seconds: 30.0 }` serializes to
+    /// `{{"*": 30}}` for context.
+    #[test]
+    fn gate_timeout_timed_serializes_to_star_seconds() {
+        let config = GateTimeoutConfig::Timed { seconds: 30.0 };
+        let json = config.to_context_json();
+        assert!(json.is_some(), "Timed should produce Some(...)");
+        let value = json.expect("should be Some");
+        let expected: serde_json::Value = serde_json::json!({"*": 30});
+        assert_eq!(
+            value, expected,
+            "Timed {{ seconds: 30.0 }} should serialize to {{\"*\": 30}}, got {value}"
+        );
+    }
+
+    /// AC-6 (cont): Timed with fractional seconds preserves the value.
+    #[test]
+    fn gate_timeout_timed_fractional_seconds() {
+        let config = GateTimeoutConfig::Timed { seconds: 15.5 };
+        let json = config.to_context_json();
+        assert!(json.is_some(), "Timed should produce Some(...)");
+        let value = json.expect("should be Some");
+        let expected: serde_json::Value = serde_json::json!({"*": 15.5});
+        assert_eq!(
+            value, expected,
+            "Timed {{ seconds: 15.5 }} should serialize to {{\"*\": 15.5}}, got {value}"
+        );
+    }
+
+    /// AC-7: `propagate_gate_timeout` writes `internal.gate_timeouts` into
+    /// context for `AutoApprove` config.
+    ///
+    /// The helper function `propagate_gate_timeout(config, context)` should
+    /// call `config.to_context_json()` and, when the result is `Some`, write
+    /// it into the context under key `"internal.gate_timeouts"`.
+    #[test]
+    fn propagate_gate_timeout_writes_auto_approve_to_context() {
+        let context = stencila_attractor::context::Context::new();
+        let config = GateTimeoutConfig::AutoApprove;
+
+        propagate_gate_timeout(&config, &context);
+
+        let value = context.get("internal.gate_timeouts");
+        assert!(
+            value.is_some(),
+            "AutoApprove should write internal.gate_timeouts to context"
+        );
+        let expected: serde_json::Value = serde_json::json!({"*": 0});
+        assert_eq!(
+            value.expect("should be Some"),
+            expected,
+            "internal.gate_timeouts should be {{\"*\": 0}} for AutoApprove"
+        );
+    }
+
+    /// AC-7 (cont): `propagate_gate_timeout` writes `internal.gate_timeouts`
+    /// into context for `Timed` config.
+    #[test]
+    fn propagate_gate_timeout_writes_timed_to_context() {
+        let context = stencila_attractor::context::Context::new();
+        let config = GateTimeoutConfig::Timed { seconds: 45.0 };
+
+        propagate_gate_timeout(&config, &context);
+
+        let value = context.get("internal.gate_timeouts");
+        assert!(
+            value.is_some(),
+            "Timed should write internal.gate_timeouts to context"
+        );
+        let expected: serde_json::Value = serde_json::json!({"*": 45});
+        assert_eq!(
+            value.expect("should be Some"),
+            expected,
+            "internal.gate_timeouts should be {{\"*\": 45}} for Timed {{ seconds: 45.0 }}"
+        );
+    }
+
+    /// AC-7 (cont): `propagate_gate_timeout` does NOT write
+    /// `internal.gate_timeouts` for `Interactive` config (omit).
+    #[test]
+    fn propagate_gate_timeout_omits_interactive_from_context() {
+        let context = stencila_attractor::context::Context::new();
+        let config = GateTimeoutConfig::Interactive;
+
+        propagate_gate_timeout(&config, &context);
+
+        let value = context.get("internal.gate_timeouts");
+        assert!(
+            value.is_none(),
+            "Interactive should not write internal.gate_timeouts to context, \
+             but found {value:?}"
+        );
+    }
+
+    // NOTE: AC-3 (all existing `RunOptions` construction sites compile) is
+    // verified by `cargo check` / `cargo clippy` across the workspace. The
+    // implementation must update run_workflow(), Run::run(), Resume::run(),
+    // spawn_workflow(), spawn_resume_workflow(), WorkflowHandler::execute(),
+    // and test helpers. This is a compilation-level concern, not a unit-test
+    // concern. See AC-8/AC-9.
 }

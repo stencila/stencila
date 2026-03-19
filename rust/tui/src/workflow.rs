@@ -125,6 +125,7 @@ pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
                 emitter,
                 interviewer: Some(interviewer),
                 run_id_out: None,
+                gate_timeout: stencila_workflows::GateTimeoutConfig::default(),
             };
             stencila_workflows::resume_workflow_with_options(&run_id, &cwd, options, false).await
         }
@@ -166,6 +167,7 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
                 emitter,
                 interviewer: Some(interviewer),
                 run_id_out: Some(run_id_for_task),
+                gate_timeout: stencila_workflows::GateTimeoutConfig::default(),
             };
             stencila_workflows::run_workflow_with_options(&workflow, options).await
         }

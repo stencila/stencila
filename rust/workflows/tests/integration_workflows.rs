@@ -59,6 +59,7 @@ fn run_options() -> RunOptions {
         emitter: Arc::new(NoOpEmitter),
         interviewer: Some(Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>),
         run_id_out: None,
+        gate_timeout: stencila_workflows::GateTimeoutConfig::default(),
     }
 }
 
@@ -71,6 +72,7 @@ async fn run_and_assert_success(name: &str) {
             emitter: stencila_workflows::stderr_event_emitter_for_testing(),
             interviewer: run_options().interviewer,
             run_id_out: None,
+            gate_timeout: stencila_workflows::GateTimeoutConfig::default(),
         },
     )
     .await

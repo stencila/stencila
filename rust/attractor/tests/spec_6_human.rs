@@ -1280,3 +1280,157 @@ questions:
     assert_eq!(stored, Some("Rollback"));
     Ok(())
 }
+
+// ===========================================================================
+// Auto-approve fast path: internal.gate_timeouts context key
+// ===========================================================================
+
+/// When `internal.gate_timeouts` is set to `{"*": 0}` in context,
+/// the WaitForHumanHandler should auto-approve by using an internal
+/// AutoApproveInterviewer instead of `self.interviewer`.
+#[tokio::test]
+async fn auto_approve_via_gate_timeouts_zero() -> AttractorResult<()> {
+    // Use a recording interviewer so we can verify it is NOT called
+    let inner = QueueInterviewer::new(vec![Answer::new(AnswerValue::No)]);
+    let recording = Arc::new(RecordingInterviewer::new(inner));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // Auto-approve selects the first edge (Accept)
+    assert!(outcome.suggested_next_ids.contains(&"accept".to_string()));
+    // The normal interviewer should NOT have been called
+    assert_eq!(recording.recordings().len(), 0);
+    Ok(())
+}
+
+/// Auto-approved gates should emit `"[auto-approved]"` in outcome notes.
+#[tokio::test]
+async fn auto_approve_emits_marker_in_notes() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(
+        outcome.notes.contains("[auto-approved]"),
+        "expected '[auto-approved]' in notes, got: {:?}",
+        outcome.notes
+    );
+    Ok(())
+}
+
+/// Sub-second timeout (e.g. 0.5) should also trigger auto-approve.
+#[tokio::test]
+async fn auto_approve_via_gate_timeouts_sub_second() -> AttractorResult<()> {
+    let inner = QueueInterviewer::new(vec![Answer::new(AnswerValue::No)]);
+    let recording = Arc::new(RecordingInterviewer::new(inner));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0.5}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"accept".to_string()));
+    assert_eq!(recording.recordings().len(), 0);
+    Ok(())
+}
+
+/// When `internal.gate_timeouts` has a value >= 1.0, auto-approve
+/// should NOT trigger — the normal interviewer should be used.
+#[tokio::test]
+async fn no_auto_approve_when_timeout_ge_one() -> AttractorResult<()> {
+    let recording = Arc::new(RecordingInterviewer::new(AutoApproveInterviewer));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 30}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // The normal interviewer SHOULD have been called
+    assert!(!recording.recordings().is_empty());
+    // Notes should NOT contain auto-approved marker
+    assert!(
+        !outcome.notes.contains("[auto-approved]"),
+        "expected no '[auto-approved]' marker when timeout >= 1.0"
+    );
+    Ok(())
+}
+
+/// When `internal.gate_timeouts` is absent from context, normal
+/// interviewer behavior is unchanged (no regression).
+#[tokio::test]
+async fn no_auto_approve_when_gate_timeouts_absent() -> AttractorResult<()> {
+    let recording = Arc::new(RecordingInterviewer::new(AutoApproveInterviewer));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    // No gate_timeouts set
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // Normal interviewer should be called
+    assert!(!recording.recordings().is_empty());
+    Ok(())
+}
+
+/// Auto-approve should still produce the standard human gate context
+/// updates (human.gate.selected, human.gate.label) so downstream
+/// nodes can inspect the routing decision.
+#[tokio::test]
+async fn auto_approve_produces_gate_context_updates() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"accept".to_string()));
+
+    let selected = outcome
+        .context_updates
+        .get("human.gate.selected")
+        .and_then(|v| v.as_str());
+    assert_eq!(selected, Some("A"));
+
+    let label = outcome
+        .context_updates
+        .get("human.gate.label")
+        .and_then(|v| v.as_str());
+    assert_eq!(label, Some("Accept"));
+    Ok(())
+}
