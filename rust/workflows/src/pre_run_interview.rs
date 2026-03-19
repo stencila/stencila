@@ -1,4 +1,4 @@
-//! Construction of the unified pre-run interview.
+//! Construction and answer extraction for the unified pre-run interview.
 //!
 //! Before executing a workflow pipeline, the runner may present a short
 //! interview to the user to gather:
@@ -8,10 +8,22 @@
 //!
 //! [`build_pre_run_interview`] constructs an [`InterviewSpec`] containing
 //! only the questions relevant to the given workflow and CLI configuration.
+//!
+//! [`extract_pre_run_answers`] converts the interview answers back into
+//! domain types: an optional goal string and a [`GateTimeoutConfig`].
 
+use stencila_interviews::conduct::ConductedInterview;
 use stencila_interviews::spec::{InterviewSpec, OptionSpec, QuestionSpec, QuestionTypeSpec};
 
+use crate::GateTimeoutConfig;
 use crate::WorkflowInstance;
+
+/// Store key for the user-provided goal answer.
+const STORE_GOAL: &str = "pre_run.goal";
+/// Store key for the gate-mode selection (Interactive / Auto-approve / Timed).
+const STORE_GATE_MODE: &str = "pre_run.gate_mode";
+/// Store key for the duration when gate mode is Timed.
+const STORE_GATE_DURATION: &str = "pre_run.gate_duration";
 
 /// Build an [`InterviewSpec`] for the pre-run interview, or `None` if all
 /// questions would be skipped.
@@ -38,7 +50,7 @@ pub fn build_pre_run_interview(
         questions.push(QuestionSpec {
             question: hint.clone(),
             r#type: QuestionTypeSpec::Freeform,
-            store: Some("pre_run.goal".into()),
+            store: Some(STORE_GOAL.into()),
             ..QuestionSpec::default()
         });
     }
@@ -51,7 +63,7 @@ pub fn build_pre_run_interview(
         questions.push(QuestionSpec {
             question: "How should human gates be handled?".into(),
             r#type: QuestionTypeSpec::SingleSelect,
-            store: Some("pre_run.gate_mode".into()),
+            store: Some(STORE_GATE_MODE.into()),
             options: ["Interactive", "Auto-approve", "Timed"]
                 .into_iter()
                 .map(|label| OptionSpec {
@@ -65,8 +77,8 @@ pub fn build_pre_run_interview(
         questions.push(QuestionSpec {
             question: "How long before auto-approving?".into(),
             r#type: QuestionTypeSpec::Freeform,
-            store: Some("pre_run.gate_duration".into()),
-            show_if: Some("pre_run.gate_mode == Timed".into()),
+            store: Some(STORE_GATE_DURATION.into()),
+            show_if: Some(format!("{STORE_GATE_MODE} == Timed")),
             ..QuestionSpec::default()
         });
     }
@@ -79,6 +91,82 @@ pub fn build_pre_run_interview(
             questions,
         })
     }
+}
+
+/// Result of extracting pre-run interview answers.
+pub struct PreRunAnswers {
+    /// The user-provided goal, if any.
+    pub goal: Option<String>,
+    /// The gate timeout configuration derived from the user's choices.
+    pub gate_timeout: GateTimeoutConfig,
+}
+
+/// Extract domain values from a conducted pre-run interview.
+///
+/// Maps the interview answers back to the original spec's `store` keys
+/// and converts them into a goal string and [`GateTimeoutConfig`].
+///
+/// The `spec` must be the same [`InterviewSpec`] that was used to conduct
+/// the interview (needed to look up `store` keys).
+pub fn extract_pre_run_answers(
+    spec: &InterviewSpec,
+    conducted: &ConductedInterview,
+) -> PreRunAnswers {
+    use stencila_interviews::interviewer::canonical_answer_string;
+
+    // Build a map from store key → canonical answer string.
+    let store_values: std::collections::HashMap<&str, String> = conducted
+        .spec_indices
+        .iter()
+        .enumerate()
+        .filter_map(|(i, &spec_idx)| {
+            let store = spec.questions[spec_idx].store.as_deref()?;
+            let canonical = canonical_answer_string(
+                &conducted.interview.answers[i].value,
+                &conducted.interview.questions[i],
+            );
+            Some((store, canonical))
+        })
+        .collect();
+
+    // Extract goal — canonical_answer_string already returns the raw text
+    // for freeform answers, so a simple map lookup suffices.
+    let goal = store_values.get(STORE_GOAL).cloned();
+
+    // Extract gate timeout config.
+    let gate_timeout = match store_values.get(STORE_GATE_MODE).map(String::as_str) {
+        Some("Auto-approve") => GateTimeoutConfig::AutoApprove,
+        Some("Timed") => {
+            let seconds = store_values
+                .get(STORE_GATE_DURATION)
+                .map(|d| parse_duration(d))
+                .unwrap_or(0.0);
+            GateTimeoutConfig::Timed { seconds }
+        }
+        _ => GateTimeoutConfig::Interactive,
+    };
+
+    PreRunAnswers { goal, gate_timeout }
+}
+
+/// Parse a human-friendly duration string into seconds.
+///
+/// Supports formats like `"30s"`, `"5m"`, `"2h"`, or bare numbers
+/// (interpreted as seconds).
+fn parse_duration(s: &str) -> f64 {
+    let s = s.trim();
+
+    let (num, multiplier) = if let Some(n) = s.strip_suffix('s') {
+        (n, 1.0)
+    } else if let Some(n) = s.strip_suffix('m') {
+        (n, 60.0)
+    } else if let Some(n) = s.strip_suffix('h') {
+        (n, 3600.0)
+    } else {
+        (s, 1.0)
+    };
+
+    num.trim().parse::<f64>().unwrap_or(0.0) * multiplier
 }
 
 #[cfg(test)]
@@ -408,6 +496,283 @@ digraph test {
             validation.is_ok(),
             "returned InterviewSpec should pass validation: {:?}",
             validation.err()
+        );
+    }
+
+    // ===================================================================
+    // extract_pre_run_answers tests (Phase 5 / Slice 2)
+    // ===================================================================
+
+    use stencila_interviews::conduct::conduct_conditional;
+    use stencila_interviews::interviewer::{Answer, AnswerValue};
+    use stencila_interviews::interviewers::QueueInterviewer;
+
+    /// Helper: build a 3-question pre-run spec (goal + gate mode + duration)
+    /// and conduct it with the provided queue answers.
+    async fn conduct_full_pre_run(answers: Vec<Answer>) -> (InterviewSpec, ConductedInterview) {
+        // Build a spec with all 3 questions (goal + gate mode + duration).
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "What do you want to build?".into(),
+                    r#type: QuestionTypeSpec::Freeform,
+                    store: Some("pre_run.goal".into()),
+                    ..QuestionSpec::default()
+                },
+                QuestionSpec {
+                    question: "How should human gates be handled?".into(),
+                    r#type: QuestionTypeSpec::SingleSelect,
+                    store: Some("pre_run.gate_mode".into()),
+                    options: ["Interactive", "Auto-approve", "Timed"]
+                        .into_iter()
+                        .map(|label| OptionSpec {
+                            label: label.into(),
+                            description: None,
+                        })
+                        .collect(),
+                    ..QuestionSpec::default()
+                },
+                QuestionSpec {
+                    question: "How long before auto-approving?".into(),
+                    r#type: QuestionTypeSpec::Freeform,
+                    store: Some("pre_run.gate_duration".into()),
+                    show_if: Some("pre_run.gate_mode == Timed".into()),
+                    ..QuestionSpec::default()
+                },
+            ],
+        };
+
+        let interviewer = QueueInterviewer::new(answers);
+        let conducted = conduct_conditional(&spec, &interviewer, "pre-run")
+            .await
+            .expect("interview should not fail");
+        (spec, conducted)
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-1: goal "Build X" + "Auto-approve" → goal="Build X",
+    //       GateTimeoutConfig::AutoApprove
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_goal_and_auto_approve() {
+        // Q1: freeform goal → "Build X"
+        // Q2: single-select gate mode → select "B" (Auto-approve, 0-indexed: A=Interactive, B=Auto-approve, C=Timed)
+        // Q3: duration — skipped because gate_mode != Timed (show_if condition)
+        let (spec, conducted) = conduct_full_pre_run(vec![
+            Answer::new(AnswerValue::Text("Build X".into())),
+            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+        ])
+        .await;
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        assert_eq!(
+            result.goal.as_deref(),
+            Some("Build X"),
+            "goal should be extracted from pre_run.goal answer"
+        );
+        assert!(
+            matches!(result.gate_timeout, GateTimeoutConfig::AutoApprove),
+            "gate_timeout should be AutoApprove when user selects 'Auto-approve', got {:?}",
+            result.gate_timeout
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-2: goal + "Timed" with "30s" → GateTimeoutConfig::Timed { seconds: 30.0 }
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_goal_and_timed_30s() {
+        // Q1: freeform goal → "Build Y"
+        // Q2: single-select gate mode → "C" (Timed)
+        // Q3: freeform duration → "30s" (shown because gate_mode == Timed)
+        let (spec, conducted) = conduct_full_pre_run(vec![
+            Answer::new(AnswerValue::Text("Build Y".into())),
+            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Text("30s".into())),
+        ])
+        .await;
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        assert_eq!(result.goal.as_deref(), Some("Build Y"));
+        match result.gate_timeout {
+            GateTimeoutConfig::Timed { seconds } => {
+                assert!(
+                    (seconds - 30.0).abs() < f64::EPSILON,
+                    "expected 30.0 seconds, got {seconds}"
+                );
+            }
+            other => panic!("gate_timeout should be Timed {{ seconds: 30.0 }}, got {other:?}"),
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-3: goal + "Interactive" → GateTimeoutConfig::Interactive
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_goal_and_interactive() {
+        // Q1: freeform goal → "Build Z"
+        // Q2: single-select gate mode → "A" (Interactive)
+        // Q3: duration — skipped because gate_mode != Timed
+        let (spec, conducted) = conduct_full_pre_run(vec![
+            Answer::new(AnswerValue::Text("Build Z".into())),
+            Answer::new(AnswerValue::Selected("A".into())), // "Interactive"
+        ])
+        .await;
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        assert_eq!(result.goal.as_deref(), Some("Build Z"));
+        assert!(
+            matches!(result.gate_timeout, GateTimeoutConfig::Interactive),
+            "gate_timeout should be Interactive when user selects 'Interactive', got {:?}",
+            result.gate_timeout
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-5: Duration parsing — "5m" → 300.0 seconds
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_timed_5m() {
+        let (spec, conducted) = conduct_full_pre_run(vec![
+            Answer::new(AnswerValue::Text("Build it".into())),
+            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Text("5m".into())),
+        ])
+        .await;
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        match result.gate_timeout {
+            GateTimeoutConfig::Timed { seconds } => {
+                assert!(
+                    (seconds - 300.0).abs() < f64::EPSILON,
+                    "expected 300.0 seconds for '5m', got {seconds}"
+                );
+            }
+            other => panic!("gate_timeout should be Timed {{ seconds: 300.0 }}, got {other:?}"),
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-5: Duration parsing — "2h" → 7200.0 seconds
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_timed_2h() {
+        let (spec, conducted) = conduct_full_pre_run(vec![
+            Answer::new(AnswerValue::Text("Build it".into())),
+            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Text("2h".into())),
+        ])
+        .await;
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        match result.gate_timeout {
+            GateTimeoutConfig::Timed { seconds } => {
+                assert!(
+                    (seconds - 7200.0).abs() < f64::EPSILON,
+                    "expected 7200.0 seconds for '2h', got {seconds}"
+                );
+            }
+            other => panic!("gate_timeout should be Timed {{ seconds: 7200.0 }}, got {other:?}"),
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Edge case: only gate questions (no goal in spec)
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_without_goal_question() {
+        // Spec with only gate mode + duration (no goal question).
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "How should human gates be handled?".into(),
+                    r#type: QuestionTypeSpec::SingleSelect,
+                    store: Some("pre_run.gate_mode".into()),
+                    options: ["Interactive", "Auto-approve", "Timed"]
+                        .into_iter()
+                        .map(|label| OptionSpec {
+                            label: label.into(),
+                            description: None,
+                        })
+                        .collect(),
+                    ..QuestionSpec::default()
+                },
+                QuestionSpec {
+                    question: "How long before auto-approving?".into(),
+                    r#type: QuestionTypeSpec::Freeform,
+                    store: Some("pre_run.gate_duration".into()),
+                    show_if: Some("pre_run.gate_mode == Timed".into()),
+                    ..QuestionSpec::default()
+                },
+            ],
+        };
+
+        let interviewer = QueueInterviewer::new(vec![
+            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+        ]);
+        let conducted = conduct_conditional(&spec, &interviewer, "pre-run")
+            .await
+            .expect("interview should not fail");
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        assert!(
+            result.goal.is_none(),
+            "goal should be None when no goal question was in the spec"
+        );
+        assert!(
+            matches!(result.gate_timeout, GateTimeoutConfig::AutoApprove),
+            "gate_timeout should be AutoApprove, got {:?}",
+            result.gate_timeout
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // Edge case: only goal question (no gate questions)
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn extract_with_only_goal_question() {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![QuestionSpec {
+                question: "What do you want to build?".into(),
+                r#type: QuestionTypeSpec::Freeform,
+                store: Some("pre_run.goal".into()),
+                ..QuestionSpec::default()
+            }],
+        };
+
+        let interviewer =
+            QueueInterviewer::new(vec![Answer::new(AnswerValue::Text("A widget".into()))]);
+        let conducted = conduct_conditional(&spec, &interviewer, "pre-run")
+            .await
+            .expect("interview should not fail");
+
+        let result = extract_pre_run_answers(&spec, &conducted);
+
+        assert_eq!(
+            result.goal.as_deref(),
+            Some("A widget"),
+            "goal should be extracted from the sole question"
+        );
+        assert!(
+            matches!(result.gate_timeout, GateTimeoutConfig::Interactive),
+            "gate_timeout should default to Interactive when no gate questions exist, got {:?}",
+            result.gate_timeout
         );
     }
 }
