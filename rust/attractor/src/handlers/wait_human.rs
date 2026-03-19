@@ -559,6 +559,17 @@ impl Handler for WaitForHumanHandler {
         // Multi-question interview path: if the node has an `interview`
         // attribute, parse and execute the full interview spec.
         if let Some(interview_spec_str) = node.get_str_attr(attr::INTERVIEW) {
+            // Auto-approve fast path for interview-spec nodes: when
+            // `internal.gate_timeouts` resolves to a sub-second value and
+            // the node has no explicit `timeout` attribute, use
+            // AutoApproveInterviewer to immediately select the first edge.
+            if should_auto_approve(node, context) {
+                let choices = choices_from_edges(graph, &node.id);
+                if !choices.is_empty() {
+                    return auto_approve_outcome(&node.id, &choices).await;
+                }
+            }
+
             return self
                 .execute_interview_spec(node, context, graph, interview_spec_str)
                 .await;
@@ -581,28 +592,9 @@ impl Handler for WaitForHumanHandler {
         // Auto-approve fast path: when `internal.gate_timeouts` resolves
         // to a sub-second value, bypass the normal interviewer and use
         // AutoApproveInterviewer to immediately select the first edge.
-        if let Some(timeout) = resolve_gate_timeout(context, &node.id)
-            && timeout < 1.0
-        {
-            let text = node
-                .get_str_attr(attr::LABEL)
-                .unwrap_or("Select an option:");
-            let question = Question::single_select(text, options_from_choices(&choices));
-
-            let auto_interviewer = AutoApproveInterviewer;
-            let answer = auto_interviewer
-                .ask(&question)
-                .await
-                .map_err(|e| handler_failed(&node.id, format!("auto-approve failed: {e}")))?;
-
-            let selected =
-                find_matching_choice(&answer, &choices, &question.options).ok_or_else(|| {
-                    handler_failed(&node.id, "auto-approve answer did not match any choice")
-                })?;
-
-            let mut outcome = build_human_outcome(selected);
-            outcome.notes = "[auto-approved]".into();
-            return Ok(outcome);
+        // Node-level `timeout` takes precedence — if set, skip auto-approve.
+        if should_auto_approve(node, context) {
+            return auto_approve_outcome(&node.id, &choices).await;
         }
 
         // 2. Build question based on question_type
@@ -840,6 +832,27 @@ fn find_matching_choice<'a>(
     }
 }
 
+/// Execute the auto-approve fast path for a set of choices.
+///
+/// Uses [`AutoApproveInterviewer`] to immediately select the first option,
+/// finds the matching choice for routing, and returns a success outcome
+/// with `"[auto-approved]"` in the notes field.
+async fn auto_approve_outcome(node_id: &str, choices: &[Choice]) -> AttractorResult<Outcome> {
+    let question = Question::single_select("auto-approve", options_from_choices(choices));
+
+    let answer = AutoApproveInterviewer
+        .ask(&question)
+        .await
+        .map_err(|e| handler_failed(node_id, format!("auto-approve failed: {e}")))?;
+
+    let selected = find_matching_choice(&answer, choices, &question.options)
+        .ok_or_else(|| handler_failed(node_id, "auto-approve answer did not match any choice"))?;
+
+    let mut outcome = build_human_outcome(selected);
+    outcome.notes = "[auto-approved]".into();
+    Ok(outcome)
+}
+
 /// Build a [`HandlerFailed`](crate::error::AttractorError::HandlerFailed) error.
 fn handler_failed(node_id: &str, reason: impl Into<String>) -> crate::error::AttractorError {
     crate::error::AttractorError::HandlerFailed {
@@ -856,6 +869,18 @@ fn interview_error(node_id: &str, e: InterviewError) -> crate::error::AttractorE
         InterviewError::Cancelled => "interview cancelled".into(),
     };
     handler_failed(node_id, reason)
+}
+
+/// Check whether the node should use the auto-approve fast path.
+///
+/// Auto-approve triggers when:
+/// 1. The node has no explicit `timeout` attribute (node-level timeout
+///    takes precedence over context-level gate timeouts), AND
+/// 2. `internal.gate_timeouts` in context resolves to a sub-second value
+///    for this node (or the `"*"` wildcard).
+fn should_auto_approve(node: &Node, context: &Context) -> bool {
+    node.get_attr(attr::TIMEOUT).is_none()
+        && resolve_gate_timeout(context, &node.id).is_some_and(|t| t < 1.0)
 }
 
 /// Resolve the gate timeout for a node from context.

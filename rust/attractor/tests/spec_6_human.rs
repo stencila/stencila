@@ -1434,3 +1434,195 @@ async fn auto_approve_produces_gate_context_updates() -> AttractorResult<()> {
     assert_eq!(label, Some("Accept"));
     Ok(())
 }
+
+// ===========================================================================
+// Phase 2 / Slice 2 — Interview-spec auto-approve and node-level precedence
+// ===========================================================================
+
+/// When `internal.gate_timeouts` is set to `{"*": 0}` and a node has an
+/// `interview` attribute (no explicit `timeout`), the handler should
+/// auto-approve using an internal AutoApproveInterviewer — the normal
+/// interviewer should NOT be called.
+#[tokio::test]
+async fn interview_spec_auto_approves_via_gate_timeouts_zero() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+"#;
+    let g = interview_spec_graph(spec, &[("end", "Accept"), ("create", "Revise")]);
+    let node = get_gate_node(&g)?;
+
+    // Use a recording interviewer so we can verify it is NOT called.
+    let inner = QueueInterviewer::new(vec![Answer::new(AnswerValue::Selected("B".into()))]);
+    let recording = Arc::new(RecordingInterviewer::new(inner));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // Auto-approve selects the first edge (end / Accept)
+    assert!(
+        outcome.suggested_next_ids.contains(&"end".to_string()),
+        "expected route to 'end', got: {:?}",
+        outcome.suggested_next_ids
+    );
+    // The normal interviewer should NOT have been called
+    assert_eq!(
+        recording.recordings().len(),
+        0,
+        "normal interviewer should not be called during auto-approve"
+    );
+    Ok(())
+}
+
+/// Interview-spec auto-approved gates should emit `"[auto-approved]"` in
+/// outcome notes, just like the regular (non-interview) auto-approve path.
+#[tokio::test]
+async fn interview_spec_auto_approve_emits_marker_in_notes() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Proceed?
+    type: single-select
+    options:
+      - label: Yes
+      - label: No
+    store: human.proceed
+"#;
+    let g = interview_spec_graph(spec, &[("next", "Yes"), ("abort", "No")]);
+    let node = get_gate_node(&g)?;
+
+    let interviewer = Arc::new(QueueInterviewer::new(vec![]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(
+        outcome.notes.contains("[auto-approved]"),
+        "expected '[auto-approved]' in notes, got: {:?}",
+        outcome.notes
+    );
+    Ok(())
+}
+
+/// A node with an explicit `timeout="2m"` attribute should NOT be
+/// auto-approved even when `internal.gate_timeouts` is `{"*": 0}`.
+/// Node-level `timeout` takes precedence over context-based timeout.
+#[tokio::test]
+async fn node_timeout_takes_precedence_over_gate_timeouts_zero() -> AttractorResult<()> {
+    // Build a gate graph with an explicit timeout on the gate node.
+    let mut g = Graph::new("test");
+
+    let mut gate = Node::new("gate");
+    gate.attrs
+        .insert(attr::SHAPE.into(), Graph::HUMAN_SHAPE.into());
+    gate.attrs
+        .insert("label".into(), AttrValue::from("Choose an option:"));
+    // Set an explicit node-level timeout of 2 minutes.
+    gate.attrs
+        .insert(attr::TIMEOUT.into(), AttrValue::from("2m"));
+    g.add_node(gate);
+
+    for (target, label) in &[("accept", "[A] Accept"), ("reject", "[R] Reject")] {
+        g.add_node(Node::new(*target));
+        let mut edge = Edge::new("gate", *target);
+        edge.attrs.insert("label".into(), AttrValue::from(*label));
+        g.add_edge(edge);
+    }
+
+    let node = get_gate_node(&g)?;
+
+    // Use a recording interviewer — it SHOULD be called because auto-approve
+    // must not trigger when the node has its own timeout.
+    let recording = Arc::new(RecordingInterviewer::new(AutoApproveInterviewer));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // The normal interviewer SHOULD have been called
+    assert!(
+        !recording.recordings().is_empty(),
+        "normal interviewer should be called when node has explicit timeout"
+    );
+    // Notes should NOT contain auto-approved marker
+    assert!(
+        !outcome.notes.contains("[auto-approved]"),
+        "expected no '[auto-approved]' marker when node has explicit timeout"
+    );
+    Ok(())
+}
+
+/// Same as above but with the interview-spec path: a node with both an
+/// `interview` attribute and an explicit `timeout="2m"` attribute should
+/// NOT be auto-approved even when `internal.gate_timeouts` is `{"*": 0}`.
+#[tokio::test]
+async fn interview_spec_node_timeout_takes_precedence_over_gate_timeouts() -> AttractorResult<()> {
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+"#;
+
+    // Build graph with interview spec AND explicit timeout on the gate node.
+    let mut g = Graph::new("test");
+
+    let mut gate = Node::new("gate");
+    gate.attrs
+        .insert(attr::SHAPE.into(), Graph::HUMAN_SHAPE.into());
+    gate.attrs.insert("interview".into(), AttrValue::from(spec));
+    // Explicit node-level timeout of 2 minutes — should take precedence.
+    gate.attrs
+        .insert(attr::TIMEOUT.into(), AttrValue::from("2m"));
+    g.add_node(gate);
+
+    for &(target, label) in &[("end", "Accept"), ("create", "Revise")] {
+        g.add_node(Node::new(target));
+        let mut edge = Edge::new("gate", target);
+        edge.attrs.insert("label".into(), AttrValue::from(label));
+        g.add_edge(edge);
+    }
+
+    let node = get_gate_node(&g)?;
+
+    // Use a recording interviewer — it SHOULD be called.
+    let inner = QueueInterviewer::new(vec![Answer::new(AnswerValue::Selected("A".into()))]);
+    let recording = Arc::new(RecordingInterviewer::new(inner));
+    let handler = WaitForHumanHandler::new(recording.clone());
+
+    let ctx = Context::new();
+    ctx.set("internal.gate_timeouts", serde_json::json!({"*": 0}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // The normal interviewer SHOULD have been called
+    assert!(
+        !recording.recordings().is_empty(),
+        "normal interviewer should be called when node has explicit timeout"
+    );
+    // Notes should NOT contain auto-approved marker
+    assert!(
+        !outcome.notes.contains("[auto-approved]"),
+        "expected no '[auto-approved]' marker when node has explicit timeout"
+    );
+    Ok(())
+}
