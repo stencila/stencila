@@ -85,7 +85,7 @@ fn dynamic_fan_out_graph() -> Graph {
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
@@ -94,7 +94,7 @@ fn dynamic_fan_out_graph() -> Graph {
 
     let mut fi = Node::new("fan_in");
     fi.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fi);
     g.add_edge(Edge::new("template_node", "fan_in"));
 
@@ -167,7 +167,7 @@ async fn dynamic_fan_out_true_derives_key_from_id() -> AttractorResult<()> {
 
     let mut fan = Node::new("FanOutItems");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::Boolean(true));
     g.add_node(fan);
 
@@ -176,7 +176,7 @@ async fn dynamic_fan_out_true_derives_key_from_id() -> AttractorResult<()> {
 
     let mut fi = Node::new("merge");
     fi.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fi);
     g.add_edge(Edge::new("process", "merge"));
 
@@ -302,12 +302,12 @@ fn validation_dynamic_fan_out_multiple_edges() {
     let mut start = Node::new("Start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
@@ -317,7 +317,7 @@ fn validation_dynamic_fan_out_multiple_edges() {
 
     let mut end = Node::new("End");
     end.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(end);
 
     g.add_edge(Edge::new("Start", "fan_out_node"));
@@ -379,7 +379,7 @@ async fn dynamic_fan_out_object_property_flattening() -> AttractorResult<()> {
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
@@ -392,7 +392,7 @@ async fn dynamic_fan_out_object_property_flattening() -> AttractorResult<()> {
 
     let mut fi = Node::new("fan_in");
     fi.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fi);
     g.add_edge(Edge::new("template_node", "fan_in"));
 
@@ -501,7 +501,7 @@ async fn static_fan_out_backward_compatible() -> AttractorResult<()> {
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("branch_a"));
@@ -614,13 +614,13 @@ fn validation_nested_dynamic_fan_out_rejected() {
     let mut start = Node::new("Start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut outer = Node::new("outer_fan");
     outer
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     outer
         .attrs
         .insert("fan_out".into(), AttrValue::from("outer_list"));
@@ -630,7 +630,7 @@ fn validation_nested_dynamic_fan_out_rejected() {
     let mut inner = Node::new("inner_fan");
     inner
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     inner
         .attrs
         .insert("fan_out".into(), AttrValue::from("inner_list"));
@@ -640,12 +640,12 @@ fn validation_nested_dynamic_fan_out_rejected() {
 
     let mut fi = Node::new("merge");
     fi.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fi);
 
     let mut end = Node::new("End");
     end.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(end);
 
     g.add_edge(Edge::new("Start", "outer_fan"));
@@ -680,7 +680,7 @@ async fn static_fan_out_also_populates_outputs() -> AttractorResult<()> {
 
     let mut par = Node::new("par");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("a"));
@@ -719,7 +719,7 @@ fn sugar_fan_out_boolean_true_implies_component() -> AttractorResult<()> {
     let mut start = Node::new("Start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut fan = Node::new("FanOutSkills");
@@ -728,7 +728,7 @@ fn sugar_fan_out_boolean_true_implies_component() -> AttractorResult<()> {
 
     let mut end = Node::new("End");
     end.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(end);
 
     g.add_edge(Edge::new("Start", "FanOutSkills"));
@@ -803,7 +803,7 @@ async fn dynamic_fan_out_false_returns_fail() -> AttractorResult<()> {
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs
         .insert("fan_out".into(), AttrValue::Boolean(false));
     g.add_node(fan);
@@ -871,7 +871,7 @@ async fn dynamic_fan_out_error_policy_ignore() -> AttractorResult<()> {
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     fan.attrs
         .insert("error_policy".into(), AttrValue::from("ignore"));
@@ -886,7 +886,7 @@ async fn dynamic_fan_out_error_policy_ignore() -> AttractorResult<()> {
 
     let mut fi = Node::new("fan_in");
     fi.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fi);
     g.add_edge(Edge::new("template_node", "fan_in"));
 
@@ -938,7 +938,7 @@ async fn dynamic_fan_out_multiple_edges_runtime_fail() -> AttractorResult<()> {
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
@@ -974,18 +974,18 @@ fn validation_dynamic_fan_out_zero_edges() {
     let mut start = Node::new("Start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
     let mut end = Node::new("End");
     end.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(end);
 
     g.add_edge(Edge::new("Start", "fan_out_node"));
@@ -1000,19 +1000,19 @@ fn validation_dynamic_fan_out_zero_edges() {
     let mut start2 = Node::new("Start");
     start2
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g2.add_node(start2);
 
     let mut fan2 = Node::new("fan_out_node");
     fan2.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan2.attrs
         .insert("fan_out".into(), AttrValue::from("items"));
     g2.add_node(fan2);
 
     let mut end2 = Node::new("End");
     end2.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g2.add_node(end2);
 
     g2.add_edge(Edge::new("Start", "fan_out_node"));
@@ -1042,7 +1042,7 @@ async fn static_fan_out_event_has_no_item_count() -> AttractorResult<()> {
 
     let mut par = Node::new("par");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("a"));
@@ -1157,12 +1157,12 @@ fn validation_dynamic_fan_out_missing_fan_in_warns() {
     let mut start = Node::new("Start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
@@ -1171,7 +1171,7 @@ fn validation_dynamic_fan_out_missing_fan_in_warns() {
 
     let mut end = Node::new("End");
     end.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(end);
 
     g.add_edge(Edge::new("Start", "fan_out_node"));
@@ -1200,12 +1200,12 @@ fn validation_dynamic_fan_out_with_fan_in_no_warning() {
     let mut start = Node::new("Start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut fan = Node::new("fan_out_node");
     fan.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     fan.attrs.insert("fan_out".into(), AttrValue::from("items"));
     g.add_node(fan);
 
@@ -1213,12 +1213,12 @@ fn validation_dynamic_fan_out_with_fan_in_no_warning() {
 
     let mut fi = Node::new("merge");
     fi.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fi);
 
     let mut end = Node::new("End");
     end.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(end);
 
     g.add_edge(Edge::new("Start", "fan_out_node"));

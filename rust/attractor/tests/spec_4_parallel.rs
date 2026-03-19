@@ -40,7 +40,7 @@ fn parallel_graph(targets: &[&str]) -> Graph {
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     for &target in targets {
@@ -97,7 +97,7 @@ async fn parallel_no_edges_fails() -> AttractorResult<()> {
     let mut g = Graph::new("test");
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
     // No outgoing edges
 
@@ -194,7 +194,7 @@ fn mixed_parallel_graph(
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     for &(key, value) in attrs {
         par.attrs.insert(key.into(), AttrValue::from(value));
     }
@@ -611,7 +611,7 @@ fn multi_hop_diamond_graph() -> Graph {
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     // Branch A: two steps
@@ -677,7 +677,7 @@ async fn parallel_fan_in_single_hop_structural() -> AttractorResult<()> {
     let mut g = Graph::new("single_hop_diamond");
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
     g.add_node(Node::new("branch_a"));
     g.add_node(Node::new("branch_b"));
@@ -716,7 +716,7 @@ async fn parallel_fan_in_explicit_multi_hop() -> AttractorResult<()> {
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("branch_a"));
@@ -735,7 +735,7 @@ async fn parallel_fan_in_explicit_multi_hop() -> AttractorResult<()> {
     let mut fan_in = Node::new("fan_in_node");
     fan_in
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fan_in);
 
     let node = g.get_node("parallel_node").ok_or_else(|| {
@@ -767,7 +767,7 @@ async fn parallel_no_fan_in_when_branches_diverge() -> AttractorResult<()> {
     let mut g = Graph::new("divergent");
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
     g.add_node(Node::new("branch_a"));
     g.add_node(Node::new("end_a"));
@@ -849,7 +849,7 @@ async fn parallel_single_branch_with_explicit_fan_in_does_not_fail() -> Attracto
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     // Single branch
@@ -861,7 +861,7 @@ async fn parallel_single_branch_with_explicit_fan_in_does_not_fail() -> Attracto
     let mut fan_in = Node::new("fan_in_node");
     fan_in
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fan_in);
 
     let node = g.get_node("parallel_node").ok_or_else(|| {
@@ -937,7 +937,7 @@ async fn parallel_fan_in_staggered_merge_selects_all_branch_convergence() -> Att
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("A"));
@@ -990,7 +990,7 @@ async fn parallel_fan_in_dead_end_branch_still_finds_partial_convergence() -> At
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("A"));
@@ -1043,7 +1043,7 @@ async fn parallel_fan_in_excludes_parallel_node_in_cyclic_graph() -> AttractorRe
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("branch_a"));
@@ -1093,7 +1093,7 @@ async fn parallel_fan_in_cyclic_with_real_convergence() -> AttractorResult<()> {
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("branch_a"));

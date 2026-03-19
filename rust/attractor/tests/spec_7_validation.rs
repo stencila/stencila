@@ -15,7 +15,7 @@ fn valid_pipeline() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut task = Node::new("task");
@@ -26,7 +26,7 @@ fn valid_pipeline() -> Graph {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));
@@ -79,7 +79,7 @@ fn rule_start_node_missing() {
     let mut g = Graph::new("test");
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     let diagnostics = validation::validate(&g, &[]);
@@ -94,17 +94,17 @@ fn rule_start_node_multiple() {
 
     let mut s1 = Node::new("s1");
     s1.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(s1);
 
     let mut s2 = Node::new("start");
     s2.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(s2);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("s1", "exit"));
@@ -124,7 +124,7 @@ fn rule_start_node_by_id() {
     g.add_node(Node::new("start"));
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
     g.add_edge(Edge::new("start", "exit"));
 
@@ -143,7 +143,7 @@ fn rule_terminal_node_missing() {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let diagnostics = validation::validate(&g, &[]);
@@ -158,7 +158,7 @@ fn rule_terminal_node_by_id() {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
     g.add_node(Node::new("exit"));
     g.add_edge(Edge::new("start", "exit"));
@@ -175,7 +175,7 @@ fn rule_terminal_node_by_id_end() {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
     g.add_node(Node::new("end"));
     g.add_edge(Edge::new("start", "end"));
@@ -193,19 +193,19 @@ fn rule_terminal_node_rejects_multiple() {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut exit1 = Node::new("exit1");
     exit1
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit1);
 
     let mut exit2 = Node::new("exit2");
     exit2
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit2);
 
     g.add_edge(Edge::new("start", "exit1"));
@@ -648,7 +648,7 @@ fn rule_shell_command_missing() {
     let mut shell_node = Node::new("runner");
     shell_node
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("parallelogram"));
+        .insert(attr::SHAPE.into(), Graph::SHELL_SHAPE.into());
     g.add_node(shell_node);
     g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
     g.add_edge(Edge::new("task", "runner"));
@@ -667,7 +667,7 @@ fn rule_shell_command_present_ok() {
     let mut shell_node = Node::new("runner");
     shell_node
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("parallelogram"));
+        .insert(attr::SHAPE.into(), Graph::SHELL_SHAPE.into());
     shell_node
         .attrs
         .insert("shell_command".into(), AttrValue::from("echo hello"));
@@ -690,7 +690,7 @@ fn validate_or_raise_errors_on_missing_start() {
     let mut g = Graph::new("test");
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     let result = validation::validate_or_raise(&g, &[]);
@@ -879,12 +879,12 @@ fn parallel_two_branch_pipeline() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     let mut branch_a = Node::new("branch_a_task");
@@ -902,12 +902,12 @@ fn parallel_two_branch_pipeline() -> Graph {
     let mut fan_in = Node::new("fan_in");
     fan_in
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("tripleoctagon"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_FAN_IN_SHAPE.into());
     g.add_node(fan_in);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "parallel_node"));
@@ -1211,7 +1211,7 @@ fn rule_fidelity_full_no_cycle_thread_id_warns_in_cycle() {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut task = Node::new("task");
@@ -1225,12 +1225,12 @@ fn rule_fidelity_full_no_cycle_thread_id_warns_in_cycle() {
     let mut loopback = Node::new("loopback");
     loopback
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("diamond"));
+        .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
     g.add_node(loopback);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     // start -> task -> loopback -> task (cycle) and loopback -> exit
@@ -1264,7 +1264,7 @@ fn rule_fidelity_full_no_cycle_thread_id_explicit_thread_id_no_warning() {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut task = Node::new("task");
@@ -1279,12 +1279,12 @@ fn rule_fidelity_full_no_cycle_thread_id_explicit_thread_id_no_warning() {
     let mut loopback = Node::new("loopback");
     loopback
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("diamond"));
+        .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
     g.add_node(loopback);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));

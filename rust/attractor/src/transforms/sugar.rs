@@ -54,7 +54,7 @@
 //! | `FanIn*`, `Fanin*`       | `tripleoctagon`  | parallel fan-in  |
 
 use crate::error::AttractorResult;
-use crate::graph::{AttrValue, Graph, attr};
+use crate::graph::{Graph, attr};
 use crate::transform::Transform;
 
 pub struct NodeSugarTransform;
@@ -107,13 +107,11 @@ impl Transform for NodeSugarTransform {
             // `ask` implies human gate
             if let Some(val) = ask_val {
                 if !has_shape {
-                    node.attrs.insert(
-                        attr::SHAPE.to_string(),
-                        AttrValue::String(Graph::HUMAN_SHAPE.into()),
-                    );
+                    node.attrs
+                        .insert(attr::SHAPE.into(), Graph::HUMAN_SHAPE.into());
                 }
                 if !node.attrs.contains_key(attr::LABEL) {
-                    node.attrs.insert(attr::LABEL.to_string(), val);
+                    node.attrs.insert(attr::LABEL.into(), val);
                 }
                 continue;
             }
@@ -121,10 +119,8 @@ impl Transform for NodeSugarTransform {
             // `workflow` implies a workflow composition node
             if let Some(val) = workflow_val {
                 if !node.attrs.contains_key(attr::TYPE) {
-                    node.attrs.insert(
-                        attr::TYPE.to_string(),
-                        AttrValue::String(attr::WORKFLOW.into()),
-                    );
+                    node.attrs
+                        .insert(attr::TYPE.to_string(), attr::WORKFLOW.into());
                 }
                 node.attrs.insert(attr::WORKFLOW.to_string(), val);
                 continue;
@@ -133,10 +129,8 @@ impl Transform for NodeSugarTransform {
             // `shell` implies shell node
             if let Some(val) = shell_val {
                 if !has_shape {
-                    node.attrs.insert(
-                        attr::SHAPE.to_string(),
-                        AttrValue::String(Graph::SHELL_SHAPE.into()),
-                    );
+                    node.attrs
+                        .insert(attr::SHAPE.into(), Graph::SHELL_SHAPE.into());
                 }
                 if !node.attrs.contains_key(attr::SHELL_COMMAND) {
                     node.attrs.insert(attr::SHELL_COMMAND.to_string(), val);
@@ -147,23 +141,19 @@ impl Transform for NodeSugarTransform {
             // `branch` implies conditional node
             if let Some(val) = branch_val {
                 if !has_shape {
-                    node.attrs.insert(
-                        attr::SHAPE.to_string(),
-                        AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
-                    );
+                    node.attrs
+                        .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
                 }
                 if !node.attrs.contains_key(attr::LABEL) {
-                    node.attrs.insert(attr::LABEL.to_string(), val);
+                    node.attrs.insert(attr::LABEL.into(), val);
                 }
                 continue;
             }
 
             // `interview` implies human gate (multi-question interview)
             if node.attrs.contains_key(attr::INTERVIEW) && !has_shape {
-                node.attrs.insert(
-                    attr::SHAPE.to_string(),
-                    AttrValue::String(Graph::HUMAN_SHAPE.into()),
-                );
+                node.attrs
+                    .insert(attr::SHAPE.into(), Graph::HUMAN_SHAPE.into());
                 continue;
             }
 
@@ -171,10 +161,8 @@ impl Transform for NodeSugarTransform {
             // Unlike other sugar keys, `fan_out` is NOT drained — it must
             // remain on the node for the `ParallelHandler` to read at runtime.
             if node.attrs.contains_key(attr::FAN_OUT) && !has_shape {
-                node.attrs.insert(
-                    attr::SHAPE.to_string(),
-                    AttrValue::String(Graph::PARALLEL_SHAPE.into()),
-                );
+                node.attrs
+                    .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
                 continue;
             }
 
@@ -191,20 +179,14 @@ impl Transform for NodeSugarTransform {
                 || node.attrs.keys().any(|k| k.starts_with("agent."))
             {
                 if let Some(shape) = structural_shape(&node.id) {
-                    node.attrs.insert(
-                        attr::SHAPE.to_string(),
-                        AttrValue::String(shape.to_string()),
-                    );
+                    node.attrs.insert(attr::SHAPE.into(), shape.into());
                 }
                 continue;
             }
 
             // --- Node ID-based shape inference ---
             if let Some(shape) = infer_shape_from_id(&node.id) {
-                node.attrs.insert(
-                    attr::SHAPE.to_string(),
-                    AttrValue::String(shape.to_string()),
-                );
+                node.attrs.insert(attr::SHAPE.into(), shape.into());
             }
         }
 

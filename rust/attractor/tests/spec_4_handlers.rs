@@ -94,14 +94,14 @@ fn pipeline_with_middle(middle: Node) -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     g.add_node(middle);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "middle"));
@@ -657,7 +657,7 @@ async fn shell_end_to_end() -> AttractorResult<()> {
     let mut middle = Node::new("middle");
     middle
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("parallelogram"));
+        .insert(attr::SHAPE.into(), Graph::SHELL_SHAPE.into());
     middle
         .attrs
         .insert("shell_command".into(), AttrValue::from("echo done"));

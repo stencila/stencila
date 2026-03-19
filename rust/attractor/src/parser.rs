@@ -479,7 +479,7 @@ fn integer_value(input: &mut &str) -> ModalResult<AttrValue> {
 /// Parse a bare identifier as a string value (e.g., `Mdiamond`, `box`, `LR`).
 fn bare_identifier_value(input: &mut &str) -> ModalResult<AttrValue> {
     bare_identifier
-        .map(|s: &str| AttrValue::String(s.to_string()))
+        .map(|s: &str| AttrValue::from(s))
         .parse_next(input)
 }
 
@@ -897,7 +897,7 @@ fn append_class(attrs: &mut IndexMap<String, AttrValue>, class: &str) {
     } else {
         format!("{existing},{class}")
     };
-    attrs.insert(attr::CLASS.to_string(), AttrValue::String(new_class));
+    attrs.insert(attr::CLASS.to_string(), new_class.into());
 }
 
 /// Ensure a node exists in the graph, creating it with defaults if needed.

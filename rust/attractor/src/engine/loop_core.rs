@@ -665,19 +665,15 @@ mod tests {
 
     fn make_start_node() -> Node {
         let mut node = Node::new("Start");
-        node.attrs.insert(
-            attr::SHAPE.into(),
-            AttrValue::String(Graph::START_SHAPE.into()),
-        );
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
         node
     }
 
     fn make_exit_node() -> Node {
         let mut node = Node::new("Exit");
-        node.attrs.insert(
-            attr::SHAPE.into(),
-            AttrValue::String(Graph::EXIT_SHAPE.into()),
-        );
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
         node
     }
 
@@ -784,12 +780,8 @@ mod tests {
     #[tokio::test]
     async fn edge_fidelity_and_thread_id_propagate_to_context() -> AttractorResult<()> {
         let mut edge_ab = Edge::new("A", "B");
-        edge_ab
-            .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("full".into()));
-        edge_ab
-            .attrs
-            .insert(attr::THREAD_ID.into(), AttrValue::String("t1".into()));
+        edge_ab.attrs.insert(attr::FIDELITY.into(), "full".into());
+        edge_ab.attrs.insert(attr::THREAD_ID.into(), "t1".into());
 
         let graph = build_linear_graph("fidelity_test", edge_ab);
         let map = run_capturing(&graph).await?;
@@ -821,9 +813,7 @@ mod tests {
     async fn edge_fidelity_overrides_node_fidelity_via_last_selected_edge() -> AttractorResult<()> {
         // Edge A→B overrides with fidelity="full"
         let mut edge_ab = Edge::new("A", "B");
-        edge_ab
-            .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("full".into()));
+        edge_ab.attrs.insert(attr::FIDELITY.into(), "full".into());
 
         let mut graph = build_linear_graph("edge_override_node_fidelity", edge_ab);
 
@@ -832,7 +822,7 @@ mod tests {
             .get_node_mut("B")
             .expect("node B exists")
             .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("truncate".into()));
+            .insert(attr::FIDELITY.into(), "truncate".into());
 
         let map = run_capturing(&graph).await?;
 
@@ -862,25 +852,19 @@ mod tests {
     async fn edge_fidelity_full_with_edge_thread_id_overrides_node() -> AttractorResult<()> {
         // Edge A→B carries fidelity="full" and thread_id="edge_thread"
         let mut edge_ab = Edge::new("A", "B");
+        edge_ab.attrs.insert(attr::FIDELITY.into(), "full".into());
         edge_ab
             .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("full".into()));
-        edge_ab.attrs.insert(
-            attr::THREAD_ID.into(),
-            AttrValue::String("edge_thread".into()),
-        );
+            .insert(attr::THREAD_ID.into(), "edge_thread".into());
 
         let mut graph = build_linear_graph("edge_fidelity_thread_override", edge_ab);
 
         // Node B has fidelity="compact" and thread_id="node_thread"
         let node_b = graph.get_node_mut("B").expect("node B exists");
+        node_b.attrs.insert(attr::FIDELITY.into(), "compact".into());
         node_b
             .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("compact".into()));
-        node_b.attrs.insert(
-            attr::THREAD_ID.into(),
-            AttrValue::String("node_thread".into()),
-        );
+            .insert(attr::THREAD_ID.into(), "node_thread".into());
 
         let map = run_capturing(&graph).await?;
 
@@ -908,16 +892,13 @@ mod tests {
     #[tokio::test]
     async fn edge_fidelity_overrides_graph_default() -> AttractorResult<()> {
         let mut edge_ab = Edge::new("A", "B");
-        edge_ab
-            .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("full".into()));
+        edge_ab.attrs.insert(attr::FIDELITY.into(), "full".into());
 
         let mut graph = build_linear_graph("edge_override_graph_default", edge_ab);
 
-        graph.graph_attrs.insert(
-            attr::DEFAULT_FIDELITY.into(),
-            AttrValue::String("summary:high".into()),
-        );
+        graph
+            .graph_attrs
+            .insert(attr::DEFAULT_FIDELITY.into(), "summary:high".into());
 
         let map = run_capturing(&graph).await?;
 
@@ -967,9 +948,7 @@ mod tests {
         graph.add_edge(Edge::new("Start", "A"));
         // Edge A→B carries fidelity="full" — this is the stale data source
         let mut edge_ab = Edge::new("A", "B");
-        edge_ab
-            .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("full".into()));
+        edge_ab.attrs.insert(attr::FIDELITY.into(), "full".into());
         graph.add_edge(edge_ab);
         graph.add_edge(Edge::new("B", "C"));
         graph.add_edge(Edge::new("C", "Exit"));
@@ -1087,7 +1066,7 @@ mod tests {
         let mut node_a = Node::new("A");
         node_a
             .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("truncate".into()));
+            .insert(attr::FIDELITY.into(), "truncate".into());
         graph.add_node(node_a);
 
         graph.add_node(Node::new("B"));
@@ -1098,21 +1077,15 @@ mod tests {
 
         // Loop restart edge with fidelity="full" — this is the stale data
         let mut e_loop = Edge::new("B", "A");
-        e_loop
-            .attrs
-            .insert(attr::LABEL.into(), AttrValue::String("retry".into()));
+        e_loop.attrs.insert(attr::LABEL.into(), "retry".into());
         e_loop
             .attrs
             .insert("loop_restart".into(), AttrValue::Boolean(true));
-        e_loop
-            .attrs
-            .insert(attr::FIDELITY.into(), AttrValue::String("full".into()));
+        e_loop.attrs.insert(attr::FIDELITY.into(), "full".into());
         graph.add_edge(e_loop);
 
         let mut e_exit = Edge::new("B", "Exit");
-        e_exit
-            .attrs
-            .insert(attr::LABEL.into(), AttrValue::String("done".into()));
+        e_exit.attrs.insert(attr::LABEL.into(), "done".into());
         graph.add_edge(e_exit);
 
         let captured = Arc::new(Mutex::new(Vec::new()));

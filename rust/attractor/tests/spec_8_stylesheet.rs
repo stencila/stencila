@@ -18,7 +18,7 @@ fn stylesheet_pipeline() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut plan = Node::new("plan");
@@ -42,7 +42,7 @@ fn stylesheet_pipeline() -> Graph {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "plan"));

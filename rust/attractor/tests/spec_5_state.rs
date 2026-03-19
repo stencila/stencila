@@ -360,12 +360,12 @@ fn resume_restores_context() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
     g.add_node(Node::new("middle"));
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
@@ -412,7 +412,7 @@ fn resume_fidelity_degradation() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut middle = Node::new("middle");
@@ -423,7 +423,7 @@ fn resume_fidelity_degradation() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
@@ -457,12 +457,12 @@ fn resume_retry_counters_restored() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
     g.add_node(Node::new("middle"));
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
     g.add_edge(Edge::new("start", "middle"));
     g.add_edge(Edge::new("middle", "exit"));
@@ -497,7 +497,7 @@ fn resume_at_exit_node() -> AttractorResult<()> {
     let mut g = Graph::new("test");
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     let ctx = Context::new();

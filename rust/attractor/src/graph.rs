@@ -492,18 +492,15 @@ mod tests {
     #[test]
     fn handler_type_explicit_type_attr() {
         let mut node = Node::new("n1");
-        node.attrs
-            .insert(attr::TYPE.into(), AttrValue::String("shell".into()));
+        node.attrs.insert(attr::TYPE.into(), "shell".into());
         assert_eq!(node.handler_type(), "shell");
     }
 
     #[test]
     fn handler_type_by_shape() {
         let mut node = Node::new("n1");
-        node.attrs.insert(
-            attr::SHAPE.into(),
-            AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
-        );
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
         assert_eq!(node.handler_type(), "conditional");
     }
 
@@ -532,10 +529,8 @@ mod tests {
     #[test]
     fn handler_type_id_match_does_not_override_explicit_shape() {
         let mut node = Node::new("Start");
-        node.attrs.insert(
-            attr::SHAPE.into(),
-            AttrValue::String(Graph::CONDITIONAL_SHAPE.into()),
-        );
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
         assert_eq!(node.handler_type(), "conditional");
     }
 

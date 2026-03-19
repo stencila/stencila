@@ -35,12 +35,12 @@ fn linear_graph() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "exit"));
@@ -55,7 +55,7 @@ async fn engine_goal_gate_restart_preserves_runtime_context_but_clears_internal_
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut gate = Node::new("gate_task");
@@ -67,7 +67,7 @@ async fn engine_goal_gate_restart_preserves_runtime_context_but_clears_internal_
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "gate_task"));
@@ -145,7 +145,7 @@ fn three_node_graph() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let middle = Node::new("middle");
@@ -153,7 +153,7 @@ fn three_node_graph() -> Graph {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "middle"));
@@ -1186,7 +1186,7 @@ fn registry_resolve_by_type() {
     let registry = HandlerRegistry::with_defaults();
     let mut node = Node::new("s");
     node.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     assert!(registry.resolve(&node).is_some());
 }
 
@@ -1207,7 +1207,7 @@ fn registry_register_replaces() {
     registry.register("start", MockHandler::new(Outcome::fail("custom")));
     let mut node = Node::new("s");
     node.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     assert!(registry.resolve(&node).is_some());
 }
 
@@ -1232,7 +1232,7 @@ fn registry_resolve_falls_back_to_shape_when_explicit_type_unregistered() {
     node.attrs
         .insert("type".into(), AttrValue::from("custom_thing"));
     node.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
 
     // Should resolve to "start" handler via shape fallback, not None
     assert!(
@@ -1254,7 +1254,7 @@ async fn registry_resolve_explicit_type_takes_precedence_over_shape() -> Attract
     node.attrs
         .insert("type".into(), AttrValue::from("custom_thing"));
     node.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
 
     // Should resolve to "custom_thing" handler (Fail), not "start" (Success)
     let handler = registry
@@ -1306,17 +1306,17 @@ async fn engine_conditional_success_path() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut cond = Node::new("check");
     cond.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("diamond"));
+        .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
     g.add_node(cond);
 
     let mut good = Node::new("good");
     good.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(good);
 
     g.add_node(Node::new("bad"));
@@ -1349,7 +1349,7 @@ async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let dead = Node::new("dead");
@@ -1357,7 +1357,7 @@ async fn engine_dead_end_success_completes_normally() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "dead"));
@@ -1383,7 +1383,7 @@ async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let dead = Node::new("dead");
@@ -1391,7 +1391,7 @@ async fn engine_dead_end_fail_returns_fail() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "dead"));
@@ -1415,7 +1415,7 @@ async fn engine_missing_exit_node_is_error() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
     g.add_node(Node::new("middle"));
     g.add_edge(Edge::new("start", "middle"));
@@ -1432,7 +1432,7 @@ async fn engine_context_propagation() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let middle = Node::new("middle");
@@ -1440,7 +1440,7 @@ async fn engine_context_propagation() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "middle"));
@@ -1482,7 +1482,7 @@ async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut task = Node::new("task");
@@ -1492,7 +1492,7 @@ async fn engine_checkpoint_includes_retry_counts() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));
@@ -1514,7 +1514,7 @@ async fn engine_panic_handler_fails() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let middle = Node::new("middle");
@@ -1522,7 +1522,7 @@ async fn engine_panic_handler_fails() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "middle"));
@@ -1557,7 +1557,7 @@ async fn engine_loop_restart() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let check = Node::new("check");
@@ -1565,7 +1565,7 @@ async fn engine_loop_restart() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "check"));
@@ -1634,7 +1634,7 @@ async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     // A goal gate node that we skip over (no edge leads to it)
@@ -1645,7 +1645,7 @@ async fn engine_unvisited_goal_gate_does_not_block() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "exit"));
@@ -1666,7 +1666,7 @@ async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     // A goal-gate node on the main path that fails
@@ -1677,7 +1677,7 @@ async fn engine_visited_goal_gate_unsatisfied_fails() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "important_task"));
@@ -1703,7 +1703,7 @@ async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     // Goal gate node on the path — fails first, retry_target points to itself
@@ -1716,7 +1716,7 @@ async fn engine_goal_gate_with_retry_target() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "gate_task"));
@@ -1750,7 +1750,7 @@ async fn engine_failure_routing_via_fail_edge() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let task = Node::new("task");
@@ -1761,7 +1761,7 @@ async fn engine_failure_routing_via_fail_edge() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));
@@ -1856,7 +1856,7 @@ async fn engine_context_updates_visible_to_success_routing() -> AttractorResult<
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let task = Node::new("task");
@@ -1870,7 +1870,7 @@ async fn engine_context_updates_visible_to_success_routing() -> AttractorResult<
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));
@@ -1940,7 +1940,7 @@ async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()>
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let task = Node::new("task");
@@ -1954,7 +1954,7 @@ async fn engine_context_updates_visible_to_fail_routing() -> AttractorResult<()>
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "task"));
@@ -2026,7 +2026,7 @@ async fn engine_preferred_label_cleared_between_stages() -> AttractorResult<()> 
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     g.add_node(Node::new("node_a"));
@@ -2034,7 +2034,7 @@ async fn engine_preferred_label_cleared_between_stages() -> AttractorResult<()> 
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "node_a"));
@@ -2074,12 +2074,12 @@ fn parallel_diamond_pipeline() -> Graph {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("branch_a"));
@@ -2090,7 +2090,7 @@ fn parallel_diamond_pipeline() -> Graph {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "parallel_node"));
@@ -2182,12 +2182,12 @@ async fn engine_parallel_divergent_branches_completes_without_reentry() -> Attra
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("branch_a"));
@@ -2197,7 +2197,7 @@ async fn engine_parallel_divergent_branches_completes_without_reentry() -> Attra
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "parallel_node"));
@@ -2247,12 +2247,12 @@ async fn engine_parallel_staggered_merge_reaches_exit() -> AttractorResult<()> {
     let mut start = Node::new("start");
     start
         .attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Mdiamond"));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     g.add_node(start);
 
     let mut par = Node::new("parallel_node");
     par.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("component"));
+        .insert(attr::SHAPE.into(), Graph::PARALLEL_SHAPE.into());
     g.add_node(par);
 
     g.add_node(Node::new("A"));
@@ -2263,7 +2263,7 @@ async fn engine_parallel_staggered_merge_reaches_exit() -> AttractorResult<()> {
 
     let mut exit = Node::new("exit");
     exit.attrs
-        .insert(attr::SHAPE.into(), AttrValue::from("Msquare"));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     g.add_node(exit);
 
     g.add_edge(Edge::new("start", "parallel_node"));
