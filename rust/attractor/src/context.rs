@@ -31,6 +31,7 @@ pub mod ctx {
     pub const STAGE_INDEX: &str = "internal.stage_index";
     pub const RESUME_DEGRADE_FIDELITY: &str = "internal.resume_degrade_fidelity";
     pub const OUTGOING_EDGE_LABELS: &str = "internal.outgoing_edge_labels";
+    pub const GATE_TIMEOUTS: &str = "internal.gate_timeouts";
 
     // -- internal per-node prefixes (append node ID) ------------------------
     pub const RETRY_COUNT_PREFIX: &str = "internal.retry_count.";

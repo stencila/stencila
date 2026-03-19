@@ -32,6 +32,7 @@ use async_trait::async_trait;
 use indexmap::IndexMap;
 
 use stencila_interviews::conduct::conduct_conditional;
+use stencila_interviews::interviewer::canonical_answer_string;
 use stencila_interviews::spec::InterviewSpec;
 
 use crate::context::{Context, ctx};
@@ -154,9 +155,7 @@ impl WaitForHumanHandler {
             }
         }
     }
-}
 
-impl WaitForHumanHandler {
     /// Execute a multi-question interview defined by an `InterviewSpec`.
     ///
     /// Parses the spec from YAML (with JSON fallback), conducts the
@@ -199,6 +198,19 @@ impl WaitForHumanHandler {
             .map_err(|reason| handler_failed(&node.id, reason))?;
         interview.stage_index = context.get_i64(ctx::STAGE_INDEX);
 
+        // 4a. Inject timeout_seconds from context gate_timeouts on each
+        //     question that lacks its own, but only when the node has no
+        //     explicit timeout attribute (node-level takes precedence).
+        if resolve_node_timeout_seconds(node).is_none()
+            && let Some(gate_timeout) = resolve_gate_timeout(context, &node.id)
+        {
+            for question in &mut interview.questions {
+                if question.timeout_seconds.is_none() {
+                    question.timeout_seconds = Some(gate_timeout);
+                }
+            }
+        }
+
         // 5. Resume recovery
         self.try_resume_recovery(&mut interview, &node.id);
 
@@ -233,8 +245,7 @@ impl WaitForHumanHandler {
 
             // Store the canonical (human-readable) value so that stored
             // values match what show-if / finish-if conditions compare.
-            let canonical =
-                stencila_interviews::interviewer::canonical_answer_string(&answer.value, question);
+            let canonical = canonical_answer_string(&answer.value, question);
 
             // Store under per-question `store` key
             if let Some(ref store) = spec.questions.get(i).and_then(|q| q.store.clone()) {
@@ -326,12 +337,7 @@ impl WaitForHumanHandler {
             if let Some(ref store) = spec.questions.get(spec_idx).and_then(|q| q.store.clone()) {
                 context_updates.insert(
                     store.clone(),
-                    serde_json::Value::String(
-                        stencila_interviews::interviewer::canonical_answer_string(
-                            &answer.value,
-                            question,
-                        ),
-                    ),
+                    serde_json::Value::String(canonical_answer_string(&answer.value, question)),
                 );
             }
 
@@ -340,12 +346,7 @@ impl WaitForHumanHandler {
             {
                 context_updates.insert(
                     key.to_string(),
-                    serde_json::Value::String(
-                        stencila_interviews::interviewer::canonical_answer_string(
-                            &answer.value,
-                            question,
-                        ),
-                    ),
+                    serde_json::Value::String(canonical_answer_string(&answer.value, question)),
                 );
             }
 
@@ -620,17 +621,9 @@ impl Handler for WaitForHumanHandler {
             }
         };
 
-        // Set timeout from node attribute (§2.6)
-        if let Some(v) = node.get_attr(attr::TIMEOUT) {
-            let secs = match v {
-                crate::graph::AttrValue::Duration(d) => Some(d.inner().as_secs_f64()),
-                crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
-                    .ok()
-                    .map(|d| d.inner().as_secs_f64()),
-                _ => None,
-            };
-            question.timeout_seconds = secs;
-        }
+        // Set timeout: node-level attribute takes precedence over context
+        // gate timeout (§2.6).
+        question.timeout_seconds = resolve_effective_timeout(node, context);
 
         // 3. Build an Interview and conduct it
         let mut interview = Interview::single(question.clone(), &node.id);
@@ -700,12 +693,7 @@ impl Handler for WaitForHumanHandler {
             if let Some(ref key) = store_key {
                 outcome.context_updates.insert(
                     key.clone(),
-                    serde_json::Value::String(
-                        stencila_interviews::interviewer::canonical_answer_string(
-                            &answer.value,
-                            &question,
-                        ),
-                    ),
+                    serde_json::Value::String(canonical_answer_string(&answer.value, &question)),
                 );
             }
 
@@ -717,12 +705,7 @@ impl Handler for WaitForHumanHandler {
             if let Some(ref key) = store_key {
                 updates.insert(
                     key.clone(),
-                    serde_json::Value::String(
-                        stencila_interviews::interviewer::canonical_answer_string(
-                            &answer.value,
-                            &question,
-                        ),
-                    ),
+                    serde_json::Value::String(canonical_answer_string(&answer.value, &question)),
                 );
             }
 
@@ -879,8 +862,30 @@ fn interview_error(node_id: &str, e: InterviewError) -> crate::error::AttractorE
 /// 2. `internal.gate_timeouts` in context resolves to a sub-second value
 ///    for this node (or the `"*"` wildcard).
 fn should_auto_approve(node: &Node, context: &Context) -> bool {
-    node.get_attr(attr::TIMEOUT).is_none()
+    resolve_node_timeout_seconds(node).is_none()
         && resolve_gate_timeout(context, &node.id).is_some_and(|t| t < 1.0)
+}
+
+/// Parse a node's `timeout` attribute into seconds.
+///
+/// Handles both `Duration` and `String` attribute variants. Returns
+/// `None` when the attribute is absent or cannot be parsed.
+fn resolve_node_timeout_seconds(node: &Node) -> Option<f64> {
+    match node.get_attr(attr::TIMEOUT)? {
+        crate::graph::AttrValue::Duration(d) => Some(d.inner().as_secs_f64()),
+        crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
+            .ok()
+            .map(|d| d.inner().as_secs_f64()),
+        _ => None,
+    }
+}
+
+/// Resolve the effective timeout for a node in seconds.
+///
+/// Node-level `timeout` attribute takes precedence. When absent, falls
+/// back to the context-level `internal.gate_timeouts` configuration.
+fn resolve_effective_timeout(node: &Node, context: &Context) -> Option<f64> {
+    resolve_node_timeout_seconds(node).or_else(|| resolve_gate_timeout(context, &node.id))
 }
 
 /// Resolve the gate timeout for a node from context.
@@ -890,7 +895,7 @@ fn should_auto_approve(node: &Node, context: &Context) -> bool {
 /// if a match is found — first checking the specific node ID, then the
 /// `"*"` wildcard.
 fn resolve_gate_timeout(context: &Context, node_id: &str) -> Option<f64> {
-    let map = context.get("internal.gate_timeouts")?;
+    let map = context.get(ctx::GATE_TIMEOUTS)?;
     let obj = map.as_object()?;
     obj.get(node_id)
         .or_else(|| obj.get("*"))

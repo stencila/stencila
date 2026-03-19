@@ -8,7 +8,7 @@ mod common;
 
 use std::sync::Arc;
 
-use stencila_attractor::context::Context;
+use stencila_attractor::context::{Context, ctx};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::handler::Handler;
@@ -1623,6 +1623,257 @@ questions:
     assert!(
         !outcome.notes.contains("[auto-approved]"),
         "expected no '[auto-approved]' marker when node has explicit timeout"
+    );
+    Ok(())
+}
+
+// ===========================================================================
+// Phase 3 / Slice 1 — Timeout application and expiry routing
+// ===========================================================================
+
+/// When `internal.gate_timeouts` has a non-zero value (>= 1.0), the resolved
+/// timeout should be injected as `timeout_seconds` on the question so the
+/// interviewer's timeout machinery fires after the configured duration.
+#[tokio::test]
+async fn context_gate_timeout_injected_as_timeout_seconds() -> AttractorResult<()> {
+    use std::sync::Mutex;
+
+    let captured: Arc<Mutex<Option<f64>>> = Arc::new(Mutex::new(None));
+    let captured_clone = Arc::clone(&captured);
+    let interviewer = Arc::new(CallbackInterviewer::new(move |q: &Question| {
+        *captured_clone
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = q.timeout_seconds;
+        Answer::new(AnswerValue::Yes)
+    }));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_gate_graph(&[("deploy", "[D] Deploy")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 30}));
+
+    handler.execute(node, &ctx, &g).await?;
+
+    let secs = captured
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "timeout_seconds not set".into(),
+        })?;
+    assert!(
+        (secs - 30.0).abs() < f64::EPSILON,
+        "expected timeout_seconds=30.0 from context gate_timeouts, got {secs}"
+    );
+    Ok(())
+}
+
+/// When the node already has an explicit `timeout` attribute AND context has
+/// a `gate_timeouts` value, the node-level `timeout` should take precedence
+/// for `timeout_seconds` — the context value must NOT override it.
+#[tokio::test]
+async fn node_timeout_attr_takes_precedence_over_context_for_timeout_seconds() -> AttractorResult<()>
+{
+    use std::sync::Mutex;
+    use stencila_attractor::types::Duration;
+
+    let captured: Arc<Mutex<Option<f64>>> = Arc::new(Mutex::new(None));
+    let captured_clone = Arc::clone(&captured);
+    let interviewer = Arc::new(CallbackInterviewer::new(move |q: &Question| {
+        *captured_clone
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = q.timeout_seconds;
+        Answer::new(AnswerValue::Yes)
+    }));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    // Node has explicit timeout="5m" (300 seconds)
+    let mut g = human_gate_graph(&[("deploy", "[D] Deploy")]);
+    g.get_node_mut("gate")
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        })?
+        .attrs
+        .insert(
+            "timeout".into(),
+            AttrValue::Duration(Duration::from_spec_str("5m")?),
+        );
+    let node = get_gate_node(&g)?;
+
+    // Context has a different gate_timeout of 10 seconds
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 10}));
+
+    handler.execute(node, &ctx, &g).await?;
+
+    let secs = captured
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "timeout_seconds not set".into(),
+        })?;
+    // Node-level 5m=300s should win over context 10s
+    assert!(
+        (secs - 300.0).abs() < f64::EPSILON,
+        "expected node-level timeout_seconds=300.0, got {secs} (context value leaked)"
+    );
+    Ok(())
+}
+
+/// For interview-spec paths, `timeout_seconds` from context should be
+/// applied to each question in the spec individually.
+#[tokio::test]
+async fn interview_spec_context_timeout_injected_per_question() -> AttractorResult<()> {
+    use std::sync::Mutex;
+
+    let captured_timeouts: Arc<Mutex<Vec<Option<f64>>>> = Arc::new(Mutex::new(Vec::new()));
+    let captured_clone = Arc::clone(&captured_timeouts);
+    let interviewer = Arc::new(CallbackInterviewer::new(move |q: &Question| {
+        captured_clone
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .push(q.timeout_seconds);
+        // Return appropriate answer based on question type
+        if q.r#type == QuestionType::SingleSelect {
+            let key = q.options.first().map(|o| o.key.clone()).unwrap_or_default();
+            Answer::new(AnswerValue::Selected(key))
+        } else {
+            Answer::new(AnswerValue::Text("auto".into()))
+        }
+    }));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let spec = r#"
+questions:
+  - question: Is it acceptable?
+    type: single-select
+    options:
+      - label: Accept
+      - label: Revise
+    store: human.decision
+  - question: Any notes?
+    type: freeform
+    store: human.notes
+"#;
+    let g = interview_spec_graph(spec, &[("end", "Accept"), ("create", "Revise")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 15}));
+
+    handler.execute(node, &ctx, &g).await?;
+
+    let timeouts = captured_timeouts
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .clone();
+    assert!(
+        timeouts.len() >= 2,
+        "expected at least 2 questions asked, got {}",
+        timeouts.len()
+    );
+    // Each question should have timeout_seconds=15.0 from context
+    for (i, t) in timeouts.iter().enumerate() {
+        assert_eq!(
+            *t,
+            Some(15.0),
+            "question {i} expected timeout_seconds=15.0, got {t:?}"
+        );
+    }
+    Ok(())
+}
+
+/// When a non-zero context timeout fires (i.e. interviewer returns
+/// `AnswerValue::Timeout`), the handler should route via the existing
+/// timeout path — using `human.default_choice` if available.
+#[tokio::test]
+async fn context_timeout_expiry_routes_via_default_choice() -> AttractorResult<()> {
+    // Simulate a timeout by having the interviewer return AnswerValue::Timeout
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Timeout,
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let mut g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    // Set default choice so timeout routes to "accept"
+    g.get_node_mut("gate")
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        })?
+        .attrs
+        .insert("human.default_choice".into(), AttrValue::from("accept"));
+    let node = get_gate_node(&g)?;
+
+    // Non-zero context timeout (>= 1.0)
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 5}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(
+        outcome.suggested_next_ids.contains(&"accept".to_string()),
+        "expected timeout to route via default_choice to 'accept', got: {:?}",
+        outcome.suggested_next_ids
+    );
+    Ok(())
+}
+
+/// When a non-zero context timeout fires and no `human.default_choice` is
+/// set, the handler should produce a retry outcome (existing behavior).
+#[tokio::test]
+async fn context_timeout_expiry_retries_without_default_choice() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Timeout,
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 5}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(
+        outcome.status,
+        StageStatus::Retry,
+        "expected Retry when timeout fires without default_choice"
+    );
+    Ok(())
+}
+
+/// When context has a non-zero gate timeout and the human responds in time,
+/// the human's answer should be used normally — no auto-approve, no timeout.
+#[tokio::test]
+async fn human_responds_before_context_timeout_answer_used_normally() -> AttractorResult<()> {
+    // Interviewer responds immediately with a specific selection
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Selected("R".into()),
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let g = human_gate_graph(&[("accept", "[A] Accept"), ("reject", "[R] Reject")]);
+    let node = get_gate_node(&g)?;
+
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 10}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    // The human's explicit selection should win
+    assert!(
+        outcome.suggested_next_ids.contains(&"reject".to_string()),
+        "expected human selection to route to 'reject', got: {:?}",
+        outcome.suggested_next_ids
+    );
+    // No auto-approved marker
+    assert!(
+        !outcome.notes.contains("[auto-approved]"),
+        "human answered in time — should not be auto-approved"
     );
     Ok(())
 }
