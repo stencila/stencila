@@ -19,6 +19,7 @@ use stencila_cli_utils::{
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
+use crate::run::GateTimeoutConfig;
 use crate::{CliInterviewer, definition, validate};
 
 /// Manage workflow definitions
@@ -437,6 +438,20 @@ struct Run {
     /// Show workflow config and pipeline without executing
     #[arg(long)]
     dry_run: bool,
+
+    /// Auto-approve all human gates immediately
+    ///
+    /// Bypasses human-in-the-loop gates by selecting the first option
+    /// without waiting. Useful for CI/CD pipelines and batch runs.
+    #[arg(long, conflicts_with = "auto_approve_after")]
+    auto_approve: bool,
+
+    /// Auto-approve human gates after a duration
+    ///
+    /// Waits for the specified duration before auto-approving. Accepts
+    /// durations like `30s`, `5m`, `2h`, `0.5s`.
+    #[arg(long, conflicts_with = "auto_approve")]
+    auto_approve_after: Option<String>,
 }
 
 pub static RUN_AFTER_LONG_HELP: &str = cstr!(
@@ -535,11 +550,13 @@ impl Run {
         let started = Instant::now();
         let interviewer: Arc<dyn stencila_attractor::interviewer::Interviewer> =
             Arc::new(CliInterviewer);
+        let gate_timeout =
+            resolve_gate_timeout_config(self.auto_approve, self.auto_approve_after.as_deref());
         let options = crate::run::RunOptions {
             emitter,
             interviewer: Some(interviewer),
             run_id_out: None,
-            gate_timeout: crate::run::GateTimeoutConfig::default(),
+            gate_timeout,
         };
         let outcome = crate::run::run_workflow_with_options(&wf, options).await?;
         let elapsed = started.elapsed();
@@ -753,7 +770,7 @@ impl Resume {
             emitter,
             interviewer: Some(interviewer),
             run_id_out: None,
-            gate_timeout: crate::run::GateTimeoutConfig::default(),
+            gate_timeout: GateTimeoutConfig::default(),
         };
         let outcome =
             crate::run::resume_workflow_with_options(&run_id, &cwd, options, self.force).await?;
@@ -883,5 +900,220 @@ fn format_elapsed(d: std::time::Duration) -> String {
         let hours = (secs / 3600.0).floor() as u64;
         let remaining_mins = ((secs - (hours as f64 * 3600.0)) / 60.0).floor() as u64;
         format!("{hours}h {remaining_mins}m")
+    }
+}
+
+/// Parse a duration string (e.g., `30s`, `5m`, `2h`, `0.5s`) into seconds.
+///
+/// Requires a suffix: `s` (seconds), `m` (minutes), or `h` (hours).
+/// Bare numbers without a suffix are rejected.
+fn parse_duration_seconds(s: &str) -> Result<f64> {
+    let (value_str, multiplier) = if let Some(rest) = s.strip_suffix('h') {
+        (rest, 3600.0)
+    } else if let Some(rest) = s.strip_suffix('m') {
+        (rest, 60.0)
+    } else if let Some(rest) = s.strip_suffix('s') {
+        (rest, 1.0)
+    } else {
+        bail!("invalid duration `{s}`: must end with s, m, or h (e.g., 30s, 5m, 2h)");
+    };
+
+    let value: f64 = value_str
+        .parse()
+        .map_err(|_| eyre::eyre!("invalid duration `{s}`: could not parse number"))?;
+
+    Ok(value * multiplier)
+}
+
+/// Map CLI flags to a [`GateTimeoutConfig`].
+fn resolve_gate_timeout_config(
+    auto_approve: bool,
+    auto_approve_after: Option<&str>,
+) -> GateTimeoutConfig {
+    if auto_approve {
+        GateTimeoutConfig::AutoApprove
+    } else if let Some(duration_str) = auto_approve_after {
+        match parse_duration_seconds(duration_str) {
+            Ok(seconds) => GateTimeoutConfig::Timed { seconds },
+            Err(_) => GateTimeoutConfig::Interactive,
+        }
+    } else {
+        GateTimeoutConfig::Interactive
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clap::Parser;
+
+    // -- Duration parsing (AC-4) --
+
+    /// `parse_duration_seconds` converts "30s" to 30.0.
+    #[test]
+    fn parse_duration_30s() {
+        let secs = parse_duration_seconds("30s").expect("should parse 30s");
+        assert!(
+            (secs - 30.0).abs() < f64::EPSILON,
+            "expected 30.0, got {secs}"
+        );
+    }
+
+    /// `parse_duration_seconds` converts "5m" to 300.0.
+    #[test]
+    fn parse_duration_5m() {
+        let secs = parse_duration_seconds("5m").expect("should parse 5m");
+        assert!(
+            (secs - 300.0).abs() < f64::EPSILON,
+            "expected 300.0, got {secs}"
+        );
+    }
+
+    /// `parse_duration_seconds` converts "2h" to 7200.0.
+    #[test]
+    fn parse_duration_2h() {
+        let secs = parse_duration_seconds("2h").expect("should parse 2h");
+        assert!(
+            (secs - 7200.0).abs() < f64::EPSILON,
+            "expected 7200.0, got {secs}"
+        );
+    }
+
+    /// `parse_duration_seconds` converts "0.5s" to 0.5.
+    #[test]
+    fn parse_duration_fractional() {
+        let secs = parse_duration_seconds("0.5s").expect("should parse 0.5s");
+        assert!(
+            (secs - 0.5).abs() < f64::EPSILON,
+            "expected 0.5, got {secs}"
+        );
+    }
+
+    /// `parse_duration_seconds` rejects an invalid string.
+    #[test]
+    fn parse_duration_invalid_rejected() {
+        assert!(
+            parse_duration_seconds("abc").is_err(),
+            "invalid duration 'abc' should be rejected"
+        );
+    }
+
+    /// `parse_duration_seconds` rejects a bare number without suffix.
+    #[test]
+    fn parse_duration_bare_number_rejected() {
+        assert!(
+            parse_duration_seconds("30").is_err(),
+            "bare number '30' without suffix should be rejected"
+        );
+    }
+
+    // -- Flag parsing via clap (AC-1, AC-2, AC-3) --
+
+    /// `--auto-approve` flag is accepted by the Run subcommand.
+    #[test]
+    fn run_accepts_auto_approve_flag() {
+        let cli = Cli::try_parse_from(["prog", "run", "my-workflow", "--auto-approve"]);
+        assert!(
+            cli.is_ok(),
+            "Cli should accept --auto-approve, got: {:?}",
+            cli.err()
+        );
+    }
+
+    /// `--auto-approve-after 30s` is accepted by the Run subcommand.
+    #[test]
+    fn run_accepts_auto_approve_after_flag() {
+        let cli =
+            Cli::try_parse_from(["prog", "run", "my-workflow", "--auto-approve-after", "30s"]);
+        assert!(
+            cli.is_ok(),
+            "Cli should accept --auto-approve-after 30s, got: {:?}",
+            cli.err()
+        );
+    }
+
+    /// Both `--auto-approve` and `--auto-approve-after` together should
+    /// produce a clap validation error (mutual exclusivity).
+    #[test]
+    fn run_rejects_both_auto_approve_flags() {
+        let cli = Cli::try_parse_from([
+            "prog",
+            "run",
+            "my-workflow",
+            "--auto-approve",
+            "--auto-approve-after",
+            "30s",
+        ]);
+        assert!(
+            cli.is_err(),
+            "Cli should reject --auto-approve + --auto-approve-after together"
+        );
+    }
+
+    /// The `Run` struct has an `auto_approve` field.
+    #[test]
+    fn run_has_auto_approve_field() {
+        let run = Run {
+            name: "test".into(),
+            goal: None,
+            verbose: false,
+            dry_run: false,
+            auto_approve: true,
+            auto_approve_after: None,
+        };
+        assert!(run.auto_approve);
+    }
+
+    /// The `Run` struct has an `auto_approve_after` field.
+    #[test]
+    fn run_has_auto_approve_after_field() {
+        let run = Run {
+            name: "test".into(),
+            goal: None,
+            verbose: false,
+            dry_run: false,
+            auto_approve: false,
+            auto_approve_after: Some("30s".into()),
+        };
+        assert_eq!(run.auto_approve_after.as_deref(), Some("30s"));
+    }
+
+    /// `--auto-approve` maps to `GateTimeoutConfig::AutoApprove` via
+    /// the `resolve_gate_timeout_config` helper.
+    #[test]
+    fn auto_approve_flag_maps_to_gate_timeout_auto_approve() {
+        let config = resolve_gate_timeout_config(true, None);
+        assert!(
+            matches!(config, GateTimeoutConfig::AutoApprove),
+            "--auto-approve should map to GateTimeoutConfig::AutoApprove, got {config:?}"
+        );
+    }
+
+    /// `--auto-approve-after 30s` maps to `GateTimeoutConfig::Timed { seconds: 30.0 }`
+    /// via the `resolve_gate_timeout_config` helper.
+    #[test]
+    fn auto_approve_after_flag_maps_to_gate_timeout_timed() {
+        let config = resolve_gate_timeout_config(false, Some("30s"));
+        match config {
+            GateTimeoutConfig::Timed { seconds } => {
+                assert!(
+                    (seconds - 30.0).abs() < f64::EPSILON,
+                    "expected 30.0 seconds, got {seconds}"
+                );
+            }
+            other => panic!(
+                "--auto-approve-after 30s should map to GateTimeoutConfig::Timed, got {other:?}"
+            ),
+        }
+    }
+
+    /// Neither flag maps to `GateTimeoutConfig::Interactive` (the default).
+    #[test]
+    fn no_flags_maps_to_gate_timeout_interactive() {
+        let config = resolve_gate_timeout_config(false, None);
+        assert!(
+            matches!(config, GateTimeoutConfig::Interactive),
+            "no flags should map to GateTimeoutConfig::Interactive, got {config:?}"
+        );
     }
 }
