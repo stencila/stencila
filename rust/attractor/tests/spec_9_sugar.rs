@@ -705,3 +705,513 @@ fn all_sugar_keys_drained() -> AttractorResult<()> {
     assert!(node.get_attr("branch").is_none());
     Ok(())
 }
+
+// ===========================================================================
+// Persist sugar: AC-1 — basic expansion with persist="full"
+// ===========================================================================
+
+#[test]
+fn persist_full_expands_to_fidelity_and_thread_id() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [persist="full", prompt="do stuff"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Implement").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Implement"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-2 — boolean true
+// ===========================================================================
+
+#[test]
+fn persist_bool_true_expands_like_string_true() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Worker -> End
+            Worker [persist=true, prompt="work"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Worker").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Worker"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-3 — boolean false
+// ===========================================================================
+
+#[test]
+fn persist_bool_false_no_expansion() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Worker -> End
+            Worker [persist=false, prompt="work"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Worker").unwrap();
+    assert!(node.get_attr("fidelity").is_none());
+    assert!(node.get_attr("thread_id").is_none());
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-4 — string "true"
+// ===========================================================================
+
+#[test]
+fn persist_string_true_expands_to_full() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Coder -> End
+            Coder [persist="true", prompt="code"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Coder").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Coder"));
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-5 — string "false"
+// ===========================================================================
+
+#[test]
+fn persist_string_false_no_expansion() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Worker -> End
+            Worker [persist="false", prompt="work"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Worker").unwrap();
+    assert!(node.get_attr("fidelity").is_none());
+    assert!(node.get_attr("thread_id").is_none());
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-6 — string "off"
+// ===========================================================================
+
+#[test]
+fn persist_off_no_expansion() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Worker -> End
+            Worker [persist="off", prompt="work"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Worker").unwrap();
+    assert!(node.get_attr("fidelity").is_none());
+    assert!(node.get_attr("thread_id").is_none());
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-7 — explicit thread_id preserved
+// ===========================================================================
+
+#[test]
+fn persist_full_with_explicit_thread_id_preserves_it() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [persist="full", thread_id="my_session", prompt="impl"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Implement").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("my_session"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-8 — explicit fidelity preserved, no thread_id generated
+// ===========================================================================
+
+#[test]
+fn persist_with_explicit_fidelity_preserves_fidelity_no_thread_id() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [persist="full", fidelity="truncate", prompt="impl"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Implement").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("truncate"));
+    assert!(node.get_attr("thread_id").is_none());
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-9 — explicit fidelity + explicit thread_id both preserved
+// ===========================================================================
+
+#[test]
+fn persist_with_explicit_fidelity_and_thread_id_preserves_both() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [persist="full", fidelity="full", thread_id="my_session", prompt="impl"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Implement").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("my_session"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-10 — persist key always removed regardless of value
+// ===========================================================================
+
+#[test]
+fn persist_key_removed_for_valid_string() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> A -> End
+            A [persist="full", prompt="a"]
+        }
+        "#,
+    )?;
+    assert!(g.get_node("A").unwrap().get_attr("persist").is_none());
+    Ok(())
+}
+
+#[test]
+fn persist_key_removed_for_boolean_true() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> A -> End
+            A [persist=true, prompt="a"]
+        }
+        "#,
+    )?;
+    assert!(g.get_node("A").unwrap().get_attr("persist").is_none());
+    Ok(())
+}
+
+#[test]
+fn persist_key_removed_for_boolean_false() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> A -> End
+            A [persist=false, prompt="a"]
+        }
+        "#,
+    )?;
+    assert!(g.get_node("A").unwrap().get_attr("persist").is_none());
+    Ok(())
+}
+
+#[test]
+fn persist_key_removed_for_integer_value() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> A -> End
+            A [persist=42, prompt="a"]
+        }
+        "#,
+    )?;
+    assert!(g.get_node("A").unwrap().get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-13 — idempotency
+// ===========================================================================
+
+#[test]
+fn persist_transform_is_idempotent() -> AttractorResult<()> {
+    let dot = r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [persist="full", prompt="impl"]
+        }
+    "#;
+    let mut graph = parse_dot(dot)?;
+    NodeSugarTransform.apply(&mut graph)?;
+
+    let fidelity_after_first = graph
+        .get_node("Implement")
+        .and_then(|n| n.get_str_attr("fidelity"))
+        .map(String::from);
+    let thread_id_after_first = graph
+        .get_node("Implement")
+        .and_then(|n| n.get_str_attr("thread_id"))
+        .map(String::from);
+
+    NodeSugarTransform.apply(&mut graph)?;
+
+    let fidelity_after_second = graph
+        .get_node("Implement")
+        .and_then(|n| n.get_str_attr("fidelity"))
+        .map(String::from);
+    let thread_id_after_second = graph
+        .get_node("Implement")
+        .and_then(|n| n.get_str_attr("thread_id"))
+        .map(String::from);
+
+    assert_eq!(fidelity_after_first, fidelity_after_second);
+    assert_eq!(thread_id_after_first, thread_id_after_second);
+    assert!(
+        graph
+            .get_node("Implement")
+            .unwrap()
+            .get_attr("persist")
+            .is_none()
+    );
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-14 — workflows without persist are unchanged
+// ===========================================================================
+
+#[test]
+fn workflow_without_persist_is_unchanged() -> AttractorResult<()> {
+    let dot = r#"
+        digraph T {
+            Start -> Analyze -> Summarize -> End
+            Analyze [prompt="Analyze the data"]
+            Summarize [prompt="Summarize findings"]
+        }
+    "#;
+    let mut graph_without = parse_dot(dot)?;
+    NodeSugarTransform.apply(&mut graph_without)?;
+
+    let mut graph_again = parse_dot(dot)?;
+    NodeSugarTransform.apply(&mut graph_again)?;
+
+    // Both passes produce the same result; no fidelity or thread_id injected
+    for id in ["Analyze", "Summarize"] {
+        let node = graph_without.get_node(id).unwrap();
+        assert!(
+            node.get_attr("fidelity").is_none(),
+            "unexpected fidelity on {id}"
+        );
+        assert!(
+            node.get_attr("thread_id").is_none(),
+            "unexpected thread_id on {id}"
+        );
+        assert!(
+            node.get_attr("persist").is_none(),
+            "unexpected persist on {id}"
+        );
+    }
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-15 — unknown persist value
+// ===========================================================================
+
+#[test]
+fn persist_unknown_value_removed_no_expansion() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Worker -> End
+            Worker [persist="invalid_value", prompt="work"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Worker").unwrap();
+    assert!(node.get_attr("persist").is_none());
+    assert!(node.get_attr("fidelity").is_none());
+    assert!(node.get_attr("thread_id").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-16 — non-string/non-boolean value (integer)
+// ===========================================================================
+
+#[test]
+fn persist_integer_value_removed_no_expansion() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Worker -> End
+            Worker [persist=42, prompt="work"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Worker").unwrap();
+    assert!(node.get_attr("persist").is_none());
+    assert!(node.get_attr("fidelity").is_none());
+    assert!(node.get_attr("thread_id").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-17 — summary mode
+// ===========================================================================
+
+#[test]
+fn persist_summary_expands_to_summary_medium() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Review -> End
+            Review [persist="summary", prompt="review"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Review").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("summary:medium"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Review"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-18 — gist mode
+// ===========================================================================
+
+#[test]
+fn persist_gist_expands_to_summary_low() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Scanner -> End
+            Scanner [persist="gist", prompt="scan"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Scanner").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("summary:low"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Scanner"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-19 — details mode
+// ===========================================================================
+
+#[test]
+fn persist_details_expands_to_summary_high() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Analyzer -> End
+            Analyzer [persist="details", prompt="analyze"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Analyzer").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("summary:high"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Analyzer"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Persist sugar: AC-20 — summary mode with explicit thread_id
+// ===========================================================================
+
+#[test]
+fn persist_summary_with_explicit_thread_id() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Review -> End
+            Review [persist="summary", thread_id="shared", prompt="review"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Review").unwrap();
+    assert_eq!(node.get_str_attr("fidelity"), Some("summary:medium"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("shared"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Combined sugar interaction: AC-11 — ask + persist
+// ===========================================================================
+
+#[test]
+fn ask_plus_persist_full_applies_both() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Review -> End
+            Review [ask="Review the code?", persist="full"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Review").unwrap();
+    // ask sugar applied: shape=hexagon, label set, ask key removed
+    assert_eq!(node.shape(), "hexagon");
+    assert_eq!(node.label(), "Review the code?");
+    assert!(node.get_attr("ask").is_none());
+    // persist sugar applied: fidelity=full, thread_id=persist:Review
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Review"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}
+
+// ===========================================================================
+// Combined sugar interaction: AC-12 — workflow + persist
+// ===========================================================================
+
+#[test]
+fn workflow_plus_persist_full_applies_both() -> AttractorResult<()> {
+    let g = apply_sugar(
+        r#"
+        digraph T {
+            Start -> Implement -> End
+            Implement [workflow="sub.dot", persist="full"]
+        }
+        "#,
+    )?;
+    let node = g.get_node("Implement").unwrap();
+    // workflow sugar applied in pass 1: type=workflow
+    assert_eq!(node.get_str_attr("type"), Some("workflow"));
+    assert_eq!(node.get_str_attr("workflow"), Some("sub.dot"));
+    // persist sugar applied in pass 2: fidelity=full, thread_id=persist:Implement
+    assert_eq!(node.get_str_attr("fidelity"), Some("full"));
+    assert_eq!(node.get_str_attr("thread_id"), Some("persist:Implement"));
+    assert!(node.get_attr("persist").is_none());
+    Ok(())
+}

@@ -36,6 +36,8 @@ pub fn builtin_rules() -> Vec<Box<dyn LintRule>> {
         Box::new(ParallelBranchThreadIdRule),
         Box::new(ThreadIdWithoutFidelityRule),
         Box::new(FidelityFullNoCycleThreadIdRule),
+        Box::new(PersistOnNonAgentRule),
+        Box::new(PersistOnEdgeRule),
     ]
 }
 
@@ -332,8 +334,8 @@ impl LintRule for StylesheetSyntaxRule {
     fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
         // Try `model_stylesheet` first, then fall back to `overrides`.
         let Some(attr_value) = graph
-            .get_graph_attr("model_stylesheet")
-            .or_else(|| graph.get_graph_attr("overrides"))
+            .get_graph_attr(attr::MODEL_STYLESHEET)
+            .or_else(|| graph.get_graph_attr(attr::OVERRIDES))
         else {
             return vec![];
         };
@@ -484,7 +486,7 @@ impl LintRule for FidelityValidRule {
 // ---------------------------------------------------------------------------
 
 /// Attribute names for retry target references, checked on both nodes and graphs.
-const RETRY_TARGET_ATTRS: &[&str] = &["retry_target", "fallback_retry_target"];
+const RETRY_TARGET_ATTRS: &[&str] = &[attr::RETRY_TARGET, attr::FALLBACK_RETRY_TARGET];
 
 /// Check whether a node or the graph has any retry target defined.
 fn has_any_retry_target(node: &crate::graph::Node, graph: &Graph) -> bool {
@@ -571,7 +573,7 @@ impl LintRule for GoalGateHasRetryRule {
         graph
             .nodes
             .values()
-            .filter(|n| n.get_bool_attr("goal_gate"))
+            .filter(|n| n.get_bool_attr(attr::GOAL_GATE))
             .filter(|n| !has_any_retry_target(n, graph))
             .map(|n| Diagnostic {
                 rule: self.name().to_string(),
@@ -697,7 +699,7 @@ impl LintRule for InterviewSpecRule {
 
             // Warn when node-level `store` is combined with `interview`;
             // per-question `store` keys are the intended mechanism.
-            if node.attrs.contains_key("store") {
+            if node.attrs.contains_key(attr::STORE) {
                 diagnostics.push(Diagnostic {
                     rule: self.name().to_string(),
                     severity: Severity::Warning,
@@ -1294,6 +1296,88 @@ impl LintRule for FidelityFullNoCycleThreadIdRule {
                 node_id: Some(n.id.clone()),
                 edge: None,
                 fix: Some("add an explicit thread_id attribute".into()),
+            })
+            .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Helper: check whether a node has persist-related attributes
+// ---------------------------------------------------------------------------
+
+/// Return `true` if the node carries an explicit `fidelity` attribute or a
+/// `thread_id` whose value starts with `persist:`.
+fn has_persist_attrs(node: &crate::graph::Node) -> bool {
+    node.attrs.contains_key(attr::FIDELITY)
+        || node
+            .get_str_attr(attr::THREAD_ID)
+            .is_some_and(|t| t.starts_with("persist:"))
+}
+
+// ---------------------------------------------------------------------------
+// 23. persist_on_non_agent (INFO) — fidelity or persist:* thread_id on a
+//     non-codergen node
+// ---------------------------------------------------------------------------
+
+struct PersistOnNonAgentRule;
+
+impl LintRule for PersistOnNonAgentRule {
+    fn name(&self) -> &'static str {
+        "persist_on_non_agent"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        graph
+            .nodes
+            .values()
+            .filter(|n| n.shape() != Graph::CODERGEN_SHAPE)
+            .filter(|n| has_persist_attrs(n))
+            .map(|n| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Info,
+                message: format!(
+                    "node `{}` (shape={}) has persist-related attributes but is not a \
+                     codergen node; persistence has no effect on this node type",
+                    n.id,
+                    n.shape()
+                ),
+                node_id: Some(n.id.clone()),
+                edge: None,
+                fix: Some(
+                    "remove fidelity/persist thread_id or change the node shape to box".into(),
+                ),
+            })
+            .collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 24. persist_on_edge (WARNING) — persist attribute on an edge
+// ---------------------------------------------------------------------------
+
+struct PersistOnEdgeRule;
+
+impl LintRule for PersistOnEdgeRule {
+    fn name(&self) -> &'static str {
+        "persist_on_edge"
+    }
+
+    fn apply(&self, graph: &Graph) -> Vec<Diagnostic> {
+        graph
+            .edges
+            .iter()
+            .filter(|e| e.attrs.contains_key(attr::PERSIST))
+            .map(|e| Diagnostic {
+                rule: self.name().to_string(),
+                severity: Severity::Warning,
+                message: format!(
+                    "edge {} -> {} has a `persist` attribute; persist is a node-level \
+                     attribute and has no effect on edges",
+                    e.from, e.to
+                ),
+                node_id: None,
+                edge: Some((e.from.clone(), e.to.clone())),
+                fix: Some("move persist to the source or target node instead".into()),
             })
             .collect()
     }

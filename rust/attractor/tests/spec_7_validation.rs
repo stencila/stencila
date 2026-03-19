@@ -1341,6 +1341,278 @@ fn rule_fidelity_full_no_cycle_thread_id_is_registered_in_builtin_rules() {
 }
 
 // ===========================================================================
+// persist_on_non_agent (INFO) — fidelity / persist:thread_id on non-codergen
+// ===========================================================================
+
+/// AC1: A Start node with `fidelity` set emits an INFO diagnostic.
+#[test]
+fn rule_persist_on_non_agent_start_node_with_fidelity() {
+    let mut g = valid_pipeline();
+
+    // Add fidelity to the start node (structural node → non-codergen)
+    if let Some(node) = g.get_node_mut("start") {
+        node.attrs
+            .insert(attr::FIDELITY.into(), AttrValue::from("full"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert_eq!(
+        hits.len(),
+        1,
+        "fidelity on a Start node should emit exactly one INFO diagnostic: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Info);
+    assert_eq!(hits[0].node_id.as_deref(), Some("start"));
+}
+
+/// AC1: An End/Exit node with a thread_id starting with `persist:` emits INFO.
+#[test]
+fn rule_persist_on_non_agent_exit_node_with_persist_thread_id() {
+    let mut g = valid_pipeline();
+
+    if let Some(node) = g.get_node_mut("exit") {
+        node.attrs
+            .insert(attr::THREAD_ID.into(), AttrValue::from("persist:exit"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert_eq!(
+        hits.len(),
+        1,
+        "persist:* thread_id on an Exit node should emit INFO: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Info);
+    assert_eq!(hits[0].node_id.as_deref(), Some("exit"));
+}
+
+/// AC1: A Fail node with fidelity emits INFO.
+#[test]
+fn rule_persist_on_non_agent_fail_node_with_fidelity() {
+    let mut g = Graph::new("test");
+
+    let mut start = Node::new("start");
+    start
+        .attrs
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
+    g.add_node(start);
+
+    let mut fail = Node::new("fail");
+    fail.attrs
+        .insert(attr::SHAPE.into(), Graph::FAIL_SHAPE.into());
+    fail.attrs
+        .insert(attr::FIDELITY.into(), AttrValue::from("full"));
+    g.add_node(fail);
+
+    let mut exit = Node::new("exit");
+    exit.attrs
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
+    g.add_node(exit);
+
+    g.add_edge(Edge::new("start", "fail"));
+    g.add_edge(Edge::new("start", "exit"));
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert_eq!(
+        hits.len(),
+        1,
+        "fidelity on a Fail node should emit INFO: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Info);
+    assert_eq!(hits[0].node_id.as_deref(), Some("fail"));
+}
+
+/// AC1: A shell node (parallelogram shape) with fidelity emits INFO.
+#[test]
+fn rule_persist_on_non_agent_shell_node_with_fidelity() {
+    let mut g = valid_pipeline();
+
+    // Replace "task" with a shell node
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::SHELL_SHAPE.into());
+        node.attrs
+            .insert(attr::FIDELITY.into(), AttrValue::from("full"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert_eq!(
+        hits.len(),
+        1,
+        "fidelity on a shell node should emit INFO: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Info);
+}
+
+/// AC1: A conditional (diamond) node with persist:* thread_id emits INFO.
+#[test]
+fn rule_persist_on_non_agent_conditional_node_with_persist_thread_id() {
+    let mut g = valid_pipeline();
+
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::CONDITIONAL_SHAPE.into());
+        node.attrs
+            .insert(attr::THREAD_ID.into(), AttrValue::from("persist:task"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert_eq!(
+        hits.len(),
+        1,
+        "persist:* thread_id on a conditional node should emit INFO: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Info);
+}
+
+/// AC3 (negative): A codergen (box) node with fidelity does NOT emit persist_on_non_agent.
+#[test]
+fn rule_persist_on_non_agent_codergen_node_no_diagnostic() {
+    let mut g = valid_pipeline();
+
+    // task is already a codergen node (default shape=box)
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert(attr::FIDELITY.into(), AttrValue::from("full"));
+        node.attrs
+            .insert(attr::THREAD_ID.into(), AttrValue::from("persist:task"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert!(
+        hits.is_empty(),
+        "fidelity on a codergen node should NOT emit persist_on_non_agent: {diagnostics:?}"
+    );
+}
+
+/// AC3 (negative): A non-codergen node with a non-persist thread_id and no fidelity
+/// should NOT fire the rule.
+#[test]
+fn rule_persist_on_non_agent_non_persist_thread_id_no_diagnostic() {
+    let mut g = valid_pipeline();
+
+    if let Some(node) = g.get_node_mut("task") {
+        node.attrs
+            .insert(attr::SHAPE.into(), Graph::SHELL_SHAPE.into());
+        // thread_id that doesn't start with "persist:" — not relevant
+        node.attrs
+            .insert(attr::THREAD_ID.into(), AttrValue::from("manual:thread"));
+    }
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_non_agent");
+    assert!(
+        hits.is_empty(),
+        "non-persist thread_id on non-codergen node should NOT emit persist_on_non_agent: {diagnostics:?}"
+    );
+}
+
+/// The rule is registered in builtin_rules().
+#[test]
+fn rule_persist_on_non_agent_is_registered_in_builtin_rules() {
+    use stencila_attractor::validation::rules::builtin_rules;
+
+    let rules = builtin_rules();
+    let found = rules.iter().any(|r| r.name() == "persist_on_non_agent");
+    assert!(
+        found,
+        "persist_on_non_agent must be registered in builtin_rules()"
+    );
+}
+
+// ===========================================================================
+// persist_on_edge (WARNING) — persist attribute on an edge
+// ===========================================================================
+
+/// AC2: An edge with a `persist` attribute emits a WARNING.
+#[test]
+fn rule_persist_on_edge_fires_when_edge_has_persist() {
+    let mut g = valid_pipeline();
+
+    // Add persist attribute to the task->exit edge
+    g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
+    let mut edge = Edge::new("task", "exit");
+    edge.attrs
+        .insert(attr::PERSIST.into(), AttrValue::from("full"));
+    g.add_edge(edge);
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_edge");
+    assert_eq!(
+        hits.len(),
+        1,
+        "persist on an edge should emit exactly one WARNING: {diagnostics:?}"
+    );
+    assert_eq!(hits[0].severity, Severity::Warning);
+    assert!(
+        hits[0].edge.is_some(),
+        "diagnostic should reference the offending edge"
+    );
+}
+
+/// AC2 (multiple): Multiple edges with persist each produce a warning.
+#[test]
+fn rule_persist_on_edge_fires_for_each_edge_with_persist() {
+    let mut g = valid_pipeline();
+
+    // Add persist to start->task edge
+    g.edges.retain(|e| !(e.from == "start" && e.to == "task"));
+    let mut edge1 = Edge::new("start", "task");
+    edge1
+        .attrs
+        .insert(attr::PERSIST.into(), AttrValue::from("true"));
+    g.add_edge(edge1);
+
+    // Add persist to task->exit edge
+    g.edges.retain(|e| !(e.from == "task" && e.to == "exit"));
+    let mut edge2 = Edge::new("task", "exit");
+    edge2
+        .attrs
+        .insert(attr::PERSIST.into(), AttrValue::from("full"));
+    g.add_edge(edge2);
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_edge");
+    assert_eq!(
+        hits.len(),
+        2,
+        "two edges with persist should produce two WARNINGs: {diagnostics:?}"
+    );
+    assert!(hits.iter().all(|d| d.severity == Severity::Warning));
+}
+
+/// AC3 (negative): Edges without `persist` produce no persist_on_edge diagnostic.
+#[test]
+fn rule_persist_on_edge_no_persist_no_diagnostic() {
+    let g = valid_pipeline();
+
+    let diagnostics = validation::validate(&g, &[]);
+    let hits = find_by_rule(&diagnostics, "persist_on_edge");
+    assert!(
+        hits.is_empty(),
+        "edges without persist should produce no diagnostic: {diagnostics:?}"
+    );
+}
+
+/// The rule is registered in builtin_rules().
+#[test]
+fn rule_persist_on_edge_is_registered_in_builtin_rules() {
+    use stencila_attractor::validation::rules::builtin_rules;
+
+    let rules = builtin_rules();
+    let found = rules.iter().any(|r| r.name() == "persist_on_edge");
+    assert!(
+        found,
+        "persist_on_edge must be registered in builtin_rules()"
+    );
+}
+
+// ===========================================================================
 // validate collects all diagnostics
 // ===========================================================================
 

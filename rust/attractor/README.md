@@ -256,6 +256,24 @@ For empty lists, the handler sets empty `parallel.results` and `parallel.outputs
 
 Outcome deserialization accepts both `preferred_next_label` (spec field name) and `preferred_label` as input keys for compatibility with legacy/external status producers.
 
+### Persist sugar (`persist` attribute)
+
+The `persist` node attribute is a sugar shorthand for setting `fidelity` and `thread_id` together. It maps friendly names to the underlying fidelity modes and auto-generates a `thread_id` of the form `persist:{node_id}`:
+
+| `persist` value              | Expands to                                             |
+|------------------------------|--------------------------------------------------------|
+| `"true"`, `true`, `"full"`   | `fidelity="full"`, `thread_id="persist:{node_id}"`    |
+| `"summary"`                  | `fidelity="summary:medium"`, `thread_id="persist:{node_id}"` |
+| `"gist"`                     | `fidelity="summary:low"`, `thread_id="persist:{node_id}"`    |
+| `"details"`                  | `fidelity="summary:high"`, `thread_id="persist:{node_id}"`   |
+| `"false"`, `false`, `"off"`  | *(disabled — no fidelity or thread_id set)*            |
+
+If `fidelity` is already set explicitly on the node, `persist` does not override it or generate a `thread_id`. If `thread_id` is already set, it is preserved. The `persist` attribute is always removed after processing (it never appears in the final graph).
+
+The `compact` and `truncate` fidelity modes are not available via `persist`. To use those modes, set the `fidelity` attribute directly (e.g., `fidelity="compact"`).
+
+See the `sugar.rs` module doc comment for the full resolution order and examples.
+
 ## Deviations
 
 These are intentional deviations from the spec.
