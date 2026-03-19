@@ -279,8 +279,10 @@ impl SqliteBackend {
             .conn
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
+        // Use OR REPLACE so that resumed runs can overwrite edge records
+        // left by the previous (failed) attempt at the same step_index.
         conn.execute(
-            "INSERT INTO workflow_edges (run_id, step_index, from_node, to_node, edge_label)
+            "INSERT OR REPLACE INTO workflow_edges (run_id, step_index, from_node, to_node, edge_label)
              VALUES (?1, ?2, ?3, ?4, ?5)",
             (&self.run_id, step_index, from_node, to_node, edge_label),
         )?;
