@@ -980,7 +980,6 @@ struct AgentCodergenBackend {
     /// Interviewer for the `ask_user` tool in agent sessions.
     interviewer: Option<Arc<dyn Interviewer>>,
     /// Session pool for reusing agent sessions across loop iterations.
-    #[allow(dead_code)]
     session_pool: crate::session_pool::SessionPool,
 }
 
@@ -1057,28 +1056,80 @@ impl CodergenBackend for AgentCodergenBackend {
             ) as Arc<dyn Interviewer>
         });
 
-        let (_agent, mut session, mut event_rx) = if has_overrides {
-            stencila_agents::convenience::create_session_with_overrides(
-                agent_name, node_iv, &overrides,
-            )
-            .await
-        } else if let Some(iv) = node_iv {
-            stencila_agents::convenience::create_session_with_interviewer(agent_name, iv).await
-        } else {
-            stencila_agents::convenience::create_session(agent_name).await
-        }
-        .map_err(|e| stencila_attractor::AttractorError::AgentFailed {
-            node_id: node.id.clone(),
-            source: Box::new(e),
-        })?;
+        // Session reuse: when fidelity is "full" and a thread_id is present,
+        // attempt to take a pooled session for multi-turn conversation reuse.
+        let fidelity = context
+            .get("internal.fidelity")
+            .and_then(|v| v.as_str().map(String::from));
+        let thread_id = context
+            .get("internal.thread_id")
+            .and_then(|v| v.as_str().map(String::from));
+        let is_full_fidelity = fidelity.as_deref() == Some("full");
 
-        // CLI session limitation: AgentSession::Cli sessions run commands
-        // in a local subprocess and do not support multi-turn conversation
-        // reuse. When the created session is a CLI variant the session guard
-        // should be discarded so it is not returned to the pool.
-        let _is_cli_session = matches!(session, stencila_agents::session::AgentSession::Cli(_));
+        let max_session_turns: Option<u64> = node
+            .get_str_attr("max_session_turns")
+            .and_then(|s| s.parse().ok());
+
+        let (pooled, prev_turn_count) = if is_full_fidelity && let Some(ref tid) = thread_id {
+            match (self.session_pool.take(tid), max_session_turns) {
+                (Some(entry), Some(limit)) if entry.turn_count >= limit => {
+                    tracing::debug!(
+                        thread_id = %tid,
+                        turn_count = entry.turn_count,
+                        max_session_turns = limit,
+                        "session turn limit reached; creating fresh session"
+                    );
+                    (None, 0u64)
+                }
+                (Some(entry), _) if entry.session.is_some() => {
+                    let tc = entry.turn_count;
+                    tracing::debug!(
+                        thread_id = %tid,
+                        turn_count = tc,
+                        "reusing pooled session"
+                    );
+                    (Some(entry), tc)
+                }
+                _ => (None, 0),
+            }
+        } else {
+            (None, 0)
+        };
+
+        let (mut session, mut event_rx, is_new_session) = if let Some(mut entry) = pooled {
+            let session = entry.session.take().expect("checked above");
+            let event_rx = entry.event_rx.take().expect("session implies event_rx");
+            (session, event_rx, false)
+        } else {
+            let (_agent, session, event_rx) = if has_overrides {
+                stencila_agents::convenience::create_session_with_overrides(
+                    agent_name, node_iv, &overrides,
+                )
+                .await
+            } else if let Some(iv) = node_iv {
+                stencila_agents::convenience::create_session_with_interviewer(agent_name, iv).await
+            } else {
+                stencila_agents::convenience::create_session(agent_name).await
+            }
+            .map_err(|e| stencila_attractor::AttractorError::AgentFailed {
+                node_id: node.id.clone(),
+                source: Box::new(e),
+            })?;
+            (session, event_rx, true)
+        };
+
+        let is_cli_session = matches!(session, stencila_agents::session::AgentSession::Cli(_));
 
         // Register workflow-context tools if we have a DB connection.
+        //
+        // On reused sessions these tools are already registered from the
+        // previous turn, but we re-register unconditionally because:
+        //   - `register_tool` replaces by name (IndexMap insert), so the
+        //     tool count stays constant — no context bloat from tool defs.
+        //   - `allowed_tools` deduplicates, so no growth there either.
+        //   - The executor closures capture per-node state (e.g.
+        //     `context_writable`), which may differ between nodes sharing
+        //     a thread, so a fresh executor is always correct.
         let workflow_tools_available =
             if let (Some(conn), Some(run_id), Some(artifacts_dir), Some(workspace_root)) = (
                 &self.db_conn,
@@ -1111,6 +1162,13 @@ impl CodergenBackend for AgentCodergenBackend {
         // `workflow_set_route` tool so the agent can make a structured
         // routing decision. For sessions without tool support, fall back
         // to XML-block parsing from the response text.
+        //
+        // On reused sessions the routing tool is re-registered with the
+        // current node's labels and a fresh `preferred_label` Arc. If the
+        // current node has no outgoing edges, the old tool from a previous
+        // node stays in the registry but is harmless: its prompt-level
+        // routing instructions are absent, so the model won't call it, and
+        // even if it did the old `preferred_label` Arc is no longer read.
         let outgoing_labels: Vec<String> = context
             .get("internal.outgoing_edge_labels")
             .and_then(|v| v.as_array().cloned())
@@ -1141,6 +1199,14 @@ impl CodergenBackend for AgentCodergenBackend {
             false
         };
 
+        // Build the effective prompt by appending workflow instructions.
+        //
+        // On reused sessions these instructions become part of the
+        // conversation history and are replayed on every subsequent
+        // request. This is a minor per-turn overhead (~400-500 bytes)
+        // that accumulates across loop iterations.  The
+        // `max_session_turns` node attribute exists to bound this
+        // growth by forcing a fresh session after N submissions.
         let mut effective_prompt = prompt.to_string();
 
         if workflow_tools_available {
@@ -1178,6 +1244,11 @@ impl CodergenBackend for AgentCodergenBackend {
         }
 
         let node_id = node.id.clone();
+
+        if !is_new_session {
+            drain_stale_events(&mut event_rx);
+        }
+
         let mut submit_fut = Box::pin(session.submit(&effective_prompt));
         let mut submit_done = false;
         let mut submit_result: Option<stencila_agents::error::AgentResult<()>> = None;
@@ -1312,6 +1383,29 @@ impl CodergenBackend for AgentCodergenBackend {
                 // from the agent's text response.
                 parse_preferred_label_xml(&collected_text, &outgoing_labels)
             });
+
+        // Return the session to the pool for reuse when fidelity is "full".
+        // CLI sessions do not support multi-turn reuse, so they are not pooled.
+        if is_full_fidelity
+            && let Some(tid) = thread_id
+            && !is_cli_session
+        {
+            let turn_count = prev_turn_count + 1;
+            tracing::debug!(
+                thread_id = %tid,
+                turn_count,
+                "returning session to pool"
+            );
+            self.session_pool.put_back(
+                tid,
+                crate::session_pool::SessionEntry {
+                    agent_name: agent_name.to_string(),
+                    turn_count,
+                    session: Some(session),
+                    event_rx: Some(event_rx),
+                },
+            );
+        }
 
         if let Some(label) = chosen_label {
             let mut outcome = stencila_attractor::handlers::build_output_outcome(
@@ -1718,7 +1812,6 @@ pub fn stderr_event_emitter_for_testing() -> Arc<dyn EventEmitter> {
 /// This should be called before each new `submit()` on a reused session to
 /// prevent leftover events from a previous submission from leaking into the
 /// new event loop.
-#[allow(dead_code)]
 fn drain_stale_events(receiver: &mut stencila_agents::events::EventReceiver) {
     while receiver.try_recv().is_ok() {}
 }
@@ -1821,6 +1914,7 @@ mod tests {
             crate::session_pool::SessionEntry {
                 agent_name: "pre-existing-agent".to_string(),
                 turn_count: 5,
+                ..Default::default()
             },
         );
 
@@ -1890,6 +1984,7 @@ mod tests {
             crate::session_pool::SessionEntry {
                 agent_name: "pre-existing-agent".to_string(),
                 turn_count: 3,
+                ..Default::default()
             },
         );
 

@@ -19,7 +19,7 @@ use stencila_attractor::context::Context;
 use stencila_attractor::engine::{self, EngineConfig};
 use stencila_attractor::error::AttractorResult;
 use stencila_attractor::events::EventEmitter;
-use stencila_attractor::graph::{AttrValue, Edge, Graph, Node};
+use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::handlers::{CodergenBackend, CodergenHandler, CodergenOutput};
 use stencila_attractor::types::Outcome;
 
@@ -147,14 +147,14 @@ impl CodergenBackend for PoolAwareMockBackend {
 fn make_start_node() -> Node {
     let mut node = Node::new("Start");
     node.attrs
-        .insert(attr::SHAPE.into(), AttrValue::String(Graph::START_SHAPE.into()));
+        .insert(attr::SHAPE.into(), Graph::START_SHAPE.into());
     node
 }
 
 fn make_exit_node() -> Node {
     let mut node = Node::new("Exit");
     node.attrs
-        .insert(attr::SHAPE.into(), AttrValue::String(Graph::EXIT_SHAPE.into()));
+        .insert(attr::SHAPE.into(), Graph::EXIT_SHAPE.into());
     node
 }
 
@@ -657,6 +657,7 @@ async fn max_session_turns_skips_pool_when_limit_reached() -> eyre::Result<()> {
         SessionEntry {
             agent_name: "stale-agent".to_string(),
             turn_count: 2,
+            ..Default::default()
         },
     );
 
@@ -729,6 +730,7 @@ async fn max_session_turns_reuses_pool_when_below_limit() -> eyre::Result<()> {
         SessionEntry {
             agent_name: "reusable-agent".to_string(),
             turn_count: 1,
+            ..Default::default()
         },
     );
 
@@ -798,6 +800,7 @@ async fn no_max_session_turns_always_reuses_pool() -> eyre::Result<()> {
         SessionEntry {
             agent_name: "long-running-agent".to_string(),
             turn_count: 100,
+            ..Default::default()
         },
     );
 

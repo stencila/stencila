@@ -1,28 +1,64 @@
 //! Thread-safe session pool.
 //!
-//! Provides [`SessionPool`], an `Arc<Mutex<…>>`-backed map of session
-//! entries keyed by thread ID.
+//! Provides [`SessionPool`], an `Arc<Mutex<…>>`-backed map of session entries
+//! keyed by thread ID. Each entry holds the live [`AgentSession`] and its
+//! [`EventReceiver`] so that conversation history is preserved across reuses.
+//!
+//! When `AgentCodergenBackend::run()` encounters `fidelity=full` it takes a
+//! session from the pool, drains stale events, submits the new prompt, and
+//! returns the session afterwards. Workflow tools are re-registered on every
+//! reuse (replace-by-name, no tool-definition bloat); the main source of
+//! context growth is conversation history, which `max_session_turns` exists to
+//! bound.
 //!
 //! # Best practices
 //!
-//! - Use an explicit `thread_id` attribute on nodes inside loops so that
-//!   the same session is reused across iterations rather than relying on
-//!   the fallback (previous-node) thread ID which may be unstable.
-//! - Nodes that share a `thread_id` should reference the same agent so
-//!   the conversation history remains coherent.
-//! - Set `max_session_turns` on long-running loops to bound the number
-//!   of turns accumulated on a single session and avoid unbounded
-//!   context growth.
+//! - Use an explicit `thread_id` attribute on nodes inside loops so that the
+//!   same session is reused across iterations rather than relying on the
+//!   fallback (previous-node) thread ID which may be unstable.
+//! - Nodes that share a `thread_id` should reference the same agent so the
+//!   conversation history remains coherent (enforced by the
+//!   `mismatched_agent_thread_id` validation rule).
+//! - Set `max_session_turns` on long-running loops to bound the number of turns
+//!   accumulated on a single session and avoid unbounded context growth.
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-#[derive(Debug, Clone, Default)]
-/// A single pooled session entry, holding the agent name and the
-/// cumulative turn count for the session.
+use stencila_agents::events::EventReceiver;
+use stencila_agents::session::AgentSession;
+
+/// A single pooled session entry, holding the agent name, the
+/// cumulative turn count, and optionally the live agent session and
+/// event receiver for reuse across loop iterations.
+#[derive(Default)]
 pub struct SessionEntry {
     pub agent_name: String,
     pub turn_count: u64,
+    pub session: Option<AgentSession>,
+    pub event_rx: Option<EventReceiver>,
+}
+
+impl Clone for SessionEntry {
+    fn clone(&self) -> Self {
+        Self {
+            agent_name: self.agent_name.clone(),
+            turn_count: self.turn_count,
+            session: None,
+            event_rx: None,
+        }
+    }
+}
+
+impl std::fmt::Debug for SessionEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SessionEntry")
+            .field("agent_name", &self.agent_name)
+            .field("turn_count", &self.turn_count)
+            .field("has_session", &self.session.is_some())
+            .field("has_event_rx", &self.event_rx.is_some())
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, Default)]
