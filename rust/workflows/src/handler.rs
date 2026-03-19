@@ -23,6 +23,7 @@ pub struct WorkflowHandler {
     workflow_home: PathBuf,
     emitter: Arc<dyn EventEmitter>,
     interviewer: Option<Arc<dyn Interviewer>>,
+    pub gate_timeout: GateTimeoutConfig,
 }
 
 impl WorkflowHandler {
@@ -30,11 +31,13 @@ impl WorkflowHandler {
         workflow_home: PathBuf,
         emitter: Arc<dyn EventEmitter>,
         interviewer: Option<Arc<dyn Interviewer>>,
+        gate_timeout: GateTimeoutConfig,
     ) -> Self {
         Self {
             workflow_home,
             emitter,
             interviewer,
+            gate_timeout,
         }
     }
 }
@@ -82,14 +85,17 @@ impl Handler for WorkflowHandler {
             agent_name: String::new(),
         });
 
+        let handler_err =
+            |reason: String| stencila_attractor::error::AttractorError::HandlerFailed {
+                node_id: node.id.clone(),
+                reason,
+            };
+
         let child = get_by_name(&self.workflow_home, workflow_name)
             .await
-            .map_err(
-                |error| stencila_attractor::error::AttractorError::HandlerFailed {
-                    node_id: node.id.clone(),
-                    reason: format!("Unable to resolve workflow `{workflow_name}`: {error}"),
-                },
-            )?;
+            .map_err(|e| {
+                handler_err(format!("Unable to resolve workflow `{workflow_name}`: {e}"))
+            })?;
 
         let mut child_input = IndexMap::new();
         child_input.insert("parent.node_id".to_string(), serde_json::json!(node.id));
@@ -112,7 +118,7 @@ impl Handler for WorkflowHandler {
                 emitter: self.emitter.clone(),
                 interviewer: self.interviewer.clone(),
                 run_id_out: None,
-                gate_timeout: GateTimeoutConfig::default(),
+                gate_timeout: self.gate_timeout.clone(),
             },
             Some(ParentRun {
                 run_id: context.get_string("internal.run_id"),
@@ -121,12 +127,7 @@ impl Handler for WorkflowHandler {
             Some(child_input),
         )
         .await
-        .map_err(
-            |error| stencila_attractor::error::AttractorError::HandlerFailed {
-                node_id: node.id.clone(),
-                reason: format!("Subworkflow `{workflow_name}` failed to run: {error}"),
-            },
-        )?;
+        .map_err(|e| handler_err(format!("Subworkflow `{workflow_name}` failed to run: {e}")))?;
 
         Ok(map_child_outcome(node, outcome))
     }
@@ -226,5 +227,55 @@ mod tests {
             expand_runtime_variables("Previous stage: $last_stage", &context),
             "Previous stage: $last_stage"
         );
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 6 / Slice 1: Child workflow propagation of gate timeout
+    // -----------------------------------------------------------------------
+
+    /// AC-1 / AC-2: `WorkflowHandler::new()` accepts a `gate_timeout`
+    /// parameter and stores it on the struct.
+    ///
+    /// This test will fail to compile until the `gate_timeout` field is
+    /// added to `WorkflowHandler` and the constructor is updated.
+    #[test]
+    fn workflow_handler_stores_gate_timeout() {
+        let emitter: Arc<dyn EventEmitter> = Arc::new(stencila_attractor::events::NoOpEmitter);
+
+        let handler = WorkflowHandler::new(
+            std::path::PathBuf::from("/tmp/test"),
+            emitter,
+            None, // interviewer
+            GateTimeoutConfig::AutoApprove,
+        );
+
+        assert!(
+            matches!(handler.gate_timeout, GateTimeoutConfig::AutoApprove),
+            "gate_timeout should be stored as AutoApprove, got {:?}",
+            handler.gate_timeout
+        );
+    }
+
+    /// AC-1 / AC-2: Timed variant is also stored correctly.
+    #[test]
+    fn workflow_handler_stores_timed_gate_timeout() {
+        let emitter: Arc<dyn EventEmitter> = Arc::new(stencila_attractor::events::NoOpEmitter);
+
+        let handler = WorkflowHandler::new(
+            std::path::PathBuf::from("/tmp/test"),
+            emitter,
+            None,
+            GateTimeoutConfig::Timed { seconds: 60.0 },
+        );
+
+        match handler.gate_timeout {
+            GateTimeoutConfig::Timed { seconds } => {
+                assert!(
+                    (seconds - 60.0).abs() < f64::EPSILON,
+                    "expected 60.0, got {seconds}"
+                );
+            }
+            other => panic!("expected Timed, got {other:?}"),
+        }
     }
 }

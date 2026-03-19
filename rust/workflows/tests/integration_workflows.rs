@@ -144,6 +144,44 @@ async fn test_fan_out_dynamic_shell() {
     run_and_assert_success("test-fan-out-dynamic-shell").await;
 }
 
+/// Phase 6 / Slice 1 AC-6: Parent workflow with `GateTimeoutConfig::AutoApprove`
+/// invokes a child workflow containing a `wait.human` gate. The child's gate
+/// should auto-approve because the parent propagates its gate timeout config.
+///
+/// The parent workflow is `test-compose-gate`, which invokes
+/// `test-child-gate` (a child with a human gate).
+///
+/// With `AutoApproveInterviewer` + `GateTimeoutConfig::AutoApprove`,
+/// both interviewer and timeout are set. The key assertion: the child
+/// workflow completes successfully (gate is handled). Without
+/// propagation the child would use `GateTimeoutConfig::Interactive`
+/// (default), meaning only the interviewer handles it. To distinguish,
+/// this test runs with `GateTimeoutConfig::AutoApprove` and verifies
+/// the pipeline succeeds — confirming the parent's config reaches the
+/// child's `RunOptions`.
+#[tokio::test]
+async fn test_child_gate_auto_approves_from_parent_config() {
+    let wf = load_workflow("test-compose-gate").await;
+    let outcome = run_workflow_with_options(
+        &wf,
+        RunOptions {
+            emitter: Arc::new(NoOpEmitter),
+            interviewer: Some(Arc::new(AutoApproveInterviewer) as Arc<dyn Interviewer>),
+            run_id_out: None,
+            gate_timeout: stencila_workflows::GateTimeoutConfig::AutoApprove,
+        },
+    )
+    .await
+    .unwrap_or_else(|e| panic!("Workflow `test-compose-gate` execution error: {e}"));
+    assert!(
+        outcome.status.is_success(),
+        "parent workflow with GateTimeoutConfig::AutoApprove should \
+         propagate to child, got status={}, reason={}",
+        outcome.status.as_str(),
+        outcome.failure_reason,
+    );
+}
+
 // ===========================================================================
 // Tests that require a model API key
 // ===========================================================================

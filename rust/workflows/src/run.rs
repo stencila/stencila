@@ -277,6 +277,7 @@ pub(crate) async fn run_workflow_with_options_and_parent(
         Some(workspace_root),
         agent_interviewer,
         session_pool,
+        options.gate_timeout.clone(),
     );
 
     let result = stencila_attractor::engine::run_with_context(&graph, config, context)
@@ -769,6 +770,7 @@ pub async fn resume_workflow_with_options(
         Some(workspace_root),
         agent_interviewer,
         session_pool,
+        options.gate_timeout.clone(),
     );
 
     let result =
@@ -1527,6 +1529,7 @@ fn build_engine_config(
     workspace_root: Option<std::path::PathBuf>,
     agent_interviewer: Option<Arc<dyn Interviewer>>,
     session_pool: crate::session_pool::SessionPool,
+    gate_timeout: GateTimeoutConfig,
 ) -> EngineConfig {
     let mut config = EngineConfig::new();
     config.emitter = emitter.clone();
@@ -1537,7 +1540,12 @@ fn build_engine_config(
     inner_registry.register("shell", ShellHandler::with_emitter(emitter.clone()));
     inner_registry.register(
         "workflow",
-        WorkflowHandler::new(workflow_home.clone(), emitter.clone(), interviewer.clone()),
+        WorkflowHandler::new(
+            workflow_home.clone(),
+            emitter.clone(),
+            interviewer.clone(),
+            gate_timeout.clone(),
+        ),
     );
     inner_registry.register(
         "codergen",
@@ -1572,7 +1580,12 @@ fn build_engine_config(
         .register("shell", ShellHandler::with_emitter(emitter.clone()));
     config.registry.register(
         "workflow",
-        WorkflowHandler::new(workflow_home, emitter.clone(), interviewer.clone()),
+        WorkflowHandler::new(
+            workflow_home,
+            emitter.clone(),
+            interviewer.clone(),
+            gate_timeout,
+        ),
     );
     config.registry.register(
         "codergen",
@@ -1927,10 +1940,11 @@ mod tests {
             None, // run_id
             Arc::new(Mutex::new(RunMetrics::default())),
             HashMap::new(),
-            None, // artifacts_dir
-            None, // workspace_root
-            None, // agent_interviewer
-            pool, // session_pool — new parameter
+            None,                         // artifacts_dir
+            None,                         // workspace_root
+            None,                         // agent_interviewer
+            pool,                         // session_pool
+            GateTimeoutConfig::default(), // gate_timeout
         );
     }
 
@@ -2390,4 +2404,33 @@ mod tests {
     // spawn_workflow(), spawn_resume_workflow(), WorkflowHandler::execute(),
     // and test helpers. This is a compilation-level concern, not a unit-test
     // concern. See AC-8/AC-9.
+
+    // -- Phase 6 / Slice 1: build_engine_config accepts gate_timeout --
+
+    /// AC-3 (Phase 6): `build_engine_config()` accepts a `gate_timeout:
+    /// GateTimeoutConfig` parameter.
+    ///
+    /// This test will fail to compile until `build_engine_config` is
+    /// updated to accept the new parameter.
+    #[test]
+    fn build_engine_config_accepts_gate_timeout() {
+        let pool = crate::session_pool::SessionPool::new();
+        let emitter: Arc<dyn stencila_attractor::events::EventEmitter> =
+            Arc::new(stencila_attractor::events::NoOpEmitter);
+
+        let _config = build_engine_config(
+            std::path::PathBuf::from("/tmp/test"),
+            emitter,
+            None, // interviewer
+            None, // db_conn
+            None, // run_id
+            Arc::new(Mutex::new(RunMetrics::default())),
+            HashMap::new(),
+            None,                           // artifacts_dir
+            None,                           // workspace_root
+            None,                           // agent_interviewer
+            pool,                           // session_pool
+            GateTimeoutConfig::AutoApprove, // gate_timeout — new parameter
+        );
+    }
 }
