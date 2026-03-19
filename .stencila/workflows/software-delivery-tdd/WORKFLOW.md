@@ -33,26 +33,53 @@ The workflow processes a delivery plan in successive execution units during a si
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
+All agent nodes use `fidelity="full"` with explicit `thread-id` values so that each agent's LLM session is reused across iterations. This avoids the startup cost of re-reading files, re-discovering codebase conventions, and re-parsing the delivery plan on every loop. Each agent role gets its own thread (`slice-selector`, `test-creator`, `test-executor`, `test-reviewer`, `implementor`, `refactorer`), with the three test-executor nodes sharing a single `test-executor` thread since they perform the same job in different phases. The one-shot `CommitSlice` node uses the default fidelity since it has no iteration overhead. A graph-wide `max-session-turns` default of 10 caps context growth on lightweight nodes, while heavy-context nodes (`CreateTests`, `Implement`, `Refactor`) override this to 5 since they read and write many files per turn and accumulate context faster.
+
 Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. The existing context keys are retained even when the selected work corresponds to several combined plan slices: in that case `current_slice`, `slice.scope`, `slice.acceptance_criteria`, and `slice.packages` describe the selected execution unit, while `completed_slices` continues to track the underlying plan slice identifiers. This keeps prompts concise across many iterations. Revision loops rely on `workflow_get_output` as the feedback channel: the test-reviewer's output text is the feedback that the test-creator reads on the next iteration, and failed test-execution output is the feedback that the implementor and refactorer read. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
 
 ```dot
 digraph software_delivery_tdd {
+  node [max-session-turns="10"]
+
   Start -> SelectSlice
 
-  SelectSlice [agent="software-slice-selector", prompt-ref="#select-slice-prompt", context-writable=true]
+  SelectSlice [
+    agent="software-slice-selector",
+    prompt-ref="#select-slice-prompt",
+    context-writable=true,
+    fidelity="full",
+    thread-id="slice-selector"
+  ]
   SelectSlice -> CreateTests  [label="Continue"]
   SelectSlice -> End          [label="Done"]
 
   subgraph red_phase {
     node [class="red-phase"]
 
-    CreateTests [agent="software-test-creator", prompt-ref="#create-tests-prompt", max_retries=3, context-writable=true]
+    CreateTests [
+      agent="software-test-creator",
+      prompt-ref="#create-tests-prompt",
+      context-writable=true,
+      fidelity="full",
+      thread-id="test-creator",
+      max-session-turns="5"
+    ]
     CreateTests -> RunTestsRed
 
-    RunTestsRed [agent="software-test-executor", prompt-ref="#run-tests-prompt"]
+    RunTestsRed [
+      agent="software-test-executor",
+      prompt-ref="#run-tests-prompt",
+      fidelity="full",
+      thread-id="test-executor"
+    ]
     RunTestsRed -> ReviewTests
 
-    ReviewTests [agent="software-test-reviewer", prompt-ref="#review-tests-prompt"]
+    ReviewTests [
+      agent="software-test-reviewer",
+      prompt-ref="#review-tests-prompt",
+      fidelity="full",
+      thread-id="test-reviewer"
+    ]
     ReviewTests -> Implement     [label="Accept"]
     ReviewTests -> CreateTests   [label="Revise"]
   }
@@ -60,10 +87,21 @@ digraph software_delivery_tdd {
   subgraph green_phase {
     node [class="green-phase"]
 
-    Implement [agent="software-implementor", prompt-ref="#implement-prompt", max_retries=3]
+    Implement [
+      agent="software-implementor",
+      prompt-ref="#implement-prompt",
+      fidelity="full",
+      thread-id="implementor",
+      max-session-turns="5"
+    ]
     Implement -> RunTestsGreen
 
-    RunTestsGreen [agent="software-test-executor", prompt-ref="#run-tests-prompt", max_retries=3]
+    RunTestsGreen [
+      agent="software-test-executor",
+      prompt-ref="#run-tests-prompt",
+      fidelity="full",
+      thread-id="test-executor"
+    ]
     RunTestsGreen -> Refactor    [label="Pass"]
     RunTestsGreen -> Implement   [label="Fail"]
   }
@@ -71,10 +109,21 @@ digraph software_delivery_tdd {
   subgraph refactor_phase {
     node [class="refactor-phase"]
 
-    Refactor [agent="software-refactorer", prompt-ref="#refactor-prompt", max_retries=3]
+    Refactor [
+      agent="software-refactorer",
+      prompt-ref="#refactor-prompt",
+      fidelity="full",
+      thread-id="refactorer",
+      max-session-turns="5"
+    ]
     Refactor -> RunTestsRefactor
 
-    RunTestsRefactor [agent="software-test-executor", prompt-ref="#run-tests-prompt", max_retries=3]
+    RunTestsRefactor [
+      agent="software-test-executor",
+      prompt-ref="#run-tests-prompt",
+      fidelity="full",
+      thread-id="test-executor"
+    ]
     RunTestsRefactor -> HumanReview  [label="Pass"]
     RunTestsRefactor -> Refactor     [label="Fail"]
   }
@@ -84,7 +133,10 @@ digraph software_delivery_tdd {
   HumanReview -> CommitSlice  [label="Accept and Commit"]
   HumanReview -> CreateTests  [label="Revise"]
 
-  CommitSlice [agent="general", prompt-ref="#commit-slice-prompt"]
+  CommitSlice [
+    agent="general",
+    prompt-ref="#commit-slice-prompt"
+  ]
   CommitSlice -> SelectSlice
 }
 ```
