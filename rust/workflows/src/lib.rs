@@ -18,7 +18,9 @@ pub use run::*;
 mod tools;
 
 mod pre_run_interview;
-pub use pre_run_interview::{PreRunAnswers, build_pre_run_interview, extract_pre_run_answers};
+pub use pre_run_interview::{
+    PreRunAnswers, build_pre_run_interview, conduct_pre_run_interview, extract_pre_run_answers,
+};
 
 pub mod session_pool;
 pub use session_pool::{SessionEntry, SessionPool};

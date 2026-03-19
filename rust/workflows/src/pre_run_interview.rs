@@ -12,7 +12,9 @@
 //! [`extract_pre_run_answers`] converts the interview answers back into
 //! domain types: an optional goal string and a [`GateTimeoutConfig`].
 
-use stencila_interviews::conduct::ConductedInterview;
+use eyre::{Result, bail};
+use stencila_interviews::conduct::{ConductedInterview, conduct_conditional};
+use stencila_interviews::interviewer::{Interviewer, canonical_answer_string};
 use stencila_interviews::spec::{InterviewSpec, OptionSpec, QuestionSpec, QuestionTypeSpec};
 
 use crate::GateTimeoutConfig;
@@ -94,6 +96,7 @@ pub fn build_pre_run_interview(
 }
 
 /// Result of extracting pre-run interview answers.
+#[derive(Debug)]
 pub struct PreRunAnswers {
     /// The user-provided goal, if any.
     pub goal: Option<String>,
@@ -112,8 +115,6 @@ pub fn extract_pre_run_answers(
     spec: &InterviewSpec,
     conducted: &ConductedInterview,
 ) -> PreRunAnswers {
-    use stencila_interviews::interviewer::canonical_answer_string;
-
     // Build a map from store key → canonical answer string.
     let store_values: std::collections::HashMap<&str, String> = conducted
         .spec_indices
@@ -167,6 +168,54 @@ fn parse_duration(s: &str) -> f64 {
     };
 
     num.trim().parse::<f64>().unwrap_or(0.0) * multiplier
+}
+
+/// Conduct the pre-run interview end-to-end and apply the results.
+///
+/// This is the top-level orchestrator called by `Run::run()` between
+/// validation and `run_workflow_with_options`. It:
+///
+/// 1. Calls [`build_pre_run_interview`] to construct the spec
+/// 2. If the spec is `None` (all questions suppressed), returns `None`
+/// 3. Conducts the interview via [`conduct_conditional`]
+/// 4. Rejects empty goal input (returns an error)
+/// 5. Extracts answers via [`extract_pre_run_answers`]
+/// 6. Returns `Some(PreRunAnswers)` with the goal and gate timeout
+///
+/// The caller is responsible for applying the answers to the workflow
+/// and run options.
+///
+/// # Arguments
+///
+/// * `workflow` — the loaded workflow instance
+/// * `has_cli_goal` — `true` when the user provided `--goal` on the CLI
+/// * `has_cli_gate_config` — `true` when `--auto-approve` or
+///   `--auto-approve-after` was provided
+/// * `interviewer` — the interviewer to use for conducting the interview
+pub async fn conduct_pre_run_interview(
+    workflow: &WorkflowInstance,
+    has_cli_goal: bool,
+    has_cli_gate_config: bool,
+    interviewer: &dyn Interviewer,
+) -> Result<Option<PreRunAnswers>> {
+    let spec = match build_pre_run_interview(workflow, has_cli_goal, has_cli_gate_config) {
+        Some(spec) => spec,
+        None => return Ok(None),
+    };
+
+    let conducted = conduct_conditional(&spec, interviewer, "pre-run")
+        .await
+        .map_err(|e| eyre::eyre!("{e}"))?;
+
+    // Reject empty/whitespace-only goal answers.
+    let answers = extract_pre_run_answers(&spec, &conducted);
+    if let Some(ref goal) = answers.goal
+        && goal.trim().is_empty()
+    {
+        bail!("goal cannot be empty");
+    }
+
+    Ok(Some(answers))
 }
 
 #[cfg(test)]
@@ -774,5 +823,227 @@ digraph test {
             "gate_timeout should default to Interactive when no gate questions exist, got {:?}",
             result.gate_timeout
         );
+    }
+
+    // ===================================================================
+    // conduct_pre_run_interview end-to-end tests (Phase 5 / Slice 3)
+    // ===================================================================
+
+    // -----------------------------------------------------------------------
+    // AC-1 / AC-6: Full flow — goal_hint workflow, QueueInterviewer provides
+    //              goal and gate mode, answers correctly extracted
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_goal_hint_workflow_extracts_goal_and_gate_config() {
+        let (_tmp, wf) = make_workflow(None, Some("What do you want to build?"), true).await;
+
+        // Queue answers: goal text, then gate mode "Auto-approve" (key "B")
+        let interviewer = QueueInterviewer::new(vec![
+            Answer::new(AnswerValue::Text("Build a REST API".into())),
+            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+        ]);
+
+        let result = conduct_pre_run_interview(&wf, false, false, &interviewer)
+            .await
+            .expect("should not error");
+
+        assert!(
+            result.is_some(),
+            "should return Some(PreRunAnswers) when interview was conducted"
+        );
+        let answers = result.expect("answers");
+
+        assert_eq!(
+            answers.goal.as_deref(),
+            Some("Build a REST API"),
+            "goal should be extracted from interview answers"
+        );
+        assert!(
+            matches!(answers.gate_timeout, GateTimeoutConfig::AutoApprove),
+            "gate_timeout should be AutoApprove, got {:?}",
+            answers.gate_timeout
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-3: --goal flag bypass — goal question not shown, only gate questions
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_with_cli_goal_skips_goal_question() {
+        let (_tmp, wf) = make_workflow(None, Some("What do you want to build?"), true).await;
+
+        // Only gate mode answer needed — goal question should be skipped
+        let interviewer = QueueInterviewer::new(vec![
+            Answer::new(AnswerValue::Selected("A".into())), // "Interactive"
+        ]);
+
+        let result = conduct_pre_run_interview(&wf, true, false, &interviewer)
+            .await
+            .expect("should not error");
+
+        assert!(
+            result.is_some(),
+            "should return Some when gate questions remain"
+        );
+        let answers = result.expect("answers");
+
+        assert!(
+            answers.goal.is_none(),
+            "goal should be None when CLI provides --goal (question skipped)"
+        );
+        assert!(
+            matches!(answers.gate_timeout, GateTimeoutConfig::Interactive),
+            "gate_timeout should be Interactive, got {:?}",
+            answers.gate_timeout
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-4: Fixed goal in workflow → goal question skipped, gate questions shown
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_fixed_goal_skips_goal_question() {
+        let (_tmp, wf) =
+            make_workflow(Some("Build a widget"), Some("What do you want?"), true).await;
+
+        // Only gate mode answer — goal question skipped because workflow has fixed goal
+        let interviewer = QueueInterviewer::new(vec![
+            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+        ]);
+
+        let result = conduct_pre_run_interview(&wf, false, false, &interviewer)
+            .await
+            .expect("should not error");
+
+        assert!(result.is_some(), "should return Some for gate questions");
+        let answers = result.expect("answers");
+
+        assert!(
+            answers.goal.is_none(),
+            "goal should be None when workflow has a fixed goal (question skipped)"
+        );
+        assert!(
+            matches!(answers.gate_timeout, GateTimeoutConfig::AutoApprove),
+            "gate_timeout should be AutoApprove, got {:?}",
+            answers.gate_timeout
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-7: All questions suppressed by CLI flags → returns None
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_all_flags_returns_none() {
+        let (_tmp, wf) = make_workflow(None, Some("What do you want?"), true).await;
+
+        // No answers needed — everything suppressed
+        let interviewer = QueueInterviewer::new(vec![]);
+
+        let result = conduct_pre_run_interview(&wf, true, true, &interviewer)
+            .await
+            .expect("should not error");
+
+        assert!(
+            result.is_none(),
+            "should return None when both CLI flags suppress all questions"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-7: No goal_hint, no gates → returns None
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_no_questions_returns_none() {
+        let (_tmp, wf) = make_workflow(None, None, false).await;
+
+        let interviewer = QueueInterviewer::new(vec![]);
+
+        let result = conduct_pre_run_interview(&wf, false, false, &interviewer)
+            .await
+            .expect("should not error");
+
+        assert!(
+            result.is_none(),
+            "should return None when workflow has no goal_hint and no gates"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-2: Empty goal input is rejected
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_rejects_empty_goal() {
+        let (_tmp, wf) = make_workflow(None, Some("What do you want to build?"), false).await;
+
+        // Provide empty text as the goal answer
+        let interviewer =
+            QueueInterviewer::new(vec![Answer::new(AnswerValue::Text(String::new()))]);
+
+        let result = conduct_pre_run_interview(&wf, false, false, &interviewer).await;
+
+        assert!(
+            result.is_err(),
+            "should return an error when goal answer is empty"
+        );
+        let err_msg = result.expect_err("error").to_string();
+        assert!(
+            err_msg.to_lowercase().contains("goal") || err_msg.to_lowercase().contains("empty"),
+            "error message should mention goal or empty, got: {err_msg}"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-2: Whitespace-only goal is also rejected
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_rejects_whitespace_goal() {
+        let (_tmp, wf) = make_workflow(None, Some("What do you want to build?"), false).await;
+
+        let interviewer =
+            QueueInterviewer::new(vec![Answer::new(AnswerValue::Text("   \n  ".into()))]);
+
+        let result = conduct_pre_run_interview(&wf, false, false, &interviewer).await;
+
+        assert!(
+            result.is_err(),
+            "should return an error when goal answer is only whitespace"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC-6: Timed gate timeout correctly applied through conduct
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn conduct_timed_gate_timeout_applied() {
+        let (_tmp, wf) = make_workflow(None, None, true).await;
+
+        // Gate mode "Timed" (key "C") + duration "45s"
+        let interviewer = QueueInterviewer::new(vec![
+            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Text("45s".into())),
+        ]);
+
+        let result = conduct_pre_run_interview(&wf, false, false, &interviewer)
+            .await
+            .expect("should not error");
+
+        let answers = result.expect("answers");
+        match answers.gate_timeout {
+            GateTimeoutConfig::Timed { seconds } => {
+                assert!(
+                    (seconds - 45.0).abs() < f64::EPSILON,
+                    "expected 45.0 seconds, got {seconds}"
+                );
+            }
+            other => panic!("gate_timeout should be Timed {{ seconds: 45.0 }}, got {other:?}"),
+        }
     }
 }
