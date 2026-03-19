@@ -2,7 +2,7 @@
 
 use indexmap::IndexMap;
 
-use crate::graph::Graph;
+use crate::graph::{Graph, attr};
 use crate::types::{Outcome, StageStatus};
 
 /// Result of checking goal gates before pipeline exit.
@@ -33,10 +33,7 @@ pub fn check_goal_gates(
             continue;
         };
 
-        let is_gate = node
-            .get_attr("goal_gate")
-            .and_then(super::super::graph::AttrValue::as_bool)
-            .unwrap_or(false);
+        let is_gate = node.get_bool_attr(attr::GOAL_GATE);
 
         if !is_gate {
             continue;
@@ -69,13 +66,13 @@ pub fn check_goal_gates(
 #[must_use]
 pub fn get_retry_target(node: &crate::graph::Node, graph: &Graph) -> Option<String> {
     let candidates: [Option<&str>; 4] = [
-        node.get_str_attr("retry_target"),
-        node.get_str_attr("fallback_retry_target"),
+        node.get_str_attr(attr::RETRY_TARGET),
+        node.get_str_attr(attr::FALLBACK_RETRY_TARGET),
         graph
-            .get_graph_attr("retry_target")
+            .get_graph_attr(attr::RETRY_TARGET)
             .and_then(|v| v.as_str()),
         graph
-            .get_graph_attr("fallback_retry_target")
+            .get_graph_attr(attr::FALLBACK_RETRY_TARGET)
             .and_then(|v| v.as_str()),
     ];
 

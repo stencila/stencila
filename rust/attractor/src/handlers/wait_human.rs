@@ -130,7 +130,7 @@ impl WaitForHumanHandler {
         graph: &Graph,
         spec_str: &str,
     ) -> AttractorResult<Outcome> {
-        let store_key = node.get_str_attr("store").map(ToString::to_string);
+        let store_key = node.get_str_attr(attr::STORE).map(ToString::to_string);
 
         // 1. Parse the spec from YAML (fall back to JSON)
         let spec = InterviewSpec::parse(spec_str).map_err(|reason| {
@@ -573,17 +573,18 @@ pub fn parse_accelerator_label(label: &str) -> (String, String) {
 /// Returns `None` when the attribute is absent (caller should use the
 /// default multiple-choice-from-edges behavior).
 fn parse_question_type(node: &Node) -> Option<QuestionType> {
-    node.get_str_attr("question_type").and_then(|s| match s {
-        "freeform" => Some(QuestionType::Freeform),
-        "yes_no" | "yes-no" => Some(QuestionType::YesNo),
-        "confirm" => Some(QuestionType::Confirm),
-        "single_select" | "single-select" | "multi_choice" | "multi-choice" | "multiple_choice"
-        | "multiple-choice" => Some(QuestionType::SingleSelect),
-        "multi_select" | "multi-select" | "multiple_select" | "multiple-select" => {
-            Some(QuestionType::MultiSelect)
-        }
-        _ => None,
-    })
+    node.get_str_attr(attr::QUESTION_TYPE)
+        .and_then(|s| match s {
+            "freeform" => Some(QuestionType::Freeform),
+            "yes_no" | "yes-no" => Some(QuestionType::YesNo),
+            "confirm" => Some(QuestionType::Confirm),
+            "single_select" | "single-select" | "multi_choice" | "multi-choice"
+            | "multiple_choice" | "multiple-choice" => Some(QuestionType::SingleSelect),
+            "multi_select" | "multi-select" | "multiple_select" | "multiple-select" => {
+                Some(QuestionType::MultiSelect)
+            }
+            _ => None,
+        })
 }
 
 #[async_trait]
@@ -603,7 +604,7 @@ impl Handler for WaitForHumanHandler {
                 .await;
         }
 
-        let store_key = node.get_str_attr("store").map(ToString::to_string);
+        let store_key = node.get_str_attr(attr::STORE).map(ToString::to_string);
         let question_type = parse_question_type(node);
 
         // 1. Derive choices from outgoing edges (used for routing and
@@ -657,7 +658,7 @@ impl Handler for WaitForHumanHandler {
         };
 
         // Set timeout from node attribute (§2.6)
-        if let Some(v) = node.get_attr("timeout") {
+        if let Some(v) = node.get_attr(attr::TIMEOUT) {
             let secs = match v {
                 crate::graph::AttrValue::Duration(d) => Some(d.inner().as_secs_f64()),
                 crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)

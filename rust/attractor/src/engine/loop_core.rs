@@ -12,7 +12,7 @@ use crate::edge_selection::select_edge;
 use crate::error::{AttractorError, AttractorResult};
 use crate::events::PipelineEvent;
 use crate::fidelity::{resolve_fidelity, resolve_thread_id};
-use crate::graph::{AttrValue, Graph, Node};
+use crate::graph::{AttrValue, Graph, Node, attr};
 use crate::retry::{build_retry_policy, execute_with_retry};
 use crate::types::FidelityMode;
 use crate::types::{HandlerType, Outcome, StageStatus};
@@ -624,7 +624,7 @@ fn advance(
     state.last_selected_edge = Some((edge.from.clone(), edge.to.clone()));
 
     let is_loop_restart = edge
-        .get_attr("loop_restart")
+        .get_attr(attr::LOOP_RESTART)
         .and_then(AttrValue::as_bool)
         .unwrap_or(false);
 
@@ -1078,9 +1078,7 @@ mod tests {
         // Loop restart edge with fidelity="full" — this is the stale data
         let mut e_loop = Edge::new("B", "A");
         e_loop.attrs.insert(attr::LABEL.into(), "retry".into());
-        e_loop
-            .attrs
-            .insert("loop_restart".into(), AttrValue::Boolean(true));
+        e_loop.attrs.insert(attr::LOOP_RESTART.into(), true.into());
         e_loop.attrs.insert(attr::FIDELITY.into(), "full".into());
         graph.add_edge(e_loop);
 

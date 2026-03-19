@@ -80,7 +80,7 @@ impl Handler for ShellHandler {
             agent_name: String::new(),
         });
 
-        let timeout = node.get_attr("timeout").and_then(|v| match v {
+        let timeout = node.get_attr(attr::TIMEOUT).and_then(|v| match v {
             crate::graph::AttrValue::Duration(d) => Some(d.inner()),
             crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
                 .ok()
@@ -112,8 +112,8 @@ impl Handler for ShellHandler {
                     //   - absent  → try JSON, fall back to string
                     //   - "json"  → JSON parse; fail if invalid
                     //   - "string"→ always store as string
-                    if let Some(store_key) = node.get_str_attr("store") {
-                        let store_as = node.get_str_attr("store_as").unwrap_or("");
+                    if let Some(store_key) = node.get_str_attr(attr::STORE) {
+                        let store_as = node.get_str_attr(attr::STORE_AS).unwrap_or("");
                         let stored_value = match store_as {
                             "string" => serde_json::Value::String(stdout),
                             "json" => match serde_json::from_str::<serde_json::Value>(&stdout) {

@@ -21,7 +21,7 @@ impl Transform for VariableExpansionTransform {
 
     fn apply(&self, graph: &mut Graph) -> AttractorResult<()> {
         let goal = graph
-            .get_graph_attr("goal")
+            .get_graph_attr(attr::GOAL)
             .and_then(AttrValue::as_str)
             .unwrap_or("")
             .to_string();

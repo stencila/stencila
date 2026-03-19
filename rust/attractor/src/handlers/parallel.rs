@@ -78,10 +78,10 @@ struct ParallelPolicies {
 /// Resolve join, error, and max-parallel policies from node attributes.
 fn resolve_policies(node: &Node) -> ParallelPolicies {
     ParallelPolicies {
-        join: JoinPolicy::from_str_or_default(node.get_str_attr("join_policy")),
-        error: ErrorPolicy::from_str_or_default(node.get_str_attr("error_policy")),
+        join: JoinPolicy::from_str_or_default(node.get_str_attr(attr::JOIN_POLICY)),
+        error: ErrorPolicy::from_str_or_default(node.get_str_attr(attr::ERROR_POLICY)),
         max_parallel: node
-            .get_attr("max_parallel")
+            .get_attr(attr::MAX_PARALLEL)
             .and_then(|v| match v {
                 AttrValue::Integer(n) => usize::try_from(*n).ok(),
                 AttrValue::String(s) => s.parse::<usize>().ok(),

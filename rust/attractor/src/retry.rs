@@ -10,9 +10,10 @@ use futures::FutureExt;
 use rand::RngExt;
 use serde::{Deserialize, Serialize};
 
+use crate::AttrValue;
 use crate::context::{Context, ctx};
 use crate::events::{EventEmitter, PipelineEvent};
-use crate::graph::{Graph, Node};
+use crate::graph::{Graph, Node, attr};
 use crate::handler::Handler;
 use crate::types::{Outcome, StageStatus};
 
@@ -160,12 +161,12 @@ pub fn delay_for_attempt(attempt: u32, config: &BackoffConfig) -> std::time::Dur
 #[must_use]
 pub fn build_retry_policy(node: &Node, graph: &Graph) -> RetryPolicy {
     let max_retries = node
-        .get_attr("max_retries")
-        .and_then(super::graph::AttrValue::as_i64)
+        .get_attr(attr::MAX_RETRIES)
+        .and_then(AttrValue::as_i64)
         .or_else(|| {
             graph
-                .get_graph_attr("default_max_retry")
-                .and_then(super::graph::AttrValue::as_i64)
+                .get_graph_attr(attr::DEFAULT_MAX_RETRY)
+                .and_then(AttrValue::as_i64)
         })
         .unwrap_or(0);
 
@@ -197,10 +198,7 @@ pub async fn execute_with_retry(
     emitter: &dyn EventEmitter,
     stage_index: usize,
 ) -> Outcome {
-    let allows_partial = node
-        .get_attr("allow_partial")
-        .and_then(super::graph::AttrValue::as_bool)
-        .unwrap_or(false);
+    let allows_partial = node.get_bool_attr(attr::ALLOW_PARTIAL);
 
     let mut attempt = 0u32;
 

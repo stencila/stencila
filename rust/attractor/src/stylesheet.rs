@@ -133,8 +133,8 @@ fn node_has_class(node: &Node, class_name: &str) -> bool {
 pub fn parse_and_apply_stylesheet(graph: &mut Graph) -> AttractorResult<()> {
     // Try `model_stylesheet` first, then fall back to `overrides`.
     let stylesheet_str = match graph
-        .get_graph_attr("model_stylesheet")
-        .or_else(|| graph.get_graph_attr("overrides"))
+        .get_graph_attr(attr::MODEL_STYLESHEET)
+        .or_else(|| graph.get_graph_attr(attr::OVERRIDES))
     {
         Some(v) => match v.as_str() {
             Some(s) => s.to_string(),
