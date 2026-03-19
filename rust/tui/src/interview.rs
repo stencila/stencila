@@ -69,13 +69,7 @@ pub fn preview_selection(input: &str, question: &Question) -> PreviewSelection {
         }
         QuestionType::SingleSelect => PreviewSelection {
             yes_no: None,
-            selected: question.options.iter().position(|option| {
-                option.key.eq_ignore_ascii_case(trimmed)
-                    || option
-                        .label
-                        .to_ascii_lowercase()
-                        .starts_with(&trimmed.to_ascii_lowercase())
-            }),
+            selected: find_option_by_key_or_label(trimmed, &question.options),
         },
         _ => PreviewSelection::default(),
     }
@@ -86,16 +80,30 @@ pub fn preview_multi_select(input: &str, question: &Question) -> HashSet<usize> 
         .split(',')
         .map(str::trim)
         .filter(|part| !part.is_empty())
-        .filter_map(|part| {
-            question.options.iter().position(|option| {
-                option.key.eq_ignore_ascii_case(part)
-                    || option
-                        .label
-                        .to_ascii_lowercase()
-                        .starts_with(&part.to_ascii_lowercase())
-            })
-        })
+        .filter_map(|part| find_option_by_key_or_label(part, &question.options))
         .collect()
+}
+
+/// Find the index of an option by key (exact) or label (prefix), with key
+/// matches taking priority.
+///
+/// When the user types a letter that is both a valid option key and a prefix
+/// of an earlier option's label, the key match must win. Without two-pass
+/// resolution, `position` returns whichever option matched first, which may
+/// be the wrong one when the label prefix happens to appear before the key.
+fn find_option_by_key_or_label(
+    input: &str,
+    options: &[stencila_attractor::interviewer::QuestionOption],
+) -> Option<usize> {
+    let lower = input.to_ascii_lowercase();
+    options
+        .iter()
+        .position(|o| o.key.eq_ignore_ascii_case(&lower))
+        .or_else(|| {
+            options
+                .iter()
+                .position(|o| o.label.to_ascii_lowercase().starts_with(&lower))
+        })
 }
 
 /// Status of an interview in the transcript.
