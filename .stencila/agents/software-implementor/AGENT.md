@@ -16,7 +16,7 @@ when-to-use:
 when-not-to-use:
   - when writing or creating tests (use software-test-creator)
   - when running tests (use software-test-executor)
-  - when refactoring existing code (use software-refactorer)
+  - when refactoring existing code (use software-code-refactorer)
   - when reviewing tests, designs, or plans
 reasoning-effort: high
 trust-level: medium

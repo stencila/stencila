@@ -27,7 +27,7 @@ The workflow processes a delivery plan in successive execution units during a si
 
 3. **Green phase** — the `software-implementor` agent writes the minimum code to pass; the `software-test-executor` agent executes the relevant tests to verify the implementation; if tests fail the loop sends control back to the implementor
 
-4. **Refactor phase** — the `software-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
+4. **Refactor phase** — the `software-code-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
 
 5. **Human review** — a structured interview lets the human accept the execution unit, accept and commit it, or send it back to the Red phase with revision notes; choosing "Accept and Commit" routes through a CommitSlice agent that stages and commits the changes before continuing; on acceptance (with or without commit), control returns to SelectSlice which handles both completion tracking and next-unit selection
 
@@ -110,7 +110,7 @@ digraph software_delivery_tdd {
     node [class="refactor-phase"]
 
     Refactor [
-      agent="software-refactorer",
+      agent="software-code-refactorer",
       prompt-ref="#refactor-prompt",
       fidelity="full",
       thread-id="refactorer",
