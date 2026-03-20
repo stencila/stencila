@@ -8,6 +8,7 @@
 use futures::future::BoxFuture;
 use futures::stream::BoxStream;
 
+use stencila_agents::cli_providers::is_cli_available;
 use stencila_agents::error::AgentResult;
 use stencila_agents::routing::{
     SessionRoute, api_to_cli, cli_to_api, is_cli_provider, route_session, route_session_explained,
@@ -266,7 +267,14 @@ fn explicit_api_provider_without_auth_falls_back_to_cli() -> AgentResult<()> {
 }
 
 #[test]
+#[allow(clippy::print_stderr)]
 fn no_provider_no_model_no_keys_falls_back_to_first_cli() -> AgentResult<()> {
+    // Skip when no CLI tools are installed (e.g. on CI)
+    if !is_cli_available("claude") && !is_cli_available("codex") && !is_cli_available("gemini") {
+        eprintln!("Skipping test: no CLI tools (claude, codex, gemini) available on PATH");
+        return Ok(());
+    }
+
     let client = empty_client();
 
     let route = route_session(None, None, &client)?;
