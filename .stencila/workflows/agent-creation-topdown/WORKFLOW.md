@@ -1,6 +1,6 @@
 ---
 name: agent-creation-topdown
-description: Design an agent top-down by first planning its skills, creating each skill via the skill-creation-iterative workflow, and then creating and refining the agent with those skills available
+description: Design an agent top-down by first planning its skills, creating each skill via the skill-creation-iterative workflow, and then creating, refining, and optionally committing the agent with those skills available
 goal-hint: Describe the agent you want to design — what should it do, and what specialized skills will it need?
 keywords:
   - agent
@@ -25,7 +25,7 @@ This workflow supports top-down agent creation — designing the agent and its n
 1. **Design**: The `agent-creator` agent drafts a high-level agent design that includes the agent's purpose, the skills it needs, and a brief description of each skill. This is a design document, not the final AGENT.md. The design phase explicitly considers whether a single-skill or multi-skill agent is appropriate — Stencila optimizes single-skill agents by preloading the skill into the agent's prompt, so single-skill agents are preferred unless skill scope or reuse considerations justify multiple skills. The agent also stores the skills list as a JSON array in the pipeline context (key `skills`) for the downstream fan-out.
 2. **Design review**: A human reviews and approves (or revises) the agent design and skill list before any skills are created.
 3. **Parallel skill creation**: After approval, the workflow fans out over the `skills` list stored in the pipeline context, spawning one `skill-creation-iterative` child workflow per skill in parallel. Each child workflow handles its own create-review-human-approve cycle independently. A fan-in node collects the results before proceeding.
-4. **Agent creation and review**: With all skills now available in the workspace, the `agent-creator` agent creates the actual AGENT.md referencing those skills. The `agent-reviewer` then reviews it, using the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback. After the reviewer accepts, a final human review interview decides acceptance or revision.
+4. **Agent creation and review**: With all skills now available in the workspace, the `agent-creator` agent creates the actual AGENT.md referencing those skills. The `agent-reviewer` then reviews it, using the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback. After the reviewer accepts, a final human review interview decides acceptance, acceptance with commit, or revision. Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the agent and skill artifacts before ending the workflow.
 
 The `Design` node uses `context-writable=true` so it can store the skills list via `workflow_set_context`, and also uses `workflow_get_output` and `workflow_get_context` to pick up feedback from previous iterations, matching the pattern used by the sibling `agent-creation-iterative` and `skill-creation-iterative` workflows.
 
@@ -57,8 +57,12 @@ digraph agent_creation_topdown {
   ReviewAgent -> CreateAgent  [label="Revise"]
 
   HumanReview [interview-ref="#human-review-interview"]
+  HumanReview -> Commit       [label="Accept and Commit"]
   HumanReview -> End          [label="Accept"]
   HumanReview -> CreateAgent  [label="Revise"]
+
+  Commit [agent="general", prompt-ref="#commit-prompt"]
+  Commit -> End
 }
 ```
 
@@ -168,12 +172,34 @@ questions:
     question: Is the agent acceptable?
     type: single-select
     options:
+      - label: Accept and Commit
       - label: Accept
       - label: Revise
     store: human.decision
-    finish-if: Accept
 
   - header: Revision Notes
     question: What specific changes or improvements should be made?
     store: human.feedback
+```
+
+```text #commit-prompt
+Commit the agent and skill artifacts created by this workflow.
+
+Agent goal: $goal
+
+Step 1 — stage changes:
+  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+  Stage the agent and skill files. These are typically directories under `.stencila/agents/`
+  and `.stencila/skills/`. Use the goal description as a guide, but include any other files
+  that are clearly part of this agent creation work. Avoid staging unrelated changes.
+
+Step 2 — commit:
+  Compose a commit message based on the agent goal and the actual changes staged.
+  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+  project's commit message conventions and follow them. Also check for any commit message
+  instructions in the system prompt or prior context and apply those.
+  Run `git commit` with the composed message.
+
+If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
+the workflow — execution will continue regardless.
 ```

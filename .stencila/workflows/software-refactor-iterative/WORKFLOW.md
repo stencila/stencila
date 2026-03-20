@@ -1,6 +1,6 @@
 ---
 name: software-refactor-iterative
-description: Iteratively refactor part or all of a software project using the software-code-refactorer and software-code-reviewer agents, with test verification after each pass and human approval before completion
+description: Iteratively refactor part or all of a software project using the software-code-refactorer and software-code-reviewer agents, with test verification after each pass, human approval, and optional commit before completion
 goal-hint: What code should be refactored? Describe the scope (files, modules, packages) and any specific quality improvements you want
 keywords:
   - refactoring
@@ -22,7 +22,7 @@ when-not-to-use:
   - when the task involves design, planning, or test creation rather than refactoring existing code
 ---
 
-This workflow first uses the `software-code-refactorer` agent to apply safe transformations, then the `software-test-executor` agent runs scoped tests to verify no regressions. If tests fail, control loops back to the refactorer with the failure output as feedback. If tests pass, the `software-code-reviewer` agent evaluates the refactored code and chooses Accept or Revise — on Revise its response provides specific feedback for the next refactoring pass. After the reviewer accepts, a structured human review interview lets the user accept or send the changes back for further revision with specific notes. The `Refactor` node uses `workflow_get_output` to retrieve reviewer or test-failure feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes. All iterating agent nodes use `fidelity="full"` with explicit `thread-id` values so each agent's LLM session is reused across iterations, avoiding the cost of re-reading files and re-discovering conventions on every loop. A graph-wide `max-session-turns` default of 10 caps context growth, with the heavy-context `Refactor` node overridden to 5.
+This workflow first uses the `software-code-refactorer` agent to apply safe transformations, then the `software-test-executor` agent runs scoped tests to verify no regressions. If tests fail, control loops back to the refactorer with the failure output as feedback. If tests pass, the `software-code-reviewer` agent evaluates the refactored code and chooses Accept or Revise — on Revise its response provides specific feedback for the next refactoring pass. After the reviewer accepts, a structured human review interview lets the user accept, accept and commit, or send the changes back for further revision with specific notes. Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the changes before ending the workflow. The `Refactor` node uses `workflow_get_output` to retrieve reviewer or test-failure feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes. All iterating agent nodes use `fidelity="full"` with explicit `thread-id` values so each agent's LLM session is reused across iterations, avoiding the cost of re-reading files and re-discovering conventions on every loop. A graph-wide `max-session-turns` default of 10 caps context growth, with the heavy-context `Refactor` node overridden to 5.
 
 ```dot
 digraph software_refactor_iterative {
@@ -58,8 +58,12 @@ digraph software_refactor_iterative {
   Review -> Refactor     [label="Revise"]
 
   HumanReview [interview-ref="#human-review-interview"]
+  HumanReview -> Commit   [label="Accept and Commit"]
   HumanReview -> End      [label="Accept"]
   HumanReview -> Refactor [label="Revise"]
+
+  Commit [agent="general", prompt-ref="#commit-prompt"]
+  Commit -> End
 }
 ```
 
@@ -136,12 +140,35 @@ questions:
     question: Is the refactoring acceptable?
     type: single-select
     options:
+      - label: Accept and Commit
       - label: Accept
       - label: Revise
     store: human.decision
-    finish-if: Accept
 
   - header: Revision Notes
     question: What specific changes or improvements should be made?
     store: human.feedback
+```
+
+```text #commit-prompt
+Commit the changes from the completed refactoring.
+
+Refactoring goal: $goal
+
+Step 1 — stage changes:
+  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+  Stage the files related to this refactoring. Use the goal description as a guide for which
+  paths are most relevant, but include other changed files (e.g., test fixtures, configuration,
+  shared modules) when they are clearly part of this refactoring's work. Use your judgement —
+  avoid staging unrelated changes that happened to be in the working tree.
+
+Step 2 — commit:
+  Compose a commit message based on the refactoring goal and the actual changes staged.
+  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+  project's commit message conventions and follow them. Also check for any commit message
+  instructions in the system prompt or prior context and apply those.
+  Run `git commit` with the composed message.
+
+If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
+the workflow — execution will continue regardless.
 ```
