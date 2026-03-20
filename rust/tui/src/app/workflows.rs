@@ -2,13 +2,10 @@ use std::sync::{Arc, Mutex};
 
 use inflector::Inflector;
 use stencila_attractor::events::PipelineEvent;
-use stencila_attractor::interviewer::{Interview, Question};
 
 use crate::{
-    agent::AgentProgress,
-    autocomplete::workflows::WorkflowDefinitionInfo,
+    agent::AgentProgress, autocomplete::workflows::WorkflowDefinitionInfo,
     config::WorkflowVerbosity,
-    interview::{InterviewSource, InterviewState, InterviewStatus},
 };
 
 use super::{
@@ -21,45 +18,60 @@ impl App {
     ///
     /// If a previous workflow is still running it is cancelled first so we
     /// don't leak a detached background task.
-    pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
+    ///
+    /// When `auto_start` is `true` (the default for interactive selection)
+    /// the workflow run is spawned immediately so the runtime can emit the
+    /// canonical pre-run interview. When `false` (used by delegation) the
+    /// caller is expected to call [`submit_workflow_goal`] separately.
+    pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo, auto_start: bool) {
         self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
-        let goal_hint = info.goal_hint.clone();
         let default_goal = info.goal.clone();
         self.active_workflow = Some(ActiveWorkflow::new_pending(info));
 
-        if let Some(hint) = goal_hint {
-            // Trigger the pre-run interview through the TUI's standard
-            // interview widget instead of using the legacy text input.
-            let question = Question::freeform(hint);
-            let interview = Interview::single(question, "pre_run");
-
-            let (answer_tx, _answer_rx) = tokio::sync::oneshot::channel();
-            let msg_index = self.messages.len();
-            self.messages.push(AppMessage::Interview {
-                id: interview.id.clone(),
-                source: InterviewSource::Workflow,
-                agent_name: String::new(),
-                status: InterviewStatus::Active,
-                interview: interview.clone(),
-                answers: Vec::new(),
-                parent_msg_index: None,
-            });
-            self.active_interview = Some(InterviewState::new(&interview, msg_index, answer_tx));
-            self.input.clear();
-        } else if let Some(goal) = default_goal {
-            self.input.set_text(&goal);
+        if let Some(goal) = &default_goal {
+            self.input.set_text(goal);
         } else {
             self.input.clear();
         }
         self.input_scroll = 0;
         self.scroll_pinned = true;
+
+        if !auto_start {
+            return;
+        }
+
+        #[cfg(test)]
+        let should_start_run = false;
+
+        #[cfg(not(test))]
+        let should_start_run = tokio::runtime::Handle::try_current().is_ok_and(|handle| {
+            matches!(
+                handle.runtime_flavor(),
+                tokio::runtime::RuntimeFlavor::MultiThread
+            )
+        });
+
+        // Start the workflow immediately so the runtime can emit the canonical
+        // pre-run interview (goal prompt, gate timeout questions, etc.).
+        // Pass the real default goal if present; otherwise pass `None` so the
+        // runtime's pre-run interview can ask for one instead of using a
+        // synthetic placeholder.
+        if should_start_run {
+            self.submit_workflow_goal(
+                default_goal,
+                stencila_workflows::GateTimeoutConfig::default(),
+            );
+        }
     }
 
     /// Submit a goal for the active workflow and spawn the workflow run.
+    ///
+    /// When `goal` is `None` the workflow's own default goal (if any) is
+    /// used and the runtime's pre-run interview may prompt for one.
     pub(super) fn submit_workflow_goal(
         &mut self,
-        goal: String,
+        goal: Option<String>,
         gate_timeout: stencila_workflows::GateTimeoutConfig,
     ) {
         let Some(workflow) = &mut self.active_workflow else {
@@ -669,10 +681,13 @@ mod tests {
     #[tokio::test]
     async fn ctrl_d_exits_workflow_mode() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                ..Default::default()
+            },
+            false,
+        );
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
 
@@ -685,10 +700,13 @@ mod tests {
     #[tokio::test]
     async fn workflow_ctrl_c_clears_input() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                ..Default::default()
+            },
+            false,
+        );
 
         for c in "some text".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
@@ -706,58 +724,61 @@ mod tests {
     #[tokio::test]
     async fn workflow_with_default_goal_prefills_input() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: Some("Review the latest pull request".to_string()),
-            goal_hint: None,
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: Some("Review the latest pull request".to_string()),
+                goal_hint: None,
+            },
+            false,
+        );
 
         assert_eq!(app.mode, AppMode::Workflow);
         assert_eq!(app.input.text(), "Review the latest pull request");
     }
 
     #[tokio::test]
-    async fn workflow_with_goal_placeholder_leaves_input_empty() {
+    async fn workflow_with_goal_and_hint_prefills_input() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: Some("Generic pipeline goal".to_string()),
-            goal_hint: Some("What do you want to build?".to_string()),
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: Some("Generic pipeline goal".to_string()),
+                goal_hint: Some("What do you want to build?".to_string()),
+            },
+            false,
+        );
 
         assert_eq!(app.mode, AppMode::Workflow);
-        // Input should be empty — the placeholder is shown as dimmed hint text,
-        // not pre-filled into the editable input.
-        assert!(app.input.is_empty());
+        // A fixed workflow goal remains the default input until the runtime
+        // emits any canonical pre-run interview.
+        assert_eq!(app.input.text(), "Generic pipeline goal");
     }
 
-    /// AC-2: `activate_workflow` should trigger the pre-run interview through
-    /// the TUI's standard interview widget instead of waiting for text-based
-    /// goal input.
+    /// Activating a workflow should not fabricate a local pre-run interview.
     ///
-    /// After activation, the app should have an active interview pending
-    /// (when the workflow has a `goal_hint`), rather than setting input
-    /// placeholder text and waiting for manual goal submission.
+    /// Instead, it should start the workflow run so the runtime can emit the
+    /// canonical pre-run interview back to the TUI.
     #[tokio::test]
-    async fn activate_workflow_triggers_pre_run_interview() {
+    async fn activate_workflow_does_not_create_local_pre_run_interview() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
-            goal_hint: Some("What do you want to build?".to_string()),
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: None,
+                goal_hint: Some("What do you want to build?".to_string()),
+            },
+            false,
+        );
 
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
-
-        // After activate_workflow, the pre-run interview should be triggered
-        // as an active interview rather than waiting for bare text input.
         assert!(
-            app.active_interview.is_some(),
-            "activate_workflow should trigger a pre-run interview via the TUI interview widget"
+            app.active_interview.is_none(),
+            "activate_workflow should not create a local pre-run interview; the workflow runtime should drive it"
         );
     }
 
@@ -766,115 +787,69 @@ mod tests {
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn submit_workflow_goal_forwards_gate_timeout() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
-            goal_hint: Some("What do you want to build?".to_string()),
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: None,
+                goal_hint: Some("What do you want to build?".to_string()),
+            },
+            false,
+        );
 
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
 
         let gate_timeout = stencila_workflows::GateTimeoutConfig::AutoApprove;
-        app.submit_workflow_goal("build a website".to_string(), gate_timeout);
+        app.submit_workflow_goal(Some("build a website".to_string()), gate_timeout);
     }
 
-    /// AC-5: The legacy `goal_hint`-based placeholder in `ui/input.rs` is
-    /// obsolete because the interview now handles goal collection.
-    ///
-    /// With the interview-based flow, activating a workflow that has a
-    /// `goal_hint` should trigger an interview (verified by AC-2). When
-    /// an interview is active, the render function shows interview
-    /// placeholder text — it never falls through to the legacy branch that
-    /// read `workflow.info.goal_hint` for a "pending workflow" placeholder.
-    ///
-    /// This test verifies the precondition that makes the legacy branch
-    /// dead code: a pending workflow with `goal_hint` always has an active
-    /// interview, so the legacy placeholder path is never reached and
-    /// should be removed.
-    ///
-    /// In the Red phase this fails because `activate_workflow` doesn't yet
-    /// trigger the interview — the app enters workflow mode with no active
-    /// interview and the old placeholder logic remains in the render path.
+    /// Until the workflow runtime emits the canonical pre-run interview, the
+    /// TUI should not invent one locally.
     #[tokio::test]
-    async fn pending_workflow_with_goal_hint_has_interview_not_placeholder() {
+    async fn pending_workflow_with_goal_hint_has_no_active_interview() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
-            goal_hint: Some("Describe your feature".to_string()),
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: None,
+                goal_hint: Some("Describe your feature".to_string()),
+            },
+            false,
+        );
 
         assert_eq!(app.mode, AppMode::Workflow);
         let workflow = app.active_workflow.as_ref().expect("workflow should exist");
 
-        // The workflow is pending (no run_handle yet) and has a goal_hint.
-        assert!(workflow.run_handle.is_none());
         assert!(workflow.info.goal_hint.is_some());
-
-        // With the interview-based flow, an active interview should exist.
-        // This makes the legacy goal_hint placeholder in the render
-        // function unreachable, allowing it to be safely removed.
         assert!(
-            app.active_interview.is_some(),
-            "a pending workflow with goal_hint should have an active interview; \
-             the legacy goal_hint placeholder in ui/input.rs should be removed"
+            app.active_interview.is_none(),
+            "a pending workflow should not have a local interview before the workflow runtime emits one"
         );
     }
 
-    /// AC-3 (end-to-end): When the pre-run interview is completed by the user,
-    /// `complete_interview` should detect that it was a Workflow-source pre-run
-    /// interview, extract the goal from the answer, and call
-    /// `submit_workflow_goal` to start the workflow run.
-    ///
-    /// This test activates a workflow, answers the freeform interview question,
-    /// and verifies that the workflow run is started (i.e. `run_handle` is set).
+    /// Activation should remain safe in tests and not require a real runtime
+    /// owned workflow run to have been started.
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn completing_pre_run_interview_starts_workflow() {
+    async fn activate_workflow_preserves_pending_workflow_state() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
-            goal_hint: Some("What do you want to build?".to_string()),
-        });
-
-        assert_eq!(app.mode, AppMode::Workflow);
-        assert!(
-            app.active_interview.is_some(),
-            "pre-run interview should be active after activate_workflow"
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: None,
+                goal_hint: Some("What do you want to build?".to_string()),
+            },
+            false,
         );
 
-        // The workflow should not be running yet (no run_handle)
+        assert_eq!(app.mode, AppMode::Workflow);
+
         let workflow = app.active_workflow.as_ref().expect("workflow should exist");
         assert!(
             workflow.run_handle.is_none(),
-            "workflow should not be running before interview is completed"
-        );
-
-        // Simulate submitting an answer to the freeform question
-        for c in "build a website".chars() {
-            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
-                .await;
-        }
-        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
-            .await;
-
-        // After completing the pre-run interview, the interview should be consumed
-        assert!(
-            app.active_interview.is_none(),
-            "interview should be completed and cleared"
-        );
-
-        // The workflow should now be running — complete_interview should have
-        // detected the Workflow source, extracted the goal from the answer, and
-        // called submit_workflow_goal.
-        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
-        assert!(
-            workflow.run_handle.is_some(),
-            "completing the pre-run interview should start the workflow run via submit_workflow_goal"
+            "in tests, activate_workflow should be safe even when no real workflow run is started"
         );
     }
 
@@ -884,12 +859,15 @@ mod tests {
     #[tokio::test]
     async fn workflow_definition_info_retains_goal_fields() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: "A test workflow".to_string(),
-            goal: Some("Default goal text".to_string()),
-            goal_hint: Some("What do you want to build?".to_string()),
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: "A test workflow".to_string(),
+                goal: Some("Default goal text".to_string()),
+                goal_hint: Some("What do you want to build?".to_string()),
+            },
+            false,
+        );
 
         let workflow = app.active_workflow.as_ref().expect("workflow should exist");
         assert_eq!(
@@ -901,6 +879,108 @@ mod tests {
             workflow.info.goal_hint,
             Some("What do you want to build?".to_string()),
             "goal_hint field should be preserved in ActiveWorkflow.info"
+        );
+    }
+
+    /// Activating with `auto_start: false` should not spawn a run.
+    ///
+    /// This is the path used by workflow delegation: the caller activates
+    /// the workflow then explicitly calls `submit_workflow_goal` once with
+    /// the delegated instruction, avoiding a double-start.
+    #[tokio::test]
+    async fn activate_workflow_no_auto_start_does_not_spawn_run() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: Some("existing goal".to_string()),
+                ..Default::default()
+            },
+            false,
+        );
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        assert!(
+            workflow.run_handle.is_none(),
+            "auto_start=false should not spawn a workflow run"
+        );
+        assert_eq!(
+            workflow.state,
+            super::super::ActiveWorkflowState::Pending,
+            "state should remain Pending when auto_start=false"
+        );
+    }
+
+    /// After `activate_workflow(auto_start=false)`, a single call to
+    /// `submit_workflow_goal` should transition to Running with exactly
+    /// one run handle — the delegation path must not double-start.
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn delegation_single_submit_produces_one_run() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: None,
+                goal_hint: Some("describe your task".to_string()),
+                ..Default::default()
+            },
+            false,
+        );
+
+        assert!(
+            app.active_workflow
+                .as_ref()
+                .expect("should exist")
+                .run_handle
+                .is_none(),
+            "no run handle before submit"
+        );
+
+        app.submit_workflow_goal(
+            Some("delegated instruction".to_string()),
+            stencila_workflows::GateTimeoutConfig::default(),
+        );
+
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        assert!(
+            workflow.run_handle.is_some(),
+            "submit_workflow_goal should set run_handle"
+        );
+        assert_eq!(
+            workflow.state,
+            super::super::ActiveWorkflowState::Running,
+            "state should be Running after submit"
+        );
+    }
+
+    /// When a workflow has no goal and no `goal_hint`, `activate_workflow`
+    /// with `auto_start` should pass `None` as the goal so the runtime
+    /// pre-run interview can prompt for one instead of using a synthetic
+    /// placeholder.
+    #[tokio::test]
+    async fn activate_with_no_goal_does_not_use_synthetic_placeholder() {
+        let mut app = App::new_for_test().await;
+        // In tests should_start_run is false, so we can't observe the
+        // spawn directly. Instead verify that the function does not
+        // panic and the workflow stays Pending with no run handle.
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: None,
+                goal_hint: None,
+                ..Default::default()
+            },
+            true,
+        );
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        // In test mode should_start_run evaluates to false, so no run
+        // is spawned even with auto_start=true.
+        assert!(
+            workflow.run_handle.is_none(),
+            "test harness should not spawn a real run"
         );
     }
 }

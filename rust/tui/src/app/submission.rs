@@ -1,9 +1,7 @@
-use stencila_attractor::interviewer::AnswerValue;
-
 use crate::{
     agent::AgentHandle,
     commands::{ParsedCommand, parse_command},
-    interview::{InterviewResult, InterviewSource, InterviewStatus},
+    interview::{InterviewResult, InterviewStatus},
 };
 
 use super::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
@@ -299,15 +297,11 @@ impl App {
             let msg_idx = state.msg_index;
 
             // Get questions and source from the message to finalize answers
-            let (questions, source) = if let Some(AppMessage::Interview {
-                id,
-                interview,
-                source,
-                ..
-            }) = self.messages.get(msg_idx)
+            let questions = if let Some(AppMessage::Interview { id, interview, .. }) =
+                self.messages.get(msg_idx)
             {
                 debug_assert_eq!(id, &state.interview_id, "interview ID mismatch");
-                (interview.questions.clone(), source.clone())
+                interview.questions.clone()
             } else {
                 return;
             };
@@ -333,18 +327,10 @@ impl App {
             self.interview_cancel_confirm = false;
             self.interview_preview_input.clear();
 
-            // If this was a pre-run workflow interview, extract the goal
-            // from the first answer and start the workflow.
-            if matches!(source, InterviewSource::Workflow) {
-                let goal = answers
-                    .first()
-                    .and_then(|a| match &a.value {
-                        AnswerValue::Text(text) => Some(text.clone()),
-                        _ => None,
-                    })
-                    .unwrap_or_default();
-                self.submit_workflow_goal(goal, stencila_workflows::GateTimeoutConfig::default());
-            }
+            // The TUI's responsibility ends at collecting answers and sending
+            // them back through the interview channel. Any follow-up handling
+            // (including workflow pre-run interviews) happens in the runtime
+            // that originated the interview, not here.
         }
     }
 
@@ -539,11 +525,14 @@ mod tests {
 
         let mut app = App::new_for_test().await;
         // Activate a workflow then detach back to agent mode
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            goal: Some("goal".to_string()),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: Some("goal".to_string()),
+                ..Default::default()
+            },
+            false,
+        );
         app.exit_workflow_mode();
         assert_eq!(app.mode, AppMode::Agent);
         assert!(app.active_workflow.is_some());
@@ -570,10 +559,13 @@ mod tests {
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
 
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                ..Default::default()
+            },
+            false,
+        );
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
 
@@ -761,36 +753,33 @@ mod tests {
         assert!(app.input.is_empty());
     }
 
-    /// AC-4: Goal submission goes through the interview flow, not the
-    /// legacy direct-submit path.
+    /// Workflow activation no longer fabricates a local pre-run interview.
     ///
-    /// Previously, when in Workflow mode with no running workflow, pressing
-    /// Enter would submit the input text as a goal via `submit_workflow_goal`
-    /// directly. After the interview-based flow, `activate_workflow` with a
-    /// `goal_hint` triggers a pre-run interview. Typing text and pressing
-    /// Enter completes the interview, which in turn calls
-    /// `submit_workflow_goal` — the workflow starts through the interview
-    /// pipeline, not the removed legacy block.
+    /// Instead, it starts the workflow so the runtime can deliver the
+    /// canonical pre-run interview asynchronously via workflow events.
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn workflow_goal_submitted_via_interview_not_legacy_path() {
+    async fn workflow_goal_is_not_submitted_via_local_interview_path() {
         use crate::autocomplete::workflows::WorkflowDefinitionInfo;
 
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            description: String::new(),
-            goal: None,
-            goal_hint: Some("What do you want to build?".to_string()),
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: None,
+                goal_hint: Some("What do you want to build?".to_string()),
+            },
+            false,
+        );
         assert_eq!(app.mode, AppMode::Workflow);
 
-        // An interview should be active (not the legacy text input).
         assert!(
-            app.active_interview.is_some(),
-            "activate_workflow with goal_hint should trigger a pre-run interview"
+            app.active_interview.is_none(),
+            "activate_workflow should not fabricate a local pre-run interview"
         );
 
-        // Type a goal and press Enter to complete the interview.
+        // Typing text and pressing Enter should not start a run through any
+        // legacy or fabricated local interview path.
         for c in "build a website".chars() {
             app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
                 .await;
@@ -798,16 +787,14 @@ mod tests {
         app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
             .await;
 
-        // The interview should be consumed, and the workflow should now be
-        // running — started via the interview completion path.
         assert!(
             app.active_interview.is_none(),
-            "interview should be completed and cleared"
+            "no interview should have been created"
         );
         let workflow = app.active_workflow.as_ref().expect("workflow should exist");
         assert!(
-            workflow.run_handle.is_some(),
-            "completing the pre-run interview should start the workflow run"
+            workflow.run_handle.is_none(),
+            "typing input in workflow mode should not start a run via a fabricated local interview path"
         );
     }
 }

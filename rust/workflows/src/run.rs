@@ -137,7 +137,31 @@ pub async fn run_workflow_with_options(
     workflow: &WorkflowInstance,
     options: RunOptions,
 ) -> Result<Outcome> {
-    run_workflow_with_options_and_parent(workflow, options, None, None).await
+    if let Some(interviewer) = options.interviewer.clone() {
+        let mut workflow = workflow.clone();
+        let mut options = options;
+
+        let has_cli_goal = workflow.goal.is_some();
+        let has_cli_gate_config = !matches!(options.gate_timeout, GateTimeoutConfig::Interactive);
+
+        if let Some(pre_run) = crate::conduct_pre_run_interview(
+            &workflow,
+            has_cli_goal,
+            has_cli_gate_config,
+            &*interviewer,
+        )
+        .await?
+        {
+            if let Some(goal) = pre_run.goal {
+                workflow.goal = Some(goal);
+            }
+            options.gate_timeout = pre_run.gate_timeout;
+        }
+
+        run_workflow_with_options_and_parent(&workflow, options, None, None).await
+    } else {
+        run_workflow_with_options_and_parent(workflow, options, None, None).await
+    }
 }
 
 pub(crate) async fn run_workflow_with_options_and_parent(

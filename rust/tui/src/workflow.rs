@@ -146,7 +146,7 @@ pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
 /// Returns the run handle and total number of pipeline stages (graph nodes).
 pub fn spawn_workflow(
     info: &WorkflowDefinitionInfo,
-    goal: String,
+    goal: Option<String>,
     gate_timeout: stencila_workflows::GateTimeoutConfig,
 ) -> (WorkflowRunHandle, usize) {
     let (event_tx, event_rx) = mpsc::unbounded_channel();
@@ -165,7 +165,9 @@ pub fn spawn_workflow(
 
         let result = async {
             let mut workflow = load_workflow_instance(&info).await?;
-            workflow.inner.goal = Some(goal);
+            if let Some(goal) = goal {
+                workflow.inner.goal = Some(goal);
+            }
 
             let options = stencila_workflows::RunOptions {
                 emitter,
@@ -237,7 +239,7 @@ mod tests {
         };
 
         let gate_timeout = stencila_workflows::GateTimeoutConfig::AutoApprove;
-        let (handle, _stages) = spawn_workflow(&info, "test goal".into(), gate_timeout);
+        let (handle, _stages) = spawn_workflow(&info, Some("test goal".to_string()), gate_timeout);
         handle.cancel();
     }
 }

@@ -213,10 +213,13 @@ mod tests {
     #[tokio::test]
     async fn cancel_workflow_keeps_active_workflow() {
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                ..Default::default()
+            },
+            false,
+        );
         // Manually set state to Running to simulate an active workflow
         if let Some(wf) = &mut app.active_workflow {
             wf.state = ActiveWorkflowState::Running;

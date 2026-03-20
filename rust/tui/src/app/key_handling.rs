@@ -578,7 +578,7 @@ impl App {
                     if result.range.start != result.range.end {
                         self.input.replace_range(result.range, "");
                     }
-                    self.activate_workflow(result.info);
+                    self.activate_workflow(result.info, true);
                 }
             }
             (KeyModifiers::NONE, KeyCode::Esc) => self.workflows_state.dismiss(),
@@ -1483,11 +1483,14 @@ mod tests {
 
         let mut app = App::new_for_test().await;
         app.sessions.push(AgentSession::new("other"));
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            goal: Some("goal".to_string()),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: Some("goal".to_string()),
+                ..Default::default()
+            },
+            false,
+        );
         assert_eq!(app.mode, AppMode::Workflow);
         assert!(app.active_workflow.is_some());
 

@@ -571,20 +571,22 @@ impl App {
                         goal: wf.goal.clone(),
                         goal_hint: wf.goal_hint.clone(),
                     };
-                    self.activate_workflow(info);
+                    // Activate without auto-starting — we will submit
+                    // exactly one goal below to avoid a double-start.
+                    self.activate_workflow(info, false);
 
-                    // Auto-submit the delegated instruction (or the workflow's own goal)
+                    // Use the delegated instruction when available, otherwise
+                    // fall back to the workflow's own goal (may be `None`, in
+                    // which case the runtime pre-run interview will prompt).
                     let goal = if delegation.instruction.is_empty() {
-                        wf.goal.clone().unwrap_or_default()
+                        wf.goal.clone()
                     } else {
-                        delegation.instruction
+                        Some(delegation.instruction)
                     };
-                    if !goal.is_empty() {
-                        self.submit_workflow_goal(
-                            goal,
-                            stencila_workflows::GateTimeoutConfig::default(),
-                        );
-                    }
+                    self.submit_workflow_goal(
+                        goal,
+                        stencila_workflows::GateTimeoutConfig::default(),
+                    );
                 } else {
                     self.messages.push(AppMessage::System {
                         content: format!(
@@ -615,11 +617,14 @@ mod tests {
         use tokio::sync::{mpsc, oneshot};
 
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            goal: Some("goal".to_string()),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: Some("goal".to_string()),
+                ..Default::default()
+            },
+            false,
+        );
         assert_eq!(app.mode, AppMode::Workflow);
 
         // Detach to agent mode
@@ -669,11 +674,14 @@ mod tests {
         .expect("write sentinel");
 
         let mut app = App::new_for_test().await;
-        app.activate_workflow(WorkflowDefinitionInfo {
-            name: "test-wf".to_string(),
-            goal: Some("goal".to_string()),
-            ..Default::default()
-        });
+        app.activate_workflow(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                goal: Some("goal".to_string()),
+                ..Default::default()
+            },
+            false,
+        );
         assert_eq!(app.mode, AppMode::Workflow);
 
         // Set up a channel and inject a run_handle
