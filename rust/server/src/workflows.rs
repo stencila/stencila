@@ -212,9 +212,7 @@ async fn list_pending_interviews(
             header: row.header,
             r#type,
             options,
-            default: None,
-            timeout_seconds: None,
-            metadata: Default::default(),
+            ..Default::default()
         };
 
         let entry = interviews

@@ -225,8 +225,8 @@ impl App {
 
     /// Submit an answer to the active interview's current question.
     fn submit_interview_answer(&mut self, text: &str) {
-        // Get the current question from the interview message
-        let question = {
+        // Get the current question and all questions from the interview message
+        let (question, questions) = {
             let Some(state) = &self.active_interview else {
                 return;
             };
@@ -239,7 +239,7 @@ impl App {
             let Some(question) = interview.questions.get(state.current_question) else {
                 return;
             };
-            question.clone()
+            (question.clone(), interview.questions.clone())
         };
 
         // Try to set the answer on the state
@@ -253,8 +253,10 @@ impl App {
             return;
         }
 
-        // Advance to next question or complete the interview
-        let is_complete = state.advance();
+        // Advance to next question or complete the interview, using
+        // condition-aware navigation to skip show_if-hidden questions
+        // and respect finish_if triggers.
+        let is_complete = state.advance_with_conditions(&questions);
         if is_complete {
             self.complete_interview();
         }
@@ -336,10 +338,26 @@ impl App {
 
     /// Navigate back to the previous question in an active interview.
     pub(super) fn interview_back(&mut self) {
-        if let Some(state) = &mut self.active_interview
-            && !state.back()
-        {
-            return; // Already on first question
+        // Get the questions to pass to condition-aware back navigation.
+        let questions = self.active_interview.as_ref().and_then(|state| {
+            if let Some(AppMessage::Interview { interview, .. }) =
+                self.messages.get(state.msg_index)
+            {
+                Some(interview.questions.clone())
+            } else {
+                None
+            }
+        });
+
+        if let Some(state) = &mut self.active_interview {
+            let moved = if let Some(ref questions) = questions {
+                state.back_with_conditions(questions)
+            } else {
+                state.back()
+            };
+            if !moved {
+                return; // Already on first question
+            }
         }
 
         self.restore_interview_input_from_draft();

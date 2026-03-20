@@ -116,15 +116,16 @@ pub fn extract_pre_run_answers(
     conducted: &ConductedInterview,
 ) -> PreRunAnswers {
     // Build a map from store key → canonical answer string.
+    // `answered_indices` contains indices of non-skipped (answered)
+    // questions in the interview arrays (which are 1:1 with spec questions).
     let store_values: std::collections::HashMap<&str, String> = conducted
-        .spec_indices
+        .answered_indices
         .iter()
-        .enumerate()
-        .filter_map(|(i, &spec_idx)| {
-            let store = spec.questions[spec_idx].store.as_deref()?;
+        .filter_map(|&idx| {
+            let store = spec.questions[idx].store.as_deref()?;
             let canonical = canonical_answer_string(
-                &conducted.interview.answers[i].value,
-                &conducted.interview.questions[i],
+                &conducted.interview.answers[idx].value,
+                &conducted.interview.questions[idx],
             );
             Some((store, canonical))
         })

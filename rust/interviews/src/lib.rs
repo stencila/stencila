@@ -10,6 +10,7 @@
 
 pub mod condition;
 pub mod conduct;
+pub mod helpers;
 pub mod interviewer;
 pub mod interviewers;
 pub mod spec;

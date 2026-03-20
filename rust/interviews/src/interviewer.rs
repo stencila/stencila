@@ -9,6 +9,7 @@ use std::fmt;
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use strum::{Display, EnumString};
 use thiserror::Error;
 
@@ -75,7 +76,8 @@ pub struct QuestionOption {
 }
 
 /// A question presented to a human (§6.2).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Question {
     /// Unique identifier for this question instance.
     ///
@@ -84,7 +86,6 @@ pub struct Question {
     /// frontends and external systems can correlate submitted answers with
     /// `interview_questions.question_id` rows. Currently `None` unless set
     /// manually.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// The question text to present.
@@ -95,7 +96,6 @@ pub struct Question {
     /// Distinct from `stage` (the originating pipeline node) and `text`
     /// (the full question). Used by frontends to render grouped/headed
     /// question forms.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub header: Option<String>,
 
     /// The question type, determining valid answers.
@@ -106,11 +106,9 @@ pub struct Question {
     pub options: Vec<QuestionOption>,
 
     /// Default answer to use on timeout or skip, if any.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default: Option<Answer>,
 
     /// Maximum time (in seconds) to wait for a response.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timeout_seconds: Option<f64>,
 
     /// Arbitrary key-value metadata for remote interviewers.
@@ -119,6 +117,25 @@ pub struct Question {
     /// level, etc.) to web, email, or Slack frontends.
     #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
     pub metadata: IndexMap<String, serde_json::Value>,
+
+    /// Store key for this question's answer, used by `show_if` / `finish_if`
+    /// condition evaluation on other questions.
+    ///
+    /// Carried over from [`QuestionSpec::store`] when the question originates
+    /// from a spec. `None` for programmatically constructed questions.
+    pub store: Option<String>,
+
+    /// Condition that must be true for this question to be presented.
+    ///
+    /// Syntax: `"store_key == value"` or `"store_key != value"`. When the
+    /// condition evaluates to false the question is skipped. Carried over
+    /// from [`QuestionSpec::show_if`].
+    pub show_if: Option<String>,
+
+    /// End the interview immediately when the answer matches this value.
+    ///
+    /// Carried over from [`QuestionSpec::finish_if`].
+    pub finish_if: Option<String>,
 }
 
 impl Question {
@@ -126,14 +143,9 @@ impl Question {
     #[must_use]
     pub fn yes_no(text: impl Into<String>) -> Self {
         Self {
-            id: None,
             text: text.into(),
-            header: None,
             r#type: QuestionType::YesNo,
-            options: Vec::new(),
-            default: None,
-            timeout_seconds: None,
-            metadata: IndexMap::new(),
+            ..Default::default()
         }
     }
 
@@ -141,14 +153,9 @@ impl Question {
     #[must_use]
     pub fn confirm(text: impl Into<String>) -> Self {
         Self {
-            id: None,
             text: text.into(),
-            header: None,
             r#type: QuestionType::Confirm,
-            options: Vec::new(),
-            default: None,
-            timeout_seconds: None,
-            metadata: IndexMap::new(),
+            ..Default::default()
         }
     }
 
@@ -156,14 +163,10 @@ impl Question {
     #[must_use]
     pub fn single_select(text: impl Into<String>, options: Vec<QuestionOption>) -> Self {
         Self {
-            id: None,
             text: text.into(),
-            header: None,
             r#type: QuestionType::SingleSelect,
             options,
-            default: None,
-            timeout_seconds: None,
-            metadata: IndexMap::new(),
+            ..Default::default()
         }
     }
 
@@ -171,14 +174,10 @@ impl Question {
     #[must_use]
     pub fn multi_select(text: impl Into<String>, options: Vec<QuestionOption>) -> Self {
         Self {
-            id: None,
             text: text.into(),
-            header: None,
             r#type: QuestionType::MultiSelect,
             options,
-            default: None,
-            timeout_seconds: None,
-            metadata: IndexMap::new(),
+            ..Default::default()
         }
     }
 
@@ -186,15 +185,35 @@ impl Question {
     #[must_use]
     pub fn freeform(text: impl Into<String>) -> Self {
         Self {
-            id: None,
             text: text.into(),
-            header: None,
             r#type: QuestionType::Freeform,
-            options: Vec::new(),
-            default: None,
-            timeout_seconds: None,
-            metadata: IndexMap::new(),
+            ..Default::default()
         }
+    }
+
+    /// Evaluate this question's `show_if` condition against stored answers.
+    ///
+    /// Returns `true` if the question should be shown (no `show_if`, or
+    /// the condition evaluates to true). Returns `true` on parse errors
+    /// (show unconditionally).
+    #[must_use]
+    pub fn evaluate_show_if(&self, stored_answers: &IndexMap<String, String>) -> bool {
+        let Some(ref show_if_str) = self.show_if else {
+            return true;
+        };
+        match crate::condition::Condition::parse(show_if_str) {
+            Ok(cond) => cond.evaluate(stored_answers),
+            Err(_) => true,
+        }
+    }
+
+    /// Check whether this question's `finish_if` condition matches the
+    /// given canonical answer string.
+    #[must_use]
+    pub fn is_finish_triggered(&self, canonical_answer: &str) -> bool {
+        self.finish_if
+            .as_ref()
+            .is_some_and(|f| f.trim().eq_ignore_ascii_case(canonical_answer.trim()))
     }
 }
 
@@ -541,11 +560,45 @@ pub trait Interviewer: Send + Sync {
     /// This is the primary method for multi-question interviews. Frontends
     /// that support batch presentation (web forms, email, Slack) override
     /// this to render all questions together. The default calls `ask()`
-    /// sequentially.
+    /// sequentially, evaluating `show_if` / `finish_if` conditions between
+    /// questions.
+    ///
+    /// Questions whose `show_if` condition evaluates to false are skipped
+    /// (answered with [`AnswerValue::Skipped`]). When a `finish_if`
+    /// condition matches, remaining questions are also skipped.
     async fn conduct(&self, interview: &mut Interview) -> Result<(), InterviewError> {
+        use crate::helpers;
+
         interview.answers.clear();
+        let mut stored_answers: indexmap::IndexMap<String, String> = indexmap::IndexMap::new();
+        let mut finished = false;
+
         for q in &interview.questions {
-            interview.answers.push(self.ask(q).await?);
+            if finished {
+                interview.answers.push(Answer::new(AnswerValue::Skipped));
+                continue;
+            }
+
+            // Evaluate show_if condition.
+            if !helpers::should_show_question(q, &stored_answers, true) {
+                interview.answers.push(Answer::new(AnswerValue::Skipped));
+                continue;
+            }
+
+            let answer = self.ask(q).await?;
+
+            // Store canonical answer for condition evaluation.
+            if let Some(ref store_key) = q.store {
+                let canonical = canonical_answer_string(&answer.value, q);
+                stored_answers.insert(store_key.clone(), canonical);
+            }
+
+            // Check finish_if (independent of store key).
+            if helpers::is_finish_triggered(q, &answer) {
+                finished = true;
+            }
+
+            interview.answers.push(answer);
         }
         Ok(())
     }

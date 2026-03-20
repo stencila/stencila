@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use stencila_attractor::interviewer::{
     Answer, AnswerValue, Interview, InterviewError, Interviewer, Question, QuestionType,
-    parse_answer_text,
+    interview_helpers, parse_answer_text,
 };
 
 use async_trait::async_trait;
@@ -104,6 +104,76 @@ fn find_option_by_key_or_label(
                 .iter()
                 .position(|o| o.label.to_ascii_lowercase().starts_with(&lower))
         })
+}
+
+/// Find the index of an option by exact key or exact label match
+/// (case-insensitive). Used for answer submission where prefix matching
+/// is not appropriate.
+fn find_option_index_exact(
+    input: &str,
+    options: &[stencila_attractor::interviewer::QuestionOption],
+) -> Option<usize> {
+    options
+        .iter()
+        .position(|o| o.key.eq_ignore_ascii_case(input))
+        .or_else(|| {
+            options
+                .iter()
+                .position(|o| o.label.eq_ignore_ascii_case(input))
+        })
+}
+
+/// Format option keys for use in validation error messages.
+fn option_keys_display(question: &Question) -> String {
+    question
+        .options
+        .iter()
+        .map(|o| o.key.as_str())
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+/// Parse comma-separated input into a set of option indices.
+///
+/// Each part is looked up via exact key/label matching. Returns `Err` with
+/// a user-facing message if any part is empty or unrecognised.
+fn parse_multi_select_indices(input: &str, question: &Question) -> Result<HashSet<usize>, String> {
+    let choices_err = || {
+        format!(
+            "invalid: choose one or more: {}",
+            option_keys_display(question),
+        )
+    };
+    let parts: Vec<&str> = input
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .collect();
+    if parts.is_empty() {
+        return Err(choices_err());
+    }
+    let mut indices = HashSet::new();
+    for part in &parts {
+        if let Some(idx) = find_option_index_exact(part, &question.options) {
+            indices.insert(idx);
+        } else {
+            return Err(choices_err());
+        }
+    }
+    Ok(indices)
+}
+
+/// Determine the default option focus for a question that has no
+/// draft-driven focus. Returns `Some(0)` for yes/no, confirm, or
+/// questions with options; `None` for freeform questions with no options.
+fn default_option_focus(question: &Question) -> Option<usize> {
+    if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm)
+        || !question.options.is_empty()
+    {
+        Some(0)
+    } else {
+        None
+    }
 }
 
 /// Status of an interview in the transcript.
@@ -336,24 +406,12 @@ impl InterviewState {
             Some(DraftAnswer::YesNo(Some(true))) => Some(0),
             Some(DraftAnswer::YesNo(Some(false))) => Some(1),
             Some(DraftAnswer::Selected(Some(idx))) => Some(*idx),
-            Some(DraftAnswer::MultiSelected(indices)) => indices.iter().min().copied().or(
-                if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm) {
-                    Some(0)
-                } else if question.options.is_empty() {
-                    None
-                } else {
-                    Some(0)
-                },
-            ),
-            _ => {
-                if matches!(question.r#type, QuestionType::YesNo | QuestionType::Confirm) {
-                    Some(0)
-                } else if question.options.is_empty() {
-                    None
-                } else {
-                    Some(0)
-                }
-            }
+            Some(DraftAnswer::MultiSelected(indices)) => indices
+                .iter()
+                .min()
+                .copied()
+                .or(default_option_focus(question)),
+            _ => default_option_focus(question),
         };
         self.set_current_option_focus(focus);
     }
@@ -471,19 +529,7 @@ impl InterviewState {
                 }
             }
             QuestionType::SingleSelect => {
-                if let Some(idx) = question
-                    .options
-                    .iter()
-                    .position(|o| o.key.eq_ignore_ascii_case(trimmed))
-                {
-                    self.draft_answers[self.current_question] = DraftAnswer::Selected(Some(idx));
-                    self.validation_error = None;
-                    true
-                } else if let Some(idx) = question
-                    .options
-                    .iter()
-                    .position(|o| o.label.eq_ignore_ascii_case(trimmed))
-                {
+                if let Some(idx) = find_option_index_exact(trimmed, &question.options) {
                     self.draft_answers[self.current_question] = DraftAnswer::Selected(Some(idx));
                     self.validation_error = None;
                     true
@@ -493,43 +539,65 @@ impl InterviewState {
                     false
                 }
             }
-            QuestionType::MultiSelect => {
-                let parts: Vec<&str> = trimmed
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|s| !s.is_empty())
-                    .collect();
-                if parts.is_empty() {
-                    let keys: Vec<&str> = question.options.iter().map(|o| o.key.as_str()).collect();
-                    self.validation_error =
-                        Some(format!("invalid: choose one or more: {}", keys.join(", ")));
-                    return false;
+            QuestionType::MultiSelect => match parse_multi_select_indices(trimmed, question) {
+                Ok(indices) => {
+                    self.draft_answers[self.current_question] = DraftAnswer::MultiSelected(indices);
+                    self.validation_error = None;
+                    true
                 }
-                let mut indices = HashSet::new();
-                for part in &parts {
-                    if let Some(idx) = question
-                        .options
-                        .iter()
-                        .position(|o| o.key.eq_ignore_ascii_case(part))
-                    {
-                        indices.insert(idx);
-                    } else if let Some(idx) = question
-                        .options
-                        .iter()
-                        .position(|o| o.label.eq_ignore_ascii_case(part))
-                    {
-                        indices.insert(idx);
-                    } else {
-                        let keys: Vec<&str> =
-                            question.options.iter().map(|o| o.key.as_str()).collect();
-                        self.validation_error =
-                            Some(format!("invalid: choose one or more: {}", keys.join(", ")));
-                        return false;
-                    }
+                Err(msg) => {
+                    self.validation_error = Some(msg);
+                    false
                 }
-                self.draft_answers[self.current_question] = DraftAnswer::MultiSelected(indices);
+            },
+        }
+    }
+
+    /// Evaluate whether a question should be shown based on its `show_if`
+    /// condition and the answers collected so far.
+    pub fn should_show_question(&self, q_idx: usize, questions: &[Question]) -> bool {
+        if questions[q_idx].show_if.is_none() {
+            return true;
+        }
+
+        // Build stored answers from draft answers up to q_idx.
+        let draft_answers: Vec<_> = questions
+            .iter()
+            .zip(self.draft_answers.iter())
+            .take(q_idx)
+            .map(|(q, d)| d.to_answer(q))
+            .collect();
+        let stored = interview_helpers::build_stored_answers(questions, &draft_answers, q_idx);
+        interview_helpers::should_show_question(&questions[q_idx], &stored, false)
+    }
+
+    /// Check whether a `finish_if` condition was triggered by the answer
+    /// to the current question.
+    fn is_finish_triggered(&self, questions: &[Question]) -> bool {
+        let q = &questions[self.current_question];
+        let answer = self.draft_answers[self.current_question].to_answer(q);
+        interview_helpers::is_finish_triggered(q, &answer)
+    }
+
+    /// Advance to the next question, skipping questions whose `show_if`
+    /// conditions are false. Returns `true` if all questions are done.
+    pub fn advance_with_conditions(&mut self, questions: &[Question]) -> bool {
+        // Check if finish_if is triggered on the current question.
+        if self.is_finish_triggered(questions) {
+            self.validation_error = None;
+            self.current_question = self.draft_answers.len();
+            return true;
+        }
+
+        loop {
+            self.current_question += 1;
+            if self.current_question >= self.draft_answers.len() {
                 self.validation_error = None;
-                true
+                return true;
+            }
+            if self.should_show_question(self.current_question, questions) {
+                self.validation_error = None;
+                return false;
             }
         }
     }
@@ -539,6 +607,21 @@ impl InterviewState {
         self.current_question += 1;
         self.validation_error = None;
         self.current_question >= self.draft_answers.len()
+    }
+
+    /// Go back to the previous visible question, skipping questions whose
+    /// `show_if` conditions are false. Returns `true` if successful.
+    pub fn back_with_conditions(&mut self, questions: &[Question]) -> bool {
+        loop {
+            if self.current_question == 0 {
+                return false;
+            }
+            self.current_question -= 1;
+            if self.should_show_question(self.current_question, questions) {
+                self.validation_error = None;
+                return true;
+            }
+        }
     }
 
     /// Go back to the previous question, returning `true` if successful.
@@ -552,11 +635,21 @@ impl InterviewState {
     }
 
     /// Finalize all draft answers into `Answer` values.
+    ///
+    /// Questions that were skipped by `show_if` conditions produce
+    /// [`AnswerValue::Skipped`].
     pub fn finalize_answers(&self, questions: &[Question]) -> Vec<Answer> {
         self.draft_answers
             .iter()
             .zip(questions)
-            .map(|(draft, q)| draft.to_answer(q))
+            .enumerate()
+            .map(|(i, (draft, q))| {
+                if self.should_show_question(i, questions) {
+                    draft.to_answer(q)
+                } else {
+                    Answer::new(AnswerValue::Skipped)
+                }
+            })
             .collect()
     }
 }

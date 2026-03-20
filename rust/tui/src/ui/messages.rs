@@ -972,6 +972,33 @@ fn workflow_progress_lines(
 
 // ─── Interview rendering ────────────────────────────────────────────
 
+/// Whether an interview question should be visible given the current interview state.
+///
+/// For completed interviews, questions that were skipped are hidden.
+/// For active interviews, `show_if` conditions are evaluated against draft answers.
+/// Otherwise, questions without a `show_if` condition are always visible.
+fn is_question_visible(
+    q_idx: usize,
+    question: &stencila_attractor::interviewer::Question,
+    status: InterviewStatus,
+    answers: &[stencila_attractor::interviewer::Answer],
+    active_state: Option<&crate::interview::InterviewState>,
+    questions: &[stencila_attractor::interviewer::Question],
+) -> bool {
+    if status == InterviewStatus::Completed {
+        return !answers.get(q_idx).is_some_and(|a| {
+            matches!(
+                a.value,
+                stencila_attractor::interviewer::AnswerValue::Skipped
+            )
+        });
+    }
+    if let Some(state) = active_state {
+        return state.should_show_question(q_idx, questions);
+    }
+    question.show_if.is_none()
+}
+
 /// Render a structured interview block inline in the message area.
 ///
 /// When `inline` is `true`, the interview is rendered as a continuation of its
@@ -1092,9 +1119,23 @@ fn interview_lines(
         blank_sidebar_line(lines, sidebar_style);
     }
 
-    let max_future = if questions.len() > 3 { 1 } else { usize::MAX };
+    // Count visible (non-condition-hidden) questions for progress display.
+    let visible_count = questions
+        .iter()
+        .enumerate()
+        .filter(|(q_idx, q)| {
+            is_question_visible(*q_idx, q, status, answers, active_state, questions)
+        })
+        .count();
+
+    let max_future = if visible_count > 3 { 1 } else { usize::MAX };
     let mut future_rendered = 0usize;
     for (q_idx, question) in questions.iter().enumerate() {
+        // Skip questions hidden by show_if conditions.
+        if !is_question_visible(q_idx, question, status, answers, active_state, questions) {
+            continue;
+        }
+
         let is_active = active_question == Some(q_idx);
         let is_answered = if status == InterviewStatus::Completed {
             true
@@ -1113,7 +1154,7 @@ fn interview_lines(
                 inner_width,
             );
         } else if is_active {
-            if questions.len() > 1 {
+            if visible_count > 1 {
                 // Horizontal rule above active question
                 rule_sidebar_line(lines, sidebar_style, inner_width);
             }
@@ -1122,7 +1163,7 @@ fn interview_lines(
                 question,
                 active_state.and_then(|s| s.draft_answers.get(q_idx)),
                 active_state.map(|_| q_idx + 1),
-                questions.len(),
+                visible_count,
                 active_state,
                 preview_input,
                 sidebar_style,
@@ -1131,7 +1172,7 @@ fn interview_lines(
                 q_idx,
                 md_cache,
             );
-            if questions.len() > 1 {
+            if visible_count > 1 {
                 // Horizontal rule below active question
                 rule_sidebar_line(lines, sidebar_style, inner_width);
             }

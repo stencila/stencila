@@ -11884,6 +11884,7 @@ dependencies = [
  "eyre",
  "futures",
  "ignore",
+ "indexmap 2.13.0",
  "markdown",
  "ratatui",
  "serde_json",

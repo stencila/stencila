@@ -342,6 +342,9 @@ impl QuestionSpec {
 
         q.header = self.header.clone();
         q.default = default;
+        q.store = self.store.clone();
+        q.show_if = self.show_if.clone();
+        q.finish_if = self.finish_if.clone();
 
         Ok(q)
     }

@@ -1,41 +1,46 @@
-//! Progressive interview conductor for conditional specs.
+//! Conditional interview conductor.
 //!
 //! When an [`InterviewSpec`] uses `show-if` or `finish-if`, the interview
-//! cannot be presented as a flat batch — questions must be evaluated and
-//! presented one at a time based on prior answers. This module provides
-//! [`conduct_conditional`], which drives that loop.
+//! cannot be presented as a flat batch — questions must be evaluated
+//! progressively based on prior answers.
+//!
+//! [`conduct_conditional`] converts all spec questions into a single
+//! [`Interview`] and delegates to [`Interviewer::conduct`], which handles
+//! condition evaluation. Frontends that override `conduct()` (e.g. the
+//! TUI) present the questions as one visual interview, skipping
+//! conditional questions inline rather than spawning separate interviews.
 
-use indexmap::IndexMap;
-
-use crate::condition::Condition;
-use crate::interviewer::{Interview, InterviewError, Interviewer, canonical_answer_string};
+use crate::interviewer::{AnswerValue, Interview, InterviewError, Interviewer};
 use crate::spec::InterviewSpec;
 
-/// Result of a progressive conditional interview.
+/// Result of a conditional interview.
 ///
-/// Contains the final [`Interview`] (with only the questions that were
-/// actually asked) and a mapping from each asked question back to its
-/// index in the original [`InterviewSpec::questions`] list.
+/// Contains the final [`Interview`] (with all questions, including those
+/// that were skipped) and the indices of non-skipped (answered) questions
+/// in the interview arrays.
 pub struct ConductedInterview {
-    /// The interview containing only asked questions and their answers.
+    /// The interview with all questions and their answers (skipped
+    /// questions have [`AnswerValue::Skipped`]).
     pub interview: Interview,
 
-    /// For each element in `interview.questions`, the index of the
-    /// corresponding [`QuestionSpec`] in the original spec. Parallel
-    /// to `interview.questions` / `interview.answers`.
-    pub spec_indices: Vec<usize>,
+    /// Indices of non-skipped (answered) questions in the interview
+    /// arrays. This has fewer elements than `interview.questions` when
+    /// questions were skipped. Use this to look up `store` keys in the
+    /// spec.
+    pub answered_indices: Vec<usize>,
 }
 
-/// Conduct a conditional interview progressively, one question at a time.
+/// Conduct a conditional interview as a single batch.
 ///
-/// Iterates through the spec's questions in order, evaluating `show-if`
-/// conditions against previously collected answers. Questions whose
-/// conditions are false are skipped. After each answer, `finish-if` is
-/// checked — if the answer matches, remaining questions are not presented.
+/// Converts all spec questions to runtime [`Question`]s (preserving
+/// `store`, `show_if`, and `finish_if` fields), builds one [`Interview`],
+/// and calls [`Interviewer::conduct`]. The default `conduct()`
+/// implementation evaluates conditions progressively; frontends that
+/// override `conduct()` (like the TUI) present all questions as a
+/// single visual group and skip conditional questions during navigation.
 ///
-/// The returned [`ConductedInterview`] contains only the questions that
-/// were actually asked, plus a mapping back to spec indices so callers
-/// can look up `store` keys and other spec-level metadata.
+/// The returned [`ConductedInterview`] contains the indices of
+/// non-skipped (answered) questions so callers can look up `store` keys.
 ///
 /// # Errors
 ///
@@ -45,77 +50,53 @@ pub async fn conduct_conditional(
     interviewer: &dyn Interviewer,
     stage: &str,
 ) -> Result<ConductedInterview, InterviewError> {
-    let mut interview = Interview::batch(vec![], stage);
+    // Convert all spec questions to runtime questions.
+    let questions: Vec<_> = spec
+        .questions
+        .iter()
+        .enumerate()
+        .map(|(i, qs)| {
+            qs.to_question().map_err(|e| {
+                InterviewError::BackendFailure(format!("failed to build question {i}: {e}"))
+            })
+        })
+        .collect::<Result<_, _>>()?;
+
+    let mut interview = Interview::batch(questions, stage);
     interview.preamble = spec.preamble.clone();
 
-    let mut spec_indices = Vec::new();
-    // Accumulated canonical answer strings, keyed by store name.
-    let mut stored_answers: IndexMap<String, String> = IndexMap::new();
+    // Delegate to the interviewer, which handles show_if/finish_if.
+    interviewer.conduct(&mut interview).await?;
 
-    for (spec_idx, question_spec) in spec.questions.iter().enumerate() {
-        // Evaluate show-if: skip this question if the condition is false.
-        if let Some(ref show_if_str) = question_spec.show_if {
-            match Condition::parse(show_if_str) {
-                Ok(cond) => {
-                    if !cond.evaluate(&stored_answers) {
-                        continue;
-                    }
-                }
-                Err(e) => {
-                    tracing::warn!(
-                        question = spec_idx,
-                        show_if = show_if_str.as_str(),
-                        error = %e,
-                        "show-if condition failed to parse; presenting question unconditionally"
-                    );
-                }
-            }
-        }
-
-        // Convert spec question to runtime question.
-        let question = question_spec.to_question().map_err(|e| {
-            InterviewError::BackendFailure(format!("failed to build question {spec_idx}: {e}"))
-        })?;
-
-        // Ask the single question.
-        let answer = interviewer.ask(&question).await?;
-
-        // Compute canonical answer string for condition evaluation.
-        let canonical = canonical_answer_string(&answer.value, &question);
-
-        // Store under the question's store key if present.
-        if let Some(ref store) = question_spec.store {
-            stored_answers.insert(store.clone(), canonical.clone());
-        }
-
-        // Record this question and answer.
-        interview.questions.push(question);
-        interview.answers.push(answer);
-        spec_indices.push(spec_idx);
-
-        // Check finish-if: if the canonical answer matches, end the interview.
-        if let Some(ref finish_if_str) = question_spec.finish_if
-            && finish_if_str.trim().eq_ignore_ascii_case(canonical.trim())
-        {
-            break;
-        }
-    }
+    // Build answered_indices for non-skipped questions.
+    let answered_indices: Vec<usize> = interview
+        .answers
+        .iter()
+        .enumerate()
+        .filter(|(_, a)| !matches!(a.value, AnswerValue::Skipped))
+        .map(|(i, _)| i)
+        .collect();
 
     Ok(ConductedInterview {
         interview,
-        spec_indices,
+        answered_indices,
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::interviewer::{Answer, AnswerValue, InterviewError, Interviewer, Question};
+    use crate::interviewer::{
+        Answer, AnswerValue, InterviewError, Interviewer, Question, QuestionOption,
+        canonical_answer_string,
+    };
     use crate::spec::{InterviewSpec, OptionSpec, QuestionSpec, QuestionTypeSpec};
     use async_trait::async_trait;
     use std::sync::Mutex;
 
     /// A test interviewer that returns answers from a pre-loaded queue.
+    ///
+    /// Uses the default `conduct()` which handles show_if/finish_if.
     struct ScriptedInterviewer {
         answers: Mutex<Vec<Answer>>,
     }
@@ -180,9 +161,11 @@ mod tests {
         ]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
+        // All questions present in the interview (including skipped ones)
         assert_eq!(result.interview.questions.len(), 2);
         assert_eq!(result.interview.answers.len(), 2);
-        assert_eq!(result.spec_indices, vec![0, 1]);
+        // answered_indices lists non-skipped question positions
+        assert_eq!(result.answered_indices, vec![0, 1]);
         Ok(())
     }
 
@@ -218,13 +201,16 @@ mod tests {
             ],
         };
 
-        // Answer "No" → should trigger finish-if, Q2 never asked
+        // Answer "No" → should trigger finish-if, Q2 (index 1) answered as Skipped
         let interviewer = ScriptedInterviewer::new(vec![Answer::new(AnswerValue::No)]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
-        assert_eq!(result.interview.questions.len(), 1);
-        assert_eq!(result.interview.answers.len(), 1);
-        assert_eq!(result.spec_indices, vec![0]);
+        // All questions in the interview, but Q2 (index 1) is Skipped
+        assert_eq!(result.interview.questions.len(), 2);
+        assert_eq!(result.interview.answers.len(), 2);
+        assert_eq!(result.interview.answers[1].value, AnswerValue::Skipped);
+        // Only Q1 (index 0) was actually answered
+        assert_eq!(result.answered_indices, vec![0]);
         Ok(())
     }
 
@@ -264,7 +250,50 @@ mod tests {
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
         assert_eq!(result.interview.questions.len(), 2);
-        assert_eq!(result.spec_indices, vec![0, 1]);
+        assert_eq!(result.answered_indices, vec![0, 1]);
+        Ok(())
+    }
+
+    // -----------------------------------------------------------------------
+    // finish-if without store key
+    // -----------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn finish_if_works_without_store_key() -> Result<(), InterviewError> {
+        let spec = InterviewSpec {
+            preamble: None,
+            questions: vec![
+                QuestionSpec {
+                    question: "Continue?".into(),
+                    header: None,
+                    r#type: QuestionTypeSpec::YesNo,
+                    options: vec![],
+                    default: None,
+                    store: None,
+                    finish_if: Some("no".into()),
+                    show_if: None,
+                },
+                QuestionSpec {
+                    question: "Details?".into(),
+                    header: None,
+                    r#type: QuestionTypeSpec::Freeform,
+                    options: vec![],
+                    default: None,
+                    store: None,
+                    finish_if: None,
+                    show_if: None,
+                },
+            ],
+        };
+
+        // Answer "No" → finish-if triggers even without a store key
+        let interviewer = ScriptedInterviewer::new(vec![Answer::new(AnswerValue::No)]);
+
+        let result = conduct_conditional(&spec, &interviewer, "test").await?;
+        assert_eq!(result.interview.questions.len(), 2);
+        assert_eq!(result.interview.answers.len(), 2);
+        assert_eq!(result.interview.answers[1].value, AnswerValue::Skipped);
+        assert_eq!(result.answered_indices, vec![0]);
         Ok(())
     }
 
@@ -317,10 +346,13 @@ mod tests {
         ]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
-        assert_eq!(result.interview.questions.len(), 2);
-        assert_eq!(result.spec_indices, vec![0, 2]); // spec Q0 and Q2 asked
+        // All 3 questions present; Q1 is Skipped
+        assert_eq!(result.interview.questions.len(), 3);
+        assert_eq!(result.interview.answers[1].value, AnswerValue::Skipped);
+        // Non-skipped indices: Q0 and Q2
+        assert_eq!(result.answered_indices, vec![0, 2]);
         assert_eq!(
-            result.interview.answers[1].value,
+            result.interview.answers[2].value,
             AnswerValue::Text("production".into())
         );
         Ok(())
@@ -362,7 +394,7 @@ mod tests {
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
         assert_eq!(result.interview.questions.len(), 2);
-        assert_eq!(result.spec_indices, vec![0, 1]);
+        assert_eq!(result.answered_indices, vec![0, 1]);
         Ok(())
     }
 
@@ -425,8 +457,10 @@ mod tests {
         ]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
-        assert_eq!(result.interview.questions.len(), 2);
-        assert_eq!(result.spec_indices, vec![0, 2]); // Q0 (Approve) and Q2 (Deploy)
+        // All 4 questions present; Q1, Q3 are Skipped
+        assert_eq!(result.interview.questions.len(), 4);
+        // Non-skipped: Q0 (Approve) and Q2 (Deploy)
+        assert_eq!(result.answered_indices, vec![0, 2]);
         assert_eq!(result.interview.preamble.as_deref(), Some("Review"));
         Ok(())
     }
@@ -472,13 +506,14 @@ mod tests {
             ],
         };
 
-        // Select "Reject" (key "B") → finish-if triggers
+        // Select "Reject" (key "B") → finish-if triggers, Q1 Skipped
         let interviewer =
             ScriptedInterviewer::new(vec![Answer::new(AnswerValue::Selected("B".into()))]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
-        assert_eq!(result.interview.questions.len(), 1);
-        assert_eq!(result.spec_indices, vec![0]);
+        assert_eq!(result.interview.questions.len(), 2);
+        assert_eq!(result.interview.answers[1].value, AnswerValue::Skipped);
+        assert_eq!(result.answered_indices, vec![0]);
         Ok(())
     }
 
@@ -519,8 +554,10 @@ mod tests {
             ScriptedInterviewer::new(vec![Answer::new(AnswerValue::Text("admin".into()))]);
 
         let result = conduct_conditional(&spec, &interviewer, "test").await?;
-        assert_eq!(result.interview.questions.len(), 1);
-        assert_eq!(result.spec_indices, vec![0]);
+        // Both questions present; Q1 is Skipped
+        assert_eq!(result.interview.questions.len(), 2);
+        assert_eq!(result.interview.answers[1].value, AnswerValue::Skipped);
+        assert_eq!(result.answered_indices, vec![0]);
         Ok(())
     }
 
@@ -542,7 +579,6 @@ mod tests {
 
     #[test]
     fn canonical_selected_resolves_to_label() {
-        use crate::interviewer::QuestionOption;
         let q = Question::single_select(
             "Q",
             vec![

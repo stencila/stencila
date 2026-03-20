@@ -288,9 +288,9 @@ impl WaitForHumanHandler {
     ///
     /// Uses [`conduct_conditional`] which asks questions one at a time,
     /// evaluating `show-if` / `finish-if` between questions. The returned
-    /// [`ConductedInterview`] maps each asked question back to its spec
-    /// index, so store keys are resolved correctly even when questions are
-    /// skipped.
+    /// [`ConductedInterview`] contains the indices of non-skipped (answered)
+    /// questions, so store keys are resolved correctly even when questions
+    /// are skipped.
     ///
     /// Resume recovery is not supported for conditional interviews — if
     /// the process crashes mid-interview, it restarts from the first
@@ -308,44 +308,47 @@ impl WaitForHumanHandler {
 
         let interview = &result.interview;
 
-        // Emit per-question events for parity with the batch path
-        for question in &interview.questions {
+        // Emit per-question events for non-skipped questions
+        for &idx in &result.answered_indices {
             self.emitter.emit(PipelineEvent::InterviewQuestionAsked {
                 interview_id: interview.id.clone(),
                 node_id: node.id.clone(),
-                question: question.clone(),
+                question: interview.questions[idx].clone(),
             });
         }
 
-        // Store answers using spec_indices for correct mapping
+        // Store answers using answered_indices (non-skipped question indices)
         let mut context_updates = IndexMap::new();
         let mut routing_answer: Option<Answer> = None;
         let mut routing_question_options: Vec<QuestionOption> = Vec::new();
 
-        for (i, question) in interview.questions.iter().enumerate() {
-            let answer = interview.answers.get(i).cloned().ok_or_else(|| {
+        // Store the first answered question's value under the node-level
+        // store_key (if present) so single-question gates work as before.
+        if let Some(key) = store_key
+            && let Some(&first_idx) = result.answered_indices.first()
+        {
+            let question = &interview.questions[first_idx];
+            let answer = &interview.answers[first_idx];
+            context_updates.insert(
+                key.to_string(),
+                serde_json::Value::String(canonical_answer_string(&answer.value, question)),
+            );
+        }
+
+        for &idx in &result.answered_indices {
+            let question = &interview.questions[idx];
+            let answer = interview.answers.get(idx).cloned().ok_or_else(|| {
                 handler_failed(
                     &node.id,
-                    format!("no answer for question {i} after conditional interview"),
+                    format!("no answer for question {idx} after conditional interview"),
                 )
             })?;
 
-            // Use spec_indices to find the original spec question and
-            // store the canonical (human-readable) value so that stored
+            // Store the canonical (human-readable) value so that stored
             // values match what show-if / finish-if conditions compare.
-            let spec_idx = result.spec_indices[i];
-            if let Some(ref store) = spec.questions.get(spec_idx).and_then(|q| q.store.clone()) {
+            if let Some(ref store) = spec.questions.get(idx).and_then(|q| q.store.clone()) {
                 context_updates.insert(
                     store.clone(),
-                    serde_json::Value::String(canonical_answer_string(&answer.value, question)),
-                );
-            }
-
-            if i == 0
-                && let Some(key) = store_key
-            {
-                context_updates.insert(
-                    key.to_string(),
                     serde_json::Value::String(canonical_answer_string(&answer.value, question)),
                 );
             }

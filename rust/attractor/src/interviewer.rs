@@ -4,4 +4,5 @@
 //! definitions live there; this module provides convenient access for
 //! downstream crates that already depend on `stencila-attractor`.
 
+pub use stencila_interviews::helpers as interview_helpers;
 pub use stencila_interviews::interviewer::*;
