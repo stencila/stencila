@@ -20,9 +20,6 @@ const TOKEN_URL: &str = "https://console.anthropic.com/v1/oauth/token";
 /// Keyring service name used by Claude Code to store credentials.
 const KEYRING_SERVICE: &str = "Claude Code-credentials";
 
-/// Keyring account name used by Claude Code.
-const KEYRING_ACCOUNT: &str = "default";
-
 // ---------------------------------------------------------------------------
 // Token refresh response
 // ---------------------------------------------------------------------------
@@ -56,13 +53,31 @@ fn parse_credentials_json(data: &str) -> Option<OAuthCredentials> {
     })
 }
 
+/// Return the OS username used by Claude Code as the keyring account.
+///
+/// Claude Code stores credentials under the current OS username
+/// (`$USER` on Unix, `$USERNAME` on Windows).
+fn os_username() -> Option<String> {
+    #[cfg(unix)]
+    {
+        std::env::var("USER").ok()
+    }
+    #[cfg(windows)]
+    {
+        std::env::var("USERNAME").ok()
+    }
+}
+
 /// Load Anthropic OAuth credentials from the system keyring.
 ///
 /// Checks the `Claude Code-credentials` keyring service for stored
-/// credentials. Returns `None` if the keyring is unavailable or does
+/// credentials. The account is the current OS username, matching
+/// how Claude Code writes its keychain entry.
+/// Returns `None` if the keyring is unavailable or does
 /// not contain valid credentials.
 fn load_from_keyring() -> Option<OAuthCredentials> {
-    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT).ok()?;
+    let account = os_username()?;
+    let entry = keyring::Entry::new(KEYRING_SERVICE, &account).ok()?;
     let data = entry.get_password().ok()?;
     parse_credentials_json(&data)
 }
