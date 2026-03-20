@@ -86,6 +86,7 @@ An explicit `shape` attribute always takes precedence over ID-based inference. I
 | `shell="make build"`      | `shape=parallelogram, shell_command="make build"` |
 | `shell="cargo test"`    | `shape=parallelogram, shell_command="cargo test"` |
 | `branch="Quality OK?"`  | `shape=diamond, label="Quality OK?"`              |
+| `persist="full"`        | `fidelity="full", thread-id="persist:{node_id}"`  |
 
 Additionally, a node with an `interview` attribute (typically set via `interview-ref`) is inferred as `shape=hexagon` (a human gate).
 
@@ -154,6 +155,9 @@ Here `CheckQuality` is automatically a conditional node and `Review` is automati
 | `question-type`          | String   | Human node question type: `"yes-no"`, `"confirm"`. `"single-select'`, `"freeform"`, Default: single select from edges.                               |
 | `store`                  | String   | Context key to store a node's output in. On human nodes, stores the answer; on shell nodes, stores trimmed stdout.                                    |
 | `store-as`               | String   | Shell node output format: `"json"` (force JSON parse), `"string"` (no parse), or absent (try JSON, fall back to string).                             |
+| `persist`                | String   | Shorthand for setting `fidelity` and `thread-id` together. Values: `"true"`/`"full"`, `"summary"`, `"gist"`, `"details"`, `"false"`/`"off"`.         |
+| `fidelity`               | String   | Context fidelity mode for session carryover. `"full"` enables session reuse via `thread-id`. See [Session persistence](#session-persistence).         |
+| `thread-id`              | String   | Thread key for session reuse. Nodes sharing the same `thread-id` with `fidelity="full"` share a conversation session.                                |
 | `fan-out`                | String   | Dynamic fan-out list key. Resolves a JSON array from context and spawns one branch per item. `true` derives key from node ID.                        |
 | `interview-ref`          | String   | Reference to a YAML code block defining a multi-question interview (e.g., `"#review-interview"`).                                                    |
 
@@ -910,6 +914,133 @@ digraph PublicationWorkflow {
 
 The `Review` prefix alone implies a human gate — no `shape=` needed. The parent graph stays focused on orchestration, while `paper-drafting` can own the internal research, outlining, drafting, and checking stages.
 
+## Session persistence
+
+By default, each agent node in a pipeline starts a fresh conversation — it has no memory of what earlier nodes said. **Session persistence** lets multiple nodes share a conversation session so that later nodes can recall context from earlier ones, enabling multi-turn interactions across pipeline stages.
+
+This is useful when a pipeline has logically connected steps — for example, an agent that first reads a set of research papers and then synthesizes findings across them. Without session persistence, the synthesis step would not remember what the agent read; with it, the LLM sees the full conversation history and can build on its earlier reasoning.
+
+### `persist` shorthand
+
+The simplest way to enable session persistence is the `persist` attribute, which sets `fidelity` and `thread-id` together:
+
+```dot
+digraph LitSurvey {
+  graph [goal="Survey recent advances in CRISPR gene editing"]
+
+  Start -> Search
+
+  Search [persist="full", prompt="Search for recent papers on: $goal. Note key authors and findings."]
+  Search -> Summarize
+
+  Summarize [persist="full", prompt="Summarize the main themes and open questions from the papers you found."]
+  Summarize -> End
+}
+```
+
+Each node with `persist="full"` gets `fidelity="full"` and an auto-generated `thread-id` of the form `persist:{node_id}`. Since the thread IDs differ (one per node), these two nodes do _not_ share a session — each starts fresh. To share a session across nodes, use an explicit `thread-id` (see below) or graph-level defaults.
+
+**`persist` values:**
+
+| Value                        | Expands to                                                          |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `"true"` or `"full"`        | `fidelity="full"`, `thread-id="persist:{node_id}"`                 |
+| `"summary"`                  | `fidelity="summary:medium"`, `thread-id="persist:{node_id}"`       |
+| `"gist"`                     | `fidelity="summary:low"`, `thread-id="persist:{node_id}"`          |
+| `"details"`                  | `fidelity="summary:high"`, `thread-id="persist:{node_id}"`         |
+| `"false"` or `"off"`        | _(disabled — no fidelity or thread-id set)_                         |
+
+If `fidelity` is already set explicitly on the node, `persist` does not override it or generate a `thread-id`. If `thread-id` is already set, it is preserved. The `persist` attribute is always removed after processing — it never appears in the final graph.
+
+### `fidelity` and `thread-id`
+
+For full control, set `fidelity` and `thread-id` directly. The key concept: **nodes that share the same `thread-id` with `fidelity="full"` reuse the same conversation session**, so the LLM sees the full message history from all prior nodes on that thread.
+
+> [!warning]
+> A shared `thread-id` means shared conversation history. In practice, nodes that share a `thread-id` should use the same `agent`, because different agents may have different system prompts, tools, and behavior. Reusing one thread across different agents is invalid and fails workflow validation. Likewise, do not reuse the same `thread-id` across parallel branches.
+
+```dot
+digraph ExperimentAnalysis {
+  graph [goal="Analyze proteomics data from the knockout experiment"]
+
+  Start -> Explore
+
+  Explore [
+    fidelity="full",
+    thread-id="analysis",
+    prompt="Read the proteomics dataset. Identify differentially expressed proteins and note any outlier samples."
+  ]
+  Explore -> Interpret
+
+  Interpret [
+    fidelity="full",
+    thread-id="analysis",
+    prompt="Based on the patterns you found, propose biological pathways that may explain the observed changes."
+  ]
+  Interpret -> WriteUp
+
+  WriteUp [prompt="Draft a results section suitable for a journal submission."]
+  WriteUp -> End
+}
+```
+
+In this example:
+
+1. **Explore** starts a session under thread `"analysis"` and examines the dataset
+2. **Interpret** joins the same `"analysis"` thread — the LLM sees the full exploratory analysis and can reference the specific proteins and outliers it identified, without needing them restated in the prompt
+3. **WriteUp** has no `fidelity` or `thread-id`, so it starts a fresh session — appropriate here because drafting the results section is an independent writing task that receives the prior output via the standard `$last_output` variable
+
+### Fidelity modes
+
+The `fidelity` attribute controls how much conversation context is carried over:
+
+| Mode              | Behavior                                                              |
+| ----------------- | --------------------------------------------------------------------- |
+| `"full"`          | Full session reuse — the LLM sees the complete message history.       |
+| `"summary:low"`   | Low-detail summary of prior context (available via `persist="gist"`). |
+| `"summary:medium"`| Medium-detail summary (available via `persist="summary"`).            |
+| `"summary:high"`  | High-detail summary (available via `persist="details"`).              |
+| `"compact"`       | Compact context carryover. Set directly — not available via `persist`.|
+| `"truncate"`      | Truncated context. Set directly — not available via `persist`.        |
+
+> [!warning]
+> Currently, only `full` fidelity alters runtime behavior (session reuse by `thread-id`). The `summary`, `compact`, and `truncate` modes are resolved and validated but do not yet synthesize different context-carryover prompt text.
+
+### Graph-level defaults
+
+Use the `default-fidelity` and `default-thread-id` graph attributes to set pipeline-wide defaults. This is the most concise way to make an entire pipeline share a single conversation:
+
+```dot
+digraph ClimateReview {
+  graph [
+    goal="Systematic review of ocean acidification impacts on coral reef ecosystems",
+    default-fidelity="full",
+    default-thread-id="main"
+  ]
+
+  Start -> Search
+
+  Search [prompt="Search for recent studies on: $goal. Focus on empirical field studies."]
+  Search -> Assess
+
+  Assess [prompt="Assess the methodological quality of the studies you found. Note any common limitations."]
+  Assess -> Synthesize
+
+  Synthesize [prompt="Synthesize the findings into a narrative review, referencing the quality issues you identified."]
+  Synthesize -> End
+}
+```
+
+All three nodes inherit `fidelity="full"` and `thread-id="main"`, sharing a single conversation session throughout the pipeline. The `Assess` step remembers which studies `Search` found, and `Synthesize` remembers both the studies and the quality assessment — so the final review can reference specific papers and their limitations without restating them.
+
+### When to use session persistence
+
+- **Multi-step analysis** — an agent explores a dataset, identifies patterns, then interprets their significance. Each step should build on what came before.
+- **Literature reviews** — an agent searches for papers, screens them for relevance, then synthesizes findings. The synthesis is richer when the agent remembers what it read.
+- **Iterative drafting** — a manuscript section is written, then revised based on reviewer feedback, with the revision step aware of the original reasoning.
+
+Session persistence is not needed when nodes are independent or when the relevant context is already passed via `$`-variable expansion or workflow context tools. Use it when the _full conversation history_ matters — not just a single output value.
+
 ## Overrides
 
 Centralize agent property overrides with CSS-like rules instead of setting `agent.model` on every node:
@@ -1006,6 +1137,7 @@ This pipeline:
 | `overrides`         | String  | `""`    | CSS-like per-node agent override rules.                  |
 | `default-max-retry` | Integer | `3`     | Global retry ceiling for nodes that omit `max-retries`.  |
 | `default-fidelity`  | String  | `""`    | Default context fidelity mode.                           |
+| `default-thread-id` | String  | `""`    | Default thread key for `full` fidelity session reuse.    |
 | `retry-target`      | String  | `""`    | Node to jump to when goal gates are unsatisfied at exit. |
 
 # Context and state
