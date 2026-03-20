@@ -1,6 +1,6 @@
 ---
 name: software-refactoring
-description: Improve production code quality while preserving all existing test behavior (Refactor phase of TDD red-green-refactor). Use when production code works but needs cleanup — reducing duplication, improving naming, simplifying complexity, aligning with codebase style, extracting functions or types, or removing dead code. Discovers codebase conventions, analyzes code for refactoring opportunities, applies safe transformations that preserve public API and test behavior, verifies compilation/parsing after each change, handles feedback-driven iteration from failed test runs, and produces a structured summary of changes made. Works with any language or framework.
+description: Improve production code quality while preserving all existing test behavior. Commonly used for the Refactor phase of TDD red-green-refactor, but applicable to any codebase with tests. Use when production code works but needs cleanup — reducing duplication, improving naming, simplifying complexity, aligning with codebase style, extracting functions or types, or removing dead code. Discovers conventions, applies safe transformations, verifies compilation after each change, and produces a structured summary. Works with any language or framework.
 keywords:
   - refactoring
   - refactor phase
@@ -12,31 +12,22 @@ keywords:
   - DRY
   - naming improvement
   - simplify complexity
-  - cyclomatic complexity
   - code style
   - extract function
-  - extract method
   - extract type
   - inline variable
   - remove dead code
-  - code smell
-  - technical debt
   - readability
   - maintainability
   - codebase conventions
   - preserve tests
   - safe transformation
-  - not test creation
-  - not test writing
-  - not implementation
-  - not new features
-  - not test execution
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
 ---
 
 ## Overview
 
-Improve production code quality while preserving all existing test behavior. This skill handles the "refactor" phase of a red-green-refactor cycle: given passing production code and its tests, it discovers the codebase's conventions, identifies refactoring opportunities, applies safe transformations, and verifies that all tests continue to pass.
+Improve existing production code that already has passing tests. This skill is commonly used for the "refactor" phase of a red-green-refactor cycle, but works equally well as a standalone code-quality pass. Given passing production code and its tests, it discovers the codebase's conventions, identifies refactoring opportunities, applies safe transformations, and verifies that all tests continue to pass.
 
 The core principles are:
 
