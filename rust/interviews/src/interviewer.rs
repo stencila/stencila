@@ -215,6 +215,31 @@ impl Question {
             .as_ref()
             .is_some_and(|f| f.trim().eq_ignore_ascii_case(canonical_answer.trim()))
     }
+
+    /// Return the `timeout_seconds` value as a [`Duration`], if set and valid.
+    ///
+    /// Returns `None` when `timeout_seconds` is absent, non-positive, NaN,
+    /// infinite, or too large for a `Duration`.
+    #[must_use]
+    pub fn timeout_duration(&self) -> Option<std::time::Duration> {
+        let secs = self.timeout_seconds?;
+        if secs.is_finite() && secs > 0.0 {
+            std::time::Duration::try_from_secs_f64(secs).ok()
+        } else {
+            None
+        }
+    }
+
+    /// Return the answer to use when this question times out.
+    ///
+    /// If the question has a `default` answer it is returned; otherwise
+    /// [`AnswerValue::Timeout`] is used.
+    #[must_use]
+    pub fn timeout_answer(&self) -> Answer {
+        self.default
+            .clone()
+            .unwrap_or_else(|| Answer::new(AnswerValue::Timeout))
+    }
 }
 
 /// The semantic value of an answer (§6.3).
@@ -468,6 +493,23 @@ impl Interview {
         self.attachments.push(attachment);
         self
     }
+
+    /// Compute the effective timeout for a batch interview.
+    ///
+    /// Returns the maximum [`Question::timeout_duration`] across all
+    /// questions, or `None` when no question has a valid timeout.
+    ///
+    /// Batch interviewers (TUI, web/API) present all questions at once so
+    /// they use a single whole-interview deadline rather than per-question
+    /// timers. The default sequential `Interviewer::conduct` implementation
+    /// applies per-question timeouts instead and does not use this method.
+    #[must_use]
+    pub fn effective_timeout(&self) -> Option<std::time::Duration> {
+        self.questions
+            .iter()
+            .filter_map(|q| q.timeout_duration())
+            .max()
+    }
 }
 
 /// Parse a raw text answer into a typed [`Answer`] based on the question type.
@@ -559,9 +601,13 @@ pub trait Interviewer: Send + Sync {
     ///
     /// This is the primary method for multi-question interviews. Frontends
     /// that support batch presentation (web forms, email, Slack) override
-    /// this to render all questions together. The default calls `ask()`
-    /// sequentially, evaluating `show_if` / `finish_if` conditions between
-    /// questions.
+    /// this to render all questions together and apply a single
+    /// whole-interview deadline via [`Interview::effective_timeout`].
+    ///
+    /// The default implementation asks questions sequentially, applying a
+    /// per-question timeout via [`Question::timeout_duration`] around each
+    /// `ask()` call, and evaluating `show_if` / `finish_if` conditions
+    /// between questions.
     ///
     /// Questions whose `show_if` condition evaluates to false are skipped
     /// (answered with [`AnswerValue::Skipped`]). When a `finish_if`
@@ -585,7 +631,14 @@ pub trait Interviewer: Send + Sync {
                 continue;
             }
 
-            let answer = self.ask(q).await?;
+            let answer = if let Some(duration) = q.timeout_duration() {
+                match tokio::time::timeout(duration, self.ask(q)).await {
+                    Ok(result) => result?,
+                    Err(_) => q.timeout_answer(),
+                }
+            } else {
+                self.ask(q).await?
+            };
 
             // Store canonical answer for condition evaluation.
             if let Some(ref store_key) = q.store {
@@ -612,6 +665,7 @@ pub trait Interviewer: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::Duration;
 
     fn freeform_question() -> Question {
         Question::freeform("What is your name?")
@@ -752,6 +806,82 @@ mod tests {
             answer.value,
             AnswerValue::MultiSelected(vec!["X".to_string()])
         );
+    }
+
+    #[test]
+    fn timeout_duration_returns_none_for_invalid_values() {
+        for timeout in [
+            None,
+            Some(0.0),
+            Some(-1.0),
+            Some(f64::NAN),
+            Some(f64::INFINITY),
+        ] {
+            let mut question = freeform_question();
+            question.timeout_seconds = timeout;
+            assert_eq!(question.timeout_duration(), None);
+        }
+    }
+
+    #[test]
+    fn timeout_duration_returns_none_for_overflowing_values() {
+        let mut question = freeform_question();
+        question.timeout_seconds = Some(f64::MAX);
+
+        assert_eq!(question.timeout_duration(), None);
+    }
+
+    #[test]
+    fn timeout_duration_returns_some_for_valid_values() {
+        let mut question = freeform_question();
+        question.timeout_seconds = Some(1.5);
+
+        assert_eq!(
+            question.timeout_duration(),
+            Some(Duration::from_millis(1500))
+        );
+    }
+
+    #[test]
+    fn timeout_answer_returns_default_when_present() {
+        let default = Answer::new(AnswerValue::Text("fallback".into()));
+        let mut question = freeform_question();
+        question.default = Some(default.clone());
+
+        assert_eq!(question.timeout_answer(), default);
+    }
+
+    #[test]
+    fn timeout_answer_returns_timeout_when_no_default() {
+        let question = freeform_question();
+
+        assert_eq!(question.timeout_answer(), Answer::new(AnswerValue::Timeout));
+    }
+
+    #[test]
+    fn effective_timeout_returns_none_when_no_questions_have_timeouts() {
+        let interview = Interview::batch(
+            vec![Question::freeform("Q1?"), Question::yes_no("Q2?")],
+            "ask_user",
+        );
+
+        assert_eq!(interview.effective_timeout(), None);
+    }
+
+    #[test]
+    fn effective_timeout_returns_maximum_question_timeout() {
+        let mut q1 = Question::freeform("Q1?");
+        q1.timeout_seconds = Some(1.25);
+
+        let mut q2 = Question::yes_no("Q2?");
+        q2.timeout_seconds = Some(3.0);
+
+        let mut q3 = Question::freeform("Q3?");
+        q3.timeout_seconds = Some(-1.0);
+
+        let interview = Interview::batch(vec![q1, q2, q3], "ask_user");
+
+        assert_eq!(interview.effective_timeout(), Some(Duration::from_secs(3)));
     }
 
     #[test]

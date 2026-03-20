@@ -1,6 +1,7 @@
 use futures::FutureExt;
 
 use stencila_server::preview::PreviewEvent;
+use tokio::sync::oneshot;
 
 use crate::{
     agent::ResponseSegment,
@@ -170,6 +171,19 @@ impl App {
     /// then skips polling while an interview is already active. New interviews
     /// from agent channels are picked up on the next tick once the active one completes.
     pub fn poll_interviews(&mut self) {
+        // Detect when an active interview's answer channel has been closed
+        // (the receiver was dropped because the interviewer timed out).
+        // Dismiss the stale form so the user isn't left interacting with a
+        // completed interview.
+        if let Some(ref state) = self.active_interview
+            && state
+                .answer_tx
+                .as_ref()
+                .is_some_and(oneshot::Sender::is_closed)
+        {
+            self.dismiss_timed_out_interview();
+        }
+
         // First, try to start a previously buffered interview.
         // Buffered interviews are always workflow-sourced (agent interviews
         // are discovered per-session below and never buffered).

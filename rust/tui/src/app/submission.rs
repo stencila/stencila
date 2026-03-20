@@ -363,6 +363,32 @@ impl App {
         self.restore_interview_input_from_draft();
     }
 
+    /// Dismiss an active interview whose answer channel has been closed
+    /// because the interviewer timed out. The interviewer already produced
+    /// `Timeout` answers on its side; this method cleans up the TUI state
+    /// so the user is no longer presented with a stale form and receives a
+    /// visible explanation in the transcript.
+    pub(super) fn dismiss_timed_out_interview(&mut self) {
+        if let Some(state) = self.active_interview.take() {
+            let msg_idx = state.msg_index;
+
+            if let Some(AppMessage::Interview { status, .. }) = self.messages.get_mut(msg_idx) {
+                *status = InterviewStatus::Completed;
+            }
+
+            self.input.clear();
+            self.input_scroll = 0;
+            self.interview_cancel_confirm = false;
+            self.interview_preview_input.clear();
+
+            self.messages.push(AppMessage::System {
+                content:
+                    "Interview timed out and was auto-completed using default or timeout answers."
+                        .to_string(),
+            });
+        }
+    }
+
     /// Cancel the active interview.
     pub(super) fn cancel_interview(&mut self) {
         if let Some(mut state) = self.active_interview.take() {
@@ -616,6 +642,48 @@ mod tests {
         assert!(matches!(
             &app.messages[initial_count + 1],
             AppMessage::System { content } if content.contains("Exiting shell mode")
+        ));
+    }
+
+    #[tokio::test]
+    async fn dismiss_timed_out_interview_adds_system_message() {
+        use crate::interview::{InterviewResult, InterviewSource, InterviewState, InterviewStatus};
+        use stencila_attractor::interviewer::{Interview, Question};
+        use tokio::sync::oneshot;
+
+        let mut app = App::new_for_test().await;
+        let interview = Interview::single(Question::yes_no("Proceed?"), "gate");
+        let msg_index = app.messages.len();
+
+        app.messages.push(AppMessage::Interview {
+            id: interview.id.clone(),
+            source: InterviewSource::Workflow,
+            agent_name: "workflow".to_string(),
+            status: InterviewStatus::Active,
+            interview: interview.clone(),
+            answers: Vec::new(),
+            parent_msg_index: None,
+        });
+
+        let (tx, _rx) = oneshot::channel::<InterviewResult>();
+        app.active_interview = Some(InterviewState::new(&interview, msg_index, tx));
+
+        let initial_len = app.messages.len();
+        app.dismiss_timed_out_interview();
+
+        assert!(app.active_interview.is_none());
+        assert!(matches!(
+            &app.messages[msg_index],
+            AppMessage::Interview {
+                status: InterviewStatus::Completed,
+                ..
+            }
+        ));
+        assert_eq!(app.messages.len(), initial_len + 1);
+        assert!(matches!(
+            &app.messages[initial_len],
+            AppMessage::System { content }
+                if content.contains("Interview timed out")
         ));
     }
 

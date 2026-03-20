@@ -696,6 +696,15 @@ impl Interviewer for TuiInterviewer {
             .ok_or(InterviewError::Cancelled)
     }
 
+    /// Conduct an interview by sending it to the TUI render loop and
+    /// waiting for the user to submit answers.
+    ///
+    /// Unlike the default sequential `Interviewer::conduct`, the TUI
+    /// presents all questions as a single visual form. When any question
+    /// has a `timeout_seconds`, the whole interview is bounded by the
+    /// maximum timeout across all questions (via
+    /// [`Interview::effective_timeout`]). On expiry, every unanswered
+    /// question receives its [`Question::timeout_answer`].
     async fn conduct(&self, interview: &mut Interview) -> Result<(), InterviewError> {
         let (result_tx, result_rx) = oneshot::channel();
         self.interview_tx
@@ -705,13 +714,34 @@ impl Interviewer for TuiInterviewer {
             })
             .map_err(|_| InterviewError::ChannelClosed)?;
 
-        match result_rx.await {
-            Ok(InterviewResult::Completed(answers)) => {
+        let result = if let Some(duration) = interview.effective_timeout() {
+            match tokio::time::timeout(duration, result_rx).await {
+                Ok(Ok(r)) => r,
+                Ok(Err(_)) => return Err(InterviewError::ChannelClosed),
+                Err(_) => {
+                    // Timeout elapsed: produce Timeout answers (or use
+                    // question defaults) for all questions.
+                    let answers = interview
+                        .questions
+                        .iter()
+                        .map(Question::timeout_answer)
+                        .collect();
+                    InterviewResult::Completed(answers)
+                }
+            }
+        } else {
+            match result_rx.await {
+                Ok(r) => r,
+                Err(_) => return Err(InterviewError::ChannelClosed),
+            }
+        };
+
+        match result {
+            InterviewResult::Completed(answers) => {
                 interview.answers = answers;
                 Ok(())
             }
-            Ok(InterviewResult::Cancelled) => Err(InterviewError::Cancelled),
-            Err(_) => Err(InterviewError::ChannelClosed),
+            InterviewResult::Cancelled => Err(InterviewError::Cancelled),
         }
     }
 }

@@ -270,6 +270,15 @@ impl Interviewer for AwaitableInterviewer {
             ))
     }
 
+    /// Conduct an interview by registering it as pending and waiting for
+    /// answers submitted either in-process or via DB polling.
+    ///
+    /// Unlike the default sequential `Interviewer::conduct`, this
+    /// implementation presents all questions at once (for web/API
+    /// frontends). When any question has a `timeout_seconds`, the whole
+    /// interview is bounded by the maximum timeout across all questions
+    /// (via [`Interview::effective_timeout`]). On expiry, every
+    /// unanswered question receives its [`Question::timeout_answer`].
     async fn conduct(&self, interview: &mut Interview) -> Result<(), InterviewError> {
         if interview.questions.is_empty() {
             return Err(InterviewError::BackendFailure(
@@ -322,17 +331,46 @@ impl Interviewer for AwaitableInterviewer {
         let interview_id = interview.id.clone();
         let mut poll_tick = tokio::time::interval(self.poll_interval);
 
-        let result = loop {
-            tokio::select! {
-                received = &mut rx => {
-                    let submitted = received.map_err(|_| InterviewError::ChannelClosed)?;
-                    break Self::apply_submitted_answers(interview, &question_ids, submitted);
-                }
-                _ = poll_tick.tick() => {
-                    if let Some(submitted) = self.poll_db_answers(&interview_id, question_ids.len())? {
-                        break Self::apply_submitted_answers(interview, &question_ids, submitted);
+        let effective_timeout = interview.effective_timeout();
+        let timeout_answers = interview
+            .questions
+            .iter()
+            .map(Question::timeout_answer)
+            .collect::<Vec<_>>();
+
+        let poll = async {
+            loop {
+                tokio::select! {
+                    received = &mut rx => {
+                        let submitted = received.map_err(|_| InterviewError::ChannelClosed)?;
+                        break Ok(submitted);
+                    }
+                    _ = poll_tick.tick() => {
+                        if let Some(submitted) = self.poll_db_answers(&interview_id, question_ids.len())? {
+                            break Ok(submitted);
+                        }
                     }
                 }
+            }
+        };
+        tokio::pin!(poll);
+
+        let result = if let Some(timeout) = effective_timeout {
+            match tokio::time::timeout(timeout, &mut poll).await {
+                Ok(Ok(submitted)) => {
+                    Self::apply_submitted_answers(interview, &question_ids, submitted)
+                }
+                Ok(Err(error)) => Err(error),
+                Err(_) => {
+                    drop(poll);
+                    interview.answers = timeout_answers;
+                    Ok(())
+                }
+            }
+        } else {
+            match poll.await {
+                Ok(submitted) => Self::apply_submitted_answers(interview, &question_ids, submitted),
+                Err(error) => Err(error),
             }
         };
 

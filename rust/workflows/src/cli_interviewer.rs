@@ -54,8 +54,8 @@ impl Interviewer for CliInterviewer {
     async fn ask(&self, question: &Question) -> Result<Answer, InterviewError> {
         let q = question.clone();
 
-        if let Some(secs) = question.timeout_seconds {
-            let duration = std::time::Duration::from_secs_f64(secs);
+        if let Some(duration) = question.timeout_duration() {
+            let secs = duration.as_secs_f64();
             match tokio::time::timeout(
                 duration,
                 tokio::task::spawn_blocking(move || Self::ask_blocking(&q)),
@@ -71,7 +71,7 @@ impl Interviewer for CliInterviewer {
                     // There is no way to cancel a blocking read; the detached
                     // task will be cleaned up when the process exits.
                     tracing::warn!("CLI prompt timed out after {secs}s; blocking reader detached");
-                    Ok(Answer::new(AnswerValue::Timeout))
+                    Ok(question.timeout_answer())
                 }
             }
         } else {

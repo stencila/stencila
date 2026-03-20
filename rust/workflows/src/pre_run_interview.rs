@@ -664,7 +664,9 @@ digraph test {
                     "expected 30.0 seconds, got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 30.0 }}, got {other:?}"),
+            other => {
+                panic!("gate_timeout should be WaitWithTimeout {{ seconds: 30.0 }}, got {other:?}")
+            }
         }
     }
 
@@ -715,7 +717,9 @@ digraph test {
                     "expected 300.0 seconds for '5m', got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 300.0 }}, got {other:?}"),
+            other => {
+                panic!("gate_timeout should be WaitWithTimeout {{ seconds: 300.0 }}, got {other:?}")
+            }
         }
     }
 
@@ -741,7 +745,9 @@ digraph test {
                     "expected 7200.0 seconds for '2h', got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 7200.0 }}, got {other:?}"),
+            other => panic!(
+                "gate_timeout should be WaitWithTimeout {{ seconds: 7200.0 }}, got {other:?}"
+            ),
         }
     }
 
@@ -1049,7 +1055,9 @@ digraph test {
                     "expected 45.0 seconds, got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 45.0 }}, got {other:?}"),
+            other => {
+                panic!("gate_timeout should be WaitWithTimeout {{ seconds: 45.0 }}, got {other:?}")
+            }
         }
     }
 }
