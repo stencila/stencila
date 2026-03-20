@@ -38,6 +38,7 @@ sha2 = { workspace = true, optional = true }
 stencila-ask = { path = "../ask", optional = true }
 stencila-cli-utils = { path = "../cli-utils", optional = true }
 stencila-secrets = { path = "../secrets", optional = true }
+strum = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

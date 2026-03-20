@@ -2,7 +2,13 @@
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use eyre::Result;
-use stencila_cli_utils::{color_print::cstr, message};
+use stencila_cli_utils::{
+    ToStdout,
+    color_print::cstr,
+    message,
+    tabulated::{Attribute, Cell, Color, Tabulated},
+};
+use strum::{Display, EnumIter, IntoEnumIterator};
 
 use crate::persist;
 
@@ -61,23 +67,16 @@ impl Cli {
 // ---------------------------------------------------------------------------
 
 /// An OAuth-capable AI model provider.
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy, Display, EnumIter, ValueEnum)]
 enum Provider {
+    #[strum(serialize = "Anthropic")]
     Anthropic,
+    #[strum(serialize = "GitHub Copilot")]
     Copilot,
+    #[strum(serialize = "Google Gemini")]
     Gemini,
-    Openai,
-}
-
-impl std::fmt::Display for Provider {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Anthropic => write!(f, "anthropic"),
-            Self::Copilot => write!(f, "copilot"),
-            Self::Gemini => write!(f, "gemini"),
-            Self::Openai => write!(f, "openai"),
-        }
-    }
+    #[strum(serialize = "OpenAI")]
+    OpenAI,
 }
 
 impl Provider {
@@ -86,7 +85,16 @@ impl Provider {
             Self::Anthropic => "anthropic",
             Self::Copilot => "copilot",
             Self::Gemini => "gemini",
-            Self::Openai => "openai",
+            Self::OpenAI => "openai",
+        }
+    }
+
+    fn api_key_name(self) -> Option<&'static str> {
+        match self {
+            Self::Anthropic => Some("ANTHROPIC_API_KEY"),
+            Self::Copilot => None,
+            Self::Gemini => Some("GOOGLE_AI_API_KEY"),
+            Self::OpenAI => Some("OPENAI_API_KEY"),
         }
     }
 }
@@ -111,32 +119,49 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
 impl Status {
     #[allow(clippy::unused_self)]
     fn run(self) -> Result<()> {
-        let providers = [
-            Provider::Anthropic,
-            Provider::Copilot,
-            Provider::Gemini,
-            Provider::Openai,
-        ];
+        let mut table = Tabulated::new();
+        table.set_header(["Provider", "Status", "Details"]);
 
-        let mut any_authenticated = false;
-        for provider in providers {
+        for provider in Provider::iter() {
             let has_oauth = persist::load_credentials(provider.secret_key())?.is_some();
             let detected_source = detect_external_credentials(provider);
 
-            if has_oauth {
-                message!("  {} {}", "\u{2705}", provider);
-                any_authenticated = true;
+            let (status_cell, details_cell) = if has_oauth {
+                (
+                    Cell::new("Authenticated")
+                        .fg(Color::Green)
+                        .add_attribute(Attribute::Bold),
+                    Cell::new("Via OAuth login"),
+                )
             } else if let Some(source) = detected_source {
-                message!("  {} {} <dim>(via {})</>", "\u{2705}", provider, source);
-                any_authenticated = true;
+                (
+                    Cell::new("Authenticated")
+                        .fg(Color::Green)
+                        .add_attribute(Attribute::Bold),
+                    Cell::new(format!("Via {source} OAuth token")),
+                )
             } else {
-                message!("  {} {}", "\u{274c}", provider);
-            }
+                let hint = match provider.api_key_name() {
+                    Some(key) => format!(
+                        "Run `stencila auth login {}` or `stencila secrets set {key}`",
+                        provider.secret_key()
+                    ),
+                    None => format!("Run `stencila auth login {}`", provider.secret_key()),
+                };
+                (
+                    Cell::new("Not authenticated").fg(Color::DarkGrey),
+                    Cell::new(hint).fg(Color::DarkGrey),
+                )
+            };
+
+            table.add_row([
+                Cell::new(provider.to_string()).add_attribute(Attribute::Bold),
+                status_cell,
+                details_cell,
+            ]);
         }
 
-        if !any_authenticated {
-            message("\n\u{1f4a1} To login, run *stencila auth login PROVIDER*");
-        }
+        table.to_stdout();
 
         Ok(())
     }
@@ -148,7 +173,7 @@ impl Status {
 fn detect_external_credentials(provider: Provider) -> Option<&'static str> {
     match provider {
         Provider::Anthropic => crate::claude_code::load_credentials().map(|_| "Claude Code"),
-        Provider::Openai => crate::codex_cli::load_credentials().map(|_| "Codex CLI"),
+        Provider::OpenAI => crate::codex_cli::load_credentials().map(|_| "Codex CLI"),
         _ => None,
     }
 }
@@ -203,7 +228,7 @@ impl Login {
                 message!("\u{2705} Logged in to Google Gemini");
             }
             #[cfg(feature = "openai")]
-            Provider::Openai => {
+            Provider::OpenAI => {
                 message!("\u{1f310} Starting OpenAI OAuth login...");
                 crate::openai::login().await?;
                 message!("\u{2705} Logged in to OpenAI");
