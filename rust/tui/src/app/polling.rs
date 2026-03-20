@@ -580,7 +580,10 @@ impl App {
                         delegation.instruction
                     };
                     if !goal.is_empty() {
-                        self.submit_workflow_goal(goal);
+                        self.submit_workflow_goal(
+                            goal,
+                            stencila_workflows::GateTimeoutConfig::default(),
+                        );
                     }
                 } else {
                     self.messages.push(AppMessage::System {

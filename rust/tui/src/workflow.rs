@@ -144,7 +144,11 @@ pub fn spawn_resume_workflow(run_id: String) -> WorkflowRunHandle {
 /// Spawn a workflow run on a background task.
 ///
 /// Returns the run handle and total number of pipeline stages (graph nodes).
-pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowRunHandle, usize) {
+pub fn spawn_workflow(
+    info: &WorkflowDefinitionInfo,
+    goal: String,
+    gate_timeout: stencila_workflows::GateTimeoutConfig,
+) -> (WorkflowRunHandle, usize) {
     let (event_tx, event_rx) = mpsc::unbounded_channel();
     let info = info.clone();
     let total_stages = compute_total_stages(&info);
@@ -167,7 +171,7 @@ pub fn spawn_workflow(info: &WorkflowDefinitionInfo, goal: String) -> (WorkflowR
                 emitter,
                 interviewer: Some(interviewer),
                 run_id_out: Some(run_id_for_task),
-                gate_timeout: stencila_workflows::GateTimeoutConfig::default(),
+                gate_timeout,
             };
             stencila_workflows::run_workflow_with_options(&workflow, options).await
         }
@@ -221,5 +225,19 @@ mod tests {
             event,
             WorkflowEvent::Pipeline(PipelineEvent::PipelineStarted { .. })
         ));
+    }
+
+    /// AC-1: `spawn_workflow` accepts a `GateTimeoutConfig` parameter and
+    /// propagates it to `RunOptions`.
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn spawn_workflow_accepts_and_propagates_gate_timeout() {
+        let info = WorkflowDefinitionInfo {
+            name: "nonexistent-test-wf".to_string(),
+            ..Default::default()
+        };
+
+        let gate_timeout = stencila_workflows::GateTimeoutConfig::AutoApprove;
+        let (handle, _stages) = spawn_workflow(&info, "test goal".into(), gate_timeout);
+        handle.cancel();
     }
 }

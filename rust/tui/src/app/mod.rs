@@ -222,6 +222,29 @@ pub struct ActiveWorkflow {
     pub save_prompt_pending: bool,
 }
 
+impl ActiveWorkflow {
+    /// Create a new `ActiveWorkflow` in the `Pending` state with all
+    /// runtime fields zeroed out. Used by both `activate_workflow` and
+    /// `resume_workflow` to avoid duplicating the struct literal.
+    fn new_pending(info: WorkflowDefinitionInfo) -> Self {
+        Self {
+            is_ephemeral: crate::workflow::is_ephemeral_workflow(&info.name),
+            save_prompt_pending: false,
+            info,
+            state: ActiveWorkflowState::Pending,
+            run_handle: None,
+            current_exchange_msg_index: None,
+            current_stage_progress: None,
+            workflow_status_msg_index: None,
+            stage_status_msg_index: None,
+            in_parallel: false,
+            parallel_stages: HashMap::new(),
+            parallel_had_failure: false,
+            pipeline_depth: 0,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum ActiveWorkflowState {

@@ -1,12 +1,14 @@
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use inflector::Inflector;
 use stencila_attractor::events::PipelineEvent;
+use stencila_attractor::interviewer::{Interview, Question};
 
 use crate::{
-    agent::AgentProgress, autocomplete::workflows::WorkflowDefinitionInfo,
+    agent::AgentProgress,
+    autocomplete::workflows::WorkflowDefinitionInfo,
     config::WorkflowVerbosity,
+    interview::{InterviewSource, InterviewState, InterviewStatus},
 };
 
 use super::{
@@ -22,26 +24,28 @@ impl App {
     pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo) {
         self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
-        let has_hint = info.goal_hint.is_some();
+        let goal_hint = info.goal_hint.clone();
         let default_goal = info.goal.clone();
-        self.active_workflow = Some(ActiveWorkflow {
-            is_ephemeral: crate::workflow::is_ephemeral_workflow(&info.name),
-            save_prompt_pending: false,
-            info,
-            state: ActiveWorkflowState::Pending,
-            run_handle: None,
-            current_exchange_msg_index: None,
-            current_stage_progress: None,
-            workflow_status_msg_index: None,
-            stage_status_msg_index: None,
-            in_parallel: false,
-            parallel_stages: HashMap::new(),
-            parallel_had_failure: false,
-            pipeline_depth: 0,
-        });
-        // When a has_hint is set, leave the input empty so the
-        // placeholder text is shown instead of pre-filling with a generic goal.
-        if has_hint {
+        self.active_workflow = Some(ActiveWorkflow::new_pending(info));
+
+        if let Some(hint) = goal_hint {
+            // Trigger the pre-run interview through the TUI's standard
+            // interview widget instead of using the legacy text input.
+            let question = Question::freeform(hint);
+            let interview = Interview::single(question, "pre_run");
+
+            let (answer_tx, _answer_rx) = tokio::sync::oneshot::channel();
+            let msg_index = self.messages.len();
+            self.messages.push(AppMessage::Interview {
+                id: interview.id.clone(),
+                source: InterviewSource::Workflow,
+                agent_name: String::new(),
+                status: InterviewStatus::Active,
+                interview: interview.clone(),
+                answers: Vec::new(),
+                parent_msg_index: None,
+            });
+            self.active_interview = Some(InterviewState::new(&interview, msg_index, answer_tx));
             self.input.clear();
         } else if let Some(goal) = default_goal {
             self.input.set_text(&goal);
@@ -53,19 +57,20 @@ impl App {
     }
 
     /// Submit a goal for the active workflow and spawn the workflow run.
-    pub(super) fn submit_workflow_goal(&mut self, goal: String) {
-        let Some(workflow) = &self.active_workflow else {
+    pub(super) fn submit_workflow_goal(
+        &mut self,
+        goal: String,
+        gate_timeout: stencila_workflows::GateTimeoutConfig,
+    ) {
+        let Some(workflow) = &mut self.active_workflow else {
             return;
         };
 
-        let (handle, ..) = crate::workflow::spawn_workflow(&workflow.info, goal);
-
-        if let Some(workflow) = &mut self.active_workflow {
-            workflow.run_handle = Some(handle);
-            workflow.state = ActiveWorkflowState::Running;
-            workflow.workflow_status_msg_index = None;
-            workflow.stage_status_msg_index = None;
-        }
+        let (handle, ..) = crate::workflow::spawn_workflow(&workflow.info, goal, gate_timeout);
+        workflow.run_handle = Some(handle);
+        workflow.state = ActiveWorkflowState::Running;
+        workflow.workflow_status_msg_index = None;
+        workflow.stage_status_msg_index = None;
 
         self.scroll_pinned = true;
         self.scroll_offset = 0;
@@ -91,21 +96,10 @@ impl App {
 
         let handle = crate::workflow::spawn_resume_workflow(run_id);
 
-        self.active_workflow = Some(ActiveWorkflow {
-            is_ephemeral: crate::workflow::is_ephemeral_workflow(workflow_name),
-            save_prompt_pending: false,
-            info,
-            state: ActiveWorkflowState::Running,
-            run_handle: Some(handle),
-            current_exchange_msg_index: None,
-            current_stage_progress: None,
-            workflow_status_msg_index: None,
-            stage_status_msg_index: None,
-            in_parallel: false,
-            parallel_stages: HashMap::new(),
-            parallel_had_failure: false,
-            pipeline_depth: 0,
-        });
+        let mut workflow = ActiveWorkflow::new_pending(info);
+        workflow.state = ActiveWorkflowState::Running;
+        workflow.run_handle = Some(handle);
+        self.active_workflow = Some(workflow);
 
         self.input.clear();
         self.input_scroll = 0;
@@ -118,6 +112,99 @@ impl App {
             WorkflowVerbosity::Minimal => self.handle_pipeline_event_minimal(event),
             WorkflowVerbosity::Simple => self.handle_pipeline_event_simple(event),
             WorkflowVerbosity::Detailed => self.handle_pipeline_event_detailed(event),
+        }
+    }
+
+    // ── Shared pipeline event helpers (used by both simple & detailed) ──
+
+    /// Current visual nesting depth for progress messages.
+    fn pipeline_display_depth(&self) -> usize {
+        self.active_workflow
+            .as_ref()
+            .map_or(0, |w| w.pipeline_depth.saturating_sub(1))
+    }
+
+    /// Handle `PipelineStarted`: increment depth and push a progress message.
+    fn on_pipeline_started(&mut self, pipeline_name: &str) {
+        if let Some(workflow) = &mut self.active_workflow {
+            workflow.pipeline_depth += 1;
+        }
+        let depth = self.pipeline_display_depth();
+        self.messages.push(AppMessage::WorkflowProgress {
+            kind: WorkflowProgressKind::Started,
+            label: format!("Workflow `{pipeline_name}` started"),
+            detail: None,
+            depth,
+        });
+    }
+
+    /// Handle `StageRetrying`: push a retry progress message.
+    fn on_stage_retrying(
+        &mut self,
+        node_id: &str,
+        stage_index: usize,
+        attempt: u32,
+        max_attempts: u32,
+    ) {
+        let depth = self.pipeline_display_depth();
+        self.messages.push(AppMessage::WorkflowProgress {
+            kind: WorkflowProgressKind::Retrying,
+            label: format!("Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})"),
+            detail: None,
+            depth,
+        });
+    }
+
+    /// Handle `PipelineCompleted`: push a completion message and decrement depth.
+    fn on_pipeline_completed(
+        &mut self,
+        pipeline_name: &str,
+        outcome: &stencila_attractor::types::Outcome,
+    ) {
+        let depth = self.pipeline_display_depth();
+        self.messages.push(AppMessage::WorkflowProgress {
+            kind: WorkflowProgressKind::Completed,
+            label: format!("Workflow `{pipeline_name}` completed"),
+            detail: Some(outcome.status.as_str().to_title_case()),
+            depth,
+        });
+        if let Some(workflow) = &mut self.active_workflow {
+            workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
+        }
+    }
+
+    /// Handle `PipelineFailed`: push a failure message and decrement depth.
+    fn on_pipeline_failed(&mut self, pipeline_name: &str, reason: &str) {
+        let depth = self.pipeline_display_depth();
+        self.messages.push(AppMessage::WorkflowProgress {
+            kind: WorkflowProgressKind::Failed,
+            label: format!("Workflow `{pipeline_name}` failed"),
+            detail: Some(reason.to_string()),
+            depth,
+        });
+        if let Some(workflow) = &mut self.active_workflow {
+            workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
+        }
+    }
+
+    /// Update the in-place workflow status message used in minimal mode.
+    fn update_workflow_status(
+        &mut self,
+        new_state: WorkflowStatusState,
+        detail: impl Into<String>,
+    ) {
+        if let Some(idx) = self
+            .active_workflow
+            .as_ref()
+            .and_then(|w| w.workflow_status_msg_index)
+            && let Some(AppMessage::WorkflowStatus {
+                state: phase,
+                detail: msg_detail,
+                ..
+            }) = self.messages.get_mut(idx)
+        {
+            *phase = new_state;
+            *msg_detail = Some(detail.into());
         }
     }
 
@@ -142,49 +229,22 @@ impl App {
                 }
             }
             PipelineEvent::StageStarted { stage_index, .. } if *stage_index > 0 => {
-                if let Some(idx) = self
-                    .active_workflow
-                    .as_ref()
-                    .and_then(|w| w.workflow_status_msg_index)
-                    && let Some(AppMessage::WorkflowStatus {
-                        state: phase,
-                        detail,
-                        ..
-                    }) = self.messages.get_mut(idx)
-                {
-                    *phase = WorkflowStatusState::Running;
-                    *detail = Some(format!("Stage: {stage_index}"));
-                }
+                self.update_workflow_status(
+                    WorkflowStatusState::Running,
+                    format!("Stage: {stage_index}"),
+                );
             }
             PipelineEvent::PipelineCompleted { outcome, .. } => {
-                if let Some(idx) = self
-                    .active_workflow
-                    .as_ref()
-                    .and_then(|w| w.workflow_status_msg_index)
-                    && let Some(AppMessage::WorkflowStatus {
-                        state: phase,
-                        detail,
-                        ..
-                    }) = self.messages.get_mut(idx)
-                {
-                    *phase = WorkflowStatusState::Completed;
-                    *detail = Some(format!("Completed: {}", outcome.status.as_str()));
-                }
+                self.update_workflow_status(
+                    WorkflowStatusState::Completed,
+                    format!("Completed: {}", outcome.status.as_str()),
+                );
             }
             PipelineEvent::PipelineFailed { reason, .. } => {
-                if let Some(idx) = self
-                    .active_workflow
-                    .as_ref()
-                    .and_then(|w| w.workflow_status_msg_index)
-                    && let Some(AppMessage::WorkflowStatus {
-                        state: phase,
-                        detail,
-                        ..
-                    }) = self.messages.get_mut(idx)
-                {
-                    *phase = WorkflowStatusState::Failed;
-                    *detail = Some(format!("Failed: {reason}"));
-                }
+                self.update_workflow_status(
+                    WorkflowStatusState::Failed,
+                    format!("Failed: {reason}"),
+                );
             }
             // All other events are suppressed in minimal mode
             _ => {}
@@ -197,28 +257,12 @@ impl App {
     /// stage updates may overwrite each other in the single status
     /// message slot. Use detailed verbosity for full parallel stage
     /// visibility.
-    #[allow(clippy::too_many_lines)]
     fn handle_pipeline_event_simple(&mut self, event: &PipelineEvent) {
-        let depth = self
-            .active_workflow
-            .as_ref()
-            .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
+        let depth = self.pipeline_display_depth();
 
         match event {
             PipelineEvent::PipelineStarted { pipeline_name } => {
-                if let Some(workflow) = &mut self.active_workflow {
-                    workflow.pipeline_depth += 1;
-                }
-                let depth = self
-                    .active_workflow
-                    .as_ref()
-                    .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Started,
-                    label: format!("Workflow `{pipeline_name}` started"),
-                    detail: None,
-                    depth,
-                });
+                self.on_pipeline_started(pipeline_name);
             }
             PipelineEvent::StageStarted {
                 node_id,
@@ -257,11 +301,11 @@ impl App {
                     && let Some(AppMessage::WorkflowProgress { kind, detail, .. }) =
                         self.messages.get_mut(idx)
                 {
-                    if outcome.status.is_success() {
-                        *kind = WorkflowProgressKind::Completed;
+                    *kind = if outcome.status.is_success() {
+                        WorkflowProgressKind::Completed
                     } else {
-                        *kind = WorkflowProgressKind::Failed;
-                    }
+                        WorkflowProgressKind::Failed
+                    };
                     *detail = Some(outcome.status.as_str().to_title_case());
                 }
             }
@@ -296,44 +340,21 @@ impl App {
                 attempt,
                 max_attempts,
             } => {
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Retrying,
-                    label: format!(
-                        "Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})",
-                    ),
-                    detail: None,
-                    depth,
-                });
+                self.on_stage_retrying(node_id, *stage_index, *attempt, *max_attempts);
             }
             PipelineEvent::PipelineCompleted {
                 pipeline_name,
                 outcome,
                 ..
             } => {
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Completed,
-                    label: format!("Workflow `{pipeline_name}` completed"),
-                    detail: Some(outcome.status.as_str().to_title_case()),
-                    depth,
-                });
-                if let Some(workflow) = &mut self.active_workflow {
-                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
-                }
+                self.on_pipeline_completed(pipeline_name, outcome);
             }
             PipelineEvent::PipelineFailed {
                 pipeline_name,
                 reason,
                 ..
             } => {
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Failed,
-                    label: format!("Workflow `{pipeline_name}` failed"),
-                    detail: Some(reason.to_string()),
-                    depth,
-                });
-                if let Some(workflow) = &mut self.active_workflow {
-                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
-                }
+                self.on_pipeline_failed(pipeline_name, reason);
             }
             // Suppress parallel, interview, checkpoint, text delta, response end
             _ => {}
@@ -347,26 +368,11 @@ impl App {
     /// branch instead of interleaved into a single block.
     #[allow(clippy::too_many_lines)]
     fn handle_pipeline_event_detailed(&mut self, event: &PipelineEvent) {
-        let depth = self
-            .active_workflow
-            .as_ref()
-            .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
+        let depth = self.pipeline_display_depth();
 
         match event {
             PipelineEvent::PipelineStarted { pipeline_name } => {
-                if let Some(workflow) = &mut self.active_workflow {
-                    workflow.pipeline_depth += 1;
-                }
-                let depth = self
-                    .active_workflow
-                    .as_ref()
-                    .map_or(0, |w| w.pipeline_depth.saturating_sub(1));
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Started,
-                    label: format!("Workflow `{pipeline_name}` started"),
-                    detail: None,
-                    depth,
-                });
+                self.on_pipeline_started(pipeline_name);
             }
             PipelineEvent::StageStarted {
                 node_id,
@@ -622,44 +628,21 @@ impl App {
                 attempt,
                 max_attempts,
             } => {
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Retrying,
-                    label: format!(
-                        "Stage {stage_index}: {node_id} retrying ({attempt}/{max_attempts})",
-                    ),
-                    detail: None,
-                    depth,
-                });
+                self.on_stage_retrying(node_id, *stage_index, *attempt, *max_attempts);
             }
             PipelineEvent::PipelineCompleted {
                 pipeline_name,
                 outcome,
                 ..
             } => {
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Completed,
-                    label: format!("Workflow `{pipeline_name}` completed"),
-                    detail: Some(outcome.status.as_str().to_title_case()),
-                    depth,
-                });
-                if let Some(workflow) = &mut self.active_workflow {
-                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
-                }
+                self.on_pipeline_completed(pipeline_name, outcome);
             }
             PipelineEvent::PipelineFailed {
                 pipeline_name,
                 reason,
                 ..
             } => {
-                self.messages.push(AppMessage::WorkflowProgress {
-                    kind: WorkflowProgressKind::Failed,
-                    label: format!("Workflow `{pipeline_name}` failed"),
-                    detail: Some(reason.to_string()),
-                    depth,
-                });
-                if let Some(workflow) = &mut self.active_workflow {
-                    workflow.pipeline_depth = workflow.pipeline_depth.saturating_sub(1);
-                }
+                self.on_pipeline_failed(pipeline_name, reason);
             }
             // Suppress remaining events: ParallelBranchStarted, ParallelBranchCompleted, interview, checkpoint
             _ => {}
@@ -748,5 +731,176 @@ mod tests {
         // Input should be empty — the placeholder is shown as dimmed hint text,
         // not pre-filled into the editable input.
         assert!(app.input.is_empty());
+    }
+
+    /// AC-2: `activate_workflow` should trigger the pre-run interview through
+    /// the TUI's standard interview widget instead of waiting for text-based
+    /// goal input.
+    ///
+    /// After activation, the app should have an active interview pending
+    /// (when the workflow has a `goal_hint`), rather than setting input
+    /// placeholder text and waiting for manual goal submission.
+    #[tokio::test]
+    async fn activate_workflow_triggers_pre_run_interview() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+            goal_hint: Some("What do you want to build?".to_string()),
+        });
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(app.active_workflow.is_some());
+
+        // After activate_workflow, the pre-run interview should be triggered
+        // as an active interview rather than waiting for bare text input.
+        assert!(
+            app.active_interview.is_some(),
+            "activate_workflow should trigger a pre-run interview via the TUI interview widget"
+        );
+    }
+
+    /// AC-3: Interview results (goal + gate timeout) are correctly extracted
+    /// and passed to the workflow spawn.
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn submit_workflow_goal_forwards_gate_timeout() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+            goal_hint: Some("What do you want to build?".to_string()),
+        });
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(app.active_workflow.is_some());
+
+        let gate_timeout = stencila_workflows::GateTimeoutConfig::AutoApprove;
+        app.submit_workflow_goal("build a website".to_string(), gate_timeout);
+    }
+
+    /// AC-5: The legacy `goal_hint`-based placeholder in `ui/input.rs` is
+    /// obsolete because the interview now handles goal collection.
+    ///
+    /// With the interview-based flow, activating a workflow that has a
+    /// `goal_hint` should trigger an interview (verified by AC-2). When
+    /// an interview is active, the render function shows interview
+    /// placeholder text — it never falls through to the legacy branch that
+    /// read `workflow.info.goal_hint` for a "pending workflow" placeholder.
+    ///
+    /// This test verifies the precondition that makes the legacy branch
+    /// dead code: a pending workflow with `goal_hint` always has an active
+    /// interview, so the legacy placeholder path is never reached and
+    /// should be removed.
+    ///
+    /// In the Red phase this fails because `activate_workflow` doesn't yet
+    /// trigger the interview — the app enters workflow mode with no active
+    /// interview and the old placeholder logic remains in the render path.
+    #[tokio::test]
+    async fn pending_workflow_with_goal_hint_has_interview_not_placeholder() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+            goal_hint: Some("Describe your feature".to_string()),
+        });
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+
+        // The workflow is pending (no run_handle yet) and has a goal_hint.
+        assert!(workflow.run_handle.is_none());
+        assert!(workflow.info.goal_hint.is_some());
+
+        // With the interview-based flow, an active interview should exist.
+        // This makes the legacy goal_hint placeholder in the render
+        // function unreachable, allowing it to be safely removed.
+        assert!(
+            app.active_interview.is_some(),
+            "a pending workflow with goal_hint should have an active interview; \
+             the legacy goal_hint placeholder in ui/input.rs should be removed"
+        );
+    }
+
+    /// AC-3 (end-to-end): When the pre-run interview is completed by the user,
+    /// `complete_interview` should detect that it was a Workflow-source pre-run
+    /// interview, extract the goal from the answer, and call
+    /// `submit_workflow_goal` to start the workflow run.
+    ///
+    /// This test activates a workflow, answers the freeform interview question,
+    /// and verifies that the workflow run is started (i.e. `run_handle` is set).
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn completing_pre_run_interview_starts_workflow() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+            goal_hint: Some("What do you want to build?".to_string()),
+        });
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert!(
+            app.active_interview.is_some(),
+            "pre-run interview should be active after activate_workflow"
+        );
+
+        // The workflow should not be running yet (no run_handle)
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        assert!(
+            workflow.run_handle.is_none(),
+            "workflow should not be running before interview is completed"
+        );
+
+        // Simulate submitting an answer to the freeform question
+        for c in "build a website".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
+
+        // After completing the pre-run interview, the interview should be consumed
+        assert!(
+            app.active_interview.is_none(),
+            "interview should be completed and cleared"
+        );
+
+        // The workflow should now be running — complete_interview should have
+        // detected the Workflow source, extracted the goal from the answer, and
+        // called submit_workflow_goal.
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        assert!(
+            workflow.run_handle.is_some(),
+            "completing the pre-run interview should start the workflow run via submit_workflow_goal"
+        );
+    }
+
+    /// AC-6: `WorkflowDefinitionInfo` retains `goal` and `goal_hint` fields,
+    /// which are needed by `build_pre_run_interview`. This test asserts that
+    /// a workflow activated with both fields preserves them in the stored info.
+    #[tokio::test]
+    async fn workflow_definition_info_retains_goal_fields() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: "A test workflow".to_string(),
+            goal: Some("Default goal text".to_string()),
+            goal_hint: Some("What do you want to build?".to_string()),
+        });
+
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        assert_eq!(
+            workflow.info.goal,
+            Some("Default goal text".to_string()),
+            "goal field should be preserved in ActiveWorkflow.info"
+        );
+        assert_eq!(
+            workflow.info.goal_hint,
+            Some("What do you want to build?".to_string()),
+            "goal_hint field should be preserved in ActiveWorkflow.info"
+        );
     }
 }

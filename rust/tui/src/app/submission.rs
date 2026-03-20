@@ -1,7 +1,9 @@
+use stencila_attractor::interviewer::AnswerValue;
+
 use crate::{
     agent::AgentHandle,
     commands::{ParsedCommand, parse_command},
-    interview::{InterviewResult, InterviewStatus},
+    interview::{InterviewResult, InterviewSource, InterviewStatus},
 };
 
 use super::{App, AppMessage, AppMode, ExchangeKind, ExchangeStatus};
@@ -87,32 +89,6 @@ impl App {
         if self.active_interview.is_some() {
             self.submit_interview_answer(&text);
             return;
-        }
-
-        if self.mode == AppMode::Workflow {
-            // Workflow goal submission: when in workflow mode and not yet running,
-            // empty input uses the default goal (if available), but only when
-            // no goal_hint is set (a placeholder means the user should
-            // provide their own goal rather than accepting a generic default).
-            if let Some(workflow) = &self.active_workflow
-                && workflow.run_handle.is_none()
-            {
-                let goal = if text.trim().is_empty() {
-                    if workflow.info.goal_hint.is_some() {
-                        None
-                    } else {
-                        workflow.info.goal.clone()
-                    }
-                } else {
-                    Some(text.clone())
-                };
-
-                if let Some(goal) = goal {
-                    self.submit_workflow_goal(goal);
-                }
-                // If no goal provided and no default, do nothing (keep waiting)
-                return;
-            }
         }
 
         // Empty input (outside of interview/workflow contexts) is a no-op.
@@ -322,12 +298,16 @@ impl App {
         if let Some(mut state) = self.active_interview.take() {
             let msg_idx = state.msg_index;
 
-            // Get questions from the message to finalize answers
-            let questions = if let Some(AppMessage::Interview { id, interview, .. }) =
-                self.messages.get(msg_idx)
+            // Get questions and source from the message to finalize answers
+            let (questions, source) = if let Some(AppMessage::Interview {
+                id,
+                interview,
+                source,
+                ..
+            }) = self.messages.get(msg_idx)
             {
                 debug_assert_eq!(id, &state.interview_id, "interview ID mismatch");
-                interview.questions.clone()
+                (interview.questions.clone(), source.clone())
             } else {
                 return;
             };
@@ -347,11 +327,24 @@ impl App {
             }) = self.messages.get_mut(msg_idx)
             {
                 *status = InterviewStatus::Completed;
-                *msg_answers = answers;
+                msg_answers.clone_from(&answers);
             }
 
             self.interview_cancel_confirm = false;
             self.interview_preview_input.clear();
+
+            // If this was a pre-run workflow interview, extract the goal
+            // from the first answer and start the workflow.
+            if matches!(source, InterviewSource::Workflow) {
+                let goal = answers
+                    .first()
+                    .and_then(|a| match &a.value {
+                        AnswerValue::Text(text) => Some(text.clone()),
+                        _ => None,
+                    })
+                    .unwrap_or_default();
+                self.submit_workflow_goal(goal, stencila_workflows::GateTimeoutConfig::default());
+            }
         }
     }
 
@@ -766,5 +759,55 @@ mod tests {
         // Should have spawned a command immediately
         assert!(app.messages.len() > initial_msg_count);
         assert!(app.input.is_empty());
+    }
+
+    /// AC-4: Goal submission goes through the interview flow, not the
+    /// legacy direct-submit path.
+    ///
+    /// Previously, when in Workflow mode with no running workflow, pressing
+    /// Enter would submit the input text as a goal via `submit_workflow_goal`
+    /// directly. After the interview-based flow, `activate_workflow` with a
+    /// `goal_hint` triggers a pre-run interview. Typing text and pressing
+    /// Enter completes the interview, which in turn calls
+    /// `submit_workflow_goal` — the workflow starts through the interview
+    /// pipeline, not the removed legacy block.
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn workflow_goal_submitted_via_interview_not_legacy_path() {
+        use crate::autocomplete::workflows::WorkflowDefinitionInfo;
+
+        let mut app = App::new_for_test().await;
+        app.activate_workflow(WorkflowDefinitionInfo {
+            name: "test-wf".to_string(),
+            description: String::new(),
+            goal: None,
+            goal_hint: Some("What do you want to build?".to_string()),
+        });
+        assert_eq!(app.mode, AppMode::Workflow);
+
+        // An interview should be active (not the legacy text input).
+        assert!(
+            app.active_interview.is_some(),
+            "activate_workflow with goal_hint should trigger a pre-run interview"
+        );
+
+        // Type a goal and press Enter to complete the interview.
+        for c in "build a website".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
+
+        // The interview should be consumed, and the workflow should now be
+        // running — started via the interview completion path.
+        assert!(
+            app.active_interview.is_none(),
+            "interview should be completed and cleared"
+        );
+        let workflow = app.active_workflow.as_ref().expect("workflow should exist");
+        assert!(
+            workflow.run_handle.is_some(),
+            "completing the pre-run interview should start the workflow run"
+        );
     }
 }
