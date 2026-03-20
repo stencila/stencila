@@ -154,7 +154,7 @@ async fn test_fan_out_dynamic_shell() {
 /// With `AutoApproveInterviewer` + `GateTimeoutConfig::AutoApprove`,
 /// both interviewer and timeout are set. The key assertion: the child
 /// workflow completes successfully (gate is handled). Without
-/// propagation the child would use `GateTimeoutConfig::Interactive`
+/// propagation the child would use `GateTimeoutConfig::Wait`
 /// (default), meaning only the interviewer handles it. To distinguish,
 /// this test runs with `GateTimeoutConfig::AutoApprove` and verifies
 /// the pipeline succeeds — confirming the parent's config reaches the

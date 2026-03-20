@@ -934,11 +934,11 @@ fn resolve_gate_timeout_config(
         GateTimeoutConfig::AutoApprove
     } else if let Some(duration_str) = auto_approve_after {
         match parse_duration_seconds(duration_str) {
-            Ok(seconds) => GateTimeoutConfig::Timed { seconds },
-            Err(_) => GateTimeoutConfig::Interactive,
+            Ok(seconds) => GateTimeoutConfig::WaitWithTimeout { seconds },
+            Err(_) => GateTimeoutConfig::Wait,
         }
     } else {
-        GateTimeoutConfig::Interactive
+        GateTimeoutConfig::Wait
     }
 }
 
@@ -1089,31 +1089,31 @@ mod tests {
         );
     }
 
-    /// `--auto-approve-after 30s` maps to `GateTimeoutConfig::Timed { seconds: 30.0 }`
+    /// `--auto-approve-after 30s` maps to `GateTimeoutConfig::WaitWithTimeout { seconds: 30.0 }`
     /// via the `resolve_gate_timeout_config` helper.
     #[test]
-    fn auto_approve_after_flag_maps_to_gate_timeout_timed() {
+    fn auto_approve_after_flag_maps_to_gate_timeout_wait_with_timeout() {
         let config = resolve_gate_timeout_config(false, Some("30s"));
         match config {
-            GateTimeoutConfig::Timed { seconds } => {
+            GateTimeoutConfig::WaitWithTimeout { seconds } => {
                 assert!(
                     (seconds - 30.0).abs() < f64::EPSILON,
                     "expected 30.0 seconds, got {seconds}"
                 );
             }
             other => panic!(
-                "--auto-approve-after 30s should map to GateTimeoutConfig::Timed, got {other:?}"
+                "--auto-approve-after 30s should map to GateTimeoutConfig::WaitWithTimeout, got {other:?}"
             ),
         }
     }
 
-    /// Neither flag maps to `GateTimeoutConfig::Interactive` (the default).
+    /// Neither flag maps to `GateTimeoutConfig::Wait` (the default).
     #[test]
-    fn no_flags_maps_to_gate_timeout_interactive() {
+    fn no_flags_maps_to_gate_timeout_wait() {
         let config = resolve_gate_timeout_config(false, None);
         assert!(
-            matches!(config, GateTimeoutConfig::Interactive),
-            "no flags should map to GateTimeoutConfig::Interactive, got {config:?}"
+            matches!(config, GateTimeoutConfig::Wait),
+            "no flags should map to GateTimeoutConfig::Wait, got {config:?}"
         );
     }
 }

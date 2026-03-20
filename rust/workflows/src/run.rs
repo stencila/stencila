@@ -34,6 +34,7 @@ use stencila_attractor::handlers::{
 use stencila_attractor::interviewer::Interviewer;
 use stencila_attractor::types::Outcome;
 use stencila_interviews::PersistentInterviewer;
+use stencila_interviews::spec::OptionSpec;
 
 use crate::WorkflowInstance;
 use crate::handler::WorkflowHandler;
@@ -64,27 +65,37 @@ pub struct RunOptions {
 }
 
 /// Controls how human gates behave during workflow execution.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Default, Debug)]
 pub enum GateTimeoutConfig {
-    /// Wait indefinitely for human input (default).
+    /// Pause at each gate and wait indefinitely for manual approval (default).
     #[default]
-    Interactive,
-    /// Automatically approve all gates with zero timeout.
+    Wait,
+
+    /// Wait for a specified duration before auto-approving.
+    WaitWithTimeout { seconds: f64 },
+
+    /// Automatically approve all gates immediately.
     AutoApprove,
-    /// Auto-approve gates after the given number of seconds.
-    Timed { seconds: f64 },
 }
 
 impl GateTimeoutConfig {
+    /// User-facing label for the `Wait` variant.
+    pub const LABEL_WAIT: &str = "Wait for approval";
+
+    /// User-facing label for the `WaitWithTimeout` variant.
+    pub const LABEL_WAIT_WITH_TIMEOUT: &str = "Wait with timeout";
+
+    /// User-facing label for the `AutoApprove` variant.
+    pub const LABEL_AUTO_APPROVE: &str = "Auto-approve";
+
     /// Serialize this config to a JSON value suitable for writing into the
     /// `internal.gate_timeouts` context key.
     ///
-    /// Returns `None` for `Interactive` (meaning: omit from context).
+    /// Returns `None` for `Wait` (meaning: omit from context).
     pub fn to_context_json(&self) -> Option<serde_json::Value> {
         match self {
-            Self::Interactive => None,
-            Self::AutoApprove => Some(serde_json::json!({"*": 0})),
-            Self::Timed { seconds } => {
+            Self::Wait => None,
+            Self::WaitWithTimeout { seconds } => {
                 let value = if seconds.fract() == 0.0 {
                     serde_json::json!(*seconds as i64)
                 } else {
@@ -92,12 +103,32 @@ impl GateTimeoutConfig {
                 };
                 Some(serde_json::json!({"*": value}))
             }
+            Self::AutoApprove => Some(serde_json::json!({"*": 0})),
         }
+    }
+
+    pub(crate) fn question_options() -> Vec<OptionSpec> {
+        vec![
+            OptionSpec {
+                label: GateTimeoutConfig::LABEL_WAIT.into(),
+                description: Some(
+                    "Pause at each gate and wait indefinitely for manual approval".into(),
+                ),
+            },
+            OptionSpec {
+                label: GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT.into(),
+                description: Some("Wait for a specified duration before auto-approving".into()),
+            },
+            OptionSpec {
+                label: GateTimeoutConfig::LABEL_AUTO_APPROVE.into(),
+                description: Some("Automatically approve all gates immediately".into()),
+            },
+        ]
     }
 }
 
 /// Write `internal.gate_timeouts` into the pipeline context when the
-/// gate-timeout config is non-interactive.
+/// gate-timeout config is not `Wait`.
 fn propagate_gate_timeout(config: &GateTimeoutConfig, context: &Context) {
     if let Some(value) = config.to_context_json() {
         context.set("internal.gate_timeouts", value);
@@ -142,7 +173,7 @@ pub async fn run_workflow_with_options(
         let mut options = options;
 
         let has_cli_goal = workflow.goal.is_some();
-        let has_cli_gate_config = !matches!(options.gate_timeout, GateTimeoutConfig::Interactive);
+        let has_cli_gate_config = !matches!(options.gate_timeout, GateTimeoutConfig::Wait);
 
         if let Some(pre_run) = crate::conduct_pre_run_interview(
             &workflow,
@@ -2237,30 +2268,30 @@ mod tests {
 
     // -- GateTimeoutConfig tests (Phase 1 / Slice 2) --
 
-    /// AC-1: `GateTimeoutConfig` enum exists with `Interactive`, `AutoApprove`,
-    /// and `Timed { seconds: f64 }` variants and derives `Clone`, `Debug`,
-    /// `Default` (defaulting to `Interactive`).
+    /// AC-1: `GateTimeoutConfig` enum exists with `Wait`, `AutoApprove`,
+    /// and `WaitWithTimeout { seconds: f64 }` variants and derives `Clone`, `Debug`,
+    /// `Default` (defaulting to `Wait`).
     #[test]
     fn gate_timeout_config_has_expected_variants_and_derives() {
         // Construct each variant to verify they exist.
-        let interactive = GateTimeoutConfig::Interactive;
+        let wait = GateTimeoutConfig::Wait;
         let auto_approve = GateTimeoutConfig::AutoApprove;
-        let timed = GateTimeoutConfig::Timed { seconds: 30.0 };
+        let timed = GateTimeoutConfig::WaitWithTimeout { seconds: 30.0 };
 
-        // Verify Default is Interactive.
+        // Verify Default is Wait.
         let default_config = GateTimeoutConfig::default();
         assert!(
-            matches!(default_config, GateTimeoutConfig::Interactive),
-            "GateTimeoutConfig::default() should be Interactive"
+            matches!(default_config, GateTimeoutConfig::Wait),
+            "GateTimeoutConfig::default() should be Wait"
         );
 
         // Verify Clone.
-        let _cloned = interactive.clone();
+        let _cloned = wait.clone();
         let _cloned = auto_approve.clone();
         let _cloned = timed.clone();
 
         // Verify Debug.
-        let debug_str = format!("{interactive:?}");
+        let debug_str = format!("{wait:?}");
         assert!(
             !debug_str.is_empty(),
             "Debug should produce non-empty output"
@@ -2284,10 +2315,10 @@ mod tests {
         );
     }
 
-    /// AC-2 (cont): `RunOptions` with default gate_timeout (Interactive) still
+    /// AC-2 (cont): `RunOptions` with default gate_timeout (Wait) still
     /// works at the `run_workflow` convenience wrapper construction site.
     #[test]
-    fn run_options_defaults_gate_timeout_to_interactive() {
+    fn run_options_defaults_gate_timeout_to_wait() {
         let options = RunOptions {
             emitter: Arc::new(stencila_attractor::events::NoOpEmitter),
             interviewer: None,
@@ -2296,20 +2327,20 @@ mod tests {
         };
 
         assert!(
-            matches!(options.gate_timeout, GateTimeoutConfig::Interactive),
-            "default gate_timeout should be Interactive"
+            matches!(options.gate_timeout, GateTimeoutConfig::Wait),
+            "default gate_timeout should be Wait"
         );
     }
 
-    /// AC-4: `GateTimeoutConfig::Interactive` serializes to empty/omit for
+    /// AC-4: `GateTimeoutConfig::Wait` serializes to empty/omit for
     /// context — `to_context_json()` returns `None`.
     #[test]
-    fn gate_timeout_interactive_serializes_to_none() {
-        let config = GateTimeoutConfig::Interactive;
+    fn gate_timeout_wait_serializes_to_none() {
+        let config = GateTimeoutConfig::Wait;
         let json = config.to_context_json();
         assert!(
             json.is_none(),
-            "Interactive should serialize to None (omit from context), got {json:?}"
+            "Wait should serialize to None (omit from context), got {json:?}"
         );
     }
 
@@ -2328,32 +2359,32 @@ mod tests {
         );
     }
 
-    /// AC-6: `GateTimeoutConfig::Timed { seconds: 30.0 }` serializes to
+    /// AC-6: `GateTimeoutConfig::WaitWithTimeout { seconds: 30.0 }` serializes to
     /// `{{"*": 30}}` for context.
     #[test]
-    fn gate_timeout_timed_serializes_to_star_seconds() {
-        let config = GateTimeoutConfig::Timed { seconds: 30.0 };
+    fn gate_timeout_wait_with_timeout_serializes_to_star_seconds() {
+        let config = GateTimeoutConfig::WaitWithTimeout { seconds: 30.0 };
         let json = config.to_context_json();
-        assert!(json.is_some(), "Timed should produce Some(...)");
+        assert!(json.is_some(), "WaitWithTimeout should produce Some(...)");
         let value = json.expect("should be Some");
         let expected: serde_json::Value = serde_json::json!({"*": 30});
         assert_eq!(
             value, expected,
-            "Timed {{ seconds: 30.0 }} should serialize to {{\"*\": 30}}, got {value}"
+            "WaitWithTimeout {{ seconds: 30.0 }} should serialize to {{\"*\": 30}}, got {value}"
         );
     }
 
-    /// AC-6 (cont): Timed with fractional seconds preserves the value.
+    /// AC-6 (cont): WaitWithTimeout with fractional seconds preserves the value.
     #[test]
-    fn gate_timeout_timed_fractional_seconds() {
-        let config = GateTimeoutConfig::Timed { seconds: 15.5 };
+    fn gate_timeout_wait_with_timeout_fractional_seconds() {
+        let config = GateTimeoutConfig::WaitWithTimeout { seconds: 15.5 };
         let json = config.to_context_json();
-        assert!(json.is_some(), "Timed should produce Some(...)");
+        assert!(json.is_some(), "WaitWithTimeout should produce Some(...)");
         let value = json.expect("should be Some");
         let expected: serde_json::Value = serde_json::json!({"*": 15.5});
         assert_eq!(
             value, expected,
-            "Timed {{ seconds: 15.5 }} should serialize to {{\"*\": 15.5}}, got {value}"
+            "WaitWithTimeout {{ seconds: 15.5 }} should serialize to {{\"*\": 15.5}}, got {value}"
         );
     }
 
@@ -2384,40 +2415,40 @@ mod tests {
     }
 
     /// AC-7 (cont): `propagate_gate_timeout` writes `internal.gate_timeouts`
-    /// into context for `Timed` config.
+    /// into context for `WaitWithTimeout` config.
     #[test]
-    fn propagate_gate_timeout_writes_timed_to_context() {
+    fn propagate_gate_timeout_writes_wait_with_timeout_to_context() {
         let context = stencila_attractor::context::Context::new();
-        let config = GateTimeoutConfig::Timed { seconds: 45.0 };
+        let config = GateTimeoutConfig::WaitWithTimeout { seconds: 45.0 };
 
         propagate_gate_timeout(&config, &context);
 
         let value = context.get("internal.gate_timeouts");
         assert!(
             value.is_some(),
-            "Timed should write internal.gate_timeouts to context"
+            "WaitWithTimeout should write internal.gate_timeouts to context"
         );
         let expected: serde_json::Value = serde_json::json!({"*": 45});
         assert_eq!(
             value.expect("should be Some"),
             expected,
-            "internal.gate_timeouts should be {{\"*\": 45}} for Timed {{ seconds: 45.0 }}"
+            "internal.gate_timeouts should be {{\"*\": 45}} for WaitWithTimeout {{ seconds: 45.0 }}"
         );
     }
 
     /// AC-7 (cont): `propagate_gate_timeout` does NOT write
-    /// `internal.gate_timeouts` for `Interactive` config (omit).
+    /// `internal.gate_timeouts` for `Wait` config (omit).
     #[test]
-    fn propagate_gate_timeout_omits_interactive_from_context() {
+    fn propagate_gate_timeout_omits_wait_from_context() {
         let context = stencila_attractor::context::Context::new();
-        let config = GateTimeoutConfig::Interactive;
+        let config = GateTimeoutConfig::Wait;
 
         propagate_gate_timeout(&config, &context);
 
         let value = context.get("internal.gate_timeouts");
         assert!(
             value.is_none(),
-            "Interactive should not write internal.gate_timeouts to context, \
+            "Wait should not write internal.gate_timeouts to context, \
              but found {value:?}"
         );
     }

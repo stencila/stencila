@@ -4,7 +4,7 @@
 //! interview to the user to gather:
 //! 1. A goal (when the workflow has `goal_hint` but no fixed `goal`)
 //! 2. A gate-timeout mode (when the pipeline contains human gates)
-//! 3. A duration (when the user chooses "Timed" mode)
+//! 3. A duration (when the user chooses "Wait with timeout" mode)
 //!
 //! [`build_pre_run_interview`] constructs an [`InterviewSpec`] containing
 //! only the questions relevant to the given workflow and CLI configuration.
@@ -15,16 +15,18 @@
 use eyre::{Result, bail};
 use stencila_interviews::conduct::{ConductedInterview, conduct_conditional};
 use stencila_interviews::interviewer::{Interviewer, canonical_answer_string};
-use stencila_interviews::spec::{InterviewSpec, OptionSpec, QuestionSpec, QuestionTypeSpec};
+use stencila_interviews::spec::{InterviewSpec, QuestionSpec, QuestionTypeSpec};
 
 use crate::GateTimeoutConfig;
 use crate::WorkflowInstance;
 
 /// Store key for the user-provided goal answer.
 const STORE_GOAL: &str = "pre_run.goal";
-/// Store key for the gate-mode selection (Interactive / Auto-approve / Timed).
+
+/// Store key for the gate-mode selection.
 const STORE_GATE_MODE: &str = "pre_run.gate_mode";
-/// Store key for the duration when gate mode is Timed.
+
+/// Store key for the duration when gate mode is WaitWithTimeout.
 const STORE_GATE_DURATION: &str = "pre_run.gate_duration";
 
 /// Build an [`InterviewSpec`] for the pre-run interview, or `None` if all
@@ -63,16 +65,10 @@ pub fn build_pre_run_interview(
 
     if has_gates && !has_cli_gate_config {
         questions.push(QuestionSpec {
-            question: "How should human gates be handled?".into(),
+            question: "How should human approval gates in the workflow be handled?".into(),
             r#type: QuestionTypeSpec::SingleSelect,
             store: Some(STORE_GATE_MODE.into()),
-            options: ["Interactive", "Auto-approve", "Timed"]
-                .into_iter()
-                .map(|label| OptionSpec {
-                    label: label.into(),
-                    description: None,
-                })
-                .collect(),
+            options: GateTimeoutConfig::question_options(),
             ..QuestionSpec::default()
         });
 
@@ -80,7 +76,10 @@ pub fn build_pre_run_interview(
             question: "How long before auto-approving?".into(),
             r#type: QuestionTypeSpec::Freeform,
             store: Some(STORE_GATE_DURATION.into()),
-            show_if: Some(format!("{STORE_GATE_MODE} == Timed")),
+            show_if: Some(format!(
+                "{STORE_GATE_MODE} == {}",
+                GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT
+            )),
             ..QuestionSpec::default()
         });
     }
@@ -137,15 +136,15 @@ pub fn extract_pre_run_answers(
 
     // Extract gate timeout config.
     let gate_timeout = match store_values.get(STORE_GATE_MODE).map(String::as_str) {
-        Some("Auto-approve") => GateTimeoutConfig::AutoApprove,
-        Some("Timed") => {
+        Some(GateTimeoutConfig::LABEL_AUTO_APPROVE) => GateTimeoutConfig::AutoApprove,
+        Some(GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT) => {
             let seconds = store_values
                 .get(STORE_GATE_DURATION)
                 .map(|d| parse_duration(d))
                 .unwrap_or(0.0);
-            GateTimeoutConfig::Timed { seconds }
+            GateTimeoutConfig::WaitWithTimeout { seconds }
         }
-        _ => GateTimeoutConfig::Interactive,
+        _ => GateTimeoutConfig::Wait,
     };
 
     PreRunAnswers { goal, gate_timeout }
@@ -307,9 +306,14 @@ digraph test {
         assert_eq!(q2.r#type, QuestionTypeSpec::SingleSelect);
         assert_eq!(q2.store.as_deref(), Some("pre_run.gate_mode"));
         let labels: Vec<&str> = q2.options.iter().map(|o| o.label.as_str()).collect();
-        assert!(labels.contains(&"Interactive"), "options: {labels:?}");
-        assert!(labels.contains(&"Auto-approve"), "options: {labels:?}");
-        assert!(labels.contains(&"Timed"), "options: {labels:?}");
+        assert_eq!(
+            labels,
+            vec![
+                GateTimeoutConfig::LABEL_WAIT,
+                GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT,
+                GateTimeoutConfig::LABEL_AUTO_APPROVE,
+            ]
+        );
 
         // Q3: duration question
         let q3 = &spec.questions[2];
@@ -474,7 +478,7 @@ digraph test {
     }
 
     // -----------------------------------------------------------------------
-    // AC-9: show_if on duration question references pre_run.gate_mode == Timed
+    // AC-9: show_if on duration question references pre_run.gate_mode == Wait with timeout
     // -----------------------------------------------------------------------
 
     #[tokio::test]
@@ -491,10 +495,14 @@ digraph test {
             .find(|q| q.store.as_deref() == Some("pre_run.gate_duration"))
             .expect("duration question should exist");
 
+        let expected_show_if = format!(
+            "pre_run.gate_mode == {}",
+            GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT
+        );
         assert_eq!(
             duration_q.show_if.as_deref(),
-            Some("pre_run.gate_mode == Timed"),
-            "duration question should have show_if referencing pre_run.gate_mode == Timed"
+            Some(expected_show_if.as_str()),
+            "duration question should have show_if referencing gate mode label"
         );
     }
 
@@ -559,6 +567,9 @@ digraph test {
 
     /// Helper: build a 3-question pre-run spec (goal + gate mode + duration)
     /// and conduct it with the provided queue answers.
+    ///
+    /// Gate mode selection keys: A = "Wait for approval", B = "Wait with timeout",
+    /// C = "Auto-approve".
     async fn conduct_full_pre_run(answers: Vec<Answer>) -> (InterviewSpec, ConductedInterview) {
         // Build a spec with all 3 questions (goal + gate mode + duration).
         let spec = InterviewSpec {
@@ -574,20 +585,17 @@ digraph test {
                     question: "How should human gates be handled?".into(),
                     r#type: QuestionTypeSpec::SingleSelect,
                     store: Some("pre_run.gate_mode".into()),
-                    options: ["Interactive", "Auto-approve", "Timed"]
-                        .into_iter()
-                        .map(|label| OptionSpec {
-                            label: label.into(),
-                            description: None,
-                        })
-                        .collect(),
+                    options: GateTimeoutConfig::question_options(),
                     ..QuestionSpec::default()
                 },
                 QuestionSpec {
                     question: "How long before auto-approving?".into(),
                     r#type: QuestionTypeSpec::Freeform,
                     store: Some("pre_run.gate_duration".into()),
-                    show_if: Some("pre_run.gate_mode == Timed".into()),
+                    show_if: Some(format!(
+                        "pre_run.gate_mode == {}",
+                        GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT
+                    )),
                     ..QuestionSpec::default()
                 },
             ],
@@ -608,11 +616,11 @@ digraph test {
     #[tokio::test]
     async fn extract_goal_and_auto_approve() {
         // Q1: freeform goal → "Build X"
-        // Q2: single-select gate mode → select "B" (Auto-approve, 0-indexed: A=Interactive, B=Auto-approve, C=Timed)
-        // Q3: duration — skipped because gate_mode != Timed (show_if condition)
+        // Q2: single-select gate mode → select "C" (Auto-approve, 0-indexed: A=Wait for approval, B=Wait with timeout, C=Auto-approve)
+        // Q3: duration — skipped because gate_mode != "Wait with timeout" (show_if condition)
         let (spec, conducted) = conduct_full_pre_run(vec![
             Answer::new(AnswerValue::Text("Build X".into())),
-            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+            Answer::new(AnswerValue::Selected("C".into())), // "Auto-approve"
         ])
         .await;
 
@@ -631,17 +639,17 @@ digraph test {
     }
 
     // -----------------------------------------------------------------------
-    // AC-2: goal + "Timed" with "30s" → GateTimeoutConfig::Timed { seconds: 30.0 }
+    // AC-2: goal + "Wait with timeout" with "30s" → GateTimeoutConfig::WaitWithTimeout { seconds: 30.0 }
     // -----------------------------------------------------------------------
 
     #[tokio::test]
-    async fn extract_goal_and_timed_30s() {
+    async fn extract_goal_and_wait_with_timeout_30s() {
         // Q1: freeform goal → "Build Y"
-        // Q2: single-select gate mode → "C" (Timed)
-        // Q3: freeform duration → "30s" (shown because gate_mode == Timed)
+        // Q2: single-select gate mode → "B" (Wait with timeout)
+        // Q3: freeform duration → "30s" (shown because gate_mode == "Wait with timeout")
         let (spec, conducted) = conduct_full_pre_run(vec![
             Answer::new(AnswerValue::Text("Build Y".into())),
-            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Selected("B".into())), // "Wait with timeout"
             Answer::new(AnswerValue::Text("30s".into())),
         ])
         .await;
@@ -650,28 +658,28 @@ digraph test {
 
         assert_eq!(result.goal.as_deref(), Some("Build Y"));
         match result.gate_timeout {
-            GateTimeoutConfig::Timed { seconds } => {
+            GateTimeoutConfig::WaitWithTimeout { seconds } => {
                 assert!(
                     (seconds - 30.0).abs() < f64::EPSILON,
                     "expected 30.0 seconds, got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be Timed {{ seconds: 30.0 }}, got {other:?}"),
+            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 30.0 }}, got {other:?}"),
         }
     }
 
     // -----------------------------------------------------------------------
-    // AC-3: goal + "Interactive" → GateTimeoutConfig::Interactive
+    // AC-3: goal + "Wait for approval" → GateTimeoutConfig::Wait
     // -----------------------------------------------------------------------
 
     #[tokio::test]
-    async fn extract_goal_and_interactive() {
+    async fn extract_goal_and_wait() {
         // Q1: freeform goal → "Build Z"
-        // Q2: single-select gate mode → "A" (Interactive)
-        // Q3: duration — skipped because gate_mode != Timed
+        // Q2: single-select gate mode → "A" (Wait for approval)
+        // Q3: duration — skipped because gate_mode != "Wait with timeout"
         let (spec, conducted) = conduct_full_pre_run(vec![
             Answer::new(AnswerValue::Text("Build Z".into())),
-            Answer::new(AnswerValue::Selected("A".into())), // "Interactive"
+            Answer::new(AnswerValue::Selected("A".into())), // "Wait for approval"
         ])
         .await;
 
@@ -679,8 +687,8 @@ digraph test {
 
         assert_eq!(result.goal.as_deref(), Some("Build Z"));
         assert!(
-            matches!(result.gate_timeout, GateTimeoutConfig::Interactive),
-            "gate_timeout should be Interactive when user selects 'Interactive', got {:?}",
+            matches!(result.gate_timeout, GateTimeoutConfig::Wait),
+            "gate_timeout should be Wait when user selects 'Wait for approval', got {:?}",
             result.gate_timeout
         );
     }
@@ -690,10 +698,10 @@ digraph test {
     // -----------------------------------------------------------------------
 
     #[tokio::test]
-    async fn extract_timed_5m() {
+    async fn extract_wait_with_timeout_5m() {
         let (spec, conducted) = conduct_full_pre_run(vec![
             Answer::new(AnswerValue::Text("Build it".into())),
-            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Selected("B".into())), // "Wait with timeout"
             Answer::new(AnswerValue::Text("5m".into())),
         ])
         .await;
@@ -701,13 +709,13 @@ digraph test {
         let result = extract_pre_run_answers(&spec, &conducted);
 
         match result.gate_timeout {
-            GateTimeoutConfig::Timed { seconds } => {
+            GateTimeoutConfig::WaitWithTimeout { seconds } => {
                 assert!(
                     (seconds - 300.0).abs() < f64::EPSILON,
                     "expected 300.0 seconds for '5m', got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be Timed {{ seconds: 300.0 }}, got {other:?}"),
+            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 300.0 }}, got {other:?}"),
         }
     }
 
@@ -716,10 +724,10 @@ digraph test {
     // -----------------------------------------------------------------------
 
     #[tokio::test]
-    async fn extract_timed_2h() {
+    async fn extract_wait_with_timeout_2h() {
         let (spec, conducted) = conduct_full_pre_run(vec![
             Answer::new(AnswerValue::Text("Build it".into())),
-            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Selected("B".into())), // "Wait with timeout"
             Answer::new(AnswerValue::Text("2h".into())),
         ])
         .await;
@@ -727,13 +735,13 @@ digraph test {
         let result = extract_pre_run_answers(&spec, &conducted);
 
         match result.gate_timeout {
-            GateTimeoutConfig::Timed { seconds } => {
+            GateTimeoutConfig::WaitWithTimeout { seconds } => {
                 assert!(
                     (seconds - 7200.0).abs() < f64::EPSILON,
                     "expected 7200.0 seconds for '2h', got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be Timed {{ seconds: 7200.0 }}, got {other:?}"),
+            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 7200.0 }}, got {other:?}"),
         }
     }
 
@@ -751,27 +759,24 @@ digraph test {
                     question: "How should human gates be handled?".into(),
                     r#type: QuestionTypeSpec::SingleSelect,
                     store: Some("pre_run.gate_mode".into()),
-                    options: ["Interactive", "Auto-approve", "Timed"]
-                        .into_iter()
-                        .map(|label| OptionSpec {
-                            label: label.into(),
-                            description: None,
-                        })
-                        .collect(),
+                    options: GateTimeoutConfig::question_options(),
                     ..QuestionSpec::default()
                 },
                 QuestionSpec {
                     question: "How long before auto-approving?".into(),
                     r#type: QuestionTypeSpec::Freeform,
                     store: Some("pre_run.gate_duration".into()),
-                    show_if: Some("pre_run.gate_mode == Timed".into()),
+                    show_if: Some(format!(
+                        "pre_run.gate_mode == {}",
+                        GateTimeoutConfig::LABEL_WAIT_WITH_TIMEOUT
+                    )),
                     ..QuestionSpec::default()
                 },
             ],
         };
 
         let interviewer = QueueInterviewer::new(vec![
-            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+            Answer::new(AnswerValue::Selected("C".into())), // "Auto-approve"
         ]);
         let conducted = conduct_conditional(&spec, &interviewer, "pre-run")
             .await
@@ -820,8 +825,8 @@ digraph test {
             "goal should be extracted from the sole question"
         );
         assert!(
-            matches!(result.gate_timeout, GateTimeoutConfig::Interactive),
-            "gate_timeout should default to Interactive when no gate questions exist, got {:?}",
+            matches!(result.gate_timeout, GateTimeoutConfig::Wait),
+            "gate_timeout should default to Wait when no gate questions exist, got {:?}",
             result.gate_timeout
         );
     }
@@ -839,10 +844,10 @@ digraph test {
     async fn conduct_goal_hint_workflow_extracts_goal_and_gate_config() {
         let (_tmp, wf) = make_workflow(None, Some("What do you want to build?"), true).await;
 
-        // Queue answers: goal text, then gate mode "Auto-approve" (key "B")
+        // Queue answers: goal text, then gate mode "Auto-approve" (key "C")
         let interviewer = QueueInterviewer::new(vec![
             Answer::new(AnswerValue::Text("Build a REST API".into())),
-            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+            Answer::new(AnswerValue::Selected("C".into())), // "Auto-approve"
         ]);
 
         let result = conduct_pre_run_interview(&wf, false, false, &interviewer)
@@ -877,7 +882,7 @@ digraph test {
 
         // Only gate mode answer needed — goal question should be skipped
         let interviewer = QueueInterviewer::new(vec![
-            Answer::new(AnswerValue::Selected("A".into())), // "Interactive"
+            Answer::new(AnswerValue::Selected("A".into())), // "Wait for approval"
         ]);
 
         let result = conduct_pre_run_interview(&wf, true, false, &interviewer)
@@ -895,8 +900,8 @@ digraph test {
             "goal should be None when CLI provides --goal (question skipped)"
         );
         assert!(
-            matches!(answers.gate_timeout, GateTimeoutConfig::Interactive),
-            "gate_timeout should be Interactive, got {:?}",
+            matches!(answers.gate_timeout, GateTimeoutConfig::Wait),
+            "gate_timeout should be Wait, got {:?}",
             answers.gate_timeout
         );
     }
@@ -912,7 +917,7 @@ digraph test {
 
         // Only gate mode answer — goal question skipped because workflow has fixed goal
         let interviewer = QueueInterviewer::new(vec![
-            Answer::new(AnswerValue::Selected("B".into())), // "Auto-approve"
+            Answer::new(AnswerValue::Selected("C".into())), // "Auto-approve"
         ]);
 
         let result = conduct_pre_run_interview(&wf, false, false, &interviewer)
@@ -1019,16 +1024,16 @@ digraph test {
     }
 
     // -----------------------------------------------------------------------
-    // AC-6: Timed gate timeout correctly applied through conduct
+    // AC-6: WaitWithTimeout gate timeout correctly applied through conduct
     // -----------------------------------------------------------------------
 
     #[tokio::test]
-    async fn conduct_timed_gate_timeout_applied() {
+    async fn conduct_wait_with_timeout_gate_timeout_applied() {
         let (_tmp, wf) = make_workflow(None, None, true).await;
 
-        // Gate mode "Timed" (key "C") + duration "45s"
+        // Gate mode "Wait with timeout" (key "B") + duration "45s"
         let interviewer = QueueInterviewer::new(vec![
-            Answer::new(AnswerValue::Selected("C".into())), // "Timed"
+            Answer::new(AnswerValue::Selected("B".into())), // "Wait with timeout"
             Answer::new(AnswerValue::Text("45s".into())),
         ]);
 
@@ -1038,13 +1043,13 @@ digraph test {
 
         let answers = result.expect("answers");
         match answers.gate_timeout {
-            GateTimeoutConfig::Timed { seconds } => {
+            GateTimeoutConfig::WaitWithTimeout { seconds } => {
                 assert!(
                     (seconds - 45.0).abs() < f64::EPSILON,
                     "expected 45.0 seconds, got {seconds}"
                 );
             }
-            other => panic!("gate_timeout should be Timed {{ seconds: 45.0 }}, got {other:?}"),
+            other => panic!("gate_timeout should be WaitWithTimeout {{ seconds: 45.0 }}, got {other:?}"),
         }
     }
 }

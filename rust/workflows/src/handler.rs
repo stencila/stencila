@@ -256,26 +256,26 @@ mod tests {
         );
     }
 
-    /// AC-1 / AC-2: Timed variant is also stored correctly.
+    /// AC-1 / AC-2: WaitWithTimeout variant is also stored correctly.
     #[test]
-    fn workflow_handler_stores_timed_gate_timeout() {
+    fn workflow_handler_stores_wait_with_timeout_gate_timeout() {
         let emitter: Arc<dyn EventEmitter> = Arc::new(stencila_attractor::events::NoOpEmitter);
 
         let handler = WorkflowHandler::new(
             std::path::PathBuf::from("/tmp/test"),
             emitter,
             None,
-            GateTimeoutConfig::Timed { seconds: 60.0 },
+            GateTimeoutConfig::WaitWithTimeout { seconds: 60.0 },
         );
 
         match handler.gate_timeout {
-            GateTimeoutConfig::Timed { seconds } => {
+            GateTimeoutConfig::WaitWithTimeout { seconds } => {
                 assert!(
                     (seconds - 60.0).abs() < f64::EPSILON,
                     "expected 60.0, got {seconds}"
                 );
             }
-            other => panic!("expected Timed, got {other:?}"),
+            other => panic!("expected WaitWithTimeout, got {other:?}"),
         }
     }
 }
