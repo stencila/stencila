@@ -52,6 +52,8 @@ struct ModelInfo {
     input_cost_per_million: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     output_cost_per_million: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    model_size: Option<String>,
 }
 
 type ModelsDevCatalog = HashMap<String, ModelsDevProvider>;
@@ -255,6 +257,7 @@ async fn fetch_anthropic_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        model_size: None,
                     })
                 })
                 .collect()
@@ -330,6 +333,7 @@ async fn fetch_openai_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        model_size: None,
                     })
                 })
                 .collect()
@@ -394,6 +398,7 @@ async fn fetch_mistral_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        model_size: None,
                     })
                 })
                 .collect()
@@ -434,6 +439,7 @@ async fn fetch_deepseek_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        model_size: None,
                     })
                 })
                 .collect()
@@ -499,6 +505,7 @@ async fn fetch_gemini_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        model_size: None,
                     })
                 })
                 .collect()

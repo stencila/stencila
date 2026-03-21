@@ -518,6 +518,12 @@ fn resolve_model_and_provider(
     provider_flag: Option<&str>,
     client: &crate::client::Client,
 ) -> Result<(String, Option<String>)> {
+    let provider_flag = provider_flag.map(canonical_provider);
+
+    if let Some(provider) = provider_flag {
+        ensure_provider_is_available(provider, client)?;
+    }
+
     match model_flag {
         None => {
             let provider = provider_flag.or(client.select_provider()).ok_or_else(|| {
@@ -526,8 +532,7 @@ fn resolve_model_and_provider(
                         Use `stencila signin` or `stencila secrets set` to enable."
                 )
             })?;
-            let info = catalog::get_latest_model(provider, None)
-                .map_err(|e| eyre::eyre!("{e}"))?
+            let info = latest_compatible_model(provider, None, client)?
                 .ok_or_else(|| eyre::eyre!("No models found for provider '{provider}'"))?;
             Ok((info.id, Some(provider.to_string())))
         }
@@ -560,21 +565,31 @@ fn resolve_model_and_provider(
                 })
                 .collect();
 
-            match matches.len() {
+            // Filter matches by auth type compatibility when possible.
+            // For example, when using OAuth (Codex CLI), skip models that
+            // require an API key so we fall back to a compatible model.
+            let compatible = filter_by_auth_type(&matches, client);
+            let effective = if compatible.is_empty() {
+                &matches
+            } else {
+                &compatible
+            };
+
+            match effective.len() {
                 0 => Ok((raw_model.to_string(), provider_flag.map(String::from))),
                 1 => {
-                    let info = &matches[0];
+                    let info = &effective[0];
                     Ok((info.id.clone(), Some(info.provider.clone())))
                 }
                 _ => {
                     // Catalog order is newest/best first within provider groups.
                     // If all prefix matches belong to one provider, pick the first.
-                    let first_provider = &matches[0].provider;
-                    if matches.iter().all(|m| &m.provider == first_provider) {
-                        let info = &matches[0];
+                    let first_provider = &effective[0].provider;
+                    if effective.iter().all(|m| &m.provider == first_provider) {
+                        let info = &effective[0];
                         Ok((info.id.clone(), Some(info.provider.clone())))
                     } else {
-                        let preview = matches
+                        let preview = effective
                             .iter()
                             .take(5)
                             .map(|m| m.id.as_str())
@@ -591,6 +606,110 @@ fn resolve_model_and_provider(
     }
 }
 
+fn canonical_provider(provider: &str) -> &str {
+    match provider {
+        "google" => "gemini",
+        other => other,
+    }
+}
+
+/// Validate that an explicitly selected provider is available in the current
+/// client configuration and return a more actionable error when it is not.
+fn ensure_provider_is_available(provider: &str, client: &crate::client::Client) -> Result<()> {
+    let provider = canonical_provider(provider);
+
+    if client.has_provider(provider) {
+        return Ok(());
+    }
+
+    let configured = stencila_config::get()
+        .ok()
+        .map(|config| config.clone())
+        .or_else(|| {
+            std::env::current_dir()
+                .ok()
+                .and_then(|cwd| stencila_config::load_and_validate(&cwd).ok())
+        })
+        .and_then(|config| config.models)
+        .and_then(|models| models.providers);
+
+    if let Some(providers) = configured
+        && !providers
+            .iter()
+            .any(|name| canonical_provider(name) == provider)
+    {
+        return Err(eyre::eyre!(
+            "Provider '{provider}' is disabled by [models].providers. \
+             Add it to your config or remove the provider allowlist."
+        ));
+    }
+
+    let overrides = stencila_auth::AuthOverrides::default();
+    if !catalog::is_provider_available(provider, &overrides) {
+        return Err(eyre::eyre!(
+            "Provider '{provider}' is not available. \
+             Set its credentials with `stencila secrets set` or sign in first."
+        ));
+    }
+
+    Err(eyre::eyre!(
+        "Provider '{provider}' is not enabled in the current client configuration."
+    ))
+}
+
+/// Return the latest catalog model for a provider that is compatible with the
+/// client's current auth type when that auth type is known.
+fn latest_compatible_model(
+    provider: &str,
+    capability: Option<&str>,
+    client: &crate::client::Client,
+) -> crate::error::SdkResult<Option<ModelInfo>> {
+    let models = catalog::list_models(Some(provider))?;
+    let compatible = filter_by_auth_type(&models, client);
+    let effective = if compatible.is_empty() {
+        &models
+    } else {
+        &compatible
+    };
+
+    Ok(effective
+        .iter()
+        .find(|m| match capability {
+            None => true,
+            Some("tools") => m.supports_tools,
+            Some("vision") => m.supports_vision,
+            Some("reasoning") => m.supports_reasoning,
+            Some(_) => false,
+        })
+        .cloned())
+}
+
+/// Filter model candidates by auth type compatibility.
+///
+/// When the client's auth type for a provider is known (e.g. OAuth from Codex
+/// CLI), models that declare specific `auth_types` and don't include the
+/// current auth type are excluded. This prevents selecting a model that
+/// requires an API key when only OAuth credentials are available (and vice
+/// versa), falling back to a compatible model instead.
+fn filter_by_auth_type(models: &[ModelInfo], client: &crate::client::Client) -> Vec<ModelInfo> {
+    use crate::client::AuthType;
+
+    models
+        .iter()
+        .filter(|m| {
+            let auth = client.auth_type(&m.provider);
+            if auth == AuthType::Unknown {
+                return true;
+            }
+            if m.auth_types.is_empty() {
+                return true;
+            }
+            m.auth_types.contains(&auth)
+        })
+        .cloned()
+        .collect()
+}
+
 /// Print a usage summary to stderr.
 #[allow(clippy::print_stderr)]
 fn print_usage_summary(usage: &crate::types::usage::Usage, model_id: &str) {
@@ -598,4 +717,89 @@ fn print_usage_summary(usage: &crate::types::usage::Usage, model_id: &str) {
         "\n[{model_id}] {} input + {} output = {} total tokens",
         usage.input_tokens, usage.output_tokens, usage.total_tokens
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_model_and_provider;
+    use std::pin::Pin;
+
+    use futures::stream;
+
+    use crate::client::{Client, CredentialSource};
+    use crate::error::SdkResult;
+    use crate::provider::{BoxFuture, BoxStream, ProviderAdapter};
+    use crate::types::request::Request;
+    use crate::types::response::Response;
+    use crate::types::stream_event::StreamEvent;
+
+    struct TestAdapter(&'static str);
+
+    impl ProviderAdapter for TestAdapter {
+        fn name(&self) -> &str {
+            self.0
+        }
+
+        fn complete(&self, _request: Request) -> BoxFuture<'_, SdkResult<Response>> {
+            Box::pin(async { unreachable!("not used in tests") })
+        }
+
+        fn stream(
+            &self,
+            _request: Request,
+        ) -> BoxFuture<'_, SdkResult<BoxStream<'_, SdkResult<StreamEvent>>>> {
+            Box::pin(async {
+                Ok(Pin::from(Box::new(stream::empty())
+                    as Box<
+                        dyn futures::Stream<Item = SdkResult<StreamEvent>> + Send,
+                    >))
+            })
+        }
+    }
+
+    #[test]
+    fn resolve_provider_latest_skips_api_key_only_models_for_oauth() {
+        let client = Client::builder()
+            .add_provider_as("openai", TestAdapter("test-openai"))
+            .credential_source("openai", CredentialSource::AuthOverride)
+            .build()
+            .expect("build test client");
+
+        let (model, provider) = resolve_model_and_provider(None, Some("openai"), &client)
+            .expect("resolve model and provider");
+
+        assert_eq!(provider.as_deref(), Some("openai"));
+        assert_ne!(model, "gpt-5.4-pro");
+    }
+
+    #[test]
+    fn resolve_provider_errors_early_when_provider_not_registered() {
+        let client = Client::builder()
+            .add_provider_as("openai", TestAdapter("test-openai"))
+            .credential_source("openai", CredentialSource::AuthOverride)
+            .build()
+            .expect("build test client");
+
+        let error = resolve_model_and_provider(None, Some("mistral"), &client)
+            .expect_err("expected provider availability error");
+
+        assert!(
+            error.to_string().contains("Provider 'mistral'"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn resolve_provider_google_alias_maps_to_gemini() {
+        let client = Client::builder()
+            .add_provider_as("gemini", TestAdapter("test-gemini"))
+            .credential_source("gemini", CredentialSource::AuthOverride)
+            .build()
+            .expect("build test client");
+
+        let (_model, provider) = resolve_model_and_provider(None, Some("google"), &client)
+            .expect("resolve google alias");
+
+        assert_eq!(provider.as_deref(), Some("gemini"));
+    }
 }

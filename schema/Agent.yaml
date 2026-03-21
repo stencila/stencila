@@ -17,8 +17,9 @@ core:
   - whenToUse
   - whenNotToUse
   - frontmatter
-  - model
-  - provider
+  - models
+  - providers
+  - modelSize
   - reasoningEffort
   - trustLevel
   - allowedSkills
@@ -74,20 +75,44 @@ properties:
       $ref: Block
     dom:
       elem: section
-  model:
-    "@id": stencila:model
-    description: Model identifier for the agent.
+  models:
+    "@id": stencila:models
+    description: Model identifiers for the agent.
     $comment: |
-      The model to use, e.g. "claude-sonnet-4-5", "gpt-5.2-codex". When not specified,
-      the default model for the provider is used.
-    type: string
-  provider:
-    "@id": stencila:provider
-    description: Provider identifier for the agent.
+      One or more models to use, e.g. "claude-sonnet-4-5", "gpt-5.2-codex". When not
+      specified, the default model for the provider is used. Accepts a single string
+      or an array of strings.
+    type: array
+    aliases:
+      - model
+    items:
+      type: string
+    serde:
+      deserializeWith: option_one_or_many
+  providers:
+    "@id": stencila:providers
+    description: Provider identifiers for the agent.
     $comment: |
-      The provider to use, e.g. "anthropic", "openai", "gemini". When not specified,
-      the first available provider is used.
+      One or more providers to use, e.g. "anthropic", "openai", "gemini". When not
+      specified, the first available provider is used. Accepts a single string or an
+      array of strings.
+    type: array
+    aliases:
+      - provider
+    items:
+      type: string
+    serde:
+      deserializeWith: option_one_or_many
+  modelSize:
+    "@id": stencila:modelSize
+    description: Model size preference for the agent.
+    $comment: |
+      Preferred model size tier, e.g. "small", "medium", "large". Used for model
+      selection when an exact model is not specified.
     type: string
+    aliases:
+      - model-size
+      - model_size
   reasoningEffort:
     "@id": stencila:reasoningEffort
     description: Reasoning effort level for the agent.

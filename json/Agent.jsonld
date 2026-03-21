@@ -899,10 +899,10 @@
       }
     },
     {
-      "@id": "stencila:model",
+      "@id": "stencila:models",
       "@type": "rdfs:Property",
-      "rdfs:label": "model",
-      "rdfs:comment": "Model identifier for the agent.",
+      "rdfs:label": "models",
+      "rdfs:comment": "Model identifiers for the agent.",
       "schema:domainIncludes": {
         "@id": "stencila:Agent"
       },
@@ -911,10 +911,22 @@
       }
     },
     {
-      "@id": "stencila:provider",
+      "@id": "stencila:providers",
       "@type": "rdfs:Property",
-      "rdfs:label": "provider",
-      "rdfs:comment": "Provider identifier for the agent.",
+      "rdfs:label": "providers",
+      "rdfs:comment": "Provider identifiers for the agent.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Agent"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:modelSize",
+      "@type": "rdfs:Property",
+      "rdfs:label": "modelSize",
+      "rdfs:comment": "Model size preference for the agent.",
       "schema:domainIncludes": {
         "@id": "stencila:Agent"
       },

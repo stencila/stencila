@@ -38,7 +38,23 @@ pub fn has_provider(provider: &str) -> bool {
 
 /// Filter a list of provider names to those whose API keys are set.
 pub fn available_providers<'a>(names: &'a [&'a str]) -> Vec<&'a str> {
-    names.iter().copied().filter(|n| has_provider(n)).collect()
+    let configured = stencila_config::get()
+        .ok()
+        .and_then(|config| config.models)
+        .and_then(|models| models.providers);
+
+    names
+        .iter()
+        .copied()
+        .filter(|name| {
+            has_provider(name)
+                && configured.as_ref().is_none_or(|providers| {
+                    providers.iter().any(|provider| {
+                        provider == name || (provider == "google" && *name == "gemini")
+                    })
+                })
+        })
+        .collect()
 }
 
 /// Return the model ID to use for a given provider in integration tests.

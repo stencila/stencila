@@ -84,11 +84,19 @@ pub struct Agent {
     #[dom(elem = "section")]
     pub content: Option<Vec<Block>>,
 
-    /// Model identifier for the agent.
-    pub model: Option<String>,
+    /// Model identifiers for the agent.
+    #[serde(alias = "model")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub models: Option<Vec<String>>,
 
-    /// Provider identifier for the agent.
-    pub provider: Option<String>,
+    /// Provider identifiers for the agent.
+    #[serde(alias = "provider")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub providers: Option<Vec<String>>,
+
+    /// Model size preference for the agent.
+    #[serde(alias = "model-size", alias = "model_size")]
+    pub model_size: Option<String>,
 
     /// Reasoning effort level for the agent.
     #[serde(alias = "reasoning-effort", alias = "reasoning_effort")]

@@ -48,7 +48,9 @@ fn configured_providers() -> Option<Vec<String>> {
 
 fn provider_enabled(configured: Option<&Vec<String>>, provider: &str) -> bool {
     match configured {
-        Some(providers) => providers.iter().any(|name| name == provider),
+        Some(providers) => providers
+            .iter()
+            .any(|name| name == provider || (*name == "google" && provider == "gemini")),
         None => true,
     }
 }

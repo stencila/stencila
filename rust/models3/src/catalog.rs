@@ -29,6 +29,7 @@ static CATALOG: LazyLock<Result<RwLock<CatalogData>, String>> = LazyLock::new(||
     let json = include_str!("catalog/models.json");
     let mut models: Vec<ModelInfo> = serde_json::from_str(json).map_err(|e| e.to_string())?;
     sort_provider_groups(&mut models);
+    populate_model_sizes(&mut models);
     let aliases = compute_aliases(&models);
     Ok(RwLock::new(CatalogData { models, aliases }))
 });
@@ -96,6 +97,11 @@ pub struct ModelInfo {
     /// Authentication types supported by this model (e.g., `[AuthType::ApiKey]`).
     #[serde(default)]
     pub auth_types: Vec<AuthType>,
+
+    /// Relative size classification (auto-populated from the model ID or cost
+    /// data when not explicitly set in `models.json`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model_size: Option<ModelSize>,
 }
 
 /// Sort each provider group in the catalog so the best model comes first.
@@ -114,6 +120,18 @@ fn sort_provider_groups(models: &mut [ModelInfo]) {
             .map_or(models.len(), |offset| start + offset);
         models[start..end].sort_by_cached_key(|m| parse::sort_key(&m.provider, &m.id, m));
         start = end;
+    }
+}
+
+/// Auto-populate `model_size` on models where it is not already set.
+///
+/// Models that already have an explicit `model_size` (e.g. from
+/// `models.json`) are left unchanged.
+fn populate_model_sizes(models: &mut [ModelInfo]) {
+    for m in &mut *models {
+        if m.model_size.is_none() {
+            m.model_size = classify_model_size(&m.provider, &m.id, m);
+        }
     }
 }
 
@@ -141,7 +159,7 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
     let mut index = AliasIndex::new();
 
     // Track which bare-family aliases have been assigned per provider
-    let mut assigned_families: HashMap<(String, String), bool> = HashMap::new();
+    let mut assigned_families: HashSet<(String, String)> = HashSet::new();
     let mut assigned_provider_best: HashSet<String> = HashSet::new();
 
     for m in models {
@@ -173,10 +191,7 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
                 let family_key = (m.provider.clone(), p.family.clone());
 
                 // Bare-family aliases
-                if let std::collections::hash_map::Entry::Vacant(e) =
-                    assigned_families.entry(family_key)
-                {
-                    e.insert(true);
+                if assigned_families.insert(family_key) {
                     try_insert(&mut index, p.family.clone(), &m.provider, &m.id);
                     try_insert(
                         &mut index,
@@ -234,19 +249,16 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
                 let family_key = (m.provider.clone(), family_key_str.clone());
 
                 // Bare-family aliases (first of this version+variant combo)
-                if !assigned_families.contains_key(&family_key) && p.date.is_some() {
+                if !assigned_families.contains(&family_key) && p.date.is_some() {
                     // Only assign bare family if this is a dated variant
                     // (the versionless ID like "gpt-5.2" IS the bare alias)
-                    assigned_families.insert(family_key, true);
+                    assigned_families.insert(family_key);
                 }
 
                 // Special aliases for variant families
                 if let Some(variant) = &p.variant {
                     let variant_family_key = (m.provider.clone(), variant.clone());
-                    if let std::collections::hash_map::Entry::Vacant(e) =
-                        assigned_families.entry(variant_family_key)
-                    {
-                        e.insert(true);
+                    if assigned_families.insert(variant_family_key) {
                         match variant.as_str() {
                             "codex" => {
                                 try_insert(&mut index, "codex".to_string(), &m.provider, &m.id);
@@ -268,10 +280,7 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
                 let family_key = (m.provider.clone(), p.tier.clone());
 
                 // Bare-family aliases
-                if let std::collections::hash_map::Entry::Vacant(e) =
-                    assigned_families.entry(family_key)
-                {
-                    e.insert(true);
+                if assigned_families.insert(family_key) {
                     try_insert(&mut index, format!("gemini-{}", p.tier), &m.provider, &m.id);
                     // Also add with sub-tier if it exists
                     if !p.suffix.is_empty()
@@ -280,10 +289,7 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
                     {
                         let full_tier = format!("{}-{}", p.tier, p.suffix);
                         let sub_family_key = (m.provider.clone(), full_tier.clone());
-                        if let std::collections::hash_map::Entry::Vacant(e) =
-                            assigned_families.entry(sub_family_key)
-                        {
-                            e.insert(true);
+                        if assigned_families.insert(sub_family_key) {
                             try_insert(
                                 &mut index,
                                 format!("gemini-{full_tier}"),
@@ -299,10 +305,7 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
                     // Assign sub-tier aliases (e.g. "gemini-flash-lite")
                     let full_tier = format!("{}-{}", p.tier, p.suffix);
                     let sub_family_key = (m.provider.clone(), full_tier.clone());
-                    if let std::collections::hash_map::Entry::Vacant(e) =
-                        assigned_families.entry(sub_family_key)
-                    {
-                        e.insert(true);
+                    if assigned_families.insert(sub_family_key) {
                         try_insert(
                             &mut index,
                             format!("gemini-{full_tier}"),
@@ -340,12 +343,12 @@ fn compute_aliases(models: &[ModelInfo]) -> AliasIndex {
                 // Bare family aliases (cross sizes) using proper family extraction
                 let base_family = parse::mistral_base_family(&p.family);
                 let base_key = (m.provider.clone(), base_family.to_string());
-                if !assigned_families.contains_key(&base_key) && base_family != p.family {
-                    assigned_families.insert(base_key, true);
+                if !assigned_families.contains(&base_key) && base_family != p.family {
+                    assigned_families.insert(base_key);
                     try_insert(&mut index, base_family.to_string(), &m.provider, &m.id);
                 }
 
-                assigned_families.entry(family_key).or_insert(true);
+                assigned_families.insert(family_key);
             }
         }
     }
@@ -417,6 +420,22 @@ pub fn list_models(provider: Option<&str>) -> SdkResult<Vec<ModelInfo>> {
             .collect(),
         None => catalog.models.clone(),
     })
+}
+
+/// List models filtered by size and optionally by provider.
+///
+/// # Errors
+///
+/// Returns `SdkError::Configuration` if the embedded catalog JSON is
+/// malformed or the catalog lock is poisoned.
+pub fn list_models_by_size(size: ModelSize, provider: Option<&str>) -> SdkResult<Vec<ModelInfo>> {
+    let catalog = read_catalog()?;
+    Ok(catalog
+        .models
+        .iter()
+        .filter(|m| m.model_size == Some(size) && provider.is_none_or(|p| m.provider == p))
+        .cloned()
+        .collect())
 }
 
 /// Check whether a provider's API key, OAuth credential, or equivalent is available.
@@ -515,9 +534,10 @@ pub fn merge_models(new_models: Vec<ModelInfo>) -> SdkResult<()> {
         }
     }
 
-    // Re-sort and recompute aliases so new models are correctly ordered
-    // and bare-family aliases shift if a new best model appeared.
+    // Re-sort, auto-populate sizes on new models (preserving explicit
+    // overrides), and recompute aliases.
     sort_provider_groups(&mut catalog.models);
+    populate_model_sizes(&mut catalog.models);
     catalog.aliases = compute_aliases(&catalog.models);
 
     Ok(())
@@ -617,10 +637,80 @@ fn append_discovered_models(candidates: Vec<ModelInfo>) -> SdkResult<Vec<ModelIn
 
     if !added.is_empty() {
         sort_provider_groups(&mut catalog.models);
+        populate_model_sizes(&mut catalog.models);
         catalog.aliases = compute_aliases(&catalog.models);
     }
 
     Ok(added)
+}
+
+/// Relative size classification for a model within its provider lineup.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ModelSize {
+    Large,
+    Medium,
+    Small,
+}
+
+/// Classify a model's relative size using its parsed ID.
+///
+/// For known providers the classification is derived from the parsed model
+/// ID. For unknown providers/models a cost-based fallback is used:
+/// input cost per million tokens ≥ $5 → Large, ≥ $0.50 → Medium,
+/// < $0.50 → Small. Returns `None` when neither ID nor cost data is
+/// available.
+pub(crate) fn classify_model_size(provider: &str, id: &str, info: &ModelInfo) -> Option<ModelSize> {
+    let parsed = parse::parse_model_id(provider, id);
+
+    match parsed {
+        parse::ParsedId::Anthropic(p) => match p.family.as_str() {
+            "opus" => Some(ModelSize::Large),
+            "sonnet" => Some(ModelSize::Medium),
+            "haiku" => Some(ModelSize::Small),
+            _ => None,
+        },
+        parse::ParsedId::Gpt(p) => match p.variant.as_deref() {
+            Some("mini" | "nano") => Some(ModelSize::Small),
+            _ => Some(ModelSize::Large),
+        },
+        parse::ParsedId::OSeries(p) => match p.variant.as_deref() {
+            Some("pro") => Some(ModelSize::Large),
+            Some("mini") => Some(ModelSize::Small),
+            None => Some(ModelSize::Medium),
+            _ => None,
+        },
+        parse::ParsedId::Gemini(p) => match p.tier.as_str() {
+            "pro" => Some(ModelSize::Large),
+            "flash" if p.suffix.is_empty() => Some(ModelSize::Medium),
+            "flash" => Some(ModelSize::Small),
+            _ => None,
+        },
+        parse::ParsedId::Mistral(p) => match parse::mistral_family_tier(&p.family) {
+            0 | 2 => Some(ModelSize::Large),      // mistral-large, pixtral-large
+            1 | 4 | 5 => Some(ModelSize::Medium), // mistral-medium, devstral-medium, magistral-medium
+            3 | 6..=12 => Some(ModelSize::Small), // codestral, mistral-small, ministral, mistral-tiny
+            _ => None,
+        },
+        parse::ParsedId::Unknown => classify_by_cost(info),
+    }
+}
+
+/// Input cost per million tokens at or above which a model is classified Large.
+const COST_THRESHOLD_LARGE: f64 = 5.0;
+
+/// Input cost per million tokens at or above which a model is classified Medium.
+const COST_THRESHOLD_MEDIUM: f64 = 0.5;
+
+/// Cost-based fallback for models that cannot be classified by ID.
+fn classify_by_cost(info: &ModelInfo) -> Option<ModelSize> {
+    let cost = info.input_cost_per_million?;
+    if cost >= COST_THRESHOLD_LARGE {
+        Some(ModelSize::Large)
+    } else if cost >= COST_THRESHOLD_MEDIUM {
+        Some(ModelSize::Medium)
+    } else {
+        Some(ModelSize::Small)
+    }
 }
 
 #[cfg(test)]
@@ -947,6 +1037,475 @@ mod tests {
         assert!(
             aliases.contains(&"claude-opus-4.6".to_string()),
             "should contain prefixed alias, got: {aliases:?}"
+        );
+        Ok(())
+    }
+
+    // --- ModelSize classification tests ---
+
+    #[test]
+    fn model_size_enum_has_expected_variants() {
+        // Verify ModelSize derives Debug, Clone, Copy, PartialEq, Eq
+        let large = ModelSize::Large;
+        let medium = ModelSize::Medium;
+        let small = ModelSize::Small;
+
+        // Clone + Copy
+        let large_copy = large;
+        assert_eq!(large, large_copy);
+
+        // PartialEq + Eq
+        assert_ne!(large, medium);
+        assert_ne!(medium, small);
+        assert_ne!(large, small);
+
+        // Debug
+        let _ = format!("{large:?}");
+    }
+
+    #[test]
+    fn model_size_serde_round_trip() -> Result<(), Box<dyn std::error::Error>> {
+        for size in [ModelSize::Large, ModelSize::Medium, ModelSize::Small] {
+            let json = serde_json::to_string(&size)?;
+            let back: ModelSize = serde_json::from_str(&json)?;
+            assert_eq!(back, size, "round-trip failed for {size:?}");
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn classify_anthropic_opus_is_large() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("claude-opus-4-6")?.ok_or("claude-opus-4-6 not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Large), "opus should be Large");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_anthropic_sonnet_is_medium() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("claude-sonnet-4-5-20250929")?
+            .ok_or("claude-sonnet-4-5-20250929 not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Medium), "sonnet should be Medium");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_anthropic_haiku_is_small() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("claude-haiku-4-5-20251001")?
+            .ok_or("claude-haiku-4-5-20251001 not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Small), "haiku should be Small");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_gpt5_is_large() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("gpt-5")?.ok_or("gpt-5 not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Large), "gpt-5 should be Large");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_gpt_4_1_mini_is_small() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("gpt-4.1-mini")?.ok_or("gpt-4.1-mini not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Small), "gpt-4.1-mini should be Small");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_o3_is_medium() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("o3")?.ok_or("o3 not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Medium), "o3 should be Medium");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_o4_mini_is_small() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("o4-mini")?.ok_or("o4-mini not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Small), "o4-mini should be Small");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_o3_pro_is_large() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("o3-pro")?.ok_or("o3-pro not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Large), "o3-pro should be Large");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_gemini_pro_is_large() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("gemini-2.5-pro")?.ok_or("gemini-2.5-pro not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Large), "gemini pro should be Large");
+        Ok(())
+    }
+
+    #[test]
+    fn classify_gemini_flash_is_medium() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("gemini-2.5-flash")?.ok_or("gemini-2.5-flash not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Medium),
+            "gemini flash should be Medium"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn classify_gemini_flash_lite_is_small() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("gemini-2.5-flash-lite")?
+            .ok_or("gemini-2.5-flash-lite not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Small),
+            "gemini flash-lite should be Small"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn classify_mistral_large_is_large() -> Result<(), Box<dyn std::error::Error>> {
+        let info =
+            get_model_info("mistral-large-latest")?.ok_or("mistral-large-latest not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Large),
+            "mistral-large should be Large"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn classify_mistral_medium_is_medium() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("mistral-medium-latest")?
+            .ok_or("mistral-medium-latest not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Medium),
+            "mistral-medium should be Medium"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn classify_mistral_small_is_small() -> Result<(), Box<dyn std::error::Error>> {
+        let info =
+            get_model_info("mistral-small-latest")?.ok_or("mistral-small-latest not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Small),
+            "mistral-small should be Small"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn classify_unknown_model_returns_none() {
+        let info = ModelInfo {
+            id: "totally-unknown-model-xyz".into(),
+            provider: "unknown-provider".into(),
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, None, "unknown model should return None");
+    }
+
+    #[test]
+    fn classify_uses_parsed_id() {
+        // Verify classification works for a model constructed outside the catalog
+        // (i.e. it uses the parse module, not catalog lookup)
+        let info = ModelInfo {
+            id: "claude-opus-4-6".into(),
+            provider: "anthropic".into(),
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Large),
+            "classification should work for models constructed outside the catalog"
+        );
+    }
+
+    // --- Cost-based fallback classification tests (Slice 2) ---
+
+    #[test]
+    fn classify_unknown_model_with_high_cost_is_large() {
+        let info = ModelInfo {
+            id: "some-unknown-model".into(),
+            provider: "unknown-provider".into(),
+            input_cost_per_million: Some(10.0), // ≥ $5 → Large
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Large),
+            "unknown model with input_cost ≥ $5 should be Large"
+        );
+    }
+
+    #[test]
+    fn classify_unknown_model_with_medium_cost_is_medium() {
+        let info = ModelInfo {
+            id: "some-unknown-model".into(),
+            provider: "unknown-provider".into(),
+            input_cost_per_million: Some(1.50), // ≥ $0.50 and < $5 → Medium
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Medium),
+            "unknown model with input_cost ≥ $0.50 and < $5 should be Medium"
+        );
+    }
+
+    #[test]
+    fn classify_unknown_model_with_low_cost_is_small() {
+        let info = ModelInfo {
+            id: "some-unknown-model".into(),
+            provider: "unknown-provider".into(),
+            input_cost_per_million: Some(0.10), // < $0.50 → Small
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Small),
+            "unknown model with input_cost < $0.50 should be Small"
+        );
+    }
+
+    #[test]
+    fn classify_unknown_model_at_boundary_5_is_large() {
+        let info = ModelInfo {
+            id: "some-unknown-model".into(),
+            provider: "unknown-provider".into(),
+            input_cost_per_million: Some(5.0), // exactly $5 → Large
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Large),
+            "unknown model with input_cost exactly $5 should be Large"
+        );
+    }
+
+    #[test]
+    fn classify_unknown_model_at_boundary_050_is_medium() {
+        let info = ModelInfo {
+            id: "some-unknown-model".into(),
+            provider: "unknown-provider".into(),
+            input_cost_per_million: Some(0.50), // exactly $0.50 → Medium
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size,
+            Some(ModelSize::Medium),
+            "unknown model with input_cost exactly $0.50 should be Medium"
+        );
+    }
+
+    #[test]
+    fn classify_unknown_model_no_cost_is_none() {
+        let info = ModelInfo {
+            id: "some-unknown-model".into(),
+            provider: "unknown-provider".into(),
+            // No cost data at all
+            ..Default::default()
+        };
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(
+            size, None,
+            "unknown model with no cost data should return None"
+        );
+    }
+
+    // --- ModelInfo.model_size field tests (Slice 2) ---
+
+    #[test]
+    fn model_info_has_model_size_field() {
+        let info = ModelInfo {
+            id: "test".into(),
+            provider: "test".into(),
+            model_size: Some(ModelSize::Large),
+            ..Default::default()
+        };
+        assert_eq!(info.model_size, Some(ModelSize::Large));
+    }
+
+    #[test]
+    fn model_info_model_size_defaults_to_none() {
+        let info = ModelInfo::default();
+        assert_eq!(info.model_size, None);
+    }
+
+    #[test]
+    fn model_info_model_size_skip_serializing_if_none() -> Result<(), Box<dyn std::error::Error>> {
+        let info = ModelInfo {
+            id: "test".into(),
+            provider: "test".into(),
+            ..Default::default()
+        };
+        let json = serde_json::to_string(&info)?;
+        assert!(
+            !json.contains("model_size"),
+            "model_size should be omitted when None, got: {json}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn model_info_model_size_serialized_when_some() -> Result<(), Box<dyn std::error::Error>> {
+        let info = ModelInfo {
+            id: "test".into(),
+            provider: "test".into(),
+            model_size: Some(ModelSize::Medium),
+            ..Default::default()
+        };
+        let json = serde_json::to_string(&info)?;
+        assert!(
+            json.contains("model_size"),
+            "model_size should be present when Some, got: {json}"
+        );
+        Ok(())
+    }
+
+    // --- Post-load auto-population tests (Slice 2) ---
+
+    #[test]
+    fn catalog_models_have_model_size_populated() -> Result<(), Box<dyn std::error::Error>> {
+        let anthropic = list_models(Some("anthropic"))?;
+        for m in &anthropic {
+            assert!(
+                m.model_size.is_some(),
+                "anthropic model {} should have model_size populated after catalog load",
+                m.id
+            );
+        }
+
+        let openai = list_models(Some("openai"))?;
+        for m in &openai {
+            if m.id.starts_with("gpt-") || m.id.starts_with('o') {
+                assert!(
+                    m.model_size.is_some(),
+                    "openai model {} should have model_size populated after catalog load",
+                    m.id
+                );
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn catalog_opus_has_large_model_size() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("claude-opus-4-6")?.ok_or("claude-opus-4-6 not in catalog")?;
+        assert_eq!(
+            info.model_size,
+            Some(ModelSize::Large),
+            "opus model_size field should be Large after catalog load"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn catalog_haiku_has_small_model_size() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("claude-haiku-4-5-20251001")?
+            .ok_or("claude-haiku-4-5-20251001 not in catalog")?;
+        assert_eq!(
+            info.model_size,
+            Some(ModelSize::Small),
+            "haiku model_size field should be Small after catalog load"
+        );
+        Ok(())
+    }
+
+    // --- list_models_by_size tests (Slice 2) ---
+
+    #[test]
+    fn list_models_by_size_small_anthropic_returns_haiku() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let models = list_models_by_size(ModelSize::Small, Some("anthropic"))?;
+        assert!(
+            !models.is_empty(),
+            "should find at least one small anthropic model"
+        );
+        for m in &models {
+            assert_eq!(m.provider, "anthropic");
+            assert_eq!(m.model_size, Some(ModelSize::Small));
+            assert!(
+                m.id.contains("haiku"),
+                "small anthropic models should be haiku, got {}",
+                m.id
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn list_models_by_size_large_no_provider_filter() -> Result<(), Box<dyn std::error::Error>> {
+        let models = list_models_by_size(ModelSize::Large, None)?;
+        assert!(
+            !models.is_empty(),
+            "should find at least one large model across all providers"
+        );
+        for m in &models {
+            assert_eq!(
+                m.model_size,
+                Some(ModelSize::Large),
+                "all returned models should be Large, got {:?} for {}",
+                m.model_size,
+                m.id
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn list_models_by_size_returns_empty_for_unknown_provider()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let models = list_models_by_size(ModelSize::Large, Some("nonexistent-provider"))?;
+        assert!(
+            models.is_empty(),
+            "should return empty for unknown provider"
+        );
+        Ok(())
+    }
+
+    // --- Manual override preservation tests (Slice 3) ---
+
+    #[test]
+    fn manual_override_preserved_on_merge() -> Result<(), Box<dyn std::error::Error>> {
+        // Merge a model with an explicit model_size that differs from
+        // what classify_model_size would produce.
+        // A haiku model would normally be Small, but we set it to Large
+        // to simulate a manual override.
+        let mut model = test_model("test-override-preserve-xyz", "anthropic");
+        model.id = "claude-haiku-99-0-override".into();
+        model.model_size = Some(ModelSize::Large); // override: haiku is normally Small
+        merge_models(vec![model])?;
+
+        let found = get_model_info("claude-haiku-99-0-override")?
+            .ok_or("overridden model not found after merge")?;
+        assert_eq!(
+            found.model_size,
+            Some(ModelSize::Large),
+            "explicit model_size should be preserved, not overwritten by auto-classification"
         );
         Ok(())
     }

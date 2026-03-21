@@ -849,8 +849,8 @@ fn collect_agent_metadata(
             (
                 name.clone(),
                 AgentMetadata {
-                    model: instance.model.clone(),
-                    provider: instance.provider.clone(),
+                    model: instance.models.as_ref().and_then(|v| v.first().cloned()),
+                    provider: instance.providers.as_ref().and_then(|v| v.first().cloned()),
                 },
             )
         })
@@ -1125,6 +1125,10 @@ impl CodergenBackend for AgentCodergenBackend {
                 .get_str_attr("agent.model")
                 .or(node.get_str_attr("llm_model"))
                 .map(String::from),
+            model_size: node
+                .get_str_attr("agent.model_size")
+                .or(node.get_str_attr("model_size"))
+                .map(String::from),
             provider: node
                 .get_str_attr("agent.provider")
                 .or(node.get_str_attr("llm_provider"))
@@ -1143,6 +1147,7 @@ impl CodergenBackend for AgentCodergenBackend {
                 .and_then(|v| v.parse::<u32>().ok()),
         };
         let has_overrides = overrides.model.is_some()
+            || overrides.model_size.is_some()
             || overrides.provider.is_some()
             || overrides.reasoning_effort.is_some()
             || overrides.trust_level.is_some()
@@ -2001,6 +2006,23 @@ mod tests {
             pool,                         // session_pool
             GateTimeoutConfig::default(), // gate_timeout
         );
+    }
+
+    #[test]
+    fn model_size_counts_as_override() {
+        let overrides = stencila_agents::convenience::SessionOverrides {
+            model_size: Some("small".into()),
+            ..Default::default()
+        };
+
+        let has_overrides = overrides.model.is_some()
+            || overrides.model_size.is_some()
+            || overrides.provider.is_some()
+            || overrides.reasoning_effort.is_some()
+            || overrides.trust_level.is_some()
+            || overrides.max_turns.is_some();
+
+        assert!(has_overrides);
     }
 
     /// AC-4: `run()` reads `internal.fidelity` and `internal.thread_id`

@@ -25,8 +25,9 @@
     "whenToUse",
     "whenNotToUse",
     "frontmatter",
-    "model",
-    "provider",
+    "models",
+    "providers",
+    "modelSize",
     "reasoningEffort",
     "trustLevel",
     "allowedSkills",
@@ -750,16 +751,44 @@
         "$ref": "Block.schema.json"
       }
     },
-    "model": {
-      "@id": "stencila:model",
-      "description": "Model identifier for the agent.",
-      "$comment": "The model to use, e.g. \"claude-sonnet-4-5\", \"gpt-5.2-codex\". When not specified,\nthe default model for the provider is used.\n",
-      "type": "string"
+    "models": {
+      "@id": "stencila:models",
+      "description": "Model identifiers for the agent.",
+      "$comment": "One or more models to use, e.g. \"claude-sonnet-4-5\", \"gpt-5.2-codex\". When not\nspecified, the default model for the provider is used. Accepts a single string\nor an array of strings.\n",
+      "aliases": [
+        "model"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
-    "provider": {
-      "@id": "stencila:provider",
-      "description": "Provider identifier for the agent.",
-      "$comment": "The provider to use, e.g. \"anthropic\", \"openai\", \"gemini\". When not specified,\nthe first available provider is used.\n",
+    "providers": {
+      "@id": "stencila:providers",
+      "description": "Provider identifiers for the agent.",
+      "$comment": "One or more providers to use, e.g. \"anthropic\", \"openai\", \"gemini\". When not\nspecified, the first available provider is used. Accepts a single string or an\narray of strings.\n",
+      "aliases": [
+        "provider"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "modelSize": {
+      "@id": "stencila:modelSize",
+      "description": "Model size preference for the agent.",
+      "$comment": "Preferred model size tier, e.g. \"small\", \"medium\", \"large\". Used for model\nselection when an exact model is not specified.\n",
+      "aliases": [
+        "model-size",
+        "model_size"
+      ],
       "type": "string"
     },
     "reasoningEffort": {

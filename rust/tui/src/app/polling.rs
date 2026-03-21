@@ -547,8 +547,8 @@ impl App {
                         let info = crate::autocomplete::agents::AgentDefinitionInfo {
                             name: def.name.clone(),
                             description: def.description.clone(),
-                            model: def.model.clone(),
-                            provider: def.provider.clone(),
+                            model: def.models.as_ref().and_then(|v| v.first().cloned()),
+                            provider: def.providers.as_ref().and_then(|v| v.first().cloned()),
                             source: def.source().map(|s| s.to_string()).unwrap_or_default(),
                         };
                         self.create_session_from_definition(&info);

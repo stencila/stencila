@@ -43,14 +43,19 @@ export class Agent extends CreativeWork {
   content?: Block[];
 
   /**
-   * Model identifier for the agent.
+   * Model identifiers for the agent.
    */
-  model?: string;
+  models?: string[];
 
   /**
-   * Provider identifier for the agent.
+   * Provider identifiers for the agent.
    */
-  provider?: string;
+  providers?: string[];
+
+  /**
+   * Model size preference for the agent.
+   */
+  modelSize?: string;
 
   /**
    * Reasoning effort level for the agent.

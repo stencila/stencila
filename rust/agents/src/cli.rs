@@ -107,16 +107,16 @@ impl Cli {
 fn summarize_agent_details(agent: &stencila_schema::Agent) -> Option<String> {
     let mut details = Vec::new();
 
-    if let Some(model) = agent.model.as_deref()
-        && !model.is_empty()
+    if let Some(models) = agent.models.as_deref()
+        && !models.is_empty()
     {
-        details.push(format!("model={model}"));
+        details.push(format!("models={}", summarize_string_list(models)));
     }
 
-    if let Some(provider) = agent.provider.as_deref()
-        && !provider.is_empty()
+    if let Some(providers) = agent.providers.as_deref()
+        && !providers.is_empty()
     {
-        details.push(format!("provider={provider}"));
+        details.push(format!("providers={}", summarize_string_list(providers)));
     }
 
     if let Some(reasoning) = agent.reasoning_effort.as_deref()
@@ -640,8 +640,9 @@ impl Resolve {
         }
 
         let decision = routing::route_session_explained(
-            agent.provider.as_deref(),
-            agent.model.as_deref(),
+            agent.inner.models.as_deref(),
+            agent.inner.providers.as_deref(),
+            agent.inner.model_size.as_deref(),
             client_ref,
         )
         .map_err(|e| eyre::eyre!("{e}"))?;
@@ -686,6 +687,13 @@ impl Resolve {
             println!("Extended Details\n");
             println!("Provider source:  {}", decision.provider_source);
             println!("Model source:     {}", decision.model_source);
+            println!("Selection:        {:?}", decision.selection_mechanism);
+            if !decision.skipped.is_empty() {
+                println!("Skipped models:");
+                for skipped in &decision.skipped {
+                    println!("  - {}: {:?}", skipped.model, skipped.reason);
+                }
+            }
 
             let mut provider_names = client_ref.provider_names();
             provider_names.sort();

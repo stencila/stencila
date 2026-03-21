@@ -296,8 +296,8 @@ async fn execute_agents(app: &mut App) {
                     .map(|d| AgentDefinitionInfo {
                         name: d.name.clone(),
                         description: d.description.clone(),
-                        model: d.model.clone(),
-                        provider: d.provider.clone(),
+                        model: d.models.as_ref().and_then(|v| v.first().cloned()),
+                        provider: d.providers.as_ref().and_then(|v| v.first().cloned()),
                         source: d.source().map(|src| src.to_string()).unwrap_or_default(),
                     })
             });
@@ -323,8 +323,8 @@ async fn execute_agents(app: &mut App) {
             kind: AgentCandidateKind::Definition(AgentDefinitionInfo {
                 name: def.name.clone(),
                 description: def.description.clone(),
-                model: def.model.clone(),
-                provider: def.provider.clone(),
+                model: def.models.as_ref().and_then(|v| v.first().cloned()),
+                provider: def.providers.as_ref().and_then(|v| v.first().cloned()),
                 source: def.source().map(|s| s.to_string()).unwrap_or_default(),
             }),
         });

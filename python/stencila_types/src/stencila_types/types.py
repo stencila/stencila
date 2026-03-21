@@ -1134,11 +1134,14 @@ class Agent(CreativeWork):
     content: list[Block] | None = None
     """The content of the agent (the Markdown body providing system instructions)."""
 
-    model: str | None = None
-    """Model identifier for the agent."""
+    models: list[str] | None = None
+    """Model identifiers for the agent."""
 
-    provider: str | None = None
-    """Provider identifier for the agent."""
+    providers: list[str] | None = None
+    """Provider identifiers for the agent."""
+
+    model_size: str | None = None
+    """Model size preference for the agent."""
 
     reasoning_effort: str | None = None
     """Reasoning effort level for the agent."""

@@ -105,17 +105,31 @@ Agent definitions live in an `agents/` directory under `.stencila/` (workspace) 
       AGENT.md
 ```
 
-## Choosing a Model and Provider
+## Choosing Models and Providers
 
-The `model` and `provider` fields control which LLM the agent uses. Both are optional:
+The `models`, `providers`, and `modelSize` fields control which LLM the agent uses. All are optional:
+
+```yaml
+models:
+  - claude-sonnet-4-5
+  - gpt-5.2-codex
+providers:
+  - anthropic
+  - openai
+modelSize: medium
+```
+
+The singular `model` and `provider` keys still work for backward compatibility:
 
 ```yaml
 model: claude-sonnet-4-5
 provider: anthropic
 ```
 
-- If only `model` is set, the provider is inferred from the model name.
-- If only `provider` is set, the default model for that provider is used.
+- Routing precedence is `models` > `modelSize` > `providers` > defaults.
+- If only `models` or `model` is set, the provider is inferred from each model name.
+- If only `providers` or `provider` is set, the default model for the first available provider is used.
+- If `modelSize` is set, Stencila selects the best available model in that size tier, optionally constrained by `providers`.
 - If neither is set, the first available provider with valid credentials is used.
 
 Supported providers: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `deepseek`.

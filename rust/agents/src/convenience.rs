@@ -34,6 +34,8 @@ pub struct SessionOverrides {
     pub trust_level: Option<String>,
     /// Override the maximum turns (e.g. from `max_turns` node attribute).
     pub max_turns: Option<u32>,
+    /// Override the model size (e.g. from `model_size` node attribute).
+    pub model_size: Option<String>,
 }
 
 /// Options for [`create_agent`].
@@ -275,13 +277,18 @@ async fn create_session_full(
         }
     }
 
-    // Compute effective model/provider: override > agent definition.
-    let effective_provider = overrides
-        .and_then(|o| o.provider.as_deref())
-        .or(agent.provider.as_deref());
-    let effective_model = overrides
+    // Build model/provider/size: override (single value → vec) > agent definition.
+    let effective_models = overrides
         .and_then(|o| o.model.as_deref())
-        .or(agent.model.as_deref());
+        .map(|m| vec![m.to_string()])
+        .or_else(|| agent.inner.models.clone());
+    let effective_providers = overrides
+        .and_then(|o| o.provider.as_deref())
+        .map(|p| vec![p.to_string()])
+        .or_else(|| agent.inner.providers.clone());
+    let effective_model_size = overrides
+        .and_then(|o| o.model_size.as_deref())
+        .or(agent.inner.model_size.as_deref());
 
     let client = stencila_models3::client::Client::from_env().ok();
 
@@ -298,8 +305,12 @@ async fn create_session_full(
         }
     };
 
-    let decision =
-        routing::route_session_explained(effective_provider, effective_model, client_ref)?;
+    let decision = routing::route_session_explained(
+        effective_models.as_deref(),
+        effective_providers.as_deref(),
+        effective_model_size,
+        client_ref,
+    )?;
 
     // Capture credential source for the selected provider before the
     // client is potentially consumed by the API path.

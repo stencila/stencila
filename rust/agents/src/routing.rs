@@ -131,6 +131,56 @@ pub enum ModelSource {
     Fallback,
 }
 
+/// How the model was selected by the routing logic.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SelectionMechanism {
+    /// Selected from an explicit list of model IDs (highest priority).
+    ExplicitList {
+        /// Zero-based index into the models list.
+        index: usize,
+        /// The model ID that was selected.
+        id: String,
+    },
+    /// Selected by model size preference.
+    ModelSize {
+        /// The requested size (e.g. "small", "medium", "large").
+        size: String,
+    },
+    /// Selected based on provider preference list.
+    ProviderPreference,
+    /// Fell through to the default selection path.
+    Default,
+}
+
+/// Why a candidate model was skipped during selection.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SkipReason {
+    /// The model's inferred provider has no API credentials configured.
+    NoCredentials {
+        /// The provider that lacked credentials.
+        provider: String,
+    },
+    /// The model ID was not found in the catalog.
+    NotInCatalog {
+        /// The model ID that was not found.
+        model: String,
+    },
+    /// No provider could be inferred for the model.
+    NoProviderInferred {
+        /// The model ID for which no provider was inferred.
+        model: String,
+    },
+}
+
+/// A model that was considered but skipped during routing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SkippedModel {
+    /// The model ID that was skipped.
+    pub model: String,
+    /// Why it was skipped.
+    pub reason: SkipReason,
+}
+
 impl fmt::Display for ModelSource {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -158,6 +208,10 @@ pub struct RoutingDecision {
     pub fallback_used: bool,
     /// Human-readable reason for the fallback, if any.
     pub fallback_reason: Option<String>,
+    /// How the model was selected.
+    pub selection_mechanism: SelectionMechanism,
+    /// Models that were considered but skipped, with reasons.
+    pub skipped: Vec<SkippedModel>,
 }
 
 impl RoutingDecision {
@@ -178,8 +232,23 @@ impl RoutingDecision {
             "default".to_string()
         };
 
+        let mechanism = match &self.selection_mechanism {
+            SelectionMechanism::ExplicitList { index, .. } => {
+                format!("preferred model #{index}")
+            }
+            SelectionMechanism::ModelSize { size } => format!("modelSize={size}"),
+            SelectionMechanism::ProviderPreference => "provider preference".to_string(),
+            SelectionMechanism::Default => "default selection".to_string(),
+        };
+
+        let skipped = if self.skipped.is_empty() {
+            String::new()
+        } else {
+            format!("; skipped {}", self.skipped.len())
+        };
+
         format!(
-            "Using {provider}/{model_display} ({backend}; {provider_source})",
+            "Using {provider}/{model_display} ({backend}; {provider_source}; {mechanism}{skipped})",
             provider_source = self.provider_source,
         )
     }
@@ -194,42 +263,449 @@ impl RoutingDecision {
             .as_deref()
             .unwrap_or("no API credentials");
         match &self.route {
-            SessionRoute::Cli { provider, .. } => {
-                Some(format!("Falling back to {provider} — {reason}"))
-            }
-            SessionRoute::Api { model, .. } => {
-                Some(format!("Using fallback model {model} — {reason}"))
-            }
+            SessionRoute::Cli { provider, .. } => Some(if self.skipped.is_empty() {
+                format!("Falling back to {provider} - {reason}")
+            } else {
+                format!(
+                    "Falling back to {provider} - {reason}; skipped: {}",
+                    format_skipped_models(&self.skipped)
+                )
+            }),
+            SessionRoute::Api { model, .. } => Some(if self.skipped.is_empty() {
+                format!("Using fallback model {model} - {reason}")
+            } else {
+                format!(
+                    "Using fallback model {model} - {reason}; skipped: {}",
+                    format_skipped_models(&self.skipped)
+                )
+            }),
         }
     }
 }
 
 /// Decide whether to use an API or CLI backend for the given agent.
 ///
-/// The decision follows these rules in order:
+/// The decision follows a strict priority order:
 ///
-/// 1. **Explicit CLI provider** — if the agent's `provider` is a `*-cli` name,
-///    always route to CLI.
-/// 2. **Resolve an API provider** for the model (explicit, inferred, or default).
-/// 3. **API auth available** — if the `models3::Client` has credentials for
-///    that provider, route to API.
-/// 4. **No auth, mapped CLI exists** — fall back to the corresponding CLI tool
-///    (e.g. `anthropic` → `claude-cli`).
-/// 5. **No auth, no CLI mapping** — return an error.
+/// 1. **Explicit model list** (`models`) — iterate the list, infer the
+///    provider for each, check credentials, and select the first available.
+/// 2. **Model size** (`model_size`) — query the catalog for models of the
+///    requested size, optionally filtered by `providers`.
+/// 3. **Provider preference** (`providers`) — iterate providers in order,
+///    select the first with credentials, and use its default model.
+/// 4. **Default** — fall back to the first configured API provider or a
+///    CLI tool on PATH.
+///
+/// Within each path, if no API credentials are available for the chosen
+/// provider, the router attempts a CLI fallback (e.g. `anthropic` →
+/// `claude-cli`). If no CLI mapping exists, an error is returned.
 ///
 /// This is a thin wrapper around [`route_session_explained`] that discards
 /// the explanation metadata.
 pub fn route_session(
-    agent_provider: Option<&str>,
-    agent_model: Option<&str>,
+    models: Option<&[String]>,
+    providers: Option<&[String]>,
+    model_size: Option<&str>,
     client: &stencila_models3::client::Client,
 ) -> AgentResult<SessionRoute> {
-    Ok(route_session_explained(agent_provider, agent_model, client)?.route)
+    Ok(route_session_explained(models, providers, model_size, client)?.route)
 }
 
 /// Like [`route_session`] but returns a full [`RoutingDecision`] with
 /// explanation metadata for UX surfaces.
 pub fn route_session_explained(
+    models: Option<&[String]>,
+    providers: Option<&[String]>,
+    model_size: Option<&str>,
+    client: &stencila_models3::client::Client,
+) -> AgentResult<RoutingDecision> {
+    // Single model+provider pair — use the direct routing path.
+    if let (Some([model]), Some([provider])) = (models, providers) {
+        return route_direct(Some(provider), Some(model), client);
+    }
+
+    // Priority 1: Explicit model list
+    if let Some(model_list) = models
+        && !model_list.is_empty()
+    {
+        return route_via_models_path(model_list, client);
+    }
+
+    // Priority 2: Model size preference
+    if let Some(size_str) = model_size
+        && let Some(size) = parse_model_size(size_str)
+        && let Some(decision) = route_via_model_size_path(size_str, size, providers, client)?
+    {
+        return Ok(decision);
+    }
+    // No candidates found for this size / unrecognized size — fall through.
+
+    // Priority 3: Provider preference list
+    if let Some(provider_list) = providers
+        && !provider_list.is_empty()
+        && let Some(decision) = route_via_providers_path(provider_list, client)?
+    {
+        return Ok(decision);
+    }
+    // No provider in the list has credentials — fall through to default.
+
+    // Priority 4: Default path
+    route_direct(None, None, client)
+}
+
+/// Route using the explicit models list (highest priority path).
+///
+/// Iterates the model list in order, infers the provider for each,
+/// checks for API credentials, and selects the first model whose
+/// provider has credentials. Models that cannot be used are tracked
+/// in the `skipped` list with a reason.
+fn route_via_models_path(
+    model_list: &[String],
+    client: &stencila_models3::client::Client,
+) -> AgentResult<RoutingDecision> {
+    let mut skipped = Vec::new();
+
+    for (index, model_id) in model_list.iter().enumerate() {
+        let provider = match resolve_catalog_model(model_id) {
+            Ok((provider, _resolved_model)) => provider,
+            Err(SkipReason::NotInCatalog { .. }) => match infer_provider(model_id, client) {
+                Ok(provider) => canonical_provider(&provider).to_string(),
+                Err(reason) => {
+                    skipped.push(SkippedModel {
+                        model: model_id.clone(),
+                        reason,
+                    });
+                    continue;
+                }
+            },
+            Err(reason) => {
+                skipped.push(SkippedModel {
+                    model: model_id.clone(),
+                    reason,
+                });
+                continue;
+            }
+        };
+
+        // Check if client has credentials for this provider
+        if client.has_provider(&provider) {
+            let (model, fallback_used, fallback_reason) =
+                resolve_auth_compatible_model(&provider, model_id, client)?;
+            return Ok(RoutingDecision {
+                route: SessionRoute::Api { provider, model },
+                provider_source: ProviderSource::AgentExplicit,
+                model_source: if fallback_used {
+                    ModelSource::Fallback
+                } else {
+                    ModelSource::AgentExplicit
+                },
+                alias_resolution: resolve_alias_preview(model_id),
+                fallback_used,
+                fallback_reason,
+                selection_mechanism: SelectionMechanism::ExplicitList {
+                    index,
+                    id: model_id.clone(),
+                },
+                skipped,
+            });
+        }
+
+        // No credentials for this provider — record skip and continue
+        skipped.push(SkippedModel {
+            model: model_id.clone(),
+            reason: SkipReason::NoCredentials {
+                provider: provider.clone(),
+            },
+        });
+    }
+
+    // All models exhausted — try CLI fallback for the first model that had
+    // a known provider.
+    for skipped_model in &skipped {
+        if let SkipReason::NoCredentials { ref provider } = skipped_model.reason
+            && let Some(cli) = api_to_cli(provider)
+        {
+            return Ok(RoutingDecision {
+                route: SessionRoute::Cli {
+                    provider: cli.to_string(),
+                    model: Some(skipped_model.model.clone()),
+                },
+                provider_source: ProviderSource::AgentExplicit,
+                model_source: ModelSource::AgentExplicit,
+                alias_resolution: None,
+                fallback_used: true,
+                fallback_reason: Some(format!(
+                    "No API key for {provider} (set {})",
+                    api_key_env_hint(provider)
+                )),
+                selection_mechanism: SelectionMechanism::ExplicitList {
+                    index: model_list
+                        .iter()
+                        .position(|model| model == &skipped_model.model)
+                        .unwrap_or(0),
+                    id: skipped_model.model.clone(),
+                },
+                skipped: skipped.clone(),
+            });
+        }
+    }
+
+    // Build a descriptive error
+    let model_names: Vec<&str> = model_list.iter().map(String::as_str).collect();
+    Err(AgentError::Sdk(
+        stencila_models3::error::SdkError::Configuration {
+            message: format!(
+                "No available provider for model(s): {}. \
+                 None of the listed models have API credentials configured \
+                 and no CLI fallback is available.",
+                model_names.join(", ")
+            ),
+        },
+    ))
+}
+
+/// Parse a model size string into a [`ModelSize`] enum value.
+///
+/// Case-insensitive matching for "large", "medium", and "small".
+/// Returns `None` for unrecognized values.
+pub fn parse_model_size(s: &str) -> Option<stencila_models3::catalog::ModelSize> {
+    use stencila_models3::catalog::ModelSize;
+
+    match s.to_ascii_lowercase().as_str() {
+        "large" => Some(ModelSize::Large),
+        "medium" => Some(ModelSize::Medium),
+        "small" => Some(ModelSize::Small),
+        _ => None,
+    }
+}
+
+/// Route using model size preference (second-priority path).
+///
+/// Queries the catalog for models of the requested size, optionally
+/// filtered by the provider list, and selects the first model whose
+/// provider has credentials in the client. Returns `Ok(None)` when the
+/// requested size cannot be satisfied so the caller can fall through to
+/// provider preference or default routing.
+fn route_via_model_size_path(
+    size_str: &str,
+    size: stencila_models3::catalog::ModelSize,
+    providers: Option<&[String]>,
+    client: &stencila_models3::client::Client,
+) -> AgentResult<Option<RoutingDecision>> {
+    let provider_filter = providers.map(canonicalize_provider_list);
+    let mut candidates = Vec::new();
+
+    if let Some(ref provider_list) = provider_filter {
+        for provider in provider_list {
+            candidates.extend(
+                stencila_models3::catalog::list_models_by_size(size, Some(provider))
+                    .map_err(AgentError::Sdk)?,
+            );
+        }
+    } else {
+        candidates =
+            stencila_models3::catalog::list_models_by_size(size, None).map_err(AgentError::Sdk)?;
+    }
+
+    for candidate in &candidates {
+        // Check if client has credentials for this provider
+        if client.has_provider(&candidate.provider) {
+            let (model, fallback_used, fallback_reason) =
+                resolve_auth_compatible_model(&candidate.provider, &candidate.id, client)?;
+            return Ok(Some(RoutingDecision {
+                route: SessionRoute::Api {
+                    provider: candidate.provider.clone(),
+                    model,
+                },
+                provider_source: ProviderSource::DefaultConfig,
+                model_source: if fallback_used {
+                    ModelSource::Fallback
+                } else {
+                    ModelSource::AgentExplicit
+                },
+                alias_resolution: None,
+                fallback_used,
+                fallback_reason,
+                selection_mechanism: SelectionMechanism::ModelSize {
+                    size: size_str.to_string(),
+                },
+                skipped: Vec::new(),
+            }));
+        }
+    }
+
+    Ok(None)
+}
+
+/// Route using provider preference list (third-priority path).
+///
+/// Iterates the provider list in order, selects the first provider with
+/// credentials, and uses its default model.
+fn route_via_providers_path(
+    provider_list: &[String],
+    client: &stencila_models3::client::Client,
+) -> AgentResult<Option<RoutingDecision>> {
+    let providers = canonicalize_provider_list(provider_list);
+
+    for provider in &providers {
+        if !client.has_provider(provider) {
+            continue;
+        }
+
+        let Some(model) = default_model(provider) else {
+            continue;
+        };
+        let (model, fallback_used, fallback_reason) =
+            resolve_auth_compatible_model(provider, model, client)?;
+
+        return Ok(Some(RoutingDecision {
+            route: SessionRoute::Api {
+                provider: provider.clone(),
+                model,
+            },
+            provider_source: ProviderSource::AgentExplicit,
+            model_source: if fallback_used {
+                ModelSource::Fallback
+            } else {
+                ModelSource::DefaultAlias
+            },
+            alias_resolution: None,
+            fallback_used,
+            fallback_reason,
+            selection_mechanism: SelectionMechanism::ProviderPreference,
+            skipped: Vec::new(),
+        }));
+    }
+
+    for provider in &providers {
+        if let Some(cli) = api_to_cli(provider) {
+            return Ok(Some(RoutingDecision {
+                route: SessionRoute::Cli {
+                    provider: cli.to_string(),
+                    model: default_model(provider).map(String::from),
+                },
+                provider_source: ProviderSource::AgentExplicit,
+                model_source: ModelSource::DefaultAlias,
+                alias_resolution: None,
+                fallback_used: true,
+                fallback_reason: Some(format!(
+                    "No API key for {provider} (set {})",
+                    api_key_env_hint(provider)
+                )),
+                selection_mechanism: SelectionMechanism::ProviderPreference,
+                skipped: Vec::new(),
+            }));
+        }
+    }
+
+    Err(AgentError::Sdk(
+        stencila_models3::error::SdkError::Configuration {
+            message: format!(
+                "None of the preferred providers are configured: {}",
+                providers.join(", ")
+            ),
+        },
+    ))
+}
+
+/// Infer the provider for a model by trying, in order: client inference,
+/// catalog lookup, and name-based heuristics. Returns `Err(SkipReason)`
+/// when no provider can be determined.
+fn infer_provider(
+    model_id: &str,
+    client: &stencila_models3::client::Client,
+) -> Result<String, SkipReason> {
+    // 1. Client-level inference (provider adapters)
+    if let Ok(Some(p)) = client.infer_provider_from_model(model_id) {
+        return Ok(p);
+    }
+
+    // 2. Catalog lookup
+    if let Ok(Some(info)) = stencila_models3::catalog::get_model_info(model_id) {
+        return Ok(info.provider);
+    }
+
+    // 3. Name-based heuristic
+    if let Some(p) = infer_provider_heuristic(model_id) {
+        return Ok(p.to_string());
+    }
+
+    Err(SkipReason::NoProviderInferred {
+        model: model_id.to_string(),
+    })
+}
+
+fn resolve_catalog_model(model_id: &str) -> Result<(String, String), SkipReason> {
+    let info = stencila_models3::catalog::get_model_info(model_id).map_err(|_| {
+        SkipReason::NotInCatalog {
+            model: model_id.to_string(),
+        }
+    })?;
+    let info = info.ok_or_else(|| SkipReason::NotInCatalog {
+        model: model_id.to_string(),
+    })?;
+    Ok((canonical_provider(&info.provider).to_string(), info.id))
+}
+
+fn canonical_provider(provider: &str) -> &str {
+    match provider {
+        "google" => "gemini",
+        other => other,
+    }
+}
+
+fn canonicalize_provider_list(providers: &[String]) -> Vec<String> {
+    providers
+        .iter()
+        .map(|provider| canonical_provider(provider).to_string())
+        .collect()
+}
+
+fn format_skipped_models(skipped: &[SkippedModel]) -> String {
+    skipped
+        .iter()
+        .map(|skipped| match &skipped.reason {
+            SkipReason::NoCredentials { provider } => {
+                format!("{} (no credentials for {provider})", skipped.model)
+            }
+            SkipReason::NotInCatalog { .. } => format!("{} (not in catalog)", skipped.model),
+            SkipReason::NoProviderInferred { .. } => {
+                format!("{} (no provider inferred)", skipped.model)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+/// Infer a provider from a model ID using name-based heuristics.
+fn infer_provider_heuristic(model_id: &str) -> Option<&'static str> {
+    if model_id.starts_with("claude") {
+        Some("anthropic")
+    } else if model_id.starts_with("gpt-")
+        || model_id.starts_with("o1")
+        || model_id.starts_with("o3")
+        || model_id.starts_with("o4")
+    {
+        Some("openai")
+    } else if model_id.starts_with("gemini") {
+        Some("gemini")
+    } else if model_id.starts_with("mistral") {
+        Some("mistral")
+    } else if model_id.starts_with("deepseek") {
+        Some("deepseek")
+    } else {
+        None
+    }
+}
+
+/// Route a single provider/model pair through the full resolution pipeline.
+///
+/// Handles explicit CLI providers, API auth checking with auth-type-aware
+/// fallback, provider inference from model names, default model selection,
+/// and API→CLI fallback when no API credentials are available. Also serves
+/// as the final default path when no model list, size, or provider
+/// preferences are specified.
+pub fn route_direct(
     agent_provider: Option<&str>,
     agent_model: Option<&str>,
     client: &stencila_models3::client::Client,
@@ -254,6 +730,8 @@ pub fn route_session_explained(
             alias_resolution,
             fallback_used: false,
             fallback_reason: None,
+            selection_mechanism: SelectionMechanism::Default,
+            skipped: Vec::new(),
         });
     }
 
@@ -341,6 +819,8 @@ pub fn route_session_explained(
                     alias_resolution: None,
                     fallback_used: false,
                     fallback_reason: None,
+                    selection_mechanism: SelectionMechanism::Default,
+                    skipped: Vec::new(),
                 });
             }
         }
@@ -348,63 +828,31 @@ pub fn route_session_explained(
 
     let alias_resolution = resolve_alias_preview(&model);
 
-    // Resolve the alias to get the actual model ID for compatibility checking
-    let actual_model = if let Some((_, concrete_id)) = alias_resolution.as_ref() {
-        concrete_id.clone()
-    } else {
-        model.to_string()
-    };
-
     // 3. API auth available — use API
     if client.has_provider(&api_provider) {
-        // Check if the selected model is compatible with the current auth type
-        let auth_type = client.auth_type(&api_provider);
-        if !model_supports_auth_type(&actual_model, &auth_type) {
-            // Try to find a compatible fallback model
-            if let Some(fallback_model) =
-                find_compatible_fallback_model(&api_provider, &actual_model, &auth_type)
-            {
-                let fallback_reason = format!(
-                    "Model {actual_model} is not compatible with the current auth type; \
-                     using {fallback_model} instead"
-                );
-                return Ok(RoutingDecision {
-                    route: SessionRoute::Api {
-                        provider: api_provider,
-                        model: fallback_model,
-                    },
-                    provider_source,
-                    model_source: ModelSource::Fallback,
-                    alias_resolution: None,
-                    fallback_used: true,
-                    fallback_reason: Some(fallback_reason),
-                });
-            }
-
-            // No compatible fallback — return an actionable error
-            return Err(AgentError::Sdk(
-                stencila_models3::error::SdkError::Configuration {
-                    message: format!(
-                        "Model '{actual_model}' requires {auth_type:?} authentication, \
-                         but the current credentials for '{api_provider}' use a different \
-                         auth type and no compatible fallback model was found. \
-                         Set {} to use this model.",
-                        api_key_env_hint(&api_provider)
-                    ),
-                },
-            ));
-        }
+        let (selected_model, fallback_used, fallback_reason) =
+            resolve_auth_compatible_model(&api_provider, &model, client)?;
 
         return Ok(RoutingDecision {
             route: SessionRoute::Api {
                 provider: api_provider,
-                model,
+                model: selected_model,
             },
             provider_source,
-            model_source,
-            alias_resolution,
-            fallback_used: false,
-            fallback_reason: None,
+            model_source: if fallback_used {
+                ModelSource::Fallback
+            } else {
+                model_source
+            },
+            alias_resolution: if fallback_used {
+                None
+            } else {
+                alias_resolution
+            },
+            fallback_used,
+            fallback_reason,
+            selection_mechanism: SelectionMechanism::Default,
+            skipped: Vec::new(),
         });
     }
 
@@ -421,6 +869,8 @@ pub fn route_session_explained(
             alias_resolution,
             fallback_used: true,
             fallback_reason: Some(format!("No API key for {api_provider} (set {env_hint})")),
+            selection_mechanism: SelectionMechanism::Default,
+            skipped: Vec::new(),
         });
     }
 
@@ -431,6 +881,43 @@ pub fn route_session_explained(
                 "Provider '{api_provider}' is not configured. \
                  Set the appropriate API key (e.g. {}).",
                 api_key_env_hint(&api_provider)
+            ),
+        },
+    ))
+}
+
+fn resolve_auth_compatible_model(
+    provider: &str,
+    model: &str,
+    client: &stencila_models3::client::Client,
+) -> AgentResult<(String, bool, Option<String>)> {
+    let auth_type = client.auth_type(provider);
+    let actual_model = resolve_alias_preview(model)
+        .as_ref()
+        .map_or_else(|| model.to_string(), |(_, concrete_id)| concrete_id.clone());
+
+    if model_supports_auth_type(&actual_model, &auth_type) {
+        return Ok((model.to_string(), false, None));
+    }
+
+    if let Some(fallback_model) =
+        find_compatible_fallback_model(provider, &actual_model, &auth_type)
+    {
+        let fallback_reason = format!(
+            "Model {actual_model} is not compatible with the current auth type; \
+             using {fallback_model} instead"
+        );
+        return Ok((fallback_model, true, Some(fallback_reason)));
+    }
+
+    Err(AgentError::Sdk(
+        stencila_models3::error::SdkError::Configuration {
+            message: format!(
+                "Model '{actual_model}' requires {auth_type:?} authentication, \
+                 but the current credentials for '{provider}' use a different \
+                 auth type and no compatible fallback model was found. \
+                 Set {} to use this model.",
+                api_key_env_hint(provider)
             ),
         },
     ))
@@ -516,48 +1003,26 @@ fn find_compatible_fallback_model(
         Err(_) => return None,
     };
 
-    let original_family_prefix = model_family_prefix(original_model);
-
-    // Find models that support the current auth type, excluding the original model.
-    // Prefer staying within the same family (e.g. gpt-* should fall back to gpt-*).
-    let compatible_models: Vec<String> = models
-        .iter()
-        .filter(|m| m.id != original_model && model_supports_auth_type(&m.id, auth_type))
-        .filter(|m| {
-            original_family_prefix
-                .as_ref()
-                .is_none_or(|prefix| m.id.starts_with(prefix))
-        })
-        .map(|m| m.id.clone())
-        .collect();
-
-    if compatible_models.is_empty() {
-        return None;
-    }
+    let family_prefix = model_family_prefix(original_model);
 
     // The catalog is already ordered best-first within each provider, so the
     // first compatible model in the filtered list is the preferred fallback.
-    compatible_models.into_iter().next()
+    models
+        .iter()
+        .find(|m| {
+            m.id != original_model
+                && model_supports_auth_type(&m.id, auth_type)
+                && family_prefix.is_none_or(|prefix| m.id.starts_with(prefix))
+        })
+        .map(|m| m.id.clone())
 }
 
 fn model_family_prefix(model_id: &str) -> Option<&'static str> {
-    if model_id.starts_with("gpt-") {
-        Some("gpt-")
-    } else if model_id.starts_with("o1") {
-        Some("o1")
-    } else if model_id.starts_with("o3") {
-        Some("o3")
-    } else if model_id.starts_with("o4") {
-        Some("o4")
-    } else if model_id.starts_with("claude-") {
-        Some("claude-")
-    } else if model_id.starts_with("gemini") {
-        Some("gemini")
-    } else if model_id.starts_with("mistral") {
-        Some("mistral")
-    } else {
-        None
-    }
+    static PREFIXES: &[&str] = &["gpt-", "o1", "o3", "o4", "claude-", "gemini", "mistral"];
+    PREFIXES
+        .iter()
+        .find(|&&prefix| model_id.starts_with(prefix))
+        .copied()
 }
 
 #[cfg(test)]
@@ -572,16 +1037,16 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // route_session tests
+    // route_direct tests (single provider + single model)
     // -----------------------------------------------------------------------
 
     #[test]
     fn explicit_cli_provider_routes_to_cli() {
         let client = empty_client();
-        let route = route_session(Some("claude-cli"), Some("my-model"), &client)
+        let decision = route_direct(Some("claude-cli"), Some("my-model"), &client)
             .expect("should route claude-cli");
         assert_eq!(
-            route,
+            decision.route,
             SessionRoute::Cli {
                 provider: "claude-cli".into(),
                 model: Some("my-model".into()),
@@ -592,10 +1057,10 @@ mod tests {
     #[test]
     fn explicit_cli_provider_no_model() {
         let client = empty_client();
-        let route =
-            route_session(Some("codex-cli"), None, &client).expect("should route codex-cli");
+        let decision =
+            route_direct(Some("codex-cli"), None, &client).expect("should route codex-cli");
         assert_eq!(
-            route,
+            decision.route,
             SessionRoute::Cli {
                 provider: "codex-cli".into(),
                 model: None,
@@ -606,11 +1071,11 @@ mod tests {
     #[test]
     fn explicit_provider_and_model_no_auth_falls_back_to_cli() {
         let client = empty_client();
-        let route = route_session(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
+        let decision = route_direct(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
             .expect("should route anthropic with model");
         // No API auth → falls back to claude-cli
         assert_eq!(
-            route,
+            decision.route,
             SessionRoute::Cli {
                 provider: "claude-cli".into(),
                 model: Some("claude-sonnet-4-20250514".into()),
@@ -621,10 +1086,10 @@ mod tests {
     #[test]
     fn explicit_provider_no_model_uses_default_alias() {
         let client = empty_client();
-        let route = route_session(Some("anthropic"), None, &client)
+        let decision = route_direct(Some("anthropic"), None, &client)
             .expect("should route anthropic without model");
         assert_eq!(
-            route,
+            decision.route,
             SessionRoute::Cli {
                 provider: "claude-cli".into(),
                 model: Some("claude".into()),
@@ -635,7 +1100,7 @@ mod tests {
     #[test]
     fn mistral_provider_without_model_uses_default() {
         let client = empty_client();
-        let result = route_session(Some("mistral"), None, &client);
+        let result = route_direct(Some("mistral"), None, &client);
         // No API auth and no CLI mapping → error asking for API key
         let msg = result
             .expect_err("should error without API key")
@@ -646,7 +1111,7 @@ mod tests {
     #[test]
     fn mistral_provider_with_model_no_auth_errors_with_hint() {
         let client = empty_client();
-        let result = route_session(Some("mistral"), Some("mistral-large"), &client);
+        let result = route_direct(Some("mistral"), Some("mistral-large"), &client);
         let msg = result
             .expect_err("should error without API key")
             .to_string();
@@ -656,34 +1121,36 @@ mod tests {
     #[test]
     fn provider_without_default_model_errors() {
         let client = empty_client();
-        let result = route_session(Some("unknown-provider"), None, &client);
+        let result = route_direct(Some("unknown-provider"), None, &client);
         assert!(result.is_err());
     }
 
     #[test]
     fn no_provider_no_model_with_no_cli_errors() {
         let client = empty_client();
-        let result = route_session(None, None, &client);
+        let result = route_direct(None, None, &client);
         // When no API providers and no CLI binaries on PATH, should either
         // fall back to a detected CLI or return an actionable error.
         match result {
-            Ok(SessionRoute::Cli { model, .. }) => assert_eq!(model, None),
+            Ok(decision) => match decision.route {
+                SessionRoute::Cli { model, .. } => assert_eq!(model, None),
+                SessionRoute::Api { .. } => panic!("Expected CLI route or error"),
+            },
             Err(e) => {
                 let msg = e.to_string();
                 assert!(msg.contains("No API providers configured"));
             }
-            Ok(SessionRoute::Api { .. }) => panic!("Expected CLI route or error"),
         }
     }
 
     // -----------------------------------------------------------------------
-    // route_session_explained tests
+    // route_direct explained tests
     // -----------------------------------------------------------------------
 
     #[test]
     fn explained_explicit_cli_has_correct_metadata() {
         let client = empty_client();
-        let decision = route_session_explained(Some("claude-cli"), Some("my-model"), &client)
+        let decision = route_direct(Some("claude-cli"), Some("my-model"), &client)
             .expect("should explain claude-cli route");
 
         assert_eq!(decision.provider_source, ProviderSource::AgentExplicit);
@@ -695,7 +1162,7 @@ mod tests {
     #[test]
     fn explained_cli_no_model_uses_cli_default() {
         let client = empty_client();
-        let decision = route_session_explained(Some("gemini-cli"), None, &client)
+        let decision = route_direct(Some("gemini-cli"), None, &client)
             .expect("should explain gemini-cli route");
 
         assert_eq!(decision.provider_source, ProviderSource::AgentExplicit);
@@ -705,9 +1172,8 @@ mod tests {
     #[test]
     fn explained_api_fallback_has_warning() {
         let client = empty_client();
-        let decision =
-            route_session_explained(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
-                .expect("should explain anthropic fallback route");
+        let decision = route_direct(Some("anthropic"), Some("claude-sonnet-4-20250514"), &client)
+            .expect("should explain anthropic fallback route");
 
         assert!(decision.fallback_used);
         assert!(decision.fallback_reason.is_some());
@@ -722,8 +1188,8 @@ mod tests {
     #[test]
     fn explained_default_alias_model_source() {
         let client = empty_client();
-        let decision = route_session_explained(Some("openai"), None, &client)
-            .expect("should explain openai route");
+        let decision =
+            route_direct(Some("openai"), None, &client).expect("should explain openai route");
 
         assert_eq!(decision.model_source, ModelSource::DefaultAlias);
         // Model should be "gpt" (the default alias for openai)
@@ -740,7 +1206,7 @@ mod tests {
     #[test]
     fn explained_no_providers_cli_default_or_error() {
         let client = empty_client();
-        let result = route_session_explained(None, None, &client);
+        let result = route_direct(None, None, &client);
         // When no API providers and no CLI binaries on PATH, should either
         // fall back to a detected CLI or return an actionable error.
         match result {
@@ -759,7 +1225,7 @@ mod tests {
     #[test]
     fn summary_format_includes_provider_and_backend() {
         let client = empty_client();
-        let decision = route_session_explained(Some("claude-cli"), Some("my-model"), &client)
+        let decision = route_direct(Some("claude-cli"), Some("my-model"), &client)
             .expect("should explain claude-cli for summary");
 
         let summary = decision.summary();

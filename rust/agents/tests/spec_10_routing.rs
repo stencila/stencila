@@ -11,7 +11,7 @@ use futures::stream::BoxStream;
 use stencila_agents::cli_providers::is_cli_available;
 use stencila_agents::error::AgentResult;
 use stencila_agents::routing::{
-    SessionRoute, api_to_cli, cli_to_api, is_cli_provider, route_session, route_session_explained,
+    SessionRoute, api_to_cli, cli_to_api, is_cli_provider, route_direct, route_session_explained,
 };
 use stencila_models3::client::AuthType;
 use stencila_models3::error::SdkError;
@@ -119,7 +119,7 @@ fn cli_provider_mapping_roundtrip() -> AgentResult<()> {
 fn openai_oauth_falls_back_to_compatible_gpt_family_model() -> AgentResult<()> {
     let client = client_with_providers_and_auth(&["openai"], AuthType::OAuth);
 
-    let decision = route_session_explained(Some("openai"), Some("gpt"), &client)?;
+    let decision = route_direct(Some("openai"), Some("gpt"), &client)?;
 
     // Should fall back from the api-key-only gpt-5.4-pro to gpt-5.4
     assert_eq!(
@@ -149,6 +149,52 @@ fn openai_oauth_falls_back_to_compatible_gpt_family_model() -> AgentResult<()> {
 }
 
 #[test]
+fn models_path_respects_openai_oauth_compatibility() -> AgentResult<()> {
+    let client = client_with_providers_and_auth(&["openai"], AuthType::OAuth);
+    let models = vec!["gpt".to_string()];
+
+    let decision = route_session_explained(Some(&models), None, None, &client)?;
+
+    assert_eq!(
+        decision.route,
+        SessionRoute::Api {
+            provider: "openai".into(),
+            model: "gpt-5.4".into(),
+        }
+    );
+    assert!(decision.fallback_used);
+    assert_eq!(
+        decision.model_source,
+        stencila_agents::routing::ModelSource::Fallback,
+    );
+
+    Ok(())
+}
+
+#[test]
+fn providers_path_respects_openai_oauth_compatibility() -> AgentResult<()> {
+    let client = client_with_providers_and_auth(&["openai"], AuthType::OAuth);
+    let providers = vec!["openai".to_string()];
+
+    let decision = route_session_explained(None, Some(&providers), None, &client)?;
+
+    assert_eq!(
+        decision.route,
+        SessionRoute::Api {
+            provider: "openai".into(),
+            model: "gpt-5.4".into(),
+        }
+    );
+    assert!(decision.fallback_used);
+    assert_eq!(
+        decision.model_source,
+        stencila_agents::routing::ModelSource::Fallback,
+    );
+
+    Ok(())
+}
+
+#[test]
 fn is_cli_provider_detects_all_variants() -> AgentResult<()> {
     assert!(is_cli_provider("claude-cli"));
     assert!(is_cli_provider("codex-cli"));
@@ -166,9 +212,9 @@ fn is_cli_provider_detects_all_variants() -> AgentResult<()> {
 fn explicit_cli_provider_routes_to_cli() -> AgentResult<()> {
     let client = empty_client();
 
-    let route = route_session(Some("claude-cli"), Some("claude-sonnet-4-5"), &client)?;
+    let decision = route_direct(Some("claude-cli"), Some("claude-sonnet-4-5"), &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "claude-cli".into(),
             model: Some("claude-sonnet-4-5".into()),
@@ -176,18 +222,18 @@ fn explicit_cli_provider_routes_to_cli() -> AgentResult<()> {
     );
 
     // Without model
-    let route = route_session(Some("codex-cli"), None, &client)?;
+    let decision = route_direct(Some("codex-cli"), None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "codex-cli".into(),
             model: None,
         }
     );
 
-    let route = route_session(Some("gemini-cli"), None, &client)?;
+    let decision = route_direct(Some("gemini-cli"), None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "gemini-cli".into(),
             model: None,
@@ -201,9 +247,9 @@ fn explicit_cli_provider_routes_to_cli() -> AgentResult<()> {
 fn explicit_api_provider_with_auth_routes_to_api() -> AgentResult<()> {
     let client = client_with_providers(&["anthropic"]);
 
-    let route = route_session(Some("anthropic"), Some("claude-sonnet-4-5"), &client)?;
+    let decision = route_direct(Some("anthropic"), Some("claude-sonnet-4-5"), &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Api {
             provider: "anthropic".into(),
             model: "claude-sonnet-4-5".into(),
@@ -217,9 +263,9 @@ fn explicit_api_provider_with_auth_routes_to_api() -> AgentResult<()> {
 fn explicit_api_provider_with_auth_default_model() -> AgentResult<()> {
     let client = client_with_providers(&["openai"]);
 
-    let route = route_session(Some("openai"), None, &client)?;
+    let decision = route_direct(Some("openai"), None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Api {
             provider: "openai".into(),
             model: "gpt".into(),
@@ -234,9 +280,9 @@ fn explicit_api_provider_without_auth_falls_back_to_cli() -> AgentResult<()> {
     // Client has no "anthropic" provider registered
     let client = empty_client();
 
-    let route = route_session(Some("anthropic"), Some("claude-sonnet-4-5"), &client)?;
+    let decision = route_direct(Some("anthropic"), Some("claude-sonnet-4-5"), &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "claude-cli".into(),
             model: Some("claude-sonnet-4-5".into()),
@@ -244,9 +290,9 @@ fn explicit_api_provider_without_auth_falls_back_to_cli() -> AgentResult<()> {
     );
 
     // openai → codex-cli
-    let route = route_session(Some("openai"), None, &client)?;
+    let decision = route_direct(Some("openai"), None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "codex-cli".into(),
             model: Some("gpt".into()),
@@ -254,9 +300,9 @@ fn explicit_api_provider_without_auth_falls_back_to_cli() -> AgentResult<()> {
     );
 
     // gemini → gemini-cli
-    let route = route_session(Some("gemini"), None, &client)?;
+    let decision = route_direct(Some("gemini"), None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "gemini-cli".into(),
             model: Some("gemini".into()),
@@ -277,9 +323,9 @@ fn no_provider_no_model_no_keys_falls_back_to_first_cli() -> AgentResult<()> {
 
     let client = empty_client();
 
-    let route = route_session(None, None, &client)?;
+    let decision = route_direct(None, None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "claude-cli".into(),
             model: None,
@@ -293,9 +339,9 @@ fn no_provider_no_model_no_keys_falls_back_to_first_cli() -> AgentResult<()> {
 fn no_provider_no_model_with_api_key_routes_to_api() -> AgentResult<()> {
     let client = client_with_providers(&["anthropic"]);
 
-    let route = route_session(None, None, &client)?;
+    let decision = route_direct(None, None, &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Api {
             provider: "anthropic".into(),
             model: "claude".into(),
@@ -309,7 +355,7 @@ fn no_provider_no_model_with_api_key_routes_to_api() -> AgentResult<()> {
 fn unmapped_api_provider_without_auth_returns_error() -> AgentResult<()> {
     let client = empty_client();
 
-    let result = route_session(Some("mistral"), Some("mistral-large"), &client);
+    let result = route_direct(Some("mistral"), Some("mistral-large"), &client);
     assert!(result.is_err());
 
     let err = result.expect_err("should be an error");
@@ -327,7 +373,7 @@ fn explicit_api_provider_unknown_default_model_returns_error() -> AgentResult<()
     let client = empty_client();
 
     // "deepseek" has no default_model mapping and no CLI mapping
-    let result = route_session(Some("deepseek"), None, &client);
+    let result = route_direct(Some("deepseek"), None, &client);
     assert!(result.is_err());
 
     let err = result.expect_err("should be an error");
@@ -345,9 +391,9 @@ fn cli_provider_ignores_api_auth() -> AgentResult<()> {
     // Even if the API provider is registered, explicit CLI routes to CLI
     let client = client_with_providers(&["anthropic"]);
 
-    let route = route_session(Some("claude-cli"), Some("claude-sonnet-4-5"), &client)?;
+    let decision = route_direct(Some("claude-cli"), Some("claude-sonnet-4-5"), &client)?;
     assert_eq!(
-        route,
+        decision.route,
         SessionRoute::Cli {
             provider: "claude-cli".into(),
             model: Some("claude-sonnet-4-5".into()),

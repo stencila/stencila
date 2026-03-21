@@ -22,6 +22,11 @@ use stencila_codecs::{DecodeOptions, Format};
 use stencila_schema::{Agent, Node, NodeType};
 use stencila_version::STENCILA_VERSION;
 
+/// Extract the first element from an optional string list.
+fn first_str(list: &Option<Vec<String>>) -> Option<&str> {
+    list.as_deref().and_then(|v| v.first().map(String::as_str))
+}
+
 /// Where an agent was discovered from.
 ///
 /// Variant order determines sort priority: workspace agents sort first,
@@ -92,12 +97,13 @@ impl Serialize for AgentInstance {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("AgentInstance", 7)?;
+        let mut state = serializer.serialize_struct("AgentInstance", 8)?;
 
         state.serialize_field("name", &self.inner.name)?;
         state.serialize_field("description", &self.inner.description)?;
-        state.serialize_field("model", &self.inner.model)?;
-        state.serialize_field("provider", &self.inner.provider)?;
+        state.serialize_field("models", &self.inner.models)?;
+        state.serialize_field("providers", &self.inner.providers)?;
+        state.serialize_field("modelSize", &self.inner.model_size)?;
         state.serialize_field("reasoningEffort", &self.inner.reasoning_effort)?;
         state.serialize_field("source", &self.source.map(|s| s.to_string()))?;
         state.serialize_field("path", &self.path)?;
@@ -152,6 +158,22 @@ impl AgentInstance {
     /// Which source this agent was loaded from
     pub fn source(&self) -> Option<AgentSource> {
         self.source
+    }
+
+    /// The first model identifier, if any.
+    ///
+    /// The agent definition stores a list of preferred models. This returns
+    /// the primary (first) entry for call sites that only need a single model.
+    pub fn first_model(&self) -> Option<&str> {
+        first_str(&self.inner.models)
+    }
+
+    /// The first provider identifier, if any.
+    ///
+    /// The agent definition stores a list of preferred providers. This returns
+    /// the primary (first) entry for call sites that only need a single provider.
+    pub fn first_provider(&self) -> Option<&str> {
+        first_str(&self.inner.providers)
     }
 
     /// Read the AGENT.md file and extract the Markdown body (instructions),
@@ -229,7 +251,7 @@ fn detect_cli_agents() -> Vec<AgentInstance> {
             let agent = stencila_schema::Agent {
                 name: name.to_string(),
                 description: description.to_string(),
-                provider: Some(provider.to_string()),
+                providers: Some(vec![provider.to_string()]),
                 ..Default::default()
             };
             AgentInstance::in_memory(agent, AgentSource::CliDetected)
@@ -552,6 +574,8 @@ mod tests {
         let tmp = tempfile::tempdir().expect("tempdir");
         let agent_dir = tmp.path().join("test-agent");
         std::fs::create_dir_all(&agent_dir).expect("create dir");
+        // Uses singular `model:` and `provider:` aliases — should deserialize
+        // into the plural `models`/`providers` fields via option_one_or_many.
         let content = "---\nname: test-agent\ndescription: A test agent\nmodel: claude-sonnet-4-5\nprovider: anthropic\nreasoningEffort: high\n---\n\nYou are a helpful assistant.\n";
         std::fs::write(agent_dir.join("AGENT.md"), content).expect("write");
 
@@ -559,11 +583,46 @@ mod tests {
 
         assert_eq!(instance.name, "test-agent");
         assert_eq!(instance.description, "A test agent");
-        assert_eq!(instance.model.as_deref(), Some("claude-sonnet-4-5"));
-        assert_eq!(instance.provider.as_deref(), Some("anthropic"));
+        assert_eq!(
+            instance.models.as_deref(),
+            Some(["claude-sonnet-4-5".to_string()].as_slice()),
+            "singular model: alias should produce models vec"
+        );
+        assert_eq!(
+            instance.providers.as_deref(),
+            Some(["anthropic".to_string()].as_slice()),
+            "singular provider: alias should produce providers vec"
+        );
         assert_eq!(instance.reasoning_effort.as_deref(), Some("high"));
         // Agent with body should have content
         assert!(instance.content.is_some());
+    }
+
+    #[tokio::test]
+    async fn load_agent_with_plural_models_and_providers() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let agent_dir = tmp.path().join("multi-model");
+        std::fs::create_dir_all(&agent_dir).expect("create dir");
+        let content = "---\nname: multi-model\ndescription: Agent with multiple models\nmodels:\n  - sonnet\n  - gpt\nproviders:\n  - anthropic\n  - openai\nmodelSize: medium\n---\n\nMulti-model agent.\n";
+        std::fs::write(agent_dir.join("AGENT.md"), content).expect("write");
+
+        let instance = load_agent(&agent_dir.join("AGENT.md")).await.expect("load");
+
+        assert_eq!(
+            instance.models.as_deref(),
+            Some(["sonnet".to_string(), "gpt".to_string()].as_slice()),
+            "plural models: should deserialize correctly"
+        );
+        assert_eq!(
+            instance.providers.as_deref(),
+            Some(["anthropic".to_string(), "openai".to_string()].as_slice()),
+            "plural providers: should deserialize correctly"
+        );
+        assert_eq!(
+            instance.model_size.as_deref(),
+            Some("medium"),
+            "modelSize should deserialize to model_size"
+        );
     }
 
     #[tokio::test]
@@ -580,5 +639,62 @@ mod tests {
         assert_eq!(instance.name, "config-only");
         // Config-only agent should have None content, not Some(vec![])
         assert!(instance.content.is_none());
+    }
+
+    // --- AgentInstance serialization tests (Slice 2, AC2) ---
+
+    #[tokio::test]
+    async fn agent_instance_serializes_plural_field_names() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let agent_dir = tmp.path().join("ser-test");
+        std::fs::create_dir_all(&agent_dir).expect("create dir");
+        let content = "---\nname: ser-test\ndescription: Serialization test\nmodels:\n  - sonnet\n  - gpt\nproviders:\n  - anthropic\n  - openai\nmodelSize: large\n---\n\nInstructions.\n";
+        std::fs::write(agent_dir.join("AGENT.md"), content).expect("write");
+
+        let instance = load_agent(&agent_dir.join("AGENT.md")).await.expect("load");
+        let json = serde_json::to_string(&instance).expect("serialize");
+
+        let value: serde_json::Value = serde_json::from_str(&json).expect("parse JSON");
+        let obj = value.as_object().expect("should be object");
+
+        assert!(
+            obj.contains_key("models"),
+            "serialized JSON should contain 'models' field, got: {json}"
+        );
+        assert!(
+            obj.contains_key("providers"),
+            "serialized JSON should contain 'providers' field, got: {json}"
+        );
+        assert!(
+            obj.contains_key("modelSize"),
+            "serialized JSON should contain 'modelSize' field, got: {json}"
+        );
+        // Should NOT contain old singular field names
+        assert!(
+            !obj.contains_key("model"),
+            "serialized JSON should not contain old singular 'model' key, got: {json}"
+        );
+        assert!(
+            !obj.contains_key("provider"),
+            "serialized JSON should not contain old singular 'provider' key, got: {json}"
+        );
+    }
+
+    // --- detect_cli_agents tests (Slice 2, AC3) ---
+
+    #[test]
+    fn detect_cli_agents_uses_plural_providers() {
+        let agents = detect_cli_agents();
+        for agent in &agents {
+            // CLI agents should have providers set (not the old singular provider)
+            assert!(
+                agent.providers.is_some(),
+                "CLI agent '{}' should have providers field set",
+                agent.name
+            );
+            // The old singular field should be gone
+            // (this is a compile-time check — if .provider existed, this test
+            // wouldn't compile)
+        }
     }
 }
